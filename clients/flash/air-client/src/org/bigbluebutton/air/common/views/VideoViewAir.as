@@ -112,6 +112,8 @@ package org.bigbluebutton.air.common.views {
 					video.x = screenWidth / 2 + video.width / 2;
 					video.y = (screenHeight / 2) + (video.height / 2) + topMenuBarHeight
 					break;
+				default:
+					break;
 			}
 			video.rotation = rotation;
 			this.stage.addChild(video);

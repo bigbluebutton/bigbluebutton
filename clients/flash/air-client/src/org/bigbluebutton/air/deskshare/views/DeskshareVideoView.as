@@ -129,6 +129,8 @@ package org.bigbluebutton.air.deskshare.views {
 							_mouse.x = video.x - originalX / reducedScreenPercentage;
 						}
 						break;
+					default:
+						break;
 				}
 				_mouse.rotation = video.rotation;
 			}

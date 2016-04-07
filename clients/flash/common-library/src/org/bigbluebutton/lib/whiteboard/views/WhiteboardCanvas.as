@@ -23,6 +23,7 @@ package org.bigbluebutton.lib.whiteboard.views {
 			this.height = height;
 			
 			if (_resizeCallback != null)
+				// FIXME: component lifecyle must respected to avoid using callLater method
 				callLater(_resizeCallback, [zoom]);
 		}
 		

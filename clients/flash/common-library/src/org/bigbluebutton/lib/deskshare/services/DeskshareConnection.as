@@ -29,8 +29,6 @@ package org.bigbluebutton.lib.deskshare.services {
 		
 		private var _isStreaming:Boolean;
 		
-		private var _streamCheckedOnStartup:Boolean;
-		
 		private var _streamWidth:Number;
 		
 		private var _streamHeight:Number;

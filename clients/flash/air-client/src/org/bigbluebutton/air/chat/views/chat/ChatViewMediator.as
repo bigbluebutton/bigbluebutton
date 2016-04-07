@@ -65,7 +65,6 @@ package org.bigbluebutton.air.chat.views.chat {
 				}
 				openChat(data);
 			}
-			var userLocked:Boolean = (!userSession.userList.me.presenter && userSession.userList.me.locked && userSession.userList.me.role != User.MODERATOR);
 			if (_publicChat) {
 				disableChat(userSession.lockSettings.disablePublicChat && !userMe.presenter && userMe.locked);
 				userSession.lockSettings.disablePublicChatSignal.add(disableChat);

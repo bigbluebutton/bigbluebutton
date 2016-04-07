@@ -27,8 +27,6 @@ package org.bigbluebutton.lib.main.services {
 		
 		private var _tried_tunneling:Boolean = false;
 		
-		private var _logoutOnUserCommand:Boolean = false;
-		
 		private var _userId:String;
 		
 		public function BigBlueButtonConnection() {

@@ -170,7 +170,6 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 		}
 		
 		private function userRemovedHandler(userID:String):void {
-			var displayedUser:User = getDisplayedUser();
 			removeUserFromDataProvider(userID);
 		}
 		
