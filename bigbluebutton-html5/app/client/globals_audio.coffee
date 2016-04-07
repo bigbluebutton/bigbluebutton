@@ -40,7 +40,7 @@
 	else
 		extension = Meteor.Meetings.findOne().voiceConf;
 
-	conferenceUsername = "FreeSWITCH User"
+	conferenceUsername = "FreeSWITCH User - " + encodeURIComponent(Meteor.Users.findOne({userId: getInSession("userId")}).user.name)
 	conferenceIdNumber = "1009";
 	if !isWebRTCAvailable()
 		notification_WebRTCNotSupported()
