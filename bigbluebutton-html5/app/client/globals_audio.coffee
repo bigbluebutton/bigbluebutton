@@ -34,9 +34,14 @@
 
 # join the conference. If listen only send the request to the server
 @joinVoiceCall = (event, options) ->
-	extension = Meteor.Meetings.findOne().voiceConf;
+	extension = null;
+	if options.extension?
+		extension = options.extension;
+	else
+		extension = Meteor.Meetings.findOne().voiceConf;
+
 	conferenceUsername = "FreeSWITCH User"
-	conferenceIdNumber = "1008";
+	conferenceIdNumber = "1009";
 	if !isWebRTCAvailable()
 		notification_WebRTCNotSupported()
 		return
@@ -46,9 +51,9 @@
 			toggleWhiteboardVideo("video")
 
 		vertoServerCredentials = {
-			vertoPort: "8082",
+			vertoPort: Meteor.config.vertoPort,
 			hostName: Meteor.config.vertoServerAddress,
-			login: "1008",
+			login: conferenceIdNumber,
 			password: Meteor.config.freeswitchProfilePassword,
 		}
 
