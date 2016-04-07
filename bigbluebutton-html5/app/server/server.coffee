@@ -496,10 +496,12 @@ Meteor.startup ->
       else if eventName is "desk_share_notify_viewers_rtmp" or
        (eventName is "desk_share_notify_a_single_viewer" and
        message.payload.requester_id is 'nodeJSapp')
+        vb = Meteor.Meetings.find({meetingId: meetingId}).voiceConf;
         thisMeetingId = meetingId
         deskShareInfo =
           vw: message.payload.vw
           vh: message.payload.vh
+          voice_bridge: vb # message.payload.voice_bridge
           broadcasting: message.payload.broadcasting
         handleDeskShareChange(thisMeetingId, deskShareInfo)
         callback()
