@@ -19,9 +19,9 @@ package org.bigbluebutton.lib.deskshare.services {
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
 		
-		private var _successConnected:ISignal = new Signal();
+		private var _connectionSuccess:ISignal = new Signal();
 		
-		private var _unsuccessConnected:ISignal = new Signal();
+		private var _connectionFailure:ISignal = new Signal();
 		
 		private var _isStreamingSignal:ISignal = new Signal();
 		
@@ -48,7 +48,7 @@ package org.bigbluebutton.lib.deskshare.services {
 		public function init():void {
 			baseConnection.init(this);
 			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
-			baseConnection.connectionFailureSignal.add(onConnectionUnsuccess);
+			baseConnection.connectionFailureSignal.add(onConnectionFailure);
 		}
 		
 		public function onConnectionSuccess():void {
@@ -56,7 +56,7 @@ package org.bigbluebutton.lib.deskshare.services {
 			_deskSO.client = this;
 			_deskSO.connect(baseConnection.connection);
 			checkIfStreamIsPublishing();
-			_successConnected.dispatch();
+			_connectionSuccess.dispatch();
 		}
 		
 		private function checkIfStreamIsPublishing():void {
@@ -77,8 +77,8 @@ package org.bigbluebutton.lib.deskshare.services {
 			}), _room);
 		}
 		
-		public function onConnectionUnsuccess(reason:String):void {
-			_unsuccessConnected.dispatch(reason);
+		public function onConnectionFailure(reason:String):void {
+			_connectionFailure.dispatch(reason);
 		}
 		
 		public function get applicationURI():String {
@@ -142,12 +142,12 @@ package org.bigbluebutton.lib.deskshare.services {
 			return _mouseLocationChangedSignal;
 		}
 		
-		public function get unsuccessConnected():ISignal {
-			return _unsuccessConnected;
+		public function get connectionFailureSignal():ISignal {
+			return _connectionFailure;
 		}
 		
-		public function get successConnected():ISignal {
-			return _successConnected;
+		public function get connectionSuccessSignal():ISignal {
+			return _connectionSuccess;
 		}
 		
 		public function appletStarted(videoWidth:Number, videoHeight:Number):void {

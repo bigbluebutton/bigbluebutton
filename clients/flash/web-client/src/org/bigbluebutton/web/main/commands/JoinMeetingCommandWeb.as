@@ -58,7 +58,7 @@ package org.bigbluebutton.web.main.commands {
 		}
 		
 		protected function loginFailure(reason:String):void {
-			trace(LOG + "unsuccessJoined()");
+			trace(LOG + "loginFailure()");
 			connectingFailedSignal.dispatch(reason);
 		}
 	}

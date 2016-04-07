@@ -23,7 +23,7 @@ package org.bigbluebutton.lib.main.services {
 			var configUrl:String = serverUrl + "/bigbluebutton/api/configXML?a=" + new Date().time;
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
-			fetcher.failureSignal.add(onUnsuccess);
+			fetcher.failureSignal.add(onFailure);
 			fetcher.fetch(configUrl, urlRequest);
 		}
 		
@@ -31,7 +31,7 @@ package org.bigbluebutton.lib.main.services {
 			successSignal.dispatch(new XML(data));
 		}
 		
-		protected function onUnsuccess(reason:String):void {
+		protected function onFailure(reason:String):void {
 			failureSignal.dispatch(reason);
 		}
 	}

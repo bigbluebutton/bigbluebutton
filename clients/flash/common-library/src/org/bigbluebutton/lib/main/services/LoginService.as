@@ -87,7 +87,7 @@ package org.bigbluebutton.lib.main.services {
 			getConfigSuccessSignal.dispatch(_config);
 			var profilesService:ProfilesService = new ProfilesService();
 			profilesService.successSignal.add(onProfilesResponse);
-			profilesService.unsuccessSignal.add(failedLoadingProfiles);
+			profilesService.failureSignal.add(failedLoadingProfiles);
 			profilesService.getProfiles(getServerUrl(_config.application.host), _urlRequest);
 		}
 		

@@ -136,7 +136,6 @@ package org.bigbluebutton.lib.common.services {
 		}
 		
 		protected function sendConnectionFailedSignal(reason:String):void {
-			//unsuccessConnected.dispatch(reason);
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_CONNECTION_DROPPED);
 		}
 		

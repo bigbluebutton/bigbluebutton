@@ -2,8 +2,6 @@ package org.bigbluebutton.air.main.commands {
 	
 	import flash.net.URLRequest;
 	
-	import mx.utils.ObjectUtil;
-	
 	import org.bigbluebutton.air.main.services.JoinService;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
@@ -66,7 +64,7 @@ package org.bigbluebutton.air.main.commands {
 		}
 		
 		protected function joinFailure(reason:String):void {
-			trace(LOG + "unsuccessJoined()");
+			trace(LOG + "joinFailure()");
 			connectingFailedSignal.dispatch(reason);
 		}
 	}

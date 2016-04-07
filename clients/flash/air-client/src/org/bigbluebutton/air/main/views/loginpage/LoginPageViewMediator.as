@@ -39,7 +39,7 @@ package org.bigbluebutton.air.main.views.loginpage {
 		}
 		
 		private function onFailure(reason:String):void {
-			trace(LOG + "onUnsuccess() " + reason);
+			trace(LOG + "onFailure() " + reason);
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = false;
 			switch (reason) {
@@ -99,7 +99,6 @@ package org.bigbluebutton.air.main.views.loginpage {
 		
 		override public function destroy():void {
 			super.destroy();
-			//loginService.unsuccessJoinedSignal.remove(onFailure);
 			view.tryAgainButton.removeEventListener(MouseEvent.CLICK, tryAgain);
 			userUISession.joinFailureSignal.remove(onFailure);
 			view.dispose();

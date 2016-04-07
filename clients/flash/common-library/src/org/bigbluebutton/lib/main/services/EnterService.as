@@ -22,7 +22,7 @@ package org.bigbluebutton.lib.main.services {
 		public function enter(enterUrl:String, urlRequest:URLRequest):void {
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
-			fetcher.failureSignal.add(onUnsuccess);
+			fetcher.failureSignal.add(onFailure);
 			fetcher.fetch(enterUrl, urlRequest);
 		}
 		
@@ -31,7 +31,7 @@ package org.bigbluebutton.lib.main.services {
 			successSignal.dispatch(result.response);
 		}
 		
-		protected function onUnsuccess(reason:String):void {
+		protected function onFailure(reason:String):void {
 			failureSignal.dispatch(reason);
 		}
 	}

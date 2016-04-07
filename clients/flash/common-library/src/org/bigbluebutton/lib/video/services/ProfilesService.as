@@ -8,21 +8,21 @@ package org.bigbluebutton.lib.video.services {
 	public class ProfilesService {
 		protected var _successSignal:Signal = new Signal();
 		
-		protected var _unsuccessSignal:Signal = new Signal();
+		protected var _failureSignal:Signal = new Signal();
 		
 		public function get successSignal():ISignal {
 			return _successSignal;
 		}
 		
-		public function get unsuccessSignal():ISignal {
-			return _unsuccessSignal;
+		public function get failureSignal():ISignal {
+			return _failureSignal;
 		}
 		
 		public function getProfiles(serverUrl:String, urlRequest:URLRequest):void {
 			var ProfileUrl:String = serverUrl + "/client/conf/profiles.xml?a=" + new Date().time;
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
-			fetcher.failureSignal.add(onUnsuccess);
+			fetcher.failureSignal.add(onFailure);
 			fetcher.fetch(ProfileUrl, urlRequest);
 		}
 		
@@ -30,12 +30,12 @@ package org.bigbluebutton.lib.video.services {
 			try {
 				successSignal.dispatch(new XML(data));
 			} catch (e:Error) {
-				onUnsuccess("invalidXml");
+				onFailure("invalidXml");
 			}
 		}
 		
-		protected function onUnsuccess(reason:String):void {
-			unsuccessSignal.dispatch(reason);
+		protected function onFailure(reason:String):void {
+			failureSignal.dispatch(reason);
 		}
 	}
 }

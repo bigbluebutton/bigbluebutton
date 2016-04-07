@@ -82,8 +82,8 @@ package org.bigbluebutton.lib.main.commands {
 		override public function execute():void {
 			loadConfigOptions();
 			connection.uri = uri;
-			connection.connectionSuccessSignal.add(successConnected);
-			connection.connectionFailureSignal.add(unsuccessConnected);
+			connection.connectionSuccessSignal.add(connectionSuccess);
+			connection.connectionFailureSignal.add(connectionFailure);
 			connection.connect(conferenceParameters);
 		}
 		
@@ -95,7 +95,7 @@ package org.bigbluebutton.lib.main.commands {
 		
 		
 		
-		private function successConnected():void {
+		private function connectionSuccess():void {
 			trace(LOG + "successConnected()");
 			userSession.mainConnection = connection;
 			chatService.setupMessageSenderReceiver();
@@ -104,13 +104,11 @@ package org.bigbluebutton.lib.main.commands {
 			// Set up users message sender in order to send the "joinMeeting" message:
 			usersService.setupMessageSenderReceiver();
 			//send the join meeting message, then wait for the response
-			//userSession.successJoiningMeetingSignal.add(successJoiningMeeting);
-			//userSession.unsuccessJoiningMeetingSignal.add(unsuccessJoiningMeeting);
 			userSession.authTokenSignal.add(onAuthTokenReply);
 			userSession.loadedMessageHistorySignal.add(chatService.sendWelcomeMessage);
 			usersService.validateToken();
-			connection.connectionSuccessSignal.remove(successConnected);
-			connection.connectionFailureSignal.remove(unsuccessConnected);
+			connection.connectionSuccessSignal.remove(connectionSuccess);
+			connection.connectionFailureSignal.remove(connectionFailure);
 		}
 		
 		private function onAuthTokenReply(tokenValid:Boolean):void {
@@ -120,7 +118,7 @@ package org.bigbluebutton.lib.main.commands {
 					userSession.guestPolicySignal.add(onGuestPolicyResponse);
 					usersService.getGuestPolicy();
 				} else {
-					successJoiningMeeting();
+					joiningMeetingSuccess();
 				}
 			} else {
 				// TODO disconnect
@@ -147,22 +145,22 @@ package org.bigbluebutton.lib.main.commands {
 		}
 		
 		private function onGuestAllowed():void {
-			successJoiningMeeting();
+			joiningMeetingSuccess();
 		}
 		
 		private function onGuestDenied():void {
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MODERATOR_DENIED);
 		}
 		
-		private function successJoiningMeeting():void {
+		private function joiningMeetingSuccess():void {
 			updateRooms();
 			// Set up remaining message sender and receivers:
 			presentationService.setupMessageSenderReceiver();
 			// set up and connect the remaining connections
 			videoConnection.uri = userSession.config.getConfigFor("VideoConfModule").@uri + "/" + conferenceParameters.room;
 			//TODO see if videoConnection.successConnected is dispatched when it's connected properly
-			videoConnection.connectionSuccessSignal.add(successVideoConnected);
-			videoConnection.connectionFailureSignal.add(unsuccessVideoConnected);
+			videoConnection.connectionSuccessSignal.add(videoConnectedSuccess);
+			videoConnection.connectionFailureSignal.add(videoConnectionFailure);
 			videoConnection.connect();
 			userSession.videoConnection = videoConnection;
 			voiceConnection.uri = userSession.config.getConfigFor("PhoneModule").@uri;
@@ -190,8 +188,8 @@ package org.bigbluebutton.lib.main.commands {
 			userSession.userList.allUsersAddedSignal.add(successUsersAdded);
 			usersService.queryForParticipants();
 			usersService.queryForRecordingStatus();
-			userSession.successJoiningMeetingSignal.remove(successJoiningMeeting);
-			userSession.failureJoiningMeetingSignal.remove(unsuccessJoiningMeeting);
+			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
+			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
 			//usersService.getRoomLockState();
 		}
 		
@@ -223,10 +221,10 @@ package org.bigbluebutton.lib.main.commands {
 			}
 		}
 		
-		private function unsuccessJoiningMeeting():void {
-			trace(LOG + "unsuccessJoiningMeeting() -- Failed to join the meeting!!!");
-			userSession.successJoiningMeetingSignal.remove(successJoiningMeeting);
-			userSession.failureJoiningMeetingSignal.remove(unsuccessJoiningMeeting);
+		private function joiningMeetingFailure():void {
+			trace(LOG + "joiningMeetingFailure() -- Failed to join the meeting!!!");
+			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
+			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
 		}
 		
 		protected function successUsersAdded():void {
@@ -234,26 +232,26 @@ package org.bigbluebutton.lib.main.commands {
 			connectingFinishedSignal.dispatch();
 		}
 		
-		private function unsuccessConnected(reason:String):void {
-			trace(LOG + "unsuccessConnected()");
+		private function connectionFailure(reason:String):void {
+			trace(LOG + "connectionFailure()");
 			connectingFailedSignal.dispatch("connectionFailed");
-			connection.connectionSuccessSignal.remove(successConnected);
-			connection.connectionFailureSignal.remove(unsuccessConnected);
+			connection.connectionSuccessSignal.remove(connectionSuccess);
+			connection.connectionFailureSignal.remove(connectionFailure);
 		}
 		
-		private function successVideoConnected():void {
+		private function videoConnectedSuccess():void {
 			trace(LOG + "successVideoConnected()");
 			if (userSession.videoAutoStart && userSession.skipCamSettingsCheck) {
 				shareCameraSignal.dispatch(!userSession.userList.me.hasStream, userSession.videoConnection.cameraPosition);
 			}
-			videoConnection.connectionSuccessSignal.remove(successVideoConnected);
-			videoConnection.connectionFailureSignal.remove(unsuccessVideoConnected);
+			videoConnection.connectionSuccessSignal.remove(videoConnectedSuccess);
+			videoConnection.connectionFailureSignal.remove(videoConnectionFailure);
 		}
 		
-		private function unsuccessVideoConnected(reason:String):void {
-			trace(LOG + "unsuccessVideoConnected()");
-			videoConnection.connectionFailureSignal.remove(unsuccessVideoConnected);
-			videoConnection.connectionSuccessSignal.remove(successVideoConnected);
+		private function videoConnectionFailure(reason:String):void {
+			trace(LOG + "videoConnectionFailure()");
+			videoConnection.connectionFailureSignal.remove(videoConnectionFailure);
+			videoConnection.connectionSuccessSignal.remove(videoConnectedSuccess);
 		}
 	}
 }
