@@ -134,10 +134,11 @@ Template.webcamModal.events
 
 # if remote deskshare has been started connect and display the video stream
 @presenterDeskshareHasStarted = ->
-	voiceBridge = extension = Meteor.Meetings.findOne().voiceConf
+	voiceBridge = extension = Meteor.Deskshare.findOne().deskshare.voice_bridge
 	toggleWhiteboardVideo("video")
 	joinVoiceCall @, {
 		watchOnly: true
+		extension: extension
 	}
 
 # instead of a redis message notify the server to simulate a desksharing
