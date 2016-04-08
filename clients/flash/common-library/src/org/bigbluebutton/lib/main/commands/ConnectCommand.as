@@ -8,9 +8,7 @@ package org.bigbluebutton.lib.main.commands {
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.models.Room;
-	import org.bigbluebutton.lib.main.models.UserSession;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
-	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
@@ -62,9 +60,6 @@ package org.bigbluebutton.lib.main.commands {
 		public var connectingFinishedSignal:ConnectingFinishedSignal;
 		
 		[Inject]
-		public var guestWaitingForApprovalSignal:GuestWaitingForApprovalSignal;
-		
-		[Inject]
 		public var connectingFailedSignal:ConnectingFailedSignal;
 		
 		[Inject]
@@ -114,42 +109,10 @@ package org.bigbluebutton.lib.main.commands {
 		private function onAuthTokenReply(tokenValid:Boolean):void {
 			userSession.authTokenSignal.remove(onAuthTokenReply);
 			if (tokenValid) {
-				if (conferenceParameters.isGuestDefined() && conferenceParameters.guest) {
-					userSession.guestPolicySignal.add(onGuestPolicyResponse);
-					usersService.getGuestPolicy();
-				} else {
-					joiningMeetingSuccess();
-				}
+				joiningMeetingSuccess();
 			} else {
 				// TODO disconnect
 			}
-		}
-		
-		private function onGuestPolicyResponse(policy:String):void {
-			if (policy == UserSession.GUEST_POLICY_ALWAYS_ACCEPT) {
-				onGuestAllowed();
-			} else if (policy == UserSession.GUEST_POLICY_ALWAYS_DENY) {
-				onGuestDenied();
-			} else if (policy == UserSession.GUEST_POLICY_ASK_MODERATOR) {
-				guestWaitingForApprovalSignal.dispatch();
-				userSession.guestEntranceSignal.add(onGuestEntranceResponse);
-			}
-		}
-		
-		private function onGuestEntranceResponse(allowed:Boolean):void {
-			if (allowed) {
-				onGuestAllowed();
-			} else {
-				onGuestDenied();
-			}
-		}
-		
-		private function onGuestAllowed():void {
-			joiningMeetingSuccess();
-		}
-		
-		private function onGuestDenied():void {
-			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MODERATOR_DENIED);
 		}
 		
 		private function joiningMeetingSuccess():void {

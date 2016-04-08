@@ -15,12 +15,6 @@ package org.bigbluebutton.lib.main.models {
 	import org.osflash.signals.Signal;
 	
 	public class UserSession implements IUserSession {
-		public static const GUEST_POLICY_ASK_MODERATOR:String = "ASK_MODERATOR";
-		
-		public static const GUEST_POLICY_ALWAYS_DENY:String = "ALWAYS_DENY";
-		
-		public static const GUEST_POLICY_ALWAYS_ACCEPT:String = "ALWAYS_ACCEPT";
-		
 		protected var _config:Config;
 		
 		protected var _userId:String;
@@ -36,8 +30,6 @@ package org.bigbluebutton.lib.main.models {
 		protected var _deskshareConnection:IDeskshareConnection;
 		
 		protected var _userList:UserList;
-		
-		protected var _guestList:UserList;
 		
 		protected var _presentationList:PresentationList;
 		
@@ -59,11 +51,7 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _pushToTalk:Boolean;
 		
-		protected var _guestPolicySignal:ISignal = new Signal();
-		
 		protected var _loadedMessageHistorySignal:ISignal = new Signal();
-		
-		protected var _guestEntranceSignal:ISignal = new Signal();
 		
 		protected var _successJoiningMeetingSignal:ISignal = new Signal();
 		
@@ -107,14 +95,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function set userList(userList:UserList):void {
 			_userList = userList;
-		}
-		
-		public function set guestList(userList:UserList):void {
-			_guestList = userList;
-		}
-		
-		public function get guestList():UserList {
-			return _guestList;
 		}
 		
 		public function get lockSettings():LockSettings {
@@ -214,7 +194,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function UserSession() {
 			_userList = new UserList();
-			_guestList = new UserList();
 			_presentationList = new PresentationList();
 			_lockSettings = new LockSettings();
 			userList.userChangeSignal.add(userChangedHandler);
@@ -224,16 +203,8 @@ package org.bigbluebutton.lib.main.models {
 			return _presentationList
 		}
 		
-		public function get guestEntranceSignal():ISignal {
-			return _guestEntranceSignal;
-		}
-		
 		public function get loadedMessageHistorySignal():ISignal {
 			return _loadedMessageHistorySignal;
-		}
-		
-		public function get guestPolicySignal():ISignal {
-			return _guestPolicySignal;
 		}
 		
 		public function get successJoiningMeetingSignal():ISignal {

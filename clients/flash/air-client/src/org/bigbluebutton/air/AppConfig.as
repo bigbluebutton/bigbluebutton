@@ -3,7 +3,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.air.main.commands.AuthenticationCommandAIR;
 	import org.bigbluebutton.air.main.commands.ConnectingFinishedCommandAIR;
 	import org.bigbluebutton.air.main.commands.DisconnectUserCommandAIR;
-	import org.bigbluebutton.air.main.commands.GuestWaitingForApprovalCommandAIR;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.main.models.UserUISession;
 	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
@@ -24,7 +23,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
-	import org.bigbluebutton.lib.main.commands.GuestWaitingForApprovalSignal;
 	import org.bigbluebutton.lib.main.commands.LockUserCommand;
 	import org.bigbluebutton.lib.main.commands.LockUserSignal;
 	import org.bigbluebutton.lib.main.commands.PresenterCommand;
@@ -94,7 +92,6 @@ package org.bigbluebutton.air {
 			signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
 			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
-			signalCommandMap.map(GuestWaitingForApprovalSignal).toCommand(GuestWaitingForApprovalCommandAIR);
 			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
 			signalCommandMap.map(ChangeRoleSignal).toCommand(ChangeRoleCommand);
 			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);

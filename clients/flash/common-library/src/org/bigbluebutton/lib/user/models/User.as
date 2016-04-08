@@ -190,25 +190,5 @@ package org.bigbluebutton.lib.user.models {
 		public function set listenOnly(value:Boolean):void {
 			_listenOnly = value;
 		}
-		
-		private var _guest:Boolean;
-		
-		public function get guest():Boolean {
-			return _guest;
-		}
-		
-		public function set guest(value:Boolean):void {
-			_guest = value;
-		}
-		
-		private var _waitingForAcceptance:Boolean;
-		
-		public function get waitingForAcceptance():Boolean {
-			return _waitingForAcceptance;
-		}
-		
-		public function set waitingForAcceptance(value:Boolean):void {
-			_waitingForAcceptance = value;
-		}
 	}
 }

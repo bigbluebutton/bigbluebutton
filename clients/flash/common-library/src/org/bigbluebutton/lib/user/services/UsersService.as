@@ -149,18 +149,6 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.sendJoinMeetingMessage(conferenceParameters.internalUserID);
 		}
 		
-		public function getGuestPolicy():void {
-			usersMessageSender.getGuestPolicy();
-		}
-		
-		public function responseToGuest(userId:String, response:Boolean):void {
-			usersMessageSender.responseToGuest(userId, response);
-		}
-		
-		public function responseToAllGuests(response:Boolean):void {
-			usersMessageSender.responseToAllGuests(response);
-		}
-		
 		public function validateToken():void {
 			usersMessageSender.validateToken(conferenceParameters.internalUserID, conferenceParameters.authToken);
 		}

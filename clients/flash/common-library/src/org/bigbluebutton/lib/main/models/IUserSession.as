@@ -26,8 +26,6 @@ package org.bigbluebutton.lib.main.models {
 		function set userList(userList:UserList):void;
 		function get phoneOptions():PhoneOptions;
 		function set phoneOptions(value:PhoneOptions):void;
-		function get guestList():UserList;
-		function set guestList(userList:UserList):void;
 		function get voiceConnection():IVoiceConnection;
 		function set voiceConnection(value:IVoiceConnection):void;
 		function get mainConnection():IBigBlueButtonConnection;
@@ -39,8 +37,6 @@ package org.bigbluebutton.lib.main.models {
 		function get deskshareConnection():IDeskshareConnection;
 		function set deskshareConnection(value:IDeskshareConnection):void;
 		function get presentationList():PresentationList;
-		function get guestPolicySignal():ISignal;
-		function get guestEntranceSignal():ISignal;
 		function get successJoiningMeetingSignal():ISignal;
 		function get failureJoiningMeetingSignal():ISignal;
 		function get loadedMessageHistorySignal():ISignal;

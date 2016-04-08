@@ -20,7 +20,6 @@ package org.bigbluebutton.air.main.commands {
 		public var conferenceParameters:IConferenceParameters;
 		
 		override public function execute():void {
-			// remove guest page (if it is there)
 			userUISession.popPage();
 			if (FlexGlobals.topLevelApplication.hasOwnProperty("topActionBar") && FlexGlobals.topLevelApplication.hasOwnProperty("bottomMenu")) {
 				FlexGlobals.topLevelApplication.topActionBar.visible = true;

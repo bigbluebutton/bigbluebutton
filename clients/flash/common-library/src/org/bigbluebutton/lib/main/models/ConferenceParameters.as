@@ -79,10 +79,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		private var _record:Boolean;
 		
-		private var _guest:Boolean;
-		
-		private var _guestDefined:Boolean;
-		
 		private var _authToken:String;
 		
 		private var _metadata:Object;
@@ -262,19 +258,6 @@ package org.bigbluebutton.lib.main.models {
 			metadata = metadata;
 		}
 		
-		public function get guest():Boolean {
-			return _guest;
-		}
-		
-		public function set guest(value:Boolean):void {
-			_guest = value;
-			_changedSignal.dispatch();
-		}
-		
-		public function isGuestDefined():Boolean {
-			return _guestDefined;
-		}
-		
 		public function load(obj:Object):void {
 			_meetingName = obj.conferenceName;
 			_externMeetingID = obj.externMeetingID;
@@ -290,9 +273,7 @@ package org.bigbluebutton.lib.main.models {
 			_internalUserID = obj.internalUserId;
 			_logoutUrl = obj.logoutUrl;
 			_record = !(obj.record == "false");
-			_guest = (obj.guest == "true");
 			_avatarUrl = obj.avatarURL;
-			_guestDefined = (obj.guest != undefined);
 			_authToken = obj.authToken;
 			_changedSignal.dispatch();
 			_metadata = new Object();

@@ -114,19 +114,6 @@ s|Button.sendButtonStyle
 	skinClass              : ClassReference("org.bigbluebutton.air.main.views.skins.SendMsgBtnSkin");
 }
 
-s|Button.guestResponseButtonStyle
-{
-	height                 : 50;
-	weight                 : 0.1;
-	radiusX                : 2;
-	radiusY                : 2;
-	backgroundColor        : #F4F4F4;
-	onClickBackgroundColor : #DBDBDB;
-	strokeColor            : #CCCCCC;
-	strokeWeight           : 0.2;
-	skinClass              : ClassReference("org.bigbluebutton.air.main.views.skins.GuestResponseBtnSkin");
-}
-
 s|SkinnableContainer.topToolBarStyle
 {
 	gradientColor : #2A2D33;

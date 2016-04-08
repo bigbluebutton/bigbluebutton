@@ -37,9 +37,6 @@ package org.bigbluebutton.lib.main.models {
 		function set userid(userid:String):void;
 		function get record():Boolean;
 		function set record(record:Boolean):void;
-		function get guest():Boolean;
-		function set guest(value:Boolean):void;
-		function isGuestDefined():Boolean;
 		function get authToken():String;
 		function set authToken(authToken:String):void;
 		function get metadata():Object;

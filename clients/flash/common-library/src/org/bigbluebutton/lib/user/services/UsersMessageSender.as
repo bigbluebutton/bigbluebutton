@@ -142,24 +142,6 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.sendMessage("joinMeeting", defaultSuccessResponse, defaultFailureResponse, internalUserID);
 		}
 		
-		public function getGuestPolicy():void {
-			trace("getGuestPolicy");
-			userSession.mainConnection.sendMessage("participants.getGuestPolicy", defaultSuccessResponse, defaultFailureResponse);
-		}
-		
-		public function responseToGuest(userId:String, response:Boolean):void {
-			trace("responseToGuest - guestID:[" + userId + "] response:[" + response + "]");
-			var message:Object = new Object();
-			message["userId"] = userId;
-			message["response"] = response;
-			userSession.mainConnection.sendMessage("participants.responseToGuest", defaultSuccessResponse, defaultFailureResponse, message);
-		}
-		
-		public function responseToAllGuests(response:Boolean):void {
-			trace("responseToAllGuests - response:[" + response + "]");
-			responseToGuest(null, response);
-		}
-		
 		public function changeRole(userID:String, role:String):void {
 			trace("UsersMessageSender::setParticipantRole() -- Sending [participants.setParticipantRole] message to server.. with message [userID:" + userID + ", role:" + role + "]");
 			var message:Object = new Object();

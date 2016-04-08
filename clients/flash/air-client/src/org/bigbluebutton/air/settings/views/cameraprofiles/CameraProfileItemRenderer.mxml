@@ -6,8 +6,6 @@
 
 	<fx:Script>
 		<![CDATA[
-			private var guestID:String;
-			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {

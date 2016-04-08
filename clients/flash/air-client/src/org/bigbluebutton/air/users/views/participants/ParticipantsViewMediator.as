@@ -1,6 +1,5 @@
 package org.bigbluebutton.air.users.views.participants {
 	
-	import flash.events.MouseEvent;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
@@ -12,7 +11,6 @@ package org.bigbluebutton.air.users.views.participants {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
-	import org.bigbluebutton.air.users.views.participants.guests.GuestResponseEvent;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -42,11 +40,7 @@ package org.bigbluebutton.air.users.views.participants {
 		
 		protected var dataProvider:ArrayCollection;
 		
-		protected var dataProviderGuests:ArrayCollection;
-		
 		protected var dicUserIdtoUser:Dictionary;
-		
-		protected var dicUserIdtoGuest:Dictionary
 		
 		private var _userMe:User;
 		
@@ -68,25 +62,7 @@ package org.bigbluebutton.air.users.views.participants {
 			userSession.userList.userAddedSignal.add(addUser);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			setPageTitle();
-			dataProviderGuests = new ArrayCollection();
-			view.guestsList.dataProvider = dataProviderGuests;
-			view.guestsList.addEventListener(GuestResponseEvent.GUEST_RESPONSE, onSelectGuest);
 			view.conversationsList.addEventListener(IndexChangeEvent.CHANGE, onSelectChat);
-			view.allowAllButton.addEventListener(MouseEvent.CLICK, allowAllGuests);
-			view.denyAllButton.addEventListener(MouseEvent.CLICK, denyAllGuests);
-			dicUserIdtoGuest = new Dictionary();
-			var guests:ArrayCollection = userSession.guestList.users;
-			for each (var guest:User in guests) {
-				addGuest(guest);
-			}
-			userSession.guestList.userAddedSignal.add(addGuest);
-			userSession.guestList.userRemovedSignal.add(guestRemoved);
-			if (_userMe.role == User.MODERATOR && dataProviderGuests.length > 0) {
-				view.guestsList.visible = true;
-				view.guestsList.includeInLayout = true;
-				view.allGuests.visible = true;
-				view.allGuests.includeInLayout = true;
-			}
 			userUISession.pushPage(PageEnum.PARTICIPANTS);
 			initializeDataProviderConversations();
 		}
@@ -177,18 +153,6 @@ package org.bigbluebutton.air.users.views.participants {
 			setPageTitle();
 		}
 		
-		private function addGuest(guest:Object):void {
-			dataProviderGuests.addItem(guest);
-			dataProviderGuests.refresh();
-			dicUserIdtoGuest[guest.userID] = guest;
-			if (_userMe.role == User.MODERATOR && dataProviderGuests.length > 0) {
-				view.guestsList.visible = true;
-				view.guestsList.includeInLayout = true;
-				view.allGuests.visible = true;
-				view.allGuests.includeInLayout = true;
-			}
-		}
-		
 		private function userRemoved(userID:String):void {
 			var user:User = dicUserIdtoUser[userID] as User;
 			var index:uint = dataProvider.getItemIndex(user);
@@ -197,34 +161,8 @@ package org.bigbluebutton.air.users.views.participants {
 			setPageTitle();
 		}
 		
-		private function guestRemoved(userID:String):void {
-			var guest:User = dicUserIdtoGuest[userID] as User;
-			if (guest) {
-				var index:uint = dataProviderGuests.getItemIndex(guest);
-				dataProviderGuests.removeItemAt(index);
-				dicUserIdtoGuest[guest.userID] = null;
-				if (_userMe.role == User.MODERATOR && dataProviderGuests.length == 0 && view && view.guestsList != null) {
-					view.guestsList.includeInLayout = false;
-					view.guestsList.visible = false;
-					view.allGuests.includeInLayout = false;
-					view.allGuests.visible = false;
-				}
-			}
-		}
-		
 		private function userChanged(user:User, property:String = null):void {
 			dataProvider.refresh();
-			if (_userMe.role == User.MODERATOR && dataProviderGuests.length > 0) {
-				view.guestsList.visible = true;
-				view.guestsList.includeInLayout = true;
-				view.allGuests.visible = true;
-				view.allGuests.includeInLayout = true;
-			} else {
-				view.guestsList.visible = false;
-				view.guestsList.includeInLayout = false;
-				view.allGuests.visible = false;
-				view.allGuests.includeInLayout = false;
-			}
 		}
 		
 		protected function onSelectParticipant(event:IndexChangeEvent):void {
@@ -232,18 +170,6 @@ package org.bigbluebutton.air.users.views.participants {
 				var user:User = dataProvider.getItemAt(event.newIndex) as User;
 				userUISession.pushPage(PageEnum.USER_DETAILS, user, TransitionAnimationEnum.SLIDE_LEFT);
 			}
-		}
-		
-		protected function onSelectGuest(event:GuestResponseEvent):void {
-			usersService.responseToGuest(event.guestID, event.allow);
-		}
-		
-		protected function allowAllGuests(event:MouseEvent):void {
-			usersService.responseToAllGuests(true);
-		}
-		
-		protected function denyAllGuests(event:MouseEvent):void {
-			usersService.responseToAllGuests(false);
 		}
 		
 		/**
@@ -257,10 +183,7 @@ package org.bigbluebutton.air.users.views.participants {
 		
 		override public function destroy():void {
 			view.list.removeEventListener(IndexChangeEvent.CHANGE, onSelectParticipant);
-			view.guestsList.removeEventListener(GuestResponseEvent.GUEST_RESPONSE, onSelectGuest);
 			view.conversationsList.removeEventListener(IndexChangeEvent.CHANGE, onSelectChat);
-			view.allowAllButton.removeEventListener(MouseEvent.CLICK, allowAllGuests);
-			view.denyAllButton.removeEventListener(MouseEvent.CLICK, denyAllGuests);
 			
 			for each (var chatObject:PrivateChatMessage in chatMessagesSession.privateChats) {
 				chatObject.privateChat.chatMessageChangeSignal.remove(populateList);
@@ -269,8 +192,6 @@ package org.bigbluebutton.air.users.views.participants {
 			userSession.userList.userChangeSignal.remove(userChanged);
 			userSession.userList.userAddedSignal.remove(addUser);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
-			userSession.guestList.userAddedSignal.remove(addGuest);
-			userSession.guestList.userRemovedSignal.remove(guestRemoved);
 			super.destroy();
 			view.dispose();
 			view = null;

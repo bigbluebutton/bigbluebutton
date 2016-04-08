@@ -74,13 +74,6 @@ package org.bigbluebutton.lib.user.services {
 				case "userEmojiStatus":
 					handleEmojiStatusHand(message);
 					break;
-				case "guest_access_denied":
-				case "response_to_guest":
-					handleGuestResponse(message);
-					break;
-				case "get_guest_policy_reply":
-					handleGuestPolicy(message);
-					break;
 				case "validateAuthTokenTimedOut":
 					handleValidateAuthTokenTimedOut(message);
 					break;
@@ -187,21 +180,6 @@ package org.bigbluebutton.lib.user.services {
 			userSession.userList.roleChange(msg.userID, msg.role);
 		}
 		
-		private function handleGuestPolicy(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("guestPolicy");
-			userSession.guestPolicySignal.dispatch(msg.guestPolicy);
-		}
-		
-		private function handleGuestResponse(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("GuestResponse: " + ObjectUtil.toString(msg));
-			userSession.guestList.removeUser(msg.userId);
-			if (msg.userId == userSession.userId) {
-				userSession.guestEntranceSignal.dispatch(msg.response);
-			}
-		}
-		
 		private function handleEmojiStatusHand(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("UsersMessageReceiver::handleEmojiStatusHand() -- user [" + msg.userId + "," + msg.emojiStatus + "] ");
@@ -244,8 +222,6 @@ package org.bigbluebutton.lib.user.services {
 			user.isLeavingFlag = false;
 			user.listenOnly = newUser.listenOnly;
 			user.muted = newUser.voiceUser.muted;
-			user.guest = newUser.guest;
-			user.waitingForAcceptance = newUser.waitingForAcceptance;
 			var status:String = newUser.status;
 			if (newUser.raiseHand) {
 				user.status = User.RAISE_HAND;
@@ -276,24 +252,13 @@ package org.bigbluebutton.lib.user.services {
 						break;
 				}
 			}
-			if (user.waitingForAcceptance) {
-				userSession.guestList.addUser(user);
-			} else {
-				userSession.guestList.removeUser(user.userID);
-				//if we are adding the userMe and he is already in the userList,we don't dispatch the guest signal
-				// because we have already been accepted and connected
-				if (!userSession.userList.getUser(user.userID) && user.userID == userSession.userId && user.guest) {
-					userSession.guestEntranceSignal.dispatch(true);
-				}
-				userSession.userList.addUser(user);
-			}
+			userSession.userList.addUser(user);
 		}
 		
 		private function handleParticipantLeft(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace(LOG + "handleParticipantLeft() -- user [" + msg.user.userId + "] has left the meeting");
 			userSession.userList.removeUser(msg.user.userId);
-			userSession.guestList.removeUser(msg.user.userId);
 		}
 		
 		private function handleAssignPresenterCallback(m:Object):void {

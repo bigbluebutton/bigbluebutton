@@ -8,8 +8,6 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.disconnectpage.IDisconnectPageView;
 	import org.bigbluebutton.air.main.views.exit.ExitPageViewMediator;
 	import org.bigbluebutton.air.main.views.exit.IExitPageView;
-	import org.bigbluebutton.air.main.views.guest.GuestPageViewMediator;
-	import org.bigbluebutton.air.main.views.guest.IGuestPageView;
 	import org.bigbluebutton.air.main.views.loginpage.ILoginPageView;
 	import org.bigbluebutton.air.main.views.loginpage.LoginPageViewMediator;
 	import org.bigbluebutton.air.main.views.menubuttons.IMenuButtonsView;
@@ -71,7 +69,6 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
 			mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
 			mediatorMap.map(ITopBarView).toMediator(TopBarViewMediator);
-			mediatorMap.map(IGuestPageView).toMediator(GuestPageViewMediator);
 		}
 		
 		/**

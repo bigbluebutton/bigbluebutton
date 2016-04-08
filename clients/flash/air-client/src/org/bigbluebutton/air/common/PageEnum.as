@@ -8,7 +8,6 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.deskshare.views.DeskshareView;
 	import org.bigbluebutton.air.main.views.disconnectpage.DisconnectPageView;
 	import org.bigbluebutton.air.main.views.exit.ExitPageView;
-	import org.bigbluebutton.air.main.views.guest.GuestPageView;
 	import org.bigbluebutton.air.main.views.loginpage.LoginPageView;
 	import org.bigbluebutton.air.main.views.profile.ProfileView;
 	import org.bigbluebutton.air.presentation.views.PresentationView;
@@ -41,8 +40,6 @@ package org.bigbluebutton.air.common {
 		public static const SELECT_PARTICIPANT:String = "selectparticipant";
 		
 		public static const DISCONNECT:String = "Disconnect";
-		
-		public static const GUEST:String = "Guest";
 		
 		public static const DESKSHARE:String = "Deskshare";
 		
@@ -77,7 +74,6 @@ package org.bigbluebutton.air.common {
 				dic[PARTICIPANTS] = ParticipantsView;
 				dic[SELECT_PARTICIPANT] = SelectParticipantView;
 				dic[DISCONNECT] = DisconnectPageView;
-				dic[GUEST] = GuestPageView;
 				dic[DESKSHARE] = DeskshareView;
 				dic[CAMERASETTINGS] = CameraSettingsView;
 				dic[AUDIOSETTINGS] = AudioSettingsView;
