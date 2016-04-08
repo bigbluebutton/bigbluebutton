@@ -205,7 +205,8 @@ package org.bigbluebutton.air.chat.views.chat {
 		}
 		
 		private function scrollUpdate(userId:String = null, publicChat:Boolean = true):void {
-			if ((user && userId == user.userID) || publicChat == _publicChat) {
+			if ((_publicChat && publicChat) || (!_publicChat && !publicChat && user && userId == user.userID))
+			{
 				if (isIndexVisible(view.list.dataProvider.length - 2)) {
 					view.list.ensureIndexIsVisible(view.list.dataProvider.length - 1);
 				}
@@ -214,7 +215,6 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		private function onSendButtonClick(e:MouseEvent):void {
 			view.inputMessage.enabled = false;
-			view.sendButton.enabled = false;
 			var currentDate:Date = new Date();
 			//TODO get info from the right source
 			var m:ChatMessageVO = new ChatMessageVO();
@@ -243,7 +243,6 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		private function onSendFailure(status:String):void {
 			view.inputMessage.enabled = true;
-			view.sendButton.enabled = true;
 		}
 		
 		override public function destroy():void {
