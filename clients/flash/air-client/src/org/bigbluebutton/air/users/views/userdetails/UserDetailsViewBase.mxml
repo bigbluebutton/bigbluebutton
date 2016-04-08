@@ -5,54 +5,41 @@
 				  xmlns:common="org.bigbluebutton.air.common.views.*"
 				  styleName="userDetailViewStyle">
 	<s:Scroller width="100%"
-				height="100%">
+				height="100%"
+				layoutDirection="">
 
 		<s:VGroup width="100%"
 				  height="100%"
 				  horizontalAlign="center">
 
-
-
-			<s:Group width="100%"
-					 height="40%">
-				<s:Rect width="100%"
-						height="100%">
-					<s:fill>
-						<s:SolidColor color="{getStyle('bgColor')}" />
-					</s:fill>
-				</s:Rect>
-				<s:Group width="100%"
-						 height="100%">
-					<s:layout>
-						<s:VerticalLayout verticalAlign="middle"
-										  horizontalAlign="center" />
-					</s:layout>
-					<s:Image id="userDetailIcon"
-							 styleName="iconStyle userDetailIconStyle" />
-					<s:Label id="userNameText"
-							 width="100%"
-							 textAlign="center"
-							 styleName="userDetailsNameStyle contentFontSize" />
-					<s:Label id="roleText"
-							 width="100%"
-							 textAlign="center"
-							 styleName="userDetailsStatusStyle subContentFontSize" />
-				</s:Group>
-			</s:Group>
-			<s:Group width="100%"
-					 height="30%">
+			<s:BorderContainer width="100%"
+							   height="40%"
+							   borderVisible="false"
+							   backgroundColor="{getStyle('bgColor')}">
 				<s:layout>
-					<s:VerticalLayout horizontalAlign="center"
-									  verticalAlign="middle" />
+					<s:VerticalLayout verticalAlign="middle"
+									  horizontalAlign="center" />
 				</s:layout>
+				<s:Image id="userDetailIcon"
+						 styleName="iconStyle userDetailIconStyle" />
+				<s:Label id="userNameText"
+						 width="100%"
+						 textAlign="center"
+						 styleName="userDetailsNameStyle contentFontSize" />
+				<s:Label id="roleText"
+						 width="100%"
+						 textAlign="center"
+						 styleName="userDetailsStatusStyle subContentFontSize" />
+			</s:BorderContainer>
+			<s:VGroup width="100%"
+					  height="30%"
+					  horizontalAlign="center"
+					  verticalAlign="middle">
 				<s:Label width="50%"
 						 textAlign="center"
 						 styleName="userDetailsStatusStyle contentFontSize"
 						 text="{resourceManager.getString('resources', 'userDetail.media')}" />
-				<s:Group>
-					<s:layout>
-						<s:HorizontalLayout horizontalAlign="center" />
-					</s:layout>
+				<s:HGroup horizontalAlign="center">
 					<s:Image id="cameraIcon"
 							 styleName="iconStyle cameraIconStyle" />
 					<s:Image id="micIcon"
@@ -67,13 +54,11 @@
 							 visible="false"
 							 includeInLayout="false"
 							 text="{resourceManager.getString('resources', 'userDetail.media.noMedia')}" />
-				</s:Group>
-			</s:Group>
-			<s:Group width="100%"
-					 height="30%">
-				<s:layout>
-					<s:VerticalLayout horizontalAlign="center" />
-				</s:layout>
+				</s:HGroup>
+			</s:VGroup>
+			<s:VGroup width="100%"
+					  height="30%"
+					  horizontalAlign="center">
 				<s:Button id="showCameraButton0"
 						  width="90%"
 						  label="{resourceManager.getString('resources', 'userDetail.cameraBtn.text')}"
@@ -111,7 +96,7 @@
 						  id="unlockButton0"
 						  label="{resourceManager.getString('resources', 'userDetail.unlockButton.text')}"
 						  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
-			</s:Group>
+			</s:VGroup>
 
 		</s:VGroup>
 	</s:Scroller>
