@@ -108,9 +108,16 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
       fc.addUser(msg.user)
       // test if we already sent a recording command to FS before sending another
       // we only set fc.isRecording to true when we receive a FsRecording message
-      if (fc.numUsersInVoiceConference > 0 && fc.recorded && ! fc.isRecording) {
-        logger.info("Meeting is recorded. Tell FreeSWITCH to start recording. mid[" + fc.meetingId + "]")
-        fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
+      fc.synchronized {
+        if (fc.numUsersInVoiceConference > 0 && fc.recorded) {
+          if (! fc.isRecording) {
+            fc.recordingStarted
+            logger.info("Meeting is recorded. Tell FreeSWITCH to start recording. mid[" + fc.meetingId + "]")
+            fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
+          } else {
+            logger.info("Meeting is recorded, but FreeSWITCH already knows that, doing nothing. mid[" + fc.meetingId + "]")
+          }
+        }
       }
     }
   }
@@ -124,9 +131,16 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
       fc.addUser(msg.user)
       logger.info("Web user has left voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       // test if we already sent a recording command to FS before sending another
-      if (fc.numUsersInVoiceConference == 0 && fc.recorded && fc.isRecording) {
-        logger.info("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording. mid[" + fc.meetingId + "]")
-        fsproxy.stopRecording(fc.conferenceNum)
+      fc.synchronized {
+        if (fc.numUsersInVoiceConference == 0 && fc.recorded){
+          if (fc.isRecording) {
+            fc.recordingStopped
+            logger.info("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording. mid[" + fc.meetingId + "]")
+            fsproxy.stopRecording(fc.conferenceNum)
+          } else {
+            logger.info("Meeting is recorded, and there are no more users in voice conference, but FreeSWITCH already knows that, doing nothing. mid[" + fc.meetingId + "]")
+          }
+        }
       }
     }
   }
@@ -183,12 +197,9 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     fsconf foreach {fc => 
       // Need to filter recording events here to not have duplicate events
-      if (! fc.isRecording && msg.recording) {
-        // 
-        fc.recordingStarted
+      if (msg.recording) {
         bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
-      } else if (fc.isRecording && ! msg.recording) {
-        fc.recordingStopped
+      } else if (! msg.recording) {
         bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
       }     
     }
