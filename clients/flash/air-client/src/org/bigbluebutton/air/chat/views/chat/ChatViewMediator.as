@@ -8,7 +8,6 @@ package org.bigbluebutton.air.chat.views.chat {
 	import mx.events.FlexEvent;
 	import mx.resources.ResourceManager;
 	
-	import spark.components.List;
 	import spark.events.ViewNavigatorEvent;
 	
 	import org.bigbluebutton.air.main.models.IUserUISession;
@@ -16,6 +15,7 @@ package org.bigbluebutton.air.chat.views.chat {
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.ChatMessages;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
+	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
@@ -40,8 +40,6 @@ package org.bigbluebutton.air.chat.views.chat {
 		public var chatMessagesSession:IChatMessagesSession;
 		
 		protected var dataProvider:ArrayCollection;
-		
-		protected var list:List;
 		
 		protected var _publicChat:Boolean = true;
 		
@@ -75,7 +73,7 @@ package org.bigbluebutton.air.chat.views.chat {
 			chatMessageService.sendMessageOnSuccessSignal.add(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.add(onSendFailure);
 			chatMessagesSession.newChatMessageSignal.add(scrollUpdate);
-			list.addEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
+			view.list.addEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			userSession.userList.userAddedSignal.add(userAdded);
 			view.addEventListener(ViewNavigatorEvent.VIEW_DEACTIVATE, viewDeactivateHandler);
@@ -85,7 +83,7 @@ package org.bigbluebutton.air.chat.views.chat {
 			view.list.ensureIndexIsVisible(view.list.dataProvider.length - 1);
 			var visibleIndices:Vector.<int> = view.list.dataGroup.getItemIndicesInView();
 			displayNewMessagesBar((visibleIndices.length < newMessages));
-			list.removeEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
+			view.list.removeEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
 		}
 		
 		private function displayNewMessagesBar(value:Boolean):void {
@@ -180,10 +178,11 @@ package org.bigbluebutton.air.chat.views.chat {
 			_publicChat = false;
 			this.user = user;
 			view.pageName.text = user.name;
-			view.inputMessage.enabled = chatMessagesSession.getPrivateMessages(user.userID, user.name).userOnline;
-			dataProvider = chatMessagesSession.getPrivateMessages(user.userID, user.name).privateChat.messages;
-			list = view.list;
-			list.dataProvider = dataProvider;
+			
+			var message:PrivateChatMessage = chatMessagesSession.getPrivateMessages(user.userID, user.name);
+			view.inputMessage.enabled = message.userOnline;
+			dataProvider = message.privateChat.messages;
+			view.list.dataProvider = dataProvider;
 		}
 		
 		protected function openChat(currentPageDetails:Object):void {
@@ -200,13 +199,11 @@ package org.bigbluebutton.air.chat.views.chat {
 			var chatMessages:ChatMessages = currentPageDetails.chatMessages as ChatMessages;
 			chatMessages.resetNewMessages();
 			dataProvider = chatMessages.messages as ArrayCollection;
-			list = view.list;
-			list.dataProvider = dataProvider;
+			view.list.dataProvider = dataProvider;
 		}
 		
 		private function scrollUpdate(userId:String = null, publicChat:Boolean = true):void {
-			if ((_publicChat && publicChat) || (!_publicChat && !publicChat && user && userId == user.userID))
-			{
+			if ((_publicChat && publicChat) || (!_publicChat && !publicChat && user && userId == user.userID)) {
 				if (isIndexVisible(view.list.dataProvider.length - 2)) {
 					view.list.ensureIndexIsVisible(view.list.dataProvider.length - 1);
 				}
@@ -248,7 +245,7 @@ package org.bigbluebutton.air.chat.views.chat {
 		override public function destroy():void {
 			super.destroy();
 			chatMessagesSession.newChatMessageSignal.remove(scrollUpdate);
-			list.removeEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
+			view.list.removeEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
 			view.sendButton.removeEventListener(MouseEvent.CLICK, onSendButtonClick);
 			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.remove(onSendFailure);

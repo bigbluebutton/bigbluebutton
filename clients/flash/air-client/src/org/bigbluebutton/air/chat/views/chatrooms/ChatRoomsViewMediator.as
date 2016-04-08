@@ -4,7 +4,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 	import mx.core.FlexGlobals;
 	import mx.resources.ResourceManager;
 	
-	import spark.components.List;
 	import spark.events.IndexChangeEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
@@ -33,8 +32,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		
 		protected var dataProvider:ArrayCollection;
 		
-		protected var list:List;
-		
 		protected var button:Object;
 		
 		private var _usersAdded:Array = new Array();
@@ -51,9 +48,8 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			}
 			button = {button: true};
 			dataProvider.addItem(button);
-			list = view.list;
-			list.dataProvider = dataProvider;
-			list.addEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
+			view.list.dataProvider = dataProvider;
+			view.list.addEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
 			chatMessagesSession.publicChat.chatMessageChangeSignal.add(refreshList);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			userSession.userList.userAddedSignal.add(userAdded);
@@ -212,7 +208,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			userSession.userList.userAddedSignal.remove(userAdded);
 			chatMessagesSession.chatMessageChangeSignal.remove(newMessageReceived);
-			list.removeEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
+			view.list.removeEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
 			
 			view.dispose();
 			view = null;
