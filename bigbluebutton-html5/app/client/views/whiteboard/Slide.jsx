@@ -84,7 +84,6 @@ Slide = React.createClass({
 
   componentDidUpdate: function() {
     //console.log('componentDidUpdate');
-    console.log(this.data.current_slide);
     if(this.data.current_slide){
       this.reactOnSlideChange();
       if(this.data.shapes){
@@ -192,7 +191,7 @@ Slide = React.createClass({
       this.whiteboardPaperModel.moveCursor(pointer.x, pointer.y);
     }
   },
-  
+
   renderShape(data) {
     let i, len, num, ref, ref1, shapeInfo, shapeType, wpm;
     // @data is the shape object coming from the {{#each}} in the html file
