@@ -68,6 +68,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
+			import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
+			
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
@@ -115,13 +117,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
 				
-				if (isUsingLessThanChrome38OnMac()) {
+				if (BrowserCheck.isUsingLessThanChrome38OnMac()) {
 					setCurrentState("chromeOnMacWarningState");
+				} else if (BrowserCheck.isUsingEdgePluginUnsupported()) {
+					setCurrentState("edgePluginWarningState");
 				} else {
 					var javaIssue:String = JavaCheck.checkJava();
 					
 					if (javaIssue != null) {
-						if (isChrome42OrHigher()) {
+						if (BrowserCheck.isChrome42OrHigher()) {
 							setCurrentState("chrome42WarningState");
 						} else {
 							setCurrentState("javaIssueWarningState");
@@ -404,16 +408,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stopStream();
 				closeWindow();
 			}
-			
-			private function isUsingLessThanChrome38OnMac():Boolean {
-				var browser:Array = ExternalInterface.call("determineBrowser");
-				return ((browser[0] == "Chrome") && (parseInt(browser[1]) <= 38) && (Capabilities.os.indexOf("Mac") >= 0));
-			}
-			
-			private function isChrome42OrHigher():Boolean {
-				var browser:Array = ExternalInterface.call("determineBrowser");
-				return ((browser[0] == "Chrome") && (parseInt(browser[1]) >= 42));
-			}
 		]]>
 	</mx:Script>
 
@@ -472,6 +466,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
 					<mx:Text id="chrome42WarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
 							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chrome42UnsupportedHint')}" />
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="edgePluginWarningState">
+			<mx:AddChild>
+				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:Text id="edgePluginWarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
+							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.edgePluginUnsupportedHint')}" />
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>
