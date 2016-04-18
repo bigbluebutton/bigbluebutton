@@ -3,19 +3,16 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 styleName="participantIconStyle">
 
-	<s:HGroup horizontalAlign="center"
-			  verticalAlign="middle"
-			  width="{getStyle('width')}"
-			  height="{getStyle('height')}">
-		<s:Label id="firstLetters"
-				 styleName="nameIconText" />
-	</s:HGroup>
+	<s:Label id="firstLetters"
+			 styleName="nameIconText"
+			 verticalCenter="0"
+			 horizontalCenter="0" />
 
 	<s:Ellipse id="circle"
-			   height="{firstLetters.height * 2.5}"
-			   width="{circle.height}"
-			   x="{firstLetters.x - (circle.width - firstLetters.width)/2}"
-			   y="{firstLetters.y - (circle.height - firstLetters.height)/2}">
+			   height="25"
+			   width="25"
+			   verticalCenter="0"
+			   horizontalCenter="0">
 		<s:stroke>
 			<s:SolidColorStroke id="circleColor"
 								color="{getStyle('circleColor')}"

@@ -13,12 +13,6 @@
 
 	<fx:Script>
 		<![CDATA[
-			import mx.events.StateChangeEvent;
-			
-			private function selectionChange(evt:StateChangeEvent):void {
-				selectionIcon.setCurrentState(this.currentState);
-			}
-			
 			private function setFirstLetters(participantName:String):void {
 				var names:Array = participantName.split(" ");
 				var firstLettersText:String = names[0].charAt(0);
@@ -29,9 +23,6 @@
 			}
 			
 			override public function set data(obj:Object):void {
-				
-				this.addEventListener(StateChangeEvent.CURRENT_STATE_CHANGE, selectionChange);
-				
 				super.data = obj;
 				if (obj) {
 					title.text = obj.user.name;
@@ -61,12 +52,15 @@
 		</s:layout>
 
 		<views:ParticipantIcon width="10%"
-										 id="participantIcon" />
+							   id="participantIcon" />
 
 		<s:VGroup width="100%"
 				  height="100%"
+				  paddingRight="15"
 				  verticalAlign="middle">
 			<s:Label id="title"
+					 maxWidth="300"
+					 maxDisplayedLines="1"
 					 styleName="videoStreamName contentFontSize" />
 
 			<s:Label id="presenter"
@@ -75,9 +69,8 @@
 		</s:VGroup>
 
 
-		<s:Spacer width="25%" />
-
-		<views:SelectionIcon id="selectionIcon" />
+		<s:Image styleName.selected="iconStyle selectedIconStyle"
+				 styleName.normal="iconStyle unselectedIconStyle" />
 	</s:Group>
 
 	<s:Line width="100%">

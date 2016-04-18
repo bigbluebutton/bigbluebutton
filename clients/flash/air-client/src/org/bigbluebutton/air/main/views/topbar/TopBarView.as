@@ -4,7 +4,7 @@ package org.bigbluebutton.air.main.views.topbar {
 	
 	import org.bigbluebutton.air.main.views.ui.navigationbutton.NavigationButton;
 	
-	public class TopBarView extends TopBar implements ITopBarView {
+	public class TopBarView extends TopBarBase implements ITopBarView {
 		
 		public function get participantsBtn():NavigationButton {
 			return participantsBtn0;
