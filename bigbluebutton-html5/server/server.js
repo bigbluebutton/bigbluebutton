@@ -16,7 +16,7 @@ Meteor.startup(() => {
   clearPollCollection();
   clearCursorCollection();
 
-  const eventEmitter = new EventEmitter();
+  const eventEmitter = new (Npm.require('events').EventEmitter);
   registerHandlers(eventEmitter);
 
 
