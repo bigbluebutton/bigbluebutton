@@ -1,7 +1,7 @@
 Chat = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
-    let chatMessages, privateChatName, chattingWith, user, messageFontSize, temp;
+    let chatMessages, privateChatName, chattingWith, user, messageFontSize, temp, user_exists;
 
     messageFontSize = { fontSize: getInSession("messageFontSize") + 'px' };
     chattingWith = getInSession('inChatWith');
@@ -17,10 +17,19 @@ Chat = React.createClass({
       privateChatName = user.user.name;
     }
 
+    if(getInSession('inChatWith') === "PUBLIC_CHAT" || Meteor.Users.findOne({
+        userId: getInSession('inChatWith')
+      }) != null) {
+      user_exists = true;
+    } else {
+      user_exists = false;
+    }
+
     return {
       chatMessages: chatMessages,
       privateChatName: privateChatName,
-      messageFontSize: messageFontSize
+      messageFontSize: messageFontSize,
+      user_exists: user_exists
       };
   },
 
@@ -106,16 +115,6 @@ Chat = React.createClass({
     return (getInSession('inChatWith') !== 'PUBLIC_CHAT');
   },
 
-  userExists() {
-    if(getInSession('inChatWith') === "PUBLIC_CHAT") {
-      return true;
-    } else {
-      return Meteor.Users.findOne({
-        userId: getInSession('inChatWith')
-      }) != null;
-    }
-  },
-
   render(){
     return (
       <div id="chat" className="component">
@@ -128,11 +127,11 @@ Chat = React.createClass({
               {this.getCombinedMessagesForChat(this.data.chatMessages).map((message) =>
               <ChatMessage key={message._id} message={message} messageFontSize={this.data.messageFontSize}/>
               )}
-              {this.userExists ? null : <li>The user has left</li> }
+              {this.data.user_exists ? null : <li>The user has left</li> }
             </ul>
           </div>
         </div>
-        {this.userExists ? 
+        {this.data.user_exists ?
           <div className="panel-footer">
             <ChatInputControls inPrivateChat={this.inPrivateChat()}/>
           </div>
