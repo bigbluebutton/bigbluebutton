@@ -19,21 +19,30 @@
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off">
 			<s:ArrayList>
-				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.beRightBack')}"
-						   signal="away" />
-				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.handRaise')}"
-						   signal="raiseHand" />
-				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.neutral')}"
-						   signal="neutral" />
-				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.confused')}"
-						   signal="confused" />
-				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.sad')}"
-						   signal="sad" />
-				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.laughter')}"
-						   signal="happy" />
-
-				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.clearStatus')}"
-						   signal="none" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.emojiStatus.away')}"
+						   signal="away"
+						   style="beRightBackStatusButtonStyle" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.emojiStatus.handRaise')}"
+						   signal="raiseHand"
+						   style="handStatusButtonStyle" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.emojiStatus.neutral')}"
+						   signal="neutral"
+						   style="undecidedStatusButtonStyle" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.emojiStatus.confused')}"
+						   signal="confused"
+						   style="confusedStatusButtonStyle" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.emojiStatus.sad')}"
+						   signal="sad"
+						   style="sadStatusButtonStyle" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.emojiStatus.happy')}"
+						   signal="happy"
+						   style="happyStatusButtonStyle" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.emojiStatus.smile')}"
+						   signal="smile"
+						   style="smileStatusButtonStyle" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.emojiStatus.clear')}"
+						   signal="none"
+						   style="clearStatusButtonStyle" />
 			</s:ArrayList>
 		</s:List>
 

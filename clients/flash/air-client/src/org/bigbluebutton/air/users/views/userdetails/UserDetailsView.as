@@ -61,7 +61,7 @@ package org.bigbluebutton.air.users.views.userdetails {
 					makePresenterButton.includeInLayout = false;
 					makePresenterButton.visible = false;
 				}
-				clearStatusButton.label = resourceManager.getString('resources', 'profile.settings.handLower');
+				clearStatusButton.label = resourceManager.getString('resources', 'profile.emojiStatus.clear');
 				cameraIcon.visible = cameraIcon.includeInLayout = _user.hasStream;
 				micIcon.visible = micIcon.includeInLayout = (_user.voiceJoined && !_user.muted);
 				micOffIcon.visible = micOffIcon.includeInLayout = (_user.voiceJoined && _user.muted);

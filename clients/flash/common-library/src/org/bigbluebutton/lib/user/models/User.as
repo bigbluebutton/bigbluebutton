@@ -16,6 +16,8 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const HAPPY:String = "happy";
 		
+		public static const SMILE:String = "smile";
+		
 		public static const NEUTRAL:String = "neutral";
 		
 		public static const SAD:String = "sad";

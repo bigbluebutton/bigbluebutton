@@ -11,20 +11,10 @@
 
 	<fx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.lib.user.models.User;
-			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
-					clearStatusIcon.visible = clearStatusIcon.includeInLayout = obj.signal == User.NO_STATUS;
-					handIcon.visible = handIcon.includeInLayout = obj.signal == User.RAISE_HAND;
-					beRightBackIcon.visible = beRightBackIcon.includeInLayout = obj.signal == User.AWAY;
-					happyIcon.visible = happyIcon.includeInLayout = obj.signal == User.HAPPY;
-					sadIcon.visible = sadIcon.includeInLayout = obj.signal == User.SAD;
-					confusedIcon.visible = confusedIcon.includeInLayout = obj.signal == User.CONFUSED;
-					undecidedIcon.visible = undecidedIcon.includeInLayout = obj.signal == User.NEUTRAL;
+					statusButton.styleName = "bottomPresentationBtnStyle " + obj.style;
 				}
 			}
 		]]>
@@ -46,26 +36,7 @@
 				 styleName="contentFontSize" />
 
 		<s:Group id="icon">
-			<s:Button id="beRightBackIcon"
-					  styleName="bottomPresentationBtnStyle beRightBackStatusButtonStyle"
-					  height="100%" />
-			<s:Button id="handIcon"
-					  styleName="bottomPresentationBtnStyle handStatusButtonStyle"
-					  height="100%" />
-			<s:Button id="undecidedIcon"
-					  styleName="bottomPresentationBtnStyle undecidedStatusButtonStyle"
-					  height="100%" />
-			<s:Button id="confusedIcon"
-					  styleName="bottomPresentationBtnStyle confusedStatusButtonStyle"
-					  height="100%" />
-			<s:Button id="sadIcon"
-					  styleName="bottomPresentationBtnStyle sadStatusButtonStyle"
-					  height="100%" />
-			<s:Button id="happyIcon"
-					  styleName="bottomPresentationBtnStyle happyStatusButtonStyle"
-					  height="100%" />
-			<s:Button id="clearStatusIcon"
-					  styleName="bottomPresentationBtnStyle clearStatusButtonStyle"
+			<s:Button id="statusButton"
 					  height="100%" />
 		</s:Group>
 	</s:Group>

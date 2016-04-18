@@ -808,9 +808,14 @@ s|TextInput.msgInputBoxStyle
 
 	s|Button.happyStatusButtonStyle
 	{
-		backgroundImage : Embed(source="assets/res/drawable-mdpi/icon-6-smiling-face.png");
+		backgroundImage : Embed(source="assets/res/drawable-mdpi/icon-happy-face.png");
 	}
 
+	s|Button.smileStatusButtonStyle
+	{
+		backgroundImage : Embed(source="assets/res/drawable-mdpi/icon-6-smiling-face.png");
+	}
+	
 	s|Button.sadStatusButtonStyle
 	{
 		backgroundImage : Embed(source="assets/res/drawable-mdpi/icon-7-sad-face.png");
@@ -1373,8 +1378,13 @@ s|TextInput.msgInputBoxStyle
 	{
 		backgroundImage : Embed(source="assets/res/drawable-hdpi/undecided.png");
 	}
-
+	
 	s|Button.happyStatusButtonStyle
+	{
+		backgroundImage : Embed(source="assets/res/drawable-hdpi/icon-happy-face.png");
+	}
+	
+	s|Button.smileStatusButtonStyle
 	{
 		backgroundImage : Embed(source="assets/res/drawable-hdpi/icon-6-smiling-face.png");
 	}
@@ -1948,8 +1958,13 @@ s|TextInput.msgInputBoxStyle
 	{
 		backgroundImage : Embed(source="assets/res/drawable-xhdpi/undecided.png");
 	}
-
+	
 	s|Button.happyStatusButtonStyle
+	{
+		backgroundImage : Embed(source="assets/res/drawable-xhdpi/icon-happy-face.png");
+	}
+	
+	s|Button.smileStatusButtonStyle
 	{
 		backgroundImage : Embed(source="assets/res/drawable-xhdpi/icon-6-smiling-face.png");
 	}
@@ -2527,9 +2542,14 @@ s|TextInput.msgInputBoxStyle
 
 	s|Button.happyStatusButtonStyle
 	{
+		backgroundImage : Embed(source="assets/res/drawable-xxhdpi/icon-happy-face.png");
+	}
+	
+	s|Button.smileStatusButtonStyle
+	{
 		backgroundImage : Embed(source="assets/res/drawable-xxhdpi/icon-6-smiling-face.png");
 	}
-
+	
 	s|Button.sadStatusButtonStyle
 	{
 		backgroundImage : Embed(source="assets/res/drawable-xxhdpi/icon-7-sad-face.png");
