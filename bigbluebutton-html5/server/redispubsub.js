@@ -106,7 +106,7 @@ this.publish = function (channel, message) {
   }
 };
 
-var handleVoiceEvent = function(arg) {
+const handleVoiceEvent = function(arg) {
   let _voiceUser, meetingId;
   meetingId = arg.payload.meeting_id;
   _voiceUser = payload.user.voiceUser;
@@ -119,9 +119,9 @@ var handleVoiceEvent = function(arg) {
     muted: _voiceUser.muted,
   };
   return updateVoiceUser(meetingId, voiceUserObj, arg.callback);
-}, userId;
+};
 
-var handleLockEvent = function(arg) {
+const handleLockEvent = function(arg) {
   let userId, isLocked;
   userId = arg.payload.userid;
   isLocked = arg.payload.locked;
@@ -129,7 +129,7 @@ var handleLockEvent = function(arg) {
   return arg.callback();
 };
 
-var handleEndOfMeeting = function(arg) {
+const handleEndOfMeeting = function(arg) {
   let meetingId;
   meetingId = arg.payload.meeting_id;
   Meteor.log.info(`DESTROYING MEETING ${meetingId}`);
@@ -137,7 +137,7 @@ var handleEndOfMeeting = function(arg) {
 };
 
 
-var handleChatEvent = function (arg) {
+const handleChatEvent = function (arg) {
   let messageObject, meetingId;
   messageObject = arg.payload.message;
   meetingId = arg.payload.meeting_id;
@@ -149,15 +149,17 @@ var handleChatEvent = function (arg) {
 };
 
 
-
+// To ensure that we process the redis json event messages serially we use a
+// callback. This callback is to be called when the Meteor collection is
+// updated with the information coming in the payload of the json message. The
+// callback signalizes to the queue that we are done processing the current
+// message in the queue and are ready to move on to the next one. If we do not
+// use the callback mechanism we may encounter a race condition situation
+// due to not following the order of events coming through the redis pubsub.
+// for example: a user_left event reaching the collection before a user_joined
+// for the same user.
 registerHandlers = function (emitter) {
   console.log("REGISTER HANDLERS", emitter);
-
-  emitter.on('blah', function(arg) {
-    console.log("got " + "blah", arg.callback);
-    arg.callback();
-  });
-
 
   emitter.on('get_users_reply', function (arg) {
     if (arg.payload.requester_id === 'nodeJSapp') {
@@ -195,7 +197,6 @@ registerHandlers = function (emitter) {
     }
   });
 
-
   emitter.on('meeting_created_message', function(arg) {
     meetingName = arg.payload.name;
     intendedForRecording = arg.payload.recorded;
@@ -204,7 +205,6 @@ registerHandlers = function (emitter) {
     meetingId = arg.payload.meeting_id;
     return addMeetingToCollection(meetingId, meetingName, intendedForRecording, voiceConf, duration, arg.callback);
   });
-
 
   emitter.on('get_all_meetings_reply', function(arg) {
     let listOfMeetings, processMeeting;
@@ -226,8 +226,6 @@ registerHandlers = function (emitter) {
     return processMeeting();
   });
 
-
-  // VOICE EVENTS
   emitter.on('user_left_voice_message', function(arg) {
     handleVoiceEvent(arg);
   });
@@ -253,12 +251,6 @@ registerHandlers = function (emitter) {
     meetingId = arg.payload.meeting_id;
     return updateVoiceUser(meetingId, voiceUserObj, arg.callback);
   });
-
-
-
-
-
-
 
   emitter.on('user_left_message', function(arg) {
     if (arg.payload.user != null && arg.payload.user.userid != null && arg.payload.meeting_id != null) {
@@ -351,8 +343,6 @@ registerHandlers = function (emitter) {
     }
   });
 
-
-
   // for now not handling these serially #TODO
   emitter.on('presenter_assigned_message', function(arg) {
     let newPresenterId, meetingId;
@@ -417,7 +407,6 @@ registerHandlers = function (emitter) {
     handleLockEvent(arg);
   });
 
-
   emitter.on('meeting_ended_message', function (arg) {
     handleEndOfMeeting(arg);
   });
@@ -433,7 +422,6 @@ registerHandlers = function (emitter) {
   emitter.on('disconnect_all_users_message', function (arg) {
     handleEndOfMeeting(arg);
   });
-
 
   emitter.on('get_chat_history_reply', function (arg) {
     if (arg.payload.requester_id === 'nodeJSapp') { //TODO extract this check
@@ -825,23 +813,5 @@ registerHandlers = function (emitter) {
   });
   //eject_voice_user_message
   
-  /*
-    // --------------------------------------------------
-    // lock settings ------------------------------------
-    // for now not handling this serially #TODO
-  } else if (eventName === 'eject_voice_user_message') {
-    return callback();
-  }
-  else { // keep moving in the queue
-    if (indexOf.call(notLoggedEventTypes, eventName) < 0) {
-      Meteor.log.info(`WARNING!!! THE JSON MESSAGE WAS NOT OF TYPE SUPPORTED BY THIS APPLICATION
-            ${eventName}
-            {JSON.stringify(message)}` );
-    }
-
-    return callback();
-  }
-}
-*/
 };
 
