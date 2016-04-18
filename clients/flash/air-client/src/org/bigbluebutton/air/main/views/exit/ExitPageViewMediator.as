@@ -34,18 +34,18 @@ package org.bigbluebutton.air.main.views.exit {
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
 		
-		private var _topBar:Boolean;
+		private var _topBarVisbile:Boolean;
 		
-		private var _bottomMenu:Boolean;
+		private var _bottomMenuVisible:Boolean;
 		
 		override public function initialize():void {
 			view.yesButton.addEventListener(MouseEvent.CLICK, applicationExit);
 			view.noButton.addEventListener(MouseEvent.CLICK, backToApplication);
 			changeConnectionStatus(userUISession.currentPageDetails as int);
 			FlexGlobals.topLevelApplication.topActionBar.pageName.text = "";
-			_topBar = FlexGlobals.topLevelApplication.topActionBar.visible;
+			_topBarVisbile = FlexGlobals.topLevelApplication.topActionBar.visible;
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
-			_bottomMenu = FlexGlobals.topLevelApplication.bottomMenu.visible;
+			_bottomMenuVisible = FlexGlobals.topLevelApplication.bottomMenu.visible;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = false;
 		}
 		
@@ -90,8 +90,8 @@ package org.bigbluebutton.air.main.views.exit {
 		public override function destroy():void {
 			view.yesButton.removeEventListener(MouseEvent.CLICK, applicationExit);
 			view.noButton.removeEventListener(MouseEvent.CLICK, backToApplication);
-			FlexGlobals.topLevelApplication.topActionBar.visible = _topBar;
-			FlexGlobals.topLevelApplication.bottomMenu.visible = _bottomMenu;
+			FlexGlobals.topLevelApplication.topActionBar.visible = _topBarVisbile;
+			FlexGlobals.topLevelApplication.bottomMenu.visible = _bottomMenuVisible;
 		}
 	}
 }
