@@ -50,7 +50,7 @@ Meteor.startup(() => {
       return Meteor.log.error(`got a failure on taskHandler ${eventName} ${failures}`);
       // TODO should we stop or instead return next?
     } else {
-      console.log("^^^^^^^^", parsedMsg);
+      logRedisMessage(eventName, data.jsonMsg);
       return eventEmitter.emit(eventName, {
         payload: parsedMsg.payload,
         header: parsedMsg.header,
@@ -90,7 +90,6 @@ Meteor.startup(() => {
       'user_voice_talking_message',
       'meeting_state_message',
       'get_recording_status_reply',];
-
 
     // LOG in the meteor console
     if (eventName, indexOf.call(notLoggedEventTypes, eventName) < 0) {

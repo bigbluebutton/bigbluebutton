@@ -192,7 +192,6 @@ registerHandlers = function (emitter) {
       return processUser();
     }
     else {
-      console.log("NAAAAH");
       arg.callback();
     }
   });
