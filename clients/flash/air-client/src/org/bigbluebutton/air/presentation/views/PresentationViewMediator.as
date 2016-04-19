@@ -17,7 +17,7 @@ package org.bigbluebutton.air.presentation.views {
 	
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.presentation.views.selectwebcam.SelectStreamPopUp;
-	import org.bigbluebutton.lib.presentation.services.IPresentationService;
+	import org.bigbluebutton.lib.main.commands.GoToSlideSignal;
 	import org.bigbluebutton.lib.presentation.views.PresentationMediator;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
@@ -29,10 +29,10 @@ package org.bigbluebutton.air.presentation.views {
 	public class PresentationViewMediator extends PresentationMediator {
 		
 		[Inject]
-		public var presentationService:IPresentationService;
+		public var userUISession:IUserUISession;
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var goToSlideSignal:GoToSlideSignal;
 		
 		[Inject]
 		public var mediatorMap:IMediatorMap;
@@ -473,11 +473,11 @@ package org.bigbluebutton.air.presentation.views {
 			if (userSession.userList.me.presenter) {
 				if (e.offsetX == -1 && _currentSlideNum < _currentPresentation.slides.length - 1) {
 					setCurrentSlideNum(_currentSlideNum + 1);
-					presentationService.gotoSlide(_currentPresentation.id + "/" + _currentSlide.slideNumber);
+					goToSlideSignal.dispatch(_currentPresentation.id + "/" + _currentSlide.slideNumber);
 				} else if (e.offsetX == 1 && _currentSlideNum > 0) {
 					trace("current slide : " + _currentSlideNum);
 					setCurrentSlideNum(_currentSlideNum - 1);
-					presentationService.gotoSlide(_currentPresentation.id + "/" + _currentSlide.slideNumber);
+					goToSlideSignal.dispatch(_currentPresentation.id + "/" + _currentSlide.slideNumber);
 				}
 			}
 		}

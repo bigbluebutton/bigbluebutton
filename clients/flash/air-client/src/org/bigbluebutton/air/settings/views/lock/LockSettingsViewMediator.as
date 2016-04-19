@@ -6,8 +6,8 @@ package org.bigbluebutton.air.settings.views.lock {
 	import mx.resources.ResourceManager;
 	
 	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.lib.main.commands.SaveLockSettingsSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.services.IUsersService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -20,7 +20,7 @@ package org.bigbluebutton.air.settings.views.lock {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var userService:IUsersService;
+		public var saveLockSettingsSignal:SaveLockSettingsSignal;
 		
 		[Inject]
 		public var userUISession:IUserUISession;
@@ -42,7 +42,7 @@ package org.bigbluebutton.air.settings.views.lock {
 			newLockSettings.lockedLayout = !view.layoutSwitch.selected;
 			newLockSettings.lockOnJoin = userSession.lockSettings.lockOnJoin;
 			newLockSettings.lockOnJoinConfigurable = userSession.lockSettings.lockOnJoinConfigurable;
-			userService.saveLockSettings(newLockSettings);
+			saveLockSettingsSignal.dispatch(newLockSettings);
 			userUISession.popPage();
 			userUISession.popPage();
 		}

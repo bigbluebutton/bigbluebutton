@@ -1,7 +1,4 @@
 package org.bigbluebutton.air.main.views.topbar {
-	import flash.events.Event;
-	
-	import mx.events.ResizeEvent;
 	
 	import spark.transitions.ViewTransitionBase;
 	
@@ -25,7 +22,6 @@ package org.bigbluebutton.air.main.views.topbar {
 		public var chatMessagesSession:IChatMessagesSession;
 		
 		public override function initialize():void {
-			view.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			userUISession.pageChangedSignal.add(changePage);
 			chatMessagesSession.newChatMessageSignal.add(updateChatIcon);
 		}
@@ -136,12 +132,7 @@ package org.bigbluebutton.air.main.views.topbar {
 			}
 		}
 		
-		private function stageOrientationChangingHandler(e:Event):void {
-			view.profileBtn.navigateTo = [PageEnum.PROFILE];
-		}
-		
 		public override function destroy():void {
-			view.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			userUISession.pageChangedSignal.remove(changePage);
 			chatMessagesSession.newChatMessageSignal.remove(updateChatIcon);
 		}

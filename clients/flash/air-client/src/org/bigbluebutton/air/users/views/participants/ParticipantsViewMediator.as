@@ -15,7 +15,6 @@ package org.bigbluebutton.air.users.views.participants {
 	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.services.IUsersService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -29,9 +28,6 @@ package org.bigbluebutton.air.users.views.participants {
 		
 		[Inject]
 		public var userUISession:IUserUISession
-		
-		[Inject]
-		public var usersService:IUsersService;
 		
 		[Inject]
 		public var chatMessagesSession:IChatMessagesSession;

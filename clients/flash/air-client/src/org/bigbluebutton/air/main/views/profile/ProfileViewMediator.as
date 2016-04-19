@@ -8,9 +8,10 @@ package org.bigbluebutton.air.main.views.profile {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
+	import org.bigbluebutton.lib.main.commands.MuteAllUsersExpectPresenterSignal;
+	import org.bigbluebutton.lib.main.commands.MuteAllUsersSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.services.IUsersService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -29,7 +30,10 @@ package org.bigbluebutton.air.main.views.profile {
 		public var clearUserStatusSignal:ClearUserStatusSignal;
 		
 		[Inject]
-		public var userService:IUsersService;
+		public var muteAllUsersSignal:MuteAllUsersSignal;
+		
+		[Inject]
+		public var muteAllUsersExpectPresenterSignal:MuteAllUsersExpectPresenterSignal;
 		
 		private var navigateToCameraSettings:Function = navigateTo(PageEnum.CAMERASETTINGS);
 		
@@ -129,19 +133,19 @@ package org.bigbluebutton.air.main.views.profile {
 		}
 		
 		protected function onMuteAllButton(event:MouseEvent):void {
-			userService.muteAllUsers(true);
+			muteAllUsersSignal.dispatch(true);
 			setMuteState(true);
 			userUISession.popPage();
 		}
 		
 		protected function onUnmuteAllButton(event:MouseEvent):void {
-			userService.muteAllUsers(false);
+			muteAllUsersSignal.dispatch(false);
 			setMuteState(false);
 			userUISession.popPage();
 		}
 		
 		protected function onMuteAllExceptPresenterButton(event:MouseEvent):void {
-			userService.muteAllUsersExceptPresenter(true);
+			muteAllUsersExpectPresenterSignal.dispatch(true);
 			setMuteState(true);
 			userUISession.popPage();
 		}
