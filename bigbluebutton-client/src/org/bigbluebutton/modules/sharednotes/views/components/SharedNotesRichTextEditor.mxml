@@ -281,6 +281,9 @@
     <mx:Script>
     <![CDATA[
 
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
+
     import flash.events.Event;
     import flash.events.TextEvent;
     import flash.events.ContextMenuEvent;
@@ -296,6 +299,8 @@
     import mx.core.IUITextField;
     import mx.core.UITextFormat;
     use namespace mx_internal;
+
+    private static const LOGGER:ILogger = getClassLogger(SharedNotesRichTextEditor);
     
     /**
     * A carret position control to handle the Paste action from mouse ContextMenu to comply with the
@@ -1003,9 +1008,9 @@
         var desloc:Number = relativePositon - oldPosition;
         textArea.verticalScrollPosition += desloc;
 
-        trace("relative: " + relativePositon);
-        trace("old: " + oldPosition);
-        trace("vertical: " + textArea.verticalScrollPosition);
+//        LOGGER.debug("relative: " + relativePositon);
+//        LOGGER.debug("old: " + oldPosition);
+//        LOGGER.debug("vertical: " + textArea.verticalScrollPosition);
     }
 
     public function getOldPosition():Number
@@ -1037,7 +1042,7 @@
         var _lastEnd:int = textArea.selectionEndIndex;
         var oldPosition:Number = getOldPosition();
 
-        trace("Initial Position: " + _lastBegin + " " + _lastEnd);
+//        LOGGER.debug("Initial Position: " + _lastBegin + " " + _lastEnd);
 
         var oldText:String = text;
         htmlText = DiffPatch.patch(patch, htmlText);
@@ -1062,9 +1067,9 @@
             _lastBegin = results[0][0];
             _lastEnd = results[0][1];
         }
-        trace("Final Position: " + results[0][0] + " " + results[0][1]);
+//        LOGGER.debug("Final Position: " + results[0][0] + " " + results[0][1]);
 
-        trace("Length: " + text.length);
+//        LOGGER.debug("Length: " + text.length);
         restoreCursor(_lastEnd, oldPosition);
         validateNow();
 
@@ -1075,7 +1080,7 @@
 
     public function refresh():void
     {
-        trace("TextArea refresh")
+//        LOGGER.debug("TextArea refresh")
         textArea.htmlText = htmlText;
     }
 
@@ -1137,8 +1142,8 @@
     private function onKeyDown(event:KeyboardEvent):void
     {
 
-        trace(event.keyCode);
-        trace(event);
+//        LOGGER.debug(event.keyCode);
+//        LOGGER.debug(event);
         if (textArea.selectionBeginIndex != textArea.selectionEndIndex)
         {
             var beginIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionBeginIndex);
@@ -1163,7 +1168,7 @@
     {
         if( e.text.length > 0 )
            refreshSelection = true;
-//         trace("text-input");
+//         LOGGER.debug("text-input");
     }
 
     private function onKeyUp(event:KeyboardEvent):void
@@ -1180,7 +1185,7 @@
         if (pasteCarIndex != -1){
           getTextStyles();
           refreshTextStyle();
-//        trace("The mouse pointer was either out of the Shared notes window or on the context menu");
+//        LOGGER.debug("The mouse pointer was either out of the Shared notes window or on the context menu");
           retPasteCarIndex = textArea.getTextField().caretIndex;
           textArea.setSelection(pasteCarIndex,pasteCarIndex);
           getTextStyles();
@@ -1188,22 +1193,23 @@
           pasteCarIndex = -1;
           textArea.setSelection(retPasteCarIndex,retPasteCarIndex);
         }
-//        trace("changed-content");
+//  LOGGER.debug("changed-content");
     }
 
     //This will happen every time the user activate the ContextMenu and can be used to ensure that mouse Paste will comply to the text formatting rules.
     private function onRightClick ( e:MouseEvent ):void
     {
         pasteCarIndex = textArea.getTextField().caretIndex;
-//        trace(pasteCarIndex);
-//        trace("roll-out");
+//        LOGGER.debug(pasteCarIndex);
+//        LOGGER.debug("roll-out");
     }
 
 
     ]]>
     </mx:Script>
     <!--- @private -->
-    <mx:TextArea id="textArea" height="100%" width="100%" minHeight="0" minWidth="0"
+    <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
+    <mx:TextArea id="textArea" restrict="^\u007F" height="100%" width="100%" minHeight="0" minWidth="0"
                  change="onChange(event); dispatchEvent(event);"
                  valueCommit="dispatchEvent(event);"
                  keyUp="onKeyUp(event);"
@@ -1211,8 +1217,8 @@
                  mouseDown="systemManager.addEventListener(
                     MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);"
                  textInput= "onTextInput(event);"
-                 rollOut= "onRightClick(event);"
-                 />
+                 rollOut= "onRightClick(event);"/>
+
     <mx:ControlBar> 
         <!--- @private -->
         <mx:ToolBar id="toolbar" width="100%" horizontalGap="7">
