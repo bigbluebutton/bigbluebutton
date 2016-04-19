@@ -69,10 +69,6 @@ Slide = React.createClass({
     this.reactOnSlideChange();
   },
 
-  shouldComponentUpdate: function() {
-    //console.log('shouldComponentUpdate');
-  },
-
   componentWillUpdate: function() {
     if(typeof this.whiteboardPaperModel !== "undefined" && this.whiteboardPaperModel !== null) {
       wpm = this.whiteboardPaperModel;
@@ -173,7 +169,7 @@ Slide = React.createClass({
       setInSession('slideOriginalHeight', this.height);
       $(window).resize(function() {
         if (!$('.panel-footer').hasClass('ui-resizable-resizing')) {
-          return scaleWhiteboard();
+          scaleWhiteboard(_this.whiteboardPaperModel);
         }
       });
       if ((currentSlide != null ? (ref = currentSlide.slide) != null ? ref.img_uri : void 0 : void 0) != null) {
