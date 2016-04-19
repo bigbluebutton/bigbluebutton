@@ -309,6 +309,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         handlePrivateChatMessageEvent(event);
       }
       
+      public function displayHowToCloseMessage():void {
+        var modifier:String = ExternalInterface.call("determineModifier");
+        var keyCombo:String = modifier + String.fromCharCode(int(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate')));
+        
+        var msg:ChatMessageVO = new ChatMessageVO();
+        msg.chatType = ChatConstants.PUBLIC_CHAT;
+        msg.fromUserID = SPACE;
+        msg.fromUsername = SPACE;
+        msg.fromColor = "0";
+        msg.fromTime = new Date().getTime();
+        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
+        msg.toUserID = SPACE;
+        msg.toUsername = SPACE;
+        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.closeMessage', [keyCombo])+"</b></i>";
+        
+        chatMessages.newChatMessage(msg);
+      }
+      
       public function scrollToEndOfMessage():void {
         /**
          * Trigger to force the scrollbar to show the last message.
