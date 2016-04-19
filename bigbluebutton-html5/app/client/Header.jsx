@@ -57,10 +57,10 @@ Header = React.createClass({
 
   render() {
     return (
-      <nav id="navbar" class="myNavbar top-bar" role="navigation">
+      <nav id="navbar" className="myNavbar top-bar" role="navigation">
         <Button onClick={this.handleToggleUserlistButton} btn_class=" toggleUserlistButton navbarButton" i_class="ion-navicon" rel="tooltip" title="Toggle Userlist" span={true} notification="all_chats" />
         {this.data.in_audio ? 
-          <div class="audioNavbarSection">
+          <div className="audioNavbarSection">
             {this.data.in_listen_only ?
               <Button onClick={this.handleLeaveAudioButton} btn_class=" navbarButton leaveAudioButton" i_class="icon fi-volume-none" rel="tooltip" title="Exit Audio" />
               : null }
@@ -73,11 +73,11 @@ Header = React.createClass({
             }
           </div>
         : null }
-        <span class="navbarTitle defaultTitle">
+        <span className="navbarTitle defaultTitle">
           {this.data.whiteboard_title}
         </span>
 
-        <div class="rightNavbarSection">
+        <div className="rightNavbarSection">
           <Button onclick={this.handleSettingsButton} id="settingsIcon" btn_class=" settingsIcon navbarButton" i_class="ion-gear-b" rel="tooltip"
           title="BigBlueButton Settings" />
           <Button onclick={this.handleSignOutButton} id="logout" btn_class=" signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip" title="Logout" />
