@@ -18,13 +18,10 @@ Meteor.methods({
           new_presenter_name: newPresenterName,
           meeting_id: meetingId,
           assigned_by: requesterSetPresenter,
-        },
-        header: {
-          name: 'assign_presenter_request_message',
-        },
+        }
       };
     }
-
+    message = appendMessageHeader('assign_presenter_request_message', message);
     return publish(Meteor.config.redis.channels.toBBBApps.users, message);
   }
 });

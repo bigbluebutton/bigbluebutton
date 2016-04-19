@@ -16,10 +16,6 @@ Meteor.methods({
       _poll_id = result.poll_info.poll.id;
       if ((eventName != null) && (meetingId != null) && (requesterUserId != null) && (_poll_id != null) && (pollAnswerId != null)) {
         message = {
-          header: {
-            timestamp: new Date().getTime(),
-            name: eventName,
-          },
           payload: {
             meeting_id: meetingId,
             user_id: requesterUserId,
@@ -37,6 +33,7 @@ Meteor.methods({
             'poll_info.users': requesterUserId,
           },
         });
+        message = appendMessageHeader(eventName, message);
         Meteor.log.info('publishing Poll response to redis');
         return publish(Meteor.config.redis.channels.toBBBApps.polling, message);
       }

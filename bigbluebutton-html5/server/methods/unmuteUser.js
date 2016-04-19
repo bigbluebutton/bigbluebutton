@@ -21,13 +21,9 @@ Meteor.methods({
           meeting_id: meetingId,
           mute: false,
           requester_id: requesterUserId,
-        },
-        header: {
-          timestamp: new Date().getTime(),
-          name: 'mute_user_request_message',
-          version: '0.0.1',
-        },
+        }
       };
+      message = appendMessageHeader('mute_user_request_message', message);
       Meteor.log.info(`publishing a user unmute request for ${toMuteUserId}`);
       publish(Meteor.config.redis.channels.toBBBApps.users, message);
       updateVoiceUser(meetingId, {

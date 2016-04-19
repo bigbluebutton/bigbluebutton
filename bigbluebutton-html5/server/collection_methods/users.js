@@ -76,9 +76,10 @@ this.requestUserLeaving = function (meetingId, userId) {
   }
 
   if ((userObject != null) && (voiceConf != null) && (userId != null) && (meetingId != null)) {
-
+    let lOnly;
+    lOnly = userObject.user.listenOnly;
     // end listenOnly audio for the departing user
-    if (userObject.user.listenOnly) {
+    if (null != lOnly && lOnly) {
       listenOnlyMessage = {
         payload: {
           userid: userId,

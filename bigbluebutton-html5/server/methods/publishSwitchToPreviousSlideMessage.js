@@ -22,11 +22,9 @@ Meteor.methods({
             payload: {
               page: previousSlideDoc.slide.id,
               meeting_id: meetingId,
-            },
-            header: {
-              name: 'go_to_slide',
-            },
+            }
           };
+          message = appendMessageHeader('go_to_slide', message);
           return publish(Meteor.config.redis.channels.toBBBApps.presentation, message);
         }
       }

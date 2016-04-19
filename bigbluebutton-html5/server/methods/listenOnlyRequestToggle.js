@@ -28,13 +28,9 @@ Meteor.methods({
             meeting_id: meetingId,
             voice_conf: voiceConf,
             name: username,
-          },
-          header: {
-            timestamp: new Date().getTime(),
-            name: 'user_connected_to_global_audio',
-            version: '0.0.1',
-          },
+          }
         };
+        message = appendMessageHeader('user_connected_to_global_audio', message);
         Meteor.log.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${userId}`);
         publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
       }
@@ -46,13 +42,9 @@ Meteor.methods({
             meeting_id: meetingId,
             voice_conf: voiceConf,
             name: username,
-          },
-          header: {
-            timestamp: new Date().getTime(),
-            name: 'user_disconnected_from_global_audio',
-            version: '0.0.1',
-          },
+          }
         };
+        message = appendMessageHeader('user_disconnected_from_global_audio', message);
         Meteor.log.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${userId}`);
         publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
       }

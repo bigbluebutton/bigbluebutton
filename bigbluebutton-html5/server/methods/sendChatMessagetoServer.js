@@ -25,16 +25,13 @@ Meteor.methods({
     if (isAllowedTo(action(), meetingId, requesterUserId, requesterToken) && chatObject.from_userid === requesterUserId) {
       chatObject.message = translateHTML5ToFlash(chatObject.message);
       message = {
-        header: {
-          timestamp: new Date().getTime(),
-          name: eventName,
-        },
         payload: {
           message: chatObject,
           meeting_id: meetingId,
           requester_id: chatObject.from_userid,
         },
       };
+      message = appendMessageHeader(eventName, message);
       Meteor.log.info('publishing chat to redis');
       publish(Meteor.config.redis.channels.toBBBApps.chat, message);
     }

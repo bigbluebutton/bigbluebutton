@@ -11,11 +11,9 @@ Meteor.methods({
           userid: toKickUserId,
           ejected_by: requesterUserId,
           meeting_id: meetingId,
-        },
-        header: {
-          name: 'eject_user_from_meeting_request_message',
-        },
+        }
       };
+      message = appendMessageHeader('eject_user_from_meeting_request_message', message);
       return publish(Meteor.config.redis.channels.toBBBApps.users, message);
     }
   },
