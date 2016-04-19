@@ -69,7 +69,7 @@ EmojiContainer = React.createClass ({
   render() {
     return (
       <div className={ classNames('FABContainer', !this.data.current_presentation ? 'noPresentation' : '' ) }>
-        <Button onClick={ this.handleFABTriggerButton } btn_class="FABTriggerButton" i_class="ion-android-hand"/>
+        <Button onClick={ this.handleFABTriggerButton } btn_class=" FABTriggerButton" i_class="ion-android-hand"/>
         {this.emojiIcons().map((emoji) =>
           <Button btn_class={ classNames(' ' + emoji.name + 'EmojiButton', this.getCurrentUserEmojiStatus(emoji.name) ? 'activeEmojiButton' : 'inactiveEmojiButton') }
           onClick={ this.getCurrentUserEmojiStatus(emoji.name) ? this.handleActive : this.handleInactive.bind(null, emoji.name) }
