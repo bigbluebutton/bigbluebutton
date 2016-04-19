@@ -1,5 +1,9 @@
 package org.bigbluebutton.air.main.views.topbar {
 	
+	import flash.utils.setTimeout;
+	
+	import mx.resources.ResourceManager;
+	
 	import spark.transitions.ViewTransitionBase;
 	
 	import org.bigbluebutton.air.common.PageEnum;
@@ -40,7 +44,6 @@ package org.bigbluebutton.air.main.views.topbar {
 			}
 		}
 		
-		
 		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationEnum.APPEAR, transition:ViewTransitionBase = null):void {
 			switch (pageName) {
 				case PageEnum.PRESENTATION:
@@ -54,6 +57,7 @@ package org.bigbluebutton.air.main.views.topbar {
 				case PageEnum.PARTICIPANTS:
 					selectLeftButton("none");
 					selectRightButton("presentation");
+					setTitle(ResourceManager.getInstance().getString('resources', 'participants.title'), 300);
 					break;
 				case PageEnum.USER_DETAILS:
 					selectLeftButton("back");
@@ -130,6 +134,12 @@ package org.bigbluebutton.air.main.views.topbar {
 					view.leftPresentationBtn.visible = false;
 					view.leftPresentationBtn.includeInLayout = true;
 			}
+		}
+		
+		private function setTitle(title:String, delay:int = 0):void {
+			setTimeout(function():void {
+				view.pageName.text = title;
+			}, delay);
 		}
 		
 		public override function destroy():void {

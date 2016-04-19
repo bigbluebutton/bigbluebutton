@@ -1,9 +1,6 @@
 package org.bigbluebutton.air.users.views.participants {
 	
-	import flash.utils.Dictionary;
-	
 	import mx.collections.ArrayCollection;
-	import mx.core.FlexGlobals;
 	import mx.resources.ResourceManager;
 	
 	import spark.events.IndexChangeEvent;
@@ -36,28 +33,13 @@ package org.bigbluebutton.air.users.views.participants {
 		
 		protected var dataProvider:ArrayCollection;
 		
-		protected var dicUserIdtoUser:Dictionary;
-		
-		private var _userMe:User;
-		
 		private var _usersAdded:Array = new Array();
 		
 		override public function initialize():void {
-			dataProvider = new ArrayCollection();
+			dataProvider = userSession.userList.users;
 			view.list.dataProvider = dataProvider;
 			view.list.addEventListener(IndexChangeEvent.CHANGE, onSelectParticipant);
-			dicUserIdtoUser = new Dictionary();
-			var users:ArrayCollection = userSession.userList.users;
-			for each (var user:User in users) {
-				addUser(user);
-				if (user.me) {
-					_userMe = user;
-				}
-			}
 			userSession.userList.userChangeSignal.add(userChanged);
-			userSession.userList.userAddedSignal.add(addUser);
-			userSession.userList.userRemovedSignal.add(userRemoved);
-			setPageTitle();
 			view.conversationsList.addEventListener(IndexChangeEvent.CHANGE, onSelectChat);
 			userUISession.pushPage(PageEnum.PARTICIPANTS);
 			initializeDataProviderConversations();
@@ -110,10 +92,7 @@ package org.bigbluebutton.air.users.views.participants {
 					dataProviderConversations.addItemAt(chat, pos);
 				}
 			}
-			//dataProvider.setItemAt(button, dataProvider.length-1);
 			dataProviderConversations.refresh();
-			setPageTitle();
-			//dicUsertoChat[chat.user] = chat;				
 		}
 		
 		/**
@@ -142,21 +121,6 @@ package org.bigbluebutton.air.users.views.participants {
 			return false;
 		}
 		
-		private function addUser(user:User):void {
-			dataProvider.addItem(user);
-			dataProvider.refresh();
-			dicUserIdtoUser[user.userID] = user;
-			setPageTitle();
-		}
-		
-		private function userRemoved(userID:String):void {
-			var user:User = dicUserIdtoUser[userID] as User;
-			var index:uint = dataProvider.getItemIndex(user);
-			dataProvider.removeItemAt(index);
-			dicUserIdtoUser[user.userID] = null;
-			setPageTitle();
-		}
-		
 		private function userChanged(user:User, property:String = null):void {
 			dataProvider.refresh();
 		}
@@ -165,15 +129,6 @@ package org.bigbluebutton.air.users.views.participants {
 			if (event.newIndex >= 0) {
 				var user:User = dataProvider.getItemAt(event.newIndex) as User;
 				userUISession.pushPage(PageEnum.USER_DETAILS, user, TransitionAnimationEnum.SLIDE_LEFT);
-			}
-		}
-		
-		/**
-		 * Count participants and set page title accordingly
-		 **/
-		private function setPageTitle():void {
-			if (dataProvider != null) {
-				FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'participants.title');
 			}
 		}
 		
@@ -186,8 +141,6 @@ package org.bigbluebutton.air.users.views.participants {
 			}
 			
 			userSession.userList.userChangeSignal.remove(userChanged);
-			userSession.userList.userAddedSignal.remove(addUser);
-			userSession.userList.userRemovedSignal.remove(userRemoved);
 			super.destroy();
 			view.dispose();
 			view = null;
