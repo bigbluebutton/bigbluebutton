@@ -94,17 +94,17 @@ Whiteboard = React.createClass({
         <div id="whiteboard-container" className={ classNames(this.data.whiteboard_size) }>
           <Slide />
           <EmojiContainer />
-          {this.data.is_mobile ? 
+          {this.data.is_mobile ?
             <Button onClick={this.isFullScreen() ? this.handleExitFullScreen : this.handleWhiteboardFullScreen} btn_class=" soaringButton fullscreenButton whiteboardFullscreenButton" i_class="ion-arrow-expand" />
           : null }
         </div>
         <div>
-        {this.data.is_presenter ? 
-          <WhiteboardControls />
-        : null }
-        {this.data.poll_started ? 
-          <Polling/>
+          {this.data.is_presenter ?
+            <WhiteboardControls />
           : null }
+          {this.data.poll_started ?
+            <Polling/>
+            : null }
         </div>
       </div>
     );

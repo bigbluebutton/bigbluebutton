@@ -41,10 +41,10 @@ Polling = React.createClass({
   render(){
     return (
       <div className="polling">
-        {this.getStyledAnswers(this.data.poll).map((question) =>
+        {this.data.poll ? this.getStyledAnswers(this.data.poll).map((question) =>
           <Button onClick={this.handleClick.bind(null, question.key, question.id)} btn_class=" pollButtons" rel="tooltip" data_placement="top"
           label={question.key} style={question.style} key={question.id}/>
-        )}
+        ) : null }
       </div>
     )
   }
