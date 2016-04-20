@@ -29,6 +29,7 @@ Meteor.startup(() => {
 
 //
 Template.header.events({
+  /*  Moved what's wtill relevant to Header.jsx
   "click .chatBarIcon"(event) {
     $(".tooltip").hide();
     return toggleChatbar();
@@ -73,9 +74,11 @@ Template.header.events({
     $('.toggleMenuButton').blur();
     return toggleSettingsMenu();
   },
+
   "click .btn"(event) {
-    return $(".ui-tooltip").hide();
+    //return $(".ui-tooltip").hide();
   }
+  */
 });
 
 Template.menu.events({
@@ -90,7 +93,7 @@ Template.menu.events({
 });
 
 Template.main.rendered = function() {
-  ReactDOM.render(<Chat />, document.getElementById("chat"));
+  ReactDOM.render(<MainContainer />, document.getElementById("main"));
 
   let lastOrientationWasLandscape;
   $("#dialog").dialog({
@@ -165,13 +168,16 @@ Template.main.events({
     toggleShield();
     return closeMenus();
   },
+  /* moved to Header.jsx -> click handlers
   'click .settingsIcon'(event) {
     return $("#settingsModal").foundation('reveal', 'open');
   },
+
   'click .signOutIcon'(event) {
     $('.signOutIcon').blur();
     return $("#logoutModal").foundation('reveal', 'open');
   }
+  */
 });
 
 Template.main.gestures({
