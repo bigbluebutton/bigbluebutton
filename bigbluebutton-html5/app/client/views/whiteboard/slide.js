@@ -1,5 +1,5 @@
-Template.slide.rendered = function() {
-  return reactOnSlideChange(this);
+/*Template.slide.rendered = function() {
+  return reactOnSlideChange();
 };
 
 this.reactOnSlideChange = function() {
@@ -126,17 +126,23 @@ this.scaleSlide = function(originalWidth, originalHeight) {
     boardHeight: boardHeight
   };
 };
+*/
 
+/*
 Template.slide.helpers({
   updatePointerLocation(pointer) {
     return typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null ? whiteboardPaperModel.moveCursor(pointer.x, pointer.y) : void 0;
   }
 });
 
+*/
+
+
+
+/*
 //// SHAPE ////
 Template.shape.rendered = function() {
   let i, len, num, ref, ref1, shapeInfo, shapeType, wpm;
-
   // @data is the shape object coming from the {{#each}} in the html file
   shapeInfo = ((ref = this.data.shape) != null ? ref.shape : void 0) || this.data.shape;
   shapeType = shapeInfo != null ? shapeInfo.type : void 0;
@@ -154,7 +160,8 @@ Template.shape.rendered = function() {
     return wpm != null ? wpm.updateShape(shapeType, shapeInfo) : void 0;
   }
 };
-
+*/
+/*
 Template.shape.destroyed = function() {
   let wpm;
   if(typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null) {
@@ -163,3 +170,4 @@ Template.shape.destroyed = function() {
     return manuallyDisplayShapes();
   }
 };
+*/

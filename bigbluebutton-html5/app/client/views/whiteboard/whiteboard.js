@@ -1,6 +1,7 @@
-let fakeUpload;
+/*let fakeUpload;
 
 Template.whiteboard.helpers({
+// moved to Whiteboard.jsx -> MeteorReactiveData
   isPollStarted() {
     if(BBB.isPollGoing(getInSession('userId'))) {
       return true;
@@ -8,6 +9,7 @@ Template.whiteboard.helpers({
       return false;
     }
   },
+  // was moved somewhere
   hasNoPresentation() {
     return Meteor.Presentations.findOne({
       'presentation.current': true
@@ -16,6 +18,7 @@ Template.whiteboard.helpers({
   forceSlideShow() {
     return reactOnSlideChange();
   },
+// moved to Slide.jsx as a helper function
   clearSlide() {
     let ref;
     //clear the slide
@@ -25,10 +28,11 @@ Template.whiteboard.helpers({
     //hide the cursor
     return typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null ? (ref = whiteboardPaperModel.cursor) != null ? ref.remove() : void 0 : void 0;
   }
+
 });
 
-
 Template.whiteboard.events({
+  // moved to Whiteboard.jsx -> onClick handlers
   'click .whiteboardFullscreenButton'(event, template) {
     return enterWhiteboardFullscreen();
   },
@@ -41,6 +45,7 @@ Template.whiteboard.events({
       return document.webkitExitFullscreen();
     }
   },
+  //  moved to EmojiContainer.jsx
   'click .inactiveEmojiButton'(event) {
     if($(event.target).css('opacity') === '1') {
       BBB.setEmojiStatus(
@@ -106,15 +111,13 @@ Template.whiteboardControls.events({
   }
 });
 
-Template.whiteboardControls.rendered = function() {
-  return scaleWhiteboard();
-};
 
 Template.whiteboardControls.destroyed = function() {
   return setTimeout(scaleWhiteboard, 0);
 };
 
 Template.whiteboard.rendered = function() {
+  //moved to Whiteboard.jsx as a helper function
   $('#whiteboard').resizable({
     handles: 'e',
     minWidth: 150,
@@ -237,3 +240,4 @@ Template.presenterUploaderControlPresentationListItem.events({
     return console.info('Should delete the file `' + this.name + '`');
   }
 });
+*/

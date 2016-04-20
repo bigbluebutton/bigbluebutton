@@ -1,4 +1,4 @@
-<template name="whiteboard">
+<!--<template name="whiteboard">
   <div id="{{id}}" class="component">
     {{#if getCurrentSlide}}
       {{>slide}}
@@ -10,7 +10,9 @@
     <div id="whiteboard-container" class="{{whiteboardSize}}">
       <div id="whiteboard-paper">
       </div>
+      -->
       <!-- TODO: Move this to the whiteboardControls -->
+      <!--
       <div class="FABContainer {{#unless hasNoPresentation}}noPresentation{{/unless}}">
         <button type="submit" class="FABTriggerButton">
           <i class="ion-android-hand"></i>
@@ -37,8 +39,10 @@
 <template name="whiteboardControls">
   <div id="whiteboard-controls">
     <div class="whiteboard-buttons-left">
+      -->
       <!-- TODO: Adjust the presenter uploader for mobile views on iOS devices
                  you cant upload PDFs, only images from camera/gallery -->
+      <!--
       {{#unless isMobile}}
         {{> presenterUploaderControl}}
       {{/unless}}
@@ -112,3 +116,4 @@
     </span>
   </li>
 </template>
+-->
