@@ -49,15 +49,20 @@ this.isPanHorizontal = function(event) {
   return Math.abs(event.deltaX) > Math.abs(event.deltaY);
 };
 
+/*  moved to Header.jsx - getMeteorData
+USED IN MODALS AS WELL!
 // helper to determine whether user has joined any type of audio
 Handlebars.registerHelper("amIInAudio", () => {
   return BBB.amIInAudio();
 });
+*/
 
+/*  moved to Header.jsx - getMeteorData
 // helper to determine whether the user is in the listen only audio stream
 Handlebars.registerHelper("amIListenOnlyAudio", () => {
   return BBB.amIListenOnlyAudio();
 });
+*/
 
 // helper to determine whether the user is in the listen only audio stream
 Handlebars.registerHelper("isMyMicLocked", () => {
@@ -115,9 +120,11 @@ Handlebars.registerHelper("getUsersInMeeting", () => {
   }
 });
 
+/* moved to Header.jsx in getMeteorData -> 
 Handlebars.registerHelper("getWhiteboardTitle", () => {
   return BBB.currentPresentationName() || "No active presentation";
 });
+*/
 
 Handlebars.registerHelper("getCurrentUserEmojiStatus", () => {
   let ref, ref1;
@@ -129,10 +136,13 @@ Handlebars.registerHelper("isCurrentUser", userId => {
   return userId === null || userId === ((ref = BBB.getCurrentUser()) != null ? ref.userId : void 0);
 });
 
+/*moved to Header.jsx - getMeteorData
+
 Handlebars.registerHelper("isCurrentUserMuted", () => {
   return BBB.amIMuted();
 });
 
+*/
 //Retreives a username for a private chat tab from the database if it exists
 Handlebars.registerHelper("privateChatName", () => {
   let obj, ref;
@@ -152,9 +162,13 @@ Handlebars.registerHelper("isCurrentUserSharingVideo", () => {
   return BBB.amISharingVideo();
 });
 
+/* moved to Header.jsx - getMeteorData
+USED IN THE USER LIST AS WELL!
 Handlebars.registerHelper("isCurrentUserTalking", () => {
   return BBB.amITalking();
 });
+
+*/
 
 Handlebars.registerHelper("isCurrentUserPresenter", () => {
   return BBB.isUserPresenter(getInSession('userId'));
@@ -210,6 +224,7 @@ Handlebars.registerHelper("messageFontSize", () => {
   };
 });
 
+//REMOVE
 Handlebars.registerHelper("pointerLocation", () => {
   let currentPresentation, currentSlideDoc, pointer, presentationId, ref;
   currentPresentation = Meteor.Presentations.findOne({
@@ -248,6 +263,7 @@ Handlebars.registerHelper('containerPosition', section => {
   }
 });
 
+/* moved to Whiteboard.jsx -> getMeteorData
 // vertically shrinks the whiteboard if the slide navigation controllers are present
 Handlebars.registerHelper('whiteboardSize', section => {
   if(BBB.isUserPresenter(getInSession('userId'))) {
@@ -261,6 +277,8 @@ Handlebars.registerHelper('whiteboardSize', section => {
   }
 });
 
+*/
+
 Template.registerHelper('emojiIcons', function () {
   return [
     { name: 'sad', icon: 'sad-face', title: '' },
@@ -273,15 +291,15 @@ Template.registerHelper('emojiIcons', function () {
 });
 
 // scale the whiteboard to adapt to the resized window
-this.scaleWhiteboard = function(callback) {
+this.scaleWhiteboard = function(whiteboardPaperModel) {
   let adjustedDimensions;
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'));
   if(typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null) {
     whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height);
   }
-  if(callback) {
+  /* if(callback) {
     callback();
-  }
+  } */
 };
 
 this.getSortedUserList = function(users) {
