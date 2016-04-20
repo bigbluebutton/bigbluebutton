@@ -99,9 +99,9 @@ public class MeetingService implements MessageListener {
     }
 
     public void registerUser(String meetingID, String internalUserId,
-            String fullname, String role, String externUserID, String authToken) {
+            String fullname, String role, String externUserID, String authToken, String avatarURL) {
         handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-                externUserID, authToken));
+                externUserID, authToken, avatarURL));
     }
 
     public UserSession getUserSession(String token) {
@@ -295,7 +295,7 @@ public class MeetingService implements MessageListener {
     private void processRegisterUser(RegisterUser message) {
         messagingService.registerUser(message.meetingID,
                 message.internalUserId, message.fullname, message.role,
-                message.externUserID, message.authToken);
+                message.externUserID, message.authToken, message.avatarURL);
     }
 
     public String addSubscription(String meetingId, String event,
@@ -583,7 +583,7 @@ public class MeetingService implements MessageListener {
           }
           
             User user = new User(message.userId, message.externalUserId,
-                    message.name, message.role);
+                    message.name, message.role, message.avatarURL);
             m.userJoined(user);
 
             Map<String, Object> logData = new HashMap<String, Object>();
