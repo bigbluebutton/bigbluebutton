@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 Whiteboard = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
