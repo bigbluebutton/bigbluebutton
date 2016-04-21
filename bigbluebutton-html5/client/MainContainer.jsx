@@ -1,3 +1,5 @@
+import React from 'react';
+
 MainContainer = React.createClass({
   render() {
     return (

@@ -1,3 +1,5 @@
+import React from 'react';
+
 EmojisSVG = React.createClass ({
   render() {
     if(this.props.emoji == "happy-face") {

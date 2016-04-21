@@ -1,3 +1,5 @@
+import React from 'react';
+
 PresentationList = React.createClass({
   handleShow(name){
     return console.info('Should show the file `' + name + '`');

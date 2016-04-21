@@ -1,3 +1,5 @@
+import React from 'react';
+
 Chat = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {

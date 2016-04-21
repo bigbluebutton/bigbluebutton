@@ -1,3 +1,5 @@
+import React from 'react';
+
 UploaderControls = React.createClass ({
   getDefaultProps: function() {
     return {

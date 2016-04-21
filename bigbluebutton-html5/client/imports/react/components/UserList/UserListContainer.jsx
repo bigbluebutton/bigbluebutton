@@ -1,3 +1,4 @@
+import React from 'react';
 import {UserList} from './UserList.jsx';
 import {mapUsers} from './UserListService.js';
 

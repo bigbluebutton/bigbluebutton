@@ -1,4 +1,7 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
 import {UserListContainer} from './imports/react/components/UserList/UserListContainer.jsx';
+import { createContainer } from 'meteor/react-meteor-data';
 
 let loadLib;
 
@@ -97,7 +100,7 @@ Template.menu.events({
 Template.main.rendered = function() {
   ReactDOM.render(<MainContainer />, document.getElementById("main"));
   ReactDOM.render(<UserListContainer />, document.getElementById('user-contents'));
-  
+
   let lastOrientationWasLandscape;
   $("#dialog").dialog({
     modal: true,

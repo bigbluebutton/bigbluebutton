@@ -1,3 +1,5 @@
+import React from 'react';
+
 ChatMessage = React.createClass({ 
   sanitizeAndFormat: function(str) {
     let res;

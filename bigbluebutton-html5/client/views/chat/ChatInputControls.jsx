@@ -1,3 +1,5 @@
+import React from 'react';
+
 ChatInputControls = React.createClass({
   //#TODO MessageFontSize dynamic change
   componentDidMount: function() {

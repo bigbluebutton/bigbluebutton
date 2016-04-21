@@ -1,3 +1,5 @@
+import React from 'react';
+
 WhiteboardControls = React.createClass ({
   mixins: [ReactMeteorData],
   getMeteorData() {

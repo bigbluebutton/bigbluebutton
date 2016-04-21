@@ -1,3 +1,5 @@
+import React from 'react';
+
 this.scaleSlide = function(originalWidth, originalHeight) {
   let adjustedHeight, adjustedWidth, boardHeight, boardWidth;
 

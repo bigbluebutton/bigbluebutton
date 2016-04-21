@@ -1,3 +1,5 @@
+import React from 'react';
+
 Button = React.createClass({
 
   hasGotUnreadMail(userId) {

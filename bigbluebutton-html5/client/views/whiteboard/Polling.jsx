@@ -1,3 +1,5 @@
+import React from 'react';
+
 Polling = React.createClass({
   //#TODO Move this to parent later?
   mixins: [ReactMeteorData],

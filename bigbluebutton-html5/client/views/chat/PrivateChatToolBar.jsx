@@ -1,3 +1,5 @@
+import React from 'react';
+
 PrivateChatToolBar = React.createClass({
   componentDidMount: function() {
     if(isLandscape() || isPortrait()) {
