@@ -33,16 +33,16 @@ Meteor.startup(() => {
   Meteor.myQueue.taskHandler = function (data, next, failures) {
     let eventName, parsedMsg, length, lengthString;
     parsedMsg = JSON.parse(data.jsonMsg);
-    length = Meteor.myQueue.length();
-    lengthString = '' + function () {
-        if (length > 0) {
-          return `In the queue we have ${length} event(s) to process.`;
-        }
-      }();
 
-    Meteor.log.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
     if (parsedMsg != null) {
       eventName = parsedMsg.header.name;
+      length = Meteor.myQueue.length();
+      lengthString = function () {
+            if (length > 0) {
+              return `In the queue we have ${length} event(s) to process.`;
+            } else return "";
+          }() || "";
+      Meteor.log.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
     }
     console.log("in taskHandler:" + eventName);
 
