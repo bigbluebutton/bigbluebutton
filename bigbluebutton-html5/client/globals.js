@@ -52,21 +52,6 @@ this.isPanHorizontal = function (event) {
   return Math.abs(event.deltaX) > Math.abs(event.deltaY);
 };
 
-/*  moved to Header.jsx - getMeteorData
-USED IN MODALS AS WELL!
-// helper to determine whether user has joined any type of audio
-Handlebars.registerHelper('amIInAudio', () => {
-  return BBB.amIInAudio();
-});
-*/
-
-/*  moved to Header.jsx - getMeteorData
-// helper to determine whether the user is in the listen only audio stream
-Handlebars.registerHelper('amIListenOnlyAudio', () => {
-  return BBB.amIListenOnlyAudio();
-});
-*/
-
 // helper to determine whether the user is in the listen only audio stream
 Handlebars.registerHelper('isMyMicLocked', () => {
   return BBB.isMyMicLocked();
@@ -124,11 +109,6 @@ Handlebars.registerHelper('getUsersInMeeting', () => {
   }
 });
 
-/* moved to Header.jsx in getMeteorData -> 
-Handlebars.registerHelper("getWhiteboardTitle", () => {
-  return BBB.currentPresentationName() || "No active presentation";
-*/
-
 Handlebars.registerHelper('getCurrentUserEmojiStatus', () => {
   let ref, ref1;
   return (ref = BBB.getCurrentUser()) != null ? (ref1 = ref.user) != null ? ref1.emoji_status : void 0 : void 0;
@@ -139,11 +119,6 @@ Handlebars.registerHelper('isCurrentUser', userId => {
   return userId === null || userId === ((ref = BBB.getCurrentUser()) != null ? ref.userId : void 0);
 });
 
-/*moved to Header.jsx - getMeteorData
-Handlebars.registerHelper("isCurrentUserMuted", () => {
-  return BBB.amIMuted();
-});
-*/
 
 //Retreives a username for a private chat tab from the database if it exists
 Handlebars.registerHelper('privateChatName', () => {
@@ -163,14 +138,6 @@ Handlebars.registerHelper('isCurrentUserEmojiStatusSet', () => {
 Handlebars.registerHelper('isCurrentUserSharingVideo', () => {
   return BBB.amISharingVideo();
 });
-
-/* moved to Header.jsx - getMeteorData
-USED IN THE USER LIST AS WELL!
-Handlebars.registerHelper("isCurrentUserTalking", () => {
-  return BBB.amITalking();
-});
-
-*/
 
 Handlebars.registerHelper("isCurrentUserPresenter", () => {
   return BBB.isUserPresenter(getInSession('userId'));
@@ -264,42 +231,6 @@ Handlebars.registerHelper('containerPosition', section => {
     return '';
   }
 });
-
-/* moved to Whiteboard.jsx -> getMeteorData
-// vertically shrinks the whiteboard if the slide navigation controllers are present
-Handlebars.registerHelper('whiteboardSize', section => {
-  if (BBB.isUserPresenter(getInSession('userId'))) {
-    return 'presenter-whiteboard';
-  } else {
-    if (BBB.isPollGoing(getInSession('userId'))) {
-      return 'poll-whiteboard';
-    } else {
-      return 'viewer-whiteboard';
-    }
-  }
-});
-
-*/
-
-/* Moved to Polling.jsx -> getMeteorData
-Handlebars.registerHelper('getPollQuestions', () => {
-  let answer, buttonStyle, j, len, marginStyle, number, polls, ref, widthStyle;
-  polls = BBB.getCurrentPoll(getInSession('userId'));
-  if ((polls != null) && polls !== void 0) {
-    number = polls.poll_info.poll.answers.length;
-    widthStyle = `width: calc(75%/${number});`;
-    marginStyle = `margin-left: calc(25%/${number * 2});margin-right: calc(25%/${number * 2});`;
-    buttonStyle = widthStyle + marginStyle;
-    ref = polls.poll_info.poll.answers;
-    for (j = 0, len = ref.length; j < len; j++) {
-      answer = ref[j];
-      answer.style = buttonStyle;
-    }
-
-    return polls.poll_info.poll.answers;
-  }
-});
-*/ 
 
 Template.registerHelper('emojiIcons', function () {
   return [

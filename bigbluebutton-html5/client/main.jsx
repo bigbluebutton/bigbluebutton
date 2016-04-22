@@ -39,60 +39,6 @@ Meteor.startup(() => {
   });
 });
 
-//
-Template.header.events({
-  /*  Moved what's wtill relevant to Header.jsx
-  "click .chatBarIcon"(event) {
-    $(".tooltip").hide();
-    return toggleChatbar();
-  },
-  "click .hideNavbarIcon"(event) {
-    $(".tooltip").hide();
-    return toggleNavbar();
-  },
-  "click .leaveAudioButton"(event) {
-    return exitVoiceCall(event);
-  },
-  "click .muteIcon"(event) {
-    $(".tooltip").hide();
-    return toggleMic(this);
-  },
-  "click .hideNavbarIcon"(event) {
-    $(".tooltip").hide();
-    return toggleNavbar();
-  },
-  "click .videoFeedIcon"(event) {
-    $(".tooltip").hide();
-    return toggleCam(this);
-  },
-  "click .toggleUserlistButton"(event) {
-    if(isLandscape() || isLandscapeMobile()) {
-      return toggleUsersList();
-    } else {
-      if($('.settingsMenu').hasClass('menuOut')) {
-        toggleSettingsMenu();
-      } else {
-        toggleShield();
-      }
-      return toggleUserlistMenu();
-    }
-  },
-  "click .toggleMenuButton"(event) {
-    if($('.userlistMenu').hasClass('menuOut')) {
-      toggleUserlistMenu();
-    } else {
-      toggleShield();
-    }
-    $('.toggleMenuButton').blur();
-    return toggleSettingsMenu();
-  },
-
-  "click .btn"(event) {
-    //return $(".ui-tooltip").hide();
-  }
-  */
-});
-
 Template.menu.events({
   'click .slideButton'(event) {
     toggleShield();
@@ -174,24 +120,6 @@ Template.main.rendered = function() {
     }
   }
 };
-
-Template.main.events({
-  'click .shield'(event) {
-    $(".tooltip").hide();
-    toggleShield();
-    return closeMenus();
-  },
-  /* moved to Header.jsx -> click handlers
-  'click .settingsIcon'(event) {
-    return $("#settingsModal").foundation('reveal', 'open');
-  },
-
-  'click .signOutIcon'(event) {
-    $('.signOutIcon').blur();
-    return $("#logoutModal").foundation('reveal', 'open');
-  }
-  */
-});
 
 Template.main.gestures({
   'panstart #container'(event, template) {
