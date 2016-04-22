@@ -137,11 +137,11 @@ package org.bigbluebutton.lib.user.models {
 				return -1;
 			else if (bu.role == User.MODERATOR)
 				return 1;
-			else if ((au.status == User.RAISE_HAND) && (bu.status == User.RAISE_HAND)) {
+			else if ((User.EMOJI_STATUSES.indexOf(au.status) > -1) && (User.EMOJI_STATUSES.indexOf(bu.status) > -1)) {
 				// do nothing go to the end and check names
-			} else if ((au.status == User.RAISE_HAND))
+			} else if (User.EMOJI_STATUSES.indexOf(au.status) > -1)
 				return -1;
-			else if ((bu.status == User.RAISE_HAND))
+			else if (User.EMOJI_STATUSES.indexOf(au.status) > -1)
 				return 1;
 			else if (au.phoneUser && bu.phoneUser) {
 			} else if (au.phoneUser)
@@ -358,15 +358,6 @@ package org.bigbluebutton.lib.user.models {
 					case User.NO_STATUS:
 						userChangeSignal.dispatch(p.participant, NO_STATUS);
 				}
-			}
-		}
-		
-		public function roleChange(userID:String, role:String):void {
-			var p:Object = getUserIndex(userID);
-			if (p) {
-				var user:User = p.participant as User;
-				p.participant.role = role;
-				userChangeSignal.dispatch(p.participant, role);
 			}
 		}
 		

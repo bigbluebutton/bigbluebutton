@@ -26,6 +26,8 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const AWAY:String = "away";
 		
+		public static const EMOJI_STATUSES:Array = [RAISE_HAND, HAPPY, SMILE, NEUTRAL, SAD, CONFUSED, AWAY];
+		
 		
 		/**
 		 * Flag to tell that user is in the process of leaving the meeting.

@@ -1,4 +1,4 @@
-package org.bigbluebutton.lib.util {
+package org.bigbluebutton.lib.whiteboard.util {
 	import flash.display.Graphics;
 	
 	import spark.primitives.supportClasses.FilledElement;

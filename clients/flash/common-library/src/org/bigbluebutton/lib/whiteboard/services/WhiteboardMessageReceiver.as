@@ -1,7 +1,7 @@
 package org.bigbluebutton.lib.whiteboard.services {
 	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.util.AnnotationUtil;
+	import org.bigbluebutton.lib.whiteboard.util.AnnotationUtil;
 	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
 	
 	public class WhiteboardMessageReceiver implements IMessageListener {

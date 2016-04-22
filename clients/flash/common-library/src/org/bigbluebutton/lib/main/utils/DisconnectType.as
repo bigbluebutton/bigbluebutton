@@ -8,7 +8,5 @@ package org.bigbluebutton.lib.main.utils {
 		public static const CONNECTION_STATUS_USER_LOGGED_OUT_STRING:String = "USER_LOGGED_OUT";
 		
 		public static const CONNECTION_STATUS_USER_KICKED_OUT_STRING:String = "USER_KICKED_OUT";
-		
-		public static const CONNECTION_STATUS_MODERATOR_DENIED_STRING:String = "MODERATOR_DENIED";
 	}
 }

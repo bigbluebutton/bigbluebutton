@@ -44,7 +44,6 @@ package org.bigbluebutton.air.settings.views.lock {
 			newLockSettings.lockOnJoinConfigurable = userSession.lockSettings.lockOnJoinConfigurable;
 			saveLockSettingsSignal.dispatch(newLockSettings);
 			userUISession.popPage();
-			userUISession.popPage();
 		}
 		
 		private function loadLockSettings():void {

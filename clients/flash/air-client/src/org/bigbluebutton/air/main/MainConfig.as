@@ -29,8 +29,6 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
-	import org.bigbluebutton.lib.main.commands.RaiseHandCommand;
-	import org.bigbluebutton.lib.main.commands.RaiseHandSignal;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
@@ -75,7 +73,6 @@ package org.bigbluebutton.air.main {
 		private function signals():void {
 			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommandAIR);
 			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommandAIR);
-			signalCommandMap.map(RaiseHandSignal).toCommand(RaiseHandCommand);
 			signalCommandMap.map(NavigateToSignal).toCommand(NavigateToCommand);
 			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);

@@ -4,7 +4,6 @@ package org.bigbluebutton.lib.user.services {
 	
 	public interface IUsersService {
 		function setupMessageSenderReceiver():void;
-		function sendJoinMeetingMessage():void;
 		function kickUser(userID:String):void;
 		function queryForParticipants():void;
 		function assignPresenter(userid:String, name:String, assignedBy:String):void;
@@ -29,6 +28,5 @@ package org.bigbluebutton.lib.user.services {
 		function mute(user:User):void;
 		function unmute(user:User):void;
 		function validateToken():void;
-		function changeRole(userID:String, role:String):void;
 	}
 }

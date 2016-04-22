@@ -72,22 +72,13 @@ package org.bigbluebutton.lib.user.services {
 					handleMeetingHasEnded(message);
 					break;
 				case "userEmojiStatus":
-					handleEmojiStatusHand(message);
+					handleEmojiStatus(message);
 					break;
 				case "validateAuthTokenTimedOut":
 					handleValidateAuthTokenTimedOut(message);
 					break;
 				case "validateAuthTokenReply":
 					handleValidateAuthTokenReply(message);
-					break;
-				case "participantRoleChange":
-					handleParticipantRoleChange(message);
-					break;
-				case "userRaisedHand":
-					handleParticipantRaisedHand(message);
-					break;
-				case "userLoweredHand":
-					handleParticipantLoweredHand(message);
 					break;
 				case "meetingState":
 					handleMeetingState(message);
@@ -124,7 +115,7 @@ package org.bigbluebutton.lib.user.services {
 		private function handleUserLocked(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("handleUserLocked: " + ObjectUtil.toString(msg));
-			trace("your id: " + userSession.userList.me.userID)
+			trace("your id: " + userSession.userList.me.userID);
 			var user:User = userSession.userList.getUserByUserId(msg.user);
 			user.locked = msg.lock;
 			if (userSession.userList.me.userID == msg.user) {
@@ -150,12 +141,6 @@ package org.bigbluebutton.lib.user.services {
 			updateLockSettings(msg);
 		}
 		
-		private function handleParticipantRaisedHand(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("ParticipantRaisedHand: " + ObjectUtil.toString(msg));
-			userSession.userList.statusChange(msg.userId, User.RAISE_HAND);
-		}
-		
 		private function updateLockSettings(msg:Object):void {
 			userSession.lockSettings.disableCam = msg.disableCam;
 			userSession.lockSettings.disableMic = msg.disableMic;
@@ -168,19 +153,7 @@ package org.bigbluebutton.lib.user.services {
 			userSession.dispatchLockSettings();
 		}
 		
-		private function handleParticipantLoweredHand(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("ParticipantLoweredHand: " + ObjectUtil.toString(msg));
-			userSession.userList.statusChange(msg.userId, User.NO_STATUS);
-		}
-		
-		private function handleParticipantRoleChange(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace("ParticipantRoleChange: " + ObjectUtil.toString(msg));
-			userSession.userList.roleChange(msg.userID, msg.role);
-		}
-		
-		private function handleEmojiStatusHand(m:Object):void {
+		private function handleEmojiStatus(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("UsersMessageReceiver::handleEmojiStatusHand() -- user [" + msg.userId + "," + msg.emojiStatus + "] ");
 			userSession.userList.statusChange(msg.userId, msg.emojiStatus);
@@ -222,36 +195,7 @@ package org.bigbluebutton.lib.user.services {
 			user.isLeavingFlag = false;
 			user.listenOnly = newUser.listenOnly;
 			user.muted = newUser.voiceUser.muted;
-			var status:String = newUser.status;
-			if (newUser.raiseHand) {
-				user.status = User.RAISE_HAND;
-			}
-			if (status) {
-				switch (status.substr(0, status.indexOf(","))) {
-					case "away":
-						user.status = User.AWAY;
-						break;
-					case "happy":
-						user.status = User.HAPPY;
-						break;
-					case "neutral":
-						user.status = User.NEUTRAL;
-						break;
-					case "sad":
-						user.status = User.SAD;
-						break;
-					case "confused":
-						user.status = User.CONFUSED;
-						break;
-					case "raiseHand":
-						user.status = User.RAISE_HAND;
-						break;
-					case "":
-					case "none":
-						user.status = User.NO_STATUS;
-						break;
-				}
-			}
+			user.status = newUser.status;
 			userSession.userList.addUser(user);
 		}
 		

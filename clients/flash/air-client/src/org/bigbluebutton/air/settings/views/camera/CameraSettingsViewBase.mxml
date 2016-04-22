@@ -38,7 +38,8 @@
 					<s:List id="cameraprofileslist"
 							width="100%"
 							styleName="cameraProfilesListStyle"
-							itemRenderer="org.bigbluebutton.air.settings.views.cameraprofiles.CameraProfileItemRenderer">
+							labelField="name"
+							itemRenderer="spark.components.LabelItemRenderer">
 						<s:layout>
 							<s:VerticalLayout horizontalAlign="contentJustify"
 											  gap="0"

@@ -49,12 +49,12 @@ package org.bigbluebutton.lib.voice.commands {
 			voiceConnection = userSession.voiceConnection;
 			voiceConnection.hangUpSuccessSignal.remove(enableAudio);
 			if (!voiceConnection.connection.connected) {
-				voiceConnection.connectionSuccessSignal.add(mediaconnectionSuccessSignal);
-				voiceConnection.connectionFailureSignal.add(mediaUnconnectionSuccessSignal);
+				voiceConnection.connectionSuccessSignal.add(mediaconnectionSuccess);
+				voiceConnection.connectionFailureSignal.add(mediaConnectionFailure);
 				voiceConnection.connect(conferenceParameters, _listenOnly);
 			} else if (!voiceConnection.callActive) {
-				voiceConnection.connectionSuccessSignal.add(mediaconnectionSuccessSignal);
-				voiceConnection.connectionFailureSignal.add(mediaUnconnectionSuccessSignal);
+				voiceConnection.connectionSuccessSignal.add(mediaconnectionSuccess);
+				voiceConnection.connectionFailureSignal.add(mediaConnectionFailure);
 				voiceConnection.call(_listenOnly);
 			} else {
 				disableAudio();
@@ -71,7 +71,7 @@ package org.bigbluebutton.lib.voice.commands {
 			}
 		}
 		
-		private function mediaconnectionSuccessSignal(publishName:String, playName:String, codec:String, manager:VoiceStreamManager = null):void {
+		private function mediaconnectionSuccess(publishName:String, playName:String, codec:String, manager:VoiceStreamManager = null):void {
 			trace(LOG + "mediaconnectionSuccessSignal()");
 			if (!manager) {
 				var manager:VoiceStreamManager = new VoiceStreamManager();
@@ -85,17 +85,17 @@ package org.bigbluebutton.lib.voice.commands {
 				manager.publish(voiceConnection.connection, publishName, codec, userSession.pushToTalk);
 			}
 			userSession.voiceStreamManager = manager;
-			voiceConnection.connectionSuccessSignal.remove(mediaconnectionSuccessSignal);
-			voiceConnection.connectionFailureSignal.remove(mediaUnconnectionSuccessSignal);
+			voiceConnection.connectionSuccessSignal.remove(mediaconnectionSuccess);
+			voiceConnection.connectionFailureSignal.remove(mediaConnectionFailure);
 			if (userSession.pushToTalk) {
 				userSession.pushToTalkSignal.dispatch();
 			}
 		}
 		
-		private function mediaUnconnectionSuccessSignal(reason:String):void {
+		private function mediaConnectionFailure(reason:String):void {
 			trace(LOG + "mediaUnconnectionSuccessSignal()");
-			voiceConnection.connectionSuccessSignal.remove(mediaconnectionSuccessSignal);
-			voiceConnection.connectionFailureSignal.remove(mediaUnconnectionSuccessSignal);
+			voiceConnection.connectionSuccessSignal.remove(mediaconnectionSuccess);
+			voiceConnection.connectionFailureSignal.remove(mediaConnectionFailure);
 		}
 	}
 }

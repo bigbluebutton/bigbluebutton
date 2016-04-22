@@ -17,8 +17,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
-	import org.bigbluebutton.lib.main.commands.ChangeRoleCommand;
-	import org.bigbluebutton.lib.main.commands.ChangeRoleSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
@@ -93,7 +91,6 @@ package org.bigbluebutton.air {
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
 			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
 			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
-			signalCommandMap.map(ChangeRoleSignal).toCommand(ChangeRoleCommand);
 			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
 		}

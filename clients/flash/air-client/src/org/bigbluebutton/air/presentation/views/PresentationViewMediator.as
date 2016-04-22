@@ -215,10 +215,8 @@ package org.bigbluebutton.air.presentation.views {
 		private function userChangeHandler(user:User, property:int):void {
 			if (property == UserList.HAS_STREAM) {
 				var displayedUser:User = getDisplayedUser();
-				if (displayedUser) {
-					if (user.userID == displayedUser.userID && !user.hasStream) {
-						stopStream(user.userID);
-					}
+				if (displayedUser && user.userID == displayedUser.userID && !user.hasStream) {
+					stopStream(user.userID);
 				}
 				var userStreamNames:Array = getUserStreamNamesByUserID(user.userID);
 				for each (var userStreamName:UserStreamName in userStreamNames) {
@@ -235,26 +233,16 @@ package org.bigbluebutton.air.presentation.views {
 				if (user.streamName.split("|").length > userStreamNames.length && user.streamName.length > 0) {
 					var camNumber:int = dataProvider.length;
 					addUserStreamNames(user);
-					if (userUISession.currentStreamName == userSession.userList.me.streamName && camNumber == 1) {
-						if (!speaker) {
-							checkVideo();
-						}
-					}
-				}
-				if (userUISession.currentStreamName == "") {
-					if (!speaker) {
+					if (userUISession.currentStreamName == userSession.userList.me.streamName && camNumber == 1 && !speaker) {
 						checkVideo();
 					}
 				}
-				if (dataProvider.length == 0) {
-					displayVideo(false);
-				} else {
-					displayVideo(true && !camerasHidden);
-				}
-			} else if (property == UserList.PRESENTER) {
-				if (!speaker) {
+				if (userUISession.currentStreamName == "" && !speaker) {
 					checkVideo();
 				}
+				dataProvider.length == 0 ? displayVideo(false) : displayVideo(true && !camerasHidden);
+			} else if (property == UserList.PRESENTER && !speaker) {
+				checkVideo();
 			}
 			dataProvider.refresh();
 		}
@@ -272,23 +260,16 @@ package org.bigbluebutton.air.presentation.views {
 				if (changedUser) {
 					userStreamNames = getUserStreamNamesByUserID(changedUser.userID);
 					// Priority state machine
-					if (changedUser.presenter && changedUser.hasStream) {
-						if (getView())
-							getView().stopStream();
-						startStream(changedUser, userStreamNames[0].streamName);
-					} else if (currentUser && changedUser.userID == currentUser.userID) {
-						if (view)
-							getView().stopStream();
+					if (changedUser.presenter && changedUser.hasStream || currentUser && changedUser.userID == currentUser.userID) {
+						stopStream();
 						startStream(changedUser, userStreamNames[0].streamName);
 					} else if (userWithCamera) {
 						if (userWithCamera.userID == changedUser.userID) {
-							if (view)
-								getView().stopStream();
+							stopStream();
 							startStream(changedUser, userStreamNames[0].streamName);
 						} else if (!changedUser.hasStream && userWithCamera.me) {
 							userStreamNames = getUserStreamNamesByUserID(userWithCamera.userID);
-							if (view)
-								getView().stopStream();
+							stopStream();
 							startStream(userWithCamera, userStreamNames[0].streamName);
 						}
 					}
@@ -318,7 +299,7 @@ package org.bigbluebutton.air.presentation.views {
 							}
 						}
 						if (view) {
-							getView().stopStream();
+							stopStream();
 							startStream(newUser, displayUserStreamName.streamName);
 							displayVideo(true && !camerasHidden);
 						}
@@ -464,6 +445,7 @@ package org.bigbluebutton.air.presentation.views {
 		}
 		
 		private function hideOverlay(e:Event):void {
+			overlayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, hideOverlay);
 			overlayTimer.stop();
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = false;
@@ -499,10 +481,10 @@ package org.bigbluebutton.air.presentation.views {
 			}
 		}
 		
-		private function stopStream(userID:String):void {
+		private function stopStream(userID:String = ""):void {
 			if (view) {
 				getView().stopStream();
-				userUISession.currentStreamName = "";
+				userUISession.currentStreamName = userID;
 			}
 		}
 		

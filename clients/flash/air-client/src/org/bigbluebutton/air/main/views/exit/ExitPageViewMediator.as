@@ -66,9 +66,6 @@ package org.bigbluebutton.air.main.views.exit {
 				case DisconnectEnum.CONNECTION_STATUS_USER_LOGGED_OUT:
 					view.currentState = DisconnectType.CONNECTION_STATUS_USER_LOGGED_OUT_STRING;
 					break;
-				case DisconnectEnum.CONNECTION_STATUS_MODERATOR_DENIED:
-					view.currentState = DisconnectType.CONNECTION_STATUS_MODERATOR_DENIED_STRING;
-					break;
 			}
 		}
 		

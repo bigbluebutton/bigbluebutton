@@ -1,4 +1,4 @@
-package org.bigbluebutton.lib.util {
+package org.bigbluebutton.lib.whiteboard.util {
 	import org.bigbluebutton.lib.whiteboard.models.AnnotationType;
 	import org.bigbluebutton.lib.whiteboard.models.EllipseAnnotation;
 	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;

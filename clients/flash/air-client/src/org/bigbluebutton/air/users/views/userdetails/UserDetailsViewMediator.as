@@ -7,7 +7,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
-	import org.bigbluebutton.lib.main.commands.ChangeRoleSignal;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
 	import org.bigbluebutton.lib.main.commands.LockUserSignal;
 	import org.bigbluebutton.lib.main.commands.PresenterSignal;
@@ -34,9 +33,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 		public var presenterSignal:PresenterSignal;
 		
 		[Inject]
-		public var changeRoleSignal:ChangeRoleSignal;
-		
-		[Inject]
 		public var lockUserSignal:LockUserSignal;
 		
 		protected var _user:User;
@@ -51,7 +47,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 			view.showPrivateChat.addEventListener(MouseEvent.CLICK, onShowPrivateChatButton);
 			view.clearStatusButton.addEventListener(MouseEvent.CLICK, onClearStatusButton);
 			view.makePresenterButton.addEventListener(MouseEvent.CLICK, onMakePresenterButton);
-			view.promoteButton.addEventListener(MouseEvent.CLICK, onPromoteButton);
 			view.updateLockButtons(isRoomLocked());
 			view.lockButton.addEventListener(MouseEvent.CLICK, onLockUser);
 			view.unlockButton.addEventListener(MouseEvent.CLICK, onUnlockUser);
@@ -90,14 +85,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 			userUISession.popPage();
 		}
 		
-		protected function onPromoteButton(event:MouseEvent):void {
-			var roleOptions:Object = new Object();
-			roleOptions.userID = _user.userID;
-			roleOptions.role = (_user.role == User.MODERATOR) ? User.VIEWER : User.MODERATOR;
-			changeRoleSignal.dispatch(roleOptions);
-			userUISession.popPage();
-		}
-		
 		protected function onMakePresenterButton(event:MouseEvent):void {
 			presenterSignal.dispatch(_user, userSession.userList.me.userID);
 			userUISession.popPage();
@@ -120,7 +107,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 			super.destroy();
 			view.clearStatusButton.removeEventListener(MouseEvent.CLICK, onClearStatusButton);
 			view.makePresenterButton.removeEventListener(MouseEvent.CLICK, onMakePresenterButton);
-			view.promoteButton.removeEventListener(MouseEvent.CLICK, onPromoteButton);
 			view.lockButton.removeEventListener(MouseEvent.CLICK, onLockUser);
 			view.unlockButton.removeEventListener(MouseEvent.CLICK, onUnlockUser);
 			view.showCameraButton.removeEventListener(MouseEvent.CLICK, onShowCameraButton);

@@ -69,6 +69,8 @@ package org.bigbluebutton.air.main.views.topbar {
 					selectLeftButton("back");
 					selectRightButton("none");
 					break;
+				case PageEnum.DESKSHARE:
+					setTitle(ResourceManager.getInstance().getString('resources', 'deskshare.title'));
 				case PageEnum.CHAT:
 					selectLeftButton("back");
 					selectRightButton("presentation");

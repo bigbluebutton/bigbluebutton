@@ -489,7 +489,6 @@ s|TextInput.msgInputBoxStyle
 	{
 		fontSize           : 10;
 		indent             : 20;
-		loadingImageSource : "assets/res/drawable-mdpi/videoLoading.png";
 	}
 
 	s|View.chatViewStyle
@@ -1075,7 +1074,6 @@ s|TextInput.msgInputBoxStyle
 	{
 		fontSize           : 15;
 		indent             : 30;
-		loadingImageSource : "assets/res/drawable-hdpi/videoLoading.png";
 	}
 
 	s|Button.userSettingsButtonStyle
@@ -1655,7 +1653,6 @@ s|TextInput.msgInputBoxStyle
 	{
 		fontSize           : 20;
 		indent             : 40;
-		loadingImageSource : "assets/res/drawable-xhdpi/videoLoading.png";
 	}
 
 	s|View.chatViewStyle
@@ -2228,7 +2225,6 @@ s|TextInput.msgInputBoxStyle
 	{
 		fontSize           : 30;
 		indent             : 60;
-		loadingImageSource : "assets/res/drawable-xxhdpi/videoLoading.png";
 	}
 
 	s|View.chatViewStyle

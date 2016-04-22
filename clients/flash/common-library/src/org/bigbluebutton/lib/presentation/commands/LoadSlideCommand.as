@@ -15,7 +15,7 @@ package org.bigbluebutton.lib.presentation.commands {
 		public var presentationID:String;
 		
 		[Inject]
-		public var whiteBoardService:IWhiteboardService;
+		public var whiteboardService:IWhiteboardService;
 		
 		private var _loadSlideService:LoadSlideService;
 		
@@ -26,7 +26,7 @@ package org.bigbluebutton.lib.presentation.commands {
 		override public function execute():void {
 			if (slide != null) {
 				_loadSlideService = new LoadSlideService(slide);
-				whiteBoardService.getAnnotationHistory(presentationID, slide.slideNumber);
+				whiteboardService.getAnnotationHistory(presentationID, slide.slideNumber);
 			} else {
 				trace("LoadSlideCommand: requested slide is null and cannot be loaded");
 			}

@@ -29,9 +29,6 @@ package org.bigbluebutton.lib.main.services {
 		
 		private var _userId:String;
 		
-		public function BigBlueButtonConnection() {
-		}
-		
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);

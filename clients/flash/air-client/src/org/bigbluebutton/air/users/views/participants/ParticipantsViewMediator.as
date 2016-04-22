@@ -41,7 +41,6 @@ package org.bigbluebutton.air.users.views.participants {
 			view.list.addEventListener(IndexChangeEvent.CHANGE, onSelectParticipant);
 			userSession.userList.userChangeSignal.add(userChanged);
 			view.conversationsList.addEventListener(IndexChangeEvent.CHANGE, onSelectChat);
-			userUISession.pushPage(PageEnum.PARTICIPANTS);
 			initializeDataProviderConversations();
 		}
 		

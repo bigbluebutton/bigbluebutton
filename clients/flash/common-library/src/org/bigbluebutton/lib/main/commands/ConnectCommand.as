@@ -1,13 +1,9 @@
 package org.bigbluebutton.lib.main.commands {
 	
-	import mx.collections.ArrayCollection;
-	
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
-	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.Room;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
 	import org.bigbluebutton.lib.user.services.IUsersService;
@@ -71,9 +67,6 @@ package org.bigbluebutton.lib.main.commands {
 		[Inject]
 		public var shareCameraSignal:ShareCameraSignal;
 		
-		[Inject]
-		public var saveData:ISaveData;
-		
 		override public function execute():void {
 			loadConfigOptions();
 			connection.uri = uri;
@@ -116,7 +109,6 @@ package org.bigbluebutton.lib.main.commands {
 		}
 		
 		private function joiningMeetingSuccess():void {
-			updateRooms();
 			// Set up remaining message sender and receivers:
 			presentationService.setupMessageSenderReceiver();
 			// set up and connect the remaining connections
@@ -154,34 +146,6 @@ package org.bigbluebutton.lib.main.commands {
 			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
 			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
 			//usersService.getRoomLockState();
-		}
-		
-		private function updateRooms():void {
-			var rooms:ArrayCollection = saveData.read("rooms") as ArrayCollection;
-			if (!rooms) {
-				rooms = new ArrayCollection();
-			}
-			var roomName:String = conferenceParameters.meetingName;
-			var roomUrl:String = (conferenceParameters.metadata && conferenceParameters.metadata.hasOwnProperty("invitation-url")) ? conferenceParameters.metadata['invitation-url'] : null;
-			if (roomName) {
-				var roomExists:Boolean = false;
-				for (var i:int = rooms.length - 1; i >= 0; i--) {
-					if (rooms[i].name == roomName && rooms[i].url == roomUrl) {
-						rooms[i].timestamp = new Date();
-						rooms.addItem(rooms.removeItemAt(i));
-						roomExists = true;
-						break;
-					}
-				}
-				if (!roomExists) {
-					var room:Room = new Room(new Date(), roomUrl, roomName);
-					rooms.addItem(room);
-					if (rooms.length > 5) {
-						rooms.removeItemAt(0);
-					}
-				}
-				saveData.save("rooms", rooms);
-			}
 		}
 		
 		private function joiningMeetingFailure():void {

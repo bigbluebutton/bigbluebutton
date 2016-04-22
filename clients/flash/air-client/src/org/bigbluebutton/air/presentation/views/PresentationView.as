@@ -86,13 +86,14 @@ package org.bigbluebutton.air.presentation.views {
 		}
 		
 		public function startStream(connection:NetConnection, name:String, streamName:String, userID:String, width:Number, height:Number, screenHeight:Number, screenWidth:Number):void {
-			if (webcam)
+			if (webcam) {
 				stopStream();
+			}
 			webcam = new VideoChatVideoView();
 			webcam.percentWidth = 100;
 			webcam.percentHeight = 100;
 			videoStream.addChild(webcam.videoViewVideo);
-			this.videoGroup.addElement(webcam);
+			this.videoGroup0.addElement(webcam);
 			var topActionBarHeight:Number = FlexGlobals.topLevelApplication.topActionBar.height;
 			var bottomMenuHeight:Number = FlexGlobals.topLevelApplication.bottomMenu.height;
 			webcam.initializeScreenSizeValues(width, height, screenHeight, screenWidth, topActionBarHeight, bottomMenuHeight);
@@ -103,8 +104,8 @@ package org.bigbluebutton.air.presentation.views {
 		public function stopStream():void {
 			if (webcam) {
 				webcam.close();
-				if (this.videoGroup.containsElement(webcam)) {
-					this.videoGroup.removeElement(webcam);
+				if (this.videoGroup0.containsElement(webcam)) {
+					this.videoGroup0.removeElement(webcam);
 				}
 				webcam = null;
 			}

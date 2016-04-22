@@ -145,16 +145,9 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.saveLockSettings(newLockSettings);
 		}
 		
-		public function sendJoinMeetingMessage():void {
-			usersMessageSender.sendJoinMeetingMessage(conferenceParameters.internalUserID);
-		}
-		
 		public function validateToken():void {
 			usersMessageSender.validateToken(conferenceParameters.internalUserID, conferenceParameters.authToken);
 		}
-		
-		public function changeRole(userID:String, role:String):void {
-			usersMessageSender.changeRole(userID, role)
-		}
+	
 	}
 }

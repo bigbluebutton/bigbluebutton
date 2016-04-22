@@ -136,18 +136,5 @@ package org.bigbluebutton.lib.user.services {
 			message["authToken"] = authToken;
 			userSession.mainConnection.sendMessage("validateToken", defaultSuccessResponse, defaultFailureResponse, message);
 		}
-		
-		public function sendJoinMeetingMessage(internalUserID:String):void {
-			trace("UsersMessageSender::sendJoinMeetingMessage() -- Sending [joinMeeting] message to server with message [userID: " + internalUserID + "]");
-			userSession.mainConnection.sendMessage("joinMeeting", defaultSuccessResponse, defaultFailureResponse, internalUserID);
-		}
-		
-		public function changeRole(userID:String, role:String):void {
-			trace("UsersMessageSender::setParticipantRole() -- Sending [participants.setParticipantRole] message to server.. with message [userID:" + userID + ", role:" + role + "]");
-			var message:Object = new Object();
-			message["userId"] = userID;
-			message["role"] = role;
-			userSession.mainConnection.sendMessage("participants.setParticipantRole", defaultSuccessResponse, defaultFailureResponse, message);
-		}
 	}
 }
