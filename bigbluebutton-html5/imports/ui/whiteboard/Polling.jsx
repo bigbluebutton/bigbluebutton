@@ -8,40 +8,41 @@ export let Polling = React.createClass({
     let poll;
     poll = BBB.getCurrentPoll(getInSession('userId'));
     return {
-      poll: poll
+      poll: poll,
     };
   },
-  
-  componentDidMount: function() {
+
+  componentDidMount: function () {
     return scaleWhiteboard();
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     setTimeout(scaleWhiteboard, 0);
   },
 
   getStyledAnswers(poll) {
-   let number, buttonStyle, answers;
-    if(poll != null) {
+    let number, buttonStyle, answers;
+    if (poll != null) {
       number = poll.poll_info.poll.answers.length;
       buttonStyle = {
         width: 'calc(75%/' + number + ')',
         marginLeft: 'calc(25%/' + number * 2 + ')',
-        marginRight: 'calc(25%/ ' + number * 2 + ')'
+        marginRight: 'calc(25%/ ' + number * 2 + ')',
       };
       answers = poll.poll_info.poll.answers;
-      for(j = 0; j < number; j++) {
+      for (j = 0; j < number; j++) {
         answers[j].style = buttonStyle;
       }
-    return answers;
+
+      return answers;
     }
   },
 
-  handleClick: function(label, answer) {
+  handleClick: function (label, answer) {
     return BBB.sendPollResponseMessage(label, answer);
   },
 
-  render(){
+  render() {
     return (
       <div className="polling">
         {this.data.poll ? this.getStyledAnswers(this.data.poll).map((question) =>
@@ -49,6 +50,6 @@ export let Polling = React.createClass({
           label={question.key} style={question.style} key={question.id}/>
         ) : null }
       </div>
-    )
-  }
+    );
+  },
 });

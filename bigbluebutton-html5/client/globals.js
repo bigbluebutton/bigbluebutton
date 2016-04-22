@@ -119,7 +119,6 @@ Handlebars.registerHelper('isCurrentUser', userId => {
   return userId === null || userId === ((ref = BBB.getCurrentUser()) != null ? ref.userId : void 0);
 });
 
-
 //Retreives a username for a private chat tab from the database if it exists
 Handlebars.registerHelper('privateChatName', () => {
   let obj, ref;
@@ -139,7 +138,7 @@ Handlebars.registerHelper('isCurrentUserSharingVideo', () => {
   return BBB.amISharingVideo();
 });
 
-Handlebars.registerHelper("isCurrentUserPresenter", () => {
+Handlebars.registerHelper('isCurrentUserPresenter', () => {
   return BBB.isUserPresenter(getInSession('userId'));
 });
 
@@ -194,7 +193,7 @@ Handlebars.registerHelper('messageFontSize', () => {
 });
 
 //#TODO REMOVE
-Handlebars.registerHelper("pointerLocation", () => {
+Handlebars.registerHelper('pointerLocation', () => {
   let currentPresentation, currentSlideDoc, pointer, presentationId, ref;
   currentPresentation = Meteor.Presentations.findOne({
     'presentation.current': true,
@@ -235,19 +234,19 @@ Handlebars.registerHelper('containerPosition', section => {
 Template.registerHelper('emojiIcons', function () {
   return [
     { name: 'sad', icon: 'sad-face', title: '' },
-    { name: 'happy', icon: 'happy-face', title: ''},
-    { name: 'confused', icon: 'confused-face', title: ''},
-    { name: 'neutral', icon: 'neutral-face', title: ''},
-    { name: 'away', icon: 'clock', title: ''},
-    { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand'}
+    { name: 'happy', icon: 'happy-face', title: '' },
+    { name: 'confused', icon: 'confused-face', title: '' },
+    { name: 'neutral', icon: 'neutral-face', title: '' },
+    { name: 'away', icon: 'clock', title: '' },
+    { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand' },
   ];
 });
 
 // scale the whiteboard to adapt to the resized window
-this.scaleWhiteboard = function(whiteboardPaperModel) {
+this.scaleWhiteboard = function (whiteboardPaperModel) {
   let adjustedDimensions;
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'));
-  if(typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null) {
+  if (typeof whiteboardPaperModel !== 'undefined' && whiteboardPaperModel !== null) {
     whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height);
   }
   /* if(callback) {

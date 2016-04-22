@@ -2,32 +2,33 @@ import React from 'react';
 import { Button } from '../shared/Button.jsx';
 import { UploaderControls } from './UploaderControls.jsx';
 
-
-export let WhiteboardControls = React.createClass ({
+export let WhiteboardControls = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let currentPresentation, currentSlide, currentSlideNum, ref, ref1, totalSlideNum;
     currentSlideNum = 0;
     totalSlideNum = 0;
     currentPresentation = Meteor.Presentations.findOne({
-      'presentation.current': true
+      'presentation.current': true,
     });
-    if(currentPresentation != null) {
+    if (currentPresentation != null) {
       currentSlide = Meteor.Slides.findOne({
-        'presentationId': currentPresentation.presentation.id,
-        'slide.current': true
-    })
-      if(currentSlide != null) {
+        presentationId: currentPresentation.presentation.id,
+        'slide.current': true,
+      });
+      if (currentSlide != null) {
         currentSlideNum = currentSlide.slide.num;
       }
-      totalSlides = Meteor.Slides.find({ 'presentationId': currentPresentation.presentation.id });
-      if(totalSlides != null) {
+
+      totalSlides = Meteor.Slides.find({ presentationId: currentPresentation.presentation.id });
+      if (totalSlides != null) {
         totalSlideNum = totalSlides.count();
       }
     }
+
     return {
       currentSlideNum: currentSlideNum,
-      totalSlideNum: totalSlideNum
+      totalSlideNum: totalSlideNum,
     };
   },
 
@@ -35,7 +36,7 @@ export let WhiteboardControls = React.createClass ({
     setTimeout(scaleWhiteboard, 0);
   },
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     setTimeout(scaleWhiteboard, 0);
   },
 
@@ -53,7 +54,7 @@ export let WhiteboardControls = React.createClass ({
         <div className="whiteboard-buttons-left">
           {/* TODO: Adjust the presenter uploader for mobile views on iOS devices
               you cant upload PDFs, only images from camera/gallery */
-           !isMobile() ? 
+           !isMobile() ?
             <UploaderControls />
           : null }
         </div>
@@ -69,6 +70,6 @@ export let WhiteboardControls = React.createClass ({
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  },
 });

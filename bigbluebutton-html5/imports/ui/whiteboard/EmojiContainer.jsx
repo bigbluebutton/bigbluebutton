@@ -2,23 +2,24 @@ import React from 'react';
 import classNames from 'classnames';
 import { Button } from '../shared/Button.jsx';
 
-export let EmojiContainer = React.createClass ({
+export let EmojiContainer = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let user, emoji_status, current_presentation;
     user = BBB.getCurrentUser();
-    if(user != null) {
+    if (user != null) {
       emoji_status = user.user.emoji_status;
     } else {
-      emoji_status = "none";
+      emoji_status = 'none';
     }
+
     current_presentation = Meteor.Presentations.findOne({
-      'presentation.current': true
+      'presentation.current': true,
     });
     current_presentation ? current_presentation = true : current_presentation = false;
     return {
       emoji_status: emoji_status,
-      current_presentation: current_presentation
+      current_presentation: current_presentation,
     };
   },
 
@@ -28,17 +29,17 @@ export let EmojiContainer = React.createClass ({
 
   emojiIcons() {
     return [
-      { name: 'sad', icon: 'sad-face', title: ''},
-      { name: 'happy', icon: 'happy-face', title: ''},
-      { name: 'confused', icon: 'confused-face', title: ''},
-      { name: 'neutral', icon: 'neutral-face', title: ''},
-      { name: 'away', icon: 'clock', title: ''},
-      { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand'}
+      { name: 'sad', icon: 'sad-face', title: '' },
+      { name: 'happy', icon: 'happy-face', title: '' },
+      { name: 'confused', icon: 'confused-face', title: '' },
+      { name: 'neutral', icon: 'neutral-face', title: '' },
+      { name: 'away', icon: 'clock', title: '' },
+      { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand' },
     ];
   },
 
   handleInactive(name, event) {
-    if($(event.target).css('opacity') === '1') {
+    if ($(event.target).css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
         getInSession('userId'),
@@ -52,13 +53,13 @@ export let EmojiContainer = React.createClass ({
   },
 
   handleActive(event) {
-    if($('.activeEmojiButton').css('opacity') === '1') {
+    if ($('.activeEmojiButton').css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
         getInSession('userId'),
         getInSession('userId'),
         getInSession('authToken'),
-        "none"
+        'none'
       );
       $('.FABTriggerButton').blur();
       return toggleEmojisFAB();
@@ -72,7 +73,7 @@ export let EmojiContainer = React.createClass ({
 
   render() {
     return (
-      <div className={ classNames('FABContainer', !this.data.current_presentation ? 'noPresentation' : '' ) }>
+      <div className={ classNames('FABContainer', !this.data.current_presentation ? 'noPresentation' : '') }>
         <Button onClick={ this.handleFABTriggerButton } btn_class=" FABTriggerButton" i_class="ion-android-hand"/>
         {this.emojiIcons().map((emoji) =>
           <Button btn_class={ classNames(' ' + emoji.name + 'EmojiButton', this.getCurrentUserEmojiStatus(emoji.name) ? 'activeEmojiButton' : 'inactiveEmojiButton') }
@@ -81,5 +82,5 @@ export let EmojiContainer = React.createClass ({
         )}
       </div>
     );
-  }
+  },
 });

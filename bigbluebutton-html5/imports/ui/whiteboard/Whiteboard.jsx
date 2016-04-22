@@ -6,33 +6,33 @@ import { Polling } from './Polling.jsx';
 import { Button } from '../shared/Button.jsx';
 import { WhiteboardControls } from './WhiteboardControls.jsx';
 
-
 export let Whiteboard = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let poll_started, is_presenter, is_mobile, whiteboard_size;
-    if(BBB.isPollGoing(getInSession('userId'))) {
+    if (BBB.isPollGoing(getInSession('userId'))) {
       poll_started = true;
     } else {
       poll_started = false;
     }
 
-    if(BBB.isUserPresenter(getInSession('userId'))) {
+    if (BBB.isUserPresenter(getInSession('userId'))) {
       is_presenter = true;
     } else {
       is_presenter = false;
     }
 
     is_mobile = isMobile();
-    if(BBB.isUserPresenter(getInSession('userId'))) {
+    if (BBB.isUserPresenter(getInSession('userId'))) {
       whiteboard_size = 'presenter-whiteboard';
     } else {
-    if(BBB.isPollGoing(getInSession('userId'))) {
-      whiteboard_size = 'poll-whiteboard';
-    } else {
-      whiteboard_size = 'viewer-whiteboard';
+      if (BBB.isPollGoing(getInSession('userId'))) {
+        whiteboard_size = 'poll-whiteboard';
+      } else {
+        whiteboard_size = 'viewer-whiteboard';
+      }
     }
-  }
+
     return {
       whiteboard_size: whiteboard_size,
       is_mobile: is_mobile,
@@ -42,7 +42,7 @@ export let Whiteboard = React.createClass({
   },
 
   isPollStarted() {
-    if(BBB.isPollGoing(getInSession('userId'))) {
+    if (BBB.isPollGoing(getInSession('userId'))) {
       return true;
     } else {
       return false;
@@ -56,17 +56,19 @@ export let Whiteboard = React.createClass({
       resize() {
         return adjustChatInputHeight();
       },
+
       start() {
-        if($('#chat').width() / $('#panels').width() > 0.2) { // chat shrinking can't make it smaller than one fifth of the whiteboard-chat area
+        if ($('#chat').width() / $('#panels').width() > 0.2) { // chat shrinking can't make it smaller than one fifth of the whiteboard-chat area
           return $('#whiteboard').resizable('option', 'maxWidth', $('#panels').width() - 200); // gives the chat enough space (200px)
         } else {
           return $('#whiteboard').resizable('option', 'maxWidth', $('#whiteboard').width());
         }
       },
+
       stop() {
         $('#whiteboard').css('width', `${100 * $('#whiteboard').width() / $('#panels').width()}%`); // transforms width to %
         return $('#whiteboard').resizable('option', 'maxWidth', null);
-      }
+      },
     });
 
     // whiteboard element needs to be available
@@ -74,23 +76,23 @@ export let Whiteboard = React.createClass({
 
     return $(document).foundation(); // initialize foundation javascript
   },
-  
+
   handleWhiteboardFullScreen() {
     return enterWhiteboardFullscreen();
   },
 
   handleExitFullScreen() {
-    if(document.exitFullscreen) {
+    if (document.exitFullscreen) {
       return document.exitFullscreen();
-    } else if(document.mozCancelFullScreen) {
+    } else if (document.mozCancelFullScreen) {
       return document.mozCancelFullScreen();
-    } else if(document.webkitExitFullscreen) {
+    } else if (document.webkitExitFullscreen) {
       return document.webkitExitFullscreen();
     }
   },
 
   isFullScreen() {
-    if($( ".fullscreenButton" ).hasClass( "exitFullscreenButton" )) {
+    if ($('.fullscreenButton').hasClass('exitFullscreenButton')) {
       return true;
     } else {
       return false;
@@ -117,5 +119,5 @@ export let Whiteboard = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });

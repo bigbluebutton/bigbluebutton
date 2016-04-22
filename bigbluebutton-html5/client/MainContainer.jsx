@@ -5,10 +5,11 @@ import {Chat} from '/imports/ui/chat/Chat.jsx';
 
 MainContainer = React.createClass({
   handleShield() {
-    $(".tooltip").hide();
+    $('.tooltip').hide();
     toggleShield();
     return closeMenus();
   },
+
   render() {
     return (
       <div id="testing">
@@ -20,5 +21,5 @@ MainContainer = React.createClass({
           </div>
       </div>
     );
-  }
+  },
 });

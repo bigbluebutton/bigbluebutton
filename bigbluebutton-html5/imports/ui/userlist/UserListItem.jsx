@@ -43,7 +43,7 @@ export let UserListItem = React.createClass({
     const user = this.props.user;
     let statusIcons = [];
 
-    if(user.emoji !== 'none' && !user.isPresenter) {
+    if (user.emoji !== 'none' && !user.isPresenter) {
       statusIcons.push((
         <EmojiIcon key="1" iconName={user.emoji}/>
       ));

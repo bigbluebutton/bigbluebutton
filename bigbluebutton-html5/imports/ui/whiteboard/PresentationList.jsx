@@ -2,16 +2,16 @@ import React from 'react';
 import classNames from 'classnames';
 
 export let PresentationList = React.createClass({
-  handleShow(name){
+  handleShow(name) {
     return console.info('Should show the file `' + name + '`');
   },
 
-  handleDelete(name){
+  handleDelete(name) {
     return console.info('Should delete the file `' + name + '`');
   },
 
   render() {
-    return(
+    return (
     <ul className="presenter-uploader-file-list">
       {this.props.files ? this.props.files.map((file) =>
         <li className="presenter-uploader-file-item is-uploading" key={file.name}>
@@ -41,5 +41,5 @@ export let PresentationList = React.createClass({
       : null }
     </ul>
     );
-  }
+  },
 });

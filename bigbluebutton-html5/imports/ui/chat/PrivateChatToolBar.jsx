@@ -2,25 +2,25 @@ import React from 'react';
 import { Button } from '../shared/Button.jsx';
 
 export let PrivateChatToolBar = React.createClass({
-  componentDidMount: function() {
-    if(isLandscape() || isPortrait()) {
-      return $("#newMessageInput").focus();
+  componentDidMount: function () {
+    if (isLandscape() || isPortrait()) {
+      return $('#newMessageInput').focus();
     }
   },
 
-  handleClick: function() {
-    console.log("I'm in the handleClick function");
+  handleClick: function () {
     setInSession('inChatWith', 'PUBLIC_CHAT');
     return setInSession('chats', getInSession('chats').map(chat => {
-      if(chat.userId === "PUBLIC_CHAT") {
+      if (chat.userId === 'PUBLIC_CHAT') {
         chat.gotMail = false;
         chat.number = 0;
       }
+      $('.ui-tooltip').hide();
       return chat;
     }));
   },
 
-  render(){
+  render() {
     return (
       <div className="privateChatTab">
         <Button onClick={this.handleClick} id="close" btn_class=" secondary tiny toPublic " i_class="ion-ios-arrow-left" rel="tooltip"
@@ -30,5 +30,5 @@ export let PrivateChatToolBar = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });

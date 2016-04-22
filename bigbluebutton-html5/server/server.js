@@ -45,6 +45,7 @@ Meteor.startup(() => {
             return '';
           }
         };
+
         // Uncomment for DEVELOPMENT purposes only
         // Otherwise dynamic shapes' updates will slow down significantly
         //Meteor.log.info(`in callback after handleRedisMessage ${eventName}. ${lengthString()}`);
@@ -107,7 +108,8 @@ Meteor.startup(() => {
       Meteor.log.error('ERROR!! No header or payload');
       callback();
     }
-    if(eventName, indexOf.call(notLoggedEventTypes, eventName) < 0) {
+
+    if (eventName, indexOf.call(notLoggedEventTypes, eventName) < 0) {
       // Uncomment for DEVELOPMENT purposes only
       // Otherwise dynamic shapes' updates will slow down significantly
       /*
@@ -659,7 +661,7 @@ Meteor.startup(() => {
         if (indexOf.call(notLoggedEventTypes, eventName) < 0) {
           Meteor.log.info(`WARNING!!! THE JSON MESSAGE WAS NOT OF TYPE SUPPORTED BY THIS APPLICATION
             ${eventName}
-            {JSON.stringify(message)}` );
+            {JSON.stringify(message)}`);
         }
 
         return callback();

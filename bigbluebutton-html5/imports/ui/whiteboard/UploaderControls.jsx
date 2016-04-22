@@ -3,8 +3,8 @@ import classNames from 'classnames';
 import { Button } from '../shared/Button.jsx';
 import { PresentationList } from './PresentationList.jsx';
 
-export let UploaderControls = React.createClass ({
-  getDefaultProps: function() {
+export let UploaderControls = React.createClass({
+  getDefaultProps: function () {
     return {
       isOpen: new ReactiveVar(false),
       files: new ReactiveList({
@@ -13,25 +13,25 @@ export let UploaderControls = React.createClass ({
           let ref, ref1;
           return (ref = a.isUploading === b.isUploading) != null ? ref : {
             0: (ref1 = a.isUploading) != null ? ref1 : -{
-              1: 1
-            }
+              1: 1,
+            },
           };
-        }
+        },
       }),
     };
   },
-  
+
   mixins: [ReactMeteorData],
   getMeteorData() {
     let presentations;
     presentations = Meteor.Presentations.find({}, {
       sort: {
         'presentation.current': -1,
-        'presentation.name': 1
+        'presentation.name': 1,
       },
       fields: {
-        'presentation': 1
-      }
+        presentation: 1,
+      },
     }).fetch();
 
     return {
@@ -39,32 +39,35 @@ export let UploaderControls = React.createClass ({
     };
   },
 
-  fakeUpload (file, list) {
+  fakeUpload(file, list) {
     return setTimeout((() => {
       file.uploadedSize = file.uploadedSize + (Math.floor(Math.random() * file.size + file.uploadedSize) / 10);
-      file.percUploaded = Math.round((file.uploadedSize / file.size) * 100) + "%";
+      file.percUploaded = Math.round((file.uploadedSize / file.size) * 100) + '%';
       if (!(file.size > file.uploadedSize)) {
         file.uploadedSize = file.size;
         file.isUploading = false;
       }
+
       list.update(file.name, file);
       this.forceUpdate();
-      if(file.isUploading === true) {
+      if (file.isUploading === true) {
         return this.fakeUpload(file, list);
       } else {
         list.remove(file.name); // TODO: Here we should remove and update te presentation on mongo
         this.forceUpdate();
-        return 
+        return;
       }
     }), 200);
   },
-  
+
   isOpen() {
-    return this.props.isOpen.get() ? "is-open" : ""
+    return this.props.isOpen.get() ? 'is-open' : '';
   },
+
   files() {
     return this.props.files ? this.props.files.fetch() : null;
   },
+
   presentations() {
     return this.data.presentations.map(x => {
       return x.presentation;
@@ -78,7 +81,7 @@ export let UploaderControls = React.createClass ({
     return _.each(files, file => {
       file.isUploading = true;
       file.uploadedSize = 0;
-      file.percUploaded = "0";
+      file.percUploaded = '0';
       this.props.files.insert(file.name, file);
       return this.fakeUpload(file, this.props.files);
     });
@@ -106,7 +109,7 @@ export let UploaderControls = React.createClass ({
 
   render() {
     return (
-      <div className={classNames('presenter-uploader-control', this.isOpen() ? "is-open" : "")} >
+      <div className={classNames('presenter-uploader-control', this.isOpen() ? 'is-open' : '')} >
         <div className="presenter-uploader-container">
           <PresentationList files={this.files()} presentations={this.presentations()} />
           <div onDrop={this.handleInput} onDragOver={this.handleDragOver} onDragLeave={this.handleDragLeave} className="presenter-uploader-dropzone" data-dropzone>
@@ -123,6 +126,6 @@ export let UploaderControls = React.createClass ({
         </div>
         <Button onClick={this.handleOpen} btn_class=" presenter-uploader-control-btn js-open" i_class="ion-ios-upload-outline"/>
       </div>
-    )
-  }
+    );
+  },
 });

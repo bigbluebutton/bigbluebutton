@@ -45,20 +45,20 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
 
     // the mouse button was released - the drawing is complete
     // TODO: pencil messages currently don't send draw_end and are labeled all as DRAW_START
-  } else if(shapeObject != null && (shapeObject.status === "DRAW_START" || shapeObject.status === "DRAW_UPDATE" || shapeObject.status === "DRAW_END")) {
-      shape = Meteor.Shapes.findOne({
-        "shape.id": shapeObject.shape.id
+  } else if (shapeObject != null && (shapeObject.status === 'DRAW_START' || shapeObject.status === 'DRAW_UPDATE' || shapeObject.status === 'DRAW_END')) {
+    shape = Meteor.Shapes.findOne({
+        'shape.id': shapeObject.shape.id,
       });
-      if(shape != null) {
-        return id = Meteor.Shapes.update({
-          "shape.id": shapeObject.shape.id
+    if (shape != null) {
+      return id = Meteor.Shapes.update({
+          'shape.id': shapeObject.shape.id,
         }, {
           $set: {
-            "shape.shape.points": shapeObject.shape.points
-          }
+            'shape.shape.points': shapeObject.shape.points,
+          },
         });
-      } else {
-        entry = {
+    } else {
+      entry = {
         meetingId: meetingId,
         whiteboardId: whiteboardId,
         shape: {
@@ -83,8 +83,8 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
         },
       };
       return id = Meteor.Shapes.insert(entry);
-      }
     }
+  }
 };
 
 this.removeAllShapesFromSlide = function (meetingId, whiteboardId) {

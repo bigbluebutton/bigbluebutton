@@ -13,12 +13,14 @@ import '/imports/ui/stylesheets/whiteboard.less';
 let loadLib;
 
 // Helper to load javascript libraries from the BBB server
-loadLib = function(libname) {
+loadLib = function (libname) {
   let retryMessageCallback, successCallback;
-  successCallback = function() {};
-  retryMessageCallback = function(param) {
-    return console.log("Failed to load library", param);
+  successCallback = function () {};
+
+  retryMessageCallback = function (param) {
+    return console.log('Failed to load library', param);
   };
+
   return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback, 10000).fail(retryMessageCallback);
 };
 
@@ -35,7 +37,7 @@ Meteor.startup(() => {
     set(key, value) {
       Session.set.apply(this, arguments);
       amplify.store.sessionStorage(key, value);
-    }
+    },
   });
 });
 
@@ -45,17 +47,18 @@ Template.menu.events({
     toggleSettingsMenu();
     return $('.slideButton').blur();
   },
+
   'click .toggleChatButton'(event) {
     return toggleChatbar();
-  }
+  },
 });
 
-Template.main.rendered = function() {
-  ReactDOM.render(<MainContainer />, document.getElementById("main"));
+Template.main.rendered = function () {
+  ReactDOM.render(<MainContainer />, document.getElementById('main'));
   ReactDOM.render(<UserListContainer />, document.getElementById('user-contents'));
 
   let lastOrientationWasLandscape;
-  $("#dialog").dialog({
+  $('#dialog').dialog({
     modal: true,
     draggable: false,
     resizable: false,
@@ -64,42 +67,45 @@ Template.main.rendered = function() {
     buttons: [
       {
         text: 'Yes',
-        click: function() {
-          userLogout(BBB.getMeetingId(), getInSession("userId"), true);
-          return $(this).dialog("close");
+        click: function () {
+          userLogout(BBB.getMeetingId(), getInSession('userId'), true);
+          return $(this).dialog('close');
         },
-        "class": 'btn btn-xs btn-primary active'
+
+        class: 'btn btn-xs btn-primary active',
       }, {
         text: 'No',
-        click: function() {
-          $(this).dialog("close");
-          return $(".tooltip").hide();
+        click: function () {
+          $(this).dialog('close');
+          return $('.tooltip').hide();
         },
-        "class": 'btn btn-xs btn-default'
-      }
+
+        class: 'btn btn-xs btn-default',
+      },
     ],
     open(event, ui) {
       return $('.ui-widget-overlay').bind('click', () => {
-        if(isMobile()) {
-          return $("#dialog").dialog('close');
+        if (isMobile()) {
+          return $('#dialog').dialog('close');
         }
       });
     },
+
     position: {
       my: 'right top',
       at: 'right bottom',
-      of: '.signOutIcon'
-    }
+      of: '.signOutIcon',
+    },
   });
   lastOrientationWasLandscape = isLandscape();
   $(window).resize(() => {
     $('#dialog').dialog('close');
 
     // when the orientation switches call the handler
-    if(isLandscape() && !lastOrientationWasLandscape) {
+    if (isLandscape() && !lastOrientationWasLandscape) {
       orientationBecameLandscape();
       return lastOrientationWasLandscape = true;
-    } else if(isPortrait() && lastOrientationWasLandscape) {
+    } else if (isPortrait() && lastOrientationWasLandscape) {
       orientationBecamePortrait();
       return lastOrientationWasLandscape = false;
     }
@@ -107,14 +113,14 @@ Template.main.rendered = function() {
   $('#shield').click(() => {
     return toggleSlidingMenu();
   });
-  if(Meteor.config.app.autoJoinAudio) {
-    if(Meteor.config.app.skipCheck) {
+  if (Meteor.config.app.autoJoinAudio) {
+    if (Meteor.config.app.skipCheck) {
       return joinVoiceCall(this, {
-        isListenOnly: Meteor.config.app.listenOnly
+        isListenOnly: Meteor.config.app.listenOnly,
       });
     } else {
-      $("#settingsModal").foundation('reveal', 'open');
-      if(Meteor.config.app.listenOnly) {
+      $('#settingsModal').foundation('reveal', 'open');
+      if (Meteor.config.app.listenOnly) {
         return $('#joinMicrophone').prop('disabled', true);
       }
     }
@@ -124,29 +130,30 @@ Template.main.rendered = function() {
 Template.main.gestures({
   'panstart #container'(event, template) {
     let initTransformValue, menuPanned, panIsValid, screenWidth;
-    if(isPortraitMobile() && isPanHorizontal(event)) {
+    if (isPortraitMobile() && isPanHorizontal(event)) {
       panIsValid = getInSession('panIsValid');
       initTransformValue = getInSession('initTransform');
       menuPanned = getInSession('menuPanned');
       screenWidth = $('#container').width();
       setInSession('panStarted', true);
-      if(panIsValid && menuPanned === 'left' && initTransformValue + event.deltaX >= 0 && initTransformValue + event.deltaX <= $('.left-drawer').width()) {
+      if (panIsValid && menuPanned === 'left' && initTransformValue + event.deltaX >= 0 && initTransformValue + event.deltaX <= $('.left-drawer').width()) {
         return $('.left-drawer').css('transform', `translateX(${initTransformValue + event.deltaX}px)`);
-      } else if(panIsValid && menuPanned === 'right' && initTransformValue + event.deltaX >= screenWidth - $('.right-drawer').width() && initTransformValue + event.deltaX <= screenWidth) {
+      } else if (panIsValid && menuPanned === 'right' && initTransformValue + event.deltaX >= screenWidth - $('.right-drawer').width() && initTransformValue + event.deltaX <= screenWidth) {
         return $('.right-drawer').css('transform', `translateX(${initTransformValue + event.deltaX}px)`);
       }
     }
   },
+
   'panend #container'(event, template) {
     let leftDrawerWidth, menuPanned, panIsValid, screenWidth;
-    if(isPortraitMobile()) {
+    if (isPortraitMobile()) {
       panIsValid = getInSession('panIsValid');
       menuPanned = getInSession('menuPanned');
       leftDrawerWidth = $('.left-drawer').width();
       screenWidth = $('#container').width();
       setInSession('panStarted', false);
-      if(panIsValid && menuPanned === 'left' && $('.left-drawer').css('transform') !== 'none') {
-        if(parseInt($('.left-drawer').css('transform').split(',')[4]) < leftDrawerWidth / 2) {
+      if (panIsValid && menuPanned === 'left' && $('.left-drawer').css('transform') !== 'none') {
+        if (parseInt($('.left-drawer').css('transform').split(',')[4]) < leftDrawerWidth / 2) {
           $('.shield').removeClass('animatedShield');
           $('.shield').css('opacity', '');
           $('.left-drawer').removeClass('menuOut');
@@ -161,8 +168,9 @@ Template.main.gestures({
           $('.toggleUserlistButton').addClass('menuToggledOn');
         }
       }
-      if(panIsValid && menuPanned === 'right' && parseInt($('.right-drawer').css('transform').split(',')[4]) !== leftDrawerWidth) {
-        if(parseInt($('.right-drawer').css('transform').split(',')[4]) > screenWidth - $('.right-drawer').width() / 2) {
+
+      if (panIsValid && menuPanned === 'right' && parseInt($('.right-drawer').css('transform').split(',')[4]) !== leftDrawerWidth) {
+        if (parseInt($('.right-drawer').css('transform').split(',')[4]) > screenWidth - $('.right-drawer').width() / 2) {
           $('.shield').removeClass('animatedShield');
           $('.shield').css('opacity', '');
           $('.right-drawer').css('transform', `translateX(${screenWidth}px)`);
@@ -178,70 +186,76 @@ Template.main.gestures({
           $('.toggleMenuButton').addClass('menuToggledOn');
         }
       }
+
       $('.left-drawer').addClass('userlistMenu');
       $('.userlistMenu').removeClass('left-drawer');
       $('.right-drawer').addClass('settingsMenu');
       return $('.settingsMenu').removeClass('right-drawer');
     }
   },
+
   'panright #container, panleft #container'(event, template) {
     let initTransformValue, leftDrawerWidth, menuPanned, panIsValid, rightDrawerWidth, screenWidth;
-    if(isPortraitMobile() && isPanHorizontal(event)) {
+    if (isPortraitMobile() && isPanHorizontal(event)) {
 
       // panright/panleft is always triggered once right before panstart
-      if(!getInSession('panStarted')) {
+      if (!getInSession('panStarted')) {
 
         // opening the left-hand menu
-        if(event.type === 'panright' && event.center.x <= $('#container').width() * 0.1) {
+        if (event.type === 'panright' && event.center.x <= $('#container').width() * 0.1) {
           setInSession('panIsValid', true);
           setInSession('menuPanned', 'left');
 
         // closing the left-hand menu
-        } else if(event.type === 'panleft' && event.center.x < $('#container').width() * 0.9) {
+        } else if (event.type === 'panleft' && event.center.x < $('#container').width() * 0.9) {
           setInSession('panIsValid', true);
           setInSession('menuPanned', 'left');
 
         // opening the right-hand menu
-        } else if(event.type === 'panleft' && event.center.x >= $('#container').width() * 0.9) {
+        } else if (event.type === 'panleft' && event.center.x >= $('#container').width() * 0.9) {
           setInSession('panIsValid', true);
           setInSession('menuPanned', 'right');
 
         // closing the right-hand menu
-        } else if(event.type === 'panright' && event.center.x > $('#container').width() * 0.1) {
+        } else if (event.type === 'panright' && event.center.x > $('#container').width() * 0.1) {
           setInSession('panIsValid', true);
           setInSession('menuPanned', 'right');
         } else {
           setInSession('panIsValid', false);
         }
+
         setInSession('eventType', event.type);
-        if(getInSession('menuPanned') === 'left') {
-          if($('.userlistMenu').css('transform') !== 'none') { // menu is already transformed
+        if (getInSession('menuPanned') === 'left') {
+          if ($('.userlistMenu').css('transform') !== 'none') { // menu is already transformed
             setInSession(
               'initTransform',
               parseInt($('.userlistMenu').css('transform').split(',')[4])
             ); // translateX value
-          } else if($('.userlistMenu').hasClass('menuOut')) {
+          } else if ($('.userlistMenu').hasClass('menuOut')) {
             setInSession('initTransform', $('.userlistMenu').width());
           } else {
             setInSession('initTransform', 0);
           }
+
           $('.userlistMenu').addClass('left-drawer');
           $('.left-drawer').removeClass('userlistMenu');
-        } else if(getInSession('menuPanned') === 'right') {
-          if($('.settingsMenu').css('transform') !== 'none') { // menu is already transformed
+        } else if (getInSession('menuPanned') === 'right') {
+          if ($('.settingsMenu').css('transform') !== 'none') { // menu is already transformed
             setInSession(
               'initTransform',
               parseInt($('.settingsMenu').css('transform').split(',')[4])
             ); // translateX value
-          } else if($('.settingsMenu').hasClass('menuOut')) {
+          } else if ($('.settingsMenu').hasClass('menuOut')) {
             setInSession('initTransform', $('.settingsMenu').width());
           } else {
             setInSession('initTransform', 0);
           }
+
           $('.settingsMenu').addClass('right-drawer');
           $('.right-drawer').removeClass('settingsMenu');
         }
       }
+
       initTransformValue = getInSession('initTransform');
       panIsValid = getInSession('panIsValid');
       menuPanned = getInSession('menuPanned');
@@ -250,35 +264,39 @@ Template.main.gestures({
       screenWidth = $('#container').width();
 
       // moving the left-hand menu
-      if(panIsValid &&
+      if (panIsValid &&
         menuPanned === 'left' &&
         initTransformValue + event.deltaX >= 0 &&
         initTransformValue + event.deltaX <= leftDrawerWidth) {
-        if($('.settingsMenu').hasClass('menuOut')) {
+        if ($('.settingsMenu').hasClass('menuOut')) {
           toggleSettingsMenu();
         }
+
         $('.left-drawer').css('transform', `translateX(${initTransformValue + event.deltaX}px)`);
-        if(!getInSession('panStarted')) {
+        if (!getInSession('panStarted')) {
           $('.shield').addClass('animatedShield');
         }
+
         return $('.shield').css('opacity', 0.5 * (initTransformValue + event.deltaX) / leftDrawerWidth);
-      } else if(panIsValid &&
+      } else if (panIsValid &&
         menuPanned === 'right' &&
         initTransformValue + event.deltaX >= screenWidth - rightDrawerWidth &&
         initTransformValue + event.deltaX <= screenWidth) { // moving the right-hand menu
-        if($('.userlistMenu').hasClass('menuOut')) {
+        if ($('.userlistMenu').hasClass('menuOut')) {
           toggleUserlistMenu();
         }
+
         $('.right-drawer').css('transform', `translateX(${initTransformValue + event.deltaX}px)`);
-        if(!getInSession('panStarted')) {
+        if (!getInSession('panStarted')) {
           $('.shield').addClass('animatedShield');
         }
+
         return $('.shield').css('opacity', 0.5 * (screenWidth - initTransformValue - event.deltaX) / rightDrawerWidth);
       }
     }
-  }
+  },
 });
 
-Template.makeButton.rendered = function() {
+Template.makeButton.rendered = function () {
   return $('button[rel=tooltip]').tooltip();
 };
