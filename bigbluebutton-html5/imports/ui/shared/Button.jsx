@@ -2,7 +2,9 @@ import React from 'react';
 import { EmojisSVG } from '../whiteboard/EmojisSVG.jsx';
 
 export let Button = React.createClass({
-
+  componentDidMount() {
+    return $('button[rel=tooltip]').tooltip();
+  },
   hasGotUnreadMail(userId) {
     let chats, i, j, len, len1, tabs;
     chats = getInSession('chats');
