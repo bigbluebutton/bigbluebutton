@@ -1,7 +1,8 @@
 import React from 'react';
 import classNames from 'classnames';
+import { Button } from '../shared/Button.jsx';
 
-EmojiContainer = React.createClass ({
+export let EmojiContainer = React.createClass ({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let user, emoji_status, current_presentation;

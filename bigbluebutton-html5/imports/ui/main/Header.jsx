@@ -1,6 +1,7 @@
 import React from 'react';
+import {Button} from '../shared/Button.jsx';
 
-Header = React.createClass({
+export let Header = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let in_audio, whiteboard_title, in_listen_only, is_muted, is_talking;

@@ -1,6 +1,7 @@
 import React from 'react';
+import { Button } from '../shared/Button.jsx';
 
-PrivateChatToolBar = React.createClass({
+export let PrivateChatToolBar = React.createClass({
   componentDidMount: function() {
     if(isLandscape() || isPortrait()) {
       return $("#newMessageInput").focus();

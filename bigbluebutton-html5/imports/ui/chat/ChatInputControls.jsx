@@ -1,6 +1,6 @@
 import React from 'react';
 
-ChatInputControls = React.createClass({
+export let ChatInputControls = React.createClass({
   //#TODO MessageFontSize dynamic change
   componentDidMount: function() {
     $('.panel-footer').resizable({

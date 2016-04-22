@@ -1,6 +1,6 @@
 import React from 'react';
 
-ChatMessage = React.createClass({ 
+export let ChatMessage = React.createClass({ 
   sanitizeAndFormat: function(str) {
     let res;
     if(typeof str === 'string') { // First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)

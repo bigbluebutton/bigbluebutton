@@ -1,6 +1,9 @@
 import React from 'react';
+import { Button } from '../shared/Button.jsx';
+import { UploaderControls } from './UploaderControls.jsx';
 
-WhiteboardControls = React.createClass ({
+
+export let WhiteboardControls = React.createClass ({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let currentPresentation, currentSlide, currentSlideNum, ref, ref1, totalSlideNum;

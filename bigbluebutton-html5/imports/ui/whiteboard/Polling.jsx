@@ -1,6 +1,7 @@
 import React from 'react';
+import { Button } from '../shared/Button.jsx';
 
-Polling = React.createClass({
+export let Polling = React.createClass({
   //#TODO Move this to parent later?
   mixins: [ReactMeteorData],
   getMeteorData() {

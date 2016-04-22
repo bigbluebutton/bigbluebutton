@@ -1,6 +1,7 @@
 import React from 'react';
+import { EmojisSVG } from '../whiteboard/EmojisSVG.jsx';
 
-Button = React.createClass({
+export let Button = React.createClass({
 
   hasGotUnreadMail(userId) {
     let chats, i, j, len, len1, tabs;

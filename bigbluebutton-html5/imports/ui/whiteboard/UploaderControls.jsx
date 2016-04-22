@@ -1,6 +1,9 @@
 import React from 'react';
+import classNames from 'classnames';
+import { Button } from '../shared/Button.jsx';
+import { PresentationList } from './PresentationList.jsx';
 
-UploaderControls = React.createClass ({
+export let UploaderControls = React.createClass ({
   getDefaultProps: function() {
     return {
       isOpen: new ReactiveVar(false),

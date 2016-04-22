@@ -1,7 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {UserListContainer} from './imports/react/components/UserList/UserListContainer.jsx';
+import {UserListContainer} from '/imports/ui/userlist/UserListContainer.jsx';
 import { createContainer } from 'meteor/react-meteor-data';
+import '/imports/ui/stylesheets/variables.less';
+import '/imports/ui/stylesheets/style.less';
+import '/imports/ui/stylesheets/chat.less';
+import '/imports/ui/stylesheets/mixins.less';
+import '/imports/ui/stylesheets/modals.less';
+import '/imports/ui/stylesheets/users.less';
+import '/imports/ui/stylesheets/whiteboard.less';
 
 let loadLib;
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-EmojisSVG = React.createClass ({
+export let EmojisSVG = React.createClass ({
   render() {
     if(this.props.emoji == "happy-face") {
       return ( <svg width={this.props.size} height={this.props.size} viewBox="0 0 50 50">

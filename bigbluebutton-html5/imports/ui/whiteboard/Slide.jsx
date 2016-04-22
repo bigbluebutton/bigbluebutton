@@ -48,7 +48,7 @@ this.scaleSlide = function(originalWidth, originalHeight) {
   };
 };
 
-Slide = React.createClass({
+export let Slide = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let currentSlide, shapes, pointer;

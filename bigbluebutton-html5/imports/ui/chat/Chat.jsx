@@ -1,6 +1,9 @@
 import React from 'react';
+import { PrivateChatToolBar } from './PrivateChatToolBar.jsx';
+import { ChatInputControls } from './ChatInputControls.jsx';
+import { ChatMessage } from './ChatMessage.jsx';
 
-Chat = React.createClass({
+export let Chat = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let chatMessages, privateChatName, chattingWith, user, messageFontSize, temp, user_exists;

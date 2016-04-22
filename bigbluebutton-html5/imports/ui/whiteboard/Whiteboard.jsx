@@ -1,7 +1,13 @@
 import React from 'react';
 import classNames from 'classnames';
+import { Slide } from './Slide.jsx';
+import { EmojiContainer } from './EmojiContainer.jsx';
+import { Polling } from './Polling.jsx';
+import { Button } from '../shared/Button.jsx';
+import { WhiteboardControls } from './WhiteboardControls.jsx';
 
-Whiteboard = React.createClass({
+
+export let Whiteboard = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let poll_started, is_presenter, is_mobile, whiteboard_size;

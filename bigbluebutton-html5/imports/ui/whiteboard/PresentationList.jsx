@@ -1,6 +1,7 @@
 import React from 'react';
+import classNames from 'classnames';
 
-PresentationList = React.createClass({
+export let PresentationList = React.createClass({
   handleShow(name){
     return console.info('Should show the file `' + name + '`');
   },
