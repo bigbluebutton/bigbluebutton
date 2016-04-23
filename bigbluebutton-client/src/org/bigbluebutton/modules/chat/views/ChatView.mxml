@@ -270,6 +270,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		    } else {
 		      chatBox.publicChat = false;
 		      chatBox.label = UsersUtil.getUserName(chatWithUserID);
+		      chatBox.displayHowToCloseMessage();
 		    }
 				
 				chatBox.chatWithUsername = UsersUtil.getUserName(chatWithUserID);
