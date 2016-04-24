@@ -41,7 +41,6 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 			userSession.userList.userRemovedSignal.add(userRemovedHandler);
 			userSession.userList.userAddedSignal.add(userAddedHandler);
 			userSession.userList.userChangeSignal.add(userChangeHandler);
-			userSession.globalVideoSignal.add(globalVideoStreamNameHandler);
 			view.streamList.addEventListener(MouseEvent.CLICK, onSelectStream);
 			view.actionButton.addEventListener(MouseEvent.CLICK, clickedActionButton);
 			dataProvider = new ArrayCollection();
@@ -90,24 +89,6 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 			(view as SkinnablePopUpContainer).close(true, selectedStream);
 		}
 		
-		private function globalVideoStreamNameHandler():void {
-			if (userSession.globalVideoStreamName != "") {
-				speaker = new User();
-				speaker.name = ResourceManager.getInstance().getString('resources', 'videoChat.speaker');
-				speaker.userID = "sipVideoUser";
-				speaker.streamName = userSession.globalVideoStreamName;
-				speaker.hasStream = true;
-				var userStreamName:UserStreamName = new UserStreamName(speaker.streamName, speaker);
-				removeUserFromDataProvider(speaker.userID);
-				dataProvider.addItem(userStreamName);
-			} else {
-				if (speaker) {
-					removeUserFromDataProvider(speaker.userID);
-					speaker = null;
-				}
-			}
-		}
-		
 		private function addUserStreamNames(u:User):void {
 			var existingStreamNames:Array = getUserStreamNamesByUserID(u.userID);
 			var streamNames:Array = u.streamName.split("|");
@@ -141,7 +122,6 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 			userSession.userList.userRemovedSignal.remove(userRemovedHandler);
 			userSession.userList.userAddedSignal.remove(userAddedHandler);
 			userSession.userList.userChangeSignal.remove(userChangeHandler);
-			userSession.globalVideoSignal.remove(globalVideoStreamNameHandler);
 			view.streamList.removeEventListener(MouseEvent.CLICK, onSelectStream);
 			view.actionButton.removeEventListener(MouseEvent.CLICK, clickedActionButton);
 			view.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);

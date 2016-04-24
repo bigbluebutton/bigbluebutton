@@ -5,7 +5,6 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
-	import org.bigbluebutton.lib.video.models.VideoProfile;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
@@ -45,8 +44,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _joinUrl:String;
 		
-		protected var _globalVideoStreamName:String = "";
-		
 		protected var _lockSettings:LockSettings;
 		
 		protected var _pushToTalk:Boolean;
@@ -65,13 +62,9 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _authTokenSignal:ISignal = new Signal();
 		
-		protected var _globalVideoSignal:ISignal = new Signal();
-		
 		protected var _pushToTalkSignal:ISignal = new Signal();
 		
 		protected var _videoProfileManager:VideoProfileManager = new VideoProfileManager();
-		
-		protected var _globalVideoProfile:VideoProfile = _videoProfileManager.defaultVideoProfile;
 		
 		public function get phoneOptions():PhoneOptions {
 			return _phoneOptions;
@@ -231,10 +224,6 @@ package org.bigbluebutton.lib.main.models {
 			return _logoutSignal;
 		}
 		
-		public function get globalVideoSignal():ISignal {
-			return _globalVideoSignal;
-		}
-		
 		public function get pushToTalkSignal():ISignal {
 			return _pushToTalkSignal;
 		}
@@ -258,28 +247,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function set joinUrl(value:String):void {
 			_joinUrl = value;
-		}
-		
-		public function set globalVideoStreamName(value:String):void {
-			if (value != _globalVideoStreamName) {
-				_globalVideoStreamName = value;
-				globalVideoSignal.dispatch();
-			}
-		}
-		
-		public function get globalVideoStreamName():String {
-			return _globalVideoStreamName;
-		}
-		
-		public function get globalVideoProfile():VideoProfile {
-			return _globalVideoProfile;
-		}
-		
-		public function setGlobalVideoProfileDimensions(w:int, h:int):void {
-			if (_globalVideoProfile) {
-				_globalVideoProfile.width = w;
-				_globalVideoProfile.height = h;
-			}
 		}
 		
 		private function userChangedHandler(user:User, type:int):void {

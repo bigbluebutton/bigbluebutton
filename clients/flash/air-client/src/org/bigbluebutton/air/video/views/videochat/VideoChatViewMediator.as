@@ -43,7 +43,6 @@ package org.bigbluebutton.air.video.views.videochat {
 			userSession.userList.userAddedSignal.add(userAddedHandler);
 			userSession.userList.userChangeSignal.add(userChangeHandler);
 			userUISession.pageTransitionStartSignal.add(onPageTransitionStart);
-			userSession.globalVideoSignal.add(globalVideoStreamNameHandler);
 			view.streamlist.addEventListener(MouseEvent.CLICK, onSelectStream);
 			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'video.title');
@@ -68,8 +67,6 @@ package org.bigbluebutton.air.video.views.videochat {
 				view.streamlist.selectedIndex = dataProvider.getItemIndex(displayUserStreamName);
 				startStream(selectedUserProfile, displayUserStreamName.streamName);
 				displayVideo(true);
-			} else {
-				globalVideoStreamNameHandler();
 			}
 		}
 		
@@ -120,30 +117,6 @@ package org.bigbluebutton.air.video.views.videochat {
 			view.noVideoMessage.includeInLayout = !value;
 			view.streamListScroller.visible = value;
 			view.streamListScroller.includeInLayout = value;
-		}
-		
-		private function globalVideoStreamNameHandler():void {
-			if (userSession.globalVideoStreamName != "") {
-				speaker = new User();
-				speaker.name = ResourceManager.getInstance().getString('resources', 'videoChat.speaker');
-				speaker.userID = "sipVideoUser";
-				speaker.streamName = userSession.globalVideoStreamName;
-				speaker.hasStream = true;
-				var userStreamName:UserStreamName = new UserStreamName(speaker.streamName, speaker);
-				removeUserFromDataProvider(speaker.userID);
-				dataProvider.addItem(userStreamName);
-			} else {
-				if (speaker) {
-					removeUserFromDataProvider(speaker.userID);
-					speaker = null;
-				}
-			}
-			if (dataProvider.length == 0) {
-				displayVideo(false);
-			} else {
-				displayVideo(true);
-				checkVideo();
-			}
 		}
 		
 		private function addUserStreamNames(u:User):void {
@@ -207,7 +180,6 @@ package org.bigbluebutton.air.video.views.videochat {
 			userSession.userList.userRemovedSignal.remove(userRemovedHandler);
 			userSession.userList.userAddedSignal.remove(userAddedHandler);
 			userSession.userList.userChangeSignal.remove(userChangeHandler);
-			userSession.globalVideoSignal.remove(globalVideoStreamNameHandler);
 			userUISession.pageTransitionStartSignal.remove(onPageTransitionStart);
 			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			view.streamlist.removeEventListener(MouseEvent.CLICK, onSelectStream);
@@ -310,7 +282,7 @@ package org.bigbluebutton.air.video.views.videochat {
 		
 		private function startStream(user:User, streamName:String):void {
 			if (view) {
-				var videoProfile:VideoProfile = (user == speaker) ? userSession.globalVideoProfile : userSession.videoProfileManager.getVideoProfileByStreamName(streamName);
+				var videoProfile:VideoProfile = userSession.videoProfileManager.getVideoProfileByStreamName(streamName);
 				trace(videoProfile.width + "x" + videoProfile.height);
 				view.startStream(userSession.videoConnection.connection, user.name, streamName, user.userID, videoProfile.width, videoProfile.height, view.streamListScroller.height, view.streamListScroller.width);
 				userUISession.currentStreamName = streamName;

@@ -84,8 +84,6 @@ package org.bigbluebutton.air.presentation.views {
 			}
 			if (displayUserStreamName) {
 				startStream(selectedUserProfile, displayUserStreamName.streamName);
-			} else {
-				globalVideoStreamNameHandler();
 			}
 			setTemporaryOverlay();
 			var displayUser:User;
@@ -347,30 +345,6 @@ package org.bigbluebutton.air.presentation.views {
 			}
 		}
 		
-		private function globalVideoStreamNameHandler():void {
-			if (userSession.globalVideoStreamName != "") {
-				speaker = new User();
-				speaker.name = ResourceManager.getInstance().getString('resources', 'videoChat.speaker');
-				speaker.userID = "sipVideoUser";
-				speaker.streamName = userSession.globalVideoStreamName;
-				speaker.hasStream = true;
-				var userStreamName:UserStreamName = new UserStreamName(speaker.streamName, speaker);
-				removeUserFromDataProvider(speaker.userID);
-				dataProvider.addItem(userStreamName);
-			} else {
-				if (speaker) {
-					removeUserFromDataProvider(speaker.userID);
-					speaker = null;
-				}
-			}
-			if (dataProvider.length == 0) {
-				//displayVideo(false);
-			} else {
-				//displayVideo(true);
-				//checkVideo();
-			}
-		}
-		
 		private function removeUserFromDataProvider(userID:String):void {
 			for (var item:int; item < dataProvider.length; item++) {
 				if ((dataProvider.getItemAt(item).user as User).userID == userID) {
@@ -466,7 +440,7 @@ package org.bigbluebutton.air.presentation.views {
 		
 		private function startStream(user:User, streamName:String):void {
 			if (view) {
-				var videoProfile:VideoProfile = (user == speaker) ? userSession.globalVideoProfile : userSession.videoProfileManager.getVideoProfileByStreamName(streamName);
+				var videoProfile:VideoProfile = userSession.videoProfileManager.getVideoProfileByStreamName(streamName);
 				var videoWidth:Number = getView().content.width / 3;
 				var videoHeight:Number = getView().content.height / 3;
 				if (FlexGlobals.topLevelApplication.aspectRatio == "landscape") {

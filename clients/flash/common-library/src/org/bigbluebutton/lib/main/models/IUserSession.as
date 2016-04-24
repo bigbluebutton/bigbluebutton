@@ -4,7 +4,6 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
 	import org.bigbluebutton.lib.user.models.UserList;
-	import org.bigbluebutton.lib.video.models.VideoProfile;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
@@ -42,7 +41,6 @@ package org.bigbluebutton.lib.main.models {
 		function get loadedMessageHistorySignal():ISignal;
 		function get assignedDeskshareSignal():ISignal;
 		function get logoutSignal():Signal;
-		function get globalVideoSignal():ISignal;
 		function get recordingStatusChangedSignal():ISignal;
 		function joinMeetingResponse(msg:Object):void;
 		function recordingStatusChanged(recording:Boolean):void;
@@ -54,11 +52,7 @@ package org.bigbluebutton.lib.main.models {
 		function get lockSettings():LockSettings;
 		function set meetingMuted(mute:Boolean):void;
 		function get meetingMuted():Boolean;
-		function get globalVideoStreamName():String;
-		function get globalVideoProfile():VideoProfile;
 		function dispatchLockSettings():void;
-		function set globalVideoStreamName(value:String):void;
-		function setGlobalVideoProfileDimensions(w:int, h:int):void;
 		function get pushToTalk():Boolean;
 		function set pushToTalk(value:Boolean):void;
 		function get pushToTalkSignal():ISignal;
