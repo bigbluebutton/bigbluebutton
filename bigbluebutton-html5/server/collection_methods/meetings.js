@@ -1,7 +1,3 @@
-// --------------------------------------------------------------------------------------------
-// Private methods on server
-// --------------------------------------------------------------------------------------------
-
 this.addMeetingToCollection = function (meetingId, name, intendedForRecording, voiceConf, duration, callback) {
   //check if the meeting is already in the collection
 
@@ -94,7 +90,3 @@ this.removeMeetingFromCollection = function (meetingId, callback) {
     return funct(callback);
   }
 };
-
-// --------------------------------------------------------------------------------------------
-// end Private methods on server
-// --------------------------------------------------------------------------------------------
