@@ -27,12 +27,19 @@ button, .button {
 }
 body {
   color: #111;
+  font-size: 14px;
 }
 
 /* Main containers need to fill the entire page height */
 body, #playback-content, #playback-row, #main-section, #side-section {
   height: 100%;
 }
+
+/* Restrict the page to a minimum width */
+html, .acorn-controls {
+  min-width: 350px;
+}
+
 
 /* Swappable components have different settings depending on where they are */
 #main-section #presentation-area {
@@ -103,6 +110,9 @@ body {
 #chat strong {
   color: #666666;
 }
+#chat-area {
+  border-bottom: 1px solid #E2E2D2;
+}
 
 /* Navbar style */
 #navbar {
@@ -153,4 +163,17 @@ body {
   width: 100%;
   left: 0;
   right: 0;
+}
+
+
+/* Small screens only */
+@media only screen and (max-width: 40em) {
+  #copyright {
+    float: none;
+    text-align: left;
+    clear: both;
+  }
+  #navbar {
+    height: 85px;
+  }
 }

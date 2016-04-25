@@ -30,14 +30,6 @@
   margin: 0;
   cursor: pointer;
 }
-/* Audio player */
-/*
- * If you're playing <audio>, we're assigning a Width larger by 10%, because we're missing two buttons(Captions and Transcript)
- * each with a 5% Width
- */
-.acorn-player.bigbluebutton.audio-player .acorn-seek-slider {
-  width: 82%;
-}
 /* Player Controls */
 .acorn-player.bigbluebutton .acorn-controls {
   position: relative;
@@ -46,17 +38,17 @@
   width: 95%;
   padding-top: 5px;
   padding-bottom: 5px;
-  padding-right: 5%;
-  padding-left: 1%;
+  padding-right: 35px;
+  padding-left: 5px;
   border: 0;
   background: #314b5d;
 }
 /* <button>s */
 .acorn-player.bigbluebutton button {
   position: relative;
-  height: 22px;
-  width: 4%;
-  margin-right: 1%;
+  width: 5%;
+  max-width: 35px;
+  margin-right: 8px;
   padding: 0px;
   border: none;
   background-color: transparent;
@@ -97,7 +89,7 @@
   position: relative;
   display: block;
   float: left;
-  width: 72%;
+  width: 75%;
   height: 10px;
   margin: 5px 1% 0px 1%;
   background: #7289A8;
@@ -137,10 +129,9 @@
   float: left;
   width: 6%;
   overflow: hidden;
-  margin-top: 2px;
-
+  margin-top: 1px;
   color: #eee;
-  font-size: 0.7em;
+  font-size: 0.9em;
   font-weight: bold;
 }
 /* Volume Box */
@@ -150,9 +141,10 @@
   bottom: 5px;
   right: 0px;
   overflow: visible;
-  width: 5%;
+  width: 35px;
   height: 35px;
   color: #fff;
+  transition: all 0.1s ease-in-out 0s
 }
 .acorn-player.bigbluebutton .acorn-volume-box:hover {
   height: 135px;
@@ -181,6 +173,10 @@
   opacity: 0;
   border: 1px solid #666;
   background: #e6e6e6;
+  -moz-transition: all 0.1s ease-in-out;
+  -webkit-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
 }
 .acorn-player.bigbluebutton .acorn-volume-slider .ui-slider-handle {
   width: 16px;
@@ -191,8 +187,8 @@
   border: 1px solid #666;
 
   background: #e6e6e6;
-  background-image: -moz-linear-gradient(top, #e6e6e6, #d5d5d5);
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #e6e6e6),color-stop(1, #d5d5d5));
+  /* background-image: -moz-linear-gradient(top, #e6e6e6, #d5d5d5); */
+  /* background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #e6e6e6),color-stop(1, #d5d5d5)); */
 
   -moz-transition: all 0.1s ease-in-out;
   -webkit-transition: all 0.1s ease-in-out;
@@ -273,4 +269,26 @@
 .acorn-player.bigbluebutton .acorn-transcript-button {
   float: right;
   background-image: url(bigbluebutton-transcript.png);
+}
+
+
+/* Small screens only */
+@media only screen and (max-width: 40em) {
+  .acorn-player.bigbluebutton .acorn-seek-slider {
+    width: 65%;
+  }
+}
+
+/* Medium screens up */
+@media only screen and (min-width: 40.063em) {
+  .acorn-player.bigbluebutton .acorn-seek-slider {
+    width: 70%;
+  }
+}
+
+/* Large screens up */
+@media only screen and (min-width: 64.063em) {
+  .acorn-player.bigbluebutton .acorn-seek-slider {
+    width: 75%;
+  }
 }
