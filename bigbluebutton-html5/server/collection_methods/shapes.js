@@ -32,9 +32,6 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
         Meteor.Shapes.remove({
           'shape.id': shapeObject.shape.id,
         });
-
-        // for s in Meteor.Shapes.find({'shape.id':shapeObject.shape.id}).fetch()
-        //   Meteor.log.info "there is this shape: #{s.shape.text}"
         return callback();
       };
 
@@ -48,8 +45,20 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
 
     // the mouse button was released - the drawing is complete
     // TODO: pencil messages currently don't send draw_end and are labeled all as DRAW_START
-  } else if (shapeObject != null && shapeObject.status === 'DRAW_END' || (shapeObject != null && shapeObject.status === 'DRAW_START' && shapeObject.shape_type === 'pencil')) {
-    entry = {
+  } else if (shapeObject != null && (shapeObject.status === 'DRAW_START' || shapeObject.status === 'DRAW_UPDATE' || shapeObject.status === 'DRAW_END')) {
+    shape = Meteor.Shapes.findOne({
+        'shape.id': shapeObject.shape.id,
+      });
+    if (shape != null) {
+      return id = Meteor.Shapes.update({
+          'shape.id': shapeObject.shape.id,
+        }, {
+          $set: {
+            'shape.shape.points': shapeObject.shape.points,
+          },
+        });
+    } else {
+      entry = {
         meetingId: meetingId,
         whiteboardId: whiteboardId,
         shape: {
@@ -73,7 +82,8 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
           },
         },
       };
-    return id = Meteor.Shapes.insert(entry);
+      return id = Meteor.Shapes.insert(entry);
+    }
   }
 };
 
@@ -90,6 +100,7 @@ this.removeAllShapesFromSlide = function (meetingId, whiteboardId) {
       Meteor.log.info('clearing all shapes from slide');
 
       // After shapes are cleared, wait 1 second and set cleaning off
+      // Why would we wait 1 second? (Alex)
       return Meteor.setTimeout(() => {
         return Meteor.WhiteboardCleanStatus.update({
           meetingId: meetingId,
@@ -98,7 +109,7 @@ this.removeAllShapesFromSlide = function (meetingId, whiteboardId) {
             in_progress: false,
           },
         });
-      }, 1000);
+      }, 0);
     });
   }
 };

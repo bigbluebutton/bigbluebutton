@@ -14,7 +14,7 @@ module.exports = function (grunt) {
         tasks: ['force:jscs:check'],
         options: {
           event: ['all'],
-          spawn: true
+          spawn: true,
         },
       },
     },
@@ -28,7 +28,7 @@ module.exports = function (grunt) {
           esnext: true,
         },
       },
-      fix: {
+      autofix: {
         src: ['**/*.js', '**/*.jsx'],
         options: {
           config: '.jscsrc',
@@ -59,11 +59,9 @@ module.exports = function (grunt) {
       meteor_watch_production: {
         tasks: ['shell:start_meteor_production', 'watch']
       },
-    }
+    },
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-coffeelint');
   grunt.loadNpmTasks('grunt-jscs');
   grunt.loadNpmTasks('grunt-force-task');
   grunt.loadNpmTasks('grunt-contrib-watch');
