@@ -815,6 +815,14 @@ https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
   icon:   Embed('assets/images/webcam.png');
 }
 
+.cameraDisplaySettingsWindowStartBtnDisabled
+{
+  icon: Embed('assets/images/webcam.png');
+  color: #AAB3B3;
+  textSelectedColor: #AAB3B3;
+  fillAlphas: 0.45, 0.25;  
+}
+
 Alert {
 	borderColor: #DFDFDF;
 	backgroundColor: #EFEFEF;

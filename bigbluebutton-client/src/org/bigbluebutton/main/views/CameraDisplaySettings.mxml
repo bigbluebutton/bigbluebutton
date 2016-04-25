@@ -129,6 +129,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function updateCamera():void {
+			btnStartPublish.mouseEnabled = false;
+			
 			selectedVideoProfile = cmbVideoProfile.selectedItem.profile as VideoProfile;
 			if (camerasAvailable.length > cmbCameraSelector.selectedIndex) {
 				selectedCam = camerasAvailable.getItemAt(cmbCameraSelector.selectedIndex).index;
@@ -136,11 +138,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				selectedCam = -1;
 			}
 			setAspectRatio(selectedVideoProfile.width,selectedVideoProfile.height);
-			_video.successCallback = function():void {
-				btnStartPublish.enabled = true;
-			}
+			_video.successCallback = videoSuccess;
+			_video.failCallback = videoFailure;
 			_video.chromePermissionDenied = chromePermissionDenied;
 			_video.updateCamera(selectedCam,selectedVideoProfile,_canvas.width, _canvas.height,true);
+		}
+		
+		private function videoSuccess():void {
+			btnStartPublish.mouseEnabled = true;
+			btnStartPublish.accessibilityName = ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip');
+			btnStartPublish.styleName = "cameraDisplaySettingsWindowStartBtn";
+		}
+		
+		private function videoFailure(reason:String):void {
+			btnStartPublish.accessibilityName = ResourceUtil.getInstance().getString("bbb.publishVideo.startPublishBtn.errorName", [ResourceUtil.getInstance().getString(reason)]);
 		}
 		
 		private function showResControls(show:Boolean):void {
@@ -154,24 +165,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function startPublishing():void {
-			updateCamera();
-			
-			disableCamera();
-			
-			var globalDispatcher:Dispatcher = new Dispatcher();
-			var camEvent:BBBEvent = new BBBEvent(BBBEvent.CAMERA_SETTING);
-			camEvent.payload.cameraIndex = selectedCam;
-			camEvent.payload.videoProfile = selectedVideoProfile;
-			camEvent.payload.publishInClient = publishInClient;
-			camEvent.payload.restream = true;
-			
-			globalDispatcher.dispatchEvent(camEvent);
-			
-			var event:BBBEvent = new BBBEvent(BBBEvent.CAM_SETTINGS_CLOSED);
-			event.payload['clicked'] = "close";
-			dispatchEvent(event);
-			
-			PopUpManager.removePopUp(this);
+			if (btnStartPublish.mouseEnabled) {
+				updateCamera();
+				
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				var camEvent:BBBEvent = new BBBEvent(BBBEvent.CAMERA_SETTING);
+				camEvent.payload.cameraIndex = selectedCam;
+				camEvent.payload.videoProfile = selectedVideoProfile;
+				camEvent.payload.publishInClient = publishInClient;
+				camEvent.payload.restream = true;
+				
+				globalDispatcher.dispatchEvent(camEvent);
+				
+				close("close");
+			}
 		}
 		
 		private function disableCamera():void {
@@ -188,15 +195,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function onCancelClicked():void {
-			disableCamera();
-			var event:BBBEvent = new BBBEvent(BBBEvent.CAM_SETTINGS_CLOSED);
-			event.payload['clicked'] = "cancel";
-			dispatchEvent(event);
-			PopUpManager.removePopUp(this);
+			close("cancel");
 		}
 		
 		private function showCameraSettings():void {
 			Security.showSettings(SecurityPanel.CAMERA);
+		}
+		
+		private function close(payload:String):void {
+			disableCamera();
+			
+			if (_video.successCallback == videoSuccess) _video.successCallback = null;
+			if (_video.failCallback == videoFailure) _video.failCallback = null;
+			
+			var event:BBBEvent = new BBBEvent(BBBEvent.CAM_SETTINGS_CLOSED);
+			event.payload['clicked'] = payload;
+			dispatchEvent(event);
+			PopUpManager.removePopUp(this);
 		}
       
     ]]>
@@ -225,7 +240,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
     <mx:HBox width="100%" height="10%" horizontalAlign="right" horizontalGap="13" paddingRight="5" paddingBottom="5" paddingTop="1">
       <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
-                 click="startPublishing()" enabled="false" styleName="cameraDisplaySettingsWindowStartBtn" 
+                 click="startPublishing()" mouseEnabled="false" styleName="cameraDisplaySettingsWindowStartBtnDisabled" 
                  label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}"/>
       <mx:Button id="btnClosePublish"   
                  click="onCancelClicked()" 
