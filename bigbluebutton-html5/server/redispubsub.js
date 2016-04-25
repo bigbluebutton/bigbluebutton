@@ -67,7 +67,9 @@ Meteor.RedisPubSub = (function () {
       eventName = message.header.name;
       messagesWeIgnore = ['BbbPubSubPongMessage', 'bbb_apps_is_alive_message', 'broadcast_layout_message'];
       if (indexOf.call(messagesWeIgnore, eventName) < 0) {
-        console.log(`Q ${eventName} ${Meteor.myQueue.total()}`);
+        // Uncomment for DEVELOPMENT purposes only
+        // Otherwise dynamic shapes' updates will slow down significantly
+        // Meteor.log.info(`Q ${eventName} ${Meteor.myQueue.total()}`);
         return Meteor.myQueue.add({
           pattern: pattern,
           channel: channel,

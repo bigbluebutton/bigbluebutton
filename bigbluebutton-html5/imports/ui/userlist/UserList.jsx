@@ -1,3 +1,4 @@
+import React from 'react';
 import {UserListItem} from './UserListItem.jsx';
 
 export let UserList = React.createClass({
