@@ -326,7 +326,7 @@
 					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL'),
 					ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
 					Alert.YES | Alert.NO,
-					this,
+					null,
 					function(e:CloseEvent):void {
 						if (e.detail == Alert.YES) {
 							dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
@@ -334,12 +334,6 @@
 						}
 					},
 					null, Alert.YES);
-				var viewPoint:Number = ExternalInterface.call("eval", "window.pageYOffset"); 
-				var browserHeight:Number = ExternalInterface.call("eval", "window.innerHeight"); 
-				//the following calculation finds the center y coordinate in user's viewable page. 
-				var viewableY : Number = ((browserHeight/2)+viewPoint-50); 
-				PopUpManager.centerPopUp(alert);
-				alert.move(400,viewableY);
 			}
 
 			/*private function unlockAll():void {
