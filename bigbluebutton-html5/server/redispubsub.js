@@ -150,6 +150,17 @@ const handleChatEvent = function (arg) {
   return arg.callback();
 };
 
+const handleRemoveUserEvent = function (arg) {
+  if (arg.payload.user != null && arg.payload.user.userid != null && arg.payload.meeting_id != null) {
+    let userId, meetingId;
+    meetingId = arg.payload.meeting_id;
+    userId = arg.payload.user.userid;
+    return markUserOffline(meetingId, userId, arg.callback);
+  } else {
+    Meteor.log.info('could not perform handleRemoveUserEvent');
+    return arg.callback();
+  }
+};
 
 // To ensure that we process the redis json event messages serially we use a
 // callback. This callback is to be called when the Meteor collection is
@@ -254,15 +265,7 @@ registerHandlers = function (emitter) {
   });
 
   emitter.on('user_left_message', function(arg) {
-    if (arg.payload.user != null && arg.payload.user.userid != null && arg.payload.meeting_id != null) {
-      let userId, meetingId;
-      meetingId = arg.payload.meeting_id;
-      userId = arg.payload.user.userid;
-      return markUserOffline(meetingId, userId, arg.callback);
-    } else {
-      return arg.callback();
-    }
-
+    handleRemoveUserEvent(arg);
   });
 
   emitter.on('validate_auth_token_reply', function(arg) {
@@ -565,7 +568,7 @@ registerHandlers = function (emitter) {
         });
       }
 
-      shapes = payload.shapes;
+      shapes = arg.payload.shapes;
       shapes_length = shapes.length;
       for (m = 0; m < shapes_length; m++) {
         shape = shapes[m];
@@ -631,6 +634,14 @@ registerHandlers = function (emitter) {
     shapeId = arg.payload.shape_id;
     removeShapeFromSlide(meetingId, whiteboardId, shapeId);
     return arg.callback();
+  });
+
+  emitter.on('user_eject_from_meeting', function(arg) {
+    handleRemoveUserEvent(arg);
+  });
+
+  emitter.on('disconnect_user_message', function(arg) {
+    handleRemoveUserEvent(arg);
   });
 
   emitter.on('presentation_page_resized_message', function (arg) {
