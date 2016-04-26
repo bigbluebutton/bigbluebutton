@@ -124,6 +124,9 @@ function removeSlideChangeAttribute() {
 
 function runPopcorn() {
   console.log("** Running popcorn");
+
+  getMetadata();
+
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile');
 
@@ -158,7 +161,6 @@ function runPopcorn() {
   if (images.length == 0) {
     images = shapeelements[0].getElementsByTagName("image");
   }
-
 
   //create a map from timestamp to id list
   var timestampToId = {};
@@ -250,7 +252,6 @@ function runPopcorn() {
   for (var m = 0; m < clen; m++) {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
-
 
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
@@ -491,6 +492,7 @@ var url = "/presentation/" + MEETINGID;
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
+var metadata_xml = url + '/metadata.xml';
 
 var firstLoad = true;
 
@@ -533,6 +535,36 @@ svgobj.addEventListener('load', function() {
   }
 }, false);
 
+// Fetches the metadata associated with the recording and uses it to configure
+// the playback page
+var getMetadata = function() {
+  var xmlhttp;
+  if (window.XMLHttpRequest) {// code for IE7, Firefox, Chrome, Opera, Safari
+    xmlhttp = new XMLHttpRequest();
+  } else {// code for IE6, IE5
+    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.open("GET", metadata_xml, false);
+  xmlhttp.send(null);
+
+  if (xmlhttp.responseXML)
+    var xmlDoc = xmlhttp.responseXML;
+  else {
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(xmlhttp.responseText, "application/xml");
+  }
+
+  var metadata = xmlDoc.getElementsByTagName("meta");
+  if (metadata.length > 0) {
+    metadata = metadata[0];
+
+    var meetingName = metadata.getElementsByTagName("meetingName");
+    if (meetingName.length > 0) {
+      $("#recording-title").text(meetingName[0].textContent);
+      $("#recording-title").attr("title", meetingName[0].textContent);
+    }
+  }
+};
 
 document.getElementById('slide').appendChild(svgobj);
 

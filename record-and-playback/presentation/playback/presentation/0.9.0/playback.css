@@ -134,14 +134,15 @@ body {
   background: white;
   padding: 0 10px;
 }
-#navbar h1 {
+#recording-title {
   font-size: 1.45rem;
   padding-top: 8px;
   margin: 0;
   color: #666666;
   font-weight: bold;
   white-space: nowrap;
-  float: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 #navbar .sidebar-icon {
   font-size: 1.65em;
