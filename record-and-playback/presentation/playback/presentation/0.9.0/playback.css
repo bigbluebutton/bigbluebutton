@@ -107,7 +107,6 @@ body {
 #main-section {
   border-right: 1px solid #e2e2e2;
   background: #f6f6f6;
-  padding: 10px;
 }
 
 /* Chat style */
@@ -155,15 +154,6 @@ body {
   padding-top: 8px;
   height: 48px;
 }
-#copyright {
-  float: right;
-  font-size: 0.75rem;
-  text-align: right;
-  padding-top: 5px;
-  overflow: hidden;
-  white-space: nowrap;
-  color: #666666;
-}
 
 /* Presentation and related elements */
 #cursor {
@@ -175,6 +165,19 @@ body {
   position: fixed;
   background: red;
   z-index: 10;
+}
+#main-section {
+  padding: 10px 10px 30px 10px;
+}
+#copyright {
+  width: 100%;
+  font-size: 0.65rem;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #888;
+  position: absolute;
+  bottom: 5px;
 }
 
 /* Thumbnails */
@@ -196,7 +199,7 @@ body {
 	background-color: #f6f6f6;
 }
 #thumbnails img {
-  max-height: 140px;
+  max-height: 125px;
   border: 1px solid #eee;
 }
 #thumbnails .thumbnail-wrapper.hovered .thumbnail-label,
@@ -209,7 +212,7 @@ body {
 	font-weight: bold;
 	font-size: 12px;
 	position: absolute;
-	bottom: 3px;
+	bottom: 5px;
 	left: 0;
   right: 0;
 	width: 50%;
@@ -225,6 +228,14 @@ body {
 }
 .left-off-canvas-menu {
   background: #fff;
+  width: 13rem;
+}
+.move-right > .inner-wrap {
+  -webkit-transform: translate3d(13rem, 0, 0);
+  -moz-transform: translate3d(13rem, 0, 0);
+  -ms-transform: translate(13rem, 0);
+  -o-transform: translate3d(13rem, 0, 0);
+  transform: translate3d(13rem, 0, 0);
 }
 ul.off-canvas-list li label {
   background: #314b5d;
@@ -259,11 +270,6 @@ ul.off-canvas-list li label {
 /* Small screens only */
 @media only screen and (max-width: 40em) {
   #copyright {
-    float: none;
-    text-align: left;
-    clear: both;
-  }
-  #navbar {
-    height: 85px;
+    font-size: 0.5em;
   }
 }
