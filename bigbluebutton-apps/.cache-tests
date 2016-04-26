@@ -1,0 +1,75 @@
+format version: 5
+output mode:
+1 items
+0 -> multiple
+output directories:
+2 items
+D:\bbb\bigbluebutton-apps\src\test\resources -> D:\bbb\bigbluebutton-apps\bin
+D:\bbb\bigbluebutton-apps\src\test\scala -> D:\bbb\bigbluebutton-apps\bin
+compile options:
+8 items
+0 -> -javabootclasspath
+1 -> C:\Program Files\Java\jdk1.7.0_80\jre\lib\resources.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\rt.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\jce.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\ext\access-bridge-64.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\ext\dnsns.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\ext\jaccess.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\ext\localedata.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\ext\sunec.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\ext\sunjce_provider.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\ext\sunmscapi.jar;C:\Program Files\Java\jdk1.7.0_80\jre\lib\ext\zipfs.jar
+2 -> -javaextdirs
+3 ->  
+4 -> -bootclasspath
+5 -> D:\Ghazi\Softs\eclipse-scala\plugins\org.scala-lang.scala-library_2.11.7.v20150622-112736-1fbce4612c.jar
+6 -> -encoding
+7 -> UTF-8
+javac options:
+0 items
+compiler version:
+1 items
+0 -> 2.11.7
+compile order:
+1 items
+0 -> Mixed
+name hashing:
+1 items
+0 -> false
+products:
+0 items
+binary dependencies:
+0 items
+direct source dependencies:
+0 items
+direct external dependencies:
+0 items
+public inherited source dependencies:
+0 items
+public inherited external dependencies:
+0 items
+member reference internal dependencies:
+0 items
+member reference external dependencies:
+0 items
+inheritance internal dependencies:
+0 items
+inheritance external dependencies:
+0 items
+class names:
+0 items
+used names:
+0 items
+product stamps:
+0 items
+source stamps:
+1 items
+D:\bbb\bigbluebutton-apps\src\test\scala\org\bigbluebutton\core\apps\poll\PollTestHelper.scala -> hash(7d7b5b5d738db53e715d04615c5f0f6889a87ca1)
+binary stamps:
+0 items
+class names:
+0 items
+internal apis:
+1 items
+D:\bbb\bigbluebutton-apps\src\test\scala\org\bigbluebutton\core\apps\poll\PollTestHelper.scala -> 
+rO0ABXNyABB4c2J0aS5hcGkuU291cmNlFlpwRASfbtoCAAZJAAdhcGlIYXNoWgAIaGFzTWFjcm9MABhfaW50ZXJuYWxPbmx5X25hbWVIYXNoZXN0ACRMeHNidGkvYXBpL19pbnRlcm5hbE9ubHlfTmFtZUhhc2hlcztMAANhcGl0ABVMeHNidGkvYXBpL1NvdXJjZUFQSTtMAAtjb21waWxhdGlvbnQAF0x4c2J0aS9hcGkvQ29tcGlsYXRpb247WwAEaGFzaHQAAltCeHAMaZ2IAHNyACJ4c2J0aS5hcGkuX2ludGVybmFsT25seV9OYW1lSGFzaGVzVNq+mfrU7EwCAAJbAA9pbXBsaWNpdE1lbWJlcnN0ACNbTHhzYnRpL2FwaS9faW50ZXJuYWxPbmx5X05hbWVIYXNoO1sADnJlZ3VsYXJNZW1iZXJzcQB+AAd4cHVyACNbTHhzYnRpLmFwaS5faW50ZXJuYWxPbmx5X05hbWVIYXNoO0lagLbdlov0AgAAeHAAAAAAdXEAfgAJAAAAAHNyABN4c2J0aS5hcGkuU291cmNlQVBJuV6n+SkjOKQCAAJbAAtkZWZpbml0aW9uc3QAF1tMeHNidGkvYXBpL0RlZmluaXRpb247WwAIcGFja2FnZXN0ABRbTHhzYnRpL2FwaS9QYWNrYWdlO3hwdXIAF1tMeHNidGkuYXBpLkRlZmluaXRpb247iMlc57TjXg4CAAB4cAAAAAB1cgAUW0x4c2J0aS5hcGkuUGFja2FnZTtbExk3cKcnoQIAAHhwAAAABXNyABF4c2J0aS5hcGkuUGFja2FnZX5Zj/auzjlYAgABTAAEbmFtZXQAEkxqYXZhL2xhbmcvU3RyaW5nO3hwdAAWb3JnLmJpZ2JsdWVidXR0b24uY29yZXNxAH4AFHQAEW9yZy5iaWdibHVlYnV0dG9uc3EAfgAUdAAbb3JnLmJpZ2JsdWVidXR0b24uY29yZS5hcHBzc3EAfgAUdAAgb3JnLmJpZ2JsdWVidXR0b24uY29yZS5hcHBzLnBvbGxzcQB+ABR0AANvcmdzcgAVeHNidGkuYXBpLkNvbXBpbGF0aW9u7frgw2rooEICAAJKAAlzdGFydFRpbWVbAAdvdXRwdXRzdAAaW0x4c2J0aS9hcGkvT3V0cHV0U2V0dGluZzt4cAAAAVLvfQ9fdXIAGltMeHNidGkuYXBpLk91dHB1dFNldHRpbmc7f2rC86eHpUICAAB4cAAAAAJzcgAXeHNidGkuYXBpLk91dHB1dFNldHRpbmd62ZpHdPsdewIAAkwAD291dHB1dERpcmVjdG9yeXEAfgAVTAAPc291cmNlRGlyZWN0b3J5cQB+ABV4cHQAHUQ6XGJiYlxiaWdibHVlYnV0dG9uLWFwcHNcYmludAAoRDpcYmJiXGJpZ2JsdWVidXR0b24tYXBwc1xzcmNcdGVzdFxzY2FsYXNxAH4AJXQAHUQ6XGJiYlxiaWdibHVlYnV0dG9uLWFwcHNcYmludAAsRDpcYmJiXGJpZ2JsdWVidXR0b24tYXBwc1xzcmNcdGVzdFxyZXNvdXJjZXN1cgACW0Ks8xf4BghU4AIAAHhwAAAAFH17W11zjbU+cV0EYVxfD2iJqHyh
+external apis:
+0 items
+source infos:
+1 items
+D:\bbb\bigbluebutton-apps\src\test\scala\org\bigbluebutton\core\apps\poll\PollTestHelper.scala -> 
+AAAAAAAAAAA=
+compilations:
+1 items
+0 -> rO0ABXNyABV4c2J0aS5hcGkuQ29tcGlsYXRpb27t+uDDauigQgIAAkoACXN0YXJ0VGltZVsAB291dHB1dHN0ABpbTHhzYnRpL2FwaS9PdXRwdXRTZXR0aW5nO3hwAAABUu99D191cgAaW0x4c2J0aS5hcGkuT3V0cHV0U2V0dGluZzt/asLzp4elQgIAAHhwAAAAAnNyABd4c2J0aS5hcGkuT3V0cHV0U2V0dGluZ3rZmkd0+x17AgACTAAPb3V0cHV0RGlyZWN0b3J5dAASTGphdmEvbGFuZy9TdHJpbmc7TAAPc291cmNlRGlyZWN0b3J5cQB+AAZ4cHQAHUQ6XGJiYlxiaWdibHVlYnV0dG9uLWFwcHNcYmludAAoRDpcYmJiXGJpZ2JsdWVidXR0b24tYXBwc1xzcmNcdGVzdFxzY2FsYXNxAH4ABXQAHUQ6XGJiYlxiaWdibHVlYnV0dG9uLWFwcHNcYmludAAsRDpcYmJiXGJpZ2JsdWVidXR0b24tYXBwc1xzcmNcdGVzdFxyZXNvdXJjZXM=
