@@ -28,62 +28,77 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <link rel="stylesheet" type="text/css" href="acornmediaplayer/themes/bigbluebutton/acorn.bigbluebutton.css" />
   <link rel="stylesheet" type="text/css" href="css/normalize.css" />
   <link rel="stylesheet" type="text/css" href="css/foundation.css" />
+  <link rel="stylesheet" type="text/css" href="css/foundation-icons.css" />
   <link rel="stylesheet" href="playback.css">
 </head>
 
 <body>
   <div id="loading-recording">
     <div id="spinner"></div>
-    <p id="load-recording-msg">Initializing recording </p>
+    <p id="load-recording-msg">Initializing recording</p>
   </div>
-  <div id="playback-content">
-    <div id="navbar">
-      <h1>BigBlueButton Playback</h1>
+  <div id="playback-content" class="off-canvas-wrap" data-offcanvas>
 
-      <div id="copyright">
-        <div>Recorded with <a target="_blank" href="http://bigbluebutton.org/">BigBlueButton</a>.</div>
-        <div>
-          Use <a target="_blank" href="http://mozilla.org/firefox">Mozilla Firefox</a> or
-          <a target="_blank" href="http://google.com/chrome/">Google Chrome</a> to play this recording.
+    <div class="inner-wrap">
+      <div id="navbar">
+        <a class="left-off-canvas-toggle menu-icon" href="#">
+          <i class="sidebar-icon fi-list"></i>
+        </a>
+        <h1>BigBlueButton Playback</h1>
+
+        <div id="copyright">
+          <div>Recorded with <a target="_blank" href="http://bigbluebutton.org/">BigBlueButton</a>.</div>
+          <div>
+            Use <a target="_blank" href="http://mozilla.org/firefox">Mozilla Firefox</a> or
+            <a target="_blank" href="http://google.com/chrome/">Google Chrome</a> to play this recording.
+          </div>
         </div>
       </div>
+
+      <aside class="left-off-canvas-menu">
+        <ul class="off-canvas-list">
+          <li><label>Thumbnails</label></li>
+          <div id="thumbnails" role="region" aria-label="Slide thumbnails"></div>
+        </ul>
+      </aside>
+
+      <a class="exit-off-canvas"></a>
+
+      <div id="playback" role="main" class="row small-collapse">
+
+        <h2 class="show-for-sr">Presentation Slides</h2>
+        <div id="main-section" class="small-8 columns">
+          <div id="presentation-area" role="region" aria-label="Presentation" data-swap>
+            <div id="slide" role="img" aria-labelledby="slideText"></div>
+            <div id="slideText" class="show-for-sr" aria-live="polite"></div>
+            <div class="circle" id="cursor"></div>
+          </div>
+        </div>
+
+        <div id="side-section" class="small-4 columns">
+          <h2 class="show-for-sr">Chat Messages</h2>
+          <input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="show-for-sr" checked="checked" />
+          <label for="exposechat" class="show-for-sr">Read chat messages</label>
+          <div id="chat-area">
+            <div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
+          </div>
+          <div id="video-area" class="clearfix" role="region" aria-label="Video" title="Click to play or pause" data-swap>
+            <!--
+                <video id="webcam">You must use an HTML5 capable browser to view this page.
+                  This playback requires modern browser, please use FF, Safari, Chrome</video>
+                -->
+          </div>
+          <div id="audio-area" role="region" aria-label="Audio">
+            <!--
+                <audio id="video">You must use an HTML5 capable browser to view this page.
+                  This playback requires modern browser, please use FF, Safari, Chrome</audio>
+                -->
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div id="playback" role="main" class="row small-collapse">
-
-      <!-- <h2 class="show-for-sr">Slide Thumbnails</h2> -->
-      <!-- <div id="thumbnails" role="region" aria-label="Slide thumbnails"></div> -->
-
-      <h2 class="show-for-sr">Presentation Slides</h2>
-      <div id="main-section" class="small-8 columns">
-        <div id="presentation-area" role="region" aria-label="Presentation" data-swap>
-          <div id="slide" role="img" aria-labelledby="slideText"></div>
-          <div id="slideText" class="show-for-sr" aria-live="polite"></div>
-          <div class="circle" id="cursor"></div>
-        </div>
-      </div>
-
-      <div id="side-section" class="small-4 columns">
-        <h2 class="show-for-sr">Chat Messages</h2>
-        <input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="show-for-sr" checked="checked" />
-        <label for="exposechat" class="show-for-sr">Read chat messages</label>
-        <div id="chat-area">
-          <div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
-        </div>
-        <div id="video-area" class="clearfix" role="region" aria-label="Video" title="Click to play or pause" data-swap>
-          <!--
-              <video id="webcam">You must use an HTML5 capable browser to view this page.
-                This playback requires modern browser, please use FF, Safari, Chrome</video>
-              -->
-        </div>
-        <div id="audio-area" role="region" aria-label="Audio">
-          <!--
-              <audio id="video">You must use an HTML5 capable browser to view this page.
-                This playback requires modern browser, please use FF, Safari, Chrome</audio>
-              -->
-        </div>
-      </div>
-    </div>
     <!--div id="playbackControls">
       <div id="autoscrollWrapper">
         <input id="autoscrollEnabled" type="checkbox" name="autoscrollEnabled" checked="true" aria-label="Toggle autoscroll"/>

@@ -19,25 +19,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
 
 goToSlide = function(time) {
-  console.log("==Going to slide");
   var pop = Popcorn("#video");
   pop.currentTime(time);
-}
+};
 
 getUrlParameters = function() {
-  console.log("==Getting url parameters");
   var map = {};
   var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
     map[key] = value;
   });
   return map;
-}
+};
 
 /*
  * From: http://stackoverflow.com/questions/1634748/how-can-i-delete-a-query-string-parameter-in-javascript/4827730#4827730
  */
 removeUrlParameter = function(url, param) {
-  console.log("==Removing url params");
   var urlparts= url.split('?');
   if (urlparts.length>=2) {
     var prefix= encodeURIComponent(param)+'=';
@@ -137,7 +134,10 @@ setTitleOnThumbnail = function($thumb) {
  * mouse over/out functions, etc.
  */
 setEventsOnThumbnail = function($thumb) {
-  //console.log("== Setting event on thumbnail," ,$thumb);
+
+  // Note: use ceil() so it jumps to a part of the video that actually is showing
+  // this slide, while floor() would most likely jump to the previously slide
+
   // Popcorn event to mark a thumbnail when its slide is being shown
   var timeIn = $thumb.attr("data-in");
   var timeOut = $thumb.attr("data-out");
@@ -146,36 +146,32 @@ setEventsOnThumbnail = function($thumb) {
     start: timeIn,
     end: timeOut,
     onStart: function( options ) {
-      $parent = $("#thumbnail-" + options.start).parent();
+      $parent = $("#thumbnail-" + Math.ceil(options.start)).parent();
       $parent.addClass("active");
-      $(".thumbnail-label", $parent).show();
-
       animateToCurrentSlide();
     },
     onEnd: function( options ) {
-      $parent = $("#thumbnail-" + options.start).parent();
+      $parent = $("#thumbnail-" + Math.ceil(options.start)).parent();
       $parent.removeClass("active");
-      $(".thumbnail-label", $parent).hide();
     }
   });
 
   // Click on thumbnail changes the slide in popcorn
   $thumb.parent().on("click", function() {
-    goToSlide($thumb.attr("data-in"));
-    replaceTimeOnUrl($thumb.attr("data-in"));
+    var time = Math.ceil($thumb.attr("data-in"));
+    goToSlide(time);
+    replaceTimeOnUrl(time);
   });
 
   // Mouse over/out to show/hide the label over the thumbnail
   $wrapper = $thumb.parent();
   $wrapper.on("mouseover", function() {
-    $(".thumbnail-label", $(this)).show();
+    $(this).addClass("hovered");
   });
   $wrapper.on("mouseout", function() {
-    if (!$(this).hasClass("active")) {
-      $(".thumbnail-label", $(this)).hide();
-    }
+    $(this).removeClass("hovered");
   });
-}
+};
 
 $("input[name='autoscrollEnabled']").live('change', function() {
   animateToCurrentSlide();
@@ -243,8 +239,9 @@ generateThumbnails = function() {
       var timeInList = xmlList[i].getAttribute("in").split(" ");
       var timeOutList = xmlList[i].getAttribute("out").split(" ");
       for (var j = 0; j < timeInList.length; j++) {
-        var timeIn = Math.floor(timeInList[j]);
-        var timeOut = Math.floor(timeOutList[j]);
+
+        var timeIn = Math.ceil(timeInList[j]);
+        var timeOut = Math.ceil(timeOutList[j]);
 
         var img = $(document.createElement('img'));
         img.attr("src", src);
@@ -275,9 +272,8 @@ generateThumbnails = function() {
         div.append(label);
         div.append(hiddenDesc);
 
-        if (parseFloat(timeIn) == 0 ) {
+        if (parseFloat(timeIn) == 0) {
           div.addClass("active");
-          $(".thumbnail-label", div).show();
         }
 
         imagesList.push(timeIn);

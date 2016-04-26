@@ -18,6 +18,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 */
 
+/* Visually hides text
+ * see: yaccessibilityblog.com/library/css-clip-hidden-content.html
+ */
+.visually-hidden {
+	position: absolute !important;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	padding: 0 !important;
+	border: 0 !important;
+	height: 1px !important;
+	width: 1px !important;
+	overflow: hidden;
+}
+
 /* Foundation overrides */
 .row {
   max-width: 100%; /* Foundation restricts the rows to ~1000px */
@@ -123,12 +137,23 @@ body {
 }
 #navbar h1 {
   font-size: 1.45rem;
-  padding-top: 6px;
+  padding-top: 8px;
   margin: 0;
   color: #666666;
   font-weight: bold;
   white-space: nowrap;
   float: left;
+}
+#navbar .sidebar-icon {
+  font-size: 1.65em;
+  margin-right: 15px;
+  padding-right: 15px;
+  margin-left: 5px;
+  border-right: 1px solid #e2e2e2;
+  float: left;
+  color: #666;
+  padding-top: 8px;
+  height: 48px;
 }
 #copyright {
   float: right;
@@ -140,11 +165,7 @@ body {
   color: #666666;
 }
 
-/* Video style */
-#video {
-  background-color: #f6f6f6 !important;
-}
-
+/* Presentation and related elements */
 #cursor {
   visibility: hidden;
   width: 12px;
@@ -154,6 +175,68 @@ body {
   position: fixed;
   background: red;
   z-index: 10;
+}
+
+/* Thumbnails */
+#thumbnails {
+  padding: 10px;
+  text-align: center;
+}
+#thumbnails .thumbnail-wrapper {
+	position: relative;
+	margin: 0;
+  padding: 5px 0;
+	cursor: pointer;
+}
+#thumbnails .thumbnail-wrapper.active,
+#thumbnails .thumbnail-wrapper.active:hover {
+	background-color: #D9EDF7;
+}
+#thumbnails .thumbnail-wrapper:hover {
+	background-color: #f6f6f6;
+}
+#thumbnails img {
+  max-height: 140px;
+  border: 1px solid #eee;
+}
+#thumbnails .thumbnail-wrapper.hovered .thumbnail-label,
+#thumbnails .thumbnail-wrapper.active .thumbnail-label {
+  display: block;
+}
+#thumbnails .thumbnail-label {
+	color: #fff;
+	background: #3A87AD;
+	font-weight: bold;
+	font-size: 12px;
+	position: absolute;
+	bottom: 3px;
+	left: 0;
+  right: 0;
+	width: 50%;
+  margin: 0 auto;
+	text-align: center;
+	display: none;
+	padding: 2px 5px;
+}
+
+/* Sliding sidebar */
+.inner-wrap {
+  height: 100%;
+}
+.left-off-canvas-menu {
+  background: #fff;
+}
+ul.off-canvas-list li label {
+  background: #314b5d;
+  color: #eee;
+}
+.exit-off-canvas {
+  box-shadow: none !important;
+}
+
+/* Video style */
+#video {
+  background-color: #f6f6f6 !important;
 }
 
 /* TODO: this spinner can be improved a lot */
