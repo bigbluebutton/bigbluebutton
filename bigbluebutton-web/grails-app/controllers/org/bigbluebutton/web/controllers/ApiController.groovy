@@ -1465,14 +1465,17 @@ class ApiController {
     Meeting meeting = null;
 
     if (!session[sessionToken]) {
+      log.info("No session found for token [" + sessionToken + "].")
       reject = true;
     } else {
-      if (meetingService.getUserSession(sessionToken) == null)
+      if (meetingService.getUserSession(sessionToken) == null) {
+        log.info("Cannot get user session for token [" + sessionToken + "].")
         reject = true;
-      else {
+      } else {
         us = meetingService.getUserSession(sessionToken);
         meeting = meetingService.getMeeting(us.meetingID);
         if (meeting == null || meeting.isForciblyEnded()) {
+          log.info("Cannot get meeting for token [" + sessionToken + "].")
           reject = true
         }
       }
