@@ -59,14 +59,14 @@ html, .acorn-controls {
 #main-section #presentation-area {
   height: 100%;
 }
-#main-section #video-area {
+#main-section #video-area, #main-section #audio-area {
   height: 100%;
 }
 #side-section #presentation-area {
   height: 30%; /* we HAVE to set a height here, otherwise the slides won't scale properly */
   min-height: 250px;
 }
-#side-section #video-area {
+#side-section #video-area, #side-section #audio-area {
   height: auto;
 }
 
@@ -196,8 +196,12 @@ body {
 #thumbnails .thumbnail-wrapper.active:hover {
 	background-color: #D9EDF7;
 }
-#thumbnails .thumbnail-wrapper:hover {
-	background-color: #f6f6f6;
+#thumbnails .thumbnail-wrapper.active img,
+#thumbnails .thumbnail-wrapper.active:hover img {
+	border-color: #3A87AD; /* #314b5d; */
+}
+#thumbnails .thumbnail-wrapper:hover img {
+	border-color: #3A87AD; /* #314b5d; */
 }
 #thumbnails img {
   max-height: 125px;
@@ -251,7 +255,7 @@ ul.off-canvas-list li label {
   background-color: #f6f6f6 !important;
 }
 
-/* TODO: this spinner can be improved a lot */
+/* Loading page with a spinner */
 #loading-recording {
   width: 100%;
   height: 100%;

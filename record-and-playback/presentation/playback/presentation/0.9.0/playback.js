@@ -112,6 +112,7 @@ var MEETINGID = params['meetingId'];
 var RECORDINGS = "/presentation/" + MEETINGID;
 var SLIDES_XML = RECORDINGS + '/slides_new.xml';
 var SHAPES_SVG = RECORDINGS + '/shapes.svg';
+var hasVideo = false;
 
 /*
  * Sets the title attribute in a thumbnail.
@@ -416,11 +417,12 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   if (checkUrl(RECORDINGS + '/video/webcams.webm') == true) {
+      hasVideo = true;
       $("#audio-area").attr("style", "display:none;");
       load_video();
   } else {
+      hasVideo = false;
       $("#video-area").attr("style", "display:none;");
-      chat = $("#chat");
       load_audio();
   }
 
@@ -502,7 +504,11 @@ function swapVideoPresentation() {
 // need to fill 100% height.
 function resizeComponents() {
   var availableHeight = $("body").height();
-  availableHeight -= $("#video-area .acorn-controls").outerHeight(true); // media controls
+  if (hasVideo) {
+    availableHeight -= $("#video-area .acorn-controls").outerHeight(true);
+  } else {
+    availableHeight -= $("#audio-area .acorn-controls").outerHeight(true);
+  }
   availableHeight -= $("#navbar").outerHeight(true); // navbar
   $("#playback-row").outerHeight(availableHeight);
   $("#main-section").outerHeight(availableHeight);
