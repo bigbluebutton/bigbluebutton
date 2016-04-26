@@ -147,6 +147,13 @@ body {
 
 #cursor {
   visibility: hidden;
+  width: 12px;
+  height: 12px;
+  transform: translate(-6px, -6px);
+  border-radius: 50%;
+  position: fixed;
+  background: red;
+  z-index: 10;
 }
 
 /* TODO: this spinner can be improved a lot */

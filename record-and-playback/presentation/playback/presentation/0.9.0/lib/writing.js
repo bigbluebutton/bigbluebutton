@@ -33,49 +33,52 @@ function getUrlParameters() {
 // - - - START OF JAVASCRIPT FUNCTIONS - - - //
 
 // Draw the cursor at a specific point
-function draw(x, y) {
-    cursorStyle = document.getElementById("cursor").style;
-    var slide = document.getElementById("slide");
-    var obj = $("#slide > object");
-    var scaledX = parseInt(x, 10) * (parseInt(obj.attr("width"), 10) / 800);
-    var scaledY = parseInt(y, 10) * (parseInt(obj.attr("height"), 10) / 600);
+function drawCursor(scaledX, scaledY, img) {
+  var containerObj = $("#slide > object");
 
-    //move to the next place
-    var leftValue = parseInt(slide.offsetLeft, 10) + parseInt(scaledX, 10)
-    var topValue = parseInt(slide.offsetTop, 10) + parseInt(scaledY, 10)
-    if (leftValue < 0){
-        leftValue = 0
-    }
-    if (topValue < 0){
-        topValue = 0
-    }
-    cursorStyle.left = leftValue + "px";
-    cursorStyle.top = topValue + "px";
+  // the offsets of the image inside its parent
+  var imgRect = img.getBoundingClientRect();
+  var imageX = imgRect.x;
+  var imageY = imgRect.y;
 
+  // the offsets of the object that has the image inside it
+  var containerX = containerObj.offset().left;
+  var containerY = containerObj.offset().top;
+
+  // the overall offsets of the image in the page
+  var imageOffsetX = containerX + imageX;
+  var imageOffsetY = containerY + imageY;
+
+  // position of the cursor relative to the image/slide
+  var cursorXInImage = scaledX * imgRect.width;
+  var cursorYInImage = scaledY * imgRect.height;
+
+  // absolute position of the cursor in the page
+  var cursorLeft = parseInt(imageOffsetX + cursorXInImage, 10);
+  var cursorTop = parseInt(imageOffsetY + cursorYInImage, 10);
+  if (cursorLeft < 0) {
+    cursorLeft = 0;
+  }
+  if (cursorTop < 0) {
+    cursorTop = 0;
+  }
+  var cursorStyle = document.getElementById("cursor").style;
+  cursorStyle.left = cursorLeft + "px";
+  cursorStyle.top = cursorTop + "px";
 }
 
-
-// Shows or hides the cursor object depending on true/false parameter passed.
-function showCursor(boolVal) {
-	cursorStyle = document.getElementById("cursor").style;
-    if(boolVal === false) {
-        cursorStyle.height = "0px";
-        cursorStyle.width = "0px";
-    }
-    else {
-        cursorStyle.height = "10px";
-        cursorStyle.width = "10px";
-    }
-}
+function showCursor(show) {
+  if (show) {
+    document.getElementById("cursor").style.visibility = 'visible';
+  } else {
+    document.getElementById("cursor").style.visibility = 'hidden';
+  }
+};
 
 function setViewBox(val) {
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
 	svgfile.setAttribute('viewBox', val);
-}
-
-function setCursor(val) {
-	draw(val[0], val[1]);
 }
 
 function getImageAtTime(time) {
@@ -285,7 +288,7 @@ function runPopcorn() {
       }
     }
     return shapes;
-  }
+  };
 
   var p = new Popcorn("#video");
   //update 60x / second the position of the next value.
@@ -388,10 +391,8 @@ function runPopcorn() {
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
 
           var offsets = thisimg.getBoundingClientRect();
-          // Offsets divided by 4. By 2 because of the padding and by 2 again because 800x600 is half  1600x1200
-          imageXOffset = 0; //(1600 - parseInt(thisimg.getAttribute("width"), 10))/4;
-          imageYOffset = 0; //(1200 - parseInt(thisimg.getAttribute("height"), 10))/4;
-
+          var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
+          var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
 
           var vboxVal = getViewboxAtTime(t);
           if(vboxVal !== undefined) {
@@ -399,18 +400,20 @@ function runPopcorn() {
           }
 
           var cursorVal = getCursorAtTime(t);
-          var cursor_on = false;
-          if(cursorVal != null) {
-            if(!cursor_on) {
-              document.getElementById("cursor").style.visibility = 'visible'; //make visible
-              cursor_on = true;
-            }
-            setCursor([parseFloat(cursorVal[0]) + imageXOffset - 6, parseFloat(cursorVal[1]) + imageYOffset - 6]); //-6 is for radius of cursor offset
+          if (cursorVal != null) {
+            cursorShownAt = new Date().getTime();
+            showCursor(true);
+            // width and height are divided by 2 because that's the value used as a reference
+            // when positions in cursor.xml is calculated
+            drawCursor(parseFloat(cursorVal[0]) / (imageWidth/2), parseFloat(cursorVal[1]) / (imageHeight/2), thisimg);
+
+          // hide the cursor after 3s of inactivity
+          } else if (cursorShownAt < new Date().getTime() - 3000) {
+            showCursor(false);
           }
        }
     }
   });
-
 };
 
 function defineStartTime() {
@@ -478,6 +481,7 @@ var cursorValues = {};
 var imageAtTime = {};
 var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;
+var cursorShownAt = 0;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
@@ -532,7 +536,8 @@ svgobj.addEventListener('load', function() {
 
 document.getElementById('slide').appendChild(svgobj);
 
-// window.onresize = function(event) {
-// 	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
-//   svgobj.style.top = "0px";
-// };
+// A small hack to hide the cursor when resizing the window, so it's not
+// misplaced while the window is being resized
+window.onresize = function(event) {
+	showCursor(false);
+};
