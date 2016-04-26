@@ -121,10 +121,13 @@ body {
   border-bottom: 5px solid #fff;
 }
 #chat strong {
-  color: #666666;
+  color: #888;
 }
 #chat-area {
   border-bottom: 1px solid #E2E2D2;
+}
+#chat > div {
+  margin-bottom: 4px;
 }
 
 /* Navbar style */
@@ -168,17 +171,20 @@ body {
   z-index: 10;
 }
 #main-section {
-  padding: 10px 10px 30px 10px;
+  padding: 10px 10px 25px 10px;
+}
+#presentation-area {
+  margin-bottom: 5px;
 }
 #copyright {
   width: 100%;
   font-size: 0.65rem;
   text-align: center;
-  overflow: hidden;
-  white-space: nowrap;
   color: #888;
-  position: absolute;
   bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Thumbnails */
@@ -276,5 +282,8 @@ ul.off-canvas-list li label {
 @media only screen and (max-width: 40em) {
   #copyright {
     font-size: 0.5em;
+  }
+  #chat {
+    font-size: 12px;
   }
 }
