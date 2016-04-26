@@ -70,9 +70,13 @@ Meteor.RedisPubSub = (function () {
         'bbb_apps_is_alive_message',
         'broadcast_layout_message',];
       if (indexOf.call(messagesWeIgnore, eventName) < 0) {
-        // Uncomment for DEVELOPMENT purposes only
-        // Otherwise dynamic shapes' updates will slow down significantly
-        // Meteor.log.info(`Q ${eventName} ${Meteor.myQueue.total()}`);
+
+        // For DEVELOPMENT purposes only
+        // Ddynamic shapes' updates will slow down significantly
+        if(Meteor.settings.public.mode == 'development') {
+          Meteor.log.info(`Q ${eventName} ${Meteor.myQueue.total()}`);
+        }
+
         return Meteor.myQueue.add({
           pattern: pattern,
           channel: channel,
@@ -813,6 +817,5 @@ registerHandlers = function (emitter) {
     arg.callback();
   });
   //eject_voice_user_message
-  
-};
 
+};

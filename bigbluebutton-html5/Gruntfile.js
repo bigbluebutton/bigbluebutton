@@ -68,7 +68,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-concurrent');
 
-  var mode = grunt.option('mode') || 'development';
+  var mode = (grunt.option('mode') == 'production') ? 'production' : 'development';
 
   // sets the default task to run JSCS first (forcing our way past warnings) and then start Meteor:
   grunt.registerTask('default', ['force:jscs:check', 'concurrent:meteor_watch_' + mode]);
