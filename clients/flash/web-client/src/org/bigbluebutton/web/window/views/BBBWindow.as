@@ -35,19 +35,16 @@ package org.bigbluebutton.web.window.views {
 	import flash.utils.getQualifiedClassName;
 	
 	import mx.core.FlexGlobals;
-	import mx.core.UITextField;
 	import mx.managers.CursorManager;
 	import mx.styles.CSSStyleDeclaration;
+	
+	import spark.components.Button;
+	import spark.components.Label;
+	import spark.components.Panel;
 	
 	import org.bigbluebutton.web.common.skins.BetterButtonSkin;
 	import org.bigbluebutton.web.window.events.BBBWindowEvent;
 	import org.bigbluebutton.web.window.skins.BBBWindowSkin;
-	
-	import spark.components.Button;
-	import spark.components.Group;
-	import spark.components.Label;
-	import spark.components.Panel;
-	import spark.core.IDisplayText;
 	
 	/**
 	 * Central window class used in flexlib.mdi. Includes min/max/close buttons by default.
@@ -753,10 +750,10 @@ package org.bigbluebutton.web.window.views {
 			if (titleDisplay) {
 				if (!hasFocus && getStyleByPriority(selectorList, "titleStyleNameNoFocus")) {
 					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleNameNoFocus");
-					//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameNoFocus"));
+						//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameNoFocus"));
 				} else if (getStyleByPriority(selectorList, "titleStyleNameFocus")) {
 					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleNameFocus");
-					//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameFocus"));
+						//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameFocus"));
 				} else {
 					//getStyleByPriority(selectorList, "titleStyleName")
 					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleName");
@@ -914,7 +911,11 @@ package org.bigbluebutton.web.window.views {
 		 * Close window button.
 		 */
 		public function get closeBtn():Button {
-			return windowControls.closeBtn;
+			if (windowControls) {
+				return windowControls.closeBtn;
+			} else {
+				return null;
+			}
 		}
 		
 		public function get showCloseButton():Boolean {
