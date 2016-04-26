@@ -334,6 +334,7 @@
 						}
 					},
 					null, Alert.YES);
+				PopUpManager.centerPopUp(alert);
 			}
 
 			/*private function unlockAll():void {
