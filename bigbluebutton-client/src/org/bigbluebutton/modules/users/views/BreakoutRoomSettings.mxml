@@ -126,8 +126,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				for (var i: int=2; i <=5; i++){
 					roomsProvider.push(i.toString() + " " + ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')); 
 				}
-				assignUsers();
 				roomsCombo.selectedIndex = 0;
+				assignUsers();
 			}
 			
 		]]>
@@ -156,7 +156,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:VBox width="100%" horizontalAlign="center" verticalGap="12">
 			<mx:Button paddingLeft="20" id="randomAssignBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.randomAssign')}" click="assignUsers()"/>
 			<mx:Canvas width="100%" styleName="breakoutTipBox" backgroundColor="0xcccccc">
-				<mx:Text textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
+				<mx:Text horizontalCenter="0" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
 			</mx:Canvas>
 		</mx:VBox>
 		
