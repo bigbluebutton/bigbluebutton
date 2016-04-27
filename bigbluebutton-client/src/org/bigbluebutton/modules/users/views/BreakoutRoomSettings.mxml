@@ -127,6 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					roomsProvider.push(i.toString() + " " + ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')); 
 				}
 				assignUsers();
+				roomsCombo.selectedIndex = 0;
 			}
 			
 		]]>
