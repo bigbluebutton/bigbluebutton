@@ -587,7 +587,7 @@
 				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
 				<mx:DataGridColumn dataField="numberOfUsers" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
 				<mx:DataGridColumn dataField="breakoutId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
-								   visible="{amIModerator &amp;&amp; amIPresenter}"
+								   visible="{amIModerator}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</mx:columns>
 		</mx:DataGrid>
