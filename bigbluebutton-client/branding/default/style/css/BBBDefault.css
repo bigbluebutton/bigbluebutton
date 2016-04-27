@@ -906,6 +906,12 @@ EmojiGrid {
 	horizontalGap: 6;
 }
 
+.breakoutRoomSettingTitleStyle {
+	fontFamily: Arial;
+	fontSize: 20;  
+	fontWeight: bold;
+}
+
 .breakoutTipBox {
 	horizontalAlign: center;
 }
