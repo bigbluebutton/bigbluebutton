@@ -249,9 +249,6 @@ this.scaleWhiteboard = function (whiteboardPaperModel) {
   if (typeof whiteboardPaperModel !== 'undefined' && whiteboardPaperModel !== null) {
     whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height);
   }
-  /* if(callback) {
-    callback();
-  } */
 };
 
 this.getSortedUserList = function (users) {
