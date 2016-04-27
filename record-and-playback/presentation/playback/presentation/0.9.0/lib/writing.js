@@ -37,21 +37,23 @@ function drawCursor(scaledX, scaledY, img) {
   var containerObj = $("#slide > object");
 
   // the offsets of the image inside its parent
+  // Note: this block is only necessary if we let the svg do the resizing
+  // of the image, see the comments in resizeSlides()
   var imgRect = img.getBoundingClientRect();
-  var imageX = imgRect.x;
-  var imageY = imgRect.y;
+  var imageX = 0; //imgRect.x;
+  var imageY = 0; //imgRect.y;
 
-  // the offsets of the object that has the image inside it
+  // the offsets of the container that has the image inside it
   var containerX = containerObj.offset().left;
   var containerY = containerObj.offset().top;
 
-  // the overall offsets of the image in the page
+  // calculates the overall offsets of the image in the page
   var imageOffsetX = containerX + imageX;
   var imageOffsetY = containerY + imageY;
 
-  // position of the cursor relative to the image/slide
-  var cursorXInImage = scaledX * imgRect.width;
-  var cursorYInImage = scaledY * imgRect.height;
+  // position of the cursor relative to the container
+  var cursorXInImage = scaledX * containerObj.width();
+  var cursorYInImage = scaledY * containerObj.height();
 
   // absolute position of the cursor in the page
   var cursorLeft = parseInt(imageOffsetX + cursorXInImage, 10);
@@ -347,6 +349,7 @@ function runPopcorn() {
           var next_image = getImageAtTime(t); //fetch the name of the image at this time.
           var imageXOffset = 0;
           var imageYOffset = 0;
+
           if((current_image !== next_image) && (next_image !== undefined)){	//changing slide image
             if(svgobj.contentDocument) {
               svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
@@ -391,7 +394,6 @@ function runPopcorn() {
           if(svgobj.contentDocument) var thisimg = svgobj.contentDocument.getElementById(current_image);
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
 
-          var offsets = thisimg.getBoundingClientRect();
           var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
           var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
 
@@ -412,6 +414,10 @@ function runPopcorn() {
           } else if (cursorShownAt < new Date().getTime() - 3000) {
             showCursor(false);
           }
+
+          // store the current slide and adjust the size of the slides
+          currentImage = thisimg;
+          resizeSlides();
        }
     }
   });
@@ -568,8 +574,37 @@ var getMetadata = function() {
 
 document.getElementById('slide').appendChild(svgobj);
 
+var currentImage;
+
 // A small hack to hide the cursor when resizing the window, so it's not
 // misplaced while the window is being resized
 window.onresize = function(event) {
 	showCursor(false);
+  resizeSlides();
+};
+
+// Resize the container that has the slides (and whiteboard) to be the maximum
+// size possible but still maintaining the aspect ratio of the slides.
+//
+// This is done here only because of pan and zoom. Pan/zoom is done by modifiyng
+// the svg's viewBox, and that requires the container that has the svg to be the
+// exact size we want to display the slides so that parts of the svg that are outside
+// of its parent's area are hidden. If we let the svg occupy all presentation area
+// (letting the svg do the image resizing), the slides will move and zoom around the
+// entire area when pan/zoom is activated, usually displaying more of the slide
+// than we want to (i.e. more than was displayed in the conference).
+var resizeSlides = function() {
+  if (currentImage) {
+    var $slide = $("#slide");
+
+    var imageWidth = parseInt(currentImage.getAttribute("width"), 10);
+    var imageHeight = parseInt(currentImage.getAttribute("height"), 10);
+    var imgRect = currentImage.getBoundingClientRect();
+    var aspectRatio = imageWidth/imageHeight;
+    var max = aspectRatio * $slide.parent().outerHeight();
+    $slide.css("max-width", max);
+
+    var height = $slide.parent().width() / aspectRatio;
+    $slide.css("max-height", height);
+  }
 };

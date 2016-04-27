@@ -72,7 +72,17 @@ html, .acorn-controls {
 
 /* Some internal elements should just fill the entire size of their parents,
    that will control their size. */
-#slide, #chat {
+#slide {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+
+  /* vertical alignment */
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+#chat {
   width: 100%;
   height: 100%;
 }
