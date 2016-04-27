@@ -142,8 +142,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')}" />
 				<mx:ComboBox id="roomsCombo" width="80%" change="{startButton.enabled = false}" dataProvider="{roomsProvider}"/>				
 			</mx:HBox>
-			<mx:HBox width="50%" horizontalAlign="right">
-				<mx:Label paddingLeft="40" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" />
+			<mx:HBox width="50%" horizontalAlign="center">
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" />
 				<mx:NumericStepper id="durationStepper" value="15" minimum="1" maximum="600"/>
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
 			</mx:HBox>
