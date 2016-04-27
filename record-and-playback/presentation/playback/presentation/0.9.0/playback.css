@@ -58,9 +58,12 @@ html, .acorn-controls {
 /* Swappable components have different settings depending on where they are */
 #main-section #presentation-area {
   height: 100%;
+  margin-bottom: 5px;
 }
 #main-section #video-area, #main-section #audio-area {
   height: 100%;
+  margin-bottom: 5px;
+  background: #fff;
 }
 #side-section #presentation-area {
   height: 30%; /* we HAVE to set a height here, otherwise the slides won't scale properly */
@@ -190,9 +193,6 @@ body {
 #main-section {
   padding: 10px 10px 25px 10px;
 }
-#presentation-area {
-  margin-bottom: 5px;
-}
 #copyright {
   width: 100%;
   font-size: 0.65rem;
@@ -203,6 +203,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 
 /* Thumbnails */
 #thumbnails {
@@ -275,7 +276,7 @@ ul.off-canvas-list li label {
 
 /* Video style */
 #video {
-  background-color: #f6f6f6 !important;
+  background-color: #f6f6f6;
 }
 
 /* Loading page with a spinner */

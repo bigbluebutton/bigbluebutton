@@ -274,7 +274,7 @@ function runPopcorn() {
   }
 
   var get_shapes_in_time = function(t) {
-    console.log("** Getting shapes in time");
+    // console.log("** Getting shapes in time");
     var shapes_in_time = timestampToId[t];
     var shapes = [];
     if (shapes_in_time != undefined) {
@@ -350,13 +350,19 @@ function runPopcorn() {
           var imageXOffset = 0;
           var imageYOffset = 0;
 
-          if((current_image !== next_image) && (next_image !== undefined)){	//changing slide image
+          if(current_image && (current_image !== next_image) && (next_image !== undefined)){	//changing slide image
             if(svgobj.contentDocument) {
-              svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
+              var img = svgobj.contentDocument.getElementById(current_image);
+              if (img) {
+                img.style.visibility = "hidden";
+              }
               var ni = svgobj.contentDocument.getElementById(next_image);
             }
             else {
-              svgobj.getSVGDocument('svgfile').getElementById(current_image).style.visibility = "hidden";
+              var img = svgobj.getSVGDocument('svgfile').getElementById(current_image);
+              if (img) {
+                img.style.visibility = "hidden";
+              }
               var ni = svgobj.getSVGDocument('svgfile').getElementById(next_image);
             }
             document.getElementById("slideText").innerHTML = ""; //destroy old plain text
@@ -394,30 +400,32 @@ function runPopcorn() {
           if(svgobj.contentDocument) var thisimg = svgobj.contentDocument.getElementById(current_image);
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
 
-          var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
-          var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
+          if (thisimg) {
+            var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
+            var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
 
-          var vboxVal = getViewboxAtTime(t);
-          if(vboxVal !== undefined) {
-            setViewBox(vboxVal);
+            var vboxVal = getViewboxAtTime(t);
+            if(vboxVal !== undefined) {
+              setViewBox(vboxVal);
+            }
+
+            var cursorVal = getCursorAtTime(t);
+            if (cursorVal != null) {
+              cursorShownAt = new Date().getTime();
+              showCursor(true);
+              // width and height are divided by 2 because that's the value used as a reference
+              // when positions in cursor.xml is calculated
+              drawCursor(parseFloat(cursorVal[0]) / (imageWidth/2), parseFloat(cursorVal[1]) / (imageHeight/2), thisimg);
+
+              // hide the cursor after 3s of inactivity
+            } else if (cursorShownAt < new Date().getTime() - 3000) {
+              showCursor(false);
+            }
+
+            // store the current slide and adjust the size of the slides
+            currentImage = thisimg;
+            resizeSlides();
           }
-
-          var cursorVal = getCursorAtTime(t);
-          if (cursorVal != null) {
-            cursorShownAt = new Date().getTime();
-            showCursor(true);
-            // width and height are divided by 2 because that's the value used as a reference
-            // when positions in cursor.xml is calculated
-            drawCursor(parseFloat(cursorVal[0]) / (imageWidth/2), parseFloat(cursorVal[1]) / (imageHeight/2), thisimg);
-
-          // hide the cursor after 3s of inactivity
-          } else if (cursorShownAt < new Date().getTime() - 3000) {
-            showCursor(false);
-          }
-
-          // store the current slide and adjust the size of the slides
-          currentImage = thisimg;
-          resizeSlides();
        }
     }
   });
@@ -501,6 +509,7 @@ var cursor_xml = url + '/cursor.xml';
 var metadata_xml = url + '/metadata.xml';
 
 var firstLoad = true;
+var svjobjLoaded = false;
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
@@ -515,6 +524,11 @@ svgobj.addEventListener('load', runPopcorn, false);
  * came after that because it needs the popcorn element to be created properly
  */
 svgobj.addEventListener('load', function() {
+  if (svjobjLoaded) {
+    return;
+  }
+  svjobjLoaded = true;
+
   console.log("** svgobj [load] listener activated");
   generateThumbnails();
   var p = Popcorn("#video");

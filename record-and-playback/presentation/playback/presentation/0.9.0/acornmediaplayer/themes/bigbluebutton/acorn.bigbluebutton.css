@@ -138,7 +138,7 @@
 .acorn-player.bigbluebutton .acorn-volume-box {
   position: absolute;
   float: left;
-  bottom: 5px;
+  bottom: 6px;
   right: 0px;
   overflow: visible;
   width: 35px;
@@ -213,6 +213,7 @@
   width: 100%;
   display: block;
   background: url(bigbluebutton-volume-full.png) no-repeat;
+  background-size: contain;
   text-indent: -9999px;
 
   opacity: 0.8;

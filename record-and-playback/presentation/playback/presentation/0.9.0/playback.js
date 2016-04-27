@@ -174,33 +174,18 @@ setEventsOnThumbnail = function($thumb) {
   });
 };
 
-$("input[name='autoscrollEnabled']").live('change', function() {
-  animateToCurrentSlide();
-});
-
-animateToCurrentSlide = function(force) {
-  console.log("==Animating to current slide");
+var animateToCurrentSlide = function(force) {
+  // console.log("==Animating to current slide");
   force = typeof force !== 'undefined' ? force : false;
+  var $container = $("#thumbnails").parents(".left-off-canvas-menu");
 
-  if (force || isAutoscrollEnabled()) {
-    var currentSlide = getCurrentSlide();
-    // animate the scroll of thumbnails to center the current slide
-    var thumbnailOffset = currentSlide.prop('offsetTop') - $("#thumbnails").prop('offsetTop') + (currentSlide.prop('offsetHeight') - $("#thumbnails").prop('offsetHeight')) / 2;
-    $("#thumbnails").animate({ scrollTop: thumbnailOffset }, 'slow');
-  }
-}
-
-isAutoscrollEnabled = function() {
-  return $("input[name='autoscrollEnabled']").is(':checked');
-}
-
-setAutoscrollEnabled = function(value) {
-  $('input[name=autoscrollEnabled]').attr('checked', value);
-}
-
-getCurrentSlide = function() {
-  return $(".thumbnail-wrapper.active");
-}
+  var currentThumb = $(".thumbnail-wrapper.active");
+  // animate the scroll of thumbnails to center the current slide
+  var thumbnailOffset = currentThumb.prop('offsetTop') - $container.prop('offsetTop') +
+        (currentThumb.prop('offsetHeight') - $container.prop('offsetHeight')) / 2;
+  $container.stop();
+  $container.animate({ scrollTop: thumbnailOffset }, 200);
+};
 
 /*
  * Generates the list of thumbnails using shapes.svg
@@ -493,10 +478,27 @@ function swapVideoPresentation() {
   swapElements(mainSectionChild[0], sideSectionChild[0]);
   resizeComponents();
 
-  // TODO the code below shouldn't be necessary if writing.js was improved
   if (!wasPaused) {
     pop.play();
   }
+
+  // wait for the svg with the slides to be fully loaded and then set the current image
+  // as visible.
+  function checkSVGLoaded() {
+    var done = false;
+    var svg = document.getElementsByTagName("object")[0];
+    if (svg !== undefined && svg !== null && svg.getSVGDocument('svgfile')) {
+      var img = svg.getSVGDocument('svgfile').getElementById(currentImage.getAttribute("id"));
+      if (img !== undefined && img !== null) {
+        img.style.visibility = "visible";
+        done = true;
+      }
+    }
+    if (!done) {
+      setTimeout(checkSVGLoaded, 50);
+    }
+  }
+  checkSVGLoaded();
 }
 
 // Manually resize some components we can't properly resize just using css.
