@@ -106,8 +106,6 @@ cd red5-server
 ./deploy.sh
 ```
 
-
-
 ## Build client
 
 ```
@@ -142,4 +140,80 @@ location /screenshare {
   include    fastcgi_params;
 }
 ```
+
+Restart nginx
+
+```
+sudo service nginx restart
+```
+
+## Build BBB Red5 Applications
+
+### Build common-message
+
+```
+cd ~/dev/bigbluebutton/bbb-common-message/
+sbt publish
+sbt publishLocal
+```
+
+### Build bbb-apps
+
+```
+cd ~/dev/bigbluebutton/bigbluebutton-apps/
+gradle resolveDeps
+gradle clean war deploy
+```
+
+### Build bbb-voice
+
+```
+cd ~/dev/bigbluebutton/bbb-voice
+```
+
+Edit `src/main/webapp/WEB-INF/bigbluebutton-sip.properties`
+Make sure the IP addresses point to yout BBB server.
+
+```
+bbb.sip.app.ip=192.168.74.128
+
+# The ip and port of the FreeSWITCH server
+freeswitch.ip=192.168.74.128
+```
+
+```
+gradle resolveDeps
+gradle clean war deploy
+```
+
+### Build bbb-video
+
+```
+cd ~/dev/bigbluebutton/bbb-video/
+gradle resolveDeps
+gradle clean war deploy
+```
+
+### Build bbb-screenshare
+
+```
+cd ~/dev/bigbluebutton/bbb-screenshare/app
+```
+
+Edit `src/main/webapp/WEB-INF/screenshare.properties`
+Make sure the following points to your BBB server.
+
+```
+streamBaseUrl=rtmp://192.168.74.128/screenshare
+jnlpUrl=http://192.168.74.128/screenshare
+jnlpFile=http://192.168.74.128/screenshare/screenshare.jnlp
+```
+
+Build and deploy
+
+```
+./deploy.sh
+```
+
+
 
