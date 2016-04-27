@@ -82,6 +82,7 @@ html, .acorn-controls {
   top: 50%;
   transform: translateY(-50%);
 }
+
 #chat {
   width: 100%;
   height: 100%;
@@ -170,6 +171,12 @@ body {
 }
 
 /* Presentation and related elements */
+#slide {
+  background-image: url('logo.png');
+  background-size: 160px 160px;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
 #cursor {
   visibility: hidden;
   width: 12px;
