@@ -1,7 +1,5 @@
-// --------------------------------------------------------------------------------------------
-// Private methods on server
-// --------------------------------------------------------------------------------------------
-this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
+
+export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
   let entry, id, removeTempTextShape;
   if (shapeObject != null && shapeObject.shape_type === 'text') {
     Meteor.log.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
@@ -87,7 +85,7 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
   }
 };
 
-this.removeAllShapesFromSlide = function (meetingId, whiteboardId) {
+export function removeAllShapesFromSlide(meetingId, whiteboardId) {
   Meteor.log.info(`removeAllShapesFromSlide__${whiteboardId}`);
   if ((meetingId != null) && (whiteboardId != null) && (Meteor.Shapes.find({
     meetingId: meetingId,
@@ -114,7 +112,7 @@ this.removeAllShapesFromSlide = function (meetingId, whiteboardId) {
   }
 };
 
-this.removeShapeFromSlide = function (meetingId, whiteboardId, shapeId) {
+export function removeShapeFromSlide(meetingId, whiteboardId, shapeId) {
   let shapeToRemove;
   if (meetingId != null && whiteboardId != null && shapeId != null) {
     shapeToRemove = Meteor.Shapes.findOne({

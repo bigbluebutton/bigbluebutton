@@ -1,4 +1,5 @@
-this.initializeCursor = function (meetingId) {
+
+export function initializeCursor(meetingId) {
   return Meteor.Cursor.upsert({
     meetingId: meetingId,
   }, {
@@ -14,7 +15,7 @@ this.initializeCursor = function (meetingId) {
   });
 };
 
-this.updateCursorLocation = function (meetingId, cursorObject) {
+export function updateCursorLocation(meetingId, cursorObject) {
   return Meteor.Cursor.update({
     meetingId: meetingId,
   }, {

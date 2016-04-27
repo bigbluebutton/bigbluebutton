@@ -1,4 +1,4 @@
-this.displayThisSlide = function (meetingId, newSlideId, slideObject) {
+export function displayThisSlide(meetingId, newSlideId, slideObject) {
   let presentationId;
   presentationId = newSlideId.split('/')[0]; // grab the presentationId part of the slideId
   // change current to false for the old slide
@@ -26,7 +26,7 @@ this.displayThisSlide = function (meetingId, newSlideId, slideObject) {
   });
 };
 
-this.addSlideToCollection = function (meetingId, presentationId, slideObject) {
+export function addSlideToCollection(meetingId, presentationId, slideObject) {
   let entry, id;
   if (Meteor.Slides.findOne({
     meetingId: meetingId,

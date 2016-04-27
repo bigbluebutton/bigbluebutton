@@ -1,4 +1,4 @@
-this.addPollToCollection = function (poll, requester_id, users, meetingId) {
+export function addPollToCollection(poll, requester_id, users, meetingId) {
   let _users, answer, entry, i, j, user;
 
   //copying all the userids into an array
@@ -51,7 +51,7 @@ export function clearPollCollection() {
   }
 };
 
-this.updatePollCollection = function (poll, meetingId, requesterId) {
+export function updatePollCollection(poll, meetingId, requesterId) {
   if ((poll.answers != null) && (poll.num_responders != null) && (poll.num_respondents != null) && (poll.id != null) && (meetingId != null) && (requesterId != null)) {
     return Meteor.Polls.update({
       'poll_info.meetingId': meetingId,

@@ -1,6 +1,7 @@
 import { publish } from '/server/redispubsub';
 import { isAllowedTo } from '/server/user_permissions';
 import { appendMessageHeader } from '/server/helpers';
+import { translateHTML5ToFlash } from '/server/collection_methods/chat';
 
 Meteor.methods({
 // meetingId: the id of the meeting

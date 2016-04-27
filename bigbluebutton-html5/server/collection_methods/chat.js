@@ -31,7 +31,9 @@ export function addChatToCollection(meetingId, messageObject) {
       }
 
       if (numChanged.insertedId != null) {
-        return Meteor.log.info(`${messageObject.to_username != null}_added chat id=[${numChanged.insertedId}] ${messageObject.from_username} to ${messageObject.to_username != null ? 'PUBLIC' : void 0}:${messageObject.message}`);
+        return Meteor.log.info(`${messageObject.to_username != null}_added chat
+         id=[${numChanged.insertedId}] ${messageObject.from_username}
+          to ${messageObject.to_username != null ? 'PUBLIC' : void 0}:${messageObject.message}`);
       }
     });
   }
@@ -51,7 +53,7 @@ export function clearChatCollection() {
 
 
 // translate '\n' newline character and '\r' carriage returns to '<br/>' breakline character for Flash
-this.translateHTML5ToFlash = function (message) {
+export function translateHTML5ToFlash(message) {
   let result;
   result = message;
   result = result.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE);
@@ -60,7 +62,7 @@ this.translateHTML5ToFlash = function (message) {
 };
 
 // translate '<br/>' breakline character to '\r' carriage return character for HTML5
-this.translateFlashToHTML5 = function (message) {
+const translateFlashToHTML5 = function (message) {
   let result;
   result = message;
   result = result.replace(new RegExp(BREAK_LINE, 'g'), CARRIAGE_RETURN);

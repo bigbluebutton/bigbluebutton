@@ -1,4 +1,5 @@
 import { isAllowedTo } from '/server/user_permissions';
+import { requestUserLeaving } from '/server/collection_methods/users';
 
 Meteor.methods({
   // meetingId: the meeting where the user is

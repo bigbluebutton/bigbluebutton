@@ -4,9 +4,9 @@ import { clearShapesCollection } from '/server/collection_methods/shapes';
 import { clearSlidesCollection } from '/server/collection_methods/slides';
 import { clearPresentationsCollection } from '/server/collection_methods/presentations';
 import { clearPollCollection } from '/server/collection_methods/poll';
-import { clearCursorCollection } from '/server/collection_methods/cursor';
+import { clearCursorCollection, initializeCursor } from '/server/collection_methods/cursor';
 
-this.addMeetingToCollection = function (meetingId, name, intendedForRecording, voiceConf, duration, callback) {
+export function addMeetingToCollection(meetingId, name, intendedForRecording, voiceConf, duration, callback) {
   //check if the meeting is already in the collection
 
   Meteor.Meetings.upsert({
@@ -62,7 +62,7 @@ export function clearMeetingsCollection() {
 };
 
 //clean up upon a meeting's end
-this.removeMeetingFromCollection = function (meetingId, callback) {
+export function removeMeetingFromCollection(meetingId, callback) {
   let funct;
   if (Meteor.Meetings.findOne({
     meetingId: meetingId,

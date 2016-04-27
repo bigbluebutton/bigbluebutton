@@ -1,4 +1,5 @@
-this.addPresentationToCollection = function (meetingId, presentationObject) {
+
+export function addPresentationToCollection(meetingId, presentationObject) {
   let entry, id, presentationObj;
 
   //check if the presentation is already in the collection
@@ -17,11 +18,12 @@ this.addPresentationToCollection = function (meetingId, presentationObject) {
     };
     return id = Meteor.Presentations.insert(entry);
 
-    //Meteor.log.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size is now #{Meteor.Presentations.find({meetingId: meetingId}).count()}"
+    //Meteor.log.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size
+    // is now #{Meteor.Presentations.find({meetingId: meetingId}).count()}"
   }
 };
 
-this.removePresentationFromCollection = function (meetingId, presentationId) {
+export function removePresentationFromCollection(meetingId, presentationId) {
   let id, presentationObject;
   presentationObject = Meteor.Presentations.findOne({
     meetingId: meetingId,

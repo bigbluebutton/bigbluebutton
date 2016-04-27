@@ -1,4 +1,11 @@
 import { addChatToCollection } from '/server/collection_methods/chat';
+import { updateCursorLocation } from '/server/collection_methods/cursor';
+import { setUserLockedStatus, handleLockingMic, createDummyUser, userJoined, markUserOffline, updateVoiceUser } from '/server/collection_methods/users';
+import { addSlideToCollection, displayThisSlide } from '/server/collection_methods/slides';
+import { addShapeToCollection, removeAllShapesFromSlide, removeShapeFromSlide } from '/server/collection_methods/shapes';
+import { addPresentationToCollection, removePresentationFromCollection } from '/server/collection_methods/presentations';
+import { addPollToCollection, updatePollCollection } from '/server/collection_methods/poll';
+import { addMeetingToCollection, removeMeetingFromCollection } from '/server/collection_methods/meetings';
 
 
 const bind = function (fn, me) { return function () { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function (item) {

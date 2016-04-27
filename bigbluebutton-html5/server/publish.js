@@ -1,4 +1,5 @@
 import { isAllowedTo } from '/server/user_permissions';
+import { requestUserLeaving } from '/server/collection_methods/users';
 
 // Publish only the online users that are in the particular meetingId
 // On the client side we pass the meetingId parameter

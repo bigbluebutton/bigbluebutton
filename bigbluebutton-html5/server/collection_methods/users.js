@@ -5,7 +5,7 @@ import { publish } from '../server';
 // Need to update the collection
 // params: meetingid, userid as defined in BBB-Apps
 // callback
-this.markUserOffline = function (meetingId, userId, callback) {
+export function markUserOffline(meetingId, userId, callback) {
   // mark the user as offline. remove from the collection on meeting_end #TODO
   let user;
   user = Meteor.Users.findOne({
@@ -64,7 +64,7 @@ this.markUserOffline = function (meetingId, userId, callback) {
 // Corresponds to a valid action on the HTML clientside
 // After authorization, publish a user_leaving_request in redis
 // params: meetingid, userid as defined in BBB-App
-this.requestUserLeaving = function (meetingId, userId) {
+export function requestUserLeaving(meetingId, userId) {
   let listenOnlyMessage, message, userObject, meetingObject, voiceConf;
   userObject = Meteor.Users.findOne({
     meetingId: meetingId,
@@ -116,7 +116,7 @@ this.requestUserLeaving = function (meetingId, userId) {
 };
 
 //update a voiceUser - a helper method
-this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
+export function updateVoiceUser(meetingId, voiceUserObject, callback) {
   let userObject;
   userObject = Meteor.Users.findOne({
     userId: voiceUserObject.web_userid,
@@ -210,7 +210,7 @@ this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
   }
 };
 
-this.userJoined = function (meetingId, user, callback) {
+export function userJoined(meetingId, user, callback) {
   let userObject, userId, welcomeMessage, meetingObject;
   userId = user.userid;
   userObject = Meteor.Users.findOne({
@@ -363,7 +363,7 @@ this.userJoined = function (meetingId, user, callback) {
   }
 };
 
-this.createDummyUser = function (meetingId, userId, authToken) {
+export function createDummyUser(meetingId, userId, authToken) {
   if (Meteor.Users.findOne({
     userId: userId,
     meetingId: meetingId,
@@ -387,7 +387,7 @@ this.createDummyUser = function (meetingId, userId, authToken) {
 
 // when new lock settings including disableMic are set,
 // all viewers that are in the audio bridge with a mic should be muted and locked
-this.handleLockingMic = function (meetingId, newSettings) {
+export function handleLockingMic(meetingId, newSettings) {
   // send mute requests for the viewer users joined with mic
   let i, results, userObject;
   userObjects = Meteor.Users.find({
@@ -410,7 +410,7 @@ this.handleLockingMic = function (meetingId, newSettings) {
 };
 
 // change the locked status of a user (lock settings)
-this.setUserLockedStatus = function (meetingId, userId, isLocked) {
+export function setUserLockedStatus (meetingId, userId, isLocked) {
   let userObject;
   userObject = Meteor.Users.findOne({
     meetingId: meetingId,

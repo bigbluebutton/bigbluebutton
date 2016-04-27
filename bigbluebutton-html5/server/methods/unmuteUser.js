@@ -1,6 +1,7 @@
 import { publish } from '/server/redispubsub';
 import { isAllowedTo } from '/server/user_permissions';
 import { appendMessageHeader } from '/server/helpers';
+import { updateVoiceUser } from '/server/collection_methods/users';
 
 Meteor.methods({
   // meetingId: the meetingId of the meeting the user[s] is in
