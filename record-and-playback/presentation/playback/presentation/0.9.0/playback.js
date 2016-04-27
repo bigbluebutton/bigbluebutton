@@ -491,6 +491,7 @@ function swapVideoPresentation() {
       var img = svg.getSVGDocument('svgfile').getElementById(currentImage.getAttribute("id"));
       if (img !== undefined && img !== null) {
         img.style.visibility = "visible";
+        resizeSlides();
         done = true;
       }
     }
