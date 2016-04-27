@@ -22,7 +22,7 @@ package org.bigbluebutton.web.presentation.views {
 	import spark.layouts.BasicLayout;
 	import spark.layouts.VerticalLayout;
 	
-	public class PresentationWindow extends BBBWindow implements IPresentationWindow {
+	public class PresentationWindow extends BBBWindow {
 		
 		private var _slide:SWFLoader;
 		

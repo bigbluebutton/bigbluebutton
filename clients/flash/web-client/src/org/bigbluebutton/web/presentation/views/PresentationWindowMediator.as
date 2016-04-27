@@ -8,13 +8,13 @@ package org.bigbluebutton.web.presentation.views {
 	import org.bigbluebutton.lib.presentation.models.Slide;
 	import org.bigbluebutton.lib.presentation.models.SlideModel;
 	import org.bigbluebutton.lib.presentation.utils.CursorIndicator;
-	import org.bigbluebutton.lib.presentation.views.PresentationMediator;
+	import org.bigbluebutton.lib.presentation.views.PresentationMediatorBase;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class PresentationWindowMediator extends PresentationMediator {
+	public class PresentationWindowMediator extends PresentationMediatorBase {
 		
 		
 		override public function initialize():void {

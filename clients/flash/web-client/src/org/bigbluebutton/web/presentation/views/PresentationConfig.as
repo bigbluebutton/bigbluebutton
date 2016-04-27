@@ -1,9 +1,7 @@
 package org.bigbluebutton.web.presentation.views {
-	import org.bigbluebutton.lib.presentation.views.IPresentationView;
-	import org.bigbluebutton.web.user.views.UserWindow;
-	import org.bigbluebutton.web.user.views.UserWindowMediator;
+	import org.bigbluebutton.lib.presentation.views.PresentationMediatorBase;
+	import org.bigbluebutton.lib.presentation.views.PresentationViewBase;
 	
-	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
@@ -38,7 +36,7 @@ package org.bigbluebutton.web.presentation.views {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(IPresentationView).toMediator(PresentationWindowMediator);
+			mediatorMap.map(PresentationViewBase).toMediator(PresentationMediatorBase);
 		}
 		
 		/**

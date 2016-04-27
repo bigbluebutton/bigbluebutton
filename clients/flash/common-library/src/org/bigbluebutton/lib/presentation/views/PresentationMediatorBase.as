@@ -1,6 +1,8 @@
 package org.bigbluebutton.lib.presentation.views {
 	import flash.events.Event;
 	
+	import mx.events.ResizeEvent;
+	
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.presentation.commands.LoadSlideSignal;
 	import org.bigbluebutton.lib.presentation.models.Presentation;
@@ -10,10 +12,10 @@ package org.bigbluebutton.lib.presentation.views {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class PresentationMediator extends Mediator {
+	public class PresentationMediatorBase extends Mediator {
 		
 		[Inject]
-		public var view:IPresentationView;
+		public var view:PresentationViewBase;
 		
 		[Inject]
 		public var userSession:IUserSession;
@@ -32,11 +34,12 @@ package org.bigbluebutton.lib.presentation.views {
 		protected var _cursor:CursorIndicator = new CursorIndicator();
 		
 		override public function initialize():void {
+			view.addEventListener(ResizeEvent.RESIZE, viewResizeHandler);
 			userSession.presentationList.presentationChangeSignal.add(presentationChangeHandler);
 			userSession.presentationList.viewedRegionChangeSignal.add(viewedRegionChangeHandler);
 			userSession.presentationList.cursorUpdateSignal.add(cursorUpdateHandler);
-			view.slide.addEventListener(Event.COMPLETE, handleLoadingComplete);
-			_slideModel.parentChange(view.content.width, view.content.height);
+			view.swfLoader.addEventListener(Event.COMPLETE, handleLoadingComplete);
+			_slideModel.parentChange(view.width, view.height);
 			setPresentation(userSession.presentationList.currentPresentation);
 		}
 		
@@ -59,13 +62,18 @@ package org.bigbluebutton.lib.presentation.views {
 			}
 		}
 		
+		private function viewResizeHandler(e:ResizeEvent):void {
+			_slideModel.parentChange(view.width, view.height);
+			resizePresentation()
+		}
+		
 		protected function viewedRegionChangeHandler(x:Number, y:Number, widthPercent:Number, heightPercent:Number):void {
 			resetSize(x, y, widthPercent, heightPercent);
 		}
 		
 		protected function resizePresentation():void {
-			if (_slideModel && view && view.slide) {
-				_slideModel.resetForNewSlide(view.slide.contentWidth, view.slide.contentHeight);
+			if (_slideModel && view && view.swfLoader) {
+				_slideModel.resetForNewSlide(view.swfLoader.contentWidth, view.swfLoader.contentHeight);
 				var currentSlide:Slide = userSession.presentationList.currentPresentation.getSlideAt(_currentSlideNum);
 				if (currentSlide) {
 					resetSize(currentSlide.x, currentSlide.y, currentSlide.widthPercent, currentSlide.heightPercent);
@@ -87,7 +95,7 @@ package org.bigbluebutton.lib.presentation.views {
 			setViewportSize();
 			fitLoaderToSize();
 			//fitSlideToLoader();
-			zoomCanvas(view.slide.x, view.slide.y, view.slide.width, view.slide.height, 1 / Math.max(widthPercent / 100, heightPercent / 100));
+			zoomCanvas(view.swfLoader.x, view.swfLoader.y, view.swfLoader.width, view.swfLoader.height, 1 / Math.max(widthPercent / 100, heightPercent / 100));
 		}
 		
 		protected function setViewportSize():void {
@@ -98,21 +106,21 @@ package org.bigbluebutton.lib.presentation.views {
 		}
 		
 		protected function fitLoaderToSize():void {
-			view.slide.x = _slideModel.loaderX;
-			view.slide.y = _slideModel.loaderY;
-			view.slide.width = _slideModel.loaderW;
-			view.slide.height = _slideModel.loaderH;
+			view.swfLoader.x = _slideModel.loaderX;
+			view.swfLoader.y = _slideModel.loaderY;
+			view.swfLoader.width = _slideModel.loaderW;
+			view.swfLoader.height = _slideModel.loaderH;
 		}
 		
 		public function zoomCanvas(x:Number, y:Number, width:Number, height:Number, zoom:Number):void {
-			view.whiteboardCanvas.moveCanvas(x, y, width, height, zoom);
+			view.wbCanvas.moveCanvas(x, y, width, height, zoom);
 		}
 		
 		protected function resizeWhiteboard():void {
-			view.whiteboardCanvas.height = view.slide.height;
-			view.whiteboardCanvas.width = view.slide.width;
-			view.whiteboardCanvas.x = view.slide.x;
-			view.whiteboardCanvas.y = view.slide.y;
+			view.wbCanvas.height = view.swfLoader.height;
+			view.wbCanvas.width = view.swfLoader.width;
+			view.wbCanvas.x = view.swfLoader.x;
+			view.wbCanvas.y = view.swfLoader.y;
 		}
 		
 		protected function cursorUpdateHandler(xPercent:Number, yPercent:Number):void {
@@ -132,11 +140,8 @@ package org.bigbluebutton.lib.presentation.views {
 			_currentPresentation = p;
 			if (_currentPresentation != null) {
 				_currentPresentation.slideChangeSignal.remove(slideChangeHandler);
-				view.setPresentationName(_currentPresentation.fileName);
 				_currentPresentation.slideChangeSignal.add(slideChangeHandler);
 				setCurrentSlideNum(p.currentSlideNum);
-			} else {
-				view.setPresentationName("");
 			}
 		}
 		
@@ -150,7 +155,7 @@ package org.bigbluebutton.lib.presentation.views {
 		}
 		
 		override public function destroy():void {
-			view.slide.removeEventListener(Event.COMPLETE, handleLoadingComplete);
+			view.swfLoader.removeEventListener(Event.COMPLETE, handleLoadingComplete);
 			userSession.presentationList.presentationChangeSignal.remove(presentationChangeHandler);
 			userSession.presentationList.viewedRegionChangeSignal.remove(viewedRegionChangeHandler);
 			userSession.presentationList.cursorUpdateSignal.remove(cursorUpdateHandler);

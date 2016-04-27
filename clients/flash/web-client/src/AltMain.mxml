@@ -10,8 +10,10 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
+			import org.bigbluebutton.lib.whiteboard.views.WhiteboardConfig;
 			import org.bigbluebutton.web.AppConfig;
 			import org.bigbluebutton.web.main.MainConfig;
+			import org.bigbluebutton.web.presentation.views.PresentationConfig;
 			
 			import robotlegs.bender.bundles.mvcs.MVCSBundle;
 			import robotlegs.bender.extensions.contextView.ContextView;
@@ -30,6 +32,8 @@
 				context = new Context().install(MVCSBundle, SignalCommandMapExtension)
 					.configure(AppConfig)
 					.configure(MainConfig)
+					.configure(PresentationConfig)
+					.configure(WhiteboardConfig)
 					.configure(new ContextView(this));
 				
 				// If you wish to change the log level then uncomment the line below and set 
