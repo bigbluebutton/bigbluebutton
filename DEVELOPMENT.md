@@ -1,3 +1,10 @@
+This document provides instructions for developers to setup their
+environment and work on the upcoming BBB 1.1 (tentative release version).
+
+## Install BBB 1.0
+
+Make sure you have a working BBB 1.0 before you proceed with the instructions below.
+
 ## Install OpenJDK 8
 
 ```
@@ -117,6 +124,28 @@ cp resources/config.xml.template src/conf/config.xml
 Edit `config.xml`. Remove deskshare and leave screenshare module.
 Make sure that you have replaced `HOST` with you BBB IP.
 
+```
+ant 
+```
+
+Build build a specific locale (en_US default)
+
+```
+ant locale
+```
+
+Equivalent to
+
+```
+ant locale -DLOCALE=en_US
+```
+
+To build all locales
+
+```
+ant locales
+```
+
 ## Setup nginx
 
 Create file `/etc/bigbluebutton/nginx/screenshare.nginx` and add the following:
@@ -214,6 +243,78 @@ Build and deploy
 ```
 ./deploy.sh
 ```
+
+## Stop services
+
+
+```
+sudo /etc/init.d/bbb-red5 stop
+sudo service bbb-apps-akka stop
+sudo service bbb-fsesl-akka stop
+```
+
+Remove old `bbb-web` app from tomcat
+
+```
+sudo rm /var/lib/tomcat7/webapps/bigbluebutton.war
+```
+
+## Manually start services
+
+### Run Red5
+
+Open up a terminal.
+
+```
+cd /usr/share/red5
+sudo -u red5 ./red5.sh
+```
+
+### Run Akka Apps
+
+Open up another terminal.
+
+```
+cd ~/dev/bigbluebutton/akka-bbb-apps
+sbt run
+```
+
+### Run Akka FSESL App
+
+Open another terminal
+
+```
+cd ~/dev/bigbluebutton/akka-bbb-fsesl
+sbt run
+```
+
+### Run bbb-web
+
+```
+cd ~/dev/bigbluebutton/bigbluebutton-web
+```
+
+Get the salt and BBB URL from `/var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp`
+
+Edit `grails-app/conf/bigbluebutton.properties` and change the following with
+the salt and IP you got from above.
+
+```
+bigbluebutton.web.serverURL=http://192.168.74.128
+securitySalt=856d5e0197b1aa0cf79897841142a5f6
+```
+
+Start bbb-web
+
+```
+gradle resolveDeps
+grails -Dserver.port=8888 run-war
+```
+
+If things started without errors, congrats! 
+
+
+
 
 
 
