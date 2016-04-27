@@ -554,7 +554,7 @@
 			}
 			
 			private function breakoutRoomNameLabelFunction(item:Object, column:DataGridColumn) : String {
-				return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room') + StringUtils.substringAfterLast(item.breakoutId, "-");
+				return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room') + " " + StringUtils.substringAfterLast(item.breakoutId, "-");
 			}
 		]]>
 	</mx:Script>
