@@ -10,6 +10,8 @@ package org.bigbluebutton.lib.deskshare.services {
 		function get isStreamingSignal():ISignal
 		function get isStreaming():Boolean
 		function set isStreaming(value:Boolean):void
+		function onConnectionFailure(reason:String):void
+		function onConnectionSuccess():void
 		function get applicationURI():String
 		function set applicationURI(value:String):void
 		function get streamWidth():Number
@@ -20,6 +22,7 @@ package org.bigbluebutton.lib.deskshare.services {
 		function set room(value:String):void;
 		function get connection():NetConnection
 		function connect():void
+		function disconnect(onUserCommand:Boolean):void
 		function get mouseLocationChangedSignal():ISignal;
 		function deskshareStreamStopped():void;
 	}

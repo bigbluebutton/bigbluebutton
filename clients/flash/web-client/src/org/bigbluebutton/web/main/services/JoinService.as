@@ -30,8 +30,6 @@ package org.bigbluebutton.web.main.services {
 		}
 		
 		public function join(joinUrl:String):void {
-			trace("JOIN SERVICE - DONT LEAVE THIS IN");
-			
 			if (joinUrl.length == 0) {
 				onFailure(JOIN_URL_EMPTY);
 				return;

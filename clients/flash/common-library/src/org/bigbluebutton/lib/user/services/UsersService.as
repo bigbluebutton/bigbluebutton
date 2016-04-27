@@ -1,7 +1,7 @@
 package org.bigbluebutton.lib.user.services {
 	
-	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
+	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
@@ -17,6 +17,9 @@ package org.bigbluebutton.lib.user.services {
 		[Inject]
 		public var authenticationSignal:AuthenticationSignal;
 		
+		[Inject]
+		public var disconnectUserSignal:DisconnectUserSignal;
+		
 		public var usersMessageSender:UsersMessageSender;
 		
 		public var usersMessageReceiver:UsersMessageReceiver;
@@ -29,8 +32,9 @@ package org.bigbluebutton.lib.user.services {
 		public function setupMessageSenderReceiver():void {
 			usersMessageReceiver.userSession = userSession;
 			usersMessageReceiver.authenticationSignal = authenticationSignal;
+			usersMessageReceiver.disconnectUserSignal = disconnectUserSignal;
 			usersMessageSender.userSession = userSession;
-			userSession.mainConnection.addMessageListener(usersMessageReceiver as IMessageListener);
+			userSession.mainConnection.addMessageListener(usersMessageReceiver);
 			userSession.logoutSignal.add(logout);
 		}
 		
@@ -73,24 +77,24 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.disconnect(onUserAction);
 		}
 		
-		public function raiseHand():void {
-			usersMessageSender.raiseHand();
+		public function emojiStatus(status:String):void {
+			usersMessageSender.emojiStatus(userSession.userList.me.userID, status);
 		}
 		
-		public function lowerHand(userID:String):void {
-			usersMessageSender.lowerHand(userID, userSession.userId);
+		public function clearUserStatus(userID:String):void {
+			usersMessageSender.emojiStatus(userID, User.NO_STATUS);
 		}
 		
 		public function kickUser(userID:String):void {
-			usersMessageSender.kickUser(userID, userSession.userId);
+			usersMessageSender.kickUser(userID);
 		}
 		
 		public function queryForParticipants():void {
 			usersMessageSender.queryForParticipants();
 		}
 		
-		public function assignPresenter(userid:String, name:String):void {
-			usersMessageSender.assignPresenter(userid, name, userSession.userId);
+		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
+			usersMessageSender.assignPresenter(userid, name, assignedBy);
 		}
 		
 		public function queryForRecordingStatus():void {
@@ -101,8 +105,12 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.changeRecordingStatus(userID, recording);
 		}
 		
-		public function muteAllUsers(mute:Boolean, dontMuteThese:Array = null):void {
-			usersMessageSender.muteAllUsers(mute, dontMuteThese);
+		public function muteAllUsers(mute:Boolean):void {
+			usersMessageSender.muteAllUsers(mute);
+		}
+		
+		public function muteAllUsersExceptPresenter(mute:Boolean):void {
+			usersMessageSender.muteAllUsersExceptPresenter(mute);
 		}
 		
 		public function muteUnmuteUser(userid:String, mute:Boolean):void {
@@ -140,5 +148,6 @@ package org.bigbluebutton.lib.user.services {
 		public function validateToken():void {
 			usersMessageSender.validateToken(conferenceParameters.internalUserID, conferenceParameters.authToken);
 		}
+	
 	}
 }

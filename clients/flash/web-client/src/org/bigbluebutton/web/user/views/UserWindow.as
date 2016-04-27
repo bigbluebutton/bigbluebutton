@@ -3,6 +3,7 @@ package org.bigbluebutton.web.user.views {
 	import mx.core.ClassFactory;
 	
 	import org.apache.flex.collections.ArrayList;
+	import org.bigbluebutton.web.util.i18n.ResourceUtil;
 	import org.bigbluebutton.web.window.views.BBBWindow;
 	import org.osflash.signals.Signal;
 	
@@ -10,24 +11,29 @@ package org.bigbluebutton.web.user.views {
 	
 	public class UserWindow extends BBBWindow {
 		public var usersGrid:UserDataGrid;
+		
 		public var raiseHandButton:Button;
 		
 		private var _lowerHandSignal:Signal;
+		
 		public function get lowerHandSignal():Signal {
 			return _lowerHandSignal;
 		}
 		
 		private var _changePresenterSignal:Signal;
+		
 		public function get changePresenterSignal():Signal {
 			return _changePresenterSignal;
 		}
 		
 		private var _changeMuteSignal:Signal;
+		
 		public function get changeMuteSignal():Signal {
 			return _changeMuteSignal;
 		}
 		
 		private var _kickUserSignal:Signal;
+		
 		public function get kickUserSignal():Signal {
 			return _kickUserSignal;
 		}
@@ -40,7 +46,7 @@ package org.bigbluebutton.web.user.views {
 			_changeMuteSignal = new Signal();
 			_kickUserSignal = new Signal();
 			
-			title = "Users";
+			title = ResourceUtil.getInstance().getString('bbb.users.title', ["", ""]);
 			width = 300;
 			height = 400;
 			
@@ -52,16 +58,16 @@ package org.bigbluebutton.web.user.views {
 			var cols:ArrayList = new ArrayList();
 			
 			var column:GridColumn = new GridColumn;
-			column.headerText = 'Status';
+			column.headerText = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer');
 			column.width = 55;
 			column.itemRenderer = new ClassFactory(StatusItemRenderer);
 			cols.addItem(column);
 			column = new GridColumn;
-			column.headerText = 'Name';
+			column.headerText = ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer');
 			column.itemRenderer = new ClassFactory(NameItemRenderer);
 			cols.addItem(column);
 			column = new GridColumn;
-			column.headerText = 'Media';
+			column.headerText = ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer');
 			column.width = 70;
 			column.itemRenderer = new ClassFactory(MediaItemRenderer);
 			cols.addItem(column);

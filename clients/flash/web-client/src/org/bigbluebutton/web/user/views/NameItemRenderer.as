@@ -1,4 +1,6 @@
 package org.bigbluebutton.web.user.views {
+	import org.bigbluebutton.web.util.i18n.ResourceUtil;
+	
 	import spark.components.Label;
 	import spark.components.gridClasses.GridItemRenderer;
 	
@@ -19,7 +21,7 @@ package org.bigbluebutton.web.user.views {
 		override public function prepare(hasBeenRecycled:Boolean):void {
 			if (data != null) {
 				if (data.me) {
-					nameLabel.text = data.name + " (you)";
+					nameLabel.text = data.name + ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')';
 					nameLabel.styleName = "nameLabelMeStyle";
 				} else {
 					nameLabel.text = data.name;

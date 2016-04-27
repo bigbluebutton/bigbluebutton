@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Button")]
+	</fx:Metadata>
+
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+		<s:State name="upAndSelected" />
+		<s:State name="downAndSelected" />
+	</s:states>
+	<s:Rect height="{getStyle('bottomToolBarHeight')}"
+			width="{getStyle('EllipseWidth')}"
+			y="{-getStyle('bottomToolBarHeight')}">
+		<s:fill>
+			<s:SolidColor color="{hostComponent.getStyle('menuBackgroundColor')}" />
+		</s:fill>
+
+	</s:Rect>
+	<s:Ellipse id="ellipse"
+			   height="{getStyle('EllipseHeight')}"
+			   width="{getStyle('EllipseWidth')}"
+			   y="{-getStyle('EllipseHeight')}">
+		<s:filters>
+			<s:DropShadowFilter angle="90"
+								alpha="0.3" />
+		</s:filters>
+		<s:fill>
+			<s:SolidColor color="{hostComponent.getStyle('backgroundColor')}"
+						  color.down="{hostComponent.getStyle('onClickBackgroundColor')}"
+						  color.disabled="{hostComponent.getStyle('onClickBackgroundColor')}" />
+		</s:fill>
+	</s:Ellipse>
+	<s:Image id="micIcon"
+			 styleName="iconStyle speakingMicIconStyle"
+			 styleName.disabled="iconStyle micOffIconStyle"
+			 x="{getStyle('EllipseWidth')/2 + ellipse.x - micIcon.width/2}"
+			 y="{getStyle('EllipseHeight')/2 + ellipse.y - micIcon.height/2 +micIcon.height/16}">
+	</s:Image>
+
+
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="{getStyle('lineColor')}"
+								weight="{getStyle('lineWeight')}" />
+		</s:stroke>
+	</s:Line>
+</s:Skin>
