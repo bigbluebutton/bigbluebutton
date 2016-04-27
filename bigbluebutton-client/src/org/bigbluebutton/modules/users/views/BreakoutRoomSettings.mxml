@@ -155,7 +155,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:VBox width="100%" horizontalAlign="center" verticalGap="12">
 			<mx:Button paddingLeft="20" id="randomAssignBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.randomAssign')}" click="assignUsers()"/>
 			<mx:Canvas width="100%" styleName="breakoutTipBox" backgroundColor="0xcccccc">
-				<mx:Text text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
+				<mx:Text textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
 			</mx:Canvas>
 		</mx:VBox>
 		
