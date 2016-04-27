@@ -1,5 +1,9 @@
 package org.bigbluebutton.web {
 	
+	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
+	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
+	import org.bigbluebutton.lib.chat.services.ChatMessageService;
+	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.common.models.SaveData;
 	import org.bigbluebutton.lib.common.services.BaseConnection;
@@ -63,6 +67,8 @@ package org.bigbluebutton.web {
 			injector.map(IWhiteboardService).toSingleton(WhiteboardService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
+			injector.map(IChatMessageService).toSingleton(ChatMessageService);
+			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
 			injector.map(ISaveData).toSingleton(SaveData);
 			injector.map(CamSettingsClosedSignal).asSingleton();
 			injector.map(LocaleChangedSignal).asSingleton();

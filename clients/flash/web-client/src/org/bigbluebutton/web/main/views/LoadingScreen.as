@@ -22,7 +22,7 @@ package org.bigbluebutton.web.main.views {
 			this.setStyle("backgroundAlpha", 1);
 			
 			_stateLabel = new Label();
-			_stateLabel.text = "Downloading";
+			_stateLabel.text = "Loading";
 			addElement(_stateLabel);
 			
 			percentHeight = percentWidth = 100;

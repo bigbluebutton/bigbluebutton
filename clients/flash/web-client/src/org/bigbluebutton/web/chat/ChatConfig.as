@@ -1,8 +1,4 @@
 package org.bigbluebutton.web.chat {
-	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
-	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
-	import org.bigbluebutton.lib.chat.services.ChatMessageService;
-	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.web.chat.views.ChatView;
 	import org.bigbluebutton.web.chat.views.ChatViewMediator;
 	import org.bigbluebutton.web.chat.views.ChatWindow;
@@ -36,8 +32,7 @@ package org.bigbluebutton.web.chat {
 		 * application.
 		 */
 		private function dependencies():void {
-			injector.map(IChatMessageService).toSingleton(ChatMessageService);
-			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
+			
 		}
 		
 		/**

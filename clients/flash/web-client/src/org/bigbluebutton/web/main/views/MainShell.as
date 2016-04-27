@@ -1,19 +1,9 @@
 package org.bigbluebutton.web.main.views {
-	import mx.containers.HDividedBox;
-	import mx.containers.dividedBoxClasses.BoxDivider;
 	import mx.core.FlexGlobals;
 	
 	import org.bigbluebutton.web.chat.views.ChatPanel;
 	import org.bigbluebutton.web.common.views.VariableDividedBox;
 	import org.bigbluebutton.web.participants.views.ParticipantsPanel;
-	
-	import spark.components.Application;
-	import spark.components.Group;
-	import spark.components.HGroup;
-	import spark.components.SkinnableContainer;
-	import spark.components.supportClasses.Skin;
-	import spark.containers.HDivider;
-	import spark.containers.HDividerGroup;
 	
 	public class MainShell extends VariableDividedBox {
 		private var _participantsPanel:ParticipantsPanel;
