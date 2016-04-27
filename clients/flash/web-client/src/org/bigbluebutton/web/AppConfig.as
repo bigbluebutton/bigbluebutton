@@ -10,7 +10,6 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserCommand;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
-	import org.bigbluebutton.lib.main.commands.GuestWaitingForApprovalSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -36,7 +35,6 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
 	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
 	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
-	import org.bigbluebutton.web.main.commands.GuestWaitingForApprovalCommandWeb;
 	import org.bigbluebutton.web.main.commands.LocaleChangedSignal;
 	import org.bigbluebutton.web.main.models.IShortcutOptions;
 	import org.bigbluebutton.web.main.models.ShortcutOptions;
@@ -82,7 +80,6 @@ package org.bigbluebutton.web {
 			signalCommandMap.map(LoadSlideSignal).toCommand(LoadSlideCommand);
 			signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommand);
-			signalCommandMap.map(GuestWaitingForApprovalSignal).toCommand(org.bigbluebutton.web.main.commands.GuestWaitingForApprovalCommandWeb);
 		}
 	}
 }
