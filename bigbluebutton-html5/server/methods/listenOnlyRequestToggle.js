@@ -1,3 +1,7 @@
+import { publish } from '../redispubsub';
+import { isAllowedTo } from '../user_permissions';
+import { appendMessageHeader } from '/server/helpers';
+
 Meteor.methods({
   // meetingId: the meetingId of the meeting the user is in
   // toSetUserId: the userId of the user joining

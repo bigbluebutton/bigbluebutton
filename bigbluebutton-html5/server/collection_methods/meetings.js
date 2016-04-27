@@ -1,3 +1,11 @@
+import { clearUsersCollection } from '/server/collection_methods/users';
+import { clearChatCollection } from '/server/collection_methods/chat';
+import { clearShapesCollection } from '/server/collection_methods/shapes';
+import { clearSlidesCollection } from '/server/collection_methods/slides';
+import { clearPresentationsCollection } from '/server/collection_methods/presentations';
+import { clearPollCollection } from '/server/collection_methods/poll';
+import { clearCursorCollection } from '/server/collection_methods/cursor';
+
 this.addMeetingToCollection = function (meetingId, name, intendedForRecording, voiceConf, duration, callback) {
   //check if the meeting is already in the collection
 
@@ -42,7 +50,8 @@ this.addMeetingToCollection = function (meetingId, name, intendedForRecording, v
   return initializeCursor(meetingId);
 };
 
-this.clearMeetingsCollection = function (meetingId) {
+export function clearMeetingsCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
     return Meteor.Meetings.remove({
       meetingId: meetingId,
@@ -80,6 +89,9 @@ this.removeMeetingFromCollection = function (meetingId, callback) {
 
     // delete the cursor for the meeting
     clearCursorCollection(meetingId);
+    
+    //delete the polls for the meeting
+    clearPollCollection(meetingId);
     return callback();
   } else {
     funct = function (localCallback) {

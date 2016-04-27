@@ -1,3 +1,7 @@
+import { publish } from '/server/redispubsub';
+import { isAllowedTo } from '/server/user_permissions';
+import { appendMessageHeader } from '/server/helpers';
+
 Meteor.methods({
 // meetingId: the id of the meeting
   // chatObject: the object including info on the chat message, including the text

@@ -1,6 +1,3 @@
-// --------------------------------------------------------------------------------------------
-// Private methods on server
-// --------------------------------------------------------------------------------------------
 this.displayThisSlide = function (meetingId, newSlideId, slideObject) {
   let presentationId;
   presentationId = newSlideId.split('/')[0]; // grab the presentationId part of the slideId
@@ -59,7 +56,8 @@ this.addSlideToCollection = function (meetingId, presentationId, slideObject) {
 };
 
 // called on server start and meeting end
-this.clearSlidesCollection = function (meetingId) {
+export function clearSlidesCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
     return Meteor.Slides.remove({
       meetingId: meetingId,
@@ -69,6 +67,3 @@ this.clearSlidesCollection = function (meetingId) {
   }
 };
 
-// --------------------------------------------------------------------------------------------
-// end Private methods on server
-// --------------------------------------------------------------------------------------------

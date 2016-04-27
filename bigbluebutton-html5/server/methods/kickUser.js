@@ -1,3 +1,7 @@
+import { publish } from '../redispubsub';
+import { isAllowedTo } from '../user_permissions';
+import { appendMessageHeader } from '/server/helpers';
+
 Meteor.methods({
   //meetingId: the meeting where the user is
   //toKickUserId: the userid of the user to kick

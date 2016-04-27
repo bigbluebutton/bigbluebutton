@@ -98,7 +98,7 @@ viewer = function (meetingId, userId) {
 
 // carries out the decision making for actions affecting users. For the list of
 // actions and the default value - see 'viewer' and 'moderator' in the beginning of the file
-this.isAllowedTo = function (action, meetingId, userId, authToken) {
+export function isAllowedTo(action, meetingId, userId, authToken) {
   let user, validated;
   user = Meteor.Users.findOne({
     meetingId: meetingId,

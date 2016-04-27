@@ -32,7 +32,8 @@ this.updateCursorLocation = function (meetingId, cursorObject) {
 };
 
 // called on server start and meeting end
-this.clearCursorCollection = function (meetingId) {
+export function clearCursorCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
     return Meteor.Cursor.remove({
       meetingId: meetingId,

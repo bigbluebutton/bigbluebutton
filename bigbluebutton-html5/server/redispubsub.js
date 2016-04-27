@@ -1,3 +1,6 @@
+import { addChatToCollection } from '/server/collection_methods/chat';
+
+
 const bind = function (fn, me) { return function () { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
 };
@@ -90,7 +93,7 @@ Meteor.RedisPubSub = (function () {
 // --------------------------------------------------------------------------------------------
 
 // message should be an object
-this.publish = function (channel, message) {
+export function publish(channel, message) {
   Meteor.log.info(`redis outgoing message  ${message.header.name}`, {
     channel: channel,
     message: message,
@@ -329,9 +332,11 @@ registerHandlers = function (emitter) {
     // On attempting reconnection of Flash clients (in voiceBridge) we receive
     // an extra user_joined_message. Ignore it as it will add an extra user
     // in the user list, creating discrepancy with the list in the Flash client
-    if ((dbUser != null && dbUser.user != null && dbUser.user.connection_status === 'offline') && (payload.user != null && payload.user.phone_user)) {
-      Meteor.log.error('offline AND phone user');
-      return arg.callback(); //return without joining the user
+    if (dbUser != null && dbUser.user != null && dbUser.user.connection_status === 'offline') {
+      if (payload.user != null && payload.user.phone_user) {
+        Meteor.log.error('offline AND phone user');
+        return arg.callback(); //return without joining the user
+      }
     } else {
       if (dbUser != null && dbUser.clientType === 'HTML5') {
         let status;
@@ -345,6 +350,7 @@ registerHandlers = function (emitter) {
         return userJoined(meetingId, userObj, arg.callback);
       }
     }
+    return arg.callback();
   });
 
   // for now not handling these serially #TODO
@@ -805,25 +811,6 @@ registerHandlers = function (emitter) {
       return arg.callback();
     }
   });
-
-  // TODO how to handle the rest of the messages - is there a wild card?
-  // we need a way of calling the callback
-  // emitter.on('' , function (arg) {
-  //   console.log("**********************************" + arg.eventName);
-  //   arg.callback();
-  // });
-
-
-  emitter.on('meeting_state_message' , function (arg) {
-    // do nothing
-    arg.callback();
-  });
-
-  emitter.on('user_registered_message' , function (arg) {
-    // do nothing
-    arg.callback();
-  });
-  //eject_voice_user_message
   
 };
 

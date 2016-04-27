@@ -1,3 +1,5 @@
+import { isAllowedTo } from '/server/user_permissions';
+
 // Publish only the online users that are in the particular meetingId
 // On the client side we pass the meetingId parameter
 Meteor.publish('users', function (meetingId, userid, authToken) {

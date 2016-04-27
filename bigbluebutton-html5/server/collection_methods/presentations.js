@@ -37,7 +37,8 @@ this.removePresentationFromCollection = function (meetingId, presentationId) {
 };
 
 // called on server start and meeting end
-this.clearPresentationsCollection = function (meetingId) {
+export function clearPresentationsCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
     return Meteor.Presentations.remove({
       meetingId: meetingId,

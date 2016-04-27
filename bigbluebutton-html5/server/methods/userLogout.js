@@ -1,3 +1,5 @@
+import { isAllowedTo } from '/server/user_permissions';
+
 Meteor.methods({
   // meetingId: the meeting where the user is
   // userId: the userid of the user logging out

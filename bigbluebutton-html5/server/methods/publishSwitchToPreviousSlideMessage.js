@@ -1,3 +1,7 @@
+import { publish } from '/server/redispubsub';
+import { isAllowedTo } from '/server/user_permissions';
+import { appendMessageHeader } from '/server/helpers';
+
 Meteor.methods({
   publishSwitchToPreviousSlideMessage(meetingId, userId, authToken) {
     let currentPresentationDoc, currentSlideDoc, message, previousSlideDoc;

@@ -135,7 +135,8 @@ this.removeShapeFromSlide = function (meetingId, whiteboardId, shapeId) {
 };
 
 // called on server start and meeting end
-this.clearShapesCollection = function (meetingId) {
+export function clearShapesCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
     return Meteor.Shapes.remove({
       meetingId: meetingId,
@@ -162,7 +163,3 @@ this.clearShapesCollection = function (meetingId) {
     });
   }
 };
-
-// --------------------------------------------------------------------------------------------
-// end Private methods on server
-// --------------------------------------------------------------------------------------------

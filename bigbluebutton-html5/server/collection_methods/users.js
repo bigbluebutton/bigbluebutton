@@ -1,3 +1,5 @@
+import { publish } from '../server';
+
 // Only callable from server
 // Received information from BBB-Apps that a user left
 // Need to update the collection
@@ -440,7 +442,8 @@ this.setUserLockedStatus = function (meetingId, userId, isLocked) {
 };
 
 // called on server start and on meeting end
-this.clearUsersCollection = function (meetingId) {
+export function clearUsersCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
     return Meteor.Users.remove({
       meetingId: meetingId,

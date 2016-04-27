@@ -1,4 +1,4 @@
-this.addChatToCollection = function (meetingId, messageObject) {
+export function addChatToCollection(meetingId, messageObject) {
   let id;
 
   // manually convert time from 1.408645053653E12 to 1408645053653 if necessary
@@ -38,7 +38,8 @@ this.addChatToCollection = function (meetingId, messageObject) {
 };
 
 // called on server start and meeting end
-this.clearChatCollection = function (meetingId) {
+export function clearChatCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
     return Meteor.Chat.remove({
       meetingId: meetingId,

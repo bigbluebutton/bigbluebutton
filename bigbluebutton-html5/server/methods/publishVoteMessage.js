@@ -1,3 +1,7 @@
+import { publish } from '/server/redispubsub';
+import { isAllowedTo } from '/server/user_permissions';
+import { appendMessageHeader } from '/server/helpers';
+
 Meteor.methods({
   publishVoteMessage(meetingId, pollAnswerId, requesterUserId, requesterToken) {
     let _poll_id, eventName, message, result;

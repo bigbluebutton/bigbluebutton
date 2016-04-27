@@ -1,3 +1,7 @@
+import { publish } from '/server/redispubsub';
+import { isAllowedTo } from '/server/user_permissions';
+import { appendMessageHeader } from '/server/helpers';
+
 Meteor.methods({
   // meetingId: the meetingId of the meeting the user[s] is in
   // toMuteUserId: the userId of the user to be muted

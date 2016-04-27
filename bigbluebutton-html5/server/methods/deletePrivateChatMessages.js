@@ -1,5 +1,5 @@
 Meteor.methods({
-  deletePrivateChatMessages(userId, contact_id) {
+  deletePrivateChatMessages(userId, contact_id) { //TODO is this used?!
     // if authorized pass through
     let contact, requester;
     requester = Meteor.Users.findOne({
