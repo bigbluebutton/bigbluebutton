@@ -22,41 +22,30 @@ package org.bigbluebutton.lib.chat.services {
 		
 		public function getPublicChatMessages():void {
 			trace(LOG + "Sending [chat.getPublicMessages] to server.");
-			userSession.mainConnection.sendMessage("chat.sendPublicChatHistory",
-												   function(result:String):void { // On successful result
-													   publicChatMessagesOnSuccessSignal.dispatch(result);
-												   },
-												   function(status:String):void { // status - On error occurred
-													   publicChatMessagesOnFailureSignal.dispatch(status);
-												   }
-												   );
+			userSession.mainConnection.sendMessage("chat.sendPublicChatHistory", function(result:String):void { // On successful result
+				publicChatMessagesOnSuccessSignal.dispatch(result);
+			}, function(status:String):void { // status - On error occurred
+				publicChatMessagesOnFailureSignal.dispatch(status);
+			});
 		}
 		
 		public function sendPublicMessage(message:ChatMessageVO):void {
 			trace(LOG + "Sending [chat.sendPublicMessage] to server. [" + message.message + "]");
-			userSession.mainConnection.sendMessage("chat.sendPublicMessage",
-												   function(result:String):void { // On successful result
-													   successSendingMessageSignal.dispatch(result);
-												   },
-												   function(status:String):void { // status - On error occurred
-													   failureSendingMessageSignal.dispatch(status);
-												   },
-												   message.toObj()
-												   );
+			userSession.mainConnection.sendMessage("chat.sendPublicMessage", function(result:String):void { // On successful result
+				successSendingMessageSignal.dispatch(result);
+			}, function(status:String):void { // status - On error occurred
+				failureSendingMessageSignal.dispatch(status);
+			}, message.toObj());
 		}
 		
 		public function sendPrivateMessage(message:ChatMessageVO):void {
 			trace(LOG + "Sending [chat.sendPrivateMessage] to server.");
 			trace(LOG + "Sending fromUserID [" + message.fromUserID + "] to toUserID [" + message.toUserID + "]");
-			userSession.mainConnection.sendMessage("chat.sendPrivateMessage",
-												   function(result:String):void { // On successful result
-													   successSendingMessageSignal.dispatch(result);
-												   },
-												   function(status:String):void { // status - On error occurred
-													   failureSendingMessageSignal.dispatch(status);
-												   },
-												   message.toObj()
-												   );
+			userSession.mainConnection.sendMessage("chat.sendPrivateMessage", function(result:String):void { // On successful result
+				successSendingMessageSignal.dispatch(result);
+			}, function(status:String):void { // status - On error occurred
+				failureSendingMessageSignal.dispatch(status);
+			}, message.toObj());
 		}
 		
 		private var _publicChatMessagesOnSuccessSignal:Signal = new Signal();

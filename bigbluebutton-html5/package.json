@@ -9,7 +9,10 @@
     "autofix": "node_modules/jscs/bin/jscs * --fix"
   },
   "dependencies": {
-    "classnames": "^2.2.3"
+    "classnames": "^2.2.3",
+    "react": "^15.0.1",
+    "react-addons-pure-render-mixin": "^15.0.1",
+    "react-dom": "^15.0.1"
   },
   "devDependencies": {
     "coffeelint": "^1.6.0",

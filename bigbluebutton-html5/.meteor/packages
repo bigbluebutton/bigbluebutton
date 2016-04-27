@@ -18,7 +18,6 @@ brentjanderson:winston-client@0.0.4
 duongthienduc:meteor-winston
 mizzao:timesync
 agnito:raphael
-
 clinical:nightwatch
 sanjo:jasmine
 pagebakers:ionicons
@@ -26,11 +25,11 @@ ewall:foundation
 maibaum:foundation-icons
 chriswessels:hammer@3.1.1
 fastclick
-standard-minifiers
 cfs:power-queue
 cfs:reactive-list
 cfs:micro-queue
 reactive-var
 ecmascript
-react
 react-meteor-data
+standard-minifier-css
+standard-minifier-js

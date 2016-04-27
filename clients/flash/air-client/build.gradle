@@ -2,9 +2,9 @@ type = 'mobile'
 
 srcDirs = ['src']
 
-localeDir = 'src/locale'
+localeDir = 'locale'
 
-locales = ['en_US']
+locales = ['en_US', 'pt_BR']
 
 additionalCompilerOptions = [
     "-target-player=11.2"
@@ -18,4 +18,7 @@ dependencies {
 	merged files("libs/localelib.swc")
 	merged files("libs/robotlegs-extensions-SignalCommandMap-v1.0.0b1.swc")
 	merged files("libs/robotlegs-framework-v2.0.0.swc")
+	
+	merged files("libs/AirCapabilities.ane")
+	merged files("libs/LocalNotificationLib.ane")
 }

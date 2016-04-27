@@ -12,6 +12,7 @@ package org.bigbluebutton.lib.voice.services {
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.utils.Timer;
+	
 	import mx.utils.ObjectUtil;
 	
 	public class VoiceStreamManager {
@@ -23,7 +24,17 @@ package org.bigbluebutton.lib.voice.services {
 		
 		protected var _mic:Microphone = null;
 		
+		protected var _defaultMicGain:Number = 50;
+		
 		protected var _heartbeat:Timer = new Timer(2000);
+		
+		public function setDefaultMicGain(value:Number):void {
+			_defaultMicGain = value
+		}
+		
+		public function get mic():Microphone {
+			return _mic;
+		}
 		
 		public function VoiceStreamManager() {
 			_heartbeat.addEventListener(TimerEvent.TIMER, onHeartbeat);
@@ -32,6 +43,12 @@ package org.bigbluebutton.lib.voice.services {
 		protected function onHeartbeat(event:TimerEvent):void {
 			trace("+++ heartbeat +++");
 			trace(ObjectUtil.toString(_incomingStream.audioCodec));
+		}
+		
+		public function muteMicGain(value:Boolean):void {
+			if (_mic) {
+				_mic.gain = value ? 0 : _defaultMicGain;
+			}
 		}
 		
 		public function play(connection:NetConnection, streamName:String):void {
@@ -59,12 +76,12 @@ package org.bigbluebutton.lib.voice.services {
 			//			trace(ObjectUtil.toString(event));
 		}
 		
-		public function publish(connection:NetConnection, streamName:String, codec:String):void {
+		public function publish(connection:NetConnection, streamName:String, codec:String, pushToTalk:Boolean):void {
 			_outgoingStream = new NetStream(connection);
 			_outgoingStream.client = this;
 			_outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatusEvent);
 			_outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncErrorEvent);
-			setupMicrophone(codec);
+			setupMicrophone(codec, pushToTalk);
 			if (_mic) {
 				_outgoingStream.attachAudio(_mic);
 				_outgoingStream.publish(streamName, "live");
@@ -72,16 +89,16 @@ package org.bigbluebutton.lib.voice.services {
 		}
 		
 		private function noMicrophone():Boolean {
-			return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0)
-				|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
+			return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) || ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
 		}
 		
-		private function setupMicrophone(codec:String):void {
+		private function setupMicrophone(codec:String, pushToTalk:Boolean):void {
 			if (noMicrophone()) {
 				_mic = null;
 				return;
 			}
 			_mic = getMicrophone(codec);
+			_mic.gain = pushToTalk ? 0 : _defaultMicGain;
 		}
 		
 		/**

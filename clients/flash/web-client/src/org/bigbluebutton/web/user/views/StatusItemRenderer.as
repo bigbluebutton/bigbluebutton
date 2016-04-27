@@ -34,13 +34,13 @@ package org.bigbluebutton.web.user.views {
 			if (data != null) {
 				var amIModerator:Boolean = (grid.dataGrid as UserDataGrid).amIModerator;
 				
-				if (hovered && data.raiseHand && amIModerator) {
+				if (hovered && data.status == User.RAISE_HAND && amIModerator) {
 					statusButton.styleName = "userButtonStyle statusHandStyle";
 					statusButton.enabled = true;
 				} else if (hovered && !data.presenter && !data.phoneUser && amIModerator) {
 					statusButton.styleName = "userButtonStyle statusPresenterStyle";
 					statusButton.enabled = true;
-				} else if (data.raiseHand) {
+				} else if (data.status == User.RAISE_HAND) {
 					statusButton.styleName = "userButtonStyle statusHandStyle";
 					statusButton.enabled = false;
 				} else if (data.presenter) {

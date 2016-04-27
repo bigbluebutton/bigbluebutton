@@ -52,16 +52,6 @@ this.isPanHorizontal = function (event) {
   return Math.abs(event.deltaX) > Math.abs(event.deltaY);
 };
 
-// helper to determine whether user has joined any type of audio
-Handlebars.registerHelper('amIInAudio', () => {
-  return BBB.amIInAudio();
-});
-
-// helper to determine whether the user is in the listen only audio stream
-Handlebars.registerHelper('amIListenOnlyAudio', () => {
-  return BBB.amIListenOnlyAudio();
-});
-
 // helper to determine whether the user is in the listen only audio stream
 Handlebars.registerHelper('isMyMicLocked', () => {
   return BBB.isMyMicLocked();
@@ -119,10 +109,6 @@ Handlebars.registerHelper('getUsersInMeeting', () => {
   }
 });
 
-Handlebars.registerHelper('getWhiteboardTitle', () => {
-  return BBB.currentPresentationName() || 'No active presentation';
-});
-
 Handlebars.registerHelper('getCurrentUserEmojiStatus', () => {
   let ref, ref1;
   return (ref = BBB.getCurrentUser()) != null ? (ref1 = ref.user) != null ? ref1.emoji_status : void 0 : void 0;
@@ -131,10 +117,6 @@ Handlebars.registerHelper('getCurrentUserEmojiStatus', () => {
 Handlebars.registerHelper('isCurrentUser', userId => {
   let ref;
   return userId === null || userId === ((ref = BBB.getCurrentUser()) != null ? ref.userId : void 0);
-});
-
-Handlebars.registerHelper('isCurrentUserMuted', () => {
-  return BBB.amIMuted();
 });
 
 //Retreives a username for a private chat tab from the database if it exists
@@ -154,10 +136,6 @@ Handlebars.registerHelper('isCurrentUserEmojiStatusSet', () => {
 
 Handlebars.registerHelper('isCurrentUserSharingVideo', () => {
   return BBB.amISharingVideo();
-});
-
-Handlebars.registerHelper('isCurrentUserTalking', () => {
-  return BBB.amITalking();
 });
 
 Handlebars.registerHelper('isCurrentUserPresenter', () => {
@@ -214,6 +192,7 @@ Handlebars.registerHelper('messageFontSize', () => {
   };
 });
 
+//#TODO REMOVE
 Handlebars.registerHelper('pointerLocation', () => {
   let currentPresentation, currentSlideDoc, pointer, presentationId, ref;
   currentPresentation = Meteor.Presentations.findOne({
@@ -242,19 +221,6 @@ Handlebars.registerHelper('canJoinWithMic', () => {
   }
 });
 
-/*Handlebars.registerHelper "visibility", (section) ->
-  if getInSession "display_#{section}"
-    style: 'display:block;'
-  else
-    style: 'display:none;'
- */
-
-Handlebars.registerHelper('visibility', section => {
-  return {
-    style: 'display:block;',
-  };
-});
-
 Handlebars.registerHelper('containerPosition', section => {
   if (getInSession('display_usersList')) {
     return 'moved-to-right';
@@ -265,47 +231,28 @@ Handlebars.registerHelper('containerPosition', section => {
   }
 });
 
-// vertically shrinks the whiteboard if the slide navigation controllers are present
-Handlebars.registerHelper('whiteboardSize', section => {
-  if (BBB.isUserPresenter(getInSession('userId'))) {
-    return 'presenter-whiteboard';
-  } else {
-    if (BBB.isPollGoing(getInSession('userId'))) {
-      return 'poll-whiteboard';
-    } else {
-      return 'viewer-whiteboard';
-    }
-  }
-});
-
-Handlebars.registerHelper('getPollQuestions', () => {
-  let answer, buttonStyle, j, len, marginStyle, number, polls, ref, widthStyle;
-  polls = BBB.getCurrentPoll(getInSession('userId'));
-  if ((polls != null) && polls !== void 0) {
-    number = polls.poll_info.poll.answers.length;
-    widthStyle = `width: calc(75%/${number});`;
-    marginStyle = `margin-left: calc(25%/${number * 2});margin-right: calc(25%/${number * 2});`;
-    buttonStyle = widthStyle + marginStyle;
-    ref = polls.poll_info.poll.answers;
-    for (j = 0, len = ref.length; j < len; j++) {
-      answer = ref[j];
-      answer.style = buttonStyle;
-    }
-
-    return polls.poll_info.poll.answers;
-  }
-});
-
 Template.registerHelper('emojiIcons', function () {
   return [
     { name: 'sad', icon: 'sad-face', title: '' },
-    { name: 'happy', icon: 'happy-face', title: ''},
-    { name: 'confused', icon: 'confused-face', title: ''},
-    { name: 'neutral', icon: 'neutral-face', title: ''},
-    { name: 'away', icon: 'clock', title: ''},
-    { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand'}
+    { name: 'happy', icon: 'happy-face', title: '' },
+    { name: 'confused', icon: 'confused-face', title: '' },
+    { name: 'neutral', icon: 'neutral-face', title: '' },
+    { name: 'away', icon: 'clock', title: '' },
+    { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand' },
   ];
 });
+
+// scale the whiteboard to adapt to the resized window
+this.scaleWhiteboard = function (whiteboardPaperModel) {
+  let adjustedDimensions;
+  adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'));
+  if (typeof whiteboardPaperModel !== 'undefined' && whiteboardPaperModel !== null) {
+    whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height);
+  }
+  /* if(callback) {
+    callback();
+  } */
+};
 
 this.getSortedUserList = function (users) {
   if ((users != null ? users.length : void 0) > 1) {

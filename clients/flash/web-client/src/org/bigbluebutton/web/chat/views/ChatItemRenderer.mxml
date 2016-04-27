@@ -21,7 +21,7 @@
 					} else {
 						message.textFlow = TextConverter.importToFlow(m.senderText, TextConverter.TEXT_FIELD_HTML_FORMAT);
 					}
-					removeUnneededInformationFromDisplay(m);
+						//removeUnneededInformationFromDisplay(m);
 				}
 			}
 			
@@ -56,7 +56,8 @@
 	</s:states>
 	<s:Group width="100%">
 		<s:layout>
-			<s:VerticalLayout verticalAlign="middle" gap="0"/>
+			<s:VerticalLayout verticalAlign="middle"
+							  gap="0" />
 		</s:layout>
 		<s:Group id="nameTimeGroup"
 				 width="100%">
