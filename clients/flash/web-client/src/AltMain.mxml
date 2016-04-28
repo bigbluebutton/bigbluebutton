@@ -14,6 +14,7 @@
 			
 			import org.bigbluebutton.lib.whiteboard.views.WhiteboardConfig;
 			import org.bigbluebutton.web.AppConfig;
+			import org.bigbluebutton.web.chat.ChatConfig;
 			import org.bigbluebutton.web.main.MainConfig;
 			import org.bigbluebutton.web.presentation.views.PresentationConfig;
 			
@@ -36,6 +37,7 @@
 					.configure(MainConfig)
 					.configure(PresentationConfig)
 					.configure(WhiteboardConfig)
+					.configure(ChatConfig)
 					.configure(new ContextView(this));
 				
 				// If you wish to change the log level then uncomment the line below and set 

@@ -12,8 +12,15 @@ package org.bigbluebutton.web.main.views {
 		public var uiSession:IUISession;
 		
 		override public function initialize():void {
+			uiSession.loadingChangeSignal.add(onLoadingChangeSignal);
 			uiSession.participantsOpenSignal.add(onParticipantsOpenSignal);
-			onParticipantsOpenSignal();
+		}
+		
+		private function onLoadingChangeSignal(val:Boolean, message:String):void {
+			if (!val) {
+				view.createPanels();
+				onParticipantsOpenSignal();
+			}
 		}
 		
 		private function onParticipantsOpenSignal():void {
@@ -21,6 +28,7 @@ package org.bigbluebutton.web.main.views {
 		}
 		
 		override public function destroy():void {
+			uiSession.loadingChangeSignal.remove(onLoadingChangeSignal);
 			uiSession.participantsOpenSignal.remove(onParticipantsOpenSignal);
 			
 			super.destroy();

@@ -22,7 +22,9 @@ package org.bigbluebutton.web.main.views {
 			
 			//this.setStyle("gap", 0);
 			this.direction = "horizontal";
-			
+		}
+		
+		public function createPanels():void {
 			var appWidth:Number = FlexGlobals.topLevelApplication.width;
 			var appHeight:Number = FlexGlobals.topLevelApplication.height;
 			

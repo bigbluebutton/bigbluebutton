@@ -105,3 +105,18 @@ s|Application
 {
 	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/hand.png");
 }
+
+.participantIconStyle
+{
+	circleColor : #8898A5;
+	width  : 32;
+	height : 32;
+	fontSize : 12;
+}
+
+.chatMessageStyle
+{
+	nameFontSize: 		16;
+	timeFontSize:		16;
+	messageFontSize:	14;
+}

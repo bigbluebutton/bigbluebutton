@@ -1,4 +1,6 @@
 package org.bigbluebutton.web.chat {
+	import org.bigbluebutton.lib.chat.views.ChatViewBase;
+	import org.bigbluebutton.lib.chat.views.ChatViewMediatorBase;
 	import org.bigbluebutton.web.chat.views.ChatView;
 	import org.bigbluebutton.web.chat.views.ChatViewMediator;
 	import org.bigbluebutton.web.chat.views.ChatWindow;
@@ -39,8 +41,7 @@ package org.bigbluebutton.web.chat {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(ChatWindow).toMediator(ChatWindowMediator);
-			mediatorMap.map(ChatView).toMediator(ChatViewMediator);
+			mediatorMap.map(ChatViewBase).toMediator(ChatViewMediatorBase);
 		}
 		
 		/**

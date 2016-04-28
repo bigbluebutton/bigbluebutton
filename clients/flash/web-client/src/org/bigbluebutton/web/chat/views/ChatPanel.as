@@ -1,6 +1,7 @@
 package org.bigbluebutton.web.chat.views {
 	import mx.graphics.SolidColor;
 	
+	import org.bigbluebutton.lib.chat.views.ChatViewBase;
 	import org.bigbluebutton.web.common.views.IPanelAdjustable;
 	
 	import spark.components.Group;
@@ -20,15 +21,10 @@ package org.bigbluebutton.web.chat.views {
 		public function ChatPanel() {
 			super();
 			
-			var fillerRect:Rect = new Rect();
-			fillerRect.percentWidth = 100;
-			fillerRect.percentHeight = 100;
-			var fill:SolidColor = new SolidColor();
-			fill.color = 0x00FF00;
-			fillerRect.fill = fill;
-			addElement(fillerRect);
-			
-			
+			var _chatView:ChatViewBase = new ChatViewBase();
+			_chatView.percentWidth = 100;
+			_chatView.percentHeight = 100;
+			addElement(_chatView);
 		}
 	}
 }
