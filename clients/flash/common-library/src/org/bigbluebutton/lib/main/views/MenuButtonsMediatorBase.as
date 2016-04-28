@@ -91,6 +91,9 @@ package org.bigbluebutton.lib.main.views {
 			view.camButton.removeEventListener(MouseEvent.CLICK, camOnOff);
 			view.micButton.removeEventListener(MouseEvent.CLICK, micOnOff);
 			view.statusButton.removeEventListener(MouseEvent.CLICK, changeStatus);
+			
+			super.destroy();
+			view = null;
 		}
 	}
 }

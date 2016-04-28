@@ -32,6 +32,7 @@
 	<s:Label id="iconLabel"
 			 text="{hostComponent.label}"
 			 x="{(this.width - iconLabel.width)/2}"
-			 y="{backgroundEllipse.y + backgroundEllipse.height * 9/8}" />
+			 y="{backgroundEllipse.y + backgroundEllipse.height * 9/8}"
+			 fontSize="{getStyle('fontSize')}"/>
 
 </s:Skin>

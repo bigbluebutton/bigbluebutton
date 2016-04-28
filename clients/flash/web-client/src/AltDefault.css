@@ -2,16 +2,24 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
 
+
 s|Application
 {
-	backgroundColor: #0F1914;	
+	backgroundColor: #2A2D33;	
+}
+
+.titleLabelStyle
+{
+	color		: #F3F6F9;
+	fontSize	: 24;
 }
 
 .menuButtonStyle
 {
-	backgroundColor         : #4998D0;
-	selectedBackgroundColor : #DBDBDB;
-	color                   : #FFFFFF;
+	backgroundColor         : #299AD5;
+	selectedBackgroundColor : #8A9AA7;
+	color                   : #F3F6F9;
+	fontSize				: 14;
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
 }
 
