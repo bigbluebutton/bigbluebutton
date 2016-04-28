@@ -1,8 +1,10 @@
 import { Shapes, WhiteboardCleanStatus } from '/collections/collections';
+import { logger } from '/server/server.js';
+
 export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
   let entry, id, removeTempTextShape;
   if (shapeObject != null && shapeObject.shape_type === 'text') {
-    Meteor.log.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
+    logger.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
     entry = {
       meetingId: meetingId,
       whiteboardId: whiteboardId,
@@ -37,7 +39,7 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
         // display as the prestenter is typing
         let id;
         id = Shapes.insert(entry);
-        return Meteor.log.info(`${shapeObject.status} substituting the temp shapes with the newer one`);
+        return logger.info(`${shapeObject.status} substituting the temp shapes with the newer one`);
       });
     }
 
@@ -86,7 +88,7 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
 };
 
 export function removeAllShapesFromSlide(meetingId, whiteboardId) {
-  Meteor.log.info(`removeAllShapesFromSlide__${whiteboardId}`);
+  logger.info(`removeAllShapesFromSlide__${whiteboardId}`);
   if ((meetingId != null) && (whiteboardId != null) && (Shapes.find({
     meetingId: meetingId,
     whiteboardId: whiteboardId,
@@ -95,7 +97,7 @@ export function removeAllShapesFromSlide(meetingId, whiteboardId) {
       meetingId: meetingId,
       whiteboardId: whiteboardId,
     }, () => {
-      Meteor.log.info('clearing all shapes from slide');
+      logger.info('clearing all shapes from slide');
 
       // After shapes are cleared, wait 1 second and set cleaning off
       // Why would we wait 1 second? (Alex)
@@ -122,8 +124,8 @@ export function removeShapeFromSlide(meetingId, whiteboardId, shapeId) {
     });
     if (shapeToRemove != null) {
       Shapes.remove(shapeToRemove._id);
-      Meteor.log.info(`----removed shape[${shapeId}] from ${whiteboardId}`);
-      return Meteor.log.info(`remaining shapes on the slide: ${
+      logger.info(`----removed shape[${shapeId}] from ${whiteboardId}`);
+      return logger.info(`remaining shapes on the slide: ${
         Shapes.find({
           meetingId: meetingId,
           whiteboardId: whiteboardId,
@@ -139,7 +141,7 @@ export function clearShapesCollection() {
     return Shapes.remove({
       meetingId: meetingId,
     }, () => {
-      Meteor.log.info(`cleared Shapes Collection (meetingId: ${meetingId}!`);
+      logger.info(`cleared Shapes Collection (meetingId: ${meetingId}!`);
       return WhiteboardCleanStatus.update({
         meetingId: meetingId,
       }, {
@@ -150,7 +152,7 @@ export function clearShapesCollection() {
     });
   } else {
     return Shapes.remove({}, () => {
-      Meteor.log.info('cleared Shapes Collection (all meetings)!');
+      logger.info('cleared Shapes Collection (all meetings)!');
       return WhiteboardCleanStatus.update({
         meetingId: meetingId,
       }, {

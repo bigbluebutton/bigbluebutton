@@ -6,6 +6,7 @@ import { clearPresentationsCollection } from '/server/collection_methods/present
 import { clearPollCollection } from '/server/collection_methods/poll';
 import { clearCursorCollection, initializeCursor } from '/server/collection_methods/cursor';
 import { Meetings } from '/collections/collections';
+import { logger } from '/server/server.js';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording, voiceConf, duration, callback) {
   //check if the meeting is already in the collection
@@ -35,13 +36,13 @@ export function addMeetingToCollection(meetingId, name, intendedForRecording, vo
       let funct;
       if (numChanged.insertedId != null) {
         funct = function (cbk) {
-          Meteor.log.info(`__added MEETING ${meetingId}`);
+          logger.info(`__added MEETING ${meetingId}`);
           return cbk();
         };
 
         return funct(callback);
       } else {
-        Meteor.log.error('nothing happened');
+        logger.error('nothing happened');
         return callback();
       }
     };
@@ -56,9 +57,9 @@ export function clearMeetingsCollection() {
   if (meetingId != null) {
     return Meetings.remove({
       meetingId: meetingId,
-    }, Meteor.log.info(`cleared Meetings Collection (meetingId: ${meetingId}!`));
+    }, logger.info(`cleared Meetings Collection (meetingId: ${meetingId}!`));
   } else {
-    return Meetings.remove({}, Meteor.log.info('cleared Meetings Collection (all meetings)!'));
+    return Meetings.remove({}, logger.info('cleared Meetings Collection (all meetings)!'));
   }
 };
 
@@ -68,7 +69,7 @@ export function removeMeetingFromCollection(meetingId, callback) {
   if (Meetings.findOne({
     meetingId: meetingId,
   }) != null) {
-    Meteor.log.info(`end of meeting ${meetingId}. Clear the meeting data from all collections`);
+    logger.info(`end of meeting ${meetingId}. Clear the meeting data from all collections`);
 
     // delete all users in the meeting
     clearUsersCollection(meetingId);
@@ -96,7 +97,7 @@ export function removeMeetingFromCollection(meetingId, callback) {
     return callback();
   } else {
     funct = function (localCallback) {
-      Meteor.log.error(`Error! There was no such meeting ${meetingId}`);
+      logger.error(`Error! There was no such meeting ${meetingId}`);
       return localCallback();
     };
 

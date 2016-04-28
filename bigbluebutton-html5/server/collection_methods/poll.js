@@ -1,4 +1,5 @@
 import { Polls } from '/collections/collections';
+import { logger } from '/server/server.js';
 
 export function addPollToCollection(poll, requester_id, users, meetingId) {
   let _users, answer, entry, i, j, user;
@@ -32,7 +33,7 @@ export function addPollToCollection(poll, requester_id, users, meetingId) {
       users: _users,
     },
   };
-  Meteor.log.info(`added poll _id=[${poll.id}]:meetingId=[${meetingId}].`);
+  logger.info(`added poll _id=[${poll.id}]:meetingId=[${meetingId}].`);
   return Polls.insert(entry);
 };
 
@@ -47,9 +48,9 @@ export function clearPollCollection() {
     return Polls.remove({
       'poll_info.meetingId': meetingId,
       'poll_info.poll.id': pollId,
-    }, Meteor.log.info(`cleared Polls Collection (meetingId: ${meetingId}, pollId: ${pollId}!)`));
+    }, logger.info(`cleared Polls Collection (meetingId: ${meetingId}, pollId: ${pollId}!)`));
   } else {
-    return Polls.remove({}, Meteor.log.info('cleared Polls Collection (all meetings)!'));
+    return Polls.remove({}, logger.info('cleared Polls Collection (all meetings)!'));
   }
 };
 
@@ -65,6 +66,6 @@ export function updatePollCollection(poll, meetingId, requesterId) {
         'poll_info.poll.num_responders': poll.num_responders,
         'poll_info.poll.num_respondents': poll.num_respondents,
       },
-    }, Meteor.log.info(`updating Polls Collection (meetingId: ${meetingId}, pollId: ${poll.id}!)`));
+    }, logger.info(`updating Polls Collection (meetingId: ${meetingId}, pollId: ${poll.id}!)`));
   }
 };

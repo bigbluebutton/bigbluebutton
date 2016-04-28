@@ -1,7 +1,7 @@
 // TODO: should be split on server and client side
 // // Global configurations file
 
-let config, file, transports, winston;
+let config;
 
 config = {};
 
@@ -78,29 +78,5 @@ config.redis.channels.toBBBApps.voice = 'bigbluebutton:to-bbb-apps:voice';
 config.redis.channels.toBBBApps.whiteboard = 'bigbluebutton:to-bbb-apps:whiteboard';
 
 config.redis.channels.toBBBApps.polling = 'bigbluebutton:to-bbb-apps:polling';
-
-// Logging
-
-config.log = {};
-
-if (Meteor.isServer) {
-  if (process != null && process.env != null && process.env.NODE_ENV == 'production') {
-    config.log.path = '/var/log/bigbluebutton/bbbnode.log';
-  } else {
-    config.log.path = `${process.env.PWD}/log/development.log`;
-  }
-
-  // Setting up a logger in Meteor.log
-  winston = Winston; //Meteor.require 'winston'
-  file = config.log.path;
-  transports = [
-    new winston.transports.Console(), new winston.transports.File({
-      filename: file,
-    }),
-  ];
-  Meteor.log = new winston.Logger({
-    transports: transports,
-  });
-}
 
 Meteor.config = config;

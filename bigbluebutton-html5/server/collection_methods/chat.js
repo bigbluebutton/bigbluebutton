@@ -1,4 +1,5 @@
-import {Chat } from '/collections/collections';
+import { Chat } from '/collections/collections';
+import { logger } from '/server/server.js';
 
 export function addChatToCollection(meetingId, messageObject) {
   let id;
@@ -29,11 +30,11 @@ export function addChatToCollection(meetingId, messageObject) {
       },
     }, (err, numChanged) => {
       if (err != null) {
-        Meteor.log.error(`_error ${err} when adding chat to collection`);
+        logger.error(`_error ${err} when adding chat to collection`);
       }
 
       if (numChanged.insertedId != null) {
-        return Meteor.log.info(`${messageObject.to_username != null}_added chat
+        return logger.info(`${messageObject.to_username != null}_added chat
          id=[${numChanged.insertedId}] ${messageObject.from_username}
           to ${messageObject.to_username != null ? 'PUBLIC' : void 0}:${messageObject.message}`);
       }
@@ -47,9 +48,9 @@ export function clearChatCollection() {
   if (meetingId != null) {
     return Chat.remove({
       meetingId: meetingId,
-    }, Meteor.log.info(`cleared Chat Collection (meetingId: ${meetingId}!`));
+    }, logger.info(`cleared Chat Collection (meetingId: ${meetingId}!`));
   } else {
-    return Chat.remove({}, Meteor.log.info('cleared Chat Collection (all meetings)!'));
+    return Chat.remove({}, logger.info('cleared Chat Collection (all meetings)!'));
   }
 };
 

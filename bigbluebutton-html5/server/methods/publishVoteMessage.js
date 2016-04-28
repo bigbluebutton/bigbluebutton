@@ -2,7 +2,7 @@ import { publish } from '/server/redispubsub';
 import { isAllowedTo } from '/server/user_permissions';
 import { appendMessageHeader } from '/server/helpers';
 import { Polls } from '/collections/collections';
-
+import { logger } from '/server/server.js';
 
 Meteor.methods({
   publishVoteMessage(meetingId, pollAnswerId, requesterUserId, requesterToken) {
@@ -40,7 +40,7 @@ Meteor.methods({
           },
         });
         message = appendMessageHeader(eventName, message);
-        Meteor.log.info('publishing Poll response to redis');
+        logger.info('publishing Poll response to redis');
         return publish(Meteor.config.redis.channels.toBBBApps.polling, message);
       }
     }

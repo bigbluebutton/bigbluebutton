@@ -1,4 +1,5 @@
 import { Presentations, Slides } from '/collections/collections';
+import { logger } from '/server/server.js';
 
 export function addPresentationToCollection(meetingId, presentationObject) {
   let entry, id, presentationObj;
@@ -19,7 +20,7 @@ export function addPresentationToCollection(meetingId, presentationObject) {
     };
     return id = Presentations.insert(entry);
 
-    //Meteor.log.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size
+    //logger.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size
     // is now #{Presentations.find({meetingId: meetingId}).count()}"
   }
 };
@@ -33,9 +34,9 @@ export function removePresentationFromCollection(meetingId, presentationId) {
   if (presentationObject != null) {
     Slides.remove({
         presentationId: presentationId,
-      }, Meteor.log.info(`cleared Slides Collection (presentationId: ${presentationId}!`));
+      }, logger.info(`cleared Slides Collection (presentationId: ${presentationId}!`));
     Presentations.remove(presentationObject._id);
-    return Meteor.log.info(`----removed presentation[${presentationId}] from ${meetingId}`);
+    return logger.info(`----removed presentation[${presentationId}] from ${meetingId}`);
   }
 };
 
@@ -45,8 +46,8 @@ export function clearPresentationsCollection() {
   if (meetingId != null) {
     return Presentations.remove({
       meetingId: meetingId,
-    }, Meteor.log.info(`cleared Presentations Collection (meetingId: ${meetingId}!`));
+    }, logger.info(`cleared Presentations Collection (meetingId: ${meetingId}!`));
   } else {
-    return Presentations.remove({}, Meteor.log.info('cleared Presentations Collection (all meetings)!'));
+    return Presentations.remove({}, logger.info('cleared Presentations Collection (all meetings)!'));
   }
 };

@@ -2,6 +2,7 @@ import { publish } from '/server/redispubsub';
 import { isAllowedTo } from '/server/user_permissions';
 import { appendMessageHeader } from '/server/helpers';
 import { updateVoiceUser } from '/server/collection_methods/users';
+import { logger } from '/server/server.js';
 
 Meteor.methods({
   // meetingId: the meetingId of the meeting the user[s] is in
@@ -28,7 +29,7 @@ Meteor.methods({
         }
       };
       message = appendMessageHeader('mute_user_request_message', message);
-      Meteor.log.info(`publishing a user unmute request for ${toMuteUserId}`);
+      logger.info(`publishing a user unmute request for ${toMuteUserId}`);
       publish(Meteor.config.redis.channels.toBBBApps.users, message);
       updateVoiceUser(meetingId, {
         web_userid: toMuteUserId,

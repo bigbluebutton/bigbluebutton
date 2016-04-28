@@ -5,9 +5,26 @@ const indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
 };
 
-Meteor.startup(() => {
-  Meteor.log.info('server start');
 
+const log = {};
+if (process != null && process.env != null && process.env.NODE_ENV == 'production') {
+  log.path = '/var/log/bigbluebutton/bbbnode.log';
+} else {
+  log.path = `${process.env.PWD}/log/development.log`;
+}
+
+// Setting up a logger in Meteor.log
+export let logger = new Winston.Logger({
+  transports: [
+    new Winston.transports.Console(), new Winston.transports.File({
+      filename: log.path,
+    }),
+  ],
+});
+
+Meteor.startup(() => {
+  logger.info('server start');
+  
   //remove all data
   WhiteboardCleanStatus.remove({});
   clearCollections();
@@ -60,7 +77,7 @@ Meteor.startup(() => {
 
   // create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(function () {
-    return Meteor.log.info('created pubsub');
+    return logger.info('created pubsub');
   });
 
   Meteor.myQueue = new PowerQueue({
@@ -80,13 +97,13 @@ Meteor.startup(() => {
               return `In the queue we have ${length} event(s) to process.`;
             } else return "";
           }() || "";
-      Meteor.log.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
+      logger.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
     }
     console.log("in taskHandler:" + eventName);
 
     if (failures > 0) {
       next();
-      return Meteor.log.error(`got a failure on taskHandler ${eventName} ${failures}`);
+      return logger.error(`got a failure on taskHandler ${eventName} ${failures}`);
       // TODO should we stop or instead return next?
     } else {
       logRedisMessage(eventName, data.jsonMsg);
@@ -104,7 +121,7 @@ Meteor.startup(() => {
           },
         });
       } else {
-        Meteor.log.error("NOT HANDLING:" + eventName);
+        logger.error("NOT HANDLING:" + eventName);
         return next();
       }
 
@@ -145,7 +162,7 @@ Meteor.startup(() => {
       // For DEVELOPMENT purposes only
       // Dynamic shapes' updates will slow down significantly
       if(Meteor.settings.public.mode == 'development') {
-        Meteor.log.info(`redis incoming message  ${eventName}  `, {
+        logger.info(`redis incoming message  ${eventName}  `, {
           message: json,
         });
       }

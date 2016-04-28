@@ -1,4 +1,5 @@
 import { Slides } from '/collections/collections';
+import { logger } from '/server/server.js';
 
 export function displayThisSlide(meetingId, newSlideId, slideObject) {
   let presentationId;
@@ -53,7 +54,7 @@ export function addSlideToCollection(meetingId, presentationId, slideObject) {
     };
     return id = Slides.insert(entry);
 
-    //Meteor.log.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
+    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
   }
 };
 
@@ -63,9 +64,9 @@ export function clearSlidesCollection() {
   if (meetingId != null) {
     return Slides.remove({
       meetingId: meetingId,
-    }, Meteor.log.info(`cleared Slides Collection (meetingId: ${meetingId}!`));
+    }, logger.info(`cleared Slides Collection (meetingId: ${meetingId}!`));
   } else {
-    return Slides.remove({}, Meteor.log.info('cleared Slides Collection (all meetings)!'));
+    return Slides.remove({}, logger.info('cleared Slides Collection (all meetings)!'));
   }
 };
 

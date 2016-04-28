@@ -7,7 +7,7 @@ import { addPresentationToCollection, removePresentationFromCollection } from '/
 import { addPollToCollection, updatePollCollection } from '/server/collection_methods/poll';
 import { addMeetingToCollection, removeMeetingFromCollection } from '/server/collection_methods/meetings';
 import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
-
+import { logger } from '/server/server.js';
 
 const bind = function (fn, me) { return function () { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
@@ -17,7 +17,7 @@ Meteor.methods({
   // Construct and send a message to bbb-web to validate the user
   validateAuthToken(meetingId, userId, authToken) {
     let message;
-    Meteor.log.info('sending a validate_auth_token with', {
+    logger.info('sending a validate_auth_token with', {
       userid: userId,
       authToken: authToken,
       meetingid: meetingId,
@@ -38,7 +38,7 @@ Meteor.methods({
       createDummyUser(meetingId, userId, authToken);
       return publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
     } else {
-      return Meteor.log.info('did not have enough information to send a validate_auth_token message');
+      return logger.info('did not have enough information to send a validate_auth_token message');
     }
   },
 });
@@ -48,10 +48,10 @@ Meteor.RedisPubSub = (function () {
     constructor(callback) {
       this._addToQueue = bind(this._addToQueue, this);
       this._onSubscribe = bind(this._onSubscribe, this);
-      Meteor.log.info('constructor RedisPubSub');
+      logger.info('constructor RedisPubSub');
       this.pubClient = redis.createClient();
       this.subClient = redis.createClient();
-      Meteor.log.info(`Subscribing message on channel: ${Meteor.config.redis.channels.fromBBBApps}`);
+      logger.info(`Subscribing message on channel: ${Meteor.config.redis.channels.fromBBBApps}`);
       this.subClient.on('psubscribe', Meteor.bindEnvironment(this._onSubscribe));
       this.subClient.on('pmessage', Meteor.bindEnvironment(this._addToQueue));
       this.subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps);
@@ -60,7 +60,7 @@ Meteor.RedisPubSub = (function () {
 
     _onSubscribe(channel, count) {
       let message;
-      Meteor.log.info(`Subscribed to ${channel}`);
+      logger.info(`Subscribed to ${channel}`);
 
       //grab data about all active meetings on the server
       message = {
@@ -85,7 +85,7 @@ Meteor.RedisPubSub = (function () {
         // For DEVELOPMENT purposes only
         // Ddynamic shapes' updates will slow down significantly
         if(Meteor.settings.public.mode == 'development') {
-          Meteor.log.info(`Q ${eventName} ${Meteor.myQueue.total()}`);
+          logger.info(`Q ${eventName} ${Meteor.myQueue.total()}`);
         }
 
         return Meteor.myQueue.add({
@@ -106,20 +106,20 @@ Meteor.RedisPubSub = (function () {
 
 // message should be an object
 export function publish(channel, message) {
-  Meteor.log.info(`redis outgoing message  ${message.header.name}`, {
+  logger.info(`redis outgoing message  ${message.header.name}`, {
     channel: channel,
     message: message,
   });
   if (Meteor.redisPubSub != null) {
     return Meteor.redisPubSub.pubClient.publish(channel, JSON.stringify(message), (err, res) => {
       if (err) {
-        return Meteor.log.info('error', {
+        return logger.info('error', {
           error: err,
         });
       }
     });
   } else {
-    return Meteor.log.info('ERROR!! Meteor.redisPubSub was undefined');
+    return logger.info('ERROR!! Meteor.redisPubSub was undefined');
   }
 };
 
@@ -149,7 +149,7 @@ const handleLockEvent = function(arg) {
 const handleEndOfMeeting = function(arg) {
   let meetingId;
   meetingId = arg.payload.meeting_id;
-  Meteor.log.info(`DESTROYING MEETING ${meetingId}`);
+  logger.info(`DESTROYING MEETING ${meetingId}`);
   return removeMeetingFromCollection(meetingId, arg.callback);
 };
 
@@ -172,7 +172,7 @@ const handleRemoveUserEvent = function (arg) {
     userId = arg.payload.user.userid;
     return markUserOffline(meetingId, userId, arg.callback);
   } else {
-    Meteor.log.info('could not perform handleRemoveUserEvent');
+    logger.info('could not perform handleRemoveUserEvent');
     return arg.callback();
   }
 };
@@ -235,8 +235,8 @@ registerHandlers = function (emitter) {
 
   emitter.on('get_all_meetings_reply', function(arg) {
     let listOfMeetings, processMeeting;
-    Meteor.log.info("Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!");
-    Meteor.log.info(JSON.stringify(arg.payload));
+    logger.info("Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!");
+    logger.info(JSON.stringify(arg.payload));
     listOfMeetings = arg.payload.meetings;
 
     // Processing the meetings recursively with a callback to notify us,
@@ -316,7 +316,7 @@ registerHandlers = function (emitter) {
               val = user.validated;
             }
 
-            Meteor.log.info(`user.validated for user ${userId} in meeting ${user.meetingId} just became ${val}`);
+            logger.info(`user.validated for user ${userId} in meeting ${user.meetingId} just became ${val}`);
             return cbk();
           };
 
@@ -326,7 +326,7 @@ registerHandlers = function (emitter) {
         }
       });
     } else {
-      Meteor.log.info('a non-html5 user got validate_auth_token_reply.');
+      logger.info('a non-html5 user got validate_auth_token_reply.');
       return arg.callback();
     }
   });
@@ -346,7 +346,7 @@ registerHandlers = function (emitter) {
     // in the user list, creating discrepancy with the list in the Flash client
     if (dbUser != null && dbUser.user != null && dbUser.user.connection_status === 'offline') {
       if (payload.user != null && payload.user.phone_user) {
-        Meteor.log.error('offline AND phone user');
+        logger.error('offline AND phone user');
         return arg.callback(); //return without joining the user
       }
     } else {
@@ -355,7 +355,7 @@ registerHandlers = function (emitter) {
         // typically html5 users will be in
         // the db [as a dummy user] before the joining message
         status = dbUser.validated;
-        Meteor.log.info(`in user_joined_message the validStatus of the user was ${status}`);
+        logger.info(`in user_joined_message the validStatus of the user was ${status}`);
         userObj.timeOfJoining = arg.header.current_time;
         return userJoined(meetingId, userObj, arg.callback);
       } else {
@@ -380,7 +380,7 @@ registerHandlers = function (emitter) {
           'user.presenter': false,
         },
       }, (err, numUpdated) => {
-        return Meteor.log.info(` Updating old presenter numUpdated=${numUpdated}, err=${err}`);
+        return logger.info(` Updating old presenter numUpdated=${numUpdated}, err=${err}`);
       });
 
       // set the new presenter
@@ -392,7 +392,7 @@ registerHandlers = function (emitter) {
           'user.presenter': true,
         },
       }, (err, numUpdated) => {
-        return Meteor.log.info(` Updating new presenter numUpdated=${numUpdated}, err=${err}`);
+        return logger.info(` Updating new presenter numUpdated=${numUpdated}, err=${err}`);
       });
     }
 
@@ -415,7 +415,7 @@ registerHandlers = function (emitter) {
           'user.emoji_status': emojiStatus,
         },
       }, (err, numUpdated) => {
-        return Meteor.log.info(` Updating emoji numUpdated=${numUpdated}, err=${err}`);
+        return logger.info(` Updating emoji numUpdated=${numUpdated}, err=${err}`);
       });
     }
     return arg.callback();
@@ -525,7 +525,7 @@ registerHandlers = function (emitter) {
           //request for shapes
           whiteboardId = `${presentation.id}/${page.num}`;
 
-          //Meteor.log.info "the whiteboard_id here is:" + whiteboardId
+          //logger.info "the whiteboard_id here is:" + whiteboardId
 
           replyTo = `${meetingId}/nodeJSapp`;
           message = {
@@ -543,7 +543,7 @@ registerHandlers = function (emitter) {
           if (whiteboardId != null && meetingId != null) {
             publish(Meteor.config.redis.channels.toBBBApps.whiteboard, message);
           } else {
-            Meteor.log.info('did not have enough information to send a user_leaving_request');
+            logger.info('did not have enough information to send a user_leaving_request');
           }
         }
       }

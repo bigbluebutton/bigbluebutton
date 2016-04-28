@@ -1,4 +1,5 @@
 import { Cursor } from '/collections/collections';
+import { logger } from '/server/server.js';
 
 export function initializeCursor(meetingId) {
   return Cursor.upsert({
@@ -9,9 +10,9 @@ export function initializeCursor(meetingId) {
     y: 0,
   }, (err, numChanged) => {
     if (err) {
-      return Meteor.log.error(`err upserting cursor for ${meetingId}`);
+      return logger.error(`err upserting cursor for ${meetingId}`);
     } else {
-      // Meteor.log.info "ok upserting cursor for #{meetingId}"
+      // logger.info "ok upserting cursor for #{meetingId}"
     }
   });
 };
@@ -26,9 +27,9 @@ export function updateCursorLocation(meetingId, cursorObject) {
     },
   }, (err, numChanged) => {
     if (err != null) {
-      return Meteor.log.error(`_unsucc update of cursor for ${meetingId} ${JSON.stringify(cursorObject)} err=${JSON.stringify(err)}`);
+      return logger.error(`_unsucc update of cursor for ${meetingId} ${JSON.stringify(cursorObject)} err=${JSON.stringify(err)}`);
     } else {
-      // Meteor.log.info "updated cursor for #{meetingId} #{JSON.stringify cursorObject}"
+      // logger.info "updated cursor for #{meetingId} #{JSON.stringify cursorObject}"
     }
   });
 };
@@ -40,11 +41,11 @@ export function clearCursorCollection() {
     return Cursor.remove({
       meetingId: meetingId,
     }, () => {
-      return Meteor.log.info(`cleared Cursor Collection (meetingId: ${meetingId})!`);
+      return logger.info(`cleared Cursor Collection (meetingId: ${meetingId})!`);
     });
   } else {
     return Cursor.remove({}, () => {
-      return Meteor.log.info('cleared Cursor Collection (all meetings)!');
+      return logger.info('cleared Cursor Collection (all meetings)!');
     });
   }
 };
