@@ -10,8 +10,8 @@ module.exports = function (grunt) {
   var settings_prod = require('./settings-production.json');
 
   // root URL in development/production:
-  var devRootURL = (settings_dev.rootURL == undefined) ? "http://127.0.0.1/html5client" : settings_dev.rootURL;
-  var prodRootURL = (settings_prod.rootURL == undefined) ? "http://127.0.0.1/html5client" : settings_prod.rootURL;
+  var devRootURL = (settings_dev.rootURL == undefined) ? 'http://127.0.0.1/html5client' : settings_dev.rootURL;
+  var prodRootURL = (settings_prod.rootURL == undefined) ? 'http://127.0.0.1/html5client' : settings_prod.rootURL;
 
   // command line string containing the Meteor's home directory in development/production:
   var devHomeStr = (settings_dev.home == undefined) ? '' : ('HOME=' + settings_dev.home + ' ');
@@ -61,7 +61,7 @@ module.exports = function (grunt) {
       },
       start_meteor_production: {
         command: meteor_prod_command,
-      }
+      },
     },
 
     concurrent: {
@@ -70,10 +70,10 @@ module.exports = function (grunt) {
         limit: 3,
       },
       meteor_watch_development: {
-        tasks: ['shell:start_meteor_development', 'watch']
+        tasks: ['shell:start_meteor_development', 'watch'],
       },
       meteor_watch_production: {
-        tasks: ['shell:start_meteor_production', 'watch']
+        tasks: ['shell:start_meteor_production', 'watch'],
       },
     },
   });
