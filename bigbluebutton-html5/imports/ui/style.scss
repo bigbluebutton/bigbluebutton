@@ -884,6 +884,7 @@ body {
         -o-transform: translateX(0);
       }
 
+      // LESS version (left as a reference)
       /*.generateUserItemAnimation(@n, @i: 1) when (@i =< @n) {
         .user-list-item:nth-child(@{i}) {
           transform: @i * 50ms;
@@ -906,17 +907,6 @@ body {
           -o-transition-delay: ($i * 50ms);
         }
       }
-      /*.generateUserItemAnimation($n, $i: 1) when ($i =< $n) {
-        .user-list-item:nth-child($i) {
-          transform: $i * 50ms;
-          transition-delay: $i * 50ms;
-          -moz-transition-delay: $i * 50ms;
-          -webkit-transition-delay: $i * 50ms;
-          -o-transition-delay: $i * 50ms;
-        }
-        @include generateUserItemAnimation($n, ($i + 1));
-      }
-      @include generateUserItemAnimation(20);*/
     }
   }
 }
