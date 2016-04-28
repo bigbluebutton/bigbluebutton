@@ -8,7 +8,6 @@ mrt:redis@0.1.3
 arunoda:npm@0.2.6
 underscore
 amplify
-iron:router
 blaze
 less
 francocatena:status

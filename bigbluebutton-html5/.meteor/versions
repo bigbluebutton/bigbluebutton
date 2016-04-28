@@ -44,14 +44,6 @@ htmljs@1.0.9
 http@1.1.5
 id-map@1.0.7
 infinitedg:winston@0.7.3
-iron:controller@1.0.12
-iron:core@1.0.11
-iron:dynamic-template@1.0.12
-iron:layout@1.0.12
-iron:location@1.0.11
-iron:middleware-stack@1.0.11
-iron:router@1.0.12
-iron:url@1.0.11
 jquery@1.11.8
 launch-screen@1.0.11
 less@2.6.0
