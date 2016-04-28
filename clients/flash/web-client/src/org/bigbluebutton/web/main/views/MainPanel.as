@@ -25,7 +25,7 @@ package org.bigbluebutton.web.main.views {
 			
 			_topToolbar = new TopToolbarBase();
 			_topToolbar.percentWidth = 100;
-			_topToolbar.height = 70;
+			_topToolbar.height = 60;
 			addElement(_topToolbar);
 			
 			_presentationView = new PresentationViewBase();

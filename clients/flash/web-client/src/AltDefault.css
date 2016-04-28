@@ -50,6 +50,28 @@ s|Application
 	fontSize	: 24;
 }
 
+.topButtonStyle
+{
+	paddingLeft		: 24;
+	paddingRight	: 24;
+	width			: 48;
+	height			: 48;
+	verticalAlign	: middle;
+	horizontalAlign	: middle;
+	skinClass		: ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
+
+}
+
+.participantsButtonStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/participants.png");
+}
+
+.settingsButtonStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/settings.png");
+}
+
 .menuButtonStyle
 {
 	backgroundColor         : #299AD5;

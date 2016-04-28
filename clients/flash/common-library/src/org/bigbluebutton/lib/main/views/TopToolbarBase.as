@@ -31,6 +31,7 @@ package org.bigbluebutton.lib.main.views {
 			verticalAlign = "middle";
 			
 			_leftButton = new Button();
+			_leftButton.styleName = "participantsButtonStyle topButtonStyle";
 			addElement(_leftButton);
 			
 			var s:Spacer = new Spacer();
@@ -46,6 +47,7 @@ package org.bigbluebutton.lib.main.views {
 			addElement(s);
 			
 			_rightButton = new Button();
+			_rightButton.styleName = "settingsButtonStyle topButtonStyle";
 			addElement(_rightButton);
 		}
 	}
