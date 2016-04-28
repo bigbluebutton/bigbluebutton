@@ -1,5 +1,8 @@
-this.initializeCursor = function (meetingId) {
-  return Meteor.Cursor.upsert({
+import { Cursor } from '/collections/collections';
+import { logger } from '/server/server.js';
+
+export function initializeCursor(meetingId) {
+  return Cursor.upsert({
     meetingId: meetingId,
   }, {
     meetingId: meetingId,
@@ -7,15 +10,15 @@ this.initializeCursor = function (meetingId) {
     y: 0,
   }, (err, numChanged) => {
     if (err) {
-      return Meteor.log.error(`err upserting cursor for ${meetingId}`);
+      return logger.error(`err upserting cursor for ${meetingId}`);
     } else {
-      // Meteor.log.info "ok upserting cursor for #{meetingId}"
+      // logger.info "ok upserting cursor for #{meetingId}"
     }
   });
 };
 
-this.updateCursorLocation = function (meetingId, cursorObject) {
-  return Meteor.Cursor.update({
+export function updateCursorLocation(meetingId, cursorObject) {
+  return Cursor.update({
     meetingId: meetingId,
   }, {
     $set: {
@@ -24,24 +27,25 @@ this.updateCursorLocation = function (meetingId, cursorObject) {
     },
   }, (err, numChanged) => {
     if (err != null) {
-      return Meteor.log.error(`_unsucc update of cursor for ${meetingId} ${JSON.stringify(cursorObject)} err=${JSON.stringify(err)}`);
+      return logger.error(`_unsucc update of cursor for ${meetingId} ${JSON.stringify(cursorObject)} err=${JSON.stringify(err)}`);
     } else {
-      // Meteor.log.info "updated cursor for #{meetingId} #{JSON.stringify cursorObject}"
+      // logger.info "updated cursor for #{meetingId} #{JSON.stringify cursorObject}"
     }
   });
 };
 
 // called on server start and meeting end
-this.clearCursorCollection = function (meetingId) {
+export function clearCursorCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Cursor.remove({
+    return Cursor.remove({
       meetingId: meetingId,
     }, () => {
-      return Meteor.log.info(`cleared Cursor Collection (meetingId: ${meetingId})!`);
+      return logger.info(`cleared Cursor Collection (meetingId: ${meetingId})!`);
     });
   } else {
-    return Meteor.Cursor.remove({}, () => {
-      return Meteor.log.info('cleared Cursor Collection (all meetings)!');
+    return Cursor.remove({}, () => {
+      return logger.info('cleared Cursor Collection (all meetings)!');
     });
   }
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Shapes, WhiteboardCleanStatus } from '/collections/collections';
 
 this.scaleSlide = function (originalWidth, originalHeight) {
   let adjustedHeight, adjustedWidth, boardHeight, boardWidth;
@@ -56,7 +57,7 @@ export let Slide = React.createClass({
     currentSlide = BBB.getCurrentSlide();
 
     if (currentSlide != null) {
-      shapes = Meteor.Shapes.find({
+      shapes = Shapes.find({
         whiteboardId: currentSlide.slide.id,
       }).fetch();
     }
@@ -101,7 +102,7 @@ export let Slide = React.createClass({
   },
 
   createWhiteboardPaper: function (callback) {
-    this.whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper');
+    this.whiteboardPaperModel = new WhiteboardPaperModel('whiteboard-paper');
     return callback(this.whiteboardPaperModel);
   },
 
@@ -133,7 +134,7 @@ export let Slide = React.createClass({
 
   manuallyDisplayShapes: function () {
     let currentSlide, i, j, len, len1, num, ref, ref1, ref2, results, s, shapeInfo, shapeType, shapes, wpm;
-    if (Meteor.WhiteboardCleanStatus.findOne({
+    if (WhiteboardCleanStatus.findOne({
       in_progress: true,
     }) != null) {
       return;
@@ -141,7 +142,7 @@ export let Slide = React.createClass({
 
     currentSlide = BBB.getCurrentSlide();
     wpm = this.whiteboardPaperModel;
-    shapes = Meteor.Shapes.find({
+    shapes = Shapes.find({
       whiteboardId: currentSlide != null ? (ref = currentSlide.slide) != null ? ref.id : void 0 : void 0,
     }).fetch();
 

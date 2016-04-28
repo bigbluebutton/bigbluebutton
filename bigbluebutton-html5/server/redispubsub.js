@@ -1,3 +1,15 @@
+import { addChatToCollection } from '/server/collection_methods/chat';
+import { updateCursorLocation } from '/server/collection_methods/cursor';
+import { setUserLockedStatus, handleLockingMic, createDummyUser, userJoined, markUserOffline, updateVoiceUser } from '/server/collection_methods/users';
+import { addSlideToCollection, displayThisSlide } from '/server/collection_methods/slides';
+import { addShapeToCollection, removeAllShapesFromSlide, removeShapeFromSlide } from '/server/collection_methods/shapes';
+import { addPresentationToCollection, removePresentationFromCollection } from '/server/collection_methods/presentations';
+import { addPollToCollection, updatePollCollection } from '/server/collection_methods/poll';
+import { addMeetingToCollection, removeMeetingFromCollection } from '/server/collection_methods/meetings';
+import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
+import { logger } from '/server/server.js';
+import { redisConfig } from '/config';
+
 const bind = function (fn, me) { return function () { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
 };
@@ -6,7 +18,7 @@ Meteor.methods({
   // Construct and send a message to bbb-web to validate the user
   validateAuthToken(meetingId, userId, authToken) {
     let message;
-    Meteor.log.info('sending a validate_auth_token with', {
+    logger.info('sending a validate_auth_token with', {
       userid: userId,
       authToken: authToken,
       meetingid: meetingId,
@@ -25,9 +37,9 @@ Meteor.methods({
     };
     if ((authToken != null) && (userId != null) && (meetingId != null)) {
       createDummyUser(meetingId, userId, authToken);
-      return publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
+      return publish(redisConfig.channels.toBBBApps.meeting, message);
     } else {
-      return Meteor.log.info('did not have enough information to send a validate_auth_token message');
+      return logger.info('did not have enough information to send a validate_auth_token message');
     }
   },
 });
@@ -37,19 +49,19 @@ Meteor.RedisPubSub = (function () {
     constructor(callback) {
       this._addToQueue = bind(this._addToQueue, this);
       this._onSubscribe = bind(this._onSubscribe, this);
-      Meteor.log.info('constructor RedisPubSub');
+      logger.info('constructor RedisPubSub');
       this.pubClient = redis.createClient();
       this.subClient = redis.createClient();
-      Meteor.log.info(`Subscribing message on channel: ${Meteor.config.redis.channels.fromBBBApps}`);
+      logger.info(`Subscribing message on channel: ${redisConfig.channels.fromBBBApps}`);
       this.subClient.on('psubscribe', Meteor.bindEnvironment(this._onSubscribe));
       this.subClient.on('pmessage', Meteor.bindEnvironment(this._addToQueue));
-      this.subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps);
+      this.subClient.psubscribe(redisConfig.channels.fromBBBApps);
       callback(this);
     }
 
     _onSubscribe(channel, count) {
       let message;
-      Meteor.log.info(`Subscribed to ${channel}`);
+      logger.info(`Subscribed to ${channel}`);
 
       //grab data about all active meetings on the server
       message = {
@@ -58,7 +70,7 @@ Meteor.RedisPubSub = (function () {
         },
         payload: {} // I need this, otherwise bbb-apps won't recognize the message
       };
-      return publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
+      return publish(redisConfig.channels.toBBBApps.meeting, message);
     }
 
     _addToQueue(pattern, channel, jsonMsg) {
@@ -74,7 +86,7 @@ Meteor.RedisPubSub = (function () {
         // For DEVELOPMENT purposes only
         // Ddynamic shapes' updates will slow down significantly
         if(Meteor.settings.public.mode == 'development') {
-          Meteor.log.info(`Q ${eventName} ${Meteor.myQueue.total()}`);
+          logger.info(`Q ${eventName} ${Meteor.myQueue.total()}`);
         }
 
         return Meteor.myQueue.add({
@@ -94,21 +106,21 @@ Meteor.RedisPubSub = (function () {
 // --------------------------------------------------------------------------------------------
 
 // message should be an object
-this.publish = function (channel, message) {
-  Meteor.log.info(`redis outgoing message  ${message.header.name}`, {
+export function publish(channel, message) {
+  logger.info(`redis outgoing message  ${message.header.name}`, {
     channel: channel,
     message: message,
   });
   if (Meteor.redisPubSub != null) {
     return Meteor.redisPubSub.pubClient.publish(channel, JSON.stringify(message), (err, res) => {
       if (err) {
-        return Meteor.log.info('error', {
+        return logger.info('error', {
           error: err,
         });
       }
     });
   } else {
-    return Meteor.log.info('ERROR!! Meteor.redisPubSub was undefined');
+    return logger.info('ERROR!! Meteor.redisPubSub was undefined');
   }
 };
 
@@ -138,7 +150,7 @@ const handleLockEvent = function(arg) {
 const handleEndOfMeeting = function(arg) {
   let meetingId;
   meetingId = arg.payload.meeting_id;
-  Meteor.log.info(`DESTROYING MEETING ${meetingId}`);
+  logger.info(`DESTROYING MEETING ${meetingId}`);
   return removeMeetingFromCollection(meetingId, arg.callback);
 };
 
@@ -154,6 +166,17 @@ const handleChatEvent = function (arg) {
   return arg.callback();
 };
 
+const handleRemoveUserEvent = function (arg) {
+  if (arg.payload.user != null && arg.payload.user.userid != null && arg.payload.meeting_id != null) {
+    let userId, meetingId;
+    meetingId = arg.payload.meeting_id;
+    userId = arg.payload.user.userid;
+    return markUserOffline(meetingId, userId, arg.callback);
+  } else {
+    logger.info('could not perform handleRemoveUserEvent');
+    return arg.callback();
+  }
+};
 
 // To ensure that we process the redis json event messages serially we use a
 // callback. This callback is to be called when the Meteor collection is
@@ -213,8 +236,8 @@ registerHandlers = function (emitter) {
 
   emitter.on('get_all_meetings_reply', function(arg) {
     let listOfMeetings, processMeeting;
-    Meteor.log.info("Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!");
-    Meteor.log.info(JSON.stringify(arg.payload));
+    logger.info("Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!");
+    logger.info(JSON.stringify(arg.payload));
     listOfMeetings = arg.payload.meetings;
 
     // Processing the meetings recursively with a callback to notify us,
@@ -258,22 +281,14 @@ registerHandlers = function (emitter) {
   });
 
   emitter.on('user_left_message', function(arg) {
-    if (arg.payload.user != null && arg.payload.user.userid != null && arg.payload.meeting_id != null) {
-      let userId, meetingId;
-      meetingId = arg.payload.meeting_id;
-      userId = arg.payload.user.userid;
-      return markUserOffline(meetingId, userId, arg.callback);
-    } else {
-      return arg.callback();
-    }
-
+    handleRemoveUserEvent(arg);
   });
 
   emitter.on('validate_auth_token_reply', function(arg) {
     let userId, user, validStatus, payload, meetingId;
     meetingId = arg.payload.meeting_id;
     userId = arg.payload.userid;
-    user = Meteor.Users.findOne({
+    user = Users.findOne({
       userId: userId,
       meetingId: meetingId,
     });
@@ -282,7 +297,7 @@ registerHandlers = function (emitter) {
     // if the user already exists in the db
     if (user != null && user.clientType === 'HTML5') {
       //if the html5 client user was validated successfully, add a flag
-      return Meteor.Users.update({
+      return Users.update({
         userId: userId,
         meetingId: meetingId,
       }, {
@@ -294,7 +309,7 @@ registerHandlers = function (emitter) {
         if (numChanged.insertedId != null) {
           funct = function (cbk) {
             let user, val;
-            user = Meteor.Users.findOne({
+            user = Users.findOne({
               userId: userId,
               meetingId: meetingId,
             });
@@ -302,7 +317,7 @@ registerHandlers = function (emitter) {
               val = user.validated;
             }
 
-            Meteor.log.info(`user.validated for user ${userId} in meeting ${user.meetingId} just became ${val}`);
+            logger.info(`user.validated for user ${userId} in meeting ${user.meetingId} just became ${val}`);
             return cbk();
           };
 
@@ -312,7 +327,7 @@ registerHandlers = function (emitter) {
         }
       });
     } else {
-      Meteor.log.info('a non-html5 user got validate_auth_token_reply.');
+      logger.info('a non-html5 user got validate_auth_token_reply.');
       return arg.callback();
     }
   });
@@ -322,7 +337,7 @@ registerHandlers = function (emitter) {
     meetingId = arg.payload.meeting_id;
     payload = arg.payload;
     userObj = payload.user;
-    dbUser = Meteor.Users.findOne({
+    dbUser = Users.findOne({
       userId: userObj.userid,
       meetingId: meetingId,
     });
@@ -330,22 +345,25 @@ registerHandlers = function (emitter) {
     // On attempting reconnection of Flash clients (in voiceBridge) we receive
     // an extra user_joined_message. Ignore it as it will add an extra user
     // in the user list, creating discrepancy with the list in the Flash client
-    if ((dbUser != null && dbUser.user != null && dbUser.user.connection_status === 'offline') && (payload.user != null && payload.user.phone_user)) {
-      Meteor.log.error('offline AND phone user');
-      return arg.callback(); //return without joining the user
+    if (dbUser != null && dbUser.user != null && dbUser.user.connection_status === 'offline') {
+      if (payload.user != null && payload.user.phone_user) {
+        logger.error('offline AND phone user');
+        return arg.callback(); //return without joining the user
+      }
     } else {
       if (dbUser != null && dbUser.clientType === 'HTML5') {
         let status;
         // typically html5 users will be in
         // the db [as a dummy user] before the joining message
         status = dbUser.validated;
-        Meteor.log.info(`in user_joined_message the validStatus of the user was ${status}`);
+        logger.info(`in user_joined_message the validStatus of the user was ${status}`);
         userObj.timeOfJoining = arg.header.current_time;
         return userJoined(meetingId, userObj, arg.callback);
       } else {
         return userJoined(meetingId, userObj, arg.callback);
       }
     }
+    return arg.callback();
   });
 
   // for now not handling these serially #TODO
@@ -355,7 +373,7 @@ registerHandlers = function (emitter) {
     newPresenterId = arg.payload.new_presenter_id;
     if (newPresenterId != null) {
       // reset the previous presenter
-      Meteor.Users.update({
+      Users.update({
         'user.presenter': true,
         meetingId: meetingId,
       }, {
@@ -363,11 +381,11 @@ registerHandlers = function (emitter) {
           'user.presenter': false,
         },
       }, (err, numUpdated) => {
-        return Meteor.log.info(` Updating old presenter numUpdated=${numUpdated}, err=${err}`);
+        return logger.info(` Updating old presenter numUpdated=${numUpdated}, err=${err}`);
       });
 
       // set the new presenter
-      Meteor.Users.update({
+      Users.update({
         'user.userid': newPresenterId,
         meetingId: meetingId,
       }, {
@@ -375,7 +393,7 @@ registerHandlers = function (emitter) {
           'user.presenter': true,
         },
       }, (err, numUpdated) => {
-        return Meteor.log.info(` Updating new presenter numUpdated=${numUpdated}, err=${err}`);
+        return logger.info(` Updating new presenter numUpdated=${numUpdated}, err=${err}`);
       });
     }
 
@@ -390,7 +408,7 @@ registerHandlers = function (emitter) {
     if (userId != null && meetingId != null) {
       let set_emoji_time;
       set_emoji_time = new Date();
-      Meteor.Users.update({
+      Users.update({
         'user.userid': userId,
       }, {
         $set: {
@@ -398,7 +416,7 @@ registerHandlers = function (emitter) {
           'user.emoji_status': emojiStatus,
         },
       }, (err, numUpdated) => {
-        return Meteor.log.info(` Updating emoji numUpdated=${numUpdated}, err=${err}`);
+        return logger.info(` Updating emoji numUpdated=${numUpdated}, err=${err}`);
       });
     }
     return arg.callback();
@@ -432,7 +450,7 @@ registerHandlers = function (emitter) {
     if (arg.payload.requester_id === 'nodeJSapp') { //TODO extract this check
       let meetingId;
       meetingId = arg.payload.meeting_id;
-      if (Meteor.Meetings.findOne({
+      if (Meetings.findOne({
           MeetingId: meetingId,
         }) == null) {
         let chatHistory, _chat_history_length, chatMessage;
@@ -464,7 +482,7 @@ registerHandlers = function (emitter) {
       presentationId = payload.presentation.id;
 
       // change the currently displayed presentation to presentation.current = false
-      Meteor.Presentations.update({
+      Presentations.update({
         'presentation.current': true,
         meetingId: meetingId,
       }, {
@@ -508,7 +526,7 @@ registerHandlers = function (emitter) {
           //request for shapes
           whiteboardId = `${presentation.id}/${page.num}`;
 
-          //Meteor.log.info "the whiteboard_id here is:" + whiteboardId
+          //logger.info "the whiteboard_id here is:" + whiteboardId
 
           replyTo = `${meetingId}/nodeJSapp`;
           message = {
@@ -524,9 +542,9 @@ registerHandlers = function (emitter) {
             },
           };
           if (whiteboardId != null && meetingId != null) {
-            publish(Meteor.config.redis.channels.toBBBApps.whiteboard, message);
+            publish(redisConfig.channels.toBBBApps.whiteboard, message);
           } else {
-            Meteor.log.info('did not have enough information to send a user_leaving_request');
+            logger.info('did not have enough information to send a user_leaving_request');
           }
         }
       }
@@ -560,16 +578,16 @@ registerHandlers = function (emitter) {
       let meetingId, shapes, shapes_length, m, shape, whiteboardId;
       meetingId = arg.payload.meeting_id;
       // Create a whiteboard clean status or find one for the current meeting
-      if (Meteor.WhiteboardCleanStatus.findOne({
+      if (WhiteboardCleanStatus.findOne({
           meetingId: meetingId,
         }) == null) {
-        Meteor.WhiteboardCleanStatus.insert({
+        WhiteboardCleanStatus.insert({
           meetingId: meetingId,
           in_progress: false,
         });
       }
 
-      shapes = payload.shapes;
+      shapes = arg.payload.shapes;
       shapes_length = shapes.length;
       for (m = 0; m < shapes_length; m++) {
         shape = shapes[m];
@@ -617,7 +635,7 @@ registerHandlers = function (emitter) {
     let whiteboardId, meetingId;
     meetingId = arg.payload.meeting_id;
     whiteboardId = arg.payload.whiteboard_id;
-    Meteor.WhiteboardCleanStatus.update({
+    WhiteboardCleanStatus.update({
       meetingId: meetingId,
     }, {
       $set: {
@@ -637,6 +655,14 @@ registerHandlers = function (emitter) {
     return arg.callback();
   });
 
+  emitter.on('user_eject_from_meeting', function(arg) {
+    handleRemoveUserEvent(arg);
+  });
+
+  emitter.on('disconnect_user_message', function(arg) {
+    handleRemoveUserEvent(arg);
+  });
+
   emitter.on('presentation_page_resized_message', function (arg) {
     let page, payload;
     payload = arg.payload;
@@ -653,7 +679,7 @@ registerHandlers = function (emitter) {
 
       // In the case when we don't resize, but switch a slide, this message
       // follows a 'presentation_page_changed' and all these properties are already set.
-      currentSlide = Meteor.Slides.findOne(
+      currentSlide = Slides.findOne(
         { presentationId: presentationId,
           'slide.current': true, });
       if (currentSlide) {
@@ -662,7 +688,7 @@ registerHandlers = function (emitter) {
 
       if (currentSlide != null && (currentSlide.height_ratio != heightRatio || currentSlide.width_ratio != widthRatio
         || currentSlide.x_offset != xOffset || currentSlide.y_offset != yOffset)) {
-        Meteor.Slides.update({
+        Slides.update({
           presentationId: presentationId,
           'slide.current': true,
         }, {
@@ -685,7 +711,7 @@ registerHandlers = function (emitter) {
     currentlyBeingRecorded = arg.payload.recording;
     meetingId = arg.payload.meeting_id;
 
-    Meteor.Meetings.update({
+    Meetings.update({
       meetingId: meetingId,
       intendedForRecording: intendedForRecording,
     }, {
@@ -701,7 +727,7 @@ registerHandlers = function (emitter) {
     meetingId = arg.payload.meeting_id;
     payload = arg.payload;
 
-    meetingObject = Meteor.Meetings.findOne({
+    meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
     if (meetingObject != null && payload != null) {
@@ -714,7 +740,7 @@ registerHandlers = function (emitter) {
       }
 
       // substitute with the new lock settings
-      Meteor.Meetings.update({
+      Meetings.update({
         meetingId: meetingId,
       }, {
         $set: {
@@ -750,10 +776,10 @@ registerHandlers = function (emitter) {
     meetingId = payload.meeting_id;
 
     if (payload != null && meetingId != null && payload.requester_id != null && payload.poll != null) {
-      if (Meteor.Meetings.findOne({
+      if (Meetings.findOne({
           meetingId: meetingId,
         }) != null) {
-        users = Meteor.Users.find({
+        users = Users.find({
           meetingId: meetingId,
         }, {
           fields: {
@@ -772,8 +798,6 @@ registerHandlers = function (emitter) {
 
     return arg.callback();
   });
-
-
 
   emitter.on('poll_stopped_message', function (arg) {
     let meetingId, payload, poll_id;
@@ -798,24 +822,4 @@ registerHandlers = function (emitter) {
       return arg.callback();
     }
   });
-
-  // TODO how to handle the rest of the messages - is there a wild card?
-  // we need a way of calling the callback
-  // emitter.on('' , function (arg) {
-  //   console.log("**********************************" + arg.eventName);
-  //   arg.callback();
-  // });
-
-
-  emitter.on('meeting_state_message' , function (arg) {
-    // do nothing
-    arg.callback();
-  });
-
-  emitter.on('user_registered_message' , function (arg) {
-    // do nothing
-    arg.callback();
-  });
-  //eject_voice_user_message
-
 };

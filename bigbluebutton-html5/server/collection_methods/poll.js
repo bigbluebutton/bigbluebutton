@@ -1,4 +1,7 @@
-this.addPollToCollection = function (poll, requester_id, users, meetingId) {
+import { Polls } from '/collections/collections';
+import { logger } from '/server/server.js';
+
+export function addPollToCollection(poll, requester_id, users, meetingId) {
   let _users, answer, entry, i, j, user;
 
   //copying all the userids into an array
@@ -30,27 +33,30 @@ this.addPollToCollection = function (poll, requester_id, users, meetingId) {
       users: _users,
     },
   };
-  Meteor.log.info(`added poll _id=[${poll.id}]:meetingId=[${meetingId}].`);
-  return Meteor.Polls.insert(entry);
+  logger.info(`added poll _id=[${poll.id}]:meetingId=[${meetingId}].`);
+  return Polls.insert(entry);
 };
 
-this.clearPollCollection = function (meetingId, poll_id) {
-  if (meetingId != null && poll_id != null && Meteor.Polls.findOne({
+export function clearPollCollection() {
+  const meetingId = arguments[0];
+  const pollId = arguments[1];
+  //TODO make it so you can delete the polls based only on meetingId
+  if (meetingId != null && pollId != null && Polls.findOne({
     'poll_info.meetingId': meetingId,
-    'poll_info.poll.id': poll_id,
+    'poll_info.poll.id': pollId,
   }) != null) {
-    return Meteor.Polls.remove({
+    return Polls.remove({
       'poll_info.meetingId': meetingId,
-      'poll_info.poll.id': poll_id,
-    }, Meteor.log.info(`cleared Polls Collection (meetingId: ${meetingId}, pollId: ${poll_id}!)`));
+      'poll_info.poll.id': pollId,
+    }, logger.info(`cleared Polls Collection (meetingId: ${meetingId}, pollId: ${pollId}!)`));
   } else {
-    return Meteor.Polls.remove({}, Meteor.log.info('cleared Polls Collection (all meetings)!'));
+    return Polls.remove({}, logger.info('cleared Polls Collection (all meetings)!'));
   }
 };
 
-this.updatePollCollection = function (poll, meetingId, requesterId) {
+export function updatePollCollection(poll, meetingId, requesterId) {
   if ((poll.answers != null) && (poll.num_responders != null) && (poll.num_respondents != null) && (poll.id != null) && (meetingId != null) && (requesterId != null)) {
-    return Meteor.Polls.update({
+    return Polls.update({
       'poll_info.meetingId': meetingId,
       'poll_info.requester': requesterId,
       'poll_info.poll.id': poll.id,
@@ -60,6 +66,6 @@ this.updatePollCollection = function (poll, meetingId, requesterId) {
         'poll_info.poll.num_responders': poll.num_responders,
         'poll_info.poll.num_respondents': poll.num_respondents,
       },
-    }, Meteor.log.info(`updating Polls Collection (meetingId: ${meetingId}, pollId: ${poll.id}!)`));
+    }, logger.info(`updating Polls Collection (meetingId: ${meetingId}, pollId: ${poll.id}!)`));
   }
 };

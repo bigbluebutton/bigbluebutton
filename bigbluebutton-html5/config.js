@@ -1,7 +1,7 @@
 // TODO: should be split on server and client side
 // // Global configurations file
 
-let config, file, transports, winston;
+let config;
 
 config = {};
 
@@ -47,60 +47,25 @@ config.app.skipCheck = false;
 
 config.app.WebRTCHangupRetryInterval = 2000;
 
+
 // Configs for redis
-
-config.redis = {};
-
-config.redis.host = '127.0.0.1';
-
-config.redis.post = '6379';
-
-config.redis.timeout = 5000;
-
-config.redis.channels = {};
-
-config.redis.channels.fromBBBApps = 'bigbluebutton:from-bbb-apps:*';
-
-config.redis.channels.toBBBApps = {};
-
-config.redis.channels.toBBBApps.pattern = 'bigbluebutton:to-bbb-apps:*';
-
-config.redis.channels.toBBBApps.chat = 'bigbluebutton:to-bbb-apps:chat';
-
-config.redis.channels.toBBBApps.meeting = 'bigbluebutton:to-bbb-apps:meeting';
-
-config.redis.channels.toBBBApps.presentation = 'bigbluebutton:to-bbb-apps:presentation';
-
-config.redis.channels.toBBBApps.users = 'bigbluebutton:to-bbb-apps:users';
-
-config.redis.channels.toBBBApps.voice = 'bigbluebutton:to-bbb-apps:voice';
-
-config.redis.channels.toBBBApps.whiteboard = 'bigbluebutton:to-bbb-apps:whiteboard';
-
-config.redis.channels.toBBBApps.polling = 'bigbluebutton:to-bbb-apps:polling';
-
-// Logging
-
-config.log = {};
-
-if (Meteor.isServer) {
-  if (process != null && process.env != null && process.env.NODE_ENV == 'production') {
-    config.log.path = '/var/log/bigbluebutton/bbbnode.log';
-  } else {
-    config.log.path = `${process.env.PWD}/log/development.log`;
-  }
-
-  // Setting up a logger in Meteor.log
-  winston = Winston; //Meteor.require 'winston'
-  file = config.log.path;
-  transports = [
-    new winston.transports.Console(), new winston.transports.File({
-      filename: file,
-    }),
-  ];
-  Meteor.log = new winston.Logger({
-    transports: transports,
-  });
-}
+export const redisConfig = {
+  host: '127.0.0.1',
+  post: '6379',
+  timeout: 5000,
+  channels: {
+    fromBBBApps: 'bigbluebutton:from-bbb-apps:*',
+    toBBBApps: {
+      pattern: 'bigbluebutton:to-bbb-apps:*',
+      chat: 'bigbluebutton:to-bbb-apps:chat',
+      meeting: 'bigbluebutton:to-bbb-apps:meeting',
+      presentation: 'bigbluebutton:to-bbb-apps:presentation',
+      users: 'bigbluebutton:to-bbb-apps:users',
+      voice: 'bigbluebutton:to-bbb-apps:voice',
+      whiteboard: 'bigbluebutton:to-bbb-apps:whiteboard',
+      polling: 'bigbluebutton:to-bbb-apps:polling',
+    },
+  },
+};
 
 Meteor.config = config;

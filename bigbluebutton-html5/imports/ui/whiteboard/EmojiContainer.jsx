@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Button } from '../shared/Button.jsx';
+import { Presentations } from '/collections/collections';
 
 export let EmojiContainer = React.createClass({
   mixins: [ReactMeteorData],
@@ -13,7 +14,7 @@ export let EmojiContainer = React.createClass({
       emoji_status = 'none';
     }
 
-    current_presentation = Meteor.Presentations.findOne({
+    current_presentation = Presentations.findOne({
       'presentation.current': true,
     });
     current_presentation ? current_presentation = true : current_presentation = false;

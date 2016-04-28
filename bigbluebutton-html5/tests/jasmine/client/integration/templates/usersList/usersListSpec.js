@@ -1,6 +1,6 @@
 var emptyUsersCollection = function () {
-  Meteor.Users.find().map(function (item) {
-    Meteor.Users.remove({ _id: item._id });
+  Users.find().map(function (item) {
+    Users.remove({ _id: item._id });
   });
 };
 
@@ -16,8 +16,8 @@ var renderUsersListTemplate = function () {
 
 // TODO: try to use Meteor methods instead
 var removeUserFromCollection = function (id) {
-  Meteor.Users.find().map(function (item) {
-    if (item.userId == id) Meteor.Users.remove({ _id: item._id });
+  Users.find().map(function (item) {
+    if (item.userId == id) Users.remove({ _id: item._id });
   });
 };
 
@@ -41,7 +41,7 @@ describe('usersList template', function () {
         presenter: false,
       },
     };
-    Meteor.Users.insert(document1);
+    Users.insert(document1);
     var div = renderUsersListTemplate();
 
     expect($(div).find('.glyphicon-picture')[0]).not.toBeDefined();
@@ -55,7 +55,7 @@ describe('usersList template', function () {
         presenter: true,
       },
     };
-    Meteor.Users.insert(document1);
+    Users.insert(document1);
     var div = renderUsersListTemplate();
 
     expect($(div).find('.glyphicon-picture')[0]).toBeDefined();
@@ -69,7 +69,7 @@ describe('usersList template', function () {
         name: 'Maxim',
       },
     };
-    Meteor.Users.insert(document1);
+    Users.insert(document1);
     var div = renderUsersListTemplate();
 
     expect($(div).find('.userNameEntry').html().trim()).toEqual('Maxim');
@@ -98,9 +98,9 @@ describe('usersList template', function () {
       },
     };
 
-    Meteor.Users.insert(document1);
-    Meteor.Users.insert(document2);
-    Meteor.Users.insert(document3);
+    Users.insert(document1);
+    Users.insert(document2);
+    Users.insert(document3);
     var div = renderUsersListTemplate();
 
     expect($(div).find('.userNameEntry').size()).toEqual(3);
@@ -157,21 +157,21 @@ describe('usersList template', function () {
       },
     };
 
-    Meteor.Users.insert(document1);
+    Users.insert(document1);
     var div = renderUsersListTemplate();
 
     expect($(div).find('.userNameEntry').size()).toEqual(1);
     expect($(div).find('.userNameEntry:eq(0)').html().trim()).toEqual('Maxim');
 
-    Meteor.Users.insert(document2);
-    Meteor.Users.insert(document3);
+    Users.insert(document2);
+    Users.insert(document3);
 
     expect($(div).find('.userNameEntry').size()).toEqual(3);
     expect($(div).find('.userNameEntry:eq(0)').html().trim()).toEqual('Maxim');
     expect($(div).find('.userNameEntry:eq(1)').html().trim()).toEqual('Anton');
     expect($(div).find('.userNameEntry:eq(2)').html().trim()).toEqual('Danny');
 
-    Meteor.Users.insert(document4);
+    Users.insert(document4);
 
     expect($(div).find('.userNameEntry').size()).toEqual(4);
     expect($(div).find('.userNameEntry:eq(0)').html().trim()).toEqual('Maxim');
@@ -186,9 +186,9 @@ describe('usersList template', function () {
     expect($(div).find('.userNameEntry:eq(0)').html().trim()).toEqual('Maxim');
     expect($(div).find('.userNameEntry:eq(1)').html().trim()).toEqual('Danny');
 
-    Meteor.Users.insert(document5);
-    Meteor.Users.insert(document6);
-    Meteor.Users.insert(document7);
+    Users.insert(document5);
+    Users.insert(document6);
+    Users.insert(document7);
 
     expect($(div).find('.userNameEntry:eq(0)').html().trim()).toEqual('Maxim');
     expect($(div).find('.userNameEntry:eq(1)').html().trim()).toEqual('Danny');
@@ -220,9 +220,9 @@ describe('usersList template', function () {
       },
     };
 
-    Meteor.Users.insert(document1);
-    Meteor.Users.insert(document2);
-    Meteor.Users.insert(document3);
+    Users.insert(document1);
+    Users.insert(document2);
+    Users.insert(document3);
     var div = renderUsersListTemplate();
 
     expect($(div).find('.userNameEntry:eq(0)').html().trim()).toEqual('Maxim');
@@ -254,9 +254,9 @@ describe('usersList template', function () {
       },
     };
 
-    Meteor.Users.insert(document1);
-    Meteor.Users.insert(document2);
-    Meteor.Users.insert(document3);
+    Users.insert(document1);
+    Users.insert(document2);
+    Users.insert(document3);
     var div = renderUsersListTemplate();
 
     expect($(div).find('.glyphicon-headphones')).toBeDefined();

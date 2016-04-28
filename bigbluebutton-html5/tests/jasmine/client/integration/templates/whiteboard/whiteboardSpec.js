@@ -1,24 +1,24 @@
 var emptyMeetingsCollection = function () {
-  Meteor.Meetings.find().map(function (item) {
-    Meteor.Meetings.remove({ _id: item._id });
+  Meetings.find().map(function (item) {
+    Meetings.remove({ _id: item._id });
   });
 };
 
 var emptyPresentationsCollection = function () {
-  Meteor.Presentations.find().map(function (item) {
-    Meteor.Presentations.remove({ _id: item._id });
+  Presentations.find().map(function (item) {
+    Presentations.remove({ _id: item._id });
   });
 };
 
 var emptySlidesCollection = function () {
-  Meteor.Slides.find().map(function (item) {
-    Meteor.Slides.remove({ _id: item._id });
+  Slides.find().map(function (item) {
+    Slides.remove({ _id: item._id });
   });
 };
 
 var emptyShapesCollection = function () {
-  Meteor.Shapes.find().map(function (item) {
-    Meteor.Shapes.remove({ _id: item._id });
+  Shapes.find().map(function (item) {
+    Shapes.remove({ _id: item._id });
   });
 };
 
@@ -59,7 +59,7 @@ describe('whiteboard template', function () {
       meetingId: 'meeting001',
       meetingName: 'first meeting',
     };
-    Meteor.Meetings.insert(meeting1);
+    Meetings.insert(meeting1);
 
     var presentation1 = {
       meetingId: 'meeting001',
@@ -69,7 +69,7 @@ describe('whiteboard template', function () {
         current: true,
       },
     };
-    Meteor.Presentations.insert(presentation1);
+    Presentations.insert(presentation1);
 
     var slide1 = {
       meetingId: 'meeting001',
@@ -85,7 +85,7 @@ describe('whiteboard template', function () {
         png_uri: 'http://bigbluebutton.org/wp-content/uploads/2013/05/bbb-overview.png',
       },
     };
-    Meteor.Slides.insert(slide1);
+    Slides.insert(slide1);
 
     var div = document.createElement('DIV');
     Blaze.render(Template.main, div);

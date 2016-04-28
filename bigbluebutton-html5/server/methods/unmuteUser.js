@@ -1,5 +1,11 @@
-Meteor.methods({
+import { publish } from '/server/redispubsub';
+import { isAllowedTo } from '/server/user_permissions';
+import { appendMessageHeader } from '/server/helpers';
+import { updateVoiceUser } from '/server/collection_methods/users';
+import { logger } from '/server/server';
+import { redisConfig } from '/config';
 
+Meteor.methods({
   // meetingId: the meetingId of the meeting the user[s] is in
   // toMuteUserId: the userId of the user to be unmuted
   // requesterUserId: the userId of the requester
@@ -24,8 +30,8 @@ Meteor.methods({
         }
       };
       message = appendMessageHeader('mute_user_request_message', message);
-      Meteor.log.info(`publishing a user unmute request for ${toMuteUserId}`);
-      publish(Meteor.config.redis.channels.toBBBApps.users, message);
+      logger.info(`publishing a user unmute request for ${toMuteUserId}`);
+      publish(redisConfig.channels.toBBBApps.users, message);
       updateVoiceUser(meetingId, {
         web_userid: toMuteUserId,
         talking: false,

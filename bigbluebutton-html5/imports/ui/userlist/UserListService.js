@@ -1,7 +1,9 @@
+import { Users, Meetings } from '/collections/collections';
+
 let shouldUserBeLocked = function (userId) {
   let lockInAction, locked, meeting, settings;
   locked = (locked = BBB.getUser(userId)) !== null ? locked.user.locked : null;
-  settings = (meeting = Meteor.Meetings.findOne()) !== null ? meeting.roomLockSettings : null;
+  settings = (meeting = Meetings.findOne()) !== null ? meeting.roomLockSettings : null;
   lockInAction = settings.disablePrivateChat || settings.disableCam || settings.disableMic || settings.lockedLayout || settings.disablePublicChat;
   return locked && lockInAction;
 };
@@ -49,7 +51,7 @@ let mapUsers = function () {
 
   const chats = getInSession('chats');
 
-  let users = Meteor.Users.find().fetch().map(u => u.user).map(u => {
+  let users = Users.find().fetch().map(u => u.user).map(u => {
     let user = {
       id: u.userid,
       name: u.name,

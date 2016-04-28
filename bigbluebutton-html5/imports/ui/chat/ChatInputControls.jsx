@@ -1,4 +1,5 @@
 import React from 'react';
+import { Users, Meetings } from '/collections/collections';
 
 export let ChatInputControls = React.createClass({
   //#TODO MessageFontSize dynamic change
@@ -44,7 +45,7 @@ export let ChatInputControls = React.createClass({
 
     color = '0x000000'; //"0x#{getInSession("messageColor")}"
     if ((chattingWith = getInSession('inChatWith')) !== 'PUBLIC_CHAT') {
-      toUsername = (ref = Meteor.Users.findOne({
+      toUsername = (ref = Users.findOne({
         userId: chattingWith,
       })) != null ? ref.user.name : void 0;
       BBB.sendPrivateChatMessage(color, 'en', message, chattingWith, toUsername);
@@ -110,11 +111,11 @@ export let ChatInputControls = React.createClass({
 
   publicChatDisabled: function () {
     let presenter, publicChatIsDisabled, ref, ref1, ref2, userIsLocked;
-    userIsLocked = (ref = Meteor.Users.findOne({
+    userIsLocked = (ref = Users.findOne({
       userId: getInSession('userId'),
     })) != null ? ref.user.locked : void 0;
-    publicChatIsDisabled = (ref1 = Meteor.Meetings.findOne({})) != null ? ref1.roomLockSettings.disablePublicChat : void 0;
-    presenter = (ref2 = Meteor.Users.findOne({
+    publicChatIsDisabled = (ref1 = Meetings.findOne({})) != null ? ref1.roomLockSettings.disablePublicChat : void 0;
+    presenter = (ref2 = Users.findOne({
       userId: getInSession('userId'),
     })) != null ? ref2.user.presenter : void 0;
     return userIsLocked && publicChatIsDisabled && !presenter;
@@ -122,11 +123,11 @@ export let ChatInputControls = React.createClass({
 
   privateChatDisabled: function () {
     let presenter, privateChatIsDisabled, ref, ref1, ref2, userIsLocked;
-    userIsLocked = (ref = Meteor.Users.findOne({
+    userIsLocked = (ref = Users.findOne({
       userId: getInSession('userId'),
     })) != null ? ref.user.locked : void 0;
-    privateChatIsDisabled = (ref1 = Meteor.Meetings.findOne({})) != null ? ref1.roomLockSettings.disablePrivateChat : void 0;
-    presenter = (ref2 = Meteor.Users.findOne({
+    privateChatIsDisabled = (ref1 = Meetings.findOne({})) != null ? ref1.roomLockSettings.disablePrivateChat : void 0;
+    presenter = (ref2 = Users.findOne({
       userId: getInSession('userId'),
     })) != null ? ref2.user.presenter : void 0;
     return userIsLocked && privateChatIsDisabled && !presenter;

@@ -12,6 +12,7 @@ For an example on how to use these APIs, see:
 https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/resources/prod/lib/3rd-party.js
 https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/resources/prod/3rd-party.html
  */
+import { Users, Polls, Meetings, Presentations, Slides } from '/collections/collections';
 
 this.BBB = (function () {
   let BBB, listeners, returnOrCallback;
@@ -25,7 +26,7 @@ this.BBB = (function () {
   };
 
   BBB.isPollGoing = function (userId) {
-    if (userId !== void 0 && Meteor.Polls.findOne({
+    if (userId !== void 0 && Polls.findOne({
       'poll_info.users': userId,
     })) {
       return true;
@@ -35,10 +36,10 @@ this.BBB = (function () {
   };
 
   BBB.getCurrentPoll = function (userId) {
-    if (userId !== void 0 && Meteor.Polls.findOne({
+    if (userId !== void 0 && Polls.findOne({
       'poll_info.users': userId,
     })) {
-      return Meteor.Polls.findOne({
+      return Polls.findOne({
         'poll_info.users': userId,
       });
     }
@@ -50,7 +51,7 @@ this.BBB = (function () {
 
   BBB.getMeetingId = function () {
     let ref;
-    return (ref = Meteor.Meetings.findOne()) != null ? ref.meetingId : void 0;
+    return (ref = Meetings.findOne()) != null ? ref.meetingId : void 0;
   };
 
   BBB.getInternalMeetingId = function (callback) {};
@@ -59,7 +60,7 @@ this.BBB = (function () {
     Queryies the user object via it's id
    */
   BBB.getUser = function (userId) {
-    return Meteor.Users.findOne({
+    return Users.findOne({
       userId: userId,
     });
   };
@@ -158,7 +159,7 @@ this.BBB = (function () {
   // includes locking the microphone of viewers (listenOnly is still alowed)
   BBB.isMyMicLocked = function () {
     let lockedMicForRoom, ref;
-    lockedMicForRoom = (ref = Meteor.Meetings.findOne()) != null ? ref.roomLockSettings.disableMic : void 0;
+    lockedMicForRoom = (ref = Meetings.findOne()) != null ? ref.roomLockSettings.disableMic : void 0;
 
     // note that voiceUser.locked is not used in BigBlueButton at this stage (April 2015)
 
@@ -167,11 +168,11 @@ this.BBB = (function () {
 
   BBB.getCurrentSlide = function () {
     let currentPresentation, currentSlide, presentationId, ref;
-    currentPresentation = Meteor.Presentations.findOne({
+    currentPresentation = Presentations.findOne({
       'presentation.current': true,
     });
     presentationId = currentPresentation != null ? (ref = currentPresentation.presentation) != null ? ref.id : void 0 : void 0;
-    currentSlide = Meteor.Slides.findOne({
+    currentSlide = Slides.findOne({
       presentationId: presentationId,
       'slide.current': true,
     });
@@ -180,16 +181,16 @@ this.BBB = (function () {
 
   BBB.getMeetingName = function () {
     let ref;
-    return ((ref = Meteor.Meetings.findOne()) != null ? ref.meetingName : void 0) || null;
+    return ((ref = Meetings.findOne()) != null ? ref.meetingName : void 0) || null;
   };
 
   BBB.getNumberOfUsers = function () {
-    return Meteor.Users.find().count();
+    return Users.find().count();
   };
 
   BBB.currentPresentationName = function () {
     let ref, ref1;
-    return (ref = Meteor.Presentations.findOne({
+    return (ref = Presentations.findOne({
       'presentation.current': true,
     })) != null ? (ref1 = ref.presentation) != null ? ref1.name : void 0 : void 0;
   };
@@ -222,7 +223,7 @@ this.BBB = (function () {
 
   BBB.isMeetingRecording = function () {
     let ref;
-    return (ref = MEteor.Meetings.findOne()) != null ? ref.recorded : void 0;
+    return (ref = Meetings.findOne()) != null ? ref.recorded : void 0;
   };
 
   /*
@@ -285,7 +286,7 @@ this.BBB = (function () {
 
   BBB.getMyDBID = function (callback) {
     let ref;
-    return returnOrCallback((ref = Meteor.Users.findOne({
+    return returnOrCallback((ref = Users.findOne({
       userId: getInSession('userId'),
     })) != null ? ref._id : void 0, callback);
   };
@@ -297,7 +298,7 @@ this.BBB = (function () {
 
   BBB.getMyVoiceBridge = function (callback) {
     let res;
-    res = Meteor.Meetings.findOne({}).voiceConf;
+    res = Meetings.findOne({}).voiceConf;
     return returnOrCallback(res, callback);
   };
 
