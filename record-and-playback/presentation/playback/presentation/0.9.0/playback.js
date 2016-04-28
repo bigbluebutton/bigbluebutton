@@ -513,13 +513,25 @@ function resizeComponents() {
     availableHeight -= $("#audio-area .acorn-controls").outerHeight(true);
   }
   availableHeight -= $("#navbar").outerHeight(true); // navbar
-  $("#playback-row").outerHeight(availableHeight);
-  $("#main-section").outerHeight(availableHeight);
-  $("#side-section").outerHeight(availableHeight);
 
-  var chatHeight = availableHeight;
-  chatHeight -= $("#side-section").children("[data-swap]").outerHeight(true);
-  $("#chat-area").innerHeight(chatHeight);
+  // portrait mode
+  if (window.innerHeight > window.innerWidth) {
+    var height = availableHeight * 0.6; // 60% for top bar
+    $("#main-section").outerHeight(height);
+    availableHeight -= height;
+    $("#side-section").outerHeight(availableHeight);
+
+    var chatHeight = availableHeight;
+    $("#chat-area").innerHeight(chatHeight);
+  } else {
+    // $("#playback-row").outerHeight(availableHeight);
+    $("#main-section").outerHeight(availableHeight);
+    $("#side-section").outerHeight(availableHeight);
+
+    var chatHeight = availableHeight;
+    chatHeight -= $("#side-section").children("[data-swap]").outerHeight(true);
+    $("#chat-area").innerHeight(chatHeight);
+  }
 }
 
 // Need to resize the elements in a few occasions:

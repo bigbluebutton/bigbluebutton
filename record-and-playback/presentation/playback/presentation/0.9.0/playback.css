@@ -51,7 +51,7 @@ body, #playback-content, #playback-row, #main-section, #side-section {
 
 /* Restrict the page to a minimum width */
 html, .acorn-controls {
-  min-width: 350px;
+  min-width: 310px;
 }
 
 
@@ -128,6 +128,7 @@ body {
   padding: 0 10px;
   overflow-y: auto;
   word-wrap: break-word;
+  background: #fff;
 
   /* we use borders here instead of padding because the top/bottom
      padding doesn't really work with a vertical scrollbar */
@@ -138,7 +139,7 @@ body {
   color: #888;
 }
 #chat-area {
-  border-bottom: 1px solid #E2E2D2;
+  border-bottom: 1px solid #e2e2e2;
 }
 #chat > div {
   margin-bottom: 4px;
@@ -149,7 +150,7 @@ body {
   height: 48px;
   border-bottom: 1px solid #e2e2e2;
   background: white;
-  padding: 0 10px;
+  padding: 0 10px 0 0;
 }
 #recording-title {
   font-size: 1.45rem;
@@ -165,7 +166,7 @@ body {
   font-size: 1.65em;
   margin-right: 15px;
   padding-right: 15px;
-  margin-left: 5px;
+  padding-left: 15px;
   border-right: 1px solid #e2e2e2;
   float: left;
   color: #666;
@@ -303,5 +304,44 @@ ul.off-canvas-list li label {
   }
   #chat {
     font-size: 12px;
+  }
+  #side-section #presentation-area {
+    min-height: 100px;
+  }
+}
+
+/* Medium screens up */
+@media only screen and (min-width: 40.063em) {
+  #side-section #presentation-area {
+    min-height: 150px;
+  }
+}
+
+/* Large screens up */
+/* @media only screen and (min-width: 64.063em) { */
+/* } */
+
+@media (orientation: portrait) {
+  #main-section, #side-section {
+    float: none;
+    width: 100%;
+  }
+  #slide {
+    /* background-size: contain; */
+  }
+  #side-section #video-area {
+    width: 60%;
+    margin: 0 auto;
+  }
+  #chat {
+    font-size: 12px;
+  }
+
+  /* show only video or only presentation, not both */
+  #side-section #video-area video, #side-section #presentation-area {
+    display: none;
+  }
+  #chat-area {
+    border: none;
   }
 }
