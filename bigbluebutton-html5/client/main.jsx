@@ -7,7 +7,7 @@ import '/imports/ui/stylesheets/style.less';
 import '/imports/ui/stylesheets/chat.less';
 import '/imports/ui/stylesheets/mixins.less';
 import '/imports/ui/stylesheets/modals.less';
-//import '/imports/ui/stylesheets/users.less';
+import '/imports/ui/stylesheets/users.less';
 import '/imports/ui/stylesheets/whiteboard.less';
 
 let loadLib;

@@ -5,6 +5,7 @@ import {EmojiIcon} from '../EmojiIcon.jsx';
 import {Tooltip} from '../Tooltip.jsx';
 import classNames from 'classnames';
 import users from './users';
+import style from '../style';
 
 export let UserListItem = React.createClass({
 
@@ -28,11 +29,11 @@ export let UserListItem = React.createClass({
     const user = this.props.user;
 
     return (
-      <tr className={users[classNames(
-        'user-list-item',
-        user.isCurrent ? 'is-current' : null,
-        user.unreadMessagesCount ? 'has-messages' : null
-      )]}>
+      <tr className={classNames(
+        style['user-list-item'],
+        user.isCurrent ? users['is-current'] : null,
+        user.unreadMessagesCount ? users['has-messages'] : null
+      )}>
         {this.renderStatusIcons()}
         {this.renderUserName()}
         {this.renderSharingStatus()}
