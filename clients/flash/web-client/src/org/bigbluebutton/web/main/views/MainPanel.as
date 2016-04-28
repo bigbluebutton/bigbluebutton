@@ -1,6 +1,7 @@
 package org.bigbluebutton.web.main.views {
 	import mx.graphics.SolidColor;
 	
+	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
 	import org.bigbluebutton.lib.presentation.models.Presentation;
 	import org.bigbluebutton.lib.presentation.views.PresentationViewBase;
 	
@@ -10,32 +11,30 @@ package org.bigbluebutton.web.main.views {
 	
 	public class MainPanel extends Group {
 		private var _presentationView:PresentationViewBase;
+		private var _menuButtons:MenuButtonsBase;
 		
 		public function MainPanel() {
 			super();
 			
 			var l:VerticalLayout = new VerticalLayout();
+			l.gap = 0;
+			l.horizontalAlign = "center";
 			layout = l;
-			
-			var fillerRect:Rect = new Rect();
-			fillerRect.percentWidth = 100;
-			fillerRect.percentHeight = 100;
-			var fill:SolidColor = new SolidColor();
-			fill.color = 0x0000FF;
-			fillerRect.fill = fill;
-			addElement(fillerRect);
 			
 			_presentationView = new PresentationViewBase();
 			_presentationView.percentWidth = 100;
 			_presentationView.percentHeight = 100;
 			addElement(_presentationView);
+			
+			_menuButtons = new MenuButtonsBase();
+			addElement(_menuButtons);
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
-			//leave a couple of pixels to separate the slides from the border
+			
 			_presentationView.width = w;
-			_presentationView.height = h;
+			_presentationView.height = h - _menuButtons.height;
 		}
 	}
 }

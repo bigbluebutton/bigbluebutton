@@ -3,6 +3,8 @@ package org.bigbluebutton.web.main {
 	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
+	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
+	import org.bigbluebutton.lib.main.views.MenuButtonsMediatorBase;
 	import org.bigbluebutton.web.main.commands.AuthenticationCommandWeb;
 	import org.bigbluebutton.web.main.commands.ConnectingFailedCommandWeb;
 	import org.bigbluebutton.web.main.commands.ConnectingFinishedCommandWeb;
@@ -50,6 +52,7 @@ package org.bigbluebutton.web.main {
 		 */
 		private function mediators():void {
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
+			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorBase);
 		}
 		
 		/**
