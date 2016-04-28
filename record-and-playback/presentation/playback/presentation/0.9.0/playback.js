@@ -292,11 +292,11 @@ google_frame_warning = function(){
 
 function checkUrl(url)
 {
-    console.log("==Checking Url",url);
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
-    http.send();
-    return http.status==200;
+  console.log("==Checking Url",url);
+  var http = new XMLHttpRequest();
+  http.open('HEAD', url, false);
+  http.send();
+  return http.status==200;
 }
 
 load_video = function(){
@@ -402,13 +402,13 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   if (checkUrl(RECORDINGS + '/video/webcams.webm') == true) {
-      hasVideo = true;
-      $("#audio-area").attr("style", "display:none;");
-      load_video();
+    hasVideo = true;
+    $("#audio-area").attr("style", "display:none;");
+    load_video();
   } else {
-      hasVideo = false;
-      $("#video-area").attr("style", "display:none;");
-      load_audio();
+    hasVideo = false;
+    $("#video-area").attr("style", "display:none;");
+    load_audio();
   }
 
   load_spinner();
@@ -451,9 +451,6 @@ function Tick() {
   window.setTimeout("Tick()", 1000);
 }
 
-
-
-
 // Swap the position of the DOM elements `elm1` and `elm2`.
 function swapElements(elm1, elm2) {
   var parent1, next1,
@@ -481,6 +478,10 @@ function swapVideoPresentation() {
   if (!wasPaused) {
     pop.play();
   }
+
+  // hide the cursor so it doesn't appear in the wrong place (e.g. on top of the video)
+  // if the cursor is currently being useful, he we'll be redrawn automatically soon
+  showCursor(false);
 
   // wait for the svg with the slides to be fully loaded and then set the current image
   // as visible.

@@ -259,6 +259,7 @@ body {
 .left-off-canvas-menu {
   background: #fff;
   width: 13rem;
+  border-right: 1px solid #e2e2e2;
 }
 .move-right > .inner-wrap {
   -webkit-transform: translate3d(13rem, 0, 0);
@@ -300,7 +301,7 @@ ul.off-canvas-list li label {
 /* Small screens only */
 @media only screen and (max-width: 40em) {
   #copyright {
-    font-size: 0.5em;
+    font-size: 0.6rem;
   }
   #chat {
     font-size: 12px;

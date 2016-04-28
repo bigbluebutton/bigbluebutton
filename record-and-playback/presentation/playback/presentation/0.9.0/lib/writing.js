@@ -124,6 +124,8 @@ function removeSlideChangeAttribute() {
 
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
+
+
 function runPopcorn() {
   console.log("** Running popcorn");
 
@@ -431,13 +433,16 @@ function runPopcorn() {
   });
 };
 
-function defineStartTime() {
-  console.log("** Defining start time");
+function removeLoadingScreen() {
   spinner.stop();
   $("#playback-content").css('visibility','visible');
   $("#loading-recording").css('visibility','hidden');
   $("#loading-recording").css('height','0');
   $("#load-recording-msg").css('display','none');
+}
+
+function defineStartTime() {
+  console.log("** Defining start time");
 
   if (params.t === undefined)
     return 1;
@@ -515,44 +520,31 @@ var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
 svgobj.setAttribute('width', '100%');
-svgobj.addEventListener('load', runPopcorn, false);
 
-/**
- * we need an urgently refactor here
- * first the writing.js must be loaded, and then runPopcorn loads, but it loads
- * only after the svg file gets loaded, and the generation of thumbnails must
- * came after that because it needs the popcorn element to be created properly
- */
 svgobj.addEventListener('load', function() {
+  console.log("got svgobj 'load' event");
+  runPopcorn();
+
   if (svjobjLoaded) {
     return;
   }
   svjobjLoaded = true;
 
-  console.log("** svgobj [load] listener activated");
-  generateThumbnails();
   var p = Popcorn("#video");
-  p.on('loadeddata', function() {
-    console.log("** popcorn video: [onloadeddata] activaded");
-    if (firstLoad) {
-      p.currentTime(defineStartTime());
-      firstLoad = false;
-    } else {
-        // TODO: This is only done so the current image is painted again after
-        // a swap between the presentation and video. Can be removed once this
-        // file and the rendering process is improved.
-        next_image = current_image;
-        current_image = previous_image;
-    }
-  });
+  // console.log("** popcorn video: [onloadeddata] activated");
+  // if (firstLoad) {
+  p.currentTime(defineStartTime());
+  //   firstLoad = false;
+  // } else {
+  //   // TODO: This is only done so the current image is painted again after
+  //   // a swap between the presentation and video. Can be removed once this
+  //   // file and the rendering process is improved.
+  //   next_image = current_image;
+  //   current_image = previous_image;
+  // }
 
-  // Sometimes media has already loaded before our loadeddata listener is
-  // attached. If the media is already past the loadeddata stage then we
-  // trigger the event manually ourselves
-  if ($('#video')[0].readyState > 0) {
-    console.log("** Video tag readyState >0");
-    p.emit('loadeddata');
-  }
+  generateThumbnails();
+  removeLoadingScreen();
 }, false);
 
 // Fetches the metadata associated with the recording and uses it to configure
