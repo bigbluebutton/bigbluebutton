@@ -1,9 +1,33 @@
-@import "variables";
-@import "mixins";
+/* media queries */
 
-/*.statusIcon {
+/* standard landscape view: landscape browser window + landscape device screen  */
+$landscape: "all and (orientation: landscape) and (min-device-aspect-ratio: 1/1)";
+
+/* keyboard is open on a mobile device: landscape browser window + portrait device screen */
+$mobile-portrait-with-keyboard: "all and (orientation: landscape) and (max-device-aspect-ratio: 1/1)";
+
+/* narrowed desktop window: portrait browser window + landscape device screen  */
+$desktop-portrait: "all and (orientation: portrait) and (min-device-aspect-ratio: 1/1)";
+
+/* mobile device in portrait orientation: portrait browser window + portrait device screen */
+$mobile-portrait: "all and (orientation: portrait) and (max-device-aspect-ratio: 1/1)";
+
+/* more specific media queries */
+$phone-portrait: "all and (orientation: portrait) and (max-device-aspect-ratio: 1/1) and (max-device-width: 480px)";
+$phone-portrait-with-keyboard: "all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) and (max-device-width: 480px)";
+
+$tablet-portrait: "all and (orientation: portrait) and (max-device-aspect-ratio: 1/1) and (min-device-width: 481px)";
+$tablet-portrait-with-keyboard: "all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) and (min-device-width: 481px)";
+
+$phone-landscape: "all and (orientation: landscape) and (min-device-aspect-ratio: 1/1) and (max-device-width: 959px)";
+$tablet-landscape: "all and (orientation: landscape) and (min-device-aspect-ratio: 1/1) and (min-device-width: 960px) and (max-device-width: 1366px)";
+$desktop-landscape: "all and (orientation: landscape) and (min-device-aspect-ratio: 1/1) and (min-device-width: 1367px)";
+
+//////////////////////////////
+
+.statusIcon {
   font-size: 18px;
-}*/
+}
 
 #usericons {
   float: right;
@@ -11,14 +35,14 @@
   text-align: right;
   color: white;
   span i {
-    @media @landscape, @desktop-portrait {
+    @media #{$landscape}, #{$desktop-portrait} {
       margin-right: 10px;
       font-size: 20px;
     }
   }
 }
-/*.unreadChatNumber {
-  @media @landscape, @desktop-portrait{
+.unreadChatNumber {
+  @media #{$landscape}, #{$desktop-portrait}{
     float: left;
     margin-top: 5px;
     width: 28px;
@@ -38,33 +62,33 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: calc(~'100% - 120px');
+  width: calc(100% - 120px);
   // 120px is size of the icon list with all icons enabled (lock, cam, mic/listen)
 
-  @media @landscape {
+  @media #{$landscape} {
     min-height: 30px;
     font-size: 4.5mm;
   }
-  @media @desktop-portrait {
+  @media #{$desktop-portrait} {
     min-height: 30px;
     font-size: 4.5mm;
   }
-  @media @phone-portrait, @phone-portrait-with-keyboard {
+  @media #{$phone-portrait}, #{$phone-portrait-with-keyboard} {
     font-size: 15px;
   }
-  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+  @media #{$tablet-portrait}, #{$tablet-portrait-with-keyboard} {
     font-size: 17px;
   }
-}*/
+}
 
 #users {
   border-radius: 0px;
-  @media @landscape {
+  @media #{$landscape} {
     width: 100%;
     border-left: 0px;
     border-top: 0px;
   }
-  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+  @media #{$mobile-portrait-with-keyboard}, #{$desktop-portrait}, #{$mobile-portrait} {
     width: 100%;
     height: 100%;
     border: none;
@@ -92,14 +116,14 @@
 #user-contents {
   overflow-y: auto;
 
-  @media @phone-landscape {
-    height: calc(~'100% - 46px');
+  @media #{$phone-landscape} {
+    height: calc(100% - 46px);
   }
-  @media @tablet-landscape, @desktop-landscape,
-  @mobile-portrait, @mobile-portrait-with-keyboard, @desktop-portrait {
-    height: calc(~'100% - 50px'); /* user-contents = user-contens - meetingTitle */
+  @media #{$tablet-landscape}, #{$desktop-landscape},
+  #{$mobile-portrait}, #{$mobile-portrait-with-keyboard}, #{$desktop-portrait} {
+    height: calc(100% - 50px); // user-contents = user-contens - meetingTitle
   }
-  @media @landscape, @desktop-portrait{
+  @media #{$landscape}, #{$desktop-portrait}{
     background-color: #34495E;
   }
   .userlist {
@@ -111,7 +135,7 @@
         color: #A0A0A0;
       }
 
-      @media @desktop-landscape, @desktop-portrait {
+      @media #{$desktop-landscape}, #{$desktop-portrait} {
         .kickUser, .setPresenter{
           cursor: pointer;
           opacity:0;
@@ -124,7 +148,7 @@
       }
     }
     #content:hover {
-        @media @landscape, @desktop-portrait {
+        @media #{$landscape}, #{$desktop-portrait} {
           background-color: #2C4155;
 
           .kickUser, .setPresenter{
@@ -135,7 +159,7 @@
       }
     #content {
       span:hover {
-        @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+        @media #{$mobile-portrait-with-keyboard}, #{$desktop-portrait}, #{$mobile-portrait} {
           background: transparent;
         }
       }
@@ -143,47 +167,47 @@
       &:first-child { margin-top: 0px; }
       overflow: hidden;
       width: 100%;
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
-        /*background: #E6F0FA;*/
+      @media #{$mobile-portrait}, #{$mobile-portrait-with-keyboard} {
+        //background: #E6F0FA;
         background: transparent;
         color: white;
       }
     }
 
-    @media @landscape {
+    @media #{$landscape} {
       padding:10px;
       max-height:83vh;
     }
-    @media @desktop-portrait {
+    @media #{$desktop-portrait} {
       padding-top: 10px;
       padding-left: 10px;
       padding-right: 10px;
       color: white;
     }
-    @media @desktop-portrait, @mobile-portrait {
+    @media #{$desktop-portrait}, #{$mobile-portrait} {
       max-height: 58vw; //for longer userlist a scrollbar appears
       padding-top: 10px;
     }
   }
 }
 
-/*.userCurrent {
+.userCurrent {
   font-weight: bold;
 }
 
 .toggleUserlistButton, .toggleMenuButton {
   span {
-    @media @tablet-landscape {
+    @media #{$tablet-landscape} {
       width: 26px;
     }
-    @media @phone-landscape {
+    @media #{$phone-landscape} {
       width: 35px;
     }
-    @media @desktop-landscape {
+    @media #{$desktop-landscape} {
       width: 26px;
     }
 
-    @media @landscape, @desktop-portrait {
+    @media #{$landscape}, #{$desktop-portrait} {
       margin-left: auto;
       margin-right: auto;
       height: 8%;
@@ -229,7 +253,7 @@
   }
 }
 
-.table-user-fixed() {
+.table-user-fixed {
   background-color: transparent;
   color: #fff;
   border: 0;
@@ -239,7 +263,7 @@
   width: 100%;
   font-size: 16px;
 
-  @media @mobile-portrait {
+  @media #{$mobile-portrait} {
     font-size: 14px;
   }
 }
@@ -247,13 +271,13 @@
 
 // Everything is using EM to be easier to shrink sizes on mobile
 .user-list {
-  .table-user-fixed;
+  @extend .table-user-fixed;
   margin-bottom: 0.625em;
 
   &-item {
     background-color: transparent !important; //need this here to reset bg-color
 
-    @media @desktop-landscape, @desktop-portrait {
+    @media #{$desktop-landscape}, #{$desktop-portrait} {
       .kickUser, .setPresenter{
         opacity:0;
         color: #fff;
@@ -267,7 +291,7 @@
     &:hover{
       background-color: #2C4155 !important;
 
-      @media @landscape, @desktop-portrait {
+      @media #{$landscape}, #{$desktop-portrait} {
         background-color: #2C4155;
 
         .kickUser, .setPresenter{
@@ -325,7 +349,7 @@
       padding: 0.625em 0.625em 0.625em 0;
 
       &-list {
-        .table-user-fixed;
+        @extend .table-user-fixed;
 
         td, th {
           padding: 0;
@@ -337,4 +361,4 @@
       }
     }
   }
-}*/
+}

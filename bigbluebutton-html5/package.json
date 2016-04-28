@@ -24,5 +24,8 @@
     "grunt-force-task": "~2.0.0",
     "grunt-contrib-watch": "~1.0.0",
     "grunt-concurrent": "~2.2.1"
+  },
+  "cssModules": {
+    "extensions": ["scss"]
   }
 }

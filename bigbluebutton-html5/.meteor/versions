@@ -74,6 +74,8 @@ mongo@1.1.7
 mongo-id@1.0.4
 mrt:external-file-loader@0.1.4
 mrt:redis@0.1.3
+nathantreid:css-modules@1.1.1
+nathantreid:css-modules-import-path-helpers@0.1.2
 npm-mongo@1.4.43
 observe-sequence@1.0.11
 ordered-dict@1.0.7
@@ -83,6 +85,7 @@ practicalmeteor:chai@2.1.0_1
 practicalmeteor:loglevel@1.2.0_2
 promise@0.6.7
 raix:eventemitter@0.1.3
+ramda:ramda@0.19.0
 random@1.0.9
 react-meteor-data@0.2.9
 reactive-dict@1.1.7

@@ -4,6 +4,8 @@ import {Icon} from '../Icon.jsx';
 import {EmojiIcon} from '../EmojiIcon.jsx';
 import {Tooltip} from '../Tooltip.jsx';
 import classNames from 'classnames';
+import users from './users';
+import style from '../style';
 
 export let UserListItem = React.createClass({
 
@@ -28,9 +30,9 @@ export let UserListItem = React.createClass({
 
     return (
       <tr className={classNames(
-        'user-list-item',
-        user.isCurrent ? 'is-current' : null,
-        user.unreadMessagesCount ? 'has-messages' : null
+        style['user-list-item'],
+        user.isCurrent ? users['is-current'] : null,
+        user.unreadMessagesCount ? users['has-messages'] : null
       )}>
         {this.renderStatusIcons()}
         {this.renderUserName()}
@@ -62,7 +64,7 @@ export let UserListItem = React.createClass({
     }
 
     return (
-      <td className="user-list-item-status">
+      <td className={users['user-list-item-status']}>
         {statusIcons.map(i => i)}
       </td>
     );
@@ -78,7 +80,7 @@ export let UserListItem = React.createClass({
     }
 
     return (
-      <td className="user-list-item-name" onClick={() => this.handleOpenPrivateChat(user)}>
+      <td className={users['user-list-item-name']} onClick={() => this.handleOpenPrivateChat(user)}>
         <Tooltip title={userName}>
           {userName} {this.renderUnreadBadge()}
         </Tooltip>
@@ -94,7 +96,7 @@ export let UserListItem = React.createClass({
     }
 
     return (
-      <span className="user-list-item-messages">
+      <span className={users['user-list-item-messages']}>
         {(unreadMessagesCount > 9) ? '9+' : unreadMessagesCount}
       </span>
     );
@@ -176,8 +178,8 @@ export let UserListItem = React.createClass({
     }
 
     return (
-      <td className="user-list-item-sharing">
-        <table className="user-list-item-sharing-list">
+      <td className={users['user-list-item-sharing']}>
+        <table className={users['user-list-item-sharing-list']}>
           <tbody>
             <tr>
               {Object.keys(icons).map((key) => {
