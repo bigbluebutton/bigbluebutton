@@ -1,8 +1,5 @@
 package org.bigbluebutton.lib.user.models {
 	
-	import org.bigbluebutton.lib.chat.models.ChatMessages;
-	import org.osflash.signals.ISignal;
-	
 	[Bindable]
 	public class User {
 		public static const MODERATOR:String = "MODERATOR";
@@ -12,6 +9,25 @@ package org.bigbluebutton.lib.user.models {
 		public static const PRESENTER:String = "PRESENTER";
 		
 		public static const UNKNOWN_USER:String = "UNKNOWN USER";
+		
+		public static const NO_STATUS:String = "none";
+		
+		public static const RAISE_HAND:String = "raiseHand";
+		
+		public static const HAPPY:String = "happy";
+		
+		public static const SMILE:String = "smile";
+		
+		public static const NEUTRAL:String = "neutral";
+		
+		public static const SAD:String = "sad";
+		
+		public static const CONFUSED:String = "confused";
+		
+		public static const AWAY:String = "away";
+		
+		public static const EMOJI_STATUSES:Array = [RAISE_HAND, HAPPY, SMILE, NEUTRAL, SAD, CONFUSED, AWAY];
+		
 		
 		/**
 		 * Flag to tell that user is in the process of leaving the meeting.
@@ -79,14 +95,14 @@ package org.bigbluebutton.lib.user.models {
 			verifyUserStatus();
 		}
 		
-		private var _raiseHand:Boolean = false;
+		private var _status:String = User.NO_STATUS;
 		
-		public function get raiseHand():Boolean {
-			return _raiseHand;
+		public function get status():String {
+			return _status;
 		}
 		
-		public function set raiseHand(r:Boolean):void {
-			_raiseHand = r;
+		public function set status(s:String):void {
+			_status = s;
 			verifyUserStatus();
 		}
 		

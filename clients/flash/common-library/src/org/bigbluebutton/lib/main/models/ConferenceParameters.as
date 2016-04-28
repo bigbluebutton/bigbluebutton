@@ -1,6 +1,7 @@
 package org.bigbluebutton.lib.main.models {
 	
 	import flash.net.NetConnection;
+	
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -10,7 +11,7 @@ package org.bigbluebutton.lib.main.models {
 	 *
 	 */
 	public class ConferenceParameters implements IConferenceParameters {
-		private var _changedSignal:Signal = new Signal();
+		private var _changedSignal:Signal;
 		
 		private var _meetingName:String;
 		
@@ -80,7 +81,18 @@ package org.bigbluebutton.lib.main.models {
 		
 		private var _authToken:String;
 		
-		public function ConferenceParameters() {
+		private var _metadata:Object;
+		
+		private var _muteOnStart:Boolean;
+		
+		private var _avatarUrl:String;
+		
+		public function ConferenceParameters(signal:Signal = null) {
+			if (signal) {
+				_changedSignal = signal;
+			} else {
+				_changedSignal = new Signal();
+			}
 		}
 		
 		/**
@@ -102,6 +114,10 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get externMeetingID():String {
 			return _externMeetingID;
+		}
+		
+		public function get meetingID():String {
+			return _meetingID;
 		}
 		
 		public function set externMeetingID(externMeetingID:String):void {
@@ -234,6 +250,14 @@ package org.bigbluebutton.lib.main.models {
 			_authToken = authToken;
 		}
 		
+		public function get metadata():Object {
+			return _metadata;
+		}
+		
+		public function set metadata(metadata:Object):void {
+			metadata = metadata;
+		}
+		
 		public function load(obj:Object):void {
 			_meetingName = obj.conferenceName;
 			_externMeetingID = obj.externMeetingID;
@@ -249,8 +273,40 @@ package org.bigbluebutton.lib.main.models {
 			_internalUserID = obj.internalUserId;
 			_logoutUrl = obj.logoutUrl;
 			_record = !(obj.record == "false");
+			_avatarUrl = obj.avatarURL;
 			_authToken = obj.authToken;
 			_changedSignal.dispatch();
+			_metadata = new Object();
+			for (var n:String in obj.metadata) {
+				for (var id:String in obj.metadata[n]) {
+					_metadata[id] = obj.metadata[n][id];
+				}
+			}
+			try {
+				_muteOnStart = (obj.muteOnStart as String).toUpperCase() == "TRUE";
+			} catch (e:Error) {
+				_muteOnStart = false;
+			}
+			for (var key:String in obj) {
+				var value:Object = obj[key];
+				trace(key + " = " + value);
+			}
+		}
+		
+		public function set muteOnStart(mute:Boolean):void {
+			_muteOnStart = mute;
+		}
+		
+		public function get muteOnStart():Boolean {
+			return _muteOnStart;
+		}
+		
+		public function get avatarUrl():String {
+			return _avatarUrl;
+		}
+		
+		public function set avatarUrl(value:String):void {
+			_avatarUrl = value;
 		}
 	}
 }

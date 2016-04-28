@@ -109,7 +109,7 @@ Meteor.startup(() => {
 
     }
   };
-  
+
   const logRedisMessage = function (eventName, json) {
     // Avoid cluttering the log with json messages carrying little or repetitive
     // information. Comment out a message type in the array to be able to see it
@@ -140,13 +140,14 @@ Meteor.startup(() => {
 
     // LOG in the meteor console
     if (eventName, indexOf.call(notLoggedEventTypes, eventName) < 0) {
-      // Uncomment for DEVELOPMENT purposes only
-      // Otherwise dynamic shapes' updates will slow down significantly
-      /*
-      Meteor.log.info(`redis incoming message  ${eventName}  `, {
-        message: json,
-      });
-      */
+
+      // For DEVELOPMENT purposes only
+      // Dynamic shapes' updates will slow down significantly
+      if(Meteor.settings.public.mode == 'development') {
+        Meteor.log.info(`redis incoming message  ${eventName}  `, {
+          message: json,
+        });
+      }
     }
   };
 

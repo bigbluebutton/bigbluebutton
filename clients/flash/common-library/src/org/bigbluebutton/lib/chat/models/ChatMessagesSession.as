@@ -12,6 +12,12 @@ package org.bigbluebutton.lib.chat.models {
 		
 		private var _chatMessageChangeSignal:ISignal = new Signal();
 		
+		private var _newChatMessageSignal:ISignal = new Signal();
+		
+		public function ChatMessagesSession():void {
+			_publicChat.chatMessageChangeSignal.add(newPublicChatMessageDispatchSignal);
+		}
+		
 		public function set publicChat(value:ChatMessages):void {
 			_publicChat = value;
 		}
@@ -27,9 +33,10 @@ package org.bigbluebutton.lib.chat.models {
 		/**
 		 * Create private chat for the new user
 		 *
-		 * */
+		 **/
 		public function addUserToPrivateMessages(userId:String, userName:String):PrivateChatMessage {
 			var pcm:PrivateChatMessage = new PrivateChatMessage();
+			pcm.privateChat.chatMessageChangeSignal.add(newPrivateChatMessageDispatchSignal);
 			pcm.userID = userId;
 			pcm.userName = userName;
 			_privateChats.addItem(pcm);
@@ -47,6 +54,7 @@ package org.bigbluebutton.lib.chat.models {
 				for each (var privateMessage:PrivateChatMessage in _privateChats) {
 					if (privateMessage.userID == userId) {
 						privateMessage.privateChat.newChatMessage(newMessage);
+						chatMessageDispatchSignal(userId);
 						return;
 					}
 				}
@@ -86,6 +94,28 @@ package org.bigbluebutton.lib.chat.models {
 		
 		public function set chatMessageChangeSignal(signal:ISignal):void {
 			_chatMessageChangeSignal = signal;
+		}
+		
+		public function newPublicChatMessageDispatchSignal(UserID:String):void {
+			newChatMessageDispatchSignal(UserID, true)
+		}
+		
+		public function newPrivateChatMessageDispatchSignal(UserID:String):void {
+			newChatMessageDispatchSignal(UserID, false)
+		}
+		
+		public function newChatMessageDispatchSignal(UserID:String, publicChat:Boolean):void {
+			if (_newChatMessageSignal) {
+				_newChatMessageSignal.dispatch(UserID, publicChat);
+			}
+		}
+		
+		public function get newChatMessageSignal():ISignal {
+			return _newChatMessageSignal;
+		}
+		
+		public function set newChatMessageSignal(signal:ISignal):void {
+			_newChatMessageSignal = signal;
 		}
 	}
 }

@@ -95,6 +95,7 @@ package org.bigbluebutton.lib.presentation.services {
 		private function handleMoveCallback(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("PresentMessageReceiver::handleMoveCallback()");
+			userSession.presentationList.setViewedRegion(msg.xOffset, msg.yOffset, msg.widthRatio, msg.heightRatio);
 		/* Properties of msg:
 		   current
 		   heightRatio
@@ -121,18 +122,8 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		private function handlePresentationCursorUpdateCommand(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			trace("PresentMessageReceiver::handlePresentationCursorUpdateCommand() -- cursor moving [" + msg.xPercent + ", " + msg.yPercent + "]");
-		/* Properties of msg:
-		   xPercent
-		   yPercent
-		
-		   var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
-		   e.xPercent = msg.xPercent;
-		   e.yPercent = msg.yPercent;
-		   var dispatcher:Dispatcher = new Dispatcher();
-		   dispatcher.dispatchEvent(e);
-		
-		 */
+			trace("PresentMessageReceiver::handlePresentationCursorUpdateCommand() -- cursing moving [" + msg.xPercent + ", " + msg.yPercent + "]");
+			userSession.presentationList.cursorUpdate(msg.xPercent, msg.yPercent);
 		}
 		
 		private function handleRemovePresentationCallback(m:Object):void {
@@ -178,11 +169,15 @@ package org.bigbluebutton.lib.presentation.services {
 		private function addPresentation(presentationObject:Object):void {
 			var length:int = presentationObject.pages.length;
 			trace("PresentMessageReceiver::handleGetPresentationInfoReply() -- adding presentation [" + presentationObject.name + "] to the presentation list");
-			var presentation:Presentation = userSession.presentationList.addPresentation(presentationObject.name, length, presentationObject.current);
+			var presentation:Presentation = userSession.presentationList.addPresentation(presentationObject.name, presentationObject.id, length, presentationObject.current);
 			// Add all the slides to the presentation:
 			for (var i:int = 0; i < length; i++) {
 				var s:Object = presentationObject.pages[i];
-				presentation.add(new Slide(s.num, s.swfUri, s.thumbUri, s.txtUri, s.current));
+				if (s.swfUri) {
+					presentation.add(new Slide(s.num, s.swfUri, s.thumbUri, s.txtUri, s.current, s.xOffset, s.yOffset, s.widthRatio, s.heightRatio));
+				} else if (s.swf_uri) {
+					presentation.add(new Slide(s.num, s.swf_uri, s.thumb_uri, s.txt_uri, s.current, s.x_offset, s.y_offset, s.width_ratio, s.height_ratio));
+				}
 			}
 			if (presentation.current) {
 				presentation.show();
