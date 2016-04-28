@@ -41,19 +41,146 @@ source ~/.profile
 
 ## Update Development Tools
 
+### Install The Core Development Tools
+
+```
+sudo apt-get install git-core ant
+```
+
+
 ### Install Gradle
 
-Install gradle-2.12
+```
+cd ~/dev/tools
+wget http://services.gradle.org/distributions/gradle-2.12-bin.zip
+unzip gradle-2.12-bin.zip
+ln -s gradle-2.12 gradle 
+```
 
 ### Install Grails
 
-Install grails-2.5.2
+```
+cd ~/dev/tools
+wget https://github.com/grails/grails-core/releases/download/v2.5.2/grails-2.5.2.zip
+unzip grails-2.5.2.zip
+ln -s grails-2.5.2 grails
+```
 
 ### Install Maven
 
-Install apache-maven-3.3.3
+```
+cd ~/dev/tools
+wget apache.parentingamerica.com//maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.zip
+unzip apache-maven-3.3.3-bin.zip
+ln -s apache-maven-3.3.3 maven
+```
 
-Edit ```~/.profile``` to point to the above versions
+### Install sbt
+
+```
+cd ~/dev/tools
+wget https://dl.bintray.com/sbt/native-packages/sbt/0.13.9/sbt-0.13.9.tgz
+tar zxvf sbt-0.13.9.tgz
+```
+
+In the next step, you need to get the Apache Flex 4.13.0 SDK package. 
+
+**Note:** Even though we're downloading the Apache Flex 4.13.0 SDK, BigBlueButton is developed and built with Flex 3 compatibility mode enabled.
+
+First, you need to download the SDK tarball from an Apache mirror site and then unpack it.
+
+```
+wget https://archive.apache.org/dist/flex/4.13.0/binaries/apache-flex-sdk-4.13.0-bin.tar.gz
+tar xvfz apache-flex-sdk-4.13.0-bin.tar.gz
+```
+
+Once Flex SDK is unpacked, you need to download the Adobe Flex SDK.  We'll do this step manually in case the download fails (if it does, remove the incomplete file and issue the `wget` command again).
+
+```
+cd apache-flex-sdk-4.13.0-bin/
+mkdir -p in/
+wget http://download.macromedia.com/pub/flex/sdk/builds/flex4.6/flex_sdk_4.6.0.23201B.zip -P in/
+```
+
+Once the SDK has downloaded, we can use its `build.xml` script to automatically download the remaining third-party tools.
+
+```
+ant -f frameworks/build.xml thirdparty-downloads
+```
+
+After Flex downloads the remaining third-party tools, you need to modify their permissions.
+
+```
+sudo find ~/dev/tools/apache-flex-sdk-4.13.0-bin -type d -exec chmod o+rx '{}' \;
+chmod 755 ~/dev/tools/apache-flex-sdk-4.13.0-bin/bin/*
+sudo chmod -R +r ~/dev/tools/apache-flex-sdk-4.13.0-bin
+```
+
+Next, create a linked directory with a shortened name for easier referencing.
+
+```
+ln -s ~/dev/tools/apache-flex-sdk-4.13.0-bin ~/dev/tools/flex
+```
+
+The next step in setting up the Flex SDK environment is to download a Flex library for video.
+
+```
+cd ~/dev/tools/
+mkdir -p apache-flex-sdk-4.13.0-bin/frameworks/libs/player/11.2
+cd apache-flex-sdk-4.13.0-bin/frameworks/libs/player/11.2
+wget http://fpdownload.macromedia.com/get/flashplayer/installers/archive/playerglobal/playerglobal11_2.swc
+mv -f playerglobal11_2.swc playerglobal.swc
+```
+
+The last step to have a working Flex SDK is to configure it to work with playerglobal 11.2
+
+```
+cd ~/dev/tools/apache-flex-sdk-4.13.0-bin
+sudo sed -i "s/11.1/11.2/g" frameworks/flex-config.xml
+sudo sed -i "s/<swf-version>14<\/swf-version>/<swf-version>15<\/swf-version>/g" frameworks/flex-config.xml
+sudo sed -i "s/{playerglobalHome}\/{targetPlayerMajorVersion}.{targetPlayerMinorVersion}/libs\/player\/11.2/g" frameworks/flex-config.xml
+```
+
+With the tools installed, you need to add a set of environment variables to your `.profile` to access these tools.
+
+```
+vi ~/.profile
+```
+
+Copy-and-paste the following text at bottom of `.profile`.
+
+```
+
+export GRAILS_HOME=$HOME/dev/tools/grails
+export PATH=$PATH:$GRAILS_HOME/bin
+
+export FLEX_HOME=$HOME/dev/tools/flex
+export PATH=$PATH:$FLEX_HOME/bin
+
+export GRADLE_HOME=$HOME/dev/tools/gradle
+export PATH=$PATH:$GRADLE_HOME/bin
+
+export SBT_HOME=$HOME/dev/tools/sbt
+export PATH=$PATH:$SBT_HOME/bin 
+
+export MAVEN_HOME=$HOME/dev/tools/mvn
+export PATH=$PATH:$MAVEN_HOME/bin 
+
+
+```
+
+Reload your profile to use these tools (this will happen automatically when you next login).
+
+```
+source ~/.profile
+```
+
+Check that the tools are now in your path by running the following command.
+
+```
+$ mxmlc -version
+Version 4.13.0 build 20140701
+```
 
 ## Setup Red5
 
