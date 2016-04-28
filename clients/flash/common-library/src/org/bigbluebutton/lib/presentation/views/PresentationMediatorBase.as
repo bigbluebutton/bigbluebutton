@@ -74,11 +74,13 @@ package org.bigbluebutton.lib.presentation.views {
 		protected function resizePresentation():void {
 			if (_slideModel && view && view.swfLoader) {
 				_slideModel.resetForNewSlide(view.swfLoader.contentWidth, view.swfLoader.contentHeight);
-				var currentSlide:Slide = userSession.presentationList.currentPresentation.getSlideAt(_currentSlideNum);
-				if (currentSlide) {
-					resetSize(currentSlide.x, currentSlide.y, currentSlide.widthPercent, currentSlide.heightPercent);
-					_cursor.draw(view.viewport, userSession.presentationList.cursorXPercent, userSession.presentationList.cursorYPercent);
-						//resetSize(_currentSlide.x, _currentSlide.y, _currentSlide.widthPercent, _currentSlide.heightPercent);
+				if (userSession.presentationList.currentPresentation) {
+					var currentSlide:Slide = userSession.presentationList.currentPresentation.getSlideAt(_currentSlideNum);
+					if (currentSlide) {
+						resetSize(currentSlide.x, currentSlide.y, currentSlide.widthPercent, currentSlide.heightPercent);
+						_cursor.draw(view.viewport, userSession.presentationList.cursorXPercent, userSession.presentationList.cursorYPercent);
+							//resetSize(_currentSlide.x, _currentSlide.y, _currentSlide.widthPercent, _currentSlide.heightPercent);
+					}
 				}
 			}
 		}
