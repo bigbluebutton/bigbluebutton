@@ -2,6 +2,42 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
 
+@font-face { 
+	src: url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
+	fontFamily: SourceSansPro; 
+	fontStyle: normal; 
+	fontWeight: normal; 
+	embedAsCFF: true;
+}
+
+@font-face { 
+	src: url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf"); 
+	fontFamily: SourceSansPro; 
+	fontStyle: normal; 
+	fontWeight: bold; 
+	embedAsCFF: true;
+}
+
+@font-face { 
+	src: url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf"); 
+	fontFamily: SourceSansPro; 
+	fontStyle: italic; 
+	fontWeight: normal; 
+	embedAsCFF: true;
+}
+
+@font-face { 
+	src: url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf"); 
+	fontFamily: SourceSansPro; 
+	fontStyle: normal; 
+	fontWeight: heavy; 
+	embedAsCFF: true;
+}
+
+global
+{
+	font-family	: SourceSansPro;
+}
 
 s|Application
 {
