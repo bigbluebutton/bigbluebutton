@@ -6,7 +6,6 @@ package org.bigbluebutton.web.main {
 	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
 	import org.bigbluebutton.lib.main.views.MenuButtonsMediatorBase;
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
-	import org.bigbluebutton.lib.main.views.TopToolbarMediatorBase;
 	import org.bigbluebutton.web.main.commands.AuthenticationCommandWeb;
 	import org.bigbluebutton.web.main.commands.ConnectingFailedCommandWeb;
 	import org.bigbluebutton.web.main.commands.ConnectingFinishedCommandWeb;
@@ -15,6 +14,9 @@ package org.bigbluebutton.web.main {
 	import org.bigbluebutton.web.main.models.UISession;
 	import org.bigbluebutton.web.main.views.LoadingScreen;
 	import org.bigbluebutton.web.main.views.LoadingScreenMediator;
+	import org.bigbluebutton.web.main.views.MainShell;
+	import org.bigbluebutton.web.main.views.MainShellMediator;
+	import org.bigbluebutton.web.main.views.TopToolbarMediatorWeb;
 	import org.bigbluebutton.web.toolbar.webcambutton.commands.ShareCameraCommandWeb;
 	import org.bigbluebutton.web.toolbar.webcambutton.commands.ShareCameraSignal;
 	
@@ -54,8 +56,9 @@ package org.bigbluebutton.web.main {
 		 */
 		private function mediators():void {
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
+			mediatorMap.map(MainShell).toMediator(MainShellMediator);
 			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorBase);
-			mediatorMap.map(TopToolbarBase).toMediator(TopToolbarMediatorBase);
+			mediatorMap.map(TopToolbarBase).toMediator(TopToolbarMediatorWeb);
 		}
 		
 		/**

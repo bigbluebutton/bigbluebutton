@@ -7,6 +7,7 @@ package org.bigbluebutton.lib.main.views {
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
 	public class TopToolbarMediatorBase extends Mediator {
+		
 		[Inject]
 		public var view:TopToolbarBase;
 		
@@ -24,11 +25,11 @@ package org.bigbluebutton.lib.main.views {
 		}
 		
 		protected function leftButtonClickHandler(e:MouseEvent):void {
-			
+		
 		}
 		
 		protected function rightButtonClickHandler(e:MouseEvent):void {
-			
+		
 		}
 		
 		protected function onSuccessJoiningSignal():void {

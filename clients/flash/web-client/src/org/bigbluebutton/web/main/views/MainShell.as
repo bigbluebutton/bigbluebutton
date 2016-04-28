@@ -7,6 +7,11 @@ package org.bigbluebutton.web.main.views {
 	
 	public class MainShell extends VariableDividedBox {
 		private var _participantsPanel:ParticipantsPanel;
+		
+		public function get participantsPanel():ParticipantsPanel {
+			return _participantsPanel;
+		}
+		
 		private var _chatPanel:ChatPanel;
 		private var _mainPanel:MainPanel;
 		

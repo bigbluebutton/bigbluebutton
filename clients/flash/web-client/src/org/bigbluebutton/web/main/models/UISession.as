@@ -6,6 +6,9 @@ package org.bigbluebutton.web.main.models {
 		private var _loadingMessage:String = "Loading";
 		private var _loadingChangeSignal:Signal = new Signal();
 		
+		private var _participantsOpen:Boolean = false;
+		private var _participantsOpenSignal:Signal = new Signal();
+		
 		public function UISession() {
 		}
 		
@@ -25,6 +28,19 @@ package org.bigbluebutton.web.main.models {
 			_loading = val;
 			_loadingMessage = message;
 			_loadingChangeSignal.dispatch(_loading, _loadingMessage);
+		}
+		
+		public function get participantsOpen():Boolean {
+			return _participantsOpen;
+		}
+		
+		public function set participantsOpen(val:Boolean):void {
+			_participantsOpen = val;
+			_participantsOpenSignal.dispatch();
+		}
+		
+		public function get participantsOpenSignal():Signal {
+			return _participantsOpenSignal;
 		}
 	}
 }
