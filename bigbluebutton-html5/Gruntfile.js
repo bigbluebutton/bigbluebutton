@@ -41,10 +41,10 @@ module.exports = function (grunt) {
 
     shell: {
       start_meteor_development: {
-        command: 'HOME=/usr/share/meteor JASMINE_SERVER_UNIT=0 JASMINE_SERVER_INTEGRATION=0 JASMINE_CLIENT_INTEGRATION=0 JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 ROOT_URL=http://127.0.0.1/html5client meteor --settings settings-development.json',
+        command: 'HOME=/usr/share/meteor ROOT_URL=http://127.0.0.1/html5client meteor --settings settings-development.json',
       },
       start_meteor_production: {
-        command: 'HOME=/usr/share/meteor JASMINE_SERVER_UNIT=0 JASMINE_SERVER_INTEGRATION=0 JASMINE_CLIENT_INTEGRATION=0 JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 ROOT_URL=http://127.0.0.1/html5client meteor --settings settings-production.json',
+        command: 'HOME=/usr/share/meteor ROOT_URL=http://127.0.0.1/html5client meteor --settings settings-production.json',
       }
     },
 
