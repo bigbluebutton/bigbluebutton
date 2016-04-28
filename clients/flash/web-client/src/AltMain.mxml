@@ -6,6 +6,8 @@
 			   width="100%"
 			   height="100%"
 			   preinitialize="preinitializeHandler(event)">
+	<fx:Style source="AltDefault.css" />
+	
 	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;

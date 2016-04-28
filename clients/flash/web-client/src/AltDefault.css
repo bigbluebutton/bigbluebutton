@@ -1,0 +1,41 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+s|Application
+{
+	backgroundColor: #0F1914;	
+}
+
+.menuButtonStyle
+{
+	backgroundColor         : #4998D0;
+	selectedBackgroundColor : #DBDBDB;
+	color                   : #FFFFFF;
+	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
+}
+
+.micOnButtonStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/mic.png");
+}
+
+.micOffButtonStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/mic_off.png");
+}
+
+.camOnButtonStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/cam.png");
+}
+
+.camOffButtonStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/cam_off.png");
+}
+
+.handStatusButtonStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/hand.png");
+}
