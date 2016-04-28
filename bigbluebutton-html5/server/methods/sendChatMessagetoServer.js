@@ -2,7 +2,8 @@ import { publish } from '/server/redispubsub';
 import { isAllowedTo } from '/server/user_permissions';
 import { appendMessageHeader } from '/server/helpers';
 import { translateHTML5ToFlash } from '/server/collection_methods/chat';
-import { logger } from '/server/server.js';
+import { logger } from '/server/server';
+import { redisConfig } from '/config';
 
 Meteor.methods({
 // meetingId: the id of the meeting
@@ -39,7 +40,7 @@ Meteor.methods({
       };
       message = appendMessageHeader(eventName, message);
       logger.info('publishing chat to redis');
-      publish(Meteor.config.redis.channels.toBBBApps.chat, message);
+      publish(redisConfig.channels.toBBBApps.chat, message);
     }
   }
 });

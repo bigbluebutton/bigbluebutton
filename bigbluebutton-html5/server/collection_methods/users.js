@@ -1,6 +1,7 @@
 import { publish } from '../server';
 import { Users, Meetings, Chat } from '/collections/collections';
 import { logger } from '/server/server.js';
+import { redisConfig } from '/config';
 
 // Only callable from server
 // Received information from BBB-Apps that a user left
@@ -96,7 +97,7 @@ export function requestUserLeaving(meetingId, userId) {
           name: 'user_disconnected_from_global_audio',
         },
       };
-      publish(Meteor.config.redis.channels.toBBBApps.meeting, listenOnlyMessage);
+      publish(redisConfig.channels.toBBBApps.meeting, listenOnlyMessage);
     }
 
     // remove user from meeting
@@ -111,7 +112,7 @@ export function requestUserLeaving(meetingId, userId) {
       },
     };
     logger.info(`sending a user_leaving_request for ${meetingId}:${userId}`);
-    return publish(Meteor.config.redis.channels.toBBBApps.users, message);
+    return publish(redisConfig.channels.toBBBApps.users, message);
   } else {
     return logger.info('did not have enough information to send a user_leaving_request');
   }

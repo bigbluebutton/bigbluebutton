@@ -2,6 +2,7 @@ import { publish } from '/server/redispubsub';
 import { isAllowedTo } from '/server/user_permissions';
 import { appendMessageHeader } from '/server/helpers';
 import { Presentations, Slides } from '/collections/collections';
+import { redisConfig } from '/config';
 
 
 Meteor.methods({
@@ -31,7 +32,7 @@ Meteor.methods({
             }
           };
           message = appendMessageHeader('go_to_slide', message);
-          return publish(Meteor.config.redis.channels.toBBBApps.presentation, message);
+          return publish(redisConfig.channels.toBBBApps.presentation, message);
         }
       }
     }

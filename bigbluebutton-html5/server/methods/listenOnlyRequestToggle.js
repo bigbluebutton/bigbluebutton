@@ -2,7 +2,8 @@ import { publish } from '../redispubsub';
 import { isAllowedTo } from '../user_permissions';
 import { appendMessageHeader } from '/server/helpers';
 import { Users, Meetings} from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/server/server';
+import { redisConfig } from '/config';
 
 Meteor.methods({
   // meetingId: the meetingId of the meeting the user is in
@@ -38,7 +39,7 @@ Meteor.methods({
         };
         message = appendMessageHeader('user_connected_to_global_audio', message);
         logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${userId}`);
-        publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
+        publish(redisConfig.channels.toBBBApps.meeting, message);
       }
     } else {
       if (isAllowedTo('leaveListenOnly', meetingId, userId, authToken)) {
@@ -52,7 +53,7 @@ Meteor.methods({
         };
         message = appendMessageHeader('user_disconnected_from_global_audio', message);
         logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${userId}`);
-        publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
+        publish(redisConfig.channels.toBBBApps.meeting, message);
       }
     }
   },

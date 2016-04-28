@@ -1,6 +1,7 @@
 import { publish } from '/server/redispubsub';
 import { isAllowedTo } from '/server/user_permissions';
 import { appendMessageHeader } from '/server/helpers';
+import { redisConfig } from '/config';
 
 Meteor.methods({
   userSetEmoji(meetingId, toRaiseUserId, raisedByUserId, raisedByToken, status) {
@@ -16,7 +17,7 @@ Meteor.methods({
 
       message = appendMessageHeader('user_emoji_status_message', message);
       // publish to pubsub
-      publish(Meteor.config.redis.channels.toBBBApps.users, message);
+      publish(redisConfig.channels.toBBBApps.users, message);
     }
   }
 });

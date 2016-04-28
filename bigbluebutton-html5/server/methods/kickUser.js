@@ -1,6 +1,7 @@
 import { publish } from '../redispubsub';
 import { isAllowedTo } from '../user_permissions';
 import { appendMessageHeader } from '/server/helpers';
+import { redisConfig } from '/config';
 
 Meteor.methods({
   //meetingId: the meeting where the user is
@@ -18,7 +19,7 @@ Meteor.methods({
         }
       };
       message = appendMessageHeader('eject_user_from_meeting_request_message', message);
-      return publish(Meteor.config.redis.channels.toBBBApps.users, message);
+      return publish(redisConfig.channels.toBBBApps.users, message);
     }
   },
 });

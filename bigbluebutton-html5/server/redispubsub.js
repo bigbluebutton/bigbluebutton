@@ -8,6 +8,7 @@ import { addPollToCollection, updatePollCollection } from '/server/collection_me
 import { addMeetingToCollection, removeMeetingFromCollection } from '/server/collection_methods/meetings';
 import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
 import { logger } from '/server/server.js';
+import { redisConfig } from '/config';
 
 const bind = function (fn, me) { return function () { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
@@ -36,7 +37,7 @@ Meteor.methods({
     };
     if ((authToken != null) && (userId != null) && (meetingId != null)) {
       createDummyUser(meetingId, userId, authToken);
-      return publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
+      return publish(redisConfig.channels.toBBBApps.meeting, message);
     } else {
       return logger.info('did not have enough information to send a validate_auth_token message');
     }
@@ -51,10 +52,10 @@ Meteor.RedisPubSub = (function () {
       logger.info('constructor RedisPubSub');
       this.pubClient = redis.createClient();
       this.subClient = redis.createClient();
-      logger.info(`Subscribing message on channel: ${Meteor.config.redis.channels.fromBBBApps}`);
+      logger.info(`Subscribing message on channel: ${redisConfig.channels.fromBBBApps}`);
       this.subClient.on('psubscribe', Meteor.bindEnvironment(this._onSubscribe));
       this.subClient.on('pmessage', Meteor.bindEnvironment(this._addToQueue));
-      this.subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps);
+      this.subClient.psubscribe(redisConfig.channels.fromBBBApps);
       callback(this);
     }
 
@@ -69,7 +70,7 @@ Meteor.RedisPubSub = (function () {
         },
         payload: {} // I need this, otherwise bbb-apps won't recognize the message
       };
-      return publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
+      return publish(redisConfig.channels.toBBBApps.meeting, message);
     }
 
     _addToQueue(pattern, channel, jsonMsg) {
@@ -541,7 +542,7 @@ registerHandlers = function (emitter) {
             },
           };
           if (whiteboardId != null && meetingId != null) {
-            publish(Meteor.config.redis.channels.toBBBApps.whiteboard, message);
+            publish(redisConfig.channels.toBBBApps.whiteboard, message);
           } else {
             logger.info('did not have enough information to send a user_leaving_request');
           }
