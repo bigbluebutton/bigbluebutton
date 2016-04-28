@@ -70,17 +70,17 @@ package org.bigbluebutton.lib.main.views {
 		private function userChanged(user:User, property:String = null):void {
 			if (user && user.me) {
 				if (user.hasStream) {
-					//view.camButton.label = ResourceManager.getInstance().getString('resources', 'menuButtons.camOff');
+					view.camButton.label = "Cam off";// ResourceManager.getInstance().getString('resources', 'menuButtons.camOff');
 					view.camButton.styleName = "camOffButtonStyle menuButtonStyle"
 				} else {
-					//view.camButton.label = ResourceManager.getInstance().getString('resources', 'menuButtons.camOn');
+					view.camButton.label = "Cam on";// ResourceManager.getInstance().getString('resources', 'menuButtons.camOn');
 					view.camButton.styleName = "camOnButtonStyle menuButtonStyle"
 				}
 				if (userSession.userList.me.voiceJoined) {
-					//view.micButton.label = ResourceManager.getInstance().getString('resources', 'menuButtons.micOff');
+					view.micButton.label = "Mic off";// ResourceManager.getInstance().getString('resources', 'menuButtons.micOff');
 					view.micButton.styleName = "micOffButtonStyle menuButtonStyle"
 				} else {
-					//view.micButton.label = ResourceManager.getInstance().getString('resources', 'menuButtons.micOn');
+					view.micButton.label = "Mic on";// ResourceManager.getInstance().getString('resources', 'menuButtons.micOn');
 					view.micButton.styleName = "micOnButtonStyle menuButtonStyle"
 				}
 			}
