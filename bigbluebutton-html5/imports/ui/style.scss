@@ -921,6 +921,16 @@ body {
   }
 }
 
+//////////////////////////////
+// Temporary solution (until #content is modified)
+.user-list-item {
+  background: #34495E !important; // overriding the value from Foundation
+  &:hover {
+    background: #2C4155 !important;
+  }
+}
+//////////////////////////////
+
 .settingsMenu {
   height: 100%;
   z-index: 1000;
