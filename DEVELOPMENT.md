@@ -163,7 +163,7 @@ export PATH=$PATH:$GRADLE_HOME/bin
 export SBT_HOME=$HOME/dev/tools/sbt
 export PATH=$PATH:$SBT_HOME/bin 
 
-export MAVEN_HOME=$HOME/dev/tools/mvn
+export MAVEN_HOME=$HOME/dev/tools/maven
 export PATH=$PATH:$MAVEN_HOME/bin 
 
 
@@ -202,7 +202,7 @@ Build red5-parent
 
 ```
 cd ~/dev
-git clone git@github.com:bigbluebutton/red5-parent.git
+git clone https://github.com/bigbluebutton/red5-parent.git
 cd red5-parent/
 git checkout snapshot-mar-30-2016
 mvn install
@@ -212,8 +212,9 @@ Build red5-io
 
 ```
 cd ~/dev/tools
-git clone git@github.com:bigbluebutton/red5-io.git
+git clone https://github.com/bigbluebutton/red5-io.git
 cd red5-io
+git checkout snapshot-mar-30-2016
 ./bbb-build.sh
 ```
 
@@ -221,8 +222,9 @@ Build red5-server-common
 
 ```
 cd ~/dev/tools
-git clone git@github.com:bigbluebutton/red5-server-common.git
+git clone https://github.com/bigbluebutton/red5-server-common.git
 cd red5-server-common
+git checkout snapshot-mar-30-2016
 ./bbb-build.sh
 ```
 
@@ -230,8 +232,9 @@ Build red5-server
 
 ```
 cd ~/dev/tools
-git clone git@github.com:bigbluebutton/red5-server.git
+git clone https://github.com/bigbluebutton/red5-server.git
 cd red5-server
+git checkout snapshot-mar-30-2016
 ./build-red5.sh
 
 # Deploy red5, this will copy the new red5 to /usr/share
@@ -240,28 +243,135 @@ cd red5-server
 ./deploy.sh
 ```
 
-## Build client
+# Developing the client
+
+
+# Client Development
+With the development environment checked out and the code cloned, we are ready to start developing!
+
+This section will walk you through making a simple change to the BigBlueButton client.
+
+## Setting up the environment
+
+The first thing you need to do is to copy the template `config.xml` file to the build directory for the client.
 
 ```
-# Copy config.xml.template
-cd ~/dev/tools/bigbluebutton/bigbluebutton-client
-cp resources/config.xml.template src/conf/config.xml
+cd ~/dev/bigbluebutton/
+cp bigbluebutton-client/resources/config.xml.template bigbluebutton-client/src/conf/config.xml
 ```
 
-Edit `config.xml`. Remove deskshare and leave screenshare module.
-Make sure that you have replaced `HOST` with you BBB IP.
+The `config.xml` file is one of the first files loaded by the BigBlueButton client when it connects to the server.  The `config.xml` file tells BigBlueButton client how to load the remaining components (such as chat module, deskshare module, video conf module, etc.) and sets a number of configuration parameters for each component.  The `config.xml` specifies the hostname (or IP address) for loading each component.
+
+Let's look at the first ten lines of the `config.xml` file you just copied.
 
 ```
-ant 
+$ head -n 10 bigbluebutton-client/src/conf/config.xml
+<?xml version="1.0" ?>
+<config>
+    <localeversion suppressWarning="false">0.9.0</localeversion>
+    <version>VERSION</version>
+    <help url="http://HOST/help.html"/>
+    <javaTest url="http://HOST/testjava.html"/>
+    <porttest host="HOST" application="video/portTest" timeout="10000"/>    
+    <bwMon server="HOST" application="video/bwTest"/>
+    <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
+    <language userSelectionEnabled="true" />
+```
+
+You will see the word `HOST` where there would be configured hostname/IP address.  You need to change the text `HOST` to the IP address (or hostname) of your BigBlueButton server.  For example, if the IP address of your BigBlueButton server is `192.168.1.145`, then using the following command you can easily substitute all occurrences of `HOST` with `192.168.1.145`.
+
+Note: Don't copy-and-paste the following command as-is: the address `192.168.1.145` is likely not the correct IP address (or hostname) for your BigBlueButton server.  Substitute the IP address (or hostname) for your BigBlueButton server.
+
+```
+sed -i s/HOST/192.168.1.145/g bigbluebutton-client/src/conf/config.xml
+```
+
+After you've done the above command, take a quick look at the file and ensure all instances of `HOST` are properly replaced with the IP address (or hostname) of your BigBlueButton server.
+
+The `config.xml` is ultimately loaded by the BigBlueButton client when a user joins a session on the server.  
+
+Later on, when you deploy your modified client to the BigBlueButton server, there will be two BigBlueButton clients on your server: your modified BigBlueButton client and the default BigBlueButton packaged client (again, this is good as you can switch back and forth). However, the BigBlueButton configuration command `sudo bbb-conf ` only modifies the packaged BigBlueButton client and you will need to mirror any changes to the packaged config.xml to the secondary client's config.xml.
+
+Next, you need to setup nginx to redirect calls to the client towards your development version. If you don't already have nginx client development file at `/etc/bigbluebutton/nginx/client_dev`, create one with the following command.
+
+**NOTE:** Make sure to replace "firstuser" with your own username if it's different.
+
+```
+echo "
+location /client/BigBlueButton.html {
+	root /home/firstuser/dev/bigbluebutton/bigbluebutton-client;
+	index index.html index.htm;
+	expires 1m;
+}
+
+# BigBlueButton Flash client.
+location /client {
+	root /home/firstuser/dev/bigbluebutton/bigbluebutton-client;
+	index index.html index.htm;
+}
+" | sudo tee /etc/bigbluebutton/nginx/client_dev 
+```
+
+Check the contents to ensure it matches below.
+
+Again, make sure you change `/home/firstuser` to match your home directory.
+
+```
+$ cat /etc/bigbluebutton/nginx/client_dev
+
+location /client/BigBlueButton.html {
+	root /home/firstuser/dev/bigbluebutton/bigbluebutton-client;
+	index index.html index.htm;
+	expires 1m;
+}
+
+# BigBlueButton Flash client.
+location /client {
+	root /home/firstuser/dev/bigbluebutton/bigbluebutton-client;
+	index index.html index.htm;
+}
+```
+
+These rules tell nginx where to find the BigBlueButton client.  Currently, nginx is using the rules with the default BigBlueButton client through a symbolic link.
+
+```
+$ ls -al /etc/bigbluebutton/nginx/client.nginx
+lrwxrwxrwx 1 root root 31 2013-05-05 15:44 /etc/bigbluebutton/nginx/client.nginx -> /etc/bigbluebutton/nginx/client
+```
+
+Modify this symbolic link so it points to the development directory for your BigBlueButton client.
+
+```
+sudo ln -f -s /etc/bigbluebutton/nginx/client_dev /etc/bigbluebutton/nginx/client.nginx
+```
+
+Check that the modifications are in place.
+
+```
+$ ls -al /etc/bigbluebutton/nginx/client.nginx
+lrwxrwxrwx 1 root root 35 2013-05-05 21:07 /etc/bigbluebutton/nginx/client.nginx -> /etc/bigbluebutton/nginx/client_dev
+```
+
+Now we need to restart nginx so our changes take effect.
+
+```
+$ sudo service nginx restart
+Restarting nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+configuration file /etc/nginx/nginx.conf test is successful nginx.
+```
+
+Now, when you launch the BigBlueButton client, nginx will serve the client from your development directory.  Next, we need to rebuild the client.
+
+## Building the client
+Let's now build the client.  Note we're going to build and run the client to make sure it works before making any changes to the source.
+
+First, we'll build the locales (language translation files).  If you are not modifying the locales, you only need to do this once.
+
+```
+cd ~/dev/bigbluebutton/bigbluebutton-client
 ```
 
 Build build a specific locale (en_US default)
-
-```
-ant locale
-```
-
-Equivalent to
 
 ```
 ant locale -DLOCALE=en_US
@@ -272,6 +382,15 @@ To build all locales
 ```
 ant locales
 ```
+
+This will take about 10 minutes (depending on the speed of your computer).  Next, let's build the client
+
+```
+ant
+```
+
+This will create a build of the BigBlueButton client in the `/home/firstuser/dev/bigbluebutton/bigbluebutton-client/client` directory.
+
 
 ## Setup nginx
 
@@ -304,6 +423,18 @@ sudo service nginx restart
 ```
 
 ## Build BBB Red5 Applications
+
+Turn off red5 service
+
+```
+sudo service bbb-red5 stop
+```
+
+You need to make `red5/webapps` writeable. Otherwise, you will get a permission error when you try to deploy into Red5.
+
+```
+sudo chmod -R 777 /usr/share/red5/webapps
+```
 
 ### Build common-message
 
