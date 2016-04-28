@@ -487,7 +487,7 @@ function swapVideoPresentation() {
   function checkSVGLoaded() {
     var done = false;
     var svg = document.getElementsByTagName("object")[0];
-    if (svg !== undefined && svg !== null && svg.getSVGDocument('svgfile')) {
+    if (svg !== undefined && svg !== null && currentImage && svg.getSVGDocument('svgfile')) {
       var img = svg.getSVGDocument('svgfile').getElementById(currentImage.getAttribute("id"));
       if (img !== undefined && img !== null) {
         img.style.visibility = "visible";
