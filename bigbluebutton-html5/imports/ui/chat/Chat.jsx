@@ -2,8 +2,9 @@ import React from 'react';
 import { PrivateChatToolBar } from './PrivateChatToolBar.jsx';
 import { ChatInputControls } from './ChatInputControls.jsx';
 import { ChatMessage } from './ChatMessage.jsx';
+import { Users, Chat } from '/collections/collections';
 
-export let Chat = React.createClass({
+export let ChatComponent = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let chatMessages, privateChatName, chattingWith, user, messageFontSize, temp, user_exists;
@@ -11,19 +12,19 @@ export let Chat = React.createClass({
     messageFontSize = { fontSize: getInSession('messageFontSize') + 'px' };
     chattingWith = getInSession('inChatWith');
     if (chattingWith === 'PUBLIC_CHAT') { // find all public and system messages
-      chatMessages = Meteor.Chat.find({ 'message.chat_type': { $in: ['SYSTEM_MESSAGE', 'PUBLIC_CHAT'] } },
+      chatMessages = Chat.find({ 'message.chat_type': { $in: ['SYSTEM_MESSAGE', 'PUBLIC_CHAT'] } },
           { sort: { 'message.from_time': 1 } }).fetch();
     } else {
-      chatMessages = Meteor.Chat.find({ 'message.chat_type': 'PRIVATE_CHAT', $or: [{ 'message.to_userid': chattingWith },
+      chatMessages = Chat.find({ 'message.chat_type': 'PRIVATE_CHAT', $or: [{ 'message.to_userid': chattingWith },
         { 'message.from_userid': chattingWith }, ], }).fetch();
     }
 
-    user = Meteor.Users.findOne({ userId: chattingWith });
+    user = Users.findOne({ userId: chattingWith });
     if (user != null) {
       privateChatName = user.user.name;
     }
 
-    if (getInSession('inChatWith') === 'PUBLIC_CHAT' || Meteor.Users.findOne({
+    if (getInSession('inChatWith') === 'PUBLIC_CHAT' || Users.findOne({
         userId: getInSession('inChatWith'),
       }) != null) {
       user_exists = true;
@@ -41,7 +42,7 @@ export let Chat = React.createClass({
 
   detectUnreadChat: function () {
     //if the current tab is not the same as the tab we just published in
-    return Meteor.Chat.find({}).observe({
+    return Chat.find({}).observe({
       added: (_this => {
         return function (chatMessage) {
           let findDestinationTab;

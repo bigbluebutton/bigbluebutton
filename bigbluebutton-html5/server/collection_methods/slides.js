@@ -1,8 +1,10 @@
+import { Slides } from '/collections/collections';
+
 export function displayThisSlide(meetingId, newSlideId, slideObject) {
   let presentationId;
   presentationId = newSlideId.split('/')[0]; // grab the presentationId part of the slideId
   // change current to false for the old slide
-  Meteor.Slides.update({
+  Slides.update({
     presentationId: presentationId,
     'slide.current': true,
   }, {
@@ -12,7 +14,7 @@ export function displayThisSlide(meetingId, newSlideId, slideObject) {
   });
 
   //change current to true for the new slide and update its ratios and offsets
-  Meteor.Slides.update({
+  Slides.update({
     presentationId: presentationId,
     'slide.id': newSlideId,
   }, {
@@ -28,7 +30,7 @@ export function displayThisSlide(meetingId, newSlideId, slideObject) {
 
 export function addSlideToCollection(meetingId, presentationId, slideObject) {
   let entry, id;
-  if (Meteor.Slides.findOne({
+  if (Slides.findOne({
     meetingId: meetingId,
     'slide.id': slideObject.id,
   }) == null) {
@@ -49,9 +51,9 @@ export function addSlideToCollection(meetingId, presentationId, slideObject) {
         thumb_uri: slideObject.thumb_uri,
       },
     };
-    return id = Meteor.Slides.insert(entry);
+    return id = Slides.insert(entry);
 
-    //Meteor.log.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Meteor.Slides.find({meetingId: meetingId}).count()} slides in the meeting"
+    //Meteor.log.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
   }
 };
 
@@ -59,11 +61,11 @@ export function addSlideToCollection(meetingId, presentationId, slideObject) {
 export function clearSlidesCollection() {
   const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Slides.remove({
+    return Slides.remove({
       meetingId: meetingId,
     }, Meteor.log.info(`cleared Slides Collection (meetingId: ${meetingId}!`));
   } else {
-    return Meteor.Slides.remove({}, Meteor.log.info('cleared Slides Collection (all meetings)!'));
+    return Slides.remove({}, Meteor.log.info('cleared Slides Collection (all meetings)!'));
   }
 };
 

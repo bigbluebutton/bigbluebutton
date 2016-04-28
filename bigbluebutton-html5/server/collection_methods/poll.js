@@ -1,3 +1,5 @@
+import { Polls } from '/collections/collections';
+
 export function addPollToCollection(poll, requester_id, users, meetingId) {
   let _users, answer, entry, i, j, user;
 
@@ -31,29 +33,29 @@ export function addPollToCollection(poll, requester_id, users, meetingId) {
     },
   };
   Meteor.log.info(`added poll _id=[${poll.id}]:meetingId=[${meetingId}].`);
-  return Meteor.Polls.insert(entry);
+  return Polls.insert(entry);
 };
 
 export function clearPollCollection() {
   const meetingId = arguments[0];
   const pollId = arguments[1];
   //TODO make it so you can delete the polls based only on meetingId
-  if (meetingId != null && pollId != null && Meteor.Polls.findOne({
+  if (meetingId != null && pollId != null && Polls.findOne({
     'poll_info.meetingId': meetingId,
     'poll_info.poll.id': pollId,
   }) != null) {
-    return Meteor.Polls.remove({
+    return Polls.remove({
       'poll_info.meetingId': meetingId,
       'poll_info.poll.id': pollId,
     }, Meteor.log.info(`cleared Polls Collection (meetingId: ${meetingId}, pollId: ${pollId}!)`));
   } else {
-    return Meteor.Polls.remove({}, Meteor.log.info('cleared Polls Collection (all meetings)!'));
+    return Polls.remove({}, Meteor.log.info('cleared Polls Collection (all meetings)!'));
   }
 };
 
 export function updatePollCollection(poll, meetingId, requesterId) {
   if ((poll.answers != null) && (poll.num_responders != null) && (poll.num_respondents != null) && (poll.id != null) && (meetingId != null) && (requesterId != null)) {
-    return Meteor.Polls.update({
+    return Polls.update({
       'poll_info.meetingId': meetingId,
       'poll_info.requester': requesterId,
       'poll_info.poll.id': poll.id,

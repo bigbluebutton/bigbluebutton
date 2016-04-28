@@ -1,3 +1,5 @@
+import { Users, Shapes, Meetings, Presentations, Slides, Chat, Cursor } from '/collections/collections';
+
 this.getBuildInformation = function () {
   let copyrightYear, defaultWelcomeMessage, defaultWelcomeMessageFooter, html5ClientBuild, link, ref, ref1, ref2, ref3;
   copyrightYear = ((ref = Meteor.config) != null ? ref.copyrightYear : void 0) || 'DATE';
@@ -68,7 +70,7 @@ Handlebars.registerHelper('equals', (a, b) => { // equals operator was dropped i
 });
 
 Handlebars.registerHelper('getCurrentMeeting', () => {
-  return Meteor.Meetings.findOne();
+  return Meetings.findOne();
 });
 
 Handlebars.registerHelper('getCurrentSlide', () => {
@@ -93,7 +95,7 @@ Handlebars.registerHelper('getShapesForSlide', () => {
   currentSlide = BBB.getCurrentSlide();
 
   // try to reuse the lines above
-  return Meteor.Shapes.find({
+  return Shapes.find({
     whiteboardId: currentSlide != null ? (ref = currentSlide.slide) != null ? ref.id : void 0 : void 0,
   });
 });
@@ -101,7 +103,7 @@ Handlebars.registerHelper('getShapesForSlide', () => {
 // retrieves all users in the meeting
 Handlebars.registerHelper('getUsersInMeeting', () => {
   let users;
-  users = Meteor.Users.find().fetch();
+  users = Users.find().fetch();
   if ((users != null ? users.length : void 0) > 1) {
     return getSortedUserList(users);
   } else {
@@ -122,7 +124,7 @@ Handlebars.registerHelper('isCurrentUser', userId => {
 //Retreives a username for a private chat tab from the database if it exists
 Handlebars.registerHelper('privateChatName', () => {
   let obj, ref;
-  obj = Meteor.Users.findOne({
+  obj = Users.findOne({
     userId: getInSession('inChatWith'),
   });
   if (obj != null) {
@@ -195,15 +197,15 @@ Handlebars.registerHelper('messageFontSize', () => {
 //#TODO REMOVE
 Handlebars.registerHelper('pointerLocation', () => {
   let currentPresentation, currentSlideDoc, pointer, presentationId, ref;
-  currentPresentation = Meteor.Presentations.findOne({
+  currentPresentation = Presentations.findOne({
     'presentation.current': true,
   });
   presentationId = currentPresentation != null ? (ref = currentPresentation.presentation) != null ? ref.id : void 0 : void 0;
-  currentSlideDoc = Meteor.Slides.findOne({
+  currentSlideDoc = Slides.findOne({
     presentationId: presentationId,
     'slide.current': true,
   });
-  pointer = Meteor.Cursor.findOne();
+  pointer = Cursor.findOne();
   pointer.x = (-currentSlideDoc.slide.x_offset * 2 + currentSlideDoc.slide.width_ratio * pointer.x) / 100;
   pointer.y = (-currentSlideDoc.slide.y_offset * 2 + currentSlideDoc.slide.height_ratio * pointer.y) / 100;
   return pointer;
@@ -331,7 +333,7 @@ this.safeString = function (str) {
 };
 
 this.toggleCam = function (event) {
-  // Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
+  // Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
   // Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 };
 
@@ -365,10 +367,10 @@ this.toggleUsersList = function () {
 this.populateNotifications = function (msg) {
   let chat, chats, initChats, j, l, len, len1, myPrivateChats, myUserId, new_msg_userid, results, u, uniqueArray, users;
   myUserId = getInSession('userId');
-  users = Meteor.Users.find().fetch();
+  users = Users.find().fetch();
 
   // assuming that I only have access only to private messages where I am the sender or the recipient
-  myPrivateChats = Meteor.Chat.find({
+  myPrivateChats = Chat.find({
     'message.chat_type': 'PRIVATE_CHAT',
   }).fetch();
   uniqueArray = [];
@@ -698,14 +700,14 @@ this.onLoadComplete = function () {
   let ref;
   document.title = `BigBlueButton ${(ref = BBB.getMeetingName()) != null ? ref : 'HTML5'}`;
   setDefaultSettings();
-  Meteor.Users.find().observe({
+  Users.find().observe({
     removed(oldDocument) {
       if (oldDocument.userId === getInSession('userId')) {
         return document.location = getInSession('logoutURL');
       }
     },
   });
-  return Meteor.Users.find().observe({
+  return Users.find().observe({
     changed(newUser, oldUser) {
       if (Meteor.config.app.listenOnly === true && newUser.user.presenter === false && oldUser.user.presenter === true && BBB.getCurrentUser().userId === newUser.userId && oldUser.user.listenOnly === false) {
         return exitVoiceCall(this, joinVoiceCall);

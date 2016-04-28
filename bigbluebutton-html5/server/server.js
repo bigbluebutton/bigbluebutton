@@ -1,4 +1,5 @@
 import { clearCollections } from '/server/helpers';
+import { WhiteboardCleanStatus } from '/collections/collections';
 
 const indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
@@ -8,7 +9,7 @@ Meteor.startup(() => {
   Meteor.log.info('server start');
 
   //remove all data
-  Meteor.WhiteboardCleanStatus.remove({});
+  WhiteboardCleanStatus.remove({});
   clearCollections();
 
   const eventEmitter = new (Npm.require('events').EventEmitter);

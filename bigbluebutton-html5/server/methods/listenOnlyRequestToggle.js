@@ -1,6 +1,8 @@
 import { publish } from '../redispubsub';
 import { isAllowedTo } from '../user_permissions';
 import { appendMessageHeader } from '/server/helpers';
+import { Users, Meetings} from '/collections/collections';
+
 
 Meteor.methods({
   // meetingId: the meetingId of the meeting the user is in
@@ -9,14 +11,14 @@ Meteor.methods({
   // requesterToken: the authToken of the requester
   listenOnlyRequestToggle(meetingId, userId, authToken, isJoining) {
     let message, userObject, username, voiceConf, meetingObject;
-    meetingObject = Meteor.Meetings.findOne({
+    meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
     if (meetingObject != null) {
       voiceConf = meetingObject.voiceConf;
     }
 
-    userObject = Meteor.Users.findOne({
+    userObject = Users.findOne({
       meetingId: meetingId,
       userId: userId,
     });

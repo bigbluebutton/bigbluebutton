@@ -8,11 +8,11 @@ export let WhiteboardControls = React.createClass({
     let currentPresentation, currentSlide, currentSlideNum, ref, ref1, totalSlideNum;
     currentSlideNum = 0;
     totalSlideNum = 0;
-    currentPresentation = Meteor.Presentations.findOne({
+    currentPresentation = Presentations.findOne({
       'presentation.current': true,
     });
     if (currentPresentation != null) {
-      currentSlide = Meteor.Slides.findOne({
+      currentSlide = Slides.findOne({
         presentationId: currentPresentation.presentation.id,
         'slide.current': true,
       });
@@ -20,7 +20,7 @@ export let WhiteboardControls = React.createClass({
         currentSlideNum = currentSlide.slide.num;
       }
 
-      totalSlides = Meteor.Slides.find({ presentationId: currentPresentation.presentation.id });
+      totalSlides = Slides.find({ presentationId: currentPresentation.presentation.id });
       if (totalSlides != null) {
         totalSlideNum = totalSlides.count();
       }

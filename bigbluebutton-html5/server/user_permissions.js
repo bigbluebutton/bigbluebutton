@@ -1,3 +1,5 @@
+import { Users, Meetings } from '/collections/collections';
+
 let moderator, presenter, viewer;
 
 presenter = {
@@ -68,8 +70,8 @@ viewer = function (meetingId, userId) {
 
     // muting
     muteSelf: true,
-    unmuteSelf: !((meeting = Meteor.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disableMic) ||
-    !((user = Meteor.Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked),
+    unmuteSelf: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disableMic) ||
+    !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked),
 
     logoutSelf: true,
 
@@ -78,12 +80,12 @@ viewer = function (meetingId, userId) {
     subscribeChat: true,
 
     //chat
-    chatPublic: !((meeting = Meteor.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePublicChat) ||
-    !((user = Meteor.Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
+    chatPublic: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePublicChat) ||
+    !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
     (user != null && user.user.presenter),
 
-    chatPrivate: !((meeting = Meteor.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePrivateChat) ||
-    !((user = Meteor.Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
+    chatPrivate: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePrivateChat) ||
+    !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
     (user != null && user.user.presenter),
 
     //poll
@@ -100,7 +102,7 @@ viewer = function (meetingId, userId) {
 // actions and the default value - see 'viewer' and 'moderator' in the beginning of the file
 export function isAllowedTo(action, meetingId, userId, authToken) {
   let user, validated;
-  user = Meteor.Users.findOne({
+  user = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });
@@ -109,7 +111,7 @@ export function isAllowedTo(action, meetingId, userId, authToken) {
   }
 
   Meteor.log.info(`in isAllowedTo: action-${action}, userId=${userId}, authToken=${authToken} validated:${validated}`);
-  user = Meteor.Users.findOne({
+  user = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });

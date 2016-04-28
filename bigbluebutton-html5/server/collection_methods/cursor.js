@@ -1,6 +1,7 @@
+import { Cursor } from '/collections/collections';
 
 export function initializeCursor(meetingId) {
-  return Meteor.Cursor.upsert({
+  return Cursor.upsert({
     meetingId: meetingId,
   }, {
     meetingId: meetingId,
@@ -16,7 +17,7 @@ export function initializeCursor(meetingId) {
 };
 
 export function updateCursorLocation(meetingId, cursorObject) {
-  return Meteor.Cursor.update({
+  return Cursor.update({
     meetingId: meetingId,
   }, {
     $set: {
@@ -36,13 +37,13 @@ export function updateCursorLocation(meetingId, cursorObject) {
 export function clearCursorCollection() {
   const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Cursor.remove({
+    return Cursor.remove({
       meetingId: meetingId,
     }, () => {
       return Meteor.log.info(`cleared Cursor Collection (meetingId: ${meetingId})!`);
     });
   } else {
-    return Meteor.Cursor.remove({}, () => {
+    return Cursor.remove({}, () => {
       return Meteor.log.info('cleared Cursor Collection (all meetings)!');
     });
   }

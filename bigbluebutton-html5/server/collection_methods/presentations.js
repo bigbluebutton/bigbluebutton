@@ -1,9 +1,10 @@
+import { Presentations, Slides } from '/collections/collections';
 
 export function addPresentationToCollection(meetingId, presentationObject) {
   let entry, id, presentationObj;
 
   //check if the presentation is already in the collection
-  presentationObj = Meteor.Presentations.findOne({
+  presentationObj = Presentations.findOne({
     meetingId: meetingId,
     'presentation.id': presentationObject.id,
   });
@@ -16,24 +17,24 @@ export function addPresentationToCollection(meetingId, presentationObject) {
         current: presentationObject.current,
       },
     };
-    return id = Meteor.Presentations.insert(entry);
+    return id = Presentations.insert(entry);
 
     //Meteor.log.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size
-    // is now #{Meteor.Presentations.find({meetingId: meetingId}).count()}"
+    // is now #{Presentations.find({meetingId: meetingId}).count()}"
   }
 };
 
 export function removePresentationFromCollection(meetingId, presentationId) {
   let id, presentationObject;
-  presentationObject = Meteor.Presentations.findOne({
+  presentationObject = Presentations.findOne({
     meetingId: meetingId,
     'presentation.id': presentationId,
   });
   if (presentationObject != null) {
-    Meteor.Slides.remove({
+    Slides.remove({
         presentationId: presentationId,
       }, Meteor.log.info(`cleared Slides Collection (presentationId: ${presentationId}!`));
-    Meteor.Presentations.remove(presentationObject._id);
+    Presentations.remove(presentationObject._id);
     return Meteor.log.info(`----removed presentation[${presentationId}] from ${meetingId}`);
   }
 };
@@ -42,10 +43,10 @@ export function removePresentationFromCollection(meetingId, presentationId) {
 export function clearPresentationsCollection() {
   const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Presentations.remove({
+    return Presentations.remove({
       meetingId: meetingId,
     }, Meteor.log.info(`cleared Presentations Collection (meetingId: ${meetingId}!`));
   } else {
-    return Meteor.Presentations.remove({}, Meteor.log.info('cleared Presentations Collection (all meetings)!'));
+    return Presentations.remove({}, Meteor.log.info('cleared Presentations Collection (all meetings)!'));
   }
 };

@@ -5,11 +5,12 @@ import { clearSlidesCollection } from '/server/collection_methods/slides';
 import { clearPresentationsCollection } from '/server/collection_methods/presentations';
 import { clearPollCollection } from '/server/collection_methods/poll';
 import { clearCursorCollection, initializeCursor } from '/server/collection_methods/cursor';
+import { Meetings } from '/collections/collections';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording, voiceConf, duration, callback) {
   //check if the meeting is already in the collection
 
-  Meteor.Meetings.upsert({
+  Meetings.upsert({
     meetingId: meetingId,
   }, {
     $set: {
@@ -53,18 +54,18 @@ export function addMeetingToCollection(meetingId, name, intendedForRecording, vo
 export function clearMeetingsCollection() {
   const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Meetings.remove({
+    return Meetings.remove({
       meetingId: meetingId,
     }, Meteor.log.info(`cleared Meetings Collection (meetingId: ${meetingId}!`));
   } else {
-    return Meteor.Meetings.remove({}, Meteor.log.info('cleared Meetings Collection (all meetings)!'));
+    return Meetings.remove({}, Meteor.log.info('cleared Meetings Collection (all meetings)!'));
   }
 };
 
 //clean up upon a meeting's end
 export function removeMeetingFromCollection(meetingId, callback) {
   let funct;
-  if (Meteor.Meetings.findOne({
+  if (Meetings.findOne({
     meetingId: meetingId,
   }) != null) {
     Meteor.log.info(`end of meeting ${meetingId}. Clear the meeting data from all collections`);

@@ -24,7 +24,7 @@ export let UploaderControls = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let presentations;
-    presentations = Meteor.Presentations.find({}, {
+    presentations = Presentations.find({}, {
       sort: {
         'presentation.current': -1,
         'presentation.name': 1,

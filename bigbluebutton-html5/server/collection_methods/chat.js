@@ -1,3 +1,5 @@
+import {Chat } from '/collections/collections';
+
 export function addChatToCollection(meetingId, messageObject) {
   let id;
 
@@ -6,7 +8,7 @@ export function addChatToCollection(meetingId, messageObject) {
   messageObject.from_time = messageObject.from_time.toString().split('.').join('').split('E')[0];
   if ((messageObject.from_userid != null) && (messageObject.to_userid != null)) {
     messageObject.message = translateFlashToHTML5(messageObject.message);
-    return id = Meteor.Chat.upsert({
+    return id = Chat.upsert({
       meetingId: meetingId,
       'message.message': messageObject.message,
       'message.from_time': messageObject.from_time,
@@ -43,11 +45,11 @@ export function addChatToCollection(meetingId, messageObject) {
 export function clearChatCollection() {
   const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Chat.remove({
+    return Chat.remove({
       meetingId: meetingId,
     }, Meteor.log.info(`cleared Chat Collection (meetingId: ${meetingId}!`));
   } else {
-    return Meteor.Chat.remove({}, Meteor.log.info('cleared Chat Collection (all meetings)!'));
+    return Chat.remove({}, Meteor.log.info('cleared Chat Collection (all meetings)!'));
   }
 };
 

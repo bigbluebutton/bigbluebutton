@@ -6,6 +6,7 @@ import { addShapeToCollection, removeAllShapesFromSlide, removeShapeFromSlide } 
 import { addPresentationToCollection, removePresentationFromCollection } from '/server/collection_methods/presentations';
 import { addPollToCollection, updatePollCollection } from '/server/collection_methods/poll';
 import { addMeetingToCollection, removeMeetingFromCollection } from '/server/collection_methods/meetings';
+import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
 
 
 const bind = function (fn, me) { return function () { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function (item) {
@@ -286,7 +287,7 @@ registerHandlers = function (emitter) {
     let userId, user, validStatus, payload, meetingId;
     meetingId = arg.payload.meeting_id;
     userId = arg.payload.userid;
-    user = Meteor.Users.findOne({
+    user = Users.findOne({
       userId: userId,
       meetingId: meetingId,
     });
@@ -295,7 +296,7 @@ registerHandlers = function (emitter) {
     // if the user already exists in the db
     if (user != null && user.clientType === 'HTML5') {
       //if the html5 client user was validated successfully, add a flag
-      return Meteor.Users.update({
+      return Users.update({
         userId: userId,
         meetingId: meetingId,
       }, {
@@ -307,7 +308,7 @@ registerHandlers = function (emitter) {
         if (numChanged.insertedId != null) {
           funct = function (cbk) {
             let user, val;
-            user = Meteor.Users.findOne({
+            user = Users.findOne({
               userId: userId,
               meetingId: meetingId,
             });
@@ -335,7 +336,7 @@ registerHandlers = function (emitter) {
     meetingId = arg.payload.meeting_id;
     payload = arg.payload;
     userObj = payload.user;
-    dbUser = Meteor.Users.findOne({
+    dbUser = Users.findOne({
       userId: userObj.userid,
       meetingId: meetingId,
     });
@@ -371,7 +372,7 @@ registerHandlers = function (emitter) {
     newPresenterId = arg.payload.new_presenter_id;
     if (newPresenterId != null) {
       // reset the previous presenter
-      Meteor.Users.update({
+      Users.update({
         'user.presenter': true,
         meetingId: meetingId,
       }, {
@@ -383,7 +384,7 @@ registerHandlers = function (emitter) {
       });
 
       // set the new presenter
-      Meteor.Users.update({
+      Users.update({
         'user.userid': newPresenterId,
         meetingId: meetingId,
       }, {
@@ -406,7 +407,7 @@ registerHandlers = function (emitter) {
     if (userId != null && meetingId != null) {
       let set_emoji_time;
       set_emoji_time = new Date();
-      Meteor.Users.update({
+      Users.update({
         'user.userid': userId,
       }, {
         $set: {
@@ -448,7 +449,7 @@ registerHandlers = function (emitter) {
     if (arg.payload.requester_id === 'nodeJSapp') { //TODO extract this check
       let meetingId;
       meetingId = arg.payload.meeting_id;
-      if (Meteor.Meetings.findOne({
+      if (Meetings.findOne({
           MeetingId: meetingId,
         }) == null) {
         let chatHistory, _chat_history_length, chatMessage;
@@ -480,7 +481,7 @@ registerHandlers = function (emitter) {
       presentationId = payload.presentation.id;
 
       // change the currently displayed presentation to presentation.current = false
-      Meteor.Presentations.update({
+      Presentations.update({
         'presentation.current': true,
         meetingId: meetingId,
       }, {
@@ -576,10 +577,10 @@ registerHandlers = function (emitter) {
       let meetingId, shapes, shapes_length, m, shape, whiteboardId;
       meetingId = arg.payload.meeting_id;
       // Create a whiteboard clean status or find one for the current meeting
-      if (Meteor.WhiteboardCleanStatus.findOne({
+      if (WhiteboardCleanStatus.findOne({
           meetingId: meetingId,
         }) == null) {
-        Meteor.WhiteboardCleanStatus.insert({
+        WhiteboardCleanStatus.insert({
           meetingId: meetingId,
           in_progress: false,
         });
@@ -633,7 +634,7 @@ registerHandlers = function (emitter) {
     let whiteboardId, meetingId;
     meetingId = arg.payload.meeting_id;
     whiteboardId = arg.payload.whiteboard_id;
-    Meteor.WhiteboardCleanStatus.update({
+    WhiteboardCleanStatus.update({
       meetingId: meetingId,
     }, {
       $set: {
@@ -677,7 +678,7 @@ registerHandlers = function (emitter) {
 
       // In the case when we don't resize, but switch a slide, this message
       // follows a 'presentation_page_changed' and all these properties are already set.
-      currentSlide = Meteor.Slides.findOne(
+      currentSlide = Slides.findOne(
         { presentationId: presentationId,
           'slide.current': true, });
       if (currentSlide) {
@@ -686,7 +687,7 @@ registerHandlers = function (emitter) {
 
       if (currentSlide != null && (currentSlide.height_ratio != heightRatio || currentSlide.width_ratio != widthRatio
         || currentSlide.x_offset != xOffset || currentSlide.y_offset != yOffset)) {
-        Meteor.Slides.update({
+        Slides.update({
           presentationId: presentationId,
           'slide.current': true,
         }, {
@@ -709,7 +710,7 @@ registerHandlers = function (emitter) {
     currentlyBeingRecorded = arg.payload.recording;
     meetingId = arg.payload.meeting_id;
 
-    Meteor.Meetings.update({
+    Meetings.update({
       meetingId: meetingId,
       intendedForRecording: intendedForRecording,
     }, {
@@ -725,7 +726,7 @@ registerHandlers = function (emitter) {
     meetingId = arg.payload.meeting_id;
     payload = arg.payload;
 
-    meetingObject = Meteor.Meetings.findOne({
+    meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
     if (meetingObject != null && payload != null) {
@@ -738,7 +739,7 @@ registerHandlers = function (emitter) {
       }
 
       // substitute with the new lock settings
-      Meteor.Meetings.update({
+      Meetings.update({
         meetingId: meetingId,
       }, {
         $set: {
@@ -774,10 +775,10 @@ registerHandlers = function (emitter) {
     meetingId = payload.meeting_id;
 
     if (payload != null && meetingId != null && payload.requester_id != null && payload.poll != null) {
-      if (Meteor.Meetings.findOne({
+      if (Meetings.findOne({
           meetingId: meetingId,
         }) != null) {
-        users = Meteor.Users.find({
+        users = Users.find({
           meetingId: meetingId,
         }, {
           fields: {

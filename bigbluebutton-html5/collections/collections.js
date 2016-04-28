@@ -1,17 +1,22 @@
-Meteor.Users = new Meteor.Collection('bbb_users');
+import { Mongo } from 'meteor/mongo';
 
-Meteor.Chat = new Meteor.Collection('bbb_chat');
+export const Users = new Mongo.Collection('bbb_users');
 
-Meteor.Meetings = new Meteor.Collection('meetings');
+export const Chat = new Meteor.Collection('bbb_chat');
 
-Meteor.Presentations = new Meteor.Collection('presentations');
+export const Meetings = new Meteor.Collection('meetings');
 
-Meteor.Cursor = new Meteor.Collection('bbb_cursor');
+export const Presentations = new Meteor.Collection('presentations');
 
-Meteor.Shapes = new Meteor.Collection('shapes');
+export const Cursor = new Meteor.Collection('bbb_cursor');
 
-Meteor.Slides = new Meteor.Collection('slides');
+export const Shapes = new Meteor.Collection('shapes');
 
-Meteor.Polls = new Meteor.Collection('bbb_poll');
+export const Slides = new Meteor.Collection('slides');
 
-Meteor.WhiteboardCleanStatus = new Meteor.Collection('whiteboard-clean-status');
+export const Polls = new Meteor.Collection('bbb_poll');
+
+export const WhiteboardCleanStatus = new Meteor.Collection('whiteboard-clean-status');
+
+
+

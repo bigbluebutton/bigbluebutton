@@ -1,12 +1,14 @@
 import { isAllowedTo } from '/server/user_permissions';
 import { requestUserLeaving } from '/server/collection_methods/users';
+import { Users, Shapes, Meetings, Presentations, Slides, Chat, WhiteboardCleanStatus, Polls, Cursor } from '/collections/collections';
+
 
 // Publish only the online users that are in the particular meetingId
 // On the client side we pass the meetingId parameter
 Meteor.publish('users', function (meetingId, userid, authToken) {
   let user, userObject, username;
   Meteor.log.info(`attempt publishing users for ${meetingId}, ${userid}, ${authToken}`);
-  userObject = Meteor.Users.findOne({
+  userObject = Users.findOne({
     userId: userid,
     meetingId: meetingId,
   });
@@ -26,7 +28,7 @@ Meteor.publish('users', function (meetingId, userid, authToken) {
         username = 'UNKNOWN';
       }
 
-      Meteor.Users.update({
+      Users.update({
         meetingId: meetingId,
         userId: userid,
       }, {
@@ -39,7 +41,7 @@ Meteor.publish('users', function (meetingId, userid, authToken) {
         return function () {
           Meteor.log.info(`
 a user lost connection: session.id=${_this._session.id} userId = ${userid}, username=${username}, meeting=${meetingId}`);
-          Meteor.Users.update({
+          Users.update({
             meetingId: meetingId,
             userId: userid,
           }, {
@@ -53,7 +55,7 @@ a user lost connection: session.id=${_this._session.id} userId = ${userid}, user
       })(this)));
 
       //publish the users which are not offline
-      return Meteor.Users.find({
+      return Users.find({
         meetingId: meetingId,
         'user.connection_status': {
           $in: ['online', ''],
@@ -70,7 +72,7 @@ a user lost connection: session.id=${_this._session.id} userId = ${userid}, user
   } else { //subscribing before the user was added to the collection
     Meteor.call('validateAuthToken', meetingId, userid, authToken);
     Meteor.log.error(`there was no such user ${userid} in ${meetingId}`);
-    return Meteor.Users.find({
+    return Users.find({
       meetingId: meetingId,
       'user.connection_status': {
         $in: ['online', ''],
@@ -86,7 +88,7 @@ a user lost connection: session.id=${_this._session.id} userId = ${userid}, user
 Meteor.publish('chat', function (meetingId, userid, authToken) {
   if (isAllowedTo('subscribeChat', meetingId, userid, authToken)) {
     Meteor.log.info(`publishing chat for ${meetingId} ${userid} ${authToken}`);
-    return Meteor.Chat.find({
+    return Chat.find({
       $or: [
         {
           'message.chat_type': 'PUBLIC_CHAT',
@@ -111,13 +113,13 @@ Meteor.publish('bbb_poll', function (meetingId, userid, authToken) {
     //checking if it is allowed to see a number of votes (presenter only)
     if (isAllowedTo('subscribeAnswers', meetingId, userid, authToken)) {
       Meteor.log.info('publishing Poll for presenter: ' + meetingId + ' ' + userid + ' ' + authToken);
-      return Meteor.Polls.find({
+      return Polls.find({
         'poll_info.meetingId': meetingId,
         'poll_info.users': userid,
       });
     } else {
       Meteor.log.info('publishing Poll for viewer: ' + meetingId + ' ' + userid + ' ' + authToken);
-      return Meteor.Polls.find({
+      return Polls.find({
         'poll_info.meetingId': meetingId,
         'poll_info.users': userid,
       }, {
@@ -132,42 +134,42 @@ Meteor.publish('bbb_poll', function (meetingId, userid, authToken) {
 });
 
 Meteor.publish('shapes', function (meetingId) {
-  return Meteor.Shapes.find({
+  return Shapes.find({
     meetingId: meetingId,
   });
 });
 
 Meteor.publish('slides', function (meetingId) {
   Meteor.log.info(`publishing slides for ${meetingId}`);
-  return Meteor.Slides.find({
+  return Slides.find({
     meetingId: meetingId,
   });
 });
 
 Meteor.publish('meetings', function (meetingId) {
   Meteor.log.info(`publishing meetings for ${meetingId}`);
-  return Meteor.Meetings.find({
+  return Meetings.find({
     meetingId: meetingId,
   });
 });
 
 Meteor.publish('presentations', function (meetingId) {
   Meteor.log.info(`publishing presentations for ${meetingId}`);
-  return Meteor.Presentations.find({
+  return Presentations.find({
     meetingId: meetingId,
   });
 });
 
 Meteor.publish('bbb_cursor', function (meetingId) {
   Meteor.log.info(`publishing cursor for ${meetingId}`);
-  return Meteor.Cursor.find({
+  return Cursor.find({
     meetingId: meetingId,
   });
 });
 
 Meteor.publish('whiteboard-clean-status', function (meetingId) {
   Meteor.log.info(`whiteboard clean status ${meetingId}`);
-  return Meteor.WhiteboardCleanStatus.find({
+  return WhiteboardCleanStatus.find({
     meetingId: meetingId,
   });
 });

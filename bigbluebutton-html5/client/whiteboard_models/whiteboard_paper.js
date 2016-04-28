@@ -1,6 +1,8 @@
 // "Paper" which is the Raphael term for the entire SVG object on the webpage.
 // This class deals with this SVG component only.
-Meteor.WhiteboardPaperModel = (function () {
+import { Presentations, Slides } from '/collections/collections';
+
+WhiteboardPaperModel = (function () {
   class WhiteboardPaperModel {
 
     // Container must be a DOM element
@@ -408,11 +410,11 @@ Meteor.WhiteboardPaperModel = (function () {
       boardWidth = this.containerWidth;
       boardHeight = this.containerHeight;
       currentSlide = BBB.getCurrentSlide();
-      currentPresentation = Meteor.Presentations.findOne({
+      currentPresentation = Presentations.findOne({
         'presentation.current': true,
       });
       presentationId = currentPresentation != null ? (ref = currentPresentation.presentation) != null ? ref.id : void 0 : void 0;
-      currentSlideCursor = Meteor.Slides.find({
+      currentSlideCursor = Slides.find({
         presentationId: presentationId,
         'slide.current': true,
       });

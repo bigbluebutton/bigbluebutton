@@ -1,7 +1,7 @@
 import React from 'react';
 import {Header} from '/imports/ui/main/Header.jsx';
 import {Whiteboard} from '/imports/ui/whiteboard/Whiteboard.jsx';
-import {Chat} from '/imports/ui/chat/Chat.jsx';
+import {ChatComponent} from '/imports/ui/chat/Chat.jsx';
 
 MainContainer = React.createClass({
   handleShield() {
@@ -17,7 +17,7 @@ MainContainer = React.createClass({
           <div id="panels">
             <div onClick={this.handleShield} className="shield"></div>
             <Whiteboard />
-            <Chat />
+            <ChatComponent />
           </div>
       </div>
     );
