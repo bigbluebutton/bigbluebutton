@@ -104,7 +104,6 @@ let mapUsers = function () {
 
   return {
     // All this mapping should be on a service and not on the component itself
-    hasUsers: users.length,
     currentUser: users.find(u => u.isCurrent),
     users: users,
   };
