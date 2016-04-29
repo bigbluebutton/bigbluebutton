@@ -7,23 +7,23 @@ import classNames from 'classnames';
 import users from './users';
 import style from '../style';
 
-export let UserListItem = React.createClass({
+export default class UserListItem extends React.Component {
 
   handleKick(user) {
     return user.actions.kick(user);
-  },
+  }
 
   handleMuteUnmute(user) {
     return user.actions.mute(user);
-  },
+  }
 
   handleOpenPrivateChat(user) {
     return user.actions.openChat(user);
-  },
+  }
 
   handleSetPresenter(user) {
     return user.actions.setPresenter(user);
-  },
+  }
 
   render() {
     const user = this.props.user;
@@ -39,7 +39,7 @@ export let UserListItem = React.createClass({
         {this.renderSharingStatus()}
       </tr>
     );
-  },
+  }
 
   renderStatusIcons() {
     const user = this.props.user;
@@ -68,7 +68,7 @@ export let UserListItem = React.createClass({
         {statusIcons.map(i => i)}
       </td>
     );
-  },
+  }
 
   renderUserName() {
     const user = this.props.user;
@@ -86,7 +86,7 @@ export let UserListItem = React.createClass({
         </Tooltip>
       </td>
     );
-  },
+  }
 
   renderUnreadBadge() {
     const unreadMessagesCount = this.props.user.unreadMessagesCount;
@@ -100,7 +100,7 @@ export let UserListItem = React.createClass({
         {(unreadMessagesCount > 9) ? '9+' : unreadMessagesCount}
       </span>
     );
-  },
+  }
 
   renderSharingStatus() {
     const user = this.props.user;
@@ -190,5 +190,5 @@ export let UserListItem = React.createClass({
         </table>
       </td>
     );
-  },
-});;
+  }
+}

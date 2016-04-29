@@ -43,13 +43,15 @@ let muteUser = function () {
 };
 
 let mapUsers = function () {
+  let allUsers = Meteor.Users.find().fetch();
+  console.log('mapping');
   const currentUser = BBB.getCurrentUser();
   const isCurrentUserModerator = currentUser.user.role === 'MODERATOR';
   const currentUserId = currentUser.userId;
 
   const chats = getInSession('chats');
 
-  let users = Meteor.Users.find().fetch().map(u => u.user).map(u => {
+  let users = allUsers.map(u => u.user).map(u => {
     let user = {
       id: u.userid,
       name: u.name,
@@ -103,6 +105,7 @@ let mapUsers = function () {
 
   return {
     // All this mapping should be on a service and not on the component itself
+    hasUsers: users.length,
     currentUser: users.find(u => u.isCurrent),
     users: users,
   };

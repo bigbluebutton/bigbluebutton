@@ -1,16 +1,16 @@
 import React from 'react';
-import {UserList} from './UserList.jsx';
+import {createContainer} from 'meteor/react-meteor-data';
+import UserList from './UserList.jsx';
 import {mapUsers} from './UserListService.js';
 
-export let UserListContainer = React.createClass({
-  mixins: [ReactMeteorData],
-  getMeteorData() {
-    return mapUsers();
-  },
-
+class UserListContainer extends React.Component {
   render() {
-    return (
-      <UserList users={this.data.users} currentUser={this.data.currentUser}/>
-    );
-  },
-});;
+    return <UserList users={this.props.users.users} currentUser={this.props.users.currentUser}/>;
+  }
+};
+
+export default createContainer(() => {
+  return {
+    users: mapUsers()
+  };
+}, UserListContainer);
