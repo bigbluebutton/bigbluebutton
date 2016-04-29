@@ -15,7 +15,7 @@ export let Chat = React.createClass({
           { sort: { 'message.from_time': 1 } }).fetch();
     } else {
       chatMessages = Meteor.Chat.find({ 'message.chat_type': 'PRIVATE_CHAT', $or: [{ 'message.to_userid': chattingWith },
-        { 'message.from_userid': chattingWith }, ], }).fetch();
+        { 'message.from_userid': chattingWith },], }).fetch();
     }
 
     user = Meteor.Users.findOne({ userId: chattingWith });
