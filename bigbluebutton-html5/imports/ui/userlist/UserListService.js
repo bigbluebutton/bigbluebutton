@@ -44,7 +44,6 @@ let muteUser = function () {
 
 let mapUsers = function () {
   let allUsers = Meteor.Users.find().fetch();
-  console.log('mapping');
   const currentUser = BBB.getCurrentUser();
   const isCurrentUserModerator = currentUser.user.role === 'MODERATOR';
   const currentUserId = currentUser.userId;
