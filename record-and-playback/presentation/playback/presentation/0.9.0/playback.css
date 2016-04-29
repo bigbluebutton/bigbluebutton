@@ -223,10 +223,10 @@ body {
 }
 #thumbnails .thumbnail-wrapper.active img,
 #thumbnails .thumbnail-wrapper.active:hover img {
-	border-color: #3A87AD; /* #314b5d; */
+	border-color: #289ad6; /* #314b5d; */
 }
 #thumbnails .thumbnail-wrapper:hover img {
-	border-color: #3A87AD; /* #314b5d; */
+	border-color: #289ad6; /* #314b5d; */
 }
 #thumbnails img {
   max-height: 125px;
@@ -238,7 +238,7 @@ body {
 }
 #thumbnails .thumbnail-label {
 	color: #fff;
-	background: #3A87AD;
+	background: #289ad6;
 	font-weight: bold;
 	font-size: 12px;
 	position: absolute;
@@ -269,7 +269,7 @@ body {
   transform: translate3d(13rem, 0, 0);
 }
 ul.off-canvas-list li label {
-  background: #314b5d;
+  background: #2a2d34;
   color: #eee;
 }
 .exit-off-canvas {

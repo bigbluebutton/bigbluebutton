@@ -36,19 +36,15 @@
   float: left;
   clear: both;
   width: 95%;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-right: 35px;
-  padding-left: 5px;
+  padding: 5px 40px 5px 5px;
   border: 0;
-  background: #314b5d;
+  background: #2a2d34; /* #314b5d; */
 }
 /* <button>s */
 .acorn-player.bigbluebutton button {
   position: relative;
-  width: 5%;
-  max-width: 35px;
-  margin-right: 8px;
+  width: 35px;
+  margin: 0 6px;
   padding: 0px;
   border: none;
   background-color: transparent;
@@ -56,7 +52,7 @@
   background-position: center center;
   background-size: auto 100%;
 
-  opacity: 0.7;
+  opacity: 0.6;
   -moz-transition: all 0.2s ease-in-out;
   -webkit-transition: all 0.2s ease-in-out;
   -o-transition: all 0.2s ease-in-out;
@@ -89,30 +85,29 @@
   position: relative;
   display: block;
   float: left;
-  width: 75%;
-  height: 10px;
-  margin: 5px 1% 0px 1%;
-  background: #7289A8;
+  width: 70%;
+  height: 12px;
+  margin: 5px 10px 5px 10px;
+  background: #8E9DAF;
 }
 .acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-handle {
   display: block;
   position: absolute;
-  width: 10px;
-  height: 12px;
+  width: 12px;
+  height: 16px;
   border-left: 1px solid #333;
   border-right: 1px solid #333;
-  top: -1px;
+  top: -2px;
   background: #e6e6e6;
   cursor: pointer;
-  -webkit-transition: height .2s, top .2s, -webkit-transform .2s;
-  transition: height .2s, top .2s, transform .2s;
+  border-radius: 3px;
 }
 .acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-handle:hover {
-  height: 17px;
-  top: -4px;
+  /* height: 18px; */
+  /* top: -4px; */
 }
 .acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-range {
-  background: #119ecb;
+  background: #289ad6;
 }
 .acorn-player.bigbluebutton .acorn-buffer {
   background: #8E9DAF !important;
@@ -120,9 +115,9 @@
 .acorn-player.bigbluebutton .acorn-seek-slider .ui-state-focus, .acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-handle.ui-state-hover {
   background: #fff !important;
 
-  -moz-box-shadow: 0px 2px 15px #119ecb;
-  -webkit-box-shadow: 0px 2px 15px #119ecb;
-  box-shadow: 0px 2px 15px #119ecb;
+  -moz-box-shadow: 0px 2px 15px #289ad6;
+  -webkit-box-shadow: 0px 2px 15px #289ad6;
+  box-shadow: 0px 2px 15px #289ad6;
 }
 /* Timer */
 .acorn-player.bigbluebutton .acorn-timer {
@@ -133,18 +128,19 @@
   color: #eee;
   font-size: 0.9em;
   font-weight: bold;
+  min-width: 40px;
 }
 /* Volume Box */
 .acorn-player.bigbluebutton .acorn-volume-box {
   position: absolute;
   float: left;
   bottom: 6px;
-  right: 0px;
+  right: 0;
   overflow: visible;
-  width: 35px;
-  height: 35px;
   color: #fff;
-  transition: all 0.1s ease-in-out 0s
+  transition: all 0.1s ease-in-out 0s;
+  margin: 0 6px;
+  width: 35px;/* 5%; */
 }
 .acorn-player.bigbluebutton .acorn-volume-box:hover {
   height: 135px;
@@ -167,28 +163,22 @@
 .acorn-player.bigbluebutton .acorn-volume-slider {
   position: relative;
   height: 1px;
-  width: 10px;
-  left: 7px;
+  width: 12px;
+  margin: 0 auto;
   visibility: visible;
   opacity: 0;
   border: 1px solid #666;
-  background: #e6e6e6;
-  -moz-transition: all 0.1s ease-in-out;
-  -webkit-transition: all 0.1s ease-in-out;
-  -o-transition: all 0.1s ease-in-out;
-  transition: all 0.1s ease-in-out;
+  background: #ddd; /* #8E9DAF; */
 }
 .acorn-player.bigbluebutton .acorn-volume-slider .ui-slider-handle {
-  width: 16px;
+  width: 18px;
   height: 8px;
   left: -4px;
   margin-bottom:-0.6em;
   margin-left:0;
   border: 1px solid #666;
-
+  border-radius: 3px;
   background: #e6e6e6;
-  /* background-image: -moz-linear-gradient(top, #e6e6e6, #d5d5d5); */
-  /* background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #e6e6e6),color-stop(1, #d5d5d5)); */
 
   -moz-transition: all 0.1s ease-in-out;
   -webkit-transition: all 0.1s ease-in-out;
@@ -198,13 +188,14 @@
 .acorn-player.bigbluebutton .acorn-volume-slider .ui-slider-handle:hover, .acorn-player.bigbluebutton .acorn-volume-slider.handle-focused .ui-slider-handle {
   background: #fff;
 
-  -moz-box-shadow: 0px 2px 15px #119ecb;
-  -webkit-box-shadow: 0px 2px 15px #119ecb;
-  box-shadow: 0px 2px 15px #119ecb;
+  -moz-box-shadow: 0px 2px 15px #289ad6;
+  -webkit-box-shadow: 0px 2px 15px #289ad6;
+  box-shadow: 0px 2px 15px #289ad6;
 }
 .acorn-player.bigbluebutton .acorn-volume-slider .ui-slider-range {
-  background: #119ecb;
+  background: #289ad6;
   box-shadow: inset 0 3px 3px #d5d5d5;
+  margin-top: 15px;
 }
 /* Volume Button */
 .acorn-player.bigbluebutton .acorn-volume-button {
@@ -215,8 +206,8 @@
   background: url(bigbluebutton-volume-full.png) no-repeat;
   background-size: contain;
   text-indent: -9999px;
-
-  opacity: 0.8;
+  margin: 0;
+  opacity: 0.6;
 }
 .acorn-player.bigbluebutton .acorn-volume-button:active {
   top: auto;
@@ -272,24 +263,75 @@
   background-image: url(bigbluebutton-transcript.png);
 }
 
+.acorn-player .loading-media {
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  margin: 0 auto;
+  background: none;
+  z-index: 999;
+  position: relative;
+  margin-top: 6px;
+}
+/* Controls overlay while loading */
+.show-loading .acorn-controls:after {
+  content: '';
+  position: absolute;
+  top: -2px; /* Slider handle goes above */
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background: #2a2d34;
+  opacity: 0.85;
+}
+
+/* Very small screens only */
+@media only screen and (max-width: 21em) {
+  .acorn-player.bigbluebutton .acorn-seek-slider {
+    width: 20%;
+  }
+  .acorn-player.bigbluebutton .acorn-controls {
+    padding-right: 35px;
+  }
+  .acorn-player.bigbluebutton button {
+    width: 25px;
+  }
+  .acorn-player.bigbluebutton .acorn-volume-box {
+    width: 25px;
+  }
+}
 
 /* Small screens only */
-@media only screen and (max-width: 40em) {
+@media only screen and (min-width: 21.063em) {
+/* @media only screen and (max-width: 40em) { -- this is used by foundation */
   .acorn-player.bigbluebutton .acorn-seek-slider {
-    width: 65%;
+    width: 40%;
+  }
+  .acorn-player.bigbluebutton .acorn-controls {
+    padding-right: 35px;
+  }
+  .acorn-player.bigbluebutton button {
+    position: relative;
+    width: 25px;
+  }
+  .acorn-player.bigbluebutton .acorn-volume-box {
+    width: 25px;
+    right: 0px;
   }
 }
 
 /* Medium screens up */
 @media only screen and (min-width: 40.063em) {
   .acorn-player.bigbluebutton .acorn-seek-slider {
-    width: 70%;
+    width: 65%;
   }
 }
 
 /* Large screens up */
 @media only screen and (min-width: 64.063em) {
   .acorn-player.bigbluebutton .acorn-seek-slider {
-    width: 75%;
+    width: 70%;
   }
 }
