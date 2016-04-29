@@ -122,11 +122,11 @@ setTitleOnThumbnail = function($thumb) {
   if (src !== undefined) {
     var num = "?";
     var name = "undefined";
-    var match = src.match(/slide-(.*).png/)
+    var match = src.match(/slide-(.*).png/);
     if (match) { num = match[1]; }
-    match = src.match(/([^/]*)\/slide-.*\.png/)
+    match = src.match(/([^/]*)\/slide-.*\.png/);
     if (match) { name = match[1]; }
-    $thumb.attr("title", name + " (" + num + ")")
+    $thumb.attr("title", name + " (" + num + ")");
   }
 }
 
@@ -146,12 +146,13 @@ setEventsOnThumbnail = function($thumb) {
   pop.code({
     start: timeIn,
     end: timeOut,
-    onStart: function( options ) {
+    onStart: function(options) {
+      $parent = $(".thumbnail-wrapper").removeClass("active");
       $parent = $("#thumbnail-" + Math.ceil(options.start)).parent();
       $parent.addClass("active");
       animateToCurrentSlide();
     },
-    onEnd: function( options ) {
+    onEnd: function(options) {
       $parent = $("#thumbnail-" + Math.ceil(options.start)).parent();
       $parent.removeClass("active");
     }
@@ -174,9 +175,7 @@ setEventsOnThumbnail = function($thumb) {
   });
 };
 
-var animateToCurrentSlide = function(force) {
-  // console.log("==Animating to current slide");
-  force = typeof force !== 'undefined' ? force : false;
+var animateToCurrentSlide = function() {
   var $container = $("#thumbnails").parents(".left-off-canvas-menu");
 
   var currentThumb = $(".thumbnail-wrapper.active");

@@ -530,20 +530,11 @@ svgobj.addEventListener('load', function() {
   }
   svjobjLoaded = true;
 
-  var p = Popcorn("#video");
-  // console.log("** popcorn video: [onloadeddata] activated");
-  // if (firstLoad) {
-  p.currentTime(defineStartTime());
-  //   firstLoad = false;
-  // } else {
-  //   // TODO: This is only done so the current image is painted again after
-  //   // a swap between the presentation and video. Can be removed once this
-  //   // file and the rendering process is improved.
-  //   next_image = current_image;
-  //   current_image = previous_image;
-  // }
-
   generateThumbnails();
+
+  var p = Popcorn("#video");
+  p.currentTime(defineStartTime());
+
   removeLoadingScreen();
 }, false);
 
