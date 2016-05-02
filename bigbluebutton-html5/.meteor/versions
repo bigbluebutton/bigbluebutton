@@ -76,11 +76,6 @@ reactive-var@1.0.9
 reload@1.1.8
 retry@1.0.7
 routepolicy@1.0.10
-sanjo:jasmine@0.21.0
-sanjo:karma@3.1.1
-sanjo:long-running-child-process@1.1.5
-sanjo:meteor-files-helpers@1.2.0_1
-sanjo:meteor-version@1.0.0
 session@1.1.5
 spacebars@1.0.11
 spacebars-compiler@1.0.11
@@ -95,10 +90,5 @@ tracker@1.0.13
 ui@1.0.11
 underscore@1.0.8
 url@1.0.9
-velocity:chokidar@1.2.0_1
-velocity:core@0.10.10
-velocity:meteor-internals@1.1.0_7
-velocity:meteor-stubs@1.1.1
-velocity:shim@0.1.0
 webapp@1.2.8
 webapp-hashing@1.0.9
