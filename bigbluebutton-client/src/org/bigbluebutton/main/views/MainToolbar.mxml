@@ -397,7 +397,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<views:RecordButton id="recordBtn"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20"/>
-	<views:WebRTCAudioStatus id="webRTCAudioStatus" visible="{muteMeBtn.visible}" height="20"/>
+	<views:WebRTCAudioStatus id="webRTCAudioStatus" height="20"/>
 	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 
 <!--

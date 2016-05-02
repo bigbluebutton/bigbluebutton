@@ -22,10 +22,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:flc="flexlib.controls.*"
 	xmlns:mate="http://mate.asfusion.com/"
+	visible="false"
+	includeInLayout="false"
 	creationComplete="onCreationComplete()"
 	styleName="webRTCAudioStatusStyle">
 
 	<mate:Listener type="{BBBEvent.WEBRTC_MONITOR_UPDATE_EVENT}" method="handleWebRTCMonitor" />
+	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
+	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
 
 	<mx:Script>
 		<![CDATA[
@@ -35,6 +39,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.ArrayCollection;
 
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.modules.phone.PhoneOptions;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCAudioStatus);
@@ -42,6 +48,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var webRTCAudioStatusHistory:ArrayCollection = new ArrayCollection([0, 0]);
 
 			private function onCreationComplete():void {
+			}
+
+			private function handleWebRTCCallStartedEvent(event:WebRTCCallEvent):void {
+				var phoneOptions:PhoneOptions = new PhoneOptions();
+				if (phoneOptions.showWebRTCStats) {
+					this.visible = this.includeInLayout = true;
+				}
+			}
+
+			private function handleWebRTCCallEndedEvent(event:WebRTCCallEvent):void {
+				var phoneOptions:PhoneOptions = new PhoneOptions();
+				if (phoneOptions.showWebRTCStats) {
+					this.visible = this.includeInLayout = false;
+				}
 			}
 
 			private function getRateFromHistory(rate: Number):Number {
