@@ -1,8 +1,0 @@
-# Server
-ServerPort: 8090
-
-# Logging
-LogDir: "var/log/bbb-client/"
-LogExt: ".log"
-LogMaxAllowedFileSize: 500
-AllowedClients: ["flex3", "html5"]
