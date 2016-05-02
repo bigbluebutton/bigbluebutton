@@ -1,6 +1,8 @@
 package org.bigbluebutton.web.video {
 	import org.bigbluebutton.web.video.views.VideoWindow;
 	import org.bigbluebutton.web.video.views.VideoWindowMediator;
+	import org.bigbluebutton.web.video.views.WebcamGroup;
+	import org.bigbluebutton.web.video.views.WebcamGroupMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -36,7 +38,8 @@ package org.bigbluebutton.web.video {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(VideoWindow).toMediator(VideoWindowMediator);
+			mediatorMap.map(WebcamGroup).toMediator(WebcamGroupMediator);
+			//mediatorMap.map(VideoWindow).toMediator(VideoWindowMediator);
 		}
 		
 		/**
