@@ -5,6 +5,10 @@ const indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
 };
 
+export var myQueue = new PowerQueue({
+  // autoStart:true
+  // isPaused: true
+});
 
 const log = {};
 if (process != null && process.env != null && process.env.NODE_ENV == 'production') {
@@ -80,18 +84,13 @@ Meteor.startup(() => {
     return logger.info('created pubsub');
   });
 
-  Meteor.myQueue = new PowerQueue({
-    // autoStart:true
-    // isPaused: true
-  });
-
-  Meteor.myQueue.taskHandler = function (data, next, failures) {
+  myQueue.taskHandler = function (data, next, failures) {
     let eventName, parsedMsg, length, lengthString;
     parsedMsg = JSON.parse(data.jsonMsg);
 
     if (parsedMsg != null) {
       eventName = parsedMsg.header.name;
-      length = Meteor.myQueue.length();
+      length = myQueue.length();
       lengthString = function () {
             if (length > 0) {
               return `In the queue we have ${length} event(s) to process.`;

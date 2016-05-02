@@ -7,42 +7,12 @@ import { addPresentationToCollection, removePresentationFromCollection } from '/
 import { addPollToCollection, updatePollCollection } from '/server/collection_methods/poll';
 import { addMeetingToCollection, removeMeetingFromCollection } from '/server/collection_methods/meetings';
 import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger, myQueue } from '/server/server.js';
 import { redisConfig } from '/config';
 
 const bind = function (fn, me) { return function () { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
 };
-
-Meteor.methods({
-  // Construct and send a message to bbb-web to validate the user
-  validateAuthToken(meetingId, userId, authToken) {
-    let message;
-    logger.info('sending a validate_auth_token with', {
-      userid: userId,
-      authToken: authToken,
-      meetingid: meetingId,
-    });
-    message = {
-      payload: {
-        auth_token: authToken,
-        userid: userId,
-        meeting_id: meetingId,
-      },
-      header: {
-        timestamp: new Date().getTime(),
-        reply_to: `${meetingId}/${userId}`,
-        name: 'validate_auth_token',
-      },
-    };
-    if ((authToken != null) && (userId != null) && (meetingId != null)) {
-      createDummyUser(meetingId, userId, authToken);
-      return publish(redisConfig.channels.toBBBApps.meeting, message);
-    } else {
-      return logger.info('did not have enough information to send a validate_auth_token message');
-    }
-  },
-});
 
 Meteor.RedisPubSub = (function () {
   class RedisPubSub {
@@ -86,10 +56,10 @@ Meteor.RedisPubSub = (function () {
         // For DEVELOPMENT purposes only
         // Ddynamic shapes' updates will slow down significantly
         if(Meteor.settings.public.mode == 'development') {
-          logger.info(`Q ${eventName} ${Meteor.myQueue.total()}`);
+          logger.info(`Q ${eventName} ${myQueue.total()}`);
         }
 
-        return Meteor.myQueue.add({
+        return myQueue.add({
           pattern: pattern,
           channel: channel,
           jsonMsg: jsonMsg,
