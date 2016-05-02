@@ -20,7 +20,9 @@ export default class Navbar extends Component {
     const { presentationTitle } = this.props;
     return (
       <div>
-        <Link to="/html5client/users">Open UserList</Link>
+        <Link to="/html5client/users">
+          <i className="icon-bbb-user"></i>
+        </Link>
         <h1>{presentationTitle}</h1>
       </div>
     );

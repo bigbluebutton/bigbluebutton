@@ -5,12 +5,12 @@ import App from './App.jsx';
 
 import NavbarContainer from '../navbar/NavbarContainer.jsx';
 import ActionsbarContainer from '../actionsbar/ActionsbarContainer.jsx';
-import WelcomeContainer from '../welcome/WelcomeContainer.jsx';
+import MediaContainer from '../media/MediaContainer.jsx';
 
 const defaultProps = {
   navbar: <NavbarContainer/>,
   actionsbar: <ActionsbarContainer/>,
-  media: <WelcomeContainer/>,
+  media: <MediaContainer/>,
 };
 
 class AppContainer extends Component {

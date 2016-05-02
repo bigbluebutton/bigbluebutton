@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  flex: 2;
+  align-items: center;
+  justify-content: center;
+}
+
+.main {
+  flex-basis: 90%;
+  padding: 3rem 5rem;
+}
+
+.side {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  padding: 3rem;
+  width: 25%;
+}

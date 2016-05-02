@@ -1,12 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
+import styles from './styles';
 
 const propTypes = {
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
   sidebarRight: PropTypes.element,
   media: PropTypes.element,
-  sideMedia: PropTypes.element,
   actionsbar: PropTypes.element,
 };
 
@@ -14,28 +14,24 @@ export default class App extends Component {
   renderNavbar() {
     const { navbar } = this.props;
 
-    if(navbar) {
+    if (navbar) {
       return (
-        <header className="navbar">
+        <header className={styles.navbar}>
           {navbar}
         </header>
       );
-    } else {
-      return 'oi';
     }
 
     return false;
   }
 
   renderSidebar(isRight = false) {
-    const sidebar = this.props[isRight ? 'sidebarRight' : 'sidebar'];
+    const propName = isRight ? 'sidebarRight' : 'sidebar';
+    let sidebar = this.props[propName];
 
-    if(sidebar) {
+    if (sidebar) {
       return (
-        <aside className={classNames({
-          sidebar: true,
-          sidebarRight: isRight,
-        })}>
+        <aside className={styles[propName]}>
           {sidebar}
         </aside>
       );
@@ -47,25 +43,10 @@ export default class App extends Component {
   renderMedia() {
     const { media } = this.props;
 
-    if(media) {
+    if (media) {
       return (
-        <section className="media">
+        <section className={styles.media}>
           {media}
-          {this.renderSideMedia()}
-        </section>
-      );
-    }
-
-    return false;
-  }
-
-  renderSideMedia() {
-    const { sideMedia } = this.props;
-
-    if(sideMedia) {
-      return (
-        <section className="sideMedia">
-          {sideMedia}
         </section>
       );
     }
@@ -76,9 +57,9 @@ export default class App extends Component {
   renderActionsbar() {
     const { actionsbar } = this.props;
 
-    if(actionsbar) {
+    if (actionsbar) {
       return (
-        <section className="actions">
+        <section className={styles.actionsbar}>
           {actionsbar}
         </section>
       );
@@ -89,11 +70,11 @@ export default class App extends Component {
 
   render() {
     return (
-      <main className="main">
+      <main className={styles.main}>
         {this.renderNavbar()}
-        <section className="wrap">
+        <section className={styles.wrapper}>
           {this.renderSidebar()}
-          <div className="content">
+          <div className={styles.content}>
             {this.renderMedia()}
             {this.renderActionsbar()}
           </div>

@@ -1,22 +1,22 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import Welcome from './Welcome.jsx';
+import Media from './Media.jsx';
 
-class WelcomeContainer extends Component {
+class MediaContainer extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
     return (
-      <Welcome {...this.props}>
+      <Media {...this.props}>
         {this.props.children}
-      </Welcome>
+      </Media>
     );
   }
 }
 
 export default createContainer(() => {
   return {};
-}, WelcomeContainer);
+}, MediaContainer);

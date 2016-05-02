@@ -8,7 +8,7 @@ class ChatContainer extends Component {
     super(props);
     this.state = {
       currentChat: null,
-    }
+    };
   }
 
   componentDidMount() {

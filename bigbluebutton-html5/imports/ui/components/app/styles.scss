@@ -1,0 +1,65 @@
+@import "imports/ui/stylesheets/variables/_all";
+
+.main {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  position: relative;
+  text-align: center;
+  padding: .8rem 1rem;
+  font-size: 1.5rem;
+}
+
+.wrapper {
+  position: relative;
+
+  @include mq($medium-up) {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+  }
+}
+
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  @include mq($medium-up) {
+    flex: 5;
+    order: 2;
+  }
+}
+
+.sidebar {
+  position: relative;
+
+  @include mq($medium-up) {
+    flex: 1 15vw;
+    order: 1;
+  }
+}
+
+.sidebarRight {
+  @extend .sidebar;
+
+  @include mq($medium-up) {
+    order: 1;
+  }
+}
+
+.media {
+  position: relative;
+  display: flex;
+  flex: 1;
+  order: 1;
+}
+
+.actionsbar {
+  position: relative;
+  order: 2;
+}

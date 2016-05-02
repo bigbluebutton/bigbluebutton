@@ -1,0 +1,28 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1rem; /* 16px */
+}
+
+a {
+  color: inherit;
+}
+
+#app {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+
+/* DEBUG ONLY */
+* {
+  background-color: rgba(0, 0, 0, .025) !important;
+}

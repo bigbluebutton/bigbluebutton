@@ -19,6 +19,6 @@ export default class UserList extends Component {
         </ul>
         {this.props.children}
       </div>
-    )
+    );
   }
 }
