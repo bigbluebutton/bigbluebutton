@@ -71,6 +71,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
                 chatNoiseCheckBox.selected = Accessibility.active;
                 changeChatNoise();
+                
+                lockSettingsChanged();
             }
             
             public function accessibleClick(event:KeyboardEvent):void{
@@ -93,6 +95,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
             protected function openPrivateChat(event:Event):void{
                 if (usersList.selectedIndex == -1) return;
+                
+                if (!usersList.visible || !usersList.enabled) return;
                 
                 var chatWithUserID:String = usersList.selectedItem.userID;
                 
@@ -121,7 +125,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               }
             }
           
-          private function lockSettingsChanged(e:Event):void {
+          private function lockSettingsChanged(e:Event = null):void {
             
             if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
             
