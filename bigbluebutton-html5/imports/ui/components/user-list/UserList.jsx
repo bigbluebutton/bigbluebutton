@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import styles from './styles.scss';
 import { Link } from 'react-router';
 
 export default class UserList extends Component {
@@ -17,7 +18,6 @@ export default class UserList extends Component {
             <Link to={`/html5client/users/chat/${'tiago-jacobs'}`}>Open Private Chat With Tiago</Link>
           </li>
         </ul>
-        {this.props.children}
       </div>
     );
   }

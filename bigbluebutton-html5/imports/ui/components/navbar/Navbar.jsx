@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
-import { Link } from 'react-router';
+import styles from './styles.scss';
+import { withRouter } from 'react-router';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -7,23 +8,33 @@ const propTypes = {
 };
 
 const defaultProps = {
-  presentationTitle: 'Default Presentation Title',
+  presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
 };
 
-export default class Navbar extends Component {
+class Navbar extends Component {
   constructor(props) {
     super(props);
+
+    this.handleToggleUserList = this.handleToggleUserList.bind(this);
+  }
+
+  handleToggleUserList() {
+    /*
+      TODO: Find out how to get the current route here
+      so we can change the click behavior
+    */
+    this.props.router.push('/html5client/users');
   }
 
   render() {
     const { presentationTitle } = this.props;
     return (
       <div>
-        <Link to="/html5client/users">
+        <button onClick={this.handleToggleUserList}>
           <i className="icon-bbb-user"></i>
-        </Link>
-        <h1>{presentationTitle}</h1>
+        </button>
+        <span>{presentationTitle}</span>
       </div>
     );
   }
@@ -31,3 +42,5 @@ export default class Navbar extends Component {
 
 Navbar.propTypes = propTypes;
 Navbar.defaultProps = defaultProps;
+
+export default withRouter(Navbar);

@@ -51,7 +51,6 @@ $breakpoints: (
 );
 
 @mixin mq($media) {
-  @debug $media;
   // If the key exists in the map
   @if map-has-key($breakpoints, $media) {
     // Prints a media query based on the value

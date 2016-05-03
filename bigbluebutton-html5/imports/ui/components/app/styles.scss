@@ -1,5 +1,8 @@
 @import "imports/ui/stylesheets/variables/_all";
 
+$navbar-height: 60px; // TODO: Change to Navbar real height
+$actionsbar-height: 50px; // TODO: Change to Actionsbar real height
+
 .main {
   position: relative;
   height: 100%;
@@ -10,24 +13,45 @@
 .navbar {
   position: relative;
   text-align: center;
-  padding: .8rem 1rem;
+  z-index: 10;
+
   font-size: 1.5rem;
+  padding: .8rem 1rem;
+  background: blue;
 }
 
 .wrapper {
   position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 
   @include mq($medium-up) {
-    display: flex;
-    flex: 1;
     flex-direction: row;
   }
 }
 
-.content {
-  position: relative;
+%full-page {
+  position: absolute;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @include mq($small-only) {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  @include mq($medium-up) {
+    position: relative;
+  }
+}
+
+.content {
+  @extend %full-page;
 
   @include mq($medium-up) {
     flex: 5;
@@ -35,31 +59,66 @@
   }
 }
 
-.sidebar {
-  position: relative;
+.userList {
+  @extend %full-page;
+  z-index: 2;
+  background: green;
+
+  @include mq($small-only) {
+    padding-top: $navbar-height;
+  }
 
   @include mq($medium-up) {
-    flex: 1 15vw;
+    flex: 1 10vw;
     order: 1;
   }
 }
 
-.sidebarRight {
-  @extend .sidebar;
+.chat {
+  @extend %full-page;
+  z-index: 3;
+  background: red;
+
+  @include mq($small-only) {
+    padding-top: $navbar-height;
+  }
 
   @include mq($medium-up) {
+    flex: 1 10vw;
     order: 1;
+  }
+}
+
+.sidebar {
+  @extend %full-page;
+  z-index: 4;
+  background: yellow;
+
+  @include mq($medium-up) {
+    flex: 1 15vw;
+    order: 2;
   }
 }
 
 .media {
-  position: relative;
-  display: flex;
+  @extend %full-page;
+  background: magenta;
   flex: 1;
   order: 1;
+
+  @include mq($small-only) {
+    padding-bottom: $actionsbar-height;
+  }
 }
 
 .actionsbar {
+  background: cyan;
   position: relative;
   order: 2;
+
+  @include mq($small-only) {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
 }

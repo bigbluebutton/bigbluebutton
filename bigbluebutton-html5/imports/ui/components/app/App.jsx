@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import classNames from 'classnames';
 import styles from './styles';
 
 const propTypes = {
@@ -25,15 +24,42 @@ export default class App extends Component {
     return false;
   }
 
-  renderSidebar(isRight = false) {
-    const propName = isRight ? 'sidebarRight' : 'sidebar';
-    let sidebar = this.props[propName];
+  renderSidebar() {
+    const { sidebar } = this.props;
 
     if (sidebar) {
       return (
-        <aside className={styles[propName]}>
+        <aside className={styles.sidebar}>
           {sidebar}
         </aside>
+      );
+    }
+
+    return false;
+  }
+
+  renderUserList() {
+    const { userList } = this.props;
+
+    if (userList) {
+      return (
+        <nav className={styles.userList}>
+          {userList}
+        </nav>
+      );
+    }
+
+    return false;
+  }
+
+  renderChat() {
+    const { chat } = this.props;
+
+    if (chat) {
+      return (
+        <section className={styles.chat} role="log">
+          {chat}
+        </section>
       );
     }
 
@@ -71,14 +97,15 @@ export default class App extends Component {
   render() {
     return (
       <main className={styles.main}>
-        {this.renderNavbar()}
         <section className={styles.wrapper}>
-          {this.renderSidebar()}
+          {this.renderUserList()}
+          {this.renderChat()}
           <div className={styles.content}>
+            {this.renderNavbar()}
             {this.renderMedia()}
             {this.renderActionsbar()}
           </div>
-          {this.renderSidebar(true)}
+          {this.renderSidebar()}
         </section>
       </main>
     );

@@ -17,9 +17,9 @@ class ChatContainer extends Component {
   }
 
   render() {
-    const { chatID } = this.props.params;
+    const { chatID, ...props } = this.props.params;
     return (
-      <Chat currentChat={chatID}>
+      <Chat currentChat={chatID} {...props}>
         {this.props.children}
       </Chat>
     );

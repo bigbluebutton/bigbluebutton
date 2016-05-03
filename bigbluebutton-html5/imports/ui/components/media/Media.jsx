@@ -1,18 +1,54 @@
 import React, { Component, PropTypes } from 'react';
-import classNames from 'classnames';
 import styles from './styles.scss';
+import { FormattedMessage, FormattedDate } from 'react-intl';
+
+const propTypes = {
+  content: PropTypes.element.isRequired,
+  overlay: PropTypes.element,
+};
 
 export default class Media extends Component {
-  render() {
+  renderContent() {
+    const { content } = this.props;
+
     return (
-      <div className={styles.container}>
-        <div className={styles.main}>
-          Welcome! Your presentation will begin shortly...
-        </div>
-        <div className={styles.side}>
-          Here will be side media (webcams)
+      <div className={styles.contentWrapper}>
+        <div className={styles.contentRatio}>
+          <div className={styles.content}>
+            {content}
+          </div>
         </div>
       </div>
     );
   }
+
+  renderOverlay() {
+    const { overlay } = this.props;
+
+    if (overlay) {
+      return (
+        <div className={styles.overlayWrapper}>
+          <div className={styles.overlayRatio}>
+            <div className={styles.overlay}>
+              {overlay}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return false;
+  }
+
+  render() {
+    return (
+      <div className={styles.container}>
+        {this.props.children}
+        {this.renderContent()}
+        {this.renderOverlay()}
+      </div>
+    );
+  }
 }
+
+Media.propTypes = propTypes;
