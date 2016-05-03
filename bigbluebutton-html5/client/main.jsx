@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {UserListContainer} from '/imports/ui/userlist/UserListContainer.jsx';
+import UserListContainer from '/imports/ui/userlist/UserListContainer.jsx';
 import { createContainer } from 'meteor/react-meteor-data';
 import '/imports/ui/stylesheets/variables.less';
 import '/imports/ui/stylesheets/style.less';

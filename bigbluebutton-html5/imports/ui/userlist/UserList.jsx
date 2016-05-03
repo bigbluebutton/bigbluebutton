@@ -1,8 +1,8 @@
 import React from 'react';
-import {UserListItem} from './UserListItem.jsx';
 import users from './users';
+import UserListItem from './UserListItem.jsx';
 
-export let UserList = React.createClass({
+export default class UserList extends React.Component {
   render() {
     return (
       <table className={users['user-list']}>
@@ -11,5 +11,5 @@ export let UserList = React.createClass({
         </tbody>
       </table>
     );
-  },
-});;
+  }
+}

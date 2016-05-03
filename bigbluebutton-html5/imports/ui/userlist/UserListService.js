@@ -43,13 +43,14 @@ let muteUser = function () {
 };
 
 let mapUsers = function () {
+  let allUsers = Meteor.Users.find().fetch();
   const currentUser = BBB.getCurrentUser();
   const isCurrentUserModerator = currentUser.user.role === 'MODERATOR';
   const currentUserId = currentUser.userId;
 
   const chats = getInSession('chats');
 
-  let users = Meteor.Users.find().fetch().map(u => u.user).map(u => {
+  let users = allUsers.map(u => u.user).map(u => {
     let user = {
       id: u.userid,
       name: u.name,
