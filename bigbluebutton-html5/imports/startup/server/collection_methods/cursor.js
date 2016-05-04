@@ -1,5 +1,5 @@
 import { Cursor } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/imports/startup/server/logger';
 
 export function initializeCursor(meetingId) {
   return Cursor.upsert({

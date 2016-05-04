@@ -1,7 +1,7 @@
-import { logger } from '/server/server';
+import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
-import { createDummyUser } from '/server/collection_methods/users';
-import { publish } from '/server/redispubsub';
+import { createDummyUser } from '/imports/startup/server/collection_methods/users';
+import { publish } from '/imports/startup/server/redispubsub';
 
 Meteor.methods({
     // Construct and send a message to bbb-web to validate the user

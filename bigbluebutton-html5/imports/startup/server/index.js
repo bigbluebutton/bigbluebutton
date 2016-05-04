@@ -1,7 +1,9 @@
-import { logger } from '/server/logger';
+import { logger } from '/imports/startup/server/logger';
 
-import { RedisPubSub } from '/server/redispubsub2';
-import { EventQueue } from '/server/EventQueue';
+import { RedisPubSub } from '/imports/startup/server/redispubsub2';
+import { EventQueue } from '/imports/startup/server/EventQueue';
+
+import '/server/server';
 
 export const myQueue = new EventQueue();
 

@@ -1,5 +1,5 @@
 import { Polls } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/imports/startup/server/logger';
 
 export function addPollToCollection(poll, requester_id, users, meetingId) {
   let _users, answer, entry, i, j, user;

@@ -1,13 +1,13 @@
-import { addChatToCollection } from '/server/collection_methods/chat';
-import { updateCursorLocation } from '/server/collection_methods/cursor';
-import { setUserLockedStatus, handleLockingMic, createDummyUser, userJoined, markUserOffline, updateVoiceUser } from '/server/collection_methods/users';
-import { addSlideToCollection, displayThisSlide } from '/server/collection_methods/slides';
-import { addShapeToCollection, removeAllShapesFromSlide, removeShapeFromSlide } from '/server/collection_methods/shapes';
-import { addPresentationToCollection, removePresentationFromCollection } from '/server/collection_methods/presentations';
-import { addPollToCollection, updatePollCollection } from '/server/collection_methods/poll';
-import { addMeetingToCollection, removeMeetingFromCollection } from '/server/collection_methods/meetings';
+import { addChatToCollection } from '/imports/startup/server/collection_methods/chat';
+import { updateCursorLocation } from '/imports/startup/server/collection_methods/cursor';
+import { setUserLockedStatus, handleLockingMic, createDummyUser, userJoined, markUserOffline, updateVoiceUser } from '/imports/startup/server/collection_methods/users';
+import { addSlideToCollection, displayThisSlide } from '/imports/startup/server/collection_methods/slides';
+import { addShapeToCollection, removeAllShapesFromSlide, removeShapeFromSlide } from '/imports/startup/server/collection_methods/shapes';
+import { addPresentationToCollection, removePresentationFromCollection } from '/imports/startup/server/collection_methods/presentations';
+import { addPollToCollection, updatePollCollection } from '/imports/startup/server/collection_methods/poll';
+import { addMeetingToCollection, removeMeetingFromCollection } from '/imports/startup/server/collection_methods/meetings';
 import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
-import { logger } from '/server/logger';
+import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
 import { redisPubSub } from '/imports/startup/server/index';

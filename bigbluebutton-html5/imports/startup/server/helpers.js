@@ -1,11 +1,11 @@
-import { clearUsersCollection } from '/server/collection_methods/users';
-import { clearChatCollection } from '/server/collection_methods/chat';
-import { clearMeetingsCollection } from '/server/collection_methods/meetings';
-import { clearShapesCollection } from '/server/collection_methods/shapes';
-import { clearSlidesCollection } from '/server/collection_methods/slides';
-import { clearPresentationsCollection } from '/server/collection_methods/presentations';
-import { clearPollCollection } from '/server/collection_methods/poll';
-import { clearCursorCollection } from '/server/collection_methods/cursor';
+import { clearUsersCollection } from '/imports/startup/server/collection_methods/users';
+import { clearChatCollection } from '/imports/startup/server/collection_methods/chat';
+import { clearMeetingsCollection } from '/imports/startup/server/collection_methods/meetings';
+import { clearShapesCollection } from '/imports/startup/server/collection_methods/shapes';
+import { clearSlidesCollection } from '/imports/startup/server/collection_methods/slides';
+import { clearPresentationsCollection } from '/imports/startup/server/collection_methods/presentations';
+import { clearPollCollection } from '/imports/startup/server/collection_methods/poll';
+import { clearCursorCollection } from '/imports/startup/server/collection_methods/cursor';
 
 export function appendMessageHeader(eventName, messageObj) {
   let header;

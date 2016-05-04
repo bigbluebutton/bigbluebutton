@@ -1,6 +1,6 @@
-import { publish } from '../server';
+import { publish } from '/imports/startup/server/redispubsub';
 import { Users, Meetings, Chat } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
 // Only callable from server
@@ -81,8 +81,11 @@ export function requestUserLeaving(meetingId, userId) {
   }
 
   if ((userObject != null) && (voiceConf != null) && (userId != null) && (meetingId != null)) {
-    let lOnly;
-    lOnly = userObject.user.listenOnly;
+    let lOnly = false;
+    if (userObject.hasOwnProperty('user') && userObject.user.hasOwnProperty('listenOnly')) {
+      lOnly = userObject.user.listenOnly;
+    }
+
     // end listenOnly audio for the departing user
     if (null != lOnly && lOnly) {
       listenOnlyMessage = {

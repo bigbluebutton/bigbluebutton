@@ -1,8 +1,8 @@
 import { publish } from '../redispubsub';
 import { isAllowedTo } from '../user_permissions';
-import { appendMessageHeader } from '/server/helpers';
+import { appendMessageHeader } from '/imports/startup/server/helpers';
 import { Users, Meetings} from '/collections/collections';
-import { logger } from '/server/server';
+import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
 Meteor.methods({

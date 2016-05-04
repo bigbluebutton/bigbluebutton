@@ -1,8 +1,8 @@
-import { logger } from '/server/logger';
+import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 import { myQueue } from '/imports/startup/server/index';
-import { indexOf } from '/server/helpers';
-import { publish } from '/server/redispubsub';
+import { indexOf } from '/imports/startup/server/helpers';
+import { publish } from '/imports/startup/server/redispubsub';
 
 export class RedisPubSub {
   constructor() {

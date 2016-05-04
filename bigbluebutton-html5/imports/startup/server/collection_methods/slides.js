@@ -1,5 +1,5 @@
 import { Slides } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/imports/startup/server/logger';
 
 export function displayThisSlide(meetingId, newSlideId, slideObject) {
   let presentationId;

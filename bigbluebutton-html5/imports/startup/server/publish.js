@@ -1,7 +1,7 @@
-import { isAllowedTo } from '/server/user_permissions';
-import { requestUserLeaving } from '/server/collection_methods/users';
+import { isAllowedTo } from '/imports/startup/server/user_permissions';
+import { requestUserLeaving } from '/imports/startup/server/collection_methods/users';
 import { Users, Shapes, Meetings, Presentations, Slides, Chat, WhiteboardCleanStatus, Polls, Cursor } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/imports/startup/server/logger';
 
 // Publish only the online users that are in the particular meetingId
 // On the client side we pass the meetingId parameter

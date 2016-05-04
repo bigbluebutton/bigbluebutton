@@ -1,12 +1,12 @@
-import { clearUsersCollection } from '/server/collection_methods/users';
-import { clearChatCollection } from '/server/collection_methods/chat';
-import { clearShapesCollection } from '/server/collection_methods/shapes';
-import { clearSlidesCollection } from '/server/collection_methods/slides';
-import { clearPresentationsCollection } from '/server/collection_methods/presentations';
-import { clearPollCollection } from '/server/collection_methods/poll';
-import { clearCursorCollection, initializeCursor } from '/server/collection_methods/cursor';
+import { clearUsersCollection } from '/imports/startup/server/collection_methods/users';
+import { clearChatCollection } from '/imports/startup/server/collection_methods/chat';
+import { clearShapesCollection } from '/imports/startup/server/collection_methods/shapes';
+import { clearSlidesCollection } from '/imports/startup/server/collection_methods/slides';
+import { clearPresentationsCollection } from '/imports/startup/server/collection_methods/presentations';
+import { clearPollCollection } from '/imports/startup/server/collection_methods/poll';
+import { clearCursorCollection, initializeCursor } from '/imports/startup/server/collection_methods/cursor';
 import { Meetings } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/imports/startup/server/logger';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording, voiceConf, duration, callback) {
   //check if the meeting is already in the collection

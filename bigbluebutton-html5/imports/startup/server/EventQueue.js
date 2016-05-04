@@ -1,6 +1,6 @@
-import { logger } from '/server/logger';
+import { logger } from '/imports/startup/server/logger';
 import { eventEmitter } from '/imports/startup/server/index';
-import { indexOf } from '/server/helpers';
+import { indexOf } from '/imports/startup/server/helpers';
 
 export class EventQueue {
 
@@ -10,8 +10,7 @@ export class EventQueue {
       // autoStart:true
       // isPaused: true
     });
-
-
+    
     queue.taskHandler = function (data, next, failures) {
       let eventName, parsedMsg, length, lengthString;
       parsedMsg = JSON.parse(data.jsonMsg);
@@ -53,14 +52,7 @@ export class EventQueue {
 
       }
     };
-
     return queue;
-
-
-  }
-
-  jaja(){
-    console.log("jajajajaja");
   }
 }
 

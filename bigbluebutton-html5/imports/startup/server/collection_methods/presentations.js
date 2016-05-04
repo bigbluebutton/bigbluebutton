@@ -1,5 +1,5 @@
 import { Presentations, Slides } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/imports/startup/server/logger';
 
 export function addPresentationToCollection(meetingId, presentationObject) {
   let entry, id, presentationObj;

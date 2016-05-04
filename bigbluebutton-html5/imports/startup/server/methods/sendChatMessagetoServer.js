@@ -1,8 +1,8 @@
-import { publish } from '/server/redispubsub';
-import { isAllowedTo } from '/server/user_permissions';
-import { appendMessageHeader } from '/server/helpers';
-import { translateHTML5ToFlash } from '/server/collection_methods/chat';
-import { logger } from '/server/server';
+import { publish } from '/imports/startup/server/redispubsub';
+import { isAllowedTo } from '/imports/startup/server/user_permissions';
+import { appendMessageHeader } from '/imports/startup/server/helpers';
+import { translateHTML5ToFlash } from '/imports/startup/server/collection_methods/chat';
+import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
 Meteor.methods({

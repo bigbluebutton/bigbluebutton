@@ -1,5 +1,5 @@
 import { Users, Meetings } from '/collections/collections';
-import { logger } from '/server/server.js';
+import { logger } from '/imports/startup/server/logger';
 
 let moderator, presenter, viewer;
 

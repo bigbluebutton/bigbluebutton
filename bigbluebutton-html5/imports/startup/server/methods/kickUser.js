@@ -1,6 +1,6 @@
 import { publish } from '../redispubsub';
 import { isAllowedTo } from '../user_permissions';
-import { appendMessageHeader } from '/server/helpers';
+import { appendMessageHeader } from '/imports/startup/server/helpers';
 import { redisConfig } from '/config';
 
 Meteor.methods({
