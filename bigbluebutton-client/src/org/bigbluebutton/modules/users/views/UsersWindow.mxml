@@ -324,7 +324,7 @@
 
 			private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
 				var alert:Alert = Alert.show(
-					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL'),
+					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL', [StringUtils.substringAfterLast(event.breakoutId, "-")]),
 					ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
 					Alert.YES | Alert.NO,
 					null,

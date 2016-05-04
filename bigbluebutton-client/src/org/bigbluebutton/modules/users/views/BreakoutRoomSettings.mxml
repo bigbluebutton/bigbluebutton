@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:mate="http://mate.asfusion.com/"
-				width="700" height="700"
+				width="630" height="600"
 				close="onCloseClicked()"
 				creationComplete="creationCompleteHandler(event)"
 				showCloseButton="false">
@@ -150,8 +150,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 		</mx:HBox>
 		
-		<mx:Tile id="roomsContainer" width="100%" height="100%"
-				 paddingTop="20" paddingBottom="20"/>
+		<mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
 			
 		<mx:VBox width="100%" horizontalAlign="center" verticalGap="12">
 			<mx:Button paddingLeft="20" id="randomAssignBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.randomAssign')}" click="assignUsers()"/>
@@ -160,7 +159,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:Canvas>
 		</mx:VBox>
 		
-		<mx:HBox width="100%" horizontalAlign="right">
+		<mx:HBox width="100%" horizontalAlign="right" verticalGap="15">
 			<mx:Button id="startButton" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.start')}" click="onStartClicked()"/>
 			<mx:Button label="{ResourceUtil.getInstance().getString('bbb.users.breakout.close')}" click="onCloseClicked()"/>
 		</mx:HBox>
