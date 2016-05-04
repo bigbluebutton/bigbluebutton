@@ -1,10 +1,10 @@
-import { clearUsersCollection } from '/imports/startup/server/collection_methods/users';
-import { clearChatCollection } from '/imports/startup/server/collection_methods/chat';
-import { clearShapesCollection } from '/imports/startup/server/collection_methods/shapes';
-import { clearSlidesCollection } from '/imports/startup/server/collection_methods/slides';
-import { clearPresentationsCollection } from '/imports/startup/server/collection_methods/presentations';
-import { clearPollCollection } from '/imports/startup/server/collection_methods/poll';
-import { clearCursorCollection, initializeCursor } from '/imports/startup/server/collection_methods/cursor';
+import { clearUsersCollection } from '/imports/startup/server/collectionManagers/users';
+import { clearChatCollection } from '/imports/startup/server/collectionManagers/chat';
+import { clearShapesCollection } from '/imports/startup/server/collectionManagers/shapes';
+import { clearSlidesCollection } from '/imports/startup/server/collectionManagers/slides';
+import { clearPresentationsCollection } from '/imports/startup/server/collectionManagers/presentations';
+import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
+import { clearCursorCollection, initializeCursor } from '/imports/startup/server/collectionManagers/cursor';
 import { Meetings } from '/collections/collections';
 import { logger } from '/imports/startup/server/logger';
 

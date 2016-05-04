@@ -1,6 +1,5 @@
-import { publish } from '../redispubsub';
-import { isAllowedTo } from '../user_permissions';
-import { appendMessageHeader } from '/imports/startup/server/helpers';
+import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import { appendMessageHeader, publish } from '/imports/startup/server/helpers';
 import { Users, Meetings} from '/collections/collections';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';

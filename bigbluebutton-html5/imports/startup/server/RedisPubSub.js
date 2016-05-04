@@ -2,7 +2,7 @@ import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 import { myQueue } from '/imports/startup/server/index';
 import { indexOf } from '/imports/startup/server/helpers';
-import { publish } from '/imports/startup/server/redispubsub';
+import { publish } from '/imports/startup/server/helpers';
 
 export class RedisPubSub {
   constructor() {
@@ -36,7 +36,8 @@ export class RedisPubSub {
     messagesWeIgnore = [
       'BbbPubSubPongMessage',
       'bbb_apps_is_alive_message',
-      'broadcast_layout_message',];
+      'broadcast_layout_message',
+    ];
     if (indexOf.call(messagesWeIgnore, eventName) < 0) {
 
       // For DEVELOPMENT purposes only

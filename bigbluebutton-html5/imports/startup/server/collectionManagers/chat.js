@@ -34,9 +34,9 @@ export function addChatToCollection(meetingId, messageObject) {
       }
 
       if (numChanged.insertedId != null) {
-        return logger.info(`${messageObject.to_username != null}_added chat
-         id=[${numChanged.insertedId}] ${messageObject.from_username}
-          to ${messageObject.to_username != null ? 'PUBLIC' : void 0}:${messageObject.message}`);
+        let to = messageObject.to_username != null ? 'PUBLIC' : void 0;
+        let msg = messageObject.message;
+        return logger.info(`added chat id=[${numChanged.insertedId}] ${messageObject.from_username} to ${to}:${msg}`);
       }
     });
   }

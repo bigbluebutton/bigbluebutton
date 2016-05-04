@@ -1,5 +1,5 @@
-import { isAllowedTo } from '/imports/startup/server/user_permissions';
-import { requestUserLeaving } from '/imports/startup/server/collection_methods/users';
+import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import { requestUserLeaving } from '/imports/startup/server/collectionManagers/users';
 import { Users, Shapes, Meetings, Presentations, Slides, Chat, WhiteboardCleanStatus, Polls, Cursor } from '/collections/collections';
 import { logger } from '/imports/startup/server/logger';
 

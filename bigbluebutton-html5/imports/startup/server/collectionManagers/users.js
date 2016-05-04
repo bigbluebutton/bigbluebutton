@@ -1,4 +1,4 @@
-import { publish } from '/imports/startup/server/redispubsub';
+import { publish } from '/imports/startup/server/helpers';
 import { Users, Meetings, Chat } from '/collections/collections';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';

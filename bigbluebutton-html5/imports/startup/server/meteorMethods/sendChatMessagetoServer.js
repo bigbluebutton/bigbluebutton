@@ -1,7 +1,7 @@
-import { publish } from '/imports/startup/server/redispubsub';
-import { isAllowedTo } from '/imports/startup/server/user_permissions';
+import { publish } from '/imports/startup/server/helpers';
+import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/startup/server/helpers';
-import { translateHTML5ToFlash } from '/imports/startup/server/collection_methods/chat';
+import { translateHTML5ToFlash } from '/imports/startup/server/collectionManagers/chat';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 

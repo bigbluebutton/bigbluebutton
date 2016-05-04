@@ -1,5 +1,5 @@
-import { publish } from '/imports/startup/server/redispubsub';
-import { isAllowedTo } from '/imports/startup/server/user_permissions';
+import { publish } from '/imports/startup/server/helpers';
+import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/startup/server/helpers';
 import { Presentations, Slides } from '/collections/collections';
 import { redisConfig } from '/config';
