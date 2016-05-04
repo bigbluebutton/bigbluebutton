@@ -15,6 +15,7 @@ export let PrivateChatToolBar = React.createClass({
         chat.gotMail = false;
         chat.number = 0;
       }
+
       $('.ui-tooltip').hide();
       return chat;
     }));
