@@ -10,7 +10,6 @@ import { clearCursorCollection } from '/imports/startup/server/collectionManager
 import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server/index';
 
-
 export function appendMessageHeader(eventName, messageObj) {
   let header;
   header = {
@@ -55,9 +54,7 @@ export function publish(channel, message) {
   }
 };
 
-
-
-export const handleVoiceEvent = function(arg) {
+export const handleVoiceEvent = function (arg) {
   let _voiceUser, meetingId;
   meetingId = arg.payload.meeting_id;
   _voiceUser = payload.user.voiceUser;
@@ -72,7 +69,7 @@ export const handleVoiceEvent = function(arg) {
   return updateVoiceUser(meetingId, voiceUserObj, arg.callback);
 };
 
-export const handleLockEvent = function(arg) {
+export const handleLockEvent = function (arg) {
   let userId, isLocked;
   userId = arg.payload.userid;
   isLocked = arg.payload.locked;
@@ -80,13 +77,12 @@ export const handleLockEvent = function(arg) {
   return arg.callback();
 };
 
-export const handleEndOfMeeting = function(arg) {
+export const handleEndOfMeeting = function (arg) {
   let meetingId;
   meetingId = arg.payload.meeting_id;
   logger.info(`DESTROYING MEETING ${meetingId}`);
   return removeMeetingFromCollection(meetingId, arg.callback);
 };
-
 
 export const handleChatEvent = function (arg) {
   let messageObject, meetingId;
@@ -110,5 +106,4 @@ export const handleRemoveUserEvent = function (arg) {
     return arg.callback();
   }
 };
-
 

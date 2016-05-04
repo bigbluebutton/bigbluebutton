@@ -5,12 +5,12 @@ import { indexOf } from '/imports/startup/server/helpers';
 export class EventQueue {
 
   constructor() {
-    console.log("in EventQueue constructor");
+    console.log('in EventQueue constructor');
     let queue = new PowerQueue({
       // autoStart:true
       // isPaused: true
     });
-    
+
     queue.taskHandler = function (data, next, failures) {
       let eventName, parsedMsg, length, lengthString;
       parsedMsg = JSON.parse(data.jsonMsg);
@@ -18,14 +18,16 @@ export class EventQueue {
       if (parsedMsg != null) {
         eventName = parsedMsg.header.name;
         length = queue.length();
-        lengthString = function () {
+        lengthString = (function () {
             if (length > 0) {
               return `In the queue we have ${length} event(s) to process.`;
-            } else return "";
-          }() || "";
+            } else return '';
+          }()) || '';
+
         logger.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
       }
-      console.log("in taskHandler:" + eventName);
+
+      console.log('in taskHandler:' + eventName);
 
       if (failures > 0) {
         next();
@@ -33,29 +35,28 @@ export class EventQueue {
       } else {
         logRedisMessage(eventName, data.jsonMsg);
 
-        // note!! we first check if we handle the event type. The handled event types are listed in an array
-        // if NOT in the array, call arg.callback()
+        // note!! we first check if we handle the event type. The handled event types are listed
+        // in an array if NOT in the array, call arg.callback()
         if (handledMessageTypes.indexOf(eventName) > -1) {
           return eventEmitter.emit(eventName, {
             payload: parsedMsg.payload,
             header: parsedMsg.header,
 
             callback: () => {
-              console.log("ready for next message");
+              console.log('ready for next message');
               return next();
             },
           });
         } else {
-          logger.error("NOT HANDLING:" + eventName);
+          logger.error('NOT HANDLING:' + eventName);
           return next();
         }
-
       }
     };
+
     return queue;
   }
 }
-
 
 const logRedisMessage = function (eventName, json) {
   // Avoid cluttering the log with json messages carrying little or repetitive
@@ -68,29 +69,30 @@ const logRedisMessage = function (eventName, json) {
     'presentation_cursor_updated_message',
     'get_presentation_info_reply',
 
-    //"get_users_reply"
+    //'get_users_reply'
     'get_chat_history_reply',
 
-    //"get_all_meetings_reply"
+    //'get_all_meetings_reply'
     'get_whiteboard_shapes_reply',
     'presentation_shared_message',
     'presentation_conversion_done_message',
     'presentation_conversion_progress_message',
     'presentation_page_generated_message',
 
-    //"presentation_page_changed_message"
+    //'presentation_page_changed_message'
     'BbbPubSubPongMessage',
     'bbb_apps_is_alive_message',
     'user_voice_talking_message',
     'meeting_state_message',
-    'get_recording_status_reply',];
+    'get_recording_status_reply',
+  ];
 
   // LOG in the meteor console
   if (eventName, indexOf.call(notLoggedEventTypes, eventName) < 0) {
 
     // For DEVELOPMENT purposes only
     // Dynamic shapes' updates will slow down significantly
-    if(Meteor.settings.public.mode == 'development') {
+    if (Meteor.settings.public.mode == 'development') {
       logger.info(`redis incoming message  ${eventName}  `, {
         message: json,
       });

@@ -15,9 +15,14 @@ config.copyrightYear = '2015';
 
 config.html5ClientBuild = 'NNNN';
 
-config.defaultWelcomeMessage = 'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial videos</u></a>.\r\rTo join the audio bridge click the gear icon (upper-right hand corner).  Use a headset to avoid causing background noise for others.\r\r\r';
+config.defaultWelcomeMessage = 'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see ' +
+  'these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial ' +
+  'videos</u></a>.\r\rTo join the audio bridge click the gear icon (upper-right hand corner). ' +
+  ' Use a headset to avoid causing background noise for others.\r\r\r';
 
-config.defaultWelcomeMessageFooter = `This server is running a build of <a href='http://docs.bigbluebutton.org/1.0/10overview.html' target='_blank'><u>BigBlueButton ${config.bbbServerVersion}</u></a>.`;
+let tempString = 'This server is running a build of ' +
+  "<a href='http://docs.bigbluebutton.org/1.0/10overview.html' target='_blank'><u>BigBlueButton";
+config.defaultWelcomeMessageFooter = `${tempString} ${config.bbbServerVersion}</u></a>.`;
 
 config.maxUsernameLength = 30;
 
@@ -43,10 +48,10 @@ config.app.listenOnly = false;
 
 config.app.skipCheck = false;
 
-// The amount of time the client will wait before making another call to successfully hangup the WebRTC conference call
+// The amount of time the client will wait before making another call to
+// successfully hangup the WebRTC conference call
 
 config.app.WebRTCHangupRetryInterval = 2000;
-
 
 // Configs for redis
 export const redisConfig = {

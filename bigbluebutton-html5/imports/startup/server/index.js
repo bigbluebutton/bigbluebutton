@@ -4,7 +4,7 @@ import { RedisPubSub } from '/imports/startup/server/RedisPubSub';
 import { EventQueue } from '/imports/startup/server/EventQueue';
 import { clearCollections } from '/imports/startup/server/helpers';
 
-Meteor.startup(function(){
+Meteor.startup(function () {
   clearCollections();
   logger.info('server start');
 });

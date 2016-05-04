@@ -11,5 +11,5 @@ Meteor.methods({
       logger.info(`a user is logging out from ${meetingId}:${userId}`);
       return requestUserLeaving(meetingId, userId);
     }
-  }
+  },
 });

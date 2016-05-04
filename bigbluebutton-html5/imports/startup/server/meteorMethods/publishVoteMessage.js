@@ -45,5 +45,5 @@ Meteor.methods({
         return publish(redisConfig.channels.toBBBApps.polling, message);
       }
     }
-  }
+  },
 });

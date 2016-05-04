@@ -23,10 +23,11 @@ Meteor.methods({
           new_presenter_name: newPresenterName,
           meeting_id: meetingId,
           assigned_by: requesterSetPresenter,
-        }
+        },
       };
     }
+
     message = appendMessageHeader('assign_presenter_request_message', message);
     return publish(redisConfig.channels.toBBBApps.users, message);
-  }
+  },
 });

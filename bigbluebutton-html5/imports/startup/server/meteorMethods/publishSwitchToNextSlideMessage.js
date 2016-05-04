@@ -4,7 +4,6 @@ import { appendMessageHeader } from '/imports/startup/server/helpers';
 import { Presentations, Slides } from '/collections/collections';
 import { redisConfig } from '/config';
 
-
 Meteor.methods({
   publishSwitchToNextSlideMessage(meetingId, userId, authToken) {
     let currentPresentationDoc, currentSlideDoc, message, nextSlideDoc;
@@ -29,12 +28,12 @@ Meteor.methods({
             payload: {
               page: nextSlideDoc.slide.id,
               meeting_id: meetingId,
-            }
+            },
           };
           message = appendMessageHeader('go_to_slide', message);
           return publish(redisConfig.channels.toBBBApps.presentation, message);
         }
       }
     }
-  }
+  },
 });

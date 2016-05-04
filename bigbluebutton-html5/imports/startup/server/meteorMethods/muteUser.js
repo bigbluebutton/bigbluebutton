@@ -27,7 +27,7 @@ Meteor.methods({
           meeting_id: meetingId,
           mute: true,
           requester_id: requesterUserId,
-        }
+        },
       };
       message = appendMessageHeader('mute_user_request_message', message);
       logger.info(`publishing a user mute request for ${toMuteUserId}`);
@@ -38,5 +38,5 @@ Meteor.methods({
         muted: true,
       });
     }
-  }
+  },
 });

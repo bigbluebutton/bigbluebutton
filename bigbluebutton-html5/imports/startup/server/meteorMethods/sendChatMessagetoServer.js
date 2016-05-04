@@ -6,7 +6,7 @@ import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
 Meteor.methods({
-// meetingId: the id of the meeting
+  // meetingId: the id of the meeting
   // chatObject: the object including info on the chat message, including the text
   // requesterUserId: the userId of the user sending chat
   // requesterToken: the authToken of the requester
@@ -42,5 +42,5 @@ Meteor.methods({
       logger.info('publishing chat to redis');
       publish(redisConfig.channels.toBBBApps.chat, message);
     }
-  }
+  },
 });

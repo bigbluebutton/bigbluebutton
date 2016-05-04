@@ -24,7 +24,7 @@ export class RedisPubSub {
       header: {
         name: 'get_all_meetings_request',
       },
-      payload: {} // I need this, otherwise bbb-apps won't recognize the message
+      payload: {}, // I need this, otherwise bbb-apps won't recognize the message
     };
     return publish(redisConfig.channels.toBBBApps.meeting, message);
   }
@@ -42,7 +42,7 @@ export class RedisPubSub {
 
       // For DEVELOPMENT purposes only
       // Dynamic shapes' updates will slow down significantly
-      if(Meteor.settings.public.mode == 'development') {
+      if (Meteor.settings.public.mode == 'development') {
         logger.info(`Q ${eventName} ${myQueue.total()}`);
       }
 

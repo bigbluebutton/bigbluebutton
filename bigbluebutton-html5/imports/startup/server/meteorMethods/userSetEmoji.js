@@ -12,12 +12,13 @@ Meteor.methods({
           emoji_status: status,
           userid: toRaiseUserId,
           meeting_id: meetingId,
-        }
+        },
       };
 
       message = appendMessageHeader('user_emoji_status_message', message);
+
       // publish to pubsub
       publish(redisConfig.channels.toBBBApps.users, message);
     }
-  }
+  },
 });

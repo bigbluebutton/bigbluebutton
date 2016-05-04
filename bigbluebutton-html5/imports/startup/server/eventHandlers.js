@@ -15,7 +15,6 @@ import { eventEmitter } from '/imports/startup/server/index';
 import { publish, handleChatEvent, handleEndOfMeeting, handleLockEvent,
   handleRemoveUserEvent, handleVoiceEvent} from '/imports/startup/server/helpers';
 
-
 // To ensure that we process the redis json event messages serially we use a
 // callback. This callback is to be called when the Meteor collection is
 // updated with the information coming in the payload of the json message. The
@@ -29,7 +28,7 @@ import { publish, handleChatEvent, handleEndOfMeeting, handleLockEvent,
 eventEmitter.on('get_users_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') {
     let users, processUser, meetingId;
-    console.log("get_users_reply handling");
+    console.log('get_users_reply handling');
     users = arg.payload.users;
     meetingId = arg.payload.meeting_id;
 
@@ -55,13 +54,12 @@ eventEmitter.on('get_users_reply', function (arg) {
     };
 
     return processUser();
-  }
-  else {
+  } else {
     arg.callback();
   }
 });
 
-eventEmitter.on('meeting_created_message', function(arg) {
+eventEmitter.on('meeting_created_message', function (arg) {
   meetingName = arg.payload.name;
   intendedForRecording = arg.payload.recorded;
   voiceConf = arg.payload.voice_conf;
@@ -70,7 +68,7 @@ eventEmitter.on('meeting_created_message', function(arg) {
   return addMeetingToCollection(meetingId, meetingName, intendedForRecording, voiceConf, duration, arg.callback);
 });
 
-eventEmitter.on('get_all_meetings_reply', function(arg) {
+eventEmitter.on('get_all_meetings_reply', function (arg) {
   let listOfMeetings, processMeeting;
   logger.info("Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!");
   logger.info(JSON.stringify(arg.payload));
@@ -87,26 +85,27 @@ eventEmitter.on('get_all_meetings_reply', function(arg) {
       return arg.callback(); // all meeting arrays (if any) have been processed
     }
   };
+
   return processMeeting();
 });
 
-eventEmitter.on('user_left_voice_message', function(arg) {
+eventEmitter.on('user_left_voice_message', function (arg) {
   handleVoiceEvent(arg);
 });
 
-eventEmitter.on('user_joined_voice_message', function(arg) {
+eventEmitter.on('user_joined_voice_message', function (arg) {
   handleVoiceEvent(arg);
 });
 
-eventEmitter.on('user_voice_talking_message', function(arg) {
+eventEmitter.on('user_voice_talking_message', function (arg) {
   handleVoiceEvent(arg);
 });
 
-eventEmitter.on('user_voice_muted_message', function(arg) {
+eventEmitter.on('user_voice_muted_message', function (arg) {
   handleVoiceEvent(arg);
 });
 
-eventEmitter.on('user_listening_only', function(arg) {
+eventEmitter.on('user_listening_only', function (arg) {
   let voiceUserObj, meetingId;
   voiceUserObj = {
     web_userid: arg.payload.userid,
@@ -116,11 +115,11 @@ eventEmitter.on('user_listening_only', function(arg) {
   return updateVoiceUser(meetingId, voiceUserObj, arg.callback);
 });
 
-eventEmitter.on('user_left_message', function(arg) {
+eventEmitter.on('user_left_message', function (arg) {
   handleRemoveUserEvent(arg);
 });
 
-eventEmitter.on('validate_auth_token_reply', function(arg) {
+eventEmitter.on('validate_auth_token_reply', function (arg) {
   let userId, user, validStatus, payload, meetingId;
   meetingId = arg.payload.meeting_id;
   userId = arg.payload.userid;
@@ -168,7 +167,7 @@ eventEmitter.on('validate_auth_token_reply', function(arg) {
   }
 });
 
-eventEmitter.on('user_joined_message', function(arg) {
+eventEmitter.on('user_joined_message', function (arg) {
   let userObj, dbUser, meetingId, payload;
   meetingId = arg.payload.meeting_id;
   payload = arg.payload;
@@ -189,6 +188,7 @@ eventEmitter.on('user_joined_message', function(arg) {
   } else {
     if (dbUser != null && dbUser.clientType === 'HTML5') {
       let status;
+
       // typically html5 users will be in
       // the db [as a dummy user] before the joining message
       status = dbUser.validated;
@@ -199,11 +199,12 @@ eventEmitter.on('user_joined_message', function(arg) {
       return userJoined(meetingId, userObj, arg.callback);
     }
   }
+
   return arg.callback();
 });
 
 // for now not handling these serially #TODO
-eventEmitter.on('presenter_assigned_message', function(arg) {
+eventEmitter.on('presenter_assigned_message', function (arg) {
   let newPresenterId, meetingId;
   meetingId = arg.payload.meeting_id;
   newPresenterId = arg.payload.new_presenter_id;
@@ -236,7 +237,7 @@ eventEmitter.on('presenter_assigned_message', function(arg) {
   return arg.callback();
 });
 
-eventEmitter.on('user_emoji_status_message', function(arg) {
+eventEmitter.on('user_emoji_status_message', function (arg) {
   let userId, meetingId, emojiStatus;
   userId = arg.payload.userid;
   meetingId = arg.payload.meeting_id;
@@ -255,6 +256,7 @@ eventEmitter.on('user_emoji_status_message', function(arg) {
       return logger.info(` Updating emoji numUpdated=${numUpdated}, err=${err}`);
     });
   }
+
   return arg.callback();
 });
 
@@ -298,6 +300,7 @@ eventEmitter.on('get_chat_history_reply', function (arg) {
       }
     }
   }
+
   return arg.callback();
 });
 
@@ -340,6 +343,7 @@ eventEmitter.on('presentation_shared_message', function (arg) {
       );
     }
   }
+
   return arg.callback();
 });
 
@@ -396,6 +400,7 @@ eventEmitter.on('presentation_page_changed_message', function (arg) {
   if (newSlide != null && newSlide.id != null && meetingId != null) {
     displayThisSlide(meetingId, newSlide.id, newSlide);
   }
+
   return arg.callback();
 });
 
@@ -406,6 +411,7 @@ eventEmitter.on('presentation_removed_message', function (arg) {
   if (meetingId != null && presentationId != null) {
     removePresentationFromCollection(meetingId, presentationId);
   }
+
   return arg.callback();
 });
 
@@ -413,6 +419,7 @@ eventEmitter.on('get_whiteboard_shapes_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') {
     let meetingId, shapes, shapes_length, m, shape, whiteboardId;
     meetingId = arg.payload.meeting_id;
+
     // Create a whiteboard clean status or find one for the current meeting
     if (WhiteboardCleanStatus.findOne({
         meetingId: meetingId,
@@ -439,6 +446,7 @@ eventEmitter.on('send_whiteboard_shape_message', function (arg) {
   let payload, shape, whiteboardId, meetingId;
   payload = arg.payload;
   meetingId = payload.meeting_id;
+
   //Meteor stringifies an array of JSONs (...shape.result) in this message
   //parsing the String and reassigning the value
   if (payload.shape.shape_type === 'poll_result' && typeof payload.shape.shape.result === 'string') {
@@ -491,11 +499,11 @@ eventEmitter.on('undo_whiteboard_request', function (arg) {
   return arg.callback();
 });
 
-eventEmitter.on('user_eject_from_meeting', function(arg) {
+eventEmitter.on('user_eject_from_meeting', function (arg) {
   handleRemoveUserEvent(arg);
 });
 
-eventEmitter.on('disconnect_user_message', function(arg) {
+eventEmitter.on('disconnect_user_message', function (arg) {
   handleRemoveUserEvent(arg);
 });
 
@@ -644,6 +652,7 @@ eventEmitter.on('poll_stopped_message', function (arg) {
     poll_id = payload.poll_id;
     clearPollCollection(meetingId, poll_id);
   }
+
   return arg.callback();
 });
 

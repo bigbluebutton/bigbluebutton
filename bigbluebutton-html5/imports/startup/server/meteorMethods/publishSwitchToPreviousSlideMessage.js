@@ -28,12 +28,12 @@ Meteor.methods({
             payload: {
               page: previousSlideDoc.slide.id,
               meeting_id: meetingId,
-            }
+            },
           };
           message = appendMessageHeader('go_to_slide', message);
           return publish(redisConfig.channels.toBBBApps.presentation, message);
         }
       }
     }
-  }
+  },
 });

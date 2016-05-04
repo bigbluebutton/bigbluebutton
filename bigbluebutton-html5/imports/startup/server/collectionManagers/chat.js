@@ -36,7 +36,8 @@ export function addChatToCollection(meetingId, messageObject) {
       if (numChanged.insertedId != null) {
         let to = messageObject.to_username != null ? 'PUBLIC' : void 0;
         let msg = messageObject.message;
-        return logger.info(`added chat id=[${numChanged.insertedId}] ${messageObject.from_username} to ${to}:${msg}`);
+        let cId = numChanged.insertedId;
+        return logger.info(`added chat id=[${cId}] ${messageObject.from_username} to ${to}:${msg}`);
       }
     });
   }
@@ -54,8 +55,8 @@ export function clearChatCollection() {
   }
 };
 
-
-// translate '\n' newline character and '\r' carriage returns to '<br/>' breakline character for Flash
+// translate '\n' newline character and '\r' carriage
+// returns to '<br/>' breakline character for Flash
 export function translateHTML5ToFlash(message) {
   let result;
   result = message;

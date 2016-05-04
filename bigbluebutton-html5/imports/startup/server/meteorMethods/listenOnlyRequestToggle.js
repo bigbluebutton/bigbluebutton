@@ -34,7 +34,7 @@ Meteor.methods({
             meeting_id: meetingId,
             voice_conf: voiceConf,
             name: username,
-          }
+          },
         };
         message = appendMessageHeader('user_connected_to_global_audio', message);
         logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${userId}`);
@@ -48,7 +48,7 @@ Meteor.methods({
             meeting_id: meetingId,
             voice_conf: voiceConf,
             name: username,
-          }
+          },
         };
         message = appendMessageHeader('user_disconnected_from_global_audio', message);
         logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${userId}`);

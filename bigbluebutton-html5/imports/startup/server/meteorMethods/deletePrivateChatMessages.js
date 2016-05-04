@@ -11,5 +11,5 @@ Meteor.methods({
       _id: contact_id,
     });
     return deletePrivateChatMessages(requester.userId, contact.userId);
-  }
+  },
 });

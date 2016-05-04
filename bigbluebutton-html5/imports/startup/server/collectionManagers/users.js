@@ -416,7 +416,7 @@ export function handleLockingMic(meetingId, newSettings) {
 };
 
 // change the locked status of a user (lock settings)
-export function setUserLockedStatus (meetingId, userId, isLocked) {
+export function setUserLockedStatus(meetingId, userId, isLocked) {
   let userObject;
   userObject = Users.findOne({
     meetingId: meetingId,

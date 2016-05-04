@@ -40,6 +40,7 @@ export function addPollToCollection(poll, requester_id, users, meetingId) {
 export function clearPollCollection() {
   const meetingId = arguments[0];
   const pollId = arguments[1];
+
   //TODO make it so you can delete the polls based only on meetingId
   if (meetingId != null && pollId != null && Polls.findOne({
     'poll_info.meetingId': meetingId,
