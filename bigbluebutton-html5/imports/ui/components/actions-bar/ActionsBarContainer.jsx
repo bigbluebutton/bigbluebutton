@@ -1,22 +1,22 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import Actionsbar from './Actionsbar.jsx';
+import ActionsBar from './ActionsBar.jsx';
 
-class ActionsbarContainer extends Component {
+class ActionsBarContainer extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
     return (
-      <Actionsbar {...this.props}>
+      <ActionsBar {...this.props}>
         {this.props.children}
-      </Actionsbar>
+      </ActionsBar>
     );
   }
 }
 
 export default createContainer(() => {
   return {};
-}, ActionsbarContainer);
+}, ActionsBarContainer);

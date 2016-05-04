@@ -1,18 +1,18 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import Navbar from './Navbar.jsx';
+import NavBar from './NavBar.jsx';
 
-class NavbarContainer extends Component {
+class NavBarContainer extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
     return (
-      <Navbar {...this.props}>
+      <NavBar {...this.props}>
         {this.props.children}
-      </Navbar>
+      </NavBar>
     );
   }
 }
@@ -22,4 +22,4 @@ export default createContainer(() => {
     presentationTitle: 'IMDT 1004 Design Process',
     hasUnreadMessages: true,
   };
-}, NavbarContainer);
+}, NavBarContainer);

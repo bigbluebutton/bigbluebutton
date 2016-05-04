@@ -12,7 +12,7 @@ const defaultProps = {
   hasUnreadMessages: false,
 };
 
-class Navbar extends Component {
+class NavBar extends Component {
   constructor(props) {
     super(props);
 
@@ -40,7 +40,7 @@ class Navbar extends Component {
   }
 }
 
-Navbar.propTypes = propTypes;
-Navbar.defaultProps = defaultProps;
+NavBar.propTypes = propTypes;
+NavBar.defaultProps = defaultProps;
 
-export default withRouter(Navbar);
+export default withRouter(NavBar);

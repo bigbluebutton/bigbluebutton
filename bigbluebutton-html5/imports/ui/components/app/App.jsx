@@ -10,7 +10,7 @@ const propTypes = {
 };
 
 export default class App extends Component {
-  renderNavbar() {
+  renderNavBar() {
     const { navbar } = this.props;
 
     if (navbar) {
@@ -80,7 +80,7 @@ export default class App extends Component {
     return false;
   }
 
-  renderActionsbar() {
+  renderActionsBar() {
     const { actionsbar } = this.props;
 
     if (actionsbar) {
@@ -101,9 +101,9 @@ export default class App extends Component {
           {this.renderUserList()}
           {this.renderChat()}
           <div className={styles.content}>
-            {this.renderNavbar()}
+            {this.renderNavBar()}
             {this.renderMedia()}
-            {this.renderActionsbar()}
+            {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}
         </section>
