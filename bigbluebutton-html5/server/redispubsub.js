@@ -7,82 +7,19 @@ import { addPresentationToCollection, removePresentationFromCollection } from '/
 import { addPollToCollection, updatePollCollection } from '/server/collection_methods/poll';
 import { addMeetingToCollection, removeMeetingFromCollection } from '/server/collection_methods/meetings';
 import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
-import { logger, myQueue } from '/server/server.js';
+import { logger } from '/server/logger';
 import { redisConfig } from '/config';
 
-const bind = function (fn, me) { return function () { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function (item) {
-  for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
-};
+import { redisPubSub } from '/imports/startup/server/index';
 
-Meteor.RedisPubSub = (function () {
-  class RedisPubSub {
-    constructor(callback) {
-      this._addToQueue = bind(this._addToQueue, this);
-      this._onSubscribe = bind(this._onSubscribe, this);
-      logger.info('constructor RedisPubSub');
-      this.pubClient = redis.createClient();
-      this.subClient = redis.createClient();
-      logger.info(`Subscribing message on channel: ${redisConfig.channels.fromBBBApps}`);
-      this.subClient.on('psubscribe', Meteor.bindEnvironment(this._onSubscribe));
-      this.subClient.on('pmessage', Meteor.bindEnvironment(this._addToQueue));
-      this.subClient.psubscribe(redisConfig.channels.fromBBBApps);
-      callback(this);
-    }
 
-    _onSubscribe(channel, count) {
-      let message;
-      logger.info(`Subscribed to ${channel}`);
-
-      //grab data about all active meetings on the server
-      message = {
-        header: {
-          name: 'get_all_meetings_request',
-        },
-        payload: {} // I need this, otherwise bbb-apps won't recognize the message
-      };
-      return publish(redisConfig.channels.toBBBApps.meeting, message);
-    }
-
-    _addToQueue(pattern, channel, jsonMsg) {
-      let eventName, message, messagesWeIgnore;
-      message = JSON.parse(jsonMsg);
-      eventName = message.header.name;
-      messagesWeIgnore = [
-        'BbbPubSubPongMessage',
-        'bbb_apps_is_alive_message',
-        'broadcast_layout_message',];
-      if (indexOf.call(messagesWeIgnore, eventName) < 0) {
-
-        // For DEVELOPMENT purposes only
-        // Ddynamic shapes' updates will slow down significantly
-        if(Meteor.settings.public.mode == 'development') {
-          logger.info(`Q ${eventName} ${myQueue.total()}`);
-        }
-
-        return myQueue.add({
-          pattern: pattern,
-          channel: channel,
-          jsonMsg: jsonMsg,
-        });
-      }
-    }
-  }
-
-  return RedisPubSub;
-})();
-
-// --------------------------------------------------------------------------------------------
-// Private methods on server
-// --------------------------------------------------------------------------------------------
-
-// message should be an object
 export function publish(channel, message) {
   logger.info(`redis outgoing message  ${message.header.name}`, {
     channel: channel,
     message: message,
   });
-  if (Meteor.redisPubSub != null) {
-    return Meteor.redisPubSub.pubClient.publish(channel, JSON.stringify(message), (err, res) => {
+  if (redisPubSub != null) {
+    return redisPubSub.pubClient.publish(channel, JSON.stringify(message), (err, res) => {
       if (err) {
         return logger.info('error', {
           error: err,
@@ -90,9 +27,11 @@ export function publish(channel, message) {
       }
     });
   } else {
-    return logger.info('ERROR!! Meteor.redisPubSub was undefined');
+    return logger.info('ERROR!! redisPubSub was undefined');
   }
 };
+
+
 
 const handleVoiceEvent = function(arg) {
   let _voiceUser, meetingId;

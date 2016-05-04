@@ -26,6 +26,8 @@
     "grunt-concurrent": "~2.2.1"
   },
   "cssModules": {
-    "extensions": ["scss"]
+    "extensions": [
+      "scss"
+    ]
   }
 }
