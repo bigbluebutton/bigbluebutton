@@ -54,7 +54,9 @@ package org.bigbluebutton.core {
 		}
 		
 		public static function stopTimer(name:String):void {
-			timers[name].stop();
+			if (timers[name] != undefined) {
+				timers[name].stop();
+			}
 		}
 	}
 }
