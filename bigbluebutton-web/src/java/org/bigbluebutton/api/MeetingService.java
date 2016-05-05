@@ -319,12 +319,17 @@ public class MeetingService implements MessageListener {
     public List<Map<String, String>> listSubscriptions(String meetingId) {
         return messagingService.listSubscriptions(meetingId);
     }
-
+    
     public Meeting getMeeting(String meetingId) {
+        return getMeeting(meetingId, false);
+    }
+
+    public Meeting getMeeting(String meetingId, Boolean exactMatch) {
         if (meetingId == null)
             return null;
         for (String key : meetings.keySet()) {
-            if (key.startsWith(meetingId))
+            if ((!exactMatch && key.startsWith(meetingId))
+                    || (exactMatch && key.equals(meetingId)))
                 return (Meeting) meetings.get(key);
         }
 
