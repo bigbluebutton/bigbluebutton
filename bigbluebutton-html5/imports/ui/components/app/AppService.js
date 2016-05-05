@@ -1,4 +1,4 @@
-let AppService = function() {
+let AppService = function () {
   const poll = Polls.findOne({});
   return { pollExists: !!poll };
 };
