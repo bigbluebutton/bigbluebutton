@@ -92,4 +92,10 @@ module.exports = function (grunt) {
 
   // sets the autofix task to fix JSCS warning when possible and then start Meteor:
   grunt.registerTask('autofix', ['force:newer:jscs:autofix', 'concurrent:meteor_watch_' + mode]);
+
+  // runs the linter task:
+  grunt.registerTask('quicklint', ['jscs:check']);
+
+  // runs the linter task and autofixes errors when possible:
+  grunt.registerTask('quickfix', ['jscs:autofix']);
 };
