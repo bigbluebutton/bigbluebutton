@@ -1,3 +1,8 @@
+import { publish } from '/imports/startup/server/helpers';
+import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import { appendMessageHeader } from '/imports/startup/server/helpers';
+import { redisConfig } from '/config';
+
 Meteor.methods({
   //meetingId: the meeting where the user is
   //newPresenterId: the userid of the new presenter
@@ -18,10 +23,11 @@ Meteor.methods({
           new_presenter_name: newPresenterName,
           meeting_id: meetingId,
           assigned_by: requesterSetPresenter,
-        }
+        },
       };
     }
+
     message = appendMessageHeader('assign_presenter_request_message', message);
-    return publish(Meteor.config.redis.channels.toBBBApps.users, message);
-  }
+    return publish(redisConfig.channels.toBBBApps.users, message);
+  },
 });

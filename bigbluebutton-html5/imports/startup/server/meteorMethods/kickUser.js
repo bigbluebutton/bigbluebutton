@@ -1,3 +1,7 @@
+import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import { appendMessageHeader, publish } from '/imports/startup/server/helpers';
+import { redisConfig } from '/config';
+
 Meteor.methods({
   //meetingId: the meeting where the user is
   //toKickUserId: the userid of the user to kick
@@ -11,10 +15,10 @@ Meteor.methods({
           userid: toKickUserId,
           ejected_by: requesterUserId,
           meeting_id: meetingId,
-        }
+        },
       };
       message = appendMessageHeader('eject_user_from_meeting_request_message', message);
-      return publish(Meteor.config.redis.channels.toBBBApps.users, message);
+      return publish(redisConfig.channels.toBBBApps.users, message);
     }
   },
 });

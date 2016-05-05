@@ -1,7 +1,17 @@
-this.addMeetingToCollection = function (meetingId, name, intendedForRecording, voiceConf, duration, callback) {
+import { clearUsersCollection } from '/imports/startup/server/collectionManagers/users';
+import { clearChatCollection } from '/imports/startup/server/collectionManagers/chat';
+import { clearShapesCollection } from '/imports/startup/server/collectionManagers/shapes';
+import { clearSlidesCollection } from '/imports/startup/server/collectionManagers/slides';
+import { clearPresentationsCollection } from '/imports/startup/server/collectionManagers/presentations';
+import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
+import { clearCursorCollection, initializeCursor } from '/imports/startup/server/collectionManagers/cursor';
+import { Meetings } from '/collections/collections';
+import { logger } from '/imports/startup/server/logger';
+
+export function addMeetingToCollection(meetingId, name, intendedForRecording, voiceConf, duration, callback) {
   //check if the meeting is already in the collection
 
-  Meteor.Meetings.upsert({
+  Meetings.upsert({
     meetingId: meetingId,
   }, {
     $set: {
@@ -26,13 +36,13 @@ this.addMeetingToCollection = function (meetingId, name, intendedForRecording, v
       let funct;
       if (numChanged.insertedId != null) {
         funct = function (cbk) {
-          Meteor.log.info(`__added MEETING ${meetingId}`);
+          logger.info(`__added MEETING ${meetingId}`);
           return cbk();
         };
 
         return funct(callback);
       } else {
-        Meteor.log.error('nothing happened');
+        logger.error('nothing happened');
         return callback();
       }
     };
@@ -42,23 +52,24 @@ this.addMeetingToCollection = function (meetingId, name, intendedForRecording, v
   return initializeCursor(meetingId);
 };
 
-this.clearMeetingsCollection = function (meetingId) {
+export function clearMeetingsCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Meetings.remove({
+    return Meetings.remove({
       meetingId: meetingId,
-    }, Meteor.log.info(`cleared Meetings Collection (meetingId: ${meetingId}!`));
+    }, logger.info(`cleared Meetings Collection (meetingId: ${meetingId}!`));
   } else {
-    return Meteor.Meetings.remove({}, Meteor.log.info('cleared Meetings Collection (all meetings)!'));
+    return Meetings.remove({}, logger.info('cleared Meetings Collection (all meetings)!'));
   }
 };
 
 //clean up upon a meeting's end
-this.removeMeetingFromCollection = function (meetingId, callback) {
+export function removeMeetingFromCollection(meetingId, callback) {
   let funct;
-  if (Meteor.Meetings.findOne({
+  if (Meetings.findOne({
     meetingId: meetingId,
   }) != null) {
-    Meteor.log.info(`end of meeting ${meetingId}. Clear the meeting data from all collections`);
+    logger.info(`end of meeting ${meetingId}. Clear the meeting data from all collections`);
 
     // delete all users in the meeting
     clearUsersCollection(meetingId);
@@ -80,10 +91,13 @@ this.removeMeetingFromCollection = function (meetingId, callback) {
 
     // delete the cursor for the meeting
     clearCursorCollection(meetingId);
+
+    //delete the polls for the meeting
+    clearPollCollection(meetingId);
     return callback();
   } else {
     funct = function (localCallback) {
-      Meteor.log.error(`Error! There was no such meeting ${meetingId}`);
+      logger.error(`Error! There was no such meeting ${meetingId}`);
       return localCallback();
     };
 

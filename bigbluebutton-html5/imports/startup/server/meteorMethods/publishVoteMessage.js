@@ -1,9 +1,16 @@
+import { publish } from '/imports/startup/server/helpers';
+import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import { appendMessageHeader } from '/imports/startup/server/helpers';
+import { Polls } from '/collections/collections';
+import { logger } from '/imports/startup/server/logger';
+import { redisConfig } from '/config';
+
 Meteor.methods({
   publishVoteMessage(meetingId, pollAnswerId, requesterUserId, requesterToken) {
     let _poll_id, eventName, message, result;
     if (isAllowedTo('subscribePoll', meetingId, requesterUserId, requesterToken)) {
       eventName = 'vote_poll_user_request_message';
-      result = Meteor.Polls.findOne({
+      result = Polls.findOne({
         'poll_info.users': requesterUserId,
         'poll_info.meetingId': meetingId,
         'poll_info.poll.answers.id': pollAnswerId,
@@ -24,7 +31,7 @@ Meteor.methods({
             answer_id: pollAnswerId,
           },
         };
-        Meteor.Polls.update({
+        Polls.update({
           'poll_info.users': requesterUserId,
           'poll_info.meetingId': meetingId,
           'poll_info.poll.answers.id': pollAnswerId,
@@ -34,9 +41,9 @@ Meteor.methods({
           },
         });
         message = appendMessageHeader(eventName, message);
-        Meteor.log.info('publishing Poll response to redis');
-        return publish(Meteor.config.redis.channels.toBBBApps.polling, message);
+        logger.info('publishing Poll response to redis');
+        return publish(redisConfig.channels.toBBBApps.polling, message);
       }
     }
-  }
+  },
 });

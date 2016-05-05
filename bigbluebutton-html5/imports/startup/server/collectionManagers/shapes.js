@@ -1,10 +1,10 @@
-// --------------------------------------------------------------------------------------------
-// Private methods on server
-// --------------------------------------------------------------------------------------------
-this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
+import { Shapes, WhiteboardCleanStatus } from '/collections/collections';
+import { logger } from '/imports/startup/server/logger';
+
+export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
   let entry, id, removeTempTextShape;
   if (shapeObject != null && shapeObject.shape_type === 'text') {
-    Meteor.log.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
+    logger.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
     entry = {
       meetingId: meetingId,
       whiteboardId: whiteboardId,
@@ -29,7 +29,7 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
     if (shapeObject.status === 'textEdited' || shapeObject.status === 'textPublished') {
       // only keep the final version of the text shape
       removeTempTextShape = function (callback) {
-        Meteor.Shapes.remove({
+        Shapes.remove({
           'shape.id': shapeObject.shape.id,
         });
         return callback();
@@ -38,19 +38,19 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
       return removeTempTextShape(() => {
         // display as the prestenter is typing
         let id;
-        id = Meteor.Shapes.insert(entry);
-        return Meteor.log.info(`${shapeObject.status} substituting the temp shapes with the newer one`);
+        id = Shapes.insert(entry);
+        return logger.info(`${shapeObject.status} substituting the temp shapes with the newer one`);
       });
     }
 
     // the mouse button was released - the drawing is complete
     // TODO: pencil messages currently don't send draw_end and are labeled all as DRAW_START
   } else if (shapeObject != null && (shapeObject.status === 'DRAW_START' || shapeObject.status === 'DRAW_UPDATE' || shapeObject.status === 'DRAW_END')) {
-    shape = Meteor.Shapes.findOne({
+    shape = Shapes.findOne({
         'shape.id': shapeObject.shape.id,
       });
     if (shape != null) {
-      return id = Meteor.Shapes.update({
+      return id = Shapes.update({
           'shape.id': shapeObject.shape.id,
         }, {
           $set: {
@@ -82,27 +82,27 @@ this.addShapeToCollection = function (meetingId, whiteboardId, shapeObject) {
           },
         },
       };
-      return id = Meteor.Shapes.insert(entry);
+      return id = Shapes.insert(entry);
     }
   }
 };
 
-this.removeAllShapesFromSlide = function (meetingId, whiteboardId) {
-  Meteor.log.info(`removeAllShapesFromSlide__${whiteboardId}`);
-  if ((meetingId != null) && (whiteboardId != null) && (Meteor.Shapes.find({
+export function removeAllShapesFromSlide(meetingId, whiteboardId) {
+  logger.info(`removeAllShapesFromSlide__${whiteboardId}`);
+  if ((meetingId != null) && (whiteboardId != null) && (Shapes.find({
     meetingId: meetingId,
     whiteboardId: whiteboardId,
   }) != null)) {
-    return Meteor.Shapes.remove({
+    return Shapes.remove({
       meetingId: meetingId,
       whiteboardId: whiteboardId,
     }, () => {
-      Meteor.log.info('clearing all shapes from slide');
+      logger.info('clearing all shapes from slide');
 
       // After shapes are cleared, wait 1 second and set cleaning off
       // Why would we wait 1 second? (Alex)
       return Meteor.setTimeout(() => {
-        return Meteor.WhiteboardCleanStatus.update({
+        return WhiteboardCleanStatus.update({
           meetingId: meetingId,
         }, {
           $set: {
@@ -114,19 +114,19 @@ this.removeAllShapesFromSlide = function (meetingId, whiteboardId) {
   }
 };
 
-this.removeShapeFromSlide = function (meetingId, whiteboardId, shapeId) {
+export function removeShapeFromSlide(meetingId, whiteboardId, shapeId) {
   let shapeToRemove;
   if (meetingId != null && whiteboardId != null && shapeId != null) {
-    shapeToRemove = Meteor.Shapes.findOne({
+    shapeToRemove = Shapes.findOne({
       meetingId: meetingId,
       whiteboardId: whiteboardId,
       'shape.id': shapeId,
     });
     if (shapeToRemove != null) {
-      Meteor.Shapes.remove(shapeToRemove._id);
-      Meteor.log.info(`----removed shape[${shapeId}] from ${whiteboardId}`);
-      return Meteor.log.info(`remaining shapes on the slide: ${
-        Meteor.Shapes.find({
+      Shapes.remove(shapeToRemove._id);
+      logger.info(`----removed shape[${shapeId}] from ${whiteboardId}`);
+      return logger.info(`remaining shapes on the slide: ${
+        Shapes.find({
           meetingId: meetingId,
           whiteboardId: whiteboardId,
         }).count()}`);
@@ -135,13 +135,14 @@ this.removeShapeFromSlide = function (meetingId, whiteboardId, shapeId) {
 };
 
 // called on server start and meeting end
-this.clearShapesCollection = function (meetingId) {
+export function clearShapesCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Shapes.remove({
+    return Shapes.remove({
       meetingId: meetingId,
     }, () => {
-      Meteor.log.info(`cleared Shapes Collection (meetingId: ${meetingId}!`);
-      return Meteor.WhiteboardCleanStatus.update({
+      logger.info(`cleared Shapes Collection (meetingId: ${meetingId}!`);
+      return WhiteboardCleanStatus.update({
         meetingId: meetingId,
       }, {
         $set: {
@@ -150,9 +151,9 @@ this.clearShapesCollection = function (meetingId) {
       });
     });
   } else {
-    return Meteor.Shapes.remove({}, () => {
-      Meteor.log.info('cleared Shapes Collection (all meetings)!');
-      return Meteor.WhiteboardCleanStatus.update({
+    return Shapes.remove({}, () => {
+      logger.info('cleared Shapes Collection (all meetings)!');
+      return WhiteboardCleanStatus.update({
         meetingId: meetingId,
       }, {
         $set: {
@@ -162,7 +163,3 @@ this.clearShapesCollection = function (meetingId) {
     });
   }
 };
-
-// --------------------------------------------------------------------------------------------
-// end Private methods on server
-// --------------------------------------------------------------------------------------------

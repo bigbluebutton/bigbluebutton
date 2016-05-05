@@ -1,11 +1,11 @@
-// --------------------------------------------------------------------------------------------
-// Private methods on server
-// --------------------------------------------------------------------------------------------
-this.displayThisSlide = function (meetingId, newSlideId, slideObject) {
+import { Slides } from '/collections/collections';
+import { logger } from '/imports/startup/server/logger';
+
+export function displayThisSlide(meetingId, newSlideId, slideObject) {
   let presentationId;
   presentationId = newSlideId.split('/')[0]; // grab the presentationId part of the slideId
   // change current to false for the old slide
-  Meteor.Slides.update({
+  Slides.update({
     presentationId: presentationId,
     'slide.current': true,
   }, {
@@ -15,7 +15,7 @@ this.displayThisSlide = function (meetingId, newSlideId, slideObject) {
   });
 
   //change current to true for the new slide and update its ratios and offsets
-  Meteor.Slides.update({
+  Slides.update({
     presentationId: presentationId,
     'slide.id': newSlideId,
   }, {
@@ -29,9 +29,9 @@ this.displayThisSlide = function (meetingId, newSlideId, slideObject) {
   });
 };
 
-this.addSlideToCollection = function (meetingId, presentationId, slideObject) {
+export function addSlideToCollection(meetingId, presentationId, slideObject) {
   let entry, id;
-  if (Meteor.Slides.findOne({
+  if (Slides.findOne({
     meetingId: meetingId,
     'slide.id': slideObject.id,
   }) == null) {
@@ -52,23 +52,21 @@ this.addSlideToCollection = function (meetingId, presentationId, slideObject) {
         thumb_uri: slideObject.thumb_uri,
       },
     };
-    return id = Meteor.Slides.insert(entry);
+    return id = Slides.insert(entry);
 
-    //Meteor.log.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Meteor.Slides.find({meetingId: meetingId}).count()} slides in the meeting"
+    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
   }
 };
 
 // called on server start and meeting end
-this.clearSlidesCollection = function (meetingId) {
+export function clearSlidesCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Slides.remove({
+    return Slides.remove({
       meetingId: meetingId,
-    }, Meteor.log.info(`cleared Slides Collection (meetingId: ${meetingId}!`));
+    }, logger.info(`cleared Slides Collection (meetingId: ${meetingId}!`));
   } else {
-    return Meteor.Slides.remove({}, Meteor.log.info('cleared Slides Collection (all meetings)!'));
+    return Slides.remove({}, logger.info('cleared Slides Collection (all meetings)!'));
   }
 };
 
-// --------------------------------------------------------------------------------------------
-// end Private methods on server
-// --------------------------------------------------------------------------------------------

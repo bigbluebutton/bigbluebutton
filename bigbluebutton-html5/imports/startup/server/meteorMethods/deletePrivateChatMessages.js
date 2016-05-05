@@ -1,13 +1,15 @@
+import { Users } from '/collections/collections';
+
 Meteor.methods({
-  deletePrivateChatMessages(userId, contact_id) {
+  deletePrivateChatMessages(userId, contact_id) { //TODO is this used?!
     // if authorized pass through
     let contact, requester;
-    requester = Meteor.Users.findOne({
+    requester = Users.findOne({
       userId: userId,
     });
-    contact = Meteor.Users.findOne({
+    contact = Users.findOne({
       _id: contact_id,
     });
     return deletePrivateChatMessages(requester.userId, contact.userId);
-  }
+  },
 });

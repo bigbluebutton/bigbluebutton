@@ -1,18 +1,24 @@
+import { publish } from '/imports/startup/server/helpers';
+import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import { appendMessageHeader } from '/imports/startup/server/helpers';
+import { Presentations, Slides } from '/collections/collections';
+import { redisConfig } from '/config';
+
 Meteor.methods({
   publishSwitchToNextSlideMessage(meetingId, userId, authToken) {
     let currentPresentationDoc, currentSlideDoc, message, nextSlideDoc;
-    currentPresentationDoc = Meteor.Presentations.findOne({
+    currentPresentationDoc = Presentations.findOne({
       meetingId: meetingId,
       'presentation.current': true,
     });
     if (currentPresentationDoc != null) {
-      currentSlideDoc = Meteor.Slides.findOne({
+      currentSlideDoc = Slides.findOne({
         meetingId: meetingId,
         presentationId: currentPresentationDoc.presentation.id,
         'slide.current': true,
       });
       if (currentSlideDoc != null) {
-        nextSlideDoc = Meteor.Slides.findOne({
+        nextSlideDoc = Slides.findOne({
           meetingId: meetingId,
           presentationId: currentPresentationDoc.presentation.id,
           'slide.num': currentSlideDoc.slide.num + 1,
@@ -22,12 +28,12 @@ Meteor.methods({
             payload: {
               page: nextSlideDoc.slide.id,
               meeting_id: meetingId,
-            }
+            },
           };
           message = appendMessageHeader('go_to_slide', message);
-          return publish(Meteor.config.redis.channels.toBBBApps.presentation, message);
+          return publish(redisConfig.channels.toBBBApps.presentation, message);
         }
       }
     }
-  }
+  },
 });

@@ -1,18 +1,23 @@
+import { publish } from '/imports/startup/server/helpers';
+import { Users, Meetings, Chat } from '/collections/collections';
+import { logger } from '/imports/startup/server/logger';
+import { redisConfig } from '/config';
+
 // Only callable from server
 // Received information from BBB-Apps that a user left
 // Need to update the collection
 // params: meetingid, userid as defined in BBB-Apps
 // callback
-this.markUserOffline = function (meetingId, userId, callback) {
+export function markUserOffline(meetingId, userId, callback) {
   // mark the user as offline. remove from the collection on meeting_end #TODO
   let user;
-  user = Meteor.Users.findOne({
+  user = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });
   if (user != null && user.clientType === 'HTML5') {
-    Meteor.log.info(`marking html5 user [${userId}] as offline in meeting[${meetingId}]`);
-    return Meteor.Users.update({
+    logger.info(`marking html5 user [${userId}] as offline in meeting[${meetingId}]`);
+    return Users.update({
       meetingId: meetingId,
       userId: userId,
     }, {
@@ -27,11 +32,11 @@ this.markUserOffline = function (meetingId, userId, callback) {
     }, (err, numChanged) => {
       let funct;
       if (err != null) {
-        Meteor.log.error(`_unsucc update (mark as offline) of user ${user.user.name} ${userId} err=${JSON.stringify(err)}`);
+        logger.error(`_unsucc update (mark as offline) of user ${user.user.name} ${userId} err=${JSON.stringify(err)}`);
         return callback();
       } else {
         funct = function (cbk) {
-          Meteor.log.info(`_marking as offline html5 user ${user.user.name} ${userId}  numChanged=${numChanged}`);
+          logger.info(`_marking as offline html5 user ${user.user.name} ${userId}  numChanged=${numChanged}`);
           return cbk();
         };
 
@@ -39,17 +44,17 @@ this.markUserOffline = function (meetingId, userId, callback) {
       }
     });
   } else {
-    return Meteor.Users.remove({
+    return Users.remove({
       meetingId: meetingId,
       userId: userId,
     }, (err, numDeletions) => {
       let funct;
       if (err != null) {
-        Meteor.log.error(`_unsucc deletion of user ${user != null ? user.user.name : void 0} ${userId} err=${JSON.stringify(err)}`);
+        logger.error(`_unsucc deletion of user ${user != null ? user.user.name : void 0} ${userId} err=${JSON.stringify(err)}`);
         return callback();
       } else {
         funct = function (cbk) {
-          Meteor.log.info(`_deleting info for user ${user != null ? user.user.name : void 0} ${userId} numDeletions=${numDeletions}`);
+          logger.info(`_deleting info for user ${user != null ? user.user.name : void 0} ${userId} numDeletions=${numDeletions}`);
           return cbk();
         };
 
@@ -62,13 +67,13 @@ this.markUserOffline = function (meetingId, userId, callback) {
 // Corresponds to a valid action on the HTML clientside
 // After authorization, publish a user_leaving_request in redis
 // params: meetingid, userid as defined in BBB-App
-this.requestUserLeaving = function (meetingId, userId) {
+export function requestUserLeaving(meetingId, userId) {
   let listenOnlyMessage, message, userObject, meetingObject, voiceConf;
-  userObject = Meteor.Users.findOne({
+  userObject = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });
-  meetingObject = Meteor.Meetings.findOne({
+  meetingObject = Meetings.findOne({
     meetingId: meetingId,
   });
   if (meetingObject != null) {
@@ -76,8 +81,11 @@ this.requestUserLeaving = function (meetingId, userId) {
   }
 
   if ((userObject != null) && (voiceConf != null) && (userId != null) && (meetingId != null)) {
-    let lOnly;
-    lOnly = userObject.user.listenOnly;
+    let lOnly = false;
+    if (userObject.hasOwnProperty('user') && userObject.user.hasOwnProperty('listenOnly')) {
+      lOnly = userObject.user.listenOnly;
+    }
+
     // end listenOnly audio for the departing user
     if (null != lOnly && lOnly) {
       listenOnlyMessage = {
@@ -92,7 +100,7 @@ this.requestUserLeaving = function (meetingId, userId) {
           name: 'user_disconnected_from_global_audio',
         },
       };
-      publish(Meteor.config.redis.channels.toBBBApps.meeting, listenOnlyMessage);
+      publish(redisConfig.channels.toBBBApps.meeting, listenOnlyMessage);
     }
 
     // remove user from meeting
@@ -106,22 +114,22 @@ this.requestUserLeaving = function (meetingId, userId) {
         name: 'user_leaving_request',
       },
     };
-    Meteor.log.info(`sending a user_leaving_request for ${meetingId}:${userId}`);
-    return publish(Meteor.config.redis.channels.toBBBApps.users, message);
+    logger.info(`sending a user_leaving_request for ${meetingId}:${userId}`);
+    return publish(redisConfig.channels.toBBBApps.users, message);
   } else {
-    return Meteor.log.info('did not have enough information to send a user_leaving_request');
+    return logger.info('did not have enough information to send a user_leaving_request');
   }
 };
 
 //update a voiceUser - a helper method
-this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
+export function updateVoiceUser(meetingId, voiceUserObject, callback) {
   let userObject;
-  userObject = Meteor.Users.findOne({
+  userObject = Users.findOne({
     userId: voiceUserObject.web_userid,
   });
   if (userObject != null) {
     if (voiceUserObject.talking != null) {
-      Meteor.Users.update({
+      Users.update({
         meetingId: meetingId,
         userId: voiceUserObject.web_userid,
       }, {
@@ -130,14 +138,14 @@ this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          Meteor.log.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [talking] err=${JSON.stringify(err)}`);
+          logger.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [talking] err=${JSON.stringify(err)}`);
         }
 
         return callback();
       });
     } // talking
     if (voiceUserObject.joined != null) {
-      Meteor.Users.update({
+      Users.update({
         meetingId: meetingId,
         userId: voiceUserObject.web_userid,
       }, {
@@ -146,7 +154,7 @@ this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          Meteor.log.error(
+          logger.error(
             `_unsucc update of voiceUser ${voiceUserObject.web_userid} [joined] err=${JSON.stringify(err)}`
           );
         }
@@ -155,7 +163,7 @@ this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
       });
     } // joined
     if (voiceUserObject.locked != null) {
-      Meteor.Users.update({
+      Users.update({
         meetingId: meetingId,
         userId: voiceUserObject.web_userid,
       }, {
@@ -164,14 +172,14 @@ this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          Meteor.log.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [locked] err=${JSON.stringify(err)}`);
+          logger.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [locked] err=${JSON.stringify(err)}`);
         }
 
         return callback();
       });
     } // locked
     if (voiceUserObject.muted != null) {
-      Meteor.Users.update({
+      Users.update({
         meetingId: meetingId,
         userId: voiceUserObject.web_userid,
       }, {
@@ -180,14 +188,14 @@ this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          Meteor.log.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [muted] err=${JSON.stringify(err)}`);
+          logger.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [muted] err=${JSON.stringify(err)}`);
         }
 
         return callback();
       });
     } // muted
     if (voiceUserObject.listen_only != null) {
-      return Meteor.Users.update({
+      return Users.update({
         meetingId: meetingId,
         userId: voiceUserObject.web_userid,
       }, {
@@ -196,22 +204,22 @@ this.updateVoiceUser = function (meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          Meteor.log.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [listenOnly] err=${JSON.stringify(err)}`);
+          logger.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [listenOnly] err=${JSON.stringify(err)}`);
         }
 
         return callback();
       });
     } // listenOnly
   } else {
-    Meteor.log.error('ERROR! did not find such voiceUser!');
+    logger.error('ERROR! did not find such voiceUser!');
     return callback();
   }
 };
 
-this.userJoined = function (meetingId, user, callback) {
+export function userJoined(meetingId, user, callback) {
   let userObject, userId, welcomeMessage, meetingObject;
   userId = user.userid;
-  userObject = Meteor.Users.findOne({
+  userObject = Users.findOne({
     userId: user.userid,
     meetingId: meetingId,
   });
@@ -221,7 +229,7 @@ this.userJoined = function (meetingId, user, callback) {
   // in the case of an html5 client user we added a dummy user on
   // register_user_message (to save authToken)
   if (userObject != null && userObject.authToken != null) {
-    Meteor.Users.update({
+    Users.update({
       userId: user.userid,
       meetingId: meetingId,
     }, {
@@ -257,18 +265,18 @@ this.userJoined = function (meetingId, user, callback) {
     }, err => {
       let funct;
       if (err != null) {
-        Meteor.log.error(`_error ${err} when trying to insert user ${userId}`);
+        logger.error(`_error ${err} when trying to insert user ${userId}`);
         return callback();
       } else {
         funct = function (cbk) {
-          Meteor.log.info(`_(case1) UPDATING USER ${user.userid}, authToken= ${userObject.authToken}, locked=${user.locked}, username=${user.name}`);
+          logger.info(`_(case1) UPDATING USER ${user.userid}, authToken= ${userObject.authToken}, locked=${user.locked}, username=${user.name}`);
           return cbk();
         };
 
         return funct(callback);
       }
     });
-    meetingObject = Meteor.Meetings.findOne({
+    meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
     if (meetingObject != null) {
@@ -278,7 +286,7 @@ this.userJoined = function (meetingId, user, callback) {
     welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter;
 
     // add the welcome message if it's not there already OR update time_of_joining
-    return Meteor.Chat.upsert({
+    return Chat.upsert({
       meetingId: meetingId,
       userId: userId,
       'message.chat_type': 'SYSTEM_MESSAGE',
@@ -297,9 +305,9 @@ this.userJoined = function (meetingId, user, callback) {
       },
     }, err => {
       if (err != null) {
-        return Meteor.log.error(`_error ${err} when trying to insert welcome message for ${userId}`);
+        return logger.error(`_error ${err} when trying to insert welcome message for ${userId}`);
       } else {
-        return Meteor.log.info(`_added/updated a system message in chat for user ${userId}`);
+        return logger.info(`_added/updated a system message in chat for user ${userId}`);
       }
 
       // note that we already called callback() when updating the user. Adding
@@ -307,8 +315,8 @@ this.userJoined = function (meetingId, user, callback) {
       // complete it when possible, without blocking the serial event messages processing
     });
   } else {
-    // Meteor.log.info "NOTE: got user_joined_message #{user.name} #{user.userid}"
-    return Meteor.Users.upsert({
+    // logger.info "NOTE: got user_joined_message #{user.name} #{user.userid}"
+    return Users.upsert({
       meetingId: meetingId,
       userId: userId,
     }, {
@@ -345,8 +353,8 @@ this.userJoined = function (meetingId, user, callback) {
       let funct;
       if (numChanged.insertedId != null) {
         funct = function (cbk) {
-          Meteor.log.info(
-            `_joining user (case2) userid=[${userId}]:${user.name}. Users.size is now ${Meteor.Users.find({
+          logger.info(
+            `_joining user (case2) userid=[${userId}]:${user.name}. Users.size is now ${Users.find({
               meetingId: meetingId,
             }).count()}`
                       );
@@ -361,22 +369,22 @@ this.userJoined = function (meetingId, user, callback) {
   }
 };
 
-this.createDummyUser = function (meetingId, userId, authToken) {
-  if (Meteor.Users.findOne({
+export function createDummyUser(meetingId, userId, authToken) {
+  if (Users.findOne({
     userId: userId,
     meetingId: meetingId,
     authToken: authToken,
   }) != null) {
-    return Meteor.log.info(`html5 user userId:[${userId}] from [${meetingId}] tried to revalidate token`);
+    return logger.info(`html5 user userId:[${userId}] from [${meetingId}] tried to revalidate token`);
   } else {
-    return Meteor.Users.insert({
+    return Users.insert({
       meetingId: meetingId,
       userId: userId,
       authToken: authToken,
       clientType: 'HTML5',
       validated: false //will be validated on validate_auth_token_reply
     }, (err, id) => {
-      return Meteor.log.info(`_added a dummy html5 user with: userId=[${userId}] Users.size is now ${Meteor.Users.find({
+      return logger.info(`_added a dummy html5 user with: userId=[${userId}] Users.size is now ${Users.find({
   meetingId: meetingId,
 }).count()}`);
     });
@@ -385,10 +393,10 @@ this.createDummyUser = function (meetingId, userId, authToken) {
 
 // when new lock settings including disableMic are set,
 // all viewers that are in the audio bridge with a mic should be muted and locked
-this.handleLockingMic = function (meetingId, newSettings) {
+export function handleLockingMic(meetingId, newSettings) {
   // send mute requests for the viewer users joined with mic
   let i, results, userObject;
-  userObjects = Meteor.Users.find({
+  userObjects = Users.find({
     meetingId: meetingId,
     'user.role': 'VIEWER',
     'user.listenOnly': false,
@@ -408,14 +416,14 @@ this.handleLockingMic = function (meetingId, newSettings) {
 };
 
 // change the locked status of a user (lock settings)
-this.setUserLockedStatus = function (meetingId, userId, isLocked) {
+export function setUserLockedStatus(meetingId, userId, isLocked) {
   let userObject;
-  userObject = Meteor.Users.findOne({
+  userObject = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });
   if (userObject != null) {
-    Meteor.Users.update({
+    Users.update({
       userId: userId,
       meetingId: meetingId,
     }, {
@@ -424,9 +432,9 @@ this.setUserLockedStatus = function (meetingId, userId, isLocked) {
       },
     }, (err, numChanged) => {
       if (err != null) {
-        return Meteor.log.error(`_error ${err} while updating user ${userId} with lock settings`);
+        return logger.error(`_error ${err} while updating user ${userId} with lock settings`);
       } else {
-        return Meteor.log.info(`_setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);
+        return logger.info(`_setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);
       }
     });
 
@@ -435,28 +443,29 @@ this.setUserLockedStatus = function (meetingId, userId, isLocked) {
       return Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId, userObject.authToken, true); //true for muted
     }
   } else {
-    return Meteor.log.error(`(unsuccessful-no such user) setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);
+    return logger.error(`(unsuccessful-no such user) setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);
   }
 };
 
 // called on server start and on meeting end
-this.clearUsersCollection = function (meetingId) {
+export function clearUsersCollection() {
+  const meetingId = arguments[0];
   if (meetingId != null) {
-    return Meteor.Users.remove({
+    return Users.remove({
       meetingId: meetingId,
     }, err => {
       if (err != null) {
-        return Meteor.log.error(`_error ${JSON.stringify(err)} while removing users from meeting ${meetingId}`);
+        return logger.error(`_error ${JSON.stringify(err)} while removing users from meeting ${meetingId}`);
       } else {
-        return Meteor.log.info(`_cleared Users Collection (meetingId: ${meetingId})!`);
+        return logger.info(`_cleared Users Collection (meetingId: ${meetingId})!`);
       }
     });
   } else {
-    return Meteor.Users.remove({}, err => {
+    return Users.remove({}, err => {
       if (err != null) {
-        return Meteor.log.error(`_error ${JSON.stringify(err)} while removing users from all meetings!`);
+        return logger.error(`_error ${JSON.stringify(err)} while removing users from all meetings!`);
       } else {
-        return Meteor.log.info('_cleared Users Collection (all meetings)!');
+        return logger.info('_cleared Users Collection (all meetings)!');
       }
     });
   }
