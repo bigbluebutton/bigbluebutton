@@ -69,7 +69,8 @@ case class RegisteredUser(
   externId: String,
   name: String,
   role: Role.Role,
-  authToken: String)
+  authToken: String,
+  avatarURL: String)
 
 case class Voice(
   id: String,
@@ -94,6 +95,7 @@ case class UserVO(
   phoneUser: Boolean,
   voiceUser: VoiceUser,
   listenOnly: Boolean,
+  avatarURL: String,
   joinedWeb: Boolean)
 
 case class VoiceUser(
@@ -105,6 +107,7 @@ case class VoiceUser(
   locked: Boolean,
   muted: Boolean,
   talking: Boolean,
+  avatarURL: String,
   listenOnly: Boolean)
 
 case class MeetingConfig(name: String,

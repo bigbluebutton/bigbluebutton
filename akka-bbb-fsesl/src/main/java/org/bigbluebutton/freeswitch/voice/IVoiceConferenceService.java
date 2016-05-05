@@ -3,7 +3,7 @@ package org.bigbluebutton.freeswitch.voice;
 public interface IVoiceConferenceService {
 	void voiceConfRecordingStarted(String voiceConfId, String recordStream, Boolean recording, String timestamp);	
 	void userJoinedVoiceConf(String voiceConfId, String voiceUserId, String userId, String callerIdName, 
-			String callerIdNum, Boolean muted, Boolean speaking);
+			String callerIdNum, Boolean muted, Boolean speaking, String avatarURL);
 	void userLeftVoiceConf(String voiceConfId, String voiceUserId);
 	void userLockedInVoiceConf(String voiceConfId, String voiceUserId, Boolean locked);
 	void userMutedInVoiceConf(String voiceConfId, String voiceUserId, Boolean muted);
