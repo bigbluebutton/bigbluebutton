@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import { withRouter } from 'react-router';
+import { Button } from '../shared/Button.jsx';
+import { Icon } from '../shared/Icon.jsx';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -35,6 +37,7 @@ class NavBar extends Component {
           <i className="icon-bbb-user"></i>
         </button>
         <span>{presentationTitle}</span>
+        <div id="settingsButtonPlaceHolder"></div>
       </div>
     );
   }

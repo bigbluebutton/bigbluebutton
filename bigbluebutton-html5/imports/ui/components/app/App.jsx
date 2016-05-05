@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles';
+import SettingsModal from '../modals/settings/SettingsModal.jsx';
 
 const propTypes = {
   navbar: PropTypes.element,
@@ -107,6 +108,7 @@ export default class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
+        <SettingsModal ref="settingsModal" />
       </main>
     );
   }
