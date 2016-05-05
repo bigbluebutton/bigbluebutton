@@ -94,8 +94,8 @@ module.exports = function (grunt) {
   grunt.registerTask('autofix', ['force:newer:jscs:autofix', 'concurrent:meteor_watch_' + mode]);
 
   // runs the linter task:
-  grunt.registerTask('quicklint', ['jscs:check']);
+  grunt.registerTask('quicklint', ['force:jscs:check']);
 
   // runs the linter task and autofixes errors when possible:
-  grunt.registerTask('quickfix', ['jscs:autofix']);
+  grunt.registerTask('quickfix', ['force:jscs:autofix']);
 };
