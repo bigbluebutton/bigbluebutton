@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles';
-import SettingsModal from '../modals/settings/SettingsModal.jsx';
 
 const propTypes = {
   navbar: PropTypes.element,
@@ -8,6 +7,7 @@ const propTypes = {
   sidebarRight: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
+  settings: PropTypes.element,
 };
 
 export default class App extends Component {
@@ -95,6 +95,20 @@ export default class App extends Component {
     return false;
   }
 
+  renderSettings() {
+    const { settings } = this.props;
+
+    if (settings) {
+      return (
+        <section>
+          {settings}
+        </section>
+      );
+    }
+
+    return false;
+  }
+
   render() {
     return (
       <main className={styles.main}>
@@ -108,7 +122,7 @@ export default class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
-        <SettingsModal ref="settingsModal" />
+        {this.renderSettings()}
       </main>
     );
   }

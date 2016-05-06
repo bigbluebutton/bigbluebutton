@@ -1,0 +1,33 @@
+.settingsMenuLeft {
+  border-right: 2px solid grey;
+  float: left;
+  width: 30%;
+}
+
+.settingsMenuRight {
+  float: right;
+  padding-left: 10px;
+  width: 70%;
+}
+
+.settingsSubmenuItem {
+  color: black;
+  padding: 5px;
+}
+
+.settingsSubmenuItemActive {
+  border-right: 5px solid blue;
+  color: blue;
+}
+
+.fontSizeButton {
+  padding: 0px;
+  margin: 5px;
+  background-color: white;
+  color: grey;
+  border: 2px solid grey;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  border-radius: 15px;
+}

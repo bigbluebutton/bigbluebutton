@@ -16,7 +16,7 @@ export default class ApplicationMenu extends BaseMenu {
 
   getContent() {
     return (
-      <div className="mediumFont">
+      <div>
         <p style={{ float: 'left' }}>Audio notifications for chat</p>
         <p style={{ float: 'right' }}>audio not</p>
         <p style={{ clear: 'both' }}>fsdfds</p>

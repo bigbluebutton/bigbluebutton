@@ -16,7 +16,7 @@ export default class BaseMenu extends React.Component {
     return (
       <div>
         <h3 className="mediumFont">{this.props.title}</h3>
-        <div>
+        <div className="smallFont">
           {this.getContent()}
         </div>
       </div>

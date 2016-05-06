@@ -37,7 +37,7 @@ class NavBar extends Component {
           <i className="icon-bbb-user"></i>
         </button>
         <span>{presentationTitle}</span>
-        <div id="settingsButtonPlaceHolder"></div>
+        <span id="settingsButtonPlaceHolder"></span>
       </div>
     );
   }

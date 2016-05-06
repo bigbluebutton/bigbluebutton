@@ -8,11 +8,13 @@ import NavBarContainer from '../nav-bar/NavBarContainer.jsx';
 import ActionsBarContainer from '../actions-bar/ActionsBarContainer.jsx';
 import MediaContainer from '../media/MediaContainer.jsx';
 import PollingContainer from '../polling/PollingContainer.jsx';
+import SettingsModal from '../modals/settings/SettingsModal.jsx';
 
 const defaultProps = {
   navbar: <NavBarContainer/>,
   actionsbar: <ActionsBarContainer/>,
   media: <MediaContainer/>,
+  settings: <SettingsModal />
 };
 
 class AppContainer extends Component {

@@ -8,8 +8,9 @@ import VideoMenu from './submenus/VideoMenu.jsx';
 import ApplicationMenu from './submenus/ApplicationMenu.jsx';
 import UsersMenu from './submenus/UsersMenu.jsx';
 import SessionMenu from './submenus/SessionMenu.jsx';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import ReactDOM from 'react-dom';
+import styles from './styles';
 
 export default class SettingsModal extends BaseModal {
   constructor(props) {
@@ -33,7 +34,7 @@ export default class SettingsModal extends BaseModal {
 
   componentDidMount() {
     ReactDOM.render(
-      <Button componentClass='span' onClick={this.refs['settingsModal'].openModal} className='btn settingsIcon navbarButton' i_class='icon ion-gear-b' rel='tooltip' title='Settings'>
+      <Button componentClass='button' style={{ width: '30px', height: '30px', float: 'right' }} onClick={this.openModal} i_class='icon ion-gear-b' rel='tooltip' title='Settings'>
         <Icon iconName='icon ion-gear-b' className='mediumFont icon ion-gear-b'/>
       </Button>, document.getElementById('settingsButtonPlaceHolder'));
   }
@@ -51,44 +52,30 @@ export default class SettingsModal extends BaseModal {
     return <Submenu {...props}/>;
   }
 
-  openModal() {
-    super.openModal();
-  }
-
-  closeModal() {
-    super.closeModal();
-  }
-
-  afterOpenModal() {
-    super.afterOpenModal();
-  }
-
-  handleModalCloseRequest() {
-    super.handleModalCloseRequest();
-  }
-
   clickSubmenu(i) {
     this.setState({ activeSubmenu: i });
   }
 
   getContent() {
     return (
-      <div>
-        <div className="settingsMenuLeft">
+      <div style={{ clear: 'both' }}>
+        <div className={styles.settingsMenuLeft}>
           <ul style={{ listStyleType: 'none' }}>
             {this.submenus.map((value, index) => (
               <li key={index} onClick={this.clickSubmenu.bind(this, index)}
-                className={classNames('settingsSubmenuItem',
-                  { settingsSubmenuItemActive: index == this.state.activeSubmenu })}>
+                className={classNames(styles.settingsSubmenuItem,
+                  index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null )}>
                 <Icon key={index} prependIconName={value.props.prependIconName}
                   iconName={value.props.icon} title={value.props.title}/>
-                <span> - {value.props.title}</span>
+                <span>{value.props.title}</span>
               </li>
             ))}
           </ul>
         </div>
-        <div className="settingsMenuRight">{this.createMenu()}</div>
+        <div className={styles.settingsMenuRight}>{this.createMenu()}</div>
       </div>
     );
   }
 };
+
+SettingsModal.defaultProps = { title: 'Settings' };
