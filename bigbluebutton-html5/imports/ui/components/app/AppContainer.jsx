@@ -16,9 +16,22 @@ const defaultProps = {
 class AppContainer extends Component {
   constructor(props) {
     super(props);
+    console.log('yy1', this.state);
+    console.log('yy', props);
+    this.state = {
+      meetingID: props.meetingID,
+      userID: props.userID,
+      authToken: props.authToken,
+    };
+  }
+
+  componentDidMount() {
+    console.log('COMPONENT DID MOUNT');
   }
 
   render() {
+    console.log('app container render');
+    console.log('aa', this.state);
     return (
       <App {...this.props}>
         {this.props.children}
