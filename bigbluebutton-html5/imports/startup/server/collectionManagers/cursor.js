@@ -1,4 +1,4 @@
-import { Cursor } from '/collections/collections';
+import { Cursor } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 
 export function initializeCursor(meetingId) {

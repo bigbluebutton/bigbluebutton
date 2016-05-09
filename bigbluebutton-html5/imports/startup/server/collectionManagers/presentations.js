@@ -1,4 +1,4 @@
-import { Presentations, Slides } from '/collections/collections';
+import { Presentations, Slides } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 
 export function addPresentationToCollection(meetingId, presentationObject) {
@@ -20,8 +20,8 @@ export function addPresentationToCollection(meetingId, presentationObject) {
     };
     return id = Presentations.insert(entry);
 
-    //logger.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size
-    // is now #{Presentations.find({meetingId: meetingId}).count()}"
+    //logger.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}.
+    // Presentations.size is now #{Presentations.find({meetingId: meetingId}).count()}"
   }
 };
 
@@ -48,6 +48,6 @@ export function clearPresentationsCollection() {
       meetingId: meetingId,
     }, logger.info(`cleared Presentations Collection (meetingId: ${meetingId}!`));
   } else {
-    return Presentations.remove({}, logger.info('cleared Presentations Collection (all meetings)!'));
+    return Presentations.remove({}, logger.info('cleared Presentations Collection(all meetings)!'));
   }
 };

@@ -1,5 +1,5 @@
 import { publish } from '/imports/startup/server/helpers';
-import { Users, Meetings, Chat } from '/collections/collections';
+import { Users, Meetings, Chat } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
@@ -280,7 +280,8 @@ export function userJoined(meetingId, user, callback) {
       meetingId: meetingId,
     });
     if (meetingObject != null) {
-      welcomeMessage = Meteor.config.defaultWelcomeMessage.replace(/%%CONFNAME%%/, meetingObject.meetingName);
+      welcomeMessage = Meteor.config.defaultWelcomeMessage.replace(/%%CONFNAME%%/,
+        meetingObject.meetingName);
     }
 
     welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter;
@@ -375,7 +376,8 @@ export function createDummyUser(meetingId, userId, authToken) {
     meetingId: meetingId,
     authToken: authToken,
   }) != null) {
-    return logger.info(`html5 user userId:[${userId}] from [${meetingId}] tried to revalidate token`);
+    let msg = `html5 user userId:[${userId}] from [${meetingId}] tried to revalidate token`;
+    return logger.info(msg);
   } else {
     return Users.insert({
       meetingId: meetingId,
@@ -384,9 +386,8 @@ export function createDummyUser(meetingId, userId, authToken) {
       clientType: 'HTML5',
       validated: false //will be validated on validate_auth_token_reply
     }, (err, id) => {
-      return logger.info(`_added a dummy html5 user with: userId=[${userId}] Users.size is now ${Users.find({
-  meetingId: meetingId,
-}).count()}`);
+      let res = Users.find({meetingId: meetingId,}).count();
+      return logger.info(`_added a dummy html5 user userId=[${userId}] Users.size is now ${res}`);
     });
   }
 };
@@ -409,7 +410,8 @@ export function handleLockingMic(meetingId, newSettings) {
   results = [];
   for (i = 0; i < _userObjects_length; i++) {
     userObject = userObjects[i];
-    results.push(Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId, userObject.authToken, true)); //true for muted
+    results.push(Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId,
+      userObject.authToken, true)); //true for muted
   }
 
   return results;
@@ -434,16 +436,19 @@ export function setUserLockedStatus(meetingId, userId, isLocked) {
       if (err != null) {
         return logger.error(`_error ${err} while updating user ${userId} with lock settings`);
       } else {
-        return logger.info(`_setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);
+        return logger.info(`_setting user locked status for:[${userId}] from [${meetingId}] locked=${isLocked}`);
       }
     });
 
     // if the user is sharing audio, he should be muted upon locking involving disableMic
-    if (userObject.user.role === 'VIEWER' && !userObject.user.listenOnly && userObject.user.voiceUser.joined && !userObject.user.voiceUser.muted && isLocked) {
-      return Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId, userObject.authToken, true); //true for muted
+    if (userObject.user.role === 'VIEWER' && !userObject.user.listenOnly &&
+      userObject.user.voiceUser.joined && !userObject.user.voiceUser.muted && isLocked) {
+      return Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId,
+        userObject.authToken, true); //true for muted
     }
   } else {
-    return logger.error(`(unsuccessful-no such user) setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);
+    let tempMsg = '(unsuccessful-no such user) setting user locked status for userid:';
+    return logger.error(`${tempMsg}[${userId}] from [${meetingId}] locked=${isLocked}`);
   }
 };
 
@@ -455,7 +460,7 @@ export function clearUsersCollection() {
       meetingId: meetingId,
     }, err => {
       if (err != null) {
-        return logger.error(`_error ${JSON.stringify(err)} while removing users from meeting ${meetingId}`);
+        return logger.error(`_error ${JSON.stringify(err)} while removing users from ${meetingId}`);
       } else {
         return logger.info(`_cleared Users Collection (meetingId: ${meetingId})!`);
       }
@@ -463,7 +468,7 @@ export function clearUsersCollection() {
   } else {
     return Users.remove({}, err => {
       if (err != null) {
-        return logger.error(`_error ${JSON.stringify(err)} while removing users from all meetings!`);
+        return logger.error(`_error ${JSON.stringify(err)} while removing users from all meetings`);
       } else {
         return logger.info('_cleared Users Collection (all meetings)!');
       }

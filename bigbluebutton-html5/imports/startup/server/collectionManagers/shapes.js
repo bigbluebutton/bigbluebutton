@@ -1,4 +1,4 @@
-import { Shapes, WhiteboardCleanStatus } from '/collections/collections';
+import { Shapes, WhiteboardCleanStatus } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 
 export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
@@ -45,7 +45,8 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
 
     // the mouse button was released - the drawing is complete
     // TODO: pencil messages currently don't send draw_end and are labeled all as DRAW_START
-  } else if (shapeObject != null && (shapeObject.status === 'DRAW_START' || shapeObject.status === 'DRAW_UPDATE' || shapeObject.status === 'DRAW_END')) {
+  } else if (shapeObject != null && (shapeObject.status === 'DRAW_START' ||
+    shapeObject.status === 'DRAW_UPDATE' || shapeObject.status === 'DRAW_END')) {
     shape = Shapes.findOne({
         'shape.id': shapeObject.shape.id,
       });

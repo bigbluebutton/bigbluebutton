@@ -1,4 +1,4 @@
-import { Polls } from '/collections/collections';
+import { Polls } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 
 export function addPollToCollection(poll, requester_id, users, meetingId) {
@@ -20,7 +20,8 @@ export function addPollToCollection(poll, requester_id, users, meetingId) {
     answer.num_votes = 0;
   }
 
-  //adding the initial number of responders and respondents to the poll, which will be displayed for presenter (in HTML5 client) when he starts the poll
+  //adding the initial number of responders and respondents to the poll, which will be
+  // displayed for presenter (in HTML5 client) when he starts the poll
   poll.num_responders = -1;
   poll.num_respondents = -1;
 
@@ -56,7 +57,8 @@ export function clearPollCollection() {
 };
 
 export function updatePollCollection(poll, meetingId, requesterId) {
-  if ((poll.answers != null) && (poll.num_responders != null) && (poll.num_respondents != null) && (poll.id != null) && (meetingId != null) && (requesterId != null)) {
+  if ((poll.answers != null) && (poll.num_responders != null) && (poll.num_respondents != null) &&
+    (poll.id != null) && (meetingId != null) && (requesterId != null)) {
     return Polls.update({
       'poll_info.meetingId': meetingId,
       'poll_info.requester': requesterId,

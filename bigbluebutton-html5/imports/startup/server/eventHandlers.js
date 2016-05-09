@@ -1,14 +1,15 @@
-import { addChatToCollection } from '/imports/startup/server/collectionManagers/chat';
-import { updateCursorLocation } from '/imports/startup/server/collectionManagers/cursor';
-import { handleLockingMic, userJoined, updateVoiceUser } from '/imports/startup/server/collectionManagers/users';
-import { addSlideToCollection, displayThisSlide } from '/imports/startup/server/collectionManagers/slides';
+import { addChatToCollection } from './collectionManagers/chat';
+import { updateCursorLocation } from './collectionManagers/cursor';
+import { handleLockingMic, userJoined, updateVoiceUser } from './../../api/users/server/usersManager';
+import { addSlideToCollection, displayThisSlide } from './collectionManagers/slides';
 import { addShapeToCollection, removeAllShapesFromSlide,
-  removeShapeFromSlide } from '/imports/startup/server/collectionManagers/shapes';
+  removeShapeFromSlide } from './collectionManagers/shapes';
 import { addPresentationToCollection,
-  removePresentationFromCollection } from '/imports/startup/server/collectionManagers/presentations';
-import { addPollToCollection, updatePollCollection } from '/imports/startup/server/collectionManagers/poll';
+  removePresentationFromCollection } from './collectionManagers/presentations';
+import { addPollToCollection, updatePollCollection } from './collectionManagers/poll';
 import { addMeetingToCollection} from '/imports/startup/server/collectionManagers/meetings';
-import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
+import { Meetings, Presentations, Slides, Users,
+  WhiteboardCleanStatus } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 import { eventEmitter } from '/imports/startup/server/index';
@@ -65,12 +66,14 @@ eventEmitter.on('meeting_created_message', function (arg) {
   voiceConf = arg.payload.voice_conf;
   duration = arg.payload.duration;
   meetingId = arg.payload.meeting_id;
-  return addMeetingToCollection(meetingId, meetingName, intendedForRecording, voiceConf, duration, arg.callback);
+  return addMeetingToCollection(meetingId, meetingName, intendedForRecording,
+    voiceConf, duration, arg.callback);
 });
 
 eventEmitter.on('get_all_meetings_reply', function (arg) {
   let listOfMeetings, processMeeting;
-  logger.info("Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!");
+  logger.info('Let\'s store some data for the running meetings so that when an' +
+    ' HTML5 client joins everything is ready!');
   logger.info(JSON.stringify(arg.payload));
   listOfMeetings = arg.payload.meetings;
 
@@ -80,7 +83,8 @@ eventEmitter.on('get_all_meetings_reply', function (arg) {
     let meeting;
     meeting = listOfMeetings.pop();
     if (meeting != null) {
-      return addMeetingToCollection(meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration, processMeeting);
+      return addMeetingToCollection(meeting.meetingID, meeting.meetingName,
+        meeting.recorded, meeting.voiceBridge, meeting.duration, processMeeting);
     } else {
       return arg.callback(); // all meeting arrays (if any) have been processed
     }
@@ -152,7 +156,7 @@ eventEmitter.on('validate_auth_token_reply', function (arg) {
             val = user.validated;
           }
 
-          logger.info(`user.validated for user ${userId} in meeting ${user.meetingId} just became ${val}`);
+          logger.info(`user.validated for ${userId} in meeting ${meetingId} just became ${val}`);
           return cbk();
         };
 
@@ -349,7 +353,8 @@ eventEmitter.on('presentation_shared_message', function (arg) {
 
 eventEmitter.on('get_presentation_info_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') {
-    let presentations, payload, k, presentation, pages, page, l, meetingId, whiteboardId, replyTo, message;
+    let presentations, payload, k, presentation, pages, page, l,
+      meetingId, whiteboardId, replyTo, message;
     payload = arg.payload;
     meetingId = payload.meeting_id;
     presentations = payload.presentations;
@@ -449,7 +454,8 @@ eventEmitter.on('send_whiteboard_shape_message', function (arg) {
 
   //Meteor stringifies an array of JSONs (...shape.result) in this message
   //parsing the String and reassigning the value
-  if (payload.shape.shape_type === 'poll_result' && typeof payload.shape.shape.result === 'string') {
+  if (payload.shape.shape_type === 'poll_result' &&
+    typeof payload.shape.shape.result === 'string') {
     payload.shape.shape.result = JSON.parse(payload.shape.shape.result);
   }
 
@@ -530,8 +536,10 @@ eventEmitter.on('presentation_page_resized_message', function (arg) {
       currentSlide = currentSlide.slide;
     }
 
-    if (currentSlide != null && (currentSlide.height_ratio != heightRatio || currentSlide.width_ratio != widthRatio
-      || currentSlide.x_offset != xOffset || currentSlide.y_offset != yOffset)) {
+    if (currentSlide != null && (currentSlide.height_ratio != heightRatio ||
+      currentSlide.width_ratio != widthRatio ||
+      currentSlide.x_offset != xOffset ||
+      currentSlide.y_offset != yOffset)) {
       Slides.update({
         presentationId: presentationId,
         'slide.current': true,
@@ -619,7 +627,8 @@ eventEmitter.on('poll_started_message', function (arg) {
   payload = arg.payload;
   meetingId = payload.meeting_id;
 
-  if (payload != null && meetingId != null && payload.requester_id != null && payload.poll != null) {
+  if (payload != null && meetingId != null &&
+    payload.requester_id != null && payload.poll != null) {
     if (Meetings.findOne({
         meetingId: meetingId,
       }) != null) {
@@ -660,7 +669,8 @@ eventEmitter.on('user_voted_poll_message', function (arg) {
   let payload, meetingId, pollObj, requesterId;
   payload = arg.payload;
   meetingId = payload.meeting_id;
-  if (payload != null && payload.poll != null && meetingId != null && payload.presenter_id != null) {
+  if (payload != null && payload.poll != null && meetingId != null &&
+    payload.presenter_id != null) {
     pollObj = payload.poll;
     requesterId = payload.presenter_id;
     updatePollCollection(pollObj, meetingId, requesterId);

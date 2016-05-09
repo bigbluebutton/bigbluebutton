@@ -1,6 +1,6 @@
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
-import { createDummyUser } from '/imports/startup/server/collectionManagers/users';
+import { createDummyUser } from '/imports/api/users/server/usersManager';
 import { publish } from '/imports/startup/server/helpers';
 
 Meteor.methods({

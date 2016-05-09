@@ -1,4 +1,4 @@
-import { clearUsersCollection, setUserLockedStatus, markUserOffline, updateVoiceUser } from '/imports/startup/server/collectionManagers/users';
+import { clearUsersCollection, setUserLockedStatus, markUserOffline, updateVoiceUser } from '/imports/api/users/server/usersManager';
 import { clearChatCollection, addChatToCollection } from '/imports/startup/server/collectionManagers/chat';
 import { clearMeetingsCollection, removeMeetingFromCollection } from '/imports/startup/server/collectionManagers/meetings';
 import { clearShapesCollection } from '/imports/startup/server/collectionManagers/shapes';

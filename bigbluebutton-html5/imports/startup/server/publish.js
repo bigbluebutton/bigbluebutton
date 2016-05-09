@@ -1,11 +1,12 @@
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import { requestUserLeaving } from '/imports/startup/server/collectionManagers/users';
-import { Users, Shapes, Meetings, Presentations, Slides, Chat, WhiteboardCleanStatus, Polls, Cursor } from '/collections/collections';
+import { requestUserLeaving } from '/imports/api/users/server/usersManager';
+import { Users, Shapes, Meetings, Presentations, Slides, Chat,
+  WhiteboardCleanStatus, Polls, Cursor } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 
 // Publish only the online users that are in the particular meetingId
 // On the client side we pass the meetingId parameter
-Meteor.publish('users', function (meetingId, userid, authToken) {
+/*Meteor.publish('bbb_users', function (meetingId, userid, authToken) {
   let user, userObject, username;
   logger.info(`attempt publishing users for ${meetingId}, ${userid}, ${authToken}`);
   userObject = Users.findOne({
@@ -39,8 +40,7 @@ Meteor.publish('users', function (meetingId, userid, authToken) {
       logger.info(`username of the subscriber: ${username}, connection_status becomes online`);
       this._session.socket.on('close', Meteor.bindEnvironment((function (_this) {
         return function () {
-          logger.info(`
-a user lost connection: session.id=${_this._session.id} userId = ${userid}, username=${username}, meeting=${meetingId}`);
+          logger.info(`a user lost connection: session.id=${_this._session.id} userId = ${userid}, username=${username}, meeting=${meetingId}`);
           Users.update({
             meetingId: meetingId,
             userId: userid,
@@ -84,6 +84,23 @@ a user lost connection: session.id=${_this._session.id} userId = ${userid}, user
     });
   }
 });
+*/
+
+Meteor.publish('bbb_users', function (meetingId, userid, authToken) {
+  if (isAllowedTo('subscribeUsers', meetingId, userid, authToken)) {
+    return Users.find({
+      meetingId: meetingId,
+      'user.connection_status': {
+        $in: ['online', ''],
+      },
+    }, {
+      fields: {
+        authToken: false,
+      },
+    });
+  }
+});
+
 
 Meteor.publish('chat', function (meetingId, userid, authToken) {
   if (isAllowedTo('subscribeChat', meetingId, userid, authToken)) {

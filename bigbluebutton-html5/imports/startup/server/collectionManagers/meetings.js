@@ -1,14 +1,15 @@
-import { clearUsersCollection } from '/imports/startup/server/collectionManagers/users';
+import { clearUsersCollection } from '/imports/api/users/server/usersManager';
 import { clearChatCollection } from '/imports/startup/server/collectionManagers/chat';
 import { clearShapesCollection } from '/imports/startup/server/collectionManagers/shapes';
 import { clearSlidesCollection } from '/imports/startup/server/collectionManagers/slides';
 import { clearPresentationsCollection } from '/imports/startup/server/collectionManagers/presentations';
 import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
 import { clearCursorCollection, initializeCursor } from '/imports/startup/server/collectionManagers/cursor';
-import { Meetings } from '/collections/collections';
+import { Meetings } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 
-export function addMeetingToCollection(meetingId, name, intendedForRecording, voiceConf, duration, callback) {
+export function addMeetingToCollection(meetingId, name, intendedForRecording,
+                                       voiceConf, duration, callback) {
   //check if the meeting is already in the collection
 
   Meetings.upsert({

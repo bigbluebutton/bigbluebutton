@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "classnames": "^2.2.3",
+    "history": "^2.1.1",
     "react": "^15.0.1",
     "react-addons-pure-render-mixin": "^15.0.1",
     "react-dom": "^15.0.1",
     "react-intl": "^2.1.2",
-    "react-router": "^2.3.0"
+    "react-router": "^2.4.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",

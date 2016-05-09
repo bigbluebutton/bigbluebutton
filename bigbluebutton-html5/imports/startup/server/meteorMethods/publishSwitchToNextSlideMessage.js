@@ -1,7 +1,7 @@
 import { publish } from '/imports/startup/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/startup/server/helpers';
-import { Presentations, Slides } from '/collections/collections';
+import { Presentations, Slides } from '/imports/startup/collections';
 import { redisConfig } from '/config';
 
 Meteor.methods({

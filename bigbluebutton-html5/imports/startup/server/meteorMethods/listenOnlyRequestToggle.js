@@ -1,6 +1,6 @@
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader, publish } from '/imports/startup/server/helpers';
-import { Users, Meetings} from '/collections/collections';
+import { Users, Meetings} from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 

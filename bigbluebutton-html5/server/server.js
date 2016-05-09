@@ -6,7 +6,7 @@ import '/imports/startup/server/collectionManagers/poll';
 import '/imports/startup/server/collectionManagers/presentations';
 import '/imports/startup/server/collectionManagers/shapes';
 import '/imports/startup/server/collectionManagers/slides';
-import '/imports/startup/server/collectionManagers/users';
+import '/imports/api/users/server/usersManager';
 import '/imports/startup/server/meteorMethods/deletePrivateChatMessages';
 import '/imports/startup/server/meteorMethods/kickUser';
 import '/imports/startup/server/meteorMethods/listenOnlyRequestToggle';

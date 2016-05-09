@@ -1,4 +1,4 @@
-import { Chat } from '/collections/collections';
+import { Chat } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 
 export function addChatToCollection(meetingId, messageObject) {

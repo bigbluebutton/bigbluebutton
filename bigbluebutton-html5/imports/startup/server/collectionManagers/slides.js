@@ -1,4 +1,4 @@
-import { Slides } from '/collections/collections';
+import { Slides } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 
 export function displayThisSlide(meetingId, newSlideId, slideObject) {
@@ -54,7 +54,8 @@ export function addSlideToCollection(meetingId, presentationId, slideObject) {
     };
     return id = Slides.insert(entry);
 
-    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
+    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there 
+    // are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
   }
 };
 
