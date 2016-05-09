@@ -1,5 +1,7 @@
 import React, { PropTypes } from 'react';
 import Svg from '../../shared/Svg.jsx';
+import WhiteboardPaperService from './WhiteboardPaperService.js';
+import { createContainer } from 'meteor/react-meteor-data';
 
 export default class WhiteboardPaper extends React.Component {
   constructor(props) {
@@ -22,6 +24,11 @@ export default class WhiteboardPaper extends React.Component {
     );
   }
 }
+
+export default createContainer(() => {
+  const data = WhiteboardPaperService.getWhiteboardData();
+  return data;
+}, WhiteboardPaper);
 
 WhiteboardPaper.defaultProps = {
   svgProps: {

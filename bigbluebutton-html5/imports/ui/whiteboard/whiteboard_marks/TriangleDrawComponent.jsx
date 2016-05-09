@@ -11,5 +11,3 @@ export default class TriangleDrawComponent extends React.Component {
     );
   }
 }
-
-

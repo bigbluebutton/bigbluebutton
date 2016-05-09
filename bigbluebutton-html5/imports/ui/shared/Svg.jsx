@@ -6,7 +6,7 @@ export default class Svg extends Component {
   render() {
     return (
       <svg version='1.1' xmlNS='http://www.w3.org/2000/svg' {...this.props.svgProps} style={this.props.svgStyle}>
-      	{this.props.children}
+        {this.props.children}
       </svg>
     );
   }

@@ -1,4 +1,4 @@
-let getCurrentSlide = () => {
+let getWhiteboardData = () => {
   let currentPresentation, currentSlide, presentationId, shapes, ref;
   currentPresentation = Meteor.Presentations.findOne({
       'presentation.current': true,
@@ -7,16 +7,18 @@ let getCurrentSlide = () => {
   currentSlide = Meteor.Slides.findOne({
       presentationId: presentationId,
       'slide.current': true,
-    });
+  });
   if (currentSlide != null) {
-    currentSlide.shapes = Meteor.Shapes.find({
+    shapes = Meteor.Shapes.find({
         whiteboardId: currentSlide.slide.id,
       }).fetch();
   }
-
-  return currentSlide;
+  return {
+    current_slide: currentSlide,
+    shapes: shapes,
+  };
 };
 
 export default {
-  getCurrentSlide,
+  getWhiteboardData,
 };
