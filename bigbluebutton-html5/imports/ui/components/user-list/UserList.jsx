@@ -9,13 +9,13 @@ export default class UserList extends Component {
         <ul>
           <li><b>USER-LIST</b></li>
           <li>
-            <Link to="/html5client/users/chat">Open Public chat</Link>
+            <Link to="/users/chat">Open Public chat</Link>
           </li>
           <li>
-            <Link to={`/html5client/users/chat/${'fred-dixon'}`}>Open Private Chat With Fred</Link>
+            <Link to={`/users/chat/${'fred-dixon'}`}>Open Private Chat With Fred</Link>
           </li>
           <li>
-            <Link to={`/html5client/users/chat/${'tiago-jacobs'}`}>Open Private Chat With Tiago</Link>
+            <Link to={`/users/chat/${'tiago-jacobs'}`}>Open Private Chat With Tiago</Link>
           </li>
         </ul>
       </div>
