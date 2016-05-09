@@ -5,6 +5,7 @@ import { EmojiContainer } from './EmojiContainer.jsx';
 import { Polling } from './Polling.jsx';
 import { Button } from '../shared/Button.jsx';
 import { WhiteboardControls } from './WhiteboardControls.jsx';
+import WhiteboardPaper from './whiteboard_marks/WhiteboardPaper.jsx';
 
 export let Whiteboard = React.createClass({
   mixins: [ReactMeteorData],
@@ -102,7 +103,7 @@ export let Whiteboard = React.createClass({
   render() {
     return (
       <div id="whiteboard" className="component">
-        <div id="whiteboard-container" className={ classNames(this.data.whiteboard_size) }>
+        <div id="whiteboard-container" style={{background: '#2A2D34'}} className={ classNames(this.data.whiteboard_size) }>
           <Slide />
           <EmojiContainer />
           {this.data.is_mobile ?
