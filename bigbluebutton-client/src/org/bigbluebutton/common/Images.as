@@ -328,6 +328,9 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/transfer.png")]
 		public var transfer:Class;
 		
+		[Embed(source="assets/images/transferred.png")]
+		public var transferred:Class;
+		
 		[Embed(source="assets/images/join.png")]
 		public var join:Class;
 	}

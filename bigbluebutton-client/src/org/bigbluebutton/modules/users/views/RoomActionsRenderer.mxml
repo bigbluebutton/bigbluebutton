@@ -20,6 +20,7 @@
 				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
 				e.breakoutId = data.breakoutId as String;
 				e.listen = listenBtn.selected;
+				listenBtn.setStyle("icon", listenBtn.selected ? images.transferred : images.transfer);
 				globalDispatch.dispatchEvent(e);
 			}
 			
