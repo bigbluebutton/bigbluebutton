@@ -1,7 +1,7 @@
 import { publish } from '/imports/startup/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/startup/server/helpers';
-import { updateVoiceUser } from '/imports/api/users/server/usersManager';
+import { updateVoiceUser } from '/imports/api/users/server/users';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 

@@ -1,11 +1,11 @@
-import { clearUsersCollection } from '/imports/api/users/server/usersManager';
-import { clearChatCollection } from '/imports/startup/server/collectionManagers/chat';
-import { clearShapesCollection } from '/imports/startup/server/collectionManagers/shapes';
-import { clearSlidesCollection } from '/imports/startup/server/collectionManagers/slides';
-import { clearPresentationsCollection } from '/imports/startup/server/collectionManagers/presentations';
+import { clearUsersCollection } from '/imports/api/users/server/users';
+import { clearChatCollection } from '/imports/api/chat/server/chat';
+import { clearShapesCollection } from '/imports/api/shapes/server/shapes';
+import { clearSlidesCollection } from '/imports/api/slides/server/slides';
+import { clearPresentationsCollection } from '/imports/api/presentations/server/presentations';
 import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
-import { clearCursorCollection, initializeCursor } from '/imports/startup/server/collectionManagers/cursor';
-import { Meetings } from '/imports/startup/collections';
+import { clearCursorCollection, initializeCursor } from '/imports/api/cursor/server/cursor';
+import { Meetings } from '../meetingsCollection';
 import { logger } from '/imports/startup/server/logger';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording,

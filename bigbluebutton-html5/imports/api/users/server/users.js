@@ -1,20 +1,21 @@
 import { publish } from '/imports/startup/server/helpers';
-import { Users, Meetings, Chat } from '/imports/startup/collections';
+import { Meetings, Chat } from '/imports/startup/collections';
+import { Users } from '/imports/api/users/usersCollection';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
 // Only callable from server
 // Received information from BBB-Apps that a user left
 // Need to update the collection
-// params: meetingid, userid as defined in BBB-Apps
+// params: meetingid,  userid as defined in BBB-Apps
 // callback
 export function markUserOffline(meetingId, userId, callback) {
   // mark the user as offline. remove from the collection on meeting_end #TODO
-  let user;
-  user = Users.findOne({
+  let user = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });
+  
   if (user != null && user.clientType === 'HTML5') {
     logger.info(`marking html5 user [${userId}] as offline in meeting[${meetingId}]`);
     return Users.update({
@@ -27,7 +28,7 @@ export function markUserOffline(meetingId, userId, callback) {
         'user.voiceUser.joined': false,
         'user.voiceUser.muted': false,
         'user.time_of_joining': 0,
-        'user.listenOnly': false,
+        'user.listenOnly': false, //TODO make this user: {}
       },
     }, (err, numChanged) => {
       let funct;

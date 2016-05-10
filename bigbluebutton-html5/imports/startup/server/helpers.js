@@ -1,11 +1,11 @@
-import { clearUsersCollection, setUserLockedStatus, markUserOffline, updateVoiceUser } from '/imports/api/users/server/usersManager';
-import { clearChatCollection, addChatToCollection } from '/imports/startup/server/collectionManagers/chat';
-import { clearMeetingsCollection, removeMeetingFromCollection } from '/imports/startup/server/collectionManagers/meetings';
-import { clearShapesCollection } from '/imports/startup/server/collectionManagers/shapes';
-import { clearSlidesCollection } from '/imports/startup/server/collectionManagers/slides';
-import { clearPresentationsCollection } from '/imports/startup/server/collectionManagers/presentations';
+import { clearUsersCollection, setUserLockedStatus, markUserOffline, updateVoiceUser } from '/imports/api/users/server/users';
+import { clearChatCollection, addChatToCollection } from '/imports/api/chat/server/chat';
+import { clearMeetingsCollection, removeMeetingFromCollection } from '/imports/api/meetings/server/meetings';
+import { clearShapesCollection } from '/imports/api/shapes/server/shapes';
+import { clearSlidesCollection } from '/imports/api/slides/server/slides';
+import { clearPresentationsCollection } from '/imports/api/presentations/server/presentations';
 import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
-import { clearCursorCollection } from '/imports/startup/server/collectionManagers/cursor';
+import { clearCursorCollection } from '/imports/api/cursor/server/cursor';
 
 import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server/index';

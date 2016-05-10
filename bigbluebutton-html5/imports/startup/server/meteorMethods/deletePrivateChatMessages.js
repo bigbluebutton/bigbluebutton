@@ -1,4 +1,4 @@
-import { Users } from '/imports/startup/collections';
+import { Users } from '/imports/api/users/usersCollection';
 
 Meteor.methods({
   deletePrivateChatMessages(userId, contact_id) { //TODO is this used?!

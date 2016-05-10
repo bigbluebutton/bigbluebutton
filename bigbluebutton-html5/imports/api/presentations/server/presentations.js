@@ -1,4 +1,5 @@
-import { Presentations, Slides } from '/imports/startup/collections';
+import { Slides } from '../../slides/slidesCollection';
+import { Presentations } from '../presentationsCollection';
 import { logger } from '/imports/startup/server/logger';
 
 export function addPresentationToCollection(meetingId, presentationObject) {

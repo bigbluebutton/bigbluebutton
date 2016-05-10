@@ -1,4 +1,4 @@
-import { Slides } from '/imports/startup/collections';
+import { Slides } from '../slidesCollection';
 import { logger } from '/imports/startup/server/logger';
 
 export function displayThisSlide(meetingId, newSlideId, slideObject) {

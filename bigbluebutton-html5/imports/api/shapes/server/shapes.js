@@ -1,4 +1,5 @@
-import { Shapes, WhiteboardCleanStatus } from '/imports/startup/collections';
+import { WhiteboardCleanStatus } from '/imports/startup/collections'; //TODO remove
+import { Shapes } from '../shapesCollection';
 import { logger } from '/imports/startup/server/logger';
 
 export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {

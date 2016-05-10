@@ -1,7 +1,7 @@
 import { publish } from '/imports/startup/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/startup/server/helpers';
-import { translateHTML5ToFlash } from '/imports/startup/server/collectionManagers/chat';
+import { translateHTML5ToFlash } from '/imports/api/chat/server/chat';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 

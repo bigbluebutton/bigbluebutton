@@ -1,20 +1,22 @@
-import { addChatToCollection } from './collectionManagers/chat';
-import { updateCursorLocation } from './collectionManagers/cursor';
-import { handleLockingMic, userJoined, updateVoiceUser } from './../../api/users/server/usersManager';
-import { addSlideToCollection, displayThisSlide } from './collectionManagers/slides';
+import { addChatToCollection } from './../../api/chat/server/chat';
+import { updateCursorLocation } from './../../api/cursor/server/cursor';
+import { handleLockingMic, userJoined, updateVoiceUser } from './../../api/users/server/users';
+import { addSlideToCollection, displayThisSlide } from './../../api/slides/server/slides';
 import { addShapeToCollection, removeAllShapesFromSlide,
-  removeShapeFromSlide } from './collectionManagers/shapes';
+  removeShapeFromSlide } from './../../api/shapes/server/shapes';
 import { addPresentationToCollection,
-  removePresentationFromCollection } from './collectionManagers/presentations';
+  removePresentationFromCollection } from './../../api/presentations/server/presentations';
 import { addPollToCollection, updatePollCollection } from './collectionManagers/poll';
-import { addMeetingToCollection} from '/imports/startup/server/collectionManagers/meetings';
-import { Meetings, Presentations, Slides, Users,
-  WhiteboardCleanStatus } from '/imports/startup/collections';
+import { addMeetingToCollection} from '/imports/api/meetings/server/meetings';
+import { WhiteboardCleanStatus } from '/imports/startup/collections';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 import { eventEmitter } from '/imports/startup/server/index';
 import { publish, handleChatEvent, handleEndOfMeeting, handleLockEvent,
   handleRemoveUserEvent, handleVoiceEvent} from '/imports/startup/server/helpers';
+
+import { Collections } from '/imports/api/index';
+// import { Meetings, Presentations, Slides, Users } from '/imports/api/index';
 
 // To ensure that we process the redis json event messages serially we use a
 // callback. This callback is to be called when the Meteor collection is
@@ -127,7 +129,7 @@ eventEmitter.on('validate_auth_token_reply', function (arg) {
   let userId, user, validStatus, payload, meetingId;
   meetingId = arg.payload.meeting_id;
   userId = arg.payload.userid;
-  user = Users.findOne({
+  user = Collections.Users.findOne({
     userId: userId,
     meetingId: meetingId,
   });
@@ -136,7 +138,7 @@ eventEmitter.on('validate_auth_token_reply', function (arg) {
   // if the user already exists in the db
   if (user != null && user.clientType === 'HTML5') {
     //if the html5 client user was validated successfully, add a flag
-    return Users.update({
+    return Collections.Users.update({
       userId: userId,
       meetingId: meetingId,
     }, {
@@ -148,7 +150,7 @@ eventEmitter.on('validate_auth_token_reply', function (arg) {
       if (numChanged.insertedId != null) {
         funct = function (cbk) {
           let user, val;
-          user = Users.findOne({
+          user = Collections.Users.findOne({
             userId: userId,
             meetingId: meetingId,
           });
@@ -176,7 +178,7 @@ eventEmitter.on('user_joined_message', function (arg) {
   meetingId = arg.payload.meeting_id;
   payload = arg.payload;
   userObj = payload.user;
-  dbUser = Users.findOne({
+  dbUser = Collections.Users.findOne({
     userId: userObj.userid,
     meetingId: meetingId,
   });
@@ -214,7 +216,7 @@ eventEmitter.on('presenter_assigned_message', function (arg) {
   newPresenterId = arg.payload.new_presenter_id;
   if (newPresenterId != null) {
     // reset the previous presenter
-    Users.update({
+    Collections.Users.update({
       'user.presenter': true,
       meetingId: meetingId,
     }, {
@@ -226,7 +228,7 @@ eventEmitter.on('presenter_assigned_message', function (arg) {
     });
 
     // set the new presenter
-    Users.update({
+    Collections.Users.update({
       'user.userid': newPresenterId,
       meetingId: meetingId,
     }, {
@@ -249,7 +251,7 @@ eventEmitter.on('user_emoji_status_message', function (arg) {
   if (userId != null && meetingId != null) {
     let set_emoji_time;
     set_emoji_time = new Date();
-    Users.update({
+    Collections.Users.update({
       'user.userid': userId,
     }, {
       $set: {
@@ -292,7 +294,7 @@ eventEmitter.on('get_chat_history_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') { //TODO extract this check
     let meetingId;
     meetingId = arg.payload.meeting_id;
-    if (Meetings.findOne({
+    if (Collections.Meetings.findOne({
         MeetingId: meetingId,
       }) == null) {
       let chatHistory, _chat_history_length, chatMessage;
@@ -325,7 +327,7 @@ eventEmitter.on('presentation_shared_message', function (arg) {
     presentationId = payload.presentation.id;
 
     // change the currently displayed presentation to presentation.current = false
-    Presentations.update({
+    Collections.Presentations.update({
       'presentation.current': true,
       meetingId: meetingId,
     }, {
@@ -529,7 +531,7 @@ eventEmitter.on('presentation_page_resized_message', function (arg) {
 
     // In the case when we don't resize, but switch a slide, this message
     // follows a 'presentation_page_changed' and all these properties are already set.
-    currentSlide = Slides.findOne(
+    currentSlide = Collections.Slides.findOne(
       { presentationId: presentationId,
         'slide.current': true, });
     if (currentSlide) {
@@ -540,7 +542,7 @@ eventEmitter.on('presentation_page_resized_message', function (arg) {
       currentSlide.width_ratio != widthRatio ||
       currentSlide.x_offset != xOffset ||
       currentSlide.y_offset != yOffset)) {
-      Slides.update({
+      Collections.Slides.update({
         presentationId: presentationId,
         'slide.current': true,
       }, {
@@ -563,7 +565,7 @@ eventEmitter.on('recording_status_changed_message', function (arg) {
   currentlyBeingRecorded = arg.payload.recording;
   meetingId = arg.payload.meeting_id;
 
-  Meetings.update({
+  Collections.Meetings.update({
     meetingId: meetingId,
     intendedForRecording: intendedForRecording,
   }, {
@@ -579,7 +581,7 @@ eventEmitter.on('new_permission_settings', function (arg) {
   meetingId = arg.payload.meeting_id;
   payload = arg.payload;
 
-  meetingObject = Meetings.findOne({
+  meetingObject = Collections.Meetings.findOne({
     meetingId: meetingId,
   });
   if (meetingObject != null && payload != null) {
@@ -592,7 +594,7 @@ eventEmitter.on('new_permission_settings', function (arg) {
     }
 
     // substitute with the new lock settings
-    Meetings.update({
+    Collections.Meetings.update({
       meetingId: meetingId,
     }, {
       $set: {
@@ -629,10 +631,10 @@ eventEmitter.on('poll_started_message', function (arg) {
 
   if (payload != null && meetingId != null &&
     payload.requester_id != null && payload.poll != null) {
-    if (Meetings.findOne({
+    if (Collections.Meetings.findOne({
         meetingId: meetingId,
       }) != null) {
-      users = Users.find({
+      users = Collections.Users.find({
         meetingId: meetingId,
       }, {
         fields: {

@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor'
-import { Users } from '/imports/startup/collections';
+import { Users } from '/imports/api/users/usersCollection';
 
 const setInStorage = function(key, value) {
   if (!!value) {
@@ -19,12 +19,23 @@ export const setCredentials = function (nextState, replace) {
 };
 
 export const subscribeForData = function() {
+  subscribeFor('users');
+  subscribeFor('chat');
+  subscribeFor('slides');
+  subscribeFor('cursor');
+  subscribeFor('meetings');
+  subscribeFor('shapes');
+  subscribeFor('presentations');
+  subscribeFor('polls');
+};
+
+const subscribeFor = function (collectionName) {
   const userID = getInStorage("userID");
   const meetingID = getInStorage("meetingID");
   const authToken = getInStorage("authToken");
-  console.log("subscribingForData" , userID, meetingID, authToken);
+  console.log("subscribingForData", collectionName);
 
-  Meteor.subscribe('bbb_users', meetingID, userID, authToken, onError(), onReady());
+  Meteor.subscribe(collectionName, meetingID, userID, authToken, onError(), onReady());
 };
 
 let onError = function(error, result) {
@@ -33,6 +44,6 @@ let onError = function(error, result) {
 
 
 let onReady = function() {
-  console.log("OnReady", Users.find().fetch());
+  // console.log("OnReady", Users.find().fetch());
   window.Users = Users; // for debug purposes TODO remove
 };
