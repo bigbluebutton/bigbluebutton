@@ -6,7 +6,7 @@ import { addShapeToCollection, removeAllShapesFromSlide,
   removeShapeFromSlide } from '/imports/startup/server/collectionManagers/shapes';
 import { addPresentationToCollection,
   removePresentationFromCollection } from '/imports/startup/server/collectionManagers/presentations';
-import { addPollToCollection, updatePollCollection } from '/imports/api/polls/server/poll';
+import { addPollToCollection, updatePollCollection } from '/imports/api/polls/server/polls';
 import { addMeetingToCollection} from '/imports/startup/server/collectionManagers/meetings';
 import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
 import { logger } from '/imports/startup/server/logger';

@@ -1,7 +1,9 @@
 function joinAudio(options) {
+  // joinVertoCall()
 }
 
 function watchVideo(options) {
+  // joinVertoCall()
 }
 
 function joinVertoCall(options) {

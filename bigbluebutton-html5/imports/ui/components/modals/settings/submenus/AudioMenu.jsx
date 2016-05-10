@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import {Icon} from '/imports/ui/components/shared/Icon.jsx';
 import {Button} from '/imports/ui/components/shared/Button.jsx';
 import BaseMenu from './BaseMenu.jsx';
-// import {joinVoiceCall} from '/imports/ui/phone/PhoneService.js';
+import {joinVoiceCall} from '/imports/api/phone/PhoneService.js';
 
 export default class AudioMenu extends BaseMenu {
   constructor(props) {
@@ -14,13 +14,12 @@ export default class AudioMenu extends BaseMenu {
     const useSIPAudio = true;
     const isListenOnly = true;
     return (
-      <div></div>
-      // <div>
-        // <p>inside audio menu</p>
-        // <button onClick={joinVoiceCall.bind(this, { useSIPAudio, isListenOnly })}>
-        //   join audio
-        // </button>
-      // </div>
+      <div>
+        <p>inside audio menu</p>
+        <button onClick={joinVoiceCall.bind(this, { useSIPAudio, isListenOnly })}>
+          join audio
+        </button>
+      </div>
     );
   }
 };
