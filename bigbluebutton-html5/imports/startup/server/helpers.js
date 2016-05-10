@@ -4,7 +4,7 @@ import { clearMeetingsCollection, removeMeetingFromCollection } from '/imports/s
 import { clearShapesCollection } from '/imports/startup/server/collectionManagers/shapes';
 import { clearSlidesCollection } from '/imports/startup/server/collectionManagers/slides';
 import { clearPresentationsCollection } from '/imports/startup/server/collectionManagers/presentations';
-import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
+// import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
 import { clearCursorCollection } from '/imports/startup/server/collectionManagers/cursor';
 
 import { logger } from '/imports/startup/server/logger';
@@ -28,7 +28,7 @@ export function clearCollections() {
   clearShapesCollection();
   clearSlidesCollection();
   clearPresentationsCollection();
-  clearPollCollection();
+  // clearPollCollection();
   clearCursorCollection();
 }
 
@@ -106,4 +106,3 @@ export const handleRemoveUserEvent = function (arg) {
     return arg.callback();
   }
 };
-

@@ -14,6 +14,4 @@ export const Shapes = new Mongo.Collection('shapes');
 
 export const Slides = new Mongo.Collection('slides');
 
-export const Polls = new Mongo.Collection('bbb_poll');
-
 export const WhiteboardCleanStatus = new Mongo.Collection('whiteboard-clean-status');

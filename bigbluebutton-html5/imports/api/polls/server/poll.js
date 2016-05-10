@@ -1,7 +1,7 @@
 import { Polls } from '/collections/collections';
 import { logger } from '/imports/startup/server/logger';
 
-export function addPollToCollection(poll, requesterId, users, meetingId) {
+function addPollToCollection(poll, requesterId, users, meetingId) {
   // copying all the userids into an array
   let newUsers = [];
   newUsersLength = users.length;
@@ -36,7 +36,7 @@ export function addPollToCollection(poll, requesterId, users, meetingId) {
   return Polls.insert(entry);
 };
 
-export function clearPollCollection() {
+function clearPollCollection() {
   const meetingId = arguments[0];
   const pollId = arguments[1];
 
@@ -54,7 +54,7 @@ export function clearPollCollection() {
   }
 };
 
-export function updatePollCollection(poll, meetingId, requesterId) {
+function updatePollCollection(poll, meetingId, requesterId) {
   if ((poll.answers != null) && (poll.numResponders != null) && (poll.numRespondents != null) &&
     (poll.id != null) && (meetingId != null) && (requesterId != null)) {
     return Polls.update({
@@ -70,3 +70,5 @@ export function updatePollCollection(poll, meetingId, requesterId) {
     }, logger.info(`updating Polls Collection (meetingId: ${meetingId}, pollId: ${poll.id}!)`));
   }
 };
+
+export { addPollToCollection, clearPollCollection, updatePollCollection };
