@@ -94,7 +94,7 @@ export function removeMeetingFromCollection(meetingId, callback) {
     clearCursorCollection(meetingId);
 
     //delete the polls for the meeting
-    clearPollCollection(meetingId);
+    // clearPollCollection(meetingId);
     return callback();
   } else {
     funct = function (localCallback) {

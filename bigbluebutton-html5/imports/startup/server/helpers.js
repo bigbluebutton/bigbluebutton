@@ -28,7 +28,7 @@ export function clearCollections() {
   clearShapesCollection();
   clearSlidesCollection();
   clearPresentationsCollection();
-  clearPollCollection();
+  // clearPollCollection();
   clearCursorCollection();
 }
 
@@ -106,4 +106,3 @@ export const handleRemoveUserEvent = function (arg) {
     return arg.callback();
   }
 };
-

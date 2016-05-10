@@ -1,0 +1,19 @@
+.extraSmallFont {
+  font-size: 0.5rem;
+}
+
+.smallFont {
+  font-size: 1.0rem;
+}
+
+.mediumFont {
+  font-size: 1.5rem;
+}
+
+.largeFont {
+  font-size: 2.0rem;
+}
+
+.extraLargeFont {
+  font-size: 3.0rem;
+}

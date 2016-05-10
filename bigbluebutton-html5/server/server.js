@@ -37,7 +37,6 @@ import '/imports/startup/server/meteorMethods/listenOnlyRequestToggle';
 import '/imports/startup/server/meteorMethods/muteUser';
 import '/imports/startup/server/meteorMethods/publishSwitchToNextSlideMessage';
 import '/imports/startup/server/meteorMethods/publishSwitchToPreviousSlideMessage';
-import '/imports/startup/server/meteorMethods/publishVoteMessage';
 import '/imports/startup/server/meteorMethods/sendChatMessagetoServer';
 import '/imports/startup/server/meteorMethods/setUserPresenter';
 import '/imports/startup/server/meteorMethods/unmuteUser';
