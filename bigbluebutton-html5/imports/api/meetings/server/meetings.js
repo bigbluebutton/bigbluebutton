@@ -3,7 +3,7 @@ import { clearChatCollection } from '/imports/api/chat/server/chat';
 import { clearShapesCollection } from '/imports/api/shapes/server/shapes';
 import { clearSlidesCollection } from '/imports/api/slides/server/slides';
 import { clearPresentationsCollection } from '/imports/api/presentations/server/presentations';
-import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
+import { clearPollCollection } from '/imports/api/polls/server/polls';
 import { clearCursorCollection, initializeCursor } from '/imports/api/cursor/server/cursor';
 import { Meetings } from '../meetingsCollection';
 import { logger } from '/imports/startup/server/logger';
@@ -94,7 +94,7 @@ export function removeMeetingFromCollection(meetingId, callback) {
     clearCursorCollection(meetingId);
 
     //delete the polls for the meeting
-    // clearPollCollection(meetingId);
+    clearPollCollection(meetingId);
     return callback();
   } else {
     funct = function (localCallback) {

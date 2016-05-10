@@ -1,4 +1,4 @@
-import { Deskshare } from '/imports/api/deskshare/deskshare';
+import { Deskshare } from '/imports/api/deskshare/deskshareCollection';
 
 function handleDeskShareChange(meetingId, deskshareInfo) {
   console.error(`__${meetingId}__deskshareInfo= + ${JSON.stringify(deskshareInfo)}`);

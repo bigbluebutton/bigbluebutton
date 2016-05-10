@@ -6,7 +6,7 @@ import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
 Meteor.methods({
-  publishVoteMessage(pollId, pollAnswerId, meetingId, requesterUserId, requesterToken) {
+  publishVoteMessage(pollId, pollAnswerId, meetingId, requesterUserId, requesterToken) { //TODO discuss location
     if (isAllowedTo('subscribePoll', meetingId, requesterUserId, requesterToken)) {
       const eventName = 'vote_poll_user_request_message';
 

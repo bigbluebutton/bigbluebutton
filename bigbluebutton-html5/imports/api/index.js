@@ -5,6 +5,8 @@ import { Presentations } from './presentations/presentationsCollection';
 import { Shapes } from './shapes/shapesCollection';
 import { Chat } from './chat/chatCollection';
 import { Cursor } from './cursor/cursorCollection';
+import { Polls } from './polls/pollsCollection';
+import { Deskshare } from './deskshare/deskshareCollection';
 
 
 export const Collections = {
@@ -15,4 +17,6 @@ export const Collections = {
   Shapes: Shapes,
   Chat: Chat,
   Cursor: Cursor,
+  Polls: Polls,
+  Deskshare: Deskshare,
 };

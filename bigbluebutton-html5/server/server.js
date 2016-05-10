@@ -21,7 +21,11 @@ import '/imports/api/cursor/server/cursor';
 import '/imports/api/presentations/server/publications';
 import '/imports/api/presentations/server/presentations';
 
-// add the same for poll, deskshare TODO
+import '/imports/api/polls/server/publications';
+import '/imports/api/polls/server/polls';
+
+import '/imports/api/deskshare/server/publications';
+import '/imports/api/deskshare/server/deskshare';
 
 import '/imports/api/index';
 import '/imports/startup/server/EventQueue';

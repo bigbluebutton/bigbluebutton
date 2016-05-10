@@ -4,7 +4,7 @@ import { clearMeetingsCollection, removeMeetingFromCollection } from '/imports/a
 import { clearShapesCollection } from '/imports/api/shapes/server/shapes';
 import { clearSlidesCollection } from '/imports/api/slides/server/slides';
 import { clearPresentationsCollection } from '/imports/api/presentations/server/presentations';
-import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
+import { clearPollCollection } from '/imports/api/polls/server/polls';
 import { clearCursorCollection } from '/imports/api/cursor/server/cursor';
 
 import { logger } from '/imports/startup/server/logger';
@@ -28,7 +28,7 @@ export function clearCollections() {
   clearShapesCollection();
   clearSlidesCollection();
   clearPresentationsCollection();
-  // clearPollCollection();
+  clearPollCollection();
   clearCursorCollection();
 }
 

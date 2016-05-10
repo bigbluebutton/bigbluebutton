@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { Users } from '/imports/api/users/usersCollection';
-import { Polls } from '/imports/api/polls/polls'; //TODO Anton join these, rename one?
+import { Polls } from '/imports/api/polls/pollsCollection'; //TODO Anton join these, rename one?
 
 let AppService = function () {
 
@@ -16,27 +16,30 @@ let AppService = function () {
   };
 
   const setCredentials = function (nextState, replace) {
-    setInStorage('meetingID', nextState.params.meetingID);
-    setInStorage('userID', nextState.params.userID);
-    setInStorage('authToken', nextState.params.authToken);
+    if (!!nextState && !!nextState.params) {
+      setInStorage('meetingID', nextState.params.meetingID);
+      setInStorage('userID', nextState.params.userID);
+      setInStorage('authToken', nextState.params.authToken);
+    }
   };
 
   const subscribeForData = function() {
-    subscribeFor('users');
     subscribeFor('chat');
-    subscribeFor('slides');
     subscribeFor('cursor');
+    subscribeFor('deskshare');
     subscribeFor('meetings');
-    subscribeFor('shapes');
-    subscribeFor('presentations');
     subscribeFor('polls');
+    subscribeFor('presentations');
+    subscribeFor('shapes');
+    subscribeFor('slides');
+    subscribeFor('users');
   };
 
   const subscribeFor = function (collectionName) {
     const userID = getInStorage("userID");
     const meetingID = getInStorage("meetingID");
     const authToken = getInStorage("authToken");
-    console.log("subscribingForData", collectionName);
+    // console.log("subscribingForData", collectionName, meetingID, userID, authToken);
 
     Meteor.subscribe(collectionName, meetingID, userID, authToken, onError(), onReady());
   };

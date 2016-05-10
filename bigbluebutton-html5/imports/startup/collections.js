@@ -1,6 +1,2 @@
 
-
-
-export const Polls = new Mongo.Collection('poll');
-
-export const WhiteboardCleanStatus = new Mongo.Collection('whiteboard-clean-status');
+export const WhiteboardCleanStatus = new Mongo.Collection('whiteboard-clean-status'); //TODO remove
