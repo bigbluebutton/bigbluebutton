@@ -314,6 +314,13 @@ class ApiController {
             return;
         }
 
+        // Is the maxParticipants limit has been reached. If so, complain.
+        if (meeting.getNumUsers() >= meeting.getMaxUsers()) {
+            errors.maxParticipantsReached();
+            respondWithErrors(errors);
+            return;
+        }
+
         // Now determine if this user is a moderator or a viewer.
         String role = null;
         if (meeting.getModeratorPassword().equals(attPW)) {
