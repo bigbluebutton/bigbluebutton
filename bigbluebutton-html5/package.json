@@ -26,7 +26,8 @@
     "grunt-jscs": "~2.8.0",
     "grunt-shell": "~1.2.1",
     "jscs": "~2.11.0",
-    "load-grunt-tasks": "~3.4.1"
+    "load-grunt-tasks": "~3.4.1",
+    "grunt-newer": "~1.2.0"
   },
   "cssModules": {
     "extensions": [

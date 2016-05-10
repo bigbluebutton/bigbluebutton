@@ -27,7 +27,7 @@ module.exports = function (grunt) {
     watch: {
       scripts: {
         files: ['**/*.js', '**/*.jsx'],
-        tasks: ['force:jscs:check'],
+        tasks: ['force:newer:jscs:check'],
         options: {
           event: ['all'],
           spawn: true,
@@ -83,12 +83,19 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-concurrent');
+  grunt.loadNpmTasks('grunt-newer');
 
   var mode = (grunt.option('mode') == 'production') ? 'production' : 'development';
 
   // sets the default task to run JSCS first (forcing our way past warnings) and then start Meteor:
-  grunt.registerTask('default', ['force:jscs:check', 'concurrent:meteor_watch_' + mode]);
+  grunt.registerTask('default', ['force:newer:jscs:check', 'concurrent:meteor_watch_' + mode]);
 
   // sets the autofix task to fix JSCS warning when possible and then start Meteor:
-  grunt.registerTask('autofix', ['force:jscs:autofix', 'concurrent:meteor_watch_' + mode]);
+  grunt.registerTask('autofix', ['force:newer:jscs:autofix', 'concurrent:meteor_watch_' + mode]);
+
+  // runs the linter task:
+  grunt.registerTask('quicklint', ['force:jscs:check']);
+
+  // runs the linter task and autofixes errors when possible:
+  grunt.registerTask('quickfix', ['force:jscs:autofix']);
 };

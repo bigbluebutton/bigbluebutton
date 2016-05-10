@@ -14,7 +14,7 @@ import pt from 'react-intl/locale-data/pt';
 addLocaleData([...en, ...es, ...pt]);
 
 // Safari sends us en-us instead of en-US
-let locale = navigator.language.split('-')
+let locale = navigator.language.split('-');
 locale = locale[1] ? `${locale[0]}-${locale[1].toUpperCase()}` : navigator.language;
 
 /* TODO: We should load the en first then merge with the en-US
