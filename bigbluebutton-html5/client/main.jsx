@@ -21,7 +21,20 @@ locale = locale[1] ? `${locale[0]}-${locale[1].toUpperCase()}` : navigator.langu
    (eg: load country translation then region) */
 let messages = Locales[locale] || Locales['en'] || {};
 
+// Helper to load javascript libraries from the BBB server
+function loadLib(libname, successCallback) {
+  const retryMessageCallback = function (param) {
+    return console.log('Failed to load library', param);
+  };
+
+  return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback, 10000).fail(retryMessageCallback);
+};
+
 Meteor.startup(() => {
+  loadLib('sip.js');
+  loadLib('bbb_webrtc_bridge_sip.js');
+  loadLib('bbblogger.js');
+
   render((
     <IntlProvider locale={locale} messages={messages}>
       {renderRoutes()}
