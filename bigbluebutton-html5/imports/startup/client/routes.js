@@ -5,7 +5,7 @@ import { createHistory } from 'history';
 
 // route components
 import AppContainer from '../../ui/components/app/AppContainer.jsx';
-import AppService from '../../ui/components/app/AppService.js';
+import {setCredentials, subscribeForData} from '../../ui/components/app/AppService.js';
 import UserListContainer from '../../ui/components/user-list/UserListContainer.jsx';
 import ChatContainer from '../../ui/components/chat/ChatContainer.jsx';
 
@@ -15,9 +15,9 @@ const browserHistory = useRouterHistory(createHistory)({
 
 export const renderRoutes = () => (
   <Router history={browserHistory}>
-    <Route path="/join/:meetingID/:userID/:authToken" onEnter={AppService().setCredentials} >
+    <Route path="/join/:meetingID/:userID/:authToken" onEnter={setCredentials} >
       <IndexRedirect to="/" />
-      <Route path="/" component={AppContainer} onEnter={AppService().subscribeForData} >
+      <Route path="/" component={AppContainer} onEnter={subscribeForData} >
         <IndexRoute components={{}} />
 
         <Route name="users" path="users" components={{

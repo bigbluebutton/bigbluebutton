@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor'
 import Users from '/imports/api/users/collection';
-import Polls from '/imports/api/polls/collection';
 import Chat from '/imports/api/chat/collection';
 import Meetings from '/imports/api/meetings/collection';
 import Cursor from '/imports/api/cursor/collection';
+import Polls from '/imports/api/polls';
 
 const setInStorage = function(key, value) {
   if (!!value) {
@@ -59,20 +59,12 @@ let onReady = function() {
   // console.log("OnReady", Users.find().fetch());
 };
 
-
-const poll = Polls.findOne({});
-return {
-  pollExists: !!poll,
-  subscribeForData: subscribeForData,
-  setCredentials: setCredentials,
-};
-
 function pollExists() {
   return !!(Polls.findOne({}));
 }
 
-return {
+export {
   pollExists,
-  subscribeForData: subscribeForData,
-  setCredentials: setCredentials,
+  subscribeForData,
+  setCredentials,
 };

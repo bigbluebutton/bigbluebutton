@@ -1,5 +1,5 @@
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import Polls from '/imports/api/polls/collection';
+import Polls from '/imports/api/polls';
 import { logger } from '/imports/startup/server/logger';
 
 Meteor.publish('polls', function (meetingId, userid, authToken) {

@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import {Icon} from '/imports/ui/components/shared/Icon.jsx';
 import {Button} from '/imports/ui/components/shared/Button.jsx';
 import BaseMenu from './BaseMenu.jsx';
-import {joinVoiceCall} from '/imports/api/phone/PhoneService';
+import {joinVoiceCall} from '/imports/api/phone';
 
 export default class AudioMenu extends BaseMenu {
   constructor(props) {

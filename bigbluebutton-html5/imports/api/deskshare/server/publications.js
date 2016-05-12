@@ -1,4 +1,4 @@
-import Deskshare from '/imports/api/deskshare/collection';
+import Deskshare from '/imports/api/deskshare';
 import { logger } from '/imports/startup/server/logger';
 
 Meteor.publish('deskshare', function (meetingId) {
