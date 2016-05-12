@@ -1,4 +1,4 @@
-import {Deskshare} from '../../api/deskshare/deskshare';
+import { Deskshare, Meetings } from '../../api/index';
 
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video
@@ -29,10 +29,10 @@ function watchDeskshare(event, options) {
   if (options.extension) {
     extension = options.extension;
   } else {
-    extension = Meteor.Meetings.findOne().voiceConf;
+    extension = Meetings.findOne().voiceConf;
   }
 
-  const uName = Meteor.Users.findOne({ userId: getInSession('userId') }).user.name;
+  const uName = Users.findOne({ userId: getInSession('userId') }).user.name;
   conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
   conferenceIdNumber = '1009';
 

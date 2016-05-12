@@ -20,6 +20,11 @@ const defaultProps = {
 class AppContainer extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      meetingID: localStorage.getItem('meetingID'),
+      userID: localStorage.getItem('userID'),
+      authToken: localStorage.getItem('authToken'),
+    };
   }
 
   render() {

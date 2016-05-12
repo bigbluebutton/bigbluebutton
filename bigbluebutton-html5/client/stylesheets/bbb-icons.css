@@ -1,10 +1,10 @@
 @font-face {
     font-family: 'bbb-icons';
-    src:    url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
-    src:    url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
-        url('/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
-        url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
-        url('/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
+    src:    url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
+    src:    url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
+        url('/html5client/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
+        url('/html5client/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
+        url('/html5client/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
     font-weight: normal;
     font-style: normal;
 }

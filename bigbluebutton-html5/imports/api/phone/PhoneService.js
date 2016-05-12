@@ -1,3 +1,8 @@
+import Users from '/imports/api/users/collection';
+import Meetings from '/imports/api/meetings/collection';
+
+//TODO relocate? Anton
+
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
 // export function exitVoiceCall(event, afterExitCall) {
@@ -75,13 +80,13 @@ function joinVoiceCall(options) {
     const requestedListenOnly = options.isListenOnly;
 
     // BBB.joinVoiceConference(joinCallback, requestedListenOnly); // make the call
-    const voiceBridge = Meteor.Meetings.findOne({}).voiceConf;
+    const voiceBridge = Meetings.findOne({}).voiceConf;
     callIntoConference(voiceBridge, function () {}, requestedListenOnly);
 
     return;
   } else {
-    const extension = Meteor.Meetings.findOne().voiceConf;
-    const uName = Meteor.Users.findOne({ userId: getInSession('userId') }).user.name;
+    const extension = Meetings.findOne().voiceConf;
+    const uName = Users.findOne({ userId: getInSession('userId') }).user.name;
     conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
     conferenceIdNumber = '1009';
     vertoService.joinAudio();

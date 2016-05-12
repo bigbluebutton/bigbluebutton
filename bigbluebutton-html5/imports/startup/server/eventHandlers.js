@@ -1,19 +1,29 @@
-import { addChatToCollection } from '/imports/startup/server/collectionManagers/chat';
-import { updateCursorLocation } from '/imports/startup/server/collectionManagers/cursor';
-import { handleLockingMic, userJoined, updateVoiceUser } from '/imports/startup/server/collectionManagers/users';
-import { addSlideToCollection, displayThisSlide } from '/imports/startup/server/collectionManagers/slides';
-import { addShapeToCollection, removeAllShapesFromSlide,
-  removeShapeFromSlide } from '/imports/startup/server/collectionManagers/shapes';
-import { addPresentationToCollection,
-  removePresentationFromCollection } from '/imports/startup/server/collectionManagers/presentations';
-import { addPollToCollection, updatePollCollection } from '/imports/api/polls/server/polls';
-import { addMeetingToCollection} from '/imports/startup/server/collectionManagers/meetings';
-import { Users, Meetings, Presentations, Slides, WhiteboardCleanStatus } from '/collections/collections';
+import { addChatToCollection } from '/imports/api/chat/server/modifiers/addChatToCollection';
+import { updateCursorLocation } from '/imports/api/cursor/server/modifiers/updateCursorLocation';
+import { handleLockingMic } from '/imports/api/users/server/modifiers/handleLockingMic';
+import { userJoined } from '/imports/api/users/server/modifiers/userJoined';
+import { updateVoiceUser } from '/imports/api/users/server/modifiers/updateVoiceUser';
+import { addSlideToCollection } from '/imports/api/slides/server/modifiers/addSlideToCollection';
+import { displayThisSlide } from '/imports/api/slides/server/modifiers/displayThisSlide';
+import { addShapeToCollection } from '/imports/api/shapes/server/modifiers/addShapeToCollection';
+import { removeAllShapesFromSlide } from '/imports/api/shapes/server/modifiers/removeAllShapesFromSlide';
+import { removeShapeFromSlide } from '/imports/api/shapes/server/modifiers/removeShapeFromSlide';
+import { addPresentationToCollection, } from '/imports/api/presentations/server/modifiers/addPresentationToCollection';
+import { removePresentationFromCollection } from '/imports/api/presentations/server/modifiers/removePresentationFromCollection';
+import { addPollToCollection } from '/imports/api/polls/server/modifiers/addPollToCollection';
+import { updatePollCollection } from '/imports/api/polls/server/modifiers/updatePollCollection';
+import { addMeetingToCollection} from '/imports/api/meetings/server/modifiers/addMeetingToCollection';
+
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 import { eventEmitter } from '/imports/startup/server/index';
 import { publish, handleChatEvent, handleEndOfMeeting, handleLockEvent,
   handleRemoveUserEvent, handleVoiceEvent} from '/imports/startup/server/helpers';
+
+import Meetings from '/imports/api/meetings/collection';
+import Presentations from '/imports/api/presentations/collection';
+import Users from '/imports/api/users/collection';
+import Slides from '/imports/api/slides/collection';
 
 // To ensure that we process the redis json event messages serially we use a
 // callback. This callback is to be called when the Meteor collection is
@@ -27,19 +37,17 @@ import { publish, handleChatEvent, handleEndOfMeeting, handleLockEvent,
 
 eventEmitter.on('get_users_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') {
-    let users, processUser, meetingId;
     console.log('get_users_reply handling');
-    users = arg.payload.users;
-    meetingId = arg.payload.meeting_id;
+    let users = arg.payload.users;
+    const meetingId = arg.payload.meeting_id;
 
     //TODO make the serialization be split per meeting. This will allow us to
     // use N threads vs 1 and we'll take advantage of Mongo's concurrency tricks
 
     // Processing the users recursively with a callback to notify us,
     // ensuring that we update the users collection serially
-    processUser = function () {
-      let user;
-      user = users.pop();
+    let processUser = function () {
+      let user = users.pop();
       if (user != null) {
         user.timeOfJoining = arg.header.current_time;
         if (user.emoji_status !== 'none' && typeof user.emoji_status === 'string') {
@@ -65,22 +73,23 @@ eventEmitter.on('meeting_created_message', function (arg) {
   voiceConf = arg.payload.voice_conf;
   duration = arg.payload.duration;
   meetingId = arg.payload.meeting_id;
-  return addMeetingToCollection(meetingId, meetingName, intendedForRecording, voiceConf, duration, arg.callback);
+  return addMeetingToCollection(meetingId, meetingName, intendedForRecording,
+    voiceConf, duration, arg.callback);
 });
 
 eventEmitter.on('get_all_meetings_reply', function (arg) {
-  let listOfMeetings, processMeeting;
-  logger.info("Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!");
+  logger.info('Let\'s store some data for the running meetings so that when an' +
+    ' HTML5 client joins everything is ready!');
   logger.info(JSON.stringify(arg.payload));
-  listOfMeetings = arg.payload.meetings;
+  let listOfMeetings = arg.payload.meetings;
 
   // Processing the meetings recursively with a callback to notify us,
   // ensuring that we update the meeting collection serially
-  processMeeting = function () {
-    let meeting;
-    meeting = listOfMeetings.pop();
+  let processMeeting = function () {
+    let meeting = listOfMeetings.pop();
     if (meeting != null) {
-      return addMeetingToCollection(meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration, processMeeting);
+      return addMeetingToCollection(meeting.meetingID, meeting.meetingName,
+        meeting.recorded, meeting.voiceBridge, meeting.duration, processMeeting);
     } else {
       return arg.callback(); // all meeting arrays (if any) have been processed
     }
@@ -106,12 +115,11 @@ eventEmitter.on('user_voice_muted_message', function (arg) {
 });
 
 eventEmitter.on('user_listening_only', function (arg) {
-  let voiceUserObj, meetingId;
-  voiceUserObj = {
+  const voiceUserObj = {
     web_userid: arg.payload.userid,
     listen_only: arg.payload.listen_only,
   };
-  meetingId = arg.payload.meeting_id;
+  const meetingId = arg.payload.meeting_id;
   return updateVoiceUser(meetingId, voiceUserObj, arg.callback);
 });
 
@@ -120,14 +128,13 @@ eventEmitter.on('user_left_message', function (arg) {
 });
 
 eventEmitter.on('validate_auth_token_reply', function (arg) {
-  let userId, user, validStatus, payload, meetingId;
-  meetingId = arg.payload.meeting_id;
-  userId = arg.payload.userid;
-  user = Users.findOne({
+  const meetingId = arg.payload.meeting_id;
+  const userId = arg.payload.userid;
+  const user = Users.findOne({
     userId: userId,
     meetingId: meetingId,
   });
-  validStatus = arg.payload.valid;
+  let validStatus = arg.payload.valid;
 
   // if the user already exists in the db
   if (user != null && user.clientType === 'HTML5') {
@@ -140,19 +147,18 @@ eventEmitter.on('validate_auth_token_reply', function (arg) {
         validated: validStatus,
       },
     }, (err, numChanged) => {
-      let funct;
       if (numChanged.insertedId != null) {
-        funct = function (cbk) {
-          let user, val;
-          user = Users.findOne({
+        let funct = function (cbk) {
+          let user = Users.findOne({
             userId: userId,
             meetingId: meetingId,
           });
+          let val;
           if (user != null) {
             val = user.validated;
           }
 
-          logger.info(`user.validated for user ${userId} in meeting ${user.meetingId} just became ${val}`);
+          logger.info(`user.validated for ${userId} in meeting ${meetingId} just became ${val}`);
           return cbk();
         };
 
@@ -168,11 +174,10 @@ eventEmitter.on('validate_auth_token_reply', function (arg) {
 });
 
 eventEmitter.on('user_joined_message', function (arg) {
-  let userObj, dbUser, meetingId, payload;
-  meetingId = arg.payload.meeting_id;
-  payload = arg.payload;
-  userObj = payload.user;
-  dbUser = Users.findOne({
+  const meetingId = arg.payload.meeting_id;
+  const payload = arg.payload;
+  let userObj = payload.user;
+  let dbUser = Users.findOne({
     userId: userObj.userid,
     meetingId: meetingId,
   });
@@ -187,11 +192,9 @@ eventEmitter.on('user_joined_message', function (arg) {
     }
   } else {
     if (dbUser != null && dbUser.clientType === 'HTML5') {
-      let status;
-
       // typically html5 users will be in
       // the db [as a dummy user] before the joining message
-      status = dbUser.validated;
+      let status = dbUser.validated;
       logger.info(`in user_joined_message the validStatus of the user was ${status}`);
       userObj.timeOfJoining = arg.header.current_time;
       return userJoined(meetingId, userObj, arg.callback);
@@ -205,9 +208,8 @@ eventEmitter.on('user_joined_message', function (arg) {
 
 // for now not handling these serially #TODO
 eventEmitter.on('presenter_assigned_message', function (arg) {
-  let newPresenterId, meetingId;
-  meetingId = arg.payload.meeting_id;
-  newPresenterId = arg.payload.new_presenter_id;
+  const meetingId = arg.payload.meeting_id;
+  const newPresenterId = arg.payload.new_presenter_id;
   if (newPresenterId != null) {
     // reset the previous presenter
     Users.update({
@@ -238,10 +240,9 @@ eventEmitter.on('presenter_assigned_message', function (arg) {
 });
 
 eventEmitter.on('user_emoji_status_message', function (arg) {
-  let userId, meetingId, emojiStatus;
-  userId = arg.payload.userid;
-  meetingId = arg.payload.meeting_id;
-  emojiStatus = arg.payload.emoji_status;
+  const userId = arg.payload.userid;
+  const meetingId = arg.payload.meeting_id;
+  const emojiStatus = arg.payload.emoji_status;
   if (userId != null && meetingId != null) {
     let set_emoji_time;
     set_emoji_time = new Date();
@@ -286,16 +287,14 @@ eventEmitter.on('disconnect_all_users_message', function (arg) {
 
 eventEmitter.on('get_chat_history_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') { //TODO extract this check
-    let meetingId;
-    meetingId = arg.payload.meeting_id;
+    const meetingId = arg.payload.meeting_id;
     if (Meetings.findOne({
-        MeetingId: meetingId,
+        meetingId: meetingId,
       }) == null) {
-      let chatHistory, _chat_history_length, chatMessage;
-      chatHistory = arg.payload.chat_history;
-      _chat_history_length = chatHistory.length;
+      const chatHistory = arg.payload.chat_history;
+      const _chat_history_length = chatHistory.length;
       for (i = 0; i < _chat_history_length; i++) {
-        chatMessage = chatHistory[i];
+        const chatMessage = chatHistory[i];
         addChatToCollection(meetingId, chatMessage);
       }
     }
@@ -313,12 +312,10 @@ eventEmitter.on('send_private_chat_message', function (arg) {
 });
 
 eventEmitter.on('presentation_shared_message', function (arg) {
-  let payload, meetingId;
-  payload = arg.payload;
-  meetingId = payload.meeting_id;
+  const payload = arg.payload;
+  const meetingId = payload.meeting_id;
   if (payload.presentation != null && payload.presentation.id != null && meetingId != null) {
-    let presentationId, pages, slide;
-    presentationId = payload.presentation.id;
+    const presentationId = payload.presentation.id;
 
     // change the currently displayed presentation to presentation.current = false
     Presentations.update({
@@ -333,9 +330,9 @@ eventEmitter.on('presentation_shared_message', function (arg) {
     //update(if already present) entirely the presentation with the fresh data
     removePresentationFromCollection(meetingId, presentationId);
     addPresentationToCollection(meetingId, payload.presentation);
-    pages = payload.presentation.pages;
+    const pages = payload.presentation.pages;
     for (j = 0; j < pages.length; j++) {
-      slide = pages[j];
+      const slide = pages[j];
       addSlideToCollection(
         meetingId,
         presentationId,
@@ -349,7 +346,8 @@ eventEmitter.on('presentation_shared_message', function (arg) {
 
 eventEmitter.on('get_presentation_info_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') {
-    let presentations, payload, k, presentation, pages, page, l, meetingId, whiteboardId, replyTo, message;
+    let presentations, payload, k, presentation, pages, page, l,
+      meetingId, whiteboardId, replyTo, message;
     payload = arg.payload;
     meetingId = payload.meeting_id;
     presentations = payload.presentations;
@@ -417,24 +415,12 @@ eventEmitter.on('presentation_removed_message', function (arg) {
 
 eventEmitter.on('get_whiteboard_shapes_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') {
-    let meetingId, shapes, shapes_length, m, shape, whiteboardId;
-    meetingId = arg.payload.meeting_id;
-
-    // Create a whiteboard clean status or find one for the current meeting
-    if (WhiteboardCleanStatus.findOne({
-        meetingId: meetingId,
-      }) == null) {
-      WhiteboardCleanStatus.insert({
-        meetingId: meetingId,
-        in_progress: false,
-      });
-    }
-
-    shapes = arg.payload.shapes;
-    shapes_length = shapes.length;
-    for (m = 0; m < shapes_length; m++) {
-      shape = shapes[m];
-      whiteboardId = shape.wb_id;
+    const meetingId = arg.payload.meeting_id;
+    const shapes = arg.payload.shapes;
+    const shapes_length = shapes.length;
+    for (let m = 0; m < shapes_length; m++) {
+      let shape = shapes[m];
+      let whiteboardId = shape.wb_id;
       addShapeToCollection(meetingId, whiteboardId, shape);
     }
 
@@ -449,7 +435,8 @@ eventEmitter.on('send_whiteboard_shape_message', function (arg) {
 
   //Meteor stringifies an array of JSONs (...shape.result) in this message
   //parsing the String and reassigning the value
-  if (payload.shape.shape_type === 'poll_result' && typeof payload.shape.shape.result === 'string') {
+  if (payload.shape.shape_type === 'poll_result' &&
+    typeof payload.shape.shape.result === 'string') {
     payload.shape.shape.result = JSON.parse(payload.shape.shape.result);
   }
 
@@ -476,16 +463,8 @@ eventEmitter.on('presentation_cursor_updated_message', function (arg) {
 });
 
 eventEmitter.on('whiteboard_cleared_message', function (arg) {
-  let whiteboardId, meetingId;
-  meetingId = arg.payload.meeting_id;
-  whiteboardId = arg.payload.whiteboard_id;
-  WhiteboardCleanStatus.update({
-    meetingId: meetingId,
-  }, {
-    $set: {
-      in_progress: true,
-    },
-  });
+  const meetingId = arg.payload.meeting_id;
+  const whiteboardId = arg.payload.whiteboard_id;
   removeAllShapesFromSlide(meetingId, whiteboardId);
   return arg.callback();
 });
@@ -530,8 +509,10 @@ eventEmitter.on('presentation_page_resized_message', function (arg) {
       currentSlide = currentSlide.slide;
     }
 
-    if (currentSlide != null && (currentSlide.height_ratio != heightRatio || currentSlide.width_ratio != widthRatio
-      || currentSlide.x_offset != xOffset || currentSlide.y_offset != yOffset)) {
+    if (currentSlide != null && (currentSlide.height_ratio != heightRatio ||
+      currentSlide.width_ratio != widthRatio ||
+      currentSlide.x_offset != xOffset ||
+      currentSlide.y_offset != yOffset)) {
       Slides.update({
         presentationId: presentationId,
         'slide.current': true,
@@ -619,7 +600,8 @@ eventEmitter.on('poll_started_message', function (arg) {
   payload = arg.payload;
   meetingId = payload.meeting_id;
 
-  if (payload != null && meetingId != null && payload.requester_id != null && payload.poll != null) {
+  if (payload != null && meetingId != null &&
+    payload.requester_id != null && payload.poll != null) {
     if (Meetings.findOne({
         meetingId: meetingId,
       }) != null) {
@@ -644,12 +626,11 @@ eventEmitter.on('poll_started_message', function (arg) {
 });
 
 eventEmitter.on('poll_stopped_message', function (arg) {
-  let meetingId, payload, poll_id;
-  payload = arg.payload;
-  meetingId = payload.meeting_id;
+  const payload = arg.payload;
+  const meetingId = payload.meeting_id;
 
   if (meetingId != null && payload != null && payload.poll_id != null) {
-    poll_id = payload.poll_id;
+    const poll_id = payload.poll_id;
     clearPollCollection(meetingId, poll_id);
   }
 
@@ -657,12 +638,12 @@ eventEmitter.on('poll_stopped_message', function (arg) {
 });
 
 eventEmitter.on('user_voted_poll_message', function (arg) {
-  let payload, meetingId, pollObj, requesterId;
-  payload = arg.payload;
-  meetingId = payload.meeting_id;
-  if (payload != null && payload.poll != null && meetingId != null && payload.presenter_id != null) {
-    pollObj = payload.poll;
-    requesterId = payload.presenter_id;
+  const payload = arg.payload;
+  const meetingId = payload.meeting_id;
+  if (payload != null && payload.poll != null && meetingId != null &&
+    payload.presenter_id != null) {
+    const pollObj = payload.poll;
+    const requesterId = payload.presenter_id;
     updatePollCollection(pollObj, meetingId, requesterId);
     return arg.callback();
   }

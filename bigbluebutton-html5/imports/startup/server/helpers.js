@@ -1,14 +1,22 @@
-import { clearUsersCollection, setUserLockedStatus, markUserOffline, updateVoiceUser } from '/imports/startup/server/collectionManagers/users';
-import { clearChatCollection, addChatToCollection } from '/imports/startup/server/collectionManagers/chat';
-import { clearMeetingsCollection, removeMeetingFromCollection } from '/imports/startup/server/collectionManagers/meetings';
-import { clearShapesCollection } from '/imports/startup/server/collectionManagers/shapes';
-import { clearSlidesCollection } from '/imports/startup/server/collectionManagers/slides';
-import { clearPresentationsCollection } from '/imports/startup/server/collectionManagers/presentations';
-// import { clearPollCollection } from '/imports/startup/server/collectionManagers/poll';
-import { clearCursorCollection } from '/imports/startup/server/collectionManagers/cursor';
+import { clearUsersCollection } from '/imports/api/users/server/modifiers/clearUsersCollection';
+import { setUserLockedStatus } from '/imports/api/users/server/modifiers/setUserLockedStatus';
+import { markUserOffline } from '/imports/api/users/server/modifiers/markUserOffline';
+import { updateVoiceUser } from '/imports/api/users/server/modifiers/updateVoiceUser';
+import { addChatToCollection } from '/imports/api/chat/server/modifiers/addChatToCollection';
+import { clearChatCollection} from '/imports/api/chat/server/modifiers/clearChatCollection';
+import { clearMeetingsCollection} from '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
+import { removeMeetingFromCollection } from '/imports/api/meetings/server/modifiers/removeMeetingFromCollection';
+import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
+import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
+import { clearPresentationsCollection } from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
+import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
+import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
 
 import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server/index';
+
+
+// TODO move these under api
 
 export function appendMessageHeader(eventName, messageObj) {
   let header;
@@ -28,7 +36,7 @@ export function clearCollections() {
   clearShapesCollection();
   clearSlidesCollection();
   clearPresentationsCollection();
-  // clearPollCollection();
+  clearPollCollection();
   clearCursorCollection();
 }
 
@@ -105,4 +113,14 @@ export const handleRemoveUserEvent = function (arg) {
     logger.info('could not perform handleRemoveUserEvent');
     return arg.callback();
   }
+};
+
+// translate '\n' newline character and '\r' carriage
+// returns to '<br/>' breakline character for Flash
+export function translateHTML5ToFlash(message) {
+  let result;
+  result = message;
+  result = result.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE);
+  result = result.replace(new RegExp(NEW_LINE, 'g'), BREAK_LINE);
+  return result;
 };

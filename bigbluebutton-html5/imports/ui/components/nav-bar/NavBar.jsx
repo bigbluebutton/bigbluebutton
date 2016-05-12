@@ -26,7 +26,7 @@ class NavBar extends Component {
       TODO: Find out how to get the current route here
       so we can change the click behavior
     */
-    this.props.router.push('/html5client/users');
+    this.props.router.push('/users');
   }
 
   render() {
