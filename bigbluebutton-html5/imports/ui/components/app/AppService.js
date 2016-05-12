@@ -1,6 +1,9 @@
 import { Meteor } from 'meteor/meteor'
 import Users from '/imports/api/users/collection';
 import Polls from '/imports/api/polls/collection';
+import Chat from '/imports/api/chat/collection';
+import Meetings from '/imports/api/meetings/collection';
+import Cursor from '/imports/api/cursor/collection';
 
 const setInStorage = function(key, value) {
   if (!!value) {
@@ -31,6 +34,12 @@ const subscribeForData = function() {
   subscribeFor('shapes');
   subscribeFor('slides');
   subscribeFor('users');
+
+  window.Users = Users; // for debug purposes TODO remove
+  window.Chat = Chat; // for debug purposes TODO remove
+  window.Meetings = Meetings; // for debug purposes TODO remove
+  window.Cursor = Cursor; // for debug purposes TODO remove
+  window.Polls = Polls; // for debug purposes TODO remove
 };
 
 const subscribeFor = function (collectionName) {
@@ -46,10 +55,16 @@ let onError = function(error, result) {
   // console.log("OnError", error, result);
 };
 
-
 let onReady = function() {
   // console.log("OnReady", Users.find().fetch());
-  window.Users = Users; // for debug purposes TODO remove
+};
+
+
+const poll = Polls.findOne({});
+return {
+  pollExists: !!poll,
+  subscribeForData: subscribeForData,
+  setCredentials: setCredentials,
 };
 
 function pollExists() {
