@@ -15,7 +15,6 @@ class MediaContainer extends Component {
   constructor(props) {
     super(props);
 
-
     const { overlay, content } = this.props;
     this.state = {
       overlay: overlay,
@@ -34,7 +33,7 @@ class MediaContainer extends Component {
     return (
       <Media overlay={this.state.overlay} content={this.state.content}>
 
-        <button style={{position: 'absolute', top: '10px', left: '10px'}}
+        <button style={{ position: 'absolute', top: '10px', left: '10px' }}
           onClick={this.handleToggleLayout}>toggle layout</button>
 
         {this.props.children}

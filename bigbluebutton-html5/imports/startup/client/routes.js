@@ -16,13 +16,12 @@ const browserHistory = useRouterHistory(createHistory)({
 export const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/join/:meetingID/:userID/:authToken" onEnter={AppService().setCredentials} >
-
       <IndexRedirect to="/" />
       <Route path="/" component={AppContainer} onEnter={AppService().subscribeForData} >
         <IndexRoute components={{}} />
 
         <Route name="users" path="users" components={{
-          userList: UserListContainer
+          userList: UserListContainer,
         }} />
 
         <Route name="chat" path="users/chat/:chatID" components={{
