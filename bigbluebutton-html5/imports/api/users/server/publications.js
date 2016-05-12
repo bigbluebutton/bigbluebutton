@@ -1,4 +1,4 @@
-import { Users } from '../usersCollection';
+import Users from '/imports/api/users/collection';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { logger } from '/imports/startup/server/logger';
 

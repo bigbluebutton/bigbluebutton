@@ -1,4 +1,4 @@
-// Setting up a logger in Meteor.log
+// Setting up a logger
 const log = {};
 if (process != null && process.env != null && process.env.NODE_ENV == 'production') {
   log.path = '/var/log/bigbluebutton/bbbnode.log';

@@ -1,4 +1,4 @@
-import { Slides } from '../slidesCollection';
+import Slides from '/imports/api/slides/collection';
 import { logger } from '/imports/startup/server/logger';
 
 Meteor.publish('slides', function (meetingId) {

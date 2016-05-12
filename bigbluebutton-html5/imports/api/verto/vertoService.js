@@ -1,3 +1,5 @@
+import Meetings from '/imports/api/users/collection';
+
 function joinAudio(options) {
   // joinVertoCall()
 }
@@ -11,7 +13,7 @@ function joinVertoCall(options) {
   if (options.extension) {
     extension = options.extension;
   } else {
-    extension = Meteor.Meetings.findOne().voiceConf;
+    extension = Meetings.findOne().voiceConf;
   }
 
   if (!isWebRTCAvailable()) {

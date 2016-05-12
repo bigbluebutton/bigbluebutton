@@ -1,4 +1,4 @@
-import { Meetings } from '../meetingsCollection';
+import Meetings from '/imports/api/meetings/collection';
 import { logger } from '/imports/startup/server/logger';
 
 Meteor.publish('meetings', function (meetingId) {

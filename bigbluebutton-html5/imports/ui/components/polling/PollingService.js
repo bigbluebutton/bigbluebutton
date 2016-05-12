@@ -1,4 +1,4 @@
-import { Polls } from '/imports/api/polls/pollsCollection';
+import { Polls } from '/imports/api/polls/collection';
 
 let mapPolls = function () {
   let poll = Polls.findOne({});

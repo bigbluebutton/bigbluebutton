@@ -1,4 +1,5 @@
-import { Collections } from '/imports/api/index';
+import Users from '/imports/api/users/collection';
+import Meetings from '/imports/api/meetings/collection';
 import { logger } from '/imports/startup/server/logger';
 
 let moderator, presenter, viewer;
@@ -71,8 +72,8 @@ viewer = function (meetingId, userId) {
 
     // muting
     muteSelf: true,
-    unmuteSelf: !((meeting = Collections.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disableMic) ||
-    !((user = Collections.Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked),
+    unmuteSelf: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disableMic) ||
+    !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked),
 
     logoutSelf: true,
 
@@ -81,11 +82,11 @@ viewer = function (meetingId, userId) {
     subscribeChat: true,
 
     //chat
-    chatPublic: !((meeting = Collections.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePublicChat) ||
+    chatPublic: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePublicChat) ||
     !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
     (user != null && user.user.presenter),
 
-    chatPrivate: !((meeting = Collections.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePrivateChat) ||
+    chatPrivate: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePrivateChat) ||
     !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
     (user != null && user.user.presenter),
 
@@ -103,7 +104,7 @@ viewer = function (meetingId, userId) {
 // actions and the default value - see 'viewer' and 'moderator' in the beginning of the file
 export function isAllowedTo(action, meetingId, userId, authToken) {
   let user, validated;
-  user = Collections.Users.findOne({
+  user = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });
@@ -113,7 +114,7 @@ export function isAllowedTo(action, meetingId, userId, authToken) {
   return true; // TODO REMOVE THIS
 
   logger.info(`in isAllowedTo: action-${action}, userId=${userId}, authToken=${authToken} validated:${validated}`);
-  user = Collections.Users.findOne({
+  user = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });

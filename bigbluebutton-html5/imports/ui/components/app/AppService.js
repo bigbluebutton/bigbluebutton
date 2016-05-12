@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
-import { Users } from '/imports/api/users/usersCollection';
-import { Polls } from '/imports/api/polls/pollsCollection'; //TODO Anton join these, rename one?
+import Users from '/imports/api/users/collection';
+import Polls from '/imports/api/polls/collection';
 
 let AppService = function () {
 

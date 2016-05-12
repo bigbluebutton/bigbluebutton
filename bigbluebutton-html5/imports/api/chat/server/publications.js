@@ -1,4 +1,4 @@
-import { Chat } from '../chatCollection';
+import Chat from '/imports/api/chat/collection';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { logger } from '/imports/startup/server/logger';
 
