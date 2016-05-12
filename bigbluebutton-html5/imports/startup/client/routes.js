@@ -1,30 +1,36 @@
 import React from 'react';
-import { Router, Route, Redirect, IndexRoute, browserHistory } from 'react-router';
+import { Router, Route, Redirect, IndexRoute,
+  IndexRedirect, useRouterHistory } from 'react-router';
+import { createHistory } from 'history';
 
 // route components
 import AppContainer from '../../ui/components/app/AppContainer.jsx';
+import AppService from '../../ui/components/app/AppService.js';
 import UserListContainer from '../../ui/components/user-list/UserListContainer.jsx';
 import ChatContainer from '../../ui/components/chat/ChatContainer.jsx';
 
-/*
-  TODO: Find out how to set a baseURL or something alike
-  so we dont need to mannualy say `html5client` in every route/link
-*/
+const browserHistory = useRouterHistory(createHistory)({
+  basename: '/html5client'
+});
+
 export const renderRoutes = () => (
   <Router history={browserHistory}>
-    <Route path="/html5client" component={AppContainer}>
-      <IndexRoute components={{}} />
-      <Route name="users" path="users" components={{
-        userList: UserListContainer,
-      }} />
+    <Route path="/join/:meetingID/:userID/:authToken" onEnter={AppService().setCredentials} >
+      <IndexRedirect to="/" />
+      <Route path="/" component={AppContainer} onEnter={AppService().subscribeForData} >
+        <IndexRoute components={{}} />
 
-      <Route name="chat" path="users/chat/:chatID" components={{
-        userList: UserListContainer,
-        chat: ChatContainer,
-      }} />
+        <Route name="users" path="users" components={{
+          userList: UserListContainer,
+        }} />
 
-      <Redirect from="users/chat" to="/html5client/users/chat/public" />
-      <Redirect from="*" to="/html5client" />
+        <Route name="chat" path="users/chat/:chatID" components={{
+          userList: UserListContainer,
+          chat: ChatContainer,
+        }} />
+        <Redirect from="users/chat" to="/users/chat/public" />
+      </Route>
+      <Redirect from="*" to="/" />
     </Route>
   </Router>
 );

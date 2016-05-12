@@ -8,5 +8,5 @@ Logger.prototype = {
 };
 Logger.info = function () {};
 
-Meteor.log = Logger;
+//Meteor.log = Logger; //TODO this should import logger
 
