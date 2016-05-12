@@ -27,7 +27,8 @@ function loadLib(libname, successCallback) {
     return console.log('Failed to load library', param);
   };
 
-  return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback, 10000).fail(retryMessageCallback);
+  return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback,
+    10000).fail(retryMessageCallback);
 };
 
 Meteor.startup(() => {

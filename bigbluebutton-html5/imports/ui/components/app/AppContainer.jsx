@@ -14,7 +14,7 @@ const defaultProps = {
   navbar: <NavBarContainer/>,
   actionsbar: <ActionsBarContainer/>,
   media: <MediaContainer/>,
-  settings: <SettingsModal />
+  settings: <SettingsModal />,
 };
 
 class AppContainer extends Component {
