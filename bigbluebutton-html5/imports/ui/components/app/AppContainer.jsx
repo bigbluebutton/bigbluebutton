@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import App from './App.jsx';
-import AppService from './AppService';
+import {pollExists} from './AppService';
 
 import NavBarContainer from '../nav-bar/NavBarContainer.jsx';
 import ActionsBarContainer from '../actions-bar/ActionsBarContainer.jsx';
@@ -34,7 +34,7 @@ class AppContainer extends Component {
 AppContainer.defaultProps = defaultProps;
 
 const actionControlsToShow = () => {
-  if (AppService.pollExists) {
+  if (pollExists()) {
     return <PollingContainer />;
   } else {
     return <ActionsBarContainer />;
