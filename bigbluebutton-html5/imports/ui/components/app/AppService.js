@@ -1,6 +1,9 @@
 import { Meteor } from 'meteor/meteor'
 import Users from '/imports/api/users/collection';
 import Polls from '/imports/api/polls/collection';
+import Chat from '/imports/api/chat/collection';
+import Meetings from '/imports/api/meetings/collection';
+import Cursor from '/imports/api/cursor/collection';
 
 let AppService = function () {
 
@@ -33,6 +36,12 @@ let AppService = function () {
     subscribeFor('shapes');
     subscribeFor('slides');
     subscribeFor('users');
+
+    window.Users = Users; // for debug purposes TODO remove
+    window.Chat = Chat; // for debug purposes TODO remove
+    window.Meetings = Meetings; // for debug purposes TODO remove
+    window.Cursor = Cursor; // for debug purposes TODO remove
+    window.Polls = Polls; // for debug purposes TODO remove
   };
 
   const subscribeFor = function (collectionName) {
@@ -51,7 +60,6 @@ let AppService = function () {
 
   let onReady = function() {
     // console.log("OnReady", Users.find().fetch());
-    window.Users = Users; // for debug purposes TODO remove
   };
   
   
