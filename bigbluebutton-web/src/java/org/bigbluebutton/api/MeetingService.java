@@ -576,14 +576,13 @@ public class MeetingService implements MessageListener {
     private void userJoined(UserJoined message) {
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
-          if (m.getNumUsers() == 0) {
-            // First user joins the meeting. Reset the end time to zero
-            // in case the meeting has been rejoined.
-            m.setEndTime(0);
-          }
+            if (m.getNumUsers() == 0) {
+                // First user joins the meeting. Reset the end time to zero
+                // in case the meeting has been rejoined.
+                m.setEndTime(0);
+            }
           
-            User user = new User(message.userId, message.externalUserId,
-                    message.name, message.role);
+            User user = new User(message.userId, message.externalUserId, message.name, message.role);
             m.userJoined(user);
 
             Map<String, Object> logData = new HashMap<String, Object>();
@@ -599,7 +598,6 @@ public class MeetingService implements MessageListener {
 
             Gson gson = new Gson();
             String logStr = gson.toJson(logData);
-
             log.info("User joined meeting: data={}", logStr);
 
             return;
@@ -633,9 +631,17 @@ public class MeetingService implements MessageListener {
                   // the meeting ended.
                   m.setEndTime(System.currentTimeMillis());
                 }
-                
+
+                User userRegistered = m.userUnregistered(message.userId);
+                if (user != null) {
+                    log.info("User unregistered from meeting");
+                } else {
+                    log.info("User was not unregistered from meeting because it was not found");
+                }
+
                 return;
             }
+
             return;
         }
     }

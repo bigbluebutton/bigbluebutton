@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.api.domain.Config;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ClientConfigService;
@@ -427,6 +428,16 @@ class ApiController {
 
         // Register user into the meeting.
         meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
+
+        // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
+        if (meeting.getRegisteredUsers().size() >= meeting.getMaxUsers()) {
+            errors.maxParticipantsReached();
+            respondWithErrors(errors);
+            return;
+        }
+
+        // Mark user as registered
+        meeting.userRegistered(new User(internalUserID, externUserID, fullName, role));
 
         log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")
         session.setMaxInactiveInterval(SESSION_TIMEOUT);

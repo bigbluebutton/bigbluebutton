@@ -59,7 +59,8 @@ public class Meeting {
 	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
-	private final ConcurrentMap<String, User> users; 
+	private final ConcurrentMap<String, User> users;
+	private final ConcurrentMap<String, User> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	
 	private long lastUserLeftOn = 0;
@@ -76,16 +77,17 @@ public class Meeting {
 		record = builder.record;
 		autoStartRecording = builder.autoStartRecording;
 		allowStartStopRecording = builder.allowStartStopRecording;
-   	duration = builder.duration;
-   	webVoice = builder.webVoice;
-   	telVoice = builder.telVoice;
-   	welcomeMsg = builder.welcomeMsg;
-   	dialNumber = builder.dialNumber;
-   	metadata = builder.metadata;
-   	createdTime = builder.createdTime;
-   	userCustomData = new HashMap<String, Object>();
+		duration = builder.duration;
+		webVoice = builder.webVoice;
+		telVoice = builder.telVoice;
+		welcomeMsg = builder.welcomeMsg;
+		dialNumber = builder.dialNumber;
+		metadata = builder.metadata;
+		createdTime = builder.createdTime;
+		userCustomData = new HashMap<String, Object>();
 
 		users = new ConcurrentHashMap<String, User>();
+		registeredUsers = new ConcurrentHashMap<String, User>();
 		
 		configs = new ConcurrentHashMap<String, Config>();
 	}
@@ -234,16 +236,16 @@ public class Meeting {
 	}
 	
 	public void userJoined(User user) {
-		userHasJoined = true;
-		this.users.put(user.getInternalUserId(), user);
+	    userHasJoined = true;
+	    this.users.put(user.getInternalUserId(), user);
 	}
-	
+
 	public User userLeft(String userid){
 		User u = (User) users.remove(userid);	
 		if (users.isEmpty()) lastUserLeftOn = System.currentTimeMillis();
 		return u;
 	}
-	
+
 	public User getUserById(String id){
 		return this.users.get(id);
 	}
@@ -457,4 +459,23 @@ public class Meeting {
     		return new Meeting(this);
     	}
     }
+
+    public void userRegistered(User user) {
+        this.registeredUsers.put(user.getInternalUserId(), user);
+    }
+
+    public User userUnregistered(String userid) {
+        String internalUserIDSeed = userid.split("_")[0];
+        User u = (User) this.registeredUsers.remove(internalUserIDSeed);
+        return u;
+    }
+
+    public User getRegisteredUserById(String id) {
+        return this.registeredUsers.get(id);
+    }
+
+    public Collection<User> getRegisteredUsers() {
+        return registeredUsers.isEmpty() ? Collections.<User>emptySet() : Collections.unmodifiableCollection(registeredUsers.values());
+    }
+
 }
