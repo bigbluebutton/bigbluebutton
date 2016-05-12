@@ -6,20 +6,24 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
 
   // importing the Meteor settings:
-  var settings_dev = require('./settings-development.json');
-  var settings_prod = require('./settings-production.json');
+  var settings = {};
+  settings.dev = require('./settings-development.json');
+  settings.prod = require('./settings-production.json');
 
   // root URL in development/production:
-  var devRootURL = (settings_dev.rootURL == undefined) ? 'http://127.0.0.1/html5client' : settings_dev.rootURL;
-  var prodRootURL = (settings_prod.rootURL == undefined) ? 'http://127.0.0.1/html5client' : settings_prod.rootURL;
+  var devRootURL = settings.dev.rootURL || 'http://127.0.0.1/html5client';
+  var prodRootURL = settings.prod.rootURL || 'http://127.0.0.1/html5client';
 
   // command line string containing the Meteor's home directory in development/production:
-  var devHomeStr = (settings_dev.home == undefined) ? '' : ('HOME=' + settings_dev.home + ' ');
-  var prodHomeStr = (settings_prod.home == undefined) ? '' : ('HOME=' + settings_prod.home + ' ');
+  var devHomeStr = (settings.dev.home == undefined) ? '' : ('HOME=' + settings.dev.home + ' ');
+  var prodHomeStr = (settings.prod.home == undefined) ? '' : ('HOME=' + settings.prod.home + ' ');
 
   // final commands:
-  var meteor_dev_command = devHomeStr + 'ROOT_URL=' + devRootURL + ' meteor --settings settings-development.json';
-  var meteor_prod_command = prodHomeStr + 'ROOT_URL=' + prodRootURL + ' meteor --settings settings-production.json';
+  var meteorDevCommand = devHomeStr + 'ROOT_URL=' + devRootURL;
+  meteorDevCommand += ' meteor --settings settings-development.json';
+
+  var meteorProdCommand = prodHomeStr + 'ROOT_URL=' + prodRootURL;
+  meteorProdCommand += ' meteor --settings settings-production.json';
 
   // configure Grunt
   grunt.initConfig({
@@ -37,7 +41,7 @@ module.exports = function (grunt) {
 
     jscs: {
       check: {
-        src: ['**/*.js', '**/*.jsx'],
+        src: ['**/*.js', '**/*.jsx', '!**/server/**', '!**/tests/**'],
         options: {
           config: '.jscsrc',
           verbose: true,
@@ -45,7 +49,7 @@ module.exports = function (grunt) {
         },
       },
       autofix: {
-        src: ['**/*.js', '**/*.jsx'],
+        src: ['**/*.js', '**/*.jsx', '!**/server/**', '!**/tests/**'],
         options: {
           config: '.jscsrc',
           verbose: true,
@@ -57,10 +61,10 @@ module.exports = function (grunt) {
 
     shell: {
       start_meteor_development: {
-        command: meteor_dev_command,
+        command: meteorDevCommand,
       },
       start_meteor_production: {
-        command: meteor_prod_command,
+        command: meteorProdCommand,
       },
     },
 
