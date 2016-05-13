@@ -4,86 +4,70 @@ import { logger } from '/imports/startup/server/logger';
 import { requestUserLeaving } from '/imports/api/users/server/modifiers/requestUserLeaving';
 
 // Publish only the online users that are in the particular meetingId
-// On the client side we pass the meetingId parameter
+// Also contains reconnection and connection_status info
 Meteor.publish('users', function (meetingId, userid, authToken) {
-  let username;
   logger.info(`attempt publishing users for ${meetingId}, ${userid}, ${authToken}`);
-  let userObject = Users.findOne({
+  const userObject = Users.findOne({
     userId: userid,
     meetingId: meetingId,
   });
 
-  if (userObject != null) {
-    logger.info('found it from the first time ' + userid);
+  if (!!userObject && !!userObject.user ) {
+    let username = 'UNKNOWN';
     if (isAllowedTo('subscribeUsers', meetingId, userid, authToken)) {
       logger.info(`${userid} was allowed to subscribe to 'users'`);
-      const user = userObject.user;
-      if (user != null) {
-        username = user.name;
+      username = userObject.user.name;
 
-        // offline -> online
-        if (user.connection_status !== 'online') {
-          Meteor.call('validateAuthToken', meetingId, userid, authToken);
-        }
-      } else {
-        username = 'UNKNOWN';
+      // offline -> online
+      if (userObject.user.connection_status !== 'online') {
+        Meteor.call('validateAuthToken', meetingId, userid, authToken);
+        setConnectionStatus(meetingId, userid, 'online');
       }
 
-      Users.update({
-        meetingId: meetingId,
-        userId: userid,
-      }, {
-        $set: {
-          'user.connection_status': 'online',
-        },
-      });
-
-      logger.info(`username of the subscriber: ${username}, connection_status becomes online`);
       this._session.socket.on('close', Meteor.bindEnvironment((function (_this) {
         return function () {
           logger.info(`a user lost connection: session.id=${_this._session.id}` +
               ` userId = ${userid}, username=${username}, meeting=${meetingId}`);
-          Users.update({
-            meetingId: meetingId,
-            userId: userid,
-          }, {
-            $set: {
-              'user.connection_status': 'offline',
-            },
-          });
-
-          logger.info(`username of the user losing connection: ${username}, goes offline`);
+          setConnectionStatus(meetingId, userid, 'offline');
           return requestUserLeaving(meetingId, userid);
         };
       })(this)));
 
-      //publish the users which are not offline
-      return Users.find({
-        meetingId: meetingId,
-        'user.connection_status': {
-          $in: ['online', ''],
-        },
-      }, {
-        fields: {
-          authToken: false,
-        },
-      });
+      return getUsers(meetingId);
     } else {
-      logger.warn("was not authorized to subscribe to 'users'");
-      return this.error(new Meteor.Error(402, "The user was not authorized to subscribe to 'users'"));
+      logger.warn('was not authorized to subscribe to users');
+      return this.error(new Meteor.Error(402, 'User was not authorized to subscribe to users'));
     }
   } else { //subscribing before the user was added to the collection
     Meteor.call('validateAuthToken', meetingId, userid, authToken);
-    logger.error(`there was no such user ${userid} in ${meetingId}`);
-    return Users.find({
-      meetingId: meetingId,
-      'user.connection_status': {
-        $in: ['online', ''],
-      },
-    }, {
-      fields: {
-        authToken: false,
-      },
-    });
+    logger.error(`there was no user ${userid} in ${meetingId}. Sending validateAuthToken`);
+    return getUsers(meetingId);
   }
 });
+
+const getUsers = function(meetingId) {
+  //publish the users which are not offline
+  return Users.find({
+    meetingId: meetingId,
+    'user.connection_status': {
+      $in: ['online', ''],
+    },
+  }, {
+    fields: {
+      authToken: false,
+    },
+  });
+};
+
+const setConnectionStatus = function(meetingId, userId, statusStr) {
+  Users.update({
+    meetingId: meetingId,
+    userId: userId,
+  }, {
+    $set: {
+      'user.connection_status': statusStr,
+    },
+  }, (err, numChanged) => {
+    logger.info(`User ${userId} in ${meetingId} goes ${statusStr}`);
+  });
+};

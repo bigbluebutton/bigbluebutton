@@ -2,9 +2,7 @@ import Users from '/imports/api/users/collection';
 import Meetings from '/imports/api/meetings/collection';
 import { logger } from '/imports/startup/server/logger';
 
-let moderator, presenter, viewer;
-
-presenter = {
+const presenter = {
   switchSlide: true,
 
   //poll
@@ -14,7 +12,7 @@ presenter = {
 
 // holds the values for whether the moderator user is allowed to perform an action (true)
 // or false if not allowed. Some actions have dynamic values depending on the current lock settings
-moderator = {
+const moderator = {
   // audio listen only
   joinListenOnly: true,
   leaveListenOnly: true,
@@ -55,7 +53,7 @@ moderator = {
 
 // holds the values for whether the viewer user is allowed to perform an action (true)
 // or false if not allowed. Some actions have dynamic values depending on the current lock settings
-viewer = function (meetingId, userId) {
+const viewer = function (meetingId, userId) {
   let meeting, user;
   return {
 
@@ -111,7 +109,6 @@ export function isAllowedTo(action, meetingId, userId, authToken) {
   if (user != null) {
     validated = user.validated;
   }
-  return true; // TODO REMOVE THIS
 
   logger.info(`in isAllowedTo: action-${action}, userId=${userId}, authToken=${authToken} validated:${validated}`);
   user = Users.findOne({
