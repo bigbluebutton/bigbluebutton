@@ -199,7 +199,7 @@ eventEmitter.on('user_joined_message', function (arg) {
       userObj.timeOfJoining = arg.header.current_time;
       return userJoined(meetingId, userObj, arg.callback);
     } else {
-      return userJoined(meetingId, userObj, arg.callback);
+      return userJoined(meetingId, userObj, arg.callback); //TODO no 'else' needed, extract return
     }
   }
 

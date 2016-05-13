@@ -27,21 +27,25 @@ let AppService = function () {
   };
 
   const subscribeForData = function() {
-    subscribeFor('chat');
-    subscribeFor('cursor');
-    subscribeFor('deskshare');
-    subscribeFor('meetings');
-    subscribeFor('polls');
-    subscribeFor('presentations');
-    subscribeFor('shapes');
-    subscribeFor('slides');
     subscribeFor('users');
 
-    window.Users = Users; // for debug purposes TODO remove
-    window.Chat = Chat; // for debug purposes TODO remove
-    window.Meetings = Meetings; // for debug purposes TODO remove
-    window.Cursor = Cursor; // for debug purposes TODO remove
-    window.Polls = Polls; // for debug purposes TODO remove
+    Meteor.setTimeout(() => {
+      subscribeFor('chat');
+      subscribeFor('cursor');
+      subscribeFor('deskshare');
+      subscribeFor('meetings');
+      subscribeFor('polls');
+      subscribeFor('presentations');
+      subscribeFor('shapes');
+      subscribeFor('slides');
+      subscribeFor('users');
+
+      window.Users = Users; // for debug purposes TODO remove
+      window.Chat = Chat; // for debug purposes TODO remove
+      window.Meetings = Meetings; // for debug purposes TODO remove
+      window.Cursor = Cursor; // for debug purposes TODO remove
+      window.Polls = Polls; // for debug purposes TODO remove
+    }, 2000); //To avoid race condition where we subscribe before receiving auth from BBB
   };
 
   const subscribeFor = function (collectionName) {
