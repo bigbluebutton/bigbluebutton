@@ -1,7 +1,8 @@
 import {getInStorage} from '/imports/ui/components/app/service.js';
 
 function callServer(name) {
-  if (!name || !(typeof(name) === 'string' || name instanceof String) || name.length === 0 || !name.trim() || /^\s*$/.test(name)) {
+  if (!name || !(typeof (name) === 'string' || name instanceof String) || name.length === 0 ||
+    !name.trim() || /^\s*$/.test(name)) {
     console.error(`serverCall: invalid function name '${name}'`);
     return false;
   }

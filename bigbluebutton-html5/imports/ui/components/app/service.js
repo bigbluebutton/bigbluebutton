@@ -1,22 +1,22 @@
-import { Meteor } from 'meteor/meteor'
+import { Meteor } from 'meteor/meteor';
 import Users from '/imports/api/users/collection';
 import Chat from '/imports/api/chat/collection';
 import Meetings from '/imports/api/meetings/collection';
 import Cursor from '/imports/api/cursor/collection';
 import Polls from '/imports/api/polls';
 
-const setInStorage = function(key, value) {
+function setInStorage(key, value) {
   if (!!value) {
     console.log('in setInStorage', key, value);
     localStorage.setItem(key, value);
   }
 };
 
-const getInStorage = function(key) {
+function getInStorage(key) {
   return localStorage.getItem(key);
 };
 
-const setCredentials = function (nextState, replace) {
+function setCredentials(nextState, replace) {
   if (!!nextState && !!nextState.params) {
     setInStorage('meetingID', nextState.params.meetingID);
     setInStorage('userID', nextState.params.userID);
@@ -24,7 +24,7 @@ const setCredentials = function (nextState, replace) {
   }
 };
 
-const subscribeForData = function() {
+function subscribeForData() {
   subscribeFor('chat');
   subscribeFor('cursor');
   subscribeFor('deskshare');
@@ -42,20 +42,21 @@ const subscribeForData = function() {
   window.Polls = Polls; // for debug purposes TODO remove
 };
 
-const subscribeFor = function (collectionName) {
-  const userID = getInStorage("userID");
-  const meetingID = getInStorage("meetingID");
-  const authToken = getInStorage("authToken");
+function subscribeFor(collectionName) {
+  const userID = getInStorage('userID');
+  const meetingID = getInStorage('meetingID');
+  const authToken = getInStorage('authToken');
+
   // console.log("subscribingForData", collectionName, meetingID, userID, authToken);
 
-  Meteor.subscribe(collectionName, meetingID, userID, authToken, onError(), onReady());
+  Meteor.subscribe(collectionName, meetingID, userID, authToken, onError, onReady);
 };
 
-let onError = function(error, result) {
+function onError(error, result) {
   // console.log("OnError", error, result);
 };
 
-let onReady = function() {
+function onReady() {
   // console.log("OnReady", Users.find().fetch());
 };
 
