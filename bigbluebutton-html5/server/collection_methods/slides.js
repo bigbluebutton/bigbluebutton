@@ -69,6 +69,27 @@ this.clearSlidesCollection = function (meetingId) {
   }
 };
 
+this.getSlideDimensions = function(iterator, imgUrl, slide, meetingId, presentationId) {
+  options = url.parse(imgUrl);
+  http.get(options, function (response) {
+    var chunks = [];
+    response.on('data', function (chunk) {
+      var _j = j;
+      chunks.push(chunk);
+    }).on('end', function() {
+      var buffer = Buffer.concat(chunks);
+      dimensions = sizeOf(buffer);
+      slide.width = dimensions['width'];
+      slide.height = dimensions['height'];
+      addSlideToCollection(
+        meetingId,
+        presentationId,
+        slide
+      );
+    });
+  });
+}
+
 // --------------------------------------------------------------------------------------------
 // end Private methods on server
 // --------------------------------------------------------------------------------------------

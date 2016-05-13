@@ -1,3 +1,5 @@
+import sizeOf from 'image-size';
+
 const indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
 };
@@ -359,6 +361,10 @@ Meteor.startup(() => {
 
       // for now not handling this serially #TODO
       } else if (eventName === 'presentation_shared_message') {
+        let imgUrl, options, dimensions;
+        var url = Npm.require('url');
+        var http = Npm.require('http');
+
         if (payload.presentation != null && payload.presentation.id != null && meetingId != null) {
           presentationId = payload.presentation.id;
 
@@ -376,16 +382,41 @@ Meteor.startup(() => {
           removePresentationFromCollection(meetingId, presentationId);
           addPresentationToCollection(meetingId, payload.presentation);
           pages = payload.presentation.pages;
+
+          var getSlideDimensions = function(iterator, imgUrl, slide, meetingId, presentationId) {
+            options = url.parse(imgUrl);
+            http.get(options, function (response) {
+              var chunks = [];
+              response.on('data', function (chunk) {
+                var _j = j;
+                chunks.push(chunk);
+              }).on('end', function() {
+                var buffer = Buffer.concat(chunks);
+                dimensions = sizeOf(buffer);
+                slide.width = dimensions['width'];
+                slide.height = dimensions['height'];
+                addSlideToCollection(
+                  meetingId,
+                  presentationId,
+                  slide
+                );
+              });
+            });
+          }
+
           for (j = 0; j < pages.length; j++) {
+            imgUrl = payload.presentation.pages[j].svg_uri;
+            getSlideDimensions(j, imgUrl, pages[j], meetingId, presentationId);
+            /*
             slide = pages[j];
             addSlideToCollection(
               meetingId,
               presentationId,
               slide
             );
+            */
           }
         }
-
         return callback();
 
       // for now not handling this serially #TODO
