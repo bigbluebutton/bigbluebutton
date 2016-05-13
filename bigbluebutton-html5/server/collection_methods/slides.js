@@ -1,3 +1,4 @@
+import sizeOf from 'image-size';
 // --------------------------------------------------------------------------------------------
 // Private methods on server
 // --------------------------------------------------------------------------------------------
@@ -50,6 +51,8 @@ this.addSlideToCollection = function (meetingId, presentationId, slideObject) {
         width_ratio: slideObject.width_ratio,
         swf_uri: slideObject.swf_uri,
         thumb_uri: slideObject.thumb_uri,
+        width: slideObject.width,
+        height: slideObject.height,
       },
     };
     return id = Meteor.Slides.insert(entry);
@@ -70,13 +73,15 @@ this.clearSlidesCollection = function (meetingId) {
 };
 
 this.getSlideDimensions = function(iterator, imgUrl, slide, meetingId, presentationId) {
+  let options, dimensions;
+  var url = Npm.require('url');
+  var http = Npm.require('http');
   options = url.parse(imgUrl);
-  http.get(options, function (response) {
+  http.get(options, Meteor.bindEnvironment(function (response) {
     var chunks = [];
-    response.on('data', function (chunk) {
-      var _j = j;
+    response.on('data', Meteor.bindEnvironment(function (chunk) {
       chunks.push(chunk);
-    }).on('end', function() {
+    })).on('end', Meteor.bindEnvironment(function() {
       var buffer = Buffer.concat(chunks);
       dimensions = sizeOf(buffer);
       slide.width = dimensions['width'];
@@ -86,8 +91,8 @@ this.getSlideDimensions = function(iterator, imgUrl, slide, meetingId, presentat
         presentationId,
         slide
       );
-    });
-  });
+    }));
+  }));
 }
 
 // --------------------------------------------------------------------------------------------
