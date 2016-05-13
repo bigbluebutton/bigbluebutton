@@ -67,4 +67,5 @@ export {
   pollExists,
   subscribeForData,
   setCredentials,
+  getInStorage,
 };

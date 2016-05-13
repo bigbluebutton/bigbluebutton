@@ -6,8 +6,11 @@ import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
 Meteor.methods({
-  publishVoteMessage(pollId, pollAnswerId, meetingId, requesterUserId, requesterToken) { //TODO discuss location
-    if (isAllowedTo('subscribePoll', meetingId, requesterUserId, requesterToken)) {
+  publishVoteMessage(credentials, pollId, pollAnswerId) { //TODO discuss location
+    if (isAllowedTo('subscribePoll', credentials)) {
+      const meetingId = credentials.meetingID;
+      const requesterUserId = credentials.userID;
+      const requesterToken = credentials.authToken;
       const eventName = 'vote_poll_user_request_message';
 
       const result = Polls.findOne({
@@ -17,7 +20,7 @@ Meteor.methods({
         poll: { id: pollId },
       });
 
-      if ((meetingId != null) && (result.meetingId != null) && (requesterUserId != null) &&
+      if ((meetingId != null) && result && (result.meetingId != null) && (requesterUserId != null) &&
         (pollAnswerId != null)) {
         let message = {
           payload: {
