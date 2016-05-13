@@ -359,7 +359,7 @@ Meteor.startup(() => {
 
       // for now not handling this serially #TODO
       } else if (eventName === 'presentation_shared_message') {
-        let imgUrl;
+        //let imgUrl;
         if (payload.presentation != null && payload.presentation.id != null && meetingId != null) {
           presentationId = payload.presentation.id;
 
@@ -378,16 +378,12 @@ Meteor.startup(() => {
           addPresentationToCollection(meetingId, payload.presentation);
           pages = payload.presentation.pages;
           for (j = 0; j < pages.length; j++) {
-            imgUrl = payload.presentation.pages[j].svg_uri;
-            getSlideDimensions(j, imgUrl, pages[j], meetingId, presentationId);
-            /*
             slide = pages[j];
             addSlideToCollection(
               meetingId,
               presentationId,
-              slide
+              slide,
             );
-            */
           }
         }
         return callback();
