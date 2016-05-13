@@ -4,8 +4,8 @@ import { Router, Route, Redirect, IndexRoute,
 import { createHistory } from 'history';
 
 // route components
-import AppContainer from '../../ui/components/app/AppContainer.jsx';
-import {setCredentials, subscribeForData} from '../../ui/components/app/AppService.js';
+import AppContainer from '../../ui/components/app/container.jsx';
+import {setCredentials, subscribeForData} from '../../ui/components/app/service.js';
 import UserListContainer from '../../ui/components/user-list/UserListContainer.jsx';
 import ChatContainer from '../../ui/components/chat/ChatContainer.jsx';
 

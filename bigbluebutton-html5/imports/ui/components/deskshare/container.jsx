@@ -1,7 +1,7 @@
 import React from 'react';
-import {videoIsBroadcasting} from './DeskshareService';
+import {videoIsBroadcasting} from './service';
 import { createContainer } from 'meteor/react-meteor-data';
-import DeskshareComponent from './DeskshareComponent.jsx';
+import DeskshareComponent from './component.jsx';
 
 class DeskshareContainer extends React.Component {
   render() {
