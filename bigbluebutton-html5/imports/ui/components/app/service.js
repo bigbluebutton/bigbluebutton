@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
-import Users from '/imports/api/users/collection';
-import Chat from '/imports/api/chat/collection';
-import Meetings from '/imports/api/meetings/collection';
-import Cursor from '/imports/api/cursor/collection';
+import Users from '/imports/api/users';
+import Chat from '/imports/api/chat';
+import Meetings from '/imports/api/meetings';
+import Cursor from '/imports/api/cursor';
 import Polls from '/imports/api/polls';
 
 function setInStorage(key, value) {

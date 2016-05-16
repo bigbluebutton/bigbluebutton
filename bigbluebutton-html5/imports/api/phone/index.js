@@ -1,5 +1,5 @@
-import Users from '/imports/api/users/collection';
-import Meetings from '/imports/api/meetings/collection';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 
 //TODO relocate? Anton
 

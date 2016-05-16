@@ -1,4 +1,4 @@
-import Users from '/imports/api/users/collection';
+import Users from '/imports/api/users';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { logger } from '/imports/startup/server/logger';
 import { requestUserLeaving } from '/imports/api/users/server/modifiers/requestUserLeaving';

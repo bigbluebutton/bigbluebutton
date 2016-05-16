@@ -1,4 +1,4 @@
-import {getInStorage} from '/imports/ui/components/app/service.js';
+import {getInStorage} from '/imports/ui/components/app/service';
 
 function callServer(name) {
   if (!name || !(typeof (name) === 'string' || name instanceof String) || name.length === 0 ||

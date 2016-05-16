@@ -1,4 +1,4 @@
-import Meetings from '/imports/api/meetings/collection';
+import Meetings from '/imports/api/meetings';
 
 export function handleIncomingDeskshareMessage(arg) {
   const payload = arg.payload;

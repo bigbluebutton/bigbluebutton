@@ -20,10 +20,10 @@ import { eventEmitter } from '/imports/startup/server/index';
 import { publish, handleChatEvent, handleEndOfMeeting, handleLockEvent,
   handleRemoveUserEvent, handleVoiceEvent} from '/imports/startup/server/helpers';
 
-import Meetings from '/imports/api/meetings/collection';
-import Presentations from '/imports/api/presentations/collection';
-import Users from '/imports/api/users/collection';
-import Slides from '/imports/api/slides/collection';
+import Meetings from '/imports/api/meetings';
+import Presentations from '/imports/api/presentations';
+import Users from '/imports/api/users';
+import Slides from '/imports/api/slides';
 
 // To ensure that we process the redis json event messages serially we use a
 // callback. This callback is to be called when the Meteor collection is

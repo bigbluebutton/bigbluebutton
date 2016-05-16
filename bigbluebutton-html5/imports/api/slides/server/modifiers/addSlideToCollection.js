@@ -1,4 +1,4 @@
-import Slides from '/imports/api/slides/collection';
+import Slides from '/imports/api/slides';
 
 export function addSlideToCollection(meetingId, presentationId, slideObject) {
   let entry, id;

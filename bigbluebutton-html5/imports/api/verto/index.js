@@ -1,4 +1,4 @@
-import Meetings from '/imports/api/users/collection';
+import Meetings from '/imports/api/users';
 
 function joinAudio(options) {
   // joinVertoCall()

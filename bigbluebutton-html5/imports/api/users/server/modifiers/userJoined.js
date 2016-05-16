@@ -1,6 +1,6 @@
-import Chat from '/imports/api/chat/collection';
-import Users from '/imports/api/users/collection';
-import Meetings from '/imports/api/meetings/collection';
+import Chat from '/imports/api/chat';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
 
 export function userJoined(meetingId, user, callback) {

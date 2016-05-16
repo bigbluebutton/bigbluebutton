@@ -1,4 +1,4 @@
-import Presentations from '/imports/api/presentations/collection';
+import Presentations from '/imports/api/presentations';
 import { logger } from '/imports/startup/server/logger';
 
 // called on server start and meeting end
