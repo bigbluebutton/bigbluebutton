@@ -1,5 +1,5 @@
-import Slides from '/imports/api/slides/collection';
-import Presentations from '/imports/api/presentations/collection';
+import Slides from '/imports/api/slides';
+import Presentations from '/imports/api/presentations';
 import { logger } from '/imports/startup/server/logger';
 
 export function removePresentationFromCollection(meetingId, presentationId) {

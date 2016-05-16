@@ -1,4 +1,4 @@
-import Slides from '/imports/api/slides/collection';
+import Slides from '/imports/api/slides';
 import { logger } from '/imports/startup/server/logger';
 
 // called on server start and meeting end

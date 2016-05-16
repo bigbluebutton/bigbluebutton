@@ -1,11 +1,10 @@
-import Meetings from '/imports/api/meetings/collection';
 import { initializeCursor } from '/imports/api/cursor/server/modifiers/initializeCursor';
+import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording,
                                        voiceConf, duration, callback) {
   //check if the meeting is already in the collection
-
   Meetings.upsert({
     meetingId: meetingId,
   }, {

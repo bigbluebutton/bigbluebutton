@@ -10,7 +10,10 @@ Meteor.methods({
   // chatObject: the object including info on the chat message, including the text
   // requesterUserId: the userId of the user sending chat
   // requesterToken: the authToken of the requester
-  sendChatMessagetoServer(meetingId, chatObject, requesterUserId, requesterToken) {
+  sendChatMessagetoServer(credentials, chatObject) {
+    const { meetingId, requesterUserId, requesterToken } = credentials;
+
+    let message;
     const chatType = chatObject.chat_type;
     const recipient = chatObject.to_userid;
     let eventName = null;
@@ -28,8 +31,7 @@ Meteor.methods({
       }
     };
 
-    if (isAllowedTo(action(), meetingId, requesterUserId, requesterToken) &&
-      chatObject.from_userid === requesterUserId) {
+    if (isAllowedTo(action(), credentials) && chatObject.from_userid === requesterUserId) {
       chatObject.message = translateHTML5ToFlash(chatObject.message);
       let message = {
         payload: {

@@ -1,12 +1,13 @@
 import { publish } from '/imports/startup/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/startup/server/helpers';
-import Presentations from '/imports/api/presentations/collection';
-import Slides from '/imports/api/slides/collection';
+import Presentations from '/imports/api/presentations';
+import Slides from '/imports/api/slides';
 import { redisConfig } from '/config';
 
 Meteor.methods({
-  publishSwitchToNextSlideMessage(meetingId, userId, authToken) {
+  publishSwitchToNextSlideMessage(credentials) {
+    const { meetingId, requesterUserId, requesterToken } = credentials;
     let currentPresentationDoc, currentSlideDoc, message, nextSlideDoc;
     currentPresentationDoc = Presentations.findOne({
       meetingId: meetingId,
@@ -24,7 +25,7 @@ Meteor.methods({
           presentationId: currentPresentationDoc.presentation.id,
           'slide.num': currentSlideDoc.slide.num + 1,
         });
-        if ((nextSlideDoc != null) && isAllowedTo('switchSlide', meetingId, userId, authToken)) {
+        if ((nextSlideDoc != null) && isAllowedTo('switchSlide', credentials)) {
           message = {
             payload: {
               page: nextSlideDoc.slide.id,

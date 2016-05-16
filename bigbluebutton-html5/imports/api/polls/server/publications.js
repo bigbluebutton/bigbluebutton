@@ -1,22 +1,23 @@
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import Polls from '/imports/api/polls/collection';
+import Polls from '/imports/api/polls';
 import { logger } from '/imports/startup/server/logger';
 
-Meteor.publish('polls', function (meetingId, userid, authToken) {
+Meteor.publish('polls', function (credentials) {
+  const { meetingId, requesterUserId, requesterToken } = credentials;
   //checking if it is allowed to see Poll Collection in general
-  if (isAllowedTo('subscribePoll', meetingId, userid, authToken)) {
+  if (isAllowedTo('subscribePoll', credentials)) {
     //checking if it is allowed to see a number of votes (presenter only)
-    if (isAllowedTo('subscribeAnswers', meetingId, userid, authToken)) {
-      logger.info('publishing Poll for presenter: ' + meetingId + ' ' + userid + ' ' + authToken);
+    if (isAllowedTo('subscribeAnswers', credentials)) {
+      logger.info('publishing Poll for presenter: ' + meetingId + ' ' + requesterUserId + ' ' + requesterToken);
       return Polls.find({
         'poll_info.meetingId': meetingId,
-        'poll_info.users': userid,
+        'poll_info.users': requesterUserId,
       });
     } else {
-      logger.info('publishing Poll for viewer: ' + meetingId + ' ' + userid + ' ' + authToken);
+      logger.info('publishing Poll for viewer: ' + meetingId + ' ' + requesterUserId + ' ' + requesterToken);
       return Polls.find({
         'poll_info.meetingId': meetingId,
-        'poll_info.users': userid,
+        'poll_info.users': requesterUserId,
       }, {
         fields: {
           'poll_info.poll.answers.num_votes': 0,

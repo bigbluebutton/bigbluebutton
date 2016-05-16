@@ -34,7 +34,8 @@ export default class SettingsModal extends BaseModal {
 
   componentDidMount() {
     ReactDOM.render(
-      <Button componentClass='button' style={{ width: '30px', height: '30px', float: 'right' }} onClick={this.openModal} i_class='icon ion-gear-b' rel='tooltip' title='Settings'>
+      <Button componentClass='button' style={{ width: '30px', height: '30px', float: 'right' }}
+        onClick={this.openModal} i_class='icon ion-gear-b' rel='tooltip' title='Settings'>
         <Icon iconName='icon ion-gear-b' className='mediumFont icon ion-gear-b'/>
       </Button>, document.getElementById('settingsButtonPlaceHolder'));
   }
@@ -64,7 +65,7 @@ export default class SettingsModal extends BaseModal {
             {this.submenus.map((value, index) => (
               <li key={index} onClick={this.clickSubmenu.bind(this, index)}
                 className={classNames(styles.settingsSubmenuItem,
-                  index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null )}>
+                  index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
                 <Icon key={index} prependIconName={value.props.prependIconName}
                   iconName={value.props.icon} title={value.props.title}/>
                 <span>{value.props.title}</span>

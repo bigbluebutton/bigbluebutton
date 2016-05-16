@@ -1,4 +1,4 @@
-import Presentations from '/imports/api/presentations/collection';
+import Presentations from '/imports/api/presentations';
 
 export function addPresentationToCollection(meetingId, presentationObject) {
   let entry, id, presentationObj;

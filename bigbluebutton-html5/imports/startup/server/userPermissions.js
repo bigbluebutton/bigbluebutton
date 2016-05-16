@@ -1,5 +1,5 @@
-import Users from '/imports/api/users/collection';
-import Meetings from '/imports/api/meetings/collection';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
 
 const presenter = {
@@ -100,7 +100,11 @@ const viewer = function (meetingId, userId) {
 
 // carries out the decision making for actions affecting users. For the list of
 // actions and the default value - see 'viewer' and 'moderator' in the beginning of the file
-export function isAllowedTo(action, meetingId, userId, authToken) {
+export function isAllowedTo(action, credentials) {
+  const meetingId = credentials.meetingId;
+  const userId = credentials.requesterUserId;
+  const authToken = credentials.requesterToken;
+
   let user, validated;
   user = Users.findOne({
     meetingId: meetingId,

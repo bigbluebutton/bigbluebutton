@@ -1,4 +1,4 @@
-import Chat from '/imports/api/chat/collection';
+import Chat from '/imports/api/chat';
 import { logger } from '/imports/startup/server/logger';
 
 // called on server start and meeting end

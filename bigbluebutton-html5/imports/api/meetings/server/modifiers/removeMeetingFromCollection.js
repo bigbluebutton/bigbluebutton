@@ -5,7 +5,7 @@ import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clea
 import { clearPresentationsCollection } from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
 import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
-import Meetings from '/imports/api/meetings/collection';
+import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
 
 //clean up upon a meeting's end

@@ -1,4 +1,4 @@
-import Polls from '/imports/api/polls/collection';
+import Polls from '/imports/api/polls';
 import { logger } from '/imports/startup/server/logger';
 
 export function addPollToCollection(poll, requesterId, users, meetingId) {

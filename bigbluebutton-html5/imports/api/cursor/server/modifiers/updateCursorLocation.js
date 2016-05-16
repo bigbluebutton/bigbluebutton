@@ -1,4 +1,4 @@
-import Cursor from '/imports/api/cursor/collection';
+import Cursor from '/imports/api/cursor';
 import { logger } from '/imports/startup/server/logger';
 
 export function updateCursorLocation(meetingId, cursorObject) {

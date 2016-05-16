@@ -1,4 +1,4 @@
-import Users from '/imports/api/users/collection';
+import Users from '/imports/api/users';
 import { logger } from '/imports/startup/server/logger';
 
 //update a voiceUser - a helper method
