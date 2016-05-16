@@ -149,7 +149,7 @@ public class UsersMessageReceiver implements MessageHandler{
 	private void processUserJoinedVoiceConfMessage(String json) {
 		UserJoinedVoiceConfMessage msg = UserJoinedVoiceConfMessage.fromJson(json);
 		if (msg != null) {
-			bbbInGW.voiceUserJoined(msg.voiceConfId, msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, msg.muted, msg.talking);
+			bbbInGW.voiceUserJoined(msg.voiceConfId, msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, msg.muted, msg.avatarURL, msg.talking);
 		}
 	}
 

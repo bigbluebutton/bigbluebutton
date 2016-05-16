@@ -19,8 +19,12 @@
 
 package org.bigbluebutton.api.messaging;
 
+import org.bigbluebutton.web.services.turn.StunServer;
+import org.bigbluebutton.web.services.turn.TurnEntry;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface MessagingService {	
 	void recordMeetingInfo(String meetingId, Map<String, String> info);
@@ -35,6 +39,7 @@ public interface MessagingService {
 	String storeSubscription(String meetingId, String externalMeetingID, String callbackURL);
 	boolean removeSubscription(String meetingId, String subscriptionId);
 	List<Map<String,String>> listSubscriptions(String meetingId);
-	void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken);
+	void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL);
 	void sendKeepAlive(String system, Long timestamp);
+	void sendStunTurnInfo(String meetingId, String internalUserId, Set<StunServer> stuns, Set<TurnEntry> turns);
 }

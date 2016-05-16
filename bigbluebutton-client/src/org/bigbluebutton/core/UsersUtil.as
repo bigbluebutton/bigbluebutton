@@ -111,6 +111,10 @@ package org.bigbluebutton.core
     public static function getAvatarURL():String {
       return UserManager.getInstance().getConference().avatarURL;
     }
+
+    public static function getUserAvatarURL(userID:String):String {
+       return UserManager.getInstance().getConference().getUserAvatarURL(userID);
+    }	
 	
 	public static function getVoiceBridge():String {
 		return UserManager.getInstance().getConference().voiceBridge;

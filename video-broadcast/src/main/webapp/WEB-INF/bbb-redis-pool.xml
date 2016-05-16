@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/util 
+			http://www.springframework.org/schema/util/spring-util-2.0.xsd
+			">
+
+	<bean id="redisPool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg index="0">
+			<bean factory-bean="config" factory-method="getConfig" />
+		</constructor-arg>
+		<constructor-arg index="1" value="${redis.host}"/>
+		<constructor-arg index="2" value="${redis.port}"/>
+	</bean>
+
+	<bean id="config" class="org.bigbluebutton.red5.pubsub.GenericObjectPoolConfigWrapper">
+		<!-- Action to take when trying to acquire a connection and all connections are taken -->
+		<property name="whenExhaustedAction">
+			<!-- Fail-fast behaviour, we don't like to keep the kids waiting -->
+			<util:constant static-field="org.apache.commons.pool.impl.GenericObjectPool.WHEN_EXHAUSTED_FAIL" />
+			<!-- Default behaviour, block the caller until a resource becomes available -->
+			<!--<util:constant static-field="org.apache.commons.pool.impl.GenericObjectPool.WHEN_EXHAUSTED_BLOCK" />-->
+		</property>
+		<!-- Maximum active connections to Redis instance -->
+		<property name="maxActive" value="12" />
+		<!-- Number of connections to Redis that just sit there and do nothing -->
+		<property name="maxIdle" value="6" />
+		<!-- Minimum number of idle connections to Redis - these can be seen as always open and ready to serve -->
+		<property name="minIdle" value="1" />
+		<!-- Tests whether connection is dead when connection retrieval method is called -->
+		<property name="testOnBorrow" value="true" />
+		<!-- Tests whether connection is dead when returning a connection to the pool -->
+		<property name="testOnReturn" value="true" />
+		<!-- Tests whether connections are dead during idle periods -->
+		<property name="testWhileIdle" value="true" />
+		<!-- Maximum number of connections to test in each idle check -->
+		<property name="numTestsPerEvictionRun" value="12" />
+		<!-- Idle connection checking period -->
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<!-- Maximum time, in milliseconds, to wait for a resource when exausted action is set to WHEN_EXAUSTED_BLOCK -->
+		<property name="maxWait" value="5000" />
+	</bean>
+
+</beans>

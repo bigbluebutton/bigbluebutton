@@ -415,7 +415,7 @@ module BigBlueButton
     BigBlueButton.concatenate_videos(webcams, concat_vid)        
     BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")   
   end
-  
+
   def self.process_deskstop_sharing(target_dir, temp_dir, meeting_id) 
     BigBlueButton.logger.info("Processing desktop sharing")               
     blank_canvas = "#{temp_dir}/ds-canvas.jpg"

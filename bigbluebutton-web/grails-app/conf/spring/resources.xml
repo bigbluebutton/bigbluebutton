@@ -33,6 +33,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="expiredMeetingCleanupTimerTask" class="org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask"/>
 
+  <bean id="registeredUserCleanupTimerTask" class="org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask"/>
+
   <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService" 
        init-method="start" destroy-method="stop">
     <property name="runEvery" value="${checkBBBServerEvery}"/>
@@ -48,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingService" ref="recordingService"/>
         <property name="presDownloadService" ref="presDownloadService"/>
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
+	  <property name="stunTurnService" ref="stunTurnService"/>
   </bean>
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>

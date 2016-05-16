@@ -17,11 +17,13 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.common.converters.FromJsonDecoder;
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.common.messages.PubSubPongMessage;
 import org.bigbluebutton.messages.CreateBreakoutRoomRequest;
 import org.bigbluebutton.messages.EndBreakoutRoomRequest;
+import org.bigbluebutton.common.messages.SendStunTurnInfoRequestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,8 +126,9 @@ public class MeetingMessageHandler implements MessageHandler {
             String externuserid = user.get("extern_userid").getAsString();
             String username = user.get("name").getAsString();
             String role = user.get("role").getAsString();
+            String avatarURL = user.get("avatarURL").getAsString();
             for (MessageListener listener : listeners) {
-              listener.handle(new UserJoined(meetingId, userid, externuserid, username, role));
+              listener.handle(new UserJoined(meetingId, userid, externuserid, username, role, avatarURL));
             }
           } else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
             String meetingId = payload.get("meeting_id").getAsString();
@@ -176,6 +179,12 @@ public class MeetingMessageHandler implements MessageHandler {
             String stream = payload.get("stream").getAsString();
             for (MessageListener listener : listeners) {
               listener.handle(new UserUnsharedWebcam(meetingId, userid, stream));
+            }
+          } else if (SendStunTurnInfoRequestMessage.SEND_STUN_TURN_INFO_REQUEST_MESSAGE.equalsIgnoreCase(messageName)) {
+            String meetingId = payload.get(Constants.MEETING_ID).getAsString();
+            String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
+            for (MessageListener listener : listeners) {
+              listener.handle(new StunTurnInfoRequested(meetingId, requesterId));
             }
           }
         }

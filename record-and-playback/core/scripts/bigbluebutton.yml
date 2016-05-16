@@ -2,6 +2,7 @@ bbb_version: '0.9.0'
 raw_audio_src: /var/freeswitch/meetings
 raw_video_src: /usr/share/red5/webapps/video/streams
 raw_screenshare_src: /usr/share/red5/webapps/screenshare/streams
+raw_webrtc_deskshare_src: /usr/share/red5/webapps/video-broadcast/streams
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
 redis_host: 127.0.0.1

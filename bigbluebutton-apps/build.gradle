@@ -72,7 +72,7 @@ dependencies {
    compile 'com.google.code.gson:gson:2.5'
    providedCompile 'org.apache.commons:commons-lang3:3.2'
 
-  compile 'org.bigbluebutton:bbb-common-message:0.0.17-SNAPSHOT'
+  compile 'org.bigbluebutton:bbb-common-message:0.0.18-SNAPSHOT'
 }
 
 test {

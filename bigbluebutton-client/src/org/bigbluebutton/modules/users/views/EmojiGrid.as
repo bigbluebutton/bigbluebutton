@@ -17,7 +17,7 @@
  *
  */
 package org.bigbluebutton.modules.users.views {
-	
+
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.MouseEvent;
@@ -35,14 +35,14 @@ package org.bigbluebutton.modules.users.views {
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
-	
+
 	public class EmojiGrid extends VBox {
-		private const EMOJIS:Array = ["raiseHand", "happy", "neutral", "sad", "confused", "away"];
-		
+		private const EMOJIS:Array = ["raiseHand", "happy", "neutral", "sad", "confused", "away", "thumbsUp", "thumbsDown", "applause"];
+
 		private var dispatcher:Dispatcher;
-		
+
 		private var images:Images;
-		
+
 		public function EmojiGrid() {
 			dispatcher = new Dispatcher();
 			images = new Images();
@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.users.views {
 			addRemoveEmoji();
 			this.setStyle("paddingBottom", 10);
 		}
-		
+
 		private function drawEmoji():void {
 			var box:VBox = new VBox();
 			box.styleName = "emojiGridTile";
@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.users.views {
 			}
 			this.addChild(box);
 		}
-		
+
 		private function addRemoveEmoji():void {
 			var button:Button = new Button();
 			button.id = "btnnone";
@@ -100,7 +100,7 @@ package org.bigbluebutton.modules.users.views {
 			button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
 			this.addChild(button);
 		}
-		
+
 		protected function buttonMouseEventHandler(event:MouseEvent):void {
 			var clickedButton:Button = event.target as Button;
 			if (!clickedButton.toggle) {
@@ -112,11 +112,11 @@ package org.bigbluebutton.modules.users.views {
 			}
 			hide();
 		}
-		
+
 		protected function mouseDownOutsideHandler(event:FlexMouseEvent):void {
 			hide();
 		}
-		
+
 		/**
 		 * Hides the menu
 		 */

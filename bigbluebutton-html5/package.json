@@ -3,26 +3,38 @@
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
     "start": "cd app;./start.sh",
-    "preinstall": "sudo npm install -g grunt-cli",
+    "preinstall": "npm install -g grunt-cli",
     "test": "cd app;JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 meteor run --test",
     "lint": "node_modules/jscs/bin/jscs *",
     "autofix": "node_modules/jscs/bin/jscs * --fix"
   },
   "dependencies": {
     "classnames": "^2.2.3",
+    "history": "^2.1.1",
     "react": "^15.0.1",
     "react-addons-pure-render-mixin": "^15.0.1",
-    "react-dom": "^15.0.1"
+    "react-dom": "^15.0.1",
+    "react-intl": "^2.1.2",
+    "react-modal": "^1.2.1",
+    "react-router": "^2.4.0",
+    "underscore": "~1.8.3"
   },
   "devDependencies": {
+    "autoprefixer": "^6.3.6",
     "coffeelint": "^1.6.0",
     "grunt": "^0.4.5",
-    "jscs": "~2.11.0",
+    "grunt-concurrent": "~2.2.1",
+    "grunt-contrib-watch": "~1.0.0",
+    "grunt-force-task": "~2.0.0",
     "grunt-jscs": "~2.8.0",
     "grunt-shell": "~1.2.1",
+    "jscs": "~2.11.0",
     "load-grunt-tasks": "~3.4.1",
-    "grunt-force-task": "~2.0.0",
-    "grunt-contrib-watch": "~1.0.0",
-    "grunt-concurrent": "~2.2.1"
+    "grunt-newer": "~1.2.0"
+  },
+  "cssModules": {
+    "extensions": [
+      "scss"
+    ]
   }
 }

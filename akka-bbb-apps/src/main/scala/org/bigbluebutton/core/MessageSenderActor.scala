@@ -12,6 +12,7 @@ import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.CaptionMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.DeskShareMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 import org.bigbluebutton.common.messages.PresentationRemovedMessage
 import org.bigbluebutton.core.apps.Page
@@ -128,12 +129,42 @@ class MessageSenderActor(val service: MessageSender)
     case msg: SendCaptionHistoryReply => handleSendCaptionHistoryReply(msg)
     case msg: UpdateCaptionOwnerReply => handleUpdateCaptionOwnerReply(msg)
     case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
+    case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
+    case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
+    case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
+    case msg: DeskShareNotifyASingleViewer => handleDeskShareNotifyASingleViewer(msg)
+    case msg: DeskShareHangUp => handleDeskShareHangUp(msg)
     case _ => // do nothing
   }
 
   private def handleUserEjectedFromMeeting(msg: UserEjectedFromMeeting) {
     val m = new UserEjectedFromMeetingMessage(msg.meetingID, msg.userId, msg.ejectedBy)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, m.toJson)
+  }
+
+  private def handleDeskShareHangUp(msg: DeskShareHangUp) {
+    val json = DeskShareMessageToJsonConverter.getDeskShareHangUpToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
+  }
+
+  private def handleDeskShareStopRTMPBroadcast(msg: DeskShareStopRTMPBroadcast) {
+    val json = DeskShareMessageToJsonConverter.getDeskShareStopRTMPBroadcastToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
+  }
+
+  private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
+    val json = DeskShareMessageToJsonConverter.getDeskShareNotifyViewersRTMPToJson(msg)
+    service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
+  }
+
+  def handleDeskShareNotifyASingleViewer(msg: DeskShareNotifyASingleViewer) {
+    val json = DeskShareMessageToJsonConverter.getDeskShareNotifyASingleViewerToJson(msg)
+    service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
+  }
+
+  private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
+    val json = DeskShareMessageToJsonConverter.getDeskShareStartRTMPBroadcastToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 
   private def handleGetChatHistoryReply(msg: GetChatHistoryReply) {
@@ -526,6 +557,7 @@ class MessageSenderActor(val service: MessageSender)
   private def handleUserRegistered(msg: UserRegistered) {
     val json = UsersMessageToJsonConverter.userRegisteredToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+    handleRegisteredUser(msg);
   }
 
   private def handleUserStatusChange(msg: UserStatusChange) {

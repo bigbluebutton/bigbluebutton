@@ -1,0 +1,165 @@
+@import "imports/ui/stylesheets/variables/_all";
+
+$navbar-height: 60px; // TODO: Change to NavBar real height
+$actionsbar-height: 50px; // TODO: Change to ActionsBar real height
+
+.main {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  position: relative;
+  text-align: center;
+  z-index: 10;
+
+  font-size: 1.5rem;
+  padding: .8rem 1rem;
+}
+
+.wrapper {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  @include mq($medium-up) {
+    flex-direction: row;
+  }
+}
+
+%full-page {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @include mq($small-only) {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  @include mq($medium-up) {
+    position: relative;
+  }
+}
+
+
+
+.content {
+  @extend %full-page;
+
+  background-color: $color-background;
+  // position: relative;
+
+  &:before,
+  &:after {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 50%;
+    opacity: 0;
+    transition: opacity .3s;
+    pointer-events: none;
+  }
+
+  &:before {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, .45) -20%, transparent 20%);
+  }
+
+  &:after {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, .45) -20%, transparent 20%);
+  }
+
+  &:hover,
+  &:active {
+    &:before,
+    &:after {
+      opacity: 1;
+    }
+  }
+
+  @include mq($medium-up) {
+    flex: 5;
+    order: 2;
+  }
+}
+
+.userList {
+  @extend %full-page;
+  z-index: 2;
+
+  @include mq($small-only) {
+    padding-top: $navbar-height;
+  }
+
+  @include mq($small-only) {
+    padding-top: $navbar-height;
+  }
+
+  @include mq($medium-up) {
+    flex: 0 20vw;
+    order: 1;
+  }
+
+  @include mq($xlarge-up) {
+    flex-basis: 15vw;
+  }
+}
+
+.chat {
+  @extend %full-page;
+  z-index: 3;
+
+  @include mq($small-only) {
+    padding-top: $navbar-height;
+  }
+
+  @include mq($medium-up) {
+    flex: 0 20vw;
+    order: 1;
+  }
+
+  @include mq($xlarge-up) {
+    flex-basis: 15vw;
+  }
+}
+
+.sidebar {
+  @extend %full-page;
+  z-index: 4;
+
+  @include mq($medium-up) {
+    flex: 0 15vw;
+    order: 2;
+  }
+}
+
+.media {
+  @extend %full-page;
+  flex: 1;
+  order: 1;
+
+  @include mq($small-only) {
+    padding-bottom: $actionsbar-height;
+  }
+}
+
+.actionsbar {
+  position: relative;
+  order: 2;
+
+  @include mq($small-only) {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+}

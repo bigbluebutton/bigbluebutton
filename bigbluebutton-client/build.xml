@@ -11,10 +11,10 @@
       <property name="themeFile" value="BBBDefault.css"/>
 	    <property name="blackTheme" value="BBBBlack.css"/>
 	    <property name="LOCALE" value="en_US" />
-	     <property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
-	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
+	     <property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />
+	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
-		
+
 	<property name="OUTPUT_DIR" value="${BASE_DIR}/client" />
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 
@@ -42,29 +42,29 @@
 	<property name="CAPTION" value="CaptionModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
-	
+
 	<target name="init-ant-contrib">
 		<property name="ant-contrib.jar" location="${BASE_DIR}/build/lib/ant-contrib-0.6.jar"/>
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
 	</target>
-	  
+
 	<target name="locales" depends="init-ant-contrib">
 		<echo message="Checking if locale output dir exists"/>
 		<available file="${OUTPUT_DIR}/locale" type="file" property="locale.dir.present"/>
-		<if> 
-        	<equals arg1="${locale.dir.present}" arg2="true"/> 
-           	<then> 
-				<echo message="Locale output dir exists. Deleting contents of ${OUTPUT_DIR}/locale"/> 
+		<if>
+        	<equals arg1="${locale.dir.present}" arg2="true"/>
+           	<then>
+				<echo message="Locale output dir exists. Deleting contents of ${OUTPUT_DIR}/locale"/>
 				<delete>
 					<fileset dir="${OUTPUT_DIR}/locale">
 						<include name="**/*"/>
 					</fileset>
 				</delete>
-           	</then> 
-           	<else> 
-				<echo message="Locale output dir does not exists. Creating ${OUTPUT_DIR}/locale"/> 
+           	</then>
+           	<else>
+				<echo message="Locale output dir does not exists. Creating ${OUTPUT_DIR}/locale"/>
 				<mkdir dir="${OUTPUT_DIR}/locale"/>
-           	</else> 
+           	</else>
         </if>
 
 		<echo message="Determining supported locales."/>
@@ -77,38 +77,38 @@
 		  	</path>
 		</foreach>
 	</target>
-		
+
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" 
-				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
-				debug="${DEBUG}" 
-				mxml.compatibility-version="3.0.0" 
-				swf-version="13" 
+			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}"
+				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf"
+				debug="${DEBUG}"
+				mxml.compatibility-version="3.0.0"
+				swf-version="13"
 				optimize="true">
 			</mxmlc>
 		</sequential>
 	</target>
-	
+
 	 <target name="branding-black" depends="init-ant-contrib">
 	    <sequential>
-	      <mxmlc file="${BASE_DIR}/branding/default/style/css/${blackTheme}" 
-	        output="${OUTPUT_DIR}/branding/css/${blackTheme}.swf" 
-	        debug="${DEBUG}" 
-	        mxml.compatibility-version="3.0.0" 
-	        swf-version="13" 
+	      <mxmlc file="${BASE_DIR}/branding/default/style/css/${blackTheme}"
+	        output="${OUTPUT_DIR}/branding/css/${blackTheme}.swf"
+	        debug="${DEBUG}"
+	        mxml.compatibility-version="3.0.0"
+	        swf-version="13"
 	        optimize="true">
 	      </mxmlc>
 	    </sequential>
 	  </target>
-	
+
 	<target name="build-bbb-main-test" description="Compile BigBlueButton Main Test">
     	<build-main src="${SRC_DIR}" target="${BBB_MAIN_TEST}" />
 	</target>
 
 	<target name="build-locale">
 		<echo message="Locale dir is ${supportedlocale}. Extract locale name." />
-	   	<basename property="locale.name" file="${supportedlocale}"/>  
+	   	<basename property="locale.name" file="${supportedlocale}"/>
    		<echo message="Locale name is ${locale.name}"/>
 
 		<sequential>
@@ -118,33 +118,33 @@
                 <equals arg1="${locale.name}" arg2="locale"/>
                 <then>
                 	<echo message="Somehow, the dirset for locales is passing the parent (${locale.name}) dir."/>
-                	<echo message="We don't want it, so we need to skip it."/> 
+                	<echo message="We don't want it, so we need to skip it."/>
                 </then>
-              	<else>		
-					<if> 
-		           		<equals arg1="${locale.dir.present}" arg2="true"/> 
-		           		<then> 
+              	<else>
+					<if>
+		           		<equals arg1="${locale.dir.present}" arg2="true"/>
+		           		<then>
 		           			<echo message="We already have a copy of the framework locale. No need to copy ${LOCALE_DIR}/${locale.name}"/>
-		           		</then> 
-		           		<else> 	
-		           			<echo message="No copy of the framework locale. Copying ${LOCALE_DIR}/${locale.name}"/>       
+		           		</then>
+		           		<else>
+		           			<echo message="No copy of the framework locale. Copying ${LOCALE_DIR}/${locale.name}"/>
 		              		<exec  vmlauncher="true" executable="copylocale">
 								<arg value="en_US"/>
 		    					<arg value="${locale.name}"/>
-							</exec>	
+							</exec>
 			  			</else>
-					</if>	
+					</if>
 					<echo message="Compiling locale ${locale.name}"/>
-					<compileLocale locale="${locale.name}" />  
-           		</else> 
-        	</if>       	   
+					<compileLocale locale="${locale.name}" />
+           		</else>
+        	</if>
        </sequential>
 	</target>
 	
-	<target name="locale">
-	 <compileLocale locale="${LOCALE}" /> 
+	<target name="localize">
+	 <compileLocale locale="${LOCALE}" />
 	</target>
-		
+
 	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
 		<attribute name="locale" default="en_US"/>
 		<sequential>
@@ -152,13 +152,13 @@
 			<echo message="**********************************************"/>
 			<echo message="*    Did you check bundles.txt  and made     *"/>
 			<echo message="*    all resources listed here?              *"/>
-			<echo message="**********************************************"/>			
+			<echo message="**********************************************"/>
 			<!-- Invoke MXMLC -->
 			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf">
 				<locale>@{locale}</locale>
 				<target-player>11</target-player>
 				<source-path path-element="locale/{locale}"/>
-				
+
 				<!--
 				  Look into bundles.txt to find out what resources to include here.
 				  http://forums.adobe.com/thread/758619
@@ -166,47 +166,47 @@
 				-->
 				<include-resource-bundles>SharedResources</include-resource-bundles>
 				<include-resource-bundles>bbbResources</include-resource-bundles>
-				<include-resource-bundles>collections</include-resource-bundles> 
-				<include-resource-bundles>containers</include-resource-bundles> 
-				<include-resource-bundles>controls</include-resource-bundles> 
-				<include-resource-bundles>core</include-resource-bundles> 
-				<include-resource-bundles>effects</include-resource-bundles> 
-				<include-resource-bundles>logging</include-resource-bundles> 
-				<include-resource-bundles>messaging</include-resource-bundles> 
-				<include-resource-bundles>modules</include-resource-bundles> 
-				<include-resource-bundles>rpc</include-resource-bundles> 
-				<include-resource-bundles>skins</include-resource-bundles> 
+				<include-resource-bundles>collections</include-resource-bundles>
+				<include-resource-bundles>containers</include-resource-bundles>
+				<include-resource-bundles>controls</include-resource-bundles>
+				<include-resource-bundles>core</include-resource-bundles>
+				<include-resource-bundles>effects</include-resource-bundles>
+				<include-resource-bundles>logging</include-resource-bundles>
+				<include-resource-bundles>messaging</include-resource-bundles>
+				<include-resource-bundles>modules</include-resource-bundles>
+				<include-resource-bundles>rpc</include-resource-bundles>
+				<include-resource-bundles>skins</include-resource-bundles>
 				<include-resource-bundles>styles</include-resource-bundles>
 				<source-path path-element="${FLEX_HOME}/frameworks"/>
 			</mxmlc>
 		</sequential>
 	</macrodef>
-	
+
 	<target name="build-bbb-main" description="Compile BigBlueButton Main">
 		<build-main src="${SRC_DIR}" target="${BBB_MAIN}" />
-		
+
 		<echo message="Copying common assets for BBB Main" />
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images" >
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/common/assets/images/" />
-		</copy>		
+		</copy>
 	</target>
 
   <target name="build-broadcast" description="Compile Broadcast Module" >
     <build-module src="${SRC_DIR}" target="${BROADCAST}" />
   </target>
-  	
+
 	<target name="build-chat" description="Compile Chat Module">
 		<build-module src="${SRC_DIR}" target="${CHAT}" />
 	</target>
-  
+
   <target name="build-notes" description="Compile Notes Module">
     <build-module src="${SRC_DIR}" target="${NOTES}" />
   </target>
-	
+
 	<target name="build-polling" description="Compile Polling Module">
 		<build-module src="${SRC_DIR}" target="${POLLING}" />
 	</target>
-	
+
 	<target name="build-present" description="Compile Present Module">
 		<build-module src="${SRC_DIR}" target="${PRESENT}" />
 	</target>
@@ -215,10 +215,10 @@
 		<echo message="Compiling deskshare standalone without optimization." />
 		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE_SA}" />
 	</target>
-  
+
   <target name="build-deskshare-no-linker" description="Compile Deskshare Module without the linker">
     <echo message="Compiling deskshare without optimization." />
-    <build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" /> 
+    <build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" />
   </target>
 
   <target name="build-screenshare-standalone" depends="build-screenshare-no-linker" description="Compile Screenshare Standalone Application">
@@ -250,17 +250,17 @@
     <echo message="Compiling Camera Check Application." />
     <build-module-no-link src="${SRC_DIR}" target="${CAMERA_CHECK}" />
   </target>
-   
+
   <target name="build-conn-check" description="Compile Connection Check Application">
     <echo message="Compiling Connection Check Application." />
     <build-module-no-link src="${SRC_DIR}" target="${CONNECTION_CHECK}" />
   </target>
-          	
+
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
-		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-unsigned-0.9.0.jar" todir="${OUTPUT_DIR}"/>		
-		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.9.0.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-unsigned-0.9.0.jar" todir="${OUTPUT_DIR}"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.9.0.jar" todir="${OUTPUT_DIR}"/>
 	</target>
 	
   <target name="build-screenshare" description="Compile Screenshare Module">
@@ -270,13 +270,13 @@
     	
 	<target name="build-phone" description="Compile Phone Module">
 		<build-module src="${SRC_DIR}" target="${PHONE}" />
-		
+
 		<echo message="Copying assets for Phone Module" />
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/phone/views/assets/images/" />
-		</copy>		
+		</copy>
 	</target>
-	
+
 	<target name="build-video" description="Compile Video Module">
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
 	</target>
@@ -284,11 +284,11 @@
 	<target name="build-whiteboard" description="Compile Whiteboard Module">
 		<build-module src="${SRC_DIR}" target="${WHITEBOARD}" />
 	</target>
-	
+
 	<target name="build-layout" description="Compile Layout Module">
 		<build-module src="${SRC_DIR}" target="${LAYOUT}" />
 	</target>
-	
+
 	<target name="build-users" description="Compile Users Module">
 			<build-module src="${SRC_DIR}" target="${USERS}" />
 	</target>
@@ -302,13 +302,13 @@
 			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users, build-caption"
 			description="Compile main, chat, present modules">
 	</target>
-	
+
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
 			depends="build-deskshare, build-screenshare, build-phone, build-video, build-whiteboard, build-notes, build-polling"
 			description="Compile deskshare, phone, video, whiteboard modules">
 	</target>
-	
+
 	<macrodef name="build-main">
 			<attribute name="target" description="Module to compile" />
 			<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
@@ -319,7 +319,7 @@
 					<target-player>11</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
-					
+
 					<!--
 				  		Dump out resources to find out what resources to include building the locales.
 				  		http://forums.adobe.com/thread/758619
@@ -327,7 +327,7 @@
 					-->
 					<resource-bundle-list>bundles.txt</resource-bundle-list>
 	        			<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
-				
+
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
 						<include name="libs" />
 						<include name="../bundles/{locale}" />
@@ -347,7 +347,7 @@
 				<echo message="**********************************************"/>
 			</sequential>
 		</macrodef>
-	
+
 	<macrodef name="build-module-no-link">
 		<attribute name="target" description="Module to compile" />
 		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
@@ -374,7 +374,7 @@
 			</mxmlc>
 		</sequential>
 	</macrodef>
-	
+
 	<macrodef name="build-module">
 		<attribute name="target" description="Module to compile" />
 		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
@@ -403,7 +403,7 @@
 	</macrodef>
 
 	<target name="compile-deskshare-standalone" depends="build-deskshare-standalone"
-			description="Compiling standalone desktop sharing">	
+			description="Compiling standalone desktop sharing">
 			<echo message="Deskshare standalone built without optimization." />
 	</target>
 
@@ -413,7 +413,7 @@
   </target>
       	
 	<target name="compile-bbb" depends="build-main-chat-present, build-deskshare-phone-video-whiteboard-dyn, copy-resource-files"
-			description="Compiling the BBB without copying config.xml">	
+			description="Compiling the BBB without copying config.xml">
 	</target>
 
 	<target name="copy-config-if-needed">
@@ -423,7 +423,7 @@
             		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${BASE_DIR}/src/conf" />
         	</else>
     		</if>
-	</target>	
+	</target>
 
 	<target name="copy-join-mock-if-needed">
     		<if>
@@ -432,23 +432,23 @@
             		<copy file="${RESOURCES_DIR}/dev/join-mock.xml" todir="${BASE_DIR}/src/conf" />
         	</else>
     		</if>
-	</target>	
+	</target>
 
 	<target name="copy-resource-files" >
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${PROD_RESOURCES_DIR}/swfobject" />
-		</copy>	
+		</copy>
 		<copy todir="${OUTPUT_DIR}/lib/" >
 			<fileset dir="${PROD_RESOURCES_DIR}/lib"/>
-		</copy> 
+		</copy>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButtonTest.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>	
-		<copy file="${PROD_RESOURCES_DIR}/get_flash_player.gif" todir="${OUTPUT_DIR}" overwrite="true"/>	
+		<copy file="${PROD_RESOURCES_DIR}/get_flash_player.gif" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/avatar.png" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>	
-		<copy file="${PROD_RESOURCES_DIR}/expressInstall.swf" todir="${OUTPUT_DIR}" overwrite="true"/>	
+		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/expressInstall.swf" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/layout.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/profiles.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
@@ -456,17 +456,17 @@
 			<equals arg1="${BUILD_ENV}" arg2="DEV"/>
 			<then>
 				<echo message="Copying config.xml for development environment"/>
-				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
+				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" />
 				<!-- echo message="Copying layout.xml for development environment"/>
-				<copy file="${BASE_DIR}/src/conf/layout.xml" todir="${OUTPUT_DIR}/conf" /--> 
+				<copy file="${BASE_DIR}/src/conf/layout.xml" todir="${OUTPUT_DIR}/conf" /-->
 			</then>
 			<else>
 				<echo message="Need to copy config.xml.template for production environment"/>
-				<copy file="${RESOURCES_DIR}/config.xml.template" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+				<copy file="${RESOURCES_DIR}/config.xml.template" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 			</else>
 		</if>
 	</target>
-	
+
 
 	<target name="generate-html-wrapper">
 		<html-wrapper
@@ -491,9 +491,9 @@
                 <mkdir dir="${BASE_DIR}/asdoc" />
 		<!-- asdoc task not natively supported for ant flexTasks.jar for flex3. It is supported for flex 4, so it should be enabled here
 		when bbb-client is moved to Flex 4 -->
-		<!--<asdoc output="${BASE_DIR}/asdoc" 
-			external-library-path="{BASE_DIR}/libs" 
-			lenient="true" 
+		<!--<asdoc output="${BASE_DIR}/asdoc"
+			external-library-path="{BASE_DIR}/libs"
+			lenient="true"
 			failonerror="true"
 			source-path="${SRC_DIR}"
 			doc-sources="${SRC_DIR}"
@@ -545,7 +545,7 @@
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone,
 		                                       compile-screenshare-standalone,
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"
-                        description="Build BBB client without locales"/>		
+                        description="Build BBB client without locales"/>
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
 	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />

@@ -475,7 +475,10 @@
 			}
 			
 			public function remoteRaiseHand(e:ShortcutEvent):void{
-				dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "raiseHand"));
+				if (UserManager.getInstance().getConference().myEmojiStatus == "raiseHand")
+					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none"));
+				else 
+					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "raiseHand"));
 			}
 
 			private function remoteMinimize():void{
@@ -533,7 +536,11 @@
 			}
 			
 			private function remoteMuteAllButPres(e:ShortcutEvent):void{
-				muteAlmostAll();
+				if (!roomMuted) {
+					muteAlmostAll();
+				} else {
+					muteAll();
+				}
 			}
 			
 		]]>

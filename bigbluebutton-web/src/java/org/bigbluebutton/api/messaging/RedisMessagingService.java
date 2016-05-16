@@ -22,7 +22,10 @@ package org.bigbluebutton.api.messaging;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import javax.imageio.ImageIO;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
@@ -30,9 +33,14 @@ import org.bigbluebutton.common.converters.ToJsonEncoder;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
+import org.bigbluebutton.common.messages.Constants;
+import org.bigbluebutton.common.messages.PubSubPingMessage;
+import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
+import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
+import org.bigbluebutton.web.services.turn.StunServer;
+import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 
 public class RedisMessagingService implements MessagingService {
@@ -43,7 +51,7 @@ public class RedisMessagingService implements MessagingService {
 	private ToJsonEncoder encoder = new ToJsonEncoder();
 	
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-		storeService.recordMeetingInfo(meetingId, info);	
+		storeService.recordMeetingInfo(meetingId, info);
 	}
 
 	public void destroyMeeting(String meetingID) {
@@ -53,8 +61,8 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
-		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken);
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL) {
+		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken, avatarURL);
 		String json = MessageToJson.registerUserToJson(msg);
 		log.info("Sending register user message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
@@ -126,9 +134,40 @@ public class RedisMessagingService implements MessagingService {
 	public List<Map<String,String>> listSubscriptions(String meetingId){
 		return storeService.listSubscriptions(meetingId);	
 	}	
-	
+
 	public void removeMeeting(String meetingId){
 		storeService.removeMeeting(meetingId);
 	}
-	
+
+	public void sendStunTurnInfo(String meetingId, String internalUserId, Set<StunServer> stuns, Set<TurnEntry> turns) {
+		ArrayList<String> stunsArrayList = new ArrayList<String>();
+		Iterator stunsIter = stuns.iterator();
+
+		while (stunsIter.hasNext()) {
+			StunServer aStun = (StunServer) stunsIter.next();
+			if (aStun != null) {
+				stunsArrayList.add(aStun.url);
+			}
+		}
+
+		ArrayList<Map<String, Object>> turnsArrayList = new ArrayList<Map<String, Object>>();
+		Iterator turnsIter = turns.iterator();
+		while (turnsIter.hasNext()) {
+			TurnEntry te = (TurnEntry) turnsIter.next();
+			if (null != te) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put(Constants.USERNAME, te.username);
+				map.put(Constants.URL, te.url);
+				map.put(Constants.TTL, te.ttl);
+				map.put(Constants.PASSWORD, te.password);
+
+				turnsArrayList.add(map);
+			}
+		}
+
+		SendStunTurnInfoReplyMessage msg = new SendStunTurnInfoReplyMessage(meetingId, internalUserId,
+				stunsArrayList, turnsArrayList);
+
+		sender.send(MessagingConstants.TO_BBB_HTML5_CHANNEL, msg.toJson());
+	}
 }

@@ -41,7 +41,6 @@
 			baseTabIndex="301"
 		/>
 
-		
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
@@ -51,6 +50,12 @@
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
+			useWebRTCIfAvailable="false"
+			chromeExtensionKey=""
+			vertoPort="PORT"
+			hostName="HOST.NAME"
+			login="LOGIN"
+			password="PASSWORD"
 		/>
 		
 		<module name="ScreenshareModule" 

@@ -33,49 +33,54 @@ function getUrlParameters() {
 // - - - START OF JAVASCRIPT FUNCTIONS - - - //
 
 // Draw the cursor at a specific point
-function draw(x, y) {
-    cursorStyle = document.getElementById("cursor").style;
-    var slide = document.getElementById("slide");
-    var obj = $("#slide > object");
-    var scaledX = parseInt(x, 10) * (parseInt(obj.attr("width"), 10) / 800);
-    var scaledY = parseInt(y, 10) * (parseInt(obj.attr("height"), 10) / 600); 
-    
-    //move to the next place
-    var leftValue = parseInt(slide.offsetLeft, 10) + parseInt(scaledX, 10)
-    var topValue = parseInt(slide.offsetTop, 10) + parseInt(scaledY, 10)
-    if (leftValue < 0){
-        leftValue = 0
-    }
-    if (topValue < 0){
-        topValue = 0
-    }
-    cursorStyle.left = leftValue + "px";
-    cursorStyle.top = topValue + "px";
+function drawCursor(scaledX, scaledY, img) {
+  var containerObj = $("#slide > object");
 
+  // the offsets of the image inside its parent
+  // Note: this block is only necessary if we let the svg do the resizing
+  // of the image, see the comments in resizeSlides()
+  var imgRect = img.getBoundingClientRect();
+  var imageX = 0; //imgRect.x;
+  var imageY = 0; //imgRect.y;
+
+  // the offsets of the container that has the image inside it
+  var containerX = containerObj.offset().left;
+  var containerY = containerObj.offset().top;
+
+  // calculates the overall offsets of the image in the page
+  var imageOffsetX = containerX + imageX;
+  var imageOffsetY = containerY + imageY;
+
+  // position of the cursor relative to the container
+  var cursorXInImage = scaledX * containerObj.width();
+  var cursorYInImage = scaledY * containerObj.height();
+
+  // absolute position of the cursor in the page
+  var cursorLeft = parseInt(imageOffsetX + cursorXInImage, 10);
+  var cursorTop = parseInt(imageOffsetY + cursorYInImage, 10);
+  if (cursorLeft < 0) {
+    cursorLeft = 0;
+  }
+  if (cursorTop < 0) {
+    cursorTop = 0;
+  }
+  var cursorStyle = document.getElementById("cursor").style;
+  cursorStyle.left = cursorLeft + "px";
+  cursorStyle.top = cursorTop + "px";
 }
 
-
-// Shows or hides the cursor object depending on true/false parameter passed.
-function showCursor(boolVal) {
-	cursorStyle = document.getElementById("cursor").style;
-    if(boolVal === false) {
-        cursorStyle.height = "0px";
-        cursorStyle.width = "0px";
-    }
-    else {
-        cursorStyle.height = "10px";
-        cursorStyle.width = "10px";
-    }
-}
+function showCursor(show) {
+  if (show) {
+    document.getElementById("cursor").style.visibility = 'visible';
+  } else {
+    document.getElementById("cursor").style.visibility = 'hidden';
+  }
+};
 
 function setViewBox(val) {
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
 	svgfile.setAttribute('viewBox', val);
-}
-
-function setCursor(val) {
-	draw(val[0], val[1]);
 }
 
 function getImageAtTime(time) {
@@ -119,8 +124,13 @@ function removeSlideChangeAttribute() {
 
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
+
+
 function runPopcorn() {
   console.log("** Running popcorn");
+
+  getMetadata();
+
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile');
 
@@ -144,7 +154,7 @@ function runPopcorn() {
   var shapeelements = xmlDoc.getElementsByTagName("svg");
 
   //get the array of values for the first shape (getDataPoints(0) is the first shape).
-  var array = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file   
+  var array = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file
     return $(this).attr('class') == 'shape';
   });
 
@@ -155,7 +165,6 @@ function runPopcorn() {
   if (images.length == 0) {
     images = shapeelements[0].getElementsByTagName("image");
   }
-
 
   //create a map from timestamp to id list
   var timestampToId = {};
@@ -182,7 +191,7 @@ function runPopcorn() {
   	for(var n = 0; n < len; n++) {
   		imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
   	}
-        
+
         // the logo at the start has no text attribute
         if (images[m].getAttribute("text")) {
           var txtFile = false;
@@ -247,11 +256,10 @@ function runPopcorn() {
   for (var m = 0; m < clen; m++) {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
-  
 
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
-  svgobj.style.top = "8px";
+  svgobj.style.top = "0px";
   var next_shape;
   var shape;
   for (var j = 0; j < array.length - 1; j++) { //iterate through all the shapes and pick out the main ones
@@ -268,7 +276,7 @@ function runPopcorn() {
   }
 
   var get_shapes_in_time = function(t) {
-    console.log("** Getting shapes in time");
+    // console.log("** Getting shapes in time");
     var shapes_in_time = timestampToId[t];
     var shapes = [];
     if (shapes_in_time != undefined) {
@@ -285,7 +293,7 @@ function runPopcorn() {
       }
     }
     return shapes;
-  }
+  };
 
   var p = new Popcorn("#video");
   //update 60x / second the position of the next value.
@@ -303,10 +311,10 @@ function runPopcorn() {
           for (var i = 0; i < array.length; i++) {
             var time_s = array[i].getAttribute("timestamp");
             var time_f = parseFloat(time_s);
-            
+
             if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(array[i].getAttribute("id"));
             else shape = svgobj.getSVGDocument('svgfile').getElementById(array[i].getAttribute("id"));
-            
+
             var shape_i = shape.getAttribute("shape");
             if (time_f < t) {
               if(current_shapes.indexOf(shape_i) > -1) { //currently drawing the same shape so don't draw the older steps
@@ -339,24 +347,31 @@ function runPopcorn() {
               shape.style.visibility = "hidden";
             }
           }
-          
+
           var next_image = getImageAtTime(t); //fetch the name of the image at this time.
           var imageXOffset = 0;
           var imageYOffset = 0;
-          if((current_image !== next_image) && (next_image !== undefined)){	//changing slide image
+
+          if(current_image && (current_image !== next_image) && (next_image !== undefined)){	//changing slide image
             if(svgobj.contentDocument) {
-              svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
+              var img = svgobj.contentDocument.getElementById(current_image);
+              if (img) {
+                img.style.visibility = "hidden";
+              }
               var ni = svgobj.contentDocument.getElementById(next_image);
             }
             else {
-              svgobj.getSVGDocument('svgfile').getElementById(current_image).style.visibility = "hidden";
+              var img = svgobj.getSVGDocument('svgfile').getElementById(current_image);
+              if (img) {
+                img.style.visibility = "hidden";
+              }
               var ni = svgobj.getSVGDocument('svgfile').getElementById(next_image);
             }
             document.getElementById("slideText").innerHTML = ""; //destroy old plain text
-            
+
             ni.style.visibility = "visible";
             document.getElementById("slideText").innerHTML = slidePlainText[next_image] + next_image; //set new plain text
-            
+
             if ($("#accEnabled").is(':checked')) {
               //pause the playback on slide change
               p.pause();
@@ -366,57 +381,68 @@ function runPopcorn() {
 
             var num_current = current_image.substr(5);
             var num_next = next_image.substr(5);
-            
+
             if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
             else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
-            
+
             if(currentcanvas !== null) {
               currentcanvas.setAttribute("display", "none");
             }
-            
+
             if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
             else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
-            
+
             if((nextcanvas !== undefined) && (nextcanvas != null)) {
               nextcanvas.setAttribute("display", "");
             }
+            previous_image = current_image;
             current_image = next_image;
           }
-          
+
           if(svgobj.contentDocument) var thisimg = svgobj.contentDocument.getElementById(current_image);
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
-  
-          var offsets = thisimg.getBoundingClientRect();
-          // Offsets divided by 4. By 2 because of the padding and by 2 again because 800x600 is half  1600x1200
-          imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/4;
-          imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/4;
 
-          
-          var vboxVal = getViewboxAtTime(t);
-          if(vboxVal !== undefined) {
-            setViewBox(vboxVal);
-          }
-          
-          var cursorVal = getCursorAtTime(t);
-          var cursor_on = false;
-          if(cursorVal != null) {
-            if(!cursor_on) {
-              document.getElementById("cursor").style.visibility = 'visible'; //make visible
-              cursor_on = true;
+          if (thisimg) {
+            var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
+            var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
+
+            var vboxVal = getViewboxAtTime(t);
+            if(vboxVal !== undefined) {
+              setViewBox(vboxVal);
             }
-            setCursor([parseFloat(cursorVal[0]) + imageXOffset - 6, parseFloat(cursorVal[1]) + imageYOffset - 6]); //-6 is for radius of cursor offset
+
+            var cursorVal = getCursorAtTime(t);
+            if (cursorVal != null) {
+              cursorShownAt = new Date().getTime();
+              showCursor(true);
+              // width and height are divided by 2 because that's the value used as a reference
+              // when positions in cursor.xml is calculated
+              drawCursor(parseFloat(cursorVal[0]) / (imageWidth/2), parseFloat(cursorVal[1]) / (imageHeight/2), thisimg);
+
+              // hide the cursor after 3s of inactivity
+            } else if (cursorShownAt < new Date().getTime() - 3000) {
+              showCursor(false);
+            }
+
+            // store the current slide and adjust the size of the slides
+            currentImage = thisimg;
+            resizeSlides();
           }
        }
     }
   });
-
 };
+
+function removeLoadingScreen() {
+  spinner.stop();
+  $("#playback-content").css('visibility','visible');
+  $("#loading-recording").css('visibility','hidden');
+  $("#loading-recording").css('height','0');
+  $("#load-recording-msg").css('display','none');
+}
 
 function defineStartTime() {
   console.log("** Defining start time");
-  spinner.stop();
-  $("#playback-content").css('visibility','visible');
-  $("#load-recording-msg").css('display','none');
 
   if (params.t === undefined)
     return 1;
@@ -448,6 +474,7 @@ function defineStartTime() {
 
 var current_canvas = "canvas0";
 var current_image = "image0";
+var previous_image = null;
 var currentcanvas;
 var shape;
 var nextcanvas;
@@ -474,52 +501,107 @@ var cursorValues = {};
 var imageAtTime = {};
 var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;
+var cursorShownAt = 0;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
+// var HOST = window.location.host;
+// var url = "http://" + HOST + "/presentation/" + MEETINGID;
 var url = "/presentation/" + MEETINGID;
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
+var metadata_xml = url + '/metadata.xml';
+
+var firstLoad = true;
+var svjobjLoaded = false;
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
-svgobj.setAttribute('height', '600px');
-svgobj.setAttribute('width', '800px');
-svgobj.addEventListener('load', runPopcorn, false);
+svgobj.setAttribute('height', '100%');
+svgobj.setAttribute('width', '100%');
 
-/**
- * we need an urgently refactor here
- * first the writing.js must be loaded, and then runPopcorn loads, but it loads 
- * only after the svg file gets loaded, and the generation of thumbnails must
- * came after that because it needs the popcorn element to be created properly
- */
 svgobj.addEventListener('load', function() {
-  console.log("** svgobj [load] listener activated");
-  generateThumbnails();
-  var p = Popcorn("#video");
-  p.on('loadeddata', function() {
-    console.log("** popcorn video: [onloadeddata] activaded");
-    p.currentTime(defineStartTime());
+  console.log("got svgobj 'load' event");
+  runPopcorn();
 
-  });
-
-  // Sometimes media has already loaded before our loadeddata listener is 
-  // attached. If the media is already past the loadeddata stage then we 
-  // trigger the event manually ourselves
-  if ($('#video')[0].readyState > 0) {
-    console.log("** Video tag readyState >0");
-    p.emit('loadeddata');
+  if (svjobjLoaded) {
+    return;
   }
+  svjobjLoaded = true;
 
+  generateThumbnails();
 
+  var p = Popcorn("#video");
+  p.currentTime(defineStartTime());
 
+  removeLoadingScreen();
 }, false);
 
+// Fetches the metadata associated with the recording and uses it to configure
+// the playback page
+var getMetadata = function() {
+  var xmlhttp;
+  if (window.XMLHttpRequest) {// code for IE7, Firefox, Chrome, Opera, Safari
+    xmlhttp = new XMLHttpRequest();
+  } else {// code for IE6, IE5
+    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.open("GET", metadata_xml, false);
+  xmlhttp.send(null);
+
+  if (xmlhttp.responseXML)
+    var xmlDoc = xmlhttp.responseXML;
+  else {
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(xmlhttp.responseText, "application/xml");
+  }
+
+  var metadata = xmlDoc.getElementsByTagName("meta");
+  if (metadata.length > 0) {
+    metadata = metadata[0];
+
+    var meetingName = metadata.getElementsByTagName("meetingName");
+    if (meetingName.length > 0) {
+      $("#recording-title").text(meetingName[0].textContent);
+      $("#recording-title").attr("title", meetingName[0].textContent);
+    }
+  }
+};
 
 document.getElementById('slide').appendChild(svgobj);
 
+var currentImage;
+
+// A small hack to hide the cursor when resizing the window, so it's not
+// misplaced while the window is being resized
 window.onresize = function(event) {
-	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
-  svgobj.style.top = "8px";
+	showCursor(false);
+  resizeSlides();
+};
+
+// Resize the container that has the slides (and whiteboard) to be the maximum
+// size possible but still maintaining the aspect ratio of the slides.
+//
+// This is done here only because of pan and zoom. Pan/zoom is done by modifiyng
+// the svg's viewBox, and that requires the container that has the svg to be the
+// exact size we want to display the slides so that parts of the svg that are outside
+// of its parent's area are hidden. If we let the svg occupy all presentation area
+// (letting the svg do the image resizing), the slides will move and zoom around the
+// entire area when pan/zoom is activated, usually displaying more of the slide
+// than we want to (i.e. more than was displayed in the conference).
+var resizeSlides = function() {
+  if (currentImage) {
+    var $slide = $("#slide");
+
+    var imageWidth = parseInt(currentImage.getAttribute("width"), 10);
+    var imageHeight = parseInt(currentImage.getAttribute("height"), 10);
+    var imgRect = currentImage.getBoundingClientRect();
+    var aspectRatio = imageWidth/imageHeight;
+    var max = aspectRatio * $slide.parent().outerHeight();
+    $slide.css("max-width", max);
+
+    var height = $slide.parent().width() / aspectRatio;
+    $slide.css("max-height", height);
+  }
 };
