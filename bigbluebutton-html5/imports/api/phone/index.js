@@ -1,5 +1,5 @@
-import Users from '/imports/api/users/collection';
-import Meetings from '/imports/api/meetings/collection';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 
 //TODO relocate? Anton
 
@@ -48,6 +48,21 @@ import Meetings from '/imports/api/meetings/collection';
 //   };
 // }
 
+BBB = {};
+BBB.getMyUserInfo = function (callback) {
+  let result = {
+    myUserID: 'getMyUserID',
+    myUsername: 'getMyUserName',
+    myInternalUserID: 'BBB.getMyUserID',
+    myAvatarURL: null,
+    myRole: 'getMyRole',
+    amIPresenter: 'amIPresenter',
+    voiceBridge: '70506',
+    dialNumber: null,
+  };
+  return callback(result);
+};
+
 // join the conference. If listen only send the request to the server
 function joinVoiceCall(options) {
   console.log(options);
@@ -58,8 +73,8 @@ function joinVoiceCall(options) {
     };
 
     if (options.isListenOnly) {
-      Meteor.call('listenOnlyRequestToggle', getInSession('meetingId'), getInSession('userId'),
-        getInSession('authToken'), true);
+      // Meteor.call('listenOnlyRequestToggle', getInSession('meetingId'), getInSession('userId'),
+      // getInSession('authToken'), true);
     }
 
     const requestedListenOnly = options.isListenOnly;

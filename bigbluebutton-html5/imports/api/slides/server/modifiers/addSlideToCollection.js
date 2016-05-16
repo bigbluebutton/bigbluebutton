@@ -1,12 +1,11 @@
-import Slides from '/imports/api/slides/collection';
+import Slides from '/imports/api/slides';
 
 export function addSlideToCollection(meetingId, presentationId, slideObject) {
-  let entry, id;
   if (Slides.findOne({
     meetingId: meetingId,
     'slide.id': slideObject.id,
   }) == null) {
-    entry = {
+    const entry = {
       meetingId: meetingId,
       presentationId: presentationId,
       slide: {
@@ -23,9 +22,10 @@ export function addSlideToCollection(meetingId, presentationId, slideObject) {
         thumb_uri: slideObject.thumb_uri,
       },
     };
-    return id = Slides.insert(entry);
+    const id = Slides.insert(entry);
+    return id;
 
-    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there 
+    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there
     // are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
   }
 };

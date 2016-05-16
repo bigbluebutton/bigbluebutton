@@ -1,4 +1,4 @@
-import Users from '/imports/api/users/collection';
+import Users from '/imports/api/users';
 import { logger } from '/imports/startup/server/logger';
 
 // Only callable from server
@@ -12,7 +12,7 @@ export function markUserOffline(meetingId, userId, callback) {
     meetingId: meetingId,
     userId: userId,
   });
-  
+
   if (user != null && user.clientType === 'HTML5') {
     logger.info(`marking html5 user [${userId}] as offline in meeting[${meetingId}]`);
     return Users.update({

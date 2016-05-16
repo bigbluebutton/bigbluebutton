@@ -1,20 +1,21 @@
-import Chat from '/imports/api/chat/collection';
+import Chat from '/imports/api/chat';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { logger } from '/imports/startup/server/logger';
 
-Meteor.publish('chat', function (meetingId, userid, authToken) {
-  if (isAllowedTo('subscribeChat', meetingId, userid, authToken)) {
-    logger.info(`publishing chat for ${meetingId} ${userid} ${authToken}`);
+Meteor.publish('chat', function (credentials) {
+  if (isAllowedTo('subscribeChat', credentials)) {
+    const { meetingId, requesterUserId, requesterToken } = credentials;
+    logger.info(`publishing chat for ${meetingId} ${requesterUserId} ${requesterToken}`);
     return Chat.find({
       $or: [
         {
           'message.chat_type': 'PUBLIC_CHAT',
           meetingId: meetingId,
         }, {
-          'message.from_userid': userid,
+          'message.from_userid': requesterUserId,
           meetingId: meetingId,
         }, {
-          'message.to_userid': userid,
+          'message.to_userid': requesterUserId,
           meetingId: meetingId,
         },
       ],

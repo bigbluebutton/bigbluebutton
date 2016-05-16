@@ -1,7 +1,7 @@
 import React from 'react';
-import PollingService from './PollingService.js';
+import PollingService from './service.js';
 import { createContainer } from 'meteor/react-meteor-data';
-import PollingComponent from './PollingComponent.jsx';
+import PollingComponent from './component.jsx';
 
 class PollingContainer extends React.Component {
   render() {

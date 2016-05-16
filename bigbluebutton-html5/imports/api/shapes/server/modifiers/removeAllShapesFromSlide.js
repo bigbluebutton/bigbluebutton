@@ -1,4 +1,4 @@
-import Shapes from '/imports/api/shapes/collection';
+import Shapes from '/imports/api/shapes';
 import { logger } from '/imports/startup/server/logger';
 
 export function removeAllShapesFromSlide(meetingId, whiteboardId) {

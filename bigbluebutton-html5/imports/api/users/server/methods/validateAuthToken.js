@@ -1,35 +1,34 @@
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
-import { createDummyUser } from '/imports/api/users/server/modifiers/clearUsersCollection';
+import { createDummyUser } from '/imports/api/users/server/modifiers/createDummyUser';
 import { publish } from '/imports/startup/server/helpers';
 
 Meteor.methods({
   // Construct and send a message to bbb-web to validate the user
-  validateAuthToken(meetingId, userId, authToken) {
-    let message;
+  validateAuthToken(credentials) {
+    const { meetingId, requesterUserId, requesterToken } = credentials;
     logger.info('sending a validate_auth_token with', {
-      userid: userId,
-      authToken: authToken,
+      userid: requesterUserId,
+      authToken: requesterToken,
       meetingid: meetingId,
     });
-    message = {
+    let message = {
       payload: {
-        auth_token: authToken,
-        userid: userId,
+        auth_token: requesterToken,
+        userid: requesterUserId,
         meeting_id: meetingId,
       },
       header: {
         timestamp: new Date().getTime(),
-        reply_to: `${meetingId}/${userId}`,
+        reply_to: `${meetingId}/${requesterUserId}`,
         name: 'validate_auth_token',
       },
     };
-    if ((authToken != null) && (userId != null) && (meetingId != null)) {
-      createDummyUser(meetingId, userId, authToken);
+    if ((requesterToken != null) && (requesterUserId != null) && (meetingId != null)) {
+      createDummyUser(meetingId, requesterUserId, requesterToken);
       return publish(redisConfig.channels.toBBBApps.meeting, message);
     } else {
       return logger.info('did not have enough information to send a validate_auth_token message');
     }
   },
 });
-

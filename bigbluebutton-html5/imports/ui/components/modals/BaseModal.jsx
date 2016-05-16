@@ -73,10 +73,18 @@ export default class BaseModal extends React.Component {
           shouldCloseOnOverlayClick={false}
           style={customStyles} >
 
-          <span className={classNames(styles.modalHeaderTitle, 'largeFont')}>{this.state.title}</span>
+          <span className={classNames(styles.modalHeaderTitle, 'largeFont')}>
+            {this.state.title}
+          </span>
           <span className={styles.modalHeaderButtonContainer}>
-            <button className={classNames(styles.modalButton, styles.close)} onClick={this.closeModal}>Cancel</button>
-            <button className={classNames(styles.modalButton, styles.done)} onClick={this.closeModal}>Done</button>
+            <button className={classNames(styles.modalButton, styles.close)}
+              onClick={this.closeModal}>
+              Cancel
+            </button>
+            <button className={classNames(styles.modalButton, styles.done)}
+              onClick={this.closeModal}>
+              Done
+            </button>
           </span>
           <hr className={styles.modalHorizontalRule} />
           <div>

@@ -109,6 +109,12 @@ export default class App extends Component {
     return false;
   }
 
+  renderAudioElement() {
+    return (
+      <audio id="remote-media" autoplay="autoplay"></audio>
+    );
+  }
+
   render() {
     return (
       <main className={styles.main}>
@@ -123,6 +129,7 @@ export default class App extends Component {
           {this.renderSidebar()}
         </section>
         {this.renderSettings()}
+        {this.renderAudioElement()}
       </main>
     );
   }
