@@ -10,7 +10,8 @@ Meteor.methods({
   // toSetUserId: the userId of the user joining
   // requesterUserId: the userId of the requester
   // requesterToken: the authToken of the requester
-  listenOnlyRequestToggle(meetingId, userId, authToken, isJoining) {
+  listenOnlyRequestToggle(credentials, isJoining) {
+    const { meetingId, requesterUserId, requesterToken } = credentials;
     let message, userObject, username, voiceConf, meetingObject;
     meetingObject = Meetings.findOne({
       meetingId: meetingId,
@@ -28,7 +29,7 @@ Meteor.methods({
     }
 
     if (isJoining) {
-      if (isAllowedTo('joinListenOnly', meetingId, userId, authToken)) {
+      if (isAllowedTo('joinListenOnly', credentials)) {
         message = {
           payload: {
             userid: userId,
@@ -42,7 +43,7 @@ Meteor.methods({
         publish(redisConfig.channels.toBBBApps.meeting, message);
       }
     } else {
-      if (isAllowedTo('leaveListenOnly', meetingId, userId, authToken)) {
+      if (isAllowedTo('leaveListenOnly', credentials)) {
         message = {
           payload: {
             userid: userId,

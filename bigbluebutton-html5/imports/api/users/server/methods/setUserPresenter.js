@@ -10,13 +10,12 @@ Meteor.methods({
   //newPresenterName: user name of the new presenter
   //authToken: the authToken of the user that wants to kick
   setUserPresenter(
-    meetingId,
+    credentials,
     newPresenterId,
-    requesterSetPresenter,
-    newPresenterName,
-    authToken) {
+    newPresenterName) {
+    const { meetingId, requesterSetPresenter, requesterToken } = credentials;
     let message;
-    if (isAllowedTo('setPresenter', meetingId, requesterSetPresenter, authToken)) {
+    if (isAllowedTo('setPresenter', credentials)) {
       message = {
         payload: {
           new_presenter_id: newPresenterId,

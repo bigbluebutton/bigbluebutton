@@ -10,7 +10,8 @@ Meteor.methods({
   // toMuteUserId: the userId of the user to be muted
   // requesterUserId: the userId of the requester
   // requesterToken: the authToken of the requester
-  muteUser(meetingId, toMuteUserId, requesterUserId, requesterToken) {
+  muteUser(credentials, toMuteUserId) {
+    const { meetingId, requesterUserId, requesterToken } = credentials;
     let action, message;
     action = function () {
       if (toMuteUserId === requesterUserId) {

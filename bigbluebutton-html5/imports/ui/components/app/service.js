@@ -47,13 +47,15 @@ function subscribeForData() {
 };
 
 function subscribeFor(collectionName) {
-  const userID = getInStorage('userID');
-  const meetingID = getInStorage('meetingID');
-  const authToken = getInStorage('authToken');
+  const credentials = {
+    meetingId: getInStorage('meetingID'),
+    requesterUserId: getInStorage('userID'),
+    requesterToken: getInStorage('authToken'),
+  };
 
   // console.log("subscribingForData", collectionName, meetingID, userID, authToken);
 
-  Meteor.subscribe(collectionName, meetingID, userID, authToken, onError, onReady);
+  Meteor.subscribe(collectionName, credentials, onError, onReady);
 };
 
 function onError(error, result) {

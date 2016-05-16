@@ -8,9 +8,9 @@ function callServer(name) {
   }
 
   const credentials = {
-    meetingID: getInStorage('meetingID'),
-    userID: getInStorage('userID'),
-    authToken: getInStorage('authToken'),
+    meetingId: getInStorage('meetingID'),
+    requesterUserId: getInStorage('userID'),
+    requesterToken: getInStorage('authToken'),
   };
 
   // slice off the first element. That is the function name but we already have that.

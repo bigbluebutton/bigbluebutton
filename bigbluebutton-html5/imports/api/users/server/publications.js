@@ -5,7 +5,11 @@ import { requestUserLeaving } from '/imports/api/users/server/modifiers/requestU
 
 // Publish only the online users that are in the particular meetingId
 // Also contains reconnection and connection_status info
-Meteor.publish('users', function (meetingId, userid, authToken) {
+Meteor.publish('users', function (credentials) {
+  const meetingId = credentials.meetingId;
+  const userid = credentials.requesterUserId;
+  const authToken = credentials.requesterToken;
+
   logger.info(`attempt publishing users for ${meetingId}, ${userid}, ${authToken}`);
   const userObject = Users.findOne({
     userId: userid,
@@ -14,13 +18,13 @@ Meteor.publish('users', function (meetingId, userid, authToken) {
 
   if (!!userObject && !!userObject.user ) {
     let username = 'UNKNOWN';
-    if (isAllowedTo('subscribeUsers', meetingId, userid, authToken)) {
+    if (isAllowedTo('subscribeUsers', credentials)) {
       logger.info(`${userid} was allowed to subscribe to 'users'`);
       username = userObject.user.name;
 
       // offline -> online
       if (userObject.user.connection_status !== 'online') {
-        Meteor.call('validateAuthToken', meetingId, userid, authToken);
+        Meteor.call('validateAuthToken', credentials);
         setConnectionStatus(meetingId, userid, 'online');
       }
 
@@ -39,7 +43,7 @@ Meteor.publish('users', function (meetingId, userid, authToken) {
       return this.error(new Meteor.Error(402, 'User was not authorized to subscribe to users'));
     }
   } else { //subscribing before the user was added to the collection
-    Meteor.call('validateAuthToken', meetingId, userid, authToken);
+    Meteor.call('validateAuthToken', credentials);
     logger.error(`there was no user ${userid} in ${meetingId}. Sending validateAuthToken`);
     return getUsers(meetingId);
   }

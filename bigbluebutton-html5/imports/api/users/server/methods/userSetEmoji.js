@@ -4,9 +4,10 @@ import { appendMessageHeader } from '/imports/startup/server/helpers';
 import { redisConfig } from '/config';
 
 Meteor.methods({
-  userSetEmoji(meetingId, toRaiseUserId, raisedByUserId, raisedByToken, status) {
+  userSetEmoji(credentials, toRaiseUserId, status) {
+    const { meetingId, requesterUserId, requesterToken } = credentials;
     let message;
-    if (isAllowedTo('setEmojiStatus', meetingId, raisedByUserId, raisedByToken)) {
+    if (isAllowedTo('setEmojiStatus', credentials)) {
       message = {
         payload: {
           emoji_status: status,

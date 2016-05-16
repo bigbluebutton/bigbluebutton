@@ -25,7 +25,7 @@ export function addSlideToCollection(meetingId, presentationId, slideObject) {
     };
     return id = Slides.insert(entry);
 
-    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there 
+    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there
     // are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
   }
 };

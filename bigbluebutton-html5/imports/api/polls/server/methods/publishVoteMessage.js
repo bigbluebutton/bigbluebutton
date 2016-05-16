@@ -8,9 +8,7 @@ import { redisConfig } from '/config';
 Meteor.methods({
   publishVoteMessage(credentials, pollId, pollAnswerId) { //TODO discuss location
     if (isAllowedTo('subscribePoll', credentials)) {
-      const meetingId = credentials.meetingID;
-      const requesterUserId = credentials.userID;
-      const requesterToken = credentials.authToken;
+      const { meetingId, requesterUserId, requesterToken } = credentials;
       const eventName = 'vote_poll_user_request_message';
 
       const result = Polls.findOne({

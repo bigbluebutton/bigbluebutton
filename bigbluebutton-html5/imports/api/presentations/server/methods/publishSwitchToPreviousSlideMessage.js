@@ -6,7 +6,8 @@ import Slides from '/imports/api/slides';
 import { redisConfig } from '/config';
 
 Meteor.methods({
-  publishSwitchToPreviousSlideMessage(meetingId, userId, authToken) {
+  publishSwitchToPreviousSlideMessage(credentials) {
+    const { meetingId, requesterUserId, requesterToken } = credentials;
     let currentPresentationDoc, currentSlideDoc, message, previousSlideDoc;
     currentPresentationDoc = Presentations.findOne({
       meetingId: meetingId,
@@ -24,7 +25,7 @@ Meteor.methods({
           presentationId: currentPresentationDoc.presentation.id,
           'slide.num': currentSlideDoc.slide.num - 1,
         });
-        if ((previousSlideDoc != null) && isAllowedTo('switchSlide', meetingId, userId, authToken)) {
+        if ((previousSlideDoc != null) && isAllowedTo('switchSlide', credentials)) {
           message = {
             payload: {
               page: previousSlideDoc.slide.id,
