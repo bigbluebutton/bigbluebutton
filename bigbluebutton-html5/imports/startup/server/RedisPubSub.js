@@ -1,6 +1,6 @@
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
-import { myQueue } from '/imports/startup/server/index';
+import { myQueue } from '/imports/startup/server';
 import { indexOf, publish } from '/imports/startup/server/helpers';
 
 export class RedisPubSub {

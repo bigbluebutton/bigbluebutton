@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor'
+import { Meteor } from 'meteor/meteor';
 import Users from '/imports/api/users/collection';
 import Polls from '/imports/api/polls/collection';
 import Chat from '/imports/api/chat/collection';
@@ -7,14 +7,14 @@ import Cursor from '/imports/api/cursor/collection';
 
 let AppService = function () {
 
-  const setInStorage = function(key, value) {
+  const setInStorage = function (key, value) {
     if (!!value) {
       console.log('in setInStorage', key, value);
       localStorage.setItem(key, value);
     }
   };
 
-  const getInStorage = function(key) {
+  const getInStorage = function (key) {
     return localStorage.getItem(key);
   };
 
@@ -26,7 +26,7 @@ let AppService = function () {
     }
   };
 
-  const subscribeForData = function() {
+  const subscribeForData = function () {
     subscribeFor('users');
 
     Meteor.setTimeout(() => {
@@ -49,24 +49,23 @@ let AppService = function () {
   };
 
   const subscribeFor = function (collectionName) {
-    const userID = getInStorage("userID");
-    const meetingID = getInStorage("meetingID");
-    const authToken = getInStorage("authToken");
+    const userID = getInStorage('userID');
+    const meetingID = getInStorage('meetingID');
+    const authToken = getInStorage('authToken');
+
     // console.log("subscribingForData", collectionName, meetingID, userID, authToken);
 
     Meteor.subscribe(collectionName, meetingID, userID, authToken, onError(), onReady());
   };
 
-  let onError = function(error, result) {
+  let onError = function (error, result) {
     // console.log("OnError", error, result);
   };
 
-
-  let onReady = function() {
+  let onReady = function () {
     // console.log("OnReady", Users.find().fetch());
   };
-  
-  
+
   const poll = Polls.findOne({});
   return {
     pollExists: !!poll,
