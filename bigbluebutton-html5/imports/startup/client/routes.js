@@ -10,7 +10,7 @@ import UserListContainer from '../../ui/components/user-list/UserListContainer.j
 import ChatContainer from '../../ui/components/chat/ChatContainer.jsx';
 
 const browserHistory = useRouterHistory(createHistory)({
-  basename: '/html5client'
+  basename: '/html5client',
 });
 
 export const renderRoutes = () => (

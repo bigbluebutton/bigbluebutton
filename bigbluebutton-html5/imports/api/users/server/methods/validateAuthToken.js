@@ -6,13 +6,12 @@ import { publish } from '/imports/startup/server/helpers';
 Meteor.methods({
   // Construct and send a message to bbb-web to validate the user
   validateAuthToken(meetingId, userId, authToken) {
-    let message;
     logger.info('sending a validate_auth_token with', {
       userid: userId,
       authToken: authToken,
       meetingid: meetingId,
     });
-    message = {
+    let message = {
       payload: {
         auth_token: authToken,
         userid: userId,

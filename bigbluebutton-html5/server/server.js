@@ -1,6 +1,5 @@
 import '/imports/startup/server/index';
 
-
 import '/imports/api/chat/server/publications';
 import '/imports/api/chat/server/methods/sendChatMessagetoServer';
 import '/imports/api/chat/server/modifiers/addChatToCollection';

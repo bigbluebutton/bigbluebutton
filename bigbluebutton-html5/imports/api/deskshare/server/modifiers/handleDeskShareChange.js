@@ -25,4 +25,3 @@ export function handleDeskShareChange(meetingId, deskshareInfo) {
 //   }
 //   return arg.callback();
 // });
-  

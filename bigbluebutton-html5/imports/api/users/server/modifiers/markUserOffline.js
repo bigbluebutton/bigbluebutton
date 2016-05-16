@@ -12,7 +12,7 @@ export function markUserOffline(meetingId, userId, callback) {
     meetingId: meetingId,
     userId: userId,
   });
-  
+
   if (user != null && user.clientType === 'HTML5') {
     logger.info(`marking html5 user [${userId}] as offline in meeting[${meetingId}]`);
     return Users.update({

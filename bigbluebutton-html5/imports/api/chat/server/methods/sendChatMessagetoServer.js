@@ -11,11 +11,10 @@ Meteor.methods({
   // requesterUserId: the userId of the user sending chat
   // requesterToken: the authToken of the requester
   sendChatMessagetoServer(meetingId, chatObject, requesterUserId, requesterToken) {
-    let action, chatType, eventName, message, recipient;
-    chatType = chatObject.chat_type;
-    recipient = chatObject.to_userid;
-    eventName = null;
-    action = function () {
+    const chatType = chatObject.chat_type;
+    const recipient = chatObject.to_userid;
+    let eventName = null;
+    const action = function () {
       if (chatType === 'PUBLIC_CHAT') {
         eventName = 'send_public_chat_message';
         return 'chatPublic';
@@ -29,9 +28,10 @@ Meteor.methods({
       }
     };
 
-    if (isAllowedTo(action(), meetingId, requesterUserId, requesterToken) && chatObject.from_userid === requesterUserId) {
+    if (isAllowedTo(action(), meetingId, requesterUserId, requesterToken) &&
+      chatObject.from_userid === requesterUserId) {
       chatObject.message = translateHTML5ToFlash(chatObject.message);
-      message = {
+      let message = {
         payload: {
           message: chatObject,
           meeting_id: meetingId,

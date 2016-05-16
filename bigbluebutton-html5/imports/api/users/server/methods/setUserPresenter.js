@@ -15,9 +15,8 @@ Meteor.methods({
     requesterSetPresenter,
     newPresenterName,
     authToken) {
-    let message;
     if (isAllowedTo('setPresenter', meetingId, requesterSetPresenter, authToken)) {
-      message = {
+      let message = {
         payload: {
           new_presenter_id: newPresenterId,
           new_presenter_name: newPresenterName,
@@ -25,9 +24,9 @@ Meteor.methods({
           assigned_by: requesterSetPresenter,
         },
       };
-    }
 
-    message = appendMessageHeader('assign_presenter_request_message', message);
-    return publish(redisConfig.channels.toBBBApps.users, message);
+      message = appendMessageHeader('assign_presenter_request_message', message);
+      return publish(redisConfig.channels.toBBBApps.users, message);
+    }
   },
 });

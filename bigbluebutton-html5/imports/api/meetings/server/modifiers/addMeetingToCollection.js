@@ -1,4 +1,5 @@
 import Meetings from '/imports/api/meetings/collection';
+import { initializeCursor } from '/imports/api/cursor/server/modifiers/initializeCursor';
 import { logger } from '/imports/startup/server/logger';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording,
@@ -22,7 +23,7 @@ export function addMeetingToCollection(meetingId, name, intendedForRecording,
         lockOnJoin: Meteor.config.lockOnJoin,
         lockedLayout: false,
         disablePublicChat: false,
-        lockOnJoinConfigurable: false // TODO
+        lockOnJoinConfigurable: false, // TODO
       },
     },
   }, (_this => {

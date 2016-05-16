@@ -5,9 +5,8 @@ import { redisConfig } from '/config';
 
 Meteor.methods({
   userSetEmoji(meetingId, toRaiseUserId, raisedByUserId, raisedByToken, status) {
-    let message;
     if (isAllowedTo('setEmojiStatus', meetingId, raisedByUserId, raisedByToken)) {
-      message = {
+      let message = {
         payload: {
           emoji_status: status,
           userid: toRaiseUserId,

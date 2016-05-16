@@ -15,7 +15,6 @@ import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clea
 import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server/index';
 
-
 // TODO move these under api
 
 export function appendMessageHeader(eventName, messageObj) {
