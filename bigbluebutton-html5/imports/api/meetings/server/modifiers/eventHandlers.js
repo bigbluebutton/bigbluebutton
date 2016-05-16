@@ -1,6 +1,6 @@
 import { eventEmitter } from '/imports/startup/server';
 import { logger } from '/imports/startup/server/logger';
-import Meetings from '/imports/api/meetings/collection';
+import Meetings from '/imports/api/meetings';
 import { handleLockingMic } from '/imports/api/users/server/modifiers/handleLockingMic';
 import { addMeetingToCollection } from './addMeetingToCollection';
 import { removeMeetingFromCollection } from './removeMeetingFromCollection';

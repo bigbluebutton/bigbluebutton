@@ -12,7 +12,6 @@ Meteor.methods({
   setUserPresenter(
     credentials,
     newPresenterId,
-    requesterSetPresenter,
     newPresenterName) {
     const { meetingId, requesterSetPresenter, requesterToken } = credentials;
     let message;

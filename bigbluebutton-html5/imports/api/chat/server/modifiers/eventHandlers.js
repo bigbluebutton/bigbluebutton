@@ -1,6 +1,6 @@
 import { eventEmitter } from '/imports/startup/server';
 import { addChatToCollection } from '/imports/api/chat/server/modifiers/addChatToCollection';
-import Meetings from '/imports/api/meetings/collection';
+import Meetings from '/imports/api/meetings';
 
 eventEmitter.on('get_chat_history_reply', function (arg) {
   if (arg.payload.requester_id === 'nodeJSapp') { //TODO extract this check

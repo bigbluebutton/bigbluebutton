@@ -4,7 +4,7 @@ import { handleEndOfMeeting } from '/imports/api/meetings/server/modifiers/event
 import { userJoined } from './userJoined';
 import { setUserLockedStatus } from './setUserLockedStatus';
 import { markUserOffline } from './markUserOffline';
-import Users from '../../collection';
+import Users from '../..';
 
 eventEmitter.on('user_eject_from_meeting', function (arg) {
   handleRemoveUserEvent(arg);

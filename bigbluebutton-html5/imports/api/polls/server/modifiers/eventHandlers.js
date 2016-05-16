@@ -2,8 +2,8 @@ import { eventEmitter } from '/imports/startup/server';
 import { clearPollCollection } from './clearPollCollection';
 import { updatePollCollection } from './updatePollCollection';
 import { addPollToCollection } from './addPollToCollection';
-import Meetings from '/imports/api/meetings/collection';
-import Users from '/imports/api/users/collection';
+import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 
 eventEmitter.on('poll_show_result_message', function (arg) {
   const payload = arg.payload;

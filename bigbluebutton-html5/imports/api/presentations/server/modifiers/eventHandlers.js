@@ -4,8 +4,8 @@ import { addPresentationToCollection } from './addPresentationToCollection';
 import { displayThisSlide } from '/imports/api/slides/server/modifiers/displayThisSlide';
 import { addSlideToCollection } from '/imports/api/slides/server/modifiers/addSlideToCollection';
 import { appendMessageHeader, publish } from '/imports/startup/server/helpers';
-import Slides from '/imports/api/slides/collection';
-import Presentations from '/imports/api/presentations/collection';
+import Slides from '/imports/api/slides';
+import Presentations from '/imports/api/presentations';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 

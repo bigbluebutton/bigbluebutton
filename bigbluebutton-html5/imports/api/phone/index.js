@@ -74,7 +74,7 @@ function joinVoiceCall(options) {
 
     if (options.isListenOnly) {
       // Meteor.call('listenOnlyRequestToggle', getInSession('meetingId'), getInSession('userId'),
-        // getInSession('authToken'), true);
+      // getInSession('authToken'), true);
     }
 
     const requestedListenOnly = options.isListenOnly;
