@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-
+import WhiteboardShapeModel from '../whiteboard/shape-factory/component.jsx';
 // import SVGDOMPropertyConfig from 'react/lib/SVGDOMPropertyConfig.js';
 
 export default class Svg extends Component {
@@ -17,9 +17,10 @@ Svg.propTypes = {
     var error;
     var prop = props[propName];
     React.Children.forEach(prop, function (child) {
-      if (child.type !== 'Shape') {
+      console.log(child);
+      if (child.type !== WhiteboardShapeModel) {
         error = new Error(
-          '`' + componentName + '` only accepts children of type `Shape`.'
+          '`' + componentName + '` only accepts children of type `WhiteboardShapeModel`.'
         );
       }
     });

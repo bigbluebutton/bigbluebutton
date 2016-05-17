@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Svg from '../../shared/Svg.jsx';
-import WhiteboardPaperService from './WhiteboardPaperService.js';
+import WhiteboardShapeModel from '../shape-factory/component.jsx';
+import WhiteboardPaperService from './service.js';
 import { createContainer } from 'meteor/react-meteor-data';
 
 export default class WhiteboardPaper extends React.Component {
@@ -13,12 +14,13 @@ export default class WhiteboardPaper extends React.Component {
     var allComponents = { 'Svg': Svg };
     var test = 'Svg';
     var Component = allComponents[test];
+
     return (
       <div id="whiteboard-paper" style={this.props.svgStyle}>
         <div id="svggroup">
-          <Component svgProps={this.props.svgProps} svgStyle={this.props.svgStyle}>
-
-          </Component>
+          <Svg svgProps={this.props.svgProps} svgStyle={this.props.svgStyle}>
+            <WhiteboardShapeModel />
+          </Svg>
         </div>
       </div>
     );
