@@ -335,6 +335,7 @@ function makeVerto(callbacks, stunsConfig, videoTag, vertoServerCredentials) {
 
 // sets verto to begin using the resolution that the user selected
 my_check_vid_res = function() {
+	return;
 	var selectedVideoConstraints = getChosenWebcamResolution();
 	my_real_size(selectedVideoConstraints);
 

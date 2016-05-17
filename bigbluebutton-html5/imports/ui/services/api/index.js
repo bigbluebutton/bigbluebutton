@@ -14,8 +14,7 @@ function callServer(name) {
   };
 
   // slice off the first element. That is the function name but we already have that.
-  // the last 3 elements are a React event, an undefined object, and a JavaScript event
-  const args = Array.prototype.slice.call(arguments, 1, -3);
+  const args = Array.prototype.slice.call(arguments, 1);
   Meteor.call(name, credentials, ...args);
 };
 
