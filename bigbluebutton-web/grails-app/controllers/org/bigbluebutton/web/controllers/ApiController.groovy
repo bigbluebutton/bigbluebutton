@@ -88,8 +88,8 @@ class ApiController {
     }
 
 
-    /*********************************** 
-     * CREATE (API) 
+    /***********************************
+     * CREATE (API)
      ***********************************/
     def create = {
         String API_CALL = 'create'
@@ -311,6 +311,13 @@ class ApiController {
 
             errors.meetingForciblyEndedError();
             respondWithErrors(errors)
+            return;
+        }
+
+        // Is the maxParticipants limit has been reached. If so, complain.
+        if (meeting.getNumUsers() >= meeting.getMaxUsers()) {
+            errors.maxParticipantsReached();
+            respondWithErrors(errors);
             return;
         }
 
@@ -1898,12 +1905,12 @@ class ApiController {
             return
         }
 
-        ArrayList<String> recordIdList = new ArrayList<String>();
+        List<String> recordIdList = new ArrayList<String>();
         if (!StringUtils.isEmpty(recordId)) {
             recordIdList=paramsProcessorUtil.decodeIds(recordId);
         }
 
-        if(recordIdList.isEmpty()){
+        if(!meetingService.existsAnyRecording(recordIdList)){
             // BEGIN - backward compatibility
             invalid("notFound", "We could not find recordings");
             return;
