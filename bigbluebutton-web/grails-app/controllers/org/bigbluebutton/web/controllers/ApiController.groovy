@@ -437,7 +437,7 @@ class ApiController {
         }
 
         // Mark user as registered
-        meeting.userRegistered(new User(internalUserID, externUserID, fullName, role));
+        meeting.userRegistered(internalUserID);
 
         log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")
         session.setMaxInactiveInterval(SESSION_TIMEOUT);

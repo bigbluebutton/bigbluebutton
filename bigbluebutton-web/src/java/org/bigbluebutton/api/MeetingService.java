@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.api;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,6 +62,7 @@ import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
+import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +89,7 @@ public class MeetingService implements MessageListener {
     private RecordingService recordingService;
     private MessagingService messagingService;
     private ExpiredMeetingCleanupTimerTask cleaner;
+    private RegisteredUserCleanupTimerTask registeredUserCleaner;
     private boolean removeMeetingWhenEnded = false;
 
     public MeetingService() {
@@ -121,6 +124,33 @@ public class MeetingService implements MessageListener {
      * Remove the meetings that have ended from the list of running meetings.
      */
     public void removeExpiredMeetings() {
+        handle(new RemoveExpiredMeetings());
+    }
+
+    /**
+     * Remove registered users who did not successfully joined the meeting.
+     */
+    public void purgeRegisteredUsers() {
+        for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
+            log.info(entry.getKey() + "/" + entry.getValue());
+
+            Date now = new Date();
+            Meeting meeting = entry.getValue();
+
+            ConcurrentMap<String, User> users = meeting.getUsersMap();
+
+            for (AbstractMap.Entry<String, Date> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+                String registeredUserID = registeredUser.getKey();
+                Date registeredUserDate = registeredUser.getValue();
+                log.info(registeredUserID + "/" + registeredUserDate);
+
+                long registrationTime = registeredUserDate.getTime();
+                long elapsedTime = now.getTime() - registrationTime;
+                if ( elapsedTime >= 600000 && !users.containsKey(registeredUserID)) {
+                    meeting.userUnregistered(registeredUserID);
+                }
+            }
+        }
         handle(new RemoveExpiredMeetings());
     }
 
@@ -632,8 +662,8 @@ public class MeetingService implements MessageListener {
                   m.setEndTime(System.currentTimeMillis());
                 }
 
-                User userRegistered = m.userUnregistered(message.userId);
-                if (user != null) {
+                Date userRegistered = m.userUnregistered(message.userId);
+                if (userRegistered != null) {
                     log.info("User unregistered from meeting");
                 } else {
                     log.info("User was not unregistered from meeting because it was not found");
@@ -795,6 +825,7 @@ public class MeetingService implements MessageListener {
     public void stop() {
         processMessage = false;
         cleaner.stop();
+        registeredUserCleaner.stop();
     }
 
     public void setDefaultMeetingCreateJoinDuration(int expiration) {
@@ -813,8 +844,7 @@ public class MeetingService implements MessageListener {
         messagingService = mess;
     }
 
-    public void setExpiredMeetingCleanupTimerTask(
-            ExpiredMeetingCleanupTimerTask c) {
+    public void setExpiredMeetingCleanupTimerTask(ExpiredMeetingCleanupTimerTask c) {
         cleaner = c;
         cleaner.setMeetingService(this);
         cleaner.start();
@@ -822,5 +852,11 @@ public class MeetingService implements MessageListener {
 
     public void setRemoveMeetingWhenEnded(boolean s) {
         removeMeetingWhenEnded = s;
+    }
+
+    public void setRegisteredUserCleanupTimerTask(RegisteredUserCleanupTimerTask c) {
+        registeredUserCleaner = c;
+        registeredUserCleaner.setMeetingService(this);
+        registeredUserCleaner.start();
     }
 }

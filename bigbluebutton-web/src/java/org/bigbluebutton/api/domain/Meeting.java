@@ -21,6 +21,7 @@ package org.bigbluebutton.api.domain;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,7 +61,7 @@ public class Meeting {
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
-	private final ConcurrentMap<String, User> registeredUsers;
+	private final ConcurrentMap<String, Date> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	
 	private long lastUserLeftOn = 0;
@@ -87,7 +88,7 @@ public class Meeting {
 		userCustomData = new HashMap<String, Object>();
 
 		users = new ConcurrentHashMap<String, User>();
-		registeredUsers = new ConcurrentHashMap<String, User>();
+		registeredUsers = new ConcurrentHashMap<String, Date>();
 		
 		configs = new ConcurrentHashMap<String, Config>();
 	}
@@ -122,15 +123,19 @@ public class Meeting {
 	public Config removeConfig(String token) {
 		return configs.remove(token);
 	}
-	
+
 	public Map<String, String> getMetadata() {
 		return metadata;
 	}
-	
+
 	public Collection<User> getUsers() {
 		return users.isEmpty() ? Collections.<User>emptySet() : Collections.unmodifiableCollection(users.values());
 	}
-	
+
+	public ConcurrentMap<String, User> getUsersMap() {
+	    return users;
+	}
+
 	public long getStartTime() {
 		return startTime;
 	}
@@ -460,22 +465,18 @@ public class Meeting {
     	}
     }
 
-    public void userRegistered(User user) {
-        this.registeredUsers.put(user.getInternalUserId(), user);
+    public void userRegistered(String internalUserID) {
+        Date now = new java.util.Date();
+        this.registeredUsers.put(internalUserID, now);
     }
 
-    public User userUnregistered(String userid) {
+    public Date userUnregistered(String userid) {
         String internalUserIDSeed = userid.split("_")[0];
-        User u = (User) this.registeredUsers.remove(internalUserIDSeed);
-        return u;
+        Date r = (Date) this.registeredUsers.remove(internalUserIDSeed);
+        return r;
     }
 
-    public User getRegisteredUserById(String id) {
-        return this.registeredUsers.get(id);
+    public ConcurrentMap<String, Date> getRegisteredUsers() {
+        return registeredUsers;
     }
-
-    public Collection<User> getRegisteredUsers() {
-        return registeredUsers.isEmpty() ? Collections.<User>emptySet() : Collections.unmodifiableCollection(registeredUsers.values());
-    }
-
 }
