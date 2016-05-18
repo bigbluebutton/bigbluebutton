@@ -1,4 +1,5 @@
 import Meetings from '/imports/api/users';
+import {clientConfig} from '/config';
 
 function joinAudio(options) {
   // joinVertoCall()
@@ -20,12 +21,12 @@ function joinVertoCall(options) {
     return;
   }
 
-  if (!Meteor.config.useSIPAudio) {
+  if (!clientConfig.useSIPAudio) {
     const vertoServerCredentials = {
-      vertoPort: Meteor.config.vertoPort,
-      hostName: Meteor.config.vertoServerAddress,
+      vertoPort: clientConfig.vertoPort,
+      hostName: clientConfig.vertoServerAddress,
       login: conferenceIdNumber,
-      password: Meteor.config.freeswitchProfilePassword,
+      password: clientConfig.freeswitchProfilePassword,
     };
 
     let wasCallSuccessful = false;

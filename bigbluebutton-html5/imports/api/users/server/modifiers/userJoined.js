@@ -2,6 +2,7 @@ import Chat from '/imports/api/chat';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
+import {clientConfig} from '/config';
 
 export function userJoined(meetingId, user, callback) {
     let userObject, userId, welcomeMessage, meetingObject;
@@ -67,11 +68,11 @@ export function userJoined(meetingId, user, callback) {
             meetingId: meetingId,
         });
         if (meetingObject != null) {
-            welcomeMessage = Meteor.config.defaultWelcomeMessage.replace(/%%CONFNAME%%/,
+            welcomeMessage = clientConfig.defaultWelcomeMessage.replace(/%%CONFNAME%%/,
                 meetingObject.meetingName);
         }
 
-        welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter;
+        welcomeMessage = welcomeMessage + clientConfig.defaultWelcomeMessageFooter;
 
         // add the welcome message if it's not there already OR update time_of_joining
         return Chat.upsert({
