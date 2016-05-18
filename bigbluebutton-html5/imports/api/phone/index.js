@@ -1,11 +1,13 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
+import {getInStorage} from '/imports/ui/components/app/service';
+import {callServer} from '/imports/ui/services/api';
 
 //TODO relocate? Anton
 
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
-// export function exitVoiceCall(event, afterExitCall) {
+function exitVoiceCall(afterExitCall) {
 //   if (!Meteor.config.useSIPAudio) {
 //     leaveWebRTCVoiceConference_verto();
 //     cur_call = null;
@@ -46,18 +48,20 @@ import Meetings from '/imports/api/meetings';
 //     })(this); // automatically run function
 //     return false;
 //   };
-// }
+}
 
 BBB = {};
 BBB.getMyUserInfo = function (callback) {
-  let result = {
-    myUserID: 'getMyUserID',
-    myUsername: 'getMyUserName',
-    myInternalUserID: 'BBB.getMyUserID',
+  const uid = getInStorage('userID');
+  console.log(Users);
+  const result = {
+    myUserID: uid,
+    myUsername: Users.findOne({ userId: uid }).user.name,
+    myInternalUserID: uid,
     myAvatarURL: null,
     myRole: 'getMyRole',
-    amIPresenter: 'amIPresenter',
-    voiceBridge: '70506',
+    amIPresenter: 'false',
+    voiceBridge: Meetings.findOne({}).voiceConf,
     dialNumber: null,
   };
   return callback(result);
@@ -73,15 +77,11 @@ function joinVoiceCall(options) {
     };
 
     if (options.isListenOnly) {
-      // Meteor.call('listenOnlyRequestToggle', getInSession('meetingId'), getInSession('userId'),
-        // getInSession('authToken'), true);
+      callServer('listenOnlyRequestToggle', true);
     }
 
-    const requestedListenOnly = options.isListenOnly;
-
-    // BBB.joinVoiceConference(joinCallback, requestedListenOnly); // make the call
     const voiceBridge = Meetings.findOne({}).voiceConf;
-    callIntoConference(voiceBridge, function () {}, requestedListenOnly);
+    callIntoConference(voiceBridge, function () {}, options.isListenOnly);
 
     return;
   } else {
@@ -93,4 +93,4 @@ function joinVoiceCall(options) {
   }
 }
 
-export { joinVoiceCall };
+export { joinVoiceCall, exitVoiceCall };
