@@ -232,11 +232,6 @@ module BigBlueButton
         # Process desktop sharing
         BigBlueButton.process_deskstop_sharing(target_dir, temp_dir, meeting_id)
 
-        # Process webrtc desktop sharing #done
-        webrtc_deskshare_temp_dir = "#{target_dir}/temp"
-        BigBlueButton.logger.info("\n\n\n\n\nANTON WAS HERE (deskshare_generator_specs)\n\n\n\n\n\n")
-        BigBlueButton.process_webrtc_deskstop_sharing(target_dir, webrtc_deskshare_temp_dir, meeting_id)
-
         BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")
         BigBlueButton::MatterhornProcessor.create_dublincore_xml("#{target_dir}/dublincore.xml",
                                                           {:title => "Business Ecosystem",

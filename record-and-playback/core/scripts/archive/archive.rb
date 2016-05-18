@@ -70,17 +70,6 @@ def archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
   end
 end
 
-def archive_webrtc_deskshare(meeting_id, webrtc_deskshare_dir, raw_archive_dir) #done
-  BigBlueButton.logger.info("Archiving webrtc deskshare for #{meeting_id}.")
-  begin
-    webrtc_deskshare_dest_dir = "#{raw_archive_dir}/#{meeting_id}/video-broadcast"
-    FileUtils.mkdir_p webrtc_deskshare_dest_dir
-    BigBlueButton::DeskshareArchiver.archive(meeting_id, "#{webrtc_deskshare_dir}/#{meeting_id}", webrtc_deskshare_dest_dir)
-  rescue => e
-    BigBlueButton.logger.warn("Failed to archive webrtc deskshare for #{meeting_id}. " + e.to_s)
-  end
-end
-
 def archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
   BigBlueButton.logger.info("Archiving presentation for #{meeting_id}.")
   begin
@@ -126,7 +115,6 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
-webrtc_deskshare_dir = props['raw_webrtc_deskshare_src']
 log_dir = props['log_dir']
 
 BigBlueButton.logger = Logger.new("#{log_dir}/archive-#{meeting_id}.log", 'daily' )
@@ -138,9 +126,6 @@ if not FileTest.directory?(target_dir)
   archive_audio(meeting_id, audio_dir, raw_archive_dir)
   archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
   archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
-  BigBlueButton.logger.info("\n\n\nbefore")
-  archive_webrtc_deskshare(meeting_id, webrtc_deskshare_dir, raw_archive_dir) #done
-  BigBlueButton.logger.info("\n\n\nafter #{meeting_id} #{webrtc_deskshare_dir} #{raw_archive_dir}")
   archive_video(meeting_id, video_dir, raw_archive_dir)
 
   if not archive_has_recording_marks?(meeting_id, raw_archive_dir)

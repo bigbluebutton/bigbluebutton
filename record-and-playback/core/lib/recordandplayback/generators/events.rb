@@ -102,28 +102,6 @@ module BigBlueButton
       stop_events
     end
 
-    # Get start webrtc-deskshare events # done
-    def self.get_start_webrtc_deskshare_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting start webrtc deskshare events")
-      start_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='StartWebRTCDeskShareEvent']").each do |start_event|
-        start_events << {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('stream').text}
-      end
-      start_events
-    end
-
-    # Get stop webrtc-deskshare events # done
-    def self.get_stop_webrtc_deskshare_events(events_xml)
-      BigBlueButton.logger.info("Task: Getting stop webrtc deskshare events")
-      stop_events = []
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='StopWebRTCDesktopShareEvent']").each do |stop_event|
-        stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('stream').text}
-      end
-      stop_events
-    end
-
     # Build a webcam EDL
     def self.create_webcam_edl(archive_dir)
       events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
@@ -261,7 +239,6 @@ module BigBlueButton
         :areas => { :deskshare => [] }
       }
 
-      # NON-WEBRTC DESKTOP SHARING
       events.xpath('/recording/event[@module="Deskshare"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
         case event['eventname']
@@ -281,42 +258,6 @@ module BigBlueButton
             :timestamp => timestamp,
             :areas => { :deskshare => [] }
           }
-        end
-      end
-
-
-      # WEBRTC DESKTOP SHARING
-      events.xpath('/recording/event[@module="DESKSHARE"]').each do |event|
-        timestamp = event['timestamp'].to_i - initial_timestamp
-        case event['eventname']
-        when 'DeskShareNotifyViewersRTMP'
-          isBroadcasting = event.at_xpath('broadcasting').text
-
-          if isBroadcasting == "true" #this is a start event
-            BigBlueButton.logger.info("create_deskshare_edl::START OF WEBRTC DESKSHARE")
-            streamPath = event.at_xpath('streamPath').text
-            streamPathArray = streamPath.split('/')
-            meeting_id = streamPathArray[5]
-            dsFilename = "#{archive_dir}/video-broadcast/#{meeting_id}.flv"
-
-            deskshare_edl << {
-              :timestamp => timestamp,
-              :areas => {
-                :deskshare => [
-                  { :filename => dsFilename, :timestamp => 0 }
-                ]
-              }
-            }
-          elsif isBroadcasting == "false" #this is a stop event
-            BigBlueButton.logger.info("create_deskshare_edl::END OF WEBRTC DESKSHARE")
-            # deskshare_edl << {
-            #   :timestamp => 0,
-            #   :areas => { :deskshare => [] }
-            # }
-
-          else #unhandled case
-            BigBlueButton.logger.error("create_deskshare_edl::ERROR 1245\n")=
-          end
         end
       end
 

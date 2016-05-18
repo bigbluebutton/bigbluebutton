@@ -960,6 +960,7 @@ begin
           BigBlueButton.logger.info("Copied audio.ogg file")
         end
 
+
         processing_time = File.read("#{$process_dir}/processing_time")
 
         # Retrieve record events and calculate total recording duration.

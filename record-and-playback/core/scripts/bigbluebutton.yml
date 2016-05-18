@@ -16,8 +16,8 @@ playback_protocol: http
 
 # For DEVELOPMENT
 # This allows us to run the scripts manually
-scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
-log_dir: /home/ubuntu/temp/log
-recording_dir: /home/ubuntu/temp/recording
-published_dir: /home/ubuntu/temp/published
-playback_host: 192.168.0.109
+#scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
+#log_dir: /home/ubuntu/temp/log
+#recording_dir: /home/ubuntu/temp/recording
+#published_dir: /home/ubuntu/temp/published
+#playback_host: 192.168.23.137

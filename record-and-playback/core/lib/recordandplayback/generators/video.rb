@@ -416,65 +416,6 @@ module BigBlueButton
     BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")   
   end
 
-
-  def self.process_webrtc_deskstop_sharing(target_dir, temp_dir, meeting_id) 
-    BigBlueButton.logger.info("Processing webrtc desktop sharing (generators/video.rb) \n\n\n\n\n")
-    blank_canvas = "#{temp_dir}/ds-canvas.jpg"
-    BigBlueButton.create_blank_canvas(MAX_VID_WIDTH, MAX_VID_HEIGHT, "white", blank_canvas)
-
-    events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
-    first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
-    last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
-
-    start_evts = BigBlueButton::Events.get_start_webrtc_deskshare_events(events_xml) # done
-    stop_evts = BigBlueButton::Events.get_stop_webrtc_deskshare_events(events_xml) # done
-
-    matched_evts = BigBlueButton::Events.match_start_and_stop_deskshare_events(start_evts, stop_evts) # done
-    paddings = BigBlueButton.generate_deskshare_paddings(matched_evts, first_timestamp, last_timestamp) # done #check if it's fine that i'm reusing
-
-    flvs = []
-    paddings.concat(matched_evts).sort{|a,b| a[:start_timestamp] <=> b[:start_timestamp]}.each do |comb|
-      if (comb[:gap])
-        blank_flv = "#{temp_dir}/#{comb[:stream]}"
-        flvs << blank_flv
-        BigBlueButton.create_blank_deskshare_video((comb[:stop_timestamp] - comb[:start_timestamp].to_f)/1000, 1000, blank_canvas, blank_flv) # todo
-      else
-        deskshare_dir = "#{temp_dir}/#{meeting_id}/deskshare" # todo
-        scaled_flv = "#{deskshare_dir}/scaled-#{comb[:stream]}"
-        padded_flv = "#{deskshare_dir}/padded-#{comb[:stream]}"
-        flvs << padded_flv
-        flv_in = "#{deskshare_dir}/#{comb[:stream]}"
-
-        deskshare_params = "-aspect 4:3 -r 1000 -q:v 0 -vcodec flashsv"
-
-        #Scale options
-        frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
-        width = frame_size[:width]
-        height = frame_size[:height]
-        frame_size = "-s #{width}x#{height}"
-
-        #Scale video
-        scale_command = "#{FFMPEG_CMD_BASE} -i #{flv_in} #{deskshare_params} #{frame_size}  #{scaled_flv}"
-        BigBlueButton.execute(scale_command)
-
-        # Padding options
-        side_padding = ((MAX_VID_WIDTH - width) / 2).to_i
-        top_bottom_padding = ((MAX_VID_HEIGHT - height) / 2).to_i
-        padding_params = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"
-
-        #Pad  video
-        padding_command = "#{FFMPEG_CMD_BASE} -i #{scaled_flv} #{deskshare_params}  #{padding_params} #{padded_flv}"
-        BigBlueButton.execute(padding_command)
-
-      end
-    end
-
-    BigBlueButton.concatenate_videos(flvs, "#{target_dir}/deskshare.flv")
-  end
-
-
-
-
   def self.process_deskstop_sharing(target_dir, temp_dir, meeting_id) 
     BigBlueButton.logger.info("Processing desktop sharing")               
     blank_canvas = "#{temp_dir}/ds-canvas.jpg"
