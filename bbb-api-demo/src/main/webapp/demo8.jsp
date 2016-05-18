@@ -78,7 +78,7 @@
 	String meetingID = presentationFileName.replace("pdfs/","").replace(".pdf","").replace(".pptx","");
 	String joinURL = getJoinURL(username, meetingID, "false", welcomeMsg, null, xml );
 
-	if (joinURL.startsWith("http://")) { 
+	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) { 
 		%>
 		<script language="javascript" type="text/javascript">
 		  window.location.href="<%=joinURL%>";

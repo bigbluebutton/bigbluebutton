@@ -36,6 +36,10 @@ find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec 
 # Delete webcam streams in red5 older than N days
 #
 find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
+find /usr/share/red5/webapps/video/streams/ -name "*.flv.ser" -mtime +$history -exec rm '{}' +
+find /usr/share/red5/webapps/video/streams/ -name "*.flv.info" -mtime +$history -exec rm '{}' +
+find /usr/share/red5/webapps/video/streams/ -name "*.flv.meta" -mtime +$history -exec rm '{}' +
+find /usr/share/red5/webapps/video/streams/ -type d -empty -mtime +$history -exec rmdir '{}' +
 
 #
 # Delete desktop sharing streams in red5 older than N days
@@ -105,3 +109,9 @@ remove_raw_of_published_recordings(){
 find /tmp -name "*.afm" -mtime +$history -delete
 find /tmp -name "*.pfb" -mtime +$history -delete
 
+#
+# If there are no users currently logged in, restart libreoffice to clear its memory usage
+#
+if [[ $(netstat -ant | egrep ":1935\ " | egrep -v ":::|0.0.0.0"  | wc | awk '{print $1}') == 0 ]]; then
+  service bbb-office restart
+fi

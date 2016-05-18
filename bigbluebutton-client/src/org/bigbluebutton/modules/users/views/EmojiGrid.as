@@ -19,13 +19,18 @@
 package org.bigbluebutton.modules.users.views {
 	
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.MouseEvent;
+	
+	import mx.containers.HBox;
 	import mx.containers.Tile;
 	import mx.containers.VBox;
 	import mx.controls.Button;
+	import mx.controls.Label;
 	import mx.core.ScrollPolicy;
 	import mx.events.FlexMouseEvent;
 	import mx.managers.PopUpManager;
+	
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -44,19 +49,15 @@ package org.bigbluebutton.modules.users.views {
 			addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler, false, 0, true);
 			this.horizontalScrollPolicy = ScrollPolicy.OFF;
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
-			width = 134;
 			drawEmoji();
-			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
-				addRemoveEmoji();
-				this.setStyle("paddingBottom", 10);
-			}
+			addRemoveEmoji();
+			this.setStyle("paddingBottom", 10);
 		}
 		
 		private function drawEmoji():void {
-			var tile:Tile = new Tile();
-			tile.width = 134;
-			tile.styleName = "emojiGridTile";
-			tile.horizontalScrollPolicy = ScrollPolicy.OFF;
+			var box:VBox = new VBox();
+			box.styleName = "emojiGridTile";
+			box.horizontalScrollPolicy = ScrollPolicy.OFF;
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
 			for each (var emoji:String in EMOJIS) {
 				var button:Button = new Button();
@@ -69,17 +70,33 @@ package org.bigbluebutton.modules.users.views {
 				button.toggle = button.selected;
 				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + emoji);
 				button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
-				tile.addChild(button);
+				
+				var label:Label = new Label();
+				label.text = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + emoji);
+				
+				var hbox:HBox = new HBox();
+				hbox.setStyle("verticalAlign", "middle");
+				hbox.addChild(button);
+				hbox.addChild(label);
+				
+				box.addChild(hbox);
 			}
-			this.addChild(tile);
+			this.addChild(box);
 		}
 		
 		private function addRemoveEmoji():void {
 			var button:Button = new Button();
 			button.id = "btnnone";
-			button.height = 64;
 			button.height = 24;
-			button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear');
+			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
+				button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear');
+				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear.toolTip');
+				button.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear.toolTip');
+			} else {
+				button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.close');
+				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.close.toolTip');
+				button.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.close.toolTip');
+			}
 			button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
 			this.addChild(button);
 		}

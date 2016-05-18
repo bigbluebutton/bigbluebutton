@@ -89,9 +89,9 @@ package org.bigbluebutton.common
 			{
 				for (var i:int=0; i < tabIndices.length; i++)
 				{
-					if (_tabIndices[i - 1] != null)
+					if (_tabIndices[i] != null)
 					{
-						UIComponent(_tabIndices[i - 1]).tabIndex=startIndex + i;
+						UIComponent(_tabIndices[i]).tabIndex=startIndex + i;
 					}
 				}
 			}

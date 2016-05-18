@@ -3,8 +3,11 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
+	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
+	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
+	import org.bigbluebutton.lib.voice.models.PhoneOptions;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceStreamManager;
 	import org.osflash.signals.ISignal;
@@ -31,18 +34,88 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _recording:Boolean;
 		
-		protected var _guestSignal:ISignal = new Signal();
+		protected var _phoneOptions:PhoneOptions;
+		
+		protected var _videoAutoStart:Boolean;
+		
+		protected var _skipCamSettingsCheck:Boolean;
+		
+		protected var _meetingMuted:Boolean;
+		
+		protected var _joinUrl:String;
+		
+		protected var _lockSettings:LockSettings;
+		
+		protected var _pushToTalk:Boolean;
+		
+		protected var _loadedMessageHistorySignal:ISignal = new Signal();
 		
 		protected var _successJoiningMeetingSignal:ISignal = new Signal();
 		
 		protected var _failureJoiningMeetingSignal:ISignal = new Signal();
 		
+		protected var _assignedDeskshareSignal:ISignal = new Signal();
+		
 		protected var _recordingStatusChangedSignal:ISignal = new Signal();
 		
 		protected var _logoutSignal:Signal = new Signal();
 		
+		protected var _authTokenSignal:ISignal = new Signal();
+		
+		protected var _pushToTalkSignal:ISignal = new Signal();
+		
+		protected var _videoProfileManager:VideoProfileManager = new VideoProfileManager();
+		
+		public function get phoneOptions():PhoneOptions {
+			return _phoneOptions;
+		}
+		
+		public function set phoneOptions(value:PhoneOptions):void {
+			_phoneOptions = value;
+		}
+		
+		public function get videoProfileManager():VideoProfileManager {
+			return _videoProfileManager;
+		}
+		
+		public function set videoProfileManager(value:VideoProfileManager):void {
+			_videoProfileManager = value;
+		}
+		
 		public function get userList():UserList {
 			return _userList;
+		}
+		
+		public function set userList(userList:UserList):void {
+			_userList = userList;
+		}
+		
+		public function get lockSettings():LockSettings {
+			return _lockSettings;
+		}
+		
+		public function get meetingMuted():Boolean {
+			return _meetingMuted;
+		}
+		
+		public function set meetingMuted(mute:Boolean):void {
+			_meetingMuted = mute;
+		}
+		
+		public function get videoAutoStart():Boolean {
+			return _videoAutoStart;
+		}
+		
+		public function set videoAutoStart(value:Boolean):void {
+			_videoAutoStart = value;
+		}
+		
+		public function get skipCamSettingsCheck():Boolean {
+			return _skipCamSettingsCheck;
+		}
+		
+		public function set skipCamSettingsCheck(value:Boolean):void {
+			_skipCamSettingsCheck = value;
 		}
 		
 		public function get config():Config {
@@ -100,19 +173,31 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function set deskshareConnection(value:IDeskshareConnection):void {
 			_deskshareConnection = value;
+			_assignedDeskshareSignal.dispatch();
+		}
+		
+		public function get pushToTalk():Boolean {
+			return _pushToTalk;
+		}
+		
+		public function set pushToTalk(value:Boolean):void {
+			_pushToTalk = value;
+			_pushToTalkSignal.dispatch();
 		}
 		
 		public function UserSession() {
 			_userList = new UserList();
 			_presentationList = new PresentationList();
+			_lockSettings = new LockSettings();
+			userList.userChangeSignal.add(userChangedHandler);
 		}
 		
 		public function get presentationList():PresentationList {
 			return _presentationList
 		}
 		
-		public function get guestSignal():ISignal {
-			return _guestSignal;
+		public function get loadedMessageHistorySignal():ISignal {
+			return _loadedMessageHistorySignal;
 		}
 		
 		public function get successJoiningMeetingSignal():ISignal {
@@ -121,6 +206,10 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get failureJoiningMeetingSignal():ISignal {
 			return _failureJoiningMeetingSignal;
+		}
+		
+		public function get assignedDeskshareSignal():ISignal {
+			return _assignedDeskshareSignal;
 		}
 		
 		public function joinMeetingResponse(msg:Object):void {
@@ -135,6 +224,10 @@ package org.bigbluebutton.lib.main.models {
 			return _logoutSignal;
 		}
 		
+		public function get pushToTalkSignal():ISignal {
+			return _pushToTalkSignal;
+		}
+		
 		public function get recordingStatusChangedSignal():ISignal {
 			return _recordingStatusChangedSignal;
 		}
@@ -142,6 +235,33 @@ package org.bigbluebutton.lib.main.models {
 		public function recordingStatusChanged(recording:Boolean):void {
 			_recording = recording;
 			recordingStatusChangedSignal.dispatch(recording);
+		}
+		
+		public function get authTokenSignal():ISignal {
+			return _authTokenSignal;
+		}
+		
+		public function get joinUrl():String {
+			return _joinUrl;
+		}
+		
+		public function set joinUrl(value:String):void {
+			_joinUrl = value;
+		}
+		
+		private function userChangedHandler(user:User, type:int):void {
+			if (user && user.me && (type == UserList.PRESENTER) || (type == UserList.MODERATOR)) {
+				dispatchLockSettings();
+			}
+		}
+		
+		public function dispatchLockSettings():void {
+			var userLocked:Boolean = (userList.me.role != User.MODERATOR && !userList.me.presenter && userList.me.locked);
+			lockSettings.loaded = true;
+			lockSettings.disableCamSignal.dispatch(lockSettings.disableCam && userLocked);
+			lockSettings.disableMicSignal.dispatch(lockSettings.disableMic && userLocked);
+			lockSettings.disablePrivateChatSignal.dispatch(lockSettings.disablePrivateChat && userLocked);
+			lockSettings.disablePublicChatSignal.dispatch(lockSettings.disablePublicChat && userLocked);
 		}
 	}
 }

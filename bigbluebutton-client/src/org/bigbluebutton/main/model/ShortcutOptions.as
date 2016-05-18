@@ -81,11 +81,6 @@ package org.bigbluebutton.main.model
 			if (videoDock){generalResource.push('bbb.shortcutkey.focus.video');}
 			if (presentation){generalResource.push('bbb.shortcutkey.focus.presentation');}
 			if (chat){generalResource.push('bbb.shortcutkey.focus.chat');}
-			if (polling){
-				generalResource.push('bbb.shortcutkey.focus.pollingCreate'); 
-				generalResource.push('bbb.shortcutkey.focus.pollingStats'); 
-				generalResource.push('bbb.shortcutkey.focus.voting');
-			}
 			
 			if (audio){
 				generalResource.push('bbb.shortcutkey.share.microphone');
@@ -93,7 +88,6 @@ package org.bigbluebutton.main.model
 			}
 			if (deskshare){generalResource.push('bbb.shortcutkey.share.desktop');}
 			if (webcam){generalResource.push('bbb.shortcutkey.share.webcam');}
-			if (polling){generalResource.push('bbb.shortcutkey.polling.buttonClick');}
 			generalResource.push('bbb.shortcutkey.shortcutWindow');
 			generalResource.push('bbb.shortcutkey.logout');
 			

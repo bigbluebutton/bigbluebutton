@@ -142,21 +142,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		<mx:HRule width="100%" />
 		<mx:HBox width="100%" height="100%">
-			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center">
+			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
 				<mx:Image source="@Embed('assets/microphone80.png')" />
 				<mx:Button id="btnMicrophone" click="onMicClick()"
 						   label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.toolTip')}"/>
 			</mx:VBox>
 			<mx:VRule id="vruleListen" height="100%" width="5%" />
-			<mx:VBox id="vboxListen" height="100%" width="30%" horizontalAlign="center">
+			<mx:VBox id="vboxListen" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
 				<mx:Image source="@Embed('assets/speaker80.png')" />
 				<mx:Button id="btnListenOnly" click="onListenClick()"
 						   label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.toolTip')}" />
 			</mx:VBox>
 			<mx:VRule id="vrulePhone" height="100%" width="5%" />
-			<mx:VBox id="vboxPhone" height="100%" width="30%" horizontalAlign="center">
+			<mx:VBox id="vboxPhone" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">
 				<mx:Image source="@Embed('assets/phone80.png')" />
 				<mx:Text id="txtPhone" width="100%" />
 			</mx:VBox>

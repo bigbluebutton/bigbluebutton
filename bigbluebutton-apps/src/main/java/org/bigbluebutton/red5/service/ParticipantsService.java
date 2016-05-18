@@ -27,6 +27,7 @@ import org.red5.server.api.scope.IScope;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
@@ -59,6 +60,12 @@ public class ParticipantsService {
 		String meetingId = scope.getName();
 		String userId = (String) msg.get("userId");
 		String emojiStatus = (String) msg.get("emojiStatus");
+		
+		if (StringUtils.isEmpty(emojiStatus)) {
+	    log.warn("Invalid EmojiStatus from client: meetingId=" + meetingId + ", userId=" + userId + ",emoji=" + emojiStatus);
+			// Set emojiStatus=none if passed is null.
+			emojiStatus = "none";
+		}
 		red5InGW.userEmojiStatus(meetingId, userId, emojiStatus);
 	}
 	

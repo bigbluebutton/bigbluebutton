@@ -60,8 +60,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="pdf2SwfPageConverter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter">
+		<property name="ghostscriptExec" value="${ghostScriptExec}"/>
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
+		<property name="imageMagickDir" value="${imageMagickDir}"/>
 		<property name="fontsDir" value="${fontsDir}"/>
+		<property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>
+		<property name="placementsThreshold" value="${placementsThreshold}"/>
+		<property name="defineTextThreshold" value="${defineTextThreshold}"/>
+		<property name="imageTagThreshold" value="${imageTagThreshold}"/>
 	</bean>
 	
 	<bean id="imageConvSvc" class="org.bigbluebutton.presentation.imp.PdfPageToImageConversionService">
@@ -79,13 +85,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="imageMagickDir" value="${imageMagickDir}"/>
 	</bean>
 
-  <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
-    <property name="imageMagickDir" value="${imageMagickDir}"/>
-  </bean>
+	<bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
+	    <property name="imageMagickDir" value="${imageMagickDir}"/>
+	</bean>
   	
 	<bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
 	
 	<bean id="pdfToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService">
+	   <constructor-arg index="0" value="${numConversionThreads}"/>
 		<property name="counterService" ref="pageCounterService"/>
 		<property name="pageConverter" ref="pdf2SwfPageConverter"/>
 		<property name="pdfPageToImageConversionService" ref="imageConvSvc"/>

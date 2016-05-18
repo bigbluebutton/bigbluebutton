@@ -8,6 +8,7 @@ package org.bigbluebutton.modules.layout.services
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
@@ -48,8 +49,9 @@ package org.bigbluebutton.modules.layout.services
     /*
     * the application of the first layout should be delayed to avoid
     * strange movements of the windows before set the correct position
+	* TDJ: increasing from 750 to 1000 because in some computers the initial layout was not applying correctly
     */
-    private var _applyFirstLayoutTimer:Timer = new Timer(750,1);
+    private var _applyFirstLayoutTimer:Timer = new Timer(1000,1);
     
     private function handleGetCurrentLayoutResponse(message:Object):void {
       _applyFirstLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
@@ -59,12 +61,15 @@ package org.bigbluebutton.modules.layout.services
     }
     
     private function onReceivedFirstLayout(message:Object):void {
-      LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]); 
-
-      lockLayout(message.locked, message.setById);
-      
-      _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
-      
+      LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]);
+	  trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "], moderator = [" + UsersUtil.amIModerator() + "]");
+	  if(message.layout == "" || UsersUtil.amIModerator())
+		  _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+	  else {
+      	lockLayout(message.locked, message.setById);
+      	handleSyncLayout(message);
+	  }
+	  
       _dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
     }
  

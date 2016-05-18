@@ -26,10 +26,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   mouseOver = "mouseOverHandler(event)"
 		   mouseOut = "mouseOutHandler(event)"
            height="24"
-		   toolTip="{this.selected ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
+		   toolTip="{_currentState == ON_STATE ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="false"
 		   enabled="true"
-		   selected="false"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
 	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
@@ -68,6 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public const STOP_PUBLISHING:Number = 0;
 			public const START_PUBLISHING:Number = 1;
 
+			[Bindable]
 			private var _currentState:Number = OFF_STATE;
 
 			private var dp:Object = [];
@@ -116,7 +116,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
 				this.styleName = "webcamDefaultButtonStyle";
 				this.enabled = true;
-				this.selected = false;
 				_currentState = OFF_STATE;
 				lockSettingsChanged(null);
 			}
@@ -136,7 +135,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					this.styleName = "webcamOnButtonStyle";
 					this.enabled = true;
-					this.selected = true;
 				}
 				else {
 					if(camID != -1) {
@@ -175,7 +173,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						numberOfCamerasOff--;
 					_currentState = ON_STATE;
 					this.styleName = "webcamOnButtonStyle";
-					this.selected = true;
 					var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
 					shareCameraRequestEvent.camerasArray = dp;
 					dispatchEvent(shareCameraRequestEvent);
@@ -199,7 +196,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.styleName = "webcamOffButtonStyle";
 				else
 					this.styleName = "webcamOnButtonStyle";
-				this.selected = false;
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
@@ -207,7 +203,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.styleName = "webcamOnButtonStyle";
 				else
 					this.styleName = "webcamDefaultButtonStyle";
-				this.selected = false;
 			}
 
 

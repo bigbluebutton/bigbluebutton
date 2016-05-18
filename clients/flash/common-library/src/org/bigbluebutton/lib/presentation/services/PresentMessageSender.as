@@ -6,9 +6,13 @@ package org.bigbluebutton.lib.presentation.services {
 		public var userSession:IUserSession;
 		
 		// The default callbacks of userSession.mainconnection.sendMessage
-		private var defaultSuccessResponse:Function = function(result:String):void {trace(result);};
+		private var defaultSuccessResponse:Function = function(result:String):void {
+			trace(result);
+		};
 		
-		private var defaultFailureResponse:Function = function(status:String):void {trace(status);};
+		private var defaultFailureResponse:Function = function(status:String):void {
+			trace(status);
+		};
 		
 		private var presenterViewedRegionX:Number = 0;
 		
@@ -34,8 +38,7 @@ package org.bigbluebutton.lib.presentation.services {
 		 * A hack for the viewer to sync with the presenter. Have the viewer query the presenter for it's x,y,width and height info.
 		 */
 		public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
-			trace("PresentMessageSender::move() -- Sending [presentation.resizeAndMoveSlide] message to server with message " +
-				  "[xOffset:" + xOffset + ", yOffset:" + yOffset + ", widthRatio:" + widthRatio + ", heightRatio:" + heightRatio + "]");
+			trace("PresentMessageSender::move() -- Sending [presentation.resizeAndMoveSlide] message to server with message " + "[xOffset:" + xOffset + ", yOffset:" + yOffset + ", widthRatio:" + widthRatio + ", heightRatio:" + heightRatio + "]");
 			var message:Object = new Object();
 			message["xOffset"] = xOffset;
 			message["yOffset"] = yOffset;

@@ -52,19 +52,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
             [Bindable] public var users:ArrayCollection;
             [Bindable] public var chatView:ChatView;
-            [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
+            [Bindable] private var fontSizes:Array = ['10', '12', '14', '16', '20', '24'];
             
             [Bindable] public var chatOptions:ChatOptions = new ChatOptions();		
             
             private function onCreationComplete():void{
                 users = UserManager.getInstance().getConference().users;
+                
+                if (!chatOptions.privateEnabled) {
+                    usersList.includeInLayout = usersList.visible = false;
+                }
+                
                 if (fontSizes.indexOf(chatOptions.fontSize) != -1) {
                     cmbFontSize.selectedItem = chatOptions.fontSize;
                     changeFontSize(); // have to manually call it because the change event doesn't fire
                 } else {
                     LOGGER.debug("fontSize in config.xml not found: {0}", [chatOptions.fontSize]);
                 }
-                chatNoiseCheckBox.visible = Accessibility.active;
+                chatNoiseCheckBox.selected = Accessibility.active;
+                changeChatNoise();
             }
             
             public function accessibleClick(event:KeyboardEvent):void{
@@ -106,8 +112,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             * For the Options tab focus the users list instead of the text area.
             **/
             public function focusToTextMessageArea():void {
+              if (usersList.visible) {
                 usersList.setFocus();
                 usersList.drawFocus(true);
+              } else {
+                cmbFontSize.setFocus();
+                cmbFontSize.drawFocus(true);
+              }
             }
           
           private function lockSettingsChanged(e:Event):void {
@@ -132,13 +143,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:List id="usersList" height="50%" width="50%" dataProvider="{users}" dragEnabled="false" 
              visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
              itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
-             itemClick="openPrivateChat(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"/>
+             labelField="name"
+             itemClick="openPrivateChat(event)" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
+             accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.usersList.accessibilityName')}"/>
     <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
     <mx:HBox width="100%">
         <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
         <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
                      selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
     </mx:HBox>
-	<mx:CheckBox id="chatNoiseCheckBox"  label="Audible Chat Notification" labelPlacement="left" 
-				 selected="true" change="changeChatNoise()" styleName="chatOptionsLabel" />
+	<mx:CheckBox id="chatNoiseCheckBox"  label="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" labelPlacement="left" 
+				 change="changeChatNoise()" styleName="chatOptionsLabel" />
 </mx:VBox>

@@ -26,13 +26,13 @@ package org.bigbluebutton.lib.main.services {
 			fetcher.fetch(enterUrl, urlRequest);
 		}
 		
-		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest):void {
+		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 0):void {
 			var result:Object = JSON.parse(data as String);
 			successSignal.dispatch(result.response);
 		}
 		
 		protected function onFailure(reason:String):void {
-			_failureSignal.dispatch(reason);
+			failureSignal.dispatch(reason);
 		}
 	}
 }

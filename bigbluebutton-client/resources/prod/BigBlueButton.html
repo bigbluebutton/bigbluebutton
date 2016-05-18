@@ -110,7 +110,7 @@
            url: '/html5client/check'
         });
         checkRequest.done(function(data) {
-          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus === "running") {
+          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus === "running" && document.getElementById('html5Section') != null) {
             document.getElementById('html5Section').style.display='inherit';
           }
         });
@@ -154,14 +154,15 @@
     <div>
       <audio id="remote-media" autoplay="autoplay"></audio>
     </div>
-
+    <div id="accessibile-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="visually-hidden">0 %</div>
+    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="content">
       <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
         <h2>You need Flash installed and enabled in order to use the Flash client.</h2>
         <br/>
         <div style="width:50%; margin-left: auto; margin-right: auto; ">
           <a href="http://www.adobe.com/go/getflashplayer">
-            <img src="//www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+            <img src="get_flash_player.gif" alt="Get Adobe Flash player" />
           </a>
           <div id="html5Section" style="display:none">
             <p style="margin-left:50px;" >OR</p>
@@ -170,7 +171,6 @@
         </div>
       </div>
     </div>
-    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();" value="Click to focus the client"></button>
-    <div id="clientReady" aria-atomic="false" aria-live="polite"></div>
+    <div id="clientReady" aria-atomic="false" aria-live="polite" class="visually-hidden"></div>
   </body>
 </html>

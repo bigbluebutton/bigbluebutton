@@ -232,8 +232,14 @@ public class NetworkHttpStreamSender implements Runnable {
         long end = System.currentTimeMillis();
         System.out.println("[HTTP " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
 
-      } catch (IOException e) {
+      } catch (java.io.FileNotFoundException e) {
+        System.out.println("java.io.FileNotFoundException: While sending block data.");
         e.printStackTrace();
+        listener.networkException(1, ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED);
+      } catch (IOException e) {
+        System.out.println("IOException: While sending block data.");
+        e.printStackTrace();
+        listener.networkException(1, ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED);
       } catch (ConnectionException e) {
         System.out.println("ERROR: Failed to send block data.");
       }

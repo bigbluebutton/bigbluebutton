@@ -21,11 +21,17 @@ package org.bigbluebutton.red5.client.messaging;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
@@ -36,6 +42,7 @@ import org.red5.server.api.so.ISharedObjectService;
 import org.red5.server.so.SharedObjectService;
 import org.red5.server.util.ScopeUtils;
 import org.slf4j.Logger;
+
 import com.google.gson.Gson;
 
 public class ConnectionInvokerService {
@@ -44,12 +51,14 @@ public class ConnectionInvokerService {
   private final String CONN = "RED5-";
   private static final int NTHREADS = 1;
   private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
-  private static final Executor runExec = Executors.newFixedThreadPool(NTHREADS);
+  private static final ExecutorService runExec = Executors.newFixedThreadPool(3);
 
   private BlockingQueue<ClientMessage> messages;
   private volatile boolean sendMessages = false;
   private IScope bbbAppScope;
 
+  private final long SEND_TIMEOUT = 5000000000L; // 5s
+  
   public ConnectionInvokerService() {
     messages = new LinkedBlockingQueue<ClientMessage>();
   }
@@ -79,6 +88,7 @@ public class ConnectionInvokerService {
 
   public void stop() {
     sendMessages = false;
+    runExec.shutdown();
   }
 
   public void sendMessage(final ClientMessage message) {
@@ -157,7 +167,7 @@ public class ConnectionInvokerService {
       } 
     } 
   }
-  
+   
   private void sendDirectMessage(final DirectClientMessage msg) {
     if (log.isTraceEnabled()) {
       Gson gson = new Gson();
@@ -177,11 +187,13 @@ public class ConnectionInvokerService {
               List<Object> params = new ArrayList<Object>();
               params.add(msg.getMessageName());
               params.add(msg.getMessage());
+
               if (log.isTraceEnabled()) {
                 Gson gson = new Gson();
                 String json = gson.toJson(msg.getMessage());
-                log.trace("Send direct message: " + msg.getMessageName() + " msg=" + json);
+                log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
               }
+
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
             }
           } else {
@@ -191,9 +203,30 @@ public class ConnectionInvokerService {
         }	
       }
     };		
-    runExec.execute(sender);
-  }
 
+    /**
+     * We need to add a way to cancel sending when the thread is blocked.
+     * Red5 uses a semaphore to guard the rtmp connection and we've seen
+     * instances where our thread is blocked preventing us from sending messages
+     * to other connections. (ralam nov 19, 2015)
+     */
+    long endNanos = System.nanoTime() + SEND_TIMEOUT;     
+    Future<?> f = runExec.submit(sender);
+    try {         
+      // Only wait for the remaining time budget         
+      long timeLeft = endNanos - System.nanoTime();         
+      f.get(timeLeft, TimeUnit.NANOSECONDS);   
+    } catch (ExecutionException e) {       
+      log.warn("ExecutionException while sending direct message on connection[" + sessionId + "]");
+    } catch (InterruptedException e) {        
+      log.warn("Interrupted exception while sending direct message on connection[" + sessionId + "]");
+      Thread.currentThread().interrupt();         
+    } catch (TimeoutException e) {               
+      log.warn("Timeout exception while sending direct message on connection[" + sessionId + "]");
+      f.cancel(true);     
+    } 
+  }
+  
   private void sendBroadcastMessage(final BroadcastClientMessage msg) {
     if (log.isTraceEnabled()) {
       Gson gson = new Gson();
@@ -217,19 +250,56 @@ public class ConnectionInvokerService {
         }
       }
     };	
-    runExec.execute(sender);
+    
+    /**
+     * We need to add a way to cancel sending when the thread is blocked.
+     * Red5 uses a semaphore to guard the rtmp connection and we've seen
+     * instances where our thread is blocked preventing us from sending messages
+     * to other connections. (ralam nov 19, 2015)
+     */
+    long endNanos = System.nanoTime() + SEND_TIMEOUT;     
+    Future<?> f = runExec.submit(sender);
+    try {         
+    	// Only wait for the remaining time budget         
+    	long timeLeft = endNanos - System.nanoTime();         
+    	f.get(timeLeft, TimeUnit.NANOSECONDS);   
+    } catch (ExecutionException e) {       
+    	log.warn("ExecutionException while sending broadcast message[" + msg.getMessageName() + "]");
+    } catch (InterruptedException e) {        
+    	log.warn("Interrupted exception while sending direct message[" + msg.getMessageName() + "]");
+    	Thread.currentThread().interrupt();         
+    } catch (TimeoutException e) {               
+    	log.warn("Timeout exception while sending direct message[" + msg.getMessageName() + "]");
+    	f.cancel(true);     
+    } 
   }
 
   private IConnection getConnection(IScope scope, String userID) {
-    Set<IConnection> conns = scope.getClientConnections();
-    for (IConnection conn : conns) {
+    Set<IConnection> conns = new HashSet<IConnection>();
+    for (IConnection conn : scope.getClientConnections()) {
       String connID = (String) conn.getAttribute("USER_SESSION_ID");
       if (connID != null && connID.equals(userID)) {
-        return conn;
+        conns.add(conn);
       }
     }
-    log.warn("Failed to get connection for userId = " + userID);
-    return null;		
+    if (!conns.isEmpty()) {
+      return getLastConnection(conns);
+    } else {
+      log.warn("Failed to get connection for userId = " + userID);
+      return null;
+    }
+  }
+
+  private IConnection getLastConnection(Set<IConnection> conns) {
+    IConnection conn = null;
+    for (IConnection c : conns) {
+      if (conn == null) {
+        conn = c;
+      } else if ((long) conn.getAttribute("TIMESTAMP") < (long) c.getAttribute("TIMESTAMP")) {
+        conn = c;
+      }
+    }
+    return conn;
   }
 
   public IScope getScope(String meetingID) {

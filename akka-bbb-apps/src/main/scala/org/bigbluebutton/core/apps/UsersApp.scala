@@ -26,11 +26,13 @@ trait UsersApp {
 
     val user = usersModel.getUser(msg.userid)
     user foreach { u =>
-      val vu = u.voiceUser.copy(joined = false, talking = false)
-      val uvo = u.copy(listenOnly = true, voiceUser = vu)
-      usersModel.addUser(uvo)
-      log.info("UserConnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
-      outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.userID, uvo.listenOnly))
+      if (usersModel.addGlobalAudioConnection(msg.userid)) {
+        val vu = u.voiceUser.copy(joined = false, talking = false)
+        val uvo = u.copy(listenOnly = true, voiceUser = vu)
+        usersModel.addUser(uvo)
+        log.info("UserConnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
+        outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.userID, uvo.listenOnly))
+      }
     }
   }
 
@@ -39,16 +41,18 @@ trait UsersApp {
 
     val user = usersModel.getUser(msg.userid)
     user foreach { u =>
-      if (!u.joinedWeb) {
-        val userLeaving = usersModel.removeUser(u.userID)
-        log.info("Not web user. Send user left message. meetingId=" + mProps.meetingID + " userId=" + u.userID + " user=" + u)
-        userLeaving foreach (u => outGW.send(new UserLeft(mProps.meetingID, mProps.recorded, u)))
-      } else {
-        val vu = u.voiceUser.copy(joined = false)
-        val uvo = u.copy(listenOnly = false, voiceUser = vu)
-        usersModel.addUser(uvo)
-        log.info("UserDisconnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
-        outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.userID, uvo.listenOnly))
+      if (usersModel.removeGlobalAudioConnection(msg.userid)) {
+        if (!u.joinedWeb) {
+          val userLeaving = usersModel.removeUser(u.userID)
+          log.info("Not web user. Send user left message. meetingId=" + mProps.meetingID + " userId=" + u.userID + " user=" + u)
+          userLeaving foreach (u => outGW.send(new UserLeft(mProps.meetingID, mProps.recorded, u)))
+        } else {
+          val vu = u.voiceUser.copy(joined = false)
+          val uvo = u.copy(listenOnly = false, voiceUser = vu)
+          usersModel.addUser(uvo)
+          log.info("UserDisconnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
+          outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.userID, uvo.listenOnly))
+        }
       }
     }
   }
@@ -230,6 +234,21 @@ trait UsersApp {
     }
   }
 
+  def makeSurePresenterIsAssigned(user: UserVO): Unit = {
+    if (user.presenter) {
+      /* The current presenter has left the meeting. Find a moderator and make
+       * him presenter. This way, if there is a moderator in the meeting, there
+       * will always be a presenter.
+       */
+      val moderator = usersModel.findAModerator()
+      moderator.foreach { mod =>
+        log.info("Presenter left meeting.  meetingId=" + mProps.meetingID + " userId=" + user.userID
+          + ". Making user=[" + mod.userID + "] presenter.")
+        assignNewPresenter(mod.userID, mod.name, mod.userID)
+      }
+    }
+  }
+
   def handleEjectUserFromMeeting(msg: EjectUserFromMeeting) {
     usersModel.getUser(msg.userId) foreach { user =>
       if (user.voiceUser.joined) {
@@ -239,6 +258,8 @@ trait UsersApp {
 
       usersModel.removeUser(msg.userId)
       usersModel.removeRegUser(msg.userId)
+
+      makeSurePresenterIsAssigned(user)
 
       log.info("Ejecting user from meeting.  meetingId=" + mProps.meetingID + " userId=" + msg.userId)
       outGW.send(new UserEjectedFromMeeting(mProps.meetingID, mProps.recorded, msg.userId, msg.ejectedBy))
@@ -369,19 +390,7 @@ trait UsersApp {
         log.info("User left meeting. meetingId=" + mProps.meetingID + " userId=" + u.userID + " user=" + u)
         outGW.send(new UserLeft(msg.meetingID, mProps.recorded, u))
 
-        if (u.presenter) {
-
-          /* The current presenter has left the meeting. Find a moderator and make
-	       * him presenter. This way, if there is a moderator in the meeting, there
-	       * will always be a presenter.
-	       */
-          val moderator = usersModel.findAModerator()
-          moderator.foreach { mod =>
-            log.info("Presenter left meeting.  meetingId=" + mProps.meetingID + " userId=" + u.userID
-              + ". Making user=[" + mod.userID + "] presenter.")
-            assignNewPresenter(mod.userID, mod.name, mod.userID)
-          }
-        }
+        makeSurePresenterIsAssigned(u)
 
         val vu = u.voiceUser
         if (vu.joined || u.listenOnly) {
@@ -390,7 +399,7 @@ trait UsersApp {
            * and is reconnecting. Make the user as joined only in the voice conference. If we get a
            * user left voice conference message, then we will remove the user from the users list.
            */
-          handleUserJoinedVoiceConfMessage((new UserJoinedVoiceConfMessage(mProps.voiceBridge,
+          switchUserToPhoneUser((new UserJoinedVoiceConfMessage(mProps.voiceBridge,
             vu.userId, u.userID, u.externUserID, vu.callerName,
             vu.callerNum, vu.muted, vu.talking, u.listenOnly)));
         }
@@ -455,14 +464,16 @@ trait UsersApp {
   }
 
   def startRecordingVoiceConference() {
-    if (usersModel.numUsersInVoiceConference == 1 && mProps.recorded) {
+    if (usersModel.numUsersInVoiceConference == 1 && mProps.recorded && !usersModel.isVoiceRecording) {
+      usersModel.startRecordingVoice()
       log.info("Send START RECORDING voice conf. meetingId=" + mProps.meetingID + " voice conf=" + mProps.voiceBridge)
       outGW.send(new StartRecordingVoiceConf(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
     }
   }
 
-  def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) = {
-    log.info("Received user joined voice. meetingId=" + mProps.meetingID + " callername=" + msg.callerIdName
+  def switchUserToPhoneUser(msg: UserJoinedVoiceConfMessage) = {
+    log.info("User has been disconnected but still in voice conf. Switching to phone user. meetingId="
+      + mProps.meetingID + " callername=" + msg.callerIdName
       + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
 
     usersModel.getUser(msg.userId) match {
@@ -481,6 +492,36 @@ trait UsersApp {
             nu.userID, nu.userID, mProps.voiceBridge,
             nu.voiceUser.userId, meetingModel.isMeetingMuted()))
         }
+      }
+      case None => {
+        handleUserJoinedVoiceFromPhone(msg)
+      }
+    }
+  }
+
+  def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) = {
+    log.info("Received user joined voice. meetingId=" + mProps.meetingID + " callername=" + msg.callerIdName
+      + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
+
+    usersModel.getUser(msg.userId) match {
+      case Some(user) => {
+        // this is used to restore the mute state on reconnect
+        val previouslyMuted = user.voiceUser.muted
+
+        val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName,
+          msg.callerIdNum, joined = true, locked = false,
+          msg.muted, msg.talking, msg.listenOnly)
+        val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
+        usersModel.addUser(nu)
+
+        log.info("User joined voice. meetingId=" + mProps.meetingID + " userId=" + user.userID + " user=" + nu)
+        outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
+
+        if (meetingModel.isMeetingMuted() || previouslyMuted) {
+          outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded,
+            nu.userID, nu.userID, mProps.voiceBridge,
+            nu.voiceUser.userId, true))
+        }
 
         startRecordingVoiceConference()
       }
@@ -492,7 +533,8 @@ trait UsersApp {
   }
 
   def stopRecordingVoiceConference() {
-    if (usersModel.numUsersInVoiceConference == 0 && mProps.recorded) {
+    if (usersModel.numUsersInVoiceConference == 0 && mProps.recorded && usersModel.isVoiceRecording) {
+      usersModel.stopRecordingVoice()
       log.info("Send STOP RECORDING voice conf. meetingId=" + mProps.meetingID + " voice conf=" + mProps.voiceBridge)
       outGW.send(new StopRecordingVoiceConf(mProps.meetingID, mProps.recorded,
         mProps.voiceBridge, meetingModel.getVoiceRecordingFilename()))

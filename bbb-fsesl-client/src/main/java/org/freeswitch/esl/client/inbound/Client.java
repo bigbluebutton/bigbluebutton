@@ -475,22 +475,27 @@ public class Client
                                     	System.out.println("##### Client member_add_file_data");
                                         listener.conferenceEventPlayFile(uniqueId, confName, confSize, event);
                                         return;
-                                    } else if (eventFunc.equals("conf_api_sub_transfer")) {
+                                    //API has changed between freeswitch 1.4 and 1.6
+                                    } else if (eventFunc.equals("conf_api_sub_transfer") || eventFunc.equals("conference_api_sub_transfer")) {
                                         //Member transfered to another conf...
                                         listener.conferenceEventTransfer(uniqueId, confName, confSize, event);
                                         return;
-                                    } else if (eventFunc.equals("conference_add_member")) {
+                                    //API has changed between freeswitch 1.4 and 1.6
+                                    } else if (eventFunc.equals("conference_add_member") || eventFunc.equals("conference_member_add")) {
                                     	System.out.println("##### Client conference_add_member");
                                         listener.conferenceEventJoin(uniqueId, confName, confSize, event);
                                         return;
-                                    } else if (eventFunc.equals("conference_del_member")) {
+                                    //API has changed between freeswitch 1.4 and 1.6
+                                    } else if (eventFunc.equals("conference_del_member") || eventFunc.equals("conference_member_del")) {
                                     	System.out.println("##### Client conference_del_member");
                                         listener.conferenceEventLeave(uniqueId, confName, confSize, event);
                                         return;
-                                    } else if (eventFunc.equals("conf_api_sub_mute")) {
+                                    //API has changed between freeswitch 1.4 and 1.6
+                                    } else if (eventFunc.equals("conf_api_sub_mute") || eventFunc.equals("conference_api_sub_mute")) {
                                         listener.conferenceEventMute(uniqueId, confName, confSize, event);
                                         return;
-                                    } else if (eventFunc.equals("conf_api_sub_unmute")) {
+                                    //API has changed between freeswitch 1.4 and 1.6
+                                    } else if (eventFunc.equals("conf_api_sub_unmute") || eventFunc.equals("conference_api_sub_unmute")) {
                                         listener.conferenceEventUnMute(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conference_record_thread_run")) {

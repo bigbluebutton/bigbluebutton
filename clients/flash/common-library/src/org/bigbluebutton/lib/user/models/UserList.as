@@ -1,12 +1,15 @@
 package org.bigbluebutton.lib.user.models {
 	
 	import mx.collections.ArrayCollection;
-	import org.osflash.signals.ISignal;
-	import org.osflash.signals.Signal;
-	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
+	
 	import spark.collections.Sort;
 	
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
+	
 	public class UserList {
+		public static const MODERATOR:int = 0;
+		
 		public static const HAS_STREAM:int = 1;
 		
 		public static const PRESENTER:int = 2;
@@ -15,11 +18,26 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const MUTE:int = 4;
 		
-		public static const RAISE_HAND:int = 5;
+		public static const TALKING:int = 5;
 		
-		public static const LOCKED:int = 6;
+		public static const RAISE_HAND:int = 6;
 		
-		public static const LISTEN_ONLY:int = 7;
+		public static const LOCKED:int = 7;
+		
+		public static const LISTEN_ONLY:int = 8;
+		
+		public static const NO_STATUS:int = 9;
+		
+		public static const AWAY:int = 10;
+		
+		public static const HAPPY:int = 11;
+		
+		public static const NEUTRAL:int = 12;
+		
+		public static const SAD:int = 13;
+		
+		public static const CONFUSED:int = 14;
+		
 		
 		private var _users:ArrayCollection;
 		
@@ -119,11 +137,11 @@ package org.bigbluebutton.lib.user.models {
 				return -1;
 			else if (bu.role == User.MODERATOR)
 				return 1;
-			else if (au.raiseHand && bu.raiseHand) {
+			else if ((User.EMOJI_STATUSES.indexOf(au.status) > -1) && (User.EMOJI_STATUSES.indexOf(bu.status) > -1)) {
 				// do nothing go to the end and check names
-			} else if (au.raiseHand)
+			} else if (User.EMOJI_STATUSES.indexOf(au.status) > -1)
 				return -1;
-			else if (bu.raiseHand)
+			else if (User.EMOJI_STATUSES.indexOf(au.status) > -1)
 				return 1;
 			else if (au.phoneUser && bu.phoneUser) {
 			} else if (au.phoneUser)
@@ -155,6 +173,7 @@ package org.bigbluebutton.lib.user.models {
 					//TODO check if this is correct
 					// if we don't set _me to the just added user, _me won't get any update ever, it wouldn't be
 					// possible to use me.isModerator(), for instance
+					newuser.listenOnly = _me.listenOnly;
 					_me = newuser;
 				}
 				_users.addItem(newuser);
@@ -165,8 +184,26 @@ package org.bigbluebutton.lib.user.models {
 				if (newuser.presenter) {
 					userChangeSignal.dispatch(newuser, PRESENTER);
 				}
-				if (newuser.raiseHand) {
+				if (newuser.status == User.RAISE_HAND) {
 					userChangeSignal.dispatch(newuser, RAISE_HAND);
+				}
+				if (newuser.status == User.AWAY) {
+					userChangeSignal.dispatch(newuser, AWAY);
+				}
+				if (newuser.status == User.HAPPY) {
+					userChangeSignal.dispatch(newuser, HAPPY);
+				}
+				if (newuser.status == User.NEUTRAL) {
+					userChangeSignal.dispatch(newuser, NEUTRAL);
+				}
+				if (newuser.status == User.SAD) {
+					userChangeSignal.dispatch(newuser, SAD);
+				}
+				if (newuser.status == User.CONFUSED) {
+					userChangeSignal.dispatch(newuser, CONFUSED);
+				}
+				if (newuser.status == User.NO_STATUS) {
+					userChangeSignal.dispatch(newuser, NO_STATUS);
 				}
 				if (newuser.listenOnly) {
 					userChangeSignal.dispatch(newuser, LISTEN_ONLY);
@@ -254,25 +291,73 @@ package org.bigbluebutton.lib.user.models {
 		private function clearPresenter():void {
 			for each (var user:User in _users) {
 				user.presenter = false;
+				userChangeSignal.dispatch(user, PRESENTER);
 			}
 		}
 		
-		public function userStreamChange(userID:String, hasStream:Boolean, streamName:String):void {
+		public function userStreamChange(userID:String, share:Boolean, streamName:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p) {
 				var user:User = p.participant as User;
-				user.hasStream = hasStream;
-				user.streamName = streamName;
+				if (share) {
+					user.hasStream = true;
+					if (user.streamName == "") {
+						user.streamName = streamName;
+					} else if (user.streamName.indexOf(streamName) == -1) {
+						user.streamName += "|" + streamName;
+					}
+				} else {
+					var newStreamName:String = "";
+					var streamNames:Array = user.streamName.split("|");
+					if (streamName) {
+						for each (var sN:String in streamNames) {
+							if (streamName != sN) {
+								if (newStreamName == "") {
+									newStreamName += sN;
+								} else {
+									newStreamName += "|" + sN;
+								}
+							}
+						}
+					}
+					user.streamName = newStreamName;
+					if (newStreamName != "") {
+						user.hasStream = true;
+					} else {
+						user.hasStream = false;
+					}
+				}
 				userChangeSignal.dispatch(user, HAS_STREAM);
 			}
 		}
 		
-		public function raiseHandChange(userID:String, value:Boolean):void {
+		public function statusChange(userID:String, value:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p) {
 				var user:User = p.participant as User;
-				p.participant.raiseHand = value;
-				userChangeSignal.dispatch(p.participant, RAISE_HAND);
+				p.participant.status = value;
+				switch (value) {
+					case User.RAISE_HAND:
+						userChangeSignal.dispatch(p.participant, RAISE_HAND);
+						break;
+					case User.AWAY:
+						userChangeSignal.dispatch(p.participant, AWAY);
+						break;
+					case User.HAPPY:
+						userChangeSignal.dispatch(p.participant, HAPPY);
+						break;
+					case User.NEUTRAL:
+						userChangeSignal.dispatch(p.participant, NEUTRAL);
+						break;
+					case User.SAD:
+						userChangeSignal.dispatch(p.participant, SAD);
+						break;
+					case User.CONFUSED:
+						userChangeSignal.dispatch(p.participant, CONFUSED);
+						break;
+					case User.NO_STATUS:
+						userChangeSignal.dispatch(p.participant, NO_STATUS);
+				}
 			}
 		}
 		
@@ -284,7 +369,6 @@ package org.bigbluebutton.lib.user.models {
 				user.voiceJoined = true;
 				user.muted = muted;
 				user.talking = talking;
-				user.locked = locked;
 				userChangeSignal.dispatch(user, JOIN_AUDIO);
 			} else {
 				trace("UserList: User join audio failed - user not found");
@@ -326,6 +410,7 @@ package org.bigbluebutton.lib.user.models {
 			if (user != null) {
 				user.talking = talking;
 			}
+			userChangeSignal.dispatch(user, TALKING);
 		}
 		
 		/**
@@ -351,6 +436,10 @@ package org.bigbluebutton.lib.user.models {
 				user.listenOnly = listenOnly;
 				userChangeSignal.dispatch(user, LISTEN_ONLY);
 			}
+		}
+		
+		public function removeAllUsers():void {
+			_users = new ArrayCollection();
 		}
 	}
 }

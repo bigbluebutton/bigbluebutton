@@ -109,6 +109,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case ConnectionFailedEvent.UNKNOWN_REASON:
 						message = ResourceUtil.getInstance().getString('bbb.logout.unknown');
 						break;
+                    case ConnectionFailedEvent.USER_EJECTED_FROM_MEETING:
+                        message = ResourceUtil.getInstance().getString('bbb.logout.ejectedFromMeeting');
+                        break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						redirect(); // we know that the disconnect was requested so automatically redirect

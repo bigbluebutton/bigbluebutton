@@ -1,5 +1,6 @@
 package org.bigbluebutton.lib.voice.commands {
 	
+	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
@@ -15,6 +16,9 @@ package org.bigbluebutton.lib.voice.commands {
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
+		
+		[Inject]
+		public var saveData:ISaveData;
 		
 		[Inject]
 		public var audioOptions:Object;
@@ -43,14 +47,18 @@ package org.bigbluebutton.lib.voice.commands {
 		
 		private function enableAudio():void {
 			voiceConnection = userSession.voiceConnection;
+			voiceConnection.hangUpSuccessSignal.remove(enableAudio);
 			if (!voiceConnection.connection.connected) {
-				voiceConnection.connect(conferenceParameters);
-				voiceConnection.connectionSuccessSignal.add(mediaConnectionSuccess);
+				voiceConnection.connectionSuccessSignal.add(mediaconnectionSuccess);
 				voiceConnection.connectionFailureSignal.add(mediaConnectionFailure);
+				voiceConnection.connect(conferenceParameters, _listenOnly);
 			} else if (!voiceConnection.callActive) {
-				voiceConnection.call(_listenOnly);
-				voiceConnection.connectionSuccessSignal.add(mediaConnectionSuccess);
+				voiceConnection.connectionSuccessSignal.add(mediaconnectionSuccess);
 				voiceConnection.connectionFailureSignal.add(mediaConnectionFailure);
+				voiceConnection.call(_listenOnly);
+			} else {
+				disableAudio();
+				voiceConnection.hangUpSuccessSignal.add(enableAudio);
 			}
 		}
 		
@@ -63,21 +71,30 @@ package org.bigbluebutton.lib.voice.commands {
 			}
 		}
 		
-		private function mediaConnectionSuccess(publishName:String, playName:String, codec:String):void {
-			trace(LOG + "mediaConnectionSuccess()");
-			var manager:VoiceStreamManager = new VoiceStreamManager();
+		private function mediaconnectionSuccess(publishName:String, playName:String, codec:String, manager:VoiceStreamManager = null):void {
+			trace(LOG + "mediaconnectionSuccessSignal()");
+			if (!manager) {
+				var manager:VoiceStreamManager = new VoiceStreamManager();
+				var savedGain:Number = Number(saveData.read("micGain"));
+				if (savedGain) {
+					manager.setDefaultMicGain(savedGain);
+				}
+			}
 			manager.play(voiceConnection.connection, playName);
 			if (publishName != null && publishName.length != 0) {
-				manager.publish(voiceConnection.connection, publishName, codec);
+				manager.publish(voiceConnection.connection, publishName, codec, userSession.pushToTalk);
 			}
 			userSession.voiceStreamManager = manager;
-			voiceConnection.connectionSuccessSignal.remove(mediaConnectionSuccess);
+			voiceConnection.connectionSuccessSignal.remove(mediaconnectionSuccess);
 			voiceConnection.connectionFailureSignal.remove(mediaConnectionFailure);
+			if (userSession.pushToTalk) {
+				userSession.pushToTalkSignal.dispatch();
+			}
 		}
 		
 		private function mediaConnectionFailure(reason:String):void {
-			trace(LOG + "mediaConnectionFailure()");
-			voiceConnection.connectionSuccessSignal.remove(mediaConnectionSuccess);
+			trace(LOG + "mediaUnconnectionSuccessSignal()");
+			voiceConnection.connectionSuccessSignal.remove(mediaconnectionSuccess);
 			voiceConnection.connectionFailureSignal.remove(mediaConnectionFailure);
 		}
 	}
