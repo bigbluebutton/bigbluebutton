@@ -1,47 +1,6 @@
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BBB - HTML5 Client</title>
 </head>
-
-<template name="main">
-  <div id="container" class="{{containerPosition}}">
-    {{#if isDisconnected}}
-      {{>status}}
-    {{else}}
-      <div class="userlistMenu ui-resizable">
-        <div id="users" class="component" style="display:block;">
-          <h3 class="meetingTitle">
-            Demo Meeting
-          </h3>
-          <div id="user-contents">
-          </div>
-        </div>
-      </div>
-      <div class="settingsMenu">
-        {{> menu id="menu"}}
-      </div>
-      <div id="main">
-      </div>
-    {{/if}}
-  </div>
-</template>
-
-<template name="menu">
-  <div id="{{id}}">
-    {{> makeButton btn_class="slideButton toggleChatButton" i_class="ion-chatbubble" label="Chat"}}
-    {{> makeButton btn_class="slideButton settingsIcon" i_class="ion-gear-b" label="Settings"}}
-    {{> makeButton btn_class="slideButton signOutIcon" i_class="ion-log-out" label="Log out"}}
-  </div>
-</template>
-
-<template name="loading">
-<div id="floatingCirclesG">
-  <div class="f_circleG" id="frotateG_01"></div>
-  <div class="f_circleG" id="frotateG_02"></div>
-  <div class="f_circleG" id="frotateG_03"></div>
-  <div class="f_circleG" id="frotateG_04"></div>
-  <div class="f_circleG" id="frotateG_05"></div>
-  <div class="f_circleG" id="frotateG_06"></div>
-  <div class="f_circleG" id="frotateG_07"></div>
-  <div class="f_circleG" id="frotateG_08"></div>
-</div>
-</template>
+<body>
+  <div id="app" role="application"></div>
+</body>

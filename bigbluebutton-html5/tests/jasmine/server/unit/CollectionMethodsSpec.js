@@ -12,12 +12,12 @@ describe('Collections', function () {
   //----------------------------------------------------------------------
 
   it('should all be correctly handled by remove() after calling clearCollections()', function () {
-    spyOn(Meteor.Users, 'remove');
-    spyOn(Meteor.Chat, 'remove');
-    spyOn(Meteor.Meetings, 'remove');
-    spyOn(Meteor.Shapes, 'remove');
-    spyOn(Meteor.Slides, 'remove');
-    spyOn(Meteor.Presentations, 'remove');
+    spyOn(Users, 'remove');
+    spyOn(Chat, 'remove');
+    spyOn(Meetings, 'remove');
+    spyOn(Shapes, 'remove');
+    spyOn(Slides, 'remove');
+    spyOn(Presentations, 'remove');
 
     clearUsersCollection();
     clearChatCollection();
@@ -26,12 +26,12 @@ describe('Collections', function () {
     clearSlidesCollection();
     clearPresentationsCollection();
 
-    expect(Meteor.Users.remove).toHaveBeenCalled();
-    expect(Meteor.Chat.remove).toHaveBeenCalled();
-    expect(Meteor.Meetings.remove).toHaveBeenCalled();
-    expect(Meteor.Shapes.remove).toHaveBeenCalled();
-    expect(Meteor.Slides.remove).toHaveBeenCalled();
-    expect(Meteor.Presentations.remove).toHaveBeenCalled();
+    expect(Users.remove).toHaveBeenCalled();
+    expect(Chat.remove).toHaveBeenCalled();
+    expect(Meetings.remove).toHaveBeenCalled();
+    expect(Shapes.remove).toHaveBeenCalled();
+    expect(Slides.remove).toHaveBeenCalled();
+    expect(Presentations.remove).toHaveBeenCalled();
   });
 
   //----------------------------------------------------------------------
@@ -39,12 +39,12 @@ describe('Collections', function () {
   //----------------------------------------------------------------------
 
   it('should be handled correctly by insert() on calling addChatToCollection() in case of private chat', function () {
-    spyOn(Meteor.Users, 'findOne').and.callFake(function (doc) {
+    spyOn(Users, 'findOne').and.callFake(function (doc) {
       if (doc.userId == 'user001') return { userId: 'user001' };
       else if (doc.userId == 'user002') return { userUd: 'user002' };
     });
 
-    spyOn(Meteor.Chat, 'insert');
+    spyOn(Chat, 'insert');
 
     addChatToCollection('meeting001', {
       from_time: '123',
@@ -59,7 +59,7 @@ describe('Collections', function () {
       from_lang: 'en',
     });
 
-    expect(Meteor.Chat.insert).toHaveBeenCalledWith({
+    expect(Chat.insert).toHaveBeenCalledWith({
       meetingId: 'meeting001',
       message: {
         chat_type: 'PRIVATE_CHAT',
@@ -77,12 +77,12 @@ describe('Collections', function () {
   });
 
   it('should be handled correctly by insert() on calling addChatToCollection() in case of public chat', function () {
-    spyOn(Meteor.Users, 'findOne').and.callFake(function (doc) {
+    spyOn(Users, 'findOne').and.callFake(function (doc) {
       if (doc.userId == 'user001') return { _id: 'dbid001' };
       else if (doc.userId == 'user002') return { _id: 'dbid002' };
     });
 
-    spyOn(Meteor.Chat, 'insert');
+    spyOn(Chat, 'insert');
 
     addChatToCollection('meeting001', {
       from_time: '123',
@@ -97,7 +97,7 @@ describe('Collections', function () {
       from_lang: 'en',
     });
 
-    expect(Meteor.Chat.insert).toHaveBeenCalledWith({
+    expect(Chat.insert).toHaveBeenCalledWith({
       meetingId: 'meeting001',
       message: {
         chat_type: 'PUBLIC_CHAT',
@@ -119,25 +119,25 @@ describe('Collections', function () {
   //----------------------------------------------------------------------
 
   it('should not be updated on calling addMeetingToCollection() if the meeting is already in the collection', function () {
-    spyOn(Meteor.Meetings, 'findOne').and.callFake(function (doc) {
+    spyOn(Meetings, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId == 'meeting001') return { meetingId: 'meeting001' };
       else return undefined;
     });
 
-    spyOn(Meteor.Meetings, 'insert');
+    spyOn(Meetings, 'insert');
 
     addMeetingToCollection('meeting001', 'Demo Meeting', false, '12345', '0');
 
-    expect(Meteor.Meetings.insert).not.toHaveBeenCalled();
+    expect(Meetings.insert).not.toHaveBeenCalled();
   });
 
   it('should be handled correctly by insert() on calling addMeetingToCollection() with a brand new meeting', function () {
-    spyOn(Meteor.Meetings, 'findOne').and.returnValue(undefined);//collection is empty
-    spyOn(Meteor.Meetings, 'insert');
+    spyOn(Meetings, 'findOne').and.returnValue(undefined);//collection is empty
+    spyOn(Meetings, 'insert');
 
     addMeetingToCollection('meeting001', 'Demo Meeting', false, '12345', '0');
 
-    expect(Meteor.Meetings.insert).toHaveBeenCalledWith({
+    expect(Meetings.insert).toHaveBeenCalledWith({
       meetingId: 'meeting001',
       meetingName: 'Demo Meeting',
       intendedForRecording: false,
@@ -148,26 +148,26 @@ describe('Collections', function () {
   });
 
   it('should not be touched on calling removeMeetingFromCollection() if there is no wanted meeting in the collection', function () {
-    spyOn(Meteor.Meetings, 'findOne').and.returnValue(undefined);//collection is empty
-    spyOn(Meteor.Meetings, 'remove');
+    spyOn(Meetings, 'findOne').and.returnValue(undefined);//collection is empty
+    spyOn(Meetings, 'remove');
 
     removeMeetingFromCollection('meeting001');
 
-    expect(Meteor.Meetings.remove).not.toHaveBeenCalled();
+    expect(Meetings.remove).not.toHaveBeenCalled();
   });
 
   //TODO: emulate a find() call
   /*it("should be correctly updated after the removeMeetingFromCollection() call", function () {
-    spyOn(Meteor.Meetings, "findOne").and.callFake(function(doc) {
+    spyOn(Meetings, "findOne").and.callFake(function(doc) {
       if(doc.meetingId == "meeting001") return { _id: "id001", meetingId: "meeting001" };
       else return undefined;
     });
 
-    spyOn(Meteor.Meetings, "remove");
+    spyOn(Meetings, "remove");
 
     removeMeetingFromCollection("meeting001");
 
-    expect(Meteor.Meetings.remove).toHaveBeenCalled();
+    expect(Meetings.remove).toHaveBeenCalled();
   });*/
 
   //----------------------------------------------------------------------
@@ -176,12 +176,12 @@ describe('Collections', function () {
 
   // addShapeToCollection()
   it('should be handled correctly by insert() on calling addShapeToCollection() with a text', function () {
-    spyOn(Meteor.Shapes, 'find').and.returnValue({
+    spyOn(Shapes, 'find').and.returnValue({
       count: function () {
         return 1;
       },
     });
-    spyOn(Meteor.Shapes, 'insert');
+    spyOn(Shapes, 'insert');
 
     addShapeToCollection('meeting001', 'whiteboard001', {
       shape_type: 'text',
@@ -205,7 +205,7 @@ describe('Collections', function () {
       },
     });
 
-    expect(Meteor.Shapes.insert).toHaveBeenCalledWith({
+    expect(Shapes.insert).toHaveBeenCalledWith({
       meetingId: 'meeting001',
       whiteboardId: 'whiteboard001',
       shape: {
@@ -229,12 +229,12 @@ describe('Collections', function () {
   });
 
   it('should be handled correctly by insert() on calling addShapeToCollection() with a finished standard shape', function () {
-    spyOn(Meteor.Shapes, 'find').and.returnValue({
+    spyOn(Shapes, 'find').and.returnValue({
       count: function () {
         return 1;
       },
     });
-    spyOn(Meteor.Shapes, 'insert');
+    spyOn(Shapes, 'insert');
 
     addShapeToCollection('meeting001', 'whiteboard001', {
       wb_id: 'whiteboard001',
@@ -254,7 +254,7 @@ describe('Collections', function () {
       },
     });
 
-    expect(Meteor.Shapes.insert).toHaveBeenCalledWith({
+    expect(Shapes.insert).toHaveBeenCalledWith({
       meetingId: 'meeting001',
       whiteboardId: 'whiteboard001',
       shape: {
@@ -278,12 +278,12 @@ describe('Collections', function () {
   });
 
   it('should be handled correctly by insert() on calling addShapeToCollection() with a pencil being used', function () {
-    spyOn(Meteor.Shapes, 'find').and.returnValue({
+    spyOn(Shapes, 'find').and.returnValue({
       count: function () {
         return 1;
       },
     });
-    spyOn(Meteor.Shapes, 'insert');
+    spyOn(Shapes, 'insert');
 
     addShapeToCollection('meeting001', 'whiteboard001', {
       wb_id: 'whiteboard001',
@@ -303,7 +303,7 @@ describe('Collections', function () {
       },
     });
 
-    expect(Meteor.Shapes.insert).toHaveBeenCalledWith({
+    expect(Shapes.insert).toHaveBeenCalledWith({
       meetingId: 'meeting001',
       whiteboardId: 'whiteboard001',
       shape: {
@@ -328,26 +328,26 @@ describe('Collections', function () {
 
   // removeAllShapesFromSlide()
   it('should not be touched on calling removeAllShapesFromSlide() with undefined meetingId', function () {
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'remove');
     removeAllShapesFromSlide(undefined, 'whiteboard001');
-    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+    expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
   it('should not be touched on calling removeAllShapesFromSlide() with undefined whiteboardId', function () {
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'remove');
     removeAllShapesFromSlide('meeting001', undefined);
-    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+    expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
   it('should not be touched on calling removeAllShapesFromSlide() if there is no shapes on the whiteboard', function () {
-    spyOn(Meteor.Shapes, 'find').and.returnValue(undefined);
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'find').and.returnValue(undefined);
+    spyOn(Shapes, 'remove');
     removeAllShapesFromSlide('meeting001', 'whiteboard001');
-    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+    expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
   it('should be cleared on calling removeAllShapesFromSlide() if there are shapes on the whiteboard', function () {
-    spyOn(Meteor.Shapes, 'find').and.callFake(function (doc) {
+    spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
         return {
           fetch: function () {
@@ -357,7 +357,7 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'findOne').and.callFake(function (doc) {
+    spyOn(Shapes, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
         return {
           _id: 'doc001',
@@ -365,14 +365,14 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'remove');
     removeAllShapesFromSlide('meeting001', 'whiteboard001');
-    expect(Meteor.Shapes.remove).toHaveBeenCalledWith('doc001');
+    expect(Shapes.remove).toHaveBeenCalledWith('doc001');
   });
 
   // removeShapeFromSlide()
   it('should not be touched on calling removeShapeFromSlide() with undefined meetingId', function () {
-    spyOn(Meteor.Shapes, 'find').and.callFake(function (doc) {
+    spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === undefined && doc.whiteboardId === 'whiteboard001')
         return {
           count: function () {
@@ -382,7 +382,7 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'findOne').and.callFake(function (doc) {
+    spyOn(Shapes, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === undefined && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
         return {
           _id: 'doc001',
@@ -390,15 +390,15 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'remove');
 
     removeShapeFromSlide(undefined, 'whiteboard001', 'shape001');
 
-    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+    expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
   it('should not be touched on calling removeShapeFromSlide() with undefined whiteboardId', function () {
-    spyOn(Meteor.Shapes, 'find').and.callFake(function (doc) {
+    spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === undefined)
         return {
           count: function () {
@@ -408,7 +408,7 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'findOne').and.callFake(function (doc) {
+    spyOn(Shapes, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === undefined && doc['shape.id'] === 'shape001')
         return {
           _id: 'doc001',
@@ -416,15 +416,15 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'remove');
 
     removeShapeFromSlide('meeting001', undefined, 'shape001');
 
-    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+    expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
   it('should not be touched on calling removeShapeFromSlide() with undefined shapeId', function () {
-    spyOn(Meteor.Shapes, 'find').and.callFake(function (doc) {
+    spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
         return {
           count: function () {
@@ -434,7 +434,7 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'findOne').and.callFake(function (doc) {
+    spyOn(Shapes, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === undefined)
         return {
           _id: 'doc001',
@@ -442,15 +442,15 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'remove');
 
     removeShapeFromSlide('meeting001', 'whiteboard001', undefined);
 
-    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+    expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
   it('should not be touched on calling removeShapeFromSlide() if there is no wanted shape on the whiteboard', function () {
-    spyOn(Meteor.Shapes, 'find').and.callFake(function (doc) {
+    spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
         return {
           count: function () {
@@ -460,7 +460,7 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'findOne').and.callFake(function (doc) {
+    spyOn(Shapes, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
         return undefined;
       else return {
@@ -468,15 +468,15 @@ describe('Collections', function () {
       };
     });
 
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'remove');
 
     removeShapeFromSlide('meeting001', 'whiteboard001', undefined);
 
-    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+    expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
   it('should be updated correctly on calling removeShapeFromSlide() with an existing shape', function () {
-    spyOn(Meteor.Shapes, 'find').and.callFake(function (doc) {
+    spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
         return {
           count: function () {
@@ -486,7 +486,7 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'findOne').and.callFake(function (doc) {
+    spyOn(Shapes, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
         return {
           _id: 'doc001',
@@ -494,9 +494,9 @@ describe('Collections', function () {
       else return undefined;
     });
 
-    spyOn(Meteor.Shapes, 'remove');
+    spyOn(Shapes, 'remove');
     removeShapeFromSlide('meeting001', 'whiteboard001', 'shape001');
-    expect(Meteor.Shapes.remove).toHaveBeenCalledWith('doc001');
+    expect(Shapes.remove).toHaveBeenCalledWith('doc001');
   });
 
   //----------------------------------------------------------------------
@@ -504,9 +504,9 @@ describe('Collections', function () {
   //----------------------------------------------------------------------
 
   it('should be handled correctly by insert() on calling addPresentationToCollection()', function () {
-    spyOn(Meteor.Presentations, 'findOne').and.returnValue(undefined);
+    spyOn(Presentations, 'findOne').and.returnValue(undefined);
 
-    spyOn(Meteor.Presentations, 'insert');
+    spyOn(Presentations, 'insert');
 
     addPresentationToCollection('meeting001', {
       id: 'presentation001',
@@ -514,7 +514,7 @@ describe('Collections', function () {
       current: true,
     });
 
-    expect(Meteor.Presentations.insert).toHaveBeenCalledWith({
+    expect(Presentations.insert).toHaveBeenCalledWith({
       meetingId: 'meeting001',
       presentation: {
         id: 'presentation001',
@@ -529,9 +529,9 @@ describe('Collections', function () {
   });
 
   it('should be handled correctly on calling addPresentationToCollection() when presentation is already in the collection', function () {
-    spyOn(Meteor.Presentations, 'findOne').and.returnValue({ _id: 'dbid001' });
+    spyOn(Presentations, 'findOne').and.returnValue({ _id: 'dbid001' });
 
-    spyOn(Meteor.Presentations, 'insert');
+    spyOn(Presentations, 'insert');
 
     addPresentationToCollection('meeting001', {
       id: 'presentation001',
@@ -539,7 +539,7 @@ describe('Collections', function () {
       current: true,
     });
 
-    expect(Meteor.Presentations.insert).not.toHaveBeenCalledWith({
+    expect(Presentations.insert).not.toHaveBeenCalledWith({
       meetingId: 'meeting001',
       presentation: {
         id: 'presentation001',
@@ -554,21 +554,21 @@ describe('Collections', function () {
   });
 
   it('should be handled correctly by remove() on calling removePresentationFromCollection', function () {
-    spyOn(Meteor.Presentations, 'findOne').and.returnValue({ _id: 'dbid001' });
-    spyOn(Meteor.Presentations, 'remove');
+    spyOn(Presentations, 'findOne').and.returnValue({ _id: 'dbid001' });
+    spyOn(Presentations, 'remove');
 
     removePresentationFromCollection('meeting0001', 'presentation001');
 
-    expect(Meteor.Presentations.remove).toHaveBeenCalled();
+    expect(Presentations.remove).toHaveBeenCalled();
   });
 
   it('should be handled correctly by remove() on calling removePresentationFromCollection', function () {
-    spyOn(Meteor.Presentations, 'findOne').and.returnValue(undefined);
-    spyOn(Meteor.Presentations, 'remove');
+    spyOn(Presentations, 'findOne').and.returnValue(undefined);
+    spyOn(Presentations, 'remove');
 
     removePresentationFromCollection('meeting0001', 'presentation001');
 
-    expect(Meteor.Presentations.remove).not.toHaveBeenCalled();
+    expect(Presentations.remove).not.toHaveBeenCalled();
   });
 
   //----------------------------------------------------------------------
@@ -577,64 +577,64 @@ describe('Collections', function () {
 
   // removeSlideFromCollection()
   it('should not be touched on calling removeSlideFromCollection() with undefined meetingId', function () {
-    spyOn(Meteor.Slides, 'remove');
+    spyOn(Slides, 'remove');
     removeSlideFromCollection(undefined, 'presentation001/2');
-    expect(Meteor.Slides.remove).not.toHaveBeenCalled();
+    expect(Slides.remove).not.toHaveBeenCalled();
   });
 
   it('should not be touched on calling removeSlideFromCollection() with undefined slideId', function () {
-    spyOn(Meteor.Slides, 'remove');
+    spyOn(Slides, 'remove');
     removeSlideFromCollection('meeting001', undefined);
-    expect(Meteor.Slides.remove).not.toHaveBeenCalled();
+    expect(Slides.remove).not.toHaveBeenCalled();
   });
 
   it('should not be touched on calling removeSlideFromCollection() with a slide that does not exist', function () {
-    spyOn(Meteor.Slides, 'findOne').and.callFake(function (doc) {
+    spyOn(Slides, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc['slide.id'] === 'slide001')
         return undefined;
       else return { meetingId: 'meeting001' };
     });
 
-    spyOn(Meteor.Slides, 'remove');
+    spyOn(Slides, 'remove');
     removeSlideFromCollection('meeting001', 'slide001');
-    expect(Meteor.Slides.remove).not.toHaveBeenCalled();
+    expect(Slides.remove).not.toHaveBeenCalled();
   });
 
   it('should be handled correctly by remove() on calling removeSlideFromCollection() with an existing slide', function () {
-    spyOn(Meteor.Slides, 'findOne').and.callFake(function (doc) {
+    spyOn(Slides, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc['slide.id'] === 'slide001')
         return { _id: 'doc001' };
       else return undefined;
     });
 
-    spyOn(Meteor.Slides, 'remove');
+    spyOn(Slides, 'remove');
     removeSlideFromCollection('meeting001', 'slide001');
-    expect(Meteor.Slides.remove).toHaveBeenCalledWith('doc001');
+    expect(Slides.remove).toHaveBeenCalledWith('doc001');
   });
 
   // addSlideToCollection()
   it('should not be touched on calling addSlideToCollection() if the slide is already in the collection', function () {
-    spyOn(Meteor.Slides, 'findOne').and.callFake(function (doc) {
+    spyOn(Slides, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc['slide.id'] === 'presentation001/2')
         return { _id: 'doc001' };
       else return undefined;
     });
 
-    spyOn(Meteor.Slides, 'insert');
+    spyOn(Slides, 'insert');
     addSlideToCollection('meeting001', 'presentation001', {
       id: 'presentation001/2',
     });
-    expect(Meteor.Slides.insert).not.toHaveBeenCalled();
+    expect(Slides.insert).not.toHaveBeenCalled();
   });
 
   it('should be handled correctly by insert() on calling addSlideToCollection() with a brand new slide', function () {
-    spyOn(Meteor.Slides, 'findOne').and.callFake(function (doc) {
+    spyOn(Slides, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc['slide.id'] === 'presentation001/2')
         return undefined;
       else return { _id: 'doc001' };
     });
 
-    spyOn(Meteor.Slides, 'insert');
+    spyOn(Slides, 'insert');
     addSlideToCollection('meeting001', 'presentation001', {
       height_ratio: 100,
       y_offset: 0,
@@ -648,7 +648,7 @@ describe('Collections', function () {
       swf_uri: 'http://localhost/bigbluebutton/presentation/presentation001/slide/2',
       thumb_uri: 'http://localhost/bigbluebutton/presentation/presentation001/thumbnail/1',
     });
-    expect(Meteor.Slides.insert).toHaveBeenCalledWith({
+    expect(Slides.insert).toHaveBeenCalledWith({
       meetingId: 'meeting001',
       presentationId: 'presentation001',
       slide: {

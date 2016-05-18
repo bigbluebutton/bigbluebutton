@@ -1,107 +1,79 @@
-const indexOf = [].indexOf || function (item) {
-  for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1;
-};
+import '/imports/startup/server';
 
-Meteor.startup(() => {
-  Meteor.log.info('server start');
+import '/imports/api/chat/server/publications';
+import '/imports/api/chat/server/methods/sendChatMessagetoServer';
+import '/imports/api/chat/server/modifiers/addChatToCollection';
+import '/imports/api/chat/server/modifiers/clearChatCollection';
 
-  //remove all data
-  Meteor.WhiteboardCleanStatus.remove({});
-  clearUsersCollection();
-  clearChatCollection();
-  clearMeetingsCollection();
-  clearShapesCollection();
-  clearSlidesCollection();
-  clearPresentationsCollection();
-  clearPollCollection();
-  clearCursorCollection();
+import '/imports/api/cursor/server/publications';
+import '/imports/api/cursor/server/modifiers/clearCursorCollection';
+import '/imports/api/cursor/server/modifiers/initializeCursor';
+import '/imports/api/cursor/server/modifiers/updateCursorLocation';
 
-  const eventEmitter = new (Npm.require('events').EventEmitter);
-  registerHandlers(eventEmitter);
+import '/imports/api/deskshare/server/publications';
+import '/imports/api/deskshare/server/modifiers/clearDeskshareCollection';
+import '/imports/api/deskshare/server/modifiers/handleDeskShareChange';
+import '/imports/api/deskshare/server/modifiers/handleIncomingDeskshareMessage';
 
+import '/imports/api/meetings/server/publications';
+import '/imports/api/meetings/server/modifiers/addMeetingToCollection';
+import '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
+import '/imports/api/meetings/server/modifiers/removeMeetingFromCollection';
 
-  // create create a PubSub connection, start listening
-  Meteor.redisPubSub = new Meteor.RedisPubSub(function () {
-    return Meteor.log.info('created pubsub');
-  });
+import '/imports/api/polls/server/publications';
+import '/imports/api/polls/server/methods/publishVoteMessage';
+import '/imports/api/polls/server/modifiers/addPollToCollection';
+import '/imports/api/polls/server/modifiers/clearPollCollection';
+import '/imports/api/polls/server/modifiers/updatePollCollection';
 
-  Meteor.myQueue = new PowerQueue({
-    // autoStart:true
-    // isPaused: true
-  });
+import '/imports/api/presentations/server/publications';
+import '/imports/api/presentations/server/methods/publishSwitchToNextSlideMessage';
+import '/imports/api/presentations/server/methods/publishSwitchToPreviousSlideMessage';
+import '/imports/api/presentations/server/modifiers/addPresentationToCollection';
+import '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
+import '/imports/api/presentations/server/modifiers/removePresentationFromCollection';
 
-  Meteor.myQueue.taskHandler = function (data, next, failures) {
-    let eventName, parsedMsg, length, lengthString;
-    parsedMsg = JSON.parse(data.jsonMsg);
+import '/imports/api/shapes/server/publications';
+import '/imports/api/shapes/server/modifiers/addShapeToCollection';
+import '/imports/api/shapes/server/modifiers/clearShapesCollection';
+import '/imports/api/shapes/server/modifiers/removeAllShapesFromSlide';
+import '/imports/api/shapes/server/modifiers/removeShapeFromSlide';
 
-    if (parsedMsg != null) {
-      eventName = parsedMsg.header.name;
-      length = Meteor.myQueue.length();
-      lengthString = function () {
-            if (length > 0) {
-              return `In the queue we have ${length} event(s) to process.`;
-            } else return "";
-          }() || "";
-      Meteor.log.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
-    }
-    console.log("in taskHandler:" + eventName);
+import '/imports/api/slides/server/publications';
+import '/imports/api/slides/server/modifiers/addSlideToCollection';
+import '/imports/api/slides/server/modifiers/clearSlidesCollection';
+import '/imports/api/slides/server/modifiers/displayThisSlide';
 
-    if (failures > 0) {
-      return Meteor.log.error(`got a failure on taskHandler ${eventName} ${failures}`);
-      // TODO should we stop or instead return next?
-    } else {
-      logRedisMessage(eventName, data.jsonMsg);
-      return eventEmitter.emit(eventName, {
-        payload: parsedMsg.payload,
-        header: parsedMsg.header,
+import '/imports/api/users/server/publications';
+import '/imports/api/users/server/methods/kickUser';
+import '/imports/api/users/server/methods/listenOnlyRequestToggle';
+import '/imports/api/users/server/methods/muteUser';
+import '/imports/api/users/server/methods/setUserPresenter';
+import '/imports/api/users/server/methods/unmuteUser';
+import '/imports/api/users/server/methods/userLogout';
+import '/imports/api/users/server/methods/userSetEmoji';
+import '/imports/api/users/server/methods/validateAuthToken';
+import '/imports/api/users/server/modifiers/clearUsersCollection';
+import '/imports/api/users/server/modifiers/createDummyUser';
+import '/imports/api/users/server/modifiers/handleLockingMic';
+import '/imports/api/users/server/modifiers/markUserOffline';
+import '/imports/api/users/server/modifiers/requestUserLeaving';
+import '/imports/api/users/server/modifiers/setUserLockedStatus';
+import '/imports/api/users/server/modifiers/updateVoiceUser';
+import '/imports/api/users/server/modifiers/userJoined';
 
-        callback: () => {
-          console.log("ready for next message");
-          return next();
-        },
-      });
-    }
-  };
+import '/imports/api/chat/server/modifiers/eventHandlers';
+import '/imports/api/cursor/server/modifiers/eventHandlers';
+import '/imports/api/meetings/server/modifiers/eventHandlers';
+import '/imports/api/phone/server/eventHandlers';
+import '/imports/api/polls/server/modifiers/eventHandlers';
+import '/imports/api/presentations/server/modifiers/eventHandlers';
+import '/imports/api/shapes/server/modifiers/eventHandlers';
+import '/imports/api/users/server/modifiers/eventHandlers';
 
-  const logRedisMessage = function (eventName, json) {
-    // Avoid cluttering the log with json messages carrying little or repetitive
-    // information. Comment out a message type in the array to be able to see it
-    // in the log upon restarting of the Meteor process.
-    notLoggedEventTypes = [
-      'keep_alive_reply',
-      'page_resized_message',
-      'presentation_page_resized_message',
-      'presentation_cursor_updated_message',
-      'get_presentation_info_reply',
+import '/imports/startup/server/EventQueue';
+import '/imports/startup/server/helpers';
+import '/imports/startup/server/logger';
+import '/imports/startup/server/RedisPubSub';
+import '/imports/startup/server/userPermissions';
 
-      //"get_users_reply"
-      'get_chat_history_reply',
-
-      //"get_all_meetings_reply"
-      'get_whiteboard_shapes_reply',
-      'presentation_shared_message',
-      'presentation_conversion_done_message',
-      'presentation_conversion_progress_message',
-      'presentation_page_generated_message',
-
-      //"presentation_page_changed_message"
-      'BbbPubSubPongMessage',
-      'bbb_apps_is_alive_message',
-      'user_voice_talking_message',
-      'meeting_state_message',
-      'get_recording_status_reply',];
-
-    // LOG in the meteor console
-    if (eventName, indexOf.call(notLoggedEventTypes, eventName) < 0) {
-
-      // For DEVELOPMENT purposes only
-      // Dynamic shapes' updates will slow down significantly
-      if(Meteor.settings.public.mode == 'development') {
-        Meteor.log.info(`redis incoming message  ${eventName}  `, {
-          message: json,
-        });
-      }
-    }
-  };
-
-});
