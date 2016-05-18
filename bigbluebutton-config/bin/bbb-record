@@ -372,6 +372,7 @@ if [ $DELETE ]; then
   rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
 
   rm -rf /usr/share/red5/webapps/video/streams/$MEETING_ID
+  rm -rf /usr/share/red5/webapps/video-broadcast/streams/$MEETING_ID
   rm -f /var/bigbluebutton/deskshare/$MEETING_ID*.flv
   rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
   rm -rf /var/bigbluebutton/$MEETING_ID
@@ -400,6 +401,7 @@ if [ $DELETEALL ]; then
   rm -rf /var/bigbluebutton/recording/raw/*
   
   find /usr/share/red5/webapps/video/streams -name "*.flv" -exec rm '{}' \;
+  find /usr/share/red5/webapps/video-broadcast/streams -name "*.flv" -exec rm '{}' \;
   rm -f /var/bigbluebutton/deskshare/*.flv
   rm -f /var/freeswitch/meetings/*.wav
 

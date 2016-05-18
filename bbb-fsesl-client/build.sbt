@@ -6,7 +6,7 @@ description := "BigBlueButton custom FS-ESL client built on top of FS-ESL Java l
 
 organization := "org.bigbluebutton"
 
-version := "0.0.3"
+version := "0.0.3-SNAPSHOT"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -44,18 +44,18 @@ crossPaths := false
 // This forbids including Scala related libraries into the dependency
 autoScalaLibrary := false
 
-//publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
 
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/dev/repo/maven-repo/releases" )) )
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
+//publishTo := {
+//  val nexus = "https://oss.sonatype.org/"
+//  if (isSnapshot.value)
+//    Some("snapshots" at nexus + "content/repositories/snapshots")
+//  else
+//    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+//}
 
 
 // Enables publishing to maven repo
@@ -80,4 +80,4 @@ pomExtra := (
   
 licenses := Seq("Apache License, Version 2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
-homepage := Some(url("http://www.bigbluebutton.org")) 
+homepage := Some(url("http://www.bigbluebutton.org"))

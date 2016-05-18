@@ -47,12 +47,20 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
     case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
     case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
+    case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
+    case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
     case msg: InMessage => handleMeetingMessage(msg)
     case _ => // do nothing
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
-    meetings.values.find(m => m.mProps.voiceBridge == voiceConfId)
+    meetings.values.find(m => {
+      println("+++ compare " + m.mProps.voiceBridge + " with our " + voiceConfId)
+      m.mProps.voiceBridge == voiceConfId
+    })
   }
 
   private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
@@ -230,9 +238,61 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
 
       //send lock settings
       self ! (new GetLockSettings(id, "nodeJSapp"))
+
+      //send desktop sharing info
+      self ! (new DeskShareGetDeskShareInfoRequest(id, "nodeJSapp", "nodeJSapp"))
+
     }
 
     outGW.send(new GetAllMeetingsReply(resultArray))
   }
 
+  private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
+    log.info("handleDeskShareStartedRequest: msg.conferenceName=" + msg.conferenceName)
+    findMeetingWithVoiceConfId(msg.conferenceName) foreach { m =>
+      {
+//        println(msg.conferenceName + " (in for each) handleDeskShareStartedRequest BBBActor   ")
+        m.actorRef ! msg
+      }
+    }
+  }
+
+  private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
+    log.info("handleDeskShareStoppedRequest msg.conferenceName=" + msg.conferenceName)
+    findMeetingWithVoiceConfId(msg.conferenceName) foreach { m =>
+      {
+//        println(msg.conferenceName + " (in for each) handleDeskShareStoppedRequest BBBActor   ")
+        m.actorRef ! msg
+      }
+    }
+  }
+
+  private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
+    log.info("handleDeskShareRTMPBroadcastStartedRequest msg.conferenceName=" + msg.conferenceName)
+    findMeetingWithVoiceConfId(msg.conferenceName) foreach { m =>
+      {
+//        println(msg.conferenceName + " (in for each) handleDeskShareRTMPBroadcastStartedRequest BBBActor   ")
+        m.actorRef ! msg
+      }
+    }
+  }
+
+  private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
+    log.info("handleDeskShareRTMPBroadcastStoppedRequest msg.conferenceName=" + msg.conferenceName)
+    findMeetingWithVoiceConfId(msg.conferenceName) foreach { m =>
+      {
+//        println(msg.conferenceName + " (in for each) handleDeskShareRTMPBroadcastStoppedRequest BBBActor   ")
+        m.actorRef ! msg
+      }
+    }
+  }
+
+  private def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
+    val m = meetings.values.find(m => {
+      m.mProps.meetingID == msg.conferenceName
+    })
+    m foreach { mActor => mActor.actorRef ! msg }
+  }
+
 }
+

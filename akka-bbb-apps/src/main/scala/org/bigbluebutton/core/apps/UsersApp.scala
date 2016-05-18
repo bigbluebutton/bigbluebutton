@@ -246,6 +246,18 @@ trait UsersApp {
           + ". Making user=[" + mod.userID + "] presenter.")
         assignNewPresenter(mod.userID, mod.name, mod.userID)
       }
+
+      if (meetingModel.isBroadcastingRTMP()) {
+        // The presenter left during desktop sharing. Stop desktop sharing on FreeSWITCH
+        outGW.send(new DeskShareHangUp(mProps.meetingID, mProps.voiceBridge))
+
+        // notify other clients to close their deskshare view
+        outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+          meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight(), false))
+
+        // reset meeting info
+        meetingModel.resetDesktopSharingParams()
+      }
     }
   }
 
@@ -399,9 +411,9 @@ trait UsersApp {
            * and is reconnecting. Make the user as joined only in the voice conference. If we get a
            * user left voice conference message, then we will remove the user from the users list.
            */
-          switchUserToPhoneUser((new UserJoinedVoiceConfMessage(mProps.voiceBridge,
+          switchUserToPhoneUser(new UserJoinedVoiceConfMessage(mProps.voiceBridge,
             vu.userId, u.userID, u.externUserID, vu.callerName,
-            vu.callerNum, vu.muted, vu.talking, u.listenOnly)));
+            vu.callerNum, vu.muted, vu.talking, u.listenOnly))
         }
       }
 

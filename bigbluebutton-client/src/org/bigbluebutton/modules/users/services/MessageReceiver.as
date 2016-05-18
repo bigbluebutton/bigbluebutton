@@ -43,29 +43,37 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+  import org.bigbluebutton.modules.present.events.CursorEvent;
+  import org.bigbluebutton.modules.present.events.NavigationEvent;
+  import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+  import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-  
+  import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+  import org.bigbluebutton.modules.deskshare.events.WebRTCViewStreamEvent;
+  import org.bigbluebutton.main.api.JSLog;
+  import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+
   public class MessageReceiver implements IMessageListener
   {
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
-       
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+
     private var dispatcher:Dispatcher;
     private var _conference:Conference;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
-    
+
     public function MessageReceiver() {
       _conference = UserManager.getInstance().getConference();
       BBB.initConnectionManager().addMessageListener(this);
       this.dispatcher = new Dispatcher();
     }
-    
+
     public function onMessage(messageName:String, message:Object):void {
-//      LOGGER.debug(" received message " + messageName);
-      
+      // LOGGER.debug(" received message " + messageName);
+
       switch (messageName) {
         case "getUsersReply":
           handleGetUsersReply(message);
-          break;		
+          break;
         case "assignPresenterCallback":
           handleAssignPresenterCallback(message);
           break;
@@ -126,26 +134,46 @@ package org.bigbluebutton.modules.users.services
         case "permissionsSettingsChanged":
           handlePermissionsSettingsChanged(message);
           break;
-		case "userLocked":
+        case "userLocked":
           handleUserLocked(message);
           break;
-		case "userEjectedFromMeeting":
-		 handleUserEjectedFromMeeting(message);
-		 break;
+        case "userEjectedFromMeeting":
+          handleUserEjectedFromMeeting(message);
+          break;
+        case "DeskShareRTMPBroadcastNotification":
+          handleDeskShareRTMPBroadcastNotification(message);
+          break;
       }
-    }  
-    
-	private function handleUserEjectedFromMeeting(msg: Object):void {
-		UsersUtil.setUserEjected();
-	}
-	
+    }
+
+    private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
+      LOGGER.debug("*** handleDeskShareRTMPBroadcastNotification **** \n", [msg]);
+
+      var event:WebRTCViewStreamEvent;
+      if (msg.broadcasting) {
+        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
+      } else {
+        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
+      }
+
+      event.videoWidth = msg.width;
+      event.videoHeight = msg.height;
+      event.rtmp = msg.rtmpUrl;
+
+      dispatcher.dispatchEvent(event);
+    }
+
+    private function handleUserEjectedFromMeeting(msg: Object):void {
+      UsersUtil.setUserEjected();
+    }
+
 	private function handleUserLocked(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
 		var user:BBBUser = UsersUtil.getUser(map.user);
-		
+
 		if(user.userLocked != map.lock)
 			user.lockStatusChanged(map.lock);
-		
+
 		return;
 	}
 	
@@ -172,6 +200,7 @@ package org.bigbluebutton.modules.users.services
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;
+
       dispatcher.dispatchEvent(e);
     }
     

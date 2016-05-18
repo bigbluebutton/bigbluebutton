@@ -42,6 +42,11 @@ find /usr/share/red5/webapps/video/streams/ -name "*.flv.meta" -mtime +$history 
 find /usr/share/red5/webapps/video/streams/ -type d -empty -mtime +$history -exec rmdir '{}' +
 
 #
+# Delete webrtc deskshare streams in red5 older than N days
+#
+find /usr/share/red5/webapps/video-broadcast/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
+
+#
 # Delete desktop sharing streams in red5 older than N days
 #
 find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' +

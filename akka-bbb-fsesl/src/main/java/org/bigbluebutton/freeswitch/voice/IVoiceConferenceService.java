@@ -8,5 +8,9 @@ public interface IVoiceConferenceService {
 	void userLockedInVoiceConf(String voiceConfId, String voiceUserId, Boolean locked);
 	void userMutedInVoiceConf(String voiceConfId, String voiceUserId, Boolean muted);
 	void userTalkingInVoiceConf(String voiceConfId, String voiceUserId, Boolean talking);
+	void deskShareStarted(String voiceConfId, String callerIdNum, String callerIdName);
+	void deskShareEnded(String voiceConfId, String callerIdNum, String callerIdName);
+	void deskShareRTMPBroadcastStarted(String room, String streamname, Integer videoWidth, Integer videoHeight, String timestamp);
+	void deskShareRTMPBroadcastStopped(String room, String streamname, Integer videoWidth, Integer videoHeight, String timestamp);
 
 }

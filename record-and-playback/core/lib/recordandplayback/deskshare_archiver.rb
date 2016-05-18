@@ -30,7 +30,6 @@ module BigBlueButton
       raise FileNotFoundException, "No recording for #{meeting_id} in #{from_dir}" if Dir.glob("#{from_dir}").empty?
            
       Dir.glob("#{from_dir}/#{meeting_id}-*.flv").each { |file|
-        puts "deskshare #{file} to #{to_dir}"
         FileUtils.cp(file, to_dir)
       }         
     end        
