@@ -9,11 +9,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" href="images/favicon.png">
 
-
     <link rel="stylesheet" href="css/bijou.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
-		</head>
+    <link rel="stylesheet" href="css/bbb-bootstrap.css">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bbb-errors.js"></script>
+	</head>
   <body>
     <div class='main'>
 
@@ -21,6 +25,10 @@
     <a href="https://github.com/bigbluebutton/bigbluebutton">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub">
     </a>
+
+    <!-- Messages -->
+    <div id='messages' class='hidden'>
+    </div>
 
     <!-- Header -->
     <div class='navbar'>
@@ -69,62 +77,62 @@
 
       <!-- BigBlueButton Features -->
       <div class="bbb-features">
-	      <div class='row'>	
+	      <div class='row'>
 	        <div class='featurette-heading'>
 	          <h2>Features</h2>
 	        </div>
-	
+
 	        <div class='span four first'>
 	          <i class="fa fa-play-circle-o"></i>
-	
+
 	          <div class="bbb-features-content">
 	            <h3>Record and Playback</h3>
 	            <p>BigBlueButton can record your sessions for later playback by students.</p>
 	          </div>
 	        </div>
-	
+
 	        <div class='span four'>
 	          <i class="fa fa-pencil-square-o"></i>
-	
+
 	          <div class="bbb-features-content">
 	            <h3>Whiteboard</h3>
 	            <p>The whiteboard controls let you annotate key parts of your presentation.</p>
 	          </div>
 	        </div>
-	
+
 	        <div class='span four last'>
 	          <i class="fa fa-desktop"></i>
-	
+
 	          <div class="bbb-features-content">
 	            <h3>Desktop Sharing</h3>
 	            <p>You can broadcast your desktop for all users to see (requires lastest version of Java for presenter only).</p>
 	          </div>
 	        </div>
 	      </div>
-	
-	
+
+
 	      <div class='row'>
 	        <div class='span four first'>
 	          <i class="fa fa-microphone"></i>
-	
+
 	          <div class="bbb-features-content">
 	            <h3>WebRTC Audio</h3>
 	            <p>Users of Chrome and FireFox browsers will benefit from high-quality, low-latency WebRTC audio. (Users of other browsers will seamlessly use Flash-based audio.)</p>
 	          </div>
 	        </div>
-	
+
 	        <div class='span four'>
 	          <i class="fa fa-bar-chart-o"></i>
-	
+
 	          <div class="bbb-features-content">
 	            <h3>Presentation</h3>
 	            <p>You can upload any PDF presentation or MS office document. BigBlueButton keeps everyone in sync with your current slide, zoom, pan, annotations, and mouse pointer.</p>
 	          </div>
 	        </div>
-	
+
 	        <div class='span four last'>
 	          <i class="fa fa-video-camera"></i>
-	
+
 	          <div class="bbb-features-content">
 	            <h3>Web Cam</h3>
 	            <p>Multiple users can share their webcam at the same time. There is no built-in limit on the number of simultaneously active webcams.</p>
@@ -170,7 +178,7 @@
 	        <div class='featurette-heading'>
 	          <h2>Getting Started Quickly</h2>
 	        </div>
-	
+
 	        <div class='span four first video-item'>
 	        	<a href="https://www.youtube.com/watch?v=4Y__UsUrRx0&feature=youtu.be" target="_blank">
 		        	<div class="video-btn"><i class="fa fa-play-circle-o"></i></div>
@@ -178,7 +186,7 @@
 	        	</a>
 	          <h3><a href="https://www.youtube.com/watch?v=4Y__UsUrRx0&feature=youtu.be" title="Setup Audio" target="_blank">Setting Up Audio</a></h3>
 	        </div>
-	
+
 	        <div class='span four video-item'>
 	        	<a href="https://www.youtube.com/watch?v=oh0bEk3YSwI" target="_blank">
 		        	<div class="video-btn"><i class="fa fa-play-circle-o"></i></div>
@@ -186,11 +194,11 @@
 	        	</a>
 	          <h3><a href="https://www.youtube.com/watch?v=oh0bEk3YSwI;feature=youtu.be" title="Student Overview" target="_blank">Viewer Overview</a></h3>
 	        </div>
-	
+
 	        <div class='span four last video-item'>
 	        	<a href="https://www.youtube.com/watch?v=J9mbw00P9W0&feature=youtu.be" target="_blank">
 		        	<div class="video-btn"><i class="fa fa-play-circle-o"></i></div>
-		          <img  src="images/bbb-presenter-overview.jpg" alt="Moderator/Presenter Overview Video"/>      
+		          <img  src="images/bbb-presenter-overview.jpg" alt="Moderator/Presenter Overview Video"/>
 	        	</a>
 	          <h3><a href="https://www.youtube.com/watch?v=J9mbw00P9W0&feature=youtu.be" title="Moderator/Presenter Overview" target="_blank">Moderator/Presenter Overview</a></h3>
 	        </div>
@@ -203,11 +211,11 @@
     <!--  Footer -->
     <footer>
       <div class='container'>
-      
+
 	      <div class="row">
 	      	<div class="span six first">
-		        <p>BigBlueButton and the BigBlueButton logo are trademarks of <a href="http://bigbluebutton.org/">BigBlueButton Inc.</a></p>	
-	      	</div>	        
+		        <p>BigBlueButton and the BigBlueButton logo are trademarks of <a href="http://bigbluebutton.org/">BigBlueButton Inc.</a></p>
+          </div>
 	      	<div class="span six last">
 						<ul>
 							<li>
@@ -225,10 +233,10 @@
 	      <div class="row">
 	      	<div class="span twelve center">
 		        <p>Copyright &copy; 2016 BigBlueButton Inc.<br>
-		        <small>Version <a href="http://docs.bigbluebutton.org/">1.0-RC</a></small>		        
+		        <small>Version <a href="http://docs.bigbluebutton.org/">1.0-RC</a></small>
 		        </p>
 	      	</div>
-	      </div>	
+	      </div>
       </div>
     </footer>
   </body>
