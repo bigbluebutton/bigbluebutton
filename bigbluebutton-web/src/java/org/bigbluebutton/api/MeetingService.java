@@ -132,8 +132,6 @@ public class MeetingService implements MessageListener {
      */
     public void purgeRegisteredUsers() {
         for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
-            log.info(entry.getKey() + "/" + entry.getValue());
-
             Date now = new Date();
             Meeting meeting = entry.getValue();
 
@@ -142,7 +140,6 @@ public class MeetingService implements MessageListener {
             for (AbstractMap.Entry<String, Date> registeredUser : meeting.getRegisteredUsers().entrySet()) {
                 String registeredUserID = registeredUser.getKey();
                 Date registeredUserDate = registeredUser.getValue();
-                log.info(registeredUserID + "/" + registeredUserDate);
 
                 long registrationTime = registeredUserDate.getTime();
                 long elapsedTime = now.getTime() - registrationTime;
