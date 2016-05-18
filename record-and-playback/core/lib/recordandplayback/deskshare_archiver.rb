@@ -36,4 +36,3 @@ module BigBlueButton
     end        
   end
 end
-
