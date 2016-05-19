@@ -3,17 +3,18 @@ import Meetings from '/imports/api/meetings';
 import {getInStorage, setInStorage} from '/imports/ui/components/app/service';
 import {callServer} from '/imports/ui/services/api';
 import {clientConfig} from '/config';
+import {joinVertoAudio, watchVertoVideo} from '/imports/api/phone';
 
 let triedHangup = false;
 
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
 function exitVoiceCall(afterExitCall) {
-  // if (!clientConfig.useSIPAudio) {
-  //   leaveWebRTCVoiceConference_verto();
-  //   cur_call = null;
-  //   return;
-  // } else {
+  if (!clientConfig.media.useSIPAudio) {
+    leaveWebRTCVoiceConference_verto();
+    cur_call = null;
+    return;
+  } else {
     // To be called when the hangup is initiated
     const hangupCallback = function() {
       console.log('Exiting Voice Conference');
@@ -21,12 +22,11 @@ function exitVoiceCall(afterExitCall) {
 
     // Checks periodically until a call is established so we can successfully end the call
     // clean state
-    // getInSession("triedHangup", false);
     triedHangup = false;
     // function to initiate call
     const checkToHangupCall = (function(context, afterExitCall) {
       // if an attempt to hang up the call is made when the current session is not yet finished,
-        // the request has no effect
+      // the request has no effect
       // keep track in the session if we haven't tried a hangup
       if (getCallStatus() != null && !triedHangup) {
         console.log('Attempting to hangup on WebRTC call');
@@ -45,13 +45,13 @@ function exitVoiceCall(afterExitCall) {
         }
       } else {
         console.log(`RETRYING hangup on WebRTC call in
-          ${clientConfig.app.WebRTCHangupRetryInterval} ms`);
+          ${clientConfig.media.WebRTCHangupRetryInterval} ms`);
         // try again periodically
-        setTimeout(checkToHangupCall, clientConfig.app.WebRTCHangupRetryInterval);
+        setTimeout(checkToHangupCall, clientConfig.media.WebRTCHangupRetryInterval);
       }
     })(this, afterExitCall); // automatically run function
     return false;
-  // };
+  };
 }
 
 BBB = {};
@@ -74,7 +74,7 @@ BBB.getMyUserInfo = function (callback) {
 // join the conference. If listen only send the request to the server
 function joinVoiceCall(options) {
   console.log(options);
-  if (options.useSIPAudio) {
+  if (clientConfig.media.useSIPAudio) {
     // create voice call params
     const joinCallback = function (message) {
       console.log('Beginning WebRTC Conference Call');
@@ -89,11 +89,12 @@ function joinVoiceCall(options) {
 
     return;
   } else {
+    const uid = getInStorage('userID');
     const extension = Meetings.findOne().voiceConf;
-    const uName = Users.findOne({ userId: getInSession('userId') }).user.name;
+    const uName = Users.findOne({ userId: uid }).user.name;
     conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
     conferenceIdNumber = '1009';
-    vertoService.joinAudio();
+    joinVertoAudio({ extension, conferenceUsername, conferenceIdNumber, listenOnly: options.isListenOnly });
   }
 }
 

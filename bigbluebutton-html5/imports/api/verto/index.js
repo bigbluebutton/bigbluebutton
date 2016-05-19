@@ -1,15 +1,17 @@
 import Meetings from '/imports/api/users';
 import {clientConfig} from '/config';
 
-function joinAudio(options) {
-  // joinVertoCall()
+function joinVertoAudio(options) {
+  joinVertoCall(options);
 }
 
-function watchVideo(options) {
-  // joinVertoCall()
+function watchVertoVideo(options) {
+  joinVertoCall(options);
 }
 
 function joinVertoCall(options) {
+  console.log('joinVertoCall');
+  return;
   let extension = null;
   if (options.extension) {
     extension = options.extension;
@@ -23,10 +25,10 @@ function joinVertoCall(options) {
 
   if (!clientConfig.useSIPAudio) {
     const vertoServerCredentials = {
-      vertoPort: clientConfig.vertoPort,
-      hostName: clientConfig.vertoServerAddress,
+      vertoPort: clientConfig.media.vertoPort,
+      hostName: clientConfig.media.vertoServerAddress,
       login: conferenceIdNumber,
-      password: clientConfig.freeswitchProfilePassword,
+      password: clientConfig.media.freeswitchProfilePassword,
     };
 
     let wasCallSuccessful = false;
@@ -56,3 +58,8 @@ function joinVertoCall(options) {
     return;
   }
 }
+
+export default {
+  joinVertoAudio,
+  watchVertoVideo,
+};

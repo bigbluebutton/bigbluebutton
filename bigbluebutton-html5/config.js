@@ -49,7 +49,20 @@ clientConfig.app.skipCheck = false;
 // The amount of time the client will wait before making another call to
 // successfully hangup the WebRTC conference call
 
-clientConfig.app.WebRTCHangupRetryInterval = 2000;
+clientConfig.media = {};
+
+clientConfig.media.WebRTCHangupRetryInterval = 2000;
+
+// IP address of FreeSWITCH server for use of mod_verto and WebRTC deshsharing
+clientConfig.media.vertoServerAddress = "HOST";
+
+// Allows a caller to access a FreeSWITCH dialplan
+clientConfig.media.freeswitchProfilePassword = "1234";
+
+clientConfig.media.vertoPort = "8082";
+
+// specifies whether to use SIP.js for audio over mod_verto
+clientConfig.media.useSIPAudio = false;
 
 // Configs for redis
 const redisConfig = {
