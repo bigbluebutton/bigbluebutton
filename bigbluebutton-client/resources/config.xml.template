@@ -50,7 +50,7 @@
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
-			useWebRTCIfAvailable="true"
+			useWebRTCIfAvailable="false"
 			chromeExtensionKey=""
 			vertoPort="PORT"
 			hostName="HOST.NAME"
