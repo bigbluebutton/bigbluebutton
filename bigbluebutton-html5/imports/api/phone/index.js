@@ -30,7 +30,7 @@ function exitVoiceCall(afterExitCall) {
       // if an attempt to hang up the call is made when the current session is not yet finished,
       // the request has no effect
       // keep track in the session if we haven't tried a hangup
-      if (getCallStatus() != null && !triedHangup) {
+      if (window.getCallStatus() != null && !triedHangup) {
         console.log('Attempting to hangup on WebRTC call');
 
         // notify BBB-apps we are leaving the call call if we are listen only
