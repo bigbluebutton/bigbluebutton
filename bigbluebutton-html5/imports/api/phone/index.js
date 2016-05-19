@@ -5,7 +5,6 @@ import {callServer} from '/imports/ui/services/api';
 import {clientConfig} from '/config';
 
 let triedHangup = false;
-//TODO relocate? Anton
 
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
@@ -31,7 +30,8 @@ function exitVoiceCall(afterExitCall) {
       // keep track in the session if we haven't tried a hangup
       if (getCallStatus() != null && !triedHangup) {
         console.log('Attempting to hangup on WebRTC call');
-          //  notify BBB-apps we are leaving the call call if we are listen only
+        // notify BBB-apps we are leaving the call call if we are listen only
+        const uid = getInStorage('userID');
         if (Users.findOne({ userId: uid }).user.listenOnly) {
           callServer('listenOnlyRequestToggle', false);
         }
