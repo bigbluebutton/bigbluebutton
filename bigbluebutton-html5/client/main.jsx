@@ -23,18 +23,25 @@ let messages = Locales[locale] || Locales['en'] || {};
 
 // Helper to load javascript libraries from the BBB server
 function loadLib(libname, successCallback) {
-  const retryMessageCallback = function (param) {
-    return console.log('Failed to load library', param);
+  const retryMessageCallback = function (param, libname) {
+    return console.log(`Failed to load library: ${libname} ${param}`);
   };
 
   return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback,
-    10000).fail(retryMessageCallback);
+    10000).fail(retryMessageCallback, libname);
 };
 
 Meteor.startup(() => {
   loadLib('sip.js');
   loadLib('bbb_webrtc_bridge_sip.js');
   loadLib('bbblogger.js');
+  loadLib('jquery.FSRTC.js');
+  loadLib('jquery.verto.js');
+  loadLib('jquery.jsonrpcclient.js');
+  loadLib('verto_extension.js');
+  loadLib('verto_extension_share.js');
+  // loadLib('getScreenId.js');
+  // loadLib('Screen-Capturing.js');
 
   render((
     <IntlProvider locale={locale} messages={messages}>
