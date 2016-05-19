@@ -1,7 +1,7 @@
 import Cursor from '/imports/api/cursor';
 import { logger } from '/imports/startup/server/logger';
 
-export default function initializeCursor(meetingId) {
+export function initializeCursor(meetingId) {
   return Cursor.upsert({
     meetingId: meetingId,
   }, {
