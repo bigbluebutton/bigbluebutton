@@ -186,52 +186,6 @@ class ApiController {
         String API_CALL = 'join'
         log.debug CONTROLLER_NAME + "#${API_CALL}"
         ApiErrors errors = new ApiErrors()
-        log.info params
-
-        /*
-         *
-        // BEGIN - backward compatibility
-        if (StringUtils.isEmpty(params.checksum)) {
-            invalid("checksumError", "You did not pass the checksum security check")
-            return
-        }
-
-        //checking for an empty username or for a username containing whitespaces only
-        if(!StringUtils.isEmpty(params.fullName)) {
-            params.fullName = StringUtils.strip(params.fullName);
-            if (StringUtils.isEmpty(params.fullName)) {
-                invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
-                return
-            }
-        } else {
-            invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
-            return
-        }
-
-        if(!StringUtils.isEmpty(params.meetingID)) {
-            params.meetingID = StringUtils.strip(params.meetingID);
-            if (StringUtils.isEmpty(params.meetingID)) {
-                invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-                return
-            }
-        } else {
-            invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-            return
-        }
-
-        if (StringUtils.isEmpty(params.password)) {
-            invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
-            return
-        }
-
-        if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-            invalid("checksumError", "You did not pass the checksum security check")
-            return
-        }
-
-        // END - backward compatibility
-         *
-         */
 
         // Do we have a checksum? If none, complain.
         if (StringUtils.isEmpty(params.checksum)) {
@@ -285,15 +239,6 @@ class ApiController {
         log.info("Retrieving meeting ${internalMeetingId}")
         Meeting meeting = meetingService.getMeeting(internalMeetingId);
         if (meeting == null) {
-            /*
-             * 
-            // BEGIN - backward compatibility
-            invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-            return;
-            // END - backward compatibility
-             * 
-             */
-
             errors.invalidMeetingIdError();
             respondWithErrors(errors)
             return;
@@ -318,24 +263,8 @@ class ApiController {
 
         // Is this user joining a meeting that has been ended. If so, complain.
         if (meeting.isForciblyEnded()) {
-            /*
-             * 
-            // BEGIN - backward compatibility
-            invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
-            return;
-            // END - backward compatibility
-             * 
-             */
-
             errors.meetingForciblyEndedError();
             respondWithErrors(errors)
-            return;
-        }
-
-        // Is the maxParticipants limit has been reached. If so, complain.
-        if (meeting.getNumUsers() >= meeting.getMaxUsers()) {
-            errors.maxParticipantsReached();
-            respondWithErrors(errors);
             return;
         }
 
@@ -348,15 +277,6 @@ class ApiController {
         }
 
         if (role == null) {
-            /*
-             * 
-            // BEGIN - backward compatibility
-            invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
-            return
-            // END - backward compatibility
-             * 
-             */
-
             errors.invalidPasswordError()
             respondWithErrors(errors)
             return;
@@ -451,9 +371,11 @@ class ApiController {
         meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
 
         // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
-        if (meeting.getRegisteredUsers().size() >= meeting.getMaxUsers()) {
+        // when maxUsers is set to 0, the validation is ignored
+        int maxUsers = meeting.getMaxUsers();
+        if (maxUsers > 0 && meeting.getRegisteredUsers().size() >= maxUsers) {
             errors.maxParticipantsReached();
-            respondWithErrors(errors);
+            respondWithErrors(errors, true);
             return;
         }
 
@@ -2148,7 +2070,7 @@ class ApiController {
         }
     }
 
-    def respondWithErrors(errorList) {
+    private void respondWithErrors(errorList, htmlResponse=false) {
         log.debug CONTROLLER_NAME + "#invalid"
         
         //check if exists the param redirect
@@ -2163,7 +2085,7 @@ class ApiController {
             }
         }
 
-        if (redirectClient) {
+        if (htmlResponse && redirectClient) {
             String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
             URI oldUri = URI.create(logoutUrl)
 
@@ -2180,8 +2102,8 @@ class ApiController {
             ArrayList<Object> errors = new ArrayList<Object>();
             errorList.getErrors().each { error ->
                 Map<String,String> errorMap = new LinkedHashMap<String,String>()
-                errorMap.put("message",error[1])
                 errorMap.put("key",error[0])
+                errorMap.put("message",error[1])
                 errors.add(errorMap)
             }
 
