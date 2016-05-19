@@ -1,6 +1,7 @@
 import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
 import {clientConfig} from '/config';
+import '/imports/api/cursor/server/modifiers/initializeCursor';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording,
                                        voiceConf, duration, callback) {
