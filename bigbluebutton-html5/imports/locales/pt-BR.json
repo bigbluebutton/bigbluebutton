@@ -1,3 +1,7 @@
 {
-  "app.home.greeting": "Bem-vindo {name}! Sua aprensentação começará em breve..."
+  "app.home.greeting": "Bem-vindo {name}! Sua aprensentação começará em breve...",
+  "app.userlist.participants": "Participantes",
+  "app.userlist.messages": "Mensagens",
+  "app.userlist.presenter": "Apresentador",
+  "app.userlist.you": "Você"
 }

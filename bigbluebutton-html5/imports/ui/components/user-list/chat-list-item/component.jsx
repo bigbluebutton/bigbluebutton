@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import styles from './styles.scss';
+import styles from '../styles.scss';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 
@@ -15,7 +15,7 @@ export default class ChatListItem extends Component {
           <h3>Public Chat</h3>
         </div>
         <div className={styles.unreadMessages}>
-          <p>14</p>
+          <p>{Math.round(Math.random()*33)}</p>
         </div>
       </li>
     );
