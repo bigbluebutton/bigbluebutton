@@ -48,12 +48,12 @@ autoScalaLibrary := false
 * publish to the local maven repo using "sbt publish"
 */
 // Uncomment this to publish to local maven repo while commenting out the nexus repo
-//publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
 
 
 // Comment this out when publishing to local maven repo using SNAPSHOT version.
 // To push to sonatype "sbt publishSigned"
-
+/*
 publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value)
@@ -61,7 +61,7 @@ publishTo := {
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
-
+*/
 
 // Enables publishing to maven repo
 publishMavenStyle := true
