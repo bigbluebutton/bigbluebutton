@@ -11,32 +11,36 @@ let triedHangup = false;
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
 function exitVoiceCall(afterExitCall) {
   if (!clientConfig.media.useSIPAudio) {
-    leaveWebRTCVoiceConference_verto();
-    cur_call = null;
+    window.leaveWebRTCVoiceConference_verto();
+    window.cur_call = null;
     return;
   } else {
     // To be called when the hangup is initiated
-    const hangupCallback = function() {
+    const hangupCallback = function () {
       console.log('Exiting Voice Conference');
-    }
+    };
 
     // Checks periodically until a call is established so we can successfully end the call
     // clean state
     triedHangup = false;
+
     // function to initiate call
-    const checkToHangupCall = (function(context, afterExitCall) {
+    const checkToHangupCall = (function (context, afterExitCall) {
+
       // if an attempt to hang up the call is made when the current session is not yet finished,
       // the request has no effect
       // keep track in the session if we haven't tried a hangup
       if (getCallStatus() != null && !triedHangup) {
         console.log('Attempting to hangup on WebRTC call');
+
         // notify BBB-apps we are leaving the call call if we are listen only
         const uid = getInStorage('userID');
         if (Users.findOne({ userId: uid }).user.listenOnly) {
           callServer('listenOnlyRequestToggle', false);
         }
 
-        webrtc_hangup(hangupCallback);
+        window.webrtc_hangup(hangupCallback);
+
         // we have hung up, prevent retries
         triedHangup = true;
 
@@ -46,10 +50,12 @@ function exitVoiceCall(afterExitCall) {
       } else {
         console.log(`RETRYING hangup on WebRTC call in
           ${clientConfig.media.WebRTCHangupRetryInterval} ms`);
+
         // try again periodically
         setTimeout(checkToHangupCall, clientConfig.media.WebRTCHangupRetryInterval);
       }
-    })(this, afterExitCall); // automatically run function
+    // automatically run function
+    })(this, afterExitCall);
     return false;
   };
 }
@@ -75,6 +81,7 @@ BBB.getMyUserInfo = function (callback) {
 function joinVoiceCall(options) {
   console.log(options);
   if (clientConfig.media.useSIPAudio) {
+
     // create voice call params
     const joinCallback = function (message) {
       console.log('Beginning WebRTC Conference Call');
@@ -94,7 +101,8 @@ function joinVoiceCall(options) {
     const uName = Users.findOne({ userId: uid }).user.name;
     conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
     conferenceIdNumber = '1009';
-    joinVertoAudio({ extension, conferenceUsername, conferenceIdNumber, listenOnly: options.isListenOnly });
+    joinVertoAudio({ extension, conferenceUsername, conferenceIdNumber,
+      listenOnly: options.isListenOnly });
   }
 }
 
