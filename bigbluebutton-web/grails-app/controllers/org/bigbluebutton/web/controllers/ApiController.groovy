@@ -222,14 +222,14 @@ class ApiController {
         }
 
         if (errors.hasErrors()) {
-            respondWithErrors(errors)
+            respondWithErrors(errors, true)
             return
         }
 
         // Do we agree on the checksum? If not, complain.
         if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
             errors.checksumError()
-            respondWithErrors(errors)
+            respondWithErrors(errors, true)
             return
         }
 
@@ -240,7 +240,7 @@ class ApiController {
         Meeting meeting = meetingService.getMeeting(internalMeetingId);
         if (meeting == null) {
             errors.invalidMeetingIdError();
-            respondWithErrors(errors)
+            respondWithErrors(errors, true)
             return;
         }
 
@@ -256,7 +256,7 @@ class ApiController {
             }
             if(createTime != meeting.getCreateTime()) {
                 errors.mismatchCreateTimeParam();
-                respondWithErrors(errors);
+                respondWithErrors(errors, true)
                 return;
             }
         }
@@ -264,7 +264,7 @@ class ApiController {
         // Is this user joining a meeting that has been ended. If so, complain.
         if (meeting.isForciblyEnded()) {
             errors.meetingForciblyEndedError();
-            respondWithErrors(errors)
+            respondWithErrors(errors, true)
             return;
         }
 
@@ -278,7 +278,7 @@ class ApiController {
 
         if (role == null) {
             errors.invalidPasswordError()
-            respondWithErrors(errors)
+            respondWithErrors(errors, true)
             return;
         }
 
@@ -320,7 +320,7 @@ class ApiController {
             Config conf = meeting.getDefaultConfig();
             if (conf == null) {
                 errors.noConfigFound();
-                respondWithErrors(errors);
+                respondWithErrors(errors, true)
             } else {
                 configxml = conf.config;
             }
@@ -328,7 +328,7 @@ class ApiController {
 
         if (StringUtils.isEmpty(configxml)) {
             errors.noConfigFound();
-            respondWithErrors(errors);
+            respondWithErrors(errors, true);
         }
         UserSession us = new UserSession();
         us.authToken = authToken;
