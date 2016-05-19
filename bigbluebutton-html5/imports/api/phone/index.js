@@ -1,53 +1,57 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import {getInStorage} from '/imports/ui/components/app/service';
+import {getInStorage, setInStorage} from '/imports/ui/components/app/service';
 import {callServer} from '/imports/ui/services/api';
+import {clientConfig} from '/config';
 
+let triedHangup = false;
 //TODO relocate? Anton
 
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
 function exitVoiceCall(afterExitCall) {
-//   if (!Meteor.config.useSIPAudio) {
-//     leaveWebRTCVoiceConference_verto();
-//     cur_call = null;
-//     return;
-//   } else {
-//     // To be called when the hangup is initiated
-//     hangupCallback = function() {
-//       console.log('Exiting Voice Conference');
-//     }
-//
-//     // Checks periodically until a call is established so we can successfully end the call
-//     // clean state
-//     getInSession("triedHangup", false);
-//     // function to initiate call
-//     const checkToHangupCall = (function(context) {
-//       // if an attempt to hang up the call is made when the current session is not yet finished,
-//         the request has no effect
-//       // keep track in the session if we haven't tried a hangup
-//       if (BBB.getCallStatus() != null && !getInSession("triedHangup")) {
-//         console.log('Attempting to hangup on WebRTC call');
-//            notify BBB-apps we are leaving the call call if we are listen only
-//         if (BBB.amIListenOnlyAudio()) {
-//           Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), BBB.getMyUserId(),
-//                BBB.getMyAuthToken(), false);
-//         }
-//         BBB.leaveVoiceConference(hangupCallback);
-//         getInSession("triedHangup", true); // we have hung up, prevent retries
-//         notification_WebRTCAudioExited();
-//         if (afterExitCall) {
-//           afterExitCall(this, Meteor.config.app.listenOnly);
-//         }
-//       } else {
-//         // console.log(`RETRYING hangup on WebRTC call in
-// ${Meteor.config.app.WebRTCHangupRetryInterval} ms`);
-//         // try again periodically
-//         setTimeout(checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval);
-//       }
-//     })(this); // automatically run function
-//     return false;
-//   };
+  // if (!clientConfig.useSIPAudio) {
+  //   leaveWebRTCVoiceConference_verto();
+  //   cur_call = null;
+  //   return;
+  // } else {
+    // To be called when the hangup is initiated
+    const hangupCallback = function() {
+      console.log('Exiting Voice Conference');
+    }
+
+    // Checks periodically until a call is established so we can successfully end the call
+    // clean state
+    // getInSession("triedHangup", false);
+    triedHangup = false;
+    // function to initiate call
+    const checkToHangupCall = (function(context, afterExitCall) {
+      // if an attempt to hang up the call is made when the current session is not yet finished,
+        // the request has no effect
+      // keep track in the session if we haven't tried a hangup
+      if (getCallStatus() != null && !triedHangup) {
+        console.log('Attempting to hangup on WebRTC call');
+          //  notify BBB-apps we are leaving the call call if we are listen only
+        if (Users.findOne({ userId: uid }).user.listenOnly) {
+          callServer('listenOnlyRequestToggle', false);
+        }
+
+        webrtc_hangup(hangupCallback);
+        // we have hung up, prevent retries
+        triedHangup = true;
+
+        if (afterExitCall) {
+          afterExitCall(this, clientConfig.app.listenOnly);
+        }
+      } else {
+        console.log(`RETRYING hangup on WebRTC call in
+          ${clientConfig.app.WebRTCHangupRetryInterval} ms`);
+        // try again periodically
+        setTimeout(checkToHangupCall, clientConfig.app.WebRTCHangupRetryInterval);
+      }
+    })(this, afterExitCall); // automatically run function
+    return false;
+  // };
 }
 
 BBB = {};
