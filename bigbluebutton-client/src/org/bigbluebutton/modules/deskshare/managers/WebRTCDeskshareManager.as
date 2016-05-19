@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.modules.deskshare.events.UseJavaModeCommand;
 	import org.bigbluebutton.modules.deskshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
+	import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.WebRTCDeskshareService;
 	import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
 	import org.bigbluebutton.main.api.JSLog;
@@ -47,22 +48,13 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
 		private var chromeExtensionKey:String = null;
+		private var vertoServerCredentials:Object = new Object();
 
 		public function WebRTCDeskshareManager() {
 			service = new WebRTCDeskshareService();
 			globalDispatcher = new Dispatcher();
 			publishWindowManager = new WebRTCPublishWindowManager(service);
 			viewWindowManager = new WebRTCViewerWindowManager(service);
-			/*toolbarButtonManager = new ToolbarButtonManager();*/
-		}
-
-		private function getFreeswitchServerCredentials():Object {
-			var credentials:Object = new Object();
-			credentials.vertoPort = "PORT";
-			credentials.hostName = "HOST.NAME";
-			credentials.login = "LOGIN";
-			credentials.password = "PASSWORD";
-			return credentials;
 		}
 
 		public function handleStartModuleEvent(module:DeskShareModule):void {
@@ -83,14 +75,26 @@ package org.bigbluebutton.modules.deskshare.managers
 			service.disconnect();
 		}
 
+		/*presenter stopped their program stream*/
 		public function handleStreamStoppedEvent():void {
 			LOGGER.debug("DeskshareManager::handleStreamStoppedEvent Sending deskshare stopped command");
+			JSLog.warn("WebRTCDeskshareManager::handleStreamStoppedEvent", {});
 			stopWebRTCDeskshare();
+		}
+
+		/*viewer being told there is no more stream*/
+		public function handleStreamStopEvent(args:Object):void {
+			LOGGER.debug("WebRTCDeskshareManager::handleStreamStopEvent");
+			JSLog.warn("WebRTCDeskshareManager::handleStreamStopEvent", {});
+			viewWindowManager.handleViewWindowCloseEvent();
 		}
 
 		private function stopWebRTCDeskshare():void {
 			LOGGER.debug("DeskshareManager::stopWebRTCDeskshare");
 			viewWindowManager.stopViewing();
+			/* stopping WebRTC deskshare. Alert DeskshareManager to reset toolbar */
+			globalDispatcher.dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));
+
 			if (ExternalInterface.available) {
 				var loggingCallback:Function = function(args:Object):void {LOGGER.debug(args); JSLog.warn("loggingCallback", args)};
 				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
@@ -114,9 +118,12 @@ package org.bigbluebutton.modules.deskshare.managers
 				// register these callbacks
 				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
 				ExternalInterface.addCallback("onSuccess", onSuccess);
-				var onFail:Function = function(args:Object):void { JSLog.warn("onFail - as", args); globalDispatcher.dispatchEvent(new UseJavaModeCommand()) };
+				var onFail:Function = function(args:Object):void {
+					JSLog.warn("onFail - as", args);
+					JSLog.warn("WebRTCDeskshareManager::startWebRTCDeskshare - falling back to java", {});
+					globalDispatcher.dispatchEvent(new UseJavaModeCommand())
+				};
 				ExternalInterface.addCallback("onFail", onFail);
-				var vertoServerCredentials:Object = getFreeswitchServerCredentials();
 				JSLog.warn("calling startScreenshare", {});
 				result = ExternalInterface.call("startScreenshare", "loggingCallback", videoTag, vertoServerCredentials, chromeExtensionKey, modifyResolution, "onSuccess", "onFail");
 			}
@@ -129,12 +136,20 @@ package org.bigbluebutton.modules.deskshare.managers
 			if (options.chromeExtensionKey) {
 				chromeExtensionKey = options.chromeExtensionKey;
 			}
-
+			if (options.vertoPort) {
+				vertoServerCredentials.vertoPort = options.vertoPort;
+			}
+			if (options.hostName) {
+				vertoServerCredentials.hostName = options.hostName;
+			}
+			if (options.login) {
+				vertoServerCredentials.login = options.login;
+			}
+			if (options.password) {
+				vertoServerCredentials.password = options.password;
+			}
 			if (options.autoStart) {
 				handleStartSharingEvent(true);
-			}
-			if(options.showButton){
-				/*toolbarButtonManager.addToolbarButton();*/
 			}
 		}
 
@@ -145,7 +160,6 @@ package org.bigbluebutton.modules.deskshare.managers
 
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
 			LOGGER.debug("Got MadeViewerEvent ");
-			/*toolbarButtonManager.removeToolbarButton();*/
 			if (sharing) {
 				publishWindowManager.stopSharing();
 				stopWebRTCDeskshare();
@@ -193,11 +207,13 @@ package org.bigbluebutton.modules.deskshare.managers
 
 		/*handle start sharing event*/
 		public function handleStartSharingEvent(autoStart:Boolean):void {
-			LOGGER.debug("DeskshareManager::handleStartSharingEvent");
+			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
+			JSLog.warn("WebRTCDeskshareManager::handleStartSharingEvent", {});
 			var onFailure:Function = function(message:String):void {
 				JSLog.warn(message, {});
 				usingWebRTC = false;
 				// send out event to fallback to Java
+				JSLog.warn("WebRTCDeskshareManager::handleStartSharingEvent - falling back to java", {});
 				globalDispatcher.dispatchEvent(new UseJavaModeCommand());
 				return;
 			};
@@ -212,15 +228,14 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 
 		public function handleShareWindowCloseEvent():void {
-			//toolbarButtonManager.enableToolbarButton();
 			publishWindowManager.handleShareWindowCloseEvent();
 			sharing = false;
 			stopWebRTCDeskshare();
-			/*toolbarButtonManager.stopedSharing();*/
 		}
 
 		public function handleViewWindowCloseEvent():void {
 			LOGGER.debug("Received stop viewing command");
+			JSLog.warn("WebRTCDeskshareManager::handleViewWindowCloseEvent", {});
 			viewWindowManager.handleViewWindowCloseEvent();
 		}
 

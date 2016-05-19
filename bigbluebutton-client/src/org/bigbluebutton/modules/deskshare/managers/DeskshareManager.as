@@ -116,17 +116,21 @@ package org.bigbluebutton.modules.deskshare.managers
 			var options:DeskshareOptions = new DeskshareOptions();
 			options.parseOptions();
 
+			// falling back to java, or we can't use WebRTC
 			if (autoStart || (options.useWebRTCIfAvailable && !BrowserCheck.isWebRTCSupported())) {
 				if (BrowserCheck.isUsingLessThanChrome38OnMac()) {
 					usingJava = false;
+					publishWindowManager.startSharing(options.publishURI , options.useTLS , module.getRoom(), autoStart, options.autoFullScreen);
 				} else {
 					var javaIssue:String = JavaCheck.checkJava();
 
 					if (javaIssue != null) {
 						if (BrowserCheck.isChrome42OrHigher()) {
 							usingJava = false;
+							publishWindowManager.startSharing(options.publishURI , options.useTLS , module.getRoom(), autoStart, options.autoFullScreen);
 						} else {
 							usingJava = false;
+							publishWindowManager.startSharing(options.publishURI , options.useTLS , module.getRoom(), autoStart, options.autoFullScreen);
 						}
 					} else {
 						usingJava = true;
@@ -137,6 +141,7 @@ package org.bigbluebutton.modules.deskshare.managers
 					}
 				}
 			} else {
+				// using WebRTC or not a fallback case
 				usingJava = false;
 			}
 		}

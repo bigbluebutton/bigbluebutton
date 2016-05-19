@@ -39,7 +39,8 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var globalDispatcher:Dispatcher;
 		private var service:DeskshareService;
 		private var buttonShownOnToolbar:Boolean = false;
-		
+		private var isOpen:Boolean = false;
+
 		// Timer to auto-publish webcam. We need this timer to delay
 		// the auto-publishing until after the Viewers's window has loaded
 		// to receive the publishing events. Otherwise, the user joining next
@@ -53,12 +54,18 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function stopSharing():void {
-			if (shareWindow != null) shareWindow.stopSharing();
+			if (shareWindow != null) {
+				shareWindow.stopSharing();
+				isOpen = false;
+			}
 		}
-																			
+
 		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 			LOGGER.debug("DS:PublishWindowManager::opening desk share window, autostart={0} autoFullScreen={1}", [autoStart, autoFullScreen]);
-
+			if (isOpen) {
+				return;
+			}
+			isOpen = true;
 			shareWindow = new DesktopPublishWindow();
 			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);
 			shareWindow.visible = true;
@@ -72,7 +79,7 @@ package org.bigbluebutton.modules.deskshare.managers
 				autoPublishTimer = new Timer(2000, 1);
 				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 				autoPublishTimer.start();
-			}			
+			}
 		}
 		
 		private function autopublishTimerHandler(event:TimerEvent):void {				
@@ -82,14 +89,16 @@ package org.bigbluebutton.modules.deskshare.managers
 		public function handleShareWindowCloseEvent():void {
 			closeWindow(shareWindow);
 		}
-		
-		private function openWindow(window:IBbbModuleWindow):void {				
+
+		private function openWindow(window:IBbbModuleWindow):void {
+			isOpen = true;
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
 		}
 					
 		private function closeWindow(window:IBbbModuleWindow):void {
+			isOpen = false;
 			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
