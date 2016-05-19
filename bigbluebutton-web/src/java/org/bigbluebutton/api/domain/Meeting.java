@@ -61,7 +61,7 @@ public class Meeting {
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
-	private final ConcurrentMap<String, Date> registeredUsers;
+	private final ConcurrentMap<String, Long> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	
 	private long lastUserLeftOn = 0;
@@ -88,7 +88,7 @@ public class Meeting {
 		userCustomData = new HashMap<String, Object>();
 
 		users = new ConcurrentHashMap<String, User>();
-		registeredUsers = new ConcurrentHashMap<String, Date>();
+		registeredUsers = new ConcurrentHashMap<String, Long>();
 		
 		configs = new ConcurrentHashMap<String, Config>();
 	}
@@ -466,17 +466,16 @@ public class Meeting {
     }
 
     public void userRegistered(String internalUserID) {
-        Date now = new java.util.Date();
-        this.registeredUsers.put(internalUserID, now);
+        this.registeredUsers.put(internalUserID, new Long(System.nanoTime()));
     }
 
-    public Date userUnregistered(String userid) {
+    public Long userUnregistered(String userid) {
         String internalUserIDSeed = userid.split("_")[0];
-        Date r = (Date) this.registeredUsers.remove(internalUserIDSeed);
+        Long r = (Long) this.registeredUsers.remove(internalUserIDSeed);
         return r;
     }
 
-    public ConcurrentMap<String, Date> getRegisteredUsers() {
+    public ConcurrentMap<String, Long> getRegisteredUsers() {
         return registeredUsers;
     }
 }

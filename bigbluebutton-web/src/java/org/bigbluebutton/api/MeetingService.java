@@ -132,18 +132,18 @@ public class MeetingService implements MessageListener {
      */
     public void purgeRegisteredUsers() {
         for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
-            Date now = new Date();
+            Long now = System.nanoTime();
             Meeting meeting = entry.getValue();
 
             ConcurrentMap<String, User> users = meeting.getUsersMap();
 
-            for (AbstractMap.Entry<String, Date> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+            for (AbstractMap.Entry<String, Long> registeredUser : meeting.getRegisteredUsers().entrySet()) {
                 String registeredUserID = registeredUser.getKey();
-                Date registeredUserDate = registeredUser.getValue();
+                Long registeredUserDate = registeredUser.getValue();
 
-                long registrationTime = registeredUserDate.getTime();
-                long elapsedTime = now.getTime() - registrationTime;
-                if ( elapsedTime >= 600000 && !users.containsKey(registeredUserID)) {
+                long registrationTime = registeredUserDate.longValue();
+                long elapsedTime = now - registrationTime;
+                if ( elapsedTime >= 60000 && !users.containsKey(registeredUserID)) {
                     meeting.userUnregistered(registeredUserID);
                 }
             }
@@ -659,7 +659,7 @@ public class MeetingService implements MessageListener {
                   m.setEndTime(System.currentTimeMillis());
                 }
 
-                Date userRegistered = m.userUnregistered(message.userId);
+                Long userRegistered = m.userUnregistered(message.userId);
                 if (userRegistered != null) {
                     log.info("User unregistered from meeting");
                 } else {
