@@ -16,7 +16,7 @@ Meteor.publish('users', function (credentials) {
     meetingId: meetingId,
   });
 
-  if (!!userObject && !!userObject.user ) {
+  if (!!userObject && !!userObject.user) {
     let username = 'UNKNOWN';
     if (isAllowedTo('subscribeUsers', credentials)) {
       logger.info(`${userid} was allowed to subscribe to 'users'`);
@@ -49,7 +49,7 @@ Meteor.publish('users', function (credentials) {
   }
 });
 
-const getUsers = function(meetingId) {
+const getUsers = function (meetingId) {
   //publish the users which are not offline
   return Users.find({
     meetingId: meetingId,
@@ -63,7 +63,7 @@ const getUsers = function(meetingId) {
   });
 };
 
-const setConnectionStatus = function(meetingId, userId, statusStr) {
+const setConnectionStatus = function (meetingId, userId, statusStr) {
   Users.update({
     meetingId: meetingId,
     userId: userId,

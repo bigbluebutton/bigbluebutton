@@ -1,5 +1,5 @@
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import { requestUserLeaving } from '/imports/api/users/server/modifiers/clearUsersCollection';
+import { requestUserLeaving } from '/imports/api/users/server/modifiers/requestUserLeaving';
 import { logger } from '/imports/startup/server/logger';
 
 Meteor.methods({

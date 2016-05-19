@@ -1,7 +1,7 @@
 import { publish } from '/imports/startup/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/startup/server/helpers';
-import { updateVoiceUser } from '/imports/api/users/server/modifiers/clearUsersCollection';
+import { updateVoiceUser } from '/imports/api/users/server/modifiers/updateVoiceUser';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
@@ -12,8 +12,7 @@ Meteor.methods({
   // requesterToken: the authToken of the requester
   muteUser(credentials, toMuteUserId) {
     const { meetingId, requesterUserId, requesterToken } = credentials;
-    let action, message;
-    action = function () {
+    const action = function () {
       if (toMuteUserId === requesterUserId) {
         return 'muteSelf';
       } else {
@@ -21,8 +20,8 @@ Meteor.methods({
       }
     };
 
-    if (isAllowedTo(action(), meetingId, requesterUserId, requesterToken)) {
-      message = {
+    if (isAllowedTo(action(), credentials)) {
+      let message = {
         payload: {
           user_id: toMuteUserId,
           meeting_id: meetingId,

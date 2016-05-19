@@ -24,9 +24,9 @@ Meteor.methods({
           assigned_by: requesterSetPresenter,
         },
       };
-    }
 
-    message = appendMessageHeader('assign_presenter_request_message', message);
-    return publish(redisConfig.channels.toBBBApps.users, message);
+      message = appendMessageHeader('assign_presenter_request_message', message);
+      return publish(redisConfig.channels.toBBBApps.users, message);
+    }
   },
 });

@@ -6,20 +6,20 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
 
   // importing the Meteor settings:
-  var settings_dev = require('./settings-development.json');
-  var settings_prod = require('./settings-production.json');
+  var SETTINGS_DEV = require('./settings-development.json');
+  var SETTINGS_PROD = require('./settings-production.json');
 
   // root URL in development/production:
-  var devRootURL = (settings_dev.rootURL == undefined) ? 'http://127.0.0.1/html5client' : settings_dev.rootURL;
-  var prodRootURL = (settings_prod.rootURL == undefined) ? 'http://127.0.0.1/html5client' : settings_prod.rootURL;
+  var devRootURL = (SETTINGS_DEV.rootURL == undefined) ? 'http://127.0.0.1/html5client' : SETTINGS_DEV.rootURL;
+  var prodRootURL = (SETTINGS_PROD.rootURL == undefined) ? 'http://127.0.0.1/html5client' : SETTINGS_PROD.rootURL;
 
   // command line string containing the Meteor's home directory in development/production:
-  var devHomeStr = (settings_dev.home == undefined) ? '' : ('HOME=' + settings_dev.home + ' ');
-  var prodHomeStr = (settings_prod.home == undefined) ? '' : ('HOME=' + settings_prod.home + ' ');
+  var devHomeStr = (SETTINGS_DEV.home == undefined) ? '' : ('HOME=' + SETTINGS_DEV.home + ' ');
+  var prodHomeStr = (SETTINGS_PROD.home == undefined) ? '' : ('HOME=' + SETTINGS_PROD.home + ' ');
 
   // final commands:
-  var meteor_dev_command = devHomeStr + 'ROOT_URL=' + devRootURL + ' meteor --settings settings-development.json';
-  var meteor_prod_command = prodHomeStr + 'ROOT_URL=' + prodRootURL + ' meteor --settings settings-production.json';
+  var METEOR_DEV_COMMAND = devHomeStr + 'ROOT_URL=' + devRootURL + ' meteor --settings settings-development.json';
+  var METEOR_PROD_COMMAND = prodHomeStr + 'ROOT_URL=' + prodRootURL + ' meteor --settings settings-production.json';
 
   // configure Grunt
   grunt.initConfig({
@@ -57,10 +57,10 @@ module.exports = function (grunt) {
 
     shell: {
       start_meteor_development: {
-        command: meteor_dev_command,
+        command: METEOR_DEV_COMMAND,
       },
       start_meteor_production: {
-        command: meteor_prod_command,
+        command: METEOR_DEV_COMMAND,
       },
     },
 

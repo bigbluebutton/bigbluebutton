@@ -7,13 +7,12 @@ Meteor.methods({
   // Construct and send a message to bbb-web to validate the user
   validateAuthToken(credentials) {
     const { meetingId, requesterUserId, requesterToken } = credentials;
-    let message;
     logger.info('sending a validate_auth_token with', {
       userid: requesterUserId,
       authToken: requesterToken,
       meetingid: meetingId,
     });
-    message = {
+    let message = {
       payload: {
         auth_token: requesterToken,
         userid: requesterUserId,

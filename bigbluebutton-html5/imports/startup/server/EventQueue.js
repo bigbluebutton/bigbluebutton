@@ -1,5 +1,5 @@
 import { logger } from '/imports/startup/server/logger';
-import { eventEmitter } from '/imports/startup/server/index';
+import { eventEmitter } from '/imports/startup/server';
 import { indexOf } from '/imports/startup/server/helpers';
 
 export class EventQueue {
@@ -12,13 +12,12 @@ export class EventQueue {
     });
 
     queue.taskHandler = function (data, next, failures) {
-      let eventName, parsedMsg, length, lengthString;
-      parsedMsg = JSON.parse(data.jsonMsg);
-
+      const parsedMsg = JSON.parse(data.jsonMsg);
+      let eventName = null;
       if (parsedMsg != null) {
         eventName = parsedMsg.header.name;
-        length = queue.length();
-        lengthString = (function () {
+        const length = queue.length();
+        const lengthString = (function () {
             if (length > 0) {
               return `In the queue we have ${length} event(s) to process.`;
             } else return '';
@@ -40,7 +39,7 @@ export class EventQueue {
         if (handledMessageTypes.indexOf(eventName) > -1) {
           return eventEmitter.emit(eventName, {
             payload: parsedMsg.payload,
-            header: parsedMsg.header,
+            header: parsedMsg.header, //TODO extract meetingId here
 
             callback: () => {
               console.log('ready for next message');

@@ -4,6 +4,7 @@ import { logger } from '/imports/startup/server/logger';
 
 Meteor.publish('polls', function (credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
+
   //checking if it is allowed to see Poll Collection in general
   if (isAllowedTo('subscribePoll', credentials)) {
     //checking if it is allowed to see a number of votes (presenter only)

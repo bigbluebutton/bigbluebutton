@@ -18,7 +18,9 @@ Meteor.methods({
         poll: { id: pollId },
       });
 
-      if ((meetingId != null) && result && (result.meetingId != null) && (requesterUserId != null) &&
+      if ((meetingId != null) &&
+        (result.meetingId != null) &&
+        (requesterUserId != null) &&
         (pollAnswerId != null)) {
         let message = {
           payload: {
