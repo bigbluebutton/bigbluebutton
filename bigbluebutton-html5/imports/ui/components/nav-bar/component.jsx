@@ -37,8 +37,7 @@ class NavBar extends Component {
           onClick={this.handleToggleUserList}
           ghost={true}
           circle={true}
-          icon={'more'}
-          size={'sm'}
+          icon={'user'}
         />
         </div>
         <div className={styles.center}>
