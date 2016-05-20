@@ -21,6 +21,7 @@ package org.bigbluebutton.api.domain;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,7 +60,8 @@ public class Meeting {
 	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
-	private final ConcurrentMap<String, User> users; 
+	private final ConcurrentMap<String, User> users;
+	private final ConcurrentMap<String, Long> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	
 	private long lastUserLeftOn = 0;
@@ -76,16 +78,17 @@ public class Meeting {
 		record = builder.record;
 		autoStartRecording = builder.autoStartRecording;
 		allowStartStopRecording = builder.allowStartStopRecording;
-   	duration = builder.duration;
-   	webVoice = builder.webVoice;
-   	telVoice = builder.telVoice;
-   	welcomeMsg = builder.welcomeMsg;
-   	dialNumber = builder.dialNumber;
-   	metadata = builder.metadata;
-   	createdTime = builder.createdTime;
-   	userCustomData = new HashMap<String, Object>();
+		duration = builder.duration;
+		webVoice = builder.webVoice;
+		telVoice = builder.telVoice;
+		welcomeMsg = builder.welcomeMsg;
+		dialNumber = builder.dialNumber;
+		metadata = builder.metadata;
+		createdTime = builder.createdTime;
+		userCustomData = new HashMap<String, Object>();
 
 		users = new ConcurrentHashMap<String, User>();
+		registeredUsers = new ConcurrentHashMap<String, Long>();
 		
 		configs = new ConcurrentHashMap<String, Config>();
 	}
@@ -120,15 +123,19 @@ public class Meeting {
 	public Config removeConfig(String token) {
 		return configs.remove(token);
 	}
-	
+
 	public Map<String, String> getMetadata() {
 		return metadata;
 	}
-	
+
 	public Collection<User> getUsers() {
 		return users.isEmpty() ? Collections.<User>emptySet() : Collections.unmodifiableCollection(users.values());
 	}
-	
+
+	public ConcurrentMap<String, User> getUsersMap() {
+	    return users;
+	}
+
 	public long getStartTime() {
 		return startTime;
 	}
@@ -234,16 +241,16 @@ public class Meeting {
 	}
 	
 	public void userJoined(User user) {
-		userHasJoined = true;
-		this.users.put(user.getInternalUserId(), user);
+	    userHasJoined = true;
+	    this.users.put(user.getInternalUserId(), user);
 	}
-	
+
 	public User userLeft(String userid){
 		User u = (User) users.remove(userid);	
 		if (users.isEmpty()) lastUserLeftOn = System.currentTimeMillis();
 		return u;
 	}
-	
+
 	public User getUserById(String id){
 		return this.users.get(id);
 	}
@@ -456,5 +463,19 @@ public class Meeting {
     	public Meeting build() {
     		return new Meeting(this);
     	}
+    }
+
+    public void userRegistered(String internalUserID) {
+        this.registeredUsers.put(internalUserID, new Long(System.nanoTime()));
+    }
+
+    public Long userUnregistered(String userid) {
+        String internalUserIDSeed = userid.split("_")[0];
+        Long r = (Long) this.registeredUsers.remove(internalUserIDSeed);
+        return r;
+    }
+
+    public ConcurrentMap<String, Long> getRegisteredUsers() {
+        return registeredUsers;
     }
 }

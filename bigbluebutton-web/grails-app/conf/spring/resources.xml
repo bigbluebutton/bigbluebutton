@@ -34,6 +34,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
   <bean id="expiredMeetingCleanupTimerTask" class="org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask"/>
 
+  <bean id="registeredUserCleanupTimerTask" class="org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask"/>
+
   <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService" 
        init-method="start" destroy-method="stop">
     <property name="runEvery" value="${checkBBBServerEvery}"/>
@@ -45,8 +47,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <property name="defaultMeetingCreateJoinDuration" value="${defaultMeetingCreateJoinDuration}"/>
 	  <property name="removeMeetingWhenEnded" value="${removeMeetingWhenEnded}"/>
 	  <property name="expiredMeetingCleanupTimerTask" ref="expiredMeetingCleanupTimerTask"/>
-		<property name="messagingService" ref="messagingService"/>
-		<property name="recordingService" ref="recordingService"/>
+	  <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
+	  <property name="messagingService" ref="messagingService"/>
+	  <property name="recordingService" ref="recordingService"/>
   </bean>
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
