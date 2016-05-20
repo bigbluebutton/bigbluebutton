@@ -79,6 +79,8 @@ public class MessageSender {
 		  public void run() {
 				Jedis jedis = redisPool.getResource();
 				try {
+					if(channel.equalsIgnoreCase("bigbluebutton:from-bbb-apps:users") || channel.equalsIgnoreCase("bigbluebutton:from-bbb-apps:meeting"))
+						log.info("web-Publishing..." + channel + ":" + message);
 					jedis.publish(channel, message);
 				} catch(Exception e){
 					log.warn("Cannot publish the message to pubsub", e);

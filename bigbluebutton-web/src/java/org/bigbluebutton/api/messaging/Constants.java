@@ -92,4 +92,5 @@ public class Constants {
   public static final String VIEWER_PASS                     = "viewer_pass";
   public static final String CREATE_TIME                     = "create_time";
   public static final String CREATE_DATE                     = "create_date";
+  public static final String AVATAR_URL                      = "avatarURL";
 }

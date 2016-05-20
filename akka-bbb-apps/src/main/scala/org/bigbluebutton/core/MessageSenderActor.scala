@@ -512,6 +512,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   private def handleUserRegistered(msg: UserRegistered) {
     val json = UsersMessageToJsonConverter.userRegisteredToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+    handleRegisteredUser(msg);
   }
 
   private def handleUserStatusChange(msg: UserStatusChange) {

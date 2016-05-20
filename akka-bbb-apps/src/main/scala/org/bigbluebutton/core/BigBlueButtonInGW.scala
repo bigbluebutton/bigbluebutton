@@ -83,9 +83,9 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId)
   }
 
-  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String): Unit = {
+  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String, avatarURL: String): Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    bbbActor ! new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken)
+    bbbActor ! new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken, avatarURL)
   }
 
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -416,10 +416,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   }
 
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
-    callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
+    callerIdNum: String, muted: java.lang.Boolean, avatarURL: String, talking: java.lang.Boolean) {
 
     bbbActor ! new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
-      callerIdNum, muted, talking, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )
+      callerIdNum, muted, talking, avatarURL, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )
 
   }
 

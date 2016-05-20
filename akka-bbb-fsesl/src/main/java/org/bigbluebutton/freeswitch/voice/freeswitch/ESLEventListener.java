@@ -74,7 +74,7 @@ public class ESLEventListener implements IEslEventListener {
 			    callerIdName = matcher.group(2).trim();
 		    } 
         
-        VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking);
+        VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, null);
         conferenceEventListener.handleConferenceEvent(pj);
     }
 

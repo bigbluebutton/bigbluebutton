@@ -98,7 +98,6 @@ public class MeetingMessageHandler implements MessageHandler {
 					
 					if (header.has("name")) {
 						String messageName = header.get("name").getAsString();
-					  
 						if (MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageName)) {
 							String meetingId = payload.get("meeting_id").getAsString();
 							JsonObject user = (JsonObject) payload.get("user");
@@ -107,9 +106,10 @@ public class MeetingMessageHandler implements MessageHandler {
 							String externuserid = user.get("extern_userid").getAsString();
 							String username = user.get("name").getAsString();
 							String role = user.get("role").getAsString();
+							String avatarURL = user.get("avatarURL").getAsString();
 							
 							for (MessageListener listener : listeners) {
-								listener.handle(new UserJoined(meetingId, userid, externuserid, username, role));
+								listener.handle(new UserJoined(meetingId, userid, externuserid, username, role, avatarURL));
 							}
 						} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
 						  String meetingId = payload.get("meeting_id").getAsString();

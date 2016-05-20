@@ -9,8 +9,11 @@ import org.bigbluebutton.red5.client.ChatClientMessageSender;
 import org.bigbluebutton.red5.client.WhiteboardClientMessageSender;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 public class RedisPubSubMessageHandler implements MessageHandler {
+  private static Logger log = Red5LoggerFactory.getLogger(RedisPubSubMessageHandler.class, "bigbluebutton");
 
 	private ConnectionInvokerService service;
 	private UserClientMessageSender userMessageSender;
@@ -44,6 +47,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_MEETING_CHANNEL)) {
 			meetingMessageSender.handleMeetingMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_USERS_CHANNEL)) {
+			log.info("trace 0 : " + message);
 			userMessageSender.handleUsersMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_WHITEBOARD_CHANNEL)) {
 			whiteboardMessageSender.handleWhiteboardMessage(message);
