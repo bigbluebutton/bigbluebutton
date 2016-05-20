@@ -50,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
 	  <property name="messagingService" ref="messagingService"/>
 	  <property name="recordingService" ref="recordingService"/>
+	  <property name="stunTurnService" ref="stunTurnService"/>
   </bean>
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>

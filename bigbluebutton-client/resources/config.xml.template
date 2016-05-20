@@ -41,7 +41,6 @@
 			baseTabIndex="301"
 		/>
 
-		
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
@@ -51,10 +50,16 @@
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
+			useWebRTCIfAvailable="false"
+			chromeExtensionKey=""
+			vertoPort="PORT"
+			hostName="HOST.NAME"
+			login="LOGIN"
+			password="PASSWORD"
 		/>
-		
-		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
-			uri="rtmp://HOST/sip" 
+
+		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION"
+			uri="rtmp://HOST/sip"
 			autoJoin="true"
 			listenOnlyMode="true"
 			presenterShareOnly="false"

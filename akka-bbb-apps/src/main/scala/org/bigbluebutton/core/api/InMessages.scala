@@ -115,3 +115,11 @@ case class UndoWhiteboardRequest(meetingID: String, requesterID: String, whitebo
 case class EnableWhiteboardRequest(meetingID: String, requesterID: String, enable: Boolean) extends InMessage
 case class IsWhiteboardEnabledRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
+
+// DeskShare
+case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String)
+case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String)
+case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String)
+case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String)
+case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String)
+

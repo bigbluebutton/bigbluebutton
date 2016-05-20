@@ -52,8 +52,7 @@ dependencies {
 	compile 'commons-httpclient:commons-httpclient:3.1'
 	compile 'com.zaxxer:nuprocess:1.0.4'
 
-	// compile 'org.bigbluebutton:bbb-common-message:0.0.13'
-	compile 'org.bigbluebutton:bbb-common-message:0.0.17-SNAPSHOT'
+	compile 'org.bigbluebutton:bbb-common-message:0.0.17'
 	
   // Logging
   // Commenting out as it results in build failure (ralam - may 11, 2014)

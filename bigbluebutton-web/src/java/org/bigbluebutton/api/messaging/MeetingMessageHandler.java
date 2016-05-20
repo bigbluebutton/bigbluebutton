@@ -2,23 +2,12 @@ package org.bigbluebutton.api.messaging;
 
 import java.util.Set;
 
-import org.bigbluebutton.api.messaging.messages.IMessage;
-import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
-import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
-import org.bigbluebutton.api.messaging.messages.MeetingEnded;
-import org.bigbluebutton.api.messaging.messages.MeetingStarted;
-import org.bigbluebutton.api.messaging.messages.UserJoined;
-import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
-import org.bigbluebutton.api.messaging.messages.UserLeft;
-import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
-import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
-import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
-import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
-import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.common.converters.FromJsonDecoder;
 import org.bigbluebutton.common.messages.BbbAppsIsAliveMessage;
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.common.messages.PubSubPongMessage;
+import org.bigbluebutton.common.messages.SendStunTurnInfoRequestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,6 +153,12 @@ public class MeetingMessageHandler implements MessageHandler {
 							String stream = payload.get("stream").getAsString();
 							for (MessageListener listener : listeners) {
 								listener.handle(new UserUnsharedWebcam(meetingId, userid, stream));
+							}
+						} else if (SendStunTurnInfoRequestMessage.SEND_STUN_TURN_INFO_REQUEST_MESSAGE.equalsIgnoreCase(messageName)) {
+							String meetingId = payload.get(Constants.MEETING_ID).getAsString();
+							String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
+							for (MessageListener listener : listeners) {
+								listener.handle(new StunTurnInfoRequested(meetingId, requesterId));
 							}
 						}
 					}
