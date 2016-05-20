@@ -1,25 +1,22 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import NavBar from './NavBar.jsx';
+import Whiteboard from './component';
 
-class NavBarContainer extends Component {
+class WhiteboardContainer extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
     return (
-      <NavBar {...this.props}>
+      <Whiteboard>
         {this.props.children}
-      </NavBar>
+      </Whiteboard>
     );
   }
 }
 
 export default createContainer(() => {
-  return {
-    presentationTitle: 'IMDT 1004 Design Process',
-    hasUnreadMessages: true,
-  };
-}, NavBarContainer);
+  return {};
+}, WhiteboardContainer);

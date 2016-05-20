@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import { withRouter } from 'react-router';
-import Button from '../button/component.jsx';
+import Button from '../button/component';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,

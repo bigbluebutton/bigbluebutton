@@ -4,9 +4,9 @@ import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
 import { pollExists } from './service';
 
-import NavBarContainer from '../nav-bar/NavBarContainer';
+import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
-import MediaContainer from '../media/MediaContainer';
+import MediaContainer from '../media/container';
 import PollingContainer from '../polling/container';
 import SettingsModal from '../modals/settings/SettingsModal';
 
