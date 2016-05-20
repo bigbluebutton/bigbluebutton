@@ -1,26 +1,23 @@
 import React, { PropTypes } from 'react';
-import Svg from '../../shared/Svg.jsx';
 import WhiteboardShapeModel from '../shape-factory/component.jsx';
 import WhiteboardPaperService from './service.js';
 import { createContainer } from 'meteor/react-meteor-data';
+import Slide from '../slide/component.jsx';
 
 export default class WhiteboardPaper extends React.Component {
   constructor(props) {
     super(props);
-    //var Component = allComponents['Svg'];
   }
 
   render() {
-    var allComponents = { 'Svg': Svg };
-    var test = 'Svg';
-    var Component = allComponents[test];
 
     return (
       <div id="whiteboard-paper" style={this.props.svgStyle}>
         <div id="svggroup">
-          <Svg svgProps={this.props.svgProps} svgStyle={this.props.svgStyle}>
+          <svg version='1.1' xmlNS='http://www.w3.org/2000/svg' {...this.props.svgProps} style={this.props.svgStyle}>
+            <Slide current_slide={this.props.current_slide} />
             <WhiteboardShapeModel />
-          </Svg>
+          </svg>
         </div>
       </div>
     );

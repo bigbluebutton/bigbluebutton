@@ -1,4 +1,5 @@
 import sizeOf from 'image-size';
+
 // --------------------------------------------------------------------------------------------
 // Private methods on server
 // --------------------------------------------------------------------------------------------
@@ -40,12 +41,12 @@ this.addSlideToCollection = function (meetingId, presentationId, slideObject) {
     'slide.id': slideObject.id,
   }) == null) {
 
-  options = url.parse(slideObject.svg_uri);
-  http.get(options, Meteor.bindEnvironment(function (response) {
+    options = url.parse(slideObject.svg_uri);
+    http.get(options, Meteor.bindEnvironment(function (response) {
     var chunks = [];
     response.on('data', Meteor.bindEnvironment(function (chunk) {
       chunks.push(chunk);
-    })).on('end', Meteor.bindEnvironment(function() {
+    })).on('end', Meteor.bindEnvironment(function () {
       var buffer = Buffer.concat(chunks);
       dimensions = sizeOf(buffer);
       entry = {
