@@ -1,14 +1,14 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import App from './component.jsx';
-import {pollExists} from './service';
+import App from './component';
+import { pollExists } from './service';
 
-import NavBarContainer from '../nav-bar/NavBarContainer.jsx';
-import ActionsBarContainer from '../actions-bar/ActionsBarContainer.jsx';
-import MediaContainer from '../media/MediaContainer.jsx';
-import PollingContainer from '../polling/container.jsx';
-import SettingsModal from '../modals/settings/SettingsModal.jsx';
+import NavBarContainer from '../nav-bar/NavBarContainer';
+import ActionsBarContainer from '../actions-bar/container';
+import MediaContainer from '../media/MediaContainer';
+import PollingContainer from '../polling/container';
+import SettingsModal from '../modals/settings/SettingsModal';
 
 const defaultProps = {
   navbar: <NavBarContainer/>,

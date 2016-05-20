@@ -1,23 +1,28 @@
 @font-face {
     font-family: 'bbb-icons';
-    src:    url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
-    src:    url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
-        url('/html5client/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
-        url('/html5client/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
-        url('/html5client/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
+    src: url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
+    src: url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
+         url('/html5client/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
+         url('/html5client/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
+         url('/html5client/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
-[class^="icon-"], [class*=" icon-"] {
+[class^="icon-bbb-"], [class*=" icon-bbb-"] {
     /* use !important to prevent issues with browser extensions that change fonts */
     font-family: 'bbb-icons' !important;
     speak: none;
+    position: relative;
+    top: 1px;
+    display: inline-block;
     font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
+    font-weight: 400;
     line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    width: 1.28571429em;
+    text-align: center;
+    vertical-align: middle;
 
     /* Better Font Rendering =========== */
     -webkit-font-smoothing: antialiased;

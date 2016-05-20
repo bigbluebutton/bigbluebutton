@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import ActionsBar from './ActionsBar.jsx';
+import ActionsBar from './component.jsx';
 
 class ActionsBarContainer extends Component {
   constructor(props) {
