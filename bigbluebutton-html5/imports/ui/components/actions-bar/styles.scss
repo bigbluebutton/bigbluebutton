@@ -1,7 +1,7 @@
 @import "imports/ui/stylesheets/variables/_all";
 
 .actionsbar {
-  padding: 1rem;
+  padding: $line-height-computed / 2;
   display: flex;
   flex-direction: row;
 }
