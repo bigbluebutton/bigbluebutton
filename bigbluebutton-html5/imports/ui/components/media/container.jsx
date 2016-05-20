@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import Media from './component.jsx';
+import Media from './component';
 
 import Button from '../button/component';
 

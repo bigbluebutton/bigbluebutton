@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../button/component.jsx';
+import Button from '../button/component';
 
 export default class PollingComponent extends React.Component {
   render() {

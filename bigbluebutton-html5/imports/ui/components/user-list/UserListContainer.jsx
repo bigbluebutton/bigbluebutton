@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import UserList from './UserList.jsx';
+import UserList from './UserList';
 
 class UserListContainer extends Component {
   constructor(props) {
