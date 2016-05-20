@@ -4,7 +4,7 @@ name := "bbb-common-message"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.16"
+version := "0.0.17-SNAPSHOT"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -53,15 +53,15 @@ publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.
 
 // Comment this out when publishing to local maven repo using SNAPSHOT version.
 // To push to sonatype "sbt publishSigned"
-/*
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
-*/
+
+// publishTo := {
+//   val nexus = "https://oss.sonatype.org/"
+//   if (isSnapshot.value)
+//     Some("snapshots" at nexus + "content/repositories/snapshots")
+//   else
+//     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+// }
+
 
 // Enables publishing to maven repo
 publishMavenStyle := true

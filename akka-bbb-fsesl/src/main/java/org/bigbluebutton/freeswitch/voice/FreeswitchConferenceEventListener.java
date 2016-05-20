@@ -61,7 +61,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 				System.out.println("************** FreeswitchConferenceEventListener received voiceUserJoined ");
 				VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
 				vcs.userJoinedVoiceConf(evt.getRoom(), evt.getVoiceUserId(), evt.getUserId(), evt.getCallerIdName(), 
-						evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking());
+						evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getAvatarURL());
 				} else if (event instanceof VoiceUserLeftEvent) {
 					System.out.println("************** FreeswitchConferenceEventListener received VoiceUserLeftEvent ");
 					VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;

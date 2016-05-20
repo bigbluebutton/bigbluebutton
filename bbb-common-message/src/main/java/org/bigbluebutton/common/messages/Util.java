@@ -88,6 +88,7 @@ public class Util {
 			Boolean locked = user.get(Constants.LOCKED).getAsBoolean();
 			String extUserId = user.get(Constants.EXTERN_USERID).getAsString();
 			String role = user.get(Constants.ROLE).getAsString();
+			String avatarURL = user.get(Constants.AVATAR_URL).getAsString();
 			
 			JsonArray webcamStreamJArray = user.get(Constants.WEBCAM_STREAM).getAsJsonArray();
 			ArrayList<String> webcamStreams = extractWebcamStreams(webcamStreamJArray);
@@ -103,6 +104,7 @@ public class Util {
 			userMap.put("locked", locked);
 			userMap.put("role", role);
 			userMap.put("presenter", presenter);
+			userMap.put("avatarURL", avatarURL);
 			
 			JsonObject vu = (JsonObject) user.get(Constants.VOICEUSER);
 			
