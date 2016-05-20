@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -61,8 +62,12 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
+import org.bigbluebutton.web.services.turn.StunServer;
+import org.bigbluebutton.web.services.turn.StunTurnService;
+import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +95,7 @@ public class MeetingService implements MessageListener {
     private MessagingService messagingService;
     private ExpiredMeetingCleanupTimerTask cleaner;
     private RegisteredUserCleanupTimerTask registeredUserCleaner;
+    private StunTurnService stunTurnService;
     private boolean removeMeetingWhenEnded = false;
 
     public MeetingService() {
@@ -485,6 +491,20 @@ public class MeetingService implements MessageListener {
                 answers);
     }
 
+    private void processStunTurnInfoRequested (StunTurnInfoRequested message) {
+        Set<StunServer> stuns = stunTurnService.getStunServers();
+        log.info("\nhere are the stuns:");
+        for(StunServer s : stuns) {
+            log.info("a stun: " + s.url);
+        }
+        Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(message.internalUserId);
+        log.info("\nhere are the (" + turns.size() +") turns for internalUserId:" + message.internalUserId);
+        for(TurnEntry t : turns) {
+            log.info("a turn: " + t.url + "username/pass=" + t.username + '/' + t.password);
+        }
+        messagingService.sendStunTurnInfo(message.meetingId, message.internalUserId, stuns, turns);
+    }
+
     public void endMeeting(String meetingId) {
         handle(new EndMeeting(meetingId));
     }
@@ -781,6 +801,8 @@ public class MeetingService implements MessageListener {
                     processEndMeeting((EndMeeting) message);
                 } else if (message instanceof RegisterUser) {
                     processRegisterUser((RegisterUser) message);
+                } else if (message instanceof StunTurnInfoRequested) {
+                    processStunTurnInfoRequested((StunTurnInfoRequested) message);
                 }
             }
         };
@@ -857,4 +879,6 @@ public class MeetingService implements MessageListener {
         registeredUserCleaner.setMeetingService(this);
         registeredUserCleaner.start();
     }
+
+    public void setStunTurnService(StunTurnService s) { stunTurnService = s; }
 }

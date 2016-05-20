@@ -7,6 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
+import org.bigbluebutton.freeswitch.voice.events.DeskShareEndedEvent;
+import org.bigbluebutton.freeswitch.voice.events.DeskShareStartedEvent;
+import org.bigbluebutton.freeswitch.voice.events.DeskShareRTMPBroadcastEvent;
+import org.bigbluebutton.freeswitch.voice.events.VoiceConferenceEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceStartRecordingEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceUserJoinedEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceUserLeftEvent;
@@ -22,11 +26,15 @@ public class ESLEventListener implements IEslEventListener {
     private static final String STOP_TALKING_EVENT = "stop-talking";
     private static final String START_RECORDING_EVENT = "start-recording";
     private static final String STOP_RECORDING_EVENT = "stop-recording";
-    
+
+    private static final String DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE";
+    private static final String DESKSHARE_CALLER_NAME_SUFFIX = " (Screen)";
+    private static final String DESKSHARE_CALLER_ID_SUFFIX = " (screen)";
+
     private final ConferenceEventListener conferenceEventListener;
     
     public ESLEventListener(ConferenceEventListener conferenceEventListener) {
-    	this.conferenceEventListener = conferenceEventListener;
+        this.conferenceEventListener = conferenceEventListener;
     }
     
     @Override
@@ -50,7 +58,7 @@ public class ESLEventListener implements IEslEventListener {
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
-    	
+
         Integer memberId = this.getMemberIdFromEvent(event);
         Map<String, String> headers = event.getEventHeaders();
         String callerId = this.getCallerIdFromEvent(event);
@@ -59,29 +67,52 @@ public class ESLEventListener implements IEslEventListener {
         boolean speaking = headers.get("Talking").equals("true") ? true : false;
 
         String voiceUserId = callerIdName;
-        
+
         System.out.println("User joined voice conference, user=[" + callerIdName + "], conf=[" + confName + "]");
-        
+
         Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
         if (gapMatcher.matches()) {
-        	System.out.println("Ignoring GLOBAL AUDIO USER [" + callerIdName + "]");
-        	return;
+            System.out.println("Ignoring GLOBAL AUDIO USER [" + callerIdName + "]");
+            return;
         }
-        		
-		    Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-		    if (matcher.matches()) {			
-			    voiceUserId = matcher.group(1).trim();
-			    callerIdName = matcher.group(2).trim();
-		    } 
         
-        VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, null);
+        // Deskstop sharing conferences have their name in the form ddddd-DESKSHARE
+        // Deskstop sharing conferences have the user with the desktop video displayed in this way:
+        // username (Screen) and usernum (screen)
+        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX) &&
+                callerId.endsWith(DESKSHARE_CALLER_ID_SUFFIX) &&
+                callerIdName.endsWith(DESKSHARE_CALLER_NAME_SUFFIX)) {
+            DeskShareStartedEvent dsStart = new DeskShareStartedEvent(confName, callerId, callerIdName);
+            conferenceEventListener.handleConferenceEvent(dsStart);
+        }
+
+        Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+        if (matcher.matches()) {
+            voiceUserId = matcher.group(1).trim();
+            callerIdName = matcher.group(2).trim();
+        }
+
+        VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, "");
         conferenceEventListener.handleConferenceEvent(pj);
     }
 
     @Override
-    public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {   	
+    public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {      
         Integer memberId = this.getMemberIdFromEvent(event);
         System.out.println("User left voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
+        String callerId = this.getCallerIdFromEvent(event);
+        String callerIdName = this.getCallerIdNameFromEvent(event);
+
+        // Deskstop sharing conferences have their name in the form ddddd-DESKSHARE
+        // Deskstop sharing conferences have the user with the desktop video displayed in this way:
+        // username (Screen) and usernum (screen)
+        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX) &&
+                callerId.endsWith(DESKSHARE_CALLER_ID_SUFFIX) &&
+                callerIdName.endsWith(DESKSHARE_CALLER_NAME_SUFFIX)) {
+            DeskShareEndedEvent dsEnd = new DeskShareEndedEvent(confName, callerId, callerIdName);
+            conferenceEventListener.handleConferenceEvent(dsEnd);
+        }
+
         VoiceUserLeftEvent pl = new VoiceUserLeftEvent(memberId.toString(), confName);
         conferenceEventListener.handleConferenceEvent(pl);
     }
@@ -117,12 +148,12 @@ public class ESLEventListener implements IEslEventListener {
 
         if (action.equals(START_TALKING_EVENT)) {
             pt = new VoiceUserTalkingEvent(memberId.toString(), confName, true);
-            conferenceEventListener.handleConferenceEvent(pt);        	
+            conferenceEventListener.handleConferenceEvent(pt);          
         } else if (action.equals(STOP_TALKING_EVENT)) {
             pt = new VoiceUserTalkingEvent(memberId.toString(), confName, false);
-            conferenceEventListener.handleConferenceEvent(pt);        	
+            conferenceEventListener.handleConferenceEvent(pt);          
         } else {
-        	System.out.println("Unknown conference Action [" + action + "]");
+            System.out.println("Unknown conference Action [" + action + "]");
         }
     }
 
@@ -133,52 +164,80 @@ public class ESLEventListener implements IEslEventListener {
 
     @Override
     public void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event) {
-    	
+        
     }
     
     //@Override
     public void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event) {
-    	String action = event.getEventHeaders().get("Action");
-    	
-        if(action == null) {          
+        String action = event.getEventHeaders().get("Action");
+
+        if(action == null) {
             return;
         }
-        
-    	System.out.println("Handling conferenceEventRecord " + action);
-    	
-    	if (action.equals(START_RECORDING_EVENT)) {
-            VoiceStartRecordingEvent sre = new VoiceStartRecordingEvent(confName, true);
-            sre.setRecordingFilename(getRecordFilenameFromEvent(event));
-            sre.setTimestamp(genTimestamp().toString());
-            
-            System.out.println("Voice conference recording started. file=[" + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");
-            
-            conferenceEventListener.handleConferenceEvent(sre);    		
-    	} else if (action.equals(STOP_RECORDING_EVENT)) {
-        	VoiceStartRecordingEvent srev = new VoiceStartRecordingEvent(confName, false);
-            srev.setRecordingFilename(getRecordFilenameFromEvent(event));
-            srev.setTimestamp(genTimestamp().toString());
-            
-            System.out.println("Voice conference recording stopped. file=[" + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");           
-            conferenceEventListener.handleConferenceEvent(srev);    		
-    	} else {
-    		System.out.println("Processing UNKNOWN conference Action " + action + "]");
-    	}
+
+        if (action.equals(START_RECORDING_EVENT)) {
+            if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)){
+                if (isRTMPStream(event)) {
+                    DeskShareRTMPBroadcastEvent rtmp = new DeskShareRTMPBroadcastEvent(confName, true);
+                    rtmp.setBroadcastingStreamUrl(getStreamUrl(event));
+                    rtmp.setVideoHeight(Integer.parseInt(getBroadcastParameter(event, "vh")));
+                    rtmp.setVideoWidth(Integer.parseInt(getBroadcastParameter(event, "vw")));
+                    rtmp.setTimestamp(genTimestamp().toString());
+
+                    System.out.println("DeskShare conference broadcast started. url=["
+                            + getStreamUrl(event) + "], conf=[" + confName + "]");
+                    conferenceEventListener.handleConferenceEvent(rtmp);
+                }
+            } else {
+                VoiceStartRecordingEvent sre = new VoiceStartRecordingEvent(confName, true);
+                sre.setRecordingFilename(getRecordFilenameFromEvent(event));
+                sre.setTimestamp(genTimestamp().toString());
+
+                System.out.println("Voice conference recording started. file=["
+                 + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");
+                conferenceEventListener.handleConferenceEvent(sre);
+            }
+        } else if (action.equals(STOP_RECORDING_EVENT)) {
+            if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)){
+                if (isRTMPStream(event)) {
+                    DeskShareRTMPBroadcastEvent rtmp = new DeskShareRTMPBroadcastEvent(confName, false);
+                    rtmp.setBroadcastingStreamUrl(getStreamUrl(event));
+                    rtmp.setVideoHeight(Integer.parseInt(getBroadcastParameter(event, "vh")));
+                    rtmp.setVideoWidth(Integer.parseInt(getBroadcastParameter(event, "vw")));
+                    rtmp.setTimestamp(genTimestamp().toString());
+
+                    System.out.println("DeskShare conference broadcast stopped. url=["
+                            + getStreamUrl(event) + "], conf=[" + confName + "]");
+                    conferenceEventListener.handleConferenceEvent(rtmp);
+                }
+            } else {
+                VoiceStartRecordingEvent sre = new VoiceStartRecordingEvent(confName, false);
+                sre.setRecordingFilename(getRecordFilenameFromEvent(event));
+                sre.setTimestamp(genTimestamp().toString());
+                System.out.println("Voice conference recording stopped. file=["
+                 + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");
+                conferenceEventListener.handleConferenceEvent(sre);
+            }
+        } 
+
+        else {
+            System.out.println("Processing UNKNOWN conference Action " + action + "]");
+        }
     }
 
     private Long genTimestamp() {
-    	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
     }
     
-	@Override
-	public void eventReceived(EslEvent event) {
-		System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]");
+    @Override
+    public void eventReceived(EslEvent event) {
+        System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]");
 //        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
 ////           setChanged();
 //           notifyObservers(event);
 //           return; 
 //        }
-	}
+    }
 
     private Integer getMemberIdFromEvent(EslEvent e) {
         return new Integer(e.getEventHeaders().get("Member-ID"));
@@ -191,8 +250,52 @@ public class ESLEventListener implements IEslEventListener {
     private String getCallerIdNameFromEvent(EslEvent e) {
         return e.getEventHeaders().get("Caller-Caller-ID-Name");
     }
-    
+
     private String getRecordFilenameFromEvent(EslEvent e) {
-    	return e.getEventHeaders().get("Path");
+        return e.getEventHeaders().get("Path");
     }
+
+    // Distinguish between recording to a file:
+    // /path/to/a/file.mp4
+    // and broadcasting a stream:
+    // {channels=2,samplerate=48000,vw=1920,vh=1080,fps=15.00}rtmp://192.168.0.109/live/abc/dev-test
+    private Boolean isRTMPStream(EslEvent e) {
+        String path = e.getEventHeaders().get("Path");
+
+        if (path.contains("rtmp") && path.contains("channels")
+                && path.contains("samplerate") && path.contains("vw")
+                && path.contains("vh") && path.contains("fps")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // returns a String so that we can parse to an int or double depending on the param
+    private String getBroadcastParameter(EslEvent e, String param) {
+        String path = e.getEventHeaders().get("Path");
+        if (isRTMPStream(e)) {
+            String temp = path.substring(path.indexOf("{") + 1, path.indexOf("}"));
+            String[] arr = temp.split(",");
+            for (int i = 0; i < 5; i++) {
+                if (arr[i].startsWith(param)) {
+                    return arr[i].substring(arr[i].indexOf('=') + 1);
+                }
+            }
+            return "0";
+        } else {
+            return "0";
+        }
+    }
+
+    // Obtain the rtmp url from the event (if any):
+    private String getStreamUrl(EslEvent e) {
+        String path = e.getEventHeaders().get("Path");
+        if (isRTMPStream(e)){
+            return path.substring(path.lastIndexOf("}") + 1);
+        } else {
+            return "";
+        }
+    }
+
 }

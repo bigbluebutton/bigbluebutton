@@ -7,6 +7,7 @@ import org.bigbluebutton.red5.client.PresentationClientMessageSender;
 import org.bigbluebutton.red5.client.UserClientMessageSender;
 import org.bigbluebutton.red5.client.ChatClientMessageSender;
 import org.bigbluebutton.red5.client.WhiteboardClientMessageSender;
+import org.bigbluebutton.red5.client.DeskShareMessageSender;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler;
 import org.red5.logging.Red5LoggerFactory;
@@ -21,6 +22,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	private ChatClientMessageSender chatMessageSender;
 	private PresentationClientMessageSender presentationMessageSender;
 	private WhiteboardClientMessageSender whiteboardMessageSender;
+	private DeskShareMessageSender deskShareMessageSender;
 	private BbbAppsIsKeepAliveHandler bbbAppsIsKeepAliveHandler;
 	private PollingClientMessageSender pollingMessageSender;
 	
@@ -31,6 +33,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		chatMessageSender = new ChatClientMessageSender(service);
 		presentationMessageSender = new PresentationClientMessageSender(service);
 		whiteboardMessageSender = new WhiteboardClientMessageSender(service);
+		deskShareMessageSender = new DeskShareMessageSender(service);
 		pollingMessageSender = new PollingClientMessageSender(service);
 	}
 	
@@ -40,6 +43,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
+//		System.out.println("in red5 getting message: " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.FROM_CHAT_CHANNEL)) {
 			chatMessageSender.handleChatMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_PRESENTATION_CHANNEL)) {
@@ -53,6 +57,8 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 			whiteboardMessageSender.handleWhiteboardMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SYSTEM_CHANNEL)) {
 			bbbAppsIsKeepAliveHandler.handleKeepAliveMessage(message);
+		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_DESK_SHARE_CHANNEL)) {
+			deskShareMessageSender.handleDeskShareMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_POLLING_CHANNEL)) {
 			pollingMessageSender.handlePollMessage(message);
 		}

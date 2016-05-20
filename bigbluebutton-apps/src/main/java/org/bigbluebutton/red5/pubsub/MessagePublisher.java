@@ -234,6 +234,10 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
+	public void requestDeskShareInfo(String meetingID, String requesterID, String replyTo) {
+		DeskShareGetInfoRequestMessage msg = new DeskShareGetInfoRequestMessage(meetingID, requesterID, replyTo);
+		sender.send(MessagingConstants.FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson());
+	}
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID, Map<String, Object> annotation) {
 		SendWhiteboardAnnotationRequestMessage msg = new SendWhiteboardAnnotationRequestMessage(meetingID, requesterID, annotation);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
