@@ -126,6 +126,8 @@ export default class Button extends BaseButton {
 
     const Component = tagName;
 
+    /* TODO: We can change this and make the button with flexbox to avoid html
+      changes */
     const renderLeftFuncName = !iconRight ? 'renderIcon' : 'renderLabel';
     const renderRightFuncName = !iconRight ? 'renderLabel' : 'renderIcon';
 

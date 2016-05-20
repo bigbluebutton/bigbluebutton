@@ -167,7 +167,7 @@ $btn-lg-padding: .5rem 1.25rem;
   }
 }
 
-@mixin button-ghost-variant($color) {
+@mixin button-ghost-variant($color, $variant) {
   color: $color;
   background-image: none;
   background-color: transparent;
@@ -175,19 +175,19 @@ $btn-lg-padding: .5rem 1.25rem;
 
   &:focus,
   &:hover {
-    color: $color-white !important;
+    color: $variant;
     background-color: $color;
     border-color: $color;
   }
 
   &:active {
-    color: $color-white;
+    color: $variant;
     background-color: $color;
     border-color: $color;
 
     &:hover,
     &:focus {
-      color: $color-white;
+      color: $variant;
       background-color: darken($color, 17%);
       border-color: darken($color, 25%);
     }
@@ -228,19 +228,19 @@ $btn-lg-padding: .5rem 1.25rem;
 
 .ghost {
   &.default {
-    @include button-ghost-variant($btn-default-bg);
+    @include button-ghost-variant($btn-default-bg, $btn-default-color);
   }
 
   &.primary {
-    @include button-ghost-variant($btn-primary-bg);
+    @include button-ghost-variant($btn-primary-bg, $btn-primary-color);
   }
 
   &.success {
-    @include button-ghost-variant($btn-success-bg);
+    @include button-ghost-variant($btn-success-bg, $btn-success-color);
   }
 
   &.danger {
-    @include button-ghost-variant($btn-danger-bg);
+    @include button-ghost-variant($btn-danger-bg, $btn-danger-color);
   }
 }
 
