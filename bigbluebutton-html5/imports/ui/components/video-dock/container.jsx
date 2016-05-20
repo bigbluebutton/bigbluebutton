@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import VideoDock from './VideoDock.jsx';
+import VideoDock from './component';
 
 class VideoDockContainer extends Component {
   constructor(props) {

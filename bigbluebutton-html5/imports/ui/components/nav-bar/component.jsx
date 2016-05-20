@@ -1,8 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import { withRouter } from 'react-router';
-import { Button } from '../shared/Button.jsx';
-import { Icon } from '../shared/Icon.jsx';
+import Button from '../button/component';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -32,12 +31,21 @@ class NavBar extends Component {
   render() {
     const { presentationTitle } = this.props;
     return (
-      <div>
-        <button onClick={this.handleToggleUserList}>
-          <i className="icon-bbb-user"></i>
-        </button>
-        <span>{presentationTitle}</span>
-        <span id="settingsButtonPlaceHolder"></span>
+      <div className={styles.navbar}>
+        <div className={styles.left}>
+        <Button
+          onClick={this.handleToggleUserList}
+          ghost={true}
+          circle={true}
+          icon={'user'}
+        />
+        </div>
+        <div className={styles.center}>
+          <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+        </div>
+        <div className={styles.right}>
+          <span id="settingsButtonPlaceHolder"></span>
+        </div>
       </div>
     );
   }

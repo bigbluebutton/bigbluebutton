@@ -6,7 +6,6 @@ export default class VideoDock extends Component {
   render() {
     return (
       <div className={styles.videoDock}>
-        <b>WEBCAMS</b>
       </div>
     );
   }

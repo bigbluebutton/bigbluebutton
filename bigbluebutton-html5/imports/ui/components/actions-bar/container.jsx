@@ -1,25 +1,22 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import NavBar from './NavBar.jsx';
+import ActionsBar from './component';
 
-class NavBarContainer extends Component {
+class ActionsBarContainer extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
     return (
-      <NavBar {...this.props}>
+      <ActionsBar {...this.props}>
         {this.props.children}
-      </NavBar>
+      </ActionsBar>
     );
   }
 }
 
 export default createContainer(() => {
-  return {
-    presentationTitle: 'IMDT 1004 Design Process',
-    hasUnreadMessages: true,
-  };
-}, NavBarContainer);
+  return {};
+}, ActionsBarContainer);

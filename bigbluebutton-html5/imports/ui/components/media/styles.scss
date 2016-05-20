@@ -30,7 +30,7 @@
   flex-basis: 90%;
 
   @include mq($large-up) {
-    flex-basis: 75%;
+    flex-basis: 70%;
   }
 }
 
@@ -45,8 +45,12 @@
 .overlayWrapper {
   position: absolute;
   width: 30%;
-  right: 5%;
-  bottom: 5%;
+  right: 2%;
+  bottom: 2%;
+
+  @include mq($large-up) {
+    flex-basis: 15%;
+  }
 }
 
 .overlayRatio {
