@@ -538,6 +538,7 @@ package org.bigbluebutton.modules.users.services
       user.isLeavingFlag = false;
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
+      user.avatarURL = joinedUser.avatarURL;
 	  
 	  LOGGER.info("User joined = " + JSON.stringify(user));
 	  

@@ -368,7 +368,7 @@ class ApiController {
         meetingService.addUserSession(session['user-token'], us);
 
         // Register user into the meeting.
-        meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
+	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.avatarURL)
 
         // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
         // when maxUsers is set to 0, the validation is ignored
