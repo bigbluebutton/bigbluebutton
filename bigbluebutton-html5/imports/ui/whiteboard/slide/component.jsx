@@ -14,7 +14,7 @@ export default class Slide extends React.Component {
             width="1134" height="850.7076923076924"
             preserveAspectRatio="none"
             xlink="http://www.w3.org/1999/xlink"
-            href={this.props.current_slide.slide.img_uri}
+            xlinkHref={this.props.current_slide.slide.img_uri}
             style={{ WebkitTapHighlightColor: 'transparent' }} //need to figure why we need this
             stroke-width="0.8">
           </image>
