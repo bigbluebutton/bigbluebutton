@@ -55,6 +55,12 @@ const propTypes = {
   icon: PropTypes.string,
 
   /**
+   * Defines the button icon is on the right side
+   * @defaultValue false
+   */
+  iconRight: PropTypes.bool,
+
+  /**
    * Defines the button label
    * @defaultValue undefined
    */
@@ -68,6 +74,7 @@ const defaultProps = {
   ghost: false,
   circle: false,
   block: false,
+  iconRight: false,
 };
 
 export default class Button extends BaseButton {
@@ -88,6 +95,7 @@ export default class Button extends BaseButton {
       ghost,
       circle,
       block,
+      iconRight,
     } = this.props;
 
     let propClassNames = {};
@@ -97,6 +105,7 @@ export default class Button extends BaseButton {
     propClassNames[styles.ghost] = ghost;
     propClassNames[styles.circle] = circle;
     propClassNames[styles.block] = block;
+    propClassNames[styles.iconRight] = iconRight;
 
     return propClassNames;
   }
@@ -112,17 +121,20 @@ export default class Button extends BaseButton {
     const {
       tagName,
       className,
+      iconRight,
     } = this.props;
 
     const Component = tagName;
+
+    const renderLeftFuncName = !iconRight ? 'renderIcon' : 'renderLabel';
+    const renderRightFuncName = !iconRight ? 'renderLabel' : 'renderIcon';
 
     return (
       <Component
         className={cx(this._getClassNames(), className)}
         {...this.props}>
-        {this.renderIcon()}
-        {this.renderLabel()}
-        {this.props.children}
+        {this[renderLeftFuncName]()}
+        {this[renderRightFuncName]()}
       </Component>
     );
   }
@@ -132,17 +144,18 @@ export default class Button extends BaseButton {
       tagName,
       className,
       size,
+      iconRight
     } = this.props;
 
     const Component = tagName;
 
     return (
       <span className={cx(styles[size], styles.buttonWrapper, className)} {...this.props}>
+        {!iconRight ? null : this.renderLabel(true)}
         <Component className={cx(this._getClassNames())} aria-labelledby={this.labelId}>
           {this.renderIcon()}
         </Component>
-        {this.renderLabel(true)}
-        {this.props.children}
+        {iconRight ? null : this.renderLabel(true)}
       </span>
     );
   }
@@ -162,10 +175,20 @@ export default class Button extends BaseButton {
 
     if (label) {
       if (labelledBy) {
-        return (<span className={styles.label} id={this.labelId}>{label}</span>);
+        return (
+          <span className={styles.label} id={this.labelId}>
+            {label}
+            {this.props.children}
+          </span>
+        );
       }
 
-      return (<span className={styles.label}>{label}</span>);
+      return (
+        <span className={styles.label}>
+          {label}
+          {this.props.children}
+        </span>
+      );
     }
 
     return null;

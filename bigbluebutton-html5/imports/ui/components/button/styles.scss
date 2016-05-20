@@ -92,6 +92,12 @@ $btn-lg-padding: .5rem 1.25rem;
     display: block;
     margin-top: $btn-spacing;
     font-size: 90%;
+    color: $color-white;
+    font-weight: $btn-font-weight;
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
   }
 
   .buttonWrapper.sm & {
@@ -100,13 +106,9 @@ $btn-lg-padding: .5rem 1.25rem;
     margin-left: $btn-spacing;
   }
 
-  .circle + & {
-    color: $color-white;
-    font-weight: $btn-font-weight;
-    line-height: 1.5;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
+  & + .icon,
+  & + .button  {
+    margin-left: $btn-spacing;
   }
 }
 
@@ -115,7 +117,7 @@ $btn-lg-padding: .5rem 1.25rem;
   text-align: center;
 
   .buttonWrapper & {
-    font-size: 170%;
+    font-size: 155%;
   }
 
   & + .label {

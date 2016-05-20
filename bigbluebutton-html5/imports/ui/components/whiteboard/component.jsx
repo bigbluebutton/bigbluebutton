@@ -118,13 +118,6 @@ export default class Whiteboard extends Component {
         </p>
         <p>
           <Button
-            label={'Small'}
-            onClick={this.handleClick}
-            icon={'audio'}
-            size={'sm'}
-            circle={true}
-          />&nbsp;
-          <Button
             label={'Medium'}
             onClick={this.handleClick}
             color={'primary'}
@@ -139,6 +132,13 @@ export default class Whiteboard extends Component {
             icon={'audio'}
             size={'lg'}
             ghost={true}
+            circle={true}
+          /><br/>
+          <Button
+            label={'Small'}
+            onClick={this.handleClick}
+            icon={'audio'}
+            size={'sm'}
             circle={true}
           />&nbsp;
           <Button
