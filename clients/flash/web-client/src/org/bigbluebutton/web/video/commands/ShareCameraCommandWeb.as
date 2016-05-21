@@ -1,4 +1,4 @@
-package org.bigbluebutton.web.toolbar.webcambutton.commands {
+package org.bigbluebutton.web.video.commands {
 	
 	import flash.media.Camera;
 	

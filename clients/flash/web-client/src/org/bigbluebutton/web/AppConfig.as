@@ -39,7 +39,7 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
 	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
 	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
-	import org.bigbluebutton.web.toolbar.webcambutton.commands.ShareCameraCommandWeb;
+	import org.bigbluebutton.web.video.commands.ShareCameraCommandWeb;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
