@@ -1,4 +1,4 @@
-package org.bigbluebutton.web.presentation.views {
+package org.bigbluebutton.web.presentation {
 	import org.bigbluebutton.lib.presentation.views.PresentationMediatorBase;
 	import org.bigbluebutton.lib.presentation.views.PresentationViewBase;
 	

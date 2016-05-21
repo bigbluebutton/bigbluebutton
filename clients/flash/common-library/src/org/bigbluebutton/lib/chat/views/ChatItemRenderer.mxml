@@ -86,7 +86,7 @@
 										selectable="false"
 										id="message"
 										width="100%"
-										fontSize="{getStyle('messageFontSize')}" />
+										styleName="contentStyle" />
 				</s:HGroup>
 			</s:VGroup>
 		</s:HGroup>

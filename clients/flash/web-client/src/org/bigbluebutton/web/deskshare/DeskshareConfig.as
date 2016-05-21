@@ -1,4 +1,4 @@
-package org.bigbluebutton.web.deskshare.views {
+package org.bigbluebutton.web.deskshare {
 	import org.bigbluebutton.lib.deskshare.views.IDeskshareView;
 	import org.bigbluebutton.web.deskshare.views.DeskshareWindowMediator;
 	import org.bigbluebutton.web.user.views.UserWindow;
@@ -39,7 +39,7 @@ package org.bigbluebutton.web.deskshare.views {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(IDeskshareView).toMediator(DeskshareWindowMediator);
+			
 		}
 		
 		/**

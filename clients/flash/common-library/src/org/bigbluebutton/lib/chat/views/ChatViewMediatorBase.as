@@ -5,9 +5,8 @@ package org.bigbluebutton.lib.chat.views {
 	
 	import mx.utils.StringUtil;
 	
-	import org.bigbluebutton.lib.chat.models.ChatMessage;
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
-	import org.bigbluebutton.lib.chat.models.ChatMessages;
+	import org.bigbluebutton.lib.chat.models.Conversation;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -36,23 +35,16 @@ package org.bigbluebutton.lib.chat.views {
 		override public function initialize():void {
 			chatMessageService.sendMessageOnSuccessSignal.add(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.add(onSendFailure);
-			chatMessagesSession.newChatMessageSignal.add(scrollUpdate);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			userSession.userList.userAddedSignal.add(userAdded);
 			
 			view.textInput.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			view.sendButton.addEventListener(MouseEvent.CLICK, sendButtonClickHandler);
-			
-			// TEMP CODE NEED TO REMOVE SOMEHOW
-			_publicChat = true;
-			chatMessagesSession.publicChat
-			openChat(chatMessagesSession.publicChat);
-			// END OF TEMP CODE
 		}
 		
-		protected function openChat(chatMessages:ChatMessages):void {
-			chatMessages.resetNewMessages();
-			view.chatList.dataProvider = chatMessages.messages;
+		protected function openChat(conv:Conversation):void {
+			conv.newMessages = 0;//resetNewMessages();
+			view.chatList.dataProvider = conv.messages;
 		}
 	
 		private function onSendSuccess(result:String):void {
@@ -64,24 +56,12 @@ package org.bigbluebutton.lib.chat.views {
 			view.textInput.enabled = true;
 		}
 		
-		private function scrollUpdate(userId:String = null, publicChat:Boolean = true):void {
-			if ((_publicChat && publicChat) || (!_publicChat && !publicChat && _user && userId == _user.userID)) {
-				if (isIndexVisible(view.chatList.dataProvider.length - 2)) {
-					view.chatList.ensureIndexIsVisible(view.chatList.dataProvider.length - 1);
-				}
-			}
-		}
-		
-		private function isIndexVisible(itemIndex:int):Boolean {
-			return view.chatList.dataGroup.getItemIndicesInView().indexOf(itemIndex) > -1;
-		}
-		
 		/**
 		 * When user left the conference, add '[Offline]' to the username
 		 * and disable text input
 		 */
 		protected function userRemoved(userID:String):void {
-			if (view != null && _user && _user.userID == userID) {
+			if (view != null && _user && _user.userId == userID) {
 				view.textInput.enabled = false;
 			}
 		}
@@ -91,7 +71,7 @@ package org.bigbluebutton.lib.chat.views {
 		 * and enable text input
 		 */
 		protected function userAdded(newuser:User):void {
-			if ((view != null) && (_user != null) && (_user.userID == newuser.userID)) {
+			if ((view != null) && (_user != null) && (_user.userId == newuser.userId)) {
 				view.textInput.enabled = true;
 			}
 		}
@@ -103,11 +83,11 @@ package org.bigbluebutton.lib.chat.views {
 		}
 		
 		private function sendButtonClickHandler(e:MouseEvent):void {
-			view.textInput.enabled = false;
-			
 			var message:String = StringUtil.trim(view.textInput.text);
 			
 			if (message) {
+				view.textInput.enabled = false;
+				
 				var currentDate:Date = new Date();
 				//TODO get info from the right source
 				var m:ChatMessageVO = new ChatMessageVO();
@@ -118,7 +98,7 @@ package org.bigbluebutton.lib.chat.views {
 				m.fromTimezoneOffset = currentDate.timezoneOffset;
 				m.fromLang = "en";
 				m.message = message;
-				m.toUserID = _publicChat ? "public_chat_userid" : _user.userID;
+				m.toUserID = _publicChat ? "public_chat_userid" : _user.userId;
 				m.toUsername = _publicChat ? "public_chat_username" : _user.name;
 				if (_publicChat) {
 					m.chatType = "PUBLIC_CHAT";
@@ -133,7 +113,6 @@ package org.bigbluebutton.lib.chat.views {
 		override public function destroy():void {
 			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.remove(onSendFailure);
-			chatMessagesSession.newChatMessageSignal.remove(scrollUpdate);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			userSession.userList.userAddedSignal.remove(userAdded);
 			
