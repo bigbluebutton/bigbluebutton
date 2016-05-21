@@ -36,8 +36,8 @@ package org.bigbluebutton.lib.chat.services {
 		private function handleChatRequestMessageHistoryReply(message:Object):void {
 			var messages:Array = JSON.parse(message.msg as String) as Array;
 			var msgCount:Number = messages.length;
-			chatMessagesSession.publicChat.messages = new ArrayCollection();
-			chatMessagesSession.publicChat.resetNewMessages();
+			chatMessagesSession.publicConversation.messages = new ArrayCollection();
+			chatMessagesSession.publicConversation.newMessages = 0; //resetNewMessages();
 			for (var i:int = 0; i < msgCount; i++) {
 				handleChatReceivePublicMessageCommand(messages[i]);
 			}
@@ -57,7 +57,7 @@ package org.bigbluebutton.lib.chat.services {
 			msg.toUserID = message.toUserID;
 			msg.toUsername = message.toUsername;
 			msg.message = message.message;
-			chatMessagesSession.publicChat.newChatMessage(msg);
+			chatMessagesSession.newPublicMessage(msg);
 		}
 		
 		private function handleChatReceivePrivateMessageCommand(message:Object):void {

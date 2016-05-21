@@ -5,16 +5,12 @@ package org.bigbluebutton.lib.chat.models {
 	import org.osflash.signals.ISignal;
 	
 	public interface IChatMessagesSession {
-		function getPrivateMessages(userId:String, userName:String):PrivateChatMessage;
+		function get chats():ArrayCollection;
+		function set chats(val:ArrayCollection):void;
+		function get publicConversation():Conversation;
+		function newPublicMessage(newMessage:ChatMessageVO):void;
+		function getPrivateMessages(userId:String, userName:String):Conversation;
 		function newPrivateMessage(userId:String, userName:String, newMessage:ChatMessageVO):void;
-		function addUserToPrivateMessages(userId:String, userName:String):PrivateChatMessage;
-		function get publicChat():ChatMessages;
-		function set publicChat(value:ChatMessages):void;
-		function get privateChats():ArrayCollection;
-		function get chatMessageChangeSignal():ISignal;
-		function set chatMessageChangeSignal(signal:ISignal):void;
-		function get newChatMessageSignal():ISignal;
-		function set newChatMessageSignal(signal:ISignal):void;
-		function chatMessageDispatchSignal(UserID:String):void;
+		function addUserToPrivateMessages(userId:String, userName:String):Conversation;
 	}
 }

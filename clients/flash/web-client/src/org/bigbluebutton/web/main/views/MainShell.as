@@ -13,6 +13,11 @@ package org.bigbluebutton.web.main.views {
 		}
 		
 		private var _chatPanel:ChatPanel;
+		
+		public function get chatPanel():ChatPanel {
+			return _chatPanel;
+		}
+		
 		private var _mainPanel:MainPanel;
 		
 		private var _subBox:VariableDividedBox;

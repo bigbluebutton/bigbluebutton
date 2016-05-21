@@ -14,12 +14,14 @@ package org.bigbluebutton.web.main.views {
 		override public function initialize():void {
 			uiSession.loadingChangeSignal.add(onLoadingChangeSignal);
 			uiSession.participantsOpenSignal.add(onParticipantsOpenSignal);
+			uiSession.chatInfoSignal.add(onChatInfoSignal);
 		}
 		
 		private function onLoadingChangeSignal(val:Boolean, message:String):void {
 			if (!val) {
 				view.createPanels();
 				onParticipantsOpenSignal();
+				onChatInfoSignal()
 			}
 		}
 		
@@ -27,9 +29,14 @@ package org.bigbluebutton.web.main.views {
 			view.participantsPanel.visible = view.participantsPanel.includeInLayout = uiSession.participantsOpen;
 		}
 		
+		private function onChatInfoSignal():void {
+			view.chatPanel.visible = view.chatPanel.includeInLayout = uiSession.chatInfo != null;
+		}
+		
 		override public function destroy():void {
 			uiSession.loadingChangeSignal.remove(onLoadingChangeSignal);
 			uiSession.participantsOpenSignal.remove(onParticipantsOpenSignal);
+			uiSession.chatInfoSignal.remove(onChatInfoSignal);
 			
 			super.destroy();
 			view = null;

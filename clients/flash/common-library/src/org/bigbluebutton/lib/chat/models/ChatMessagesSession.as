@@ -6,41 +6,40 @@ package org.bigbluebutton.lib.chat.models {
 	import org.osflash.signals.Signal;
 	
 	public class ChatMessagesSession implements IChatMessagesSession {
-		private var _publicChat:ChatMessages = new ChatMessages();
 		
-		private var _privateChats:ArrayCollection = new ArrayCollection();
+		private var _chats:ArrayCollection;
 		
-		private var _chatMessageChangeSignal:ISignal = new Signal();
+		[Bindable]
+		public function get chats():ArrayCollection {
+			return _chats;
+		}
 		
-		private var _newChatMessageSignal:ISignal = new Signal();
+		public function set chats(val:ArrayCollection):void {
+			_chats = val;
+		}
+		
+		public function get publicConversation():Conversation {
+			return _chats[0];
+		}
 		
 		public function ChatMessagesSession():void {
-			_publicChat.chatMessageChangeSignal.add(newPublicChatMessageDispatchSignal);
+			_chats = new ArrayCollection();
+			_chats.addItem(new Conversation("", "Public Chat", true));
 		}
 		
-		public function set publicChat(value:ChatMessages):void {
-			_publicChat = value;
-		}
-		
-		public function get publicChat():ChatMessages {
-			return _publicChat;
-		}
-		
-		public function get privateChats():ArrayCollection {
-			return _privateChats;
+		public function newPublicMessage(newMessage:ChatMessageVO):void {
+			publicConversation.newChatMessage(newMessage);
 		}
 		
 		/**
 		 * Create private chat for the new user
 		 *
 		 **/
-		public function addUserToPrivateMessages(userId:String, userName:String):PrivateChatMessage {
-			var pcm:PrivateChatMessage = new PrivateChatMessage();
-			pcm.privateChat.chatMessageChangeSignal.add(newPrivateChatMessageDispatchSignal);
-			pcm.userID = userId;
-			pcm.userName = userName;
-			_privateChats.addItem(pcm);
-			return pcm;
+		public function addUserToPrivateMessages(userId:String, userName:String):Conversation {
+			var conv:Conversation = new Conversation(userId, userName, false);
+			_chats.addItem(conv);
+			
+			return conv;
 		}
 		
 		/**
@@ -50,18 +49,16 @@ package org.bigbluebutton.lib.chat.models {
 		 * @param newMessage
 		 */
 		public function newPrivateMessage(userId:String, userName:String, newMessage:ChatMessageVO):void {
-			if (_privateChats != null) {
-				for each (var privateMessage:PrivateChatMessage in _privateChats) {
-					if (privateMessage.userID == userId) {
-						privateMessage.privateChat.newChatMessage(newMessage);
-						chatMessageDispatchSignal(userId);
+			if (_chats != null) {
+				for each (var conv:Conversation in _chats) {
+					if (conv.userId == userId) {
+						conv.newChatMessage(newMessage);
 						return;
 					}
 				}
 				// if chat wasn't added to _privateChats colletion yet
-				var pcm:PrivateChatMessage = addUserToPrivateMessages(userId, userName);
-				pcm.privateChat.newChatMessage(newMessage);
-				chatMessageDispatchSignal(userId);
+				var newConv:Conversation = addUserToPrivateMessages(userId, userName);
+				newConv.newChatMessage(newMessage);
 			}
 		}
 		
@@ -70,52 +67,16 @@ package org.bigbluebutton.lib.chat.models {
 		 *
 		 * @param UserId
 		 */
-		public function getPrivateMessages(userId:String, userName:String):PrivateChatMessage {
-			if (_privateChats != null) {
-				for each (var privateMessage:PrivateChatMessage in _privateChats) {
-					if (privateMessage.userID == userId) {
-						return privateMessage;
+		public function getPrivateMessages(userId:String, userName:String):Conversation {
+			if (_chats != null) {
+				for each (var conv:Conversation in _chats) {
+					if (conv.userId == userId) {
+						return conv;
 					}
 				}
 			}
 			// if user is not in private messages yet, add one
 			return addUserToPrivateMessages(userId, userName);
-		}
-		
-		public function chatMessageDispatchSignal(UserID:String):void {
-			if (_chatMessageChangeSignal) {
-				_chatMessageChangeSignal.dispatch(UserID);
-			}
-		}
-		
-		public function get chatMessageChangeSignal():ISignal {
-			return _chatMessageChangeSignal;
-		}
-		
-		public function set chatMessageChangeSignal(signal:ISignal):void {
-			_chatMessageChangeSignal = signal;
-		}
-		
-		public function newPublicChatMessageDispatchSignal(UserID:String):void {
-			newChatMessageDispatchSignal(UserID, true)
-		}
-		
-		public function newPrivateChatMessageDispatchSignal(UserID:String):void {
-			newChatMessageDispatchSignal(UserID, false)
-		}
-		
-		public function newChatMessageDispatchSignal(UserID:String, publicChat:Boolean):void {
-			if (_newChatMessageSignal) {
-				_newChatMessageSignal.dispatch(UserID, publicChat);
-			}
-		}
-		
-		public function get newChatMessageSignal():ISignal {
-			return _newChatMessageSignal;
-		}
-		
-		public function set newChatMessageSignal(signal:ISignal):void {
-			_newChatMessageSignal = signal;
 		}
 	}
 }

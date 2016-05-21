@@ -132,7 +132,7 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function set userId(value:String):void {
 			_userId = value;
-			_userList.me.userID = value;
+			_userList.me.userId = value;
 		}
 		
 		public function get voiceConnection():IVoiceConnection {

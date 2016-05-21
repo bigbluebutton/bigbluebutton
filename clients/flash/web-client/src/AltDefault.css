@@ -1,42 +1,51 @@
 /* CSS file */
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
+@namespace libChat "org.bigbluebutton.lib.chat.views.*";
 
 @font-face { 
-	src: url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
-	fontFamily: SourceSansPro; 
-	fontStyle: normal; 
-	fontWeight: normal; 
-	embedAsCFF: true;
+	src: 		url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
+	fontFamily:	SourceSansPro; 
+	fontStyle:	normal; 
+	fontWeight:	normal; 
+	embedAsCFF:	true;
 }
 
 @font-face { 
-	src: url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf"); 
-	fontFamily: SourceSansPro; 
-	fontStyle: normal; 
-	fontWeight: bold; 
-	embedAsCFF: true;
+	src:		url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf"); 
+	fontFamily:	SourceSansPro; 
+	fontStyle:	normal; 
+	fontWeight:	bold; 
+	embedAsCFF:	true;
 }
 
 @font-face { 
-	src: url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf"); 
-	fontFamily: SourceSansPro; 
-	fontStyle: italic; 
-	fontWeight: normal; 
-	embedAsCFF: true;
+	src:		url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf"); 
+	fontFamily:	SourceSansPro; 
+	fontStyle:	italic; 
+	fontWeight:	normal; 
+	embedAsCFF:	true;
 }
 
 @font-face { 
-	src: url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf"); 
-	fontFamily: SourceSansPro; 
-	fontStyle: normal; 
-	fontWeight: heavy; 
-	embedAsCFF: true;
+	src:		url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf"); 
+	fontFamily:	SourceSansPro; 
+	fontStyle:	normal; 
+	fontWeight:	heavy; 
+	embedAsCFF:	true;
+}
+
+@font-face { 
+	src: 		url("../../common-library/src/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
+	fontFamily:	SourceSansProMX; 
+	fontStyle:	normal; 
+	fontWeight:	normal; 
+	embedAsCFF:	false;
 }
 
 global
 {
-	font-family	: SourceSansPro;
+	font-family:	SourceSansPro;
 }
 
 s|Application
@@ -44,32 +53,48 @@ s|Application
 	backgroundColor: #2A2D33;	
 }
 
+mx|MenuItemRenderer
+{
+	font-Family:	SourceSansProMX;
+}
+
+libChat|NewMessagesIndicator
+{
+	backgroundColor: 	#F0615F;
+	backgroundAlpha:	1;
+	backgroundColor: 	#F0615F;
+	borderAlpha: 		0;
+	color:				#F3F6F9;
+	cornerRadius:		6;
+	skinClass:			ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
+}
+
 .titleLabelStyle
 {
-	color		: #F3F6F9;
-	fontSize	: 24;
+	color: 		#F3F6F9;
+	fontSize:	24;
 }
 
 .topButtonStyle
 {
-	paddingLeft		: 24;
-	paddingRight	: 24;
-	width			: 48;
-	height			: 48;
-	verticalAlign	: middle;
-	horizontalAlign	: middle;
-	skinClass		: ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
+	paddingLeft:		24;
+	paddingRight:		24;
+	width:				48;
+	height:				48;
+	verticalAlign:		middle;
+	horizontalAlign:	middle;
+	skinClass:			ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
 
 }
 
 .participantsButtonStyle
 {
-	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/participants.png");
+	backgroundImage:	Embed(source="../../air-client/src/assets/res/drawable-mdpi/participants.png");
 }
 
 .settingsButtonStyle
 {
-	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/settings.png");
+	backgroundImage:	Embed(source="../../air-client/src/assets/res/drawable-mdpi/settings.png");
 }
 
 .menuButtonStyle
@@ -118,5 +143,63 @@ s|Application
 {
 	nameFontSize: 		16;
 	timeFontSize:		16;
-	messageFontSize:	14;
+}
+
+.contentStyle
+{
+	fontSize:	14;
+	color:		#8B9AA8;
+}
+
+.panelStyle
+{
+	backgroundColor:	#F3F6F9;
+	backgroundAlpha:	1;
+	padding:			6;
+	skinClass:			ClassReference("org.bigbluebutton.web.common.skins.PanelSkin");
+}
+
+.panelTitleStyle
+{
+	fontSize:		18;
+	fontWeight:		bold;
+	color:			#2A2D33;
+	paddingBottom:	10;
+}
+
+.iconStyle
+{
+	width:		32;
+	height:		32;
+	skinClass:	ClassReference("org.bigbluebutton.lib.common.skins.IconSkin")
+}
+
+.cameraIconStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/video.png");
+}
+
+.micIconStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/microphone.png");
+}
+
+.micOffIconStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/micOffIcon_dark.png");
+}
+
+.speakingMicIconStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/microphone_talk.png");
+}
+
+.listenOnlyIconStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/ic_headset.png");
+}
+
+.lockIconStyle
+{
+	backgroundImage : Embed(source="../../air-client/src/assets/res/drawable-mdpi/lock.png");
 }

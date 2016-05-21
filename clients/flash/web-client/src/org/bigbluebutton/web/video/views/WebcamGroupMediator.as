@@ -111,7 +111,7 @@ package org.bigbluebutton.web.video.views {
 				var newWebcam:WebcamView = new WebcamView();
 				newWebcam.closeSignal.add(handleWebcamCloseRequested);
 				newWebcam.videoProfile = userSession.videoProfileManager.defaultVideoProfile;// videoProfileManager.getVideoProfileByStreamName(streamName);
-				newWebcam.startStream(userSession.videoConnection.connection, user.name, streamName, user.userID);
+				newWebcam.startStream(userSession.videoConnection.connection, user.name, streamName, user.userId);
 				
 				videos.addItem(newWebcam);
 				view.addVideo(newWebcam);

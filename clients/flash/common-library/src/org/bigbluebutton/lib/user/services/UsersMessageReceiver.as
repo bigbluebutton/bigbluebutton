@@ -100,10 +100,10 @@ package org.bigbluebutton.lib.user.services {
 		private function handleUserLocked(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("handleUserLocked: " + ObjectUtil.toString(msg));
-			trace("your id: " + userSession.userList.me.userID);
+			trace("your id: " + userSession.userList.me.userId);
 			var user:User = userSession.userList.getUserByUserId(msg.user);
 			user.locked = msg.lock;
-			if (userSession.userList.me.userID == msg.user) {
+			if (userSession.userList.me.userId == msg.user) {
 				userSession.dispatchLockSettings();
 			}
 		}
@@ -174,7 +174,7 @@ package org.bigbluebutton.lib.user.services {
 			user.phoneUser = newUser.phoneUser;
 			user.presenter = newUser.presenter;
 			user.role = newUser.role;
-			user.userID = newUser.userId;
+			user.userId = newUser.userId;
 			user.voiceJoined = newUser.voiceUser.joined;
 			user.voiceUserId = newUser.voiceUser.userId;
 			user.isLeavingFlag = false;

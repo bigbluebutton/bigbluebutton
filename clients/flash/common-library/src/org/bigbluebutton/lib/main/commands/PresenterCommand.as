@@ -22,7 +22,7 @@ package org.bigbluebutton.lib.main.commands {
 		
 		override public function execute():void {
 			trace("PresenterCommand.execute() -assign presenter");
-			userService.assignPresenter(user.userID, user.name, userMeID);
+			userService.assignPresenter(user.userId, user.name, userMeID);
 		}
 	}
 }

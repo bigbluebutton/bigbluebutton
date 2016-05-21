@@ -1,4 +1,5 @@
 package org.bigbluebutton.web.main.models {
+	import org.bigbluebutton.web.chat.models.ChatRoomVO;
 	import org.osflash.signals.Signal;
 	
 	public class UISession implements IUISession {
@@ -8,6 +9,9 @@ package org.bigbluebutton.web.main.models {
 		
 		private var _participantsOpen:Boolean = false;
 		private var _participantsOpenSignal:Signal = new Signal();
+		
+		private var _chatInfo:ChatRoomVO = null;
+		private var _chatInfoSignal:Signal = new Signal();
 		
 		public function UISession() {
 		}
@@ -41,6 +45,19 @@ package org.bigbluebutton.web.main.models {
 		
 		public function get participantsOpenSignal():Signal {
 			return _participantsOpenSignal;
+		}
+		
+		public function get chatInfo():ChatRoomVO {
+			return _chatInfo;
+		}
+		
+		public function set chatInfo(info:ChatRoomVO):void {
+			_chatInfo = info;
+			_chatInfoSignal.dispatch();
+		}
+		
+		public function get chatInfoSignal():Signal {
+			return _chatInfoSignal;
 		}
 	}
 }

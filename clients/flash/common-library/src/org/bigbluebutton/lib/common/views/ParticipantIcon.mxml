@@ -5,8 +5,10 @@
 
 	<fx:Script>
 		<![CDATA[
-			public function setFirstLetters(participantName:String):void {
-				var names:Array = participantName.split(" ");
+			public function setFirstLetters(name:String):void {
+				if (name == null) name = "";
+				
+				var names:Array = name.split(" ");
 				var firstLettersText:String = names[0].charAt(0);
 				if (names[1]) {
 					firstLettersText += names[1].charAt(0);
