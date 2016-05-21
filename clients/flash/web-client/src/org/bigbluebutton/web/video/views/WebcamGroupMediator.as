@@ -83,15 +83,14 @@ package org.bigbluebutton.web.video.views {
 		
 		private function userChangeHandler(user:User, type:int):void {
 			if (type == UserList.HAS_STREAM) {
+				var streamNames:Array = [];
 				if (user.streamName.length > 0) {
-					var streamNames:Array = user.streamName.split("|");
+					streamNames = user.streamName.split("|");
 					for each (var streamName:String in streamNames) {
 						startStream(user, streamName);
 					}
-				//	removeUnusedStreams(user.userID, streamNames);
-				} else {
-			//		removeWebcam(user);
 				}
+				removeUnusedStreams(user, streamNames);
 		//		view.invalidateDisplayList();
 			} else {
 		//	updateUser(user);
@@ -104,6 +103,20 @@ package org.bigbluebutton.web.video.views {
 				stopStream(user, streamName as String);
 			}
 			*/
+		}
+		
+		private function removeUnusedStreams(user:User, streamNames:Array):void {
+			var openStreams:Array = findVideosByUserId(user.userId);
+			for each (var openStream:WebcamView in openStreams) {
+				var active:Boolean = false;
+				for each (var activeStream:String in streamNames) {
+					if (openStream.streamName == activeStream) {
+						active = true;
+						break;
+					}
+				}
+				if (!active) stopStream(user, openStream.streamName);
+			}
 		}
 		
 		private function startStream(user:User, streamName:String):void {

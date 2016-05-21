@@ -36,7 +36,6 @@ package org.bigbluebutton.web.main.views {
 			addElement(_presentationView);
 			
 			_videoContainer = new WebcamGroup();
-			_videoContainer.height = 200;
 			_videoContainer.percentWidth = 100;
 			addElement(_videoContainer);			
 			
