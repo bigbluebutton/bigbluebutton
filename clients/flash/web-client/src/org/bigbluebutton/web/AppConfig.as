@@ -39,11 +39,6 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
 	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
 	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
-	import org.bigbluebutton.web.main.commands.LocaleChangedSignal;
-	import org.bigbluebutton.web.main.models.IShortcutOptions;
-	import org.bigbluebutton.web.main.models.ShortcutOptions;
-	import org.bigbluebutton.web.toolbar.micbutton.commands.AudioSelectionWindowClosedSignal;
-	import org.bigbluebutton.web.toolbar.webcambutton.commands.CamSettingsClosedSignal;
 	import org.bigbluebutton.web.toolbar.webcambutton.commands.ShareCameraCommandWeb;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -60,7 +55,6 @@ package org.bigbluebutton.web {
 		
 		public function configure():void {
 			// Singleton mapping
-			injector.map(IShortcutOptions).toSingleton(ShortcutOptions);
 			injector.map(IUserSession).toSingleton(UserSession);
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
@@ -70,9 +64,6 @@ package org.bigbluebutton.web {
 			injector.map(IChatMessageService).toSingleton(ChatMessageService);
 			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
 			injector.map(ISaveData).toSingleton(SaveData);
-			injector.map(CamSettingsClosedSignal).asSingleton();
-			injector.map(LocaleChangedSignal).asSingleton();
-			injector.map(AudioSelectionWindowClosedSignal).asSingleton();
 			// Type mapping
 			injector.map(IBaseConnection).toType(BaseConnection);
 			injector.map(IVoiceConnection).toType(VoiceConnection);
