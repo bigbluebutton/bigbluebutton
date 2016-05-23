@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import Chat from './Chat';
+import Chat from './component';
 
 class ChatContainer extends Component {
   constructor(props) {

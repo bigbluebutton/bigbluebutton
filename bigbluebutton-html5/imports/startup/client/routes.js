@@ -7,7 +7,7 @@ import { createHistory } from 'history';
 import AppContainer from '../../ui/components/app/container';
 import {setCredentials, subscribeForData} from '../../ui/components/app/service';
 import UserListContainer from '../../ui/components/user-list/UserListContainer';
-import ChatContainer from '../../ui/components/chat/ChatContainer';
+import ChatContainer from '../../ui/components/chat/container';
 
 const browserHistory = useRouterHistory(createHistory)({
   basename: '/html5client',
