@@ -56,11 +56,19 @@ package org.bigbluebutton.web.user.views {
 			
 			_menuData.push({label: 'Chat', handler: openPrivateChat});
 			if (userSession.userList.me.isModerator()) {
-				_menuData.push({label: 'Clear status', handler: clearUserStatus});
-				_menuData.push({label: 'Make presenter', handler: makeUserPresenter});
-				_menuData.push({label: 'Mute user', handler: muteUser});
-				_menuData.push({label: 'Lock user', handler: lockUser});
-				_menuData.push({label: 'Kick user', handler: kickUser});
+				if (_selectedUser.status != User.NO_STATUS) {
+					_menuData.push({label: 'Clear status', handler: clearUserStatus});
+				}
+				if (_selectedUser.presenter == false) {
+					_menuData.push({label: 'Make presenter', handler: makeUserPresenter});
+				}
+				if (_selectedUser.voiceJoined && _selectedUser.muted == false) {
+					_menuData.push({label: 'Mute user', handler: muteUser});
+				}
+				if (_selectedUser.role != User.MODERATOR) {
+					_menuData.push({label: 'Lock user', handler: lockUser});
+					_menuData.push({label: 'Kick user', handler: kickUser});
+				}
 			}
 			
 			// make sure the previous menu is closed before opening a new one
