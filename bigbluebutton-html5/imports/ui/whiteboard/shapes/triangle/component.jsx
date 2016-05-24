@@ -7,7 +7,16 @@ export default class TriangleDrawComponent extends React.Component {
 
   render() {
     return (
-      <path style="" fill="" stroke="" d="" stroke-width="" stroke-linejoin=""></path>
+      //style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-linejoin: round;"
+      <path
+        //style=""
+        fill=""
+        stroke=""
+        d=""
+        stroke-width=""
+        stroke-linejoin=""
+        >
+      </path>
     );
   }
 }

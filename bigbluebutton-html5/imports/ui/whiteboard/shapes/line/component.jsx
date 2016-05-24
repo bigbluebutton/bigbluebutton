@@ -9,8 +9,15 @@ export default class LineDrawComponent extends React.Component {
     return (
 
       //stroke and stroke-width might be inside of the style
-      <line x1="" y1="" x2="" y2="" stroke="" stroke-width="" style="" />
+      <line
+        x1=""
+        y1=""
+        x2=""
+        y2=""
+        stroke=""
+        stroke-width=""
+        //style=""
+      />
     );
   }
 }
-

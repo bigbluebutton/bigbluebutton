@@ -16,7 +16,9 @@ export default class WhiteboardPaper extends React.Component {
         <div id="svggroup">
           <svg version='1.1' xmlNS='http://www.w3.org/2000/svg' {...this.props.svgProps} style={this.props.svgStyle}>
             <Slide current_slide={this.props.current_slide} />
-            <WhiteboardShapeModel />
+            { this.props.shapes ? this.props.shapes.map((shape) =>
+              <WhiteboardShapeModel shape={shape} key={shape.shape.id}/>
+            ) : null }
           </svg>
         </div>
       </div>

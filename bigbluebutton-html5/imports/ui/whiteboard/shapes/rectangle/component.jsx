@@ -7,7 +7,21 @@ export default class RectangleDrawComponent extends React.Component {
 
   render() {
     return (
-      <rect x="" y="" width="" height="" r="" rx="" ry="" fill="" stroke="" stroke-width="" style=""></rect>
+      //style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+      <rect
+        x=""
+        y=""
+        width=""
+        height=""
+        r=""
+        rx=""
+        ry=""
+        fill=""
+        stroke=""
+        stroke-width=""
+        //style=""
+        >
+      </rect>
     );
   }
 }

@@ -5,6 +5,7 @@ import Poll from '../shapes/poll/component.jsx';
 import Rectangle from '../shapes/rectangle/component.jsx';
 import Text from '../shapes/text/component.jsx';
 import Triangle from '../shapes/triangle/component.jsx';
+import Pencil from '../shapes/pencil/component.jsx';
 
 export default class WhiteboardShapeModel extends React.Component {
   constructor(props) {
@@ -12,20 +13,21 @@ export default class WhiteboardShapeModel extends React.Component {
   }
 
   render() {
+    var Component = this.props.shapes[this.props.shape.shape.shape_type];
     return (
-      <div>
-      </div>
+      <Component />
     );
   }
 }
 
 WhiteboardShapeModel.defaultProps = {
   shapes: {
-    'ellipse': Ellipse,
-    'line': Line,
-    'poll': Poll,
-    'rectangle': Rectangle,
-    'text': Text,
-    'triangle': Triangle,
+    ellipse: Ellipse,
+    line: Line,
+    poll: Poll,
+    rectangle: Rectangle,
+    text: Text,
+    triangle: Triangle,
+    pencil: Pencil,
   },
 };
