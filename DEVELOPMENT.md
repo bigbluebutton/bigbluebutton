@@ -211,7 +211,7 @@ mvn install
 Build red5-io
 
 ```
-cd ~/dev/tools
+cd ~/dev
 git clone https://github.com/bigbluebutton/red5-io.git
 cd red5-io
 git checkout snapshot-mar-30-2016
@@ -221,7 +221,7 @@ git checkout snapshot-mar-30-2016
 Build red5-server-common
 
 ```
-cd ~/dev/tools
+cd ~/dev
 git clone https://github.com/bigbluebutton/red5-server-common.git
 cd red5-server-common
 git checkout snapshot-mar-30-2016
@@ -231,7 +231,7 @@ git checkout snapshot-mar-30-2016
 Build red5-server
 
 ```
-cd ~/dev/tools
+cd ~/dev
 git clone https://github.com/bigbluebutton/red5-server.git
 cd red5-server
 git checkout snapshot-mar-30-2016
@@ -240,7 +240,7 @@ git checkout snapshot-mar-30-2016
 # Deploy red5, this will copy the new red5 to /usr/share
 # and modify the symlink you created above.
 
-./deploy.sh
+./deploy-red5.sh
 ```
 
 # Developing the client
