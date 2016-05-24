@@ -23,7 +23,6 @@ class MeetingModel {
   private var meetingEnded = false
   private var meetingMuted = false
 
-  val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
   private var lastWebUserLeftOnTimestamp: Long = 0
 
@@ -35,7 +34,10 @@ class MeetingModel {
 
   private var extension = new MeetingExtensionProp
 
-  val startedOn = timeNowInMinutes;
+  val startedOn = timeNowInSeconds;
+
+  var breakoutRoomsStartedOn: Long = 0;
+  var breakoutRoomsdurationInMinutes: Int = 0;
 
   def resetDesktopSharingParams() = {
     broadcastingRTMP = false
@@ -126,4 +128,5 @@ class MeetingModel {
   def meetingHasEnded() = meetingEnded = true
   def hasMeetingEnded(): Boolean = meetingEnded
   def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
+  def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
 }

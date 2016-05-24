@@ -47,13 +47,15 @@ trait BreakoutRoomApp extends SystemConfiguration {
         r.defaultPresentationURL)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, mProps.recorded, p))
     }
+    meetingModel.breakoutRoomsdurationInMinutes = msg.durationInMinutes;
+    meetingModel.breakoutRoomsStartedOn = timeNowInSeconds;
   }
 
   def sendJoinURL(userId: String, breakoutId: String) {
     for {
       user <- usersModel.getUser(userId)
       apiCall = "join"
-      params = BreakoutRoomsUtil.joinParams(user.name, true, breakoutId, bbbWebModeratorPassword, true)
+      params = BreakoutRoomsUtil.joinParams(user.name, userId, true, breakoutId, bbbWebModeratorPassword, true)
       baseString = BreakoutRoomsUtil.createBaseString(params)
       checksum = BreakoutRoomsUtil.calculateChecksum(apiCall, baseString, bbbWebSharedSecret)
       joinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, baseString, checksum)
@@ -95,7 +97,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
     val users = usersModel.getUsers().toVector
-    val breakoutUsers = users map { u => new BreakoutUser(u.userID, u.name) }
+    val breakoutUsers = users map { u => new BreakoutUser(u.externUserID, u.name) }
     eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
       new BreakoutRoomUsersUpdate(mProps.externalMeetingID, mProps.meetingID, breakoutUsers)))
   }
@@ -164,10 +166,11 @@ object BreakoutRoomsUtil {
     checksum(apiCall.concat(baseString).concat(sharedSecret))
   }
 
-  def joinParams(username: String, isBreakout: Boolean, breakoutId: String,
+  def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutId: String,
     password: String, redirect: Boolean): mutable.Map[String, String] = {
     val params = new collection.mutable.HashMap[String, String]
     params += "fullName" -> urlEncode(username)
+    params += "userID" -> urlEncode(userId + "-" + breakoutId.substring(breakoutId.lastIndexOf("-") + 1));
     params += "isBreakout" -> urlEncode(isBreakout.toString())
     params += "meetingID" -> urlEncode(breakoutId)
     params += "password" -> urlEncode(password)

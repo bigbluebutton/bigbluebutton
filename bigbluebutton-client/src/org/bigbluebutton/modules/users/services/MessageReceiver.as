@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.users.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
@@ -154,6 +155,9 @@ package org.bigbluebutton.modules.users.services
 		case "timeRemainingUpdate":
 	      handleTimeRemainingUpdate(message);
 		  break;
+		case "breakoutRoomsTimeRemainingUpdate":
+			handleBreakoutRoomsTimeRemainingUpdate(message);
+			break;
 		case "breakoutRoomStarted":
 		  handleBreakoutRoomStarted(message);
 		  break;
@@ -644,6 +648,7 @@ package org.bigbluebutton.modules.users.services
 		var map:Object = JSON.parse(msg.msg);
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
 		event.joinURL = map.joinURL;
+		event.breakoutId = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
 		dispatcher.dispatchEvent(event);
 	}
 	
@@ -651,10 +656,17 @@ package org.bigbluebutton.modules.users.services
 		var map:Object = JSON.parse(msg.msg);
 		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.users);
 	}
-	
-	private function handleTimeRemainingUpdate(msg:Object):void{
+
+	private function handleTimeRemainingUpdate(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
-		var e : BreakoutRoomEvent=  new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME);
+		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT);
+		e.durationInMinutes = map.timeRemaining;
+		dispatcher.dispatchEvent(e);
+	}
+	
+	private function handleBreakoutRoomsTimeRemainingUpdate(msg:Object):void {
+		var map:Object = JSON.parse(msg.msg);
+		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
 		e.durationInMinutes = map.timeRemaining;
 		dispatcher.dispatchEvent(e);
 	}

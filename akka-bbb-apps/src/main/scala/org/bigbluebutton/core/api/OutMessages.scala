@@ -39,6 +39,7 @@ case class BreakoutRoomStartedOutMessage(meetingId: String, recorded: Boolean, b
 case class BreakoutRoomBody(name: String, breakoutId: String)
 case class UpdateBreakoutUsersOutMessage(meetingId: String, recorded: Boolean, breakoutId: String, users: Vector[BreakoutUser]) extends IOutMessage
 case class MeetingTimeRemainingUpdate(meetingId: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
+case class BreakoutRoomsTimeRemainingUpdateOutMessage(meetingId: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
 case class BreakoutRoomEndedOutMessage(meetingId: String, breakoutId: String) extends IOutMessage
 
 // Permissions

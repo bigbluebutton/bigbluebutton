@@ -20,6 +20,7 @@
 				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
 				e.breakoutId = data.breakoutId as String;
 				e.listen = listenBtn.selected;
+				listenBtn.setStyle("icon", listenBtn.selected ? images.transferred : images.transfer);
 				globalDispatch.dispatchEvent(e);
 			}
 			
@@ -33,7 +34,7 @@
 
 	<mx:Button id="listenBtn" toggle="true"
 			   width="20" height="20"
-			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"
+			   icon="{images.transfer}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.transfer')}"
 			   click="listenToBreakoutRoom(event)" visible="{data.listenStatus != BreakoutRoom.OTHER}"/>
 	<mx:Button id="joinImg" width="20" height="20"
 			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"

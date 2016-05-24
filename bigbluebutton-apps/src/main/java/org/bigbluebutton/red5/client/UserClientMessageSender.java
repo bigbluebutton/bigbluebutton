@@ -31,6 +31,7 @@ import org.bigbluebutton.messages.BreakoutRoomClosed;
 import org.bigbluebutton.messages.BreakoutRoomJoinURL;
 import org.bigbluebutton.messages.BreakoutRoomStarted;
 import org.bigbluebutton.messages.BreakoutRoomsList;
+import org.bigbluebutton.messages.BreakoutRoomsTimeRemainingUpdate;
 import org.bigbluebutton.messages.TimeRemainingUpdate;
 import org.bigbluebutton.messages.UpdateBreakoutUsers;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
@@ -38,6 +39,7 @@ import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -197,6 +199,12 @@ public class UserClientMessageSender {
               processTimeRemainingUpdate(trum);
             }
         	break;
+          case BreakoutRoomsTimeRemainingUpdate.NAME:
+              BreakoutRoomsTimeRemainingUpdate brtru = gson.fromJson(message, BreakoutRoomsTimeRemainingUpdate.class);
+              if (brtru != null) {
+                processBreakoutRoomsTimeRemainingUpdate(brtru);
+              }
+              break;
           case UpdateBreakoutUsers.NAME:
         	UpdateBreakoutUsers ubum = gson.fromJson(message, UpdateBreakoutUsers.class);
         	if (ubum != null) {
@@ -558,6 +566,19 @@ public class UserClientMessageSender {
       
 	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "timeRemainingUpdate", message);
       service.sendMessage(m);
+  }
+  
+  private void processBreakoutRoomsTimeRemainingUpdate(BreakoutRoomsTimeRemainingUpdate msg) {
+      Map<String, Object> args = new HashMap<String, Object>(); 
+      args.put("meetingId", msg.payload.meetingId);
+      args.put("timeRemaining", msg.payload.timeRemaining);
+      
+      Map<String, Object> message = new HashMap<String, Object>();
+      Gson gson = new Gson();
+      message.put("msg", gson.toJson(args));
+      
+      BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomsTimeRemainingUpdate", message);
+      service.sendMessage(m); 
   }
   
   private void processUpdateBreakoutUsers(UpdateBreakoutUsers msg) {

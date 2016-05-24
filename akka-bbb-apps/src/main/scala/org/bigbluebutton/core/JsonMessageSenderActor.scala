@@ -77,6 +77,12 @@ class JsonMessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
   }
 
+  private def handleMeetingTimeRemainingUpdate(msg: BreakoutRoomsTimeRemainingUpdateOutMessage) {
+    val payload = new BreakoutRoomsTimeRemainingPayload(msg.meetingId, msg.timeRemaining)
+    val request = new BreakoutRoomsTimeRemainingUpdate(payload)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
+  }
+
   private def handleBreakoutRoomsList(msg: BreakoutRoomsListOutMessage) {
     val rooms = new java.util.ArrayList[BreakoutRoomPayload]()
     msg.rooms.foreach(r => rooms.add(new BreakoutRoomPayload(msg.meetingId, r.breakoutId, r.name)))

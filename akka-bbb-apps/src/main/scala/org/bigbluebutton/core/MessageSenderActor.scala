@@ -125,6 +125,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: BreakoutRoomJoinURLOutMessage => handleBreakoutRoomJoinURLOutMessage(msg)
     case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsersOutMessage(msg)
     case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
+    case msg: BreakoutRoomsTimeRemainingUpdateOutMessage => handleBreakoutRoomsTimeRemainingUpdate(msg)
 
     case msg: SendCaptionHistoryReply => handleSendCaptionHistoryReply(msg)
     case msg: UpdateCaptionOwnerReply => handleUpdateCaptionOwnerReply(msg)
@@ -749,5 +750,10 @@ class MessageSenderActor(val service: MessageSender)
     val json = CaptionMessageToJsonConverter.editCaptionHistoryReplyToJson(msg)
     println(json)
     service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
+  }
+
+  private def handleBreakoutRoomsTimeRemainingUpdate(msg: BreakoutRoomsTimeRemainingUpdateOutMessage) {
+    val json = MeetingMessageToJsonConverter.breakoutRoomsTimeRemainingUpdateToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 }

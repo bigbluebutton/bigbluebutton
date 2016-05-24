@@ -94,6 +94,7 @@ class BigBlueButtonInGW(
   }
 
   def destroyMeeting(meetingID: String) {
+    forwardMessage(new EndAllBreakoutRooms(meetingID))
     eventBus.publish(
       BigBlueButtonEvent(
         "meeting-manager",
