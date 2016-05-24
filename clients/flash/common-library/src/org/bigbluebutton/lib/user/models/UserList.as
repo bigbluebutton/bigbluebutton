@@ -20,24 +20,11 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const TALKING:int = 5;
 		
-		public static const RAISE_HAND:int = 6;
+		public static const STATUS:int = 6;
 		
 		public static const LOCKED:int = 7;
 		
 		public static const LISTEN_ONLY:int = 8;
-		
-		public static const NO_STATUS:int = 9;
-		
-		public static const AWAY:int = 10;
-		
-		public static const HAPPY:int = 11;
-		
-		public static const NEUTRAL:int = 12;
-		
-		public static const SAD:int = 13;
-		
-		public static const CONFUSED:int = 14;
-		
 		
 		private var _users:ArrayCollection;
 		
@@ -184,27 +171,6 @@ package org.bigbluebutton.lib.user.models {
 				if (newuser.presenter) {
 					userChangeSignal.dispatch(newuser, PRESENTER);
 				}
-				if (newuser.status == User.RAISE_HAND) {
-					userChangeSignal.dispatch(newuser, RAISE_HAND);
-				}
-				if (newuser.status == User.AWAY) {
-					userChangeSignal.dispatch(newuser, AWAY);
-				}
-				if (newuser.status == User.HAPPY) {
-					userChangeSignal.dispatch(newuser, HAPPY);
-				}
-				if (newuser.status == User.NEUTRAL) {
-					userChangeSignal.dispatch(newuser, NEUTRAL);
-				}
-				if (newuser.status == User.SAD) {
-					userChangeSignal.dispatch(newuser, SAD);
-				}
-				if (newuser.status == User.CONFUSED) {
-					userChangeSignal.dispatch(newuser, CONFUSED);
-				}
-				if (newuser.status == User.NO_STATUS) {
-					userChangeSignal.dispatch(newuser, NO_STATUS);
-				}
 				if (newuser.listenOnly) {
 					userChangeSignal.dispatch(newuser, LISTEN_ONLY);
 				}
@@ -336,28 +302,7 @@ package org.bigbluebutton.lib.user.models {
 			if (p) {
 				var user:User = p.participant as User;
 				p.participant.status = value;
-				switch (value) {
-					case User.RAISE_HAND:
-						userChangeSignal.dispatch(p.participant, RAISE_HAND);
-						break;
-					case User.AWAY:
-						userChangeSignal.dispatch(p.participant, AWAY);
-						break;
-					case User.HAPPY:
-						userChangeSignal.dispatch(p.participant, HAPPY);
-						break;
-					case User.NEUTRAL:
-						userChangeSignal.dispatch(p.participant, NEUTRAL);
-						break;
-					case User.SAD:
-						userChangeSignal.dispatch(p.participant, SAD);
-						break;
-					case User.CONFUSED:
-						userChangeSignal.dispatch(p.participant, CONFUSED);
-						break;
-					case User.NO_STATUS:
-						userChangeSignal.dispatch(p.participant, NO_STATUS);
-				}
+				userChangeSignal.dispatch(p.participant, STATUS);
 			}
 		}
 		

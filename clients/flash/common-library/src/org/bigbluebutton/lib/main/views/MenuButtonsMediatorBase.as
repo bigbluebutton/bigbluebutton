@@ -1,14 +1,6 @@
 package org.bigbluebutton.lib.main.views {
 	
-	import flash.desktop.NativeApplication;
-	import flash.desktop.SystemIdleMode;
-	import flash.display.DisplayObjectContainer;
-	import flash.events.Event;
-	import flash.events.InvokeEvent;
 	import flash.events.MouseEvent;
-	
-	import mx.core.FlexGlobals;
-	import mx.resources.ResourceManager;
 	
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
@@ -16,7 +8,6 @@ package org.bigbluebutton.lib.main.views {
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	
 	public class MenuButtonsMediatorBase extends Mediator {
 		
