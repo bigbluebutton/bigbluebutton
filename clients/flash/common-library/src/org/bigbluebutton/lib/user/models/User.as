@@ -34,14 +34,14 @@ package org.bigbluebutton.lib.user.models {
 		 */
 		public var isLeavingFlag:Boolean = false;
 		
-		private var _userID:String = UNKNOWN_USER;
+		private var _userId:String = UNKNOWN_USER;
 		
-		public function get userID():String {
-			return _userID;
+		public function get userId():String {
+			return _userId;
 		}
 		
-		public function set userID(value:String):void {
-			_userID = value;
+		public function set userId(value:String):void {
+			_userId = value;
 		}
 		
 		private var _name:String;

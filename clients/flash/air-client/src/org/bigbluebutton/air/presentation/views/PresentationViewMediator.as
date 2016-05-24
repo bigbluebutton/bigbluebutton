@@ -18,7 +18,7 @@ package org.bigbluebutton.air.presentation.views {
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.presentation.views.selectwebcam.SelectStreamPopUp;
 	import org.bigbluebutton.lib.main.commands.GoToSlideSignal;
-	import org.bigbluebutton.lib.presentation.views.PresentationMediator;
+	import org.bigbluebutton.lib.presentation.views.PresentationMediatorBase;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
 	import org.bigbluebutton.lib.video.models.UserStreamName;
@@ -26,7 +26,7 @@ package org.bigbluebutton.air.presentation.views {
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	
-	public class PresentationViewMediator extends PresentationMediator {
+	public class PresentationViewMediator extends PresentationMediatorBase {
 		
 		[Inject]
 		public var userUISession:IUserUISession;

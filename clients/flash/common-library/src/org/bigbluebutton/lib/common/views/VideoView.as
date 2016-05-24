@@ -6,12 +6,16 @@ package org.bigbluebutton.lib.common.views {
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
+	import mx.core.UIComponent;
+	
 	import spark.components.Group;
 	
-	public class VideoView extends Group {
+	public class VideoView extends UIComponent {
 		protected var ns:NetStream;
 		
 		protected var video:Video;
+		
+		protected var aspectRatio:Number = 0;
 		
 		protected var connection:NetConnection;
 		
@@ -72,7 +76,6 @@ package org.bigbluebutton.lib.common.views {
 		
 		public function close():void {
 			if (video && video.parent) {
-				video.parent.removeChild(video);
 				video = null;
 			}
 			if (ns) {

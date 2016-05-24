@@ -1,6 +1,16 @@
 package org.bigbluebutton.web.user {
-	import org.bigbluebutton.web.user.views.UserWindow;
-	import org.bigbluebutton.web.user.views.UserWindowMediator;
+	import org.bigbluebutton.lib.main.commands.ClearUserStatusCommand;
+	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
+	import org.bigbluebutton.lib.main.commands.KickUserCommand;
+	import org.bigbluebutton.lib.main.commands.KickUserSignal;
+	import org.bigbluebutton.lib.main.commands.LockUserCommand;
+	import org.bigbluebutton.lib.main.commands.LockUserSignal;
+	import org.bigbluebutton.lib.main.commands.PresenterCommand;
+	import org.bigbluebutton.lib.main.commands.PresenterSignal;
+	import org.bigbluebutton.lib.user.views.UsersViewBase;
+	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteCommand;
+	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
+	import org.bigbluebutton.web.user.views.UserViewMediatorWeb;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -36,14 +46,18 @@ package org.bigbluebutton.web.user {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(UserWindow).toMediator(UserWindowMediator);
+			mediatorMap.map(UsersViewBase).toMediator(UserViewMediatorWeb);
 		}
 		
 		/**
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-		
+			signalCommandMap.map(ClearUserStatusSignal).toCommand(ClearUserStatusCommand);
+			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
+			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
+			signalCommandMap.map(MicrophoneMuteSignal).toCommand(MicrophoneMuteCommand);
+			signalCommandMap.map(KickUserSignal).toCommand(KickUserCommand);
 		}
 	}
 }

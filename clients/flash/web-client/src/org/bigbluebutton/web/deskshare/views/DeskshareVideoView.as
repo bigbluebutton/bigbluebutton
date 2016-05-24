@@ -20,7 +20,7 @@ package org.bigbluebutton.web.deskshare.views {
 		
 		protected var screenHeight:Number;
 		
-		protected var aspectRatio:Number;
+		//protected var aspectRatio:Number;
 		
 		protected var _videoDisplay:VideoDisplay;
 		

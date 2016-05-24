@@ -114,7 +114,7 @@ package org.bigbluebutton.lib.user.models {
 		public function getUserByUserId(userId:String):User {
 			if (users != null) {
 				for each (var user:User in users) {
-					if (user.userID == userId) {
+					if (user.userId == userId) {
 						return user;
 					}
 				}
@@ -157,18 +157,18 @@ package org.bigbluebutton.lib.user.models {
 				return -1;
 			else if (au.name.toLowerCase() > bu.name.toLowerCase())
 				return 1;
-			else if (au.userID.toLowerCase() > bu.userID.toLowerCase())
+			else if (au.userId.toLowerCase() > bu.userId.toLowerCase())
 				return -1;
-			else if (au.userID.toLowerCase() < bu.userID.toLowerCase())
+			else if (au.userId.toLowerCase() < bu.userId.toLowerCase())
 				return 1;
 			return 0;
 		}
 		
 		public function addUser(newuser:User):void {
-			trace("Adding new user [" + newuser.userID + "]");
-			if (!hasUser(newuser.userID)) {
-				trace("Am I this new user [" + newuser.userID + ", " + _me.userID + "]");
-				if (newuser.userID == _me.userID) {
+			trace("Adding new user [" + newuser.userId + "]");
+			if (!hasUser(newuser.userId)) {
+				trace("Am I this new user [" + newuser.userId + ", " + _me.userId + "]");
+				if (newuser.userId == _me.userId) {
 					newuser.me = true;
 					//TODO check if this is correct
 					// if we don't set _me to the just added user, _me won't get any update ever, it wouldn't be
@@ -244,7 +244,7 @@ package org.bigbluebutton.lib.user.models {
 			if (p != null) {
 				var user:User = p.participant as User;
 				user.isLeavingFlag = true;
-				trace("removing user[" + user.name + "," + user.userID + "]");
+				trace("removing user[" + user.name + "," + user.userId + "]");
 				_users.removeItemAt(p.index);
 				_users.refresh();
 				userRemovedSignal.dispatch(userID);
@@ -423,7 +423,7 @@ package org.bigbluebutton.lib.user.models {
 			var aUser:User;
 			for (var i:int = 0; i < _users.length; i++) {
 				aUser = _users.getItemAt(i) as User;
-				if (aUser.userID == userID) {
+				if (aUser.userId == userID) {
 					return {index: i, participant: aUser};
 				}
 			}

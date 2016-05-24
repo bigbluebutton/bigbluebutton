@@ -1,12 +1,10 @@
 package org.bigbluebutton.web.chat {
-	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
-	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
-	import org.bigbluebutton.lib.chat.services.ChatMessageService;
-	import org.bigbluebutton.lib.chat.services.IChatMessageService;
-	import org.bigbluebutton.web.chat.views.ChatView;
-	import org.bigbluebutton.web.chat.views.ChatViewMediator;
-	import org.bigbluebutton.web.chat.views.ChatWindow;
-	import org.bigbluebutton.web.chat.views.ChatWindowMediator;
+	import org.bigbluebutton.lib.chat.views.ChatRoomsViewBase;
+	import org.bigbluebutton.lib.chat.views.ChatViewBase;
+	import org.bigbluebutton.web.chat.views.ChatPanel;
+	import org.bigbluebutton.web.chat.views.ChatPanelMediator;
+	import org.bigbluebutton.web.chat.views.ChatRoomsMediatorWeb;
+	import org.bigbluebutton.web.chat.views.ChatViewMediatorWeb;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -36,16 +34,16 @@ package org.bigbluebutton.web.chat {
 		 * application.
 		 */
 		private function dependencies():void {
-			injector.map(IChatMessageService).toSingleton(ChatMessageService);
-			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
+			
 		}
 		
 		/**
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(ChatWindow).toMediator(ChatWindowMediator);
-			mediatorMap.map(ChatView).toMediator(ChatViewMediator);
+			mediatorMap.map(ChatRoomsViewBase).toMediator(ChatRoomsMediatorWeb);
+			mediatorMap.map(ChatViewBase).toMediator(ChatViewMediatorWeb);
+			mediatorMap.map(ChatPanel).toMediator(ChatPanelMediator);
 		}
 		
 		/**

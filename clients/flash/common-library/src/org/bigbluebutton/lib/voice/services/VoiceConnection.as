@@ -102,7 +102,7 @@ package org.bigbluebutton.lib.voice.services {
 			// we don't use scope in the voice communication (many hours lost on it)
 			_conferenceParameters = confParams;
 			_listenOnly = listenOnly;
-			_username = encodeURIComponent(confParams.externUserID + "-bbbID-" + confParams.username);
+			_username = encodeURIComponent(confParams.internalUserID + "-bbbID-" + confParams.username);
 			baseConnection.connect(_applicationURI, confParams.meetingID, confParams.externUserID, _username);
 		}
 		

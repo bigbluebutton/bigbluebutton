@@ -32,6 +32,8 @@ package org.bigbluebutton.lib.video.models {
 		
 		private var _h264Profile:String = "main";
 		
+		private var _aspectRatio:Number = -1;
+		
 		public function VideoProfile(vxml:XML, fallbackLanguage:String) {
 			_fallbackLanguage = fallbackLanguage;
 			if (vxml.@id != undefined) {
@@ -74,6 +76,10 @@ package org.bigbluebutton.lib.video.models {
 			if (vxml.h264Profile != undefined) {
 				_h264Profile = vxml.h264Profile.toString();
 			}
+			
+			// calculate the aspect ratio once
+			_aspectRatio = width / height;
+			
 			trace("This is a new video profile");
 			trace(this.toString());
 		}
@@ -148,6 +154,10 @@ package org.bigbluebutton.lib.video.models {
 		
 		public function get h264Profile():String {
 			return _h264Profile;
+		}
+		
+		public function get aspectRatio():Number {
+			return _aspectRatio;
 		}
 	}
 }

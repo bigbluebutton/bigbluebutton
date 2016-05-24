@@ -56,7 +56,7 @@ package org.bigbluebutton.lib.user.services {
 		
 		private function muteUnmute(user:User, mute:Boolean):void {
 			if (user.voiceJoined) {
-				usersMessageSender.muteUnmuteUser(user.userID, mute);
+				usersMessageSender.muteUnmuteUser(user.userId, mute);
 			}
 		}
 		
@@ -78,7 +78,7 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function emojiStatus(status:String):void {
-			usersMessageSender.emojiStatus(userSession.userList.me.userID, status);
+			usersMessageSender.emojiStatus(userSession.userList.me.userId, status);
 		}
 		
 		public function clearUserStatus(userID:String):void {

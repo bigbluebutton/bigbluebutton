@@ -1,5 +1,9 @@
 package org.bigbluebutton.web {
 	
+	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
+	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
+	import org.bigbluebutton.lib.chat.services.ChatMessageService;
+	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.common.models.SaveData;
 	import org.bigbluebutton.lib.common.services.BaseConnection;
@@ -10,7 +14,6 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserCommand;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
-	import org.bigbluebutton.lib.main.commands.GuestWaitingForApprovalSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -36,13 +39,7 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
 	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
 	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
-	import org.bigbluebutton.web.main.commands.GuestWaitingForApprovalCommandWeb;
-	import org.bigbluebutton.web.main.commands.LocaleChangedSignal;
-	import org.bigbluebutton.web.main.models.IShortcutOptions;
-	import org.bigbluebutton.web.main.models.ShortcutOptions;
-	import org.bigbluebutton.web.toolbar.micbutton.commands.AudioSelectionWindowClosedSignal;
-	import org.bigbluebutton.web.toolbar.webcambutton.commands.CamSettingsClosedSignal;
-	import org.bigbluebutton.web.toolbar.webcambutton.commands.ShareCameraCommandWeb;
+	import org.bigbluebutton.web.video.commands.ShareCameraCommandWeb;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
@@ -58,17 +55,15 @@ package org.bigbluebutton.web {
 		
 		public function configure():void {
 			// Singleton mapping
-			injector.map(IShortcutOptions).toSingleton(ShortcutOptions);
 			injector.map(IUserSession).toSingleton(UserSession);
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
 			injector.map(IWhiteboardService).toSingleton(WhiteboardService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
+			injector.map(IChatMessageService).toSingleton(ChatMessageService);
+			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
 			injector.map(ISaveData).toSingleton(SaveData);
-			injector.map(CamSettingsClosedSignal).asSingleton();
-			injector.map(LocaleChangedSignal).asSingleton();
-			injector.map(AudioSelectionWindowClosedSignal).asSingleton();
 			// Type mapping
 			injector.map(IBaseConnection).toType(BaseConnection);
 			injector.map(IVoiceConnection).toType(VoiceConnection);
@@ -82,7 +77,6 @@ package org.bigbluebutton.web {
 			signalCommandMap.map(LoadSlideSignal).toCommand(LoadSlideCommand);
 			signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommand);
-			signalCommandMap.map(GuestWaitingForApprovalSignal).toCommand(org.bigbluebutton.web.main.commands.GuestWaitingForApprovalCommandWeb);
 		}
 	}
 }
