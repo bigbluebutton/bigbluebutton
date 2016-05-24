@@ -34,7 +34,7 @@ public interface IBigBlueButtonInGW {
 	
 	// Users
 	void validateAuthToken(String meetingId, String userId, String token, String correlationId, String sessionId);
-	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken);
+	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken, String avatarURL);
 	void userEmojiStatus(String meetingId, String userId, String emojiStatus);	
 	void shareWebcam(String meetingId, String userId, String stream);
 	void unshareWebcam(String meetingId, String userId, String stream);
@@ -59,7 +59,7 @@ public interface IBigBlueButtonInGW {
 	void ejectUserFromVoice(String meetingID, String userId, String ejectedBy);
 	void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy);
 	void voiceUserJoined(String voiceConfId, String voiceUserId, String userId, String callerIdName, 
-								String callerIdNum, Boolean muted, Boolean talking);
+								String callerIdNum, Boolean muted, String avatarURL, Boolean talking);
 	void voiceUserLeft(String meetingId, String userId);
 	void voiceUserLocked(String meetingId, String userId, Boolean locked);
 	void voiceUserMuted(String meetingId, String userId, Boolean muted);
@@ -110,5 +110,12 @@ public interface IBigBlueButtonInGW {
 	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
-	
+
+	// DeskShare
+	void deskShareStarted(String conferenceName, String callerId, String callerIdName);
+	void deskShareStopped(String conferenceName, String callerId, String callerIdName);
+	void deskShareRTMPBroadcastStarted(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
+	void deskShareRTMPBroadcastStopped(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
+	void deskShareGetInfoRequest(String meetingId, String requesterId, String replyTo);
+
 }

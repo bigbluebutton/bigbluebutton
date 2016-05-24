@@ -4,7 +4,8 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.common.messages.WhiteboardKeyUtil
+// import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import com.google.gson.Gson
 import java.util.ArrayList
 import org.bigbluebutton.core.OutMessageGateway

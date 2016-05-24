@@ -28,7 +28,7 @@ case class GetLockSettings(meetingID: String, userId: String) extends InMessage
 case class ValidateAuthToken(meetingID: String, userId: String, token: String,
   correlationId: String, sessionId: String) extends InMessage
 case class RegisterUser(meetingID: String, userID: String, name: String, role: Role,
-  extUserID: String, authToken: String) extends InMessage
+  extUserID: String, authToken: String, avatarURL: String) extends InMessage
 case class UserJoining(meetingID: String, userID: String, authToken: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
@@ -100,7 +100,7 @@ case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedB
 case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
   callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
 case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
-  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
+  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, avatarURL: String, listenOnly: Boolean)
 case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String)
 case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean)
 case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean)
@@ -115,3 +115,11 @@ case class UndoWhiteboardRequest(meetingID: String, requesterID: String, whitebo
 case class EnableWhiteboardRequest(meetingID: String, requesterID: String, enable: Boolean) extends InMessage
 case class IsWhiteboardEnabledRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
+
+// DeskShare
+case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String)
+case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String)
+case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String)
+case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String)
+case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String)
+

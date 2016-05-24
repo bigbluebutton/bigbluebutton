@@ -1,10 +1,9 @@
 
-
 name := "bbb-common-message"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.16"
+version := "0.0.17"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -55,11 +54,11 @@ autoScalaLibrary := false
 // To push to sonatype "sbt publishSigned"
 
 publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+   val nexus = "https://oss.sonatype.org/"
+   if (isSnapshot.value)
+     Some("snapshots" at nexus + "content/repositories/snapshots")
+   else
+     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
 

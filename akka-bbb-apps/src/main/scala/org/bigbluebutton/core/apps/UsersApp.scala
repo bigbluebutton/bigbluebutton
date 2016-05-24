@@ -120,7 +120,7 @@ trait UsersApp {
       log.info("Register user failed. Mmeeting has ended. meetingId=" + mProps.meetingID + " userId=" + msg.userID)
       sendMeetingHasEnded(msg.userID)
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
+      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.avatarURL)
       usersModel.addRegisteredUser(msg.authToken, regUser)
 
       log.info("Register user success. meetingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + regUser)
@@ -246,6 +246,18 @@ trait UsersApp {
           + ". Making user=[" + mod.userID + "] presenter.")
         assignNewPresenter(mod.userID, mod.name, mod.userID)
       }
+
+      if (meetingModel.isBroadcastingRTMP()) {
+        // The presenter left during desktop sharing. Stop desktop sharing on FreeSWITCH
+        outGW.send(new DeskShareHangUp(mProps.meetingID, mProps.voiceBridge))
+
+        // notify other clients to close their deskshare view
+        outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+          meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight(), false))
+
+        // reset meeting info
+        meetingModel.resetDesktopSharingParams()
+      }
     }
   }
 
@@ -329,7 +341,7 @@ trait UsersApp {
              */
             new VoiceUser(u.voiceUser.userId, msg.userID, ru.name, ru.name,
               joined = false, locked = false, muted = false,
-              talking = false, listenOnly = u.listenOnly)
+              talking = false, u.avatarURL, listenOnly = u.listenOnly)
           }
         }
         case None => {
@@ -339,7 +351,7 @@ trait UsersApp {
            */
           new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,
             joined = false, locked = false,
-            muted = false, talking = false, listenOnly = false)
+            muted = false, talking = false, ru.avatarURL, listenOnly = false)
         }
       }
 
@@ -363,7 +375,7 @@ trait UsersApp {
         ru.role, emojiStatus = "none", presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
         webcamStreams = new ListSet[String](), phoneUser = false, vu,
-        listenOnly = vu.listenOnly, joinedWeb = true)
+        listenOnly = vu.listenOnly, avatarURL = vu.avatarURL, joinedWeb = true)
 
       usersModel.addUser(uvo)
 
@@ -399,9 +411,9 @@ trait UsersApp {
            * and is reconnecting. Make the user as joined only in the voice conference. If we get a
            * user left voice conference message, then we will remove the user from the users list.
            */
-          switchUserToPhoneUser((new UserJoinedVoiceConfMessage(mProps.voiceBridge,
+          switchUserToPhoneUser(new UserJoinedVoiceConfMessage(mProps.voiceBridge,
             vu.userId, u.userID, u.externUserID, vu.callerName,
-            vu.callerNum, vu.muted, vu.talking, u.listenOnly)));
+            vu.callerNum, vu.muted, vu.talking, vu.avatarURL, u.listenOnly));
         }
       }
 
@@ -436,7 +448,7 @@ trait UsersApp {
          * If user is not joined listenOnly then user is joined calling through phone or webrtc.
          */
         val vu = new VoiceUser(msg.voiceUserId, webUserId, msg.callerIdName, msg.callerIdNum,
-          joined = !msg.listenOnly, locked = false, muted = msg.muted, talking = msg.talking, listenOnly = msg.listenOnly)
+          joined = !msg.listenOnly, locked = false, muted = msg.muted, talking = msg.talking, msg.avatarURL, listenOnly = msg.listenOnly)
 
         /**
          * If user is not joined listenOnly then user is joined calling through phone or webrtc.
@@ -446,7 +458,7 @@ trait UsersApp {
           Role.VIEWER, emojiStatus = "none", presenter = false,
           hasStream = false, locked = getInitialLockStatus(Role.VIEWER),
           webcamStreams = new ListSet[String](),
-          phoneUser = !msg.listenOnly, vu, listenOnly = msg.listenOnly, joinedWeb = false)
+          phoneUser = !msg.listenOnly, vu, listenOnly = msg.listenOnly, avatarURL = msg.avatarURL, joinedWeb = false)
 
         usersModel.addUser(uvo)
 
@@ -480,7 +492,7 @@ trait UsersApp {
       case Some(user) => {
         val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName,
           msg.callerIdNum, joined = true, locked = false,
-          msg.muted, msg.talking, msg.listenOnly)
+          msg.muted, msg.talking, msg.avatarURL, msg.listenOnly)
         val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
         usersModel.addUser(nu)
 
@@ -510,7 +522,7 @@ trait UsersApp {
 
         val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName,
           msg.callerIdNum, joined = true, locked = false,
-          msg.muted, msg.talking, msg.listenOnly)
+          msg.muted, msg.talking, msg.avatarURL, msg.listenOnly)
         val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
         usersModel.addUser(nu)
 
@@ -550,7 +562,7 @@ trait UsersApp {
        * Reset user's voice status.
        */
       val vu = new VoiceUser(user.userID, user.userID, user.name, user.name,
-        joined = false, locked = false, muted = false, talking = false, listenOnly = false)
+        joined = false, locked = false, muted = false, talking = false, user.avatarURL, listenOnly = false)
       val nu = user.copy(voiceUser = vu, phoneUser = false, listenOnly = false)
       usersModel.addUser(nu)
 

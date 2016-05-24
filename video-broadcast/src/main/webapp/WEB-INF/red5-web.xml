@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:lang="http://www.springframework.org/schema/lang"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+						   http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+
+	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/red5-web.properties</value>
+				<value>/WEB-INF/video-broadcast.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<import resource="bbb-redis-pool.xml"/>
+
+
+	<bean id="web.context" class="org.red5.server.Context"
+		autowire="byType" />
+
+	<bean id="web.scope" class="org.red5.server.scope.WebScope" init-method="register">
+		<property name="server" ref="red5.server" />
+		<property name="parent" ref="global.scope" />
+		<property name="context" ref="web.context" />
+		<property name="handler" ref="web.handler" />
+		<property name="contextPath" value="${webapp.contextPath}" />
+		<property name="virtualHosts" value="${webapp.virtualHosts}" />
+	</bean>
+
+	<bean id="web.handler" class="org.bigbluebutton.app.videobroadcast.VideoApplication">
+		<property name="packetTimeout" value="10000"/>
+		<property name="recordVideoStream" value="true"/>
+		<property name="eventRecordingService" ref="redisRecorder"/>
+	</bean>
+
+	<bean id="redisRecorder" class="org.bigbluebutton.app.videobroadcast.EventRecordingService">
+		<constructor-arg index="0" value="${redis.host}"/>
+		<constructor-arg index="1" value="${redis.port}"/>
+	</bean>
+
+	<!-- <bean id="web.handler" class="org.red5.server.adapter.ApplicationAdapter" />
+ -->
+</beans>

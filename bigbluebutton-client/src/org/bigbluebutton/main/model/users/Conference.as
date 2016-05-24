@@ -541,5 +541,20 @@ package org.bigbluebutton.main.model.users {
 			if(myUser != null)
 				myUser.applyLockSettings();
 		}
+
+		public function getUserAvatarURL(userID:String):String { // David, to get specific user avatar url
+                        if(userID != null ){
+                                var p:Object = getUserIndex(userID);
+                                if (p != null) {
+                                        var u:BBBUser = p.participant as BBBUser;
+                                        LOGGER.info("getUserAvatarURL user =" + JSON.stringify(u));
+                                        if(u.avatarURL == null || u.avatarURL == ""){
+                                                return this.avatarURL;
+                                        }
+                                        return u.avatarURL;
+                                }
+                        }
+                        return this.avatarURL;
+               }
 	}
 }
