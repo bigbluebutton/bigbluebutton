@@ -1,55 +1,70 @@
 @import '../../stylesheets/variables/palette';
 
-.header {
+.flex-column {
   display: flex;
   flex-flow: column;
-  justify-content: center;
-  height: 80px;
+}
 
-  h2 {
-    font-size: 1rem;
-    margin-left: 30px;
-  }
+.zero-margin {
+  margin: 0;
+}
+
+.header {
+  @extend .flex-column;
+  justify-content: center;
+  min-height: 3rem;
+  flex-grow: 1;
+}
+
+.headerTitle {
+  font-size: 1rem;
+  margin-left: 30px;
+}
+
+.content {
+  @extend .flex-column;
+  flex-grow: 9;
 }
 
 .unreadMessages {
-  display: flex;
-  flex-flow: column;
+  @extend .flex-column;
   justify-content: center;
+}
 
-  p {
-    display: flex;
-    justify-content: center;
-    flex-flow: column;
-    color: $color-white;
-    height: 1.3rem;
-    padding: 0 8px;
-    text-align: center;
-    border-radius: 0.5rem/50%;
-    margin: 0;
-    font-size: 0.8rem;
-    background-color: $color-danger;
-  }
+.unreadMessagesText {
+  @extend .flex-column;
+  @extend .zero-margin;
+  justify-content: center;
+  color: $color-white;
+  height: 1.3rem;
+  padding: 0 8px;
+  text-align: center;
+  border-radius: 0.5rem/50%;
+  font-size: 0.8rem;
+  background-color: $color-danger;
 }
 
 .userList {
-  display: flex;
-  flex-flow: column;
-  height: 100vh;
-
+  @extend .flex-column;
+  justify-content: flex-start;
   background-color: $color-white;
   color: $color-gray-dark;
-
-  ul {
-    padding: 0;
-    margin: 0;
-
-    display: flex;
-    flex-flow: column;;
-  }
+  height: 100vh;
 }
 
-.userListItem, .chatListItem {
+.lists {
+  @extend .flex-column;
+  @extend .zero-margin;
+  padding: 0;
+}
+
+.participantsList,
+.chatsList {
+  @extend .lists;
+}
+
+.userListItem,
+.chatListItem {
   padding: 5px;
   padding-left: 15px;
   padding-right: 10px;
@@ -59,10 +74,11 @@
   flex-flow: row;
   cursor: pointer;
   transition: all 0.3s;
-
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  &:hover {
+
+  &:hover,
+  &:focus {
     background-color: darken($color-white, 7%);
   }
 
@@ -76,36 +92,29 @@
 }
 
 .chatThumbnail {
-  display: flex;
-  flex-flow: column;
+  @extend .flex-column;
   justify-content: center;
-
   flex-basis: 30px;
   height: 30px;
-
   font-size: 1.1rem;
 }
 
 .chatName {
+  @extend .flex-column;
   flex-grow: 1;
-  display: flex;
-  flex-flow: column;
   justify-content: center;
+}
 
-  h3 {
-    margin: 0;
-    font-size: 0.9rem;
-  }
+.chatNameMain {
+  @extend .zero-margin;
+  font-size: 0.9rem;
 }
 
 .thumbnail {
+  @extend .flex-column;
   flex-basis: 2rem;
   height: 2rem;
-
-  display: flex;
-  flex-flow: column;
   justify-content: center;
-
   font-size: 1.05rem;
   text-align: center;
   border-radius: 20px;
@@ -114,11 +123,9 @@
 }
 
 .thumbnailContainer {
+  @extend .flex-column;
   flex-basis: 2rem;
   height: 2rem;
-
-  display: flex;
-  flex-flow: column;
   justify-content: center;
   border-radius: 20px;
 }
@@ -140,23 +147,22 @@
 }
 
 .userName {
+  @extend .flex-column;
   flex-grow: 1;
   margin-left: 15px;
-
-  display: flex;
-  flex-flow: column;
   justify-content: center;
+}
 
-  h3, p {
-    margin: 0;
-    font-size: 0.9rem;
-  }
+.userNameMain {
+  font-size: 0.9rem;
+  @extend .zero-margin;
+}
 
-  p {
-    font-size: 0.8rem;
-    font-style: italic;
-    color: $color-gray-light;
-  }
+.userNameSub {
+  @extend .zero-margin;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: $color-gray-light;
 }
 
 .userIcons {
@@ -167,133 +173,29 @@
   font-size: 1rem;
   flex-basis: 4rem;
   color: $color-gray-light;
+}
 
-  span {
-    text-align: center;
-    flex-basis: 1rem;
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-
-    transition: 0.3s all;
-    &:hover {
-      color: $color-gray;
-    }
+.userIconsContainer {
+  @extend .flex-column;
+  text-align: center;
+  flex-basis: 1rem;
+  justify-content: center;
+  transition: 0.3s all;
+  &:hover,
+  &:focus {
+    color: $color-gray;
   }
 }
 
 .smallTitle {
-    margin-bottom: 0;
-    color: $color-text;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    margin: 10px 30px;
-    margin-bottom: 10px;
+  margin-bottom: 0;
+  color: $color-text;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  margin: 10px 30px;
+  margin-bottom: 10px;
 }
 
 .scrollable {
   overflow: auto;
 }
-// .messages,
-// .participants {
-//     h3 {
-//         @extend .smalltitle;
-//     }
-// }
-// .userList {
-//     display: flex;
-//     flex-flow: column;
-//     background-color: $color-white;
-//     color: $color-gray-dark;
-//     height: 100vh;
-//
-//     h2 {
-//       font-size: 20px;
-//       margin: 20px 30px;
-//     }
-//
-//     ul {
-//         margin: 0;
-//         padding: 0;
-//         list-style: none;
-//         li {
-//             display: inline-block;
-//             a {
-//                 text-decoration: none;
-//                 height: 100%;
-//             }
-//         }
-//     }
-// }
-// .userListItem, .ChatListItem {
-//     cursor: pointer;
-//     width: 100%;
-//     display: block;
-//     line-height: 40px;
-//     margin-top: 10px;
-//     padding: 5px;
-//     padding-left: 30px;
-//     transition: all 0.3s;
-//
-//     &:hover {
-//       background-color: darken($color-white, 7%);
-//     }
-//
-//     &:first-child {
-//       margin-top: 0px;
-//     }
-// }
-// .userName {
-//     display: inline-block;
-//     margin-left: 50px;
-//     vertical-align: middle;
-//     width: calc(100% - 50px);
-//     h3 {
-//         line-height: normal;
-//         color: $color-gray-dark;
-//         text-transform: none;
-//         margin: 0;
-//     }
-//     p {
-//         line-height: normal;
-//         margin: 0;
-//         font-size: 14px;
-//         color: $color-text;
-//         font-style: italic;
-//     }
-// }
-//
-// .thumbnail {
-//     position: absolute;
-//     font-size: 25px;
-//     color: $color-white;
-//     text-align: center;
-//     line-height: 40px;
-//     display: inline-block;
-//     width: 40px;
-//     height: 40px;
-//     border-radius: 5px;
-//     background-color: $color-primary;
-// }
-//
-// .chatThumbnail {
-//   position: absolute;
-//   font-size: 25px;
-//   color: $color-gray-light;
-//   width: 40px;
-//   height: 40px;
-//   display: inline-block;
-// }
-//
-// .chatName {
-//   display: inline-block;
-//   margin-left: 50px;
-//   vertical-align: middle;
-//   width: calc(100% - 50px);
-//   h3 {
-//     line-height: normal;
-//     color: $color-gray-dark;
-//     text-transform: none;
-//     margin: 0;
-//   }
-// }

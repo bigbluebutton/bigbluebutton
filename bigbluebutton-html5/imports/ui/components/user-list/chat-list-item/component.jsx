@@ -7,15 +7,15 @@ export default class ChatListItem extends Component {
   render() {
 
     return (
-      <li className={styles.chatListItem}>
+      <li tabIndex='0' className={styles.chatListItem}>
         <div className={styles.chatThumbnail}>
           <i className="icon-bbb-group-chat"></i>
         </div>
         <div className={styles.chatName}>
-          <h3>Public Chat</h3>
+          <h3 className={styles.chatNameMain}>Public Chat</h3>
         </div>
         <div className={styles.unreadMessages}>
-          <p>{Math.round(Math.random()*33)}</p>
+          <p className={styles.unreadMessagesText}>{Math.round(Math.random()*33)}</p>
         </div>
       </li>
     );
