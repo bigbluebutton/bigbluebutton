@@ -8,9 +8,10 @@ export default class PencilDrawComponent extends React.Component {
   render() {
     // this is how style might look like with Raphael:
     // style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-linejoin: round; stroke-linecap: round;">
-    pathStyle = {
+    var style = {
       strokeLinejoin: 'round',
       strokeLinecap: 'round',
+      WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
     };
     return (
       <path
@@ -20,7 +21,7 @@ export default class PencilDrawComponent extends React.Component {
         strokeWidth=""
         strokeLinejoin=""
         strokeLinecap=""
-        style={pathStyle}>
+        style={style}>
       </path>
     );
   }

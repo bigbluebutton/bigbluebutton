@@ -7,6 +7,9 @@ export default class EllipseDrawComponent extends React.Component {
 
   render() {
     // style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+    var style = {
+      WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
+    };
     return (
       <ellipse
         cx=""
@@ -16,7 +19,7 @@ export default class EllipseDrawComponent extends React.Component {
         fill=""
         stroke=""
         stroke-width=""
-        //style=""
+        style={style}
         >
       </ellipse>
     );

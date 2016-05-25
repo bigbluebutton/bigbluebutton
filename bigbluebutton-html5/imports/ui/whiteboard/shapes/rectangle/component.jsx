@@ -6,6 +6,9 @@ export default class RectangleDrawComponent extends React.Component {
   }
 
   render() {
+    var style = {
+      WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
+    };
     return (
       //style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
       <rect
@@ -19,7 +22,7 @@ export default class RectangleDrawComponent extends React.Component {
         fill=""
         stroke=""
         stroke-width=""
-        //style=""
+        style={style}
         >
       </rect>
     );

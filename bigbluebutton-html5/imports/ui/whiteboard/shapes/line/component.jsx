@@ -6,6 +6,9 @@ export default class LineDrawComponent extends React.Component {
   }
 
   render() {
+    var style = {
+      WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
+    };
     return (
 
       //stroke and stroke-width might be inside of the style
@@ -16,7 +19,7 @@ export default class LineDrawComponent extends React.Component {
         y2=""
         stroke=""
         stroke-width=""
-        //style=""
+        style={style}
       />
     );
   }

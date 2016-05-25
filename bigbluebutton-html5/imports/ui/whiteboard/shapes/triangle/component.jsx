@@ -6,10 +6,13 @@ export default class TriangleDrawComponent extends React.Component {
   }
 
   render() {
+    var style = {
+      WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
+    };
     return (
       //style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-linejoin: round;"
       <path
-        //style=""
+        style={style}
         fill=""
         stroke=""
         d=""
