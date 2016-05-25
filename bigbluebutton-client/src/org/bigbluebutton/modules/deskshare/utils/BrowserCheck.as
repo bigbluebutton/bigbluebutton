@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 *
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2016 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -48,6 +48,15 @@ package org.bigbluebutton.modules.deskshare.utils
 			/* Currently no browser version of Edge supports plugins */
 			return browser[0] == "Edge";
 		}
+
+		public static function isChrome():Boolean {
+			var browser:Array = ExternalInterface.call("determineBrowser");
+			return browser[0] == "Chrome";
+		}
+
+		public static function isFirefox():Boolean {
+			var browser:Array = ExternalInterface.call("determineBrowser");
+			return browser[0] == "Firefox";
+		}
 	}
 }
-

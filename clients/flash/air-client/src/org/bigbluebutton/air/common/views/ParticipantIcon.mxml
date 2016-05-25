@@ -1,0 +1,25 @@
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 styleName="participantIconStyle">
+
+	<s:Label id="firstLetters"
+			 styleName="nameIconText"
+			 verticalCenter="0"
+			 horizontalCenter="0" />
+
+	<s:Ellipse id="circle"
+			   height="25"
+			   width="25"
+			   verticalCenter="0"
+			   horizontalCenter="0">
+		<s:stroke>
+			<s:SolidColorStroke id="circleColor"
+								color="{getStyle('circleColor')}"
+								weight="1" />
+		</s:stroke>
+	</s:Ellipse>
+
+
+</s:Group>
+

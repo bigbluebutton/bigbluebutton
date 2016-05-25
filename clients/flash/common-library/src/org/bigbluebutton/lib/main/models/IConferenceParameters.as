@@ -1,6 +1,7 @@
 package org.bigbluebutton.lib.main.models {
 	
 	import flash.net.NetConnection;
+	
 	import org.osflash.signals.ISignal;
 	
 	public interface IConferenceParameters {
@@ -9,6 +10,7 @@ package org.bigbluebutton.lib.main.models {
 		function set meetingName(meetingName:String):void;
 		function get externMeetingID():String;
 		function set externMeetingID(externMeetingID:String):void;
+		function get meetingID():String;
 		function get conference():String;
 		function set conference(conference:String):void;
 		function get username():String;
@@ -37,6 +39,12 @@ package org.bigbluebutton.lib.main.models {
 		function set record(record:Boolean):void;
 		function get authToken():String;
 		function set authToken(authToken:String):void;
+		function get metadata():Object;
+		function set metadata(metadata:Object):void;
 		function load(obj:Object):void;
+		function get muteOnStart():Boolean;
+		function set muteOnStart(mute:Boolean):void;
+		function get avatarUrl():String;
+		function set avatarUrl(value:String):void;
 	}
 }

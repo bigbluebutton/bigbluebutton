@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+ADOBE SYSTEMS INCORPORATED
+Copyright 2008 Adobe Systems Incorporated
+All Rights Reserved.
+
+NOTICE: Adobe permits you to use, modify, and distribute this file
+in accordance with the terms of the license agreement accompanying it.
+
+-->
+
+<!--- The default skin class for a Spark RadioButton component.
+
+@see spark.components.RadioButton
+@see spark.components.RadioButtonGroup
+
+@langversion 3.0
+@playerversion Flash 10
+@playerversion AIR 1.5
+@productversion Flex 4
+-->
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+			 xmlns:s="library://ns.adobe.com/flex/spark"
+			 xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+			 alpha.disabledStates="0.5">
+
+	<fx:Metadata>
+		<![CDATA[ 
+		/** 
+		* @copy spark.skins.spark.ApplicationSkin#hostComponent
+		*/
+		[HostComponent("spark.components.RadioButton")]
+		]]>
+	</fx:Metadata>
+
+
+
+	<s:states>
+		<s:State name="up" />
+		<s:State name="over"
+				 stateGroups="overStates" />
+		<s:State name="down"
+				 stateGroups="downStates" />
+		<s:State name="disabled"
+				 stateGroups="disabledStates" />
+		<s:State name="upAndSelected"
+				 stateGroups="selectedStates" />
+		<s:State name="overAndSelected"
+				 stateGroups="overStates, selectedStates" />
+		<s:State name="downAndSelected"
+				 stateGroups="downStates, selectedStates" />
+		<s:State name="disabledAndSelected"
+				 stateGroups="disabledStates, selectedStates" />
+	</s:states>
+
+	<s:Group verticalCenter="0"
+			 width="{hostComponent.getStyle('width')}"
+			 height="{hostComponent.getStyle('height')}">
+		<!-- drop shadow -->
+		<s:Ellipse>
+			<s:stroke>
+				<s:LinearGradientStroke rotation="90"
+										weight="1">
+					<s:GradientEntry color="0x000000"
+									 color.downStates="0xFFFFFF"
+									 alpha="0.011"
+									 alpha.downStates="0" />
+					<s:GradientEntry color="0x000000"
+									 color.downStates="0xFFFFFF"
+									 alpha="0.121"
+									 alpha.downStates="0.57" />
+				</s:LinearGradientStroke>
+			</s:stroke>
+		</s:Ellipse>
+
+		<!-- fill -->
+		<s:Ellipse left="1"
+				   top="1"
+				   right="1"
+				   bottom="1">
+			<s:fill>
+				<s:LinearGradient rotation="90">
+					<s:GradientEntry color="0xFFFFFF"
+									 color.overStates="0xBBBDBD"
+									 color.downStates="0xAAAAAA"
+									 alpha="0.85" />
+					<s:GradientEntry color="0xD8D8D8"
+									 color.overStates="0x9FA0A1"
+									 color.downStates="0x929496"
+									 alpha="0.85" />
+				</s:LinearGradient>
+			</s:fill>
+		</s:Ellipse>
+
+		<!-- fill highlight -->
+		<s:Path data="M 1 6 Q 2 2 6 1 Q 11 2 12 6 h -9">
+			<s:fill>
+				<s:SolidColor color="0xFFFFFF"
+							  alpha="0.33" />
+			</s:fill>
+		</s:Path>
+
+		<!-- layer 6: highlight stroke (all states except down) -->
+		<s:Ellipse left="1"
+				   right="1"
+				   top="1"
+				   bottom="1">
+			<s:stroke>
+				<s:LinearGradientStroke rotation="90"
+										weight="2">
+					<s:GradientEntry color="0xFFFFFF"
+									 color.downStates="0x939393"
+									 alpha.overStates="0.22" />
+					<s:GradientEntry color="0xD8D8D8"
+									 color.downStates="0xB1B1B1"
+									 alpha.overStates="0.22" />
+				</s:LinearGradientStroke>
+			</s:stroke>
+		</s:Ellipse>
+		<s:Rect left="8"
+				top="1"
+				right="8"
+				height="1">
+			<s:fill>
+				<s:SolidColor color="0xFFFFFF"
+							  color.downStates="0x939393"
+							  alpha.overStates="0.22" />
+			</s:fill>
+		</s:Rect>
+
+		<!-- border - put on top of the fill so it doesn't disappear when scale is less than 1 -->
+		<s:Ellipse left="0"
+				   top="0"
+				   right="0"
+				   bottom="0">
+			<s:stroke>
+				<s:LinearGradientStroke rotation="90"
+										weight="2">
+					<s:GradientEntry color="0x000000"
+									 alpha="0.70" />
+					<s:GradientEntry color="0x000000"
+									 alpha="0.80" />
+				</s:LinearGradientStroke>
+			</s:stroke>
+		</s:Ellipse>
+
+		<!-- dot -->
+		<!--- Defines the appearance of the RadioButton's dot. To customize the appearance of the dot, create a custom RadioButtonSkin class. -->
+		<s:Ellipse left="{hostComponent.getStyle('eclipseLeft')}"
+				   top="{hostComponent.getStyle('eclipseTop')}"
+				   right="{hostComponent.getStyle('eclipseRight')}"
+				   bottom="{hostComponent.getStyle('eclipseBottom')}"
+				   includeIn="selectedStates"
+				   id="dot"
+				   itemCreationPolicy="immediate">
+			<s:stroke>
+				<s:SolidColorStroke weight="1"
+									color="0x000000" />
+			</s:stroke>
+			<s:fill>
+				<s:SolidColor id="dotFill"
+							  color="0x000000"
+							  alpha="0.9" />
+			</s:fill>
+		</s:Ellipse>
+
+	</s:Group>
+
+	<!-- Label -->
+	<!---  @copy spark.components.supportClasses.ButtonBase#labelDisplay -->
+	<s:Label id="labelDisplay"
+			 verticalAlign="middle"
+			 maxDisplayedLines="1"
+			 width="100%"
+			 textAlign="center"
+			 verticalCenter="2"
+			 fontWeight="normal" />
+
+</s:SparkSkin>

@@ -1,50 +1,36 @@
 package org.bigbluebutton.lib.chat.models {
 	
+	[Bindable]
 	public class ChatMessage {
 		
-		[Bindable]
 		public var lastSenderId:String;
 		
-		[Bindable]
 		public var senderId:String;
 		
-		[Bindable]
 		public var senderLanguage:String;
 		
-		[Bindable]
 		public var receiverLanguage:String;
 		
-		[Bindable]
 		public var translate:Boolean;
 		
-		[Bindable]
 		public var senderColor:uint;
 		
-		[Bindable]
 		public var translateLocale:String = "";
 		
-		[Bindable]
 		public var translatedLocaleTooltip:String = "";
 		
-		[Bindable]
 		public var name:String;
 		
-		[Bindable]
 		public var time:String;
 		
-		[Bindable]
 		public var lastTime:String;
 		
-		[Bindable]
 		public var senderText:String;
 		
-		[Bindable]
 		public var translatedText:String;
 		
-		[Bindable]
 		public var translated:Boolean = false;
 		
-		[Bindable]
 		public var translatedColor:uint;
 		
 		// Stores the time (millis) when the sender sent the message.

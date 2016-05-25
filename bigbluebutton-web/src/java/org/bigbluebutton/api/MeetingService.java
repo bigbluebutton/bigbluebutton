@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.api;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -60,7 +62,12 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
+import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
+import org.bigbluebutton.web.services.turn.StunServer;
+import org.bigbluebutton.web.services.turn.StunTurnService;
+import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +94,8 @@ public class MeetingService implements MessageListener {
     private RecordingService recordingService;
     private MessagingService messagingService;
     private ExpiredMeetingCleanupTimerTask cleaner;
+    private RegisteredUserCleanupTimerTask registeredUserCleaner;
+    private StunTurnService stunTurnService;
     private boolean removeMeetingWhenEnded = false;
 
     public MeetingService() {
@@ -99,9 +108,9 @@ public class MeetingService implements MessageListener {
     }
 
     public void registerUser(String meetingID, String internalUserId,
-            String fullname, String role, String externUserID, String authToken) {
+            String fullname, String role, String externUserID, String authToken, String avatarURL) {
         handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-                externUserID, authToken));
+                externUserID, authToken, avatarURL));
     }
 
     public UserSession getUserSession(String token) {
@@ -121,6 +130,30 @@ public class MeetingService implements MessageListener {
      * Remove the meetings that have ended from the list of running meetings.
      */
     public void removeExpiredMeetings() {
+        handle(new RemoveExpiredMeetings());
+    }
+
+    /**
+     * Remove registered users who did not successfully joined the meeting.
+     */
+    public void purgeRegisteredUsers() {
+        for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
+            Long now = System.nanoTime();
+            Meeting meeting = entry.getValue();
+
+            ConcurrentMap<String, User> users = meeting.getUsersMap();
+
+            for (AbstractMap.Entry<String, Long> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+                String registeredUserID = registeredUser.getKey();
+                Long registeredUserDate = registeredUser.getValue();
+
+                long registrationTime = registeredUserDate.longValue();
+                long elapsedTime = now - registrationTime;
+                if ( elapsedTime >= 60000 && !users.containsKey(registeredUserID)) {
+                    meeting.userUnregistered(registeredUserID);
+                }
+            }
+        }
         handle(new RemoveExpiredMeetings());
     }
 
@@ -295,7 +328,7 @@ public class MeetingService implements MessageListener {
     private void processRegisterUser(RegisterUser message) {
         messagingService.registerUser(message.meetingID,
                 message.internalUserId, message.fullname, message.role,
-                message.externUserID, message.authToken);
+                message.externUserID, message.authToken, message.avatarURL);
     }
 
     public String addSubscription(String meetingId, String event,
@@ -458,6 +491,20 @@ public class MeetingService implements MessageListener {
                 answers);
     }
 
+    private void processStunTurnInfoRequested (StunTurnInfoRequested message) {
+        Set<StunServer> stuns = stunTurnService.getStunServers();
+        log.info("\nhere are the stuns:");
+        for(StunServer s : stuns) {
+            log.info("a stun: " + s.url);
+        }
+        Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(message.internalUserId);
+        log.info("\nhere are the (" + turns.size() +") turns for internalUserId:" + message.internalUserId);
+        for(TurnEntry t : turns) {
+            log.info("a turn: " + t.url + "username/pass=" + t.username + '/' + t.password);
+        }
+        messagingService.sendStunTurnInfo(message.meetingId, message.internalUserId, stuns, turns);
+    }
+
     public void endMeeting(String meetingId) {
         handle(new EndMeeting(meetingId));
     }
@@ -576,14 +623,14 @@ public class MeetingService implements MessageListener {
     private void userJoined(UserJoined message) {
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
-          if (m.getNumUsers() == 0) {
-            // First user joins the meeting. Reset the end time to zero
-            // in case the meeting has been rejoined.
-            m.setEndTime(0);
-          }
+            if (m.getNumUsers() == 0) {
+                // First user joins the meeting. Reset the end time to zero
+                // in case the meeting has been rejoined.
+                m.setEndTime(0);
+            }
           
             User user = new User(message.userId, message.externalUserId,
-                    message.name, message.role);
+                    message.name, message.role, message.avatarURL);
             m.userJoined(user);
 
             Map<String, Object> logData = new HashMap<String, Object>();
@@ -599,7 +646,6 @@ public class MeetingService implements MessageListener {
 
             Gson gson = new Gson();
             String logStr = gson.toJson(logData);
-
             log.info("User joined meeting: data={}", logStr);
 
             return;
@@ -633,9 +679,17 @@ public class MeetingService implements MessageListener {
                   // the meeting ended.
                   m.setEndTime(System.currentTimeMillis());
                 }
-                
+
+                Long userRegistered = m.userUnregistered(message.userId);
+                if (userRegistered != null) {
+                    log.info("User unregistered from meeting");
+                } else {
+                    log.info("User was not unregistered from meeting because it was not found");
+                }
+
                 return;
             }
+
             return;
         }
     }
@@ -747,6 +801,8 @@ public class MeetingService implements MessageListener {
                     processEndMeeting((EndMeeting) message);
                 } else if (message instanceof RegisterUser) {
                     processRegisterUser((RegisterUser) message);
+                } else if (message instanceof StunTurnInfoRequested) {
+                    processStunTurnInfoRequested((StunTurnInfoRequested) message);
                 }
             }
         };
@@ -789,6 +845,7 @@ public class MeetingService implements MessageListener {
     public void stop() {
         processMessage = false;
         cleaner.stop();
+        registeredUserCleaner.stop();
     }
 
     public void setDefaultMeetingCreateJoinDuration(int expiration) {
@@ -807,8 +864,7 @@ public class MeetingService implements MessageListener {
         messagingService = mess;
     }
 
-    public void setExpiredMeetingCleanupTimerTask(
-            ExpiredMeetingCleanupTimerTask c) {
+    public void setExpiredMeetingCleanupTimerTask(ExpiredMeetingCleanupTimerTask c) {
         cleaner = c;
         cleaner.setMeetingService(this);
         cleaner.start();
@@ -817,4 +873,12 @@ public class MeetingService implements MessageListener {
     public void setRemoveMeetingWhenEnded(boolean s) {
         removeMeetingWhenEnded = s;
     }
+
+    public void setRegisteredUserCleanupTimerTask(RegisteredUserCleanupTimerTask c) {
+        registeredUserCleaner = c;
+        registeredUserCleaner.setMeetingService(this);
+        registeredUserCleaner.start();
+    }
+
+    public void setStunTurnService(StunTurnService s) { stunTurnService = s; }
 }

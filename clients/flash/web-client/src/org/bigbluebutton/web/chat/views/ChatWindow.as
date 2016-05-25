@@ -3,6 +3,7 @@ package org.bigbluebutton.web.chat.views {
 	
 	import mx.containers.ViewStack;
 	
+	import org.bigbluebutton.web.util.i18n.ResourceUtil;
 	import org.bigbluebutton.web.window.views.BBBWindow;
 	
 	import spark.components.NavigatorContent;
@@ -18,7 +19,7 @@ package org.bigbluebutton.web.chat.views {
 		public function ChatWindow() {
 			super();
 			
-			title = "Chat";
+			title = ResourceUtil.getInstance().getString("bbb.chat.title");
 			width = 300;
 			height = 400;
 			
@@ -49,7 +50,8 @@ package org.bigbluebutton.web.chat.views {
 			var n:int = stack.numChildren;
 			for (var i:int = 0; i < n; i++) {
 				var view:DisplayObject = stack.getChildAt(i);
-				if ((view is ChatView) && ChatView(view).userID == userID) return ChatView(view);
+				if ((view is ChatView) && ChatView(view).userID == userID)
+					return ChatView(view);
 			}
 			return null;
 		}

@@ -1,6 +1,5 @@
 package org.bigbluebutton.lib.presentation.services {
 	
-	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
@@ -24,7 +23,7 @@ package org.bigbluebutton.lib.presentation.services {
 		public function setupMessageSenderReceiver():void {
 			presentMessageSender.userSession = userSession;
 			presentMessageReceiver.userSession = userSession;
-			userSession.mainConnection.addMessageListener(presentMessageReceiver as IMessageListener);
+			userSession.mainConnection.addMessageListener(presentMessageReceiver);
 		}
 		
 		public function getPresentationInfo():void {

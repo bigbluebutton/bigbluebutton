@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx">
+
+	<fx:Script>
+		<![CDATA[
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				if (obj) {
+					title.text = obj.user.name;
+					if (obj.user.me) {
+						title.text += " " + resourceManager.getString('resources', 'userDetail.you');
+					}
+					micIcon.visible = micIcon.includeInLayout = (obj.user.voiceJoined && !obj.user.muted);
+					micOffIcon.visible = micOffIcon.includeInLayout = (obj.user.voiceJoined && obj.user.muted);
+					listenOnlyIcon.includeInLayout = !micIcon.visible;
+					listenOnlyIcon.visible = listenOnlyIcon.includeInLayout = (!obj.user.voiceJoined && obj.user.listenOnly);
+					micIcon.styleName = (obj.user.talking) ? "iconStyle speakingMicIconStyle" : "iconStyle micIconStyle";
+					presentationIcon.visible = obj.user.presenter;
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%">
+
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle"
+								paddingTop="{getStyle('paddingTop')}"
+								paddingBottom="{getStyle('paddingBottom')}" />
+		</s:layout>
+		<s:Image id="presentationIcon"
+				 styleName="iconStyle presentationIconStyle"
+				 height="100%" />
+		<s:Label id="title"
+				 width="60%"
+				 height="100%"
+				 textAlign="center"
+				 styleName="videoStreamName contentFontSize" />
+		<s:Image id="cameraIcon"
+				 styleName="iconStyle cameraIconStyle"
+				 height="100%" />
+		<s:Image id="micIcon"
+				 styleName="iconStyle micIconStyle"
+				 height="100%" />
+		<s:Image id="micOffIcon"
+				 styleName="iconStyle micOffIconStyle"
+				 height="100%" />
+		<s:Image id="listenOnlyIcon"
+				 styleName="iconStyle listenOnlyIconStyle"
+				 height="100%" />
+	</s:Group>
+</s:ItemRenderer>

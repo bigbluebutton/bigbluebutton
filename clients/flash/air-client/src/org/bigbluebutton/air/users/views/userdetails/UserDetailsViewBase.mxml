@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<common:NoTabView xmlns:fx="http://ns.adobe.com/mxml/2009"
+				  xmlns:s="library://ns.adobe.com/flex/spark"
+				  xmlns:mx="library://ns.adobe.com/flex/mx"
+				  xmlns:common="org.bigbluebutton.air.common.views.*"
+				  styleName="userDetailViewStyle">
+	<s:Scroller width="100%"
+				height="100%"
+				layoutDirection="">
+
+		<s:VGroup width="100%"
+				  height="100%"
+				  horizontalAlign="center">
+
+			<s:BorderContainer width="100%"
+							   height="40%"
+							   borderVisible="false"
+							   backgroundColor="{getStyle('bgColor')}">
+				<s:layout>
+					<s:VerticalLayout verticalAlign="middle"
+									  horizontalAlign="center" />
+				</s:layout>
+				<s:Image id="userDetailIcon"
+						 styleName="iconStyle userDetailIconStyle" />
+				<s:Label id="userNameText"
+						 width="100%"
+						 textAlign="center"
+						 styleName="userDetailsNameStyle contentFontSize" />
+				<s:Label id="roleText"
+						 width="100%"
+						 textAlign="center"
+						 styleName="userDetailsStatusStyle subContentFontSize" />
+			</s:BorderContainer>
+			<s:VGroup width="100%"
+					  height="30%"
+					  horizontalAlign="center"
+					  verticalAlign="middle">
+				<s:Label width="50%"
+						 textAlign="center"
+						 styleName="userDetailsStatusStyle contentFontSize"
+						 text="{resourceManager.getString('resources', 'userDetail.media')}" />
+				<s:HGroup horizontalAlign="center">
+					<s:Image id="cameraIcon"
+							 styleName="iconStyle cameraIconStyle" />
+					<s:Image id="micIcon"
+							 styleName="iconStyle micIconStyle" />
+					<s:Image id="micOffIcon"
+							 styleName="iconStyle micOffIconStyle"
+							 visible="false"
+							 includeInLayout="false" />
+					<s:Label id="noMediaText"
+							 width="100%"
+							 styleName="userDetailsStatusStyle subContentFontSize"
+							 visible="false"
+							 includeInLayout="false"
+							 text="{resourceManager.getString('resources', 'userDetail.media.noMedia')}" />
+				</s:HGroup>
+			</s:VGroup>
+			<s:VGroup width="100%"
+					  height="30%"
+					  horizontalAlign="center">
+				<s:Button id="showCameraButton0"
+						  width="90%"
+						  label="{resourceManager.getString('resources', 'userDetail.cameraBtn.text')}"
+						  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+				<s:Button id="showPrivateChat0"
+						  width="90%"
+						  label="{resourceManager.getString('resources', 'userDetail.privateChatBtn.text')}"
+						  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+				<s:Button includeInLayout="false"
+						  visible="false"
+						  width="90%"
+						  label="{resourceManager.getString('resources', 'userDetail.clearStatus')}"
+						  id="clearStatusButton0"
+						  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+				<s:Button includeInLayout="false"
+						  visible="false"
+						  id="makePresenterButton0"
+						  width="90%"
+						  label="{resourceManager.getString('resources', 'userDetail.presenterBtn.text')}"
+						  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+				<s:Button includeInLayout="false"
+						  visible="false"
+						  width="90%"
+						  id="promoteButton0"
+						  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+				<s:Button includeInLayout="false"
+						  visible="false"
+						  width="90%"
+						  id="lockButton0"
+						  label="{resourceManager.getString('resources', 'userDetail.lockButton.text')}"
+						  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+				<s:Button includeInLayout="false"
+						  visible="false"
+						  width="90%"
+						  id="unlockButton0"
+						  label="{resourceManager.getString('resources', 'userDetail.unlockButton.text')}"
+						  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+			</s:VGroup>
+
+		</s:VGroup>
+	</s:Scroller>
+
+</common:NoTabView>

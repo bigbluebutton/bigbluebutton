@@ -55,6 +55,7 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var disableMyPrivateChat:Boolean = false;
 		[Bindable] public var disableMyPublicChat:Boolean = false;
     	[Bindable] public var lockedLayout:Boolean = false;
+		[Bindable] public var avatarURL:String="";
     
 		[Bindable]
 		public function get hasStream():Boolean {

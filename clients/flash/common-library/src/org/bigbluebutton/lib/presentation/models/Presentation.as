@@ -1,15 +1,14 @@
 package org.bigbluebutton.lib.presentation.models {
 	
-	import flash.events.Event;
-	import flash.events.IOErrorEvent;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	import mx.collections.ArrayCollection;
+	import org.bigbluebutton.lib.whiteboard.models.AnnotationStatus;
+	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
 	public class Presentation {
 		private var _fileName:String = "";
+		
+		private var _id:String = "";
 		
 		private var _slides:Vector.<Slide> = new Vector.<Slide>();
 		
@@ -21,8 +20,11 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		private var _slideChangeSignal:ISignal = new Signal();
 		
-		public function Presentation(fileName:String, changePresentation:Function, numOfSlides:int, isCurrent:Boolean):void {
+		private var _loaded:Boolean = false;
+		
+		public function Presentation(fileName:String, id:String, changePresentation:Function, numOfSlides:int, isCurrent:Boolean):void {
 			_fileName = fileName;
+			_id = id;
 			_slides = new Vector.<Slide>(numOfSlides);
 			_changePresentation = changePresentation;
 			_current = isCurrent;
@@ -30,6 +32,10 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		public function get fileName():String {
 			return _fileName;
+		}
+		
+		public function get id():String {
+			return _id;
 		}
 		
 		public function get slides():Vector.<Slide> {
@@ -57,11 +63,21 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		public function show():void {
 			_changePresentation(this);
-			_slideChangeSignal.dispatch();
+		}
+		
+		public function finishedLoading(currentSlideNum:int):void {
+			_loaded = true;
+			_changePresentation(this, currentSlideNum);
+		}
+		
+		public function get loaded():Boolean {
+			return _loaded;
 		}
 		
 		public function set currentSlideNum(n:int):void {
-			_slides[_currentSlideNum].current = false;
+			if (_currentSlideNum >= 0) {
+				_slides[_currentSlideNum].current = false;
+			}
 			_currentSlideNum = n - 1;
 			_slides[_currentSlideNum].current = true;
 			_slideChangeSignal.dispatch();
@@ -85,6 +101,56 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		public function clear():void {
 			_slides = new Vector.<Slide>();
+		}
+		
+		public function addAnnotationHistory(slideNum:int, annotationHistory:Array):Boolean {
+			var slide:Slide = getSlideAt(slideNum);
+			if (slide != null) {
+				for (var i:int = 0; i < annotationHistory.length; i++) {
+					slide.addAnnotation(annotationHistory[i]);
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		public function addAnnotation(slideNum:int, annotation:IAnnotation):IAnnotation {
+			var slide:Slide = getSlideAt(slideNum);
+			if (slide != null) {
+				if (annotation.status == AnnotationStatus.DRAW_START || annotation.status == AnnotationStatus.TEXT_CREATED) {
+					slide.addAnnotation(annotation);
+					return annotation;
+				} else {
+					return slide.updateAnnotation(annotation);
+				}
+			}
+			return null;
+		}
+		
+		public function clearAnnotations(slideNum:int):Boolean {
+			var slide:Slide = getSlideAt(slideNum);
+			if (slide != null) {
+				slide.clearAnnotations();
+				return true;
+			}
+			return false;
+		}
+		
+		public function undoAnnotation(slideNum:int):IAnnotation {
+			var slide:Slide = getSlideAt(slideNum);
+			if (slide != null) {
+				return slide.undoAnnotation()
+			}
+			return null;
+		}
+		
+		public function setViewedRegion(slideNum:Number, x:Number, y:Number, widthPercent:Number, heightPercent:Number):Boolean {
+			var slide:Slide = getSlideAt(slideNum);
+			if (slide != null) {
+				slide.setViewedRegion(x, y, widthPercent, heightPercent);
+				return true;
+			}
+			return false;
 		}
 	}
 }

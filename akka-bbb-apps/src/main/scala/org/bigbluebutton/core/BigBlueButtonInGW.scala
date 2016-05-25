@@ -18,7 +18,9 @@ import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 
-class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender) extends IBigBlueButtonInGW {
+class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender,
+    val red5DeskShareIP: String, val red5DeskShareApp: String) extends IBigBlueButtonInGW {
+
   val log = system.log
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, recorderApp, messageSender), "bigbluebutton-actor")
 
@@ -41,7 +43,7 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
 
     val mProps = new MeetingProperties(meetingID, externalMeetingID, meetingName, record,
       voiceBridge, duration, autoStartRecording, allowStartStopRecording,
-      moderatorPass, viewerPass, createTime, createDate)
+      moderatorPass, viewerPass, createTime, createDate, red5DeskShareIP, red5DeskShareApp)
     bbbActor ! new CreateMeeting(meetingID, mProps)
   }
 
@@ -83,9 +85,9 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId)
   }
 
-  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String): Unit = {
+  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String, avatarURL: String): Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    bbbActor ! new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken)
+    bbbActor ! new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken, avatarURL)
   }
 
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -416,10 +418,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   }
 
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
-    callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
+    callerIdNum: String, muted: java.lang.Boolean, avatarURL: String, talking: java.lang.Boolean) {
 
     bbbActor ! new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
-      callerIdNum, muted, talking, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )
+      callerIdNum, muted, talking, avatarURL, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )
 
   }
 
@@ -441,6 +443,31 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
 
   def voiceRecording(voiceConfId: String, recordingFile: String, timestamp: String, recording: java.lang.Boolean) {
     bbbActor ! new VoiceConfRecordingStartedMessage(voiceConfId, recordingFile, recording, timestamp)
+  }
+
+  /**
+   * *******************************************************************
+   * Message Interface for DeskShare
+   * *****************************************************************
+   */
+  def deskShareStarted(conferenceName: String, callerId: String, callerIdName: String) {
+    bbbActor ! new DeskShareStartedRequest(conferenceName, callerId, callerIdName)
+  }
+
+  def deskShareStopped(conferenceName: String, callerId: String, callerIdName: String) {
+    bbbActor ! new DeskShareStoppedRequest(conferenceName, callerId, callerIdName)
+  }
+
+  def deskShareRTMPBroadcastStarted(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
+    bbbActor ! new DeskShareRTMPBroadcastStartedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
+  }
+
+  def deskShareRTMPBroadcastStopped(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
+    bbbActor ! new DeskShareRTMPBroadcastStoppedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
+  }
+
+  def deskShareGetInfoRequest(meetingId: String, requesterId: String, replyTo: String): Unit = {
+    bbbActor ! new DeskShareGetDeskShareInfoRequest(meetingId, requesterId, replyTo)
   }
 
   // Polling
