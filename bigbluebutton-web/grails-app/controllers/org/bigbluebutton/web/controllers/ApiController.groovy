@@ -1406,11 +1406,11 @@ class ApiController {
     UserSession us = null
 
     if (StringUtils.isEmpty(params.sessionToken)) {
-      println("No session for user in conference.")
+      log.info("No session for user in conference.")
       reject = true
     } else {
       sessionToken = StringUtils.strip(params.sessionToken)
-      println("SessionToken = " + sessionToken)
+      log.info("SessionToken = " + sessionToken)
       if (!session[sessionToken]) {
           reject = true
       } else {

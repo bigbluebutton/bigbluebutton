@@ -1,9 +1,5 @@
 type = 'swf'
 
-srcDirs = ['src']
-
-resourceDirs = ['src']
-
 additionalCompilerOptions = [
     "-target-player=11.2"
 ]
