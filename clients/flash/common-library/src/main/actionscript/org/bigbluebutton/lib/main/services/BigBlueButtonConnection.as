@@ -2,9 +2,7 @@ package org.bigbluebutton.lib.main.services {
 	
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	
 	import mx.utils.ObjectUtil;
-	
 	import org.bigbluebutton.lib.common.services.DefaultConnectionCallback;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
@@ -91,7 +89,7 @@ package org.bigbluebutton.lib.main.services {
 			var uri:String = _applicationURI + "/" + _conferenceParameters.room;
 			var lockSettings:Object = {disableCam: false, disableMic: false, disablePrivateChat: false, disablePublicChat: false, lockedLayout: false, lockOnJoin: false, lockOnJoinConfigurable: false};
 			var connectParams:Array = [_conferenceParameters.username, _conferenceParameters.role, _conferenceParameters.room, _conferenceParameters.voicebridge, _conferenceParameters.record, _conferenceParameters.externUserID, _conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, lockSettings];
-			trace(connectParams);
+			trace("BBB Apps connect: " + connectParams);
 			baseConnection.connect.apply(null, new Array(uri).concat(connectParams));
 		}
 		

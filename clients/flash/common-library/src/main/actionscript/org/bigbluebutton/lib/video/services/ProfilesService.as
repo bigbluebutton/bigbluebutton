@@ -23,7 +23,7 @@ package org.bigbluebutton.lib.video.services {
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
 			fetcher.failureSignal.add(onFailure);
-			fetcher.fetch(ProfileUrl, urlRequest);
+			fetcher.fetch(ProfileUrl, urlRequest, null);
 		}
 		
 		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:String = null):void {

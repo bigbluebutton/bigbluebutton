@@ -31,6 +31,7 @@ package org.bigbluebutton.lib.common.services {
 		
 		protected var _onUserCommand:Boolean;
 		
+    
 		public function BaseConnection() {
 		}
 		
@@ -150,7 +151,8 @@ package org.bigbluebutton.lib.common.services {
 		}
 		
 		protected function netASyncError(event:AsyncErrorEvent):void {
-			trace(LOG + "Asynchronous code error - " + event.error);
+			trace(LOG + "Asynchronous code error - " + event.error + " on " + _uri);
+      trace(event.toString());
 			sendConnectionFailedSignal(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		

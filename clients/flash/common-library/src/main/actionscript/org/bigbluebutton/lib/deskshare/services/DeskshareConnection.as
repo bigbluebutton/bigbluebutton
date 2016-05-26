@@ -116,7 +116,8 @@ package org.bigbluebutton.lib.deskshare.services {
 		}
 		
 		public function connect():void {
-			baseConnection.connect(applicationURI);
+      trace("Deskshare connect");
+			//baseConnection.connect(applicationURI);
 		}
 		
 		public function disconnect(onUserCommand:Boolean):void {

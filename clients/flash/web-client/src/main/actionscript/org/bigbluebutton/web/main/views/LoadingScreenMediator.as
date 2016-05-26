@@ -20,12 +20,14 @@ package org.bigbluebutton.web.main.views {
 		override public function initialize():void {
 			uiSession.loadingChangeSignal.add(onLoadingChange);
 			onLoadingChange(uiSession.loading, uiSession.loadingMessage);
-			var tempURL:String = "http://192.168.23.53/bigbluebutton/api/join?fullName=Foo&meetingID=random-9342782&password=mp&redirect=true&checksum=0491da5c90460ed8fd1690cbbf15960bd26bc90c";
-			// Call join service
-			var joinSubservice:JoinService = new JoinService();
-			joinSubservice.successSignal.add(joinSuccess);
-			joinSubservice.failureSignal.add(joinFailure);
-			joinSubservice.join(tempURL);
+      joinMeetingSignal.dispatch("http://192.168.23.53");
+      
+//			var tempURL:String = "http://192.168.23.53/bigbluebutton/api/join?fullName=Foo&meetingID=random-9342782&password=mp&redirect=true&checksum=0491da5c90460ed8fd1690cbbf15960bd26bc90c";
+//			// Call join service
+//			var joinSubservice:JoinService = new JoinService();
+//			joinSubservice.successSignal.add(joinSuccess);
+//			joinSubservice.failureSignal.add(joinFailure);
+//			joinSubservice.join(tempURL);
 		}
 		
 		private function onLoadingChange(loading:Boolean, message:String):void {

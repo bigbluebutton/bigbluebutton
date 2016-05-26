@@ -1,38 +1,66 @@
 package org.bigbluebutton.lib.main.services {
 	
+	import flash.events.Event;
+	import flash.events.HTTPStatusEvent;
+	import flash.events.IOErrorEvent;
+	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	
-	import org.bigbluebutton.lib.common.utils.URLFetcher;
-	import org.osflash.signals.ISignal;
-	import org.osflash.signals.Signal;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
+	import org.bigbluebutton.lib.common.utils.QueryStringParameters;
+  import org.osflash.signals.ISignal;
+  import org.osflash.signals.Signal;
+
 	
 	public class ConfigService {
-		protected var _successSignal:Signal = new Signal();
-		
-		protected var _failureSignal:Signal = new Signal();
-		
-		public function get successSignal():ISignal {
-			return _successSignal;
+    protected var _successSignal:Signal = new Signal();
+    protected var _failureSignal:Signal = new Signal();
+    
+    private var urlLoader:URLLoader;
+    private var reqVars:URLVariables = new URLVariables();
+    
+    public function get successSignal():ISignal {
+      return _successSignal;
+    }
+    
+    public function get failureSignal():ISignal {
+      return _failureSignal;
+    }
+    
+    public function getConfig(serverUrl:String, urlRequest:URLRequest):void {
+      var p:QueryStringParameters = new QueryStringParameters();
+      p.collectParameters();
+      var sessionToken:String = p.getParameter("sessionToken");
+      trace("sessionToken=" + sessionToken);
+      reqVars.sessionToken = sessionToken;
+      
+      urlLoader = new URLLoader();
+      
+      var configUrl:String = serverUrl + "/bigbluebutton/api/configXML";
+      
+      var request:URLRequest = new URLRequest(configUrl);
+      request.method = URLRequestMethod.GET;
+      request.data = reqVars;
+      
+      urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+      urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+      urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+      urlLoader.load(request);	
+      
 		}
 		
-		public function get failureSignal():ISignal {
-			return _failureSignal;
-		}
-		
-		public function getConfig(serverUrl:String, urlRequest:URLRequest):void {
-			var configUrl:String = serverUrl + "/bigbluebutton/api/configXML?a=" + new Date().time;
-			var fetcher:URLFetcher = new URLFetcher;
-			fetcher.successSignal.add(onSuccess);
-			fetcher.failureSignal.add(onFailure);
-			fetcher.fetch(configUrl, urlRequest);
-		}
-		
-		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 0):void {
-			successSignal.dispatch(new XML(data));
-		}
-		
-		protected function onFailure(reason:String):void {
-			failureSignal.dispatch(reason);
-		}
+    private function httpStatusHandler(event:HTTPStatusEvent):void {
+      trace("httpStatusHandler: {0}", [event]);
+    }
+    
+    private function ioErrorHandler(event:IOErrorEvent):void {
+      trace("ioErrorHandler: {0}", [event]);
+      failureSignal.dispatch(event.text);
+    }
+    
+    private function handleComplete(e:Event):void {	
+      successSignal.dispatch(new XML(e.target.data));
+    }
+    
 	}
 }

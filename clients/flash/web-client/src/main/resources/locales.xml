@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<locales>
+	<locale code="ar_SY" name="Arabic (Syria)"/>
+	<locale code="az_AZ" name="Azerbaijani"/>
+	<locale code="eu_EU" name="Basque" />
+	<locale code="bn_BN" name="Bengali" />
+	<locale code="bg_BG" name="Bulgarian" />
+	<locale code="ca_ES" name="Catalan" />
+	<locale code="zh_CN" name="Chinese (Simplified)"/>
+	<locale code="zh_TW" name="Chinese (Traditional)"/>
+	<locale code="hr_HR" name="Croatian" />
+	<locale code="cs_CZ" name="Czech" />
+	<locale code="da_DK" name="Danish" />
+	<locale code="nl_NL" name="Dutch" />
+	<locale code="en_US" name="English"/>
+	<locale code="et_EE" name="Estonian"/>
+	<locale code="fa_IR" name="Farsi" />
+	<locale code="fi_FI" name="Finnish"/>
+	<locale code="fr_FR" name="French"/>
+	<locale code="fr_CA" name="French (Canadian)"/>
+	<locale code="ff_SN" name="Fulah"/>
+	<locale code="de_DE" name="German"/>
+	<locale code="el_GR" name="Greek"/>
+	<locale code="he_IL" name="Hebrew"/>  
+	<locale code="hu_HU" name="Hungarian"/>
+	<locale code="id_ID" name="Indonesian"/>
+	<locale code="it_IT" name="Italian"/>
+	<locale code="ja_JP" name="Japanese"/>
+	<locale code="ko_KR" name="Korean"/>
+	<locale code="lv_LV" name="Latvian"/>
+	<locale code="lt_LT" name="Lithuania"/>
+	<locale code="mn_MN" name="Mongolian"/>
+	<locale code="ne_NE" name="Nepali"/>
+	<locale code="no_NO" name="Norwegian"/>
+	<locale code="oc" name="Occitan"/>
+	<locale code="pl_PL" name="Polish"/>
+	<locale code="pt_BR" name="Portuguese (Brazilian)"/>
+	<locale code="pt_PT" name="Portuguese"/>
+	<locale code="ro_RO" name="Romanian"/>
+	<locale code="ru_RU" name="Russian"/>
+	<locale code="sr_SR" name="Serbian (Cyrillic)"/>
+	<locale code="sr_RS" name="Serbian (Latin)"/>
+	<locale code="si_LK" name="Sinhala"/>
+	<locale code="sk_SK" name="Slovak"/>
+	<locale code="sl_SL" name="Slovenian"/>
+	<locale code="es_ES" name="Spanish"/>
+	<locale code="es_LA" name="Spanish (Latin American)"/>		
+	<locale code="sv_SE" name="Swedish"/>
+	<locale code="th_TH" name="Thai"/>
+	<locale code="tr_TR" name="Turkish"/>
+	<locale code="uk_UA" name="Ukrainian"/>
+	<locale code="vi_VN" name="Vietnamese"/>
+        <locale code="cy_GB" name="Welsh"/>
+</locales>

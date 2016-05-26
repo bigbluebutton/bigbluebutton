@@ -465,7 +465,7 @@ class ApiController {
 
     if (redirectClient){
       String destUrl = clientURL + "?sessionToken=" + sessionToken
-      log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}");
+      log.info("Successfully joined. Redirecting to ${destUrl}");
       redirect(url: destUrl);
     }
     else{
@@ -1399,6 +1399,8 @@ class ApiController {
    * CONFIG API
    ***********************************************/
   def configXML = {
+    String API_CALL = 'configXML'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
 
     String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
     boolean reject = false

@@ -111,6 +111,7 @@ package org.bigbluebutton.lib.video.services {
 		}
 		
 		public function connect():void {
+      trace("Video connect");
 			baseConnection.connect(uri, conferenceParameters.meetingID, userSession.userId);
 		}
 		

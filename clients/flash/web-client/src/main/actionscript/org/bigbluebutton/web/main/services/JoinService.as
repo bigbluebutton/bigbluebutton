@@ -37,7 +37,7 @@ package org.bigbluebutton.web.main.services {
 			var fetcher:URLFetcher = new URLFetcher();
 			fetcher.successSignal.add(onSuccess);
 			fetcher.failureSignal.add(onFailure);
-			fetcher.fetch(joinUrl);
+			fetcher.fetch(joinUrl, null, null);
 		}
 		
 		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest):void {

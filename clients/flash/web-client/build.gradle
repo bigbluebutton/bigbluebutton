@@ -4,6 +4,8 @@ additionalCompilerOptions = [
     "-target-player=11.2"
 ]
 
+output = 'bbb-web-client'
+
 dependencies {
 	merged project(':common-library')
 	merged files("libs/as3-signals-utilities-async-v0.9-BETA.swc")

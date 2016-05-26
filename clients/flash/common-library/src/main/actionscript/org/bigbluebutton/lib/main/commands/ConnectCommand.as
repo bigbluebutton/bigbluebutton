@@ -132,10 +132,12 @@ package org.bigbluebutton.lib.main.commands {
 				audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
 				shareMicrophoneSignal.dispatch(audioOptions);
 			}
-			deskshareConnection.applicationURI = userSession.config.getConfigFor("DeskShareModule").@uri;
-			deskshareConnection.room = conferenceParameters.room;
-			deskshareConnection.connect();
-			userSession.deskshareConnection = deskshareConnection;
+      
+      trace("Configuring deskshare");
+			//deskshareConnection.applicationURI = userSession.config.getConfigFor("DeskShareModule").@uri;
+			//deskshareConnection.room = conferenceParameters.room;
+			//deskshareConnection.connect();
+			//userSession.deskshareConnection = deskshareConnection;
 			// Query the server for chat, users, and presentation info
 			chatService.sendWelcomeMessage();
 			chatService.getPublicChatMessages();

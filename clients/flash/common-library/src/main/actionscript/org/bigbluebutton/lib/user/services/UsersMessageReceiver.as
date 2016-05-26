@@ -274,6 +274,8 @@ package org.bigbluebutton.lib.user.services {
 			} else {
 				// why 2 different signals for authentication??  
 				//userUISession.loading = false; in authentication command can break order of functions
+        trace(LOG + "got here!");
+        if (userSession == null) trace(LOG + "User Session is NULL!!!!");
 				userSession.authTokenSignal.dispatch(true);
 			}
 		}
