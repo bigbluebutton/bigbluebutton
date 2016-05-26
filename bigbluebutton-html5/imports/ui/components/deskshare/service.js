@@ -1,4 +1,8 @@
-import { Deskshare, Meetings } from '../../api/index';
+import Deskshare from '/imports/api/deskshare';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
+import {joinVertoAudio, watchVertoVideo} from '/imports/api/verto';
+import {getInStorage} from '/imports/ui/components/app/service';
 
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video

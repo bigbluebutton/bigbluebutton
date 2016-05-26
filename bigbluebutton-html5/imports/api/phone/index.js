@@ -3,7 +3,7 @@ import Meetings from '/imports/api/meetings';
 import {getInStorage, setInStorage} from '/imports/ui/components/app/service';
 import {callServer} from '/imports/ui/services/api';
 import {clientConfig} from '/config';
-import {joinVertoAudio, watchVertoVideo} from '/imports/api/phone';
+import {joinVertoAudio} from '/imports/api/verto';
 
 let triedHangup = false;
 

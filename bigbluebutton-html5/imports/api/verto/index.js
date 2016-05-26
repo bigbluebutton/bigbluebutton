@@ -11,7 +11,6 @@ function watchVertoVideo(options) {
 
 function joinVertoCall(options) {
   console.log('joinVertoCall');
-  return;
   let extension = null;
   if (options.extension) {
     extension = options.extension;
@@ -59,7 +58,7 @@ function joinVertoCall(options) {
   }
 }
 
-export default {
+export {
   joinVertoAudio,
   watchVertoVideo,
 };
