@@ -51,8 +51,8 @@ function presenterDeskshareHasEnded() {
 
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
-  // const voiceBridge = Deskshare.findOne().deskshare.voice_bridge;
-  const voiceBridge = '3500';
+  const voiceBridge = Deskshare.findOne().deskshare.voiceBridge;
+  // const voiceBridge = '3500';
   watchDeskshare({
     watchOnly: true,
     extension: voiceBridge,
