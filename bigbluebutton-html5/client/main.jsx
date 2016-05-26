@@ -40,13 +40,12 @@ Meteor.startup(() => {
   loadLib('sip.js');
   loadLib('bbb_webrtc_bridge_sip.js');
   loadLib('bbblogger.js');
+  loadLib('jquery.json-2.4.min.js');
   loadLib('jquery.FSRTC.js');
   loadLib('jquery.verto.js');
   loadLib('jquery.jsonrpcclient.js');
   loadLib('verto_extension.js');
   loadLib('verto_extension_share.js');
-  // loadLib('getScreenId.js');
-  // loadLib('Screen-Capturing.js');
 
   render((
     <IntlProvider locale={locale} messages={messages}>
