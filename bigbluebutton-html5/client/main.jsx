@@ -22,13 +22,18 @@ locale = locale[1] ? `${locale[0]}-${locale[1].toUpperCase()}` : navigator.langu
 let messages = Locales[locale] || Locales['en'] || {};
 
 // Helper to load javascript libraries from the BBB server
-function loadLib(libname, successCallback) {
-  const retryMessageCallback = function (param, libname) {
-    return console.log(`Failed to load library: ${libname} ${param}`);
+function loadLib(libname) {
+  const successCallback = function() {
+    console.log(`successfully loaded lib - ${this}`);
   };
 
-  return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback,
-    10000).fail(retryMessageCallback, libname);
+  const failCallback = function() {
+    console.log(`failed to load lib - ${this}`);
+  };
+
+
+  return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback.bind(libname),
+    10000).fail(failCallback.bind(libname));
 };
 
 Meteor.startup(() => {
