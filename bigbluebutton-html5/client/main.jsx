@@ -22,19 +22,29 @@ locale = locale[1] ? `${locale[0]}-${locale[1].toUpperCase()}` : navigator.langu
 let messages = Locales[locale] || Locales['en'] || {};
 
 // Helper to load javascript libraries from the BBB server
-function loadLib(libname) {
-  const successCallback = function() {
+function loadLib(libname, success, fail) {
+  const successCallback = function(cb) {
     console.log(`successfully loaded lib - ${this}`);
+    if (typeof (cb) == 'function' || cb instanceof Function) {
+      cb();
+    }
   };
 
-  const failCallback = function() {
+  const failCallback = function(cb) {
     console.log(`failed to load lib - ${this}`);
+    if (typeof (cb) == 'function' || cb instanceof Function) {
+      cb();
+    }
   };
 
 
-  return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback.bind(libname),
-    10000).fail(failCallback.bind(libname));
+  return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback.bind(libname, success),
+    10000).fail(failCallback.bind(libname, fail));
 };
+
+function loadLibs(libs) {
+
+}
 
 Meteor.startup(() => {
   loadLib('sip.js');
@@ -42,9 +52,10 @@ Meteor.startup(() => {
   loadLib('bbblogger.js');
   loadLib('jquery.json-2.4.min.js');
   loadLib('jquery.FSRTC.js');
-  loadLib('jquery.verto.js');
+  loadLib('jquery.verto.js', function() {
+    loadLib('verto_extension.js');
+  });
   loadLib('jquery.jsonrpcclient.js');
-  loadLib('verto_extension.js');
   loadLib('verto_extension_share.js');
 
   render((
