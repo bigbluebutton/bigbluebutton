@@ -17,7 +17,7 @@ function videoIsBroadcasting() {
 
   if (ds.broadcasting) {
     console.log('Deskshare is now broadcasting');
-    if (ds.startedBy != getInSession('userId')) {
+    if (ds.startedBy != getInStorage('userID')) {
       console.log('deskshare wasn\'t initiated by me');
       presenterDeskshareHasStarted();
       return true;
@@ -28,7 +28,7 @@ function videoIsBroadcasting() {
   }
 }
 
-function watchDeskshare(event, options) {
+function watchDeskshare(options) {
   let extension = null;
   if (options.extension) {
     extension = options.extension;
@@ -36,11 +36,12 @@ function watchDeskshare(event, options) {
     extension = Meetings.findOne().voiceConf;
   }
 
-  const uName = Users.findOne({ userId: getInSession('userId') }).user.name;
+  const uid = getInStorage('userID');
+  const uName = Users.findOne({ userId: uid }).user.name;
   conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
   conferenceIdNumber = '1009';
-
-  // vertoService.watchVideo();
+  watchVertoVideo({ extension, conferenceUsername, conferenceIdNumber,
+    watchOnly: true });
 }
 
 // if remote deskshare has been ended disconnect and hide the video stream
@@ -51,10 +52,11 @@ function presenterDeskshareHasEnded() {
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
   // const voiceBridge = Deskshare.findOne().deskshare.voice_bridge;
-  // watchDeskshare({
-  //   watchOnly: true
-  //   extension: voiceBridge
-  // });
+  const voiceBridge = '3500';
+  watchDeskshare({
+    watchOnly: true,
+    extension: voiceBridge,
+  });
 };
 
 export { videoIsBroadcasting, watchDeskshare, presenterDeskshareHasEnded,
