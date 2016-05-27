@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
-import WhiteboardShapeModel from '../shape-factory/component.jsx';
+import WhiteboardShapeModel from './shape-factory/component.jsx';
 import { createContainer } from 'meteor/react-meteor-data';
-import Slide from '../slide/component.jsx';
-import styles from '../styles.scss';
+import Slide from './slide/component.jsx';
+import styles from './styles.scss';
 
 export default class Whiteboard extends React.Component {
   constructor(props) {
@@ -10,7 +10,6 @@ export default class Whiteboard extends React.Component {
   }
 
   render() {
-    console.log(styles);
     return (
       <div id="whiteboard-paper" style={this.props.svgStyle} className={styles.whiteboard}>
         <div id="svggroup">
@@ -38,50 +37,3 @@ Whiteboard.defaultProps = {
     position: 'relative',
   },
 };
-
-/*
-
-<Svg {...this.props} />
-
- <svg height="850.5"
- version="1.1"
- width="1134"
- xmlns="http://www.w3.org/2000/svg"
- style="overflow: hidden; position: relative;"
- viewBox="0 0 1134 850.5"
- preserveAspectRatio="xMinYMin"></svg>
-*/
-
- /* getDefaultProps: function() {
-    return {
-      id: 'whiteboard-paper',
-      version: '1.1',
-      xmlns: 'http://www.w3.org/2000/svg',
-      width:'1134',
-      height:'850.5',
-      style: 'overflow: hidden; position: relative;',
-      preserveAspectRatio: 'xMinYMin slice',
-      viewBox:'0 0 1134 850.5'
-    };
-  },
-*/
-
-/*
-
-SvgContainer.propTypes = {
-	children: function (props, propName, componentName) {
-      var error;
-      var prop = props[propName];
-
-      React.Children.forEach(prop, function (child) {
-        if (child.type !== 'Shape') {
-          error = new Error(
-            '`' + componentName + '` only accepts children of type `Shape`.'
-          );
-        }
-      });
-      return error;
-    }
-  },,
-};
-*/
