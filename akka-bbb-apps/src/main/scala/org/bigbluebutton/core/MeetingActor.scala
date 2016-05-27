@@ -224,6 +224,16 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
         handleSharedNotesSyncNoteRequest(msg)
       case msg: ReconnectionTimeout =>
         handleReconnectionTimeout(msg)
+      case msg: StartTranscoderReply =>
+        handleStartTranscoderReply(msg)
+      case msg: UpdateTranscoderReply =>
+        handleUpdateTranscoderReply(msg)
+      case msg: StopTranscoderReply =>
+        handleStopTranscoderReply(msg)
+      case msg: TranscoderStatusUpdate =>
+        handleTranscoderStatusUpdate(msg)
+      case msg: StartProbingReply =>
+        handleStartProbingReply(msg)
 
       case msg: EndMeeting => handleEndMeeting(msg)
       case StopMeetingActor => //exit

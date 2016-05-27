@@ -146,6 +146,12 @@ case class CreateAdditionalNotesReply(meetingID: String, recorded: Boolean, requ
 case class DestroyAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String) extends IOutMessage
 case class SharedNotesSyncNoteReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, note: NoteReport) extends IOutMessage
 
+//Transcode
+case class StartTranscoderRequest(meetingID: String, transcoderId: String, params: scala.collection.mutable.HashMap[String, String]) extends IOutMessage
+case class UpdateTranscoderRequest(meetingID: String, transcoderId: String, params: scala.collection.mutable.HashMap[String, String]) extends IOutMessage
+case class StopTranscoderRequest(meetingID: String, transcoderId: String) extends IOutMessage
+case class StartProbingRequest(meetingID: String, transcoderId: String, params: scala.collection.mutable.HashMap[String, String]) extends IOutMessage
+
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)
 
