@@ -5,6 +5,7 @@
 .project
 app/build/
 app/lib/
+app/lib_managed/
 jws/webstart/lib/
 build/
 /bin/

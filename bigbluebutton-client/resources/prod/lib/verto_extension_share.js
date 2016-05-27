@@ -52,11 +52,11 @@ var configDeskshareFromChromeFlash = function(videoTag, callbacks, extensionId) 
 				"audio": false,
 				"video": {
 					"mandatory": {
-						"maxWidth": 160,
-						"maxHeight": 120,
+						"maxWidth": 1920,
+						"maxHeight": 1080,
 						"chromeMediaSource": constraints.mandatory.chromeMediaSource,
 						"chromeMediaSourceId": constraints.mandatory.chromeMediaSourceId,
-						"minFrameRate": 10,
+						"minFrameRate": 12,
 					},
 					"optional": []
 				}
