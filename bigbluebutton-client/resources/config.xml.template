@@ -57,9 +57,18 @@
 			login="LOGIN"
 			password="PASSWORD"
 		/>
-
-		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION"
-			uri="rtmp://HOST/sip"
+		
+		<module name="ScreenshareModule" 
+      url="http://HOST/client/ScreenshareModule.swf?v=VERSION" 
+      uri="rtmp://HOST/screenshare"
+      showButton="true"
+      autoStart="false"
+      autoFullScreen="false"
+      baseTabIndex="201"
+    />
+    
+		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
+			uri="rtmp://HOST/sip" 
 			autoJoin="true"
 			listenOnlyMode="true"
 			presenterShareOnly="false"
@@ -119,6 +128,11 @@
 			dependsOn="UsersModule"
 			baseTabIndex="501"
 			maxFileSize="30"
+		/>
+		
+		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="UsersModule"
 		/>
 
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"

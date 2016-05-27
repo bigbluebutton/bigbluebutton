@@ -5,34 +5,24 @@ import akka.actor.ActorLogging
 import akka.pattern.{ ask, pipe }
 import akka.util.Timeout
 import scala.concurrent.duration._
-import scala.collection.mutable.HashMap
+import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.util._
-import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
-import scala.util.Success
-import scala.util.Failure
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.recorders.events.VoiceUserJoinedRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceUserLeftRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceUserLockedRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceUserMutedRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceStartRecordingRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceUserTalkingRecordEvent
-import org.bigbluebutton.core.service.recorder.RecorderApplication
-import scala.collection._
-import com.google.gson.Gson
 
 object BigBlueButtonActor extends SystemConfiguration {
-  def props(system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender): Props =
-    Props(classOf[BigBlueButtonActor], system, recorderApp, messageSender)
+  def props(system: ActorSystem,
+    eventBus: IncomingEventBus,
+    outGW: OutMessageGateway): Props =
+    Props(classOf[BigBlueButtonActor], system, eventBus, outGW)
 }
 
-class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender) extends Actor with ActorLogging {
+class BigBlueButtonActor(val system: ActorSystem,
+    eventBus: IncomingEventBus, outGW: OutMessageGateway) extends Actor with ActorLogging {
+
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
-  private val outGW = new OutMessageGateway("bbbActorOutGW", recorderApp, messageSender)
 
   def receive = {
     case msg: CreateMeeting => handleCreateMeeting(msg)
@@ -52,21 +42,15 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
     case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
     case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
     case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
-    case msg: InMessage => handleMeetingMessage(msg)
     case _ => // do nothing
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
-    meetings.values.find(m => {
-      println("+++ compare " + m.mProps.voiceBridge + " with our " + voiceConfId)
-      m.mProps.voiceBridge == voiceConfId
-    })
+    meetings.values.find(m => { m.mProps.voiceBridge == voiceConfId })
   }
 
   private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-    }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
   }
 
   private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
@@ -98,62 +82,27 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
     }
-
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {
     meetings.get(msg.meetingID) foreach { m =>
-      val future = m.actorRef.ask(msg)(5 seconds)
+      m.actorRef ! msg
 
-      future onComplete {
-        case Success(result) => {
-          log.info("Validate auth token response. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
-          /**
-           * Received a reply from MeetingActor which means hasn't hung!
-           * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
-           * audit to check whether the actor is still alive. (ralam feb 25, 2015)
-           */
-        }
-        case Failure(failure) => {
-          log.warning("Validate auth token timeout. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
-          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId))
-        }
-      }
-    }
-  }
-
-  private def handleMeetingMessage(msg: InMessage): Unit = {
-    msg match {
-      case ucm: UserConnectedToGlobalAudio => {
-        val m = meetings.values.find(m => m.mProps.voiceBridge == ucm.voiceConf)
-        m foreach { mActor => mActor.actorRef ! ucm }
-      }
-      case udm: UserDisconnectedFromGlobalAudio => {
-        val m = meetings.values.find(m => m.mProps.voiceBridge == udm.voiceConf)
-        m foreach { mActor => mActor.actorRef ! udm }
-      }
-      case allOthers => {
-        meetings.get(allOthers.meetingID) match {
-          case None => handleMeetingNotFound(allOthers)
-          case Some(m) => {
-            // log.debug("Forwarding message [{}] to meeting [{}]", msg.meetingID)
-            m.actorRef ! allOthers
-          }
-        }
-      }
-    }
-  }
-
-  private def handleMeetingNotFound(msg: InMessage) {
-    msg match {
-      case vat: ValidateAuthToken => {
-        log.info("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
-        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
-      }
-      case _ => {
-        log.info("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")
-        // do nothing
-      }
+      //      val future = m.actorRef.ask(msg)(5 seconds)
+      //      future onComplete {
+      //        case Success(result) => {
+      //          log.info("Validate auth token response. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
+      //          /**
+      //           * Received a reply from MeetingActor which means hasn't hung!
+      //           * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
+      //           * audit to check whether the actor is still alive. (ralam feb 25, 2015)
+      //           */
+      //        }
+      //        case Failure(failure) => {
+      //          log.warning("Validate auth token timeout. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
+      //          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId))
+      //        }
+      //      }
     }
   }
 
@@ -162,7 +111,6 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
   }
 
   private def handlePubSubPingMessage(msg: PubSubPing): Unit = {
-    //log.info("PubSubPing from [" + msg.system + "]")
     outGW.send(new PubSubPong(msg.system, msg.timestamp))
   }
 
@@ -173,10 +121,19 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
       case Some(m) => {
         meetings -= msg.meetingID
         log.info("Kick everyone out on meetingId={}", msg.meetingID)
+        if (m.mProps.isBreakout) {
+          log.info("Informing parent meeting {} that a breakout room has been ended{}", m.mProps.externalMeetingID, m.mProps.meetingID)
+          eventBus.publish(BigBlueButtonEvent(m.mProps.externalMeetingID,
+            BreakoutRoomEnded(m.mProps.externalMeetingID, m.mProps.meetingID)))
+        }
         outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
         outGW.send(new DisconnectAllUsers(msg.meetingID))
         log.info("Destroyed meetingId={}", msg.meetingID)
         outGW.send(new MeetingDestroyed(msg.meetingID))
+
+        /** Unsubscribe to meeting and voice events. **/
+        eventBus.unsubscribe(m.actorRef, m.mProps.meetingID)
+        eventBus.unsubscribe(m.actorRef, m.mProps.voiceBridge)
 
         // Stop the meeting actor.
         context.stop(m.actorRef)
@@ -188,8 +145,12 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
     meetings.get(msg.meetingID) match {
       case None => {
         log.info("Create meeting request. meetingId={}", msg.mProps.meetingID)
-        val moutGW = new OutMessageGateway("meetingOutGW-" + msg.meetingID, recorderApp, messageSender)
-        var m = RunningMeeting(msg.mProps, moutGW)
+
+        var m = RunningMeeting(msg.mProps, outGW, eventBus)
+
+        /** Subscribe to meeting and voice events. **/
+        eventBus.subscribe(m.actorRef, m.mProps.meetingID)
+        eventBus.subscribe(m.actorRef, m.mProps.voiceBridge)
 
         meetings += m.mProps.meetingID -> m
         outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.recorded, m.mProps.meetingName,
@@ -197,7 +158,6 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
           msg.mProps.viewerPass, msg.mProps.createTime, msg.mProps.createDate))
 
         m.actorRef ! new InitializeMeeting(m.mProps.meetingID, m.mProps.recorded)
-        m.actorRef ! "StartTimer"
       }
       case Some(m) => {
         log.info("Meeting already created. meetingID={}", msg.mProps.meetingID)

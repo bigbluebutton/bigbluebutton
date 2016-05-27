@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <style type="text/css" media="screen">
+      html, body, #flashclient                { height:100%; }
+      body                                    { margin:0; padding:0; overflow:hidden; }
+      #altContent                             { /* style alt content */ }
+    </style>
+    <script type="text/javascript" src="http://192.168.0.249/client/swfobject/swfobject.js"></script>
+    <script type="text/javascript">
+      swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
+      swfobject.registerObject("WebcamPreviewStandalone", "11", "expressInstall.swf");
+      swfobject.registerObject("WebcamViewStandalone", "11", "expressInstall.swf");
+    </script>
+
+    <!--<script src="http://192.168.0.249/client/lib/jquery-1.5.1.min.js" language="javascript"></script>-->
+    <script src="http://192.168.0.249/client/lib/bigbluebutton.js" language="javascript"></script>
+    <script src="http://192.168.0.249/client/lib/bbb_localization.js" language="javascript"></script>
+    <script src="http://192.168.0.249/client/lib/bbb_blinker.js" language="javascript"></script>
+
+    <script src="http://192.168.0.249/client/lib/jquery.mobile.min.js" language="javascript"></script>
+    <script src="http://192.168.0.249/client/lib/jquery.json-2.4.min.js" language="javascript"></script>
+    <!-- <script src="http://192.168.0.249/client/lib/getScreenId.js" language="javascript"></script> -->
+    <script src="http://192.168.0.249/client/lib/jquery.cookie.js" language="javascript"></script>
+    <script src="http://192.168.0.249/client/lib/jquery.dataTables.min.js" language="javascript"></script>
+
+    <script src="lib/getScreenId.js" language="javascript"></script>
+    <script src="lib/jquery.FSRTC.js" language="javascript"></script>
+    <script src="lib/jquery.jsonrpcclient.js" language="javascript"></script>
+    <script src="lib/jquery.verto.js" language="javascript"></script>
+    <script src="lib/Screen-Capturing.js" language="javascript"></script>
+    <script src="lib/verto_extension.js" language="javascript"></script>
+    <script src="lib/verto_extension_share.js" language="javascript"></script>
+
+    <!-- <script src="http://192.168.0.249/client/lib/verto_extension.js" language="javascript"></script> -->
+    <!-- <script src="http://192.168.0.249/client/lib/verto_extension_share.js" language="javascript"></script> -->
+    <script src="http://192.168.0.249/client/lib/bbb_deskshare.js" language="javascript"></script>
+    <script type="text/javascript" src="http://192.168.0.249/client/lib/bbb_api_bridge.js"></script>
+    <script type="text/javascript" src="http://192.168.0.249/client/lib/bbb_api_cam_preview.js"></script>
+    <script type="text/javascript" src="http://192.168.0.249/client/lib/bbb_api_cam_view.js"></script>
+    <script type="text/javascript" src="http://192.168.0.249/3rd-party.js"></script>
+    <script>
+      window.chatLinkClicked = function(url) {
+        window.open(url, '_blank');
+        window.focus();
+      }
+      window.displayBBBClient = function() {
+        var bbbc = document.getElementById("flashclient");
+        var wcpc = document.getElementById("webcampreviewclient");
+        wcpc.style.display = "none";
+        bbbc.style.display = "block";
+      }
+      window.displayWCClient = function() {
+        console.log("Displaying webcam preview client");
+        var wcpc = document.getElementById("webcampreview");
+        wcpc.style.display = "block";
+      }
+      window.onload = function() {
+         registerListeners();
+      }
+    </script>
+  </head>
+  <body>
+    <div id="controls">
+      <button type="button" onclick="registerListeners()">Listen for Events</button>
+      <button type="button" onclick="displayBBBClient()">Show BBB Client</button>
+      <button type="button" onclick="displayWCClient()">Show WC Client</button>
+      <button type="button" onclick="BBB.shareVideoCamera()">Share Webcam</button>
+      <button type="button" onclick="BBB.stopSharingCamera()">Stop Webcam</button>
+      <button type="button" onclick="BBB.switchPresenter('x8hxeozsqbk1')">Switch Presenter</button>
+      <button type="button" onclick="joinVoiceConference2()">Join Voice</button>
+      <button type="button" onclick="leaveVoiceConference2()">Leave Voice</button>
+      <button type="button" onclick="getMyUserID()">Get My UserID</button>
+      <button type="button" onclick="getMeetingID()">Get MeetingID</button>
+      <button type="button" onclick="getMyRoleAsynch()">Get My Role Asynch</button>
+      <button type="button" onclick="getMyRoleSynch()">Get My Role Synch</button>
+      <button type="button" onclick="muteMe()">Mute Me</button>
+      <button type="button" onclick="unmuteMe()">Unmute Me</button>
+      <button type="button" onclick="muteAll()">Mute All</button>
+      <button type="button" onclick="unmuteAll()">Unmute All</button>
+      <button type="button" onclick="raiseHand(true)">Raise Hand</button>
+      <button type="button" onclick="raiseHand(false)">Lower Hand</button>
+      <button type="button" onclick="switchLayout('S2SVideoChat')">Switch Video Layout</button>
+      <button type="button" onclick="switchLayout('S2SPresentation')">Switch Present Layout</button>
+      <button type="button" onclick="lockLayout(true)">Lock Layout</button>
+      <button type="button" onclick="lockLayout(false)">Unlock Layout</button>
+      <button type="button" onclick="sendPublicChat()">Send Public Chat</button>
+      <button type="button" onclick="sendPrivateChat()">Send Private Chat</button>
+      <button type="button" onclick="amIPresenterSync()">Am I Presenter Sync</button>
+      <button type="button" onclick="amIPresenterAsync()">Am I Presenter Async</button>
+	  <button type="button" onclick="getMyUserInfoAsynch()">User Info Async</button>
+      <button type="button" onclick="getMyUserInfoSynch()">UserInfo Sync</button>
+      <button type="button" onclick="queryListOfPresentations()">Query Presentations</button>
+      <button type="button" onclick="displayPresentation('presentation3')">Display Presentation</button>
+      <button type="button" onclick="deletePresentation('presentation3')">Delete Presentation</button>
+      <form id="formUpload" name="formUpload" enctype="multipart/form-data">
+        <input type="file" name="fileUpload" id="fileUpload" />
+        <button type="button" onclick="uploadPresentation()">Upload Presentation</button>
+      </form>
+    </div>
+    <div id="webcampreview" style="background-color:#FFD700;height:240px;width:320px;float:left;">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540001" width="100%" height="100%" id="WebcamPreviewStandalone" name="WebcamPreviewStandalone" align="middle">
+          <param name="movie" value="http://192.168.0.249/client/WebcamPreviewStandalone.swf?v=VERSION" />
+          <param name="quality" value="high" />
+          <param name="allowfullscreen" value="true" />
+          <param name="bgcolor" value="#869ca7" />
+          <param name="wmode" value="window" />
+          <param name="allowScriptAccess" value="always" />
+          <!--[if !IE]>-->
+            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/WebcamPreviewStandalone.swf?v=VERSION" width="100%" height="100%" align="middle">
+              <param name="quality" value="high" />
+              <param name="bgcolor" value="#869ca7" />
+              <param name="allowScriptAccess" value="always" />
+              <!--<![endif]-->
+                <a href="http://www.adobe.com/go/getflashplayer">
+                  <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+                </a>
+              <!--[if !IE]>-->
+           </object>
+        <!--<![endif]-->
+        </object>
+     </div>
+    <div id="webcamview" style="background-color:#FFD700;height:240px;width:320px;float:left;">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540002" width="100%" height="100%" id="WebcamViewStandalone" name="WebcamViewStandalone" align="middle">
+          <param name="movie" value="http://192.168.0.249/client/WebcamViewStandalone.swf?v=VERSION" />
+          <param name="quality" value="high" />
+          <param name="allowfullscreen" value="true" />
+          <param name="bgcolor" value="#869ca7" />
+          <param name="wmode" value="window" />
+          <param name="allowScriptAccess" value="always" />
+          <!--[if !IE]>-->
+            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/WebcamViewStandalone.swf?v=VERSION" width="100%" height="100%" align="middle">
+              <param name="quality" value="high" />
+              <param name="bgcolor" value="#869ca7" />
+              <param name="allowScriptAccess" value="always" />
+              <!--<![endif]-->
+                <a href="http://www.adobe.com/go/getflashplayer">
+                  <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+                </a>
+              <!--[if !IE]>-->
+           </object>
+        <!--<![endif]-->
+        </object>
+     </div>
+     <div id="flashclient" style="background-color:#EEEEEE;height:900px;width:1200px;float:left;">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="50%" height="50%" id="BigBlueButton" name="BigBlueButton" align="middle">
+          <param name="movie" value="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" />
+          <param name="quality" value="high" />
+          <param name="allowfullscreen" value="true" />
+          <param name="bgcolor" value="#869ca7" />
+          <param name="wmode" value="window" />
+          <param name="allowScriptAccess" value="always" />
+          <!--[if !IE]>-->
+            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" width="100%" height="90%" align="middle">
+              <param name="quality" value="high" />
+              <param name="bgcolor" value="#869ca7" />
+              <param name="allowScriptAccess" value="always" />
+              <!--<![endif]-->
+                <a href="http://www.adobe.com/go/getflashplayer">
+                  <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+                </a>
+              <!--[if !IE]>-->
+           </object>
+        <!--<![endif]-->
+        </object>
+    </div>
+    <div id="update-display"/>
+    <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
+  </body>
+</html>

@@ -2,7 +2,7 @@ class UrlMappings {
 
 	static mappings = {
 		"/presentation/upload"(controller:"presentation") {
-			action = [GET:'show', POST:'upload', DELETE:'delete']
+			action = [POST:'upload']
 		}
 
 		"/presentation/test-convert"(controller:"presentation") {

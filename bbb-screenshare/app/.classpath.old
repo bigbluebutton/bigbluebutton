@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<classpath>
+  <classpathentry kind="src" path="src/main/java"/>
+  <classpathentry kind="output" path="build/classes/main"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="src" path="/common" combineaccessrules="false"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/commons-fileupload/commons-fileupload/jars/commons-fileupload-1.2.1.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/commons-io/commons-io/jars/commons-io-1.4.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/javax.servlet/servlet-api/jars/servlet-api-2.5.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/log4j-over-slf4j/jars/log4j-over-slf4j-1.5.6.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/logback-classic/jars/logback-classic-0.9.14.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/logback-core/jars/logback-core-0.9.14.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/net/lag/configgy/configgy/jars/configgy-1.5.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/org.apache.mina/mina-core/jars/mina-core-2.0.0-RC1.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/org.apache.mina/mina-integration-spring/jars/mina-integration-spring-1.1.7.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/org.scala-lang/scala-library/jars/scala-library-2.7.7.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/org/red5/red5/jars/red5-0.91.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/slf4j-api/jars/slf4j-api-1.5.6.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/spring/spring-aop/jars/spring-aop-3.0.0.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/spring/spring-beans/jars/spring-beans-3.0.0.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/spring/spring-context/jars/spring-context-3.0.0.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/spring/spring-core/jars/spring-core-3.0.0.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/spring/spring-web/jars/spring-web-3.0.0.jar"/>
+  <classpathentry kind="lib" path="/home/firstuser/.gradle/cache/spring/spring-webmvc/jars/spring-webmvc-2.5.6.jar"/>
+</classpath>

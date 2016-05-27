@@ -5,6 +5,7 @@ package org.bigbluebutton.core.model
     private var _name:String;
     private var _internalId:String;
     private var _externalId:String;
+    private var _isBreakout:Boolean;
     private var _defaultAvatarUrl:String;
     private var _voiceConference:String;
     private var _dialNumber:String;
@@ -21,6 +22,7 @@ package org.bigbluebutton.core.model
       _name = build.name;
       _internalId = build.id;
       _externalId = build.externId;
+	  _isBreakout = build.isBreakout;
       _defaultAvatarUrl = build.defaultAvatarUrl;
       _voiceConference = build.voiceConf;
       _dialNumber = build.dialNumber;
