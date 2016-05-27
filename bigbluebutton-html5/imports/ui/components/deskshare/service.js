@@ -1,8 +1,7 @@
 import Deskshare from '/imports/api/deskshare';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
-import {joinVertoAudio, watchVertoVideo} from '/imports/api/verto';
+import {conferenceUsername, joinVertoAudio, watchVertoVideo} from '/imports/api/verto';
 import {getInStorage} from '/imports/ui/components/app/service';
+import {getVoiceBridge} from '/imports/api/phone';
 
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video
@@ -29,16 +28,8 @@ function videoIsBroadcasting() {
 }
 
 function watchDeskshare(options) {
-  let extension = null;
-  if (options.extension) {
-    extension = options.extension;
-  } else {
-    extension = Meetings.findOne().voiceConf;
-  }
-
-  const uid = getInStorage('userID');
-  const uName = Users.findOne({ userId: uid }).user.name;
-  conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
+  const extension = options.extension || getVoiceBridge();
+  const conferenceUsername = createVertoUserName();
   conferenceIdNumber = '1009';
   watchVertoVideo({ extension, conferenceUsername, conferenceIdNumber,
     watchOnly: true });

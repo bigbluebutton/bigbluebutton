@@ -42,10 +42,6 @@ function loadLib(libname, success, fail) {
     10000).fail(failCallback.bind(libname, fail));
 };
 
-function loadLibs(libs) {
-
-}
-
 Meteor.startup(() => {
   loadLib('sip.js');
   loadLib('bbb_webrtc_bridge_sip.js');

@@ -3,9 +3,18 @@ import Meetings from '/imports/api/meetings';
 import {getInStorage, setInStorage} from '/imports/ui/components/app/service';
 import {callServer} from '/imports/ui/services/api';
 import {clientConfig} from '/config';
-import {joinVertoAudio} from '/imports/api/verto';
+import {createVertoUserName, joinVertoAudio} from '/imports/api/verto';
 
 let triedHangup = false;
+
+function getVoiceBridge() {
+  return Meetings.findOne({}).voiceConf;
+}
+
+function amIListenOnly() {
+  const uid = getInStorage('userID');
+  return Users.findOne({ userId: uid }).user.listenOnly;
+}
 
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
@@ -34,8 +43,7 @@ function exitVoiceCall(afterExitCall) {
         console.log('Attempting to hangup on WebRTC call');
 
         // notify BBB-apps we are leaving the call call if we are listen only
-        const uid = getInStorage('userID');
-        if (Users.findOne({ userId: uid }).user.listenOnly) {
+        if (amIListenOnly()) {
           callServer('listenOnlyRequestToggle', false);
         }
 
@@ -60,25 +68,9 @@ function exitVoiceCall(afterExitCall) {
   };
 }
 
-BBB = {};
-BBB.getMyUserInfo = function (callback) {
-  const uid = getInStorage('userID');
-  console.log(Users);
-  const result = {
-    myUserID: uid,
-    myUsername: Users.findOne({ userId: uid }).user.name,
-    myInternalUserID: uid,
-    myAvatarURL: null,
-    myRole: 'getMyRole',
-    amIPresenter: 'false',
-    voiceBridge: Meetings.findOne({}).voiceConf,
-    dialNumber: null,
-  };
-  return callback(result);
-};
-
 // join the conference. If listen only send the request to the server
 function joinVoiceCall(options) {
+  const extension = getVoiceBridge();
   console.log(options);
   if (clientConfig.media.useSIPAudio) {
 
@@ -91,19 +83,30 @@ function joinVoiceCall(options) {
       callServer('listenOnlyRequestToggle', true);
     }
 
-    const voiceBridge = Meetings.findOne({}).voiceConf;
-    callIntoConference(voiceBridge, function () {}, options.isListenOnly);
+    window.BBB = {};
+    window.BBB.getMyUserInfo = function (callback) {
+      const uid = getInStorage('userID');
+      const result = {
+        myUserID: uid,
+        myUsername: Users.findOne({ userId: uid }).user.name,
+        myInternalUserID: uid,
+        myAvatarURL: null,
+        myRole: 'getMyRole',
+        amIPresenter: 'false',
+        voiceBridge: extension,
+        dialNumber: null,
+      };
+      return callback(result);
+    };
 
+    callIntoConference(extension, function () {}, options.isListenOnly);
     return;
   } else {
-    const uid = getInStorage('userID');
-    const extension = Meetings.findOne().voiceConf;
-    const uName = Users.findOne({ userId: uid }).user.name;
-    conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
+    const conferenceUsername = createVertoUserName();
     conferenceIdNumber = '1009';
     joinVertoAudio({ extension, conferenceUsername, conferenceIdNumber,
       listenOnly: options.isListenOnly });
   }
 }
 
-export { joinVoiceCall, exitVoiceCall };
+export { joinVoiceCall, exitVoiceCall, getVoiceBridge, };

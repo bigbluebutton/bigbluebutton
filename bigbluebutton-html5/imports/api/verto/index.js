@@ -1,5 +1,12 @@
-import Meetings from '/imports/api/users';
 import {clientConfig} from '/config';
+import {getVoiceBridge} from '/imports/api/phone';
+
+function createVertoUserName() {
+  const uid = getInStorage('userID');
+  const uName = Users.findOne({ userId: uid }).user.name;
+  const conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
+  return conferenceUsername;
+}
 
 function joinVertoAudio(options) {
   joinVertoCall(options);
@@ -11,12 +18,7 @@ function watchVertoVideo(options) {
 
 function joinVertoCall(options) {
   console.log('joinVertoCall');
-  let extension = null;
-  if (options.extension) {
-    extension = options.extension;
-  } else {
-    extension = Meetings.findOne().voiceConf;
-  }
+  const extension = options.extension || getVoiceBridge();
 
   if (!isWebRTCAvailable()) {
     return;
@@ -59,6 +61,7 @@ function joinVertoCall(options) {
 }
 
 export {
+  createVertoUserName,
   joinVertoAudio,
   watchVertoVideo,
 };
