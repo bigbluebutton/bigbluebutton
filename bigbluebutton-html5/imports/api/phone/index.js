@@ -56,14 +56,17 @@ function exitVoiceCall(afterExitCall) {
           afterExitCall(this, clientConfig.app.listenOnly);
         }
       } else {
-        console.log(`RETRYING hangup on WebRTC call in
-          ${clientConfig.media.WebRTCHangupRetryInterval} ms`);
+        console.log('RETRYING hangup on WebRTC call in ' +
+          `${clientConfig.media.WebRTCHangupRetryInterval} ms`);
 
         // try again periodically
         setTimeout(checkToHangupCall, clientConfig.media.WebRTCHangupRetryInterval);
       }
+    })
+
     // automatically run function
-    })(this, afterExitCall);
+    (this, afterExitCall);
+
     return false;
   };
 }
@@ -105,7 +108,7 @@ function joinVoiceCall(options) {
     const conferenceUsername = createVertoUserName();
     conferenceIdNumber = '1009';
     joinVertoAudio({ extension, conferenceUsername, conferenceIdNumber,
-      listenOnly: options.isListenOnly });
+      listenOnly: options.isListenOnly, });
   }
 }
 

@@ -16,19 +16,19 @@ export default class AudioMenu extends BaseMenu {
         <p>inside audio menu</p>
 
         <button onClick={
-          function() {
-            exitVoiceCall(function() {console.log('exit callback');});
+          function () {
+            exitVoiceCall(function () {console.log('exit callback');});
           }
         }>exit voice call</button>
         <br/>
         <button onClick={
-          function() {
+          function () {
             joinVoiceCall({ isListenOnly: true });
           }
         }>listen only</button>
 
         <button onClick={
-          function() {
+          function () {
             joinVoiceCall({ isListenOnly: false });
           }
         }>join mic</button>
