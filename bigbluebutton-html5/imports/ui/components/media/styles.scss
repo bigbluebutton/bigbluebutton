@@ -34,14 +34,6 @@
   }
 }
 
-.contentRatio {
-  @extend %ratio;
-}
-
-.content {
-  @extend %ratio-item;
-}
-
 .overlayWrapper {
   position: absolute;
   width: 30%;

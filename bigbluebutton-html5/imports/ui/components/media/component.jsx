@@ -13,11 +13,7 @@ export default class Media extends Component {
 
     return (
       <div className={styles.contentWrapper}>
-        <div className={styles.contentRatio}>
-          <div className={styles.content}>
-            {content}
-          </div>
-        </div>
+        {content}
       </div>
     );
   }

@@ -1,29 +1,48 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-
 import Media from './component';
-
+import MediaService from './service';
 import Button from '../button/component';
-
 import WhiteboardContainer from '../whiteboard/container';
 import VideoDockContainer from '../video-dock/container';
+import DefaultContent from '../whiteboard/default-content/component';
 
 const defaultProps = {
   overlay: <VideoDockContainer/>,
   content: <WhiteboardContainer/>,
+  defaultContent: <DefaultContent />,
 };
 
 class MediaContainer extends Component {
   constructor(props) {
     super(props);
 
-    const { overlay, content } = this.props;
+    const { overlay, content, defaultContent } = this.props;
     this.state = {
       overlay: overlay,
-      content: content,
+      content: defaultContent,
     };
 
     this.handleToggleLayout = this.handleToggleLayout.bind(this);
+  }
+  componentDidMount() {
+    console.log('mounted');
+    console.log(this.props);
+  }
+  componentWillReceiveProps(nextProps) {
+    console.log('receiving props');
+    if(nextProps.current_slide != this.props.current_slide) {
+      console.log('setting new state');
+      if(nextProps.current_slide) {
+        this.setState({ content: this.props.content });
+        } else {
+        this.setState({ content: this.props.defaultContent });
+      }
+    }
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    console.log('will update', nextProps);
   }
 
   handleToggleLayout() {
@@ -47,5 +66,6 @@ class MediaContainer extends Component {
 MediaContainer.defaultProps = defaultProps;
 
 export default createContainer(() => {
-  return {};
+  const data = MediaService.getPresentationInfo();
+  return data;
 }, MediaContainer);
