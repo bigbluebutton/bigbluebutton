@@ -9,7 +9,7 @@ export function handleDeskShareChange(meetingId, deskshareInfo) {
     timestamp: 'now',
     vw: deskshareInfo.vw,
     vh: deskshareInfo.vh,
-    voice_bridge: deskshareInfo.voice_bridge,
+    voiceBridge: deskshareInfo.voiceBridge,
     startedBy: presenter,
   }, });
 }

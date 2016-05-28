@@ -1,60 +1,71 @@
 // TODO: should be split on server and client side
 // // Global configurations file
 
-let config;
-
-config = {};
+let clientConfig = {};
 
 // Default global variables
 
-config.appName = 'BigBlueButton HTML5 Client';
+clientConfig.appName = 'BigBlueButton HTML5 Client';
 
-config.bbbServerVersion = '1.0-beta';
+clientConfig.bbbServerVersion = '1.0-beta';
 
-config.copyrightYear = '2015';
+clientConfig.copyrightYear = '2015';
 
-config.html5ClientBuild = 'NNNN';
+clientConfig.html5ClientBuild = 'NNNN';
 
-config.defaultWelcomeMessage = 'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see ' +
+clientConfig.defaultWelcomeMessage = 'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see ' +
   'these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial ' +
   'videos</u></a>.\r\rTo join the audio bridge click the gear icon (upper-right hand corner). ' +
   ' Use a headset to avoid causing background noise for others.\r\r\r';
 
-let tempString = 'This server is running a build of ' +
+const tempString = 'This server is running a build of ' +
   "<a href='http://docs.bigbluebutton.org/1.0/10overview.html' target='_blank'><u>BigBlueButton";
-config.defaultWelcomeMessageFooter = `${tempString} ${config.bbbServerVersion}</u></a>.`;
+clientConfig.defaultWelcomeMessageFooter = `${tempString} ${clientConfig.bbbServerVersion}</u></a>.`;
 
-config.maxUsernameLength = 30;
+clientConfig.maxUsernameLength = 30;
 
-config.maxChatLength = 140;
+clientConfig.maxChatLength = 140;
 
-config.lockOnJoin = true;
+clientConfig.lockOnJoin = true;
 
 //// Application configurations
 
-config.app = {};
+clientConfig.app = {};
 
 //default font sizes for mobile / desktop
 
-config.app.mobileFont = 16;
+clientConfig.app.mobileFont = 16;
 
-config.app.desktopFont = 14;
+clientConfig.app.desktopFont = 14;
 
 // Will offer the user to join the audio when entering the meeting
 
-config.app.autoJoinAudio = false;
+clientConfig.app.autoJoinAudio = false;
 
-config.app.listenOnly = false;
+clientConfig.app.listenOnly = false;
 
-config.app.skipCheck = false;
+clientConfig.app.skipCheck = false;
 
 // The amount of time the client will wait before making another call to
 // successfully hangup the WebRTC conference call
 
-config.app.WebRTCHangupRetryInterval = 2000;
+clientConfig.media = {};
+
+clientConfig.media.WebRTCHangupRetryInterval = 2000;
+
+// IP address of FreeSWITCH server for use of mod_verto and WebRTC deshsharing
+clientConfig.media.vertoServerAddress = 'HOST';
+
+// Allows a caller to access a FreeSWITCH dialplan
+clientConfig.media.freeswitchProfilePassword = '1234';
+
+clientConfig.media.vertoPort = '8082';
+
+// specifies whether to use SIP.js for audio over mod_verto
+clientConfig.media.useSIPAudio = false;
 
 // Configs for redis
-export const redisConfig = {
+const redisConfig = {
   host: '127.0.0.1',
   post: '6379',
   timeout: 5000,
@@ -73,4 +84,4 @@ export const redisConfig = {
   },
 };
 
-Meteor.config = config;
+export { clientConfig, redisConfig };

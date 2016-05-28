@@ -12,7 +12,8 @@ Meteor.methods({
   // requesterToken: the authToken of the requester
   listenOnlyRequestToggle(credentials, isJoining) {
     const { meetingId, requesterUserId, requesterToken } = credentials;
-    let message, userObject, username, voiceConf, meetingObject;
+
+    let username, voiceConf, meetingObject;
     meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
@@ -20,9 +21,9 @@ Meteor.methods({
       voiceConf = meetingObject.voiceConf;
     }
 
-    userObject = Users.findOne({
+    const userObject = Users.findOne({
       meetingId: meetingId,
-      userId: userId,
+      userId: requesterUserId,
     });
     if (userObject != null) {
       username = userObject.user.name;
@@ -30,30 +31,30 @@ Meteor.methods({
 
     if (isJoining) {
       if (isAllowedTo('joinListenOnly', credentials)) {
-        message = {
+        let message = {
           payload: {
-            userid: userId,
+            userid: requesterUserId,
             meeting_id: meetingId,
             voice_conf: voiceConf,
             name: username,
           },
         };
         message = appendMessageHeader('user_connected_to_global_audio', message);
-        logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${userId}`);
+        logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${requesterUserId}`);
         publish(redisConfig.channels.toBBBApps.meeting, message);
       }
     } else {
       if (isAllowedTo('leaveListenOnly', credentials)) {
-        message = {
+        let message = {
           payload: {
-            userid: userId,
+            userid: requesterUserId,
             meeting_id: meetingId,
             voice_conf: voiceConf,
             name: username,
           },
         };
         message = appendMessageHeader('user_disconnected_from_global_audio', message);
-        logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${userId}`);
+        logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${requesterUserId}`);
         publish(redisConfig.channels.toBBBApps.meeting, message);
       }
     }

@@ -7,7 +7,7 @@ export function handleIncomingDeskshareMessage(arg) {
   const deskShareInfo = {
     vw: payload.vw,
     vh: payload.vh,
-    voice_bridge: voiceBridge, // payload.voice_bridge
+    voiceBridge: voiceBridge, // payload.voice_bridge
     broadcasting: payload.broadcasting,
   };
   handleDeskShareChange(thisMeetingId, deskShareInfo);
