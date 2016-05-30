@@ -20,29 +20,20 @@ class MediaContainer extends Component {
     const { overlay, content, defaultContent } = this.props;
     this.state = {
       overlay: overlay,
-      content: defaultContent,
+      content: this.props.current_presentation ? content : defaultContent,
     };
 
     this.handleToggleLayout = this.handleToggleLayout.bind(this);
   }
-  componentDidMount() {
-    console.log('mounted');
-    console.log(this.props);
-  }
+
   componentWillReceiveProps(nextProps) {
-    console.log('receiving props');
-    if(nextProps.current_slide != this.props.current_slide) {
-      console.log('setting new state');
-      if(nextProps.current_slide) {
+    if(nextProps.current_presentation != this.props.current_presentation) {
+      if(nextProps.current_presentation) {
         this.setState({ content: this.props.content });
         } else {
         this.setState({ content: this.props.defaultContent });
       }
     }
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    console.log('will update', nextProps);
   }
 
   handleToggleLayout() {
