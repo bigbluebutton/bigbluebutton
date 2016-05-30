@@ -14,3 +14,21 @@
   text-align: center;
   overflow: auto;
 }
+
+.enter {
+  opacity: 0.01;
+}
+
+.enterActive {
+  opacity: 1;
+  transition: opacity 400ms ease-in;
+}
+
+.appear {
+  opacity: 0.01;
+}
+
+.appearActive {
+  opacity: 1;
+  transition: opacity 400ms ease-in;
+}

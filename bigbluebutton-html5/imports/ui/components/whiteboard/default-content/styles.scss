@@ -27,3 +27,12 @@
   text-align: center;
   overflow: auto;
 }
+
+.appear {
+  opacity: 0.01;
+}
+
+.appearActive {
+  opacity: 1;
+  transition: opacity 700ms ease-in;
+}
