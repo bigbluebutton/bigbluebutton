@@ -154,8 +154,20 @@ docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callb
 		console.log("Quitting: Call already in progress");
 		return;
 	}
-	// determine the resolution the user chose for webcam video
-	my_check_vid_res();
+
+	//
+	// if (verto) {
+	// 	verto.videoParams({
+	// 		"minWidth": selectedVideoConstraints.constraints.minWidth,
+	// 		"minHeight": selectedVideoConstraints.constraints.minHeight,
+	// 		"maxWidth": selectedVideoConstraints.constraints.maxWidth,
+	// 		"maxHeight": selectedVideoConstraints.constraints.maxHeight,
+	// 		"minFrameRate": selectedVideoConstraints.constraints.minFrameRate,
+	// 		"vertoBestFrameRate": selectedVideoConstraints.constraints.vertoBestFrameRate
+	// 	});
+	// }
+	//
+
 	outgoingBandwidth = "default";
 	incomingBandwidth = "default";
 	var useVideo = useCamera = useMic = false;
@@ -331,29 +343,6 @@ function makeVerto(callbacks, stunsConfig, videoTag, vertoServerCredentials) {
 		iceServers: stunsConfig, // use user supplied stun configuration
 		// iceServers: true, // use stun, use default verto configuration
 	}, callbacks);
-}
-
-// sets verto to begin using the resolution that the user selected
-my_check_vid_res = function() {
-	return;
-	var selectedVideoConstraints = getChosenWebcamResolution();
-	my_real_size(selectedVideoConstraints);
-
-	if (verto) {
-		verto.videoParams({
-			"minWidth": selectedVideoConstraints.constraints.minWidth,
-			"minHeight": selectedVideoConstraints.constraints.minHeight,
-			"maxWidth": selectedVideoConstraints.constraints.maxWidth,
-			"maxHeight": selectedVideoConstraints.constraints.maxHeight,
-			"minFrameRate": selectedVideoConstraints.constraints.minFrameRate,
-			"vertoBestFrameRate": selectedVideoConstraints.constraints.vertoBestFrameRate
-		});
-	}
-}
-
-my_real_size = function(selectedVideoConstraints) {
-	$("#" + window.videoTag).height("100%");
-	$("#" + window.videoTag).width("100%");
 }
 
 var RTCPeerConnectionCallbacks = {
