@@ -22,6 +22,7 @@ export default class DefaultContent extends Component {
         transitionAppearTimeout={700}
         transitionEnterTimeout={0}
         transitionLeaveTimeout={0}
+        className={styles.contentWrapper}
       >
         <div className={styles.contentRatio}>
           <div className={styles.content}>

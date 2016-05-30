@@ -11,11 +11,7 @@ export default class Media extends Component {
   renderContent() {
     const { content } = this.props;
 
-    return (
-      <div className={styles.contentWrapper}>
-        {content}
-      </div>
-    );
+    return content;
   }
 
   renderOverlay() {

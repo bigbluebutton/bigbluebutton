@@ -26,14 +26,6 @@
   border: 0;
 }
 
-.contentWrapper {
-  flex-basis: 90%;
-
-  @include mq($large-up) {
-    flex-basis: 70%;
-  }
-}
-
 .overlayWrapper {
   position: absolute;
   width: 30%;

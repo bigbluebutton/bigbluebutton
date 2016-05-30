@@ -16,7 +16,6 @@ export default class Whiteboard extends React.Component {
       <div
         id="whiteboard-paper"
         style={this.props.svgStyle}
-        className={styles.whiteboard}
       >
         <div id="svggroup">
         { this.props.current_slide ?

@@ -8,6 +8,14 @@
   padding-bottom: calc(100% * 9 / 16);
 }
 
+.contentWrapper {
+  flex-basis: 90%;
+
+  @include mq($large-up) {
+    flex-basis: 70%;
+  }
+}
+
 .content {
   height: 100%;
   width: 100%;
