@@ -27,10 +27,10 @@ class MediaContainer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.current_presentation != this.props.current_presentation) {
-      if(nextProps.current_presentation) {
+    if (nextProps.current_presentation != this.props.current_presentation) {
+      if (nextProps.current_presentation) {
         this.setState({ content: this.props.content });
-        } else {
+      } else {
         this.setState({ content: this.props.defaultContent });
       }
     }

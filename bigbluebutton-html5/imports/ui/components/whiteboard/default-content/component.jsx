@@ -14,7 +14,7 @@ export default class DefaultContent extends Component {
       <ReactCSSTransitionGroup
         transitionName={ {
           appear: styles.appear,
-          appearActive: styles.appearActive
+          appearActive: styles.appearActive,
         } }
         transitionAppear={true}
         transitionEnter={true}

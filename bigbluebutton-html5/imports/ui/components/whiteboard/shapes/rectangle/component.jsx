@@ -24,7 +24,7 @@ export default class RectangleDrawComponent extends React.Component {
         stroke=""
         stroke-width=""
         style={style}
-        >
+      >
       </rect>
     );
   }

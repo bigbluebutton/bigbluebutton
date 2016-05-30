@@ -19,7 +19,7 @@ export default class TriangleDrawComponent extends React.Component {
         d=""
         stroke-width=""
         stroke-linejoin=""
-        >
+      >
       </path>
     );
   }

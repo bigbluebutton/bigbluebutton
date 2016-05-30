@@ -1,5 +1,5 @@
-import Slides from '/imports/api/slides';
 import Presentations from '/imports/api/presentations';
+import Slides from '/imports/api/slides';
 
 let getPresentationInfo = () => {
   let currentPresentation;

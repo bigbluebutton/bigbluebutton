@@ -20,7 +20,7 @@ export default class EllipseDrawComponent extends React.Component {
         stroke=""
         stroke-width=""
         style={style}
-        >
+      >
       </ellipse>
     );
   }

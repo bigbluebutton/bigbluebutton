@@ -25,7 +25,7 @@ export default class Whiteboard extends React.Component {
               enter: styles.enter,
               enterActive: styles.enterActive,
               appear: styles.appear,
-              appearActive: styles.appearActive
+              appearActive: styles.appearActive,
             } }
             transitionAppear={true}
             transitionEnter={true}

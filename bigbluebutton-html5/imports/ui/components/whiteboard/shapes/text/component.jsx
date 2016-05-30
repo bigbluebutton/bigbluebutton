@@ -11,7 +11,10 @@ export default class TextDrawComponent extends React.Component {
     };
     return (
 
-      // style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: start; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 20px; line-height: normal; font-family: Arial;"
+      // style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      //text-anchor: start; font-style: normal; font-variant: normal;
+      //font-weight: normal; font-stretch: normal; font-size: 20px;
+      //line-height: normal; font-family: Arial;"
       <text
         x=""
         y=""
@@ -23,11 +26,11 @@ export default class TextDrawComponent extends React.Component {
         font-family=""
         font-size=""
         stroke-width=""
-        >
+      >
         <tspan
           x=""
           dy=""
-          >
+        >
         </tspan>
       </text>
     );
