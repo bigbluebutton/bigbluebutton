@@ -1,24 +1,91 @@
 @import '../../stylesheets/variables/palette';
 
+/* Variables
+ * ==========
+ */
+$unread-messages-bg: $color-danger;
+
+$user-list-bg: $color-white;
+$user-list-text: $color-gray-dark;
+
+$list-item-bg-hover: darken($user-list-bg, 7%);
+
+$user-thumbnail-border: $color-gray-light;
+$user-thumbnail-text: $user-thumbnail-border;
+
+$voice-user-bg: $color-success;
+$voice-user-text: $color-white;
+
+$moderator-text: $color-white;
+$moderator-bg: $color-primary;
+
+$sub-name-color: $color-gray-light;
+
+$user-icons-color: $color-gray-light;
+$user-icons-color-hover: $color-gray;
+
+
+/* classes for extending
+ * ==========
+ */
 .flex-column {
   display: flex;
   flex-flow: column;
 }
 
-.zero-margin {
+.no-margin {
   margin: 0;
+}
+
+.list-item {
+  padding: 0.3rem;
+  padding-left: 0.5rem;
+  padding-right: 0.6rem;
+  margin-left: 0.7rem;
+  display: flex;
+  flex-flow: row;
+  transition: all 0.3s;
+  margin-top: 0.9rem;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+
+  &:hover,
+  &:focus {
+    background-color: $list-item-bg-hover;
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 1.2rem;
+  }
+}
+
+/* Styling
+ * ==========
+ */
+
+.userList {
+  @extend .flex-column;
+  justify-content: flex-start;
+  background-color: $user-list-bg;
+  color: $user-list-text;
+  height: 100vh;
 }
 
 .header {
   @extend .flex-column;
   justify-content: center;
-  min-height: 3rem;
-  flex-grow: 1;
+  min-height: 3.9rem;
+  flex-grow: 0;
 }
 
 .headerTitle {
-  font-size: 1rem;
-  margin-left: 30px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-left: 1.3rem;
 }
 
 .content {
@@ -26,35 +93,9 @@
   flex-grow: 9;
 }
 
-.unreadMessages {
-  @extend .flex-column;
-  justify-content: center;
-}
-
-.unreadMessagesText {
-  @extend .flex-column;
-  @extend .zero-margin;
-  justify-content: center;
-  color: $color-white;
-  height: 1.3rem;
-  padding: 0 8px;
-  text-align: center;
-  border-radius: 0.5rem/50%;
-  font-size: 0.8rem;
-  background-color: $color-danger;
-}
-
-.userList {
-  @extend .flex-column;
-  justify-content: flex-start;
-  background-color: $color-white;
-  color: $color-gray-dark;
-  height: 100vh;
-}
-
 .lists {
   @extend .flex-column;
-  @extend .zero-margin;
+  @extend .no-margin;
   padding: 0;
 }
 
@@ -63,139 +104,20 @@
   @extend .lists;
 }
 
-.userListItem,
-.chatListItem {
-  padding: 5px;
-  padding-left: 15px;
-  padding-right: 10px;
-  margin-left: 15px;
-  margin-top: 10px;
-  display: flex;
-  flex-flow: row;
-  cursor: pointer;
-  transition: all 0.3s;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-
-  &:hover,
-  &:focus {
-    background-color: darken($color-white, 7%);
-  }
-
-  &:first-child {
-    margin-top: 0px;
-  }
-
-  &:last-child {
-    margin-bottom: 20px;
-  }
-}
-
-.chatThumbnail {
-  @extend .flex-column;
-  justify-content: center;
-  flex-basis: 30px;
-  height: 30px;
-  font-size: 1.1rem;
-}
-
-.chatName {
-  @extend .flex-column;
-  flex-grow: 1;
-  justify-content: center;
-}
-
-.chatNameMain {
-  @extend .zero-margin;
-  font-size: 0.9rem;
-}
-
-.thumbnail {
-  @extend .flex-column;
-  flex-basis: 2rem;
-  height: 2rem;
-  justify-content: center;
-  font-size: 1.05rem;
-  text-align: center;
-  border-radius: 20px;
-  border: 2px solid $color-gray-light;
-  color: $color-gray-light;
-}
-
-.thumbnailContainer {
-  @extend .flex-column;
-  flex-basis: 2rem;
-  height: 2rem;
-  justify-content: center;
-  border-radius: 20px;
-}
-
-.voiceUser{
-  background-color: $color-success;
-  color: $color-white;
-  border: none;
-}
-
-.presenter {
-  border-radius: 2px;
-}
-
-.moderator {
-  border: none;
-  color: $color-white;
-  background-color: $color-primary;
-}
-
-.userName {
-  @extend .flex-column;
-  flex-grow: 1;
-  margin-left: 15px;
-  justify-content: center;
-}
-
-.userNameMain {
-  font-size: 0.9rem;
-  @extend .zero-margin;
-}
-
-.userNameSub {
-  @extend .zero-margin;
-  font-size: 0.8rem;
-  font-style: italic;
-  color: $color-gray-light;
-}
-
-.userIcons {
-  display: flex;
-  flex-flow: row;
-  justify-content: space-between;
-  text-align: right;
-  font-size: 1rem;
-  flex-basis: 4rem;
-  color: $color-gray-light;
-}
-
-.userIconsContainer {
-  @extend .flex-column;
-  text-align: center;
-  flex-basis: 1rem;
-  justify-content: center;
-  transition: 0.3s all;
-  &:hover,
-  &:focus {
-    color: $color-gray;
-  }
-}
-
 .smallTitle {
-  margin-bottom: 0;
   color: $color-text;
   font-size: 0.9rem;
+  font-weight: 700;
   text-transform: uppercase;
-  margin: 10px 30px;
-  margin-bottom: 10px;
+  margin: 0.2rem 1.3rem;
+  margin-bottom: 0.6rem;
 }
 
-.scrollable {
+.scrollableList {
   overflow: auto;
+}
+
+.participants {
+  display: flex;
+  flex-flow: column;
 }

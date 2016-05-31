@@ -11,6 +11,7 @@ let mapUsers = function() {
       isModerator: u.user.role === "MODERATOR",
       isCurrent: u.user.userid === currentUserID,
       isVoiceUser: u.user.voiceUser.joined,
+      isMuted: u.user.voiceUser.muted,
       isListenOnly: u.user.listenOnly,
       isSharingWebcam: u.user.webcam_stream.length
     };
@@ -21,4 +22,6 @@ let mapUsers = function() {
   };
 };
 
-export default { mapUsers };
+export default {
+  mapUsers
+};

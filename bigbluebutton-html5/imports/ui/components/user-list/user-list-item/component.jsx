@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import UserAvatar from '../../user-avatar/component';
 import { FormattedMessage } from 'react-intl';
-import styles from '../styles.scss';
+import styles from './styles.scss';
 import { Link } from 'react-router';
 import classNames from 'classnames/bind';
 let cx = classNames.bind(styles);
@@ -9,27 +10,11 @@ export default class ChatListItem extends Component {
   render() {
     return (
       <li tabIndex='0' className={styles.userListItem}>
-        {this.renderThumbnail()}
+        <UserAvatar user={this.props.user}/>
         {this.renderUserName()}
         {this.renderUserIcons()}
       </li>
     );
-  }
-
-  renderThumbnail() {
-    let user = this.props.user;
-
-    let thumbnailClasses = {};
-    thumbnailClasses[styles.presenter] = user.isPresenter;
-    thumbnailClasses[styles.voiceUser] = user.isVoiceUser;
-    thumbnailClasses[styles.moderator] = user.isModerator;
-    thumbnailClasses[styles.image] = user.image;
-
-    return  (
-      <div className={cx(thumbnailClasses, styles.thumbnail)}>
-        {user.name.slice(0, 1)}
-      </div>
-    )
   }
 
   renderUserName() {
@@ -41,8 +26,8 @@ export default class ChatListItem extends Component {
         <p className={styles.userNameSub}>
           <FormattedMessage
             id="app.userlist.presenter"
-            description="Title for the Header"
-            defaultMessage="Participants"
+            description="Text for identifying presenter user"
+            defaultMessage="Presenter"
           />
         </p>
       );
@@ -51,8 +36,8 @@ export default class ChatListItem extends Component {
         <p className={styles.userNameSub}>
           (<FormattedMessage
             id="app.userlist.you"
-            description="Title for the Header"
-            defaultMessage="Participants"
+            description="Text for identifying your user"
+            defaultMessage="You"
           />)
           </p>
       );
@@ -71,10 +56,13 @@ export default class ChatListItem extends Component {
   renderUserIcons() {
     let user = this.props.user;
 
-    let audioChatIcons = null;
-
+    let audioChatIcon = null;
     if (user.isVoiceUser || user.isListenOnly) {
-      audioChatIcons = user.isListenOnly ? <i className='icon-bbb-listen'></i> : <i className='icon-bbb-audio'></i>;
+      if(user.isMuted) {
+        audioChatIcon = 'icon-bbb-audio-off';
+      } else {
+        audioChatIcon = user.isListenOnly ? 'icon-bbb-listen' : 'icon-bbb-audio';
+      }
     }
 
     return (
@@ -83,9 +71,9 @@ export default class ChatListItem extends Component {
           {user.isSharingWebcam ? <i className='icon-bbb-video'></i> : null}
         </span>
         <span className={styles.userIconsContainer}>
-          {audioChatIcons}
+          <i className={audioChatIcon}></i>
         </span>
-        <span className={styles.userIconsContainer}>
+        <span className={cx(styles.userIconsContainer, styles.cursorPointer)}>
           <i className='icon-bbb-more rotate-quarter'></i>
         </span>
       </div>

@@ -44,7 +44,7 @@ export default class UserList extends Component {
         <h3 className={styles.smallTitle}>
           <FormattedMessage
             id="app.userlist.messagesTitle"
-            description="Title of messages list"
+            description="Title for the messages list"
             defaultMessage="Messages"
           />
         </h3>
@@ -66,9 +66,11 @@ export default class UserList extends Component {
           />
           &nbsp;({this.props.users.length})
         </h3>
-        <ul className={styles.participantsList} tabIndex="1">
-          {this.props.users.map(user => <UserListItem accessibilityLabel={'Status abc'}  accessible={true} key={user.id} user={user}/>)}
-        </ul>
+        <div className={styles.scrollableList}>
+          <ul className={styles.participantsList} tabIndex="1">
+            {this.props.users.map(user => <UserListItem accessibilityLabel={'Status abc'}  accessible={true} key={user.id} user={user}/>)}
+          </ul>
+        </div>
       </div>
     )
   }

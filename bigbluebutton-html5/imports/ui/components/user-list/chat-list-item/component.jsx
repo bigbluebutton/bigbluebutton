@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import styles from '../styles.scss';
+import styles from './styles.scss';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 
