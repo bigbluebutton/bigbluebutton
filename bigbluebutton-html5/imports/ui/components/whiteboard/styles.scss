@@ -17,3 +17,13 @@
   opacity: 1;
   transition: opacity 400ms ease-in;
 }
+
+.whiteboardPaper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100% - 1px);
+  width:100%;
+  overflow: hidden;
+  position: relative;
+}
