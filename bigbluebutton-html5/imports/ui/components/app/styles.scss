@@ -24,6 +24,7 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   display: flex;
   flex: 1;
   flex-direction: column;
+  overflow: hidden;
 
   @include mq($medium-up) {
     flex-direction: row;
