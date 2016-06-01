@@ -125,6 +125,7 @@ const handledMessageTypes = [
   'presentation_shared_message',
   'get_presentation_info_reply',
   'presentation_page_changed_message',
+  'get_presentation_info_reply',
   'presentation_removed_message',
   'get_whiteboard_shapes_reply',
   'send_whiteboard_shape_message',

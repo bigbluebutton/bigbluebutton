@@ -6,7 +6,7 @@ import { createHistory } from 'history';
 // route components
 import AppContainer from '../../ui/components/app/container';
 import {setCredentials, subscribeForData} from '../../ui/components/app/service';
-import UserListContainer from '../../ui/components/user-list/UserListContainer';
+import UserListContainer from '../../ui/components/user-list/container';
 import ChatContainer from '../../ui/components/chat/ChatContainer';
 
 const browserHistory = useRouterHistory(createHistory)({

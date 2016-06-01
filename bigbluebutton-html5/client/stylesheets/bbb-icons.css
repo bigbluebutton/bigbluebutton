@@ -116,3 +116,6 @@
 .icon-bbb-audio-off:before {
     content: "\e91c";
 }
+.rotate-quarter {
+  transform: rotate(-90deg);
+}

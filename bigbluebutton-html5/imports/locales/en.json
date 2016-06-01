@@ -1,3 +1,7 @@
 {
-  "app.home.greeting": "Welcome {name}! Your presentation will begin shortly..."
+  "app.home.greeting": "Welcome {name}! Your presentation will begin shortly...",
+  "app.userlist.participantsTitle": "Participants",
+  "app.userlist.messagesTitle": "Messages",
+  "app.userlist.presenter": "Presenter",
+  "app.userlist.you": "You"
 }

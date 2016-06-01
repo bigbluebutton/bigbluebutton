@@ -28,7 +28,7 @@ eventEmitter.on('user_listening_only', function (arg) {
 
 const handleVoiceEvent = function (arg) {
   const meetingId = arg.payload.meeting_id;
-  const voiceUser = payload.user.voiceUser;
+  const voiceUser = arg.payload.user.voiceUser;
   const voiceUserObj = {
     web_userid: voiceUser.web_userid,
     listen_only: arg.payload.listen_only,
