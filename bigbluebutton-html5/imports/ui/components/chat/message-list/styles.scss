@@ -1,0 +1,12 @@
+@import "imports/ui/stylesheets/variables/_all";
+@import "imports/ui/stylesheets/placeholders/_scrollable";
+
+.messageList {
+  @extend %scrollbox-vertical;
+  flex-flow: column;
+  flex-grow: 1;
+  flex-grow: 1;
+  flex-shrink: 1;
+  margin-right: -$line-height-computed;
+  padding-right: $line-height-computed;
+}

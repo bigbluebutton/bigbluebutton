@@ -2,30 +2,39 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import Chat from './component';
+import ChatService from './service';
+
+const PUBLIC_CHAT_KEY = 'public';
 
 class ChatContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      currentChat: null,
-    };
-  }
-
-  componentDidMount() {
-    const chatID = this.props.params.id || 'public';
-    this.setState({ currentChat: chatID });
   }
 
   render() {
-    const { chatID, ...props } = this.props.params;
     return (
-      <Chat currentChat={chatID} {...props}>
+      <Chat {...this.props}>
         {this.props.children}
       </Chat>
     );
   }
 }
 
-export default createContainer(() => {
-  return {};
+export default createContainer(({ params }) => {
+  const chatID = params.chatID || PUBLIC_CHAT_KEY;
+
+  let messages = [];
+
+  if (chatID === PUBLIC_CHAT_KEY) {
+    title = 'Public Chat';
+    messages = ChatService.getPublicMessages();
+  } else {
+    title = 'Username';
+    messages = ChatService.getPrivateMessages(chatID);
+  }
+
+  return {
+    title,
+    messages,
+  };
 }, ChatContainer);

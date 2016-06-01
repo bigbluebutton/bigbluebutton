@@ -1,0 +1,43 @@
+@import "imports/ui/stylesheets/variables/_all";
+
+.form {
+  flex-grow: 0;
+  flex-shrink: 0;
+  align-self: flex-end;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 0;
+  flex-shrink: 0;
+  border: $border-size solid $color-gray-lighter;
+  background: #fff;
+  border-radius: $border-radius 0 0 $border-radius;
+  color: $color-gray-lighter;
+  padding: $sm-padding-y $sm-padding-x;
+}
+
+.input {
+  flex: 1;
+  background: #fff;
+  border: $border-size solid $color-gray-lighter;
+  border-left: none;
+  background-clip: padding-box;
+  margin: 0;
+  color: $color-gray;
+  -webkit-appearance: none;
+  box-shadow: none;
+  outline: 0;
+  padding: $sm-padding-y $sm-padding-x;
+  resize: none;
+  transition: none;
+  border-radius: 0 $border-radius $border-radius 0;
+  font-size: $font-size-base * .90;
+  min-height: 4rem;
+  max-height: 10rem;
+}

@@ -16,19 +16,19 @@ $btn-danger-color: $color-white;
 $btn-danger-bg: $color-danger;
 $btn-danger-border: $color-danger;
 
-$btn-border-size: 2px;
-$btn-border-radius: .2rem;
+$btn-border-size: $border-size;
+$btn-border-radius: $border-radius;
 $btn-font-weight: 600;
 $btn-spacing: .35rem;
 
 $btn-sm-font-size: $font-size-small * .85;
-$btn-sm-padding: .25rem .75rem;
+$btn-sm-padding: $sm-padding-y $sm-padding-x;
 
 $btn-md-font-size: $font-size-base * .85;
-$btn-md-padding: .375rem 1rem;
+$btn-md-padding: $md-padding-y $md-padding-x;
 
 $btn-lg-font-size: $font-size-large * .85;
-$btn-lg-padding: .5rem 1.25rem;
+$btn-lg-padding: $lg-padding-y $lg-padding-x;
 
 /* Base
  * ==========

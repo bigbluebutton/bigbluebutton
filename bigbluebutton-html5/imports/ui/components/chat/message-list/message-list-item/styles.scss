@@ -1,0 +1,65 @@
+@import "imports/ui/stylesheets/variables/_all";
+
+.item {
+  display: flex;
+  flex-flow: row;
+  flex: 1;
+  margin-bottom: $line-height-computed;
+  font-size: $font-size-base * .90;
+}
+
+.avatar {
+  flex-basis: 1.7rem;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-flow: column;
+  overflow: hidden;
+  margin-left: $line-height-computed / 2;
+}
+
+.meta {
+  display: flex;
+  flex: 1;
+  flex-flow: row;
+
+  & + .message {
+    margin-top: 0;
+  }
+}
+
+.name {
+  display: flex;
+  min-width: 0;
+  font-weight: 600;
+  color: $color-gray;
+
+  > span {
+    @extend %text-elipsis;
+  }
+}
+
+.time {
+  flex-shrink: 0;
+  flex-grow: 0;
+  flex-basis: 3.5rem;
+  color: $color-gray-light;
+  text-transform: uppercase;
+  font-size: 75%;
+  margin-left: $line-height-computed / 2;
+
+  > span {
+    vertical-align: sub;
+  }
+}
+
+.message {
+  flex: 1;
+  margin-top: $line-height-computed / 2;
+  margin-bottom: 0;
+  color: $color-text;
+}
