@@ -1,9 +1,10 @@
 import { eventEmitter } from '/imports/startup/server';
 import { addChatToCollection } from '/imports/api/chat/server/modifiers/addChatToCollection';
 import Meetings from '/imports/api/meetings';
+import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 
 eventEmitter.on('get_chat_history_reply', function (arg) {
-  if (arg.payload.requester_id === 'nodeJSapp') { //TODO extract this check
+  if (inReplyToHTML5Client(arg)) {
     const meetingId = arg.payload.meeting_id;
     if (Meetings.findOne({
         meetingId: meetingId,

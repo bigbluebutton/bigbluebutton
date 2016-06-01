@@ -1,5 +1,5 @@
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import { appendMessageHeader, publish } from '/imports/startup/server/helpers';
+import { appendMessageHeader, publish } from '/imports/api/common/server/helpers';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import { logger } from '/imports/startup/server/logger';

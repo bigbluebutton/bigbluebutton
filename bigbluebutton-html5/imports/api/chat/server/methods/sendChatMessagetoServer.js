@@ -1,7 +1,7 @@
-import { publish } from '/imports/startup/server/helpers';
+import { publish } from '/imports/api/common/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import { appendMessageHeader } from '/imports/startup/server/helpers';
-import { translateHTML5ToFlash } from '/imports/startup/server/helpers';
+import { appendMessageHeader } from '/imports/api/common/server/helpers';
+import { translateHTML5ToFlash } from '/imports/api/common/server/helpers';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
