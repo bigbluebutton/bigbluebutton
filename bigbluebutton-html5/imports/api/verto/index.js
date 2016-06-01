@@ -1,31 +1,35 @@
-import Meetings from '/imports/api/users';
+import {clientConfig} from '/config';
+import {getVoiceBridge} from '/imports/api/phone';
 
-function joinAudio(options) {
-  // joinVertoCall()
+function createVertoUserName() {
+  const uid = getInStorage('userID');
+  const uName = Users.findOne({ userId: uid }).user.name;
+  const conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
+  return conferenceUsername;
 }
 
-function watchVideo(options) {
-  // joinVertoCall()
+function joinVertoAudio(options) {
+  joinVertoCall(options);
+}
+
+function watchVertoVideo(options) {
+  joinVertoCall(options);
 }
 
 function joinVertoCall(options) {
-  let extension = null;
-  if (options.extension) {
-    extension = options.extension;
-  } else {
-    extension = Meetings.findOne().voiceConf;
-  }
+  console.log('joinVertoCall');
+  const extension = options.extension || getVoiceBridge();
 
   if (!isWebRTCAvailable()) {
     return;
   }
 
-  if (!Meteor.config.useSIPAudio) {
+  if (!clientConfig.useSIPAudio) {
     const vertoServerCredentials = {
-      vertoPort: Meteor.config.vertoPort,
-      hostName: Meteor.config.vertoServerAddress,
+      vertoPort: clientConfig.media.vertoPort,
+      hostName: clientConfig.media.vertoServerAddress,
       login: conferenceIdNumber,
-      password: Meteor.config.freeswitchProfilePassword,
+      password: clientConfig.media.freeswitchProfilePassword,
     };
 
     let wasCallSuccessful = false;
@@ -55,3 +59,9 @@ function joinVertoCall(options) {
     return;
   }
 }
+
+export {
+  createVertoUserName,
+  joinVertoAudio,
+  watchVertoVideo,
+};

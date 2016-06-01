@@ -37,13 +37,14 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.model.users.UsersModel;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+	import org.bigbluebutton.util.QueryStringParameters;
         	
 	public class JoinService
 	{  
 		private static const LOGGER:ILogger = getClassLogger(JoinService);      
     
 		private var request:URLRequest = new URLRequest();
-		private var vars:URLVariables = new URLVariables();
+		private var reqVars:URLVariables = new URLVariables();
 		
 		private var urlLoader:URLLoader;
 		private var _resultListener:Function;
@@ -53,14 +54,21 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function load(url:String):void {
+			var p:QueryStringParameters = new QueryStringParameters();
+			p.collectParameters();
+			var sessionToken:String = p.getParameter("sessionToken");
+			
+			reqVars.sessionToken = sessionToken;
+			
 			var date:Date = new Date();
-      request = new URLRequest(url);
-      request.method = URLRequestMethod.GET;		
+            request = new URLRequest(url);
+            request.method = URLRequestMethod.GET;
+			request.data = reqVars;
             
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
 			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-      urlLoader.load(request);	
+            urlLoader.load(request);	
 		}
 
 		public function addJoinResultListener(listener:Function):void {
@@ -95,6 +103,7 @@ package org.bigbluebutton.main.model.users
         response.conferenceName = result.response.confname;
         response.externMeetingID = result.response.externMeetingID;
         response.meetingID = result.response.meetingID;
+        response.isBreakout = result.response.isBreakout;
         response.externUserID = result.response.externUserID;
         response.internalUserId = result.response.internalUserID;
         response.role = result.response.role;
@@ -139,12 +148,12 @@ package org.bigbluebutton.main.model.users
                                              .withExternalId(response.externMeetingID).withRecorded(response.record.toUpperCase() == "TRUE")
                                              .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
                                              .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
-                                             .withAllowStartStopRecording(response.allowStartStopRecording)
+                                             .withAllowStartStopRecording(response.allowStartStopRecording).withBreakout(response.isBreakout)
                                              .build();
-        
+
 				if (_resultListener != null) _resultListener(true, response);
 			}
-			
+
 		}
 		 
 		public function get loader():URLLoader{

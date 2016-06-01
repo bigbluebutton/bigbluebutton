@@ -141,8 +141,8 @@ eventEmitter.on('get_presentation_info_reply', function (arg) {
         }
       }
     }
-
-    return arg.callback();
   }
+
+  return arg.callback();
 });
 

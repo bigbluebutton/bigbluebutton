@@ -1,4 +1,5 @@
 import { Polls } from '/imports/api/polls';
+import {callServer} from '/imports/ui/services/api';
 
 let mapPolls = function () {
   let poll = Polls.findOne({});
@@ -16,8 +17,7 @@ let mapPolls = function () {
     pollExists: true,
     amIRequester: amIRequester,
     handleVote: function (pollId, answerId) {
-      Meteor.call('publishVoteMessage', pollId, answerId.id, 'getMeetingId',
-        'userId', 'authToken');
+      callServer('publishVoteMessage', pollId, answerId.id);
     },
   };
 };

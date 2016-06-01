@@ -96,10 +96,12 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
 .userList {
   @extend %full-page;
   z-index: 2;
+  background: green;
+  overflow: hidden;
 
   @include mq($small-only) {
     padding-top: $navbar-height;
-  }
+  }  
 
   @include mq($small-only) {
     padding-top: $navbar-height;

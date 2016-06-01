@@ -11,8 +11,6 @@ public class StartCustomPollRequestMessageTest {
 
 	@Test
 	public void testStartCustomPollRequestMessage() {
-		System.out.println("FOOO!");
-		
 		StartCustomPollRequestMessage msg = new StartCustomPollRequestMessage();
 		MessageHeader header = new MessageHeader();
 		header.name = "start_custom_poll";

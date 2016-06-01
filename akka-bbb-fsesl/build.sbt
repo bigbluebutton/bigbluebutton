@@ -52,7 +52,7 @@ libraryDependencies ++= {
     "com.google.code.gson"      %  "gson"              % "1.7.1",
     "redis.clients"             %  "jedis"             % "2.1.0",
     "org.apache.commons"        %  "commons-lang3"     % "3.2",
-    "org.bigbluebutton"         %  "bbb-common-message" % "0.0.17",
+    "org.bigbluebutton"         %  "bbb-common-message" % "0.0.18-SNAPSHOT",
     "org.bigbluebutton"         %  "bbb-fsesl-client"   % "0.0.4"
   )}
 
