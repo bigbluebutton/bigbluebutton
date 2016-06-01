@@ -4,10 +4,10 @@ import { Router, Route, Redirect, IndexRoute,
 import { createHistory } from 'history';
 
 // route components
-import AppContainer from '../../ui/components/app/container.jsx';
-import {setCredentials, subscribeForData} from '../../ui/components/app/service.js';
-import UserListContainer from '../../ui/components/user-list/container.jsx';
-import ChatContainer from '../../ui/components/chat/ChatContainer.jsx';
+import AppContainer from '../../ui/components/app/container';
+import {setCredentials, subscribeForData} from '../../ui/components/app/service';
+import UserListContainer from '../../ui/components/user-list/container';
+import ChatContainer from '../../ui/components/chat/ChatContainer';
 
 const browserHistory = useRouterHistory(createHistory)({
   basename: '/html5client',
