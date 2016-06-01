@@ -171,7 +171,6 @@ docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callb
 	outgoingBandwidth = "default";
 	incomingBandwidth = "default";
 	var useVideo = useCamera = useMic = false;
-	// debugger;
 	if(options.watchOnly) {
 		window.watchOnly = true;
 		window.listenOnly = false;
@@ -184,15 +183,15 @@ docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callb
 		window.watchOnly = false;
 		window.joinAudio = false;
 		useVideo = false;
-		useCamera = false;
-		useMic = false;
+		useCamera = 'none';
+		useMic = 'none';
 	} else if(options.joinAudio) {
 		window.joinAudio = true;
 		window.watchOnly = false;
 		window.listenOnly = false;
 		useVideo = false;
-		useCamera = false;
-		useMic = true;
+		useCamera = 'none';
+		useMic = 'any';
 	}
 
 	cur_call = verto.newCall({
