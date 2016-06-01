@@ -8,17 +8,81 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 export default class Whiteboard extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      paperWidth: 0,
+      paperHeight: 0,
+      showSlide: false,
+    };
   }
 
-  render() {
-    return (
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
 
-      <div
-        id="whiteboard-paper"
-        style={this.props.svgStyle}
-      >
-        <div id="svggroup">
-        { this.props.current_slide ?
+  componentDidMount() {
+    window.addEventListener('resize', this.handleResize.bind(this));
+    this.setState({
+      paperHeight: this.refs.whiteboardPaper.parentNode.clientHeight,
+      paperWidth: this.refs.whiteboardPaper.parentNode.clientWidth,
+      showSlide: true,
+    });
+  }
+
+  calculateSize() {
+    let originalWidth;
+    let originalHeight;
+    let adjustedWidth;
+    let adjustedHeight;
+
+    originalWidth = this.props.current_slide.slide.width;
+    originalHeight = this.props.current_slide.slide.height;
+
+    //Slide has a portrait orientation
+    if (originalWidth <= originalHeight) {
+      adjustedWidth = this.state.paperHeight * originalWidth / originalHeight;
+      if (this.state.paperWidth < adjustedWidth) {
+        adjustedHeight = this.state.paperHeight * this.state.paperWidth / adjustedWidth;
+        adjustedWidth = this.state.paperWidth;
+      } else {
+        adjustedHeight = this.state.paperHeight;
+      }
+
+      //Slide has a landscape orientation
+    } else {
+      adjustedHeight = this.state.paperWidth * originalHeight / originalWidth;
+      if (this.state.paperHeight < adjustedHeight) {
+        adjustedWidth = this.state.paperWidth * this.state.paperHeight / adjustedHeight;
+        adjustedHeight = this.state.paperHeight;
+      } else {
+        adjustedWidth = this.state.paperWidth;
+      }
+    }
+
+    return {
+      width: adjustedWidth,
+      height: adjustedHeight,
+    };
+  }
+
+  handleResize() {
+    this.setState({
+      paperHeight: this.refs.whiteboardPaper.parentNode.clientHeight,
+      paperWidth: this.refs.whiteboardPaper.parentNode.clientWidth,
+    });
+  }
+
+  renderWhiteboard() {
+    if (this.props.current_slide) {
+      let adjustedSizes = this.calculateSize();
+      return (
+        <div
+          id="svggroup"
+          style={{
+            width: adjustedSizes.width,
+            height: adjustedSizes.height,
+            backgroundColor: 'white',
+          }}
+        >
           <ReactCSSTransitionGroup
             transitionName={ {
               enter: styles.enter,
@@ -35,12 +99,19 @@ export default class Whiteboard extends React.Component {
           >
             <svg
               {...this.props.svgProps}
+              width={adjustedSizes.width}
+              height={adjustedSizes.height}
+              viewBox={ '0 0 ' + adjustedSizes.width + ' ' + adjustedSizes.height}
               version="1.1"
               xmlNS="http://www.w3.org/2000/svg"
               style={this.props.svgStyle}
               key={this.props.current_slide.slide.id}
             >
-              <Slide current_slide={this.props.current_slide} />
+              <Slide
+                current_slide={this.props.current_slide}
+                paperWidth={adjustedSizes.width}
+                paperHeight={adjustedSizes.height}
+              />
               { this.props.shapes ? this.props.shapes.map((shape) =>
                 <WhiteboardShapeModel
                   shape={shape}
@@ -50,8 +121,22 @@ export default class Whiteboard extends React.Component {
               : null }
             </svg>
           </ReactCSSTransitionGroup>
-        : null }
         </div>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  render() {
+    return (
+      <div
+        ref="whiteboardPaper"
+        className={styles.whiteboardPaper}
+      >
+        {this.state.showSlide ?
+          this.renderWhiteboard()
+        : null }
       </div>
     );
   }
@@ -59,10 +144,7 @@ export default class Whiteboard extends React.Component {
 
 Whiteboard.defaultProps = {
   svgProps: {
-    width:'1134',
-    height:'850.5',
     preserveAspectRatio: 'xMinYMin slice',
-    viewBox:'0 0 1134 850.5',
   },
   svgStyle: {
     overflow: 'hidden',

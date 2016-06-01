@@ -11,7 +11,8 @@ export default class Slide extends React.Component {
       <g>
         {this.props.current_slide ?
           <image x="0" y="0"
-            width="1134" height="850.7076923076924"
+            width={this.props.paperWidth}
+            height={this.props.paperHeight}
             preserveAspectRatio="none"
             xlink="http://www.w3.org/1999/xlink"
             xlinkHref={this.props.current_slide.slide.img_uri}

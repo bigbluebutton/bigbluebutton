@@ -42,12 +42,14 @@ class MediaContainer extends Component {
   }
 
   render() {
-    return (
-      <Media overlay={this.state.overlay} content={this.state.content}>
+    /* an example of toggleLayout button
         <Button
           label="Toggle Layout"
           style={{ position: 'absolute', top: '10px', left: '10px' }}
           onClick={this.handleToggleLayout} />
+    */
+    return (
+      <Media overlay={this.state.overlay} content={this.state.content}>
         {this.props.children}
       </Media>
     );
