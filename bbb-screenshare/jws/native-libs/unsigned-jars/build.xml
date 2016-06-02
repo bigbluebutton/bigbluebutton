@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<project name="bbb-deskshare-applet" basedir=".">	
+	<!-- How to sign the applet. From Ant in Action book -->
+
+	<!-- Sign jar with Certificate using pkcs12 file -->
+	<target name="check-certificate">
+		<input message="Enter cetificate filename:" addproperty="cert.name" />
+		<input message="Enter cetificate password:" addproperty="cert.password" />
+                <exec executable="/usr/bin/keytool" outputproperty="cert.info">
+			<arg line="-list" />
+			<arg line="-storetype pkcs12" />
+                        <arg line="-keystore ${cert.name}" />
+			<arg line="-storepass ${cert.password}" />
+			<arg line="-v" /> 
+		</exec>
+        </target>
+
+	<target name="get-alias-name" depends="check-certificate">
+		<script language="javascript">
+        		<![CDATA[
+			// getting the value
+                	info = project.getProperty("cert.info");
+                	alias = (info.match(/Alias name:(.*)/)[0]).replace("Alias name: ","");
+                	project.setProperty("cert.alias",alias);
+            		]]>
+    		</script> 
+	</target>
+		
+  <target name="sign-javacpp-jar" depends="get-alias-name">
+     <signjar jar="workdir/javacpp.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+  <target name="sign-ffmpeg-jar" depends="get-alias-name">
+      <signjar jar="workdir/ffmpeg.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+  <target name="sign-javacv-jar" depends="get-alias-name">
+      <signjar jar="workdir/javacv.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+</project>

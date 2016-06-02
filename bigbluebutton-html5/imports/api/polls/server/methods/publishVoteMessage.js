@@ -1,6 +1,6 @@
-import { publish } from '/imports/startup/server/helpers';
+import { publish } from '/imports/api/common/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import { appendMessageHeader } from '/imports/startup/server/helpers';
+import { appendMessageHeader } from '/imports/api/common/server/helpers';
 import Polls from '/imports/api/polls';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';

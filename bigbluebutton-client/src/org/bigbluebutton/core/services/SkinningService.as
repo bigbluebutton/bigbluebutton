@@ -21,12 +21,15 @@ package org.bigbluebutton.core.services
 	import mx.styles.IStyleManager2;
 	import mx.styles.StyleManager;
 	
+	import org.bigbluebutton.core.BBB;
+	
 	public class SkinningService
 	{
 		private var myStyleManager: IStyleManager2;
 		
-		public function loadSkins(skin:String):void {
+		public function loadSkins():void {
 		//	IStyleManager2.loadStyleDeclarations(skin);
+			var skin:String = BBB.getConfigManager().config.skinning.url;
 			if (skin != "") {
 				myStyleManager = StyleManager.getStyleManager(null);
 				myStyleManager.loadStyleDeclarations(skin); 

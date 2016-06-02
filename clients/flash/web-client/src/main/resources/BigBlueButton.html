@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <style type="text/css" media="screen">
+      html, body, #content    { height:100%; }
+      body                                    { margin:0; padding:0; overflow:hidden; }
+      #altContent                             { /* style alt content */ }
+      .visually-hidden {
+        position: absolute !important;
+        clip: rect(1px 1px, 1px, 1px);
+        clip: rect(1px, 1px, 1px, 1px);
+        padding: 0 !important;
+        border: 0 !important;
+        height: 1px !important;
+        width: 1px !important;
+        overflow: hidden;
+      }
+
+      #deployJavaPlugin {
+        display : none;
+      }
+    </style>
+
+    <script type="text/javascript" src="swfobject/swfobject.js"></script>
+    <script src="lib/deployJava.js?v=VERSION" language="javascript"></script>
+    <script type="text/javascript">
+      // Check for Firefox 41.0.1/2 to workaround Flash hang
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1210665
+      var ffHangWorkaround = function() {
+        if (navigator.userAgent.indexOf("Windows") != -1 &&
+          (navigator.userAgent.indexOf("Firefox/41.0") != -1 &&
+            navigator.buildID > "20150928" &&
+            navigator.buildID < "20151015")) {
+            console.log("Browser appears to be Firefox 41.0.1 or .2 on Windows");
+            return true;
+        }
+        return false;
+      };
+
+      //swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
+      var flashvars = {};
+      var params = {};
+      params.quality = "high";
+      params.bgcolor = "#869ca7";
+      params.allowfullscreen = "true";
+      if (ffHangWorkaround()) {
+        console.log("Applying Firefox Flash hang workaround");
+	// wmode = opaque causes button clicks to be sometimes unresponsive,
+	// and right-click in particular is unreliable. It disables Flash
+	// permission prompts on Linux (causing webcams, flash voice to be
+	// unusable there). But it's better than a browser hang...
+        params.wmode = "opaque";
+      } else {
+        params.wmode = "window";
+      }
+      params.allowscriptaccess = "true";
+      params.seamlesstabbing = "true";
+      var attributes = {};
+      attributes.id = "BigBlueButton";
+      attributes.name = "BigBlueButton";
+      attributes.align = "middle";
+      attributes.tabIndex = 0;
+      swfobject.embedSWF("bbb-web-client.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes, embedCallback);
+
+      function embedCallback(e) {
+        // Work around pixel alignment bug with Chrome 21 on Mac.
+        // See: http://code.google.com/p/bigbluebutton/issues/detail?id=1294
+        var objs = $('object');
+        objs.each(function(i, o) {
+          var o = $(o);
+          var top = o.offset().top;
+          var left = o.offset().left;
+          var roundtop = Math.round(top);
+          var roundleft = Math.round(left);
+          o.css("position", "relative");
+          if (roundtop === top) {
+          } else {
+            o.css("top", roundtop - top);
+          }
+          if (roundleft === left) {
+          } else {
+            o.css("left", roundleft - left);
+          }
+        });
+      }
+    </script>
+    <!--<script src="lib/jquery-1.5.1.min.js?v=VERSION" language="javascript"></script>-->
+    <script src="lib/jquery-2.1.1.min.js" language="javascript"></script>
+    <script src="lib/bbblogger.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bigbluebutton.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_localization.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_screenshare.js" language="javascript"></script>
+
+    <!--<script src="lib/jquery.mobile.min.js" language="javascript"></script>-->
+    <script src="lib/jquery.json-2.4.min.js" language="javascript"></script>
+    <script src="lib/jquery.cookie.js" language="javascript"></script>
+    <!--<script src="lib/jquery.dataTables.min.js" language="javascript"></script>-->
+
+    <script src="lib/getScreenId.js" language="javascript"></script>
+    <script src="lib/jquery.FSRTC.js" language="javascript"></script>
+    <script src="lib/jquery.jsonrpcclient.js" language="javascript"></script>
+    <script src="lib/jquery.verto.js" language="javascript"></script>
+    <script src="lib/Screen-Capturing.js" language="javascript"></script>
+    <script src="lib/verto_extension.js" language="javascript"></script>
+    <script src="lib/verto_extension_share.js" language="javascript"></script>
+
+    <script src="lib/bbb_deskshare.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
+    <script src="lib/sip.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script>
+    <script src="lib/weburl_regex.js?v=VERSION" language="javascript"></script>
+    <script src="lib/jsnlog.min.js?v=VERSION" language="javascript"></script>
+    <script>
+      window.chatLinkClicked = function(url) {
+        window.open(url, '_blank');
+        window.focus();
+      }
+    </script>
+    <script type="text/javascript">
+      window.onload = function() {
+        var checkRequest = $.ajax({
+           dataType: 'json',
+           url: '/html5client/check'
+        });
+        checkRequest.done(function(data) {
+          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus === "running" && document.getElementById('html5Section') != null) {
+            document.getElementById('html5Section').style.display='inherit';
+          }
+        });
+      };
+
+      function html5() {
+        // no Flash detected on the client
+        var originalPath, enterRequest, authToken, meetingId, userId;
+        originalPath = document.location.pathname;
+
+        // use the enter api to detect the meetingid, userid and authToken
+        // and reuse them to join via the HTML5 client
+        enterRequest = $.ajax({
+           dataType: 'json',
+           url: '/bigbluebutton/api/enter'
+        });
+
+        enterRequest.done(function(enterData) {
+          meetingId = enterData.response.meetingID;
+          userId = enterData.response.externUserID;
+          authToken = enterData.response.authToken;
+
+          if ((meetingId != null) && (userId != null) && (authToken != null)) {
+            // redirect to the html5 client with the received info
+            // format <IP>/html5client/<meetingId>/<userId>/<authToken>
+            document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
+          } else {
+            // go back to the redirection page
+            document.location.pathname = originalPath;
+          }
+        });
+
+        enterRequest.fail(function(enterData, textStatus, errorThrown){
+          BBBLog.debug("Enter request failed");
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    <div>
+      <audio id="remote-media" autoplay="autoplay"></audio>
+      <video id="localVertoVideo" autoplay="autoplay" style="display: none;">
+          <p>Your browser doesn't support HTML5 video.</p>
+      </video>
+    </div>
+    <div id="accessibile-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="visually-hidden">0 %</div>
+    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
+    <div id="content">
+      <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
+        <h2>You need Flash installed and enabled in order to use the Flash client.</h2>
+        <br/>
+        <div style="width:50%; margin-left: auto; margin-right: auto; ">
+          <a href="http://www.adobe.com/go/getflashplayer">
+            <img src="get_flash_player.gif" alt="Get Adobe Flash player" />
+          </a>
+          <div id="html5Section" style="display:none">
+            <p style="margin-left:50px;" >OR</p>
+            <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="clientReady" aria-atomic="false" aria-live="polite" class="visually-hidden"></div>
+  </body>
+</html>

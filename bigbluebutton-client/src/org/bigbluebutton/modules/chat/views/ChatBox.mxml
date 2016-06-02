@@ -79,10 +79,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.UserJoinedEvent;
 			import org.bigbluebutton.main.events.UserLeftEvent;
@@ -149,8 +151,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
       
 			private function onCreationComplete():void {    
-        		bindToHeightToDetermineHeightOfMessageList();
-        						
+				bindToHeightToDetermineHeightOfMessageList();
+				
 				addContextMenuItems();
 				scrollTimer = new Timer(750, 1);
 				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
@@ -163,26 +165,38 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing	
 				
-		        hotkeyCapture();
-			
-		        // Listen for the ENTER key to send the message.
-		        txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
+				hotkeyCapture();
+				
+				// Listen for the ENTER key to send the message.
+				txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
 				txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, handleMsgAreaKeyDown);
-
-		        queryForChatHistory();
-
-		        if(chatMessagesList.accessibilityProperties == null)
-		        	chatMessagesList.accessibilityProperties = new AccessibilityProperties();
-
+				
+				queryForChatHistory();
+				
+				if(chatMessagesList.accessibilityProperties == null)
+					chatMessagesList.accessibilityProperties = new AccessibilityProperties();
+				
 				chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
 				
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
 				
-        LOGGER.debug(" onCreationComplete. Apply lock settings");
-        applyLockSettings();
+				if (publicChat && UserManager.getInstance().getConference().isBreakout){
+					var timerListener : Listener = new Listener();
+					timerListener.type = BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT;
+					timerListener.method = handleRemaininTimeBreakout;
+					timerBox.visible = timerBox.includeInLayout = true;
+					timerBox.height = 60;
+				}
+				
+				LOGGER.debug(" onCreationComplete. Apply lock settings");
+				applyLockSettings();
 			}
-			
+
+			private function handleRemaininTimeBreakout(e:BreakoutRoomEvent):void {
+				TimerUtil.setCountDownTimer(timerLabel, e.durationInMinutes);
+			}
+
 			private function focusChatBox(e:ShortcutEvent):void{
 				focusManager.setFocus(chatMessagesList);
 			}
@@ -758,34 +772,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	</mx:Script>
 
-  <common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
-	
-  <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
-             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
-             dataProvider="{chatMessages.messages}"
-             accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
-  </mx:HBox>
-  
-  <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
-           paddingLeft="5" paddingRight="5">	
-	<mx:VBox width="100%" height="100%">
-	  <mx:TextArea id="txtMsgArea" width="100%" height="100%"
-	               styleName="chatControlBarTextMsgStyle"
-				   change="txtMsgAreaChangeHandler(event)"
-	               toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
-			       accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
-	  <mx:Label id="msgTooLongLabel" width="100%" height="100%" includeInLayout="false" visible="false"/>
+	<common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
+
+	<mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
+		<chat:AdvancedList width="100%" height="{chatListHeight - timerBox.height}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
+						   itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
+						   dataProvider="{chatMessages.messages}"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
+		<mx:HBox id="timerBox" backgroundColor="0xcccccc"
+				 includeInLayout="false" visible="false"
+				 width="100%" height="0" verticalAlign="middle" horizontalAlign="center">
+			<mx:Label id="timerLabel" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"/>
+		</mx:HBox>
 	</mx:VBox>
-    <mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
-      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
-                 styleName="chatControlBarSendButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
-                 click="sendMessages()"
-                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>  
-		<mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}" includeInLayout="{chatOptions.colorPickerIsVisible}" 
-						toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
-    </mx:VBox>
-  </mx:HBox>	
+
+	<mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
+			 paddingLeft="5" paddingRight="5">	
+		<mx:VBox width="100%" height="100%">
+			<mx:TextArea id="txtMsgArea" width="100%" height="100%"
+						 styleName="chatControlBarTextMsgStyle"
+						 change="txtMsgAreaChangeHandler(event)"
+						 toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
+						 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
+			<mx:Label id="msgTooLongLabel" width="100%" height="100%" includeInLayout="false" visible="false"/>
+		</mx:VBox>
+		<mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
+			<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
+					   styleName="chatControlBarSendButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
+					   click="sendMessages()"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>  
+			<mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}"
+							includeInLayout="{chatOptions.colorPickerIsVisible}" 
+							toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
+							selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
+		</mx:VBox>
+	</mx:HBox>	
 </mx:VBox>

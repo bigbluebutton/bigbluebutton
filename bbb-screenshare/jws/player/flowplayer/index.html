@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <script src="example/flowplayer-3.2.6.min.js"></script>
+  </head>
+  <body>
+
+    <a class="rtmp" href="320x2401-1328884730718" style="display:block;width:320px;height:240px;" id="player">stream</a>
+
+    <script language="JavaScript">
+      $f("a.rtmp", "flowplayer-3.2.7.swf", {
+        clip: {
+          url: '320x2401-1328884730718',
+          provider: 'rtmp',
+          live: true,
+          bufferLength: 1,
+          autoPlay: true,
+        },
+        plugins: {
+          rtmp: {
+            url: 'flowplayer.rtmp-3.2.3.swf',
+            netConnectionUrl: 'rtmp://143.54.12.217/video/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1328884719358'
+          }
+        }
+      });
+    </script>
+
+  </body>
+</html>
+

@@ -1,14 +1,14 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.LiveMeeting
 
 case class Whiteboard(id: String, shapes: Seq[AnnotationVO])
 
 trait WhiteboardApp {
-  this: MeetingActor =>
+  this: LiveMeeting =>
 
   val outGW: OutMessageGateway
 

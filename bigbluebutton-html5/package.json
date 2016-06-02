@@ -3,7 +3,7 @@
   "description": "BigBlueButton HTML5 Client",
   "scripts": {
     "start": "cd app;./start.sh",
-    "preinstall": "sudo npm install -g grunt-cli",
+    "preinstall": "npm install grunt-cli",
     "test": "cd app;JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 meteor run --test",
     "lint": "node_modules/jscs/bin/jscs *",
     "autofix": "node_modules/jscs/bin/jscs * --fix"
@@ -11,6 +11,7 @@
   "dependencies": {
     "classnames": "^2.2.3",
     "history": "^2.1.1",
+    "meteor-node-stubs": "^0.2.3",
     "react": "^15.0.1",
     "react-addons-pure-render-mixin": "^15.0.1",
     "react-dom": "^15.0.1",
@@ -19,7 +20,8 @@
     "react-modal": "^1.2.1",
     "react-router": "^2.4.0",
     "react-addons-css-transition-group": "^15.1.0",
-    "underscore": "~1.8.3"
+    "underscore": "~1.8.3",
+    "react-autosize-textarea": "~0.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",

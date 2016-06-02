@@ -56,6 +56,5 @@ public class EjectUserFromMeetingRequestMessage implements ISubscribedMessage {
 			}
 		}
 		return null;
-
 	}
 }

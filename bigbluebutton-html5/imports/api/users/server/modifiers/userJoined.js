@@ -2,6 +2,22 @@ import Chat from '/imports/api/chat';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
+import { clientConfig } from '/config';
+
+const BREAK_TAG = '<br/>';
+
+const parseMessage = (message) => {
+  message = message || '';
+
+  // Replace \r and \n to <br/>
+  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_TAG + '$2');
+
+  // Replace flash links to html valid ones
+  message = message.split(`<a href='event:`).join(`<a target="_blank" href='`);
+  message = message.split(`<a href="event:`).join(`<a target="_blank" href="`);
+
+  return message;
+};
 
 export function userJoined(meetingId, user, callback) {
   let userObject, userId, welcomeMessage, meetingObject;
@@ -67,11 +83,11 @@ export function userJoined(meetingId, user, callback) {
       meetingId: meetingId,
     });
     if (meetingObject != null) {
-      welcomeMessage = Meteor.config.defaultWelcomeMessage.replace(/%%CONFNAME%%/,
+      welcomeMessage = clientConfig.defaultWelcomeMessage.replace(/%%CONFNAME%%/,
           meetingObject.meetingName);
     }
 
-    welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter;
+    welcomeMessage = welcomeMessage + clientConfig.defaultWelcomeMessageFooter;
 
     // add the welcome message if it's not there already OR update time_of_joining
     return Chat.upsert({
@@ -84,7 +100,7 @@ export function userJoined(meetingId, user, callback) {
       userId: userId,
       message: {
         chat_type: 'SYSTEM_MESSAGE',
-        message: welcomeMessage,
+        message: parseMessage(welcomeMessage),
         from_color: '0x3399FF',
         to_userid: userId,
         from_userid: 'SYSTEM_MESSAGE',

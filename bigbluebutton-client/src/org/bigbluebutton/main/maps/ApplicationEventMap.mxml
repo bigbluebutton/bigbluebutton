@@ -37,6 +37,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<!--ObjectBuilder generator="{StreamMonitor}" cache="global" /-->
 	</EventHandlers>
 	
+	<EventHandlers type="{LoadConfigCommand.LOAD_CONFIG_COMMAND}" >
+		<MethodInvoker generator="{ModulesProxy}" method="handlLoadConfig" />
+	</EventHandlers>
+		
 	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
 		<MethodInvoker generator="{ModulesProxy}" method="testRTMP" />
 	</EventHandlers>
@@ -61,9 +65,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
 	</EventHandlers>
 		
-	<EventHandlers type="{ConfigEvent.CONFIG_EVENT}" >
-		<MethodInvoker generator="{ConfigManager}" method="setConfig" arguments="{event.config}" />
-		<MethodInvoker generator="{SkinningService}" method="loadSkins" arguments="{event.config.skinning}" />
+	<EventHandlers type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" >
+		<MethodInvoker generator="{ModulesProxy}" method="handleConfigLoaded" />
+		<MethodInvoker generator="{SkinningService}" method="loadSkins"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
@@ -100,6 +104,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.core.managers.ReconnectionManager;
 		import org.bigbluebutton.core.services.SkinningService;
 		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.ConfigLoadedEvent;
+		import org.bigbluebutton.main.events.LoadConfigCommand;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;

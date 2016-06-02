@@ -131,7 +131,7 @@ package org.bigbluebutton.common
         public var user_red:Class;
 
         [Embed(source="assets/images/user.png")]
-        public var user:Class;
+        public var user:Class;		
 
         [Embed(source="assets/images/administrator.gif")]
         public var admin:Class;
@@ -324,6 +324,15 @@ package org.bigbluebutton.common
 
 		[Embed(source="assets/images/emoji_confused.png")]
 		public var emoji_confused:Class;
+		
+		[Embed(source="assets/images/transfer.png")]
+		public var transfer:Class;
+		
+		[Embed(source="assets/images/transferred.png")]
+		public var transferred:Class;
+		
+		[Embed(source="assets/images/join.png")]
+		public var join:Class;
 
 		[Embed(source="assets/images/emoji_thumbsUp.png")]
 		public var emoji_thumbsUp:Class;
