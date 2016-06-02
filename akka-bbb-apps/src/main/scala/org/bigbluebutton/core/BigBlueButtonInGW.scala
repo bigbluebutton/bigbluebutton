@@ -498,24 +498,24 @@ class BigBlueButtonInGW(
    * Message Interface for DeskShare
    * *****************************************************************
    */
-  def deskShareStarted(conferenceName: String, callerId: String, callerIdName: String) {
-    bbbActor ! new DeskShareStartedRequest(conferenceName, callerId, callerIdName)
+  def deskShareStarted(meetingId: String, callerId: String, callerIdName: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareStartedRequest(meetingId, callerId, callerIdName)))
   }
 
-  def deskShareStopped(conferenceName: String, callerId: String, callerIdName: String) {
-    bbbActor ! new DeskShareStoppedRequest(conferenceName, callerId, callerIdName)
+  def deskShareStopped(meetingId: String, callerId: String, callerIdName: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareStoppedRequest(meetingId, callerId, callerIdName)))
   }
 
-  def deskShareRTMPBroadcastStarted(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
-    bbbActor ! new DeskShareRTMPBroadcastStartedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
+  def deskShareRTMPBroadcastStarted(meetingId: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareRTMPBroadcastStartedRequest(meetingId, streamname, videoWidth, videoHeight, timestamp)))
   }
 
-  def deskShareRTMPBroadcastStopped(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
-    bbbActor ! new DeskShareRTMPBroadcastStoppedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
+  def deskShareRTMPBroadcastStopped(meetingId: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareRTMPBroadcastStoppedRequest(meetingId, streamname, videoWidth, videoHeight, timestamp)))
   }
 
   def deskShareGetInfoRequest(meetingId: String, requesterId: String, replyTo: String): Unit = {
-    bbbActor ! new DeskShareGetDeskShareInfoRequest(meetingId, requesterId, replyTo)
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareGetDeskShareInfoRequest(meetingId, requesterId, replyTo)))
   }
 
   // Polling
@@ -546,14 +546,14 @@ class BigBlueButtonInGW(
    */
 
   def sendCaptionHistory(meetingID: String, requesterID: String) {
-    bbbActor ! new SendCaptionHistoryRequest(meetingID, requesterID)
+    eventBus.publish(BigBlueButtonEvent(meetingID, new SendCaptionHistoryRequest(meetingID, requesterID)))
   }
 
   def updateCaptionOwner(meetingID: String, locale: String, ownerID: String) {
-    bbbActor ! new UpdateCaptionOwnerRequest(meetingID, locale, ownerID)
+    eventBus.publish(BigBlueButtonEvent(meetingID, new UpdateCaptionOwnerRequest(meetingID, locale, ownerID)))
   }
 
   def editCaptionHistory(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) {
-    bbbActor ! new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, text)
+    eventBus.publish(BigBlueButtonEvent(meetingID, new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, text)))
   }
 }
