@@ -39,7 +39,6 @@ export default class MessageForm extends Component {
   }
 
   handleSubmit(e) {
-    alert('it works!');
     e.preventDefault();
 
     const message = this.state.message.trim();
@@ -49,6 +48,7 @@ export default class MessageForm extends Component {
     }
 
     this.setState({ message: '' });
+    this.props.handleSendMessage(message);
   }
 
   render() {

@@ -2,16 +2,15 @@ import Chats from '/imports/api/chat';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
-import RegexWebUrl from '/imports/utils/regex-weburl';
+import { callServer } from '/imports/ui/services/api';
 
-const BREAK_TAG = '<br/>';
 const GROUPING_MESSAGES_WINDOW = 60000;
 
 const SYSTEM_CHAT_TYPE = 'SYSTEM_MESSAGE';
 const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
 const PRIVATE_CHAT_TYPE = 'PRIVATE_CHAT';
 
-const CURRENT_USER_ID = Auth.getUser();
+const PUBLIC_CHAT_ID = 'public';
 
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
@@ -20,38 +19,22 @@ const mapUser = (user) => ({
   name: user.name,
   isPresenter: user.presenter,
   isModerator: user.role === 'MODERATOR',
-  isCurrent: user.userid === CURRENT_USER_ID,
+  isCurrent: user.userid === Auth.getUser(),
   isVoiceUser: user.voiceUser.joined,
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
 });
 
-const parseMessage = (message) => {
-  message = message || '';
-
-  // Replace \r and \n to <br/>
-  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_TAG + '$2');
-
-  // Replace flash links to html valid ones
-  message = message.split(`<a href='event:`).join(`<a target="_blank" href='`);
-  message = message.split(`<a href="event:`).join(`<a target="_blank" href="`);
-
-  // message = message.replace(RegexWebUrl, '<a href="$1" target="_blank">$1</a>');
-
-  return message;
-};
-
 const mapMessage = (message) => {
   let mappedMessage = {
-    content: [parseMessage(message.message)],
+    content: [message.message],
     time: +(message.from_time), //+ message.from_tz_offset,
     sender: null,
   };
 
-  if (message.from_userid !== SYSTEM_CHAT_TYPE) {
-    let user = Users.findOne({ userId: message.from_userid });
-    mappedMessage.sender = mapUser(user.user);
+  if (message.chat_type !== SYSTEM_CHAT_TYPE) {
+    mappedMessage.sender = getUser(message.from_userid);
   }
 
   return mappedMessage;
@@ -61,7 +44,6 @@ const reduceMessages = (previous, current, index, array) => {
   let lastMessage = previous[previous.length - 1];
 
   if (!lastMessage || !lastMessage.sender || !current.sender) { // Skip system messages
-    console.log(current.content);
     return previous.concat(current);
   }
 
@@ -75,6 +57,15 @@ const reduceMessages = (previous, current, index, array) => {
     return previous;
   } else {
     return previous.concat(current);
+  }
+};
+
+const getUser = (userID) => {
+  const user = Users.findOne({ userId: userID });
+  if (user) {
+    return mapUser(user.user);
+  } else {
+    throw `User ${userID} not found`;
   }
 };
 
@@ -111,17 +102,43 @@ const getPrivateMessages = (userID) => {
     .reduce(reduceMessages, []);
 };
 
-const sendMessage = (toUserID, message) => {
-  let messages = Chats.find({
-    chat_type: PRIVATE_CHAT_TYPE,
-    from_userid: userID,
-  });
+const getChatTitle = (userID) => {
+  const user = getUser(userID);
+  return user.name;
+};
 
-  return messages;
+const sendMessage = (receiverID, message) => {
+  const isPublic = receiverID === PUBLIC_CHAT_ID;
+
+  const sender = getUser(Auth.getUser());
+  const receiver = !isPublic ? getUser(receiverID) : {
+    id: 'public_chat_userid',
+    name: 'public_chat_username',
+  };
+
+  /* FIX: Why we need all this payload to send a message?
+   * The server only really needs the message, from_userid, to_userid and from_lang
+   */
+
+  let messagePayload = {
+    message: message,
+    chat_type: isPublic ? PUBLIC_CHAT_TYPE : PRIVATE_CHAT_TYPE,
+    from_userid: sender.id,
+    from_username: sender.name,
+    from_tz_offset: (new Date()).getTimezoneOffset(),
+    to_username: receiver.name,
+    to_userid: receiver.id,
+    from_lang: window.navigator.userLanguage || window.navigator.language,
+    from_time: Date.now(),
+    from_color: 0,
+  };
+
+  return callServer('sendChatMessagetoServer', messagePayload);
 };
 
 export default {
   getPublicMessages,
   getPrivateMessages,
+  getChatTitle,
   sendMessage,
 };

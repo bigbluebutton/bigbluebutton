@@ -1,22 +1,22 @@
 import Storage from '/imports/ui/services/storage';
 
-setCredentials = (meeting, user, token) => {
+export const setCredentials = (meeting, user, token) => {
   Storage.set('meetingID', meeting);
   Storage.set('userID', user);
   Storage.set('authToken', token);
 };
 
-getCredentials = () => ({
+export const getCredentials = () => ({
   meetingId: Storage.get('meetingID'),
   requesterUserId: Storage.get('userID'),
   requesterToken: Storage.get('authToken'),
 });
 
-getMeeting = () => getCredentials().meetingId;
+export const getMeeting = () => getCredentials().meetingId;
 
-getUser = () => getCredentials().requesterUserId;
+export const getUser = () => getCredentials().requesterUserId;
 
-getToken = () => getCredentials().requesterToken;
+export const getToken = () => getCredentials().requesterToken;
 
 export default {
   setCredentials,

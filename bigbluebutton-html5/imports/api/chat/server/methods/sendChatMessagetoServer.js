@@ -5,6 +5,8 @@ import { translateHTML5ToFlash } from '/imports/startup/server/helpers';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 
+import RegexWebUrl from '/imports/utils/regex-weburl';
+
 Meteor.methods({
   // meetingId: the id of the meeting
   // chatObject: the object including info on the chat message, including the text
@@ -32,7 +34,7 @@ Meteor.methods({
     };
 
     if (isAllowedTo(action(), credentials) && chatObject.from_userid === requesterUserId) {
-      chatObject.message = translateHTML5ToFlash(chatObject.message);
+      chatObject.message = parseMessage(chatObject.message);
       let message = {
         payload: {
           message: chatObject,
@@ -46,3 +48,12 @@ Meteor.methods({
     }
   },
 });
+
+const parseMessage = (message) => {
+  message = message || '';
+
+  // Replace flash links to flash valid ones
+  message.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
+
+  return message;
+};

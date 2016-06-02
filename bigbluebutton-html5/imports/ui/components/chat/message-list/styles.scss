@@ -1,8 +1,8 @@
 @import "imports/ui/stylesheets/variables/_all";
-@import "imports/ui/stylesheets/placeholders/_scrollable";
+@import "imports/ui/stylesheets/mixins/_scrollable";
 
 .messageList {
-  @extend %scrollbox-vertical;
+  @include scrollbox-vertical();
   flex-flow: column;
   flex-grow: 1;
   flex-grow: 1;

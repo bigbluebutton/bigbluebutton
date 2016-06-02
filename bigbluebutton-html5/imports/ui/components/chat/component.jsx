@@ -17,6 +17,7 @@ export default class Chat extends Component {
     const {
       title,
       messages,
+      actions,
     } = this.props;
 
     return (
@@ -34,7 +35,11 @@ export default class Chat extends Component {
           aria-atomic="true"
           aria-relevant="additions"
         />
-        <MessageForm chatAreaId={ELEMENT_ID} chatTitle={title} />
+        <MessageForm
+          chatAreaId={ELEMENT_ID}
+          chatTitle={title}
+          handleSendMessage={actions.handleSendMessage}
+        />
       </section>
     );
   }

@@ -9,7 +9,7 @@ import Cursor from '/imports/api/cursor';
 import Polls from '/imports/api/polls';
 
 function setCredentials(nextState, replace) {
-  if (nextState && Object.keys(nextState.params).length) {
+  if (nextState && nextState.params.authToken) {
     const { meetingID, userID, authToken } = nextState.params;
     Auth.setCredentials(meetingID, userID, authToken);
   }

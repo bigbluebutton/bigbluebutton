@@ -26,15 +26,18 @@ export default createContainer(({ params }) => {
   let messages = [];
 
   if (chatID === PUBLIC_CHAT_KEY) {
-    title = 'Public Chat';
     messages = ChatService.getPublicMessages();
+    title = 'Public';
   } else {
-    title = 'Username';
     messages = ChatService.getPrivateMessages(chatID);
+    title = ChatService.getChatTitle(chatID);
   }
 
   return {
     title,
     messages,
+    actions: {
+      handleSendMessage: message => ChatService.sendMessage(chatID, message),
+    },
   };
 }, ChatContainer);
