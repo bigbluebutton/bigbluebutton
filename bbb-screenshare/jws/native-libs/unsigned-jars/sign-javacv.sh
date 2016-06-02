@@ -1,4 +1,4 @@
-JAVACV=javacv-1.2-20160319.154745-3.jar
+JAVACV=javacv-1.2.jar
 mkdir workdir
 cp $JAVACV workdir/javacv.jar
 ant sign-javacv-jar
