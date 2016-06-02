@@ -3,7 +3,7 @@ import { removePresentationFromCollection } from './removePresentationFromCollec
 import { addPresentationToCollection } from './addPresentationToCollection';
 import { displayThisSlide } from '/imports/api/slides/server/modifiers/displayThisSlide';
 import { addSlideToCollection } from '/imports/api/slides/server/modifiers/addSlideToCollection';
-import { appendMessageHeader, publish } from '/imports/startup/server/helpers';
+import { appendMessageHeader, publish, inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Slides from '/imports/api/slides';
 import Presentations from '/imports/api/presentations';
 import { logger } from '/imports/startup/server/logger';
@@ -105,7 +105,7 @@ eventEmitter.on('presentation_shared_message', function (arg) {
 });
 
 eventEmitter.on('get_presentation_info_reply', function (arg) {
-  if (arg.payload.requester_id === 'nodeJSapp') {
+  if (inReplyToHTML5Client(arg)) {
     const payload = arg.payload;
     const meetingId = payload.meeting_id;
     const presentations = payload.presentations;
@@ -141,8 +141,8 @@ eventEmitter.on('get_presentation_info_reply', function (arg) {
         }
       }
     }
-
-    return arg.callback();
   }
+
+  return arg.callback();
 });
 

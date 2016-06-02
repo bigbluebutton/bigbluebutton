@@ -72,7 +72,7 @@ import '/imports/api/shapes/server/modifiers/eventHandlers';
 import '/imports/api/users/server/modifiers/eventHandlers';
 
 import '/imports/startup/server/EventQueue';
-import '/imports/startup/server/helpers';
+import '/imports/api/common/server/helpers';
 import '/imports/startup/server/logger';
 import '/imports/startup/server/RedisPubSub';
 import '/imports/startup/server/userPermissions';

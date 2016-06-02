@@ -1,6 +1,6 @@
 import Deskshare from '/imports/api/deskshare';
 import {conferenceUsername, joinVertoAudio, watchVertoVideo} from '/imports/api/verto';
-import {getInStorage} from '/imports/ui/components/app/service';
+import Auth from '/imports/ui/services/auth';
 import {getVoiceBridge} from '/imports/api/phone';
 
 // when the meeting information has been updated check to see if it was
@@ -16,7 +16,7 @@ function videoIsBroadcasting() {
 
   if (ds.broadcasting) {
     console.log('Deskshare is now broadcasting');
-    if (ds.startedBy != getInStorage('userID')) {
+    if (ds.startedBy != Auth.getUser()) {
       console.log('deskshare wasn\'t initiated by me');
       presenterDeskshareHasStarted();
       return true;

@@ -18,7 +18,8 @@
     "react-intl": "^2.1.2",
     "react-modal": "^1.2.1",
     "react-router": "^2.4.0",
-    "underscore": "~1.8.3"
+    "underscore": "~1.8.3",
+    "react-autosize-textarea": "~0.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
