@@ -6,21 +6,17 @@ export default class Slide extends React.Component {
   }
 
   render() {
-
     return (
       <g>
         {this.props.current_slide ?
           <image x="0" y="0"
-            width={this.props.paperWidth}
-            height={this.props.paperHeight}
-            preserveAspectRatio="none"
+            width={this.props.current_slide.slide.width}
+            height={this.props.current_slide.slide.height}
             xlink="http://www.w3.org/1999/xlink"
             xlinkHref={this.props.current_slide.slide.img_uri}
-            style={{ WebkitTapHighlightColor: 'transparent' }} //need to figure why we need this
             stroke-width="0.8">
           </image>
-            : null
-          }
+        : null }
       </g>
     );
   }
