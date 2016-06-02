@@ -12,11 +12,11 @@ getCredentials = () => ({
   requesterToken: Storage.get('authToken'),
 });
 
-getMeeting = () => getCredentials().requesterUserId;
+getMeeting = () => getCredentials().meetingId;
 
 getUser = () => getCredentials().requesterUserId;
 
-getToken = () => getCredentials().requesterUserId;
+getToken = () => getCredentials().requesterToken;
 
 export default {
   setCredentials,
