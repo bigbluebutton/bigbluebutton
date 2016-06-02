@@ -1,11 +1,28 @@
 import React, { Component } from 'react';
 import styles from './styles.scss';
 import { Link } from 'react-router';
-import UserListItem from './user-list-item/component.jsx';
-import ChatListItem from './chat-list-item/component.jsx';
+import { withRouter } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 
-export default class UserList extends Component {
+import UserListItem from './user-list-item/component.jsx';
+import ChatListItem from './chat-list-item/component.jsx';
+
+class UserList extends Component {
+  constructor(props) {
+    super(props);
+
+    this.handleMessageClick = this.handleMessageClick.bind(this);
+    this.handleParticipantDblClick = this.handleParticipantDblClick.bind(this);
+  }
+
+  handleMessageClick(chatID) {
+    this.props.router.push(`/users/chat/${chatID}`);
+  }
+
+  handleParticipantDblClick(userID) {
+    this.props.router.push(`/users/chat/${userID}`);
+  }
+
   render() {
     return (
       <div className={styles.userList}>
@@ -26,7 +43,7 @@ export default class UserList extends Component {
           />
         </h2>
       </div>
-    )
+    );
   }
 
   renderContent() {
@@ -49,10 +66,10 @@ export default class UserList extends Component {
           />
         </h3>
         <ul className={styles.chatsList} tabIndex="1">
-          <ChatListItem />
+          <ChatListItem onClick={() => this.handleMessageClick('public')} />
         </ul>
       </div>
-    )
+    );
   }
 
   renderParticipants() {
@@ -68,10 +85,20 @@ export default class UserList extends Component {
         </h3>
         <div className={styles.scrollableList}>
           <ul className={styles.participantsList} tabIndex="1">
-            {this.props.users.map(user => <UserListItem accessibilityLabel={'Status abc'}  accessible={true} key={user.id} user={user}/>)}
+            {this.props.users.map(user => (
+              <UserListItem
+                onDoubleClick={() => this.handleParticipantDblClick(user.id)}
+                accessibilityLabel={'Status abc'}
+                accessible={true}
+                key={user.id}
+                user={user}
+              />
+            ))}
           </ul>
         </div>
       </div>
-    )
+    );
   }
 }
+
+export default withRouter(UserList);

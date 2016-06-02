@@ -8,6 +8,15 @@
   font-size: $font-size-base * .90;
 }
 
+.systemMessage {
+  font-weight: 600;
+
+  .item + &,
+  & + .item {
+    margin-bottom: $line-height-computed * 1.5;
+  }
+}
+
 .avatar {
   flex-basis: 1.7rem;
   flex-shrink: 0;

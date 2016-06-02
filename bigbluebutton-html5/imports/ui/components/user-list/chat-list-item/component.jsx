@@ -5,9 +5,8 @@ import classNames from 'classnames';
 
 export default class ChatListItem extends Component {
   render() {
-
     return (
-      <li tabIndex='0' className={styles.chatListItem}>
+      <li tabIndex='0' className={styles.chatListItem} {...this.props}>
         <div className={styles.chatThumbnail}>
           <i className="icon-bbb-group-chat"></i>
         </div>
