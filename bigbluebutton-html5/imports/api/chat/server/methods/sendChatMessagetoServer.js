@@ -7,6 +7,31 @@ import { redisConfig } from '/config';
 
 import RegexWebUrl from '/imports/utils/regex-weburl';
 
+const HTML_SAFE_MAP = {
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+const parseMessage = (message) => {
+  message = message || '';
+
+  message = message.trim();
+
+  // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
+  console.log('antes', message);
+
+  message = message.replace(/[<>'"]/g, (c) => HTML_SAFE_MAP[c]);
+
+  console.log('depois', message);
+
+  // Replace flash links to flash valid ones
+  message = message.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
+
+  return message;
+};
+
 Meteor.methods({
   // meetingId: the id of the meeting
   // chatObject: the object including info on the chat message, including the text
@@ -48,12 +73,3 @@ Meteor.methods({
     }
   },
 });
-
-const parseMessage = (message) => {
-  message = message || '';
-
-  // Replace flash links to flash valid ones
-  message.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
-
-  return message;
-};

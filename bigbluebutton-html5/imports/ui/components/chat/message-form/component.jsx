@@ -41,7 +41,13 @@ export default class MessageForm extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    const message = this.state.message.trim();
+    let message = this.state.message.trim();
+
+    // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
+
+    let div = document.createElement('div');
+    div.appendChild(document.createTextNode(message));
+    message = div.innerHTML;
 
     if (!message) {
       return;
