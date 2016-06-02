@@ -19,12 +19,11 @@ const parseMessage = (message) => {
 
   message = message.trim();
 
+  // Replace <br/> with \n\r
+  message = message.replace(/<br\s*[\/]?>/gi, '\n\r');
+
   // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-  console.log('antes', message);
-
-  message = message.replace(/[<>'"]/g, (c) => HTML_SAFE_MAP[c]);
-
-  console.log('depois', message);
+  message = message.replace(/[<>'"]/g, c => HTML_SAFE_MAP[c]);
 
   // Replace flash links to flash valid ones
   message = message.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
@@ -44,6 +43,7 @@ Meteor.methods({
     const chatType = chatObject.chat_type;
     const recipient = chatObject.to_userid;
     let eventName = null;
+
     const action = function () {
       if (chatType === 'PUBLIC_CHAT') {
         eventName = 'send_public_chat_message';
@@ -58,8 +58,9 @@ Meteor.methods({
       }
     };
 
+    chatObject.message = parseMessage(chatObject.message);
+
     if (isAllowedTo(action(), credentials) && chatObject.from_userid === requesterUserId) {
-      chatObject.message = parseMessage(chatObject.message);
       let message = {
         payload: {
           message: chatObject,
