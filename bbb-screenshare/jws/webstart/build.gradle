@@ -1,8 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-sourceCompatibility=1.6
-targetCompatibility=1.6
+sourceCompatibility=1.7
+targetCompatibility=1.7
 
 version = '0.0.1'
 archivesBaseName = 'javacv-screenshare' 
@@ -14,7 +14,7 @@ repositories {
 dependencies {
   compile ":javacpp:@jar"
   compile ":ffmpeg:@jar"
-  compile ":javacv:@jar"
+//  compile ":javacv:@jar"
 }
 
 jar {

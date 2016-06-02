@@ -1,4 +1,4 @@
-FFMPEG=ffmpeg-3.0-1.2-SNAPSHOT.jar
+FFMPEG=ffmpeg-3.0.2-1.2.jar
 mkdir workdir
 cp $FFMPEG workdir/ffmpeg.jar
 ant sign-ffmpeg-jar
