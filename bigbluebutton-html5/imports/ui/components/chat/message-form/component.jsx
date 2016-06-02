@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import styles from './styles';
@@ -12,7 +13,20 @@ const propTypes = {
 const defaultProps = {
 };
 
-export default class MessageForm extends Component {
+const messages = defineMessages({
+  submitLabel: {
+    id: 'app.chat.submitLabel',
+    defaultMessage: 'Send Message',
+    description: 'Chat submit button label',
+  },
+  inputLabel: {
+    id: 'app.chat.inputLabel',
+    defaultMessage: 'Message input for chat {name}',
+    description: 'Chat message input label',
+  },
+});
+
+class MessageForm extends Component {
   constructor(props) {
     super(props);
 
@@ -58,6 +72,8 @@ export default class MessageForm extends Component {
   }
 
   render() {
+    const { intl, chatTitle } = this.props;
+
     return (
       <form
         {...this.props}
@@ -77,7 +93,7 @@ export default class MessageForm extends Component {
           id="message-input"
           maxlength=""
           aria-controls={this.props.chatAreaId}
-          aria-label="Message input for Channel #geral"
+          aria-label={ intl.formatMessage(messages.inputLabel, { name: chatTitle }) }
           autocorrect="off"
           autocomplete="off"
           spellcheck="true"
@@ -85,7 +101,12 @@ export default class MessageForm extends Component {
           onChange={this.handleMessageChange}
           onKeyUp={this.handleMessageKeyUp}
         />
-        <input ref="btnSubmit" className={'sr-only'} type="submit" value="Send Message" />
+        <input
+          ref="btnSubmit"
+          className={'sr-only'}
+          type="submit"
+          value={ intl.formatMessage(messages.submitLabel) }
+        />
       </form>
     );
   }
@@ -93,3 +114,5 @@ export default class MessageForm extends Component {
 
 MessageForm.propTypes = propTypes;
 MessageForm.defaultProps = defaultProps;
+
+export default injectIntl(MessageForm);
