@@ -189,9 +189,9 @@ case class SendCaptionHistoryRequest(meetingID: String, requesterID: String) ext
 case class UpdateCaptionOwnerRequest(meetingID: String, locale: String, ownerID: String) extends InMessage
 case class EditCaptionHistoryRequest(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) extends InMessage
 // DeskShare
-case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String)
-case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String)
-case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String)
-case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String)
-case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String)
+case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
+case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
+case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
+case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
+case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage
 

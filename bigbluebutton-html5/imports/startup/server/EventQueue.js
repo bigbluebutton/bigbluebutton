@@ -1,6 +1,6 @@
 import { logger } from '/imports/startup/server/logger';
 import { eventEmitter } from '/imports/startup/server';
-import { indexOf } from '/imports/startup/server/helpers';
+import { indexOf } from '/imports/api/common/server/helpers';
 
 export class EventQueue {
 
@@ -47,7 +47,7 @@ export class EventQueue {
             },
           });
         } else {
-          logger.error('NOT HANDLING:' + eventName);
+          logger.info('not handling messages of type:' + eventName);
           return next();
         }
       }
