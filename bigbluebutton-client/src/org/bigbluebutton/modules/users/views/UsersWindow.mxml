@@ -265,7 +265,7 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler: muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				if (breakoutRoomsList.length == 0 && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
+				if (partOptions.enableBreakoutRooms && breakoutRoomsList.length == 0 && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
 				}
 
