@@ -1,15 +1,11 @@
 const STORAGE = localStorage;
-const PREFIX = 'bbb_';
+const PREFIX = 'BBB_';
 
-function get(key) {
-  return STORAGE.getItem(key);
-}
+const get = (key) => STORAGE.getItem(`${PREFIX}${key}`);
 
-function set(key) {
-  STORAGE.setItem(key);
-}
+const set = (key, value) => STORAGE.setItem(`${PREFIX}${key}`, value);
 
 export default {
   get,
-  set
-}
+  set,
+};

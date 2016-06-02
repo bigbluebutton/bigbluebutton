@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import {getInStorage, setInStorage} from '/imports/ui/components/app/service';
+import Auth from '/imports/ui/services/auth';
 import {callServer} from '/imports/ui/services/api';
 import {clientConfig} from '/config';
 import {createVertoUserName, joinVertoAudio} from '/imports/api/verto';
@@ -12,7 +12,7 @@ function getVoiceBridge() {
 }
 
 function amIListenOnly() {
-  const uid = getInStorage('userID');
+  const uid = Auth.getUser();
   return Users.findOne({ userId: uid }).user.listenOnly;
 }
 
@@ -88,7 +88,7 @@ function joinVoiceCall(options) {
 
     window.BBB = {};
     window.BBB.getMyUserInfo = function (callback) {
-      const uid = getInStorage('userID');
+      const uid = Auth.getUser();
       const result = {
         myUserID: uid,
         myUsername: Users.findOne({ userId: uid }).user.name,

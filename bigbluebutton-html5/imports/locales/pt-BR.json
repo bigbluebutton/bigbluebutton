@@ -3,5 +3,7 @@
   "app.userlist.participantsTitle": "Participantes",
   "app.userlist.messagesTitle": "Mensagens",
   "app.userlist.presenter": "Apresentador",
-  "app.userlist.you": "Você"
+  "app.userlist.you": "Você",
+  "app.chat.submitLabel": "Enviar Mensagem",
+  "app.chat.inputLabel": "Campo de mensagem para conversa {name}"
 }

@@ -9,7 +9,7 @@ let cx = classNames.bind(styles);
 export default class ChatListItem extends Component {
   render() {
     return (
-      <li tabIndex='0' className={styles.userListItem}>
+      <li tabIndex='0' className={styles.userListItem} {...this.props}>
         <UserAvatar user={this.props.user}/>
         {this.renderUserName()}
         {this.renderUserIcons()}
@@ -21,7 +21,7 @@ export default class ChatListItem extends Component {
     let user = this.props.user;
 
     let userNameSub = null;
-    if(user.isPresenter) {
+    if (user.isPresenter) {
       userNameSub = (
         <p className={styles.userNameSub}>
           <FormattedMessage
@@ -31,7 +31,7 @@ export default class ChatListItem extends Component {
           />
         </p>
       );
-    } else if(user.isCurrent) {
+    } else if (user.isCurrent) {
       userNameSub = (
         <p className={styles.userNameSub}>
           (<FormattedMessage
@@ -50,7 +50,7 @@ export default class ChatListItem extends Component {
         </h3>
         {userNameSub}
       </div>
-    )
+    );
   }
 
   renderUserIcons() {
@@ -58,7 +58,7 @@ export default class ChatListItem extends Component {
 
     let audioChatIcon = null;
     if (user.isVoiceUser || user.isListenOnly) {
-      if(user.isMuted) {
+      if (user.isMuted) {
         audioChatIcon = 'icon-bbb-audio-off';
       } else {
         audioChatIcon = user.isListenOnly ? 'icon-bbb-listen' : 'icon-bbb-audio';
@@ -77,6 +77,6 @@ export default class ChatListItem extends Component {
           <i className='icon-bbb-more rotate-quarter'></i>
         </span>
       </div>
-    )
+    );
   }
 }

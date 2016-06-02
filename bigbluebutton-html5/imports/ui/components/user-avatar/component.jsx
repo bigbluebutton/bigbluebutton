@@ -2,6 +2,19 @@ import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import cx from 'classnames';
 
+const propTypes = {
+  user: React.PropTypes.shape({
+    name: React.PropTypes.string.isRequired,
+    isPresenter: React.PropTypes.bool.isRequired,
+    isVoiceUser: React.PropTypes.bool.isRequired,
+    isModerator: React.PropTypes.bool.isRequired,
+    image: React.PropTypes.string,
+  }).isRequired,
+};
+
+const defaultProps = {
+};
+
 export default class UserAvatar extends Component {
   render() {
     let user = this.props.user;
@@ -10,14 +23,18 @@ export default class UserAvatar extends Component {
     avatarClasses[styles.presenter] = user.isPresenter;
     avatarClasses[styles.voiceUser] = user.isVoiceUser;
     avatarClasses[styles.moderator] = user.isModerator;
+
     // avatarClasses[styles.image] = user.image;
 
-    return  (
+    return (
       <div className={cx(avatarClasses, styles.userAvatar)}>
         <span>
           {user.name.slice(0, 1)}
         </span>
       </div>
-    )
+    );
   }
 }
+
+UserAvatar.propTypes = propTypes;
+UserAvatar.defaultProps = defaultProps;
