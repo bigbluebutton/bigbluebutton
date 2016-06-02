@@ -1,5 +1,5 @@
 import { Polls } from '/imports/api/polls';
-import {callServer} from '/imports/ui/services/api';
+import { callServer } from '/imports/ui/services/api';
 
 let mapPolls = function () {
   let poll = Polls.findOne({});

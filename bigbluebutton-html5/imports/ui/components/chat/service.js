@@ -1,6 +1,6 @@
 import Chats from '/imports/api/chat';
 import Users from '/imports/api/users';
-import LocalStorage from '/imports/ui/services/storage';
+import Auth from '/imports/ui/services/auth';
 
 import RegexWebUrl from '/imports/utils/regex-weburl';
 
@@ -11,7 +11,7 @@ const SYSTEM_CHAT_TYPE = 'SYSTEM_MESSAGE';
 const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
 const PRIVATE_CHAT_TYPE = 'PRIVATE_CHAT';
 
-const CURRENT_USER_ID = LocalStorage.get('userID');
+const CURRENT_USER_ID = Auth.getUser();
 
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
