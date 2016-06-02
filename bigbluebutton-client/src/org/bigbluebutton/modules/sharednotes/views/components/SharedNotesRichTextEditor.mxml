@@ -981,6 +981,11 @@
     //----------------------------------
     private var refreshSelection:Boolean = false;
 
+    public function restoreVerticalScroll(oldVerticalScroll:Number):void
+    {
+        textArea.getTextField().scrollV = oldVerticalScroll;
+    }
+
     public function restoreCursor(endIndex:Number, oldPosition:Number):void
     {
         var cursorLine:Number = 0;
@@ -1002,10 +1007,16 @@
 
         var desloc:Number = relativePositon - oldPosition;
         textArea.verticalScrollPosition += desloc;
+    }
 
-        trace("relative: " + relativePositon);
-        trace("old: " + oldPosition);
-        trace("vertical: " + textArea.verticalScrollPosition);
+    public function getOldVerticalScroll():Number
+    {
+
+        var oldVerticalScroll:Number = 0;
+
+        oldVerticalScroll = textArea.getTextField().scrollV;
+
+        return oldVerticalScroll;
     }
 
     public function getOldPosition():Number
@@ -1036,8 +1047,7 @@
         var _lastBegin:int = textArea.selectionBeginIndex;
         var _lastEnd:int = textArea.selectionEndIndex;
         var oldPosition:Number = getOldPosition();
-
-        trace("Initial Position: " + _lastBegin + " " + _lastEnd);
+        var oldVerticalScroll:Number = getOldVerticalScroll();
 
         var oldText:String = text;
         htmlText = DiffPatch.patch(patch, htmlText);
@@ -1062,20 +1072,20 @@
             _lastBegin = results[0][0];
             _lastEnd = results[0][1];
         }
-        trace("Final Position: " + results[0][0] + " " + results[0][1]);
 
-        trace("Length: " + text.length);
         restoreCursor(_lastEnd, oldPosition);
         validateNow();
 
         textArea.selectable = true;
         textArea.setSelection(_lastBegin, _lastEnd);
         validateNow();
+
+        //Will update the position of the window next time there is a validate, just before updating the client's view.
+        callLater(restoreVerticalScroll, [oldVerticalScroll]);
     }
 
     public function refresh():void
     {
-        trace("TextArea refresh")
         textArea.htmlText = htmlText;
     }
 
@@ -1136,9 +1146,6 @@
 
     private function onKeyDown(event:KeyboardEvent):void
     {
-
-        trace(event.keyCode);
-        trace(event);
         if (textArea.selectionBeginIndex != textArea.selectionEndIndex)
         {
             var beginIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionBeginIndex);
@@ -1163,7 +1170,6 @@
     {
         if( e.text.length > 0 )
            refreshSelection = true;
-//         trace("text-input");
     }
 
     private function onKeyUp(event:KeyboardEvent):void
