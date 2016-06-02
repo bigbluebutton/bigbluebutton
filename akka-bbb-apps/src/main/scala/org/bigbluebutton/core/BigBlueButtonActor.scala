@@ -167,42 +167,39 @@ class BigBlueButtonActor(val system: ActorSystem,
   }
 
   private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
-
-    var len = meetings.keys.size
-    println("meetings.size=" + meetings.size)
-    println("len_=" + len)
-
-    val set = meetings.keySet
-    val arr: Array[String] = new Array[String](len)
-    set.copyToArray(arr)
+    val len = meetings.keys.size
     val resultArray: Array[MeetingInfo] = new Array[MeetingInfo](len)
 
-    for (i <- 0 until arr.length) {
-      val id = arr(i)
-      val duration = meetings.get(arr(i)).head.mProps.duration
-      val name = meetings.get(arr(i)).head.mProps.meetingName
-      val recorded = meetings.get(arr(i)).head.mProps.recorded
-      val voiceBridge = meetings.get(arr(i)).head.mProps.voiceBridge
+    meetings.foreach(m => {
+      val id = m._1
+      val duration = m._2.mProps.duration
+      val name = m._2.mProps.meetingName
+      val recorded = m._2.mProps.recorded
+      val voiceBridge = m._2.mProps.voiceBridge
 
-      var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
-      resultArray(i) = info
+      val info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
+      resultArray :+ info
+
+      val html5clientRequesterID = "nodeJSapp"
 
       //send the users
-      self ! (new GetUsers(id, "nodeJSapp"))
+      eventBus.publish(BigBlueButtonEvent(id, new GetUsers(id, html5clientRequesterID)))
 
       //send the presentation
-      self ! (new GetPresentationInfo(id, "nodeJSapp", "nodeJSapp"))
+      eventBus.publish(BigBlueButtonEvent(id, new GetPresentationInfo(id, html5clientRequesterID, html5clientRequesterID)))
 
       //send chat history
-      self ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
+      eventBus.publish(BigBlueButtonEvent(id, new GetChatHistoryRequest(id, html5clientRequesterID, html5clientRequesterID)))
 
       //send lock settings
-      self ! (new GetLockSettings(id, "nodeJSapp"))
+      eventBus.publish(BigBlueButtonEvent(id, new GetLockSettings(id, html5clientRequesterID)))
 
       //send desktop sharing info
-      self ! (new DeskShareGetDeskShareInfoRequest(id, "nodeJSapp", "nodeJSapp"))
+      eventBus.publish(BigBlueButtonEvent(id, new DeskShareGetDeskShareInfoRequest(id, html5clientRequesterID, html5clientRequesterID)))
 
-    }
+      // send captions
+      eventBus.publish(BigBlueButtonEvent(id, new SendCaptionHistoryRequest(id, html5clientRequesterID)))
+    })
 
     outGW.send(new GetAllMeetingsReply(resultArray))
   }
