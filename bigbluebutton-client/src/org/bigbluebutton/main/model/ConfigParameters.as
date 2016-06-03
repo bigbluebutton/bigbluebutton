@@ -58,6 +58,8 @@ package org.bigbluebutton.main.model
 		public var copyright:String = "";
 		public var logo:String = "";
 		public var background:String = "";
+		public var toolbarColor:String = "";
+		public var toolbarColorAlphas:String = "";
 		
 		private var loadedListener:Function;
 		private var dispatcher:Dispatcher = new Dispatcher();
@@ -118,6 +120,8 @@ package org.bigbluebutton.main.model
 			copyright = xml.branding.@copyright;
 			logo = xml.branding.@logo;
 			background = xml.branding.@background;
+			toolbarColor = xml.branding.@toolbarColor;
+			toolbarColorAlphas = xml.branding.@toolbarColorAlphas;
 		}
 		
 		public function getModulesXML():XMLList{
