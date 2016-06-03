@@ -146,7 +146,7 @@ export default class Button extends BaseButton {
       tagName,
       className,
       size,
-      iconRight
+      iconRight,
     } = this.props;
 
     const Component = tagName;

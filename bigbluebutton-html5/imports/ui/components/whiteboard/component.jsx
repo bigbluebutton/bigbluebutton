@@ -1,157 +1,70 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
+import WhiteboardShapeModel from './shape-factory/component.jsx';
+import { createContainer } from 'meteor/react-meteor-data';
+import Slide from './slide/component.jsx';
 import styles from './styles.scss';
-import { FormattedMessage, FormattedDate } from 'react-intl';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import Button from '../button/component';
+export default class Whiteboard extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
-export default class Whiteboard extends Component {
-  handleClick() {
-    console.log('dummy handler');
+  renderWhiteboard() {
+    if (this.props.current_slide) {
+      return (
+        <ReactCSSTransitionGroup
+          transitionName={ {
+            enter: styles.enter,
+            enterActive: styles.enterActive,
+            appear: styles.appear,
+            appearActive: styles.appearActive,
+          } }
+          transitionAppear={true}
+          transitionEnter={true}
+          transitionLeave={false}
+          transitionAppearTimeout={400}
+          transitionEnterTimeout={400}
+          transitionLeaveTimeout={400}
+        >
+          <svg
+            viewBox={ '0 0 ' + this.props.current_slide.slide.width + ' ' + this.props.current_slide.slide.height}
+            version="1.1"
+            xmlNS="http://www.w3.org/2000/svg"
+            className={styles.svgStyles}
+            key={this.props.current_slide.slide.id}
+          >
+
+            <Slide current_slide={this.props.current_slide}/>
+            {this.props.shapes ? this.props.shapes.map((shape) =>
+              <WhiteboardShapeModel
+                shape={shape}
+                key={shape.shape.id}
+              />
+              )
+            : null }
+          </svg>
+        </ReactCSSTransitionGroup>
+      );
+    } else {
+      return null;
+    }
   }
 
   render() {
     return (
-      <div className={styles.whiteboard}>
-        <p>
-          <FormattedMessage
-            id="app.home.greeting"
-            description="Message to greet the user."
-            defaultMessage="Welcome {name}! Your presentation will begin shortly..."
-            values={{ name: 'James Bond' }}
-          />
-          <br/>
-          Today is {' '}<FormattedDate value={Date.now()} />
-          <br/>
-          Here is some button examples
-          <br/>
-        </p>
-        <p>
-          <Button
-            label={'Small'}
-            onClick={this.handleClick}
-            size={'sm'}
-          />&nbsp;
-          <Button
-            label={'Medium'}
-            onClick={this.handleClick}
-          />&nbsp;
-          <Button
-            label={'Large'}
-            onClick={this.handleClick}
-            size={'lg'}
-          />
-        </p>
-        <p>
-          <Button
-            label={'Default'}
-            onClick={this.handleClick}
-          />&nbsp;
-          <Button
-            label={'Primary'}
-            onClick={this.handleClick}
-            color={'primary'}
-          />&nbsp;
-          <Button
-            label={'Danger'}
-            onClick={this.handleClick}
-            color={'danger'}
-          />&nbsp;
-          <Button
-            label={'Success'}
-            onClick={this.handleClick}
-            color={'success'}
-          />
-        </p>
-        <p>
-          <Button
-            label={'Default'}
-            onClick={this.handleClick}
-            ghost={true}
-          />&nbsp;
-          <Button
-            label={'Primary'}
-            onClick={this.handleClick}
-            color={'primary'}
-            ghost={true}
-          />&nbsp;
-          <Button
-            label={'Danger'}
-            onClick={this.handleClick}
-            color={'danger'}
-            ghost={true}
-          />&nbsp;
-          <Button
-            label={'Success'}
-            onClick={this.handleClick}
-            color={'success'}
-            ghost={true}
-          />
-        </p>
-        <p>
-          <Button
-            label={'With Icon'}
-            onClick={this.handleClick}
-            icon={'circle-add'}
-          />&nbsp;
-          <Button
-            label={'Ghost With Icon'}
-            onClick={this.handleClick}
-            color={'primary'}
-            icon={'circle-add'}
-            ghost={true}
-          />&nbsp;
-          <Button
-            label={'Icon Right'}
-            onClick={this.handleClick}
-            color={'danger'}
-            icon={'circle-add'}
-            ghost={true}
-            iconRight={true}
-          />&nbsp;
-          <Button
-            label={'Icon Right'}
-            onClick={this.handleClick}
-            color={'success'}
-            icon={'circle-add'}
-            iconRight={true}
-          />
-        </p>
-        <p>
-          <Button
-            label={'Medium'}
-            onClick={this.handleClick}
-            color={'primary'}
-            icon={'audio'}
-            ghost={true}
-            circle={true}
-          />&nbsp;
-          <Button
-            label={'Large'}
-            onClick={this.handleClick}
-            color={'danger'}
-            icon={'audio'}
-            size={'lg'}
-            ghost={true}
-            circle={true}
-          /><br/>
-          <Button
-            label={'Small'}
-            onClick={this.handleClick}
-            icon={'audio'}
-            size={'sm'}
-            circle={true}
-          />&nbsp;
-          <Button
-            label={'Icon Right'}
-            onClick={this.handleClick}
-            color={'success'}
-            icon={'audio'}
-            size={'sm'}
-            iconRight={true}
-            circle={true}
-          />
-        </p>
+      <div className={styles.whiteboardPaper}>
+        {this.renderWhiteboard()}
       </div>
     );
   }
 }
+
+Whiteboard.defaultProps = {
+  svgProps: {
+
+  },
+  svgStyle: {
+
+  },
+};
