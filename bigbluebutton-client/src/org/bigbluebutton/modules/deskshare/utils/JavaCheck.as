@@ -30,8 +30,9 @@ package org.bigbluebutton.modules.deskshare.utils
     public static function checkJava():String {
       var dispatcher : Dispatcher = new Dispatcher();
       var java_version:String = "1.7.0_51";
+      
+      var xml:XML = BBB.getConfigManager().config.browserVersions;
 
-      var xml:XML = BBB.initConfigManager().config.browserVersions;
       if (xml.@java != undefined) {
         java_version = xml.@java.toString();
       }

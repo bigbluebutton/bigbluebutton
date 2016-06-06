@@ -3,6 +3,7 @@ import { clearChatCollection } from '/imports/api/chat/server/modifiers/clearCha
 import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
 import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
 import { clearPresentationsCollection } from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
+import {clearMeetingsCollection} from '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
 import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
 import Meetings from '/imports/api/meetings';

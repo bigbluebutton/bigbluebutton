@@ -35,14 +35,15 @@ import org.bigbluebutton.core.recorders.events.DeskShareNotifyViewersRTMPRecordE
 // import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.recorders.events.ModifyTextWhiteboardRecordEvent
+import org.bigbluebutton.core.recorders.events.EditCaptionHistoryRecordEvent
 import scala.collection.immutable.StringOps
 
 object RecorderActor {
-  def props(meetingId: String, recorder: RecorderApplication): Props =
-    Props(classOf[RecorderActor], meetingId, recorder)
+  def props(recorder: RecorderApplication): Props =
+    Props(classOf[RecorderActor], recorder)
 }
 
-class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
+class RecorderActor(val recorder: RecorderApplication)
     extends Actor with ActorLogging {
 
   def receive = {
@@ -71,6 +72,7 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
     case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
     case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
+    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
     case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
     case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
     case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
@@ -442,6 +444,19 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
 
   }
 
+  private def handleEditCaptionHistoryReply(msg: EditCaptionHistoryReply) {
+    if (msg.recorded) {
+      val ev = new EditCaptionHistoryRecordEvent();
+      ev.setTimestamp(TimestampGenerator.generateTimestamp);
+      ev.setMeetingId(msg.meetingID);
+      ev.setStartIndex(msg.startIndex.toString());
+      ev.setEndIndex(msg.endIndex.toString());
+      ev.setLocale(msg.locale);
+      ev.setText(msg.text);
+      recorder.record(msg.meetingID, ev);
+    }
+  }
+
   private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
     val event = new DeskShareStartRTMPRecordEvent()
     event.setMeetingId(msg.conferenceName)
@@ -470,5 +485,4 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
     log.info("handleDeskShareNotifyViewersRTMP " + msg.meetingID)
     recorder.record(msg.meetingID, event)
   }
-
 }

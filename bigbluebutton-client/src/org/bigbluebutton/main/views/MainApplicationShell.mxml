@@ -50,7 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
-	<mate:Listener type="configLoadedEvent" method="initOptions"  />
+	<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
 	<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
 	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST}" method="handleWebRTCMediaRequestEvent"  />
@@ -64,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
 	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
+	<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 	  
 	<mx:Script>
@@ -100,12 +101,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
+			import org.bigbluebutton.main.events.ConfigLoadedEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.ShortcutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -113,6 +117,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 	
@@ -179,7 +184,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				toolbar.displayToolbar();
 				
 				showFooterOpt = layoutOptions.showFooter;
-				var locale:Object = BBB.initConfigManager().config.language;
+				var locale:Object = BBB.getConfigManager().config.language;
 				langSelector.visible = locale.userSelectionEnabled;
 				
 				if (!showFooterOpt) {
@@ -319,7 +324,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   		}
 	   		
 			private function versionCheck():void {
-				var xml:XML = BBB.initConfigManager().config.browserVersions;
+				var xml:XML = BBB.getConfigManager().config.browserVersions;
 				if (xml.@chrome != undefined && xml.@firefox != undefined && xml.@flash != undefined) {
 					//find browser version
 					var browserVersion:Array = ExternalInterface.call("determineBrowser");
@@ -522,26 +527,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  this.removeChild(controlBar);
 	  }
       
-      public function getLogoutUrl():String {
-        var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
-        if (logoutUrl == null) {
-          LOGGER.debug("URL=[{0}]", [FlexGlobals.topLevelApplication.url]);
-          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-          logoutUrl = pageHost + "//" + pageURL;
-        }      
-        return logoutUrl;
-      }
       
-			private function handleLogout(e:ConnectionFailedEvent):void {
+      private function handleLogout(e:ConnectionFailedEvent):void {
         if (e is ConnectionFailedEvent) {
           showlogoutWindow((e as ConnectionFailedEvent).type);
         }
         else showlogoutWindow("You have logged out of the conference");	
-			}
+      }
       
 			private function redirectToLogoutUrl ():void {
-        		var logoutURL:String = getLogoutUrl();
+        		var logoutURL:String = BBB.getLogoutURL();
 				var request:URLRequest = new URLRequest(logoutURL);
 				LOGGER.debug("Logging out to: {0}", [logoutURL]);
 				navigateToURL(request, '_self');
@@ -559,12 +554,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
-				/*if (connectionLostWindow != null) return;
-				connectionLostWindow = ConnectionLostWindow(PopUpManager.createPopUp( mdiCanvas, ConnectionLostWindow, true));
-				connectionLostWindow.x = mdiCanvas.width/2 - connectionLostWindow.width/2;
-				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;*/
-				
-				//Temporary fix
 				handleLogout(e);
 			}
 			
@@ -633,6 +622,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				point1.y = height/2;
 				ls.x = point1.x - (ls.width/2);
 				ls.y = point1.y - (ls.height/2);	
+			}
+			
+			private function openBreakoutRoomsWindow(e:Event = null):void  {
+				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, BreakoutRoomSettings, true);
+				PopUpManager.centerPopUp(popUp);
 			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void{

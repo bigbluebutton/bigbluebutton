@@ -717,4 +717,27 @@ public class Util {
 
 		return pollMap;
 	}
+	
+	public Map<String, String[]> extractCaptionHistory(JsonObject history) {
+		Map<String, String[]> collection = new HashMap<String, String[]>();
+		
+		for (Map.Entry<String,JsonElement> entry : history.entrySet()) {
+			String locale = entry.getKey();
+			JsonArray values = entry.getValue().getAsJsonArray();
+			String[] localeValueArray = new String[2];
+			
+            int i = 0;
+			Iterator<JsonElement> valuesIter = values.iterator();
+			while (valuesIter.hasNext()){
+				String element = valuesIter.next().getAsString();
+                
+                localeValueArray[i++] = element;
+			}
+            
+			collection.put(locale, localeValueArray);
+		}
+		
+		return collection;
+	}
+	
 }

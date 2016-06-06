@@ -3,6 +3,7 @@ $color-white: #F3F6F9 !default;
 $color-gray: #353B42 !default;
 $color-gray-dark: #2A2D33 !default;
 $color-gray-light: #8B9AA8 !default;
+$color-gray-lighter: lighten($color-gray-light, 25%) !default;
 
 $color-primary: #299AD5 !default;
 $color-success: #4DC0A2 !default;

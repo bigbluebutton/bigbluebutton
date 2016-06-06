@@ -1,6 +1,6 @@
-import { publish } from '/imports/startup/server/helpers';
+import { publish } from '/imports/api/common/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import { appendMessageHeader } from '/imports/startup/server/helpers';
+import { appendMessageHeader } from '/imports/api/common/server/helpers';
 import Presentations from '/imports/api/presentations';
 import Slides from '/imports/api/slides';
 import { redisConfig } from '/config';

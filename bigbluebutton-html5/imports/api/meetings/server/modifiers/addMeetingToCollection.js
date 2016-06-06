@@ -1,6 +1,7 @@
 import { initializeCursor } from '/imports/api/cursor/server/modifiers/initializeCursor';
 import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
+import {clientConfig} from '/config';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording,
                                        voiceConf, duration, callback) {
@@ -19,7 +20,7 @@ export function addMeetingToCollection(meetingId, name, intendedForRecording,
         disablePrivateChat: false,
         disableCam: false,
         disableMic: false,
-        lockOnJoin: Meteor.config.lockOnJoin,
+        lockOnJoin: clientConfig.lockOnJoin,
         lockedLayout: false,
         disablePublicChat: false,
         lockOnJoinConfigurable: false, // TODO

@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-
+import WhiteboardService from './service';
 import Whiteboard from './component';
 
 class WhiteboardContainer extends Component {
@@ -10,7 +10,7 @@ class WhiteboardContainer extends Component {
 
   render() {
     return (
-      <Whiteboard>
+      <Whiteboard {...this.props}>
         {this.props.children}
       </Whiteboard>
     );
@@ -18,5 +18,6 @@ class WhiteboardContainer extends Component {
 }
 
 export default createContainer(() => {
-  return {};
+  const data = WhiteboardService.getWhiteboardData();
+  return data;
 }, WhiteboardContainer);

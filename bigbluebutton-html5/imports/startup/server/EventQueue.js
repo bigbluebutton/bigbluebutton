@@ -1,6 +1,6 @@
 import { logger } from '/imports/startup/server/logger';
 import { eventEmitter } from '/imports/startup/server';
-import { indexOf } from '/imports/startup/server/helpers';
+import { indexOf } from '/imports/api/common/server/helpers';
 
 export class EventQueue {
 
@@ -47,7 +47,7 @@ export class EventQueue {
             },
           });
         } else {
-          logger.error('NOT HANDLING:' + eventName);
+          logger.info('not handling messages of type:' + eventName);
           return next();
         }
       }
@@ -125,6 +125,7 @@ const handledMessageTypes = [
   'presentation_shared_message',
   'get_presentation_info_reply',
   'presentation_page_changed_message',
+  'get_presentation_info_reply',
   'presentation_removed_message',
   'get_whiteboard_shapes_reply',
   'send_whiteboard_shape_message',

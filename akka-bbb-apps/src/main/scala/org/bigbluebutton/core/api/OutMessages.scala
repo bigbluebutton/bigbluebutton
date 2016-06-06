@@ -8,15 +8,14 @@ import org.bigbluebutton.core.MeetingProperties
 import org.bigbluebutton.core.apps.PollVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
-
-abstract class OutMessage
+import org.bigbluebutton.core.apps.BreakoutUser
 
 case class VoiceRecordingStarted(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
 case class VoiceRecordingStopped(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
 case class RecordingStatusChanged(meetingID: String, recorded: Boolean, userId: String, recording: Boolean) extends IOutMessage
 case class GetRecordingStatusReply(meetingID: String, recorded: Boolean, userId: String, recording: Boolean) extends IOutMessage
 case class MeetingCreated(meetingID: String, externalMeetingID: String, recorded: Boolean, name: String,
-  voiceBridge: String, duration: Long, moderatorPass: String, viewerPass: String, createTime: Long, createDate: String) extends IOutMessage
+  voiceBridge: String, duration: Int, moderatorPass: String, viewerPass: String, createTime: Long, createDate: String) extends IOutMessage
 case class MeetingMuted(meetingID: String, recorded: Boolean, meetingMuted: Boolean) extends IOutMessage
 case class MeetingEnded(meetingID: String, recorded: Boolean, voiceBridge: String) extends IOutMessage
 case class MeetingState(meetingID: String, recorded: Boolean, userId: String, permissions: Permissions, meetingMuted: Boolean) extends IOutMessage
@@ -27,6 +26,21 @@ case class DisconnectUser(meetingID: String, userId: String) extends IOutMessage
 case class KeepAliveMessageReply(aliveID: String) extends IOutMessage
 case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
 case object IsAliveMessage extends IOutMessage
+
+// Breakout Rooms
+case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomBody]) extends IOutMessage
+case class CreateBreakoutRoom(meetingId: String, recorded: Boolean, room: BreakoutRoomOutPayload) extends IOutMessage
+case class EndBreakoutRoom(breakoutId: String) extends IOutMessage
+case class BreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,
+  voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
+  defaultPresentationURL: String)
+case class BreakoutRoomJoinURLOutMessage(meetingId: String, recorded: Boolean, breakoutId: String, userId: String, joinURL: String) extends IOutMessage
+case class BreakoutRoomStartedOutMessage(meetingId: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
+case class BreakoutRoomBody(name: String, breakoutId: String)
+case class UpdateBreakoutUsersOutMessage(meetingId: String, recorded: Boolean, breakoutId: String, users: Vector[BreakoutUser]) extends IOutMessage
+case class MeetingTimeRemainingUpdate(meetingId: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
+case class BreakoutRoomsTimeRemainingUpdateOutMessage(meetingId: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
+case class BreakoutRoomEndedOutMessage(meetingId: String, breakoutId: String) extends IOutMessage
 
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
@@ -56,6 +70,7 @@ case class MuteVoiceUser(meetingID: String, recorded: Boolean, requesterID: Stri
 case class UserVoiceMuted(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class UserVoiceTalking(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class EjectVoiceUser(meetingID: String, recorded: Boolean, requesterID: String, userId: String, voiceConfId: String, voiceUserId: String) extends IOutMessage
+case class TransferUserToMeeting(voiceConfId: String, targetVoiceConfId: String, userId: String) extends IOutMessage
 case class UserJoinedVoice(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class UserLeftVoice(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 
@@ -130,6 +145,10 @@ case class WhiteboardEnabledEvent(meetingID: String, recorded: Boolean, requeste
 case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean, replyTo: String) extends IOutMessage
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
+// Chat
+case class SendCaptionHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, history: Map[String, Array[String]]) extends IOutMessage
+case class UpdateCaptionOwnerReply(meetingID: String, recorded: Boolean, locale: String, ownerID: String) extends IOutMessage
+case class EditCaptionHistoryReply(meetingID: String, recorded: Boolean, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) extends IOutMessage
 // DeskShare
 case class DeskShareStartRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage
 case class DeskShareStopRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage

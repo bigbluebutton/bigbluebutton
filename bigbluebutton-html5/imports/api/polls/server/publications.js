@@ -9,13 +9,15 @@ Meteor.publish('polls', function (credentials) {
   if (isAllowedTo('subscribePoll', credentials)) {
     //checking if it is allowed to see a number of votes (presenter only)
     if (isAllowedTo('subscribeAnswers', credentials)) {
-      logger.info('publishing Poll for presenter: ' + meetingId + ' ' + requesterUserId + ' ' + requesterToken);
+      logger.info('publishing Poll for presenter: ' + meetingId + ' ' + requesterUserId + ' ' +
+        requesterToken);
       return Polls.find({
         'poll_info.meetingId': meetingId,
         'poll_info.users': requesterUserId,
       });
     } else {
-      logger.info('publishing Poll for viewer: ' + meetingId + ' ' + requesterUserId + ' ' + requesterToken);
+      logger.info('publishing Poll for viewer: ' + meetingId + ' ' + requesterUserId + ' ' +
+        requesterToken);
       return Polls.find({
         'poll_info.meetingId': meetingId,
         'poll_info.users': requesterUserId,

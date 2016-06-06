@@ -1,4 +1,7 @@
-import { Deskshare, Meetings } from '../../api/index';
+import Deskshare from '/imports/api/deskshare';
+import {conferenceUsername, joinVertoAudio, watchVertoVideo} from '/imports/api/verto';
+import Auth from '/imports/ui/services/auth';
+import {getVoiceBridge} from '/imports/api/phone';
 
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video
@@ -13,7 +16,7 @@ function videoIsBroadcasting() {
 
   if (ds.broadcasting) {
     console.log('Deskshare is now broadcasting');
-    if (ds.startedBy != getInSession('userId')) {
+    if (ds.startedBy != Auth.getUser()) {
       console.log('deskshare wasn\'t initiated by me');
       presenterDeskshareHasStarted();
       return true;
@@ -24,19 +27,12 @@ function videoIsBroadcasting() {
   }
 }
 
-function watchDeskshare(event, options) {
-  let extension = null;
-  if (options.extension) {
-    extension = options.extension;
-  } else {
-    extension = Meetings.findOne().voiceConf;
-  }
-
-  const uName = Users.findOne({ userId: getInSession('userId') }).user.name;
-  conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
+function watchDeskshare(options) {
+  const extension = options.extension || getVoiceBridge();
+  const conferenceUsername = createVertoUserName();
   conferenceIdNumber = '1009';
-
-  // vertoService.watchVideo();
+  watchVertoVideo({ extension, conferenceUsername, conferenceIdNumber,
+    watchOnly: true, });
 }
 
 // if remote deskshare has been ended disconnect and hide the video stream
@@ -46,11 +42,11 @@ function presenterDeskshareHasEnded() {
 
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
-  // const voiceBridge = Deskshare.findOne().deskshare.voice_bridge;
-  // watchDeskshare({
-  //   watchOnly: true
-  //   extension: voiceBridge
-  // });
+  const voiceBridge = Deskshare.findOne().deskshare.voiceBridge;
+  watchDeskshare({
+    watchOnly: true,
+    extension: voiceBridge,
+  });
 };
 
 export { videoIsBroadcasting, watchDeskshare, presenterDeskshareHasEnded,

@@ -1,96 +1,115 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
+import Auth from '/imports/ui/services/auth';
+import {callServer} from '/imports/ui/services/api';
+import {clientConfig} from '/config';
+import {createVertoUserName, joinVertoAudio} from '/imports/api/verto';
 
-//TODO relocate? Anton
+let triedHangup = false;
+
+function getVoiceBridge() {
+  return Meetings.findOne({}).voiceConf;
+}
+
+function amIListenOnly() {
+  const uid = Auth.getUser();
+  return Users.findOne({ userId: uid }).user.listenOnly;
+}
 
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
-// export function exitVoiceCall(event, afterExitCall) {
-//   if (!Meteor.config.useSIPAudio) {
-//     leaveWebRTCVoiceConference_verto();
-//     cur_call = null;
-//     return;
-//   } else {
-//     // To be called when the hangup is initiated
-//     hangupCallback = function() {
-//       console.log('Exiting Voice Conference');
-//     }
-//
-//     // Checks periodically until a call is established so we can successfully end the call
-//     // clean state
-//     getInSession("triedHangup", false);
-//     // function to initiate call
-//     const checkToHangupCall = (function(context) {
-//       // if an attempt to hang up the call is made when the current session is not yet finished,
-//         the request has no effect
-//       // keep track in the session if we haven't tried a hangup
-//       if (BBB.getCallStatus() != null && !getInSession("triedHangup")) {
-//         console.log('Attempting to hangup on WebRTC call');
-//            notify BBB-apps we are leaving the call call if we are listen only
-//         if (BBB.amIListenOnlyAudio()) {
-//           Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), BBB.getMyUserId(),
-//                BBB.getMyAuthToken(), false);
-//         }
-//         BBB.leaveVoiceConference(hangupCallback);
-//         getInSession("triedHangup", true); // we have hung up, prevent retries
-//         notification_WebRTCAudioExited();
-//         if (afterExitCall) {
-//           afterExitCall(this, Meteor.config.app.listenOnly);
-//         }
-//       } else {
-//         // console.log(`RETRYING hangup on WebRTC call in
-// ${Meteor.config.app.WebRTCHangupRetryInterval} ms`);
-//         // try again periodically
-//         setTimeout(checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval);
-//       }
-//     })(this); // automatically run function
-//     return false;
-//   };
-// }
+function exitVoiceCall(afterExitCall) {
+  if (!clientConfig.media.useSIPAudio) {
+    window.leaveWebRTCVoiceConference_verto();
+    window.cur_call = null;
+    return;
+  } else {
+    // To be called when the hangup is initiated
+    const hangupCallback = function () {
+      console.log('Exiting Voice Conference');
+    };
 
-BBB = {};
-BBB.getMyUserInfo = function (callback) {
-  let result = {
-    myUserID: 'getMyUserID',
-    myUsername: 'getMyUserName',
-    myInternalUserID: 'BBB.getMyUserID',
-    myAvatarURL: null,
-    myRole: 'getMyRole',
-    amIPresenter: 'amIPresenter',
-    voiceBridge: '70506',
-    dialNumber: null,
+    // Checks periodically until a call is established so we can successfully end the call
+    // clean state
+    triedHangup = false;
+
+    // function to initiate call
+    const checkToHangupCall = (function (context, afterExitCall) {
+
+      // if an attempt to hang up the call is made when the current session is not yet finished,
+      // the request has no effect
+      // keep track in the session if we haven't tried a hangup
+      if (window.getCallStatus() != null && !triedHangup) {
+        console.log('Attempting to hangup on WebRTC call');
+
+        // notify BBB-apps we are leaving the call call if we are listen only
+        if (amIListenOnly()) {
+          callServer('listenOnlyRequestToggle', false);
+        }
+
+        window.webrtc_hangup(hangupCallback);
+
+        // we have hung up, prevent retries
+        triedHangup = true;
+
+        if (afterExitCall) {
+          afterExitCall(this, clientConfig.app.listenOnly);
+        }
+      } else {
+        console.log('RETRYING hangup on WebRTC call in ' +
+          `${clientConfig.media.WebRTCHangupRetryInterval} ms`);
+
+        // try again periodically
+        setTimeout(checkToHangupCall, clientConfig.media.WebRTCHangupRetryInterval);
+      }
+    })
+
+    // automatically run function
+    (this, afterExitCall);
+
+    return false;
   };
-  return callback(result);
-};
+}
 
 // join the conference. If listen only send the request to the server
 function joinVoiceCall(options) {
+  const extension = getVoiceBridge();
   console.log(options);
-  if (options.useSIPAudio) {
+  if (clientConfig.media.useSIPAudio) {
+
     // create voice call params
     const joinCallback = function (message) {
       console.log('Beginning WebRTC Conference Call');
     };
 
     if (options.isListenOnly) {
-      // Meteor.call('listenOnlyRequestToggle', getInSession('meetingId'), getInSession('userId'),
-      // getInSession('authToken'), true);
+      callServer('listenOnlyRequestToggle', true);
     }
 
-    const requestedListenOnly = options.isListenOnly;
+    window.BBB = {};
+    window.BBB.getMyUserInfo = function (callback) {
+      const uid = Auth.getUser();
+      const result = {
+        myUserID: uid,
+        myUsername: Users.findOne({ userId: uid }).user.name,
+        myInternalUserID: uid,
+        myAvatarURL: null,
+        myRole: 'getMyRole',
+        amIPresenter: 'false',
+        voiceBridge: extension,
+        dialNumber: null,
+      };
+      return callback(result);
+    };
 
-    // BBB.joinVoiceConference(joinCallback, requestedListenOnly); // make the call
-    const voiceBridge = Meetings.findOne({}).voiceConf;
-    callIntoConference(voiceBridge, function () {}, requestedListenOnly);
-
+    callIntoConference(extension, function () {}, options.isListenOnly);
     return;
   } else {
-    const extension = Meetings.findOne().voiceConf;
-    const uName = Users.findOne({ userId: getInSession('userId') }).user.name;
-    conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
+    const conferenceUsername = createVertoUserName();
     conferenceIdNumber = '1009';
-    vertoService.joinAudio();
+    joinVertoAudio({ extension, conferenceUsername, conferenceIdNumber,
+      listenOnly: options.isListenOnly, });
   }
 }
 
-export { joinVoiceCall };
+export { joinVoiceCall, exitVoiceCall, getVoiceBridge, };

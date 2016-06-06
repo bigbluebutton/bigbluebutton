@@ -3,8 +3,8 @@ import Modal from 'react-modal';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import BaseMenu from './BaseMenu';
-import {joinVoiceCall} from '/imports/api/phone';
 import styles from './styles';
+import {joinVoiceCall, exitVoiceCall} from '/imports/api/phone';
 
 export default class AudioMenu extends BaseMenu {
   constructor(props) {
@@ -12,8 +12,6 @@ export default class AudioMenu extends BaseMenu {
   }
 
   getContent() {
-    const useSIPAudio = true;
-    const isListenOnly = true;
     return (
       <div style={{ height: '100%', width: '100%' }}>
         <div className={styles.containerLeftHalf}>

@@ -24,6 +24,7 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   display: flex;
   flex: 1;
   flex-direction: column;
+  overflow: hidden;
 
   @include mq($medium-up) {
     flex-direction: row;
@@ -96,10 +97,12 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
 .userList {
   @extend %full-page;
   z-index: 2;
+  background: green;
+  overflow: hidden;
 
   @include mq($small-only) {
     padding-top: $navbar-height;
-  }
+  }  
 
   @include mq($small-only) {
     padding-top: $navbar-height;
@@ -124,12 +127,12 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   }
 
   @include mq($medium-up) {
-    flex: 0 20vw;
+    flex: 0 25vw;
     order: 1;
   }
 
   @include mq($xlarge-up) {
-    flex-basis: 15vw;
+    flex-basis: 20vw;
   }
 }
 

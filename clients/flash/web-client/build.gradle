@@ -1,12 +1,10 @@
 type = 'swf'
 
-srcDirs = ['src']
-
-resourceDirs = ['src']
-
 additionalCompilerOptions = [
     "-target-player=11.2"
 ]
+
+output = 'bbb-web-client'
 
 dependencies {
 	merged project(':common-library')

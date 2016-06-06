@@ -1,4 +1,4 @@
-import {getInStorage} from '/imports/ui/components/app/service';
+import { getCredentials } from '/imports/ui/services/auth';
 
 function callServer(name) {
   if (!name || !(typeof (name) === 'string' || name instanceof String) || name.length === 0 ||
@@ -7,15 +7,10 @@ function callServer(name) {
     return false;
   }
 
-  const credentials = {
-    meetingId: getInStorage('meetingID'),
-    requesterUserId: getInStorage('userID'),
-    requesterToken: getInStorage('authToken'),
-  };
+  const credentials = getCredentials();
 
   // slice off the first element. That is the function name but we already have that.
-  // the last 3 elements are a React event, an undefined object, and a JavaScript event
-  const args = Array.prototype.slice.call(arguments, 1, -3);
+  const args = Array.prototype.slice.call(arguments, 1);
   Meteor.call(name, credentials, ...args);
 };
 
