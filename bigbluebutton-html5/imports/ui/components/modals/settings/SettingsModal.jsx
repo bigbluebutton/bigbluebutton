@@ -21,23 +21,25 @@ export default class SettingsModal extends BaseModal {
   componentWillMount() {
     this.setState({ activeSubmenu: 0 });
     this.submenus.push({ className: AudioMenu,
-      props: { title: 'Audio', prependIconName: 'ion-', icon: 'ios-mic-outline', }, });
+      props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, });
     this.submenus.push({ className: VideoMenu,
-      props: { title: 'Video', prependIconName: 'ion-', icon: 'ios-videocam-outline', }, });
+      props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, });
     this.submenus.push({ className: ApplicationMenu,
-      props: { title: 'App', prependIconName: 'ion-', icon: 'ios-folder-outline', }, });
+      props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
     this.submenus.push({ className: UsersMenu,
-      props: { title: 'Participants', prependIconName: 'ion-', icon: 'person', }, });
+      props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
     this.submenus.push({ className: SessionMenu,
-      props: { title: 'Session', prependIconName: 'ion-', icon: 'android-exit', }, });
+      props: { title: 'Leave session', prependIconName: 'icon-', icon: 'bbb-logout', }, });
   }
 
   componentDidMount() {
     ReactDOM.render(
-      <Button componentClass='button' style={{ width: '30px', height: '30px', float: 'right' }}
-        onClick={this.openModal} i_class='icon ion-gear-b' rel='tooltip' title='Settings'>
-        <Icon iconName='icon ion-gear-b' className='mediumFont icon ion-gear-b'/>
-      </Button>, document.getElementById('settingsButtonPlaceHolder'));
+      <Button style={{ transform: 'rotate(90deg)' }}
+        onClick={this.openModal}
+        icon={'more'}
+        ghost={true}
+        circle={true}
+      />, document.getElementById('settingsButtonPlaceHolder'));
   }
 
   createMenu() {
@@ -59,16 +61,16 @@ export default class SettingsModal extends BaseModal {
 
   getContent() {
     return (
-      <div style={{ clear: 'both' }}>
+      <div style={{ clear: 'both', height: '100%' }}>
         <div className={styles.settingsMenuLeft}>
-          <ul style={{ listStyleType: 'none' }}>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
             {this.submenus.map((value, index) => (
               <li key={index} onClick={this.clickSubmenu.bind(this, index)}
                 className={classNames(styles.settingsSubmenuItem,
                   index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
                 <Icon key={index} prependIconName={value.props.prependIconName}
                   iconName={value.props.icon} title={value.props.title}/>
-                <span>{value.props.title}</span>
+                <span className={styles.settingsSubmenuItemText}>{value.props.title}</span>
               </li>
             ))}
           </ul>

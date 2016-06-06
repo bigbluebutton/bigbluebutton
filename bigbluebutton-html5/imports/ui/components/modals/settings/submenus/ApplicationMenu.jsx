@@ -5,6 +5,7 @@ import Button from '/imports/ui/components/button/component';
 import BaseMenu from './BaseMenu';
 import ReactDOM from 'react-dom';
 import FontControl from '/imports/api/FontControl';
+import styles from './styles';
 
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
@@ -16,25 +17,33 @@ export default class ApplicationMenu extends BaseMenu {
 
   getContent() {
     return (
-      <div>
-        <p style={{ float: 'left' }}>Audio notifications for chat</p>
-        <p style={{ float: 'right' }}>audio not</p>
-        <p style={{ clear: 'both' }}>fsdfds</p>
-        <p style={{ float: 'left' }}>Push notifications for chat</p>
-        <p style={{ float: 'right' }}>push not</p>
-        <br />
-        <div style={{ clear: 'both' }}>
-          <div style={{ float: 'left', width: '25%', textAlign: 'left' }}>Font size</div>
-          <div style={{ float: 'left', width: '50%', textAlign: 'center' }}>
-            {FontControl.getFontSizeName.call(this)}
+      <div style={{ height: '100%' }}>
+        <div className={styles.applicationSubmenuContent}>
+          <div style={{ height: '20%' }}>
+            <label><input type="checkbox" />Audio notifications for chat</label>
           </div>
-          <div style={{ float: 'left', width: '25%', textAlign: 'right' }}>
-            <button className="fontSizeButton"
-              onClick={FontControl.increaseFontSize.bind(this)}
-            >+</button>
-            <button className="fontSizeButton"
-              onClick={FontControl.decreaseFontSize.bind(this)}
-            >-</button>
+          <div style={{ height: '20%' }}>
+            <label><input type="checkbox" />Push notifications for chat</label>
+          </div>
+        </div>
+        <div className={styles.applicationFontContainer}>
+          <div className={styles.fontBarLeft}>
+            <p>Font size</p>
+          </div>
+          <div className={styles.fontBarMid}>
+            <p>{FontControl.getFontSizeName.call(this)}</p>
+          </div>
+          <div className={styles.fontBarRight}>
+            <Button
+              onClick = {FontControl.increaseFontSize.bind(this)}
+              icon = {'circle-add'}
+              circle = {true}
+            />
+            <Button
+              onClick = {FontControl.decreaseFontSize.bind(this)}
+              icon = {'circle-minus'}
+              circle = {true}
+            />
           </div>
         </div>
       </div>

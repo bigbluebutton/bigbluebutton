@@ -16,6 +16,10 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
+    padding: 10,
+    height: '40%',
+    overflow: 'hidden',
+    minHeight: '250px',
   },
 };
 
@@ -71,23 +75,33 @@ export default class BaseModal extends React.Component {
           onAfterOpen={this.afterOpenModal}
           onRequestClose={this.closeModal}
           shouldCloseOnOverlayClick={false}
-          style={customStyles} >
+          style={ customStyles } >
 
-          <span className={classNames(styles.modalHeaderTitle, 'largeFont')}>
-            {this.state.title}
-          </span>
-          <span className={styles.modalHeaderButtonContainer}>
-            <button className={classNames(styles.modalButton, styles.close)}
-              onClick={this.closeModal}>
-              Cancel
-            </button>
-            <button className={classNames(styles.modalButton, styles.done)}
-              onClick={this.closeModal}>
-              Done
-            </button>
-          </span>
-          <hr className={styles.modalHorizontalRule} />
-          <div>
+          <div style={{ name: 'settingsTop' }} className={styles.settingsMenuTop}>
+            <div style={{ height: '70%' }}>
+              <span className={classNames(styles.modalHeaderTitle, 'largeFont')}>
+                {this.state.title}
+              </span>
+              <span className={styles.modalHeaderButtonContainer}>
+                <Button style={{ borderRadius: '18px', width: '90px', marginRight: '10px',
+                    border: 'none', boxShadow: 'none', }}
+                  label={'Cancel'}
+                  color={'primary'}
+                  ghost={true}
+                  onClick={this.closeModal}
+                />
+              <Button style={{ borderRadius: '18px', width: '90px',
+                border: 'none', boxShadow: 'none', }}
+                  label={'Done'}
+                  color={'primary'}
+                  onClick={this.closeModal}
+                />
+              </span>
+            </div>
+            <div style={{ height: '30%' }}>
+            </div>
+          </div>
+          <div style={{ name: 'settingsBottom' }} className={styles.settingsMenuBottom}>
             {this.getContent()}
           </div>
         </Modal>

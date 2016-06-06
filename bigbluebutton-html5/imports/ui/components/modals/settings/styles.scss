@@ -1,33 +1,42 @@
+@import "imports/ui/stylesheets/variables/_all";
+
 .settingsMenuLeft {
-  border-right: 2px solid grey;
+  border-right: 2px solid $color-gray-light;
+  border-top: 2px solid $color-gray-light;
   float: left;
   width: 30%;
+  height: 100%;
+  overflow: auto;
 }
 
 .settingsMenuRight {
+  border-top: 2px solid $color-gray-light;
   float: right;
   padding-left: 10px;
   width: 70%;
+  height: 100%;
+  overflow: auto;
+  color: $color-heading;
 }
 
 .settingsSubmenuItem {
-  color: black;
-  padding: 5px;
+  color: $color-heading;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.settingsSubmenuItem:last-child {
+  color: $color-primary;
+}
+
+.settingsSubmenuItemText {
+  padding-left: 10px;
+  vertical-align: middle;
 }
 
 .settingsSubmenuItemActive {
-  border-right: 5px solid blue;
-  color: blue;
-}
-
-.fontSizeButton {
-  padding: 0px;
-  margin: 5px;
-  background-color: white;
-  color: grey;
-  border: 2px solid grey;
-  width: 30px;
-  height: 30px;
-  text-align: center;
-  border-radius: 15px;
+  border-right: 4px solid $color-primary;
+  color: $color-primary;
 }
