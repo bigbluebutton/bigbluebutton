@@ -22,32 +22,26 @@ export default class LineDrawComponent extends React.Component {
       y1: y1,
       x2: x2,
       y2: y2,
-    }
+    };
   }
 
   render() {
     let results = this.getCoordinates();
     return (
-
       <line
         x1={results.x1}
         y1={results.y1}
         x2={results.x2}
         y2={results.y2}
         stroke={ShapeHelpers.formatColor(this.props.shape.color)}
-        stroke-width={
-          ShapeHelpers.getStrokeWidth(
-            this.props.shape.thickness,
-            this.props.widthRatio,
-            this.props.heightRatio
-          )
-        }
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={ this.props.shape.thickness }
         style={this.props.style}
       />
     );
   }
 }
-
 
 LineDrawComponent.defaultProps = {
   style: {
