@@ -47,13 +47,7 @@ export default class EllipseDrawComponent extends React.Component {
         ry={results.ry}
         fill="none"
         stroke={ShapeHelpers.formatColor(this.props.shape.color)}
-        strokeWidth={
-          ShapeHelpers.getStrokeWidth(
-            this.props.shape.thickness,
-            this.props.widthRatio,
-            this.props.heightRatio
-          )
-        }
+        strokeWidth={this.props.shape.thickness}
         style={this.props.style}
       >
       </ellipse>

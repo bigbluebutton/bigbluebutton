@@ -18,10 +18,10 @@ export default class Whiteboard extends React.Component {
     let slideObj = this.props.current_slide;
     if (this.props.current_slide) {
       slideObj = this.props.current_slide.slide;
-      x = -this.props.current_slide.slide.x_offset * 2 * this.props.current_slide.slide.width / 100;
-      y = -this.props.current_slide.slide.y_offset * 2 * this.props.current_slide.slide.height / 100;
-      viewBoxWidth = this.props.current_slide.slide.width * this.props.current_slide.slide.width_ratio / 100;
-      viewBoxHeight = this.props.current_slide.slide.height * this.props.current_slide.slide.height_ratio / 100;
+      x = -slideObj.x_offset * 2 * slideObj.width / 100;
+      y = -slideObj.y_offset * 2 * slideObj.height / 100;
+      viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
+      viewBoxHeight = slideObj.height * slideObj.height_ratio / 100;
       return (
         <ReactCSSTransitionGroup
           transitionName={ {
