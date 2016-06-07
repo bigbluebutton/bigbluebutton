@@ -55,6 +55,12 @@ class MessageForm extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
+    const { disabled } = this.props;
+
+    if (disabled) {
+      return false;
+    }
+
     let message = this.state.message.trim();
 
     // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
@@ -72,7 +78,7 @@ class MessageForm extends Component {
   }
 
   render() {
-    const { intl, chatTitle } = this.props;
+    const { intl, chatTitle, disabled } = this.props;
 
     return (
       <form
@@ -97,6 +103,7 @@ class MessageForm extends Component {
           autocorrect="off"
           autocomplete="off"
           spellcheck="true"
+          disabled={disabled}
           value={this.state.message}
           onChange={this.handleMessageChange}
           onKeyUp={this.handleMessageKeyUp}
@@ -105,6 +112,7 @@ class MessageForm extends Component {
           ref="btnSubmit"
           className={'sr-only'}
           type="submit"
+          disabled={disabled}
           value={ intl.formatMessage(messages.submitLabel) }
         />
       </form>

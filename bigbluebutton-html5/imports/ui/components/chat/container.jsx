@@ -24,18 +24,23 @@ export default createContainer(({ params }) => {
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
 
   let messages = [];
+  let isChatLocked = true;
 
   if (chatID === PUBLIC_CHAT_KEY) {
     messages = ChatService.getPublicMessages();
-    title = 'Public';
+    title = 'Public Chat';
   } else {
     messages = ChatService.getPrivateMessages(chatID);
-    title = ChatService.getChatTitle(chatID);
+    let user = ChatService.getUser(chatID);
+    title = user.name;
+
+    // disabled = true;
   }
 
   return {
     title,
     messages,
+    isChatLocked,
     actions: {
       handleSendMessage: message => ChatService.sendMessage(chatID, message),
     },

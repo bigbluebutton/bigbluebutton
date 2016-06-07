@@ -102,11 +102,6 @@ const getPrivateMessages = (userID) => {
     .reduce(reduceMessages, []);
 };
 
-const getChatTitle = (userID) => {
-  const user = getUser(userID);
-  return user.name;
-};
-
 const sendMessage = (receiverID, message) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
 
@@ -139,6 +134,6 @@ const sendMessage = (receiverID, message) => {
 export default {
   getPublicMessages,
   getPrivateMessages,
-  getChatTitle,
+  getUser,
   sendMessage,
 };
