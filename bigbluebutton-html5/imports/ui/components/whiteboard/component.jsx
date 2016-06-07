@@ -11,8 +11,17 @@ export default class Whiteboard extends React.Component {
   }
 
   renderWhiteboard() {
+    let x;
+    let y;
+    let viewBoxWidth;
+    let viewBoxHeight;
+    let slideObj = this.props.current_slide;
     if (this.props.current_slide) {
-      let slideObj = this.props.current_slide.slide;
+      slideObj = this.props.current_slide.slide;
+      x = -this.props.current_slide.slide.x_offset * 2 * this.props.current_slide.slide.width / 100;
+      y = -this.props.current_slide.slide.y_offset * 2 * this.props.current_slide.slide.height / 100;
+      viewBoxWidth = this.props.current_slide.slide.width * this.props.current_slide.slide.width_ratio / 100;
+      viewBoxHeight = this.props.current_slide.slide.height * this.props.current_slide.slide.height_ratio / 100;
       return (
         <ReactCSSTransitionGroup
           transitionName={ {
@@ -29,7 +38,7 @@ export default class Whiteboard extends React.Component {
           transitionLeaveTimeout={400}
         >
           <svg
-            viewBox={ '0 0 ' + slideObj.width + ' ' + slideObj.height}
+            viewBox={ x + ' ' + y + ' ' + viewBoxWidth + ' ' + viewBoxHeight}
             version="1.1"
             xmlNS="http://www.w3.org/2000/svg"
             className={styles.svgStyles}
