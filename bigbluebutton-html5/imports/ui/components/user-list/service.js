@@ -9,7 +9,10 @@ const EMOJI_STATUSES = ['raiseHand', 'happy', 'smile', 'neutral', 'sad', 'confus
 const mapUser = (user) => ({
   id: user.userid,
   name: user.name,
-  emojiStatus: user.emoji_status,
+  emoji: {
+    status: user.emoji_status,
+    changedAt: user.set_emoji_time,
+  },
   isPresenter: user.presenter,
   isModerator: user.role === ROLE_MODERATOR,
   isCurrent: user.userid === ath.getUser(),
@@ -19,11 +22,6 @@ const mapUser = (user) => ({
   isSharingWebcam: user.webcam_stream.length,
   isPhoneUser: user.phone_user,
 });
-
-/*
- * Algorithm borrowed from the flash client
- * Sort users based on their current status (emoji, roles, phone, name, id)
- */
 
 const sortUsersByName = (a, b) => {
   if (a.name.toLowerCase() < b.name.toLowerCase()) {
@@ -40,12 +38,18 @@ const sortUsersByName = (a, b) => {
 };
 
 const sortUsersByEmoji = (a, b) => {
-  if ((EMOJI_STATUSES.indexOf(a.emojiStatus) > -1)
-    && (EMOJI_STATUSES.indexOf(b.emojiStatus) > -1)) {
+  if ((EMOJI_STATUSES.indexOf(a.emoji.status) > -1)
+    && (EMOJI_STATUSES.indexOf(b.emoji.status) > -1)) {
+    if (a.emoji.changedAt < b.emoji.changedAt) {
+      return -1;
+    } else if (a.emoji.changedAt > b.emoji.changedAt) {
+      return 1;
+    }
+
     return sortUsersByName(a, b);
-  } else if (EMOJI_STATUSES.indexOf(a.emojiStatus) > -1) {
+  } else if (EMOJI_STATUSES.indexOf(a.emoji.status) > -1) {
     return -1;
-  } else if (EMOJI_STATUSES.indexOf(b.emojiStatus) > -1) {
+  } else if (EMOJI_STATUSES.indexOf(b.emoji.status) > -1) {
     return 1;
   }
 
@@ -65,11 +69,11 @@ const sortUsersByModerator = (a, b) => {
 };
 
 const sortUsersByPhoneUser = (a, b) => {
-  if (a.isPhoneUser && b.isPhoneUser) {
+  if (!a.isPhoneUser && !b.isPhoneUser) {
     return sortUsersByName(a, b);
-  } else if (a.isPhoneUser) {
+  } else if (!a.isPhoneUser) {
     return -1;
-  } else if (b.isPhoneUser) {
+  } else if (!b.isPhoneUser) {
     return 1;
   }
 
