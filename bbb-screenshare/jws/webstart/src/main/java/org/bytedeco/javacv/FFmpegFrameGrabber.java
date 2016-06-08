@@ -71,13 +71,14 @@ import static org.bytedeco.javacpp.swscale.*;
  */
 public class FFmpegFrameGrabber extends FrameGrabber {
     public static String[] getDeviceDescriptions() throws Exception {
-        tryLoad();
+//        tryLoad();
         throw new UnsupportedOperationException("Device enumeration not support by FFmpeg.");
     }
 
     public static FFmpegFrameGrabber createDefault(File deviceFile)   throws Exception { return new FFmpegFrameGrabber(deviceFile); }
     public static FFmpegFrameGrabber createDefault(String devicePath) throws Exception { return new FFmpegFrameGrabber(devicePath); }
     public static FFmpegFrameGrabber createDefault(int deviceNumber)  throws Exception { throw new Exception(FFmpegFrameGrabber.class + " does not support device numbers."); }
+
 
     private static Exception loadingException = null;
     public static void tryLoad() throws Exception {
@@ -113,6 +114,7 @@ public class FFmpegFrameGrabber extends FrameGrabber {
             tryLoad();
         } catch (Exception ex) { }
     }
+
 
     public FFmpegFrameGrabber(File file) {
         this(file.getAbsolutePath());
