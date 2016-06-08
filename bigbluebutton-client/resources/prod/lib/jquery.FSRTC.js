@@ -103,7 +103,7 @@
 
 	if (moz) {
             this.constraints = {
-		offerToReceiveAudio: true,
+		offerToReceiveAudio: this.options.useSpeak === "none" ? false : true,
 		offerToReceiveVideo: this.options.useVideo ? true : false,
             };
 	} else {
@@ -111,7 +111,7 @@
 		optional: [{
 		    'DtlsSrtpKeyAgreement': 'true'
 		}],mandatory: {
-		    OfferToReceiveAudio: true,
+		    OfferToReceiveAudio: this.options.useSpeak === "none" ? false : true,
 		    OfferToReceiveVideo: this.options.useVideo ? true : false,
 		}
             };
@@ -226,6 +226,7 @@
     }
 
     function doCallback(self, func, arg) {
+        debugger;
         if (func in self.options.callbacks) {
             self.options.callbacks[func](self, arg);
         }
@@ -342,8 +343,8 @@
             if(typeof self.options.localVideoStream.stop == 'function') {
 	        self.options.localVideoStream.stop();
             } else {
-		if (self.localVideoStream.active){
-                    var tracks = self.localVideoStream.getTracks();
+		if (self.options.localVideoStream.active){
+                    var tracks = self.options.localVideoStream.getTracks();
                     console.error(tracks);
 		    tracks.forEach(function(track, index){
 			console.log(track);
@@ -513,13 +514,22 @@
 	    audio = false;
 	} else {
 	    audio = {
-		mandatory: obj.options.audioParams,
+		mandatory: {},
 		optional: []
 	    };
 
 	    if (obj.options.useMic !== "any") {
 		audio.optional = [{sourceId: obj.options.useMic}]
 	    }
+
+	    if (obj.options.audioParams) {
+		for (var key in obj.options.audioParams) {
+		    var con = {};
+		    con[key] = obj.options.audioParams[key];
+		    audio.optional.push(con);
+		}
+	    }
+
 
 	}
 
@@ -558,8 +568,9 @@
 		video.optional.push({sourceId: obj.options.useCamera});
 	    }
 
-	    if (bestFrameRate && !window.moz) {
-		 video.optional.push({minFrameRate: bestFrameRate});
+	    if (bestFrameRate) {
+		video.optional.push({minFrameRate: bestFrameRate});
+		video.optional.push({maxFrameRate: bestFrameRate});
 	    }
 
 	} else {
@@ -603,15 +614,7 @@
                 onICEComplete: function() {
                     return onICEComplete(self);
                 },
-                onRemoteStream: screen ? function(stream) {
-                  // Added by Dan Perrone (perroned)
-                  // https://github.com/perroned
-                  // Date: January 13, 2016
-                  // Commit: 279f40a4c280bba11052adc621fddbb3135ccb6d
-
-                  verto_afterStreamPublish();} :
-                  // ----------------------------------------------------
-                  function(stream) {
+                onRemoteStream: screen ? function(stream) {} : function(stream) {
                     return onRemoteStream(self, stream);
                 },
                 onOfferSDP: function(sdp) {
@@ -633,57 +636,11 @@
         function onError(e) {
             onStreamError(self, e);
         }
+
 	var mediaParams = getMediaParams(self);
 
 	console.log("Audio constraints", mediaParams.audio);
 	console.log("Video constraints", mediaParams.video);
-
-  // Added by Dan Perrone (perroned)
-  // https://github.com/perroned
-  // Date: January 13, 2016
-  // Commit: 279f40a4c280bba11052adc621fddbb3135ccb6d
-
-    // watchOnly, listenOnly, joinAudio
-    // modify the gUM calls based on additional types of calls I added
-    if (window.watchOnly && !window.listenOnly && !window.joinAudio) {
-        var stream = null;
-        if (typeof webkitMediaStream !== 'undefined') {
-            // Google Chrome
-            stream = new webkitMediaStream;
-        } else {
-            // Firefox
-            audioContext = new window.AudioContext;
-            stream = audioContext.createMediaStreamDestination().stream;
-        }
-        onSuccess(stream);
-        return;
-    }
-    if (window.listenOnly && !window.watchOnly && !window.joinAudio) {
-        var stream = null;
-        if (typeof webkitMediaStream !== 'undefined') {
-            // Google Chrome
-            stream = new webkitMediaStream;
-        } else {
-            // Firefox
-            audioContext = new window.AudioContext;
-            stream = audioContext.createMediaStreamDestination().stream;
-        }
-        onSuccess(stream);
-        return;
-    }
-    if (window.joinAudio && !window.watchOnly && !window.listenOnly) {
-        getUserMedia({
-            constraints: {
-                audio: mediaParams.audio,
-                video: mediaParams.video
-            },
-            video: mediaParams.useVideo,
-            onsuccess: onSuccess,
-            onerror: onError
-        });
-        return;
-    }
-    // ---------------------------------------------------
 
 	if (mediaParams.audio || mediaParams.video) {
 
@@ -1078,41 +1035,13 @@
         var n = navigator,
         media;
         n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-
-        // Added by Dan Perrone (perroned)
-        // https://github.com/perroned
-        // Date: February 17, 2016
-        // Commit: 05488dda5d9d1048e286b0bdee27515d217b15a5
-
-        var constraints = {};
-        var errorCallback = null;
-        if (window.firefoxDesksharePresent) {
-            window.firefoxDesksharePresent = false;
-            constraints = {
-                audio: false,
-                video: {
-                    mediaSource: 'window',
-                    mozMediaSource: 'window'
-                }
-            };
-        } else {
-            constraints = options.constraints || {
-                audio: true,
-                video: video_constraints
-            };
-        }
-        // if a callback was added use it, otherwise use default error handler
-        if (typeof window.firefoxDesksharePresentErrorCallback === "function") {
-          errorCallback = window.firefoxDesksharePresentErrorCallback;
-        } else {
-          errorCallback = options.onerror ||
-          function(e) {
-              console.error(e);
-          }
-        }
-
-        n.getMedia(constraints, streaming, function() {
-          errorCallback({'status': 'Failed to getUserMedia on Firefox', 'errorcode': 2000});
+        n.getMedia(options.constraints || {
+            audio: true,
+            video: video_constraints
+        },
+        streaming, options.onerror ||
+        function(e) {
+            console.error(e);
         });
 
         function streaming(stream) {
