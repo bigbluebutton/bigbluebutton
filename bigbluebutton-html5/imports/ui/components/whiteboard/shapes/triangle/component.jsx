@@ -1,26 +1,58 @@
 import React, { PropTypes } from 'react';
+import ShapeHelpers from '../helpers.js';
 
 export default class TriangleDrawComponent extends React.Component {
   constructor(props) {
     super(props);
   }
 
-  render() {
-    var style = {
-      WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
-    };
-    return (
+  getCoordinates() {
+    let xTop;
+    let yTop;
+    let xBottomLeft;
+    let yBottomLeft;
+    let xBottomRight;
+    let yBottomRight;
+    let path = '';
 
-      //style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-linejoin: round;"
+    //points[0] and points[1] are x and y coordinates of the top left corner of the shape obj
+    //points[2] and points[3] are x and y coordinates of the bottom right corner of the shape obj
+    xBottomLeft = this.props.shape.points[0];
+    yBottomLeft = this.props.shape.points[3];
+    xBottomRight = this.props.shape.points[2];
+    yBottomRight = this.props.shape.points[3];
+    xTop = ((xBottomRight - xBottomLeft) / 2) + xBottomLeft;
+    yTop = this.props.shape.points[1];
+
+    path = path + 'M' + (xTop / 100 * this.props.slideWidth) +
+        ',' + (yTop / 100 * this.props.slideHeight) +
+        ',' + (xBottomLeft / 100 * this.props.slideWidth) +
+        ',' + (yBottomLeft / 100 * this.props.slideHeight) +
+        ',' + (xBottomRight / 100 * this.props.slideWidth) +
+        ',' + (yBottomRight / 100 * this.props.slideHeight) +
+        'Z';
+
+    return path;
+  }
+
+  render() {
+    let path = this.getCoordinates();
+    return (
       <path
-        style={style}
-        fill=""
-        stroke=""
-        d=""
-        stroke-width=""
-        stroke-linejoin=""
+        style={this.props.style}
+        fill="none"
+        stroke={ShapeHelpers.formatColor(this.props.shape.color)}
+        d={path}
+        strokeWidth={this.props.shape.thickness}
+        strokeLinejoin="round"
       >
       </path>
     );
   }
 }
+
+TriangleDrawComponent.defaultProps = {
+  style: {
+    WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)',
+  },
+};
