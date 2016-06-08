@@ -3,7 +3,7 @@ import Meetings from '/imports/api/meetings';
 import {getInStorage, setInStorage} from '/imports/ui/components/app/service';
 import {callServer} from '/imports/ui/services/api';
 import {clientConfig} from '/config';
-import {createVertoUserName, joinVertoAudio} from '/imports/api/verto';
+import {exitVertoAudio, joinVertoListenOnly, joinVertoMicrophone} from '/imports/api/verto';
 
 let triedHangup = false;
 
@@ -18,10 +18,9 @@ function amIListenOnly() {
 
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
-function exitVoiceCall(afterExitCall) {
+function exitAudio(afterExitCall) {
   if (!clientConfig.media.useSIPAudio) {
-    window.leaveWebRTCVoiceConference_verto();
-    window.cur_call = null;
+    exitVertoAudio();
     return;
   } else {
     // To be called when the hangup is initiated
@@ -72,7 +71,7 @@ function exitVoiceCall(afterExitCall) {
 }
 
 // join the conference. If listen only send the request to the server
-function joinVoiceCall(options) {
+function joinVoiceCallSIP(options) {
   const extension = getVoiceBridge();
   console.log(options);
   if (clientConfig.media.useSIPAudio) {
@@ -81,10 +80,6 @@ function joinVoiceCall(options) {
     const joinCallback = function (message) {
       console.log('Beginning WebRTC Conference Call');
     };
-
-    if (options.isListenOnly) {
-      callServer('listenOnlyRequestToggle', true);
-    }
 
     window.BBB = {};
     window.BBB.getMyUserInfo = function (callback) {
@@ -104,12 +99,24 @@ function joinVoiceCall(options) {
 
     callIntoConference(extension, function () {}, options.isListenOnly);
     return;
-  } else {
-    const conferenceUsername = createVertoUserName();
-    conferenceIdNumber = '1009';
-    joinVertoAudio({ extension, conferenceUsername, conferenceIdNumber,
-      listenOnly: options.isListenOnly, });
   }
 }
 
-export { joinVoiceCall, exitVoiceCall, getVoiceBridge, };
+function joinListenOnly() {
+  callServer('listenOnlyRequestToggle', true);
+  if (clientConfig.media.useSIPAudio) {
+    joinVoiceCallSIP({ isListenOnly: true });
+  } else {
+    joinVertoListenOnly();
+  }
+}
+
+function joinMicrophone() {
+  if (clientConfig.media.useSIPAudio) {
+    joinVoiceCallSIP({ isListenOnly: false });
+  } else {
+    joinVertoMicrophone();
+  }
+}
+
+export { joinListenOnly, joinMicrophone, exitAudio, getVoiceBridge, };
