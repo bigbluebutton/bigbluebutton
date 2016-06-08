@@ -1,14 +1,31 @@
 import Chat from '/imports/api/chat';
 import { logger } from '/imports/startup/server/logger';
 
+const BREAK_TAG = '<br/>';
+
+const parseMessage = (message) => {
+  message = message || '';
+
+  // Replace \r and \n to <br/>
+  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_TAG + '$2');
+
+  // Replace flash links to html valid ones
+  message = message.split(`<a href='event:`).join(`<a target="_blank" href='`);
+  message = message.split(`<a href="event:`).join(`<a target="_blank" href="`);
+
+  return message;
+};
+
 export function addChatToCollection(meetingId, messageObject) {
   let id;
 
   // manually convert time from 1.408645053653E12 to 1408645053653 if necessary
   // (this is the time_from that the Flash client outputs)
   messageObject.from_time = messageObject.from_time.toString().split('.').join('').split('E')[0];
+
+  messageObject.message = parseMessage(messageObject.message);
+
   if ((messageObject.from_userid != null) && (messageObject.to_userid != null)) {
-    messageObject.message = translateFlashToHTML5(messageObject.message);
     return id = Chat.upsert({
       meetingId: meetingId,
       'message.message': messageObject.message,
@@ -41,12 +58,4 @@ export function addChatToCollection(meetingId, messageObject) {
       }
     });
   }
-};
-
-// translate '<br/>' breakline character to '\r' carriage return character for HTML5
-const translateFlashToHTML5 = function (message) {
-  let result;
-  result = message;
-  result = result.replace(new RegExp(BREAK_LINE, 'g'), CARRIAGE_RETURN);
-  return result;
 };

@@ -17,9 +17,11 @@ addLocaleData([...en, ...es, ...pt]);
 let locale = navigator.language.split('-');
 locale = locale[1] ? `${locale[0]}-${locale[1].toUpperCase()}` : navigator.language;
 
+// locale = 'pt-BR'; // Set a locale for testing
+
 /* TODO: We should load the en first then merge with the en-US
    (eg: load country translation then region) */
-let messages = Locales[locale] || Locales['en'] || {};
+let messages = Locales[locale] || Locales.en || {};
 
 // Helper to load javascript libraries from the BBB server
 function loadLib(libname, success, fail) {

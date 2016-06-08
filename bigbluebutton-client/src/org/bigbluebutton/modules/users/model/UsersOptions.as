@@ -38,6 +38,9 @@ package org.bigbluebutton.modules.users.model
 		public var enableEmojiStatus:Boolean = true;
 
 		[Bindable]
+		public var enableBreakoutRooms:Boolean = true;
+
+		[Bindable]
 		public var enableSettingsButton:Boolean = true;
 
 		public function UsersOptions() {
@@ -56,6 +59,9 @@ package org.bigbluebutton.modules.users.model
 			}
 			if (vxml.@enableEmojiStatus != undefined) {
 				enableEmojiStatus = (vxml.@enableEmojiStatus.toString().toUpperCase() == "TRUE") ? true : false;
+			}
+			if (vxml.@enableBreakoutRooms != undefined) {
+				enableBreakoutRooms = (vxml.@enableBreakoutRooms.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 			if (vxml.@enableSettingsButton != undefined) {
 				enableSettingsButton = (vxml.@enableSettingsButton.toString().toUpperCase() == "TRUE") ? true : false;

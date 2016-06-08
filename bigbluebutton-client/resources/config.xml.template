@@ -38,34 +38,18 @@
 			allowKickUser="true"
 			enableEmojiStatus="true"
 			enableSettingsButton="true"
+			enableBreakoutRooms="true"
 			baseTabIndex="301"
 		/>
 
-		<module name="DeskShareModule" 
-			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
-			uri="rtmp://HOST/deskShare"
-			publishURI="HOST"
-			useTLS="false"
+		<module name="ScreenshareModule" 
+			url="http://HOST/client/ScreenshareModule.swf?v=VERSION" 
+			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
-			useWebRTCIfAvailable="false"
-			chromeExtensionKey=""
-			vertoPort="PORT"
-			hostName="HOST.NAME"
-			login="LOGIN"
-			password="PASSWORD"
 		/>
-		
-		<module name="ScreenshareModule" 
-      url="http://HOST/client/ScreenshareModule.swf?v=VERSION" 
-      uri="rtmp://HOST/screenshare"
-      showButton="true"
-      autoStart="false"
-      autoFullScreen="false"
-      baseTabIndex="201"
-    />
     
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 

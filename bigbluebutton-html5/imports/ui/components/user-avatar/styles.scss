@@ -1,0 +1,45 @@
+@import '../../stylesheets/variables/palette';
+
+/* Variables
+ * ==========
+ */
+$user-avatar-border: $color-gray-light;
+$user-avatar-text: $user-avatar-border;
+
+$voice-user-bg: $color-success;
+$voice-user-text: $color-white;
+
+$moderator-text: $color-white;
+$moderator-bg: $color-primary;
+
+.userAvatar {
+  @extend .flex-column;
+  flex-basis: 1.7rem;
+  flex-shrink: 0;
+  height: 1.7rem;
+  justify-content: center;
+  display: flex;
+  flex-flow: column;
+  font-size: 1.1rem;
+  text-align: center;
+  border-radius: 50%;
+  border: 2px solid $user-avatar-border;
+  color: $user-avatar-text;
+  text-transform: uppercase;
+}
+
+.voiceUser {
+  background-color: $voice-user-bg;
+  color: $voice-user-text;
+  border: none;
+}
+
+.presenter {
+  border-radius: 2px;
+}
+
+.moderator {
+  background-color: $moderator-bg;
+  color: $moderator-text;
+  border: none;
+}

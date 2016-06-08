@@ -1,9 +1,35 @@
-import { publish } from '/imports/startup/server/helpers';
+import { publish } from '/imports/api/common/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import { appendMessageHeader } from '/imports/startup/server/helpers';
-import { translateHTML5ToFlash } from '/imports/startup/server/helpers';
+import { appendMessageHeader } from '/imports/api/common/server/helpers';
+import { translateHTML5ToFlash } from '/imports/api/common/server/helpers';
 import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
+
+import RegexWebUrl from '/imports/utils/regex-weburl';
+
+const HTML_SAFE_MAP = {
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+const parseMessage = (message) => {
+  message = message || '';
+
+  message = message.trim();
+
+  // Replace <br/> with \n\r
+  message = message.replace(/<br\s*[\/]?>/gi, '\n\r');
+
+  // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
+  message = message.replace(/[<>'"]/g, c => HTML_SAFE_MAP[c]);
+
+  // Replace flash links to flash valid ones
+  message = message.replace(RegexWebUrl, "<a href='event:$&'><u>$&</u></a>");
+
+  return message;
+};
 
 Meteor.methods({
   // meetingId: the id of the meeting
@@ -17,6 +43,7 @@ Meteor.methods({
     const chatType = chatObject.chat_type;
     const recipient = chatObject.to_userid;
     let eventName = null;
+
     const action = function () {
       if (chatType === 'PUBLIC_CHAT') {
         eventName = 'send_public_chat_message';
@@ -31,8 +58,9 @@ Meteor.methods({
       }
     };
 
+    chatObject.message = parseMessage(chatObject.message);
+
     if (isAllowedTo(action(), credentials) && chatObject.from_userid === requesterUserId) {
-      chatObject.message = translateHTML5ToFlash(chatObject.message);
       let message = {
         payload: {
           message: chatObject,

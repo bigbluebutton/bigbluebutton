@@ -4,6 +4,7 @@ import { handleEndOfMeeting } from '/imports/api/meetings/server/modifiers/event
 import { userJoined } from './userJoined';
 import { setUserLockedStatus } from './setUserLockedStatus';
 import { markUserOffline } from './markUserOffline';
+import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Users from '../..';
 
 eventEmitter.on('user_eject_from_meeting', function (arg) {
@@ -105,7 +106,7 @@ eventEmitter.on('user_joined_message', function (arg) {
 });
 
 eventEmitter.on('get_users_reply', function (arg) {
-  if (arg.payload.requester_id === 'nodeJSapp') {
+  if (inReplyToHTML5Client(arg)) {
     console.log('get_users_reply handling');
     let users = arg.payload.users;
     const meetingId = arg.payload.meeting_id;

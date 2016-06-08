@@ -1,0 +1,13 @@
+@import "imports/ui/stylesheets/variables/_all";
+@import "imports/ui/stylesheets/mixins/_scrollable";
+
+.messageList {
+  @include scrollbox-vertical();
+  flex-flow: column;
+  flex-grow: 1;
+  flex-grow: 1;
+  flex-shrink: 1;
+  margin-right: -$line-height-computed;
+  padding-right: $line-height-computed;
+  padding-bottom: $line-height-computed;
+}

@@ -1,5 +1,6 @@
 import Deskshare from '/imports/api/deskshare';
 import { logger } from '/imports/startup/server/logger';
+import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 
 export function handleDeskShareChange(meetingId, deskshareInfo) {
   logger.info(`__${meetingId}__deskshareInfo= + ${JSON.stringify(deskshareInfo)}`);
@@ -20,7 +21,7 @@ export function handleDeskShareChange(meetingId, deskshareInfo) {
 // });
 //
 // emitter.on('desk_share_notify_a_single_viewer', function (arg) {
-//   if (arg.payload.requester_id === 'nodeJSapp') {
+//   if (inReplyToHTML5Client(arg)) {
 //     handleIncomingDeskshareMessage(arg);
 //   }
 //   return arg.callback();

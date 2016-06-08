@@ -10,16 +10,22 @@ module.exports = function (grunt) {
   var SETTINGS_PROD = require('./settings-production.json');
 
   // root URL in development/production:
-  var devRootURL = (SETTINGS_DEV.rootURL == undefined) ? 'http://127.0.0.1/html5client' : SETTINGS_DEV.rootURL;
-  var prodRootURL = (SETTINGS_PROD.rootURL == undefined) ? 'http://127.0.0.1/html5client' : SETTINGS_PROD.rootURL;
+  var devRootURL = (SETTINGS_DEV.rootURL == undefined)
+    ? 'http://127.0.0.1/html5client'
+    : SETTINGS_DEV.rootURL;
+  var prodRootURL = (SETTINGS_PROD.rootURL == undefined)
+    ? 'http://127.0.0.1/html5client'
+    : SETTINGS_PROD.rootURL;
 
   // command line string containing the Meteor's home directory in development/production:
   var devHomeStr = (SETTINGS_DEV.home == undefined) ? '' : ('HOME=' + SETTINGS_DEV.home + ' ');
   var prodHomeStr = (SETTINGS_PROD.home == undefined) ? '' : ('HOME=' + SETTINGS_PROD.home + ' ');
 
   // final commands:
-  var METEOR_DEV_COMMAND = devHomeStr + 'ROOT_URL=' + devRootURL + ' meteor --settings settings-development.json';
-  var METEOR_PROD_COMMAND = prodHomeStr + 'ROOT_URL=' + prodRootURL + ' meteor --settings settings-production.json';
+  var METEOR_DEV_COMMAND = devHomeStr + 'ROOT_URL=' +
+    devRootURL + ' meteor --settings settings-development.json';
+  var METEOR_PROD_COMMAND = prodHomeStr + 'ROOT_URL=' +
+    prodRootURL + ' meteor --settings settings-production.json';
 
   // configure Grunt
   grunt.initConfig({

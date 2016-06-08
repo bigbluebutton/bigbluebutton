@@ -1,16 +1,15 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import Service from './service.js';
 
-import UserList from './UserList';
+import UserList from './component.jsx';
 
 class UserListContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
-      <UserList {...this.props}>
+      <UserList
+        {...this.props}
+        users={this.props.users}>
         {this.props.children}
       </UserList>
     );
@@ -18,5 +17,6 @@ class UserListContainer extends Component {
 }
 
 export default createContainer(() => {
-  return {};
+  const data = Service.mapUsers();
+  return data;
 }, UserListContainer);

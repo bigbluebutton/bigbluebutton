@@ -56,7 +56,6 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   public boolean appStart(IScope app) {
     super.appStart(app);
     log.info("BBB Screenshare appStart\n\n\n\n\n\n");
-    log.error("BBB Screenshare appStart err\n\n\n\n\n\n");
     System.out.println("BBB Screenshare appStart system println\n\n\n\n\n\n");
     sender.setAppScope(app);
     return true;

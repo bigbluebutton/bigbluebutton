@@ -1,0 +1,66 @@
+@import '../styles.scss';
+
+.userListItem {
+  @extend .list-item;
+
+  .cursorPointer {
+    opacity: 0;
+    cursor: pointer;
+    transition: all 0.3s all;
+  }
+
+  &:hover,
+  &:focus {
+    .cursorPointer {
+      opacity: 1;
+    }
+  }
+}
+
+.userName {
+  @extend .flex-column;
+  min-width: 0;
+  flex-grow: 1;
+  margin-left: 0.7rem;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.userNameMain {
+  @extend .no-margin;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+.userNameSub {
+  @extend .no-margin;
+  font-size: 0.8rem;
+  line-height: 0.75rem;
+  font-weight: 200;
+  font-style: italic;;
+  color: $sub-name-color;
+}
+
+.userIconsContainer {
+  @extend .flex-column;
+  text-align: center;
+  flex-basis: 1rem;
+  justify-content: center;
+  transition: 0.3s all;
+}
+
+.userIcons {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  padding-left: 0.3rem;
+  text-align: right;
+  font-size: 1rem;
+  flex-basis: 4rem;
+  flex-shrink: 1;
+  color: $user-icons-color;
+}

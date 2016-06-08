@@ -62,3 +62,9 @@ export const translateHTML5ToFlash = function (message) {
   result = result.replace(new RegExp(NEW_LINE, 'g'), BREAK_LINE);
   return result;
 };
+
+// when requesting for history information we pass this made up requesterID
+// We want to handle only the reports we requested
+export const inReplyToHTML5Client = function(arg) {
+  return arg.payload.requester_id === 'nodeJSapp'
+};
