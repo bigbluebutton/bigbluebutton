@@ -882,7 +882,10 @@ class WindowlessFrame implements Serializable {
     mMoveBarFrame.removeMouseMotionListener(movingAdapter);
     repaint();
 
-    System.out.println("Removing listeners......................");
+  }
+
+  public void hideControlFrames() {
+    System.out.println("Hiding controls ......................");
     mToolbarFrame.setVisible(false);
     mResizeBarFrame.setVisible(false);
     mMoveBarFrame.setVisible(false);

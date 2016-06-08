@@ -141,6 +141,9 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         lifeline = new LifeLine(listenPortValue.intValue(), dsMain);
         lifeline.listen();
 
+        System.setProperty("org.bytedeco.javacpp.logger.debug", "true");
+        System.out.println("org.bytedeco.javacpp.logger.debug : " + System.getProperty("org.bytedeco.javacpp.logger.debug"));
+
         client = new DeskshareClient.NewBuilder().host(serverUrl).port(portValue)
             .meetingId(meetingId).streamId(streamId).captureWidth(cWidthValue)
             .captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
