@@ -2,9 +2,12 @@ package org.bigbluebutton.screenshare.client.javacv;
 
 import static org.bytedeco.javacpp.avcodec.AV_CODEC_ID_FLASHSV2;
 import static org.bytedeco.javacpp.avcodec.AV_CODEC_ID_H264;
-import static org.bytedeco.javacpp.avutil.AV_PIX_FMT_BGR24;
-import static org.bytedeco.javacpp.avutil.AV_PIX_FMT_BGR0;
-import static org.bytedeco.javacpp.avutil.AV_PIX_FMT_YUV420P;
+import static org.bytedeco.javacpp.avcodec.avcodec_register_all;
+import static org.bytedeco.javacpp.avdevice.avdevice_register_all;
+import static org.bytedeco.javacpp.avformat.av_register_all;
+import static org.bytedeco.javacpp.avformat.avformat_network_init;
+import static org.bytedeco.javacpp.avutil.*;
+
 import java.awt.AWTException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,6 +19,7 @@ import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.FrameGrabber;
 
 public class FfmpegScreenshare {
   private volatile boolean startBroadcast = false;
@@ -34,7 +38,7 @@ public class FfmpegScreenshare {
 
   private final String FRAMERATE_KEY = "frameRate";
   private final String KEYFRAMEINTERVAL_KEY = "keyFrameInterval";
-  
+
   public FfmpegScreenshare(ScreenShareInfo ssi) {
     this.ssi = ssi;
   }
@@ -66,6 +70,7 @@ public class FfmpegScreenshare {
     System.out.println("OS arch : " + System.getProperty("os.arch"));
     System.out.println("JNA Path : " + System.getProperty("jna.library.path"));
     System.out.println("Platform : " + Loader.getPlatform());
+    System.out.println("Platform lib path: " + System.getProperty("java.library.path"));
     System.out.println("Capturing w=[" + width + "] h=[" + height + "] at x=[" + x + "] y=[" + y + "]");
     
     Map<String, String> codecOptions = splitToMap(ssi.codecOptions, "&", "=");
@@ -414,7 +419,7 @@ private  FFmpegFrameRecorder setupMacOsXRecorder(String url, int width, int heig
     macGrabber.setImageWidth(width);
     macGrabber.setImageHeight(height);
     macGrabber.setFrameRate(frameRate);
-    macGrabber.setPixelFormat(AV_PIX_FMT_BGR0);
+    macGrabber.setPixelFormat(AV_PIX_FMT_RGB0);
     macGrabber.setFormat("avfoundation");
     macGrabber.setOption("capture_cursor", "1");
     macGrabber.setOption("capture_mouse_clicks", "1");
