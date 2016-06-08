@@ -133,7 +133,7 @@ public class NetworkHttpStreamSender {
       throw new ConnectionException("IOException while connecting to " + url.toString());
     }
     long end = System.currentTimeMillis();
-    System.out.println("Http Open connection took [" + (end-start) + " ms]");
+    //System.out.println("Http Open connection took [" + (end-start) + " ms]");
   }
 
   private void sendStartStreamMessage(ShareStartedMessage message) {
@@ -202,7 +202,7 @@ public class NetworkHttpStreamSender {
 
         // Open a connection to the web server and create a request that has
         // the room and event type.
-        System.out.println(getTimeStamp() + " - Sending Update Sharing Event.");
+        //System.out.println(getTimeStamp() + " - Sending Update Sharing Event.");
         openConnection();
         chr = new ClientHttpRequest(conn);
         chr.setParameter(MEETING_ID, meetingId);
@@ -214,7 +214,7 @@ public class NetworkHttpStreamSender {
         HttpURLConnection httpConnection = (HttpURLConnection) chr.connection;
         int status = httpConnection.getResponseCode();
 
-        System.out.println("******* POST status = [" + status + "] ***************");
+        //System.out.println("******* POST status = [" + status + "] ***************");
 
       } catch (IOException e) {
         notifyNetworkStreamListener(ExitCode.NORMAL);

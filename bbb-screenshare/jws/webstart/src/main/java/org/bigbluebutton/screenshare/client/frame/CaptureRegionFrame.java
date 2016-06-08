@@ -29,6 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -149,12 +151,26 @@ public class CaptureRegionFrame {
   }
 
   private void startCapture() {
-    System.out.println(CLASS + " - startCapture" );
-    frame.changeBorderToBlue();
-    System.out.println(CLASS + " - startCapture:: Change border to blue" );
+    String pattern = "yyyy.MM.dd G 'at' HH:mm:ss z";
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
+    String startDate = simpleDateFormat.format(new Date());
+    System.out.println("Loading start time: " + startDate);
+
+    btnStartStop.setEnabled(false);
+    btnStartStop.setLabel("Initializing...");
+    frame.repaint();
     frame.removeResizeListeners();
     Rectangle rect = frame.getFramedRectangle();
     client.onStartCapture(rect.x, rect.y, frame.getWidth(), frame.getHeight());
+    System.out.println(CLASS + " - startCapture" );
+    frame.hideControlFrames();
+
+    String endDate = simpleDateFormat.format(new Date());
+    System.out.println("Loading end time: " + endDate);
+
+    frame.changeBorderToBlue();
+    System.out.println(CLASS + " - startCapture:: Change border to blue" );
   }
 
   private void stopCapture() {		
