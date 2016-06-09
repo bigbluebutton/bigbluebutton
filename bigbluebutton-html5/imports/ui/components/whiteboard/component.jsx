@@ -44,19 +44,25 @@ export default class Whiteboard extends React.Component {
             className={styles.svgStyles}
             key={slideObj.id}
           >
-
-            <Slide current_slide={this.props.current_slide}/>
-            {this.props.shapes ? this.props.shapes.map((shape) =>
-              <WhiteboardShapeModel
-                shape={shape.shape}
-                key={shape.shape.id}
-                slideWidth = {slideObj.width}
-                slideHeight = {slideObj.height}
-                widthRatio={slideObj.width_ratio}
-                heightRatio={slideObj.height_ratio}
-              />
-              )
-            : null }
+            <defs>
+              <clipPath id="viewBox">
+                <rect x={x} y={y} width="100%" height="100%" fill="none"/>
+              </clipPath>
+            </defs>
+            <g clipPath="url(#viewBox)">
+              <Slide current_slide={this.props.current_slide}/>
+              {this.props.shapes ? this.props.shapes.map((shape) =>
+                <WhiteboardShapeModel
+                  shape={shape.shape}
+                  key={shape.shape.id}
+                  slideWidth = {slideObj.width}
+                  slideHeight = {slideObj.height}
+                  widthRatio={slideObj.width_ratio}
+                  heightRatio={slideObj.height_ratio}
+                />
+                )
+              : null }
+            </g>
           </svg>
         </ReactCSSTransitionGroup>
       );
