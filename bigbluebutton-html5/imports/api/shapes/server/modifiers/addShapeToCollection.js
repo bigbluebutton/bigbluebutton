@@ -2,7 +2,10 @@ import Shapes from '/imports/api/shapes';
 import { logger } from '/imports/startup/server/logger';
 
 export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
-  let entry, id, removeTempTextShape;
+  let entry;
+  let id;
+  let removeTempTextShape;
+
   if (shapeObject != null && shapeObject.shape_type === 'text') {
     logger.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
     entry = {
@@ -32,24 +35,30 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
         },
       },
     };
-    if (shapeObject.status === 'textEdited' || shapeObject.status === 'textPublished') {
-      // only keep the final version of the text shape
-      removeTempTextShape = function (callback) {
-        Shapes.remove({
-          'shape.id': shapeObject.shape.id,
-        });
-        return callback();
-      };
 
-      return removeTempTextShape(() => {
-        // display as the prestenter is typing
-        let id;
-        id = Shapes.insert(entry);
+    if (shapeObject.status === 'textCreated') {
+      Shapes.insert(entry);
+      return logger.info(`${shapeObject.status} adding an initial text shape to the collection`);
+    } else if (shapeObject.status === 'textEdited' || shapeObject.status === 'textPublished') {
+      //check if the shape with this id exists in the collection
+      //this check and 'else' block can be removed once issue #3170 is fixed
+      let _shape = Shapes.findOne({ 'shape.id': shapeObject.shape.id });
+
+      if (_shape != null) {
+        Shapes.update({
+            'shape.id': entry.shape.id,
+          }, {
+            $set: {
+              shape: entry.shape,
+            },
+          });
+
         return logger.info(`${shapeObject.status} substituting the temp shapes with the newer one`);
-      });
+      } else {
+        Shapes.insert(entry);
+      }
     }
 
-    // the mouse button was released - the drawing is complete
     // TODO: pencil messages currently don't send draw_end and are labeled all as DRAW_START
   } else if (shapeObject != null && (shapeObject.status === 'DRAW_START' ||
       shapeObject.status === 'DRAW_UPDATE' || shapeObject.status === 'DRAW_END')) {
