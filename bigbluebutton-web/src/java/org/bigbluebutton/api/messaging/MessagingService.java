@@ -34,7 +34,6 @@ public interface MessagingService {
 	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);
 	void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String guest);
 	void sendKeepAlive(String keepAliveId);
-	void publishRecording(String meetingID, String recordingID);
-	void unpublishRecording(String meetingID, String recordingID);
-	void deleteRecording(String meetingID, String recordingID);
+	void publishRecording(String meetingId, boolean publish);
+	void deleteRecording(String meetingId);
 }

@@ -47,16 +47,13 @@ import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.ReceivedMessage;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
-import org.bigbluebutton.api.messaging.messages.DeleteRecording;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
-import org.bigbluebutton.api.messaging.messages.PublishRecording;
 import org.bigbluebutton.api.messaging.messages.RegisterUser;
 import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
-import org.bigbluebutton.api.messaging.messages.UnpublishRecording;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
@@ -444,13 +441,19 @@ public class MeetingService implements MessageListener {
 	
 	public void setPublishRecording(ArrayList<String> idList,boolean publish){
 		for(String id:idList){
-			recordingService.publish(id,publish);
+			boolean success = recordingService.publish(id, publish);
+			if (success) {
+				messagingService.publishRecording(id, publish);
+			}
 		}
 	}
 	
 	public void deleteRecordings(ArrayList<String> idList){
 		for(String id:idList){
-			recordingService.delete(id);
+			boolean success = recordingService.delete(id);
+			if (success) {
+				messagingService.deleteRecording(id);
+			}
 		}
 	}
 	
@@ -797,14 +800,7 @@ public class MeetingService implements MessageListener {
 	  			processEndMeeting((EndMeeting)message);
 	  		} else if (message instanceof RegisterUser) {
 	  			processRegisterUser((RegisterUser) message);
-	  		} else if (message instanceof PublishRecording){
-	  			processPublishRecording((PublishRecording)message);
-	  		} else if (message instanceof UnpublishRecording){
-	  			processUnpublishRecording((UnpublishRecording)message);
-	  		} else if (message instanceof DeleteRecording){
-	  			processDeleteRecording((DeleteRecording)message);
-	  		}
-
+	  		}	
 	    }
 		};
 		
@@ -871,29 +867,5 @@ public class MeetingService implements MessageListener {
 	
 	public void setRemoveMeetingWhenEnded(boolean s) {
 		removeMeetingWhenEnded = s;
-	}
-
-	public void publishRecording(String meetingID, String recordingID) {
-		handle(new PublishRecording(meetingID, recordingID));
-	}
-	
-	private void processPublishRecording(PublishRecording message) {
-		messagingService.publishRecording(message.meetingID, message.recordingID);
-	}
-
-	public void unpublishRecording(String meetingID, String recordingID) {
-		handle(new UnpublishRecording(meetingID, recordingID));
-	}
-	
-	private void processUnpublishRecording(UnpublishRecording message) {
-		messagingService.unpublishRecording(message.meetingID, message.recordingID);
-	}
-
-		public void deleteRecording(String meetingID, String recordingID) {
-		handle(new DeleteRecording(meetingID, recordingID));
-	}
-	
-	private void processDeleteRecording(DeleteRecording message) {
-		messagingService.deleteRecording(message.meetingID, message.recordingID);
 	}
 }

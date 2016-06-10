@@ -151,14 +151,16 @@ public class RecordingService {
 		return rec;
 	}
 	
-	public void publish(String recordingId, boolean publish) {
-		if(publish)
-			publish(unpublishedDir, recordingId, publish);
-		else
-			publish(publishedDir, recordingId, publish);		
+	public boolean publish(String recordingId, boolean publish) {
+		if (publish) {
+			return publish(unpublishedDir, recordingId, publish);
+		} else {
+			return publish(publishedDir, recordingId, publish);
+		}
 	}
 	
-	private void publish(String path, String recordingId, boolean publish) {
+	private boolean publish(String path, String recordingId, boolean publish) {
+		boolean anyResult = false;
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
 			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
@@ -179,30 +181,37 @@ public class RecordingService {
 							r.setPublished(publish);
 							recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings[f].getName(), r);
 						}
+						anyResult |= moved;
 					}
 				}				
 			}
 		}
+		return anyResult;
 	}
 		
-	public void delete(String recordingId) {
-		deleteRecording(recordingId, publishedDir);
-		deleteRecording(recordingId, unpublishedDir);
+	public boolean delete(String recordingId) {
+		boolean anyResult = false;
+		anyResult |= deleteRecording(recordingId, publishedDir);
+		anyResult |= deleteRecording(recordingId, unpublishedDir);
+		return anyResult;
 	}
 	
-	private void deleteRecording(String id, String path) {
+	private boolean deleteRecording(String id, String path) {
+		boolean anyResult = false;
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
 			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
 			for (int f = 0; f < recordings.length; f++) {
 				if (recordings[f].getName().equals(id)) {
-					deleteDirectory(recordings[f]);
+					boolean deleted = deleteDirectory(recordings[f]);
+					anyResult |= deleted;
 				}				
 			}
-		}		
+		}
+		return anyResult;
 	}
 	
-	private void deleteDirectory(File directory) {
+	private boolean deleteDirectory(File directory) {
 		/**
 		 * Go through each directory and check if it's not empty.
 		 * We need to delete files inside a directory before a
@@ -217,7 +226,7 @@ public class RecordingService {
 			}
 		}
 		// Now that the directory is empty. Delete it.
-		directory.delete();	
+		return directory.delete();	
 	}
 	
 	private File[] getDirectories(String path) {

@@ -127,25 +127,30 @@ public class RedisMessagingService implements MessagingService {
 		storeService.removeMeeting(meetingId);
 	}
 	
-	public void publishRecording(String meetingID, String recordingID) {
-		PublishRecordingMessage msg = new PublishRecordingMessage(meetingID, recordingID);
+	private void publishRecording(String meetingId) {
+		PublishRecordingMessage msg = new PublishRecordingMessage(meetingId);
 		String json = MessageToJson.publishRecordingMessageToJson(msg);
-		log.info("Sending Recording has been Published message:[{}]", json);
-		sender.send(MessagingConstants.RECORDING_PUBLISHED_EVENT, json);		
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
 	}
-
-	public void unpublishRecording(String meetingID, String recordingID) {
-		UnpublishRecordingMessage msg = new UnpublishRecordingMessage(meetingID, recordingID);
+	
+	private void unpublishRecording(String meetingId) {
+		UnpublishRecordingMessage msg = new UnpublishRecordingMessage(meetingId);
 		String json = MessageToJson.unpublishRecordingMessageToJson(msg);
-		log.info("Sending Recording has been Unublished message:[{}]", json);
-		sender.send(MessagingConstants.RECORDING_UNPUBLISHED_EVENT, json);		
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
+	}
+	
+	public void publishRecording(String meetingId, boolean publish) {
+		if (publish) {
+			publishRecording(meetingId);
+		} else {
+			unpublishRecording(meetingId);
+		}
 	}
 
-	public void deleteRecording(String meetingID, String recordingID) {
-		DeleteRecordingMessage msg = new DeleteRecordingMessage(meetingID, recordingID);
+	public void deleteRecording(String meetingId) {
+		DeleteRecordingMessage msg = new DeleteRecordingMessage(meetingId);
 		String json = MessageToJson.deleteRecordingMessageToJson(msg);
-		log.info("Sending Recording has been Deleted message:[{}]", json);
-		sender.send(MessagingConstants.RECORDING_DELETED_EVENT, json);		
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
 	}
 
 }

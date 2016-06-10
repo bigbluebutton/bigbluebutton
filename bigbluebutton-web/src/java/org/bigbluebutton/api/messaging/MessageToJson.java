@@ -73,29 +73,26 @@ public class MessageToJson {
 	
 	public static String publishRecordingMessageToJson(PublishRecordingMessage message) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
-		payload.put(Constants.MEETING_ID, message.meetingID);
-		payload.put(Constants.RECORDING, message.recordingID);
+		payload.put(Constants.MEETING_ID, message.meetingId);
 		
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(PublishRecordingMessage.PUBLISH_RECORDING, message.VERSION, null);
-		return MessageBuilder.buildJson(header, payload);		
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(PublishRecordingMessage.PUBLISH_RECORDING, PublishRecordingMessage.VERSION, null);
+		return MessageBuilder.buildJson(header, payload);
 	}
 
 	public static String unpublishRecordingMessageToJson(UnpublishRecordingMessage message) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
-		payload.put(Constants.MEETING_ID, message.meetingID);
-		payload.put(Constants.RECORDING, message.recordingID);
+		payload.put(Constants.MEETING_ID, message.meetingId);
 		
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(UnpublishRecordingMessage.UNPUBLISH_RECORDING, message.VERSION, null);
-		return MessageBuilder.buildJson(header, payload);		
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(UnpublishRecordingMessage.UNPUBLISH_RECORDING, UnpublishRecordingMessage.VERSION, null);
+		return MessageBuilder.buildJson(header, payload);
 	}
 
 	public static String deleteRecordingMessageToJson(DeleteRecordingMessage message) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
-		payload.put(Constants.MEETING_ID, message.meetingID);
-		payload.put(Constants.RECORDING, message.recordingID);
+		payload.put(Constants.MEETING_ID, message.meetingId);
 		
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DeleteRecordingMessage.DELETE_RECORDING, message.VERSION, null);
-		return MessageBuilder.buildJson(header, payload);		
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DeleteRecordingMessage.DELETE_RECORDING, DeleteRecordingMessage.VERSION, null);
+		return MessageBuilder.buildJson(header, payload);
 	}
 	
 }
