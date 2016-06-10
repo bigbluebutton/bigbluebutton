@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.layout.managers
   import mx.controls.Alert;
   import mx.events.EffectEvent;
   import mx.events.ResizeEvent;
+  import mx.events.CloseEvent;
 
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -64,8 +65,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
-  import org.bigbluebutton.modules.layout.views.OverwriteWindow;
-  import org.bigbluebutton.modules.layout.views.AddCurrentLayoutToFileWindow;
+  import org.bigbluebutton.modules.layout.views.CustomLayoutNameWindow;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class LayoutManager extends EventDispatcher {
@@ -79,6 +79,7 @@ package org.bigbluebutton.modules.layout.managers
 		private var _serverLayoutsLoaded:Boolean = false;
 		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
 		private var _applyingLayoutCounter:int = 0;
+		private var _temporaryLayoutName:String = "";
     
     private var _layoutModel:LayoutModel = LayoutModel.getInstance();
     
@@ -123,12 +124,24 @@ package org.bigbluebutton.modules.layout.managers
 		
 		public function saveLayoutsToFile():void {
 			if (!_currentLayout.currentLayout) {
-				var addCurrentWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, AddCurrentLayoutToFileWindow, true);
-				PopUpManager.centerPopUp(addCurrentWindow);
+				var alertSaveCurrentLayToFile:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.layout.addCurrentToFileWindow.text'),
+					ResourceUtil.getInstance().getString('bbb.layout.addCurrentToFileWindow.title'),
+					Alert.YES | Alert.NO, _canvas, alertSaveCurrentLayoutFile, null, Alert.YES);
 			} else {
 				saveLayoutsWindow();
 			}
 		}
+
+		public function alertSaveCurrentLayoutFile(e:CloseEvent):void {
+				// Check to see if the YES button was pressed.
+				if (e.detail==Alert.YES) {
+					var layoutNameWindow:CustomLayoutNameWindow = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true) as CustomLayoutNameWindow;
+					layoutNameWindow.savingForFileDownload = true;
+					PopUpManager.centerPopUp(layoutNameWindow);
+				} else if (e.detail==Alert.NO){
+					saveLayoutsWindow();
+				}
+			}
 
 		public function saveLayoutsWindow():void{
 			var _fileRef:FileReference = new FileReference();
@@ -152,37 +165,44 @@ package org.bigbluebutton.modules.layout.managers
 			loader.loadFromLocalFile();
 		}
 
+		public function alertOverwriteLayoutName(event:CloseEvent):void {
+				// Check to see if the YES button was pressed.
+				if (event.detail==Alert.YES) {
+					var e:LayoutEvent = new LayoutEvent(LayoutEvent.ADD_CURRENT_LAYOUT_EVENT);
+					e.overwrite = true;
+					e.layoutName = _temporaryLayoutName;
+					addCurrentLayoutToList(e);
+				} else if (event.detail==Alert.NO){
+					return;
+				}
+			}
+
 		public function addCurrentLayoutToList(e:LayoutEvent):void {
 				// Layout Name Window Popup calls this function
 				var newLayout:LayoutDefinition;
+				var layoutName:LayoutNameInUseEvent = new LayoutNameInUseEvent();
+				_temporaryLayoutName = e.layoutName;
 				if (e.layoutName != "") {
 					newLayout = LayoutDefinition.getLayout(_canvas, e.layoutName);
-					
 					// This is true when the name given is already in use
-					// Or when the user picks a name from their preferred location
-					if (_layoutModel.hasLayout(e.layoutName) ||
-						e.layoutName == ResourceUtil.getInstance().getString('bbb.layout.name.defaultlayout') ||
-						e.layoutName == ResourceUtil.getInstance().getString('bbb.layout.name.videochat') ||
-						e.layoutName == ResourceUtil.getInstance().getString('bbb.layout.name.webcamsfocus') ||
-						e.layoutName == ResourceUtil.getInstance().getString('bbb.layout.name.presentfocus')) {
+					if (_layoutModel.hasLayout(e.layoutName)) {
 
 						if (!e.overwrite) {
-							var layoutName:LayoutNameInUseEvent = new LayoutNameInUseEvent();
 							layoutName.inUse = true;
 							_globalDispatcher.dispatchEvent(layoutName);
 
-							var overwriteWindow:OverwriteWindow;
-							overwriteWindow = OverwriteWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OverwriteWindow, true));
-							PopUpManager.centerPopUp(overwriteWindow);
-							overwriteWindow.layoutNameOverwrite = e.layoutName;
-							
-							return;
+							var alertOverwriteLayName:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.layout.overwriteLayoutName.text'),
+							ResourceUtil.getInstance().getString('bbb.layout.overwriteLayoutName.title'),
+							Alert.YES | Alert.NO, _canvas, alertOverwriteLayoutName, null, Alert.NO);
+
+							return; //to stop the creation of a new layout with the same name
 						} else {
 							_layoutModel.removeLayout(newLayout);
 						}
 					}
 				} else {
-					// if the user set the name empty
+					// if the user does not change the "Custom Layout" name that is default when the windows is shown
+					// the name will be "Custom Layout #", incrementing number # to avoid overwrite
 					newLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
 					newLayout.name += " " + (++_customLayoutsCount);
 				}
@@ -197,8 +217,9 @@ package org.bigbluebutton.modules.layout.managers
 				redefineLayout.remote = true;
 				_globalDispatcher.dispatchEvent(redefineLayout);
 
-				var layoutName:LayoutNameInUseEvent = new LayoutNameInUseEvent();
 				layoutName.inUse = false;
+				_temporaryLayoutName = "";
+
 				_globalDispatcher.dispatchEvent(layoutName);
 		}
 		

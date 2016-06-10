@@ -2,6 +2,7 @@ package org.bigbluebutton.modules.layout.model
 {
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class LayoutModel
   {
@@ -34,9 +35,17 @@ package org.bigbluebutton.modules.layout.model
     }
     
     public function hasLayout(name:String):Boolean {
-      var layoutName:LayoutDefinition = _layouts.getLayout(name);
-      
-      if (layoutName != null) return true;
+      for each (var lay:Object in getLayoutNames()){
+        var translatedName:String = ResourceUtil.getInstance().getString(lay.name);
+        if (translatedName == "undefined"){
+          if (name == lay.name){
+            return true;
+          }
+        }
+        else if (translatedName == name){
+          return true;
+        }
+      }
       
       return false;
     }

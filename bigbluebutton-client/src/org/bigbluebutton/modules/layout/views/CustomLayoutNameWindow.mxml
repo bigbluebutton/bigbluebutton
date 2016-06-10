@@ -59,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           if (savingForFileDownload) {
             var dispatcher:Dispatcher = new Dispatcher();
             dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_WINDOW_EVENT));
+            savingForFileDownload = false;
           }
         } else {
           trace("The name is already in use, waiting for overwrite command or rename");

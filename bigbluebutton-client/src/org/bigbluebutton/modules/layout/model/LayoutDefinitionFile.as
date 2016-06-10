@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.layout.model
 {
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+
 	public class LayoutDefinitionFile {
 		private var _layouts:Array = new Array();
 		
@@ -55,7 +57,17 @@ package org.bigbluebutton.modules.layout.model
 		}
 		
 		public function indexOf(layoutDefinition:LayoutDefinition):int{
-			return _layouts.indexOf(layoutDefinition);
+			for (var i:Number=0; i < _layouts.length; i++){
+				var translatedName:String = ResourceUtil.getInstance().getString(_layouts[i].name);
+				if (translatedName == "undefined"){
+					if(_layouts[i].name == layoutDefinition.name){
+						return i;
+					}
+				} else if (translatedName == layoutDefinition.name){
+					return i;
+				}
+			}
+			return -1;
 		}
 
 
