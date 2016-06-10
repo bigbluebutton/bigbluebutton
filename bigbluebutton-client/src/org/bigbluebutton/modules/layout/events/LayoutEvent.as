@@ -38,7 +38,6 @@ package org.bigbluebutton.modules.layout.events
     public static const INVALIDATE_LAYOUT_EVENT:String = 'INVALIDATE_LAYOUT_EVENT';
 
     public var layoutName:String = "";
-    public var overwrite:Boolean = false;
 
     public function LayoutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
     {
