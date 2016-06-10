@@ -40,6 +40,7 @@ public class MessagingConstants {
   public static final String TO_USERS_CHANNEL            = TO_BBB_APPS_CHANNEL + ":users";
   public static final String TO_CHAT_CHANNEL             = TO_BBB_APPS_CHANNEL + ":chat";   
 
+	public static final String FROM_BBB_RECORDING_CHANNEL  = "bigbluebutton:from-rap";
 	
 	public static final String MEETING_STARTED_EVENT         = "meeting_created_message";
 	public static final String MEETING_ENDED_EVENT           = "meeting_ended_message";

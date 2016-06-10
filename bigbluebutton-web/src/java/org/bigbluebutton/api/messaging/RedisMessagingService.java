@@ -33,6 +33,9 @@ import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
+import org.bigbluebutton.api.messaging.converters.messages.PublishRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.UnpublishRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DeleteRecordingMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -124,4 +127,30 @@ public class RedisMessagingService implements MessagingService {
 		storeService.removeMeeting(meetingId);
 	}
 	
+	private void publishRecording(String meetingId) {
+		PublishRecordingMessage msg = new PublishRecordingMessage(meetingId);
+		String json = MessageToJson.publishRecordingMessageToJson(msg);
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
+	}
+	
+	private void unpublishRecording(String meetingId) {
+		UnpublishRecordingMessage msg = new UnpublishRecordingMessage(meetingId);
+		String json = MessageToJson.unpublishRecordingMessageToJson(msg);
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
+	}
+	
+	public void publishRecording(String meetingId, boolean publish) {
+		if (publish) {
+			publishRecording(meetingId);
+		} else {
+			unpublishRecording(meetingId);
+		}
+	}
+
+	public void deleteRecording(String meetingId) {
+		DeleteRecordingMessage msg = new DeleteRecordingMessage(meetingId);
+		String json = MessageToJson.deleteRecordingMessageToJson(msg);
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
+	}
+
 }

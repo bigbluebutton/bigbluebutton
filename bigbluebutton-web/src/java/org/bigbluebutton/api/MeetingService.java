@@ -442,13 +442,19 @@ public class MeetingService implements MessageListener {
 	
 	public void setPublishRecording(ArrayList<String> idList,boolean publish){
 		for(String id:idList){
-			recordingService.publish(id,publish);
+			boolean success = recordingService.publish(id, publish);
+			if (success) {
+				messagingService.publishRecording(id, publish);
+			}
 		}
 	}
 	
 	public void deleteRecordings(ArrayList<String> idList){
 		for(String id:idList){
-			recordingService.delete(id);
+			boolean success = recordingService.delete(id);
+			if (success) {
+				messagingService.deleteRecording(id);
+			}
 		}
 	}
 	
