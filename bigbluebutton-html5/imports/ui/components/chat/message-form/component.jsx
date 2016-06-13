@@ -4,7 +4,7 @@ import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import styles from './styles';
 
-import Button from '../../button/component';
+import MessageFormActions from './message-form-actions/component';
 import TextareaAutosize from 'react-autosize-textarea';
 
 const propTypes = {
@@ -86,14 +86,11 @@ class MessageForm extends Component {
         ref="form"
         className={cx(this.props.className, styles.form)}
         onSubmit={this.handleSubmit}>
-        <div className={styles.actions}>
-          <Button
-            onClick={() => alert('Not supported yet...')}
-            icon={'circle-add'}
-            size={'sm'}
-            circle={true}
-          />
-        </div>
+        <MessageFormActions
+          onClick={() => alert('Not supported yet...')}
+          className={styles.actions}
+          disabled={disabled}
+        />
         <TextareaAutosize
           className={styles.input}
           id="message-input"

@@ -18,8 +18,22 @@
   border: $border-size solid $color-gray-lighter;
   background: #fff;
   border-radius: $border-radius 0 0 $border-radius;
-  color: $color-gray-lighter;
+  color: $color-gray-light;
   padding: $sm-padding-y $sm-padding-x;
+  transition: background .3s;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background-color: fade-out($color-gray-lighter, .75);
+  }
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: fade-out($color-gray-lighter, .75);
+  }
 }
 
 .input {
@@ -33,11 +47,18 @@
   -webkit-appearance: none;
   box-shadow: none;
   outline: 0;
-  padding: $sm-padding-y $sm-padding-x;
+  padding: $sm-padding-y*2 $sm-padding-x;
   resize: none;
   transition: none;
   border-radius: 0 $border-radius $border-radius 0;
   font-size: $font-size-base * .90;
   min-height: 4rem;
   max-height: 10rem;
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: fade-out($color-gray-lighter, .75);
+  }
 }

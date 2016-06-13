@@ -1,5 +1,7 @@
 import Chats from '/imports/api/chat';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
+
 import Auth from '/imports/ui/services/auth';
 
 import { callServer } from '/imports/ui/services/api';
@@ -24,6 +26,7 @@ const mapUser = (user) => ({
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
+  isLocked: user.locked,
 });
 
 const mapMessage = (message) => {
@@ -65,7 +68,7 @@ const getUser = (userID) => {
   if (user) {
     return mapUser(user.user);
   } else {
-    throw `User ${userID} not found`;
+    return null;
   }
 };
 
@@ -102,6 +105,25 @@ const getPrivateMessages = (userID) => {
     .reduce(reduceMessages, []);
 };
 
+const isChatLocked = (receiverID) => {
+  const isPublic = receiverID === PUBLIC_CHAT_ID;
+  const currentUser = getUser(Auth.getUser());
+  const meeting = Meetings.findOne({});
+
+  console.log('asdasd', currentUser);
+
+  const lockSettings = meeting.roomLockSettings || {
+    disablePublicChat: false,
+    disablePrivateChat: false,
+  };
+
+  if (!currentUser.isLocked || currentUser.isPresenter) {
+    return false;
+  }
+
+  return isPublic ? lockSettings.disablePublicChat : lockSettings.disablePrivateChat;
+};
+
 const sendMessage = (receiverID, message) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
 
@@ -135,5 +157,6 @@ export default {
   getPublicMessages,
   getPrivateMessages,
   getUser,
+  isChatLocked,
   sendMessage,
 };
