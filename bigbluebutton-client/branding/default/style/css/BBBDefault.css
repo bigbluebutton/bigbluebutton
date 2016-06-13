@@ -44,10 +44,10 @@ ToolTip {
   cornerRadius: 5;
   borderStyle: solid;
   borderThickness: 1;
-  paddingBottom: 3;
-  paddingTop: 3;
-  paddingLeft: 3;
-  paddingRight: 3;
+  paddingBottom: 2;
+  paddingTop: 2;
+  paddingLeft: 2;
+  paddingRight: 2;
 }
 
 .meetingNameLabelStyle {
@@ -317,7 +317,7 @@ DataGrid {
   fontSize: 12;
 }
 
-.sharedNotesSaveButtonStyle {
+.sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
   icon: Embed('assets/images/ic_save_16px.png');
 }
 
@@ -1035,4 +1035,8 @@ Alert {
 
 .moodSadStyle {
   icon:   Embed('assets/images/icon-7-sad-face.png');
+}
+
+.chatCopyButtonStyle{
+  icon:   Embed('assets/images/ic_content_copy_black_16px.png');
 }
