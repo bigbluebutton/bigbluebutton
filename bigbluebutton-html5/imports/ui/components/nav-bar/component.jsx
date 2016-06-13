@@ -38,6 +38,7 @@ class NavBar extends Component {
           ghost={true}
           circle={true}
           icon={'user'}
+          className={styles.btn}
         />
         </div>
         <div className={styles.center}>
