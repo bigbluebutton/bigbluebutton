@@ -122,6 +122,7 @@ export default class Button extends BaseButton {
       tagName,
       className,
       iconRight,
+      ...otherProps,
     } = this.props;
 
     const Component = tagName;
@@ -134,7 +135,7 @@ export default class Button extends BaseButton {
     return (
       <Component
         className={cx(this._getClassNames(), className)}
-        {...this.props}>
+        {...otherProps}>
         {this[renderLeftFuncName]()}
         {this[renderRightFuncName]()}
       </Component>
@@ -147,12 +148,13 @@ export default class Button extends BaseButton {
       className,
       size,
       iconRight,
+      ...otherProps,
     } = this.props;
 
     const Component = tagName;
 
     return (
-      <span className={cx(styles[size], styles.buttonWrapper, className)} {...this.props}>
+      <span className={cx(styles[size], styles.buttonWrapper, className)} {...otherProps}>
         {!iconRight ? null : this.renderLabel(true)}
         <Component className={cx(this._getClassNames())} aria-labelledby={this.labelId}>
           {this.renderIcon()}
