@@ -21,6 +21,7 @@ public class CaptionMessageReceiver implements MessageHandler{
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_CAPTION_CHANNEL)) {
+            System.out.println("CAPTION MESSAGES IN AKKA APPS   " + channel + "    " + message);
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
 			if (obj.has("header") && obj.has("payload")) {

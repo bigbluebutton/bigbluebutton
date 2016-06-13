@@ -76,6 +76,7 @@ const redisConfig = {
     toBBBApps: {
       pattern: 'bigbluebutton:to-bbb-apps:*',
       chat: 'bigbluebutton:to-bbb-apps:chat',
+      captions: 'bigbluebutton:to-bbb-apps:caption',
       meeting: 'bigbluebutton:to-bbb-apps:meeting',
       presentation: 'bigbluebutton:to-bbb-apps:presentation',
       users: 'bigbluebutton:to-bbb-apps:users',

@@ -54,7 +54,7 @@ export class EventQueue {
             //},
           });
         } else {
-          logger.info('not handling messages of type:' + eventName);
+          logger.error('not handling messages of type:' + eventName + data.jsonMsg); //TODO temp
           return next();
         }
       }
@@ -149,4 +149,6 @@ const handledMessageTypes = [
   'poll_stopped_message',
   'user_voted_poll_message',
   'get_all_meetings_reply_message',
+  'send_caption_history_reply_message',
+  'edit_caption_history_message',
 ];
