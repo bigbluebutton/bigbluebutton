@@ -110,8 +110,6 @@ const isChatLocked = (receiverID) => {
   const currentUser = getUser(Auth.getUser());
   const meeting = Meetings.findOne({});
 
-  console.log('asdasd', currentUser);
-
   const lockSettings = meeting.roomLockSettings || {
     disablePublicChat: false,
     disablePrivateChat: false,

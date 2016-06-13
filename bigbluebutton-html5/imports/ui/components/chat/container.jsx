@@ -55,7 +55,8 @@ export default injectIntl(createContainer(({ params, intl }) => {
     if (user) {
       title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
     } else {
-      let partnerName = messages.find(m => m.user && m.user.id === chatID).map(m => m.user.name);
+      // let partnerName = messages.find(m => m.user && m.user.id === chatID).map(m => m.user.name);
+      let partnerName = '{{NAME}}'; // placeholder until the server sends the name
       messages.push({
         content: [intl.formatMessage(intlMessages.partnerDisconnected, { name: partnerName })],
         time: Date.now(),
