@@ -41,7 +41,10 @@ config.hooks.events or= [
   { channel: "bigbluebutton:from-rap", name: "publish_started" },
   { channel: "bigbluebutton:from-rap", name: "publish_ended" },
   { channel: "bigbluebutton:from-rap", name: "post_publish_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" }
+  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" },
+  { channel: "bigbluebutton:from-rap", name: "unpublished" },
+  { channel: "bigbluebutton:from-rap", name: "published" },
+  { channel: "bigbluebutton:from-rap", name: "deleted" }
 ]
 
 # Retry intervals for failed attempts for perform callback calls.
