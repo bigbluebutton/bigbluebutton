@@ -12,7 +12,6 @@
     <resources>
         <j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se"/>
         <jar href="$$jnlpUrl/lib/javacv-screenshare-0.0.1.jar" main="true" />
-        <jar href="$$jnlpUrl/lib/javacpp.jar" />
         <jar href="$$jnlpUrl/lib/ffmpeg.jar" />
     </resources>
 
