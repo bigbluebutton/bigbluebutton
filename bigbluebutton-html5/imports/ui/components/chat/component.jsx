@@ -17,6 +17,7 @@ export default class Chat extends Component {
     const {
       title,
       messages,
+      isChatLocked,
       actions,
     } = this.props;
 
@@ -36,6 +37,7 @@ export default class Chat extends Component {
           aria-relevant="additions"
         />
         <MessageForm
+          disabled={isChatLocked}
           chatAreaId={ELEMENT_ID}
           chatTitle={title}
           handleSendMessage={actions.handleSendMessage}
