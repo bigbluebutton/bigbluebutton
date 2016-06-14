@@ -222,45 +222,62 @@ Verto.prototype.docall = function () {
 };
 
 Verto.prototype.doshare = function () {
-  if (this.share_call) {
-    this.logger("Quitting: Call already in progress");
-    return;
-  }
-
-  var _this = this;
-  console.log("Attempting Screen Capture....");
-  debugger;
-  getScreenId(function(error, sourceId, screen_constraints) {
-    _this.share_call = _this.vertoHandle.newCall({
-      destination_number: _this.destination_number,
-      caller_id_name: _this.caller_id_name,
-      caller_id_number: _this.caller_id_number,
-      outgoingBandwidth: _this.outgoingBandwidth,
-      incomingBandwidth: _this.incomingBandwidth,
-      videoParams: screen_constraints.video.mandatory,
-      // videoParams: {
-      //   video: {
-    	// 		"mozMediaSource": 'window',
-    	// 		"mediaSource": 'window',
-    	// 	},
-      // },
-      useVideo: true,
-      screenShare: true,
-      dedEnc: true,
-      mirrorInput: false,
-    });
-  });
-  // getScreenId(function(error, sourceId, screen_constraints) {
-  //   navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-  //   navigator.getUserMedia(screen_constraints, function(stream) {
-  //     document.getElementById('deskshareVideo').src = URL.createObjectURL(stream);
+  // if (this.share_call) {
+  //   this.logger("Quitting: Call already in progress");
+  //   return;
+  // }
   //
-  //     stream.onended = function() {
-  //       document.querySelector('video').src = null;
-  //       document.getElementById('capture-screen').disabled = false;
+  //
+  // getChromeExtensionStatus("", function(status) {
+	// 	if (status != "installed-enabled") {
+	// 		console.error("No chrome Extension");
+	// 		return -1;
+	// 	}
+  //
+  // 	// bring up Chrome screen picker
+  // 	getScreenConstraints(function(error, screen_constraints) {
+  // 		if(error) {
+  // 			return console.error(error);
+  // 		}
+  //
+  //     var results =  {
+  //       "audio": false,
+  //       "video": {
+  //         "mandatory": {
+  //           "maxWidth": 160,
+  //           "maxHeight": 120,
+  //           "chromeMediaSource": screen_constraints.mandatory.chromeMediaSource,
+  //           "chromeMediaSourceId": screen_constraints.mandatory.chromeMediaSourceId,
+  //           "minFrameRate": 10,
+  //         },
+  //         "optional": []
+  //       }
   //     };
-  //   }, function(error) {
-  //     alert(JSON.stringify(error, null, '\t'));
+  //
+  //     console.log(results);
+  //   });
+  // });
+
+  // var _this = this;
+  // console.log("Attempting Screen Capture....");
+  // getScreenId(function(error, sourceId, screen_constraints) {
+  //   _this.share_call = _this.vertoHandle.newCall({
+  //     destination_number: _this.destination_number,
+  //     caller_id_name: _this.caller_id_name,
+  //     caller_id_number: _this.caller_id_number,
+  //     outgoingBandwidth: _this.outgoingBandwidth,
+  //     incomingBandwidth: _this.incomingBandwidth,
+  //     videoParams: screen_constraints.video.mandatory,
+  //     // videoParams: {
+  //     //   video: {
+  //   	// 		"mozMediaSource": 'window',
+  //   	// 		"mediaSource": 'window',
+  //   	// 	},
+  //     // },
+  //     useVideo: true,
+  //     screenShare: true,
+  //     dedEnc: true,
+  //     mirrorInput: false,
   //   });
   // });
 };
@@ -315,8 +332,8 @@ Verto.prototype.configStuns = function(callback) {
     _this.logger("ajax request done");
     _this.logger(data);
     if(data['response'] && data.response.returncode == "FAILED") {
-      this.logError(data.response.message, {error: true});
-      this.logError({'status':'failed', 'errorcode': data.response.message});
+      _this.logError(data.response.message, {error: true});
+      _this.logError({'status':'failed', 'errorcode': data.response.message});
       return;
     }
     stunsConfig['stunServers'] = ( data['stunServers'] ? data['stunServers'].map(function(data) {
