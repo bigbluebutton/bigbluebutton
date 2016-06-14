@@ -49,6 +49,9 @@ repositories {
     mavenRepo name: "sonatype-releases", urls: "http://oss.sonatype.org/content/repositories/releases"
 
   }
+  flatDir {
+    dirs "${System.properties['user.home']}/dev/bigbluebutton/esl-client-bbb/org.freeswitch.esl.client/build/libs"
+  }
 }
 
 dependencies {	 
@@ -67,7 +70,7 @@ dependencies {
   providedCompile 'org.springframework:spring-core:4.0.8.RELEASE@jar'
 
   // Red5
-  providedCompile 'org/red5:red5-server:1.0.5-RELEASE@jar'
+  providedCompile 'org.red5:red5-server:1.0.5-RELEASE@jar'
   providedCompile 'org.red5:red5-server-common:1.0.5-RELEASE@jar'
   
   // Logging
@@ -111,7 +114,7 @@ dependencies {
   //compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
 		  
    // Freeswitch ESL Client
-   compile 'org/freeswitch:fs-esl-client:0.8.2@jar'
+   compile 'org/freeswitch:fs-esl-client:0.9.0@jar'
    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'org.apache.commons:commons-lang3:3.2'

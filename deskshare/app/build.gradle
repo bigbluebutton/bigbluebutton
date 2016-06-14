@@ -84,7 +84,7 @@ dependencies {
   providedCompile 'org.springframework:spring-core:4.0.8.RELEASE@jar'
   
 	// Red5
-    providedCompile 'org/red5:red5-server:1.0.5-RELEASE@jar'
+    providedCompile 'org.red5:red5-server:1.0.5-RELEASE@jar'
     providedCompile 'org.red5:red5-server-common:1.0.5-RELEASE@jar'
     providedCompile 'org.red5:red5-io:1.0.5-RELEASE@jar'
 	
