@@ -203,9 +203,7 @@ class BigBlueButtonActor(val system: ActorSystem,
       eventBus.publish(BigBlueButtonEvent(id, new SendCaptionHistoryRequest(id, html5clientRequesterID)))
     })
 
-    if (len > 0) {
-      outGW.send(new GetAllMeetingsReply(resultArray))
-    }
+    outGW.send(new GetAllMeetingsReply(resultArray))
   }
 
   private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
