@@ -19,7 +19,6 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
         shape: {
           type: shapeObject.shape.type,
           textBoxHeight: shapeObject.shape.textBoxHeight,
-          backgroundColor: shapeObject.shape.backgroundColor,
           fontColor: shapeObject.shape.fontColor,
           status: shapeObject.shape.status,
           dataPoints: shapeObject.shape.dataPoints,
@@ -31,7 +30,6 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
           y: shapeObject.shape.y,
           calcedFontSize: shapeObject.shape.calcedFontSize,
           text: shapeObject.shape.text,
-          background: shapeObject.shape.background,
         },
       },
     };
