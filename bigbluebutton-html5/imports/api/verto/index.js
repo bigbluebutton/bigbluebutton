@@ -53,8 +53,19 @@ function joinVertoMicrophone() {
   );
 }
 
-function watchVertoVideo(options) {
+function watchVertoVideo() {
   vertoManager.joinWatchVideo(
+    'deskshareVideo',
+    getVoiceBridge(),
+    createVertoUserName(),
+    '1008',
+    null,
+    getVertoCredentials(),
+  );
+}
+
+function shareVertoScreen() {
+  vertoManager.shareScreen(
     'deskshareVideo',
     getVoiceBridge(),
     createVertoUserName(),
@@ -69,5 +80,6 @@ export {
   joinVertoMicrophone,
   watchVertoVideo,
   exitVertoAudio,
-  vertoInitialize
+  vertoInitialize,
+  shareVertoScreen,
 };

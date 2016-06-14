@@ -77,7 +77,7 @@ Verto.prototype.onWSLogin = function(v, success) {
   this.cur_call = null;
   if (success) {
     this.callWasSuccessful = true;
-    this.docall();
+    this.mediaCallback();
   } else {
     // eror logging verto into freeswitch
     this.logError({status: 'failed', errorcode: '10XX'});
@@ -85,8 +85,7 @@ Verto.prototype.onWSLogin = function(v, success) {
   }
 };
 
-Verto.prototype.registerCallbacks = function (mediaCallback) {
-  this.mediaCallback = mediaCallback;
+Verto.prototype.registerCallbacks = function () {
   var callbacks = {
     onMessage: function() {},
     onDialogState: function(d) {},
@@ -120,6 +119,11 @@ Verto.prototype.hangup = function () {
     this.logger('call ended ' + this.cur_call.audioStream.currentTime);
   }
 
+  if (this.share_call) {
+    // the duration of the call
+    this.logger('call ended ' + this.share_call.audioStream.currentTime);
+  }
+
   // the user ended the call themself
   // if (callPurposefullyEnded === true) {
   if (true) {
@@ -131,6 +135,7 @@ Verto.prototype.hangup = function () {
 
   this.vertoHandle.hangup();
   this.cur_call = null;
+  this.share_call = null;
 };
 
 Verto.prototype.mute = function () {
@@ -160,6 +165,7 @@ Verto.prototype.vmute = function () {
 };
 
 Verto.prototype.setWatchVideo = function(tag) {
+  this.mediaCallback = this.docall;
   this.useVideo = true;
   this.useCamera = 'none';
   this.useMic = 'none';
@@ -167,6 +173,7 @@ Verto.prototype.setWatchVideo = function(tag) {
 };
 
 Verto.prototype.setListenOnly = function(tag) {
+  this.mediaCallback = this.docall;
   this.useVideo = false;
   this.useCamera = 'none';
   this.useMic = 'none';
@@ -174,9 +181,15 @@ Verto.prototype.setListenOnly = function(tag) {
 };
 
 Verto.prototype.setMicrophone = function(tag) {
+  this.mediaCallback = this.docall;
   this.useVideo = false;
   this.useCamera = 'none';
   this.useMic = 'any';
+  this.create(tag);
+};
+
+Verto.prototype.setScreenShare = function(tag) {
+  this.mediaCallback = this.doshare;
   this.create(tag);
 };
 
@@ -208,50 +221,46 @@ Verto.prototype.docall = function () {
   this.logger(this.cur_call);
 };
 
-Verto.prototype.doshare = function (on) {
-  // if (!on) {
-  //   if (this.share_call) {
-  //     this.share_call.hangup();
-  //   }
-  //   return;
-  // }
-  //
-  // if (this.share_call) {
-  //   return;
-  // }
-  //
-  // var sharedev = $("#useshare").find(":selected").val();
-  //
-  // if (sharedev !== "screen") {
-  //   share_call = vertoHandle.newCall({
-  //     destination_number: $("#ext").val() + "-screen",
-  //     caller_id_name: $("#cidname").val() + " (Screen)",
-  //     caller_id_number: $("#cid").val() + " (screen)",
-  //     outgoingBandwidth: outgoingBandwidth,
-  //     incomingBandwidth: incomingBandwidth,
-  //     useCamera: sharedev,
-  //     useVideo: true,
-  //     screenShare: true,
-  //     dedEnc: $("#use_dedenc").is(':checked'),
-  //     mirrorInput: $("#mirror_input").is(':checked')
-  //   });
-  //
-  //   return;
-  // }
-  //
-  // console.log("Attempting Screen Capture....");
+Verto.prototype.doshare = function () {
+  if (this.share_call) {
+    this.logger("Quitting: Call already in progress");
+    return;
+  }
+
+  var _this = this;
+  console.log("Attempting Screen Capture....");
+  debugger;
+  getScreenId(function(error, sourceId, screen_constraints) {
+    _this.share_call = _this.vertoHandle.newCall({
+      destination_number: _this.destination_number,
+      caller_id_name: _this.caller_id_name,
+      caller_id_number: _this.caller_id_number,
+      outgoingBandwidth: _this.outgoingBandwidth,
+      incomingBandwidth: _this.incomingBandwidth,
+      videoParams: screen_constraints.video.mandatory,
+      // videoParams: {
+      //   video: {
+    	// 		"mozMediaSource": 'window',
+    	// 		"mediaSource": 'window',
+    	// 	},
+      // },
+      useVideo: true,
+      screenShare: true,
+      dedEnc: true,
+      mirrorInput: false,
+    });
+  });
   // getScreenId(function(error, sourceId, screen_constraints) {
-  //   share_call = vertoHandle.newCall({
-  //     destination_number: $("#ext").val() + "-screen",
-  //     caller_id_name: $("#cidname").val() + " (Screen)",
-  //     caller_id_number: $("#cid").val() + " (screen)",
-  //     outgoingBandwidth: outgoingBandwidth,
-  //     incomingBandwidth: incomingBandwidth,
-  //     videoParams: screen_constraints.video.mandatory,
-  //     useVideo: true,
-  //     screenShare: true,
-  //     dedEnc: $("#use_dedenc").is(':checked'),
-  //     mirrorInput: $("#mirror_input").is(':checked')
+  //   navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+  //   navigator.getUserMedia(screen_constraints, function(stream) {
+  //     document.getElementById('deskshareVideo').src = URL.createObjectURL(stream);
+  //
+  //     stream.onended = function() {
+  //       document.querySelector('video').src = null;
+  //       document.getElementById('capture-screen').disabled = false;
+  //     };
+  //   }, function(error) {
+  //     alert(JSON.stringify(error, null, '\t'));
   //   });
   // });
 };
@@ -338,6 +347,7 @@ Verto.prototype.isWebRTCAvailable = function () {
 this.VertoManager = function () {
   this.vertoAudio = null;
   this.vertoVideo = null;
+  this.vertoScreenShare = null;
 };
 
 VertoManager.prototype.exitAudio = function() {
@@ -351,6 +361,13 @@ VertoManager.prototype.exitVideo = function() {
   if (this.vertoVideo != null) {
     this.vertoVideo.hangup();
     this.vertoVideo = null;
+  }
+};
+
+VertoManager.prototype.exitScreenShare = function() {
+  if (this.vertoScreenShare != null) {
+    this.vertoScreenShare.hangup();
+    this.vertoScreenShare = null;
   }
 };
 
@@ -406,4 +423,22 @@ VertoManager.prototype.joinWatchVideo = function (
       credentials
     );
     this.vertoVideo.setWatchVideo(tag);
+};
+
+VertoManager.prototype.shareScreen = function (
+  tag,
+  voiceBridge,
+  conferenceUsername,
+  conferenceIdNumber,
+  userCallback,
+  credentials) {
+    // this.exitVideo();
+    this.vertoScreenShare = new Verto(
+      voiceBridge,
+      conferenceUsername,
+      conferenceIdNumber,
+      userCallback,
+      credentials
+    );
+    this.vertoScreenShare.setScreenShare(tag);
 };
