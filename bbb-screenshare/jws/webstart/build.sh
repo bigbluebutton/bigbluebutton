@@ -1,6 +1,10 @@
+if [ -d "lib" ]; then
+  rm -rf lib
+fi
 mkdir lib
 cp ../../app/jws/lib/*.jar lib
 rm lib/javacv.jar
+rm lib/javacpp.jar
 gradle clean
 gradle jar
 ant sign-jar
