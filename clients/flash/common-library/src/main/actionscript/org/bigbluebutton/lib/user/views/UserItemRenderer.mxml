@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:common="org.bigbluebutton.lib.common.views.*"
+				width="100%"
+				click="onClick()"
+				keyUp="onKeyUp()"
+				styleName="participantItemStyle">
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+		<s:State name="selected" />
+	</s:states>
+
+	<fx:Script>
+		<![CDATA[
+			import org.bigbluebutton.lib.user.events.UserItemSelectedEvent;
+			import org.bigbluebutton.lib.user.models.User;
+			
+			private function onClick():void {
+				sendSelectedEvent();
+			}
+			
+			private function onKeyUp():void {
+				sendSelectedEvent();
+			}
+			
+			private function sendSelectedEvent():void {
+				if (currentState == "selected") {
+					dispatchEvent(new UserItemSelectedEvent(data as User, localToGlobal(new Point()), width, height));
+				}
+			}
+			
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				if (obj) {
+					cameraIcon.visible = obj.hasStream;
+					
+					if (obj.voiceJoined) {
+						if (obj.muted) {
+							audioIcon.styleName = "iconStyle micOffIconStyle";
+						} else if (obj.talking) {
+							audioIcon.styleName = "iconStyle speakingMicIconStyle";
+						} else {
+							audioIcon.styleName = "iconStyle micIconStyle";
+						}
+					} else if (obj.listenOnly) {
+						audioIcon.styleName = "iconStyle listenOnlyIconStyle";
+					} else {
+						audioIcon.styleName = "iconStyle";
+					}
+					
+					lockIcon.visible = obj.locked;
+					
+					if (obj.me) {
+						labelDisplay.text = obj.name + " " + "(you)"; //resourceManager.getString('resources', 'userDetail.you');
+					} else {
+						labelDisplay.text = obj.name;
+					}
+					
+					participantIcon.setFirstLetters(obj.name);
+					
+					if (obj.presenter) {
+						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;
+						subLabelDisplay.text = "Presenter"; // resourceManager.getString('resources', 'participants.status.presenter');
+					} else {
+						subLabelDisplay.visible = subLabelDisplay.includeInLayout = false;
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%"
+			 height="{getStyle('itemHeight')}">
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle" />
+		</s:layout>
+
+		<common:ParticipantIcon id="participantIcon" />
+
+		<s:Group width="100%">
+			<s:layout>
+				<s:VerticalLayout gap="0" />
+			</s:layout>
+			<s:Label id="labelDisplay"
+					 styleName="participantNameStyle" />
+			<s:Label id="subLabelDisplay"
+					 styleName="participantStatusStyle" />
+		</s:Group>
+		<s:Image id="cameraIcon"
+				 styleName="iconStyle cameraIconStyle" />
+		<s:Image id="audioIcon"
+				 styleName="iconStyle micIconStyle" />
+		<s:Image id="lockIcon"
+				 styleName="iconStyle lockIconStyle" />
+	</s:Group>
+</s:ItemRenderer>

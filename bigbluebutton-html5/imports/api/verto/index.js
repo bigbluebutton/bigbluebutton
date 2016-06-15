@@ -1,7 +1,8 @@
-import {clientConfig} from '/config';
-import {getVoiceBridge} from '/imports/api/phone';
 import {getInStorage} from '/imports/ui/components/app/service';
 import Users from '/imports/api/users';
+import Auth from '/imports/ui/services/auth';
+import { clientConfig } from '/config';
+import { getVoiceBridge } from '/imports/api/phone';
 
 let vertoManager = null;
 
@@ -11,8 +12,7 @@ function vertoInitialize() {
 }
 
 function createVertoUserName() {
-  const uid = getInStorage('userID');
-  console.log(Users.find().fetch());
+  const uid = Auth.getUser();
   const uName = Users.findOne({ userId: uid }).user.name;
   const conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
   return conferenceUsername;

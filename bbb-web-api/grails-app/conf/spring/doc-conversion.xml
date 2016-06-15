@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			">  
+			
+	<bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
+		<property name="messagingService" ref="messagingService"/>
+		<property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
+		<property name="pdfToSwfSlidesGenerationService" ref="pdfToSwfSlidesGenerationService"/>
+		<property name="imageToSwfSlidesGenerationService" ref="imageToSwfSlidesGenerationService"/>
+	</bean>
+	
+	<bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"/>
+	
+	<bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.GhostscriptPageExtractor">
+		<property name="ghostscriptExec" value="${ghostScriptExec}"/>
+		<property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>
+	</bean>
+	
+	<bean id="imageMagickPageConverter" class="org.bigbluebutton.presentation.imp.ImageMagickPageConverter">
+		<property name="imageMagickDir" value="${imageMagickDir}"/>
+	</bean>
+		
+	<bean id="png2SwfConverter" class="org.bigbluebutton.presentation.imp.Png2SwfPageConverter">
+		<property name="swfToolsDir" value="${swfToolsDir}"/>
+	</bean>
+	
+	<bean id="jpg2SwfConverter" class="org.bigbluebutton.presentation.imp.Jpeg2SwfPageConverter">
+		<property name="swfToolsDir" value="${swfToolsDir}"/>
+	</bean>
+		
+	<bean id="pageCounter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageCounter">
+		<property name="swfToolsDir" value="${swfToolsDir}"/>
+	</bean>
+		
+	<bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
+		<property name="pageCounter" ref="pageCounter"/>
+		<property name="maxNumPages" value="${maxNumPages}"/>
+	</bean>
+	
+	<bean id="pdf2SwfPageConverter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter">
+		<property name="ghostscriptExec" value="${ghostScriptExec}"/>
+		<property name="swfToolsDir" value="${swfToolsDir}"/>
+		<property name="imageMagickDir" value="${imageMagickDir}"/>
+		<property name="fontsDir" value="${fontsDir}"/>
+		<property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>
+		<property name="placementsThreshold" value="${placementsThreshold}"/>
+		<property name="defineTextThreshold" value="${defineTextThreshold}"/>
+		<property name="imageTagThreshold" value="${imageTagThreshold}"/>
+	</bean>
+	
+	<bean id="imageConvSvc" class="org.bigbluebutton.presentation.imp.PdfPageToImageConversionService">
+		<property name="pageExtractor" ref="pageExtractor"/>
+		<property name="pdfToImageConverter" ref="imageMagickPageConverter"/>
+		<property name="imageToSwfConverter" ref="png2SwfConverter"/>
+	</bean>
+	
+	<bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
+		<property name="imageMagickDir" value="${imageMagickDir}"/>
+		<property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+	</bean>
+	
+	<bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">
+		<property name="imageMagickDir" value="${imageMagickDir}"/>
+	</bean>
+
+	<bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
+	    <property name="imageMagickDir" value="${imageMagickDir}"/>
+	</bean>
+  	
+	<bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
+	
+	<bean id="pdfToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService">
+	   <constructor-arg index="0" value="${numConversionThreads}"/>
+		<property name="counterService" ref="pageCounterService"/>
+		<property name="pageConverter" ref="pdf2SwfPageConverter"/>
+		<property name="pdfPageToImageConversionService" ref="imageConvSvc"/>
+		<property name="thumbnailCreator" ref="thumbCreator"/>
+		<property name="textFileCreator" ref="textFileCreator"/>
+		<property name="svgImageCreator" ref="svgImageCreator"/>
+		<property name="blankSlide" value="${BLANK_SLIDE}"/>
+		<property name="maxSwfFileSize" value="${MAX_SWF_FILE_SIZE}"/>
+		<property name="maxConversionTime" value="${maxConversionTime}"/>
+		<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+		<property name="svgImagesRequired" value="${svgImagesRequired}"/>
+	</bean>	
+	
+	<bean id="imageToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService">
+		<property name="pngPageConverter" ref="png2SwfConverter"/>
+		<property name="jpgPageConverter" ref="jpg2SwfConverter"/>
+		<property name="svgImageCreator" ref="svgImageCreator"/>
+		<property name="thumbnailCreator" ref="thumbCreator"/>
+		<property name="textFileCreator" ref="textFileCreator"/>
+		<property name="blankSlide" value="${BLANK_SLIDE}"/>
+		<property name="maxConversionTime" value="${maxConversionTime}"/>
+		<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+	</bean>
+	
+	<bean id="swfSlidesGenerationProgressNotifier" class="org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier">
+		<property name="messagingService" ref="messagingService"/> 
+		<property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
+	</bean>	
+</beans>

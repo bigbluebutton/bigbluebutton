@@ -3,13 +3,13 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import scala.collection.mutable.HashMap
 import java.util.ArrayList
-import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.ListSet
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.LiveMeeting
 
 trait UsersApp {
-  this: MeetingActor =>
+  this: LiveMeeting =>
 
   val outGW: OutMessageGateway
 
@@ -111,7 +111,7 @@ trait UsersApp {
      * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
      * audit to check whether the actor is still alive. (ralam feb 25, 2015)
      */
-    sender ! new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, false, msg.correlationId)
+    //sender ! new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, false, msg.correlationId)
   }
 
   def handleRegisterUser(msg: RegisterUser) {
@@ -415,6 +415,8 @@ trait UsersApp {
             vu.userId, u.userID, u.externUserID, vu.callerName,
             vu.callerNum, vu.muted, vu.talking, vu.avatarURL, u.listenOnly));
         }
+
+        checkCaptionOwnerLogOut(u.userID)
       }
 
       startCheckingIfWeNeedToEndVoiceConf()
@@ -609,7 +611,7 @@ trait UsersApp {
 
   def assignNewPresenter(newPresenterID: String, newPresenterName: String, assignedBy: String) {
     // Stop poll if one is running as presenter left.
-    this.context.self ! StopPollRequest(mProps.meetingID, assignedBy)
+    handleStopPollRequest(StopPollRequest(mProps.meetingID, assignedBy))
 
     if (usersModel.hasUser(newPresenterID)) {
 

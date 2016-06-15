@@ -1,0 +1,123 @@
+@import '../../stylesheets/variables/palette';
+
+/* Variables
+ * ==========
+ */
+$unread-messages-bg: $color-danger;
+
+$user-list-bg: $color-white;
+$user-list-text: $color-gray-dark;
+
+$list-item-bg-hover: darken($user-list-bg, 7%);
+
+$user-thumbnail-border: $color-gray-light;
+$user-thumbnail-text: $user-thumbnail-border;
+
+$voice-user-bg: $color-success;
+$voice-user-text: $color-white;
+
+$moderator-text: $color-white;
+$moderator-bg: $color-primary;
+
+$sub-name-color: $color-gray-light;
+
+$user-icons-color: $color-gray-light;
+$user-icons-color-hover: $color-gray;
+
+
+/* classes for extending
+ * ==========
+ */
+.flex-column {
+  display: flex;
+  flex-flow: column;
+}
+
+.no-margin {
+  margin: 0;
+}
+
+.list-item {
+  padding: 0.3rem;
+  padding-left: 0.5rem;
+  padding-right: 0.6rem;
+  margin-left: 0.7rem;
+  display: flex;
+  flex-flow: row;
+  transition: all 0.3s;
+  margin-top: 0.9rem;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+
+  &:hover,
+  &:focus {
+    background-color: $list-item-bg-hover;
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 1.2rem;
+  }
+}
+
+/* Styling
+ * ==========
+ */
+
+.userList {
+  @extend .flex-column;
+  justify-content: flex-start;
+  background-color: $user-list-bg;
+  color: $user-list-text;
+  height: 100vh;
+}
+
+.header {
+  @extend .flex-column;
+  justify-content: center;
+  min-height: 3.9rem;
+  flex-grow: 0;
+}
+
+.headerTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-left: 1.3rem;
+}
+
+.content {
+  @extend .flex-column;
+  flex-grow: 9;
+}
+
+.lists {
+  @extend .flex-column;
+  @extend .no-margin;
+  padding: 0;
+}
+
+.participantsList,
+.chatsList {
+  @extend .lists;
+}
+
+.smallTitle {
+  color: $color-text;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0.2rem 1.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.scrollableList {
+  overflow: auto;
+}
+
+.participants {
+  display: flex;
+  flex-flow: column;
+}

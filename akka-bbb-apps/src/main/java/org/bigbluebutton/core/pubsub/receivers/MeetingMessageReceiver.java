@@ -3,7 +3,6 @@ package org.bigbluebutton.core.pubsub.receivers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bigbluebutton.common.messages.CreateMeetingMessage;
 import org.bigbluebutton.common.messages.DestroyMeetingMessage;
 import org.bigbluebutton.common.messages.EndMeetingMessage;
 import org.bigbluebutton.common.messages.GetAllMeetingsRequest;
@@ -17,6 +16,7 @@ import org.bigbluebutton.common.messages.UserConnectedToGlobalAudio;
 import org.bigbluebutton.common.messages.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,20 +34,30 @@ public class MeetingMessageReceiver implements MessageHandler {
 	}
 	
 	public void handleMessage(String pattern, String channel, String message) {
-//		LOG.debug("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
-//			System.out.println("Meeting message: " + channel + " " + message);
+			System.out.println("Meeting message: " + channel + " " + message);
+
+			JsonParser parser = new JsonParser();
+			JsonObject obj = (JsonObject) parser.parse(message);
+			if (obj.has("header") && obj.has("payload")) {
+				JsonObject header = (JsonObject) obj.get("header");
+				if (header.has("name")) {
+					String messageName = header.get("name").getAsString();
+					if (CreateMeetingRequest.NAME.equals(messageName)) {
+						Gson gson = new Gson();
+						CreateMeetingRequest msg = gson.fromJson(message,
+								CreateMeetingRequest.class);
+						bbbGW.handleBigBlueButtonMessage(msg);
+					}
+				}
+			}
+
 			IBigBlueButtonMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
 				if (msg instanceof EndMeetingMessage) {
 					EndMeetingMessage emm = (EndMeetingMessage) msg;
 					bbbGW.endMeeting(emm.meetingId);
-				} else if (msg instanceof CreateMeetingMessage) {
-					CreateMeetingMessage emm = (CreateMeetingMessage) msg;
-					bbbGW.createMeeting2(emm.id, emm.externalId, emm.name, emm.record, emm.voiceBridge, 
-							  emm.duration, emm.autoStartRecording, emm.allowStartStopRecording,
-							  emm.moderatorPass, emm.viewerPass, emm.createTime, emm.createDate);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage emm = (RegisterUserMessage) msg;
 					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken, emm.avatarURL);

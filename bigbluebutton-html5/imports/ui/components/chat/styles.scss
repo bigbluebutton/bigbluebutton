@@ -1,0 +1,18 @@
+@import "imports/ui/stylesheets/variables/_all";
+
+.chat {
+  background-color: #fff;
+  margin: $line-height-computed;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+.closeChat {
+  text-decoration: none;
+  text-transform: capitalize;
+}
+
+.header {
+  margin-bottom: $line-height-computed;
+}

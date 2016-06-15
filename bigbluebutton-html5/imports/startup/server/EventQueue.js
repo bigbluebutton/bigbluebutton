@@ -1,6 +1,6 @@
 import { logger } from '/imports/startup/server/logger';
 import { eventEmitter } from '/imports/startup/server';
-import { indexOf } from '/imports/startup/server/helpers';
+import { indexOf } from '/imports/api/common/server/helpers';
 
 export class EventQueue {
 
@@ -47,7 +47,7 @@ export class EventQueue {
             },
           });
         } else {
-          logger.error('NOT HANDLING:' + eventName);
+          logger.info('not handling messages of type:' + eventName);
           return next();
         }
       }
@@ -61,7 +61,7 @@ const logRedisMessage = function (eventName, json) {
   // Avoid cluttering the log with json messages carrying little or repetitive
   // information. Comment out a message type in the array to be able to see it
   // in the log upon restarting of the Meteor process.
-  notLoggedEventTypes = [
+  let notLoggedEventTypes = [
     'keep_alive_reply',
     'page_resized_message',
     'presentation_page_resized_message',
@@ -125,6 +125,7 @@ const handledMessageTypes = [
   'presentation_shared_message',
   'get_presentation_info_reply',
   'presentation_page_changed_message',
+  'get_presentation_info_reply',
   'presentation_removed_message',
   'get_whiteboard_shapes_reply',
   'send_whiteboard_shape_message',
@@ -140,4 +141,5 @@ const handledMessageTypes = [
   'poll_started_message',
   'poll_stopped_message',
   'user_voted_poll_message',
+  'get_all_meetings_reply_message',
 ];

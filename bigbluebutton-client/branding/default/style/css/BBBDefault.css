@@ -512,7 +512,7 @@ TitleWindow {
 }
 
 .chromeJavaHelpImage {
-	imageSource: Embed(source='assets/images/chromePluginBlocked.png');
+	imageSource: Embed(source='assets/images/jnlp-run-chrome.png');
 }
 
 .webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
@@ -829,7 +829,29 @@ Alert {
 	borderAlpha: 1;
 	shadowDistance: 1;
 	dropShadowColor: #FFFFFF;
+	titleStyleName: "alertTitleStyle";
+	messageStyleName: "alertMessageStyle";
+}
+
+AlertForm {
+	paddingTop: 8;
+	fontSize: 13;
+}
+
+.alertMessageStyle {
 	color: #000000;
+	fontSize: 13;
+	textAlign: center;
+	paddingTop: 6;
+	paddingLeft: 12;
+	paddingRight: 12;
+	paddingBottom: 6;
+}
+
+.alertTitleStyle {
+	fontFamily: Arial;
+	fontSize: 14;  
+	fontWeight: bold;    
 }
 
 .lockSettingsDefaultLabelStyle {
@@ -912,4 +934,27 @@ EmojiGrid {
 	paddingTop: 10;
 	verticalGap: 6;
 	horizontalGap: 6;
+}
+
+.breakoutRoomSettingTitleStyle {
+	fontFamily: Arial;
+	fontSize: 20;  
+	fontWeight: bold;
+}
+
+.roomsContainer {
+	horizontalAlign : center;
+	verticalGap: 10;
+	horizontalGap: 10;
+	paddingTop: 20;
+	paddingBottom: 20;
+}
+
+.breakoutTipBox {
+	horizontalAlign: center;
+}
+
+.breakoutRoomsBox {
+	paddingTop: 12;
+	horizontalAlign: center;
 }

@@ -82,7 +82,7 @@ package org.bigbluebutton.common {
 			if (force) {
 				logTarget = new TraceTarget();
 			} else {
-				var lxml:XML = BBB.initConfigManager().config.logging;
+				var lxml:XML = BBB.getConfigManager().config.logging;
 				if (lxml.@enabled != undefined) {
 					loggingEnabled = (lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
 				}

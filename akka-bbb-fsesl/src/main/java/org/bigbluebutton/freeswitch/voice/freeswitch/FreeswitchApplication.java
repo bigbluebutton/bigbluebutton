@@ -24,14 +24,23 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUsetToMeetingCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 
 public class FreeswitchApplication {
 
 	private static final int SENDERTHREADS = 1;
-	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
-	private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
+	private static final Executor msgSenderExec = Executors
+			.newFixedThreadPool(SENDERTHREADS);
+	private static final Executor runExec = Executors
+			.newFixedThreadPool(SENDERTHREADS);
 	private BlockingQueue<FreeswitchCommand> messages = new LinkedBlockingQueue<FreeswitchCommand>();
 
 	private final ConnectionManager manager;
@@ -51,6 +60,32 @@ public class FreeswitchApplication {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void transferUserToMeeting(String voiceConfId,
+			String targetVoiceConfId, String voiceUserId) {
+		TransferUsetToMeetingCommand tutmc = new TransferUsetToMeetingCommand(
+				voiceConfId, targetVoiceConfId, voiceUserId, USER);
+		queueMessage(tutmc);
+	}
+
+	public void start() {
+		sendMessages = true;
+		Runnable sender = new Runnable() {
+			public void run() {
+				while (sendMessages) {
+					FreeswitchCommand message;
+					try {
+						message = messages.take();
+						sendMessageToFreeswitch(message);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		msgSenderExec.execute(sender);
 	}
 
 	public void getAllUsers(String voiceConfId) {
@@ -134,27 +169,7 @@ public class FreeswitchApplication {
 			runExec.execute(task);
 		}
 
-		public void start() {
-			sendMessages = true;
-			Runnable sender = new Runnable() {
-				public void run() {
-					while (sendMessages) {
-						FreeswitchCommand message;
-						try {
-							message = messages.take();
-							sendMessageToFreeswitch(message);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-			};
-			msgSenderExec.execute(sender);
+	public void stop() {
+		sendMessages = false;
 		}
-
-		public void stop() {
-			sendMessages = false;
-		}
-
 }

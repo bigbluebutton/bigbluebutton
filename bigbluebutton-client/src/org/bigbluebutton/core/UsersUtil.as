@@ -66,6 +66,10 @@ package org.bigbluebutton.core
 		return UserManager.getInstance().getConference().getUserEjectedFromMeeting();
 	}
 	
+  public static function isRecorded():Boolean {
+    return UserManager.getInstance().getConference().record;
+  }
+  
     public static function amIPublishing():CameraSettingsVO {
      return UserManager.getInstance().getConference().amIPublishing();
     }
