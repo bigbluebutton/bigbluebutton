@@ -22,7 +22,6 @@ import java.awt.AWTException;
 import java.io.IOException;
 
 import org.bigbluebutton.screenshare.client.javacv.FfmpegScreenshare;
-import org.bigbluebutton.screenshare.client.javacv.JavaCVScreenshare;
 
 public class ScreenSharerRunner {
   public static final String NAME = "SCREENSHARERUNNER: ";
@@ -64,7 +63,7 @@ public class ScreenSharerRunner {
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    } catch (org.bigbluebutton.screenshare.client.javacv.BBBFrameRecorder.Exception e) {
+    } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }

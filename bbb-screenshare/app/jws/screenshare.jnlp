@@ -16,23 +16,23 @@
     </resources>
 
     <resources os="Windows" arch="amd64">
-        <nativelib href="ffmpeg-windows-x86_64.jar" download="eager"/>
+        <nativelib href="ffmpeg-windows-x86_64.jar"/>
     </resources>
 
     <resources os="Windows" arch="x86">
-        <nativelib href="ffmpeg-windows-x86.jar" download="eager"/>
+        <nativelib href="$$jnlpUrl/lib/ffmpeg-windows-x86.jar"/>
     </resources>
 
     <resources os="Linux" arch="x86_64 amd64">
-        <nativelib href="ffmpeg-linux-x86_64.jar" download="eager"/>
+        <nativelib href="ffmpeg-linux-x86_64.jar"/>
     </resources>
 
     <resources os="Linux" arch="x86 i386 i486 i586 i686">
-        <nativelib href="ffmpeg-linux-x86.jar" download="eager"/>
+        <nativelib href="ffmpeg-linux-x86.jar"/>
     </resources>
     
     <resources os="Mac OS X">
-        <nativelib href="ffmpeg-macosx-x86_64.jar" download="eager"/>
+        <nativelib href="ffmpeg-macosx-x86_64.jar"/>
     </resources>
 
     <application-desc

@@ -32,11 +32,7 @@ public class Logger {
      *  returns new {@link Slf4jLogger#Slf4jLogger(Class)}, else returns new {@link #Logger()}. */
     public static Logger create(Class cls) {
         String s = System.getProperty("org.bytedeco.javacpp.logger", "").toLowerCase();
-        if (s.equals("slf4j") || s.equals("slf4jlogger")) {
-            return new Slf4jLogger(cls);
-        } else {
-            return new Logger();
-        }
+        return new Logger();
     }
 
     static boolean debug = false;
