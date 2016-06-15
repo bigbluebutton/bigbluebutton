@@ -6,6 +6,14 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
   let id;
   let removeTempTextShape;
 
+  //A separate check for the polling shape before adding the object to the collection
+  //Meteor stringifies an array of JSONs (...shape.result) in this message
+  //Parsing the String and reassigning the value
+  if(shapeObject != null && shapeObject.shape_type === 'poll_result' &&
+      typeof shapeObject.shape.result === 'string') {
+      shapeObject.shape.result = JSON.parse(shapeObject.shape.result);
+  }
+
   if (shapeObject != null && shapeObject.shape_type === 'text') {
     logger.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
     entry = {
