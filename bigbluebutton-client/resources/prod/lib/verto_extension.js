@@ -3,7 +3,8 @@ Verto = function (
   conferenceUsername,
   conferenceIdNumber,
   userCallback,
-  credentials) {
+  credentials,
+  chromeExtension) {
 
   this.cur_call = null;
   this.share_call = null;
@@ -43,6 +44,10 @@ Verto = function (
   this.iceServers = null;
 
   this.userCallback = userCallback;
+
+  if (chromeExtension != null) {
+    this.chromeExtension = chromeExtension;
+  }
 };
 
 Verto.prototype.logger = function(obj) {
@@ -189,14 +194,16 @@ Verto.prototype.setMicrophone = function(tag) {
 };
 
 Verto.prototype.setScreenShare = function(tag) {
-  this.mediaCallback = this.doshare;
+  this.mediaCallback = this.makeShare;
   this.create(tag);
 };
 
 Verto.prototype.create = function(tag) {
   this.setRenderTag(tag);
   this.registerCallbacks();
-  this.configStuns(this.init);
+  // this.configStuns(this.init);
+  this.iceServers = true;
+  this.init();
 };
 
 Verto.prototype.docall = function () {
@@ -221,65 +228,64 @@ Verto.prototype.docall = function () {
   this.logger(this.cur_call);
 };
 
-Verto.prototype.doshare = function () {
-  // if (this.share_call) {
-  //   this.logger("Quitting: Call already in progress");
-  //   return;
-  // }
-  //
-  //
-  // getChromeExtensionStatus("", function(status) {
-	// 	if (status != "installed-enabled") {
-	// 		console.error("No chrome Extension");
-	// 		return -1;
-	// 	}
-  //
-  // 	// bring up Chrome screen picker
-  // 	getScreenConstraints(function(error, screen_constraints) {
-  // 		if(error) {
-  // 			return console.error(error);
-  // 		}
-  //
-  //     var results =  {
-  //       "audio": false,
-  //       "video": {
-  //         "mandatory": {
-  //           "maxWidth": 160,
-  //           "maxHeight": 120,
-  //           "chromeMediaSource": screen_constraints.mandatory.chromeMediaSource,
-  //           "chromeMediaSourceId": screen_constraints.mandatory.chromeMediaSourceId,
-  //           "minFrameRate": 10,
-  //         },
-  //         "optional": []
-  //       }
-  //     };
-  //
-  //     console.log(results);
-  //   });
-  // });
+Verto.prototype.makeShare = function () {
+  if (this.share_call) {
+    this.logError("Quitting: Call already in progress");
+    return;
+  }
 
-  // var _this = this;
-  // console.log("Attempting Screen Capture....");
-  // getScreenId(function(error, sourceId, screen_constraints) {
-  //   _this.share_call = _this.vertoHandle.newCall({
-  //     destination_number: _this.destination_number,
-  //     caller_id_name: _this.caller_id_name,
-  //     caller_id_number: _this.caller_id_number,
-  //     outgoingBandwidth: _this.outgoingBandwidth,
-  //     incomingBandwidth: _this.incomingBandwidth,
-  //     videoParams: screen_constraints.video.mandatory,
-  //     // videoParams: {
-  //     //   video: {
-  //   	// 		"mozMediaSource": 'window',
-  //   	// 		"mediaSource": 'window',
-  //   	// 	},
-  //     // },
-  //     useVideo: true,
-  //     screenShare: true,
-  //     dedEnc: true,
-  //     mirrorInput: false,
-  //   });
-  // });
+  var screenInfo = null;
+  if (!!navigator.mozGetUserMedia) {
+    screenInfo = {
+      video: {
+        "mozMediaSource": 'window',
+        "mediaSource": 'window',
+      }
+    };
+    this.doShare(screenInfo.video);
+  } else if (!!window.chrome) {
+    var _this = this;
+    if (!this.chromeExtension) {
+      this.logError({
+        'status': 'failed',
+        'message': 'Missing Chrome Extension key'
+      });
+    }
+
+    getChromeExtensionStatus(this.chromeExtension, function(status) {
+      if (status != "installed-enabled") {
+        this.logError("No chrome Extension");
+        return -1;
+      }
+
+      // bring up Chrome screen picker
+      getScreenConstraints(function(error, screen_constraints) {
+        if (error) {
+          return this.logError(error);
+        }
+
+        screenInfo =  screen_constraints.mandatory;
+
+        this.logger(screenInfo);
+        _this.doShare(screenInfo);
+      });
+    });
+  }
+};
+
+Verto.prototype.doShare = function (screen_constraints) {
+  this.share_call = this.vertoHandle.newCall({
+    destination_number: this.destination_number,
+    caller_id_name: this.caller_id_name,
+    caller_id_number: this.caller_id_number,
+    outgoingBandwidth: this.outgoingBandwidth,
+    incomingBandwidth: this.incomingBandwidth,
+    videoParams: screen_constraints,
+    useVideo: true,
+    screenShare: true,
+    dedEnc: true,
+    mirrorInput: false,
+  });
 };
 
 Verto.prototype.init = function () {
@@ -401,7 +407,8 @@ VertoManager.prototype.joinListenOnly = function (
     conferenceUsername,
     conferenceIdNumber,
     userCallback,
-    credentials
+    credentials,
+    null // Chrome Extension
   );
   this.vertoAudio.setListenOnly(tag);
 };
@@ -419,7 +426,8 @@ VertoManager.prototype.joinMicrophone = function (
       conferenceUsername,
       conferenceIdNumber,
       userCallback,
-      credentials
+      credentials,
+      null // Chrome Extension
     );
     this.vertoAudio.setMicrophone(tag);
 };
@@ -437,7 +445,8 @@ VertoManager.prototype.joinWatchVideo = function (
       conferenceUsername,
       conferenceIdNumber,
       userCallback,
-      credentials
+      credentials,
+      null // Chrome Extension
     );
     this.vertoVideo.setWatchVideo(tag);
 };
@@ -448,14 +457,16 @@ VertoManager.prototype.shareScreen = function (
   conferenceUsername,
   conferenceIdNumber,
   userCallback,
-  credentials) {
+  credentials,
+chromeExtension) {
     // this.exitVideo();
     this.vertoScreenShare = new Verto(
       voiceBridge,
       conferenceUsername,
       conferenceIdNumber,
       userCallback,
-      credentials
+      credentials,
+      chromeExtension
     );
     this.vertoScreenShare.setScreenShare(tag);
 };
