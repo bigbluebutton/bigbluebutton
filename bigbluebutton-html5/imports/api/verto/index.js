@@ -4,13 +4,6 @@ import Auth from '/imports/ui/services/auth';
 import { clientConfig } from '/config';
 import { getVoiceBridge } from '/imports/api/phone';
 
-let vertoManager = null;
-
-function vertoInitialize() {
-  console.log('verto initialized');
-  vertoManager = new VertoManager();
-}
-
 function createVertoUserName() {
   const uid = Auth.getUser();
   const uName = Users.findOne({ userId: uid }).user.name;
@@ -27,12 +20,12 @@ function getVertoCredentials() {
   };
 }
 
-function exitVertoAudio() {
-  vertoManager.exitAudio();
+function vertoExitAudio() {
+  window.vertoExitAudio();
 }
 
-function joinVertoListenOnly() {
-  vertoManager.joinListenOnly(
+function vertoJoinListenOnly() {
+  window.vertoJoinListenOnly(
     'remote-media',
     getVoiceBridge(),
     createVertoUserName(),
@@ -42,8 +35,8 @@ function joinVertoListenOnly() {
   );
 }
 
-function joinVertoMicrophone() {
-  vertoManager.joinMicrophone(
+function vertoJoinMicrophone() {
+  window.vertoJoinMicrophone(
     'remote-media',
     getVoiceBridge(),
     createVertoUserName(),
@@ -53,8 +46,8 @@ function joinVertoMicrophone() {
   );
 }
 
-function watchVertoVideo() {
-  vertoManager.joinWatchVideo(
+function vertoWatchVideo() {
+  window.vertoWatchVideo(
     'deskshareVideo',
     getVoiceBridge(),
     createVertoUserName(),
@@ -76,10 +69,9 @@ function shareVertoScreen() {
 }
 
 export {
-  joinVertoListenOnly,
-  joinVertoMicrophone,
-  watchVertoVideo,
-  exitVertoAudio,
-  vertoInitialize,
+  vertoJoinListenOnly,
+  vertoJoinMicrophone,
+  vertoWatchVideo,
+  vertoExitAudio,
   shareVertoScreen,
 };

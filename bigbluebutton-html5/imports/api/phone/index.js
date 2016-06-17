@@ -3,7 +3,7 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import {callServer} from '/imports/ui/services/api';
 import {clientConfig} from '/config';
-import {exitVertoAudio, joinVertoListenOnly, joinVertoMicrophone} from '/imports/api/verto';
+import {vertoExitAudio, vertoJoinListenOnly, vertoJoinMicrophone} from '/imports/api/verto';
 
 let triedHangup = false;
 
@@ -20,7 +20,7 @@ function amIListenOnly() {
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
 function exitAudio(afterExitCall) {
   if (!clientConfig.media.useSIPAudio) {
-    exitVertoAudio();
+    vertoExitAudio();
     return;
   } else {
     // To be called when the hangup is initiated
@@ -107,7 +107,7 @@ function joinListenOnly() {
   if (clientConfig.media.useSIPAudio) {
     joinVoiceCallSIP({ isListenOnly: true });
   } else {
-    joinVertoListenOnly();
+    vertoJoinListenOnly();
   }
 }
 
@@ -115,7 +115,7 @@ function joinMicrophone() {
   if (clientConfig.media.useSIPAudio) {
     joinVoiceCallSIP({ isListenOnly: false });
   } else {
-    joinVertoMicrophone();
+    vertoJoinMicrophone();
   }
 }
 

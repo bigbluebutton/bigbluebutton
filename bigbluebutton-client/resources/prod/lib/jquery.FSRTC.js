@@ -226,7 +226,6 @@
     }
 
     function doCallback(self, func, arg) {
-        debugger;
         if (func in self.options.callbacks) {
             self.options.callbacks[func](self, arg);
         }

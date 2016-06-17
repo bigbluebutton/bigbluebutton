@@ -1,8 +1,7 @@
 import Deskshare from '/imports/api/deskshare';
-import {conferenceUsername, joinVertoAudio, watchVertoVideo} from '/imports/api/verto';
+import {createVertoUserName, vertoWatchVideo} from '/imports/api/verto';
 import Auth from '/imports/ui/services/auth';
 import {getVoiceBridge} from '/imports/api/phone';
-import {createVertoUserName} from '/imports/api/verto';
 
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video
@@ -32,7 +31,7 @@ function watchDeskshare(options) {
   const extension = options.extension || getVoiceBridge();
   const conferenceUsername = createVertoUserName();
   conferenceIdNumber = '1009';
-  watchVertoVideo({ extension, conferenceUsername, conferenceIdNumber,
+  vertoWatchVideo({ extension, conferenceUsername, conferenceIdNumber,
     watchOnly: true, });
 }
 

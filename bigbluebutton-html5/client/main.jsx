@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import { renderRoutes } from '../imports/startup/client/routes.js';
 import { IntlProvider, addLocaleData } from 'react-intl';
-import {vertoInitialize} from '/imports/api/verto';
 
 import Locales from '../imports/locales';
 
@@ -52,7 +51,7 @@ Meteor.startup(() => {
   loadLib('jquery.json-2.4.min.js');
   loadLib('jquery.FSRTC.js');
   loadLib('jquery.verto.js');
-  loadLib('verto_extension.js', vertoInitialize);
+  loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
   loadLib('verto_extension_share.js');
 

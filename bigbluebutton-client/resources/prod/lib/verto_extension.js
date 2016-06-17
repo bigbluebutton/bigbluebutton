@@ -458,7 +458,7 @@ VertoManager.prototype.shareScreen = function (
   conferenceIdNumber,
   userCallback,
   credentials,
-chromeExtension) {
+  chromeExtension) {
     // this.exitVideo();
     this.vertoScreenShare = new Verto(
       voiceBridge,
@@ -469,4 +469,67 @@ chromeExtension) {
       chromeExtension
     );
     this.vertoScreenShare.setScreenShare(tag);
+};
+
+window.flashVertoInitialize = function () {
+  if (window.vertoManager = null || window.vertoManager == undefined) {
+    window.vertoManager = new VertoManager();
+  }
+};
+
+window.vertoJoinListenOnly = function (
+  tag,
+  voiceBridge,
+  conferenceUsername,
+  conferenceIdNumber,
+  userCallback,
+  credentials
+  ) {
+  window.flashVertoInitialize();
+  window.vertoManager.joinListenOnly(
+    tag,
+    voiceBridge,
+    conferenceUsername,
+    conferenceIdNumber,
+    userCallback,
+    credentials
+  );
+};
+
+window.vertoJoinMicrophone = function (
+  tag,
+  voiceBridge,
+  conferenceUsername,
+  conferenceIdNumber,
+  userCallback,
+  credentials
+  ) {
+  window.flashVertoInitialize();
+  window.vertoManager.joinMicrophone(
+    tag,
+    voiceBridge,
+    conferenceUsername,
+    conferenceIdNumber,
+    userCallback,
+    credentials
+  );
+};
+
+window.vertoWatchVideo = function (
+  tag,
+  voiceBridge,
+  conferenceUsername,
+  conferenceIdNumber,
+  userCallback,
+  credentials
+  ) {
+  window.flashVertoInitialize();
+  window.vertoManager.joinWatchVideo(
+    tag,
+    voiceBridge,
+    conferenceUsername,
+    conferenceIdNumber,
+    userCallback,
+    credentials
+  );
 };
