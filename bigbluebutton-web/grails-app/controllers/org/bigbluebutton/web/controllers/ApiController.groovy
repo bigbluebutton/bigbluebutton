@@ -228,6 +228,13 @@ class ApiController {
             errors.missingParamError("checksum");
         }
 
+        String guest;
+        if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true")) {
+            guest = "true";
+        } else {
+            guest = "false";
+        }
+
         // Do we have a name for the user joining? If none, complain.
         if(!StringUtils.isEmpty(params.fullName)) {
             params.fullName = StringUtils.strip(params.fullName);
@@ -397,6 +404,7 @@ class ApiController {
         us.mode = "LIVE"
         us.record = meeting.isRecord()
         us.welcome = meeting.getWelcomeMessage()
+        us.guest = guest
         us.logoutUrl = meeting.getLogoutUrl();
         us.configXML = configxml;
 
@@ -419,7 +427,7 @@ class ApiController {
         meetingService.addUserSession(session['user-token'], us);
 
         // Register user into the meeting.
-        meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
+        meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.guest)
 
         log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")
         session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -1142,250 +1150,6 @@ class ApiController {
     }
 
     /***********************************************
-     * CALLBACK API
-     ***********************************************/
-    def subscribeEvent = {
-        String API_CALL = "subscribeEvent"
-        log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-        if (StringUtils.isEmpty(params.checksum)) {
-            invalid("checksumError", "You did not pass the checksum security check")
-            return
-        }
-
-        if (StringUtils.isEmpty(params.callbackURL)) {
-            invalid("missingParamCallbackURL", "You must specify a callbackURL for subscribing");
-            return
-        }
-
-        if(!StringUtils.isEmpty(params.meetingID)) {
-            params.meetingID = StringUtils.strip(params.meetingID);
-            if (StringUtils.isEmpty(params.meetingID)) {
-                invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-                return
-            }
-        } else {
-            invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-            return
-        }
-
-        String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
-        Meeting meeting = meetingService.getMeeting(internalMeetingId);
-        if (meeting == null) {
-            // BEGIN - backward compatibility
-            invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-            return;
-            // END - backward compatibility
-
-            errors.invalidMeetingIdError();
-            respondWithErrors(errors)
-            return;
-        }
-
-        if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-            response.addHeader("Cache-Control", "no-cache")
-            withFormat {
-                xml {
-                    render(contentType:"text/xml") {
-                        response() {
-                            returncode("FAILED")
-                            messageKey("subscribeEventChecksumError")
-                            message("subscribeEventChecksumError: request did not pass the checksum security check.")
-                        }
-                    }
-                }
-            }
-        } else {
-            String sid = meetingService.addSubscription(meeting.getInternalId(), meeting.getExternalId(), params.callbackURL);
-
-            if(sid.isEmpty()){
-                response.addHeader("Cache-Control", "no-cache")
-                withFormat {
-                    xml {
-                        render(contentType:"text/xml") {
-                            response() {
-                                returncode("FAILED")
-                                messageKey("subscribeEventError")
-                                message("subscribeEventError: An error happen while storing your subscription. Check the logs.")
-                            }
-                        }
-                    }
-                }
-
-            }else{
-                response.addHeader("Cache-Control", "no-cache")
-                withFormat {
-                    xml {
-                        render(contentType:"text/xml") {
-                            response() {
-                                returncode("SUCCESS")
-                                subscriptionID(sid)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    def unsubscribeEvent = {
-        String API_CALL = "unsubscribeEvent"
-        log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-        if (StringUtils.isEmpty(params.checksum)) {
-            invalid("checksumError", "You did not pass the checksum security check")
-            return
-        }
-
-        if (StringUtils.isEmpty(params.subscriptionID)) {
-            invalid("missingParamSubscriptionID", "You must pass a subscriptionID for unsubscribing")
-            return
-        }
-
-        if(!StringUtils.isEmpty(params.meetingID)) {
-            params.meetingID = StringUtils.strip(params.meetingID);
-            if (StringUtils.isEmpty(params.meetingID)) {
-                invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-                return
-            }
-        } else {
-            invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-            return
-        }
-
-        String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
-        Meeting meeting = meetingService.getMeeting(internalMeetingId);
-        if (meeting == null) {
-            // BEGIN - backward compatibility
-            invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-            return;
-            // END - backward compatibility
-
-            errors.invalidMeetingIdError();
-            respondWithErrors(errors)
-            return;
-        }
-
-        if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-            response.addHeader("Cache-Control", "no-cache")
-            withFormat {
-                xml {
-                    render(contentType:"text/xml") {
-                        response() {
-                            returncode("FAILED")
-                            messageKey("unsubscribeEventChecksumError")
-                            message("unsubscribeEventChecksumError: request did not pass the checksum security check.")
-                        }
-                    }
-                }
-            }
-        } else {
-            boolean status = meetingService.removeSubscription(meeting.getInternalId(), params.subscriptionID);
-
-            if(!status){
-                response.addHeader("Cache-Control", "no-cache")
-                withFormat {
-                    xml {
-                        render(contentType:"text/xml") {
-                            response() {
-                                returncode("FAILED")
-                                messageKey("unsubscribeEventError")
-                                message("unsubscribeEventError: An error happen while unsubscribing. Check the logs.")
-                            }
-                        }
-                    }
-                }
-
-            }else{
-                response.addHeader("Cache-Control", "no-cache")
-                withFormat {
-                    xml {
-                        render(contentType:"text/xml") {
-                            response() {
-                                returncode("SUCCESS")
-                                unsubscribed(status)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    def listSubscriptions = {
-        String API_CALL = "listSubscriptions"
-        log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-        if (StringUtils.isEmpty(params.checksum)) {
-            invalid("checksumError", "You did not pass the checksum security check")
-            return
-        }
-
-        if(!StringUtils.isEmpty(params.meetingID)) {
-            params.meetingID = StringUtils.strip(params.meetingID);
-            if (StringUtils.isEmpty(params.meetingID)) {
-                invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-                return
-            }
-        } else {
-            invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-            return
-        }
-
-        String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
-        Meeting meeting = meetingService.getMeeting(internalMeetingId);
-        if (meeting == null) {
-            // BEGIN - backward compatibility
-            invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-            return;
-            // END - backward compatibility
-
-            errors.invalidMeetingIdError();
-            respondWithErrors(errors)
-            return;
-        }
-
-        if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-            response.addHeader("Cache-Control", "no-cache")
-            withFormat {
-                xml {
-                    render(contentType:"text/xml") {
-                        response() {
-                            returncode("FAILED")
-                            messageKey("listSubscriptionsChecksumError")
-                            message("listSubscriptionsChecksumError: request did not pass the checksum security check.")
-                        }
-                    }
-                }
-            }
-        } else {
-            List<Map<String,String>> list = meetingService.listSubscriptions(meeting.getInternalId());
-
-            response.addHeader("Cache-Control", "no-cache")
-            withFormat {
-                xml {
-                    render(contentType:"text/xml") {
-                        response() {
-                            returncode("SUCCESS")
-                            subscriptions() {
-                                list.each{ item ->
-                                    subscription(){
-                                        subscriptionID() { mkp.yield(item.get("subscriptionID")) }
-                                        event() { mkp.yield(item.get("event")) }
-                                        callbackURL() { mkp.yield(item.get("callbackURL")) }
-                                        active()  { mkp.yield(item.get("active")) }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-    }
-
-    /***********************************************
      * CONFIG API
      ***********************************************/
     def configXML = {
@@ -1516,6 +1280,7 @@ class ApiController {
                             internalUserID = newInternalUserID
                             authToken = us.authToken
                             role = us.role
+                            guest = us.guest
                             conference = us.conference
                             room = us.room
                             voicebridge = us.voicebridge
@@ -1535,6 +1300,11 @@ class ApiController {
                                     // Somehow we need to prepend something (custdata) for the JSON to work
                                     custdata "$k" : v
                                 }
+                            }
+                            metadata = array {
+                              meeting.getMetadata().each{ k, v ->
+                                metadata "$k" : v
+                              }
                             }
                         }
                     }
@@ -2059,10 +1829,17 @@ class ApiController {
                                     userID() { mkp.yield("${att.externalUserId}") }
                                     fullName() { mkp.yield("${att.fullname}") }
                                     role("${att.role}")
+                                    guest("${att.guest}")
+                                    waitingForAcceptance("${att.waitingForAcceptance}")
                                     isPresenter("${att.isPresenter()}")
                                     isListeningOnly("${att.isListeningOnly()}")
                                     hasJoinedVoice("${att.isVoiceJoined()}")
                                     hasVideo("${att.hasVideo()}")
+                                    videoStreams() {
+                                      att.getStreams().each { s ->
+                                        streamName("${s}")
+                                      }
+                                    }
                                     customdata(){
                                         meeting.getUserCustomData(att.externalUserId).each{ k,v ->
                                             "$k"("$v")

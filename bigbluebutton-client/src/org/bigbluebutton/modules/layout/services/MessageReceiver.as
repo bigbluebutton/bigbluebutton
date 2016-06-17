@@ -81,6 +81,9 @@ package org.bigbluebutton.modules.layout.services
       layoutDefinition.load(new XML(message.layout));
       var translatedName:String = ResourceUtil.getInstance().getString(layoutDefinition.name)
       if (translatedName == "undefined") translatedName = layoutDefinition.name;
+      // remove previously added [Remote] mark
+      var pattern:RegExp = /^\[.*\] /g;
+      translatedName = translatedName.replace(pattern, "");
       layoutDefinition.name = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] " + translatedName;
       var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
       redefineLayout.layout = layoutDefinition;

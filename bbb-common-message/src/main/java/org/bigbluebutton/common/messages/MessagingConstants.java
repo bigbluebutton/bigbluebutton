@@ -29,6 +29,7 @@ public class MessagingConstants {
 	public static final String FROM_USERS_CHANNEL = FROM_BBB_APPS_CHANNEL + ":users";
 	public static final String FROM_CHAT_CHANNEL = FROM_BBB_APPS_CHANNEL + ":chat"; 
 	public static final String FROM_WHITEBOARD_CHANNEL = FROM_BBB_APPS_CHANNEL + ":whiteboard";
+	public static final String FROM_SHAREDNOTES_CHANNEL = FROM_BBB_APPS_CHANNEL + ":sharednotes";
 
 	public static final String TO_BBB_APPS_CHANNEL = "bigbluebutton:to-bbb-apps";	
 	public static final String TO_BBB_APPS_PATTERN = TO_BBB_APPS_CHANNEL + ":*";
@@ -40,6 +41,7 @@ public class MessagingConstants {
 	public static final String TO_CHAT_CHANNEL = TO_BBB_APPS_CHANNEL + ":chat";
 	public static final String TO_VOICE_CHANNEL = TO_BBB_APPS_CHANNEL + ":voice";
 	public static final String TO_WHITEBOARD_CHANNEL = TO_BBB_APPS_CHANNEL + ":whiteboard";
+	public static final String TO_SHAREDNOTES_CHANNEL = TO_BBB_APPS_CHANNEL + ":sharednotes";
 
 	public static final String BBB_APPS_KEEP_ALIVE_CHANNEL = "bigbluebutton:from-bbb-apps:keepalive";
 	
@@ -60,6 +62,7 @@ public class MessagingConstants {
 	public static final String USER_LEFT_EVENT = "UserLeftEvent";
 	public static final String USER_LEFT_VOICE_REQUEST = "user_left_voice_request";
 	public static final String USER_STATUS_CHANGE_EVENT = "UserStatusChangeEvent";	
+	public static final String USER_ROLE_CHANGE_EVENT = "UserRoleChangeEvent";
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
 	public static final String RECORD_STATUS_EVENT = "RecordStatusEvent";
 	public static final String SEND_PUBLIC_CHAT_MESSAGE_REQUEST = "send_public_chat_message_request";

@@ -30,7 +30,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:common="org.bigbluebutton.common.*"
 		width="100%" height="{parentApplication.height - 1}"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		creationComplete="initializeShell()">
+		backgroundColor="white" styleName="mainVBox"
+		creationComplete="initializeShell()" 
+		verticalGap="0">
 
 	<!--
 	height="{parentApplication.height - 1}" : The container height is set to fix height because the percentHeight
@@ -65,6 +67,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
+
+	<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
+	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
+	<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
+	<mate:Listener type="{BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN}" method="guestAllowed" />
+	<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
+	<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
+	<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
+	<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
 	  
 	<mx:Script>
 		<![CDATA[
@@ -95,6 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
@@ -104,10 +116,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.main.events.NetworkStatsEvent;
+			import org.bigbluebutton.main.events.RefreshGuestEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.Guest;
+			import org.bigbluebutton.main.model.ImageLoader;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
@@ -119,10 +136,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
 			private var globalDispatcher:Dispatcher;			
-			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
+			private var waitWindow:WaitingWindow = null;
+			private var guestWindow:GuestWindow = null;
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
@@ -136,10 +154,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
-			[Bindable] private var statsIcon:Class = images.bandwidth;
       
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
+			
+			[Bindable] private var copyrightText:String;
+
+			private var _hideToolbarsTimer:Timer;
 			
 			public function get mode():String {
 				return _mode;
@@ -148,16 +169,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var layoutOptions:LayoutOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
-			[Bindable] private var toolbarHeight:Number = 32;
-			[Bindable] private var toolbarPaddingTop:Number = 4;
+			[Bindable] private var _showToolbar:Boolean = true;
+			private const DEFAULT_TOOLBAR_HEIGHT:Number = 32;
+			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
+			[Bindable] private var toolbarPaddingTop:Number = 2;
 			[Bindable] private var showFooterOpt:Boolean = true;
+			[Bindable] private var _showFooter:Boolean = true;
 			[Bindable] private var footerHeight:Number = 24;
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
+			private var guestManagement:GuestManagement = null;
+			private var guest:Guest = new Guest();
+			private var guestPolicy:String = "ASK_MODERATOR";
+
 			private var confirmingLogout:Boolean = false;
 			private var chromeBrowser:ChromeWebcamPermissionImage = null;
 			
+			private const THRESHOLD_AREA_SHOW_TOOLBARS:int = 5;
+			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
+			private const HIDE_TOOLBARS_DELAY:int = 1000;
+
 			public function getLogWindow() : LogWindow
 			{
 				if (logWindow == null){
@@ -167,6 +199,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
 			public function initOptions(e:Event):void {
+				updateCopyrightText();
+				loadBackground();
+
 				UserManager.getInstance().getConference().configLockSettings();
 				layoutOptions = new LayoutOptions();
 				layoutOptions.parseOptions();
@@ -184,27 +219,156 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (!showFooterOpt) {
 					footerHeight = 0;
-					controlBar.visible = false;
+					controlBar.visible = controlBar.includeInLayout = false;
 					calculateCanvasHeight();
+				}
+			}
+		
+			private function updateCopyrightText():void {
+				if (BBB.initConfigManager().config.branding.copyright == undefined) {
+					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
+				} else {
+					copyrightText = String(BBB.initConfigManager().config.branding.copyright).replace("{0}", appVersion);
 				}
 			}
 		
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
 				
+				_hideToolbarsTimer = new Timer(HIDE_TOOLBARS_DELAY, 1);
+				_hideToolbarsTimer.addEventListener(TimerEvent.TIMER, onHideToolbarsTimerComplete);
+
+				if (stage == null) {
+					addEventListener(Event.ADDED_TO_STAGE, initFullScreen);
+				} else {
+					initFullScreen();
+				}
+
 				systemManager.addEventListener(Event.RESIZE, handleApplicationResizeEvent);
+				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
+				handleApplicationResizeEvent();
+			}
+
+			private function handleApplicationResizeEvent(e:Event = null):void {
 				calculateCanvasHeight();
+				updateCopyrightLabelDimensions();
 			}
 			
-			private function handleApplicationResizeEvent(e:Event):void {
+			private function setGuestPolicy(event:BBBEvent):void {
+				guestPolicy = event.payload.guestPolicy;
+				if(guestManagement == null) {
+					LOGGER.debug("ADD Guest Event");
+					guestManagement = new GuestManagement();
+					guestManagement.setGuestPolicy(guestPolicy);
+					guestManagement.addToSettings();
+				}
+			}
+
+			private function isFullScreen():Boolean {
+				return stage.displayState == StageDisplayState.FULL_SCREEN ||
+						stage.displayState == StageDisplayState.FULL_SCREEN_INTERACTIVE;
+			}
+
+			private function mouseMoveHandler(e:MouseEvent):void {
+				if (isFullScreen()) {
+					if (e.stageY <= THRESHOLD_AREA_SHOW_TOOLBARS || e.stageY > this.height - THRESHOLD_AREA_SHOW_TOOLBARS) {
+						showToolbars();
+					} else if (e.stageY >= toolbar.height && e.stageY <= this.height - controlBar.height) {
+						hideToolbars();
+					}
+				} else {
+					showToolbars();
+				}
+			}
+
+			private function set showToolbar(visible:Boolean):void {
+				if (!showToolbarOpt) return;
+
+				if (visible) {
+					if (enlargeToolbar.isPlaying) return;
+					if (shrinkToolbar.isPlaying) shrinkToolbar.end();
+
+					enlargeToolbar.heightFrom = toolbar.height;
+					if (enlargeToolbar.heightFrom != enlargeToolbar.heightTo) {
+						_showToolbar = true;
+						enlargeToolbar.play([toolbar]);
+					}
+				} else {
+					if (shrinkToolbar.isPlaying) return;
+					if (enlargeToolbar.isPlaying) enlargeToolbar.end();
+
+					shrinkToolbar.heightFrom = toolbar.height;
+					if (shrinkToolbar.heightFrom != shrinkToolbar.heightTo) {
+						_showToolbar = true;
+						shrinkToolbar.play([toolbar]);
+					}
+				}
+			}
+
+
+			private function onToolbarEffectEnd():void {
+				_showToolbar = showToolbarOpt && (toolbar.height > 0);
 				calculateCanvasHeight();
 			}
 		
-			protected function initFullScreen():void {				
-				/* Set up full screen handler. */
+			private function set showFooter(visible:Boolean):void {
+				if (!showFooterOpt) return;
+
+				if (visible) {
+					if (enlargeControlBar.isPlaying) return;
+					if (shrinkControlBar.isPlaying) shrinkControlBar.end();
+
+					enlargeControlBar.heightFrom = controlBar.height;
+					if (enlargeControlBar.heightFrom != enlargeControlBar.heightTo) {
+						_showFooter = true;
+						enlargeControlBar.play([controlBar]);
+					}
+				} else {
+					if (shrinkControlBar.isPlaying) return;
+					if (enlargeControlBar.isPlaying) enlargeControlBar.end();
+
+					shrinkControlBar.heightFrom = controlBar.height;
+					if (shrinkControlBar.heightFrom != shrinkControlBar.heightTo) {
+						_showFooter = true;
+						shrinkControlBar.play([controlBar]);
+						
+					}
+				}
+			}
+
+			private function onControlBarEffectEnd():void {
+				_showFooter = showFooterOpt && (controlBar.height > 0);
+				calculateCanvasHeight();
+			}
+
+			private function onHideToolbarsTimerComplete(event:TimerEvent):void {
+				showToolbar = showFooter = false;
+			}
+
+			private function hideToolbars():void {
+				_hideToolbarsTimer.reset();
+				_hideToolbarsTimer.start();
+			}
+
+			private function showToolbars():void {
+				_hideToolbarsTimer.reset();
+				showToolbar = showFooter = true;
+			}
+
+			private function updateCopyrightLabelDimensions(e:Event = null):void {
+				var screenRect:Rectangle = systemManager.screen;
+
+				if (spacer.width == 0) {
+					copyrightLabel2.width += (screenRect.width - controlBar.width);
+				} else {
+					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
+				}
+			}
+		
+			protected function initFullScreen(e:Event = null):void {
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = stage.displayState;
-			}					
+				stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+			}
 			
 			private var sendStartModulesEvent:Boolean = true;
 			
@@ -214,7 +378,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			//             https://github.com/bigbluebutton/bigbluebutton/issues/2437
 			private function calculateCanvasHeight():void {
 				var screenRect:Rectangle = systemManager.screen;
-				mdiCanvas.height = screenRect.height - footerHeight - toolbarHeight - 12;
+				mdiCanvas.height = screenRect.height - (_showFooter? footerHeight: 0) - (_showToolbar? toolbarHeight: 0);
+				updateCanvasBackgroundDimensions();
 			}
 			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
@@ -245,17 +410,73 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
 			
+			public function guestAllowed(evt:BBBEvent):void {
+				progressBar.visible = true;
+				if (waitWindow != null) {
+					PopUpManager.removePopUp(waitWindow);
+					waitWindow = null;
+				}
+			}
+			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					LOGGER.debug("Switching to full screen");
-					/* Do something specific here if we switched to full screen mode. */
-				
+					fullscreen_icon = images.exit_full_screen;
+					hideToolbars();
 				} else {
 					LOGGER.debug("Switching to normal screen");
-					/* Do something specific here if we switched to normal mode. */
+					fullscreen_icon = images.full_screen;
+					showToolbars();
 				}
 			}			
+
+			private function closeGuestWindow(e:Event):void {
+				if(guestWindow != null) {
+					guestWindow.closeWindow();
+					guestWindow = null;
+				}
+			}
+				
+			private function refreshGuestView(evt:RefreshGuestEvent):void {
+				// do not show the guest window if the user isn't moderator or if he's moderator but is still waiting for acceptance
+				if ( ! (
+						UsersUtil.amIModerator() 
+						&& UserManager.getInstance().getConference().getMyUser() != null
+						&& !UserManager.getInstance().getConference().getMyUser().waitingForAcceptance) ) {
+					return;
+				}
+				
+				if (guestWindow == null) {
+					guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
+					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
+
+					guestWindow.x = systemManager.screen.width - guestWindow.width - 20;
+					guestWindow.y = 20;
+				}
+				guestWindow.refreshGuestView(evt.listOfGuests);
+			}
+
+			public function removeGuestWindow(evt:BBBEvent):void {
+				if (guestWindow != null) {
+					guestWindow.remove(evt.payload.userId);
+				}
+			}
+
+			private function closeWaitWindow(e:BBBEvent):void {
+				if(waitWindow != null && e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
+					LOGGER.debug("closeWaitWindow");
+					waitWindow.removeWindow();
+				}
+			}
+
+			private function openWaitWindow(evt:BBBEvent):void {
+				 progressBar.visible = false;
+				 waitWindow = PopUpManager.createPopUp( mdiCanvas, WaitingWindow, false) as WaitingWindow;
+				 
+				 // Calculate position of TitleWindow in Application's coordinates. 
+				 waitWindow.x = (systemManager.screen.width - waitWindow.width) / 2;
+				 waitWindow.y = (systemManager.screen.height - waitWindow.height) / 2;
+			}
 			
 			private function openLogWindow():void {
 				mdiCanvas.windowManager.add(getLogWindow());
@@ -267,6 +488,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function openShortcutHelpWindow(e:Event = null):void{
 				if (scWindow == null) {
 					scWindow = new ShortcutHelpWindow();
+					scWindow.width = 300;
+					scWindow.height = 300;
 				}
 				
 				if (scWindow.minimized)
@@ -276,24 +499,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					scWindow.restore();
 				
 				mdiCanvas.windowManager.add(scWindow);
-				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - scWindow.width/2, mdiCanvas.height/2 - scWindow.height/2);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
 				
 				scWindow.focusHead();
 			}
 			
 			private function toggleFullScreen():void{
-				LOGGER.debug("Toggling fullscreen");
+				LOGGER.debug("Toggling fullscreen, current mode: " + stage.displayState);
 	   			try {
 					switch (stage.displayState) {
 						case StageDisplayState.FULL_SCREEN:
-							LOGGER.debug("full screen mode");
+						case StageDisplayState.FULL_SCREEN_INTERACTIVE:
+							LOGGER.debug("Full screen mode, switching to normal screen mode");
 							// If already in full screen mode, switch to normal mode.
 							stage.displayState = StageDisplayState.NORMAL;
 							break;
 						default:
-							LOGGER.debug("Normal screen mode");
+							LOGGER.debug("Normal screen mode, switching to full screen mode");
 							// If not in full screen mode, switch to full screen mode.
-							stage.displayState = StageDisplayState.FULL_SCREEN;
+							stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 							break;
 					}
 				} catch (err:SecurityError) {
@@ -433,13 +657,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
           
       private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
+        var options:PhoneOptions = new PhoneOptions();
+        if (!options.showMicrophoneHint) {
+          return;
+        }
+
         var browser:String = ExternalInterface.call("determineBrowser")[0];
         if (browser == "Firefox") {
-          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
+          var ffBrowser:FirefoxMicPermissionImage = new FirefoxMicPermissionImage();
+          // we want to increase the contrast between the modal and the rest of the UI
+          ffBrowser.setStyle("modalTransparency", 0.75);
+          ffBrowser.setStyle("modalTransparencyColor", 0x000000);
           ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-            ffBrowser.x = 100;
-            ffBrowser.y = 150;
-          }); 
+            ffBrowser.x = 54;
+            ffBrowser.y = 0;
+          });
+          PopUpManager.addPopUp(ffBrowser, mdiCanvas, true);
         } else if (browser == "Chrome") {
           var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
           chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
@@ -534,6 +767,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function handleLogout(e:ConnectionFailedEvent):void {
+        if(progressBar != null)
+          progressBar.visible = false;
+
+        if(waitWindow != null)
+          waitWindow.removeWindow();
+
+        if(guestWindow != null) {
+          guestWindow.closeWindow();
+        }
+
         if (e is ConnectionFailedEvent) {
           showlogoutWindow((e as ConnectionFailedEvent).type);
         }
@@ -594,24 +837,58 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					addedBtns.removeChild(event.button as UIComponent);
 			}
 
-			private var networkStatsWindow:NetworkStatsWindow = new NetworkStatsWindow();
+			private var networkStatsWindow:NetworkStatsWindow = null;
 
 			private function openNetworkStatsWindow(e:Event = null):void {
-				/*var btnPosition:Point = new Point(btnNetwork.x, btnNetwork.y);
-				var btnPositionOnGlobal:Point = btnNetwork.localToGlobal(btnPosition);
-				var windowPosition:Point = networkStatsWindow.globalToLocal(btnPositionOnGlobal);
+				if (networkStatsWindow == null) {
+					networkStatsWindow = new NetworkStatsWindow();
+				}
 				
-				windowPosition.x += btnNetwork.width + 10;
-				windowPosition.y -= networkStatsWindow.height - 10;
+				mdiCanvas.windowManager.add(networkStatsWindow);
+				mdiCanvas.windowManager.absPos(networkStatsWindow, mdiCanvas.width - networkStatsWindow.width, 0);
+				mdiCanvas.windowManager.bringToFront(networkStatsWindow);
+			}
 
-				networkStatsWindow.x = windowPosition.x;
-				networkStatsWindow.y = windowPosition.y;*/
+			private function updateToolbarHeight():void {
+				if (toolbarHeight != 0) {
+					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + 10);
+				}
+				calculateCanvasHeight();
+			}
 
-				networkStatsWindow.appear();
+			private function updateCanvasBackgroundDimensions():void {
+				if (canvasBackground == null) {
+					return;
 			}
 			
-			private function closeNetworkStatsWindow(e:Event = null):void {
-				networkStatsWindow.disappear();
+				var canvasAspectRatio:Number = mdiCanvas.width / mdiCanvas.height;
+
+				// this is the case when the image is a banner that should be positioned in the top, and
+				// be shown entirely
+				if (canvasBackgroundAspectRatio > 2 || canvasAspectRatio >= canvasBackgroundAspectRatio) {
+					canvasBackground.width = mdiCanvas.width;
+					canvasBackground.height = Math.ceil(mdiCanvas.width / canvasBackgroundAspectRatio);
+				} else {
+					canvasBackground.height = mdiCanvas.height;
+					canvasBackground.width = Math.ceil(mdiCanvas.height * canvasBackgroundAspectRatio);
+				}
+			}
+
+			private var canvasBackground:DisplayObject = null;
+			private var canvasBackgroundAspectRatio:Number = NaN;
+
+			private function loadBackground():void {
+				var backgroundCandidate:String = BBB.initConfigManager().config.branding.background;
+				if (backgroundCandidate != "") {
+					var imageLoader:ImageLoader = new ImageLoader();
+					imageLoader.load(backgroundCandidate, function(obj:DisplayObject, width:Number, height:Number):void {
+						canvasBackground = obj;
+						canvasBackgroundAspectRatio = width / height;
+						backgroundPlaceHolder.rawChildren.addChild(canvasBackground);
+						backgroundPlaceHolder.invalidateDisplayList();
+						updateCanvasBackgroundDimensions();
+					});
+				}
 			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
@@ -643,6 +920,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</mx:Script>
+
+	<mx:Resize id="shrinkControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{footerHeight}" heightTo="0" effectEnd="onControlBarEffectEnd()" />
+	<mx:Resize id="enlargeControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{footerHeight}" effectEnd="onControlBarEffectEnd()" />
+	<mx:Resize id="shrinkToolbar" target="{toolbar}" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{toolbarHeight}" heightTo="0" effectEnd="onToolbarEffectEnd()" />
+	<mx:Resize id="enlargeToolbar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{toolbarHeight}" effectEnd="onToolbarEffectEnd()" />
 	
 	<common:TabIndexer id="tabIndexer" startIndex="100000"
 					   tabIndices="{[langSelector, logBtn]}"/>
@@ -651,28 +933,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   dock="true" 
 					   width="100%" 
 					   height="{toolbarHeight}" 
-					   visible="{showToolbarOpt}" 
+					   visible="{_showToolbar}" 
+					   includeInLayout="{showToolbarOpt}" 
 					   verticalAlign="middle" 
 					   toolbarOptions="{layoutOptions}" 
-					   paddingTop="{toolbarPaddingTop}"/>
+					   paddingTop="{toolbarPaddingTop}" 
+					   updateComplete="updateToolbarHeight()"
+					   paddingBottom="0" />
 					   
 	<views:MainCanvas id="mdiCanvas" 
 					  horizontalScrollPolicy="off" 
 					  verticalScrollPolicy="off" 
 					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
 					  width="100%" >
+		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
 		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
+	<mx:ControlBar width="100%" height="{footerHeight}" id="controlBar" paddingTop="2" paddingBottom="2" verticalAlign="middle" visible="{_showFooter}" includeInLayout="{showFooterOpt}" >
 		<mx:Label
-				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
+				htmlText="{copyrightText}"
 				link="onFooterLinkClicked(event)"
 				id="copyrightLabel2" truncateToFit="true"
-				width="100%" minWidth="1"
 				selectable="true" paddingRight="10"/>
-		
+		<mx:Spacer width="100%" id="spacer" />
 		<mx:Label 
 				id="lblWebRTC"
 				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"
@@ -702,5 +987,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				icon="{logs_icon}"
 				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
+		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
 	</mx:ControlBar>
 </mx:VBox>

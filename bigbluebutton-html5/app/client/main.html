@@ -106,12 +106,12 @@
 </template>
 
 <template name="icon">
-  {{#if equals name "hand"}}
+  {{#if regularIcon name }}
     <span rel="tooltip" data-placement="bottom" title="{{title}}">
-      <i class="ion-android-hand"></i>
+      <i class="{{name}}"></i>
     </span>
   {{else}}
-    <svg width="{{size}}" height="{{size}}" viewBox="0 0 50 50">
+    <svg width="{{size}}" height="{{size}}" viewBox="0 0 50 50" title="{{title}}">
       {{> Template.dynamic template=name}}
     </svg>
   {{/if}}

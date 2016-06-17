@@ -27,7 +27,6 @@ package org.bigbluebutton.main.views
         private var _activationTimer:Timer = null;
         private var _waitingForActivation:Boolean = false;
         private var _cameraAccessDenied:Boolean = false;
-        // TODO do something with this property
         private var _chromePermissionDenied:Boolean = false;
         private var _videoProfile:VideoProfile = null;
         private var _showPreviewMsg:Boolean = false;
@@ -148,8 +147,10 @@ package org.bigbluebutton.main.views
                 _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 
                 if (_camera.muted) {
-                    if (_cameraAccessDenied) {
+                    if (_cameraAccessDenied && !_chromePermissionDenied) {
                         Security.showSettings(SecurityPanel.PRIVACY)
+                    } else if (_chromePermissionDenied) {
+                        showWarning('bbb.video.publish.hint.cameraDenied');
                     } else {
                         onFailCallback('bbb.video.publish.hint.waitingApproval');
                     }

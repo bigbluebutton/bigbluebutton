@@ -22,6 +22,9 @@
 
 				switch (value.StatusPriority) {
 					case SUCCEEDED:
+						colorRect.visible = true;
+						solid.color = 0x00FF00;
+						break;
 					case LOADING:
 						colorRect.visible = false;
 						break;

@@ -21,7 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
                 xmlns:views="*"
-                pageTitle="BigBlueButton" 
+                pageTitle="Mconf-Live"
                 layout="absolute"
 				preinitialize="LogUtil.initLogging(true)"
                 preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mate="http://mate.asfusion.com/"
+      layout="absolute" width="580" styleName="presentationFileUploadWindowStyle"
+      initialize="initData();">
+
+    <mate:Dispatcher id="globalDispatch" />
+
+  <mx:Script>
+    <![CDATA[
+      import org.bigbluebutton.common.LogUtil;
+      import com.asfusion.mate.events.Dispatcher;			
+      import mx.collections.*;
+      import mx.events.FlexEvent;
+      import mx.events.ValidationResultEvent;
+      import mx.managers.PopUpManager;
+      import mx.utils.*;
+      import mx.validators.*;			
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+      import org.bigbluebutton.modules.present.events.DownloadEvent;
+      import org.bigbluebutton.modules.present.model.PresentationModel;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+
+      [Bindable] private var downloadablePresentations:ArrayCollection;
+ 
+      override public function move(x:Number, y:Number):void
+      {
+        return;
+      }
+      
+      private function initData():void {
+        downloadablePresentations = PresentationModel.getInstance().getDownloadablePresentations();
+      }
+
+  ]]>
+
+  </mx:Script>
+
+  <mx:VBox width="100%" height="100%">
+    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.filedownload.title')}" styleName="presentationUploadTitleStyle" paddingBottom="0"/>
+    <mx:Canvas width="100%" height="205" verticalScrollPolicy="off">
+      <mx:List width="100%" height="202" left="5" top="5" right="5" bottom="5" id="presentationNamesList" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
+               itemRenderer="org.bigbluebutton.modules.present.ui.views.DownloadPresentationRenderer"
+               dragEnabled="false" dataProvider="{downloadablePresentations}">
+      </mx:List>
+    </mx:Canvas>
+    <mx:Canvas width="100%" height="48">
+      <mx:Button id="okCancelBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
+                 styleName="presentationUploadCancelButtonStyle" right="5" bottom="15"
+                 click="globalDispatch.dispatchEvent(new DownloadEvent(DownloadEvent.CLOSE_DOWNLOAD_WINDOW))"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip')}"/>
+    </mx:Canvas>  
+  </mx:VBox>
+
+</mx:TitleWindow> 

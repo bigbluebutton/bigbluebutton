@@ -66,6 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
 	
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 
 	<mx:Script>
 		<![CDATA[
@@ -88,8 +89,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.UserLeftEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.chat.ChatConstants;
 			import org.bigbluebutton.modules.chat.ChatUtil;
+			import org.bigbluebutton.modules.chat.events.ChatEvent;
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
@@ -145,6 +148,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		      [Bindable]
 		      private var chatListHeight:Number = 100;
+
+			[Bindable]
+			private var chatToolbarHeight:Number = 50;
 			
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
       
@@ -181,6 +187,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
         LOGGER.debug(" onCreationComplete. Apply lock settings");
         applyLockSettings();
+
+				chatToolbar.registerListeners(chatMessagesList);
+
+				chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, adjustToolbarWidthAccordingToScrollBar);
 			}
 			
 			private function focusChatBox(e:ShortcutEvent):void{
@@ -293,6 +303,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
         }
       }
+
+      private function adjustToolbarWidthAccordingToScrollBar(e:ChatEvent):void{
+        invalidateDisplayList();
+        validateNow();
+      }
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         var message:ChatMessageVO = event.message;
@@ -367,6 +382,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function changeFontSize(e:ChatOptionsEvent):void {
 				this.setStyle("fontSize", e.fontSize);
+			}
+
+			private function copyAllText():void{
+				System.setClipboard(chatMessages.getAllMessageAsString());
+			}
+
+			public function getChatMessages():ChatConversation {
+				return chatMessages;
 			}
 			
 			private function addContextMenuItems():void {
@@ -741,6 +764,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		}
 		
+		private function refreshRole(e:ChangeMyRole):void {
+			applyLockSettings();
+		}
+
 		private function get messageCanBeSent() : Boolean {
 			return StringUtils.trim(txtMsgArea.text).length <= chatOptions.maxMessageLength;
 		}
@@ -754,6 +781,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				hideMessageTooLong();
 			}
 		}
+
+		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+			super.updateDisplayList(unscaledWidth, unscaledHeight);
+
+			// Force validation before evaluation of toolbar width
+			validateNow();
+
+			const paddingHeight:int = 5;
+			const paddingWidth:int = 5;
+
+			chatToolbar.width = chatMessagesCanvas.width - paddingWidth * 2;
+			chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) / 2;
+			chatToolbar.y = chatMessagesCanvas.height - chatToolbar.height - paddingHeight;
+
+			if(chatMessagesList.mx_internal::scroll_verticalScrollBar != null && chatMessagesList.mx_internal::scroll_verticalScrollBar.visible){
+				chatToolbar.width -= chatMessagesList.mx_internal::scroll_verticalScrollBar.width;
+			}
+		}
 		]]>
 		
 	</mx:Script>
@@ -761,10 +806,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
 	
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
-             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
-             dataProvider="{chatMessages.messages}"
-             accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
+    <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+      <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" paddingTop="0" paddingBottom="0"
+               itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
+               dataProvider="{chatMessages.messages}"
+               accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
+      <chat:ChatToolbar id="chatToolbar" />
+    </mx:Canvas>
   </mx:HBox>
   
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"

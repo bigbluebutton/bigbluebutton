@@ -294,12 +294,16 @@ Handlebars.registerHelper("getPollQuestions", () => {
 
 Template.registerHelper('emojiIcons', function () {
   return [
-    { name: 'sad', icon: 'sad-face', title: '' },
-    { name: 'happy', icon: 'happy-face', title: ''},
-    { name: 'confused', icon: 'confused-face', title: ''},
-    { name: 'neutral', icon: 'neutral-face', title: ''},
-    { name: 'away', icon: 'clock', title: ''},
-    { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand'}
+    { name: 'sad', icon: 'sad-face', title: 'Sad'},
+    { name: 'happy', icon: 'happy-face', title: 'Happy'},
+    { name: 'disagree', icon: 'ion-thumbsdown', title: 'Disagree'},
+    { name: 'agree', icon: 'ion-thumbsup', title: 'Agree'},
+    { name: 'speakSlower', icon: 'ion-ios-rewind', title: 'Could you speak slower?'},
+    { name: 'speakFaster', icon: 'ion-ios-fastforward', title: 'Could you speak faster?'},
+    { name: 'speakSofter', icon: 'ion-volume-low', title: 'Could you speak softer?'},
+    { name: 'speakLouder', icon: 'ion-volume-high', title: 'Could you speak louder?'},
+    { name: 'beRightBack', icon: 'clock', title: 'Be right back'},
+    { name: 'raiseHand', icon: 'ion-android-hand', title: 'Raise/Lower Your Hand'}
   ];
 });
 

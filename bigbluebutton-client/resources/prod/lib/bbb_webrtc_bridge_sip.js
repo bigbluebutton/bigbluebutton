@@ -4,6 +4,9 @@ var inEchoTest = true;
 
 function webRTCCallback(message) {
 	switch (message.status) {
+		case 'succeded':
+			BBB.webRTCCallSucceeded();
+			break;
 		case 'failed':
 			if (message.errorcode !== 1004) {
 				message.cause = null;
@@ -169,13 +172,19 @@ function createUA(username, server, callback, makeCallFunc) {
 function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc) {
 	console.log("Creating new user agent");
 
+	var wsServer;
+	if (window.location.protocol == 'https:') {
+		wsServer = 'wss://' + server + '/wss';
+	} else {
+		wsServer = 'ws://' + server + '/ws';
+	}
 	/* VERY IMPORTANT 
 	 *	- You must escape the username because spaces will cause the connection to fail
 	 *	- We are connecting to the websocket through an nginx redirect instead of directly to 5066
 	 */
 	var configuration = {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
-		wsServers: 'ws://' + server + '/ws',
+		wsServers: wsServer,
 		displayName: username,
 		register: false,
 		traceSip: true,
@@ -197,6 +206,7 @@ function setUserAgentListeners(callback, makeCallFunc) {
 	userAgent.off('connected');
 	userAgent.on('connected', function() {
 		uaConnected = true;
+		callback({'status':'succeded'});
 		makeCallFunc();
 	});
 	userAgent.off('disconnected');
@@ -440,6 +450,17 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			console.log('bye event already received');
 		}
 	});
+	currentSession.on('cancel', function(request){
+		callActive = false;
+		
+		if (currentSession) {
+			console.log('call canceled');
+			clearTimeout(callTimeout);
+			currentSession = null;
+		} else {
+			console.log('cancel event already received');
+		}
+	});
 	currentSession.on('accepted', function(data){
 		callActive = true;
 		console.log('BigBlueButton call accepted');
@@ -450,7 +471,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			callback({'status':'waitingforice'});
 			console.log('Waiting for ICE negotiation');
 			iceConnectedTimeout = setTimeout(function() {
-				console.log('60 seconds without ICE finishing');
+				console.log('5 seconds without ICE finishing');
 				callback({'status':'failed', 'errorcode': 1010}); // ICE negotiation timeout
 				currentSession = null;
 				if (userAgent != null) {
@@ -458,7 +479,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 					userAgent = null;
 					userAgentTemp.stop();
 				}
-			}, 60000);
+			}, 5000);
 		}
 		clearTimeout(callTimeout);
 	});
@@ -510,7 +531,12 @@ function webrtc_hangup(callback) {
 	if (callback) {
 	  currentSession.on('bye', callback);
 	}
-	currentSession.bye();
+	try {
+		currentSession.bye();
+	} catch (err) {
+		console.log("Forcing to cancel current session");
+		currentSession.cancel();
+	}
 }
 
 function isWebRTCAvailable() {

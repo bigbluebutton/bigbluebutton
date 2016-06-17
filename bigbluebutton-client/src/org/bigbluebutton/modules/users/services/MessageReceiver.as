@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
@@ -41,6 +42,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -51,6 +53,7 @@ package org.bigbluebutton.modules.users.services
        
     private var dispatcher:Dispatcher;
     private var _conference:Conference;
+    public var onAllowedToJoin:Function = null;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
     
     public function MessageReceiver() {
@@ -89,6 +92,9 @@ package org.bigbluebutton.modules.users.services
           break;
         case "participantStatusChange":
           handleParticipantStatusChange(message);
+          break;
+        case "participantRoleChange":
+          handleParticipantRoleChange(message);
           break;
         case "userJoinedVoice":
           handleUserJoinedVoice(message);
@@ -132,6 +138,15 @@ package org.bigbluebutton.modules.users.services
 		case "userEjectedFromMeeting":
 		 handleUserEjectedFromMeeting(message);
 		 break;
+        case "get_guest_policy_reply":
+          handleGetGuestPolicyReply(message);
+          break;
+        case "guest_policy_changed":
+          handleGuestPolicyChanged(message);
+          break;
+        case "guest_access_denied":
+          handleGuestAccessDenied(message);
+          break;
       }
     }  
     
@@ -189,6 +204,16 @@ package org.bigbluebutton.modules.users.services
         UserManager.getInstance().getConference().amIPresenter = false;
         var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
         dispatcher.dispatchEvent(viewerEvent);
+      }
+
+      var myRole:String = UserManager.getInstance().getConference().whatsMyRole();
+      var role:String = map.user.role;
+      // If a (pro/de)moted user refresh his browser he must reassing his role for permissions
+      if (role != myRole) {
+        UserManager.getInstance().getConference().newUserRole(userid, role);
+        UserManager.getInstance().getConference().setMyRole(role);
+        var changeMyRole:ChangeMyRole = new ChangeMyRole(role);
+        dispatcher.dispatchEvent(changeMyRole);
       }
     }
     
@@ -369,6 +394,12 @@ package org.bigbluebutton.modules.users.services
       
       UsersService.getInstance().userLeft(webUser);
       
+      if(webUser.waitingForAcceptance) {
+        var removeGuest:BBBEvent = new BBBEvent(BBBEvent.REMOVE_GUEST_FROM_LIST);
+        removeGuest.payload.userId = webUser.userId;
+        dispatcher.dispatchEvent(removeGuest);
+      }
+
       var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
       
 	  if (user != null) {
@@ -534,10 +565,13 @@ package org.bigbluebutton.modules.users.services
       user.userID = joinedUser.userId;
       user.name = joinedUser.name;
       user.role = joinedUser.role;
+      user.guest = joinedUser.guest;
+      user.waitingForAcceptance = joinedUser.waitingForAcceptance;
       user.externUserID = joinedUser.externUserID;
       user.isLeavingFlag = false;
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
+      user.me = (user.userID == UserManager.getInstance().getConference().getMyUserId())
 	  
 	  LOGGER.info("User joined = " + JSON.stringify(user));
 	  
@@ -561,6 +595,35 @@ package org.bigbluebutton.modules.users.services
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
    
+      if (user.guest) {
+        if (user.waitingForAcceptance) {
+          if (user.me) {
+            var waitCommand:BBBEvent = new BBBEvent(BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE);
+            dispatcher.dispatchEvent(waitCommand);
+          } else {
+            var e:BBBEvent = new BBBEvent(BBBEvent.ADD_GUEST_TO_LIST);
+            e.payload.userId = user.userID;
+            e.payload.name = user.name;
+            dispatcher.dispatchEvent(e);
+          }
+        } else {
+          if (user.me) {
+            var allowedCommand:BBBEvent = new BBBEvent(BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN);
+            dispatcher.dispatchEvent(allowedCommand);
+          } else {
+            var removeGuest:BBBEvent = new BBBEvent(BBBEvent.REMOVE_GUEST_FROM_LIST);
+            removeGuest.payload.userId = user.userID;
+            dispatcher.dispatchEvent(removeGuest);
+          }
+        }
+      }
+      
+      if (user.me && (!user.guest || !user.waitingForAcceptance)) {
+        if (onAllowedToJoin != null) {
+          onAllowedToJoin();
+          onAllowedToJoin = null;
+        }
+      }
     }
     
     /**
@@ -576,6 +639,44 @@ package org.bigbluebutton.modules.users.services
         
         dispatcher.dispatchEvent(e);
       }		
+    }
+
+    public function handleParticipantRoleChange(msg:Object):void {
+      var map:Object = JSON.parse(msg.msg);
+      LOGGER.debug("*** received participant role change [" + map.userID + "," + map.role + "]");      
+      UserManager.getInstance().getConference().newUserRole(map.userID, map.role);
+      if(UserManager.getInstance().getConference().amIThisUser(map.userID)) {
+        UserManager.getInstance().getConference().setMyRole(map.role);
+        var e:ChangeMyRole = new ChangeMyRole(map.role);
+        dispatcher.dispatchEvent(e);
+      }
+    }
+
+    public function handleGuestPolicyChanged(msg:Object):void {
+      LOGGER.debug("*** handleGuestPolicyChanged " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+
+      var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
+      policy.payload['guestPolicy'] = map.guestPolicy;
+      dispatcher.dispatchEvent(policy);
+    }
+
+    public function handleGetGuestPolicyReply(msg:Object):void {
+      LOGGER.debug("*** handleGetGuestPolicyReply " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+
+      var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
+      policy.payload['guestPolicy'] = map.guestPolicy;
+      dispatcher.dispatchEvent(policy);
+    }
+
+    public function handleGuestAccessDenied(msg:Object):void {
+      LOGGER.debug("*** handleGuestAccessDenied " + msg.msg + " ****");
+      var map:Object = JSON.parse(msg.msg);
+      
+      if (UsersUtil.getMyUserID() == map.userId) {
+        dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
+      }
     }
   }
 }

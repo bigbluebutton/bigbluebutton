@@ -74,7 +74,8 @@ public class Util {
 				&& user.has(Constants.EMOJI_STATUS) && user.has(Constants.PHONE_USER)
 				&& user.has(Constants.PRESENTER) && user.has(Constants.LOCKED)
 				&& user.has(Constants.EXTERN_USERID) && user.has(Constants.ROLE)
-				&& user.has(Constants.VOICEUSER) && user.has(Constants.WEBCAM_STREAM)){
+				&& user.has(Constants.VOICEUSER) && user.has(Constants.WEBCAM_STREAM)
+				&& user.has(Constants.GUEST) && user.has(Constants.WAITING_FOR_ACCEPTANCE)){
 				
 			Map<String, Object> userMap = new HashMap<String, Object>();					
 
@@ -88,6 +89,8 @@ public class Util {
 			Boolean locked = user.get(Constants.LOCKED).getAsBoolean();
 			String extUserId = user.get(Constants.EXTERN_USERID).getAsString();
 			String role = user.get(Constants.ROLE).getAsString();
+			Boolean guest = user.get(Constants.GUEST).getAsBoolean();
+			Boolean waitingForAcceptance = user.get(Constants.WAITING_FOR_ACCEPTANCE).getAsBoolean();
 			
 			JsonArray webcamStreamJArray = user.get(Constants.WEBCAM_STREAM).getAsJsonArray();
 			ArrayList<String> webcamStreams = extractWebcamStreams(webcamStreamJArray);
@@ -102,6 +105,8 @@ public class Util {
 			userMap.put("phoneUser", phoneUser);
 			userMap.put("locked", locked);
 			userMap.put("role", role);
+			userMap.put("guest", guest);
+			userMap.put("waitingForAcceptance", waitingForAcceptance);
 			userMap.put("presenter", presenter);
 			
 			JsonObject vu = (JsonObject) user.get(Constants.VOICEUSER);
@@ -377,16 +382,19 @@ public class Util {
 
 	public Map<String, Object> extractPresentation(JsonObject presObj) {
 		if (presObj.has(Constants.ID) && presObj.has(Constants.NAME) 
-				&& presObj.has(Constants.CURRENT) && presObj.has(Constants.PAGES)) {
+				&& presObj.has(Constants.CURRENT) && presObj.has(Constants.PAGES)
+				&& presObj.has(Constants.DOWNLOADABLE)) {
 			Map<String, Object> pres = new HashMap<String, Object>();
 
 			String presId = presObj.get(Constants.ID).getAsString();
 			String presName = presObj.get(Constants.NAME).getAsString();
 			Boolean currentPres = presObj.get(Constants.CURRENT).getAsBoolean();
+			Boolean downloadable = presObj.get(Constants.DOWNLOADABLE).getAsBoolean();
 
 			pres.put("id", presId);
 			pres.put("name", presName);
 			pres.put("current", currentPres);
+			pres.put("downloadable", downloadable);
 
 			JsonArray pagesJsonArray = presObj.get(Constants.PAGES).getAsJsonArray();
 
@@ -671,5 +679,27 @@ public class Util {
 		return pollMap;
 	}
 	
-	
+	class Note {
+		String name = "";
+		String document = "";
+
+		public Note(String name, String document) {
+			this.name = name;
+			this.document = document;
+		}
+	}
+
+	public Map<String, Object> extractNotes(JsonObject notes) {
+		Map<String, Object> notesMap = new HashMap<String, Object>();
+
+		for (Map.Entry<String, JsonElement> entry : notes.entrySet()) {
+			JsonObject obj = entry.getValue().getAsJsonObject();
+			String name = obj.get("name").getAsString();
+			String document = obj.get("document").getAsString();
+			Note note = new Note(name, document);
+			notesMap.put(entry.getKey(), (Object) note);
+		}
+
+		return notesMap;
+	}
 }

@@ -3,9 +3,11 @@ package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.AssignPresenterRequestMessage;
 import org.bigbluebutton.common.messages.BroadcastLayoutRequestMessage;
+import org.bigbluebutton.common.messages.ChangeUserRoleMessage;
 import org.bigbluebutton.common.messages.EjectUserFromMeetingRequestMessage;
 import org.bigbluebutton.common.messages.EjectUserFromVoiceRequestMessage;
 import org.bigbluebutton.common.messages.GetCurrentLayoutRequestMessage;
+import org.bigbluebutton.common.messages.GetGuestPolicyMessage;
 import org.bigbluebutton.common.messages.GetRecordingStatusRequestMessage;
 import org.bigbluebutton.common.messages.GetUsersRequestMessage;
 import org.bigbluebutton.common.messages.InitAudioSettingsMessage;
@@ -17,6 +19,8 @@ import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.MuteAllExceptPresenterRequestMessage;
 import org.bigbluebutton.common.messages.MuteAllRequestMessage;
 import org.bigbluebutton.common.messages.MuteUserRequestMessage;
+import org.bigbluebutton.common.messages.RespondToGuestMessage;
+import org.bigbluebutton.common.messages.SetGuestPolicyMessage;
 import org.bigbluebutton.common.messages.SetRecordingStatusRequestMessage;
 import org.bigbluebutton.common.messages.SetUserStatusRequestMessage;
 import org.bigbluebutton.common.messages.UserJoinedVoiceConfMessage;
@@ -116,6 +120,18 @@ public class UsersMessageReceiver implements MessageHandler{
 						  break;
 					  case EjectUserFromVoiceRequestMessage.EJECT_USER_FROM_VOICE_REQUEST:
 						  processEjectUserFromVoiceRequestMessage(message);
+						  break;
+					  case ChangeUserRoleMessage.CHANGE_USER_ROLE:
+						  processChangeUserRoleMessage(message);
+						  break;
+					  case GetGuestPolicyMessage.GET_GUEST_POLICY:
+						  processGetGuestPolicyMessage(message);
+						  break;
+					  case SetGuestPolicyMessage.SET_GUEST_POLICY:
+						  processSetGuestPolicyMessage(message);
+						  break;
+					  case RespondToGuestMessage.RESPOND_TO_GUEST:
+						  processRespondToGuestMessage(message);
 						  break;
 						  
 					}
@@ -342,5 +358,33 @@ public class UsersMessageReceiver implements MessageHandler{
 		if (msg != null) {
 			bbbInGW.ejectUserFromVoice(msg.meetingId, msg.userId, msg.requesterId);
 		}		
+	}
+
+	private void processChangeUserRoleMessage(String message) {
+		ChangeUserRoleMessage msg = ChangeUserRoleMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.setUserRole(msg.meetingId, msg.userId, msg.role);
+		}
+	}
+
+	private void processGetGuestPolicyMessage(String message) {
+		GetGuestPolicyMessage msg = GetGuestPolicyMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.getGuestPolicy(msg.meetingId, msg.requesterId);
+		}
+	}
+
+	private void processSetGuestPolicyMessage(String message) {
+		SetGuestPolicyMessage msg = SetGuestPolicyMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.setGuestPolicy(msg.meetingId, msg.guestPolicy, msg.setBy);
+		}
+	}
+
+	private void processRespondToGuestMessage(String message) {
+		RespondToGuestMessage msg = RespondToGuestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.responseToGuest(msg.meetingId, msg.userId, msg.response, msg.requesterId);
+		}
 	}
 }

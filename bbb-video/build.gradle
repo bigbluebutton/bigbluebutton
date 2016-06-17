@@ -66,6 +66,7 @@ dependencies {
     providedCompile 'org.red5:red5-server:1.0.6-SNAPSHOT@jar'
     providedCompile 'org.red5:red5-server-common:1.0.6-SNAPSHOT@jar'
     providedCompile 'org.red5:red5-io:1.0.6-SNAPSHOT@jar'
+    providedCompile 'org.red5:red5-client:1.0.6-SNAPSHOT@jar'
   
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.1.2@jar'
@@ -93,6 +94,9 @@ dependencies {
 	compile 'com.google.code.gson:gson:1.7.1'
 	
 	compile 'org.bigbluebutton:bbb-common-message:0.0.5'
+
+	// Needed for StringUtils
+	providedCompile 'org.apache.commons:commons-lang3:3.1@jar'
 }
 
 test {

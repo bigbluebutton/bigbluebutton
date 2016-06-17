@@ -23,6 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
 			prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
 			height="{LayoutButton.BUTTON_SIZE}" creationComplete="init()"
+			change="onSelectedItemChanged(event)"
 			disabledColor="{getStyle('color')}" rowCount="10"
 			styleName="languageSelectorStyle" >
 	
@@ -30,24 +31,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{LayoutsReadyEvent.LAYOUTS_READY}" method="populateLayoutsList"/>
   <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidadeLayout" />
   
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.collections.ArrayCollection;
-			import mx.events.DropdownEvent;
-			import mx.events.ListEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
+			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
 			import org.bigbluebutton.modules.layout.model.LayoutModel;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -61,7 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         //trace(LOG + "initing");
         dataProvider = layoutNames;
         populateComboBox();
-        this.addEventListener(DropdownEvent.OPEN, openDropdownHandler);
+        refreshRole(UsersUtil.amIModerator());
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
@@ -111,7 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (idx == -1) {
 					prompt = e.layoutID;
 				} else {
-					prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.prompt');
+					prompt = dataProvider[idx].label;
 				}
 				invalidateDisplayList();
 				
@@ -123,15 +125,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				populateComboBox();
 			}
 			
-			private function openDropdownHandler(e:DropdownEvent):void {
-				// a new dropdown object is created everytime the menu is opened
-				this.dropdown.addEventListener(ListEvent.ITEM_CLICK, itemClickHandler);
-			}
-			
-			private function itemClickHandler(e:ListEvent):void {
+			private function onSelectedItemChanged(e:Event):void {
 				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.localeKey));
 			}
 					
+			private function invalidadeLayout(e:Event):void {
+				selectedIndex = -1;
+				prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.custom');
+			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				var layoutLocked:Boolean = UserManager.getInstance().getConference().getLockSettings().getLockedLayout();
+				this.enabled = amIModerator || !layoutLocked;
+			}
 		]]>
 	</mx:Script>
 </mx:ComboBox>

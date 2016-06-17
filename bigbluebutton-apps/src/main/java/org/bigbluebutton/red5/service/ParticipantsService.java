@@ -140,6 +140,32 @@ public class ParticipantsService {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
     }
 
+	public void getGuestPolicy() {
+		String requesterId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		red5InGW.getGuestPolicy(roomName, requesterId);
+	}
+
+	public void setGuestPolicy(String guestPolicy) {
+		String requesterId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		red5InGW.newGuestPolicy(roomName, guestPolicy, requesterId);
+	}
+
+	public void responseToGuest(Map<String, Object> msg) {
+		String requesterId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		red5InGW.responseToGuest(roomName, (String) msg.get("userId"), (Boolean) msg.get("response"), requesterId);
+	}
+
+	public void setParticipantRole(Map<String, String> msg) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		String userId = (String) msg.get("userId");
+		String role = (String) msg.get("role");
+		log.debug("Setting participant role " + roomName + " " + userId + " " + role);
+		red5InGW.setParticipantRole(roomName, userId, role);
+	}
+
 	public void setRed5Publisher(MessagePublisher red5InGW) {
 		this.red5InGW = red5InGW;
 	}

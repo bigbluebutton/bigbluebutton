@@ -16,6 +16,8 @@ object UsersMessageToJsonConverter {
     wuser += "extern_userid" -> user.externUserID
     wuser += "name" -> user.name
     wuser += "role" -> user.role.toString()
+    wuser += "guest" -> user.guest
+    wuser += "waiting_for_acceptance" -> user.waitingForAcceptance
     wuser += "emoji_status" -> user.emojiStatus
     wuser += "presenter" -> user.presenter
     wuser += "has_stream" -> user.hasStream
@@ -46,6 +48,8 @@ object UsersMessageToJsonConverter {
     wuser += "name" -> user.name
     wuser += "role" -> user.role.toString()
     wuser += "authToken" -> user.authToken
+    wuser += "guest" -> user.guest
+    wuser += "waiting_for_acceptance" -> user.waitingForAcceptance
 
     mapAsJavaMap(wuser)
   }
@@ -197,6 +201,16 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.VALUE, msg.value.toString)
 
     val header = Util.buildHeader(MessageNames.USER_STATUS_CHANGED, None)
+    Util.buildJson(header, payload)
+  }
+
+  def userRoleChangeToJson(msg: UserRoleChange): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.ROLE, msg.role)
+
+    val header = Util.buildHeader(MessageNames.USER_ROLE_CHANGED, None)
     Util.buildJson(header, payload)
   }
 
@@ -427,6 +441,63 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.LISTEN_ONLY, msg.listenOnly)
 
     val header = Util.buildHeader(MessageNames.USER_LISTEN_ONLY, None)
+    Util.buildJson(header, payload)
+  }
+
+  def getGuestPolicyToJson(msg: GetGuestPolicy): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+
+    val header = Util.buildHeader(MessageNames.GET_GUEST_POLICY, None)
+    Util.buildJson(header, payload)
+  }
+
+  def setGuestPolicyToJson(msg: SetGuestPolicy): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.GUEST_POLICY, msg.policy.toString())
+
+    val header = Util.buildHeader(MessageNames.SET_GUEST_POLICY, None)
+    Util.buildJson(header, payload)
+  }
+
+  def respondToGuestToJson(msg: RespondToGuest): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.RESPONSE, msg.response.toString())
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+
+    val header = Util.buildHeader(MessageNames.RESPOND_TO_GUEST, None)
+    Util.buildJson(header, payload)
+  }
+
+  def getGuestPolicyReplyToJson(msg: GetGuestPolicyReply): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.GUEST_POLICY, msg.policy)
+
+    val header = Util.buildHeader(MessageNames.GET_GUEST_POLICY_REPLY, None)
+    Util.buildJson(header, payload)
+  }
+
+  def guestPolicyChangedToJson(msg: GuestPolicyChanged): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.GUEST_POLICY, msg.policy)
+
+    val header = Util.buildHeader(MessageNames.GUEST_POLICY_CHANGED, None)
+    Util.buildJson(header, payload)
+  }
+
+  def guestAccessDeniedToJson(msg: GuestAccessDenied): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+
+    val header = Util.buildHeader(MessageNames.GUEST_ACCESS_DENIED, None)
     Util.buildJson(header, payload)
   }
 }

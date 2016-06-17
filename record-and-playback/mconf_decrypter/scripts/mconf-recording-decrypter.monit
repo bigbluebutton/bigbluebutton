@@ -1,0 +1,3 @@
+check process mconf-recording-decrypter with pidfile /var/run/mconf-recording-decrypter.pid
+    start program = "/etc/init.d/mconf-recording-decrypter start" with timeout 60 seconds
+    stop program  = "/etc/init.d/mconf-recording-decrypter stop"

@@ -8,8 +8,8 @@ import org.bigbluebutton.core.api._
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
+import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, SharedNotesApp }
+import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, SharedNotesModel }
 import org.bigbluebutton.core.apps.PresentationModel
 
 object MeetingActor {
@@ -20,7 +20,7 @@ object MeetingActor {
 class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     extends Actor with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with ActorLogging {
+    with SharedNotesApp with ActorLogging {
 
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
@@ -29,6 +29,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
+  val notesModel = new SharedNotesModel()
 
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 30 seconds, self, "MonitorNumberOfWebUsers")
@@ -66,6 +67,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleGetUsers(msg)
     case msg: ChangeUserStatus =>
       handleChangeUserStatus(msg)
+    case msg: ChangeUserRole =>
+      handleChangeUserRole(msg)
     case msg: EjectUserFromMeeting =>
       handleEjectUserFromMeeting(msg)
     case msg: UserEmojiStatus =>
@@ -168,6 +171,22 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleGetPollRequest(msg)
     case msg: GetCurrentPollRequest =>
       handleGetCurrentPollRequest(msg)
+    case msg: GetGuestPolicy =>
+      handleGetGuestPolicy(msg)
+    case msg: SetGuestPolicy =>
+      handleSetGuestPolicy(msg)
+    case msg: RespondToGuest =>
+      handleRespondToGuest(msg)
+    case msg: PatchDocumentRequest =>
+      handlePatchDocumentRequest(msg)
+    case msg: GetCurrentDocumentRequest =>
+      handleGetCurrentDocumentRequest(msg)
+    case msg: CreateAdditionalNotesRequest =>
+      handleCreateAdditionalNotesRequest(msg)
+    case msg: DestroyAdditionalNotesRequest =>
+      handleDestroyAdditionalNotesRequest(msg)
+    case msg: RequestAdditionalNotesSetRequest =>
+      handleRequestAdditionalNotesSetRequest(msg)
 
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit
@@ -278,6 +297,16 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {
     outGW.send(new GetRecordingStatusReply(mProps.meetingID, mProps.recorded, msg.userId, meetingModel.isRecording().booleanValue()))
+  }
+
+  private def handleGetGuestPolicy(msg: GetGuestPolicy) {
+    outGW.send(new GetGuestPolicyReply(msg.meetingID, mProps.recorded, msg.requesterID, meetingModel.getGuestPolicy().toString()))
+  }
+
+  private def handleSetGuestPolicy(msg: SetGuestPolicy) {
+    meetingModel.setGuestPolicy(msg.policy)
+    meetingModel.setGuestPolicySetBy(msg.setBy)
+    outGW.send(new GuestPolicyChanged(msg.meetingID, mProps.recorded, meetingModel.getGuestPolicy().toString()))
   }
 
   def lockLayout(lock: Boolean) {

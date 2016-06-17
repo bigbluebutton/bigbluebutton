@@ -23,33 +23,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.broadcastButton.toolTip')}"
-		   icon="{_icon}"
-		   click="onClick(event)"
-		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
+		   styleName="broadcastLayoutButtonStyle"
+		   click="onClick(event)">
 
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
-			import org.bigbluebutton.common.Images;
+
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _images:Images = new Images();
-			[Bindable] private var _icon:Class = _images.page_link;
 			
 			private function init():void {
-				if (!UserManager.getInstance().getConference().amIModerator()) {
-					this.visible = false;
-				}
+				refreshRole(UserManager.getInstance().getConference().amIModerator());
 			}
 			
 			private function onClick(e:Event):void {
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.BROADCAST_LAYOUT_EVENT));
+			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				this.visible = this.includeInLayout = this.enabled = amIModerator;
 			}
 		]]>
 	</mx:Script>

@@ -25,7 +25,7 @@ package org.bigbluebutton.modules.layout.services
 	
   public class LayoutService
   {
-	private static const LOGGER:ILogger = getClassLogger(LayoutService);      
+	private static const LOGGER:ILogger = getClassLogger(LayoutService);
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;

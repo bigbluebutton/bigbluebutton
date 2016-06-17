@@ -38,6 +38,7 @@ package org.bigbluebutton.main.model.users {
 	  public var voiceBridge:String;
 	  public var dialNumber:String;
 	  [Bindable] public var record:Boolean;
+	  [Bindable] public var numAdditionalSharedNotes:Number = 0;
     
 	  private static const LOGGER:ILogger = getClassLogger(Conference);
     
@@ -346,6 +347,10 @@ package org.bigbluebutton.main.model.users {
 		public function getMyUserId():String {
 			return me.userID;
 		}
+
+		public function getMyself():BBBUser {
+			return me;
+		}
     
 		public function setMyUserid(userID:String):void {
 			me.userID = userID;
@@ -369,6 +374,14 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setMyRole(role:String):void {
 			me.role = role;
+		}
+
+		public function amIGuest():Boolean {
+			return me.guest;
+		}
+
+		public function setGuest(guest:Boolean):void {
+			me.guest = guest;
 		}
 		
 		public function setMyRoom(room:String):void {
@@ -435,7 +448,16 @@ package org.bigbluebutton.main.model.users {
 			
 			users.refresh();		
 		}
-    
+
+		public function newUserRole(userID:String, role:String):void {
+			var aUser:BBBUser = getUser(userID);
+			if (aUser != null) {
+				aUser.role = role;
+			}
+
+			users.refresh();
+		}
+
 		public function getUserIDs():ArrayCollection {
 			var uids:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < users.length; i++) {

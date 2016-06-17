@@ -420,6 +420,10 @@
      *
      */
      
+    BBB.webRTCCallSucceeded = function() {
+      // do nothing on this callback
+    }
+    
     BBB.webRTCCallStarted = function(inEchoTest) {
       var swfObj = getSwfObj();
       if (swfObj) {

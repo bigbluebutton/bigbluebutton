@@ -7,41 +7,41 @@
 	<downloadFilePath url="test_image.jpg"/>
 	<ports>
 		<port>
-			<name>Port 9123</name>
+			<name>bbbsystemcheck.test.name.port9123</name>
 			<number>9123</number>
 		</port>
 	</ports>
 	<rtmpapps>
 		<app>
-			<name>RTMP BigBlueButton app</name>
+			<name>bbbsystemcheck.test.name.rtmpBigBlueButton</name>
 			<uri>rtmp://HOST/bigbluebutton</uri>
 		</app>
 		<app>
-			<name>RTMP deskShare app</name>
+			<name>bbbsystemcheck.test.name.rtmpDeskshare</name>
 			<uri>rtmp://HOST/deskShare</uri>
 		</app>
 		<app>
-			<name>RTMP video app</name>
+			<name>bbbsystemcheck.test.name.rtmpVideo</name>
 			<uri>rtmp://HOST/video</uri>
 		</app>
 		<app>
-			<name>RTMP sip app</name>
+			<name>bbbsystemcheck.test.name.rtmpSip</name>
 			<uri>rtmp://HOST/sip</uri>
 		</app>
 		<app>
-			<name>RTMPT BigBlueButton app</name>
+			<name>bbbsystemcheck.test.name.rtmptBigBlueButton</name>
 			<uri>rtmpt://HOST/bigbluebutton</uri>
 		</app>
 		<app>
-			<name>RTMPT deskShare app</name>
+			<name>bbbsystemcheck.test.name.rtmptDeskshare</name>
 			<uri>rtmpt://HOST/deskShare</uri>
 		</app>
 		<app>
-			<name>RTMPT video app</name>
+			<name>bbbsystemcheck.test.name.rtmptVideo</name>
 			<uri>rtmpt://HOST/video</uri>
 		</app>
 		<app>
-			<name>RTMPT sip app</name>
+			<name>bbbsystemcheck.test.name.rtmptSip</name>
 			<uri>rtmpt://HOST/sip</uri>
 		</app>
 	</rtmpapps>
