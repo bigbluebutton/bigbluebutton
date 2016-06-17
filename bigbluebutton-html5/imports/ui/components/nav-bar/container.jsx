@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import Meetings from '/imports/api/meetings';
 
 import NavBar from './component';
 
@@ -18,8 +19,11 @@ class NavBarContainer extends Component {
 }
 
 export default createContainer(() => {
+
+  let meetingTitle = Meetings.find().map(meeting => meeting.meetingName);
+
   return {
-    presentationTitle: 'IMDT 1004 Design Process',
+    presentationTitle: meetingTitle,
     hasUnreadMessages: true,
   };
 }, NavBarContainer);

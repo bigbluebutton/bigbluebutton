@@ -36,6 +36,16 @@
   padding: 0;
 }
 
+.divideBar {
+  color: $color-white;
+  font-size: $font-size-base * 1.2;
+  margin-left: 15px;
+}
+
+.recordImage {
+  margin-left: -5px;
+}
+
 .btn {
   border: 10px solid red;
 }

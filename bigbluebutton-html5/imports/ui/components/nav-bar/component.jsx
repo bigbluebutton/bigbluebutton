@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import { withRouter } from 'react-router';
 import Button from '../button/component';
+import RecordButton from './recordbutton/component';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -30,6 +31,8 @@ class NavBar extends Component {
 
   render() {
     const { presentationTitle } = this.props;
+    document.title = presentationTitle
+
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
@@ -45,6 +48,8 @@ class NavBar extends Component {
         </div>
         <div className={styles.center}>
           <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+          <span className={styles.divideBar}> | </span>
+          <RecordButton />
         </div>
         <div className={styles.right}>
           <span id="settingsButtonPlaceHolder"></span>
