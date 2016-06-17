@@ -13,25 +13,35 @@ const propTypes = {
    */
   tagName: PropTypes.string,
 
+  /**
+   * Defines the button label
+   * @defaultValue undefined
+   */
+  label: PropTypes.string.isRequired,
+
+  /**
+   * Defines the button click handler
+   * @defaultValue undefined
+   */
   onClick: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   disabled: false,
   tagName: 'button',
+  role: 'button',
 };
 
 export default class ButtonBase extends Component {
   constructor(props) {
     super(props);
-    props.role = 'button';
   }
 
   render() {
     let Component = this.props.tagName;
 
     return (
-      <Component {...this.props}>
+      <Component aria-label={this.props.label} {...this.props}>
         {this.props.children}
       </Component>
     );

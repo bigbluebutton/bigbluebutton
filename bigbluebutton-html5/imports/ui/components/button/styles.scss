@@ -112,6 +112,16 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
   }
 }
 
+.hideLabel {
+  font-size: 0;
+  height: 0;
+  width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  display: block;
+}
+
 .icon {
   width: 1.28571429em;
   text-align: center;
