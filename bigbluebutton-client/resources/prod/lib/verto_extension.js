@@ -459,7 +459,7 @@ VertoManager.prototype.shareScreen = function (
   userCallback,
   credentials,
   chromeExtension) {
-    // this.exitVideo();
+    this.exitScreenShare();
     this.vertoScreenShare = new Verto(
       voiceBridge,
       conferenceUsername,
@@ -471,10 +471,20 @@ VertoManager.prototype.shareScreen = function (
     this.vertoScreenShare.setScreenShare(tag);
 };
 
-window.flashVertoInitialize = function () {
-  if (window.vertoManager = null || window.vertoManager == undefined) {
+window.vertoInitialize = function () {
+  if (window.vertoManager == null || window.vertoManager == undefined) {
     window.vertoManager = new VertoManager();
   }
+};
+
+window.vertoExitAudio = function () {
+  window.vertoInitialize();
+  window.vertoManager.exitAudio();
+};
+
+window.vertoExitScreenShare = function () {
+  window.vertoInitialize();
+  window.vertoManager.exitScreenShare();
 };
 
 window.vertoJoinListenOnly = function (
@@ -485,7 +495,7 @@ window.vertoJoinListenOnly = function (
   userCallback,
   credentials
   ) {
-  window.flashVertoInitialize();
+  window.vertoInitialize();
   window.vertoManager.joinListenOnly(
     tag,
     voiceBridge,
@@ -504,7 +514,7 @@ window.vertoJoinMicrophone = function (
   userCallback,
   credentials
   ) {
-  window.flashVertoInitialize();
+  window.vertoInitialize();
   window.vertoManager.joinMicrophone(
     tag,
     voiceBridge,
@@ -523,7 +533,7 @@ window.vertoWatchVideo = function (
   userCallback,
   credentials
   ) {
-  window.flashVertoInitialize();
+  window.vertoInitialize();
   window.vertoManager.joinWatchVideo(
     tag,
     voiceBridge,
@@ -531,5 +541,26 @@ window.vertoWatchVideo = function (
     conferenceIdNumber,
     userCallback,
     credentials
+  );
+};
+
+window.vertoShareScreen = function (
+  tag,
+  voiceBridge,
+  conferenceUsername,
+  conferenceIdNumber,
+  userCallback,
+  credentials,
+  chromeExtension
+  ) {
+  window.vertoInitialize();
+  window.vertoManager.joinWatchVideo(
+    tag,
+    voiceBridge,
+    conferenceUsername,
+    conferenceIdNumber,
+    userCallback,
+    credentials,
+    chromeExtension
   );
 };
