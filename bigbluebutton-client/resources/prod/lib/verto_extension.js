@@ -1,10 +1,12 @@
 Verto = function (
+  tag,
   voiceBridge,
   conferenceUsername,
   conferenceIdNumber,
   userCallback,
   credentials,
-  chromeExtension) {
+  onFail = null,
+  chromeExtension = null) {
 
   this.cur_call = null;
   this.share_call = null;
@@ -48,6 +50,10 @@ Verto = function (
   if (chromeExtension != null) {
     this.chromeExtension = chromeExtension;
   }
+
+  if (onFail != null) {
+    this.onFail = normalizeCallback(onFail);
+  }
 };
 
 Verto.prototype.logger = function(obj) {
@@ -83,10 +89,13 @@ Verto.prototype.onWSLogin = function(v, success) {
   if (success) {
     this.callWasSuccessful = true;
     this.mediaCallback();
+    return;
   } else {
     // eror logging verto into freeswitch
     this.logError({status: 'failed', errorcode: '10XX'});
-    this.callWasSuccessful = false
+    this.callWasSuccessful = false;
+    this.onFail();
+    return;
   }
 };
 
@@ -108,6 +117,8 @@ Verto.prototype.registerCallbacks = function () {
         this.logError("websocket connection could not be established");
         // Could not make a WebSocket connection
         this.logError({'status':'failed', 'errorcode': 1002});
+        this.onFail();
+        return;
       }
     }.bind(this),
   };
@@ -245,28 +256,32 @@ Verto.prototype.makeShare = function () {
     this.doShare(screenInfo.video);
   } else if (!!window.chrome) {
     var _this = this;
-    if (!this.chromeExtension) {
-      this.logError({
+    if (!_this.chromeExtension) {
+      _this.logError({
         'status': 'failed',
         'message': 'Missing Chrome Extension key'
       });
+      _this.onFail();
+      return;
     }
 
     getChromeExtensionStatus(this.chromeExtension, function(status) {
       if (status != "installed-enabled") {
-        this.logError("No chrome Extension");
+        _this.logError("No chrome Extension");
+        _this.onFail();
         return -1;
       }
 
       // bring up Chrome screen picker
       getScreenConstraints(function(error, screen_constraints) {
         if (error) {
-          return this.logError(error);
+          _this.onFail();
+          return _this.logError(error);
         }
 
         screenInfo =  screen_constraints.mandatory;
 
-        this.logger(screenInfo);
+        _this.logger(screenInfo);
         _this.doShare(screenInfo);
       });
     });
@@ -358,6 +373,7 @@ Verto.prototype.configStuns = function(callback) {
     callback.apply(_this);
   }).fail(function(data, textStatus, errorThrown) {
     _this.logError({'status':'failed', 'errorcode': 1009});
+    _this.onFail();
     return;
   });
 };
@@ -394,80 +410,35 @@ VertoManager.prototype.exitScreenShare = function() {
   }
 };
 
-VertoManager.prototype.joinListenOnly = function (
-  tag,
-  voiceBridge,
-  conferenceUsername,
-  conferenceIdNumber,
-  userCallback,
-  credentials) {
+VertoManager.prototype.joinListenOnly = function (tag) {
   this.exitAudio();
-  this.vertoAudio = new Verto(
-    voiceBridge,
-    conferenceUsername,
-    conferenceIdNumber,
-    userCallback,
-    credentials,
-    null // Chrome Extension
-  );
+  var obj = Object.create(Verto.prototype);
+  Verto.apply(obj, arguments);
+  this.vertoAudio = obj;
   this.vertoAudio.setListenOnly(tag);
 };
 
-VertoManager.prototype.joinMicrophone = function (
-  tag,
-  voiceBridge,
-  conferenceUsername,
-  conferenceIdNumber,
-  userCallback,
-  credentials) {
+VertoManager.prototype.joinMicrophone = function (tag) {
     this.exitAudio();
-    this.vertoAudio = new Verto(
-      voiceBridge,
-      conferenceUsername,
-      conferenceIdNumber,
-      userCallback,
-      credentials,
-      null // Chrome Extension
-    );
+    var obj = Object.create(Verto.prototype);
+    Verto.apply(obj, arguments);
+    this.vertoAudio = obj;
     this.vertoAudio.setMicrophone(tag);
 };
 
-VertoManager.prototype.joinWatchVideo = function (
-  tag,
-  voiceBridge,
-  conferenceUsername,
-  conferenceIdNumber,
-  userCallback,
-  credentials) {
+VertoManager.prototype.joinWatchVideo = function (tag) {
     this.exitVideo();
-    this.vertoVideo = new Verto(
-      voiceBridge,
-      conferenceUsername,
-      conferenceIdNumber,
-      userCallback,
-      credentials,
-      null // Chrome Extension
-    );
+    var obj = Object.create(Verto.prototype);
+    Verto.apply(obj, arguments);
+    this.vertoVideo = obj;
     this.vertoVideo.setWatchVideo(tag);
 };
 
-VertoManager.prototype.shareScreen = function (
-  tag,
-  voiceBridge,
-  conferenceUsername,
-  conferenceIdNumber,
-  userCallback,
-  credentials,
-  chromeExtension) {
+VertoManager.prototype.shareScreen = function (tag) {
     this.exitScreenShare();
-    this.vertoScreenShare = new Verto(
-      voiceBridge,
-      conferenceUsername,
-      conferenceIdNumber,
-      userCallback,
-      credentials,
-      chromeExtension
-    );
+    var obj = Object.create(Verto.prototype);
+    Verto.apply(obj, arguments);
+    this.vertoScreenShare = obj;
     this.vertoScreenShare.setScreenShare(tag);
 };
 
@@ -487,80 +458,22 @@ window.vertoExitScreenShare = function () {
   window.vertoManager.exitScreenShare();
 };
 
-window.vertoJoinListenOnly = function (
-  tag,
-  voiceBridge,
-  conferenceUsername,
-  conferenceIdNumber,
-  userCallback,
-  credentials
-  ) {
+window.vertoJoinListenOnly = function () {
   window.vertoInitialize();
-  window.vertoManager.joinListenOnly(
-    tag,
-    voiceBridge,
-    conferenceUsername,
-    conferenceIdNumber,
-    userCallback,
-    credentials
-  );
+  window.vertoManager.joinListenOnly.apply(window.vertoManager, arguments);
 };
 
-window.vertoJoinMicrophone = function (
-  tag,
-  voiceBridge,
-  conferenceUsername,
-  conferenceIdNumber,
-  userCallback,
-  credentials
-  ) {
+window.vertoJoinMicrophone = function () {
   window.vertoInitialize();
-  window.vertoManager.joinMicrophone(
-    tag,
-    voiceBridge,
-    conferenceUsername,
-    conferenceIdNumber,
-    userCallback,
-    credentials
-  );
+  window.vertoManager.joinMicrophone.apply(window.vertoManager, arguments);
 };
 
-window.vertoWatchVideo = function (
-  tag,
-  voiceBridge,
-  conferenceUsername,
-  conferenceIdNumber,
-  userCallback,
-  credentials
-  ) {
+window.vertoWatchVideo = function () {
   window.vertoInitialize();
-  window.vertoManager.joinWatchVideo(
-    tag,
-    voiceBridge,
-    conferenceUsername,
-    conferenceIdNumber,
-    userCallback,
-    credentials
-  );
+  window.vertoManager.joinWatchVideo.apply(window.vertoManager, arguments);
 };
 
-window.vertoShareScreen = function (
-  tag,
-  voiceBridge,
-  conferenceUsername,
-  conferenceIdNumber,
-  userCallback,
-  credentials,
-  chromeExtension
-  ) {
+window.vertoShareScreen = function () {
   window.vertoInitialize();
-  window.vertoManager.joinWatchVideo(
-    tag,
-    voiceBridge,
-    conferenceUsername,
-    conferenceIdNumber,
-    userCallback,
-    credentials,
-    chromeExtension
-  );
+  window.vertoManager.shareScreen.apply(window.vertoManager, arguments);
 };
