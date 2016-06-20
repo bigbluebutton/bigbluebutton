@@ -53,7 +53,6 @@ Meteor.startup(() => {
   loadLib('jquery.verto.js');
   loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
-  loadLib('verto_extension_share.js');
 
   render((
     <IntlProvider locale={locale} messages={messages}>

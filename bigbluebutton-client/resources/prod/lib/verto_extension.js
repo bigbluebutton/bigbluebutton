@@ -21,7 +21,7 @@ Verto = function (
   this.incomingBandwidth;
   this.sessid = null;
 
-  this.renderTag = "remote-media";
+  this.renderTag = 'remote-media';
 
   this.destination_number = voiceBridge;
   this.caller_id_name = conferenceUsername;
@@ -29,13 +29,13 @@ Verto = function (
 
   this.vertoPort = credentials.vertoPort;
   this.hostName = credentials.hostName;
-  this.socketUrl = "wss://" + this.hostName + ":" + this.vertoPort;
+  this.socketUrl = 'wss://' + this.hostName + ':' + this.vertoPort;
   this.login = credentials.login;
   this.password = credentials.password;
-  this.minWidth = "640";
-  this.minHeight = "480";
-  this.maxWidth = "1920";
-  this.maxHeight = "1080";
+  this.minWidth = '640';
+  this.minHeight = '480';
+  this.maxWidth = '1920';
+  this.maxHeight = '1080';
 
   this.useVideo = false;
   this.useCamera = false;
@@ -56,15 +56,15 @@ Verto = function (
   }
 };
 
-Verto.prototype.logger = function(obj) {
+Verto.prototype.logger = function (obj) {
   console.log(obj);
 };
 
-Verto.prototype.logError = function(obj) {
+Verto.prototype.logError = function (obj) {
   console.error(obj);
 };
 
-Verto.prototype.setRenderTag = function(tag) {
+Verto.prototype.setRenderTag = function (tag) {
   this.renderTag = tag;
 };
 
@@ -75,16 +75,16 @@ Verto.prototype.setRenderTag = function(tag) {
 // that when invokved will invoke the actionscript registered callback
 // and passes along parameters
 Verto.prototype.normalizeCallback = function (callback) {
-  if (typeof callback == "function") {
+  if (typeof callback == 'function') {
     return callback;
   } else {
-    return function(args) {
-      document.getElementById("BigBlueButton")[callback](args);
+    return function (args) {
+      document.getElementById('BigBlueButton')[callback](args);
     };
   }
 };
 
-Verto.prototype.onWSLogin = function(v, success) {
+Verto.prototype.onWSLogin = function (v, success) {
   this.cur_call = null;
   if (success) {
     this.callWasSuccessful = true;
@@ -92,7 +92,7 @@ Verto.prototype.onWSLogin = function(v, success) {
     return;
   } else {
     // eror logging verto into freeswitch
-    this.logError({status: 'failed', errorcode: '10XX'});
+    this.logError({ status: 'failed', errorcode: '10XX' });
     this.callWasSuccessful = false;
     this.onFail();
     return;
@@ -101,22 +101,27 @@ Verto.prototype.onWSLogin = function(v, success) {
 
 Verto.prototype.registerCallbacks = function () {
   var callbacks = {
-    onMessage: function() {},
-    onDialogState: function(d) {},
+    onMessage: function () {},
+
+    onDialogState: function (d) {},
+
     onWSLogin: this.onWSLogin.bind(this),
-    onWSClose: function(v, success) {
+
+    onWSClose: function (v, success) {
       cur_call = null;
       if (this.callWasSuccessful) {
         // the connection was dropped in an already established call
         this.logError('websocket disconnected');
+
         // WebSocket disconnected
-        this.logError({'status':'failed', 'errorcode': 1001});
+        this.logError({ status:  'failed', errorcode: 1001 });
         toDisplayDisconnectCallback = false;
       } else {
         // this callback was triggered and a call was never successfully established
-        this.logError("websocket connection could not be established");
+        this.logError('websocket connection could not be established');
+
         // Could not make a WebSocket connection
-        this.logError({'status':'failed', 'errorcode': 1002});
+        this.logError({ status:  'failed', errorcode: 1002 });
         this.onFail();
         return;
       }
@@ -143,10 +148,10 @@ Verto.prototype.hangup = function () {
   // the user ended the call themself
   // if (callPurposefullyEnded === true) {
   if (true) {
-    this.logger({'status':'ended'});
+    this.logger({ status: 'ended' });
   } else {
     // Call ended unexpectedly
-    this.logError({'status':'failed', 'errorcode': 1005});
+    this.logError({ status: 'failed', errorcode: 1005 });
   }
 
   this.cur_call = null;
@@ -154,32 +159,32 @@ Verto.prototype.hangup = function () {
 };
 
 Verto.prototype.mute = function () {
-  this.cur_call.dtmf("0");
+  this.cur_call.dtmf('0');
 };
 
 Verto.prototype.localmute = function () {
-  // var muted = cur_call.setMute("toggle");
+  // var muted = cur_call.setMute('toggle');
   // if (muted) {
-  //   display("Talking to: " + cur_call.cidString() + " [LOCALLY MUTED]");
+  //   display('Talking to: ' + cur_call.cidString() + ' [LOCALLY MUTED]');
   // } else {
-  //   display("Talking to: " + cur_call.cidString());
+  //   display('Talking to: ' + cur_call.cidString());
   // }
 };
 
 Verto.prototype.localvidmute = function () {
-  // var muted = cur_call.setVideoMute("toggle");
+  // var muted = cur_call.setVideoMute('toggle');
   // if (muted) {
-  //   display("Talking to: " + cur_call.cidString() + " [VIDEO LOCALLY MUTED]");
+  //   display('Talking to: ' + cur_call.cidString() + ' [VIDEO LOCALLY MUTED]');
   // } else {
-  //   display("Talking to: " + cur_call.cidString());
+  //   display('Talking to: ' + cur_call.cidString());
   // }
 };
 
 Verto.prototype.vmute = function () {
-  this.cur_call.dtmf("*0");
+  this.cur_call.dtmf('*0');
 };
 
-Verto.prototype.setWatchVideo = function(tag) {
+Verto.prototype.setWatchVideo = function (tag) {
   this.mediaCallback = this.docall;
   this.useVideo = true;
   this.useCamera = 'none';
@@ -187,7 +192,7 @@ Verto.prototype.setWatchVideo = function(tag) {
   this.create(tag);
 };
 
-Verto.prototype.setListenOnly = function(tag) {
+Verto.prototype.setListenOnly = function (tag) {
   this.mediaCallback = this.docall;
   this.useVideo = false;
   this.useCamera = 'none';
@@ -195,7 +200,7 @@ Verto.prototype.setListenOnly = function(tag) {
   this.create(tag);
 };
 
-Verto.prototype.setMicrophone = function(tag) {
+Verto.prototype.setMicrophone = function (tag) {
   this.mediaCallback = this.docall;
   this.useVideo = false;
   this.useCamera = 'none';
@@ -203,12 +208,12 @@ Verto.prototype.setMicrophone = function(tag) {
   this.create(tag);
 };
 
-Verto.prototype.setScreenShare = function(tag) {
+Verto.prototype.setScreenShare = function (tag) {
   this.mediaCallback = this.makeShare;
   this.create(tag);
 };
 
-Verto.prototype.create = function(tag) {
+Verto.prototype.create = function (tag) {
   this.setRenderTag(tag);
   this.registerCallbacks();
   // this.configStuns(this.init);
@@ -218,7 +223,7 @@ Verto.prototype.create = function(tag) {
 
 Verto.prototype.docall = function () {
   if (this.cur_call) {
-    this.logger("Quitting: Call already in progress");
+    this.logger('Quitting: Call already in progress');
     return;
   }
 
@@ -241,7 +246,7 @@ Verto.prototype.docall = function () {
 
 Verto.prototype.makeShare = function () {
   if (this.share_call) {
-    this.logError("Quitting: Call already in progress");
+    this.logError('Quitting: Call already in progress');
     return;
   }
 
@@ -249,37 +254,37 @@ Verto.prototype.makeShare = function () {
   if (!!navigator.mozGetUserMedia) {
     screenInfo = {
       video: {
-        "mozMediaSource": 'window',
-        "mediaSource": 'window',
-      }
+        mozMediaSource: 'window',
+        mediaSource: 'window',
+      },
     };
     this.doShare(screenInfo.video);
   } else if (!!window.chrome) {
     var _this = this;
     if (!_this.chromeExtension) {
       _this.logError({
-        'status': 'failed',
-        'message': 'Missing Chrome Extension key'
+        status:  'failed',
+        message: 'Missing Chrome Extension key',
       });
       _this.onFail();
       return;
     }
 
-    getChromeExtensionStatus(this.chromeExtension, function(status) {
-      if (status != "installed-enabled") {
-        _this.logError("No chrome Extension");
+    getChromeExtensionStatus(this.chromeExtension, function (status) {
+      if (status != 'installed-enabled') {
+        _this.logError('No chrome Extension');
         _this.onFail();
         return -1;
       }
 
       // bring up Chrome screen picker
-      getScreenConstraints(function(error, screen_constraints) {
+      getScreenConstraints(function (error, screenConstraints) {
         if (error) {
           _this.onFail();
           return _this.logError(error);
         }
 
-        screenInfo =  screen_constraints.mandatory;
+        screenInfo =  screenConstraints.mandatory;
 
         _this.logger(screenInfo);
         _this.doShare(screenInfo);
@@ -288,14 +293,14 @@ Verto.prototype.makeShare = function () {
   }
 };
 
-Verto.prototype.doShare = function (screen_constraints) {
+Verto.prototype.doShare = function (screenConstraints) {
   this.share_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,
     caller_id_name: this.caller_id_name,
     caller_id_number: this.caller_id_number,
     outgoingBandwidth: this.outgoingBandwidth,
     incomingBandwidth: this.incomingBandwidth,
-    videoParams: screen_constraints,
+    videoParams: screenConstraints,
     useVideo: true,
     screenShare: true,
     dedEnc: true,
@@ -313,15 +318,15 @@ Verto.prototype.init = function () {
       passwd: this.password,
       socketUrl: this.socketUrl,
       tag: this.renderTag,
-      ringFile: "sounds/bell_ring2.wav",
+      ringFile: 'sounds/bell_ring2.wav',
       sessid: this.sessid,
       videoParams: {
-        "minWidth": this.vid_width,
-        "minHeight": this.vid_height,
-        "maxWidth": this.vid_width,
-        "maxHeight": this.vid_height,
-        "minFrameRate": 15,
-        "vertoBestFrameRate": 30,
+        minWidth: this.vid_width,
+        minHeight: this.vid_height,
+        maxWidth: this.vid_width,
+        maxHeight: this.vid_height,
+        minFrameRate: 15,
+        vertoBestFrameRate: 30,
       },
 
       deviceParams: {
@@ -344,37 +349,40 @@ Verto.prototype.init = function () {
   }
 };
 
-Verto.prototype.configStuns = function(callback) {
-  this.logger("Fetching STUN/TURN server info for Verto initialization");
+Verto.prototype.configStuns = function (callback) {
+  this.logger('Fetching STUN/TURN server info for Verto initialization');
   var _this = this;
   var stunsConfig = {};
   $.ajax({
     dataType: 'json',
-    url: '/bigbluebutton/api/stuns/'
-  }).done(function(data) {
-    _this.logger("ajax request done");
+    url: '/bigbluebutton/api/stuns/',
+  }).done(function (data) {
+    _this.logger('ajax request done');
     _this.logger(data);
-    if(data['response'] && data.response.returncode == "FAILED") {
-      _this.logError(data.response.message, {error: true});
-      _this.logError({'status':'failed', 'errorcode': data.response.message});
+    if (data.response && data.response.returncode == 'FAILED') {
+      _this.logError(data.response.message, { error: true });
+      _this.logError({ status: 'failed', errorcode: data.response.message });
       return;
     }
-    stunsConfig['stunServers'] = ( data['stunServers'] ? data['stunServers'].map(function(data) {
-      return {'url': data['url']};
-    }) : [] );
-    stunsConfig['turnServers'] = ( data['turnServers'] ? data['turnServers'].map(function(data) {
+
+    stunsConfig.stunServers = (data.stunServers ? data.stunServers.map(function (data) {
+      return { url: data.url };
+    }) : []);
+
+    stunsConfig.turnServers = (data.turnServers ? data.turnServers.map(function (data) {
       return {
-        'urls': data['url'],
-        'username': data['username'],
-        'credential': data['password']
+        urls: data.url,
+        username: data.username,
+        credential: data.password,
       };
-    }) : [] );
-    stunsConfig = stunsConfig['stunServers'].concat(stunsConfig['turnServers']);
-    _this.logger("success got stun data, making verto");
+    }) : []);
+
+    stunsConfig = stunsConfig.stunServers.concat(stunsConfig.turnServers);
+    _this.logger('success got stun data, making verto');
     _this.iceServers = stunsConfig;
     callback.apply(_this);
-  }).fail(function(data, textStatus, errorThrown) {
-    _this.logError({'status':'failed', 'errorcode': 1009});
+  }).fail(function (data, textStatus, errorThrown) {
+    _this.logError({ status: 'failed', errorcode: 1009 });
     _this.onFail();
     return;
   });
@@ -382,7 +390,8 @@ Verto.prototype.configStuns = function(callback) {
 
 // checks whether Google Chrome or Firefox have the WebRTCPeerConnection object
 Verto.prototype.isWebRTCAvailable = function () {
-  return (typeof window.webkitRTCPeerConnection !== 'undefined' || typeof window.mozRTCPeerConnection !== 'undefined');
+  return (typeof window.webkitRTCPeerConnection !== 'undefined' ||
+    typeof window.mozRTCPeerConnection !== 'undefined');
 };
 
 this.VertoManager = function () {
@@ -392,28 +401,28 @@ this.VertoManager = function () {
   window.vertoHandle = null;
 };
 
-Verto.prototype.logout = function() {
+Verto.prototype.logout = function () {
   this.exitAudio();
   this.exitVideo();
   this.exitScreenShare();
   window.vertoHandle.logout();
 };
 
-VertoManager.prototype.exitAudio = function() {
+VertoManager.prototype.exitAudio = function () {
   if (this.vertoAudio != null) {
     this.vertoAudio.hangup();
     this.vertoAudio = null;
   }
 };
 
-VertoManager.prototype.exitVideo = function() {
+VertoManager.prototype.exitVideo = function () {
   if (this.vertoVideo != null) {
     this.vertoVideo.hangup();
     this.vertoVideo = null;
   }
 };
 
-VertoManager.prototype.exitScreenShare = function() {
+VertoManager.prototype.exitScreenShare = function () {
   if (this.vertoScreenShare != null) {
     this.vertoScreenShare.hangup();
     this.vertoScreenShare = null;
@@ -429,27 +438,27 @@ VertoManager.prototype.joinListenOnly = function (tag) {
 };
 
 VertoManager.prototype.joinMicrophone = function (tag) {
-    this.exitAudio();
-    var obj = Object.create(Verto.prototype);
-    Verto.apply(obj, arguments);
-    this.vertoAudio = obj;
-    this.vertoAudio.setMicrophone(tag);
+  this.exitAudio();
+  var obj = Object.create(Verto.prototype);
+  Verto.apply(obj, arguments);
+  this.vertoAudio = obj;
+  this.vertoAudio.setMicrophone(tag);
 };
 
 VertoManager.prototype.joinWatchVideo = function (tag) {
-    this.exitVideo();
-    var obj = Object.create(Verto.prototype);
-    Verto.apply(obj, arguments);
-    this.vertoVideo = obj;
-    this.vertoVideo.setWatchVideo(tag);
+  this.exitVideo();
+  var obj = Object.create(Verto.prototype);
+  Verto.apply(obj, arguments);
+  this.vertoVideo = obj;
+  this.vertoVideo.setWatchVideo(tag);
 };
 
 VertoManager.prototype.shareScreen = function (tag) {
-    this.exitScreenShare();
-    var obj = Object.create(Verto.prototype);
-    Verto.apply(obj, arguments);
-    this.vertoScreenShare = obj;
-    this.vertoScreenShare.setScreenShare(tag);
+  this.exitScreenShare();
+  var obj = Object.create(Verto.prototype);
+  Verto.apply(obj, arguments);
+  this.vertoScreenShare = obj;
+  this.vertoScreenShare.setScreenShare(tag);
 };
 
 window.vertoInitialize = function () {
