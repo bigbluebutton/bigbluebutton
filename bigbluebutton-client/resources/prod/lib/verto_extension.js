@@ -149,7 +149,6 @@ Verto.prototype.hangup = function () {
     this.logError({'status':'failed', 'errorcode': 1005});
   }
 
-  this.vertoHandle.hangup();
   this.cur_call = null;
   this.share_call = null;
 };
@@ -223,7 +222,7 @@ Verto.prototype.docall = function () {
     return;
   }
 
-  this.cur_call = this.vertoHandle.newCall({
+  this.cur_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,
     caller_id_name: this.caller_id_name,
     caller_id_number: this.caller_id_number,
@@ -235,6 +234,7 @@ Verto.prototype.docall = function () {
     useMic: this.useMic,
     useSpeak: 'any',
     dedEnc: true,
+    tag: this.renderTag,
   });
   this.logger(this.cur_call);
 };
@@ -289,7 +289,7 @@ Verto.prototype.makeShare = function () {
 };
 
 Verto.prototype.doShare = function (screen_constraints) {
-  this.share_call = this.vertoHandle.newCall({
+  this.share_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,
     caller_id_name: this.caller_id_name,
     caller_id_number: this.caller_id_number,
@@ -300,46 +300,48 @@ Verto.prototype.doShare = function (screen_constraints) {
     screenShare: true,
     dedEnc: true,
     mirrorInput: false,
+    tag: this.renderTag,
   });
 };
 
 Verto.prototype.init = function () {
   this.cur_call = null;
 
-  this.vertoHandle = new $.verto({
-    login: this.login,
-    passwd: this.password,
-    socketUrl: this.socketUrl,
-    tag: this.renderTag,
-    ringFile: "sounds/bell_ring2.wav",
-    sessid: this.sessid,
-    videoParams: {
-      "minWidth": this.vid_width,
-      "minHeight": this.vid_height,
-      "maxWidth": this.vid_width,
-      "maxHeight": this.vid_height,
-      "minFrameRate": 15,
-      "vertoBestFrameRate": 30,
-    },
+  if (!window.vertoHandle) {
+    window.vertoHandle = new $.verto({
+      login: this.login,
+      passwd: this.password,
+      socketUrl: this.socketUrl,
+      tag: this.renderTag,
+      ringFile: "sounds/bell_ring2.wav",
+      sessid: this.sessid,
+      videoParams: {
+        "minWidth": this.vid_width,
+        "minHeight": this.vid_height,
+        "maxWidth": this.vid_width,
+        "maxHeight": this.vid_height,
+        "minFrameRate": 15,
+        "vertoBestFrameRate": 30,
+      },
 
-    deviceParams: {
-      useCamera: false,
-      useMic: false,
-      useSpeak: 'none',
-    },
+      deviceParams: {
+        useCamera: false,
+        useMic: false,
+        useSpeak: 'none',
+      },
 
-    audioParams: {
-      googAutoGainControl: false,
-      googNoiseSuppression: false,
-      googHighpassFilter: false,
-    },
+      audioParams: {
+        googAutoGainControl: false,
+        googNoiseSuppression: false,
+        googHighpassFilter: false,
+      },
 
-    iceServers: this.iceServers,
-  }, this.callbacks);
-};
-
-Verto.prototype.logout = function() {
-  this.vertoHandle.logout();
+      iceServers: this.iceServers,
+    }, this.callbacks);
+  } else {
+    this.mediaCallback();
+    return;
+  }
 };
 
 Verto.prototype.configStuns = function(callback) {
@@ -387,6 +389,14 @@ this.VertoManager = function () {
   this.vertoAudio = null;
   this.vertoVideo = null;
   this.vertoScreenShare = null;
+  window.vertoHandle = null;
+};
+
+Verto.prototype.logout = function() {
+  this.exitAudio();
+  this.exitVideo();
+  this.exitScreenShare();
+  window.vertoHandle.logout();
 };
 
 VertoManager.prototype.exitAudio = function() {
