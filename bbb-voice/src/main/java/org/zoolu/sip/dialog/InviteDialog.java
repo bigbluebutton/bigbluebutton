@@ -31,6 +31,8 @@ import org.zoolu.sip.header.*;
 import org.zoolu.sip.provider.*;
 import org.zoolu.tools.LogLevel;
 
+import org.slf4j.Logger;
+import org.red5.logging.Red5LoggerFactory;
 
 /** Class InviteDialog can be used to manage invite dialogs.
   * An InviteDialog can be both client or server.
@@ -81,6 +83,8 @@ public class InviteDialog extends Dialog implements TransactionClientListener, I
    protected static final int D_BYEING=7;
    protected static final int D_BYED=8;
    protected static final int D_CLOSE=9;
+
+   private static Logger logger = Red5LoggerFactory.getLogger(InviteDialog.class, "sip");
 
    /** Gets the dialog state */
    protected String getStatus()
@@ -381,6 +385,7 @@ public class InviteDialog extends Dialog implements TransactionClientListener, I
      * This method should be called when the InviteDialog is in D_INVITED or D_ReINVITED state */
    public void accept(String contact, String sdp)
    {  printLog("inside accept(sdp)",LogLevel.MEDIUM);
+      logger.debug("Accepting REINVITE. Responding OK with this sdp: " + sdp);
       respond(200,SipResponses.reasonOf(200),contact,sdp);
    }
 
@@ -483,6 +488,7 @@ public class InviteDialog extends Dialog implements TransactionClientListener, I
      */
    public void onReceivedMessage(SipProvider sip_provider, Message msg)
    {  printLog("inside onReceivedMessage(sip_provider,message)",LogLevel.MEDIUM);
+      logger.debug("Received this message: " + msg.toString());
       if (msg.isRequest() && !(msg.isAck() || msg.isCancel()) && msg.getCSeqHeader().getSequenceNumber()<=getRemoteCSeq())
       {  printLog("Request message is too late (CSeq too small): Message discarded",LogLevel.HIGH);
          return;

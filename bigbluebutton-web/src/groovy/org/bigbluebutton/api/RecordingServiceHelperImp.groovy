@@ -99,6 +99,12 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         xmlEventFile.write writer.toString()
     }
 
+	public Recording getRecordingInfo(String id, String recordingDir, String playbackFormat) {
+		String path = recordingDir + File.separatorChar + playbackFormat + File.separatorChar + id;
+		File dir = new File(path);
+		return getRecordingInfo(dir);
+	}
+
     public Recording getRecordingInfo(File dir) {
         if (dir.isDirectory()) {
             try {

@@ -44,10 +44,10 @@ ToolTip {
   cornerRadius: 5;
   borderStyle: solid;
   borderThickness: 1;
-  paddingBottom: 3;
-  paddingTop: 3;
-  paddingLeft: 3;
-  paddingRight: 3;
+  paddingBottom: 2;
+  paddingTop: 2;
+  paddingLeft: 2;
+  paddingRight: 2;
 }
 
 .meetingNameLabelStyle {
@@ -305,7 +305,7 @@ DataGrid {
 
 
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
-.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle,
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle, .presentationDownloadButtonDisabledStyle,
 .sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle
 {
   textIndent: 0;
@@ -325,7 +325,7 @@ DataGrid {
   fontSize: 12;
 }
 
-.sharedNotesSaveButtonStyle {
+.sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
   icon: Embed('assets/images/ic_save_16px.png');
 }
 
@@ -371,6 +371,10 @@ DataGrid {
 
 .presentationDownloadButtonStyle {
   icon:   Embed('assets/images/ic_file_download_16px.png');
+}
+
+.presentationDownloadButtonDisabledStyle {
+  icon:   Embed('assets/images/ic_file_download_grey_16px.png');
 }
 
 .presentationZoomSliderStyle{
@@ -1021,4 +1025,8 @@ EmojiGrid {
 
 .moodSadStyle {
   icon:   Embed('assets/images/icon-7-sad-face.png');
+}
+
+.chatCopyButtonStyle{
+  icon:   Embed('assets/images/ic_content_copy_black_16px.png');
 }

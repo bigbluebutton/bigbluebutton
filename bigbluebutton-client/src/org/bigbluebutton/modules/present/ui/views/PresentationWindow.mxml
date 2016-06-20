@@ -61,6 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />	
 	<mate:Listener type="{ShortcutEvent.MINIMIZE_PRES}" method="remoteMinimize" />
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
+	<mate:Listener type="{RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT}" method="handleUpdateDownloadableFilesEvent" />
 	<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
 	<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
 	<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
@@ -69,6 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
+			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.events.ResizeEvent;
@@ -100,6 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
@@ -394,6 +397,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     displaySlideNavigationControls(false, !!page)
                 }
                 onResetZoom();
+                updateDownloadBtn();
             }
 
 			
@@ -521,7 +525,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					Accessibility.updateProperties();
 
 				addContextMenuItems();
-				
+
+				updateDownloadBtnTooltip();
 				setPollMenuData();
 			}
 			
@@ -783,6 +788,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				setControlBarState("presenter");
 			}
 
+			private function handleUpdateDownloadableFilesEvent(e:RemovePresentationEvent):void {
+				updateDownloadBtn();
+			}
+
+			private function updateDownloadBtn():void {
+				if (downloadPres == null) {
+					return;
+				}
+
+				var isAnyPres:ArrayCollection = PresentationModel.getInstance().getDownloadablePresentations();
+				if (isAnyPres.length > 0) {
+					LOGGER.debug("Enabling dowload presentation button. There are {0} presentations available for downloading.", [isAnyPres.length]);
+					downloadPres.enabled = true;
+					downloadPres.styleName = "presentationDownloadButtonStyle";
+				} else {
+					LOGGER.debug("Disabling download presentation button. There are {0} presentations available for downloading.", [isAnyPres.length]);
+					downloadPres.enabled = false;
+					downloadPres.styleName = "presentationDownloadButtonDisabledStyle";
+				}
+				updateDownloadBtnTooltip();
+			}
+
+			private function updateDownloadBtnTooltip():void {
+				if (downloadPres == null) {
+					return;
+				}
+
+				const res:String = downloadPres.enabled? "bbb.presentation.downloadPresBtn.toolTip": "bbb.presentation.downloadPresBtn.disabledToolTip";
+				downloadPres.toolTip = ResourceUtil.getInstance().getString(res);
+			}
 		]]>
 	</mx:Script>
 	
@@ -797,10 +832,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="middle" styleName="presentationWindowControlsStyle" 
 				   paddingTop="2" paddingBottom="2">
 		<mx:HBox id="presenterControls" width="100%" height="100%" horizontalAlign="center">
-			<mx:Button id="downloadPres" visible="true" height="30" styleName="presentationDownloadButtonStyle"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}" 
-					click="onDownloadButtonClicked()"/>
-			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
+			<mx:Button id="downloadPres" visible="true" height="30" width="30"
+					click="onDownloadButtonClicked()" creationComplete="updateDownloadBtn()"/>
+			<mx:Button id="uploadPres" visible="false" height="30" width="30" styleName="presentationUploadButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
 					   click="onUploadButtonClicked()"/>
 			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"

@@ -98,17 +98,7 @@ public abstract class CallListenerAdapter implements ExtendedCallListener
    {  
 	   //printLog("RE-INVITE/MODIFY");
 	   String local_session;
-	   if (sdp!=null && sdp.length()>0)
-	   {  
-		   SessionDescriptor remote_sdp = new SessionDescriptor(sdp);
-		   SessionDescriptor local_sdp = new SessionDescriptor(call.getLocalSessionDescriptor());
-		   SessionDescriptor new_sdp = new SessionDescriptor(remote_sdp.getOrigin(),remote_sdp.getSessionName(),local_sdp.getConnection(),local_sdp.getTime());
-		   new_sdp.addMediaDescriptors(local_sdp.getMediaDescriptors());
-		   new_sdp = SdpTools.sdpMediaProduct(new_sdp,remote_sdp.getMediaDescriptors());
-		   new_sdp = SdpTools.sdpAttirbuteSelection(new_sdp,"rtpmap");
-		   local_session = new_sdp.toString();
-      }
-      else local_session=call.getLocalSessionDescriptor();
+      local_session=call.getLocalSessionDescriptor();
       // accept immediatly
       call.accept(local_session);
    }
@@ -218,4 +208,3 @@ public abstract class CallListenerAdapter implements ExtendedCallListener
    }
 
 }
-

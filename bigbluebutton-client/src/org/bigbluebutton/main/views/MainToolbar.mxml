@@ -357,6 +357,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					logo.source = e.config.logo;
 				}
+				
+				if (e.config.toolbarColor != "") {
+					setStyle("backgroundColor", e.config.toolbarColor);
+				}
+				if (e.config.toolbarColorAlphas != "") {
+					setStyle("highlightAlphas", e.config.toolbarColorAlphas.split(","));
+				}
 			}
 			
 			private function onDisconnectTest():void{

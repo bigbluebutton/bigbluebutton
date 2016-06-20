@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<mx:HBox xmlns="flexlib.containers.*" 
+<mx:VBox xmlns="flexlib.containers.*" 
 		 initialize="init()" 
 		 xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 xmlns:mate="http://mate.asfusion.com/" 
@@ -8,7 +8,8 @@
 		 visible="{toolbarVisible}" 
 		 styleName="whiteboardToolbarStyle"
 		 horizontalAlign="center"
-		 hideEffect="{fadeOut}" showEffect="{fadeIn}" >
+		 hideEffect="{fadeOut}" showEffect="{fadeIn}" 
+		 backgroundColor="{bgColor}">
 	
 	<mx:Script>
 		<![CDATA[
@@ -23,6 +24,7 @@
 			[Bindable] public var chatOptions:ChatOptions;
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var toolbarVisible:Boolean = false;
+			[Bindable] private var bgColor:Number = 0xCCCCCC;
 
 			private var mousedOver:Boolean = false;
 			private var globalDispatcher:Dispatcher;
@@ -88,18 +90,22 @@
 	<mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0" />
 	<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0" />
 
-	<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.label')}" 
-			   styleName="chatToolbarSaveButtonStyle"
+	<mx:Button id="saveBtn" 
+			   styleName="chatSaveButtonStyle"
+			   width="22"
+			   height="22"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}" 
 			   click="sendSaveEvent()"
 			   tabIndex="{baseIndex+1}"
 			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>  
 	
-	<mx:Button id="copyBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.label')}" 
-			   styleName="chatToolbarCopyButtonStyle"
+	<mx:Button id="copyBtn" 
+			   styleName="chatCopyButtonStyle"
+			   width="22"
+			   height="22"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}" 
 			   click="sendCopyEvent()"
 			   tabIndex="{baseIndex+2}"
 			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>  
 	
-</mx:HBox>
+</mx:VBox>

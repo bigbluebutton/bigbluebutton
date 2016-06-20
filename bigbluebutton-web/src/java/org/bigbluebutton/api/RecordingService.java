@@ -291,22 +291,25 @@ public class RecordingService {
         return r;
     }
 
-    public void changeState(String recordingId, String state) {
+    public boolean changeState(String recordingId, String state) {
+        boolean anyResult = false;
         if (state.equals(Recording.STATE_PUBLISHED)) {
             // It can only be published if it is unpublished
-            changeState(unpublishedDir, recordingId, state);
+            anyResult |= changeState(unpublishedDir, recordingId, state);
         } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
             // It can only be unpublished if it is published
-            changeState(publishedDir, recordingId, state);
+            anyResult |= changeState(publishedDir, recordingId, state);
         } else if (state.equals(Recording.STATE_DELETED)) {
             // It can be deleted from any state
-            changeState(publishedDir, recordingId, state);
-            changeState(unpublishedDir, recordingId, state);
+            anyResult |= changeState(publishedDir, recordingId, state);
+            anyResult |= changeState(unpublishedDir, recordingId, state);
         }
+        return anyResult;
     }
 
-    private void changeState(String path, String recordingId, String state) {
+    private boolean changeState(String path, String recordingId, String state) {
         String[] format = getPlaybackFormats(path);
+        boolean anyResult = false;
         for (int i = 0; i < format.length; i++) {
             List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
             for (int f = 0; f < recordings.size(); f++) {
@@ -322,7 +325,7 @@ public class RecordingService {
                             dest = new File(deletedDir + File.separatorChar + format[i]);
                         } else {
                             log.debug(String.format("State: %s, is not supported", state));
-                            return;
+                            return anyResult;
                         }
                         if (!dest.exists())
                             dest.mkdirs();
@@ -340,10 +343,12 @@ public class RecordingService {
                         } else {
                             log.debug("Recording was not moved");
                         }
+                        anyResult |= moved;
                     }
                 }
             }
         }
+        return anyResult;
     }
 
     private List<File> getAllDirectories(String state) {
