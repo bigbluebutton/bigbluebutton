@@ -53,6 +53,11 @@ Verto = function (
 
   if (onFail != null) {
     this.onFail = normalizeCallback(onFail);
+  } else {
+    var _this = this;
+    this.onFail = function () {
+      _this.logError('Default error handler');
+    };
   }
 };
 
@@ -91,7 +96,7 @@ Verto.prototype.onWSLogin = function (v, success) {
     this.mediaCallback();
     return;
   } else {
-    // eror logging verto into freeswitch
+    // error logging verto into freeswitch
     this.logError({ status: 'failed', errorcode: '10XX' });
     this.callWasSuccessful = false;
     this.onFail();
@@ -216,9 +221,7 @@ Verto.prototype.setScreenShare = function (tag) {
 Verto.prototype.create = function (tag) {
   this.setRenderTag(tag);
   this.registerCallbacks();
-  // this.configStuns(this.init);
-  this.iceServers = true;
-  this.init();
+  this.configStuns(this.init);
 };
 
 Verto.prototype.docall = function () {
