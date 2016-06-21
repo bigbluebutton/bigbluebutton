@@ -27,14 +27,6 @@ function videoIsBroadcasting() {
   }
 }
 
-function watchDeskshare(options) {
-  const extension = options.extension || getVoiceBridge();
-  const conferenceUsername = createVertoUserName();
-  conferenceIdNumber = '1009';
-  vertoWatchVideo({ extension, conferenceUsername, conferenceIdNumber,
-    watchOnly: true, });
-}
-
 // if remote deskshare has been ended disconnect and hide the video stream
 function presenterDeskshareHasEnded() {
   // exitVoiceCall();
@@ -42,11 +34,7 @@ function presenterDeskshareHasEnded() {
 
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
-  const voiceBridge = Deskshare.findOne().deskshare.voiceBridge;
-  watchDeskshare({
-    watchOnly: true,
-    extension: voiceBridge,
-  });
+  vertoWatchVideo();
 };
 
 export {
