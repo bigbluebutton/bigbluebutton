@@ -129,7 +129,7 @@ package org.bigbluebutton.modules.chat.services
     }
 
     private function handleChatClearPublicMessageCommand(message:Object):void {
-      LOGGER.debug("Handling CLEAR chat history message [{0}]", [message.msg]);
+      LOGGER.debug("Handling clear chat history message");
 
       var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT);
       dispatcher.dispatchEvent(clearChatEvent);

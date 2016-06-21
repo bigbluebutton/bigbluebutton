@@ -16,18 +16,17 @@
 
 	<mx:Script>
 		<![CDATA[
-			import mx.core.UIComponent;
 			import com.asfusion.mate.events.Dispatcher;
 
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
-			import mx.managers.PopUpManager;
-			import mx.core.FlexGlobals;
-			import mx.core.IFlexDisplayObject;
-			//import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
+
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
 			
 			[Bindable] public var chatOptions:ChatOptions;
 			[Bindable] private var baseIndex:int;
@@ -63,7 +62,6 @@
 			public function closeToolbar(e:TimerEvent = null):void {
 				mousedOver = false;
 				checkVisibility();
-				//parent.removeChild(this);
 			}
 			
 			private function handleMouseIn(e:MouseEvent = null):void {
@@ -93,10 +91,16 @@
 			}
 
 			public function sendClearEvent():void{
-				var clearPupUpWarning:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClearPublicChatPopUpWarning, true);
+				var clearChatHistoryAlert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.text'),
+					ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.title'),
+					Alert.YES | Alert.NO, null, handleClearChatHistoryAlert, null, Alert.YES);
+			}
 
-				clearPupUpWarning.x = this.localToGlobal(new Point()).x - clearPupUpWarning.width + clearBtn.width + 7;
-				clearPupUpWarning.y = this.localToGlobal(new Point()).y + clearPupUpWarning.height/2 + clearBtn.height + 5;
+			private function handleClearChatHistoryAlert(e:CloseEvent):void {
+				if (e.detail == Alert.YES) {
+					var clearEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT);
+					globalDispatcher.dispatchEvent(clearEvent);
+				}
 			}
 
 			public function onChangeMyRole(e:ChangeMyRole):void{

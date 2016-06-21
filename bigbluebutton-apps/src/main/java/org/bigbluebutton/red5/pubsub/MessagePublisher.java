@@ -243,7 +243,7 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
-	public void clearPublicChatMessages(String meetingID, String requesterID) {
+	public void clearPublicChatMessage(String meetingID, String requesterID) {
 		ClearPublicChatHistoryRequestMessage msg = new ClearPublicChatHistoryRequestMessage(meetingID, requesterID);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}

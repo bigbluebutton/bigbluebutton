@@ -43,11 +43,11 @@ public class ChatService {
 		red5BBBInGw.getChatHistory(meetingID, requesterID, replyTo);
 	}
 	
-	public void clearPublicChatMessages() {
+	public void clearPublicChatMessage() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
 		
-		red5BBBInGw.clearPublicChatMessages(meetingID, requesterID);
+		red5BBBInGw.clearPublicChatMessage(meetingID, requesterID);
 	}
 
 	private BigBlueButtonSession getBbbSession() {
