@@ -30,7 +30,7 @@ WhiteboardShapeModel.defaultProps = {
   shapes: {
     ellipse: Ellipse,
     line: Line,
-    poll: Poll,
+    poll_result: Poll,
     rectangle: Rectangle,
     text: Text,
     triangle: Triangle,
