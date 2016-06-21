@@ -86,6 +86,10 @@ package org.bigbluebutton.modules.chat.services
     public function getPublicChatMessages():void {
       sender.getPublicChatMessages();
     }
+
+    public function clearPublicChatMessage():void {
+      sender.clearPublicChatMessage();
+    }
     
     private static const SPACE:String = " ";
     

@@ -44,6 +44,17 @@ ToolTip {
   cornerRadius: 5;
   borderStyle: solid;
   borderThickness: 1;
+  paddingBottom: 3;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+}
+
+.chatToolbarStyle {
+  backgroundColor: #CCCCCC;
+  cornerRadius: 5;
+  borderStyle: solid;
+  borderThickness: 1;
   paddingBottom: 2;
   paddingTop: 2;
   paddingLeft: 2;
@@ -211,7 +222,8 @@ DataGrid {
 
 .whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
 .whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
-.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle
+.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle,
+.chatClearButtonStyle
 {
   textIndent: 0;
   paddingLeft: 0;
@@ -240,6 +252,10 @@ DataGrid {
 }
 
 .whiteboardClearButtonStyle {
+  icon: Embed('assets/images/delete.png');    
+}
+
+.chatClearButtonStyle {
   icon: Embed('assets/images/delete.png');    
 }
 
@@ -306,7 +322,7 @@ DataGrid {
 
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle, .presentationDownloadButtonDisabledStyle,
-.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle
+.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle, .chatCopyButtonStyle, .chatSaveButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;

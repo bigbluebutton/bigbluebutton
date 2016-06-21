@@ -363,6 +363,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new SendPrivateMessageRequest(meetingID, requesterID, mapAsScalaMap(message).toMap)
   }
 
+  def clearPublicChatHistory(meetingID: String, requesterID: String) {
+    bbbActor ! new ClearPublicChatHistoryRequest(meetingID, requesterID)
+  }
+
   /**
    * *******************************************************************
    * Message Interface for Whiteboard

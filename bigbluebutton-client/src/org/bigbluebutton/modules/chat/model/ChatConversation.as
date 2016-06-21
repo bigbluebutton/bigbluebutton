@@ -24,11 +24,18 @@ package org.bigbluebutton.modules.chat.model
   
   import mx.collections.ArrayCollection;
   
+  import com.asfusion.mate.events.Dispatcher;
+
   import org.bigbluebutton.modules.chat.ChatUtil;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+  import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 
   public class ChatConversation
   { 
+
+    private var _dispatcher:Dispatcher = new Dispatcher();
+
     [Bindable]
     public var messages:ArrayCollection = new ArrayCollection();
     
@@ -85,6 +92,20 @@ package org.bigbluebutton.modules.chat.model
     private function getLastTime():String {
       var msg:ChatMessage = messages.getItemAt(messages.length - 1) as ChatMessage;
       return msg.time;
+    }
+
+    public function clearPublicChat():void{      
+      var cm:ChatMessage = new ChatMessage();
+      cm.time = getLastTime();
+      cm.text = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.clearBtn.chatMessage')+"</b></i>";
+      cm.name = "";
+      cm.senderColor = uint(0x000000);
+      
+      messages.removeAll();
+      messages.addItem(cm);
+
+      var welcomeEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
+      _dispatcher.dispatchEvent(welcomeEvent);
     }
             
   }

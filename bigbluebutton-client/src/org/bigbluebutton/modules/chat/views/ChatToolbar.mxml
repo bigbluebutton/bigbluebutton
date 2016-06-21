@@ -3,39 +3,51 @@
 <mx:VBox xmlns="flexlib.containers.*" 
 		 initialize="init()" 
 		 xmlns:mx="http://www.adobe.com/2006/mxml" 
-		 xmlns:mate="http://mate.asfusion.com/" 
+		 xmlns:mate="http://mate.asfusion.com/"
+		 xmlns:common="org.bigbluebutton.common.*" 
 		 creationComplete="onCreationComplete()"
 		 visible="{toolbarVisible}" 
-		 styleName="whiteboardToolbarStyle"
+		 styleName="chatToolbarStyle"
 		 horizontalAlign="center"
 		 hideEffect="{fadeOut}" showEffect="{fadeIn}" 
 		 backgroundColor="{bgColor}">
 	
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+
 	<mx:Script>
 		<![CDATA[
 			import mx.core.UIComponent;
 			import com.asfusion.mate.events.Dispatcher;
 
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
 			
 			[Bindable] public var chatOptions:ChatOptions;
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var toolbarVisible:Boolean = false;
 			[Bindable] private var bgColor:Number = 0xCCCCCC;
+			[Bindable] private var clrBtnVisible:Boolean = false;
 
 			private var mousedOver:Boolean = false;
 			private var globalDispatcher:Dispatcher;
 			private var _toolbarHideTimer:Timer;
 			
+			[Bindable] public var publicChat:Boolean = true;
+
 			public function init():void{
 				chatOptions = new ChatOptions();
 				baseIndex = chatOptions.baseTabIndex;
 
 				_toolbarHideTimer = new Timer(500, 1);
 				_toolbarHideTimer.addEventListener(TimerEvent.TIMER, closeToolbar);
+				clrBtnVisible = UsersUtil.amIModerator() && publicChat;
 			}
 			
 			private function onCreationComplete():void {
@@ -51,7 +63,6 @@
 			public function closeToolbar(e:TimerEvent = null):void {
 				mousedOver = false;
 				checkVisibility();
-				//parent.removeChild(this);
 			}
 			
 			private function handleMouseIn(e:MouseEvent = null):void {
@@ -80,12 +91,31 @@
 				globalDispatcher.dispatchEvent(copyEvent);
 			}
 
+			public function sendClearEvent():void{
+				var clearChatHistoryAlert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.text'),
+					ResourceUtil.getInstance().getString('bbb.chat.clearBtn.alert.title'),
+					Alert.YES | Alert.NO, null, handleClearChatHistoryAlert, null, Alert.YES);
+			}
+
+			private function handleClearChatHistoryAlert(e:CloseEvent):void {
+				if (e.detail == Alert.YES) {
+					var clearEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT);
+					globalDispatcher.dispatchEvent(clearEvent);
+				}
+			}
+
+			public function onChangeMyRole(e:ChangeMyRole):void{
+				clearBtn.visible = clearBtn.enabled = clearBtn.includeInLayout = clrBtnVisible = UsersUtil.amIModerator() && publicChat;
+			}
+
 			public function registerListeners(component:UIComponent):void {
 				component.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
 				component.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
 			}
 		]]>
 	</mx:Script>
+
+	<common:TabIndexer id="tabIndexer" tabIndices="{[saveBtn, copyBtn, clearBtn]}"/>
 
 	<mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0" />
 	<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0" />
@@ -96,8 +126,7 @@
 			   height="22"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}" 
 			   click="sendSaveEvent()"
-			   tabIndex="{baseIndex+1}"
-			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>  
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.accessibilityName')}"/>  
 	
 	<mx:Button id="copyBtn" 
 			   styleName="chatCopyButtonStyle"
@@ -105,7 +134,17 @@
 			   height="22"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}" 
 			   click="sendCopyEvent()"
-			   tabIndex="{baseIndex+2}"
-			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>  
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/> 
+	
+	<mx:Button id="clearBtn" 
+			   styleName="chatClearButtonStyle"
+			   width="22"
+			   height="22"
+			   visible = "{clrBtnVisible}"
+			   enabled = "{clrBtnVisible}"
+			   includeInLayout = "{clrBtnVisible}"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.toolTip')}" 
+			   click="sendClearEvent()"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/> 
 	
 </mx:VBox>

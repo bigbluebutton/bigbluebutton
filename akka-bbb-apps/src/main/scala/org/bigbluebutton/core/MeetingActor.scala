@@ -116,6 +116,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleSendPublicMessageRequest(msg)
     case msg: SendPrivateMessageRequest =>
       handleSendPrivateMessageRequest(msg)
+    case msg: ClearPublicChatHistoryRequest =>
+      handleClearPublicChatHistoryRequest(msg)
     case msg: UserConnectedToGlobalAudio =>
       handleUserConnectedToGlobalAudio(msg)
     case msg: UserDisconnectedFromGlobalAudio =>
