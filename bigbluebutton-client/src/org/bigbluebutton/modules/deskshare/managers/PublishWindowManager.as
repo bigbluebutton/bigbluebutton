@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
+	import org.bigbluebutton.modules.deskshare.events.ShareEvent;
 			
 	public class PublishWindowManager {		
 		private static const LOGGER:ILogger = getClassLogger(PublishWindowManager);
@@ -53,7 +54,10 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function stopSharing():void {
-			if (shareWindow != null) shareWindow.stopSharing();
+			if (shareWindow != null) {
+				shareWindow.stopSharing();
+				shareWindow = null;
+			}
 		}
 																			
 		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
@@ -63,36 +67,28 @@ package org.bigbluebutton.modules.deskshare.managers
 			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);
 			shareWindow.visible = true;
 			openWindow(shareWindow);
-			if (autoStart || autoFullScreen) {
-				/*
-				* Need to have a timer to trigger auto-publishing of deskshare.
-				*/
-				shareWindow.btnFSPublish.enabled = false;
-				shareWindow.btnRegionPublish.enabled = false;
-				autoPublishTimer = new Timer(2000, 1);
-				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-				autoPublishTimer.start();
-			}			
 		}
-		
-		private function autopublishTimerHandler(event:TimerEvent):void {				
-			shareWindow.shareScreen(true);
+
+		public function handleShareScreenEvent(fullScreen:Boolean):void {
+			if(shareWindow != null) {
+				LOGGER.debug("DS:PublishWindowManager: starting deskshare publishing. fullScreen = " + fullScreen);
+				shareWindow.shareScreen(fullScreen);
+			}
 		}
-		
+
 		public function handleShareWindowCloseEvent():void {
 			closeWindow(shareWindow);
 		}
 		
 		private function openWindow(window:IBbbModuleWindow):void {				
-			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			event.window = window;
-			globalDispatcher.dispatchEvent(event);
+			var e:ShareEvent = new ShareEvent(ShareEvent.CREATE_DESKTOP_PUBLISH_TAB);
+			e.publishTabContent = window as DesktopPublishWindow;
+			globalDispatcher.dispatchEvent(e);
 		}
 					
 		private function closeWindow(window:IBbbModuleWindow):void {
-			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-			event.window = window;
-			globalDispatcher.dispatchEvent(event);
+			var e:ShareEvent = new ShareEvent(ShareEvent.CLEAN_DESKTOP_PUBLISH_TAB);
+			globalDispatcher.dispatchEvent(e);
 		}
 	}
 }

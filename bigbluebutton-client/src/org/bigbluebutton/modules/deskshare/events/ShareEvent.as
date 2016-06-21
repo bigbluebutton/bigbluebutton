@@ -19,12 +19,26 @@
 package org.bigbluebutton.modules.deskshare.events
 {
 	import flash.events.Event;
+	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
+	import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
 
 	public class ShareEvent extends Event
 	{
 		public static const START_SHARING:String = "START SHARING";
 		public static const STOP_SHARING:String = "STOP SHARING";
+
+		public static const CREATE_DESKTOP_PUBLISH_TAB:String = "CREATE DESKTOP PUBLISH TAB";
+		public static const CLEAN_DESKTOP_PUBLISH_TAB:String = "CLEAN DESKTOP PUBLISH TAB";
+
+		public static const OPEN_DESKTOP_VIEW_TAB:String = "OPEN DESKTOP VIEW TAB";
+		public static const CLOSE_DESKTOP_VIEW_TAB:String = "CLOSE DESKTOP VIEW TAB";
+
+		public static const SHARE_SCREEN:String = "SHARE SCREEN";
 		
+		public var publishTabContent:DesktopPublishWindow;
+		public var viewTabContent:DesktopViewWindow;
+		public var fullScreen:Boolean;
+
 		public function ShareEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
