@@ -62,7 +62,7 @@ clientConfig.media.freeswitchProfilePassword = '1234';
 clientConfig.media.vertoPort = '8082';
 
 // specifies whether to use SIP.js for audio over mod_verto
-clientConfig.media.useSIPAudio = false;
+clientConfig.media.useSIPAudio = true;
 
 // Configs for redis
 const redisConfig = {
