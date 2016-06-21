@@ -145,4 +145,5 @@ case class MeetingInfo(meetingID: String, meetingName: String, recorded: Boolean
 
 case class Note(
   name: String,
-  document: String)
+  document: String,
+  patchCounter: Int)

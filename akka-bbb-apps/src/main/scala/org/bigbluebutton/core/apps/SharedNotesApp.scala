@@ -10,9 +10,9 @@ trait SharedNotesApp {
   val outGW: OutMessageGateway
 
   def handlePatchDocumentRequest(msg: PatchDocumentRequest) {
-    notesModel.patchDocument(msg.noteID, msg.patch)
+    val patchID = notesModel.patchDocument(msg.noteID, msg.patch)
 
-    outGW.send(new PatchDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.noteID, msg.patch))
+    outGW.send(new PatchDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.noteID, msg.patch, patchID))
   }
 
   def handleGetCurrentDocumentRequest(msg: GetCurrentDocumentRequest) {
