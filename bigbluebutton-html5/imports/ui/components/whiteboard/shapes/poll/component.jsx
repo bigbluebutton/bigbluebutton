@@ -7,10 +7,7 @@ export default class PollDrawComponent extends React.Component {
     super(props);
 
     this.state = {
-      //flag indicating whether we are ready to display the poll annotation
-      displayPoll: false,
-
-      //flag indicating whether we need to continue calculating the sizes
+      //flag indicating whether we need to continue calculating the sizes or display the shape
       prepareToDisplay: true,
 
       //outer (white) rectangle's coordinates and sizes (calculated in componentWillMount)
@@ -44,13 +41,13 @@ export default class PollDrawComponent extends React.Component {
       maxNumVotes: 0,
       textArray: [],
       maxDigitWidth: 0,
+      maxDigitHeight: 0,
 
       //start value used for font-size calculations
       calcFontSize: 50,
       currentLine: 0,
       lineToMeasure: [],
-      incrementFontSize: true,
-      decrementFontSize: false,
+      fontSizeDirection: 1,
     };
   }
 
@@ -99,27 +96,30 @@ export default class PollDrawComponent extends React.Component {
     //and initializing the textArray
     arrayLength = this.props.shape.result.length;
     for (i = 0; i < arrayLength; ++i) {
-      votesTotal += this.props.shape.result[i].num_votes;
-      if (maxNumVotes < this.props.shape.result[i].num_votes) {
-        maxNumVotes = this.props.shape.result[i].num_votes;
+      let _numVotes = this.props.shape.result[i].num_votes;
+      votesTotal += _numVotes;
+      if (maxNumVotes < _numVotes) {
+        maxNumVotes = _numVotes;
       }
-
-      textArray[i] = [];
     }
 
     //filling the textArray with data to display
     //adding value of the iterator to each line needed to create unique
     //keys while rendering at the end
     for (i = 0; i < arrayLength; ++i) {
-      textArray[i].push(this.props.shape.result[i].key, this.props.shape.result[i].num_votes + '');
+      let _tempArray = [];
+      let _result = this.props.shape.result[i];
+      _tempArray.push(_result.key, _result.num_votes + '');
       if (votesTotal === 0) {
-        textArray[i].push('0%');
-        textArray[i].push(i);
+        _tempArray.push('0%');
+        _tempArray.push(i);
       } else {
-        percResult = this.props.shape.result[i].num_votes / votesTotal * 100;
-        textArray[i].push(Math.round(percResult) + '%');
-        textArray[i].push(i);
+        percResult = _result.num_votes / votesTotal * 100;
+        _tempArray.push(Math.round(percResult) + '%');
+        _tempArray.push(i);
       }
+
+      textArray.push(_tempArray);
     }
 
     //calculating the data for the inner rectangle
@@ -176,6 +176,7 @@ export default class PollDrawComponent extends React.Component {
     let maxLeftWidth;
     let maxRightWidth;
     let maxDigitWidth;
+    let maxDigitHeight;
     let key;
     let votes;
     let percent;
@@ -186,7 +187,7 @@ export default class PollDrawComponent extends React.Component {
     let maxLineHeight = this.state.maxLineHeight;
 
     //calculating the font size in this if / else block
-    if (this.state.incrementFontSize || this.state.decrementFontSize) {
+    if (this.state.fontSizeDirection != 0) {
       key = this.props.shape.id + '_key_' + this.state.currentLine;
       votes = this.props.shape.id + '_votes_' + this.state.currentLine;
       percent = this.props.shape.id + '_percent_' + this.state.currentLine;
@@ -195,7 +196,7 @@ export default class PollDrawComponent extends React.Component {
       percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
 
       //first check if we can still increase the font-size
-      if (this.state.incrementFontSize) {
+      if (this.state.fontSizeDirection == 1) {
         if (keySizes.width < maxLineWidth && keySizes.height < maxLineHeight &&
           voteSizes.width < maxLineWidth && voteSizes.height < maxLineHeight &&
           percSizes.width < maxLineWidth && percSizes.height < maxLineHeight) {
@@ -206,12 +207,11 @@ export default class PollDrawComponent extends React.Component {
         //we can't increase font-size anymore, start decreasing
         } else {
           return this.setState({
-            incrementFontSize: false,
-            decrementFontSize: true,
+            fontSizeDirection: -1,
             calcFontSize: this.state.calcFontSize - 1,
           });
         }
-      } else if (this.state.decrementFontSize) {
+      } else if (this.state.fontSizeDirection == -1) {
 
         //check if the font-size is still bigger than allowed
         if (keySizes.width > maxLineWidth || keySizes.height > maxLineHeight ||
@@ -231,8 +231,7 @@ export default class PollDrawComponent extends React.Component {
             });
           } else {
             return this.setState({
-              incrementFontSize: false,
-              decrementFontSize: false,
+              fontSizeDirection: 0,
               currentLine: 0,
               lineToMeasure: this.state.textArray[0],
             });
@@ -247,7 +246,6 @@ export default class PollDrawComponent extends React.Component {
     //max real line height and max width value for 1 digit
     maxLeftWidth = 0;
     maxRightWidth = 0;
-    maxDigitWidth = 0;
     maxLineHeight = 0;
     for (i = 0; i < this.state.textArray.length; ++i) {
       key = this.props.shape.id + '_key_' + i;
@@ -274,13 +272,14 @@ export default class PollDrawComponent extends React.Component {
 
     let digitRef = this.props.shape.id + '_digit';
     maxDigitWidth = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().width;
+    maxDigitHeight = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().height;
 
     this.setState({
       maxLeftWidth: maxLeftWidth,
       maxRightWidth: maxRightWidth,
       maxLineHeight: maxLineHeight,
       maxDigitWidth: maxDigitWidth,
-      displayPoll: true,
+      maxDigitHeight: maxDigitHeight,
       prepareToDisplay: false,
     });
   }
@@ -315,9 +314,9 @@ export default class PollDrawComponent extends React.Component {
     //But every text element has its own padding by default. The height we receive
     //by calling getBBox() includes padding, but the anchor point doesn't consider it.
     //This way the text element is moved down a little bit and we have to move it up a bit.
-    //Value 3.5 seems to work fine.
-    //Oleksandr Zhurbenko. August 19, 2015
-    let magicNumber = 3.5;
+    // 1/6 of the maximum height of the digit seems to work fine.
+    //Oleksandr Zhurbenko. June 22, 2016
+    let magicNumber = this.state.maxDigitHeight / 6;
 
     //maximum height and width of the line bar
     maxBarWidth = this.state.innerRect.width * 0.9 -
@@ -359,7 +358,6 @@ export default class PollDrawComponent extends React.Component {
       xNumVotesDefault = this.state.innerRect.x + this.state.maxLeftWidth + horizontalPadding * 2;
       xNumVotesMovedRight = xNumVotesDefault +
         barWidth / 2 +
-        horizontalPadding +
         this.state.maxDigitWidth / 2;
 
       if (barWidth < this.state.maxDigitWidth + 8) {
@@ -535,7 +533,7 @@ export default class PollDrawComponent extends React.Component {
     //check whether we need to render just one line (which means we still calculating the font-size)
     //or if we finished with the font-size and we need to render all the strings in order to
     //determine the maxHeight, maxWidth and maxDigitWidth
-    if (this.state.incrementFontSize || this.state.decrementFontSize) {
+    if (this.state.fontSizeDirection != 0) {
       return this.renderLine(this.state.lineToMeasure);
     } else {
       return (
@@ -562,11 +560,9 @@ export default class PollDrawComponent extends React.Component {
       <g>
         {this.state.prepareToDisplay ?
           this.renderTestStrings()
-        : null }
-
-        {this.state.displayPoll ?
+        :
           this.renderPoll()
-        : null }
+        }
       </g>
     );
   }
