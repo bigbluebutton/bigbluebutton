@@ -51,6 +51,7 @@ export default class TextDrawComponent extends React.Component {
       wordWrap: 'break-word',
       wordBreak: 'normal',
       textAlign: 'left',
+      margin: 0,
       color: results.fontColor,
       fontSize: results.calcedFontSize,
     };
