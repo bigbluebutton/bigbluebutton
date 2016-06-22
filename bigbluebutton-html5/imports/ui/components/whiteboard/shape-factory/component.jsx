@@ -13,16 +13,22 @@ export default class WhiteboardShapeModel extends React.Component {
   }
 
   render() {
-    var Component = this.props.shapes[this.props.shape.shape_type];
-    return (
-      <Component
-        shape={this.props.shape.shape}
-        widthRatio={this.props.widthRatio}
-        heightRatio={this.props.heightRatio}
-        slideWidth={this.props.slideWidth}
-        slideHeight={this.props.slideHeight}
-      />
-    );
+    let Component = this.props.shapes[this.props.shape.shape_type];
+    if (Component != null) {
+      return (
+        <Component
+          shape={this.props.shape.shape}
+          widthRatio={this.props.widthRatio}
+          heightRatio={this.props.heightRatio}
+          slideWidth={this.props.slideWidth}
+          slideHeight={this.props.slideHeight}
+        />
+      );
+    } else {
+      return (
+        <g></g>
+      );
+    }
   }
 }
 
