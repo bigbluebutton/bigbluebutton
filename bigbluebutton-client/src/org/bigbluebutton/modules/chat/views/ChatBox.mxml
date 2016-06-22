@@ -832,7 +832,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
            paddingLeft="5" paddingRight="5">	
 	<mx:VBox width="100%" height="100%">
-	  <mx:TextArea id="txtMsgArea" width="100%" height="100%"
+	  <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
+	  <mx:TextArea id="txtMsgArea" restrict="^\u007F"
+	               width="100%" height="100%"
 	               styleName="chatControlBarTextMsgStyle"
 				   change="txtMsgAreaChangeHandler(event)"
 	               toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
