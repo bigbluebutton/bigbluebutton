@@ -319,4 +319,9 @@ public class MessagePublisher {
 		RequestAdditionalNotesSetRequestMessage msg = new RequestAdditionalNotesSetRequestMessage(meetingID, requesterID, additionalNotesSetSize);
 		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
 	}
+
+	public void logoutEndMeeting(String meetingId, String userId) {
+		LogoutEndMeetingRequestMessage msg = new LogoutEndMeetingRequestMessage(meetingId, userId);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
 }

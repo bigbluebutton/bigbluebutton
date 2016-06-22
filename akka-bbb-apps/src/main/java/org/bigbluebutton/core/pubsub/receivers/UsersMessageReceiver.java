@@ -15,6 +15,7 @@ import org.bigbluebutton.common.messages.InitPermissionsSettingMessage;
 import org.bigbluebutton.common.messages.IsMeetingMutedRequestMessage;
 import org.bigbluebutton.common.messages.LockLayoutRequestMessage;
 import org.bigbluebutton.common.messages.LockMuteUserRequestMessage;
+import org.bigbluebutton.common.messages.LogoutEndMeetingRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.MuteAllExceptPresenterRequestMessage;
 import org.bigbluebutton.common.messages.MuteAllRequestMessage;
@@ -133,7 +134,9 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case RespondToGuestMessage.RESPOND_TO_GUEST:
 						  processRespondToGuestMessage(message);
 						  break;
-						  
+					  case LogoutEndMeetingRequestMessage.LOGOUT_END_MEETING_REQUEST_MESSAGE:
+						  processLogoutEndMeetingRequestMessage(message);
+						  break;
 					}
 				}
 			}
@@ -385,6 +388,13 @@ public class UsersMessageReceiver implements MessageHandler{
 		RespondToGuestMessage msg = RespondToGuestMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.responseToGuest(msg.meetingId, msg.userId, msg.response, msg.requesterId);
+		}
+	}
+
+	private void processLogoutEndMeetingRequestMessage(String message) {
+		LogoutEndMeetingRequestMessage lemm = LogoutEndMeetingRequestMessage.fromJson(message);
+		if (lemm != null) {
+			bbbInGW.logoutEndMeeting(lemm.meetingId, lemm.userId);
 		}
 	}
 }

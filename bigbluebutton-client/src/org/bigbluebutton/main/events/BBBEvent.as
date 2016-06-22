@@ -22,6 +22,7 @@ package org.bigbluebutton.main.events {
 	public class BBBEvent extends Event {    
     
 		public static const END_MEETING_EVENT:String = 'END_MEETING_EVENT';
+		public static const LOGOUT_END_MEETING_EVENT:String = 'LOGOUT_END_MEETING_EVENT';
 		public static const LOGIN_EVENT:String = 'loginEvent';
 		public static const RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT:String = 'RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT';
 		public static const SEND_PUBLIC_CHAT_MESSAGE_EVENT:String = 'SEND_PUBLIC_CHAT_MESSAGE_EVENT';

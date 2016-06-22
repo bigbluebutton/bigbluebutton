@@ -123,6 +123,22 @@ package org.bigbluebutton.modules.users.services
       );
     }
     
+    public function logoutEndMeeting(userID:String):void {
+      var message:Object = new Object();
+      message["userId"] = userID;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.logoutEndMeeting",
+        function(result:String):void { // On successful result
+        },
+        function(status:String):void { // status - On error occurred
+      LOGGER.error(status);
+        },
+        message
+      );
+    }
+
     public function queryForRecordingStatus():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(

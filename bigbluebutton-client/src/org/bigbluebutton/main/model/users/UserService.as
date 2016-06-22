@@ -184,6 +184,13 @@ package org.bigbluebutton.main.model.users
       _connectionManager.connect(_conferenceParameters);
     }
 	
+	public function logoutEndMeeting():void{
+		if (this.isModerator()) {
+			var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
+			sender.logoutEndMeeting(myUserId);
+		}
+	}
+
     public function logoutUser():void {
       disconnect(true);
     }
