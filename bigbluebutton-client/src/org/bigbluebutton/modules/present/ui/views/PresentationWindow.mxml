@@ -38,7 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresentation])}"
+	title="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
 	xmlns:views="org.bigbluebutton.modules.present.ui.views.*" 
 	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
 	>
@@ -121,6 +121,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const VIEW_STATE:String = "view";
 			private var currentControlBarState:String = "";
 
+			private static const TAB_MAX_WIDTH:Number = 200;
 			private static const PRESENTATION_TAB_INDEX:Number = 0;
 			private static const DESKSHARE_PUBLISH_TAB_INDEX:Number = 1;
 			private static const DESKSHARE_VIEW_TAB_INDEX:Number = 2;
@@ -153,6 +154,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 									
 			private var mouseDown:Boolean = false;
 
+			private static const PRESENTATION_NAME_MAX_LENGTH:Number = 20;
 			[Bindable] private var currentPresentation:String = "";
 			
 			[Bindable] private var presentOptions:PresentOptions;
@@ -274,7 +276,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function focusWindow(e:ShortcutEvent):void{
 				focusManager.setFocus(titleBarOverlay);
 			}
-			
+
 			private function resizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
@@ -405,6 +407,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
 				currentPresentation = PresentationModel.getInstance().getCurrentPresentationName();
 
+				if(currentPresentation.length > PRESENTATION_NAME_MAX_LENGTH)
+					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).width = TAB_MAX_WIDTH;
+
                 slideView.setSlides();
                 slideView.visible = true;
                 var page : Page = PresentationModel.getInstance().getCurrentPage();
@@ -425,8 +430,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function displaySlideNavigationControls(isPresenter:Boolean, activePresentation:Boolean):void {
 				var showButtons:Boolean = isPresenter && activePresentation;
 				
-				pollControls.visible = showButtons;
-				pollControls.includeInLayout = showButtons;
+				pollStartBtn.visible = showButtons;
 				backButton.visible = showButtons;
 				forwardButton.visible = showButtons;
 				zoomSlider.visible = showButtons;
@@ -534,8 +538,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
-				
+				if ((slideView != null) && (!slideView.visible)) {
+					presentationTab.label = currentPresentation;
+					if(currentPresentation.length > PRESENTATION_NAME_MAX_LENGTH)
+						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).width = TAB_MAX_WIDTH;
+				}
+
 				if (titleBarOverlay != null) {
 					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.titleBar');
 				}
@@ -786,16 +794,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (state == "vote") {
 					presenterControls.visible = false;
 					presenterControls.includeInLayout = false;
-					pollControls.visible = false;
-					pollControls.includeInLayout = false;
 					pollVoteBox.visible = true;
 					pollVoteBox.includeInLayout = true;
 					currentControlBarState = VOTE_STATE;
 				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
 					presenterControls.visible = true;
 					presenterControls.includeInLayout = true;
-					pollControls.visible = true;
-					pollControls.includeInLayout = true;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
 					deskshareControls.visible = false;
@@ -806,8 +810,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					presenterControls.visible = false;
 					presenterControls.includeInLayout = false;
-					pollControls.visible = false;
-					pollControls.includeInLayout = false;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
 					deskshareControls.visible = false;
@@ -981,9 +983,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
 	<mx:TabNavigator id="presenterTabs" borderStyle="solid" width="100%" height="100%" creationPolicy="all" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
-		<mx:VBox id="presentationTab" label="{ResourceUtil.getInstance().getString('bbb.presentation.title')}" width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
-			<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true"
-							mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
+		<mx:VBox id="presentationTab" label="{currentPresentation}" width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
+			<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
 		</mx:VBox>
 
 		<mx:VBox id="desksharePublishTab" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}" width="100%" height="100%" backgroundColor="#C0C0C0" horizontalAlign="center" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
@@ -993,15 +994,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="middle"
 		       styleName="presentationWindowControlsStyle" paddingTop="2" paddingBottom="2">
 
-		<mx:HBox id="pollControls" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center">
-			<mx:Button id="pollStartBtn" visible="true" height="30" styleName="pollStartButtonStyle"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}"
-					click="onPollStartButtonClicked()"/>
-			<poll:QuickPollButton id="quickPollBtn" height="30"
-								  click="quickPollClicked(event)" />
-		</mx:HBox>
+		<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}"
+			   click="onPollStartButtonClicked()" includeInLayout="{pollStartBtn.visible}"/>
+		<poll:QuickPollButton id="quickPollBtn" height="30"
+				      click="quickPollClicked(event)"
+				      includeInLayout="{quickPollBtn.visible}" />
 
-		<mx:HBox id="presenterControls" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center">
+		<mx:HBox id="presenterControls" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="left">
 			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
 					   click="onUploadButtonClicked()"/>
@@ -1028,7 +1028,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>
 
-		<mx:HBox id="deskshareControls" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center">
+		<mx:HBox id="deskshareControls" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="left">
 			<mx:Button id="btnFSPublish" visible="true" height="30"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}"
 					   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}"
