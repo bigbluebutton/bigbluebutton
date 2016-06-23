@@ -14,6 +14,16 @@ package org.bigbluebutton.modules.polling.views {
 	public class QuickPollButton extends Button {
 		private static const LOGGER:ILogger = getClassLogger(QuickPollButton);      
 
+		override public function set visible(vsb:Boolean):void {
+			if (vsb) {
+				// This button should only be visible when there is a polling at the current slide's text
+				var page:Page = PresentationModel.getInstance().getCurrentPage();
+				super.visible = page != null ? parseSlideText(page.txtData) : false;
+			} else {
+				super.visible = false;
+			}
+		}
+
 		public function QuickPollButton() {
 			super();
 			visible = false;
@@ -24,10 +34,7 @@ package org.bigbluebutton.modules.polling.views {
 		}
 		
 		private function handlePageLoadedEvent(e:PageLoadedEvent):void {
-			var page:Page = PresentationModel.getInstance().getPage(e.pageId);
-			if (page != null) {
-				visible = parseSlideText(page.txtData) && UsersUtil.amIPresenter();
-			}
+			visible = UsersUtil.amIPresenter();
 		}
 		
 		private function parseSlideText(text:String):Boolean {

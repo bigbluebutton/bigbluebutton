@@ -371,7 +371,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function setupPresenter(isPresenter:Boolean):void {
 				uploadPres.visible = isPresenter;				
 				downloadPres.visible = true;
-				quickPollBtn.visible = isPresenter;
 				var page:Page = PresentationModel.getInstance().getCurrentPage();
 				if (page != null) {
 					displaySlideNumber(page.num);		
@@ -405,6 +404,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var showButtons:Boolean = isPresenter && activePresentation;
 				
 				pollStartBtn.visible = showButtons;
+				quickPollBtn.visible = showButtons;
 				backButton.visible = showButtons;
 				forwardButton.visible = showButtons;
 				zoomSlider.visible = showButtons;
@@ -456,6 +456,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				slideView.slideLoader.source = null; 
 				slideView.setSelectedSlide(0);
 				btnSlideNum.label = "";
+				
+				pollStartBtn.visible = false;
+				quickPollBtn.visible = false;
 				
 				backButton.visible = false;
 				forwardButton.visible = false;
