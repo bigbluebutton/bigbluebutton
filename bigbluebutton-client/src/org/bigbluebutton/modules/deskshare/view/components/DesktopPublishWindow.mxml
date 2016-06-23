@@ -69,8 +69,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
 
 			public static const SCALE:Number = 5;
-			private static const VID_HEIGHT_PAD:Number = 73;
-			private static const VID_WIDTH_PAD:Number = 6;
+			private static const VID_HEIGHT_PAD:Number = 40;
+			private static const VID_WIDTH_PAD:Number = 3;
 			
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -223,6 +223,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!connection.connected || !UsersUtil.amIPresenter()) return;
 				
 				LOGGER.debug("DeskShareWindow::onAppletStart");
+				clickBelowtoShareInfo.visible = false;
+				clickBelowtoShareInfo.includeInLayout = false;
 				startPreviewStream(connection, room, event.videoWidth, event.videoHeight);
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
 				streamEvent.videoWidth = event.videoWidth;
@@ -274,7 +276,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
 				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
 
-				
+				videoHolder.percentWidth = 100;
+				videoHolder.percentHeight = 100;
 				videoHolder.addChild(video);
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
@@ -390,10 +393,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:states>
         <mx:State name="dispFullRegionControlBar">   
             <mx:AddChild>
-              <mx:ControlBar id="fullRegionBottomBar">
-                <mx:VBox width="100%" height="100%" horizontalAlign="center">
-                </mx:VBox>
-              </mx:ControlBar>
+              <mx:VBox id="clickBelowtoShareInfo" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+                <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.clickBelowToShareHint')}" />
+              </mx:VBox>
             </mx:AddChild>
         </mx:State>	
 		<mx:State name="chromeOnMacWarningState">
