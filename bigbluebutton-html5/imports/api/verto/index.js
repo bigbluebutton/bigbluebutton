@@ -34,6 +34,7 @@ function joinVertoCall(options) {
     };
 
     let wasCallSuccessful = false;
+    let conferenceUsername = createVertoUserName();
     let debuggerCallback = function (message) {
       console.log('CALLBACK: ' + JSON.stringify(message));
 

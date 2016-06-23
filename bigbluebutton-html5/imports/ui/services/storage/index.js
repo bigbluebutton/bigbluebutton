@@ -1,4 +1,4 @@
-const STORAGE = localStorage;
+const STORAGE = sessionStorage;
 const PREFIX = 'BBB_';
 
 const get = (key) => STORAGE.getItem(`${PREFIX}${key}`);

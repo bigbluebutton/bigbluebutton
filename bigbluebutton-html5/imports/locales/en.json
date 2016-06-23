@@ -5,5 +5,8 @@
   "app.userlist.presenter": "Presenter",
   "app.userlist.you": "You",
   "app.chat.submitLabel": "Send Message",
-  "app.chat.inputLabel": "Message input for chat {name}"
+  "app.chat.inputLabel": "Message input for chat {name}",
+  "app.chat.titlePublic": "Public Chat",
+  "app.chat.titlePrivate": "Private Chat with {name}",
+  "app.chat.partnerDisconnected": "{name} has left the meeting"
 }

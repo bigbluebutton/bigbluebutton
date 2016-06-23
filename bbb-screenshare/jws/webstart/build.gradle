@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-  compile ":javacpp:@jar"
+//  compile ":javacpp:@jar"
   compile ":ffmpeg:@jar"
 //  compile ":javacv:@jar"
 }

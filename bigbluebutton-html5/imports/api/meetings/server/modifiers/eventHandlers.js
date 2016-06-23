@@ -77,7 +77,7 @@ eventEmitter.on('meeting_created_message', function (arg) {
     voiceConf, duration, arg.callback);
 });
 
-eventEmitter.on('get_all_meetings_reply', function (arg) {
+eventEmitter.on('get_all_meetings_reply_message', function (arg) {
   logger.info('Let\'s store some data for the running meetings so that when an' +
     ' HTML5 client joins everything is ready!');
   logger.info(JSON.stringify(arg.payload));

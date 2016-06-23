@@ -168,17 +168,19 @@ class BigBlueButtonActor(val system: ActorSystem,
 
   private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
     val len = meetings.keys.size
-    val resultArray: Array[MeetingInfo] = new Array[MeetingInfo](len)
+    var currPosition = len - 1
+    var resultArray: Array[MeetingInfo] = new Array[MeetingInfo](len)
 
-    meetings.foreach(m => {
-      val id = m._1
-      val duration = m._2.mProps.duration
-      val name = m._2.mProps.meetingName
-      val recorded = m._2.mProps.recorded
-      val voiceBridge = m._2.mProps.voiceBridge
+    meetings.values.foreach(m => {
+      val id = m.mProps.meetingID
+      val duration = m.mProps.duration
+      val name = m.mProps.meetingName
+      val recorded = m.mProps.recorded
+      val voiceBridge = m.mProps.voiceBridge
 
       val info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
-      resultArray :+ info
+      resultArray(currPosition) = info
+      currPosition = currPosition - 1
 
       val html5clientRequesterID = "nodeJSapp"
 

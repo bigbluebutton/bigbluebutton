@@ -16,7 +16,6 @@ class UserListContainer extends Component {
   }
 }
 
-export default createContainer(() => {
-  const data = Service.mapUsers();
-  return data;
-}, UserListContainer);
+export default createContainer(() => ({
+  users: Service.getUsers(),
+}), UserListContainer);
