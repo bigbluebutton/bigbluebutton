@@ -49,7 +49,9 @@ class NavBar extends Component {
         <div className={styles.center}>
           <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
           <span className={styles.divideBar}> | </span>
-          <RecordButton />
+          <div className={styles.record}>
+            <RecordButton />
+          </div>
         </div>
         <div className={styles.right}>
           <span id="settingsButtonPlaceHolder"></span>
