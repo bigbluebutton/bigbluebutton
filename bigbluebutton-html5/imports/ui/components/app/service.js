@@ -49,10 +49,14 @@ function subscribeFor(collectionName) {
 };
 
 function onError(error, result) {
+
   // console.log("OnError", error, result);
   console.log('OnError', error, result);
   callServer('userLogout');
-  Auth.clearCredentials(document.location = Storage.get('logoutURL'));
+
+  Auth.clearCredentials(() => {
+    document.location = Storage.get('logoutURL');
+  });
 
   if (error == null) {
     window.location.href = Storage.get('logoutURL');

@@ -23,7 +23,7 @@ export default createContainer(() => {
   let meetingTitle = Meetings.find().map(meeting => meeting.meetingName);
 
   return {
-    presentationTitle: meetingTitle.toString(),
+    presentationTitle: meetingTitle,
     hasUnreadMessages: true,
   };
 }, NavBarContainer);

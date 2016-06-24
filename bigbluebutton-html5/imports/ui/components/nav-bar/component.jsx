@@ -31,7 +31,7 @@ class NavBar extends Component {
 
   render() {
     const { presentationTitle } = this.props;
-    document.title = presentationTitle
+    document.title = presentationTitle;
 
     return (
       <div className={styles.navbar}>

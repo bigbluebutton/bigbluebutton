@@ -54,14 +54,14 @@ export default class SettingsModal extends BaseModal {
   }
 
   clickSubmenu(i) {
-     if( this.submenus[i].className != SessionMenu ) {
-       this.setState({ activeSubmenu: i });
-     };
+    if (this.submenus[i].className != SessionMenu) {
+      this.setState({ activeSubmenu: i });
+    };
   }
 
   doubleClickSubmenu(i) {
-    if( this.submenus[i].className == SessionMenu ) {
-      this.setState({ activeSubmenu: i});
+    if (this.submenus[i].className == SessionMenu) {
+      this.setState({ activeSubmenu: i });
     }
   }
 
