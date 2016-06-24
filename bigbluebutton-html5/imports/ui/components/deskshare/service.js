@@ -1,5 +1,5 @@
 import Deskshare from '/imports/api/deskshare';
-import {conferenceUsername, joinVertoAudio, watchVertoVideo} from '/imports/api/verto';
+import {createVertoUserName, joinVertoAudio, watchVertoVideo} from '/imports/api/verto';
 import Auth from '/imports/ui/services/auth';
 import {getVoiceBridge} from '/imports/api/phone';
 
