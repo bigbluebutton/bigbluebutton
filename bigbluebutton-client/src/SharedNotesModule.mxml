@@ -37,17 +37,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
+			import org.bigbluebutton.modules.sharednotes.events.StopSharedNotesModuleEvent;
 			
 			private static const LOGGER:ILogger = getClassLogger(SharedNotesModule);
 
 			private var _moduleName:String = "Notes Module";
 			private var _attributes:Object;
 			
-			private var globalDispatcher:Dispatcher = new Dispatcher();
+			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
 				LOGGER.debug("NotesModule Initialized");
-				globalDispatcher = new Dispatcher();
+				_globalDispatcher = new Dispatcher();
 			}
 			
 			public function get moduleName():String {
@@ -86,12 +87,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function start(attributes:Object):void {	
 				var event:StartSharedNotesModuleEvent = new StartSharedNotesModuleEvent();
 				event.attributes = attributes;
-				globalDispatcher.dispatchEvent(event);
+				_globalDispatcher.dispatchEvent(event);
 			}
 			
 			public function stop():void {
-				//var event:LayoutEvent = new LayoutEvent(LayoutEvent.STOP_LAYOUT_MODULE_EVENT);
-				//_globalDispatcher.dispatchEvent(event);
+				var event:StopSharedNotesModuleEvent = new StopSharedNotesModuleEvent(StopSharedNotesModuleEvent.STOP_SHAREDNOTES_MODULE_EVENT);
+				_globalDispatcher.dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>
