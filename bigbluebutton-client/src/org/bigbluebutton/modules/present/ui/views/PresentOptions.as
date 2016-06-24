@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.present.ui.views
 		[Bindable] public var baseTabIndex:int;
 		[Bindable] public var maxFileSize:Number;
     [Bindable] public var openExternalFileUploadDialog:Boolean = false;
+		[Bindable] public var enableDownload:Boolean = true;
 		
 		public function PresentOptions()
 		{
@@ -48,6 +49,9 @@ package org.bigbluebutton.modules.present.ui.views
 				}
 				else{
 					maxFileSize = 30;
+				}
+				if (vxml.@enableDownload != undefined) {
+					enableDownload = (vxml.@enableDownload.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 			}
 		}

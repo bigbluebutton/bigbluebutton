@@ -86,6 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var genThumbDots:String = ".";
 
       private var fileToUpload:FileReference = new FileReference();
+      [Bindable] private var presentOptions:PresentOptions = new PresentOptions();
 		
       override public function move(x:Number, y:Number):void{
         return;
@@ -309,8 +310,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
-    <mx:Box paddingLeft="5" paddingTop="5">
-      <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="true" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
+    <mx:Box paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}" >
+      <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="{presentOptions.enableDownload}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
     </mx:Box>
     <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
