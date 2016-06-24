@@ -438,11 +438,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 				
 			private function refreshGuestView(evt:RefreshGuestEvent):void {
-				// do not show the guest window if the user isn't moderator or if he's moderator but is still waiting for acceptance
-				if ( ! (
-						UsersUtil.amIModerator() 
-						&& UserManager.getInstance().getConference().getMyUser() != null
-						&& !UserManager.getInstance().getConference().getMyUser().waitingForAcceptance) ) {
+				// do not show the guest window if the user isn't moderator or if he's waiting for acceptance
+				if (!UsersUtil.amIModerator() || UsersUtil.amIWaitingForAcceptance()) {
 					return;
 				}
 				
