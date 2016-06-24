@@ -40,7 +40,6 @@ export default class RectangleDrawComponent extends React.Component {
   }
 
   render() {
-    console.log(this.props.shape);
     let results = this.getCoordinates();
     return (
       <rect

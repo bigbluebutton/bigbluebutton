@@ -8,7 +8,7 @@ const zoomStroke = (thickness, widthRatio, heightRatio) => {
 
 const formatColor = (color) => {
   //let color = this.props.shape.shape.shape.color;
-  if (color == null) {
+  if (!color) {
     color = '0'; // default value
   }
 

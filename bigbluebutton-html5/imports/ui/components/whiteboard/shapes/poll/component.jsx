@@ -63,50 +63,33 @@ export default class PollDrawComponent extends React.Component {
     let y1 = this.props.shape.points[1];
     let initialWidth = this.props.shape.points[2];
     let initialHeight = this.props.shape.points[3];
-    let x;
-    let y;
-    let width;
-    let height;
-    let innerWidth;
-    let innerHeight;
-    let innerX;
-    let innerY;
-    let votesTotal;
-    let maxNumVotes;
-    let textArray;
-    let maxLineWidth;
-    let maxLineHeight;
-    let thickness;
-    let arrayLength;
-    let i;
-    let lineToMeasure;
 
     //calculating the data for the outer rectangle
     //0.001 is needed to accomodate bottom and right borders of the shape
-    x = x1  / 100 * this.props.slideWidth;
-    y = y1  / 100 * this.props.slideHeight;
-    width = (initialWidth - 0.001) / 100 * this.props.slideWidth;
-    height = (initialHeight - 0.001) / 100 * this.props.slideHeight;
+    let x = x1  / 100 * this.props.slideWidth;
+    let y = y1  / 100 * this.props.slideHeight;
+    let width = (initialWidth - 0.001) / 100 * this.props.slideWidth;
+    let height = (initialHeight - 0.001) / 100 * this.props.slideHeight;
 
-    votesTotal = 0;
-    maxNumVotes = 0;
-    textArray = [];
+    let votesTotal = 0;
+    let maxNumVotes = 0;
+    let textArray = [];
 
     //counting the total number of votes, finding the biggest number of votes
-    //and initializing the textArray
-    arrayLength = this.props.shape.result.length;
-    for (i = 0; i < arrayLength; ++i) {
-      let _numVotes = this.props.shape.result[i].num_votes;
-      votesTotal += _numVotes;
-      if (maxNumVotes < _numVotes) {
-        maxNumVotes = _numVotes;
+    this.props.shape.result.reduce(function (previousValue, currentValue, currentIndex, array) {
+      votesTotal += currentValue.num_votes;
+      if (maxNumVotes < currentValue.num_votes) {
+        maxNumVotes = currentValue.num_votes;
       }
-    }
+
+      return votesTotal;
+    });
 
     //filling the textArray with data to display
     //adding value of the iterator to each line needed to create unique
     //keys while rendering at the end
-    for (i = 0; i < arrayLength; ++i) {
+    let arrayLength = this.props.shape.result.length;
+    for (let i = 0; i < arrayLength; ++i) {
       let _tempArray = [];
       let _result = this.props.shape.result[i];
       _tempArray.push(_result.key, _result.num_votes + '');
@@ -123,18 +106,18 @@ export default class PollDrawComponent extends React.Component {
     }
 
     //calculating the data for the inner rectangle
-    innerWidth = width * 0.95;
-    innerHeight = height - width * 0.05;
-    innerX = x + width * 0.025;
-    innerY = y + width * 0.025;
-    thickness = (width - innerWidth) / 10;
+    let innerWidth = width * 0.95;
+    let innerHeight = height - width * 0.05;
+    let innerX = x + width * 0.025;
+    let innerY = y + width * 0.025;
+    let thickness = (width - innerWidth) / 10;
 
     //calculating the maximum possible width and height of the each line
     //25% of the height goes to the padding
-    maxLineWidth = innerWidth / 3;
-    maxLineHeight = innerHeight * 0.75 / textArray.length;
+    let maxLineWidth = innerWidth / 3;
+    let maxLineHeight = innerHeight * 0.75 / textArray.length;
 
-    lineToMeasure = textArray[0];
+    let lineToMeasure = textArray[0];
 
     //saving all the initial calculations in the state
     this.setState({
@@ -171,29 +154,17 @@ export default class PollDrawComponent extends React.Component {
   }
 
   checkSizes() {
-    let i;
-    let k;
-    let maxLeftWidth;
-    let maxRightWidth;
-    let maxDigitWidth;
-    let maxDigitHeight;
-    let key;
-    let votes;
-    let percent;
-    let keySizes;
-    let voteSizes;
-    let percSizes;
     let maxLineWidth = this.state.maxLineWidth;
     let maxLineHeight = this.state.maxLineHeight;
 
     //calculating the font size in this if / else block
     if (this.state.fontSizeDirection != 0) {
-      key = this.props.shape.id + '_key_' + this.state.currentLine;
-      votes = this.props.shape.id + '_votes_' + this.state.currentLine;
-      percent = this.props.shape.id + '_percent_' + this.state.currentLine;
-      keySizes = ReactDOM.findDOMNode(this.refs[key]).getBBox();
-      voteSizes = ReactDOM.findDOMNode(this.refs[votes]).getBBox();
-      percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
+      let key = `${this.props.shape.id}_key_${this.state.currentLine}`;
+      let votes = `${this.props.shape.id}_votes_${this.state.currentLine}`;
+      let percent = `${this.props.shape.id}_percent_${this.state.currentLine}`;
+      let keySizes = ReactDOM.findDOMNode(this.refs[key]).getBBox();
+      let voteSizes = ReactDOM.findDOMNode(this.refs[votes]).getBBox();
+      let percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
 
       //first check if we can still increase the font-size
       if (this.state.fontSizeDirection == 1) {
@@ -244,14 +215,14 @@ export default class PollDrawComponent extends React.Component {
 
     //finding the biggest width and height of the left and right strings,
     //max real line height and max width value for 1 digit
-    maxLeftWidth = 0;
-    maxRightWidth = 0;
+    let maxLeftWidth = 0;
+    let maxRightWidth = 0;
     maxLineHeight = 0;
-    for (i = 0; i < this.state.textArray.length; ++i) {
-      key = this.props.shape.id + '_key_' + i;
-      percent = this.props.shape.id + '_percent_' + i;
-      keySizes = ReactDOM.findDOMNode(this.refs[key]).getBBox();
-      percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
+    for (let i = 0; i < this.state.textArray.length; ++i) {
+      let key = `${this.props.shape.id}_key_${i}`;
+      let percent = `${this.props.shape.id}_percent_${i}`;
+      let keySizes = ReactDOM.findDOMNode(this.refs[key]).getBBox();
+      let percSizes = ReactDOM.findDOMNode(this.refs[percent]).getBBox();
 
       if (keySizes.width > maxLeftWidth) {
         maxLeftWidth = keySizes.width;
@@ -270,9 +241,9 @@ export default class PollDrawComponent extends React.Component {
       }
     }
 
-    let digitRef = this.props.shape.id + '_digit';
-    maxDigitWidth = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().width;
-    maxDigitHeight = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().height;
+    let digitRef = `${this.props.shape.id}_digit`;
+    let maxDigitWidth = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().width;
+    let maxDigitHeight = ReactDOM.findDOMNode(this.refs[digitRef]).getBBox().height;
 
     this.setState({
       maxLeftWidth: maxLeftWidth,
@@ -285,28 +256,6 @@ export default class PollDrawComponent extends React.Component {
   }
 
   renderPoll() {
-    let horizontalPadding;
-    let verticalPadding;
-    let maxBarWidth;
-    let barHeight;
-    let xLeft;
-    let yLeft;
-    let xBar;
-    let yBar;
-    let xRigth;
-    let yRight;
-    let extendedTextArray;
-    let i;
-
-    //coordinates and color of the text inside the line bar
-    //xNumVotesDefault and xNumVotesMovedRight are 2 different x coordinates for the text
-    //since if the line bar is too small then we place the number to the right of the bar
-    let xNumVotesDefault;
-    let xNumVotesMovedRight;
-    let yNumVotes;
-    let xNumVotes;
-    let color;
-
     //*********************************************************************************************
     //******************************************MAGIC NUMBER***************************************
     //There is no automatic vertical centering in SVG.
@@ -319,47 +268,54 @@ export default class PollDrawComponent extends React.Component {
     let magicNumber = this.state.maxDigitHeight / 6;
 
     //maximum height and width of the line bar
-    maxBarWidth = this.state.innerRect.width * 0.9 -
+    let maxBarWidth = this.state.innerRect.width * 0.9 -
       this.state.maxLeftWidth -
       this.state.maxRightWidth;
-    barHeight = this.state.innerRect.height * 0.75 / this.state.textArray.length;
+    let barHeight = this.state.innerRect.height * 0.75 / this.state.textArray.length;
 
     //Horizontal padding
-    horizontalPadding = this.state.innerRect.width * 0.1 / 4;
+    let horizontalPadding = this.state.innerRect.width * 0.1 / 4;
 
     //Vertical padding
-    verticalPadding = this.state.innerRect.height * 0.25 / (this.state.textArray.length + 1);
+    let verticalPadding = this.state.innerRect.height * 0.25 / (this.state.textArray.length + 1);
 
     //Initial coordinates of the key column
-    yLeft = this.state.innerRect.y + verticalPadding + barHeight / 2 - magicNumber;
-    xLeft = this.state.innerRect.x + horizontalPadding + 1;
+    let yLeft = this.state.innerRect.y + verticalPadding + barHeight / 2 - magicNumber;
+    let xLeft = this.state.innerRect.x + horizontalPadding + 1;
 
     //Initial coordinates of the line bar column
-    xBar = this.state.innerRect.x + this.state.maxLeftWidth + horizontalPadding * 2;
-    yBar = this.state.innerRect.y + verticalPadding;
+    let xBar = this.state.innerRect.x + this.state.maxLeftWidth + horizontalPadding * 2;
+    let yBar = this.state.innerRect.y + verticalPadding;
 
     //Initial coordinates of the percentage column
-    yRight = this.state.innerRect.y + verticalPadding + barHeight / 2 - magicNumber;
-    xRight = this.state.innerRect.x +
+    let yRight = this.state.innerRect.y + verticalPadding + barHeight / 2 - magicNumber;
+    let xRight = this.state.innerRect.x +
       horizontalPadding * 3 +
       this.state.maxLeftWidth +
       this.state.maxRightWidth +
       maxBarWidth + 1;
 
-    yNumVotes = this.state.innerRect.y + verticalPadding - magicNumber;
-    extendedTextArray = [];
-    for (i = 0; i < this.state.textArray.length; i++) {
+    let yNumVotes = this.state.innerRect.y + verticalPadding - magicNumber;
+    let extendedTextArray = [];
+    for (let i = 0; i < this.state.textArray.length; i++) {
       if (this.state.maxNumVotes == 0 || this.props.shape.result[i].num_votes === 0) {
         barWidth = 1;
       } else {
         barWidth = this.props.shape.result[i].num_votes / this.state.maxNumVotes * maxBarWidth;
       }
 
-      xNumVotesDefault = this.state.innerRect.x + this.state.maxLeftWidth + horizontalPadding * 2;
-      xNumVotesMovedRight = xNumVotesDefault +
+      //coordinates and color of the text inside the line bar
+      //xNumVotesDefault and xNumVotesMovedRight are 2 different x coordinates for the text
+      //since if the line bar is too small then we place the number to the right of the bar
+      let xNumVotesDefault = this.state.innerRect.x +
+        this.state.maxLeftWidth +
+        horizontalPadding * 2;
+      let xNumVotesMovedRight = xNumVotesDefault +
         barWidth / 2 +
         this.state.maxDigitWidth / 2;
 
+      let xNumVotes;
+      let color;
       if (barWidth < this.state.maxDigitWidth + 8) {
         xNumVotes = xNumVotesMovedRight;
         color = '#333333';
@@ -370,7 +326,7 @@ export default class PollDrawComponent extends React.Component {
 
       extendedTextArray[i] =
         {
-          key: this.props.shape.id + '_' + this.state.textArray[i][3],
+          key: `${this.props.shape.id}_${this.state.textArray[i][3]}`,
           keyColumn: {
             keyString: this.state.textArray[i][0],
             xLeft: xLeft,
@@ -433,7 +389,7 @@ export default class PollDrawComponent extends React.Component {
               x={line.keyColumn.xLeft}
               y={line.keyColumn.yLeft}
               dy={this.state.maxLineHeight / 2}
-              key={line.key + '_key'}
+              key={`${line.key}_key`}
             >
               {line.keyColumn.keyString}
             </tspan>
@@ -441,7 +397,7 @@ export default class PollDrawComponent extends React.Component {
         </text>
         {extendedTextArray.map((line) =>
         <rect
-          key={line.key + '_bar'}
+          key={`${line.key}_bar`}
           x={line.barColumn.xBar}
           y={line.barColumn.yBar}
           width={line.barColumn.barWidth}
@@ -465,7 +421,7 @@ export default class PollDrawComponent extends React.Component {
               x={line.percentColumn.xRight}
               y={line.percentColumn.yRight}
               dy={this.state.maxLineHeight / 2}
-              key={line.key + '_percent'}
+              key={`${line.key}_percent`}
             >
               {line.percentColumn.percentString}
             </tspan>
@@ -483,7 +439,7 @@ export default class PollDrawComponent extends React.Component {
               x={line.barColumn.xNumVotes + line.barColumn.barWidth / 2}
               y={line.barColumn.yNumVotes + line.barColumn.barHeight / 2}
               dy={this.state.maxLineHeight / 2}
-              key={line.key + '_num_votes'}
+              key={`${line.key}_num_votes`}
               fill={line.barColumn.color}
             >
               {line.barColumn.numVotes}
@@ -497,11 +453,11 @@ export default class PollDrawComponent extends React.Component {
   renderLine(line) {
     //this func just renders the strings for one line
     return (
-      <g key={this.props.shape.id + '_line_' + line[3]}>
+      <g key={`${this.props.shape.id}_line_${line[3]}`}>
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={this.props.shape.id + '_key_' + line[3]}
+          ref={`${this.props.shape.id}_key_${line[3]}`}
         >
           <tspan>
             {line[0]}
@@ -510,7 +466,7 @@ export default class PollDrawComponent extends React.Component {
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={this.props.shape.id + '_votes_' + line[3]}
+          ref={`${this.props.shape.id}_votes_${line[3]}`}
         >
           <tspan>
             {line[1]}
@@ -519,7 +475,7 @@ export default class PollDrawComponent extends React.Component {
         <text
           fontFamily="Arial"
           fontSize={this.state.calcFontSize}
-          ref={this.props.shape.id + '_percent_' + line[3]}
+          ref={`${this.props.shape.id}_percent_${line[3]}`}
         >
           <tspan>
             {line[2]}
@@ -544,7 +500,7 @@ export default class PollDrawComponent extends React.Component {
           <text
             fontFamily="Arial"
             fontSize={this.state.calcFontSize}
-            ref={this.props.shape.id + '_digit'}
+            ref={`${this.props.shape.id}_digit`}
           >
             <tspan>
               0

@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import ShapeHelpers from '../helpers.js';
-import ReactDOM from 'react-dom';
 
 export default class TextDrawComponent extends React.Component {
   constructor(props) {
@@ -8,23 +7,14 @@ export default class TextDrawComponent extends React.Component {
   }
 
   getCoordinates() {
-    let x;
-    let y;
-    let width;
-    let height;
-    let fontSize;
-    let fontColor;
-    let calcedFontSize;
-    let text;
-
-    x = this.props.shape.x / 100 * this.props.slideWidth;
-    y = this.props.shape.y / 100 * this.props.slideHeight;
-    width = this.props.shape.textBoxWidth / 100 * this.props.slideWidth;
-    height = this.props.shape.textBoxHeight / 100 * this.props.slideHeight;
-    fontColor = ShapeHelpers.formatColor(this.props.shape.fontColor);
-    fontSize = this.props.shape.fontSize;
-    calcedFontSize = this.props.shape.calcedFontSize / 100 * this.props.slideHeight;
-    text = this.props.shape.text;
+    let x = this.props.shape.x / 100 * this.props.slideWidth;
+    let y = this.props.shape.y / 100 * this.props.slideHeight;
+    let width = this.props.shape.textBoxWidth / 100 * this.props.slideWidth;
+    let height = this.props.shape.textBoxHeight / 100 * this.props.slideHeight;
+    let fontColor = ShapeHelpers.formatColor(this.props.shape.fontColor);
+    let fontSize = this.props.shape.fontSize;
+    let calcedFontSize = this.props.shape.calcedFontSize / 100 * this.props.slideHeight;
+    let text = this.props.shape.text;
 
     return {
       x: x,

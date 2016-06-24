@@ -7,22 +7,16 @@ export default class TriangleDrawComponent extends React.Component {
   }
 
   getCoordinates() {
-    let xTop;
-    let yTop;
-    let xBottomLeft;
-    let yBottomLeft;
-    let xBottomRight;
-    let yBottomRight;
     let path = '';
 
     //points[0] and points[1] are x and y coordinates of the top left corner of the shape obj
     //points[2] and points[3] are x and y coordinates of the bottom right corner of the shape obj
-    xBottomLeft = this.props.shape.points[0];
-    yBottomLeft = this.props.shape.points[3];
-    xBottomRight = this.props.shape.points[2];
-    yBottomRight = this.props.shape.points[3];
-    xTop = ((xBottomRight - xBottomLeft) / 2) + xBottomLeft;
-    yTop = this.props.shape.points[1];
+    let xBottomLeft = this.props.shape.points[0];
+    let yBottomLeft = this.props.shape.points[3];
+    let xBottomRight = this.props.shape.points[2];
+    let yBottomRight = this.props.shape.points[3];
+    let xTop = ((xBottomRight - xBottomLeft) / 2) + xBottomLeft;
+    let yTop = this.props.shape.points[1];
 
     path = path + 'M' + (xTop / 100 * this.props.slideWidth) +
         ',' + (yTop / 100 * this.props.slideHeight) +
