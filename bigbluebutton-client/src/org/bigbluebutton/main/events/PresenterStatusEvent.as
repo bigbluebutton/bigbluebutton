@@ -25,6 +25,8 @@ package org.bigbluebutton.main.events
 		public static const PRESENTER_NAME_CHANGE:String = "PRESENTER_NAME_CHANGE";
 		public static const SWITCH_TO_VIEWER_MODE:String = "VIEWER_MODE";
 		public static const SWITCH_TO_PRESENTER_MODE:String = "PRESENTER_MODE";
+		public static const SWITCHED_TO_PRESENTATION_TAB:String = "SWITCHED TO PRESENTATION TAB";
+		public static const SWITCHED_TO_DESKSHARE_TAB:String = "SWITCHED TO DESKSHARE TAB";
 		
 		public var presenterName:String;
 		public var assignerBy:Number;

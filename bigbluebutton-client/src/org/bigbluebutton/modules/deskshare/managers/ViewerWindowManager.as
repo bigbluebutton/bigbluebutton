@@ -28,7 +28,8 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
-			
+	import org.bigbluebutton.modules.deskshare.events.ShareEvent;
+
 	public class ViewerWindowManager {		
 		private static const LOGGER:ILogger = getClassLogger(ViewerWindowManager);
 
@@ -51,10 +52,10 @@ package org.bigbluebutton.modules.deskshare.managers
 			service.sendStartedViewingNotification(stream);
 		}
 						
-		private function openWindow(window:IBbbModuleWindow):void{				
-			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			event.window = window;
-			globalDispatcher.dispatchEvent(event);
+		private function openWindow(window:IBbbModuleWindow):void{
+			var e:ShareEvent = new ShareEvent(ShareEvent.OPEN_DESKTOP_VIEW_TAB);
+			e.viewTabContent = window as DesktopViewWindow;
+			globalDispatcher.dispatchEvent(e);
 		}
 			
 		public function handleViewWindowCloseEvent():void {
@@ -64,9 +65,8 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 		
 		private function closeWindow(window:IBbbModuleWindow):void {
-			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-			event.window = window;
-			globalDispatcher.dispatchEvent(event);
+			var e:ShareEvent = new ShareEvent(ShareEvent.CLOSE_DESKTOP_VIEW_TAB);
+			globalDispatcher.dispatchEvent(e);
 		}
 			
 		public function startViewing(room:String, videoWidth:Number, videoHeight:Number):void{

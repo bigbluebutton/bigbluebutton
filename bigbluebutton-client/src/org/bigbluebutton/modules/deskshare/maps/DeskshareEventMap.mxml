@@ -47,11 +47,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 		
 	<EventHandlers type="{ShareEvent.START_SHARING}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent" arguments="{false}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.SHARE_SCREEN}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleShareScreenEvent" arguments="{event.fullScreen}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.STOP_SHARING}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleStopSharingEvent"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent" arguments="{true}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">

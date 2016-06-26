@@ -41,6 +41,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
   <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
   <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
+  <mate:Listener type="{PresenterStatusEvent.SWITCHED_TO_PRESENTATION_TAB}" method="handlePresentationTabSelected" />
+  <mate:Listener type="{PresenterStatusEvent.SWITCHED_TO_DESKSHARE_TAB}" method="handleDeskshareTabSelected" />
     
   <mx:Style>
     .colorPickerStyle {
@@ -74,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.MadePresenterEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.events.PresenterStatusEvent;
 		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 		import org.bigbluebutton.modules.present.events.NavigationEvent;
 		import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -115,6 +118,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var mousedOver:Boolean = false;
 			private var slideLoaded:Boolean = false;
+			private var presentationTabSelected:Boolean = true;
 			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
@@ -250,7 +254,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver)) {
+                if (toolbarAllowed() && slideLoaded && presentationTabSelected && (wbOptions.keepToolbarVisible || mousedOver)) {
                     setPositionAndDepth();
                     showWhiteboardToolbar = true;
                 } else {
@@ -327,7 +331,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function get isModerator():Boolean {
         return UsersUtil.amIModerator();
       }
-		           
+
+      private function handlePresentationTabSelected(e:PresenterStatusEvent):void {
+        presentationTabSelected = true;
+        checkVisibility();
+      }
+
+      private function handleDeskshareTabSelected(e:PresenterStatusEvent):void {
+        presentationTabSelected = false;
+        checkVisibility();
+      }
+
 		]]>
 	</mx:Script>
 	

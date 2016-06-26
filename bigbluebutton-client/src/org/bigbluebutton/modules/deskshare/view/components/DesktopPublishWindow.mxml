@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<dspub:CustomMdiWindow 
+<mx:VBox
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
@@ -29,20 +29,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	initialize="init()"
 	creationComplete="onCreationComplete()"	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	width="365" height="350"
-	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
-	resizable="false">
+	width="365" height="350">
 	
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
 	<mate:Listener type="{DeskshareAppletLaunchedEvent.APPLET_LAUNCHED}" method="handleDeskshareAppletLaunchedEvent" />
-	<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-	
 	
 	<mx:Script>
 		<![CDATA[
@@ -54,6 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -63,20 +57,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
-			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 			import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
+			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
 			
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
 
 			public static const SCALE:Number = 5;
-			private static const VID_HEIGHT_PAD:Number = 73;
-			private static const VID_WIDTH_PAD:Number = 6;
+			private static const VID_HEIGHT_PAD:Number = 40;
+			private static const VID_WIDTH_PAD:Number = 3;
 			
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -97,7 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoWidth:Number;
 			private var captureHeight:Number = Capabilities.screenResolutionY;
 			private var captureWidth:Number = Capabilities.screenResolutionX;
-			private var autoStart:Boolean = false;
+			public var autoStart:Boolean = false;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			private var javaTimer:Timer;
 			
@@ -111,8 +105,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				windowControls.maximizeRestoreBtn.enabled = false;
-				
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
@@ -136,15 +128,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 				resourcesChanged();
-				
-				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
-				titleBarOverlay.focusEnabled = true;
 			}
-			
-			private function remoteFocus(e:ShortcutEvent):void{
-				focusManager.setFocus(minimizeBtn);
-			}
-			
+
 			public function get defaultWidth():int{
 				return this.width;
 			}
@@ -177,13 +162,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.room = room;				
 				this.autoStart = autoStart;
 				/*if(autoFullScreen)
-					shareScreen(true);*/		
+					shareScreen(true);*/
 			}
-			
+
 			public function shareScreen(fullScreen:Boolean):void {
 				LOGGER.debug("Calling shareScreen");
-				btnFSPublish.enabled = false;
-				btnRegionPublish.enabled = false;
 //				useSVC2Check.enabled = false;
 				javaTimer = new Timer(7000, 1);
 				javaTimer.addEventListener(TimerEvent.TIMER, onJavaTimer);
@@ -210,18 +193,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 									
 				closeWindow();
 			}
-
-			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
-				if (streaming) {
-					stopStream();
-					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
-					dispatchEvent(streamEvent);					
-				}
-				sharingFullScreen = false;
-				streaming = false;
-									
-				closeWindow();
-			}
 			
 			private function onJavaTimer(e:TimerEvent):void {
 				var browser:Array = ExternalInterface.call("determineBrowser");
@@ -229,7 +200,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					javaHelpArea.visible = javaHelpArea.includeInLayout = true;
 			}
 			
-			private function onUpdateCursorEvent(event:CursorEvent):void {	
+			private function onUpdateCursorEvent(event:CursorEvent):void {
+				if(cursor == null || video == null)
+				    return;
+
 				// DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
 				cursor.x = video.x + ((event.x/captureWidth)) * video.width;
@@ -246,9 +220,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
-				if (!connection.connected) return;
+				if (!connection.connected || !UsersUtil.amIPresenter()) return;
 				
 				LOGGER.debug("DeskShareWindow::onAppletStart");
+				clickBelowtoShareInfo.visible = false;
+				clickBelowtoShareInfo.includeInLayout = false;
 				startPreviewStream(connection, room, event.videoWidth, event.videoHeight);
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
 				streamEvent.videoWidth = event.videoWidth;
@@ -256,7 +232,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(streamEvent);
 			}
 			
-			private function startPreviewStream(nc:NetConnection, streamName:String, capWidth:Number, capHeight:Number):void{				
+			private function startPreviewStream(nc:NetConnection, streamName:String, capWidth:Number, capHeight:Number):void{
+				if(cursor == null || cursorImg == null)
+				    return;
+
 				streaming = true;
 				
 				// Store capture dimensions so we can position cursor properly.
@@ -284,6 +263,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				LOGGER.debug("deskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
+				if(vidW <= 0 || vidH <=0) {
+					LOGGER.debug("Video dimensions are not valid. Returning.");
+					return;
+				}
+
 				video = new Video(vidW, vidH);
 				video.width = vidW;
 				video.height = vidH;
@@ -292,7 +276,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
 				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
 
-				
+				videoHolder.percentWidth = 100;
+				videoHolder.percentHeight = 100;
 				videoHolder.addChild(video);
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
@@ -308,17 +293,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.receiveAudio(false);
 				video.attachNetStream(ns);
 				ns.play(streamName);
-				
-				btnClosePublish.enabled = true;
-				btnFSPublish.enabled = false;				
-				btnRegionPublish.enabled = false;
 			}
 			
 			private function stopStream():void{
 				streaming = false;
 				captureHeight = Capabilities.screenResolutionY;
 				captureWidth = Capabilities.screenResolutionX;
-				ns.close();
+				if(ns != null)
+				   ns.close();
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
@@ -338,11 +320,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					LOGGER.debug("Netstatus: {0}", [e.info.code]);
 					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
 				}
-			}
-			
-			private function onChangedPresenter(e:Event):void{
-				stopSharing();
-				closeWindow();
 			}
 
       private function callStopApplet():void {
@@ -368,36 +345,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (javaTimer && javaTimer.running) {
 					javaTimer.stop();
 				}
-				javaHelpArea.visible = javaHelpArea.includeInLayout = false;
+				if (javaHelpArea != null)
+					javaHelpArea.visible = javaHelpArea.includeInLayout = false;
 			}
-			
-			/*
-			 * Override the close handler. We want the Event Map to send a message to
-			 * the MDIManager to close this window;
-			 */
-			override public function close(event:MouseEvent = null):void {
-				stopSharing();
-				closeWindow();
-			}		
 			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
-				
-				if (titleBarOverlay != null) {
-					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
-				}
-				
-				if (windowControls != null) {
-					minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.minimizeBtn.toolTip');
-					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.minimizeBtn.accessibilityName");
-
-					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.maximizeRestoreBtn.toolTip');
-					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.maximizeRestoreBtn.accessibilityName");
-
-					closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn.toolTip');
-					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.closeBtn.accessibilityName");
-				}
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -408,11 +361,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stopStream();
 				closeWindow();
 			}
+
+			public function canPublish():Boolean {
+				if (BrowserCheck.isUsingLessThanChrome38OnMac()) {
+					return false;
+				} else if (BrowserCheck.isUsingEdgePluginUnsupported()) {
+					return false;
+				} else {
+					var javaIssue:String = JavaCheck.checkJava();
+					if (javaIssue != null) {
+						if (BrowserCheck.isChrome42OrHigher()) {
+							return false;
+						} else {
+							return false;
+						}
+					} else {
+						return true;
+					}
+				}
+			}
 		]]>
 	</mx:Script>
-
-	<dspub:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}"
-					  tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnFSPublish, btnClosePublish, btnRegionPublish]}"/>
 
 	<!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
 	<mx:VBox id="javaHelpArea" includeInLayout="false" visible="false" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
@@ -421,36 +390,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeHint.message')}" />
 		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeHint.button')}" click="restartJava()"/>
 	</mx:VBox>
-	<dspub:states>	    
+	<mx:states>
         <mx:State name="dispFullRegionControlBar">   
             <mx:AddChild>
-              <mx:ControlBar id="fullRegionBottomBar">
-                <mx:VBox width="100%" height="100%" horizontalAlign="center">
-                  <mx:HBox horizontalAlign="center">
-                    <mx:Button id="btnFSPublish" 
-                               toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" 
-                               label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
-                               visible="true" 
-                               click="shareScreen(true)" />
-                    <mx:Spacer width="100%"/>
-                    <mx:Button id="btnClosePublish" 
-                               toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
-                               label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" 
-                               visible="true" 
-                               enabled="false" 
-                               click="stopSharing()" />
-                    <mx:Spacer width="100%"/>
-                    <mx:Button id="btnRegionPublish"
-                               toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
-                               label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
-                               visible="true" 
-                               click="shareScreen(false)" 
-                               focusEnabled="false"
-                               tabEnabled="false"/>
-                    <mx:Spacer width="100%"/>                      
-                  </mx:HBox>
-                </mx:VBox>
-              </mx:ControlBar>
+              <mx:VBox id="clickBelowtoShareInfo" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+                <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.clickBelowToShareHint')}" />
+              </mx:VBox>
             </mx:AddChild>
         </mx:State>	
 		<mx:State name="chromeOnMacWarningState">
@@ -484,7 +429,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>
-	</dspub:states>
+	</mx:states>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
-</dspub:CustomMdiWindow>
+</mx:VBox>
