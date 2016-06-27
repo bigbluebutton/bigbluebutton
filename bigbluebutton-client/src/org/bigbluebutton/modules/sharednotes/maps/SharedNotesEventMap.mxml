@@ -59,8 +59,8 @@
    	</EventHandlers>
     
 	<EventHandlers type="{StopSharedNotesModuleEvent.STOP_SHAREDNOTES_MODULE_EVENT}">       
-    		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="removeToolbarButton"/> 
-		<MethodInvoker generator="{SharedNotesManager}" method="disconnectFromSharedNotes"/>
+		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="stopSharedNotesRemoveAll"/>
+		<!-- <MethodInvoker generator="{SharedNotesManager}" method="disconnectFromSharedNotes"/> -->
 	</EventHandlers>
 
 	<EventHandlers type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}">       
