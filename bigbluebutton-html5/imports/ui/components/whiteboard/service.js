@@ -23,7 +23,7 @@ let getWhiteboardData = () => {
   }
 
   return {
-    current_slide: currentSlide,
+    currentSlide: currentSlide,
     shapes: shapes,
   };
 };

@@ -11,9 +11,9 @@ export default class Whiteboard extends React.Component {
   }
 
   renderWhiteboard() {
-    let slideObj = this.props.current_slide;
-    if (this.props.current_slide) {
-      slideObj = this.props.current_slide.slide;
+    let slideObj = this.props.currentSlide;
+    if (this.props.currentSlide) {
+      slideObj = this.props.currentSlide.slide;
       let x = -slideObj.x_offset * 2 * slideObj.width / 100;
       let y = -slideObj.y_offset * 2 * slideObj.height / 100;
       let viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
@@ -46,7 +46,7 @@ export default class Whiteboard extends React.Component {
               </clipPath>
             </defs>
             <g clipPath="url(#viewBox)">
-              <Slide current_slide={this.props.current_slide}/>
+              <Slide currentSlide={this.props.currentSlide}/>
               {this.props.shapes ? this.props.shapes.map((shape) =>
                 <WhiteboardShapeModel
                   shape={shape.shape}
