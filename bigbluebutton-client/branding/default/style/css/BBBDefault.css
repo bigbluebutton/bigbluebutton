@@ -576,7 +576,7 @@ TitleWindow {
   fontWeight: bold;    
 }
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
   fontFamily: Arial;
   fontSize: 14;    
 }
@@ -617,7 +617,7 @@ TitleWindow {
 	icon:   Embed('assets/images/headset.png');
 }
 
-.micSettingsWindowCancelButtonStyle {
+.micSettingsWindowCancelButtonStyle, inactivityWarningWindowCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;

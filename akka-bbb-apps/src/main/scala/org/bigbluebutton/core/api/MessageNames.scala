@@ -177,4 +177,6 @@ object MessageNames {
   val CREATE_ADDITIONAL_NOTES_REPLY = "create_additional_notes_reply"
   val DESTROY_ADDITIONAL_NOTES_REPLY = "destroy_additional_notes_reply"
   val GET_ALL_MEETINGS_REPLY = "get_all_meetings_reply"
+  val INACTIVITY_WARNING = "inactivity_warning_message"
+  val MEETING_IS_ACTIVE = "meeting_is_active_message"
 }

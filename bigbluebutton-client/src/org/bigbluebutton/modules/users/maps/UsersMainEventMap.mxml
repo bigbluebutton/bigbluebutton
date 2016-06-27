@@ -89,7 +89,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
     <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
   </EventHandlers>
-  
+
+  <EventHandlers type="{BBBEvent.ACTIVITY_RESPONSE_EVENT}">
+    <MethodInvoker generator="{UserService}" method="activityResponse" />
+  </EventHandlers>
+
   <EventHandlers type="{KickUserEvent.KICK_USER}" >
     <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
   </EventHandlers>

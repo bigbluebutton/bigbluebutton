@@ -65,6 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
 	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+	<mate:Listener type="{BBBEvent.INACTIVITY_WARNING_EVENT}" method="handleInactivityWarningEvent" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 
@@ -621,6 +622,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						micSettings.y = point1.y - (micSettings.height/2);
 					});
 				});
+			}
+
+			private function handleInactivityWarningEvent(e:BBBEvent):void {
+				var inactivityWarning:InactivityWarningWindow = PopUpManager.createPopUp(mdiCanvas, InactivityWarningWindow, true) as InactivityWarningWindow;
+				inactivityWarning.duration = e.payload.duration;
+				PopUpManager.centerPopUp(inactivityWarning);
 			}
 			
       private function openVideoPreviewWindow(event:BBBEvent):void {

@@ -324,4 +324,9 @@ public class MessagePublisher {
 		LogoutEndMeetingRequestMessage msg = new LogoutEndMeetingRequestMessage(meetingId, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
+
+	public void activityResponse(String meetingID) {
+		ActivityResponseMessage msg = new ActivityResponseMessage(meetingID);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
+	}
 }
