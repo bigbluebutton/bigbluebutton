@@ -12,7 +12,7 @@ export function clearPollCollection() {
   }) != null) {
     return Polls.remove({
       meetingId: meetingId,
-      poll: { id: pollId },
+      'poll.id': pollId,
     }, logger.info(`cleared Polls Collection (meetingId: ${meetingId}, pollId: ${pollId}!)`));
   } else {
     return Polls.remove({}, logger.info('cleared Polls Collection (all meetings)!'));
