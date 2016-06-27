@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
+import _ from 'underscore';
 import styles from './styles';
 
 import MessageListItem from './message-list-item/component';
@@ -14,9 +15,20 @@ export default class MessageList extends Component {
     node.scrollTop = node.scrollHeight;
   }
 
-  componentWillUpdate() {
+  componentWillUpdate(nextProps) {
     const node = findDOMNode(this);
     this.shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
+
+    const d = document;
+    const isDocumentHidden = d.hidden || d.mozHidden || d.msHidden || d.webkitHidden;
+    if (isDocumentHidden) {
+      this.shouldScrollBottom = false;
+    }
+
+    const lastMessage = _.last(nextProps.messages);
+    if (lastMessage.sender.isCurrent) {
+      this.shouldScrollBottom = true;
+    }
   }
 
   componentDidUpdate() {
