@@ -40,7 +40,7 @@ package org.bigbluebutton.main.model
 			refreshGuestView();
 		}
 
-		private function refreshGuestView():void {
+		public function refreshGuestView():void {
 			var refreshGuestEvent:RefreshGuestEvent = new RefreshGuestEvent();
 			refreshGuestEvent.listOfGuests = guest.getGuests();
 			dispatcher.dispatchEvent(refreshGuestEvent);
