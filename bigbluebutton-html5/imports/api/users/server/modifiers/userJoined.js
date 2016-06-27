@@ -21,9 +21,8 @@ const parseMessage = (message) => {
 
 export function userJoined(meetingId, user, callback) {
   let welcomeMessage;
-  let meetingObject;
-  let userId = user.userid;
-  let userObject = Users.findOne({
+  const userId = user.userid;
+  const userObject = Users.findOne({
     userId: user.userid,
     meetingId: meetingId,
   });
@@ -84,7 +83,7 @@ export function userJoined(meetingId, user, callback) {
         return funct(callback);
       }
     });
-    meetingObject = Meetings.findOne({
+    const meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
     if (meetingObject != null) {

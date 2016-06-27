@@ -2,10 +2,6 @@ import Shapes from '/imports/api/shapes';
 import { logger } from '/imports/startup/server/logger';
 
 export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
-  let entry;
-  let id;
-  let removeTempTextShape;
-
   //A separate check for the polling shape before adding the object to the collection
   //Meteor stringifies an array of JSONs (...shape.result) in this message
   //Parsing the String and reassigning the value
@@ -16,7 +12,7 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
 
   if (shapeObject != null && shapeObject.shape_type === 'text') {
     logger.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
-    entry = {
+    const entry = {
       meetingId: meetingId,
       whiteboardId: whiteboardId,
       shape: {
@@ -72,7 +68,7 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
       'shape.id': shapeObject.shape.id,
     });
     if (shape != null) {
-      return id = Shapes.update({
+      Shapes.update({
         'shape.id': shapeObject.shape.id,
       }, {
         $set: {
@@ -80,7 +76,7 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
         },
       });
     } else {
-      entry = {
+      const entry = {
         meetingId: meetingId,
         whiteboardId: whiteboardId,
         shape: {
@@ -104,7 +100,7 @@ export function addShapeToCollection(meetingId, whiteboardId, shapeObject) {
           },
         },
       };
-      return id = Shapes.insert(entry);
+      Shapes.insert(entry);
     }
   }
 };

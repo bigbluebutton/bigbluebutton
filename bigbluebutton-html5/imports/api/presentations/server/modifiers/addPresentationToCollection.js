@@ -2,12 +2,12 @@ import Presentations from '/imports/api/presentations';
 
 export function addPresentationToCollection(meetingId, presentationObject) {
   //check if the presentation is already in the collection
-  let presentationObj = Presentations.findOne({
+  const presentationObj = Presentations.findOne({
     meetingId: meetingId,
     'presentation.id': presentationObject.id,
   });
   if (presentationObj == null) {
-    let entry = {
+    const entry = {
       meetingId: meetingId,
       presentation: {
         id: presentationObject.id,

@@ -5,7 +5,8 @@ import Users from '/imports/api/users';
 export function handleLockingMic(meetingId, newSettings) {
   // send mute requests for the viewer users joined with mic
   let userObject;
-  let userObjects = Users.find({
+  let results = [];
+  const userObjects = Users.find({
     meetingId: meetingId,
     'user.role': 'VIEWER',
     'user.listenOnly': false,
@@ -13,9 +14,8 @@ export function handleLockingMic(meetingId, newSettings) {
     'user.voiceUser.joined': true,
     'user.voiceUser.muted': false,
   }).fetch();
+  const _userObjectsLength = userObjects.length;
 
-  _userObjectsLength = userObjects.length;
-  let results = [];
   for (let i = 0; i < _userObjectsLength; i++) {
     userObject = userObjects[i];
     results.push(Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId,

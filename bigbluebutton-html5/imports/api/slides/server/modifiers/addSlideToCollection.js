@@ -2,26 +2,22 @@ import sizeOf from 'image-size';
 import Slides from '/imports/api/slides';
 
 export function addSlideToCollection(meetingId, presentationId, slideObject) {
-  let entry;
-  let options;
-  let dimensions;
-
-  let url = Npm.require('url');
-  let http = Npm.require('http');
+  const url = Npm.require('url');
+  const http = Npm.require('http');
 
   if (Slides.findOne({
     meetingId: meetingId,
     'slide.id': slideObject.id,
   }) == null) {
-    options = url.parse(slideObject.svg_uri);
+    const options = url.parse(slideObject.svg_uri);
     http.get(options, Meteor.bindEnvironment(function (response) {
     let chunks = [];
     response.on('data', Meteor.bindEnvironment(function (chunk) {
       chunks.push(chunk);
     })).on('end', Meteor.bindEnvironment(function () {
       let buffer = Buffer.concat(chunks);
-      dimensions = sizeOf(buffer);
-      entry = {
+      const dimensions = sizeOf(buffer);
+      const entry = {
         meetingId: meetingId,
         presentationId: presentationId,
         slide: {

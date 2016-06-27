@@ -9,18 +9,18 @@ Meteor.methods({
   publishSwitchToNextSlideMessage(credentials) {
     const { meetingId, requesterUserId, requesterToken } = credentials;
 
-    let currentPresentationDoc = Presentations.findOne({
+    const currentPresentationDoc = Presentations.findOne({
       meetingId: meetingId,
       'presentation.current': true,
     });
     if (currentPresentationDoc != null) {
-      let currentSlideDoc = Slides.findOne({
+      const currentSlideDoc = Slides.findOne({
         meetingId: meetingId,
         presentationId: currentPresentationDoc.presentation.id,
         'slide.current': true,
       });
       if (currentSlideDoc != null) {
-        let nextSlideDoc = Slides.findOne({
+        const nextSlideDoc = Slides.findOne({
           meetingId: meetingId,
           presentationId: currentPresentationDoc.presentation.id,
           'slide.num': currentSlideDoc.slide.num + 1,

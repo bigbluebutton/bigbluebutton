@@ -11,21 +11,21 @@ Meteor.methods({
   // requesterUserId: the userId of the requester
   // requesterToken: the authToken of the requester
   listenOnlyRequestToggle(credentials, isJoining) {
-    const { meetingId, requesterUserId, requesterToken } = credentials;
-
     let username;
     let voiceConf;
-    let meetingObject = Meetings.findOne({
+    const { meetingId, requesterUserId, requesterToken } = credentials;
+    const meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
-    if (meetingObject != null) {
-      voiceConf = meetingObject.voiceConf;
-    }
-
     const userObject = Users.findOne({
       meetingId: meetingId,
       userId: requesterUserId,
     });
+
+    if (meetingObject != null) {
+      voiceConf = meetingObject.voiceConf;
+    }
+
     if (userObject != null) {
       username = userObject.user.name;
     }

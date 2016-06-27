@@ -3,7 +3,7 @@ import Presentations from '/imports/api/presentations';
 import { logger } from '/imports/startup/server/logger';
 
 export function removePresentationFromCollection(meetingId, presentationId) {
-  let presentationObject = Presentations.findOne({
+  const presentationObject = Presentations.findOne({
     meetingId: meetingId,
     'presentation.id': presentationId,
   });

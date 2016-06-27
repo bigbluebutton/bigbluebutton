@@ -1,13 +1,13 @@
 import { clearUsersCollection } from '/imports/api/users/server/modifiers/clearUsersCollection';
 import { clearChatCollection} from '/imports/api/chat/server/modifiers/clearChatCollection';
-import { clearMeetingsCollection} from '../../meetings/server/modifiers/clearMeetingsCollection';
 import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
 import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
 import { clearPresentationsCollection }
-  from '../../presentations/server/modifiers/clearPresentationsCollection';
+  from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
+import { clearMeetingsCollection}
+  from '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
 import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
-
 import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server';
 
