@@ -13,8 +13,9 @@ Meteor.methods({
   listenOnlyRequestToggle(credentials, isJoining) {
     const { meetingId, requesterUserId, requesterToken } = credentials;
 
-    let username, voiceConf, meetingObject;
-    meetingObject = Meetings.findOne({
+    let username;
+    let voiceConf;
+    let meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
     if (meetingObject != null) {
@@ -40,7 +41,10 @@ Meteor.methods({
           },
         };
         message = appendMessageHeader('user_connected_to_global_audio', message);
-        logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${requesterUserId}`);
+        logger.info(
+          `publishing a user listenOnly toggleRequest ${isJoining} ` +
+          `request for ${requesterUserId}`
+        );
         publish(redisConfig.channels.toBBBApps.meeting, message);
       }
     } else {
@@ -54,7 +58,10 @@ Meteor.methods({
           },
         };
         message = appendMessageHeader('user_disconnected_from_global_audio', message);
-        logger.info(`publishing a user listenOnly toggleRequest ${isJoining} request for ${requesterUserId}`);
+        logger.info(
+          `publishing a user listenOnly toggleRequest ${isJoining} ` +
+          `request for ${requesterUserId}`
+        );
         publish(redisConfig.channels.toBBBApps.meeting, message);
       }
     }

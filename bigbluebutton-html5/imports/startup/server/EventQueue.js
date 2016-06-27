@@ -45,12 +45,13 @@ export class EventQueue {
             payload: parsedMsg.payload,
             header: parsedMsg.header, //TODO extract meetingId here
 
-            callback: () => {
+            callback: () =>// {
               //uncomment for development purposes only
               //otherwise significantly slows down the whiteboard (displaying drawing process)
               //console.log('ready for next message');
-              return next();
-            },
+              next(),
+
+            //},
           });
         } else {
           logger.info('not handling messages of type:' + eventName);

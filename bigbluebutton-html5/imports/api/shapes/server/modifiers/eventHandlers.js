@@ -1,7 +1,7 @@
 import { eventEmitter } from '/imports/startup/server';
-import { addShapeToCollection } from '/imports/api/shapes/server/modifiers/addShapeToCollection';
-import { removeAllShapesFromSlide } from '/imports/api/shapes/server/modifiers/removeAllShapesFromSlide';
-import { removeShapeFromSlide } from '/imports/api/shapes/server/modifiers/removeShapeFromSlide';
+import { addShapeToCollection } from './addShapeToCollection';
+import { removeAllShapesFromSlide } from './removeAllShapesFromSlide';
+import { removeShapeFromSlide } from './removeShapeFromSlide';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 
 eventEmitter.on('get_whiteboard_shapes_reply', function (arg) {

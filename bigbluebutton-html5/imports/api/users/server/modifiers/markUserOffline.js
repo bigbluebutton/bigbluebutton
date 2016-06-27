@@ -30,11 +30,17 @@ export function markUserOffline(meetingId, userId, callback) {
     }, (err, numChanged) => {
       let funct;
       if (err != null) {
-        logger.error(`_unsucc update (mark as offline) of user ${user.user.name} ${userId} err=${JSON.stringify(err)}`);
+        logger.error(
+          `_unsucc update (mark as offline) of user ${user.user.name} ` +
+          `${userId} err=${JSON.stringify(err)}`
+        );
         return callback();
       } else {
         funct = function (cbk) {
-          logger.info(`_marking as offline html5 user ${user.user.name} ${userId}  numChanged=${numChanged}`);
+          logger.info(
+            `_marking as offline html5 user ${user.user.name} ` +
+            `${userId}  numChanged=${numChanged}`
+          );
           return cbk();
         };
 
@@ -48,11 +54,17 @@ export function markUserOffline(meetingId, userId, callback) {
     }, (err, numDeletions) => {
       let funct;
       if (err != null) {
-        logger.error(`_unsucc deletion of user ${user != null ? user.user.name : void 0} ${userId} err=${JSON.stringify(err)}`);
+        logger.error(
+          `_unsucc deletion of user ${user != null ? user.user.name : void 0} ` +
+          `${userId} err=${JSON.stringify(err)}`
+        );
         return callback();
       } else {
         funct = function (cbk) {
-          logger.info(`_deleting info for user ${user != null ? user.user.name : void 0} ${userId} numDeletions=${numDeletions}`);
+          logger.info(
+            `_deleting info for user ${user != null ? user.user.name : void 0} ` +
+            `${userId} numDeletions=${numDeletions}`
+          );
           return cbk();
         };
 

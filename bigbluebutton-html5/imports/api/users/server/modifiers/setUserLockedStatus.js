@@ -20,7 +20,10 @@ export function setUserLockedStatus(meetingId, userId, isLocked) {
       if (err != null) {
         return logger.error(`_error ${err} while updating user ${userId} with lock settings`);
       } else {
-        return logger.info(`_setting user locked status for:[${userId}] from [${meetingId}] locked=${isLocked}`);
+        return logger.info(
+          `_setting user locked status for:[${userId}] ` +
+          `from [${meetingId}] locked=${isLocked}`
+        );
       }
     });
 

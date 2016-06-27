@@ -29,10 +29,9 @@ export class RedisPubSub {
   }
 
   _addToQueue(pattern, channel, jsonMsg) {
-    let eventName, message, messagesWeIgnore;
-    message = JSON.parse(jsonMsg);
-    eventName = message.header.name;
-    messagesWeIgnore = [
+    let message = JSON.parse(jsonMsg);
+    let eventName = message.header.name;
+    let messagesWeIgnore = [
       'BbbPubSubPongMessage',
       'bbb_apps_is_alive_message',
       'broadcast_layout_message',

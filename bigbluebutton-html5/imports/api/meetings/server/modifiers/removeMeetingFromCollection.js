@@ -2,9 +2,10 @@ import { clearUsersCollection } from '/imports/api/users/server/modifiers/clearU
 import { clearChatCollection } from '/imports/api/chat/server/modifiers/clearChatCollection';
 import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
 import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
-import { clearPresentationsCollection } from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
-import {clearMeetingsCollection} from '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
-import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
+import { clearPresentationsCollection }
+  from '../../../presentations/server/modifiers/clearPresentationsCollection';
+import {clearMeetingsCollection} from '../../../meetings/server/modifiers/clearMeetingsCollection';
+import { clearPollCollection } from '../../../polls/server/modifiers/clearPollCollection';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
 import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
