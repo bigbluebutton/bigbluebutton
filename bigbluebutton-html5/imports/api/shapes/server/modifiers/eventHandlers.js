@@ -23,13 +23,6 @@ eventEmitter.on('send_whiteboard_shape_message', function (arg) {
   const payload = arg.payload;
   const meetingId = payload.meeting_id;
 
-  //Meteor stringifies an array of JSONs (...shape.result) in this message
-  //parsing the String and reassigning the value
-  if (payload.shape.shape_type === 'poll_result' &&
-    typeof payload.shape.shape.result === 'string') {
-    payload.shape.shape.result = JSON.parse(payload.shape.shape.result);
-  }
-
   const shape = payload.shape;
   if (!!shape && !!shape.wb_id) {
     const whiteboardId = shape.wb_id;

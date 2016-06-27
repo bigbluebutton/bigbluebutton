@@ -12,10 +12,10 @@ Meteor.methods({
       const eventName = 'vote_poll_user_request_message';
 
       const result = Polls.findOne({
-        users: { $in: [requesterUserId] },
+        users: requesterUserId,
         meetingId: meetingId,
-        poll: { answers: { id: { $in: [pollAnswerId] } } },
-        poll: { id: pollId },
+        'poll.answers.id': pollAnswerId,
+        'poll.id': pollId,
       });
 
       if ((meetingId != null) &&
@@ -32,9 +32,9 @@ Meteor.methods({
           },
         };
         Polls.update({
-          users: { $in: [requesterUserId] },
+          users: requesterUserId,
           meetingId: meetingId,
-          poll: { answers: { id: { $in: [pollAnswerId] } } },
+          'poll.answers.id': pollAnswerId,
         }, {
           $pull: {
             users: requesterUserId,
