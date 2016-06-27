@@ -121,5 +121,14 @@ package org.bigbluebutton.modules.sharednotes.maps
 				for (var noteId:String in windows) destroyAdditionalNotes(noteId);
 			}
 		}
+
+		public function stopSharedNotesRemoveAll():void {
+			//remove the additional
+			for (var noteId:String in windows) destroyAdditionalNotes(noteId);
+			//remove the main window
+			var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+			closeEvent.window = window;
+			globalDispatcher.dispatchEvent(closeEvent);
+		}
 	}
 }
