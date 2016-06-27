@@ -25,7 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="org.bigbluebutton.common.*"
-	backgroundColor="#C0C0C0"
 	initialize="init()"
 	creationComplete="onCreationComplete()"	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
@@ -42,6 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.core.UIComponent;
+			import mx.events.ResizeEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -243,46 +243,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				captureHeight = capHeight;
 				
 				videoHolder = new UIComponent();
+				videoHolder.x = videoHolder.y = 0;
+				videoHolder.addEventListener(ResizeEvent.RESIZE, onResize);
 				
 				var vidW:Number = captureWidth;
 				var vidH:Number = captureHeight;
 				
-				// Don't scale if capture dimension is smaller than window.
-				if((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight < this.height - VID_HEIGHT_PAD)){
-					vidW = this.width - VID_WIDTH_PAD;
-					vidH = (captureHeight / captureWidth) * vidW;
-				}
-				else if( ((captureWidth < this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) 
-				|| ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) ){
-					vidH = this.height - VID_HEIGHT_PAD;
-					vidW = (captureWidth / captureHeight) * vidH;
-				}
-				else{
-					vidW = captureWidth;
-					vidH = captureHeight;
-				}
-
-				LOGGER.debug("deskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
-				if(vidW <= 0 || vidH <=0) {
-					LOGGER.debug("Video dimensions are not valid. Returning.");
-					return;
-				}
-
 				video = new Video(vidW, vidH);
-				video.width = vidW;
-				video.height = vidH;
-				videoHolder.width = vidW;
-				videoHolder.height = vidH;
-				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
-				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
 
-				videoHolder.percentWidth = 100;
-				videoHolder.percentHeight = 100;
 				videoHolder.addChild(video);
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
 				this.addChild(videoHolder);
+				fitVideoToWindow();
 											
 				ns = new NetStream(nc);
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -295,6 +269,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.play(streamName);
 			}
 			
+			private function onResize(e:ResizeEvent):void {
+				fitVideoToWindow();
+			}
+
+			private function fitVideoToWindow():void {
+				videoHolder.percentWidth = 100;
+				videoHolder.percentHeight = 100;
+				
+				const videoAspectRatio:Number = captureWidth / captureHeight;
+				const windowAspectRatio:Number = videoHolder.width / videoHolder.height;
+				if (videoAspectRatio > windowAspectRatio) {
+					video.width = videoHolder.width;
+					video.height = Math.floor(video.width / videoAspectRatio);
+					video.x = 0;
+					video.y = (videoHolder.height - video.height) / 2;
+				} else {
+					video.height = videoHolder.height;
+					video.width = Math.floor(video.height * videoAspectRatio);
+					video.y = 0;
+					video.x = (videoHolder.width - video.width) / 2;
+				}
+			}
+
 			private function stopStream():void{
 				streaming = false;
 				captureHeight = Capabilities.screenResolutionY;

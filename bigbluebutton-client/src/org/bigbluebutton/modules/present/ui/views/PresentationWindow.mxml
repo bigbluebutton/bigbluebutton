@@ -987,7 +987,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
 		</mx:VBox>
 
-		<mx:VBox id="desksharePublishTab" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}" width="100%" height="100%" backgroundColor="#C0C0C0" horizontalAlign="center" paddingTop="7" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+		<mx:VBox id="desksharePublishTab" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}" width="100%" height="100%" paddingTop="7" paddingBottom="0" paddingLeft="0" paddingRight="0" verticalAlign="middle" horizontalAlign="center" backgroundAlpha="0.0"/>
 
 	</mx:TabNavigator>
 
