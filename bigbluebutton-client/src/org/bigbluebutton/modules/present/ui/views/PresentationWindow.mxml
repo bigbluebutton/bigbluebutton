@@ -888,8 +888,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				   canPublish = e.publishTabContent.canPublish();
 
-				   e.publishTabContent.percentHeight = 90;
-				   e.publishTabContent.percentWidth = 90;
+				   e.publishTabContent.percentHeight = 100;
+				   e.publishTabContent.percentWidth = 100;
 				   desksharePublishTab.addChild(e.publishTabContent);
 
 				   if(canPublish && e.publishTabContent.autoStart)
@@ -911,8 +911,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(e.viewTabContent != null && presenterTabs.numElements == 2) {
 				   LOGGER.debug("Opening a new tab for dekstop share VIEWING");
 
-				   e.viewTabContent.percentHeight = 5;
-				   e.viewTabContent.percentWidth = 5;
+				   e.viewTabContent.percentHeight = 100;
+				   e.viewTabContent.percentWidth = 100;
 				   e.viewTabContent.setStyle("horizontalAlign","center");
 				   e.viewTabContent.label = ResourceUtil.getInstance().getString('bbb.desktopView.title');
 
