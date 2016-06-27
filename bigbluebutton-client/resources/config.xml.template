@@ -117,6 +117,7 @@
 			dependsOn="UsersModule"
 			baseTabIndex="501"
 			maxFileSize="30"
+			enableDownload="true"
 		/>
 
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
