@@ -33,7 +33,8 @@ const handleChatEvent = function (arg) {
   const messageObject = arg.payload.message;
   const meetingId = arg.payload.meeting_id;
 
-  // use current_time instead of message.from_time so that the chats from Flash and HTML5 have uniform times
+  //use current_time instead of message.from_time
+  //so that the chats from Flash and HTML5 have uniform times
   messageObject.from_time = arg.header.current_time;
   addChatToCollection(meetingId, messageObject);
   return arg.callback();

@@ -106,7 +106,9 @@ describe('usersList template', function () {
     expect($(div).find('.userNameEntry').size()).toEqual(3);
   });
 
-  it('should be able to reactively handle new and logged-out users (1 user -> 3 users -> 4 users -> 2 users -> 5 users)', function () {
+  it(
+    'should be able to reactively handle new and logged-out users ' +
+    '(1 user -> 3 users -> 4 users -> 2 users -> 5 users)', function () {
     var document1 = {
       meetingId: 'meeting001',
       userId: 'user001',

@@ -7,12 +7,8 @@ export function clearCursorCollection() {
   if (meetingId != null) {
     return Cursor.remove({
       meetingId: meetingId,
-    }, () => {
-      return logger.info(`cleared Cursor Collection (meetingId: ${meetingId})!`);
-    });
+    }, () => logger.info(`cleared Cursor Collection (meetingId: ${meetingId})!`));
   } else {
-    return Cursor.remove({}, () => {
-      return logger.info('cleared Cursor Collection (all meetings)!');
-    });
+    return Cursor.remove({}, () => logger.info('cleared Cursor Collection (all meetings)!'));
   }
 };

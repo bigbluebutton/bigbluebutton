@@ -18,8 +18,9 @@ class NavBarContainer extends Component {
 }
 
 export default createContainer(() => {
-  return {
+  let data = {
     presentationTitle: 'IMDT 1004 Design Process',
     hasUnreadMessages: true,
   };
+  return data;
 }, NavBarContainer);

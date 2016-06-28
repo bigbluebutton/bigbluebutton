@@ -14,7 +14,7 @@ export default class ChatListItem extends Component {
           <h3 className={styles.chatNameMain}>Public Chat</h3>
         </div>
         <div className={styles.unreadMessages}>
-          <p className={styles.unreadMessagesText}>{Math.round(Math.random()*33)}</p>
+          <p className={styles.unreadMessagesText}>{Math.round(Math.random() * 33)}</p>
         </div>
       </li>
     );
