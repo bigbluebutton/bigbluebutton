@@ -83,6 +83,7 @@
  * ==========
  */
 
+// Actions
 .enter, .appear {
   opacity: 0;
   max-height: 0;
@@ -105,6 +106,7 @@
   max-height: 0rem;
 }
 
+// Text under username
 .subUserNameEnter, .subUserNameAppear {
   opacity: 0.01;
   transform: translateY(-100%);

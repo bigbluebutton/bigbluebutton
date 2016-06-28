@@ -1,29 +1,39 @@
 import React, { Component } from 'react';
-import UserAvatar from '../../user-avatar/component';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import Icon from '../../icon/component';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
+import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
 import { Link } from 'react-router';
-import classNames from 'classnames';
-import cx from 'classnames';
 
 const PRIVATE_CHAT_PATH = 'users/chat/';
 
-export default class ChatListItem extends Component {
+const propTypes = {
+  chat: React.PropTypes.shape({
+    id: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+const defaultProps = {
+};
+
+class ChatListItem extends Component {
   render() {
-    let chat = this.props.chat;
-    let linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
+    const {
+      chat,
+    } = this.props;
+
+    const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
+    let fakeUnreadCount = Math.round(Math.random() * 33);
 
     return (
-      <li tabIndex='0'
-          {...this.props}>
+      <li {...this.props}>
           <Link to={linkPath} className={styles.chatListItem}>
             {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
             <div className={styles.chatName}>
               <h3 className={styles.chatNameMain}>{chat.name}</h3>
             </div>
             <div className={styles.unreadMessages}>
-              <p className={styles.unreadMessagesText}>{Math.round(Math.random() * 33)}</p>
+              <p className={styles.unreadMessagesText}>{fakeUnreadCount}</p>
             </div>
           </Link>
       </li>
@@ -31,13 +41,18 @@ export default class ChatListItem extends Component {
   }
 
   renderChatAvatar() {
-    let chat = this.props.chat;
+    const {
+      chat,
+    } = this.props;
 
     return <UserAvatar user={chat}/>;
   }
 
   renderChatIcon() {
-    let chat = this.props.chat;
+    const {
+      chat,
+    } = this.props;
+
     return (
       <div className={styles.chatThumbnail}>
         <Icon iconName={chat.icon} className={styles.actionIcon}/>
@@ -45,3 +60,8 @@ export default class ChatListItem extends Component {
     );
   }
 }
+
+ChatListItem.propTypes = propTypes;
+ChatListItem.defaultProps = defaultProps;
+
+export default ChatListItem;

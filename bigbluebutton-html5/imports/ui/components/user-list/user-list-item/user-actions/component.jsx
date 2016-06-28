@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
-import Icon from '../../../icon/component';
+import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
 
 const propTypes = {
@@ -13,20 +13,25 @@ const propTypes = {
   }).isRequired,
 };
 
+const defaultProps = {
+};
+
 class UserActions extends Component {
   constructor(props) {
     super(props);
 
-    this.handleKickUser = this.props.userActions.kickUser.bind(this);
-    this.handleSetUserPresenter = this.props.userActions.setPresenter.bind(this);
     this.handleOpenChat = this.props.userActions.openChat.bind(this);
-
-    // this.handleOpenChatClick = this.props.handleOpenChatClick.bind(this);
+    this.handleClearStatus = this.props.userActions.clearStatus.bind(this);
+    this.handleSetPresenter = this.props.userActions.setPresenter.bind(this);
+    this.handlePromote = this.props.userActions.promote.bind(this);
+    this.handleKick = this.props.userActions.kick.bind(this);
   }
 
   render() {
-    let user = this.props.user;
-    let currentUser = this.props.currentUser;
+    const {
+      user,
+      currentUser,
+    } = this.props;
 
     return (
       <div key={user.id} className={styles.userItemActions}>
@@ -42,7 +47,11 @@ class UserActions extends Component {
   }
 
   renderOpenChatAction() {
-    let user = this.props.user;
+    const {
+      user,
+    } = this.props;
+
+    // We need to pass this to the function, because we need to use router in the service
     return (
       <li onClick={this.handleOpenChat.bind(this, this, user)}
           className={styles.userActionsItem}>
@@ -55,9 +64,13 @@ class UserActions extends Component {
   }
 
   renderClearStatusAction() {
-    let user = this.props.user;
+    const {
+      user,
+    } = this.props;
+
     return (
-      <li className={styles.userActionsItem}>
+      <li onClick={this.handleClearStatus.bind(this, user)}
+          className={styles.userActionsItem}>
         <Icon iconName='clear-status' className={styles.actionIcon}/>
         <span className={styles.actionText}>
           Clear Status
@@ -67,9 +80,12 @@ class UserActions extends Component {
   }
 
   renderSetPresenterAction() {
-    let user = this.props.user;
+    const {
+      user,
+    } = this.props;
+
     return (
-      <li onClick={this.handleSetUserPresenter.bind(this, user)}
+      <li onClick={this.handleSetPresenter.bind(this, user)}
           className={styles.userActionsItem}>
         <Icon iconName='presentation' className={styles.actionIcon}/>
         <span className={styles.actionText}>
@@ -80,9 +96,13 @@ class UserActions extends Component {
   }
 
   renderPromoteAction() {
-    let user = this.props.user;
+    const {
+      user,
+    } = this.props;
+
     return (
-      <li className={styles.userActionsItem}>
+      <li onClick={this.handlePromote.bind(this, user)}
+          className={styles.userActionsItem}>
         <Icon iconName='promote' className={styles.actionIcon}/>
         <span className={styles.actionText}>
           Promote
@@ -92,9 +112,12 @@ class UserActions extends Component {
   }
 
   renderKickUserAction() {
-    let user = this.props.user;
+    const {
+      user,
+    } = this.props;
+
     return (
-      <li onClick={this.handleKickUser.bind(this, user)}
+      <li onClick={this.handleKick.bind(this, user)}
           className={styles.userActionsItem}>
         <Icon iconName='promote' className={styles.actionIcon}/>
         <span className={styles.actionText}>
@@ -105,5 +128,8 @@ class UserActions extends Component {
   }
 
 }
+
+UserActions.propTypes = propTypes;
+UserActions.defaultProps = defaultProps;
 
 export default withRouter(UserActions);

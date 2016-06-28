@@ -164,6 +164,8 @@ const getUsers = () => {
 };
 
 const getOpenChats = openChat => {
+  window.Users = Users;
+
   let openChats = Chat
   .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
   .fetch()
@@ -193,8 +195,6 @@ const getOpenChats = openChat => {
 
 getCurrentUser = () => {
   let currentUserId = auth.getUser();
-  window.Users = Users;
-  window.currentUserId = currentUserId;
 
   return mapUser(
     Users
@@ -204,9 +204,11 @@ getCurrentUser = () => {
 };
 
 const userActions = {
-  setPresenter: (user) => callServer('setUserPresenter', user.userid, user.name),
-  kickUser: (user) => callServer('kickUser', user.userid),
   openChat: (context, user) => context.props.router.push(`/users/chat/${user.id}`),
+  clearStatus: user => console.log('missing clear status', user),
+  setPresenter: user => callServer('setUserPresenter', user.userid, user.name),
+  promote: user => console.log('missing promote', user),
+  kick: user => callServer('kickUser', user.userid),
 };
 
 export default {

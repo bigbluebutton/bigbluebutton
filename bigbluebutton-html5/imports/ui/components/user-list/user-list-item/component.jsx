@@ -1,15 +1,34 @@
 import React, { Component } from 'react';
-import UserAvatar from '../../user-avatar/component';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import Icon from '../../icon/component';
+import Icon from '/imports/ui/components/icon/component';
 import UserActions from './user-actions/component';
 import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
-import { Link } from 'react-router';
-import classNames from 'classnames/bind';
-let cx = classNames.bind(styles);
+
+const propTypes = {
+  user: React.PropTypes.shape({
+    name: React.PropTypes.string.isRequired,
+    isPresenter: React.PropTypes.bool.isRequired,
+    isVoiceUser: React.PropTypes.bool.isRequired,
+    isModerator: React.PropTypes.bool.isRequired,
+    image: React.PropTypes.string,
+  }).isRequired,
+
+  currentUser: React.PropTypes.shape({
+    id: React.PropTypes.string.isRequired,
+  }).isRequired,
+
+  userActions: React.PropTypes.shape({
+    openChat: React.PropTypes.func.isRequired,
+    clearStatus: React.PropTypes.func.isRequired,
+    setPresenter: React.PropTypes.func.isRequired,
+    promote: React.PropTypes.func.isRequired,
+    kick: React.PropTypes.func.isRequired,
+  }),
+};
 
 const defaultProps = {
   shouldShowActions: false,
@@ -81,34 +100,19 @@ class UserListItem extends Component {
   }
 
   render() {
-    let user = this.props.user;
-    let currentUser = this.props.currentUser;
+    const {
+      user,
+    } = this.props;
 
     return (
-      <li tabIndex='0'
-          onClick={this.handleToggleActions.bind(this, user)}
+      <li onClick={this.handleToggleActions.bind(this, user)}
           className={styles.userListItem} {...this.props}>
         <div className={styles.userItemContents}>
           <UserAvatar user={this.props.user}/>
           {this.renderUserName()}
           {this.renderUserIcons()}
         </div>
-        <ReactCSSTransitionGroup
-          transitionName={userActionsTransition}
-          transitionAppear={true}
-          transitionEnter={true}
-          transitionLeave={true}
-          transitionAppearTimeout={0}
-          transitionEnterTimeout={0}
-          transitionLeaveTimeout={0}
-        >
-          {this.state.visibleActions ?
-              <UserActions
-                user={user}
-                currentUser={currentUser}
-                userActions={this.props.userActions}/> :
-              null}
-        </ReactCSSTransitionGroup>
+        {this.renderUserActions()}
       </li>
     );
   }
@@ -152,7 +156,9 @@ class UserListItem extends Component {
   }
 
   renderUserIcons() {
-    let user = this.props.user;
+    const {
+      user,
+    } = this.props;
 
     let audioChatIcon = null;
     if (user.isVoiceUser || user.isListenOnly) {
@@ -169,13 +175,44 @@ class UserListItem extends Component {
           {user.isSharingWebcam ? <Icon iconName='video'/> : null}
         </span>
         <span className={styles.userIconsContainer}>
-          {user.audioChatIcon ? <Icon iconName={audioChatIcon}/> : null}
+          {audioChatIcon ? <Icon iconName={audioChatIcon}/> : null}
         </span>
       </div>
     );
   }
+
+  renderUserActions() {
+    const {
+      user,
+      currentUser,
+      userActions,
+    } = this.props;
+
+    let visibleActions = null;
+    if (this.state.visibleActions) {
+      visibleActions = <UserActions
+                  user={user}
+                  currentUser={currentUser}
+                  userActions={userActions}/>;
+    }
+
+    return (
+      <ReactCSSTransitionGroup
+        transitionName={userActionsTransition}
+        transitionAppear={true}
+        transitionEnter={true}
+        transitionLeave={true}
+        transitionAppearTimeout={0}
+        transitionEnterTimeout={0}
+        transitionLeaveTimeout={0}
+      >
+        {visibleActions}
+      </ReactCSSTransitionGroup>
+    );
+  }
 }
 
+UserListItem.propTypes = propTypes;
 UserListItem.defaultProps = defaultProps;
 
 export default withRouter(injectIntl(UserListItem));

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { withRouter } from 'react-router';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import styles from './styles.scss';
@@ -8,6 +8,14 @@ let cx = classNames.bind(styles);
 
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
+
+const propTypes = {
+  openChats: PropTypes.array.isRequired,
+  users: PropTypes.array.isRequired,
+};
+
+const defaultProps = {
+};
 
 const listTransition = {
   enter: styles.enter,
@@ -21,12 +29,6 @@ const listTransition = {
 class UserList extends Component {
   constructor(props) {
     super(props);
-
-    this.handleOpenChatClick = this.handleOpenChatClick.bind(this);
-  }
-
-  handleOpenChatClick(chatID) {
-    this.props.router.push(`/users/chat/${chatID}`);
   }
 
   render() {
@@ -62,6 +64,10 @@ class UserList extends Component {
   }
 
   renderMessages() {
+    const {
+      openChats,
+    } = this.props;
+
     return (
       <div className={styles.messages}>
         <h3 className={styles.smallTitle}>
@@ -81,9 +87,8 @@ class UserList extends Component {
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="ul"
-            className={cx(styles.chatsList, styles.scrollableList)}
-            tabIndex="1">
-              {this.props.openChats.map(chat => (
+            className={cx(styles.chatsList, styles.scrollableList)}>
+              {openChats.map(chat => (
                 <ChatListItem
                   key={chat.id}
                   chat={chat} />
@@ -95,9 +100,11 @@ class UserList extends Component {
   }
 
   renderParticipants() {
-    let users = this.props.users;
-    let currentUser = this.props.currentUser;
-    let actions = this.props.actions;
+    const {
+      users,
+      currentUser,
+      userActions,
+    } = this.props;
 
     return (
       <div className={styles.participants}>
@@ -118,15 +125,13 @@ class UserList extends Component {
           transitionEnterTimeout={0}
           transitionLeaveTimeout={0}
           component="ul"
-          className={cx(styles.participantsList, styles.scrollableList)}
-          tabIndex="1">
+          className={cx(styles.participantsList, styles.scrollableList)}>
           {users.map(user => (
             <UserListItem
-              actions={actions}
               key={user.id}
               user={user}
               currentUser={currentUser}
-              userActions={this.props.userActions}
+              userActions={userActions}
             />
           ))}
         </ReactCSSTransitionGroup>
@@ -135,4 +140,5 @@ class UserList extends Component {
   }
 }
 
+UserList.propTypes = propTypes;
 export default withRouter(UserList);
