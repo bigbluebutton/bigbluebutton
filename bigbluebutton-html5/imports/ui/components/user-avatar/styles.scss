@@ -7,25 +7,26 @@ $user-avatar-border: $color-gray-light;
 $user-avatar-text: $user-avatar-border;
 
 $voice-user-bg: $color-success;
-$voice-user-text: $color-white;
+$voice-user-text: $color-gray-light;
 
 $moderator-text: $color-white;
 $moderator-bg: $color-primary;
 
 .userAvatar {
   @extend .flex-column;
+  transition: all 0.3s;
   flex-basis: 1.7rem;
   flex-shrink: 0;
   height: 1.7rem;
   justify-content: center;
   display: flex;
   flex-flow: column;
-  font-size: 1.1rem;
+  font-size: 1rem;
   text-align: center;
   border-radius: 50%;
   border: 2px solid $user-avatar-border;
   color: $user-avatar-text;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .voiceUser {

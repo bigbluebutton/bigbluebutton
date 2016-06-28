@@ -1,4 +1,5 @@
 @import '../../stylesheets/variables/palette';
+@import "imports/ui/stylesheets/mixins/_scrollable";
 
 /* Variables
  * ==========
@@ -28,38 +29,36 @@ $user-icons-color-hover: $color-gray;
 /* classes for extending
  * ==========
  */
-.flex-column {
+%flex-column {
   display: flex;
   flex-flow: column;
 }
 
-.no-margin {
+%no-margin {
   margin: 0;
 }
 
-.list-item {
+%list-item {
   padding: 0.3rem;
   padding-left: 0.5rem;
-  padding-right: 0.6rem;
+  padding-right: 0rem;
   margin-left: 0.7rem;
+  margin-top: 0.9rem;
   display: flex;
   flex-flow: row;
   transition: all 0.3s;
-  margin-top: 0.9rem;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
+  cursor: pointer;
 
   &:hover,
   &:focus {
     background-color: $list-item-bg-hover;
+    outline: none;
   }
 
   &:first-child {
     margin-top: 0;
-  }
-
-  &:last-child {
-    margin-bottom: 1.2rem;
   }
 }
 
@@ -68,7 +67,7 @@ $user-icons-color-hover: $color-gray;
  */
 
 .userList {
-  @extend .flex-column;
+  @extend %flex-column;
   justify-content: flex-start;
   background-color: $user-list-bg;
   color: $user-list-text;
@@ -76,7 +75,7 @@ $user-icons-color-hover: $color-gray;
 }
 
 .header {
-  @extend .flex-column;
+  @extend %flex-column;
   justify-content: center;
   min-height: 3.9rem;
   flex-grow: 0;
@@ -89,19 +88,21 @@ $user-icons-color-hover: $color-gray;
 }
 
 .content {
-  @extend .flex-column;
+  @extend %flex-column;
   flex-grow: 9;
 }
 
 .lists {
-  @extend .flex-column;
-  @extend .no-margin;
+  @extend %flex-column;
+  @extend %no-margin;
   padding: 0;
+  outline: none;
 }
 
 .participantsList,
 .chatsList {
   @extend .lists;
+  flex-shrink: 1;
 }
 
 .smallTitle {
@@ -109,15 +110,40 @@ $user-icons-color-hover: $color-gray;
   font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
-  margin: 0.2rem 1.3rem;
-  margin-bottom: 0.6rem;
+  margin: 0.6rem 1.3rem;
 }
 
 .scrollableList {
-  overflow: auto;
+  @include scrollbox-vertical($user-list-bg);
+}
+
+.participants, .messages {
+  flex-grow: 0;
+  display: flex;
+  flex-flow: column;
+  flex-shrink: 0;
 }
 
 .participants {
-  display: flex;
-  flex-flow: column;
+  flex-basis: 31rem;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+.enter, .appear {
+  opacity: 0.01;
+}
+
+.enterActive, .appearActive {
+  opacity: 1;
+  transition: all 600ms;
+}
+
+.leave {
+  opacity: 1;
+}
+
+.leaveActive {
+  opacity: 0;
+  transition: all 600ms;
 }

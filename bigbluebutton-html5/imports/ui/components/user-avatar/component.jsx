@@ -24,12 +24,10 @@ export default class UserAvatar extends Component {
     avatarClasses[styles.voiceUser] = user.isVoiceUser;
     avatarClasses[styles.moderator] = user.isModerator;
 
-    // avatarClasses[styles.image] = user.image;
-
     return (
       <div className={cx(avatarClasses, styles.userAvatar)}>
         <span>
-          {user.name.slice(0, 1)}
+          {user.name.slice(0, 2)}
         </span>
       </div>
     );

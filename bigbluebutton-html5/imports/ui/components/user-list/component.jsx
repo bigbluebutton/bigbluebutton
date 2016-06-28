@@ -1,26 +1,32 @@
 import React, { Component } from 'react';
-import styles from './styles.scss';
-import { Link } from 'react-router';
 import { withRouter } from 'react-router';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import styles from './styles.scss';
 import { FormattedMessage } from 'react-intl';
+import classNames from 'classnames/bind';
+let cx = classNames.bind(styles);
 
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
+
+const listTransition = {
+  enter: styles.enter,
+  enterActive: styles.enterActive,
+  appear: styles.appear,
+  appearActive: styles.appearActive,
+  leave: styles.leave,
+  leaveActive: styles.leaveActive,
+};
 
 class UserList extends Component {
   constructor(props) {
     super(props);
 
-    this.handleMessageClick = this.handleMessageClick.bind(this);
-    this.handleParticipantDblClick = this.handleParticipantDblClick.bind(this);
+    this.handleOpenChatClick = this.handleOpenChatClick.bind(this);
   }
 
-  handleMessageClick(chatID) {
+  handleOpenChatClick(chatID) {
     this.props.router.push(`/users/chat/${chatID}`);
-  }
-
-  handleParticipantDblClick(userID) {
-    this.props.router.push(`/users/chat/${userID}`);
   }
 
   render() {
@@ -65,14 +71,34 @@ class UserList extends Component {
             defaultMessage="Messages"
           />
         </h3>
-        <ul className={styles.chatsList} tabIndex="1">
-          <ChatListItem onClick={() => this.handleMessageClick('public')} />
-        </ul>
+        <div className={styles.scrollableList}>
+          <ReactCSSTransitionGroup
+            transitionName={listTransition}
+            transitionAppear={true}
+            transitionEnter={true}
+            transitionLeave={false}
+            transitionAppearTimeout={0}
+            transitionEnterTimeout={0}
+            transitionLeaveTimeout={0}
+            component="ul"
+            className={cx(styles.chatsList, styles.scrollableList)}
+            tabIndex="1">
+              {this.props.openChats.map(chat => (
+                <ChatListItem
+                  key={chat.id}
+                  chat={chat} />
+              ))}
+          </ReactCSSTransitionGroup>
+        </div>
       </div>
     );
   }
 
   renderParticipants() {
+    let users = this.props.users;
+    let currentUser = this.props.currentUser;
+    let actions = this.props.actions;
+
     return (
       <div className={styles.participants}>
         <h3 className={styles.smallTitle}>
@@ -83,19 +109,27 @@ class UserList extends Component {
           />
           &nbsp;({this.props.users.length})
         </h3>
-        <div className={styles.scrollableList}>
-          <ul className={styles.participantsList} tabIndex="1">
-            {this.props.users.map(user => (
-              <UserListItem
-                onDoubleClick={() => this.handleParticipantDblClick(user.id)}
-                accessibilityLabel={'Status abc'}
-                accessible={true}
-                key={user.id}
-                user={user}
-              />
-            ))}
-          </ul>
-        </div>
+        <ReactCSSTransitionGroup
+          transitionName={listTransition}
+          transitionAppear={true}
+          transitionEnter={true}
+          transitionLeave={true}
+          transitionAppearTimeout={0}
+          transitionEnterTimeout={0}
+          transitionLeaveTimeout={0}
+          component="ul"
+          className={cx(styles.participantsList, styles.scrollableList)}
+          tabIndex="1">
+          {users.map(user => (
+            <UserListItem
+              actions={actions}
+              key={user.id}
+              user={user}
+              currentUser={currentUser}
+              userActions={this.props.userActions}
+            />
+          ))}
+        </ReactCSSTransitionGroup>
       </div>
     );
   }
