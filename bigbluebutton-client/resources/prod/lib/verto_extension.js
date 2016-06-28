@@ -52,7 +52,7 @@ Verto = function (
   }
 
   if (onFail != null) {
-    this.onFail = normalizeCallback(onFail);
+    this.onFail = Verto.normalizeCallback(onFail);
   } else {
     var _this = this;
     this.onFail = function () {
@@ -79,7 +79,7 @@ Verto.prototype.setRenderTag = function (tag) {
 // or if it is an actionscript string it will return a javascript Function
 // that when invokved will invoke the actionscript registered callback
 // and passes along parameters
-Verto.prototype.normalizeCallback = function (callback) {
+Verto.normalizeCallback = function (callback) {
   if (typeof callback == 'function') {
     return callback;
   } else {
@@ -143,11 +143,15 @@ Verto.prototype.hangup = function () {
   if (this.cur_call) {
     // the duration of the call
     this.logger('call ended ' + this.cur_call.audioStream.currentTime);
+    this.cur_call.hangup();
+    this.cur_call = null;
   }
 
   if (this.share_call) {
     // the duration of the call
     this.logger('call ended ' + this.share_call.audioStream.currentTime);
+    this.share_call.hangup();
+    this.share_call = null;
   }
 
   // the user ended the call themself
@@ -158,9 +162,6 @@ Verto.prototype.hangup = function () {
     // Call ended unexpectedly
     this.logError({ status: 'failed', errorcode: 1005 });
   }
-
-  this.cur_call = null;
-  this.share_call = null;
 };
 
 Verto.prototype.mute = function () {
@@ -413,6 +414,7 @@ Verto.prototype.logout = function () {
 
 VertoManager.prototype.exitAudio = function () {
   if (this.vertoAudio != null) {
+    console.log('Hanging up vertoAudio');
     this.vertoAudio.hangup();
     this.vertoAudio = null;
   }
@@ -420,6 +422,7 @@ VertoManager.prototype.exitAudio = function () {
 
 VertoManager.prototype.exitVideo = function () {
   if (this.vertoVideo != null) {
+    console.log('Hanging up vertoVideo');
     this.vertoVideo.hangup();
     this.vertoVideo = null;
   }
@@ -427,6 +430,7 @@ VertoManager.prototype.exitVideo = function () {
 
 VertoManager.prototype.exitScreenShare = function () {
   if (this.vertoScreenShare != null) {
+    console.log('Hanging up vertoScreenShare');
     this.vertoScreenShare.hangup();
     this.vertoScreenShare = null;
   }
@@ -498,4 +502,9 @@ window.vertoWatchVideo = function () {
 window.vertoShareScreen = function () {
   window.vertoInitialize();
   window.vertoManager.shareScreen.apply(window.vertoManager, arguments);
+};
+
+window.vertoExtensionGetChromeExtensionStatus = function (extensionid, callback) {
+  callback = Verto.normalizeCallback(callback);
+  getChromeExtensionStatus(extensionid, callback);
 };

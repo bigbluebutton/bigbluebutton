@@ -19,14 +19,20 @@
 package org.bigbluebutton.modules.screenshare.model
 {
 	import org.bigbluebutton.core.BBB;
-	
+
 	public class ScreenshareOptions
 	{
 		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var autoStart:Boolean = false;
 		[Bindable] public var autoFullScreen:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
-		
+		[Bindable] public var useWebRTCIfAvailable:Boolean = true;
+		[Bindable] public var chromeExtensionKey:String = null;
+		[Bindable] public var vertoPort:String = null;
+		[Bindable] public var vertoHostName:String = null;
+		[Bindable] public var vertoLogin:String = null;
+		[Bindable] public var vertoPassword:String = null;
+
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("ScreenshareModule");
 			if (vxml != null) {
@@ -43,7 +49,25 @@ package org.bigbluebutton.modules.screenshare.model
 					baseTabIndex = 201;
 				}
 				if (vxml.@showButton != undefined){
-					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false; 
+					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@useWebRTCIfAvailable != undefined) {
+					useWebRTCIfAvailable = (vxml.@useWebRTCIfAvailable.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@chromeExtensionKey != undefined) {
+					chromeExtensionKey = vxml.@chromeExtensionKey.toString();
+				}
+				if (vxml.@vertoPort != undefined) {
+					vertoPort = vxml.@vertoPort.toString();
+				}
+				if (vxml.@vertoHostName != undefined) {
+					vertoHostName = vxml.@vertoHostName.toString();
+				}
+				if (vxml.@vertoLogin != undefined) {
+					vertoLogin = vxml.@vertoLogin.toString();
+				}
+				if (vxml.@vertoPassword != undefined) {
+					vertoPassword = vxml.@vertoPassword.toString();
 				}
 			}
 		}

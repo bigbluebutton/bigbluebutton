@@ -42,13 +42,19 @@
 			baseTabIndex="301"
 		/>
 
-		<module name="ScreenshareModule" 
-			url="http://HOST/client/ScreenshareModule.swf?v=VERSION" 
+		<module name="ScreenshareModule"
+			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
+			useWebRTCIfAvailable="false"
+			chromeExtensionKey=""
+			vertoPort="PORT"
+			vertoHostName="HOST.NAME"
+			vertoLogin="LOGIN"
+			vertoPassword="PASSWORD"
 		/>
     
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
