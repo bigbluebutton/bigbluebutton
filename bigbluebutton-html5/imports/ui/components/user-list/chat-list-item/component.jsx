@@ -27,15 +27,15 @@ class ChatListItem extends Component {
 
     return (
       <li {...this.props}>
-          <Link to={linkPath} className={styles.chatListItem}>
-            {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
-            <div className={styles.chatName}>
-              <h3 className={styles.chatNameMain}>{chat.name}</h3>
-            </div>
-            <div className={styles.unreadMessages}>
-              <p className={styles.unreadMessagesText}>{fakeUnreadCount}</p>
-            </div>
-          </Link>
+        <Link to={linkPath} className={styles.chatListItem}>
+          {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
+          <div className={styles.chatName}>
+            <h3 className={styles.chatNameMain}>{chat.name}</h3>
+          </div>
+          <div className={styles.unreadMessages}>
+            <p className={styles.unreadMessagesText}>{fakeUnreadCount}</p>
+          </div>
+        </Link>
       </li>
     );
   }

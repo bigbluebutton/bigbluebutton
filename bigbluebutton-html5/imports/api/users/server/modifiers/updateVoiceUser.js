@@ -18,12 +18,17 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          logger.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [talking] err=${JSON.stringify(err)}`);
+          logger.error(
+            `_unsucc update of voiceUser ${voiceUserObject.web_userid} ` +
+            `[talking] err=${JSON.stringify(err)}`
+          );
         }
 
         return callback();
       });
-    } // talking
+    }
+
+    // talking
     if (voiceUserObject.joined != null) {
       Users.update({
         meetingId: meetingId,
@@ -35,13 +40,16 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback) {
       }, (err, numChanged) => {
         if (err != null) {
           logger.error(
-              `_unsucc update of voiceUser ${voiceUserObject.web_userid} [joined] err=${JSON.stringify(err)}`
+            `_unsucc update of voiceUser ${voiceUserObject.web_userid} ` +
+            `[joined] err=${JSON.stringify(err)}`
           );
         }
 
         return callback();
       });
-    } // joined
+    }
+
+    // joined
     if (voiceUserObject.locked != null) {
       Users.update({
         meetingId: meetingId,
@@ -52,12 +60,17 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          logger.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [locked] err=${JSON.stringify(err)}`);
+          logger.error(
+            `_unsucc update of voiceUser ${voiceUserObject.web_userid} ` +
+            `[locked] err=${JSON.stringify(err)}`
+          );
         }
 
         return callback();
       });
-    } // locked
+    }
+
+    // locked
     if (voiceUserObject.muted != null) {
       Users.update({
         meetingId: meetingId,
@@ -68,12 +81,17 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          logger.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [muted] err=${JSON.stringify(err)}`);
+          logger.error(
+            `_unsucc update of voiceUser ${voiceUserObject.web_userid} ` +
+            `[muted] err=${JSON.stringify(err)}`
+          );
         }
 
         return callback();
       });
-    } // muted
+    }
+
+    // muted
     if (voiceUserObject.listen_only != null) {
       return Users.update({
         meetingId: meetingId,
@@ -84,12 +102,17 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback) {
         },
       }, (err, numChanged) => {
         if (err != null) {
-          logger.error(`_unsucc update of voiceUser ${voiceUserObject.web_userid} [listenOnly] err=${JSON.stringify(err)}`);
+          logger.error(
+            `_unsucc update of voiceUser ${voiceUserObject.web_userid} ` +
+            `[listenOnly] err=${JSON.stringify(err)}`
+          );
         }
 
         return callback();
       });
-    } // listenOnly
+    }
+
+    // listenOnly
   } else {
     logger.error('ERROR! did not find such voiceUser!');
     return callback();
