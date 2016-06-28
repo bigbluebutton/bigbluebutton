@@ -16,6 +16,7 @@ export function requestUserLeaving(meetingId, userId) {
   const meetingObject = Meetings.findOne({
     meetingId: meetingId,
   });
+
   if (meetingObject != null) {
     voiceConf = meetingObject.voiceConf;
   }
@@ -27,7 +28,7 @@ export function requestUserLeaving(meetingId, userId) {
     }
 
     // end listenOnly audio for the departing user
-    if (null != lOnly && lOnly) {
+    if (lOnly) {
       const listenOnlyMessage = {
         payload: {
           userid: userId,

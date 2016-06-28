@@ -13,14 +13,16 @@ clientConfig.copyrightYear = '2015';
 
 clientConfig.html5ClientBuild = 'NNNN';
 
-clientConfig.defaultWelcomeMessage = 'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see ' +
+clientConfig.defaultWelcomeMessage =
+  'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see ' +
   'these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial ' +
   'videos</u></a>.\r\rTo join the audio bridge click the gear icon (upper-right hand corner). ' +
   ' Use a headset to avoid causing background noise for others.\r\r\r';
 
 const tempString = 'This server is running a build of ' +
   "<a href='http://docs.bigbluebutton.org/1.0/10overview.html' target='_blank'><u>BigBlueButton";
-clientConfig.defaultWelcomeMessageFooter = `${tempString} ${clientConfig.bbbServerVersion}</u></a>.`;
+clientConfig.defaultWelcomeMessageFooter = `${tempString} ` +
+  `${clientConfig.bbbServerVersion}</u></a>.`;
 
 clientConfig.maxUsernameLength = 30;
 

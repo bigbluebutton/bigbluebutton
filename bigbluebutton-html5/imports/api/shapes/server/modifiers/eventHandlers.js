@@ -1,8 +1,8 @@
 import { eventEmitter } from '/imports/startup/server';
-import { addShapeToCollection } from '/imports/api/shapes/server/modifiers/addShapeToCollection';
-import { removeAllShapesFromSlide } from '/imports/api/shapes/server/modifiers/removeAllShapesFromSlide';
-import { removeShapeFromSlide } from '/imports/api/shapes/server/modifiers/removeShapeFromSlide';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
+import { addShapeToCollection } from './addShapeToCollection';
+import { removeAllShapesFromSlide } from './removeAllShapesFromSlide';
+import { removeShapeFromSlide } from './removeShapeFromSlide';
 
 eventEmitter.on('get_whiteboard_shapes_reply', function (arg) {
   if (inReplyToHTML5Client(arg)) {
@@ -22,13 +22,6 @@ eventEmitter.on('get_whiteboard_shapes_reply', function (arg) {
 eventEmitter.on('send_whiteboard_shape_message', function (arg) {
   const payload = arg.payload;
   const meetingId = payload.meeting_id;
-
-  //Meteor stringifies an array of JSONs (...shape.result) in this message
-  //parsing the String and reassigning the value
-  if (payload.shape.shape_type === 'poll_result' &&
-    typeof payload.shape.shape.result === 'string') {
-    payload.shape.shape.result = JSON.parse(payload.shape.shape.result);
-  }
 
   const shape = payload.shape;
   if (!!shape && !!shape.wb_id) {

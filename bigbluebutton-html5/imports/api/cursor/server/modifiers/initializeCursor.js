@@ -11,8 +11,7 @@ export function initializeCursor(meetingId) {
   }, (err, numChanged) => {
     if (err) {
       return logger.error(`err upserting cursor for ${meetingId}`);
-    } else {
-      // logger.info "ok upserting cursor for #{meetingId}"
     }
+
   });
 };

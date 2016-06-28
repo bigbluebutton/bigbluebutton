@@ -54,7 +54,9 @@ const moderator = {
 // holds the values for whether the viewer user is allowed to perform an action (true)
 // or false if not allowed. Some actions have dynamic values depending on the current lock settings
 const viewer = function (meetingId, userId) {
-  let meeting, user;
+  let meeting;
+  let user;
+
   return {
 
     // listen only
@@ -70,8 +72,11 @@ const viewer = function (meetingId, userId) {
 
     // muting
     muteSelf: true,
-    unmuteSelf: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disableMic) ||
-    !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked),
+    unmuteSelf:
+      !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+        meeting.roomLockSettings.disableMic) ||
+      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+        user.user.locked),
 
     logoutSelf: true,
 
@@ -80,13 +85,17 @@ const viewer = function (meetingId, userId) {
     subscribeChat: true,
 
     //chat
-    chatPublic: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePublicChat) ||
-    !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
-    (user != null && user.user.presenter),
+    chatPublic: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+      meeting.roomLockSettings.disablePublicChat) ||
+      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+      user.user.locked) ||
+      (user != null && user.user.presenter),
 
-    chatPrivate: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePrivateChat) ||
-    !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
-    (user != null && user.user.presenter),
+    chatPrivate: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+      meeting.roomLockSettings.disablePrivateChat) ||
+      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+      user.user.locked) ||
+      (user != null && user.user.presenter),
 
     //poll
     subscribePoll: true,
@@ -105,7 +114,9 @@ export function isAllowedTo(action, credentials) {
   const userId = credentials.requesterUserId;
   const authToken = credentials.requesterToken;
 
-  let user, validated;
+  let user;
+  let validated;
+
   user = Users.findOne({
     meetingId: meetingId,
     userId: userId,
@@ -114,7 +125,10 @@ export function isAllowedTo(action, credentials) {
     validated = user.validated;
   }
 
-  logger.info(`in isAllowedTo: action-${action}, userId=${userId}, authToken=${authToken} validated:${validated}`);
+  logger.info(
+    `in isAllowedTo: action-${action}, userId=${userId}, ` +
+    `authToken=${authToken} validated:${validated}`
+  );
   user = Users.findOne({
     meetingId: meetingId,
     userId: userId,
@@ -147,15 +161,22 @@ export function isAllowedTo(action, credentials) {
       // user was not validated
       if (action === 'logoutSelf') {
         // on unsuccessful sign-in
-        logger.warn('a user was successfully removed from the meeting following an unsuccessful login');
+        logger.warn(
+          'a user was successfully removed from the ' +
+          'meeting following an unsuccessful login'
+        );
         return true;
       }
 
       return false;
     }
   } else {
-    logger.error(`in meetingId=${meetingId} userId=${userId} tried to perform ${action} without permission${'\n..while the authToken was ' +
-      (user != null && user.authToken != null ? user.authToken : void 0) + "    and the user's object is " + (JSON.stringify(user))}`);
+    logger.error(
+      `in meetingId=${meetingId} userId=${userId} tried to perform ${action} ` +
+      `without permission${'\n..while the authToken was ' +
+      (user != null && user.authToken != null ? user.authToken : void 0) +
+      "    and the user's object is " + (JSON.stringify(user))}`
+    );
 
     return false;
   }

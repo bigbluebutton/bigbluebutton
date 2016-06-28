@@ -38,7 +38,8 @@ describe('Collections', function () {
   // chat.coffee
   //----------------------------------------------------------------------
 
-  it('should be handled correctly by insert() on calling addChatToCollection() in case of private chat', function () {
+  it('should be handled correctly by insert() on calling addChatToCollection()' +
+    ' in case of private chat', function () {
     spyOn(Users, 'findOne').and.callFake(function (doc) {
       if (doc.userId == 'user001') return { userId: 'user001' };
       else if (doc.userId == 'user002') return { userUd: 'user002' };
@@ -76,7 +77,8 @@ describe('Collections', function () {
     });
   });
 
-  it('should be handled correctly by insert() on calling addChatToCollection() in case of public chat', function () {
+  it('should be handled correctly by insert() on calling ' +
+    'addChatToCollection() in case of public chat', function () {
     spyOn(Users, 'findOne').and.callFake(function (doc) {
       if (doc.userId == 'user001') return { _id: 'dbid001' };
       else if (doc.userId == 'user002') return { _id: 'dbid002' };
@@ -118,7 +120,9 @@ describe('Collections', function () {
   // meetings.coffee
   //----------------------------------------------------------------------
 
-  it('should not be updated on calling addMeetingToCollection() if the meeting is already in the collection', function () {
+  it(
+    'should not be updated on calling addMeetingToCollection() if ' +
+    'the meeting is already in the collection', function () {
     spyOn(Meetings, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId == 'meeting001') return { meetingId: 'meeting001' };
       else return undefined;
@@ -131,7 +135,9 @@ describe('Collections', function () {
     expect(Meetings.insert).not.toHaveBeenCalled();
   });
 
-  it('should be handled correctly by insert() on calling addMeetingToCollection() with a brand new meeting', function () {
+  it(
+    'should be handled correctly by insert() on calling addMeetingToCollection() ' +
+    'with a brand new meeting', function () {
     spyOn(Meetings, 'findOne').and.returnValue(undefined);//collection is empty
     spyOn(Meetings, 'insert');
 
@@ -147,7 +153,9 @@ describe('Collections', function () {
     });
   });
 
-  it('should not be touched on calling removeMeetingFromCollection() if there is no wanted meeting in the collection', function () {
+  it(
+    'should not be touched on calling removeMeetingFromCollection() ' +
+    'if there is no wanted meeting in the collection', function () {
     spyOn(Meetings, 'findOne').and.returnValue(undefined);//collection is empty
     spyOn(Meetings, 'remove');
 
@@ -175,7 +183,9 @@ describe('Collections', function () {
   //----------------------------------------------------------------------
 
   // addShapeToCollection()
-  it('should be handled correctly by insert() on calling addShapeToCollection() with a text', function () {
+  it(
+    'should be handled correctly by insert() on calling addShapeToCollection() ' +
+    'with a text', function () {
     spyOn(Shapes, 'find').and.returnValue({
       count: function () {
         return 1;
@@ -228,7 +238,9 @@ describe('Collections', function () {
     });
   });
 
-  it('should be handled correctly by insert() on calling addShapeToCollection() with a finished standard shape', function () {
+  it(
+    'should be handled correctly by insert() on calling addShapeToCollection() with a ' +
+    'finished standard shape', function () {
     spyOn(Shapes, 'find').and.returnValue({
       count: function () {
         return 1;
@@ -277,7 +289,9 @@ describe('Collections', function () {
     });
   });
 
-  it('should be handled correctly by insert() on calling addShapeToCollection() with a pencil being used', function () {
+  it(
+    'should be handled correctly by insert() on calling addShapeToCollection() ' +
+    'with a pencil being used', function () {
     spyOn(Shapes, 'find').and.returnValue({
       count: function () {
         return 1;
@@ -327,26 +341,34 @@ describe('Collections', function () {
   });
 
   // removeAllShapesFromSlide()
-  it('should not be touched on calling removeAllShapesFromSlide() with undefined meetingId', function () {
+  it(
+    'should not be touched on calling removeAllShapesFromSlide() ' +
+    'with undefined meetingId', function () {
     spyOn(Shapes, 'remove');
     removeAllShapesFromSlide(undefined, 'whiteboard001');
     expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
-  it('should not be touched on calling removeAllShapesFromSlide() with undefined whiteboardId', function () {
+  it(
+    'should not be touched on calling removeAllShapesFromSlide() ' +
+    'with undefined whiteboardId', function () {
     spyOn(Shapes, 'remove');
     removeAllShapesFromSlide('meeting001', undefined);
     expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
-  it('should not be touched on calling removeAllShapesFromSlide() if there is no shapes on the whiteboard', function () {
+  it(
+    'should not be touched on calling removeAllShapesFromSlide() ' +
+    'if there is no shapes on the whiteboard', function () {
     spyOn(Shapes, 'find').and.returnValue(undefined);
     spyOn(Shapes, 'remove');
     removeAllShapesFromSlide('meeting001', 'whiteboard001');
     expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
-  it('should be cleared on calling removeAllShapesFromSlide() if there are shapes on the whiteboard', function () {
+  it(
+    'should be cleared on calling removeAllShapesFromSlide() ' +
+    'if there are shapes on the whiteboard', function () {
     spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
         return {
@@ -358,7 +380,11 @@ describe('Collections', function () {
     });
 
     spyOn(Shapes, 'findOne').and.callFake(function (doc) {
-      if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
+      if (
+        doc.meetingId === 'meeting001' &&
+        doc.whiteboardId === 'whiteboard001' &&
+        doc['shape.id'] === 'shape001'
+      )
         return {
           _id: 'doc001',
         };
@@ -371,7 +397,9 @@ describe('Collections', function () {
   });
 
   // removeShapeFromSlide()
-  it('should not be touched on calling removeShapeFromSlide() with undefined meetingId', function () {
+  it(
+    'should not be touched on calling removeShapeFromSlide() ' +
+    'with undefined meetingId', function () {
     spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === undefined && doc.whiteboardId === 'whiteboard001')
         return {
@@ -383,7 +411,11 @@ describe('Collections', function () {
     });
 
     spyOn(Shapes, 'findOne').and.callFake(function (doc) {
-      if (doc.meetingId === undefined && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
+      if (
+        doc.meetingId === undefined &&
+        doc.whiteboardId === 'whiteboard001' &&
+        doc['shape.id'] === 'shape001'
+      )
         return {
           _id: 'doc001',
         };
@@ -397,7 +429,9 @@ describe('Collections', function () {
     expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
-  it('should not be touched on calling removeShapeFromSlide() with undefined whiteboardId', function () {
+  it(
+    'should not be touched on calling removeShapeFromSlide() ' +
+    'with undefined whiteboardId', function () {
     spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === undefined)
         return {
@@ -409,7 +443,11 @@ describe('Collections', function () {
     });
 
     spyOn(Shapes, 'findOne').and.callFake(function (doc) {
-      if (doc.meetingId === 'meeting001' && doc.whiteboardId === undefined && doc['shape.id'] === 'shape001')
+      if (
+        doc.meetingId === 'meeting001' &&
+        doc.whiteboardId === undefined &&
+        doc['shape.id'] === 'shape001'
+      )
         return {
           _id: 'doc001',
         };
@@ -423,7 +461,9 @@ describe('Collections', function () {
     expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
-  it('should not be touched on calling removeShapeFromSlide() with undefined shapeId', function () {
+  it(
+    'should not be touched on calling removeShapeFromSlide() ' +
+    'with undefined shapeId', function () {
     spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
         return {
@@ -435,7 +475,11 @@ describe('Collections', function () {
     });
 
     spyOn(Shapes, 'findOne').and.callFake(function (doc) {
-      if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === undefined)
+      if (
+        doc.meetingId === 'meeting001' &&
+        doc.whiteboardId === 'whiteboard001' &&
+        doc['shape.id'] === undefined
+      )
         return {
           _id: 'doc001',
         };
@@ -449,7 +493,9 @@ describe('Collections', function () {
     expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
-  it('should not be touched on calling removeShapeFromSlide() if there is no wanted shape on the whiteboard', function () {
+  it(
+    'should not be touched on calling removeShapeFromSlide() ' +
+    'if there is no wanted shape on the whiteboard', function () {
     spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
         return {
@@ -461,7 +507,11 @@ describe('Collections', function () {
     });
 
     spyOn(Shapes, 'findOne').and.callFake(function (doc) {
-      if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
+      if (
+        doc.meetingId === 'meeting001' &&
+        doc.whiteboardId === 'whiteboard001' &&
+        doc['shape.id'] === 'shape001'
+      )
         return undefined;
       else return {
         _id: 'doc001',
@@ -475,7 +525,9 @@ describe('Collections', function () {
     expect(Shapes.remove).not.toHaveBeenCalled();
   });
 
-  it('should be updated correctly on calling removeShapeFromSlide() with an existing shape', function () {
+  it(
+    'should be updated correctly on calling removeShapeFromSlide() ' +
+    'with an existing shape', function () {
     spyOn(Shapes, 'find').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
         return {
@@ -487,7 +539,11 @@ describe('Collections', function () {
     });
 
     spyOn(Shapes, 'findOne').and.callFake(function (doc) {
-      if (doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
+      if (
+        doc.meetingId === 'meeting001' &&
+        doc.whiteboardId === 'whiteboard001' &&
+        doc['shape.id'] === 'shape001'
+      )
         return {
           _id: 'doc001',
         };
@@ -503,7 +559,9 @@ describe('Collections', function () {
   // presentation.coffee
   //----------------------------------------------------------------------
 
-  it('should be handled correctly by insert() on calling addPresentationToCollection()', function () {
+  it(
+    'should be handled correctly by insert() ' +
+    'on calling addPresentationToCollection()', function () {
     spyOn(Presentations, 'findOne').and.returnValue(undefined);
 
     spyOn(Presentations, 'insert');
@@ -528,7 +586,9 @@ describe('Collections', function () {
     });
   });
 
-  it('should be handled correctly on calling addPresentationToCollection() when presentation is already in the collection', function () {
+  it(
+    'should be handled correctly on calling addPresentationToCollection() ' +
+    'when presentation is already in the collection', function () {
     spyOn(Presentations, 'findOne').and.returnValue({ _id: 'dbid001' });
 
     spyOn(Presentations, 'insert');
@@ -553,7 +613,9 @@ describe('Collections', function () {
     });
   });
 
-  it('should be handled correctly by remove() on calling removePresentationFromCollection', function () {
+  it(
+    'should be handled correctly by remove() ' +
+    'on calling removePresentationFromCollection', function () {
     spyOn(Presentations, 'findOne').and.returnValue({ _id: 'dbid001' });
     spyOn(Presentations, 'remove');
 
@@ -562,7 +624,9 @@ describe('Collections', function () {
     expect(Presentations.remove).toHaveBeenCalled();
   });
 
-  it('should be handled correctly by remove() on calling removePresentationFromCollection', function () {
+  it(
+    'should be handled correctly by remove() ' +
+    'on calling removePresentationFromCollection', function () {
     spyOn(Presentations, 'findOne').and.returnValue(undefined);
     spyOn(Presentations, 'remove');
 
@@ -576,19 +640,25 @@ describe('Collections', function () {
   //----------------------------------------------------------------------
 
   // removeSlideFromCollection()
-  it('should not be touched on calling removeSlideFromCollection() with undefined meetingId', function () {
+  it(
+    'should not be touched on calling removeSlideFromCollection() ' +
+    'with undefined meetingId', function () {
     spyOn(Slides, 'remove');
     removeSlideFromCollection(undefined, 'presentation001/2');
     expect(Slides.remove).not.toHaveBeenCalled();
   });
 
-  it('should not be touched on calling removeSlideFromCollection() with undefined slideId', function () {
+  it(
+    'should not be touched on calling removeSlideFromCollection() ' +
+    'with undefined slideId', function () {
     spyOn(Slides, 'remove');
     removeSlideFromCollection('meeting001', undefined);
     expect(Slides.remove).not.toHaveBeenCalled();
   });
 
-  it('should not be touched on calling removeSlideFromCollection() with a slide that does not exist', function () {
+  it(
+    'should not be touched on calling removeSlideFromCollection() ' +
+    'with a slide that does not exist', function () {
     spyOn(Slides, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc['slide.id'] === 'slide001')
         return undefined;
@@ -600,7 +670,9 @@ describe('Collections', function () {
     expect(Slides.remove).not.toHaveBeenCalled();
   });
 
-  it('should be handled correctly by remove() on calling removeSlideFromCollection() with an existing slide', function () {
+  it(
+    'should be handled correctly by remove() on calling removeSlideFromCollection() ' +
+    'with an existing slide', function () {
     spyOn(Slides, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc['slide.id'] === 'slide001')
         return { _id: 'doc001' };
@@ -613,7 +685,9 @@ describe('Collections', function () {
   });
 
   // addSlideToCollection()
-  it('should not be touched on calling addSlideToCollection() if the slide is already in the collection', function () {
+  it(
+    'should not be touched on calling addSlideToCollection() ' +
+    'if the slide is already in the collection', function () {
     spyOn(Slides, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc['slide.id'] === 'presentation001/2')
         return { _id: 'doc001' };
@@ -627,7 +701,9 @@ describe('Collections', function () {
     expect(Slides.insert).not.toHaveBeenCalled();
   });
 
-  it('should be handled correctly by insert() on calling addSlideToCollection() with a brand new slide', function () {
+  it(
+    'should be handled correctly by insert() on calling addSlideToCollection() ' +
+    'with a brand new slide', function () {
     spyOn(Slides, 'findOne').and.callFake(function (doc) {
       if (doc.meetingId === 'meeting001' && doc['slide.id'] === 'presentation001/2')
         return undefined;
@@ -658,7 +734,8 @@ describe('Collections', function () {
           x_offset: 0,
           current: true,
           png_uri: 'http://localhost/bigbluebutton/presentation/presentation001/png/2',
-          txt_uri: 'http://localhost/bigbluebutton/presentation/presentation001/textfiles/slide-2.txt',
+          txt_uri: 'http://localhost/bigbluebutton/presentation/presentation001/textfiles/' +
+            'slide-2.txt',
           id: 'presentation001/2',
           width_ratio: 100,
           swf_uri: 'http://localhost/bigbluebutton/presentation/presentation001/slide/2',

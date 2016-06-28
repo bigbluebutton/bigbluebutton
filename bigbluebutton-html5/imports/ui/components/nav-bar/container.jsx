@@ -32,9 +32,10 @@ export default createContainer(() => {
     meetingRecorded = meetingObject.currentlyBeingRecorded;
   }
 
-  return {
+  let data = {
     presentationTitle: meetingTitle,
     hasUnreadMessages: true,
     beingRecorded: meetingRecorded,
   };
+  return data;
 }, NavBarContainer);
