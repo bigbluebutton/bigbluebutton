@@ -7,11 +7,13 @@ import RecordButton from './recordbutton/component';
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
   hasUnreadMessages: PropTypes.bool.isRequired,
+  beingRecorded: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
+  beingRecorded: false,
 };
 
 class NavBar extends Component {
@@ -30,7 +32,7 @@ class NavBar extends Component {
   }
 
   render() {
-    const { presentationTitle } = this.props;
+    const { presentationTitle, beingRecorded } = this.props;
     document.title = presentationTitle;
 
     return (
@@ -50,7 +52,7 @@ class NavBar extends Component {
           <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
           <span className={styles.divideBar}> | </span>
           <div className={styles.record}>
-            <RecordButton />
+            <RecordButton beingRecorded={beingRecorded}/>
           </div>
         </div>
         <div className={styles.right}>

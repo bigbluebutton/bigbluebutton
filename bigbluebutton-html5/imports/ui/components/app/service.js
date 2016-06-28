@@ -1,13 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 
 import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage';
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Meetings from '/imports/api/meetings';
 import Cursor from '/imports/api/cursor';
 import Polls from '/imports/api/polls';
-import { callServer } from '/imports/ui/services/api';
 
 function setCredentials(nextState, replace) {
   if (nextState && nextState.params.authToken) {
@@ -52,15 +50,7 @@ function onError(error, result) {
 
   // console.log("OnError", error, result);
   console.log('OnError', error, result);
-  callServer('userLogout');
-
-  Auth.clearCredentials(() => {
-    document.location = Storage.get('logoutURL');
-  });
-
-  if (error == null) {
-    window.location.href = Storage.get('logoutURL');
-  }
+  Auth.completeLogout();
 };
 
 function onReady() {

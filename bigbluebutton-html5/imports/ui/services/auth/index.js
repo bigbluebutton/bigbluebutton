@@ -1,4 +1,5 @@
 import Storage from '/imports/ui/services/storage';
+import { callServer } from '/imports/ui/services/api';
 
 export const setCredentials = (meeting, user, token) => {
   Storage.set('meetingID', meeting);
@@ -61,6 +62,14 @@ export const setLogOut = () => {
   });
 };
 
+export const completeLogout = () => {
+  let logoutURL = Storage.get('logoutURL');
+  callServer('userLogout');
+  clearCredentials(() => {
+    document.location.href = logoutURL;
+  });
+};
+
 export default {
   setCredentials,
   getCredentials,
@@ -69,4 +78,5 @@ export default {
   getToken,
   clearCredentials,
   setLogOut,
+  completeLogout,
 };

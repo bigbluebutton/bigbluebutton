@@ -2,9 +2,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import Button from '/imports/ui/components/button/component';
 import BaseMenu from './BaseMenu';
-import { callServer } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage';
 import styles from '../../styles';
 import classNames from 'classnames';
 
@@ -37,14 +35,6 @@ export default class SessionMenu extends BaseMenu {
     this.setState({ openConfirm: false });
   }
 
-  logout() {
-    let logoutURL = Storage.get('logoutURL');
-    callServer('userLogout');
-    Auth.clearCredentials(() => {
-      document.location = logoutURL;
-    });
-  }
-
   getContent() {
     return (
       <span>
@@ -55,7 +45,7 @@ export default class SessionMenu extends BaseMenu {
             <hr className={styles.modalHorizontalRule} />
             <span>Do you want to leave this meeting?</span>
             <br />
-            <button onClick={this.logout}
+            <button onClick={Auth.completeLogout}
                     className={classNames(styles.modalButton, styles.done)}
                     tabindex="0"
                     role="button">Yes</button>
