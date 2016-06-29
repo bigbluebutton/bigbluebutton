@@ -4,6 +4,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import PollingContainer from '/imports/ui/components/whiteboard/polling/container';
 
 export default class Whiteboard extends React.Component {
   constructor(props) {
@@ -69,8 +70,11 @@ export default class Whiteboard extends React.Component {
 
   render() {
     return (
-      <div className={styles.whiteboardPaper}>
-        {this.renderWhiteboard()}
+      <div className={styles.whiteboardContainer}>
+        <div className={styles.whiteboardPaper}>
+          {this.renderWhiteboard()}
+        </div>
+        <PollingContainer />
       </div>
     );
   }

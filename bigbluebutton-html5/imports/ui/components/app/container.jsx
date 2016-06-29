@@ -38,15 +38,7 @@ class AppContainer extends Component {
 
 AppContainer.defaultProps = defaultProps;
 
-const actionControlsToShow = () => {
-  if (pollExists()) {
-    return <PollingContainer />;
-  } else {
-    return <ActionsBarContainer />;
-  }
-};
-
 export default createContainer(() => {
-  const data = { actionsbar: actionControlsToShow() };
+  const data = { actionsbar: <ActionsBarContainer /> };
   return data;
 }, AppContainer);

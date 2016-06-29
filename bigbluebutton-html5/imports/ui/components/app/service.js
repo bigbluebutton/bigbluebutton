@@ -57,12 +57,7 @@ function onReady() {
   // console.log("OnReady", Users.find().fetch());
 };
 
-function pollExists() {
-  return !!(Polls.findOne({}));
-}
-
 export {
-  pollExists,
   subscribeForData,
   setCredentials,
 };
