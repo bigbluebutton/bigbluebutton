@@ -3,8 +3,7 @@ import { withRouter } from 'react-router';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import styles from './styles.scss';
 import { FormattedMessage } from 'react-intl';
-import classNames from 'classnames/bind';
-let cx = classNames.bind(styles);
+import cx from 'classnames';
 
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';

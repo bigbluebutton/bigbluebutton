@@ -41,21 +41,13 @@ class ChatListItem extends Component {
   }
 
   renderChatAvatar() {
-    const {
-      chat,
-    } = this.props;
-
-    return <UserAvatar user={chat}/>;
+    return <UserAvatar user={this.props.chat}/>;
   }
 
   renderChatIcon() {
-    const {
-      chat,
-    } = this.props;
-
     return (
       <div className={styles.chatThumbnail}>
-        <Icon iconName={chat.icon} className={styles.actionIcon}/>
+        <Icon iconName={this.props.chat.icon} className={styles.actionIcon}/>
       </div>
     );
   }
