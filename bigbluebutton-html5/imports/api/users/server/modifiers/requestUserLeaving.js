@@ -8,14 +8,15 @@ import { redisConfig } from '/config';
 // After authorization, publish a user_leaving_request in redis
 // params: meetingid, userid as defined in BBB-App
 export function requestUserLeaving(meetingId, userId) {
-  let listenOnlyMessage, message, userObject, meetingObject, voiceConf;
-  userObject = Users.findOne({
+  let voiceConf;
+  const userObject = Users.findOne({
     meetingId: meetingId,
     userId: userId,
   });
-  meetingObject = Meetings.findOne({
+  const meetingObject = Meetings.findOne({
     meetingId: meetingId,
   });
+
   if (meetingObject != null) {
     voiceConf = meetingObject.voiceConf;
   }
@@ -27,8 +28,8 @@ export function requestUserLeaving(meetingId, userId) {
     }
 
     // end listenOnly audio for the departing user
-    if (null != lOnly && lOnly) {
-      listenOnlyMessage = {
+    if (lOnly) {
+      const listenOnlyMessage = {
         payload: {
           userid: userId,
           meeting_id: meetingId,
@@ -44,7 +45,7 @@ export function requestUserLeaving(meetingId, userId) {
     }
 
     // remove user from meeting
-    message = {
+    const message = {
       payload: {
         meeting_id: meetingId,
         userid: userId,

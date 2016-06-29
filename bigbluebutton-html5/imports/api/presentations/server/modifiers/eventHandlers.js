@@ -2,8 +2,9 @@ import { eventEmitter } from '/imports/startup/server';
 import { removePresentationFromCollection } from './removePresentationFromCollection';
 import { addPresentationToCollection } from './addPresentationToCollection';
 import { displayThisSlide } from '/imports/api/slides/server/modifiers/displayThisSlide';
+import { appendMessageHeader, publish, inReplyToHTML5Client }
+  from '/imports/api/common/server/helpers';
 import { addSlideToCollection } from '/imports/api/slides/server/modifiers/addSlideToCollection';
-import { appendMessageHeader, publish, inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Slides from '/imports/api/slides';
 import Presentations from '/imports/api/presentations';
 import { logger } from '/imports/startup/server/logger';

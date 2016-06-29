@@ -18,5 +18,6 @@ class ActionsBarContainer extends Component {
 }
 
 export default createContainer(() => {
-  return {};
+  let data = {};
+  return data;
 }, ActionsBarContainer);

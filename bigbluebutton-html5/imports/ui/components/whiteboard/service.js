@@ -3,12 +3,9 @@ import Shapes from '/imports/api/shapes';
 import Slides from '/imports/api/slides';
 
 let getWhiteboardData = () => {
-  let currentPresentation;
   let currentSlide;
-  let presentationId;
   let shapes;
-  let ref;
-  currentPresentation = Presentations.findOne({
+  let currentPresentation = Presentations.findOne({
       'presentation.current': true,
     });
 
@@ -26,7 +23,7 @@ let getWhiteboardData = () => {
   }
 
   return {
-    current_slide: currentSlide,
+    currentSlide: currentSlide,
     shapes: shapes,
   };
 };

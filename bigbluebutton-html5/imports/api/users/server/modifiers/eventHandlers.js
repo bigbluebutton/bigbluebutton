@@ -150,9 +150,7 @@ eventEmitter.on('user_emoji_status_message', function (arg) {
         'user.set_emoji_time': setEmojiTime,
         'user.emoji_status': emojiStatus,
       },
-    }, (err, numUpdated) => {
-      return logger.info(` Updating emoji numUpdated=${numUpdated}, err=${err}`);
-    });
+    }, (err, numUpdated) => logger.info(` Updating emoji numUpdated=${numUpdated}, err=${err}`));
   }
 
   return arg.callback();
@@ -178,9 +176,11 @@ eventEmitter.on('presenter_assigned_message', function (arg) {
       $set: {
         'user.presenter': false,
       },
-    }, (err, numUpdated) => {
-      return logger.info(` Updating old presenter numUpdated=${numUpdated}, err=${err}`);
-    });
+    }, (err, numUpdated) => logger.info(
+      ` Updating old presenter numUpdated=${numUpdated}, ` +
+      ` err=${err}`
+      )
+    );
 
     // set the new presenter
     Users.update({
@@ -190,9 +190,11 @@ eventEmitter.on('presenter_assigned_message', function (arg) {
       $set: {
         'user.presenter': true,
       },
-    }, (err, numUpdated) => {
-      return logger.info(` Updating new presenter numUpdated=${numUpdated}, err=${err}`);
-    });
+    }, (err, numUpdated) => logger.info(
+      ` Updating new presenter numUpdated=${numUpdated}, ` +
+      `err=${err}`
+      )
+    );
   }
 
   return arg.callback();

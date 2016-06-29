@@ -8,25 +8,25 @@ import { redisConfig } from '/config';
 Meteor.methods({
   publishSwitchToPreviousSlideMessage(credentials) {
     const { meetingId, requesterUserId, requesterToken } = credentials;
-    let currentPresentationDoc, currentSlideDoc, message, previousSlideDoc;
-    currentPresentationDoc = Presentations.findOne({
+
+    const currentPresentationDoc = Presentations.findOne({
       meetingId: meetingId,
       'presentation.current': true,
     });
     if (currentPresentationDoc != null) {
-      currentSlideDoc = Slides.findOne({
+      const currentSlideDoc = Slides.findOne({
         meetingId: meetingId,
         presentationId: currentPresentationDoc.presentation.id,
         'slide.current': true,
       });
       if (currentSlideDoc != null) {
-        previousSlideDoc = Slides.findOne({
+        const previousSlideDoc = Slides.findOne({
           meetingId: meetingId,
           presentationId: currentPresentationDoc.presentation.id,
           'slide.num': currentSlideDoc.slide.num - 1,
         });
         if ((previousSlideDoc != null) && isAllowedTo('switchSlide', credentials)) {
-          message = {
+          let message = {
             payload: {
               page: previousSlideDoc.slide.id,
               meeting_id: meetingId,
