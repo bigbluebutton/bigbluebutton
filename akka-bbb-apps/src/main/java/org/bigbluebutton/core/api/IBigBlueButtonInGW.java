@@ -18,6 +18,7 @@ public interface IBigBlueButtonInGW {
 	void destroyMeeting(String meetingID);
 	void getAllMeetings(String meetingID);
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
+	void activityResponse(String meetingID);
 	
 	// Polling
 	void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId);
@@ -52,6 +53,7 @@ public interface IBigBlueButtonInGW {
 	void getGuestPolicy(String meetingID, String userID);
 	void setGuestPolicy(String meetingID, String guestPolicy, String setBy);
 	void responseToGuest(String meetingID, String userID, Boolean response, String requesterID);
+	void logoutEndMeeting(String meetingID, String userID);
 	
 	// Voice
 	void initAudioSettings(String meetingID, String requesterID, Boolean muted);
@@ -106,6 +108,7 @@ public interface IBigBlueButtonInGW {
 	void getChatHistory(String meetingID, String requesterID, String replyTo);
 	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
 	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
+	void clearPublicChatHistory(String meetingID, String requesterID);
 
 	// Whiteboard
 	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);	

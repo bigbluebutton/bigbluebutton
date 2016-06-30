@@ -42,11 +42,14 @@ case class ChangeUserRole(meetingID: String, userID: String, role: Role) extends
 case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
 case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
 case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
+case class ActivityResponse(meetingID: String) extends InMessage
+case class LogoutEndMeeting(meetingID: String, userID: String) extends InMessage
 
 // Chat
 case class GetChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
 case class SendPublicMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
 case class SendPrivateMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
+case class ClearPublicChatHistoryRequest(meetingID: String, requesterID: String) extends InMessage
 case class UserConnectedToGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
   userid: String, name: String) extends InMessage
 case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,

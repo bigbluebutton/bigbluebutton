@@ -37,6 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.UserService;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -88,7 +89,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
     <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
   </EventHandlers>
-  
+
+  <EventHandlers type="{BBBEvent.ACTIVITY_RESPONSE_EVENT}">
+    <MethodInvoker generator="{UserService}" method="activityResponse" />
+  </EventHandlers>
+
   <EventHandlers type="{KickUserEvent.KICK_USER}" >
     <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
   </EventHandlers>
@@ -176,6 +181,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{BBBEvent.BROADCAST_GUEST_POLICY}" >
     <MethodInvoker generator="{UserService}" method="setGuestPolicy" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.LOGOUT_END_MEETING_EVENT}" >
+    <MethodInvoker generator="{UserService}" method="logoutEndMeeting" />
+  </EventHandlers>
+
+  <EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" >
+    <MethodInvoker generator="{GuestManager}" method="refreshGuestView" />
   </EventHandlers>
   <!-- End Guest Events -->
 </EventMap>

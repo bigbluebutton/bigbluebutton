@@ -19,7 +19,11 @@
 package org.bigbluebutton.modules.sharednotes.services
 {
   import flash.events.IEventDispatcher;
-  
+  import flash.events.TimerEvent;
+  import flash.utils.Timer;
+
+  import mx.collections.ArrayCollection;
+
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
@@ -32,21 +36,35 @@ package org.bigbluebutton.modules.sharednotes.services
   public class MessageReceiver implements IMessageListener {
     private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
 
+    private var buffering:Boolean = true;
+    private var patchDocumentBuffer:ArrayCollection = new ArrayCollection();
+    private var bufferingTimeout:Timer = new Timer(5000, 1);
+    private var bufferReader:Timer = new Timer(1000, 1);
     public var dispatcher:IEventDispatcher;
     
     public function MessageReceiver()
     {
       BBB.initConnectionManager().addMessageListener(this);
+      bufferingTimeout.addEventListener(TimerEvent.TIMER, endBuffering);
+      bufferReader.addEventListener(TimerEvent.TIMER, consumeBuffer);
     }
     
     public function onMessage(messageName:String, message:Object):void
     {
       switch (messageName) {
         case "PatchDocumentCommand":
-          handlePatchDocumentCommand(message);
-          break;			
+          if (buffering || patchDocumentBuffer.length != 0) {
+            patchDocumentBuffer.addItem(message);
+            if (!bufferReader.running) {
+              bufferReader.start();
+            }
+          } else {
+            handlePatchDocumentCommand(message);
+          }
+          break;
         case "GetCurrentDocumentCommand":
           handleGetCurrentDocumentCommand(message);
+          bufferingTimeout.start();
           break;	
         case "CreateAdditionalNotesCommand":
           handleCreateAdditionalNotesCommand(message);
@@ -58,18 +76,30 @@ package org.bigbluebutton.modules.sharednotes.services
           //   LOGGER.warn("Cannot handle message [" + messageName + "]");
       }
     }
+
+    private function endBuffering(e:TimerEvent):void {
+      buffering = false;
+    }
+
+    private function consumeBuffer(e:TimerEvent):void {
+      while (patchDocumentBuffer.length > 0) {
+        handlePatchDocumentCommand(patchDocumentBuffer.removeItemAt(0));
+      }
+    }
     
     private function handlePatchDocumentCommand(msg: Object):void {
       LOGGER.debug("Handling patch document message [" + msg.msg + "]");
       var map:Object = JSON.parse(msg.msg);
 
-      if (map.userID == UsersUtil.getMyUserID()) {
-        return;
-      }
-
       var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
+      if (map.userID != UsersUtil.getMyUserID()) {
+        receivePatchEvent.patch = map.patch;
+      } else {
+        receivePatchEvent.patch = "";
+      }
       receivePatchEvent.noteId = map.noteID;
-      receivePatchEvent.patch = map.patch;
+      receivePatchEvent.patchId = map.patchID;
+
       dispatcher.dispatchEvent(receivePatchEvent);
     }
         

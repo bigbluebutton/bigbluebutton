@@ -57,7 +57,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.CloseEvent;
 			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
-			
+			import mx.core.FlexGlobals;
+
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbToolbarComponent;
@@ -261,29 +262,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function confirmLogout():void {
 				if (toolbarOptions.confirmLogout){
-					// Confirm logout using built-in alert
-					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
-					
-          var newX:Number = btnLogout.x + btnLogout.width - alert.width;
+
+					var logoutWindow:LogoutWindow;
+					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
+
+					var newX:Number = btnLogout.x + btnLogout.width - logoutWindow.width;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
-												
-					alert.validateNow();
-					alert.move(newX, newY);
-					//Accessibility.updateProperties();
+
+					PopUpManager.centerPopUp(logoutWindow);
+
+					logoutWindow.x = newX;
+					logoutWindow.y = newY;
+
 				}
 				else{
 					doLogout();
 				}
 			}
-			
-						
-			private function alertLogout(e:CloseEvent):void {
-				// Check to see if the YES button was pressed.
-				if (e.detail==Alert.YES) {
-					 doLogout();
-				}
-			}
-			
+
 			private function doLogout():void {
 				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
@@ -356,6 +352,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					hideLogo();
 				} else {
 					logo.source = e.config.logo;
+				}
+				
+				if (e.config.toolbarColor != "") {
+					setStyle("backgroundColor", e.config.toolbarColor);
+				}
+				if (e.config.toolbarColorAlphas != "") {
+					setStyle("highlightAlphas", e.config.toolbarColorAlphas.split(","));
 				}
 			}
 			

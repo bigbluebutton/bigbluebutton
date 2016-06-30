@@ -22,6 +22,7 @@ import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.red5.server.api.scope.IScope
 import org.red5.server.api.so.ISharedObject
 
+import java.io.{PrintWriter, StringWriter}
 import java.util.ArrayList
 
 import scala.actors.Actor
@@ -47,7 +48,15 @@ class StreamManager(record:Boolean, recordingService:RecordingService) extends A
   	private case class RemoveStream(room: String)
 
 	private val streams = new HashMap[String, DeskshareStream]
- 
+
+	override def exceptionHandler() = {
+	  case e: Exception => {
+	    val sw:StringWriter = new StringWriter()
+	    sw.write("An exception has been thrown on StreamManager, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+	    e.printStackTrace(new PrintWriter(sw))
+	    log.error(sw.toString())
+	  }
+	}
 
 	def act() = {
 	  loop {

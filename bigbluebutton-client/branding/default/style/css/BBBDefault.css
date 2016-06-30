@@ -50,6 +50,17 @@ ToolTip {
   paddingRight: 3;
 }
 
+.chatToolbarStyle {
+  backgroundColor: #CCCCCC;
+  cornerRadius: 5;
+  borderStyle: solid;
+  borderThickness: 1;
+  paddingBottom: 2;
+  paddingTop: 2;
+  paddingLeft: 2;
+  paddingRight: 2;
+}
+
 .meetingNameLabelStyle {
   fontWeight: bold;
   fontSize: 15;
@@ -211,7 +222,8 @@ DataGrid {
 
 .whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
 .whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
-.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle
+.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle,
+.chatClearButtonStyle
 {
   textIndent: 0;
   paddingLeft: 0;
@@ -240,6 +252,10 @@ DataGrid {
 }
 
 .whiteboardClearButtonStyle {
+  icon: Embed('assets/images/delete.png');    
+}
+
+.chatClearButtonStyle {
   icon: Embed('assets/images/delete.png');    
 }
 
@@ -305,8 +321,8 @@ DataGrid {
 
 
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
-.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle,
-.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle, .presentationDownloadButtonDisabledStyle,
+.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle, .chatCopyButtonStyle, .chatSaveButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -325,7 +341,7 @@ DataGrid {
   fontSize: 12;
 }
 
-.sharedNotesSaveButtonStyle {
+.sharedNotesSaveButtonStyle, .chatSaveButtonStyle {
   icon: Embed('assets/images/ic_save_16px.png');
 }
 
@@ -371,6 +387,10 @@ DataGrid {
 
 .presentationDownloadButtonStyle {
   icon:   Embed('assets/images/ic_file_download_16px.png');
+}
+
+.presentationDownloadButtonDisabledStyle {
+  icon:   Embed('assets/images/ic_file_download_grey_16px.png');
 }
 
 .presentationZoomSliderStyle{
@@ -556,7 +576,7 @@ TitleWindow {
   fontWeight: bold;    
 }
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle, .inactivityWarningTextStyle {
   fontFamily: Arial;
   fontSize: 14;    
 }
@@ -597,7 +617,7 @@ TitleWindow {
 	icon:   Embed('assets/images/headset.png');
 }
 
-.micSettingsWindowCancelButtonStyle {
+.micSettingsWindowCancelButtonStyle, inactivityWarningWindowCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
@@ -857,6 +877,14 @@ https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
   icon:   Embed('assets/images/webcam.png');
 }
 
+.cameraDisplaySettingsWindowStartBtnDisabled
+{
+  icon: Embed('assets/images/webcam.png');
+  color: #AAB3B3;
+  textSelectedColor: #AAB3B3;
+  fillAlphas: 0.45, 0.25;  
+}
+
 Alert {
 	borderColor: #DFDFDF;
 	backgroundColor: #EFEFEF;
@@ -1013,4 +1041,8 @@ EmojiGrid {
 
 .moodSadStyle {
   icon:   Embed('assets/images/icon-7-sad-face.png');
+}
+
+.chatCopyButtonStyle{
+  icon:   Embed('assets/images/ic_content_copy_black_16px.png');
 }

@@ -4,6 +4,9 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy.Resume
+import java.io.{ PrintWriter, StringWriter }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.core.pubsub.senders.ChatMessageToJsonConverter
@@ -16,6 +19,7 @@ import org.bigbluebutton.common.messages.PresentationRemovedMessage
 import org.bigbluebutton.core.apps.Page
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
+import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
 import org.bigbluebutton.core.pubsub.senders.SharedNotesMessageToJsonConverter
@@ -38,6 +42,16 @@ object MessageSenderActor {
 class MessageSenderActor(val meetingId: String, val service: MessageSender)
     extends Actor with ActorLogging {
 
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+    case e: Exception => {
+      val sw: StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on MessageSenderActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      log.error(sw.toString())
+      Resume
+    }
+  }
+
   val encoder = new ToJsonEncoder()
 
   def receive = {
@@ -45,6 +59,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
     case msg: SendPrivateMessageEvent => handleSendPrivateMessageEvent(msg)
+    case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
     case msg: MeetingCreated => handleMeetingCreated(msg)
     case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
     case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
@@ -55,6 +70,8 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: MeetingDestroyed => handleMeetingDestroyed(msg)
     case msg: KeepAliveMessageReply => handleKeepAliveMessageReply(msg)
     case msg: PubSubPong => handlePubSubPong(msg)
+    case msg: InactivityWarning => handleInactivityWarning(msg)
+    case msg: MeetingIsActive => handleMeetingIsActive(msg)
     case msg: StartRecording => handleStartRecording(msg)
     case msg: StopRecording => handleStopRecording(msg)
     case msg: GetAllMeetingsReply => handleGetAllMeetingsReply(msg)
@@ -146,6 +163,11 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
   }
 
+  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
+    val json = ChatMessageToJsonConverter.clearPublicChatHistoryReplyToJson(msg)
+    service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
+  }
+
   private def handleStartRecordingVoiceConf(msg: StartRecordingVoiceConf) {
     val m = new StartRecordingVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
@@ -230,6 +252,16 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
 
   private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {
     val json = MeetingMessageToJsonConverter.getAllMeetingsReplyToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+
+  private def handleInactivityWarning(msg: InactivityWarning) {
+    val json = MeetingMessageToJsonConverter.inactivityWarningToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+
+  private def handleMeetingIsActive(msg: MeetingIsActive) {
+    val json = MeetingMessageToJsonConverter.meetingIsActiveToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 

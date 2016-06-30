@@ -24,6 +24,8 @@ public class MessageFromJsonConverter {
 					  return processEndMeetingMessage(payload);
 				  case KeepAliveMessage.KEEP_ALIVE_REQUEST:
 					  return processKeepAlive(payload);
+				  case ActivityResponseMessage.ACTIVITY_RESPONSE:
+					  return processActivityResponseMessage(payload);
 				  case RegisterUserMessage.REGISTER_USER:
 					  return RegisterUserMessage.fromJson(message);
 				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
@@ -85,4 +87,8 @@ public class MessageFromJsonConverter {
 		return new KeepAliveMessage(id);
 	}
 
+	private static IBigBlueButtonMessage processActivityResponseMessage(JsonObject payload) {
+		String id = payload.get(Constants.MEETING_ID).getAsString();
+		return new ActivityResponseMessage(id);
+	}
 }

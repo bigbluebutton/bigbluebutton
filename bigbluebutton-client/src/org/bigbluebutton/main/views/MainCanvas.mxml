@@ -79,8 +79,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			public function removeAllWindows():void{
-				this.windowManager.removeAll();
+			/**
+			 * Removes all display list containers created using PopUpManager
+			 */
+			public function removeAllPopUps():void{
+				for (var i:int = systemManager.numChildren-1; i>0; i-=1){
+					if(!(systemManager.getChildAt(i) is LoggedOutWindow)){
+						systemManager.removeChildAt(i);
+					}
+				}
 			}
 			
 			public function resetWindowLayout():void{

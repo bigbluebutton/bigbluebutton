@@ -23,6 +23,8 @@ case class MeetingState(meetingID: String, recorded: Boolean, userId: String, pe
 case class MeetingHasEnded(meetingID: String, userId: String) extends IOutMessage
 case class MeetingDestroyed(meetingID: String) extends IOutMessage
 case class DisconnectAllUsers(meetingID: String) extends IOutMessage
+case class InactivityWarning(meetingID: String, duration: Long) extends IOutMessage
+case class MeetingIsActive(meetingID: String) extends IOutMessage
 case class DisconnectUser(meetingID: String, userId: String) extends IOutMessage
 case class KeepAliveMessageReply(aliveID: String) extends IOutMessage
 case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
@@ -74,6 +76,7 @@ case class SendPublicMessageEvent(meetingID: String, recorded: Boolean, requeste
   message: Map[String, String]) extends IOutMessage
 case class SendPrivateMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
   message: Map[String, String]) extends IOutMessage
+case class ClearPublicChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
 
 // Layout
 case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,
@@ -137,7 +140,7 @@ case class GuestPolicyChanged(meetingID: String, recorded: Boolean, policy: Stri
 case class GuestAccessDenied(meetingID: String, recorded: Boolean, userId: String) extends IOutMessage
 
 // Shared Notes
-case class PatchDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, patch: String) extends IOutMessage
+case class PatchDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, patch: String, patchID: Int) extends IOutMessage
 case class GetCurrentDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, notes: Map[String, Note]) extends IOutMessage
 case class CreateAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, noteName: String) extends IOutMessage
 case class DestroyAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String) extends IOutMessage

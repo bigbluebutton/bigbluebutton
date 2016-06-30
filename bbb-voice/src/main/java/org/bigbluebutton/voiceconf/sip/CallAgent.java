@@ -139,10 +139,10 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
 
     private void setupCallerDisplayName(String callerName, String destination) {
-    	String fromURL = "\"" + callerName + "\" <sip:" + destination + "@" + portProvider.getHost() + ">";
+    	String fromURL = "\"" + callerName + "\" <sip:" + destination + "@" + clientRtpIp + ">";
     	userProfile.username = callerName;
     	userProfile.fromUrl = fromURL;
-		userProfile.contactUrl = "sip:" + destination + "@" + sipProvider.getViaAddress();
+		userProfile.contactUrl = "sip:" + destination + "@" + clientRtpIp;
         if (sipProvider.getPort() != SipStack.default_port) {
             userProfile.contactUrl += ":" + sipProvider.getPort();
         }

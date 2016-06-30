@@ -15,7 +15,7 @@
       }
     ]]>
   </mx:Script>
-  <mx:Label id="presentationNameLabel" text="{data.name as String}" styleName="presentationNameLabelStyle" width="80%"/>
+  <mx:Label id="presentationNameLabel" width="{this.width-downloadBtn.width-30}" text="{data.name as String}" toolTip="{data.name as String}" styleName="presentationNameLabelStyle" truncateToFit="true"/>
   <mx:Button id="downloadBtn" label="{ResourceUtil.getInstance().getString('bbb.filedownload.downloadBtn')}" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.downloadBtn')}" 
              styleName="presentationUploadShowButtonStyle"

@@ -438,17 +438,24 @@ public class MeetingService implements MessageListener {
 
     public void setPublishRecording(List<String> idList, boolean publish) {
         for (String id : idList) {
+            boolean success = false;
             if (publish) {
-                recordingService.changeState(id, Recording.STATE_PUBLISHED);
+                success = recordingService.changeState(id, Recording.STATE_PUBLISHED);
             } else {
-                recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
+                success = recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
+            }
+            if (success) {
+                messagingService.publishRecording(id, publish);
             }
         }
     }
 
     public void deleteRecordings(ArrayList<String> idList) {
         for (String id : idList) {
-            recordingService.changeState(id, Recording.STATE_DELETED);
+            boolean success = recordingService.changeState(id, Recording.STATE_DELETED);
+            if (success) {
+                messagingService.deleteRecording(id);
+            }
         }
     }
 
@@ -479,7 +486,9 @@ public class MeetingService implements MessageListener {
 
     private void processEndMeeting(EndMeeting message) {
         messagingService.endMeeting(message.meetingId);
+    }
 
+    private void processRemoveEndedMeeting(MeetingEnded message) {
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
             m.setForciblyEnded(true);
@@ -583,6 +592,8 @@ public class MeetingService implements MessageListener {
             String logStr = gson.toJson(logData);
 
             log.info("Meeting ended: data={}", logStr);
+
+            processRemoveEndedMeeting(message);
 
             return;
         }

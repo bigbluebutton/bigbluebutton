@@ -54,7 +54,13 @@ public class ParticipantsService {
 		String userId = getBbbSession().getInternalUserID();
 		red5InGW.getUsers(meetingId, userId);
 	}
-	
+
+	public void activityResponse() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String meetingId = scope.getName();
+		red5InGW.activityResponse(meetingId);
+	}
+
 	public void userEmojiStatus(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();
@@ -164,6 +170,13 @@ public class ParticipantsService {
 		String role = (String) msg.get("role");
 		log.debug("Setting participant role " + roomName + " " + userId + " " + role);
 		red5InGW.setParticipantRole(roomName, userId, role);
+	}
+
+	public void logoutEndMeeting(Map<String, Object> msg) {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String meetingId = scope.getName();
+		String userId = (String) msg.get("userId");
+		red5InGW.logoutEndMeeting(meetingId, userId);
 	}
 
 	public void setRed5Publisher(MessagePublisher red5InGW) {

@@ -3,6 +3,7 @@ package org.bigbluebutton.core.pubsub.receivers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bigbluebutton.common.messages.ActivityResponseMessage;
 import org.bigbluebutton.common.messages.CreateMeetingMessage;
 import org.bigbluebutton.common.messages.DestroyMeetingMessage;
 import org.bigbluebutton.common.messages.EndMeetingMessage;
@@ -93,6 +94,9 @@ public class MeetingMessageReceiver implements MessageHandler {
 				else if (msg instanceof GetAllMeetingsRequest) {
 					GetAllMeetingsRequest emm = (GetAllMeetingsRequest) msg;
 					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
+				} else if (msg instanceof ActivityResponseMessage) {
+					ActivityResponseMessage arm = (ActivityResponseMessage) msg;
+					bbbGW.activityResponse(arm.meetingId);
 				} else {
 					System.out.println("Unknown message: [" + message + "]");
 				}

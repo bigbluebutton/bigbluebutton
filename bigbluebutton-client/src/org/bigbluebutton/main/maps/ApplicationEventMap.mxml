@@ -53,6 +53,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
 	</EventHandlers>
+	
+	<EventHandlers type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" >
+		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+	</EventHandlers>
 		
 	<EventHandlers type="{ConfigEvent.CONFIG_EVENT}" >
 		<MethodInvoker generator="{ConfigManager}" method="setConfig" arguments="{event.config}" />
@@ -91,19 +95,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 	<![CDATA[
-    import mx.events.FlexEvent;
-    
-    import org.bigbluebutton.core.managers.ConfigManager;
-    import org.bigbluebutton.core.managers.ReconnectionManager;
-    import org.bigbluebutton.core.services.SkinningService;
-    import org.bigbluebutton.core.services.StreamMonitor;
-    import org.bigbluebutton.main.events.BBBEvent;
-    import org.bigbluebutton.main.events.ConfigEvent;
-    import org.bigbluebutton.main.events.LogoutEvent;
-    import org.bigbluebutton.main.events.ModuleLoadEvent;
-    import org.bigbluebutton.main.events.PortTestEvent;
-    import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-    import org.bigbluebutton.main.model.modules.ModulesProxy;
+		import mx.events.FlexEvent;
+		
+		import org.bigbluebutton.core.managers.ConfigManager;
+		import org.bigbluebutton.core.managers.ReconnectionManager;
+		import org.bigbluebutton.core.services.SkinningService;
+		import org.bigbluebutton.core.services.StreamMonitor;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.ConfigEvent;
+		import org.bigbluebutton.main.events.LogoutEvent;
+		import org.bigbluebutton.main.events.ModuleLoadEvent;
+		import org.bigbluebutton.main.events.PortTestEvent;
+		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+		import org.bigbluebutton.main.model.modules.ModulesProxy;
+		import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 		
 	]]>
 	</mx:Script>

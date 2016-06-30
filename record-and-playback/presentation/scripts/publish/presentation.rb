@@ -849,7 +849,15 @@ def processChatMessages
             chat_sender = node.xpath(".//sender")[0].text()
             chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
             chat_start = ( translateTimestamp(chat_timestamp) / 1000).to_i
-            $xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+            # Creates a list of the clear timestamps that matter for this message
+            next_clear_timestamps = $clear_chat_timestamps.select{ |e| e >= node[:timestamp] }
+            # If there is none we skip it, or else we add the out time that will remove a message
+            if next_clear_timestamps.empty?
+              $xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+            else
+              chat_end = ( translateTimestamp( next_clear_timestamps.first ) / 1000).to_i
+              $xml.chattimeline(:in => chat_start, :out => chat_end, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+            end
           end
         end
         current_time += re[:stop_timestamp] - re[:start_timestamp]
@@ -1032,6 +1040,12 @@ begin
         $undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
         $join_time = $meeting_start.to_f
         $end_time = $meeting_end.to_f
+
+        # Create a list of timestamps when the moderator cleared the public chat
+		$clear_chat_timestamps = [ ]
+		clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
+		clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
+		$clear_chat_timestamps.sort!
 
         calculateRecordEventsOffset()
 

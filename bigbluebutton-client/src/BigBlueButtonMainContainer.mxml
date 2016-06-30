@@ -172,10 +172,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (ShortcutOptions.deskshareActive){
           keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.desktop') as String)] = ShortcutEvent.SHARE_DESKTOP;
         }
-        if (ShortcutOptions.audioActive){
-          keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.microphone') as String)] = ShortcutEvent.SHARE_MICROPHONE;
-          keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.pauseRemoteStream') as String)] = ShortcutEvent.PAUSE_REMOTE_STREAM;
-        }
       }
       
       public function hotkeyCapture():void{

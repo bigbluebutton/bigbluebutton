@@ -57,6 +57,7 @@ public class SharedNotesClientMessageSender {
 			args.put("userID", msg.requesterID);
 			args.put("noteID", msg.noteID);
 			args.put("patch", msg.patch);
+			args.put("patchID", msg.patchID);
 
 			Map<String, Object> message = new HashMap<String, Object>();
 			Gson gson = new Gson();

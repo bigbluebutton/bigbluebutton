@@ -26,4 +26,10 @@ trait ChatApp {
     val privMsg = msg.message.toMap
     outGW.send(new SendPrivateMessageEvent(mProps.meetingID, mProps.recorded, msg.requesterID, privMsg))
   }
+
+  def handleClearPublicChatHistoryRequest(msg: ClearPublicChatHistoryRequest) {
+    chatModel.clearPublicChatHistory()
+    outGW.send(new ClearPublicChatHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID))
+  }
+
 }

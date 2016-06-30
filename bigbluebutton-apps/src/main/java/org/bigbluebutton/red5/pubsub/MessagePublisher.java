@@ -243,6 +243,10 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
+	public void clearPublicChatMessage(String meetingID, String requesterID) {
+		ClearPublicChatHistoryRequestMessage msg = new ClearPublicChatHistoryRequestMessage(meetingID, requesterID);
+		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
+	}
 
 	public void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message) {
 		SendPublicChatMessage msg = new SendPublicChatMessage(meetingID, requesterID, message);
@@ -314,5 +318,15 @@ public class MessagePublisher {
 	public void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize) {
 		RequestAdditionalNotesSetRequestMessage msg = new RequestAdditionalNotesSetRequestMessage(meetingID, requesterID, additionalNotesSetSize);
 		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+
+	public void logoutEndMeeting(String meetingId, String userId) {
+		LogoutEndMeetingRequestMessage msg = new LogoutEndMeetingRequestMessage(meetingId, userId);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
+	public void activityResponse(String meetingID) {
+		ActivityResponseMessage msg = new ActivityResponseMessage(meetingID);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 }

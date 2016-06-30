@@ -34,6 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
   <mate:Listener type="{ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT}" method="dispatchSaveChatEvent" />
   <mate:Listener type="{ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT}" method="dispatchCopyChatEvent" />
+  <mate:Listener type="{ShortcutEvent.CLOSE_PRIVATE}" method="remoteClosePrivate" />
   
 	<mx:Script>
 		<![CDATA[
@@ -48,6 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flexlib.events.SuperTabEvent;
 			
 			import mx.controls.Button;
+			import mx.core.INavigatorContent;
 			
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.UsersUtil;
@@ -67,7 +69,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    private var OPTION_TAB_ID:String = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");
 	    private var tabBox:AddChatTabBox;
 	    private var publicBox:ChatBox;
-	    private var focus:Boolean = true;			
+	    private var focus:Boolean = true;
+	    private var focusSwitchTimer:Timer;
 	    private var globalDispatcher:Dispatcher = new Dispatcher();
 			
       [Bindable] public var chatOptions:ChatOptions;
@@ -249,9 +252,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				// An event to remove the "NEW MESSAGE" notification from the accessibilityDescription of the given chat tab (if it exists) should go here.
 				// However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.
-				
-		    var chatBox:IChatTab = chatTabs.getChildAt(chatTabs.selectedIndex) as IChatTab;
-		    chatBox.focusToTextMessageArea();
+				var chatBox:IChatTab = chatTabs.getChildAt(chatTabs.selectedIndex) as IChatTab;
+				// When the tab is switched we want to autofocus to the area that we likely want to immediately interact with, 
+				// but if we move focus immediately the tab's contents aren't actually visible on the screen. This results in 
+				// a screen reader not recognizing the focus shift. We need to delay the focus change for a couple of frames, 
+				// but there isn't a good event to listen for so a short Timer was used instead.
+				focusSwitchTimer = new Timer(250, 1);
+				focusSwitchTimer.addEventListener(TimerEvent.TIMER, function():void {
+					chatBox.focusToTextMessageArea();
+				});
+				focusSwitchTimer.start();
 			}
 								
 		  private function userHasChatBox(userID:String):Boolean {
@@ -292,6 +302,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		    } else {
 		      chatBox.publicChat = false;
 		      chatBox.label = UsersUtil.getUserName(chatWithUserID);
+		      chatBox.displayHowToCloseMessage();
 		    }
 				
 				chatBox.chatWithUsername = UsersUtil.getUserName(chatWithUserID);
@@ -381,6 +392,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onUserClosedTab(e:SuperTabEvent):void{
 				var name:String = chatTabs.getChildAt(e.tabIndex).name;
+			}
+			
+			private function remoteClosePrivate(e:ShortcutEvent):void {
+				var selectedTab:INavigatorContent = chatTabs.selectedChild;
+				if (selectedTab is ChatBox && !(selectedTab as ChatBox).publicChat) {
+					chatTabs.removeChild(selectedTab as DisplayObject);
+				}
 			}
 			
 		]]>

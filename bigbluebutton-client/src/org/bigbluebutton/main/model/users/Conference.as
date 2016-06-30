@@ -120,6 +120,7 @@ package org.bigbluebutton.main.model.users {
 			}
 			if (newuser.userID == me.userID) {
 				newuser.me = true;
+				me = newuser;
 			}
 			
 			users.addItem(newuser);
@@ -378,6 +379,10 @@ package org.bigbluebutton.main.model.users {
 
 		public function amIGuest():Boolean {
 			return me.guest;
+		}
+
+		public function amIWaitingForAcceptance():Boolean {
+			return me.waitingForAcceptance;
 		}
 
 		public function setGuest(guest:Boolean):void {

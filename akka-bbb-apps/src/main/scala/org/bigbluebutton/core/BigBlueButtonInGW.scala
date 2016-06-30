@@ -74,6 +74,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
 
   }
 
+  def activityResponse(meetingID: String) {
+    bbbActor ! new ActivityResponse(meetingID)
+  }
+
   /**
    * ***********************************************************
    * Message Interface for Users
@@ -164,6 +168,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
 
   def ejectUserFromMeeting(meetingId: String, userId: String, ejectedBy: String) {
     bbbActor ! new EjectUserFromMeeting(meetingId, userId, ejectedBy)
+  }
+
+  def logoutEndMeeting(meetingId: String, userId: String) {
+    bbbActor ! new LogoutEndMeeting(meetingId, userId)
   }
 
   def shareWebcam(meetingId: String, userId: String, stream: String) {
@@ -361,6 +369,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
 
   def sendPrivateMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
     bbbActor ! new SendPrivateMessageRequest(meetingID, requesterID, mapAsScalaMap(message).toMap)
+  }
+
+  def clearPublicChatHistory(meetingID: String, requesterID: String) {
+    bbbActor ! new ClearPublicChatHistoryRequest(meetingID, requesterID)
   }
 
   /**

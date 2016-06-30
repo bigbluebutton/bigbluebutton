@@ -97,9 +97,17 @@ package org.bigbluebutton.main.views
         public function set successCallback(f:Function):void {
             _successCallback = f;
         }
+        
+        public function get successCallback():Function {
+            return _successCallback;
+        }
 
         public function set failCallback(f:Function):void {
             _failCallback = f;
+        }
+        
+        public function get failCallback():Function {
+            return _failCallback;
         }
 
         private function onSuccessCallback():void {
@@ -118,7 +126,7 @@ package org.bigbluebutton.main.views
         private function onFailCallback(resourceName:String):void {
             showError(resourceName);
             if (_failCallback != null) {
-                _failCallback();
+                _failCallback(resourceName);
             }
             imgChromeHelp.visible = false;
         }
@@ -144,7 +152,7 @@ package org.bigbluebutton.main.views
                     } else if (_chromePermissionDenied) {
                         showWarning('bbb.video.publish.hint.cameraDenied');
                     } else {
-                        showWarning('bbb.video.publish.hint.waitingApproval');
+                        onFailCallback('bbb.video.publish.hint.waitingApproval');
                     }
                 } else {
                     onCameraAccessAllowed();
@@ -227,7 +235,7 @@ package org.bigbluebutton.main.views
 
         private function onCameraAccessAllowed():void {
             // this is just to overwrite the message of waiting for approval
-            showWarning('bbb.video.publish.hint.openingCamera');
+            onFailCallback('bbb.video.publish.hint.openingCamera');
 
             _cameraAccessDenied = false;
 

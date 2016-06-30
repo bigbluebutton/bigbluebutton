@@ -2,8 +2,10 @@ package org.bigbluebutton.core
 
 import akka.actor._
 import akka.actor.ActorLogging
+import akka.actor.SupervisorStrategy.Resume
 import akka.pattern.{ ask, pipe }
 import akka.util.Timeout
+import java.io.{ PrintWriter, StringWriter }
 import scala.concurrent.duration._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
@@ -33,6 +35,16 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
 
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
   private val outGW = new OutMessageGateway("bbbActorOutGW", recorderApp, messageSender)
+
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+    case e: Exception => {
+      val sw: StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on BigBlueButtonActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      log.error(sw.toString())
+      Resume
+    }
+  }
 
   def receive = {
     case msg: CreateMeeting => handleCreateMeeting(msg)
