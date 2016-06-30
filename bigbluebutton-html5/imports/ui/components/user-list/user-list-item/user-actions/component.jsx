@@ -42,7 +42,7 @@ class UserActions extends Component {
       <div key={user.id} className={styles.userItemActions}>
         <ul className={styles.userActionsList}>
 
-          {this.renderUserAction(openChat, router, user)}
+          {!user.isCurrent ? this.renderUserAction(openChat, router, user) : null}
           {currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null}
           {currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null}
           {currentUser.isModerator ? this.renderUserAction(promote, user) : null}

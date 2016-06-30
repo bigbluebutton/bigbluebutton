@@ -65,6 +65,7 @@ class UserList extends Component {
   renderMessages() {
     const {
       openChats,
+      openChat,
     } = this.props;
 
     return (
@@ -90,6 +91,7 @@ class UserList extends Component {
               {openChats.map(chat => (
                 <ChatListItem
                   key={chat.id}
+                  openChat={openChat}
                   chat={chat} />
               ))}
           </ReactCSSTransitionGroup>

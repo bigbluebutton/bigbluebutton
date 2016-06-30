@@ -6,7 +6,6 @@
 }
 
 .userActionsList {
-  margin-top: 0.5rem;
   list-style: none;
   padding: 0;
   font-size: 0.9rem;
@@ -23,6 +22,10 @@
 
   &:hover, &:focus {
     background-color: darken($user-list-bg, 14%);
+  }
+
+  &:first-child {
+    margin-top: 0.5rem;
   }
 }
 

@@ -18,6 +18,7 @@ class UserListContainer extends Component {
 export default createContainer(({ params }) => ({
   users: Service.getUsers(),
   currentUser: Service.getCurrentUser(),
-  openChats: Service.getOpenChats(params),
+  openChats: Service.getOpenChats(params.chatID),
+  openChat: params.chatID,
   userActions: Service.userActions,
 }), UserListContainer);

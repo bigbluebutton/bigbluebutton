@@ -1,4 +1,5 @@
 import Users from '/imports/api/users';
+import Chat from '/imports/api/chat';
 import auth from '/imports/ui/services/auth';
 
 import { callServer } from '/imports/ui/services/api';
@@ -163,7 +164,7 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
-const getOpenChats = openChat => {
+const getOpenChats = chatID => {
   window.Users = Users;
 
   let openChats = Chat
@@ -172,8 +173,8 @@ const getOpenChats = openChat => {
   .map(mapOpenChats);
 
   let currentUserId = auth.getUser();
-  if (openChat && openChat.chatID) {
-    openChats.push(openChat.chatID);
+  if (chatID) {
+    openChats.push(chatID);
   }
 
   openChats = _.uniq(openChats);
