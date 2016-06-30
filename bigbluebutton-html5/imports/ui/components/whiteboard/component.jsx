@@ -71,8 +71,10 @@ export default class Whiteboard extends React.Component {
   render() {
     return (
       <div className={styles.whiteboardContainer}>
-        <div className={styles.whiteboardPaper}>
-          {this.renderWhiteboard()}
+        <div className={styles.whiteboardWrapper}>
+          <div className={styles.whiteboardPaper}>
+            {this.renderWhiteboard()}
+          </div>
         </div>
         <PollingContainer />
       </div>

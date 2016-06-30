@@ -20,7 +20,8 @@ class NavBarContainer extends Component {
 }
 
 export default createContainer(() => {
-  let meetingTitle, meetingRecorded;
+  let meetingTitle;
+  let meetingRecorded;
 
   const meetingId = Auth.getMeeting();
   const meetingObject = Meetings.findOne({
