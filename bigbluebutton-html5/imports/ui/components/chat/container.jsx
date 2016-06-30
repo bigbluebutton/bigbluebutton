@@ -2,10 +2,10 @@ import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { createContainer } from 'meteor/react-meteor-data';
 
+const PUBLIC_CHAT_KEY = 'public';
+
 import Chat from './component';
 import ChatService from './service';
-
-const PUBLIC_CHAT_KEY = 'public';
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -66,12 +66,21 @@ export default injectIntl(createContainer(({ params, intl }) => {
     }
   }
 
+  const scrollPosition = ChatService.getScrollPosition(chatID);
+
   return {
+    chatID,
     title,
     messages,
     isChatLocked,
+    scrollPosition,
     actions: {
-      handleSendMessage: message => ChatService.sendMessage(chatID, message),
+      handleSendMessage: message => {
+        ChatService.sendMessage(chatID, message);
+        ChatService.updateScrollPosition(chatID, null);
+      },
+
+      handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),
     },
   };
 }, ChatContainer));

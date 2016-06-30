@@ -15,8 +15,10 @@ export default class Chat extends Component {
 
   render() {
     const {
+      chatID,
       title,
       messages,
+      scrollPosition,
       isChatLocked,
       actions,
     } = this.props;
@@ -29,8 +31,11 @@ export default class Chat extends Component {
           </Link>
         </header>
         <MessageList
+          chatId={chatID}
           messages={messages}
           id={ELEMENT_ID}
+          scrollPosition={scrollPosition}
+          handleScrollUpdate={actions.handleScrollUpdate}
           tabindex="0"
           role="log"
           aria-atomic="true"

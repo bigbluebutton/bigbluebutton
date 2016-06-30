@@ -14,6 +14,8 @@ const PRIVATE_CHAT_TYPE = 'PRIVATE_CHAT';
 
 const PUBLIC_CHAT_ID = 'public';
 
+const ScrollCollection = new Mongo.Collection(null);
+
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
 const mapUser = (user) => ({
@@ -151,10 +153,23 @@ const sendMessage = (receiverID, message) => {
   return callServer('sendChatMessagetoServer', messagePayload);
 };
 
+const getScrollPosition = (receiverID) => {
+  let scroll = ScrollCollection.findOne({ receiver: receiverID }) || { position: null };
+  return scroll.position;
+};
+
+const updateScrollPosition = (receiverID, position) => {
+  return ScrollCollection.upsert({ receiver: receiverID }, {
+    $set: { position: position },
+  });
+};
+
 export default {
   getPublicMessages,
   getPrivateMessages,
   getUser,
+  getScrollPosition,
+  updateScrollPosition,
   isChatLocked,
   sendMessage,
 };

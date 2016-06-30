@@ -10,12 +10,33 @@ const propTypes = {
 };
 
 export default class MessageList extends Component {
-  _scrollBottom() {
+  scrollTo(position) {
     const node = findDOMNode(this);
-    node.scrollTop = node.scrollHeight;
+    node.scrollTop = position || node.scrollHeight; // go bottom if position is undefined
+
+    if (node.scrollTop !== position) {
+      this.props.handleScrollUpdate(node.scrollTop);
+    }
+  }
+
+  componentWillUnmount() {
+    const node = findDOMNode(this);
+    this.props.handleScrollUpdate(node.scrollTop);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.chatId !== nextProps.chatId) {
+      const node = findDOMNode(this);
+      this.props.handleScrollUpdate(node.scrollTop);
+    }
   }
 
   componentWillUpdate(nextProps) {
+    if (this.props.chatId !== nextProps.chatId) {
+      this.shouldScrollBottom = false;
+      return;
+    }
+
     const node = findDOMNode(this);
     this.shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
 
@@ -23,22 +44,21 @@ export default class MessageList extends Component {
     const isDocumentHidden = d.hidden || d.mozHidden || d.msHidden || d.webkitHidden;
     if (isDocumentHidden) {
       this.shouldScrollBottom = false;
-    }
-
-    const lastMessage = _.last(nextProps.messages);
-    if (lastMessage.sender.isCurrent) {
-      this.shouldScrollBottom = true;
+      return;
     }
   }
 
   componentDidUpdate() {
+    const { scrollPosition } = this.props;
     if (this.shouldScrollBottom) {
-      this._scrollBottom();
+      this.scrollTo();
+    } else {
+      this.scrollTo(scrollPosition);
     }
   }
 
   componentDidMount() {
-    this._scrollBottom();
+    this.scrollTo(this.props.scrollPosition);
   }
 
   render() {
