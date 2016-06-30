@@ -56,18 +56,15 @@ class UserActions extends Component {
     const currentUser = this.props.currentUser;
     const user = this.props.user;
 
-    let useraction = null;
-    if (!action.isAllowedFor || action.isAllowedFor(currentUser)) {
-      userAction = (
-        <li onClick={action.handler.bind(this, ...parameters)}
-            className={styles.userActionsItem}>
-          <Icon iconName={action.icon} className={styles.actionIcon}/>
-          <span className={styles.actionText}>
-            {action.label}
-          </span>
-        </li>
-      );
-    }
+    const userAction = (
+      <li onClick={action.handler.bind(this, ...parameters)}
+          className={styles.userActionsItem}>
+        <Icon iconName={action.icon} className={styles.actionIcon}/>
+        <span className={styles.actionText}>
+          {action.label}
+        </span>
+      </li>
+    );
 
     return userAction;
   }
