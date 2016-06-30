@@ -77,11 +77,11 @@ package org.bigbluebutton.modules.chat.services
       );
     }
 
-    public function clearPublicChatMessage():void
+    public function clearPublicChatMessages():void
     {  
-      LOGGER.debug("Sending [chat.clearPublicChatMessage] to server.");
+      LOGGER.debug("Sending [chat.clearPublicChatMessages] to server.");
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("chat.clearPublicChatMessage", 
+      _nc.sendMessage("chat.clearPublicChatMessages", 
         function(result:String):void { // On successful result
           LOGGER.debug(result);
         },

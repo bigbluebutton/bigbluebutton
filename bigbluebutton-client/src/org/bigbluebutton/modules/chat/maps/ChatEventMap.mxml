@@ -99,7 +99,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
 
   <EventHandlers type="{ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT}">
-    <MethodInvoker generator="{ChatMessageService}" method="clearPublicChatMessage"/>   
+    <MethodInvoker generator="{ChatMessageService}" method="clearPublicChatMessages"/>   
   </EventHandlers>
 
   <Injectors target="{ChatMessageService}">
