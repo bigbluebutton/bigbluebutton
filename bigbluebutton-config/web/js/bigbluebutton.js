@@ -19,7 +19,6 @@ $(document).ready(function() {
 
     if (typeof sClose != 'undefined') {
         if ( sClose.toLowerCase() === "true" ) {
-            console.info("Execute close");
             AutoClose();
         }
     } else if (typeof sErrors != 'undefined') {
