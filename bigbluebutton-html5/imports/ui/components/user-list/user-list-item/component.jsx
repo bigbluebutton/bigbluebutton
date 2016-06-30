@@ -21,13 +21,7 @@ const propTypes = {
     id: React.PropTypes.string.isRequired,
   }).isRequired,
 
-  userActions: React.PropTypes.shape({
-    openChat: React.PropTypes.func.isRequired,
-    clearStatus: React.PropTypes.func.isRequired,
-    setPresenter: React.PropTypes.func.isRequired,
-    promote: React.PropTypes.func.isRequired,
-    kick: React.PropTypes.func.isRequired,
-  }),
+  userActions: React.PropTypes.shape(),
 };
 
 const defaultProps = {

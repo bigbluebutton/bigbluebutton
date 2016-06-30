@@ -204,11 +204,31 @@ getCurrentUser = () => {
 };
 
 const userActions = {
-  openChat: (context, user) => context.props.router.push(`/users/chat/${user.id}`),
-  clearStatus: user => console.log('missing clear status', user),
-  setPresenter: user => callServer('setUserPresenter', user.userid, user.name),
-  promote: user => console.log('missing promote', user),
-  kick: user => callServer('kickUser', user.userid),
+  openChat: {
+    label: 'Chat',
+    handler: (router, user) => router.push(`/users/chat/${user.id}`),
+    icon: 'chat',
+  },
+  clearStatus: {
+    label: 'Clear Status',
+    handler: user => console.log('missing clear status', user),
+    icon: 'clear-status',
+  },
+  setPresenter: {
+    label: 'Make Presenter',
+    handler: user => callServer('setUserPresenter', user.userid, user.name),
+    icon: 'presentation',
+  },
+  promote: {
+    label: 'Promote',
+    handler: user => console.log('missing promote', user),
+    icon: 'promote',
+  },
+  kick: {
+    label: 'Kick User',
+    handler: user => callServer('kickUser', user.userid),
+    icon: 'kick-user',
+  },
 };
 
 export default {

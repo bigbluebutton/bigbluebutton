@@ -11,6 +11,8 @@ const propTypes = {
   currentUser: React.PropTypes.shape({
     isModerator: React.PropTypes.bool.isRequired,
   }).isRequired,
+
+  userActions: React.PropTypes.shape().isRequired,
 };
 
 const defaultProps = {
@@ -19,114 +21,56 @@ const defaultProps = {
 class UserActions extends Component {
   constructor(props) {
     super(props);
-
-    this.handleOpenChat = this.props.userActions.openChat.bind(this);
-    this.handleClearStatus = this.props.userActions.clearStatus.bind(this);
-    this.handleSetPresenter = this.props.userActions.setPresenter.bind(this);
-    this.handlePromote = this.props.userActions.promote.bind(this);
-    this.handleKick = this.props.userActions.kick.bind(this);
   }
 
   render() {
     const {
       user,
       currentUser,
+      router,
     } = this.props;
+
+    const {
+      openChat,
+      clearStatus,
+      setPresenter,
+      promote,
+      kick,
+    } = this.props.userActions;
 
     return (
       <div key={user.id} className={styles.userItemActions}>
         <ul className={styles.userActionsList}>
-          {this.renderOpenChatAction()}
-          {currentUser.isModerator ? this.renderClearStatusAction() : null}
-          {currentUser.isModerator ? this.renderSetPresenterAction() : null}
-          {currentUser.isModerator ? this.renderPromoteAction() : null}
-          {currentUser.isModerator ? this.renderKickUserAction() : null}
+
+          {this.renderUserAction(openChat, router, user)}
+          {currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null}
+          {currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null}
+          {currentUser.isModerator ? this.renderUserAction(promote, user) : null}
+          {currentUser.isModerator ? this.renderUserAction(kick, user) : null}
         </ul>
       </div>
     );
   }
 
-  renderOpenChatAction() {
-    const {
-      user,
-    } = this.props;
+  renderUserAction(action, ...parameters) {
+    const currentUser = this.props.currentUser;
+    const user = this.props.user;
 
-    // We need to pass this to the function, because we need to use router in the service
-    return (
-      <li onClick={this.handleOpenChat.bind(this, this, user)}
-          className={styles.userActionsItem}>
-        <Icon iconName='chat' className={styles.actionIcon}/>
-        <span className={styles.actionText}>
-          Chat
-        </span>
-      </li>
-    );
+    let useraction = null;
+    if (!action.isAllowedFor || action.isAllowedFor(currentUser)) {
+      userAction = (
+        <li onClick={action.handler.bind(this, ...parameters)}
+            className={styles.userActionsItem}>
+          <Icon iconName={action.icon} className={styles.actionIcon}/>
+          <span className={styles.actionText}>
+            {action.label}
+          </span>
+        </li>
+      );
+    }
+
+    return userAction;
   }
-
-  renderClearStatusAction() {
-    const {
-      user,
-    } = this.props;
-
-    return (
-      <li onClick={this.handleClearStatus.bind(this, user)}
-          className={styles.userActionsItem}>
-        <Icon iconName='clear-status' className={styles.actionIcon}/>
-        <span className={styles.actionText}>
-          Clear Status
-        </span>
-      </li>
-    );
-  }
-
-  renderSetPresenterAction() {
-    const {
-      user,
-    } = this.props;
-
-    return (
-      <li onClick={this.handleSetPresenter.bind(this, user)}
-          className={styles.userActionsItem}>
-        <Icon iconName='presentation' className={styles.actionIcon}/>
-        <span className={styles.actionText}>
-          Make Presenter
-        </span>
-      </li>
-    );
-  }
-
-  renderPromoteAction() {
-    const {
-      user,
-    } = this.props;
-
-    return (
-      <li onClick={this.handlePromote.bind(this, user)}
-          className={styles.userActionsItem}>
-        <Icon iconName='promote' className={styles.actionIcon}/>
-        <span className={styles.actionText}>
-          Promote
-        </span>
-      </li>
-    );
-  }
-
-  renderKickUserAction() {
-    const {
-      user,
-    } = this.props;
-
-    return (
-      <li onClick={this.handleKick.bind(this, user)}
-          className={styles.userActionsItem}>
-        <Icon iconName='promote' className={styles.actionIcon}/>
-        <span className={styles.actionText}>
-          Kick User
-        </span>
-      </li>
-    );
-  }
-
 }
 
 UserActions.propTypes = propTypes;
