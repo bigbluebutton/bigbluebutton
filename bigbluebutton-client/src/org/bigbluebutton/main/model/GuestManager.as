@@ -41,9 +41,11 @@ package org.bigbluebutton.main.model
 		}
 
 		public function refreshGuestView():void {
-			var refreshGuestEvent:RefreshGuestEvent = new RefreshGuestEvent();
-			refreshGuestEvent.listOfGuests = guest.getGuests();
-			dispatcher.dispatchEvent(refreshGuestEvent);
+			if (guest.hasGuest()) {
+				var refreshGuestEvent:RefreshGuestEvent = new RefreshGuestEvent();
+				refreshGuestEvent.listOfGuests = guest.getGuests();
+				dispatcher.dispatchEvent(refreshGuestEvent);
+			}
 		}
 
 		public function removeAllGuests():void {
