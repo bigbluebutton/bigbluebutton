@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import cx from 'classnames';
+import getColor from './color-generator';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -20,14 +21,20 @@ export default class UserAvatar extends Component {
     let user = this.props.user;
 
     let avatarClasses = {};
-    avatarClasses[styles.presenter] = user.isPresenter;
-    avatarClasses[styles.voiceUser] = user.isVoiceUser;
     avatarClasses[styles.moderator] = user.isModerator;
+    avatarClasses[styles.presenter] = user.isPresenter;
+    // avatarClasses[styles.guest] = user.isVoiceUser;
+
+    let avatarStyles = {
+      'background-color': getColor(user.name),
+    };
 
     return (
-      <div className={cx(avatarClasses, styles.userAvatar)}>
+      <div className={styles.userAvatar} style={avatarStyles}>
         <span>
           {user.name.slice(0, 2)}
+        </span>
+        <span className={cx(styles.userStatus, avatarClasses)}>
         </span>
       </div>
     );

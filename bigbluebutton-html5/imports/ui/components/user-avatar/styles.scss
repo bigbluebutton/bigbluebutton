@@ -13,34 +13,50 @@ $moderator-text: $color-white;
 $moderator-bg: $color-primary;
 
 .userAvatar {
-  @extend .flex-column;
-  transition: all 0.3s;
-  flex-basis: 1.7rem;
+  // @extend .flex-column;
+  flex-basis: 2.2rem;
+  height: 2.2rem;
   flex-shrink: 0;
-  height: 1.7rem;
+  line-height: 2.2rem;
   justify-content: center;
+  position: relative;
   display: flex;
   flex-flow: column;
   font-size: 1rem;
   text-align: center;
   border-radius: 50%;
-  border: 2px solid $user-avatar-border;
-  color: $user-avatar-text;
+  color: $color-white;
   text-transform: capitalize;
 }
 
-.voiceUser {
-  background-color: $voice-user-bg;
-  color: $voice-user-text;
-  border: none;
-}
-
-.presenter {
-  border-radius: 2px;
+.userStatus {
+  position: absolute;
+  background-color: $color-white;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  top: 1.5rem;
+  left: 1.5rem;
+  -webkit-box-shadow: 0 0 0 1px $color-white;
+  -moz-box-shadow: 0 0 0 1px $color-white;
+  box-shadow: 0 0 0 1px $color-white;
+  background-color: $color-success;
+  transition: all 0.3s;
 }
 
 .moderator {
+  border: 1px solid $color-gray-light;
+  border-radius: 2px;
+  background-color: $color-white;
+}
+
+.presenter {
   background-color: $moderator-bg;
-  color: $moderator-text;
+  border-radius: 2px;
   border: none;
+}
+
+.guest {
+  background-color: $color-white;
+  border: 1px solid $color-gray-light;
 }
