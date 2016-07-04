@@ -1,26 +1,33 @@
-import React, { Component } from 'react';
-import styles from './styles.scss';
-import { Link } from 'react-router';
+import React, { Component, PropTypes } from 'react';
 import { withRouter } from 'react-router';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import styles from './styles.scss';
 import { FormattedMessage } from 'react-intl';
+import cx from 'classnames';
 
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
 
+const propTypes = {
+  openChats: PropTypes.array.isRequired,
+  users: PropTypes.array.isRequired,
+};
+
+const defaultProps = {
+};
+
+const listTransition = {
+  enter: styles.enter,
+  enterActive: styles.enterActive,
+  appear: styles.appear,
+  appearActive: styles.appearActive,
+  leave: styles.leave,
+  leaveActive: styles.leaveActive,
+};
+
 class UserList extends Component {
   constructor(props) {
     super(props);
-
-    this.handleMessageClick = this.handleMessageClick.bind(this);
-    this.handleParticipantDblClick = this.handleParticipantDblClick.bind(this);
-  }
-
-  handleMessageClick(chatID) {
-    this.props.router.push(`/users/chat/${chatID}`);
-  }
-
-  handleParticipantDblClick(userID) {
-    this.props.router.push(`/users/chat/${userID}`);
   }
 
   render() {
@@ -56,6 +63,11 @@ class UserList extends Component {
   }
 
   renderMessages() {
+    const {
+      openChats,
+      openChat,
+    } = this.props;
+
     return (
       <div className={styles.messages}>
         <h3 className={styles.smallTitle}>
@@ -65,14 +77,36 @@ class UserList extends Component {
             defaultMessage="Messages"
           />
         </h3>
-        <ul className={styles.chatsList} tabIndex="1">
-          <ChatListItem onClick={() => this.handleMessageClick('public')} />
-        </ul>
+        <div className={styles.scrollableList}>
+          <ReactCSSTransitionGroup
+            transitionName={listTransition}
+            transitionAppear={true}
+            transitionEnter={true}
+            transitionLeave={false}
+            transitionAppearTimeout={0}
+            transitionEnterTimeout={0}
+            transitionLeaveTimeout={0}
+            component="ul"
+            className={cx(styles.chatsList, styles.scrollableList)}>
+              {openChats.map(chat => (
+                <ChatListItem
+                  key={chat.id}
+                  openChat={openChat}
+                  chat={chat} />
+              ))}
+          </ReactCSSTransitionGroup>
+        </div>
       </div>
     );
   }
 
   renderParticipants() {
+    const {
+      users,
+      currentUser,
+      userActions,
+    } = this.props;
+
     return (
       <div className={styles.participants}>
         <h3 className={styles.smallTitle}>
@@ -83,22 +117,29 @@ class UserList extends Component {
           />
           &nbsp;({this.props.users.length})
         </h3>
-        <div className={styles.scrollableList}>
-          <ul className={styles.participantsList} tabIndex="1">
-            {this.props.users.map(user => (
-              <UserListItem
-                onDoubleClick={() => this.handleParticipantDblClick(user.id)}
-                accessibilityLabel={'Status abc'}
-                accessible={true}
-                key={user.id}
-                user={user}
-              />
-            ))}
-          </ul>
-        </div>
+        <ReactCSSTransitionGroup
+          transitionName={listTransition}
+          transitionAppear={true}
+          transitionEnter={true}
+          transitionLeave={true}
+          transitionAppearTimeout={0}
+          transitionEnterTimeout={0}
+          transitionLeaveTimeout={0}
+          component="ul"
+          className={cx(styles.participantsList, styles.scrollableList)}>
+          {users.map(user => (
+            <UserListItem
+              key={user.id}
+              user={user}
+              currentUser={currentUser}
+              userActions={userActions}
+            />
+          ))}
+        </ReactCSSTransitionGroup>
       </div>
     );
   }
 }
 
+UserList.propTypes = propTypes;
 export default withRouter(UserList);

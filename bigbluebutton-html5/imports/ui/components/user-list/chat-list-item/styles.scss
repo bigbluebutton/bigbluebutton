@@ -1,18 +1,20 @@
 @import '../styles.scss';
 
 .chatListItem {
-  @extend .list-item;
+  @extend %list-item;
   padding-right: 1.2rem;
+  cursor: pointer;
+  text-decoration: none;
 }
 
 .unreadMessages {
-  @extend .flex-column;
+  @extend %flex-column;
   justify-content: center;
 }
 
 .unreadMessagesText {
-  @extend .flex-column;
-  @extend .no-margin;
+  @extend %flex-column;
+  @extend %no-margin;
   justify-content: center;
   color: $color-white;
   height: 1rem;
@@ -24,7 +26,7 @@
 }
 
 .chatThumbnail {
-  @extend .flex-column;
+  @extend %flex-column;
   color: $color-gray-light;
   justify-content: center;
   flex-basis: 1.9rem;
@@ -33,14 +35,18 @@
 }
 
 .chatName {
-  @extend .flex-column;
+  @extend %flex-column;
   flex-grow: 1;
   justify-content: center;
 }
 
 .chatNameMain {
-  @extend .no-margin;
+  @extend %no-margin;
   font-size: 0.95rem;
   font-weight: 600;
   padding-left: 0.5rem;
+}
+
+.active {
+  background-color: $list-item-bg-hover;
 }
