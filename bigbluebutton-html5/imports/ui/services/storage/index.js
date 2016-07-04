@@ -1,11 +1,19 @@
-const STORAGE = sessionStorage;
+const SESSION = window.sessionStorage;
+const LOCAL = window.localStorage;
 const PREFIX = 'BBB_';
 
-const get = (key) => STORAGE.getItem(`${PREFIX}${key}`);
+const get = (key, storage) => JSON.parse(storage.getItem(`${PREFIX}${key}`));
+const set = (key, value, storage) => storage.setItem(`${PREFIX}${key}`, JSON.stringify(value));
 
-const set = (key, value) => STORAGE.setItem(`${PREFIX}${key}`, value);
+const getSession = (key) => get(key, SESSION);
+const setSession = (key, value) => set(key, value, SESSION);
+
+const getLocal = (key) => get(key, LOCAL);
+const setLocal = (key, value) => set(key, value, LOCAL);
 
 export default {
-  get,
-  set,
+  getSession,
+  setSession,
+  getLocal,
+  setLocal,
 };
