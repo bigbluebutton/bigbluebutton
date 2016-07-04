@@ -3,6 +3,7 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 
 import Auth from '/imports/ui/services/auth';
+import UnreadMessages from '/imports/ui/services/unread-messages';
 
 import { callServer } from '/imports/ui/services/api';
 
@@ -13,6 +14,8 @@ const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
 const PRIVATE_CHAT_TYPE = 'PRIVATE_CHAT';
 
 const PUBLIC_CHAT_ID = 'public';
+const PUBLIC_CHAT_USERID = 'public_chat_userid';
+const PUBLIC_CHAT_USERNAME = 'public_chat_username';
 
 const ScrollCollection = new Mongo.Collection(null);
 
@@ -59,6 +62,7 @@ const reduceMessages = (previous, current, index, array) => {
   if (lastMessage.sender.id === current.sender.id
    && (current.time - lastMessage.time) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content = lastMessage.content.concat(current.content);
+    lastMessage.timeLastMessage = current.time;
     return previous;
   } else {
     return previous.concat(current);
@@ -124,13 +128,20 @@ const isChatLocked = (receiverID) => {
   return isPublic ? lockSettings.disablePublicChat : lockSettings.disablePrivateChat;
 };
 
+const hasUnreadMessages = (receiverID) => {
+  const isPublic = receiverID === PUBLIC_CHAT_ID;
+  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+
+  return UnreadMessages.count(receiverID) > 0;
+};
+
 const sendMessage = (receiverID, message) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
 
   const sender = getUser(Auth.getUser());
   const receiver = !isPublic ? getUser(receiverID) : {
-    id: 'public_chat_userid',
-    name: 'public_chat_username',
+    id: PUBLIC_CHAT_USERID,
+    name: PUBLIC_CHAT_USERNAME,
   };
 
   /* FIX: Why we need all this payload to send a message?
@@ -158,10 +169,16 @@ const getScrollPosition = (receiverID) => {
   return scroll.position;
 };
 
-const updateScrollPosition = (receiverID, position) => {
-  return ScrollCollection.upsert({ receiver: receiverID }, {
-    $set: { position: position },
-  });
+const updateScrollPosition =
+  (receiverID, position) => ScrollCollection.upsert(
+    { receiver: receiverID },
+    { $set: { position: position } },
+  );
+
+const updateUnreadMessage = (receiverID, timestamp) => {
+  const isPublic = receiverID === PUBLIC_CHAT_ID;
+  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+  return UnreadMessages.update(receiverID, timestamp);
 };
 
 export default {
@@ -169,7 +186,9 @@ export default {
   getPrivateMessages,
   getUser,
   getScrollPosition,
-  updateScrollPosition,
+  hasUnreadMessages,
   isChatLocked,
+  updateScrollPosition,
+  updateUnreadMessage,
   sendMessage,
 };

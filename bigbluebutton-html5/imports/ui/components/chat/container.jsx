@@ -43,6 +43,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
 
   let messages = [];
+  let hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
   let isChatLocked = ChatService.isChatLocked(chatID);
 
   if (chatID === PUBLIC_CHAT_KEY) {
@@ -72,6 +73,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     chatID,
     title,
     messages,
+    hasUnreadMessages,
     isChatLocked,
     scrollPosition,
     actions: {
@@ -81,6 +83,8 @@ export default injectIntl(createContainer(({ params, intl }) => {
       },
 
       handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),
+
+      handleReadMessage: timestamp => ChatService.updateUnreadMessage(chatID, timestamp),
     },
   };
 }, ChatContainer));

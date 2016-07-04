@@ -67,11 +67,13 @@ export default class MessageList extends Component {
       <div {...this.props} className={styles.messageList}>
         {messages.map((message, index) => (
           <MessageListItem
+            handleReadMessage={this.props.handleReadMessage}
             className={styles.messageListItem}
             key={index}
             message={message.content}
             user={message.sender}
             time={message.time}
+            timeLastMessage={message.timeLastMessage}
           />
         ))}
       </div>

@@ -36,6 +36,7 @@ export default class Chat extends Component {
           id={ELEMENT_ID}
           scrollPosition={scrollPosition}
           handleScrollUpdate={actions.handleScrollUpdate}
+          handleReadMessage={actions.handleReadMessage}
           tabindex="0"
           role="log"
           aria-atomic="true"
