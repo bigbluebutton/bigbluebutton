@@ -37,7 +37,9 @@ export default class Whiteboard extends React.Component {
           <svg
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"
-            xmlNS="http://www.w3.org/2000/svg"
+            //it's supposed to be here in theory
+            //but now it's ignored by all the browsers and it's not supported by React
+            //xmlNS="http://www.w3.org/2000/svg"
             className={styles.svgStyles}
             key={slideObj.id}
           >
