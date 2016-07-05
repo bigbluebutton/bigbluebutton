@@ -19,6 +19,7 @@ export default class Chat extends Component {
       title,
       messages,
       scrollPosition,
+      hasUnreadMessages,
       isChatLocked,
       actions,
     } = this.props;
@@ -35,6 +36,7 @@ export default class Chat extends Component {
           messages={messages}
           id={ELEMENT_ID}
           scrollPosition={scrollPosition}
+          hasUnreadMessages={hasUnreadMessages}
           handleScrollUpdate={actions.handleScrollUpdate}
           handleReadMessage={actions.handleReadMessage}
           tabindex="0"
