@@ -12,18 +12,18 @@ Meteor.publish('polls', function (credentials) {
       logger.info('publishing Poll for presenter: ' + meetingId + ' ' + requesterUserId + ' ' +
         requesterToken);
       return Polls.find({
-        'poll_info.meetingId': meetingId,
-        'poll_info.users': requesterUserId,
+        meetingId: meetingId,
+        users: requesterUserId,
       });
     } else {
       logger.info('publishing Poll for viewer: ' + meetingId + ' ' + requesterUserId + ' ' +
         requesterToken);
       return Polls.find({
-        'poll_info.meetingId': meetingId,
-        'poll_info.users': requesterUserId,
+        meetingId: meetingId,
+        users: requesterUserId,
       }, {
         fields: {
-          'poll_info.poll.answers.num_votes': 0,
+          'poll.answers.num_votes': 0,
         },
       });
     }

@@ -18,5 +18,6 @@ class VideoDockContainer extends Component {
 }
 
 export default createContainer(() => {
-  return {};
+  let data = {};
+  return data;
 }, VideoDockContainer);

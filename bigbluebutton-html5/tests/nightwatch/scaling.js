@@ -1,5 +1,5 @@
 module.exports = {
-  'Scaling the window horizontally to verify the navbar height is consistent in a meeting with a long name': function (browser) {
+  'Checking navbar`s height while scaling if there is a long meeting name ': function (browser) {
     var longMeetingName = new Array(101).join('x'); // 100-element array of 'x'
     browser
       .url('http://192.168.244.140:4000')
@@ -33,7 +33,7 @@ module.exports = {
       .end();
   },
 
-  'Scaling the window horizontally to verify the margin between the navbar and the top of the page is consistent in a meeting with a long name': function (browser) {
+  'Checking the margin between the navbar and the top while scaling horizont': function (browser) {
     var longMeetingName = new Array(101).join('x'); // 100-element array of 'x'
     browser
       .url('http://192.168.244.140:4000')

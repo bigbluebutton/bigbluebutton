@@ -1,0 +1,42 @@
+@import  '../styles.scss';
+
+.userItemActions {
+  overflow: hidden;
+  // display: none;
+}
+
+.userActionsList {
+  list-style: none;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.userActionsItem {
+  margin-top: 0.25rem;
+  padding: 0.2rem 0;
+  display: flex;
+  cursor: pointer;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  transition: background-color 0.3s;
+
+  &:hover, &:focus {
+    background-color: darken($user-list-bg, 14%);
+  }
+
+  &:first-child {
+    margin-top: 0.5rem;
+  }
+}
+
+.actionIcon {
+  color: $color-gray-light;
+  line-height: 1.1rem;
+  flex-basis: 1.7rem;
+  font-weight: bold;
+}
+
+.actionText {
+  color: $color-gray;
+  padding: 0 0.6rem;
+}

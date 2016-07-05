@@ -23,10 +23,14 @@ export class EventQueue {
             } else return '';
           }()) || '';
 
-        logger.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
+        //uncomment for development purposes only
+        //otherwise significantly slows down the whiteboard (displaying drawing process)
+        //logger.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
       }
 
-      console.log('in taskHandler:' + eventName);
+      //uncomment for development purposes only
+      //otherwise significantly slows down the whiteboard (displaying drawing process)
+      //console.log('in taskHandler:' + eventName);
 
       if (failures > 0) {
         next();
@@ -41,10 +45,13 @@ export class EventQueue {
             payload: parsedMsg.payload,
             header: parsedMsg.header, //TODO extract meetingId here
 
-            callback: () => {
-              console.log('ready for next message');
-              return next();
-            },
+            callback: () =>// {
+              //uncomment for development purposes only
+              //otherwise significantly slows down the whiteboard (displaying drawing process)
+              //console.log('ready for next message');
+              next(),
+
+            //},
           });
         } else {
           logger.info('not handling messages of type:' + eventName);

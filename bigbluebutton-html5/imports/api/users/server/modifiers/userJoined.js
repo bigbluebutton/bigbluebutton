@@ -20,9 +20,9 @@ const parseMessage = (message) => {
 };
 
 export function userJoined(meetingId, user, callback) {
-  let userObject, userId, welcomeMessage, meetingObject;
-  userId = user.userid;
-  userObject = Users.findOne({
+  let welcomeMessage;
+  const userId = user.userid;
+  const userObject = Users.findOne({
     userId: user.userid,
     meetingId: meetingId,
   });
@@ -72,14 +72,18 @@ export function userJoined(meetingId, user, callback) {
         return callback();
       } else {
         funct = function (cbk) {
-          logger.info(`_(case1) UPDATING USER ${user.userid}, authToken= ${userObject.authToken}, locked=${user.locked}, username=${user.name}`);
+          logger.info(
+            `_(case1) UPDATING USER ${user.userid}, ` +
+            `authToken= ${userObject.authToken}, ` +
+            `locked=${user.locked}, username=${user.name}`
+          );
           return cbk();
         };
 
         return funct(callback);
       }
     });
-    meetingObject = Meetings.findOne({
+    const meetingObject = Meetings.findOne({
       meetingId: meetingId,
     });
     if (meetingObject != null) {
@@ -158,10 +162,11 @@ export function userJoined(meetingId, user, callback) {
       if (numChanged.insertedId != null) {
         funct = function (cbk) {
           logger.info(
-                        `_joining user (case2) userid=[${userId}]:${user.name}. Users.size is now ${Users.find({
-                          meetingId: meetingId,
-                        }).count()}`
-                    );
+            `_joining user (case2) userid=[${userId}]:${user.name}. Users.size is now ` +
+            `${Users.find({
+              meetingId: meetingId,
+            }).count()}`
+          );
           return cbk();
         };
 
