@@ -31,17 +31,31 @@ export default class PollingComponent extends React.Component {
           </p>
         </div>
         {poll.answers.map((pollAnswer, index) =>
+          <div style={calculatedStyles} className={styles.pollButtonWrapper}>
             <Button
-              style={calculatedStyles}
+              className={styles.pollingButton}
+              label={pollAnswer.key}
               size="lg"
               color="primary"
-              className={styles.pollingButton}
               key={index}
               onClick={() => this.props.handleVote(poll.pollId, pollAnswer)}
               componentClass="span"
+              aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+              aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+            />
+            <div
+              className={styles.hidden}
+              id={`pollAnswerLabel${pollAnswer.key}`}
             >
-              {pollAnswer.key}
-            </Button>
+              {`Poll answer ${pollAnswer.key}`}
+            </div>
+            <div
+              className={styles.hidden}
+              id={`pollAnswerDesc${pollAnswer.key}`}
+            >
+              {`Select this option to vote for ${pollAnswer.key}`}
+            </div>
+          </div>
         )}
       </div>
     );

@@ -11,9 +11,19 @@
 }
 
 .pollingButton {
-  max-width: 150px;
+  width: 100%;
+  height: 100%;
 }
 
 .pollingTitle {
   color: $color-white;
+}
+
+.hidden {
+  display: none;
+}
+
+.pollButtonWrapper {
+  text-align: center;
+  max-width: 150px;
 }
