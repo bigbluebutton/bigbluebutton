@@ -83,8 +83,10 @@ class UserListItem extends Component {
 
   handleClickOutsideDropdown(e) {
     const node = findDOMNode(this);
-
-    if (e.target !== node && !node.contains(e.target)) {
+    const shouldUpdateState = e.target !== node &&
+                              !node.contains(e.target) &&
+                              this.state.visibleActions;
+    if (shouldUpdateState) {
       this.setState({ visibleActions: false });
     }
   }

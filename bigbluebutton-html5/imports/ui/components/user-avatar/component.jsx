@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
 import cx from 'classnames';
 import getColor from './color-generator';
@@ -19,6 +20,7 @@ const defaultProps = {
 export default class UserAvatar extends Component {
   render() {
     let user = this.props.user;
+    // console.log('batata');
 
     let avatarClasses = {};
     avatarClasses[styles.moderator] = user.isModerator;
@@ -29,15 +31,31 @@ export default class UserAvatar extends Component {
       'background-color': getColor(user.name),
     };
 
+    // console.log(user.emoji.status);
+
     return (
       <div className={styles.userAvatar} style={avatarStyles}>
         <span>
-          {user.name.slice(0, 2)}
+          {this.renderAvatarContent()}
         </span>
         <span className={cx(styles.userStatus, avatarClasses)}>
         </span>
       </div>
     );
+  }
+
+  renderAvatarContent() {
+    const {
+      user
+    } = this.props;
+
+    let content = user.name.slice(0, 2);
+
+    if (user.emoji.status !== "none") {
+      content = <Icon iconName={user.emoji.status}/>
+    }
+
+    return content;
   }
 }
 
