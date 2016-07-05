@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-
+import { callServer } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
@@ -11,13 +11,15 @@ function setCredentials(nextState, replace) {
   if (nextState && nextState.params.authToken) {
     const { meetingID, userID, authToken } = nextState.params;
     Auth.setCredentials(meetingID, userID, authToken);
+    replace({
+      pathname: '/'
+    });
   }
 };
 
 function subscribeForData() {
-  subscribeFor('users');
-
-  Meteor.setTimeout(() => {
+  callServer('validateAuthToken', function() {
+    console.log('LUL');
     subscribeFor('chat');
     subscribeFor('cursor');
     subscribeFor('deskshare');
@@ -35,7 +37,7 @@ function subscribeForData() {
     window.Polls = Polls; // for debug purposes TODO remove
 
     Auth.setLogOut();
-  }, 2000); //To avoid race condition where we subscribe before receiving auth from BBB
+  });
 };
 
 function subscribeFor(collectionName) {
