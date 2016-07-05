@@ -1,5 +1,6 @@
 import { getCredentials } from '/imports/ui/services/auth';
 
+/* TODO: Will be pretty sweet if we return a promise from the callServer function */
 function callServer(name) {
   if (!name || !(typeof (name) === 'string' || name instanceof String) || name.length === 0 ||
     !name.trim() || /^\s*$/.test(name)) {

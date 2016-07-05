@@ -161,7 +161,9 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
-  return callServer('sendChatMessagetoServer', messagePayload);
+  callServer('sendChatMessagetoServer', messagePayload);
+
+  return messagePayload;
 };
 
 const getScrollPosition = (receiverID) => {

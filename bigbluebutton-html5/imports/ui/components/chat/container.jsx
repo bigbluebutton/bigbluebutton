@@ -43,7 +43,6 @@ export default injectIntl(createContainer(({ params, intl }) => {
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
 
   let messages = [];
-  let hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
   let isChatLocked = ChatService.isChatLocked(chatID);
 
   if (chatID === PUBLIC_CHAT_KEY) {
@@ -57,7 +56,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
       title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
     } else {
       // let partnerName = messages.find(m => m.user && m.user.id === chatID).map(m => m.user.name);
-      let partnerName = '{{NAME}}'; // placeholder until the server sends the name
+      let partnerName = '{{NAME}}s'; // placeholder until the server sends the name
       messages.push({
         content: [intl.formatMessage(intlMessages.partnerDisconnected, { name: partnerName })],
         time: Date.now(),
@@ -68,6 +67,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
   }
 
   const scrollPosition = ChatService.getScrollPosition(chatID);
+  const hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
 
   return {
     chatID,
@@ -78,8 +78,9 @@ export default injectIntl(createContainer(({ params, intl }) => {
     scrollPosition,
     actions: {
       handleSendMessage: message => {
-        ChatService.sendMessage(chatID, message);
+        let sentMessage = ChatService.sendMessage(chatID, message);
         ChatService.updateScrollPosition(chatID, null);
+        ChatService.updateUnreadMessage(chatID, sentMessage.from_time);
       },
 
       handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),
