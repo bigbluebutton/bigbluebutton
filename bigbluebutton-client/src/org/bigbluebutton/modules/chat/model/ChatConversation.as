@@ -60,12 +60,14 @@ package org.bigbluebutton.modules.chat.model
       cm.name = msg.fromUsername;
       cm.senderColor = uint(msg.fromColor);
       
-      cm.fromTime = msg.fromTime;		
-      cm.fromTimezoneOffset = msg.fromTimezoneOffset;
-      
-      var sentTime:Date = new Date();
-      sentTime.setTime(cm.fromTime);
-      cm.time = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
+      // Welcome message will skip time
+      if (msg.fromTime != -1) {
+        cm.fromTime = msg.fromTime;
+        cm.fromTimezoneOffset = msg.fromTimezoneOffset;
+        var sentTime:Date = new Date();
+        sentTime.setTime(cm.fromTime);
+        cm.time = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
+      }
       
       messages.addItem(cm); 
     }

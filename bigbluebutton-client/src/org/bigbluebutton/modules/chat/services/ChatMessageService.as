@@ -102,7 +102,7 @@ package org.bigbluebutton.modules.chat.services
         welcomeMsg.fromUserID = SPACE;
         welcomeMsg.fromUsername = SPACE;
         welcomeMsg.fromColor = "86187";
-        welcomeMsg.fromTime = new Date().getTime();
+        welcomeMsg.fromTime = -1;
         welcomeMsg.fromTimezoneOffset = new Date().getTimezoneOffset();
         welcomeMsg.toUserID = SPACE;
         welcomeMsg.toUsername = SPACE;
