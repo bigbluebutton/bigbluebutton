@@ -6,6 +6,10 @@
   flex: 1;
   margin-bottom: $line-height-computed;
   font-size: $font-size-base * .90;
+
+  &:last-child {
+    margin-bottom: 0 !important;
+  }
 }
 
 .systemMessage {
