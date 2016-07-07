@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
-import auth from '/imports/ui/services/auth';
+import Auth from '/imports/ui/services/auth';
 
 import { callServer } from '/imports/ui/services/api';
 
@@ -19,7 +19,7 @@ const mapUser = user => ({
   },
   isPresenter: user.presenter,
   isModerator: user.role === ROLE_MODERATOR,
-  isCurrent: user.userid === auth.getUser(),
+  isCurrent: user.userid === Auth.getUser(),
   isVoiceUser: user.voiceUser.joined,
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
@@ -28,8 +28,8 @@ const mapUser = user => ({
 });
 
 const mapOpenChats = chat => {
-  let currentUserId = auth.getUser();
-  return chat.message.from_userid !== auth.getUser()
+  let currentUserId = Auth.getUser();
+  return chat.message.from_userid !== Auth.getUser()
                                     ? chat.message.from_userid
                                     : chat.message.to_userid;
 };
@@ -172,7 +172,7 @@ const getOpenChats = chatID => {
   .fetch()
   .map(mapOpenChats);
 
-  let currentUserId = auth.getUser();
+  let currentUserId = Auth.getUser();
   if (chatID) {
     openChats.push(chatID);
   }
@@ -195,7 +195,7 @@ const getOpenChats = chatID => {
 };
 
 getCurrentUser = () => {
-  let currentUserId = auth.getUser();
+  let currentUserId = Auth.getUser();
 
   return mapUser(
     Users

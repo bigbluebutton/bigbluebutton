@@ -1,6 +1,6 @@
 
 import React, { Component, PropTypes } from 'react';
-import { findDOMNode } from 'react-dom';
+import { findDOMscrollArea } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'underscore';
 import styles from './styles';
@@ -21,24 +21,43 @@ const intlMessages = defineMessages({
 });
 
 class MessageList extends Component {
-  scrollTo(position) {
-    const node = findDOMNode(this.refs.scrollArea);
-    node.scrollTop = position || node.scrollHeight; // go bottom if position is undefined
+  constructor(props) {
+    super(props);
 
-    if (node.scrollTop !== position) {
-      this.props.handleScrollUpdate(node.scrollTop);
-    }
+    this.shouldScrollBottom = false;
+    this.lastKnowScrollPosition = 0;
+    this.ticking = false;
+
+    this.handleScrollChange = this.handleScrollChange.bind(this);
   }
 
-  componentWillUnmount() {
-    const node = findDOMNode(this.refs.scrollArea);
-    this.props.handleScrollUpdate(node.scrollTop);
+  scrollTo(position) {
+    const { scrollArea } = this.refs;
+
+    if (position === undefined) {
+      position = scrollArea.scrollHeight - scrollArea.clientHeight;
+    }
+
+    scrollArea.scrollTop = position;
+  }
+
+  handleScrollChange(e) {
+    this.lastKnowScrollPosition = e.target.scrollTop;
+
+    if (!this.ticking) {
+      window.requestAnimationFrame(() => {
+        this.props.handleScrollUpdate(this.lastKnowScrollPosition);
+        this.ticking = false;
+      });
+    }
+
+    this.ticking = true;
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.chatId !== nextProps.chatId) {
-      const node = findDOMNode(this.refs.scrollArea);
-      this.props.handleScrollUpdate(node.scrollTop);
+      const { scrollArea } = this.refs;
+      this.props.handleScrollUpdate(scrollArea.scrollTop);
     }
   }
 
@@ -48,8 +67,8 @@ class MessageList extends Component {
       return;
     }
 
-    const node = findDOMNode(this.refs.scrollArea);
-    this.shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
+    const { scrollArea } = this.refs;
+    this.shouldScrollBottom = scrollArea.scrollTop + scrollArea.offsetHeight === scrollArea.scrollHeight;
 
     const d = document;
     const isDocumentHidden = d.hidden || d.mozHidden || d.msHidden || d.webkitHidden;
@@ -61,6 +80,8 @@ class MessageList extends Component {
 
   componentDidUpdate() {
     const { scrollPosition } = this.props;
+    const { scrollArea } = this.refs;
+
     if (this.shouldScrollBottom) {
       this.scrollTo();
     } else {
@@ -70,6 +91,15 @@ class MessageList extends Component {
 
   componentDidMount() {
     this.scrollTo(this.props.scrollPosition);
+
+    const { scrollArea } = this.refs;
+    scrollArea.addEventListener('scroll', this.handleScrollChange);
+  }
+
+  componentWillUnmount() {
+    const { scrollArea } = this.refs;
+    this.props.handleScrollUpdate(scrollArea.scrollTop);
+    scrollArea.removeEventListener('scroll', this.handleScrollChange);
   }
 
   render() {
