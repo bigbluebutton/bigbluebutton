@@ -22,6 +22,7 @@ export function appendMessageHeader(eventName, messageObj) {
 };
 
 export function clearCollections() {
+  console.log('in function clearCollections');
 
   //This is to prevent collection clearing in development environment
   if (process.env.NODE_ENV === "development") {

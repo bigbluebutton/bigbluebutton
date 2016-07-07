@@ -41,15 +41,15 @@ const actionControlsToShow = () => {
   }
 };
 
-var loading = true;
-var loadingDep = new Tracker.Dependency;
+let loading = true;
+const loadingDep = new Tracker.Dependency;
 
-var getLoading = () => {
+const getLoading = () => {
   loadingDep.depend()
   return loading;
 };
 
-var setLoading = (val) => {
+const setLoading = (val) => {
   if (val !== loading) {
     loading = val;
     loadingDep.changed();

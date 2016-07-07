@@ -8,7 +8,6 @@ import Cursor from '/imports/api/cursor';
 import Polls from '/imports/api/polls';
 
 function setCredentials(nextState, replace) {
-  console.log('4Head');
   if (nextState && nextState.params.authToken) {
     const { meetingID, userID, authToken } = nextState.params;
     Auth.setCredentials(meetingID, userID, authToken);
@@ -31,6 +30,8 @@ function subscribeForData() {
   subNames.forEach(name => subs.push(subscribeFor(name)));
 
   dataSubscriptions = subs;
+  
+  Auth.setLogOut();
   return subs;
 };
 

@@ -6,7 +6,7 @@ import { isSubscribedForData } from '/imports/ui/components/app/service';
 
 // route components
 import AppContainer from '/imports/ui/components/app/container';
-import { subscribeToCollections, setCredentials, subscribeForData, subscribeFor } from '/imports/ui/components/app/service';
+import { subscribeToCollections, setCredentials } from '/imports/ui/components/app/service';
 
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
