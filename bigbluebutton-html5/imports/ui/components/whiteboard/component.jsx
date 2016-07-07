@@ -4,7 +4,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import PollingContainer from '/imports/ui/components/whiteboard/polling/container';
+import PollingContainer from '/imports/ui/components/polling/container';
 
 export default class Whiteboard extends React.Component {
   constructor(props) {
