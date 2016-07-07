@@ -37,8 +37,8 @@ export default class ChatListItem extends Component {
           (<FormattedMessage
             id="app.userlist.you"
             description="Text for identifying your user"
-            defaultMessage="You TROLOLOLOLOLO"
-          />) LUL
+            defaultMessage="You"
+          />)
           </p>
       );
     }

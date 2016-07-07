@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import App from './component';
-import { pollExists } from './service';
+import { subscribeForData, pollExists } from './service';
 
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
@@ -20,11 +20,6 @@ const defaultProps = {
 class AppContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      meetingID: localStorage.getItem('meetingID'),
-      userID: localStorage.getItem('userID'),
-      authToken: localStorage.getItem('authToken'),
-    };
   }
 
   render() {
@@ -46,7 +41,30 @@ const actionControlsToShow = () => {
   }
 };
 
+var loading = true;
+var loadingDep = new Tracker.Dependency;
+
+var getLoading = () => {
+  loadingDep.depend()
+  return loading;
+};
+
+var setLoading = (val) => {
+  if (val !== loading) {
+    loading = val;
+    loadingDep.changed();
+  }
+};
+
 export default createContainer(() => {
-  const data = { actionsbar: actionControlsToShow() };
-  return data;
+  Promise.all(subscribeForData())
+  .then(() => {
+    setLoading(false);
+  })
+  .catch(reason => console.error(reason));
+
+  return {
+    isLoading: getLoading(),
+    actionsbar: actionControlsToShow()
+  };
 }, AppContainer);

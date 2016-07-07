@@ -8,6 +8,7 @@ import Cursor from '/imports/api/cursor';
 import Polls from '/imports/api/polls';
 
 function setCredentials(nextState, replace) {
+  console.log('4Head');
   if (nextState && nextState.params.authToken) {
     const { meetingID, userID, authToken } = nextState.params;
     Auth.setCredentials(meetingID, userID, authToken);
@@ -17,46 +18,48 @@ function setCredentials(nextState, replace) {
   }
 };
 
+let dataSubscriptions = null;
 function subscribeForData() {
-  callServer('validateAuthToken', function() {
-    console.log('LUL');
-    subscribeFor('chat');
-    subscribeFor('cursor');
-    subscribeFor('deskshare');
-    subscribeFor('meetings');
-    subscribeFor('polls');
-    subscribeFor('presentations');
-    subscribeFor('shapes');
-    subscribeFor('slides');
-    subscribeFor('users');
+  if(dataSubscriptions) {
+    return dataSubscriptions;
+  }
 
-    window.Users = Users; // for debug purposes TODO remove
-    window.Chat = Chat; // for debug purposes TODO remove
-    window.Meetings = Meetings; // for debug purposes TODO remove
-    window.Cursor = Cursor; // for debug purposes TODO remove
-    window.Polls = Polls; // for debug purposes TODO remove
+  const subNames = ['users', 'chat', 'cursor', 'deskshare', 'meetings',
+    'polls', 'presentations', 'shapes', 'slides'];
 
-    Auth.setLogOut();
-  });
+  let subs = [];
+  subNames.forEach(name => subs.push(subscribeFor(name)));
+
+  dataSubscriptions = subs;
+  return subs;
 };
 
 function subscribeFor(collectionName) {
   const credentials = Auth.getCredentials();
-
-  // console.log("subscribingForData", collectionName, meetingID, userID, authToken);
-
-  Meteor.subscribe(collectionName, credentials, onError, onReady);
+  return new Promise((resolve, reject) => {
+    Meteor.subscribe(collectionName, credentials, {
+      onReady: (...args) => resolve(...args),
+      onStop: (...args) => reject(...args),
+    });
+  });
 };
 
-function onError(error, result) {
+function subscribeToCollections(cb) {
+  subscribeFor('users').then(() => {
+    Promise.all(subscribeForData()).then(() => {
+      if(cb) {
+        cb();
+      }
+    })
+  })
+};
 
-  // console.log("OnError", error, result);
+function onStop(error, result) {
   console.log('OnError', error, result);
-  Auth.completeLogout();
 };
 
 function onReady() {
-  // console.log("OnReady", Users.find().fetch());
+  console.log("OnReady");
 };
 
 function pollExists() {
@@ -67,4 +70,6 @@ export {
   pollExists,
   subscribeForData,
   setCredentials,
+  subscribeFor,
+  subscribeToCollections,
 };
