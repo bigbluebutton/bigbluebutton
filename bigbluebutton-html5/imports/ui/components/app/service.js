@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { callServer } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
@@ -30,7 +29,7 @@ function subscribeForData() {
   subNames.forEach(name => subs.push(subscribeFor(name)));
 
   dataSubscriptions = subs;
-  
+
   Auth.setLogOut();
   return subs;
 };

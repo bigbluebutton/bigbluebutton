@@ -24,7 +24,11 @@ export function appendMessageHeader(eventName, messageObj) {
 export function clearCollections() {
   console.log('in function clearCollections');
 
-  //This is to prevent collection clearing in development environment
+  /*
+    This is to prevent collection clearing in development environment when the server
+    refreshes. Related to: https://github.com/meteor/meteor/issues/6576
+  */
+
   if (process.env.NODE_ENV === "development") {
     return;
   }
