@@ -35,16 +35,20 @@ class MessageForm extends Component {
     };
 
     this.handleMessageChange = this.handleMessageChange.bind(this);
-    this.handleMessageKeyUp = this.handleMessageKeyUp.bind(this);
+    this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleMessageKeyUp(e) {
+  handleMessageKeyDown(e) {
     if (e.keyCode === 13 && !e.shiftKey) {
-      this.refs.btnSubmit.click();
+      e.preventDefault();
 
-      // FIX: I dont know why the live bellow dont trigger the handleSubmit function
-      // this.refs.form.submit();
+      let event = new Event('submit', {
+        bubbles: true,
+        cancelable: true,
+      });
+
+      this.refs.form.dispatchEvent(event);
     }
   }
 
@@ -69,12 +73,11 @@ class MessageForm extends Component {
     div.appendChild(document.createTextNode(message));
     message = div.innerHTML;
 
-    if (!message) {
-      return;
+    if (message) {
+      this.props.handleSendMessage(message);
     }
 
     this.setState({ message: '' });
-    this.props.handleSendMessage(message);
   }
 
   render() {
@@ -90,6 +93,7 @@ class MessageForm extends Component {
           onClick={() => alert('Not supported yet...')}
           className={styles.actions}
           disabled={disabled}
+          label={'More actions'}
         />
         <TextareaAutosize
           className={styles.input}
@@ -103,7 +107,7 @@ class MessageForm extends Component {
           disabled={disabled}
           value={this.state.message}
           onChange={this.handleMessageChange}
-          onKeyUp={this.handleMessageKeyUp}
+          onKeyDown={this.handleMessageKeyDown}
         />
         <input
           ref="btnSubmit"

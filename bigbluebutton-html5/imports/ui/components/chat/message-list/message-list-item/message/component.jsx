@@ -59,7 +59,7 @@ export default class MessageListItem extends Component {
       this.props.handleReadMessage(this.props.time);
     } else {
       const scrollArea = document.getElementById(this.props.chatAreaId);
-      eventsToBeBound.forEach(e => scrollArea.addEventListener(e, this.handleMessageInViewport));
+      eventsToBeBound.forEach(e => scrollArea.addEventListener(e, this.handleMessageInViewport, false));
     }
   }
 
@@ -67,7 +67,7 @@ export default class MessageListItem extends Component {
     const node = findDOMNode(this);
     const scrollArea = document.getElementById(this.props.chatAreaId);
 
-    eventsToBeBound.forEach(e => scrollArea.removeEventListener(e, this.handleMessageInViewport));
+    eventsToBeBound.forEach(e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false));
   }
 
   render() {

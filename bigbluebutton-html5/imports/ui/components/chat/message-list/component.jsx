@@ -91,14 +91,14 @@ class MessageList extends Component {
     const { scrollArea } = this.refs;
 
     this.scrollTo(this.props.scrollPosition);
-    scrollArea.addEventListener('scroll', this.handleScrollChange);
+    scrollArea.addEventListener('scroll', this.handleScrollChange, false);
   }
 
   componentWillUnmount() {
     const { scrollArea } = this.refs;
 
     this.props.handleScrollUpdate(scrollArea.scrollTop);
-    scrollArea.removeEventListener('scroll', this.handleScrollChange);
+    scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
   }
 
   render() {
