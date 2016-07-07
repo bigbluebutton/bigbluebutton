@@ -4,6 +4,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import PollingContainer from '/imports/ui/components/polling/container';
 
 export default class Whiteboard extends React.Component {
   constructor(props) {
@@ -36,7 +37,10 @@ export default class Whiteboard extends React.Component {
           <svg
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"
-            xmlNS="http://www.w3.org/2000/svg"
+
+            //it's supposed to be here in theory
+            //but now it's ignored by all the browsers and it's not supported by React
+            //xmlNS="http://www.w3.org/2000/svg"
             className={styles.svgStyles}
             key={slideObj.id}
           >
@@ -69,8 +73,13 @@ export default class Whiteboard extends React.Component {
 
   render() {
     return (
-      <div className={styles.whiteboardPaper}>
-        {this.renderWhiteboard()}
+      <div className={styles.whiteboardContainer}>
+        <div className={styles.whiteboardWrapper}>
+          <div className={styles.whiteboardPaper}>
+            {this.renderWhiteboard()}
+          </div>
+        </div>
+        <PollingContainer />
       </div>
     );
   }

@@ -12,9 +12,9 @@ export default class Slide extends React.Component {
           <image x="0" y="0"
             width={this.props.currentSlide.slide.width}
             height={this.props.currentSlide.slide.height}
-            xlink="http://www.w3.org/1999/xlink"
             xlinkHref={this.props.currentSlide.slide.img_uri}
-            stroke-width="0.8">
+            strokeWidth="0.8"
+          >
           </image>
         : null }
       </g>
