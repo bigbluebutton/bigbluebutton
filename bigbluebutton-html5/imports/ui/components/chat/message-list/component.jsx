@@ -56,8 +56,7 @@ class MessageList extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.chatId !== nextProps.chatId) {
-      const { scrollArea } = this.refs;
-      this.props.handleScrollUpdate(scrollArea.scrollTop);
+      this.props.handleScrollUpdate(this.refs.scrollArea.scrollTop);
     }
   }
 
@@ -80,7 +79,6 @@ class MessageList extends Component {
 
   componentDidUpdate() {
     const { scrollPosition } = this.props;
-    const { scrollArea } = this.refs;
 
     if (this.shouldScrollBottom) {
       this.scrollTo();
@@ -90,14 +88,15 @@ class MessageList extends Component {
   }
 
   componentDidMount() {
-    this.scrollTo(this.props.scrollPosition);
-
     const { scrollArea } = this.refs;
+
+    this.scrollTo(this.props.scrollPosition);
     scrollArea.addEventListener('scroll', this.handleScrollChange);
   }
 
   componentWillUnmount() {
     const { scrollArea } = this.refs;
+
     this.props.handleScrollUpdate(scrollArea.scrollTop);
     scrollArea.removeEventListener('scroll', this.handleScrollChange);
   }
@@ -112,9 +111,10 @@ class MessageList extends Component {
               handleReadMessage={this.props.handleReadMessage}
               className={styles.messageListItem}
               key={index}
-              message={message.content}
+              messages={message.content}
               user={message.sender}
               time={message.time}
+              chatAreaId={this.props.id}
               timeLastMessage={message.timeLastMessage}
             />
           ))}

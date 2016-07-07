@@ -1,4 +1,5 @@
 import Storage from '/imports/ui/services/storage/session';
+import Auth from '/imports/ui/services/auth';
 import Chats from '/imports/api/chat';
 
 const STORAGE_KEY = 'UNREAD_CHATS';
@@ -23,6 +24,7 @@ const count = (chatID) => Chats.find({
     'message.from_time': {
       $gt: get(chatID),
     },
+    'message.from_userid': { $ne: Auth.getUser() },
     $or: [
       { 'message.to_userid': chatID },
       { 'message.from_userid': chatID },

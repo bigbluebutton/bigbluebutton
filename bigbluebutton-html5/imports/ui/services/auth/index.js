@@ -63,7 +63,7 @@ export const setLogOut = () => {
 };
 
 export const completeLogout = () => {
-  let logoutURL = Storage.get('logoutURL');
+  let logoutURL = Storage.getItem('logoutURL');
   callServer('userLogout');
   clearCredentials(() => {
     document.location.href = logoutURL;

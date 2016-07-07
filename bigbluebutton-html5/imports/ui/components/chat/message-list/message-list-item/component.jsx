@@ -3,85 +3,29 @@ import { FormattedTime } from 'react-intl';
 import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 
-import UserAvatar from '../../../user-avatar/component';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
+import Message from './message/component';
 
 import styles from './styles';
 
 const propTypes = {
-  user: React.PropTypes.shape({
-    name: React.PropTypes.string.isRequired,
-    isPresenter: React.PropTypes.bool.isRequired,
-    isVoiceUser: React.PropTypes.bool.isRequired,
-    isModerator: React.PropTypes.bool.isRequired,
-    image: React.PropTypes.string,
-  }),
-  message: React.PropTypes.oneOfType([
-    React.PropTypes.string,
-    React.PropTypes.arrayOf(React.PropTypes.string),
-  ]).isRequired,
+  user: React.PropTypes.object,
+  messages: React.PropTypes.array.isRequired,
   time: PropTypes.number.isRequired,
 };
 
 const defaultProps = {
 };
 
-const eventsToBeBound = [
-  'scroll',
-  'resize',
-];
-
-const isElementInViewport = (el) => {
-  const rect = el.getBoundingClientRect();
-
-  return (
-    rect.top >= 0 &&
-    rect.left >= 0 &&
-    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-  );
-};
-
 export default class MessageListItem extends Component {
   constructor(props) {
     super(props);
-    this.handleMessageInViewport = this.handleMessageInViewport.bind(this);
-  }
-
-  handleMessageInViewport() {
-    const node = findDOMNode(this);
-    const { removeEventListener } = node.parentNode;
-    const { timeLastMessage, time } = this.props;
-
-    if (isElementInViewport(node)) {
-      this.props.handleReadMessage(timeLastMessage || time);
-      eventsToBeBound.forEach(e => removeEventListener(e, this.handleMessageInViewport, false));
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.timeLastMessage !== nextProps.timeLastMessage) {
-      this.props.handleReadMessage(nextProps.timeLastMessage);
-    }
-  }
-
-  componentDidMount() {
-    const node = findDOMNode(this);
-    const { addEventListener } = node.parentNode;
-    eventsToBeBound.forEach(e => addEventListener(e, this.handleMessageInViewport, false));
-
-    this.handleMessageInViewport();
-  }
-
-  componentWillUnmount() {
-    const node = findDOMNode(this);
-    const { removeEventListener } = node.parentNode;
-    eventsToBeBound.forEach(e => removeEventListener(e, this.handleMessageInViewport, false));
   }
 
   render() {
     const {
       user,
-      message,
+      messages,
       time,
     } = this.props;
 
@@ -105,13 +49,18 @@ export default class MessageListItem extends Component {
               <FormattedTime value={dateTime}/>
             </time>
           </div>
-          {message.map((text, i) => (
-            <p
-              className={styles.message}
-              key={i}
-              dangerouslySetInnerHTML={ { __html: text } } >
-            </p>
-          ))}
+          <div className={styles.messages}>
+            {messages.map((message, i) => (
+              <Message
+                className={styles.message}
+                key={i}
+                text={message.text}
+                time={message.time}
+                chatAreaId={this.props.chatAreaId}
+                handleReadMessage={this.props.handleReadMessage}
+              />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -119,19 +68,24 @@ export default class MessageListItem extends Component {
 
   renderSystemMessage() {
     const {
-      message,
+      messages,
     } = this.props;
 
     return (
       <div className={cx(styles.item, styles.systemMessage)}>
         <div className={styles.content}>
-          {message.map((text, i) => (
-            <p
-              className={styles.message}
-              key={i}
-              dangerouslySetInnerHTML={ { __html: text } } >
-            </p>
-          ))}
+          <div className={styles.messages}>
+            {messages.map((message, i) => (
+              <Message
+                className={styles.message}
+                key={i}
+                text={message.text}
+                time={message.time}
+                chatAreaId={this.props.chatAreaId}
+                handleReadMessage={this.props.handleReadMessage}
+              />
+            ))}
+          </div>
         </div>
       </div>
     );

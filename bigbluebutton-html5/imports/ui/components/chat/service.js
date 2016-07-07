@@ -36,8 +36,13 @@ const mapUser = (user) => ({
 
 const mapMessage = (message) => {
   let mappedMessage = {
-    content: [message.message],
-    time: +(message.from_time), //+ message.from_tz_offset,
+    content: [
+      {
+        text: message.message,
+        time: message.from_time,
+      },
+    ],
+    time: message.from_time, //+ message.from_tz_offset,
     sender: null,
   };
 
@@ -61,7 +66,7 @@ const reduceMessages = (previous, current, index, array) => {
 
   if (lastMessage.sender.id === current.sender.id
    && (current.time - lastMessage.time) <= GROUPING_MESSAGES_WINDOW) {
-    lastMessage.content = lastMessage.content.concat(current.content);
+    lastMessage.content.push(current.content.pop());
     lastMessage.timeLastMessage = current.time;
     return previous;
   } else {
