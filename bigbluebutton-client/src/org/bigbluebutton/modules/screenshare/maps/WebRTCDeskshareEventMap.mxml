@@ -39,6 +39,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.managers.WebRTCDeskshareManager;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+			import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
+			import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
+			import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
+			import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
+			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
 		]]>
 	</mx:Script>
 
@@ -56,6 +61,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartSharingEvent" arguments="{true}"/>
 	</EventHandlers>
+	
+	<EventHandlers type="{RequestToStartSharing.REQUEST_SHARE_START}">
+    <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleRequestStartSharingEvent"/>
+  </EventHandlers>
+
+	<EventHandlers type="{RequestToStopSharing.REQUEST_SHARE_STOP}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleRequestStopSharingEvent"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{ShareStartRequestResponseEvent.SHARE_START_REQUEST_RESPONSE}">
+    <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleShareStartRequestResponseEvent" arguments="{event}"/>
+  </EventHandlers>
 
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleMadePresenterEvent" arguments="{event}"/>
@@ -76,17 +93,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{WebRTCViewStreamEvent.STOP}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStreamStopEvent" arguments="{event}"/>
 	</EventHandlers>
+	
+	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStreamStartedEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{IsSharingScreenEvent.IS_SCREENSHARING}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleIsSharingScreenEvent" arguments="{event}"/>
+	</EventHandlers>
 
 	<EventHandlers type="{WebRTCShareWindowEvent.CLOSE}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleShareWindowCloseEvent"/>
 	</EventHandlers>
 
-	<EventHandlers type="{WebRTCViewWindowEvent.CLOSE}">
-		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleViewWindowCloseEvent"/>
+	<EventHandlers type="{WebRTCConnectionEvent.SUCCESS}">
+    <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleConnectionSuccessEvent"/>
+  </EventHandlers>
+
+	<EventHandlers type="{StartedViewingEvent.STARTED_VIEWING_EVENT}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartedViewingEvent" arguments="{event.stream}"/>
 	</EventHandlers>
 
-	<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
-		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
+	<EventHandlers type="{WebRTCViewWindowEvent.CLOSE}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleViewWindowCloseEvent"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleEvent.STOP}">
@@ -97,12 +126,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 
-	<EventHandlers type="{RequestToStartSharing.REQUEST_SHARE_START}">
-    <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleRequestStartSharingEvent"/>
-  </EventHandlers>
-
-	<EventHandlers type="{RequestToStopSharing.REQUEST_SHARE_STOP}">
-		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleRequestStopSharingEvent"/>
+	<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
 	</EventHandlers>
 
 </EventMap>

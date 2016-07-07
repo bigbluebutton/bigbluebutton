@@ -231,8 +231,6 @@ package org.bigbluebutton.modules.screenshare.managers
 		public function handleStartSharingEvent(autoStart:Boolean):void {
 			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
 			JSLog.warn("WebRTCDeskshareManager::handleStartSharingEvent", {});
-			/*usingWebRTC = false;*/
-			/*return;*/
 
 			var onFailure:Function = function(message:String):void {
 				JSLog.warn(message, {});
@@ -291,5 +289,30 @@ package org.bigbluebutton.modules.screenshare.managers
 			initDeskshare();
 			handleStartSharingEvent(true);
 		}
+
+		public function handleStreamStartedEvent(event: WebRTCViewStreamEvent):void {
+			if (UsersUtil.amIPresenter()) {
+			} else {
+				/*handleStreamStartEvent(ScreenshareModel.getInstance().streamId, event.width, event.height);*/
+				handleStreamStartEvent(null);
+			}
+
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START));
+		}
+		
+		/*public function handleIsSharingScreenEvent(event: IsSharingScreenEvent):void {*/
+		public function handleIsSharingScreenEvent():void {
+			if (UsersUtil.amIPresenter()) {
+			} else {
+				/*handleStreamStartEvent(ScreenshareModel.getInstance().streamId, event.width, event.height);*/
+				handleStreamStartEvent(null);
+			}
+
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START));
+		}
+
+
 	}
 }
