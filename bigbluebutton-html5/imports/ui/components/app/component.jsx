@@ -117,7 +117,7 @@ export default class App extends Component {
   }
 
   render() {
-    if(this.props.isLoading) {
+    if (this.props.isLoading) {
       return <Loader/>;
     }
 
