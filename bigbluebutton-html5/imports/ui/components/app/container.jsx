@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
+import { subscribeForData, pollExists } from './service';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
@@ -16,11 +17,6 @@ const defaultProps = {
 class AppContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      meetingID: localStorage.getItem('meetingID'),
-      userID: localStorage.getItem('userID'),
-      authToken: localStorage.getItem('authToken'),
-    };
   }
 
   render() {
@@ -32,9 +28,40 @@ class AppContainer extends Component {
   }
 }
 
-AppContainer.defaultProps = defaultProps;
+const actionControlsToShow = () => {
+  if (pollExists()) {
+    return <PollingContainer />;
+  } else {
+    return <ActionsBarContainer />;
+  }
+};
+
+let loading = true;
+const loadingDep = new Tracker.Dependency;
+
+const getLoading = () => {
+  loadingDep.depend()
+  return loading;
+};
+
+const setLoading = (val) => {
+  if (val !== loading) {
+    loading = val;
+    loadingDep.changed();
+  }
+};
 
 export default createContainer(() => {
-  const data = { actionsbar: <ActionsBarContainer /> };
-  return data;
+  Promise.all(subscribeForData())
+  .then(() => {
+    setLoading(false);
+  })
+  .catch(reason => console.error(reason));
+
+  return {
+    isLoading: getLoading(),
+    actionsbar: <ActionsBarContainer />
+  };
 }, AppContainer);
+
+AppContainer.defaultProps = defaultProps;

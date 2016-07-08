@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import Loader from '../loader/component';
 import styles from './styles';
 
 const propTypes = {
@@ -116,6 +117,10 @@ export default class App extends Component {
   }
 
   render() {
+    if(this.props.isLoading) {
+      return <Loader/>;
+    }
+
     return (
       <main className={styles.main}>
         <section className={styles.wrapper}>

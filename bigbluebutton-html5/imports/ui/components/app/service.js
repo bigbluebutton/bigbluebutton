@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
@@ -11,53 +10,61 @@ function setCredentials(nextState, replace) {
   if (nextState && nextState.params.authToken) {
     const { meetingID, userID, authToken } = nextState.params;
     Auth.setCredentials(meetingID, userID, authToken);
+    replace({
+      pathname: '/'
+    });
   }
 };
 
+let dataSubscriptions = null;
 function subscribeForData() {
-  subscribeFor('users');
+  if(dataSubscriptions) {
+    return dataSubscriptions;
+  }
 
-  Meteor.setTimeout(() => {
-    subscribeFor('chat');
-    subscribeFor('cursor');
-    subscribeFor('deskshare');
-    subscribeFor('meetings');
-    subscribeFor('polls');
-    subscribeFor('presentations');
-    subscribeFor('shapes');
-    subscribeFor('slides');
-    subscribeFor('users');
+  const subNames = ['users', 'chat', 'cursor', 'deskshare', 'meetings',
+    'polls', 'presentations', 'shapes', 'slides'];
 
-    window.Users = Users; // for debug purposes TODO remove
-    window.Chat = Chat; // for debug purposes TODO remove
-    window.Meetings = Meetings; // for debug purposes TODO remove
-    window.Cursor = Cursor; // for debug purposes TODO remove
-    window.Polls = Polls; // for debug purposes TODO remove
+  let subs = [];
+  subNames.forEach(name => subs.push(subscribeFor(name)));
 
-    Auth.setLogOut();
-  }, 2000); //To avoid race condition where we subscribe before receiving auth from BBB
+  dataSubscriptions = subs;
+
+  Auth.setLogOut();
+  return subs;
 };
 
 function subscribeFor(collectionName) {
   const credentials = Auth.getCredentials();
-
-  // console.log("subscribingForData", collectionName, meetingID, userID, authToken);
-
-  Meteor.subscribe(collectionName, credentials, onError, onReady);
+  return new Promise((resolve, reject) => {
+    Meteor.subscribe(collectionName, credentials, {
+      onReady: (...args) => resolve(...args),
+      onStop: (...args) => reject(...args),
+    });
+  });
 };
 
-function onError(error, result) {
+function subscribeToCollections(cb) {
+  subscribeFor('users').then(() => {
+    Promise.all(subscribeForData()).then(() => {
+      if(cb) {
+        cb();
+      }
+    })
+  })
+};
 
-  // console.log("OnError", error, result);
+function onStop(error, result) {
   console.log('OnError', error, result);
-  Auth.completeLogout();
 };
 
 function onReady() {
-  // console.log("OnReady", Users.find().fetch());
+  console.log("OnReady");
 };
 
 export {
   subscribeForData,
   setCredentials,
+  subscribeFor,
+  subscribeToCollections,
 };
