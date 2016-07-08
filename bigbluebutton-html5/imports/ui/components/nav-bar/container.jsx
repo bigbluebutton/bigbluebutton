@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings';
 
 import NavBar from './component';
 
@@ -18,9 +20,23 @@ class NavBarContainer extends Component {
 }
 
 export default createContainer(() => {
+  let meetingTitle;
+  let meetingRecorded;
+
+  const meetingId = Auth.getMeeting();
+  const meetingObject = Meetings.findOne({
+    meetingId: meetingId,
+  });
+
+  if (meetingObject != null) {
+    meetingTitle = meetingObject.meetingName;
+    meetingRecorded = meetingObject.currentlyBeingRecorded;
+  }
+
   let data = {
-    presentationTitle: 'IMDT 1004 Design Process',
+    presentationTitle: meetingTitle,
     hasUnreadMessages: true,
+    beingRecorded: meetingRecorded,
   };
   return data;
 }, NavBarContainer);
