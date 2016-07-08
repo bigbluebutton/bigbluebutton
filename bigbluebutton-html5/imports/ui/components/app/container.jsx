@@ -1,13 +1,10 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-
 import App from './component';
 import { subscribeForData, pollExists } from './service';
-
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import PollingContainer from '../polling/container';
 import SettingsModal from '../modals/settings/SettingsModal';
 
 const defaultProps = {
@@ -30,8 +27,6 @@ class AppContainer extends Component {
     );
   }
 }
-
-AppContainer.defaultProps = defaultProps;
 
 const actionControlsToShow = () => {
   if (pollExists()) {
@@ -65,6 +60,8 @@ export default createContainer(() => {
 
   return {
     isLoading: getLoading(),
-    actionsbar: actionControlsToShow()
+    actionsbar: <ActionsBarContainer />
   };
 }, AppContainer);
+
+AppContainer.defaultProps = defaultProps;

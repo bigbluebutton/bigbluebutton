@@ -62,12 +62,7 @@ function onReady() {
   console.log("OnReady");
 };
 
-function pollExists() {
-  return !!(Polls.findOne({}));
-}
-
 export {
-  pollExists,
   subscribeForData,
   setCredentials,
   subscribeFor,

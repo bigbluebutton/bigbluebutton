@@ -77,13 +77,13 @@ export default class PollDrawComponent extends React.Component {
 
     //counting the total number of votes, finding the biggest number of votes
     this.props.shape.result.reduce(function (previousValue, currentValue, currentIndex, array) {
-      votesTotal += currentValue.num_votes;
+      votesTotal = previousValue + currentValue.num_votes;
       if (maxNumVotes < currentValue.num_votes) {
         maxNumVotes = currentValue.num_votes;
       }
 
       return votesTotal;
-    });
+    }, 0);
 
     //filling the textArray with data to display
     //adding value of the iterator to each line needed to create unique

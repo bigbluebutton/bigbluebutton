@@ -112,7 +112,7 @@ export default class App extends Component {
 
   renderAudioElement() {
     return (
-      <audio id="remote-media" autoplay="autoplay"></audio>
+      <audio id="remote-media" autoPlay="autoplay"></audio>
     );
   }
 
