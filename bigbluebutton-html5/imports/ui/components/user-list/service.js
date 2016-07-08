@@ -154,7 +154,6 @@ const userFindSorting = {
 };
 
 const getUsers = () => {
-  console.log(Users);
   let users = Users
   .find({}, userFindSorting)
   .fetch();

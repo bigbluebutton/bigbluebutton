@@ -2,9 +2,17 @@
 
 .chatListItem {
   @extend %list-item;
-  padding-right: 1.2rem;
+  padding: 0;
   cursor: pointer;
+}
+
+.chatListItemLink {
+  display: flex;
+  flex-grow: 1;
   text-decoration: none;
+  padding: 0.3rem;
+  padding-left: 0.5rem;
+  padding-right: 0.3rem;
 }
 
 .unreadMessages {

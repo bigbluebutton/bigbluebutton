@@ -91,7 +91,7 @@ const addShadeIfNoContrast = (rgb) => {
 
   let cr = contrastRatio(base, rgb);
 
-  if (cr > 4.5) {
+  if (cr > 2.5) {
     return rgb;
   }
 

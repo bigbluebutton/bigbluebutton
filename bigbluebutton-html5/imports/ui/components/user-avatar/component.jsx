@@ -19,35 +19,27 @@ const defaultProps = {
 
 export default class UserAvatar extends Component {
   render() {
-    let user = this.props.user;
-    // console.log('batata');
-
-    let avatarClasses = {};
-    avatarClasses[styles.moderator] = user.isModerator;
-    avatarClasses[styles.presenter] = user.isPresenter;
-    // avatarClasses[styles.guest] = user.isVoiceUser;
+    const {
+      user
+    } = this.props;
 
     let avatarStyles = {
-      'background-color': getColor(user.name),
+      'backgroundColor': getColor(user.name),
     };
-
-    // console.log(user.emoji.status);
 
     return (
       <div className={styles.userAvatar} style={avatarStyles}>
         <span>
           {this.renderAvatarContent()}
         </span>
-        <span className={cx(styles.userStatus, avatarClasses)}>
-        </span>
+        {this.renderUserStatus()}
+        {this.renderUserMediaStatus()}
       </div>
     );
   }
 
   renderAvatarContent() {
-    const {
-      user
-    } = this.props;
+    const user = this.props.user;
 
     let content = user.name.slice(0, 2);
 
@@ -56,6 +48,43 @@ export default class UserAvatar extends Component {
     }
 
     return content;
+  }
+
+  renderUserStatus() {
+    const user = this.props.user;
+    let userStatus;
+
+    let userStatusClasses = {};
+    userStatusClasses[styles.moderator] = user.isModerator;
+    userStatusClasses[styles.presenter] = user.isPresenter;
+
+    if (user.isModerator || user.isPresenter) {
+      userStatus = (
+        <span className={cx(styles.userStatus, userStatusClasses)}>
+        </span>
+      );
+    }
+
+    return userStatus;
+  }
+
+  renderUserMediaStatus() {
+    const user = this.props.user;
+    let userMediaStatus;
+
+    let userMediaClasses = {};
+    userMediaClasses[styles.voiceOnly] = user.isListenOnly;
+    userMediaClasses[styles.microphone] = user.isVoiceUser;
+
+    if (user.isListenOnly || user.isVoiceUser) {
+      userMediaStatus = (
+        <span className={cx(styles.userMediaStatus, userMediaClasses)}>
+          {user.isMuted ? <div className={styles.microphoneMuted}/> : null}
+        </span>
+      );
+    }
+
+    return userMediaStatus;
   }
 }
 

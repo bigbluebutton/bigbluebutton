@@ -32,31 +32,54 @@ $moderator-bg: $color-primary;
 .userStatus {
   position: absolute;
   background-color: $color-white;
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-  top: 1.5rem;
-  left: 1.5rem;
+  width: 0.70rem;
+  height: 0.70rem;
+  border-radius: 2px;
+  top: 0;
+  left: 0;
   -webkit-box-shadow: 0 0 0 1px $color-white;
   -moz-box-shadow: 0 0 0 1px $color-white;
   box-shadow: 0 0 0 1px $color-white;
-  background-color: $color-success;
   transition: all 0.3s;
 }
 
 .moderator {
   border: 1px solid $color-gray-light;
-  border-radius: 2px;
   background-color: $color-white;
 }
 
 .presenter {
   background-color: $moderator-bg;
-  border-radius: 2px;
   border: none;
 }
 
-.guest {
-  background-color: $color-white;
+.userMediaStatus {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  border-radius: 50%;
+  width: 0.70rem;
+  height: 0.70rem;
+  top: 1.5rem;
+  left: 1.5rem;
+  -webkit-box-shadow: 0 0 0 1px $color-white;
+  -moz-box-shadow: 0 0 0 1px $color-white;
+  box-shadow: 0 0 0 1px $color-white;
+  transition: all 0.3s;
+  background-color: $color-success;
+}
+
+.voiceOnly {
   border: 1px solid $color-gray-light;
+  background-color: $color-white;
+}
+
+.microphone {
+}
+
+.microphoneMuted {
+  width: 2px;
+  transform: rotate(45deg);
+  height: 0.7rem;
+  background-color: $color-white;
 }

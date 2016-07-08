@@ -131,23 +131,14 @@ class UserListItem extends Component {
     userNameSub = userNameSub.join(' ');
 
     return (
-      <ReactCSSTransitionGroup
-        className={styles.userName}
-        transitionName={userNameSubTransition}
-        transitionAppear={true}
-        transitionEnter={true}
-        transitionLeave={true}
-        transitionAppearTimeout={0}
-        transitionEnterTimeout={0}
-        transitionLeaveTimeout={0}
-        component='div'>
+      <div className={styles.userName}>
         <h3 className={styles.userNameMain}>
           {user.name}
         </h3>
         <p className={styles.userNameSub}>
           {userNameSub}
         </p>
-      </ReactCSSTransitionGroup>
+      </div>
     );
   }
 
