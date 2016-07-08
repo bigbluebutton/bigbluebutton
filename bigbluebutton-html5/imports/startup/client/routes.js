@@ -1,8 +1,6 @@
 import React from 'react';
-import { Router, Route, Redirect, IndexRoute,
-  IndexRedirect, useRouterHistory } from 'react-router';
+import { Router, Route, Redirect, IndexRoute, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
-import { isSubscribedForData } from '/imports/ui/components/app/service';
 
 // route components
 import AppContainer from '/imports/ui/components/app/container';
