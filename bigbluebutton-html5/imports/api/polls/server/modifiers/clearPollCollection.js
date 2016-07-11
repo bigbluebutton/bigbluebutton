@@ -6,13 +6,10 @@ export function clearPollCollection() {
   const pollId = arguments[1];
 
   //TODO make it so you can delete the polls based only on meetingId
-  if (meetingId != null && pollId != null && Polls.findOne({
-    meetingId: meetingId,
-    poll: { id: pollId },
-  }) != null) {
+  if (meetingId != null && pollId != null) {
     return Polls.remove({
       meetingId: meetingId,
-      poll: { id: pollId },
+      'poll.id': pollId,
     }, logger.info(`cleared Polls Collection (meetingId: ${meetingId}, pollId: ${pollId}!)`));
   } else {
     return Polls.remove({}, logger.info('cleared Polls Collection (all meetings)!'));

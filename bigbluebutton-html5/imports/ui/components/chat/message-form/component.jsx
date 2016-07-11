@@ -4,7 +4,7 @@ import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import styles from './styles';
 
-import Button from '../../button/component';
+import MessageFormActions from './message-form-actions/component';
 import TextareaAutosize from 'react-autosize-textarea';
 
 const propTypes = {
@@ -55,6 +55,12 @@ class MessageForm extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
+    const { disabled } = this.props;
+
+    if (disabled) {
+      return false;
+    }
+
     let message = this.state.message.trim();
 
     // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
@@ -72,7 +78,7 @@ class MessageForm extends Component {
   }
 
   render() {
-    const { intl, chatTitle } = this.props;
+    const { intl, chatTitle, disabled } = this.props;
 
     return (
       <form
@@ -80,14 +86,11 @@ class MessageForm extends Component {
         ref="form"
         className={cx(this.props.className, styles.form)}
         onSubmit={this.handleSubmit}>
-        <div className={styles.actions}>
-          <Button
-            onClick={() => alert('Not supported yet...')}
-            icon={'circle-add'}
-            size={'sm'}
-            circle={true}
-          />
-        </div>
+        <MessageFormActions
+          onClick={() => alert('Not supported yet...')}
+          className={styles.actions}
+          disabled={disabled}
+        />
         <TextareaAutosize
           className={styles.input}
           id="message-input"
@@ -97,6 +100,7 @@ class MessageForm extends Component {
           autocorrect="off"
           autocomplete="off"
           spellcheck="true"
+          disabled={disabled}
           value={this.state.message}
           onChange={this.handleMessageChange}
           onKeyUp={this.handleMessageKeyUp}
@@ -105,6 +109,7 @@ class MessageForm extends Component {
           ref="btnSubmit"
           className={'sr-only'}
           type="submit"
+          disabled={disabled}
           value={ intl.formatMessage(messages.submitLabel) }
         />
       </form>

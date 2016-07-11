@@ -69,6 +69,15 @@ export default class SettingsModal extends BaseModal {
       this.setState({ activeSubmenu: this.submenus.length - 1});
     } else {
     this.setState({ activeSubmenu: i });
+    if (this.submenus[i].className != SessionMenu) {
+      this.setState({ activeSubmenu: i });
+    };
+  }
+
+  doubleClickSubmenu(i) {
+    if (this.submenus[i].className == SessionMenu) {
+      this.setState({ activeSubmenu: i });
+    }
   }
 
   getContent() {
@@ -79,6 +88,7 @@ export default class SettingsModal extends BaseModal {
             {this.submenus.map((value, index) => (
               <li key={index} onClick={this.clickSubmenu.bind(this, index)}
                 tabIndex={value.tabIndex} role='menuitem'
+                onDoubleClick={this.doubleClickSubmenu.bind(this, index)}
                 className={classNames(styles.settingsSubmenuItem,
                   index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
                 <Icon key={index} prependIconName={value.props.prependIconName}

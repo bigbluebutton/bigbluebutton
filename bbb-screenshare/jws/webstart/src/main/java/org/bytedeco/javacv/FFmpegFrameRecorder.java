@@ -82,37 +82,6 @@ public class FFmpegFrameRecorder extends FrameRecorder {
     public static FFmpegFrameRecorder createDefault(File f, int w, int h)   throws Exception { return new FFmpegFrameRecorder(f, w, h); }
     public static FFmpegFrameRecorder createDefault(String f, int w, int h) throws Exception { return new FFmpegFrameRecorder(f, w, h); }
 
-    private static Exception loadingException = null;
-    public static void tryLoad() throws Exception {
-        if (loadingException != null) {
-            throw loadingException;
-        } else {
-            try {
-                Loader.load(org.bytedeco.javacpp.avutil.class);
-                Loader.load(org.bytedeco.javacpp.swresample.class);
-                Loader.load(org.bytedeco.javacpp.avcodec.class);
-                Loader.load(org.bytedeco.javacpp.avformat.class);
-                Loader.load(org.bytedeco.javacpp.swscale.class);
-
-                /* initialize libavcodec, and register all codecs and formats */
-                av_register_all();
-                avformat_network_init();
-            } catch (Throwable t) {
-                if (t instanceof Exception) {
-                    throw loadingException = (Exception)t;
-                } else {
-                    throw loadingException = new Exception("Failed to load " + FFmpegFrameRecorder.class, t);
-                }
-            }
-        }
-    }
-
-    static {
-        try {
-            tryLoad();
-        } catch (Exception ex) { }
-    }
-
     public FFmpegFrameRecorder(File file, int audioChannels) {
         this(file, 0, 0, audioChannels);
     }

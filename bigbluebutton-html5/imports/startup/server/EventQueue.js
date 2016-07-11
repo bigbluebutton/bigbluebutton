@@ -23,10 +23,14 @@ export class EventQueue {
             } else return '';
           }()) || '';
 
-        logger.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
+        //uncomment for development purposes only
+        //otherwise significantly slows down the whiteboard (displaying drawing process)
+        //logger.info(`in callback after handleRedisMessage ${eventName}. ${lengthString}`);
       }
 
-      console.log('in taskHandler:' + eventName);
+      //uncomment for development purposes only
+      //otherwise significantly slows down the whiteboard (displaying drawing process)
+      //console.log('in taskHandler:' + eventName);
 
       if (failures > 0) {
         next();
@@ -41,10 +45,13 @@ export class EventQueue {
             payload: parsedMsg.payload,
             header: parsedMsg.header, //TODO extract meetingId here
 
-            callback: () => {
-              console.log('ready for next message');
-              return next();
-            },
+            callback: () =>// {
+              //uncomment for development purposes only
+              //otherwise significantly slows down the whiteboard (displaying drawing process)
+              //console.log('ready for next message');
+              next(),
+
+            //},
           });
         } else {
           logger.info('not handling messages of type:' + eventName);
@@ -61,7 +68,7 @@ const logRedisMessage = function (eventName, json) {
   // Avoid cluttering the log with json messages carrying little or repetitive
   // information. Comment out a message type in the array to be able to see it
   // in the log upon restarting of the Meteor process.
-  notLoggedEventTypes = [
+  let notLoggedEventTypes = [
     'keep_alive_reply',
     'page_resized_message',
     'presentation_page_resized_message',
@@ -141,4 +148,5 @@ const handledMessageTypes = [
   'poll_started_message',
   'poll_stopped_message',
   'user_voted_poll_message',
+  'get_all_meetings_reply_message',
 ];

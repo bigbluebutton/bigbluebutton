@@ -1,15 +1,13 @@
 import Presentations from '/imports/api/presentations';
 
 export function addPresentationToCollection(meetingId, presentationObject) {
-  let entry, id, presentationObj;
-
   //check if the presentation is already in the collection
-  presentationObj = Presentations.findOne({
+  const presentationObj = Presentations.findOne({
     meetingId: meetingId,
     'presentation.id': presentationObject.id,
   });
   if (presentationObj == null) {
-    entry = {
+    const entry = {
       meetingId: meetingId,
       presentation: {
         id: presentationObject.id,
@@ -17,7 +15,7 @@ export function addPresentationToCollection(meetingId, presentationObject) {
         current: presentationObject.current,
       },
     };
-    return id = Presentations.insert(entry);
+    return Presentations.insert(entry);
 
     //logger.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}.
     // Presentations.size is now #{Presentations.find({meetingId: meetingId}).count()}"

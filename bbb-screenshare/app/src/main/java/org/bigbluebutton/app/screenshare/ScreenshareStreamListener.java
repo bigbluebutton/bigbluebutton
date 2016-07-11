@@ -85,7 +85,7 @@ public class ScreenshareStreamListener implements IStreamListener {
 	          
 	    		  Map<String, String> event = new HashMap<String, String>();
 	    		  event.put("module", "Deskshare");
-	    		  event.put("timestamp", new Long(System.currentTimeMillis()).toString());
+	    		  event.put("timestamp", genTimestamp().toString());
 	    		  event.put("meetingId", meetingId);
 	    		  event.put("file", filename);
 	    		  event.put("stream", stream.getPublishedName());

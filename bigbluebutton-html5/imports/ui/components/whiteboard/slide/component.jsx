@@ -8,13 +8,13 @@ export default class Slide extends React.Component {
   render() {
     return (
       <g>
-        {this.props.current_slide ?
+        {this.props.currentSlide ?
           <image x="0" y="0"
-            width={this.props.current_slide.slide.width}
-            height={this.props.current_slide.slide.height}
-            xlink="http://www.w3.org/1999/xlink"
-            xlinkHref={this.props.current_slide.slide.img_uri}
-            stroke-width="0.8">
+            width={this.props.currentSlide.slide.width}
+            height={this.props.currentSlide.slide.height}
+            xlinkHref={this.props.currentSlide.slide.img_uri}
+            strokeWidth="0.8"
+          >
           </image>
         : null }
       </g>
