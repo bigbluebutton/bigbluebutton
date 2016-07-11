@@ -352,6 +352,14 @@
 				title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title');
 			}
 
+			public function handleDraggableStatus(value:Boolean):void {
+				this.draggable = value;
+			}
+
+			public function handleResizableStatus(value:Boolean):void {
+				this.resizable = value;
+			}
+
 		]]>
 	</mx:Script>
 
