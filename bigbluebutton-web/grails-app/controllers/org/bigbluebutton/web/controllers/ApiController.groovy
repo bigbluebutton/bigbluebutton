@@ -1767,7 +1767,6 @@ class ApiController {
   /******************************************************
    * PUBLISH_RECORDINGS API
    ******************************************************/
-
   def publishRecordings = {
     String API_CALL = "publishRecordings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
@@ -1923,6 +1922,85 @@ class ApiController {
       }
     }
   }
+
+  /******************************************************
+   * UPDATE_RECORDINGS API
+   ******************************************************/
+   def updateRecordingsHandler = {
+     String API_CALL = "updateRecordings"
+     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+     // BEGIN - backward compatibility
+     if (StringUtils.isEmpty(params.checksum)) {
+       invalid("checksumError", "You did not pass the checksum security check")
+       return
+     }
+
+     if (StringUtils.isEmpty(params.recordID)) {
+       invalid("missingParamRecordID", "You must specify a recordID.");
+       return
+     }
+
+     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+       invalid("checksumError", "You did not pass the checksum security check")
+       return
+     }
+     // END - backward compatibility
+
+     ApiErrors errors = new ApiErrors()
+
+     // Do we have a checksum? If none, complain.
+     if (StringUtils.isEmpty(params.checksum)) {
+       errors.missingParamError("checksum");
+     }
+
+     // Do we have a recording id? If none, complain.
+     String recordId = params.recordID
+     if (StringUtils.isEmpty(recordId)) {
+       errors.missingParamError("recordID");
+     }
+
+     if (errors.hasErrors()) {
+       respondWithErrors(errors)
+       return
+     }
+
+     // Do we agree on the checksum? If not, complain.
+     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+       errors.checksumError()
+       respondWithErrors(errors)
+       return
+     }
+
+     List<String> recordIdList = new ArrayList<String>();
+     if (!StringUtils.isEmpty(recordId)) {
+       recordIdList=paramsProcessorUtil.decodeIds(recordId);
+     }
+
+     if (!meetingService.existsAnyRecording(recordIdList)) {
+       // BEGIN - backward compatibility
+       invalid("notFound", "We could not find recordings");
+       return;
+       // END - backward compatibility
+     }
+
+     //Execute code specific for this call
+     Map<String, String> metaParams = ParamsProcessorUtil.processMetaParam(params)
+     if ( !metaParams.empty ) {
+         //Proceed with the update
+         meetingService.updateRecordings(recordIdList, metaParams);
+     }
+     withFormat {
+       xml {
+         render(contentType:"text/xml") {
+           response() {
+             returncode(RESP_CODE_SUCCESS)
+             updated(true)
+           }
+         }
+       }
+     }
+   }
 
   def uploadDocuments(conf) {
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
