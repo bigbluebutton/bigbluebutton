@@ -118,6 +118,7 @@ class MessageList extends Component {
       || !_.isEqual(this.props.messages, nextProps.messages)) {
       return true;
     }
+
     return false;
   }
 
@@ -126,7 +127,15 @@ class MessageList extends Component {
 
     return (
       <div className={styles.messageListWrapper}>
-        <div {...this.props} ref="scrollArea" className={styles.messageList}>
+        <div
+          tabIndex="0"
+          role="log"
+          aria-atomic="true"
+          aria-relevant="additions"
+          ref="scrollArea"
+          className={styles.messageList}
+          id={this.props.id}
+        >
           {messages.map((message) => (
             <MessageListItem
               handleReadMessage={this.props.handleReadMessage}

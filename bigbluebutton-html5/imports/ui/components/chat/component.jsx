@@ -41,10 +41,6 @@ export default class Chat extends Component {
           handleScrollUpdate={actions.handleScrollUpdate}
           handleReadMessage={actions.handleReadMessage}
           lastReadMessageTime={lastReadMessageTime}
-          tabindex="0"
-          role="log"
-          aria-atomic="true"
-          aria-relevant="additions"
         />
         <MessageForm
           disabled={isChatLocked}

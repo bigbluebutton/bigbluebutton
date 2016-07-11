@@ -85,7 +85,6 @@ class MessageForm extends Component {
 
     return (
       <form
-        {...this.props}
         ref="form"
         className={cx(this.props.className, styles.form)}
         onSubmit={this.handleSubmit}>
@@ -98,12 +97,12 @@ class MessageForm extends Component {
         <TextareaAutosize
           className={styles.input}
           id="message-input"
-          maxlength=""
+          maxLength=""
           aria-controls={this.props.chatAreaId}
           aria-label={ intl.formatMessage(messages.inputLabel, { name: chatTitle }) }
-          autocorrect="off"
-          autocomplete="off"
-          spellcheck="true"
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck="true"
           disabled={disabled}
           value={this.state.message}
           onChange={this.handleMessageChange}

@@ -57,7 +57,7 @@ const reduceMessages = (previous, current, index, array) => {
 
   current.content = [];
   current.content.push({
-    id: currentPayload._id,
+    id: current._id,
     text: currentPayload.message,
     time: currentPayload.from_time,
   });

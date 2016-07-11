@@ -45,7 +45,7 @@ export default class MessageListItem extends Component {
             <div className={styles.name}>
               <span>{user.name}</span>
             </div>
-            <time className={styles.time} datetime={dateTime}>
+            <time className={styles.time} dateTime={dateTime}>
               <FormattedTime value={dateTime}/>
             </time>
           </div>
