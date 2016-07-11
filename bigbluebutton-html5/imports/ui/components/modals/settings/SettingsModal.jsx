@@ -80,6 +80,37 @@ export default class SettingsModal extends BaseModal {
     }
   }
 
+  handleKeyDown(event) {
+   console.log(event.activeSubmenu);
+    if (event.keyCode == '38') { // up arrow
+      // if (this.state.activeSubmenu <= 0) {
+      //   this.state.activeSubmenu = this.submenus.length - 1;
+      //   this.clickSubmenu(this.state.activeSubmenu);
+      // } else {
+      //   this.clickSubmenu(this.state.activeSubmenu - 1);
+      // }
+      if (this.state.activeSubmenu <= 0) {
+        this.state.activeSubmenu = this.submenus.length - 1;
+        this.refs.focus();
+      } else {
+        this.state.activeSubmenu - 1;
+        this.state.activeSubmenu.focus();
+      }
+    }
+    if (event.keyCode == '40') { // down arrow
+      if (this.state.activeSubmenu >= this.submenus.length - 1) {
+        this.state.activeSubmenu = 0;
+        this.clickSubmenu(this.state.activeSubmenu);
+      } else {
+        this.clickSubmenu(this.state.activeSubmenu + 1);
+      }
+    }
+    if (event.keyCode == '32' || event.keyCode == '13') { // space or enter key
+      alert("Enter key pressed.");
+      this.clickSubmenu(this.state.activeSubmenu);
+    }
+  }
+
   getContent() {
     return (
       <div style={{ clear: 'both', height: '100%' }} role='presentation'>
