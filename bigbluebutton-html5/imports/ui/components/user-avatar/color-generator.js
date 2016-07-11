@@ -26,6 +26,7 @@ const stringToPastelColour = (str) => {
 };
 
 // https://www.w3.org/TR/WCAG20/#relativeluminancedef
+// http://entropymine.com/imageworsener/srgbformula/
 const relativeLuminance = (rgb) => {
   let tmp = {};
 
@@ -91,7 +92,7 @@ const addShadeIfNoContrast = (rgb) => {
 
   let cr = contrastRatio(base, rgb);
 
-  if (cr > 2.5) {
+  if (cr > 4.5) {
     return rgb;
   }
 
