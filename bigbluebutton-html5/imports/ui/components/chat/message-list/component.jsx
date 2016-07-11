@@ -1,6 +1,5 @@
 
 import React, { Component, PropTypes } from 'react';
-import { findDOMscrollArea } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'underscore';
 import styles from './styles';
@@ -28,17 +27,26 @@ class MessageList extends Component {
     this.lastKnowScrollPosition = 0;
     this.ticking = false;
 
-    this.handleScrollChange = this.handleScrollChange.bind(this);
+    this.handleScrollChange = _.debounce(this.handleScrollChange.bind(this), 150);
+    this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
   }
 
-  scrollTo(position) {
+  scrollTo(position = null) {
     const { scrollArea } = this.refs;
 
-    if (position === undefined) {
+    if (position === null) {
       position = scrollArea.scrollHeight - scrollArea.clientHeight;
     }
 
     scrollArea.scrollTop = position;
+  }
+
+  handleScrollUpdate(position, target) {
+    if (position !== null && position + target.offsetHeight === target.scrollHeight) {
+      position = null; //update with null so it keeps auto scrolling
+    }
+
+    this.props.handleScrollUpdate(position);
   }
 
   handleScrollChange(e) {
@@ -46,7 +54,8 @@ class MessageList extends Component {
 
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
-        this.props.handleScrollUpdate(this.lastKnowScrollPosition);
+        let position = this.lastKnowScrollPosition;
+        this.handleScrollUpdate(position, e.target);
         this.ticking = false;
       });
     }
@@ -56,7 +65,8 @@ class MessageList extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.chatId !== nextProps.chatId) {
-      this.props.handleScrollUpdate(this.refs.scrollArea.scrollTop);
+      const { scrollArea } = this.refs;
+      this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     }
   }
 
@@ -97,20 +107,21 @@ class MessageList extends Component {
   componentWillUnmount() {
     const { scrollArea } = this.refs;
 
-    this.props.handleScrollUpdate(scrollArea.scrollTop);
+    this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
   }
 
   render() {
     const { messages } = this.props;
+
     return (
       <div className={styles.messageListWrapper}>
         <div {...this.props} ref="scrollArea" className={styles.messageList}>
-          {messages.map((message, index) => (
+          {messages.map((message) => (
             <MessageListItem
               handleReadMessage={this.props.handleReadMessage}
               className={styles.messageListItem}
-              key={index}
+              key={message.id}
               messages={message.content}
               user={message.sender}
               time={message.time}
@@ -125,9 +136,9 @@ class MessageList extends Component {
   }
 
   renderUnreadNotification() {
-    const { intl, hasUnreadMessages } = this.props;
+    const { intl, hasUnreadMessages, scrollPosition } = this.props;
 
-    if (hasUnreadMessages) {
+    if (hasUnreadMessages && scrollPosition !== null) {
       return (
         <Button
           className={styles.unreadButton}

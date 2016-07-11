@@ -4,7 +4,7 @@ import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clea
 import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
 import { clearPresentationsCollection }
   from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
-import { clearMeetingsCollection}
+import { clearMeetingsCollection }
   from '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
 import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
@@ -23,6 +23,16 @@ export function appendMessageHeader(eventName, messageObj) {
 
 export function clearCollections() {
   console.log('in function clearCollections');
+
+  /*
+    This is to prevent collection clearing in development environment when the server
+    refreshes. Related to: https://github.com/meteor/meteor/issues/6576
+  */
+
+  if (process.env.NODE_ENV === "development") {
+    return;
+  }
+
   clearUsersCollection();
   clearChatCollection();
   clearMeetingsCollection();

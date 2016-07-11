@@ -12,6 +12,7 @@ const propTypes = {
   chat: React.PropTypes.shape({
     id: React.PropTypes.string.isRequired,
     name: React.PropTypes.string.isRequired,
+    unreadCounter: React.PropTypes.number.isRequired,
   }).isRequired,
 };
 
@@ -26,10 +27,10 @@ class ChatListItem extends Component {
     } = this.props;
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
-    let fakeUnreadCount = Math.round(Math.random() * 33);
 
     let linkClasses = {};
     linkClasses[styles.active] = chat.id === openChat;
+
     return (
       <li {...this.props}>
         <Link to={linkPath} className={cx(styles.chatListItem, linkClasses)}>
@@ -37,9 +38,11 @@ class ChatListItem extends Component {
           <div className={styles.chatName}>
             <h3 className={styles.chatNameMain}>{chat.name}</h3>
           </div>
-          <div className={styles.unreadMessages}>
-            <p className={styles.unreadMessagesText}>{fakeUnreadCount}</p>
-          </div>
+          {(chat.unreadCounter > 0) ?
+            <div className={styles.unreadMessages}>
+              <p className={styles.unreadMessagesText}>{chat.unreadCounter}</p>
+            </div>
+            : null}
         </Link>
       </li>
     );

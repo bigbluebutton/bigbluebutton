@@ -1,5 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
+import Chats from '/imports/api/chat';
+
+import ChatsService from '/imports/ui/components/chat/service';
 
 import Button from '../button/component';
 
@@ -9,7 +12,20 @@ export default class ActionsBar extends Component {
   }
 
   handleClick() {
-    console.log('dummy handler');
+    const SYSTEM_CHAT_TYPE = 'SYSTEM_MESSAGE';
+    const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
+    const PRIVATE_CHAT_TYPE = 'PRIVATE_CHAT';
+
+    console.log(Chats.find({
+      'message.chat_type': { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
+    }, {
+      sort: ['message.from_time'],
+    })
+    .fetch());
+  }
+
+  handleClick2() {
+    console.log(ChatsService.getPublicMessages());
   }
 
   render() {
@@ -35,7 +51,7 @@ export default class ActionsBar extends Component {
             circle={true}
           />
           <Button
-            onClick={this.handleClick}
+            onClick={this.handleClick2}
             label={'Cam Off'}
             color={'primary'}
             icon={'video-off'}

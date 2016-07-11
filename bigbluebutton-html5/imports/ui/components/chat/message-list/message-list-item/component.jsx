@@ -9,8 +9,8 @@ import Message from './message/component';
 import styles from './styles';
 
 const propTypes = {
-  user: React.PropTypes.object,
-  messages: React.PropTypes.array.isRequired,
+  user: PropTypes.object,
+  messages: PropTypes.array.isRequired,
   time: PropTypes.number.isRequired,
 };
 
@@ -53,9 +53,10 @@ export default class MessageListItem extends Component {
             {messages.map((message, i) => (
               <Message
                 className={styles.message}
-                key={i}
+                key={message.id}
                 text={message.text}
                 time={message.time}
+                unread={message.unread}
                 chatAreaId={this.props.chatAreaId}
                 handleReadMessage={this.props.handleReadMessage}
               />

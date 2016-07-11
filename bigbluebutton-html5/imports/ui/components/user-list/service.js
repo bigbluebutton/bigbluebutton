@@ -1,6 +1,7 @@
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Auth from '/imports/ui/services/auth';
+import UnreadMessages from '/imports/ui/services/unread-messages';
 
 import { callServer } from '/imports/ui/services/api';
 
@@ -182,12 +183,17 @@ const getOpenChats = chatID => {
   openChats = Users
   .find({ 'user.userid': { $in: openChats } })
   .map(u => u.user)
-  .map(mapUser);
+  .map(mapUser)
+  .map(op => {
+    op.unreadCounter = UnreadMessages.count(op.id);
+    return op;
+  });
 
   openChats.push({
     id: 'public',
     name: 'Public Chat',
     icon: 'group-chat',
+    unreadCounter: UnreadMessages.count('public_chat_userid'),
   });
 
   return openChats

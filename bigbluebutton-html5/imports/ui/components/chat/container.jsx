@@ -56,7 +56,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
       title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
     } else {
       // let partnerName = messages.find(m => m.user && m.user.id === chatID).map(m => m.user.name);
-      let partnerName = '{{NAME}}s'; // placeholder until the server sends the name
+      let partnerName = '{{NAME}}'; // placeholder until the server sends the name
       messages.push({
         content: [intl.formatMessage(intlMessages.partnerDisconnected, { name: partnerName })],
         time: Date.now(),
@@ -79,7 +79,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     actions: {
       handleSendMessage: message => {
         let sentMessage = ChatService.sendMessage(chatID, message);
-        ChatService.updateScrollPosition(chatID, undefined); //undefined so its scrolls to bottom
+        ChatService.updateScrollPosition(chatID, null); //null so its scrolls to bottom
         // ChatService.updateUnreadMessage(chatID, sentMessage.from_time);
       },
 

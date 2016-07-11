@@ -1,12 +1,15 @@
 import React, { Component, PropTypes } from 'react';
+import _ from 'underscore';
 import { findDOMNode } from 'react-dom';
 
 const propTypes = {
-  text: React.PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
   time: PropTypes.number.isRequired,
+  unread: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
+  unread: true,
 };
 
 const eventsToBeBound = [
@@ -31,7 +34,7 @@ export default class MessageListItem extends Component {
 
     this.ticking = false;
 
-    this.handleMessageInViewport = this.handleMessageInViewport.bind(this);
+    this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
   }
 
   handleMessageInViewport(e) {
@@ -53,6 +56,10 @@ export default class MessageListItem extends Component {
   }
 
   componentDidMount() {
+    if (!this.props.unread) {
+      return;
+    }
+
     const node = findDOMNode(this);
 
     if (isElementInViewport(node)) {
@@ -64,6 +71,10 @@ export default class MessageListItem extends Component {
   }
 
   componentWillUnmount() {
+    if (!this.props.unread) {
+      return;
+    }
+
     const node = findDOMNode(this);
     const scrollArea = document.getElementById(this.props.chatAreaId);
 

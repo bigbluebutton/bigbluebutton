@@ -34,12 +34,17 @@ const mapUser = (user) => ({
   isLocked: user.locked,
 });
 
-const mapMessage = (message) => {
+const mapMessage = (messagePayload, isPublic = false) => {
+  const { message } = messagePayload;
+
   let mappedMessage = {
+    id: messagePayload._id,
     content: [
       {
+        id: messagePayload._id,
         text: message.message,
         time: message.from_time,
+        unread: message.from_time > UnreadMessages.get(isPublic ? PUBLIC_CHAT_USERID : message.from_userid),
       },
     ],
     time: message.from_time, //+ message.from_tz_offset,
@@ -94,8 +99,7 @@ const getPublicMessages = () => {
   let systemMessage = Chats.findOne({ 'message.chat_type': SYSTEM_CHAT_TYPE });
 
   return publicMessages
-    .map(m => m.message)
-    .map(mapMessage)
+    .map(mapMessage, true)
     .reduce(reduceMessages, []);
 };
 
@@ -111,7 +115,6 @@ const getPrivateMessages = (userID) => {
   }).fetch();
 
   return messages
-    .map(m => m.message)
     .map(mapMessage)
     .reduce(reduceMessages, []);
 };
