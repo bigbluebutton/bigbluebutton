@@ -11,26 +11,26 @@ function setCredentials(nextState, replace) {
     const { meetingID, userID, authToken } = nextState.params;
     Auth.setCredentials(meetingID, userID, authToken);
     replace({
-      pathname: '/'
+      pathname: '/',
     });
   }
 };
 
 let dataSubscriptions = null;
 function subscribeForData() {
-  if(dataSubscriptions) {
+  if (dataSubscriptions) {
     return dataSubscriptions;
   }
 
-  const subNames = ['users', 'chat', 'cursor', 'deskshare', 'meetings',
-    'polls', 'presentations', 'shapes', 'slides'];
+  const subNames = [
+    'users', 'chat', 'cursor', 'deskshare', 'meetings',
+    'polls', 'presentations', 'shapes', 'slides',
+  ];
 
   let subs = [];
   subNames.forEach(name => subs.push(subscribeFor(name)));
 
   dataSubscriptions = subs;
-
-  Auth.setLogOut();
   return subs;
 };
 
@@ -47,11 +47,11 @@ function subscribeFor(collectionName) {
 function subscribeToCollections(cb) {
   subscribeFor('users').then(() => {
     Promise.all(subscribeForData()).then(() => {
-      if(cb) {
+      if (cb) {
         cb();
       }
-    })
-  })
+    });
+  });
 };
 
 function onStop(error, result) {
@@ -59,7 +59,7 @@ function onStop(error, result) {
 };
 
 function onReady() {
-  console.log("OnReady");
+  console.log('OnReady');
 };
 
 export {

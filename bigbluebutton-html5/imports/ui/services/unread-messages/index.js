@@ -26,14 +26,14 @@ const count = (chatID) => {
     'message.from_time': {
       $gt: get(chatID),
     },
-    'message.from_userid': { $ne: Auth.getUser() },
+    'message.from_userid': { $ne: Auth.userID },
   };
 
   // Minimongo does not support $eq. See https://github.com/meteor/meteor/issues/4142
   if (chatID === PUBLIC_CHAT_USERID) {
     filter['message.to_userid'] = { $not: { $ne: chatID } };
   } else {
-    filter['message.to_userid'] = { $not: { $ne: Auth.getUser() } };
+    filter['message.to_userid'] = { $not: { $ne: Auth.userID } };
     filter['message.from_userid'].$not = { $ne: chatID };
   }
 

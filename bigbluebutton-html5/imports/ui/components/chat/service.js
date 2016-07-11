@@ -26,7 +26,7 @@ const mapUser = (user) => ({
   name: user.name,
   isPresenter: user.presenter,
   isModerator: user.role === 'MODERATOR',
-  isCurrent: user.userid === Auth.getUser(),
+  isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
@@ -121,7 +121,7 @@ const getPrivateMessages = (userID) => {
 
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
-  const currentUser = getUser(Auth.getUser());
+  const currentUser = getUser(Auth.userID);
   const meeting = Meetings.findOne({});
 
   const lockSettings = meeting.roomLockSettings || {
@@ -146,7 +146,7 @@ const hasUnreadMessages = (receiverID) => {
 const sendMessage = (receiverID, message) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
 
-  const sender = getUser(Auth.getUser());
+  const sender = getUser(Auth.userID);
   const receiver = !isPublic ? getUser(receiverID) : {
     id: PUBLIC_CHAT_USERID,
     name: PUBLIC_CHAT_USERNAME,

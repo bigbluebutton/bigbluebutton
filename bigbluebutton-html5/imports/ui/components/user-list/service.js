@@ -20,7 +20,7 @@ const mapUser = user => ({
   },
   isPresenter: user.presenter,
   isModerator: user.role === ROLE_MODERATOR,
-  isCurrent: user.userid === Auth.getUser(),
+  isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
@@ -29,8 +29,8 @@ const mapUser = user => ({
 });
 
 const mapOpenChats = chat => {
-  let currentUserId = Auth.getUser();
-  return chat.message.from_userid !== Auth.getUser()
+  let currentUserId = Auth.userID;
+  return chat.message.from_userid !== Auth.userID
                                     ? chat.message.from_userid
                                     : chat.message.to_userid;
 };
@@ -173,7 +173,7 @@ const getOpenChats = chatID => {
   .fetch()
   .map(mapOpenChats);
 
-  let currentUserId = Auth.getUser();
+  let currentUserId = Auth.userID;
   if (chatID) {
     openChats.push(chatID);
   }
@@ -201,7 +201,7 @@ const getOpenChats = chatID => {
 };
 
 getCurrentUser = () => {
-  let currentUserId = Auth.getUser();
+  let currentUserId = Auth.userID;
 
   return mapUser(
     Users

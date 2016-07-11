@@ -23,7 +23,7 @@ export default createContainer(() => {
   let meetingTitle;
   let meetingRecorded;
 
-  const meetingId = Auth.getMeeting();
+  const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId: meetingId,
   });
