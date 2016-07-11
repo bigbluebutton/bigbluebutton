@@ -34,19 +34,12 @@ const mapUser = (user) => ({
   isLocked: user.locked,
 });
 
-const mapMessage = (messagePayload, isPublic = false) => {
+const mapMessage = (messagePayload) => {
   const { message } = messagePayload;
 
   let mappedMessage = {
     id: messagePayload._id,
-    content: [
-      {
-        id: messagePayload._id,
-        text: message.message,
-        time: message.from_time,
-        unread: message.from_time > UnreadMessages.get(isPublic ? PUBLIC_CHAT_USERID : message.from_userid),
-      },
-    ],
+    content: messagePayload.content,
     time: message.from_time, //+ message.from_tz_offset,
     sender: null,
   };
@@ -60,19 +53,29 @@ const mapMessage = (messagePayload, isPublic = false) => {
 
 const reduceMessages = (previous, current, index, array) => {
   let lastMessage = previous[previous.length - 1];
+  let currentPayload = current.message;
 
-  if (!lastMessage || !lastMessage.sender || !current.sender) { // Skip system messages
+  current.content = [];
+  current.content.push({
+    id: currentPayload._id,
+    text: currentPayload.message,
+    time: currentPayload.from_time,
+    unread: currentPayload.from_time > UnreadMessages.get(currentPayload.from_userid),
+  });
+
+  if (!lastMessage || !current.message.chat_type === SYSTEM_CHAT_TYPE) {
     return previous.concat(current);
   }
+
+  let lastPayload = lastMessage.message;
 
   // Check if the last message is from the same user and time discrepancy
   // between the two messages exceeds window and then group current message
   // with the last one
 
-  if (lastMessage.sender.id === current.sender.id
-   && (current.time - lastMessage.time) <= GROUPING_MESSAGES_WINDOW) {
+  if (lastPayload.from_userid === currentPayload.from_userid
+   && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content.push(current.content.pop());
-    lastMessage.timeLastMessage = current.time;
     return previous;
   } else {
     return previous.concat(current);
@@ -96,11 +99,7 @@ const getPublicMessages = () => {
   })
   .fetch();
 
-  let systemMessage = Chats.findOne({ 'message.chat_type': SYSTEM_CHAT_TYPE });
-
-  return publicMessages
-    .map(mapMessage, true)
-    .reduce(reduceMessages, []);
+  return publicMessages.reduce(reduceMessages, []).map(mapMessage);
 };
 
 const getPrivateMessages = (userID) => {
@@ -114,9 +113,7 @@ const getPrivateMessages = (userID) => {
     sort: ['message.from_time'],
   }).fetch();
 
-  return messages
-    .map(mapMessage)
-    .reduce(reduceMessages, []);
+  return messages.reduce(reduceMessages, []).map(mapMessage);
 };
 
 const isChatLocked = (receiverID) => {
