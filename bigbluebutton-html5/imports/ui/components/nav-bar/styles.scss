@@ -35,3 +35,16 @@
   margin: 0;
   padding: 0;
 }
+
+.btn {
+  border: 10px solid red;
+}
+
+.hidden {
+  position:absolute;
+  left:-10000px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}

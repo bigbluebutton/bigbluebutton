@@ -15,9 +15,9 @@ export default class BaseMenu extends React.Component {
 
   render() {
     return (
-      <div style={{ height: '100%' }}>
+      <div style={{ height: '100%' }} role='presentation'>
         <h3 className={styles.submenuTitle}>{this.props.title}</h3>
-        <div className={styles.submenuContent}>
+        <div className={styles.submenuContent} role='presentation'>
           {this.getContent()}
         </div>
       </div>

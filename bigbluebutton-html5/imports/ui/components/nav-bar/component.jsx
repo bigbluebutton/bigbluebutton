@@ -37,7 +37,10 @@ class NavBar extends Component {
           onClick={this.handleToggleUserList}
           ghost={true}
           circle={true}
+          hideLabel={true}
+          label={'Toggle User-List'}
           icon={'user'}
+          className={styles.btn}
         />
         </div>
         <div className={styles.center}>
@@ -45,6 +48,8 @@ class NavBar extends Component {
         </div>
         <div className={styles.right}>
           <span id="settingsButtonPlaceHolder"></span>
+          <div className={styles.hidden} id='settingsLabel'>Settings</div>
+          <div className={styles.hidden} id='settingsDesc'>Opens the settings popup menu.</div>
         </div>
       </div>
     );

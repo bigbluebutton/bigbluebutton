@@ -12,7 +12,7 @@ export default class SessionMenu extends BaseMenu {
   getContent() {
     return (
       <div style={{ height: '100%' }}>
-        <p style={{ float: 'left' }}>inside session menu</p>
+        <p style={{ float: 'left', margin: '0px' }}>inside session menu</p>
       </div>
     );
   }

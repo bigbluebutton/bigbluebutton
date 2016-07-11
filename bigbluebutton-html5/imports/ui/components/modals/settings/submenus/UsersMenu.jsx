@@ -12,20 +12,42 @@ export default class UsersMenu extends BaseMenu {
 
   getContent() {
     return (
-      <div style={{ height: '100%' }}>
-        <div style={{ height: '20%' }}>
-          <label><input type='checkbox' />Mute all except the presenter</label>
+      <div style={{ height: '100%' }} role='presentation'>
+        <div style={{ height: '15%' }} role='presentation'>
+          <label><input type='checkbox' tabIndex='8' aria-labelledby='muteALlLabel' aria-describedby='muteAllDesc' />Mute all except the presenter</label>
         </div>
-        <div style={{ height: '20%' }}>
-          <label><input type="checkbox" />Lock all participants</label>
+        <div className={styles.hidden} id='muteAllLabel'>Mute all</div>
+        <div className={styles.hidden} id='muteAllDesc'>Mutes all participants except the presenter.</div>
+
+        <div style={{ height: '15%' }} role='presentation'>
+          <label><input type="checkbox" tabIndex='9' aria-labelledby='lockAllLabel' aria-describedby='lockAllDesc' />Lock all participants</label>
         </div>
-        <ul>
-          <li><label><input type="checkbox" />Webcam</label></li>
-          <li><label><input type="checkbox" />Microphone</label></li>
-          <li><label><input type="checkbox" />Public chat</label></li>
-          <li><label><input type="checkbox" />Private chat</label></li>
-          <li><label><input type="checkbox" />Layout</label></li>
-        </ul>
+        <div className={styles.hidden} id='lockAllLabel'>Lock all</div>
+        <div className={styles.hidden} id='lockAllDesc'>Toggles locked status for all participants.</div>
+
+        <div style={{ height: '15%', paddingLeft: '10%' }} role='presentation'>
+          <label><input type='checkbox' tabIndex='10' aria-labelledby='webcamLabel' aria-describedby='webcamDesc' />Webcam</label>
+        </div>
+        <div className={styles.hidden} id='webcamLabel'>Webcam lock</div>
+        <div className={styles.hidden} id='webcamDesc'>Disables the webcam for all locked participants.</div>
+
+        <div style={{ height: '15%', paddingLeft: '10%' }} role='presentation'>
+          <label><input type='checkbox' tabIndex='11' aria-labelledby='micLabel' aria-describedby='micDesc' />Microphone</label>
+        </div>
+        <div className={styles.hidden} id='micLabel'>Microphone lock</div>
+        <div className={styles.hidden} id='micDesc'>Disables the microphone for all locked participants.</div>
+
+        <div style={{ height: '15%', paddingLeft: '10%' }} role='presentation'>
+          <label><input type='checkbox' tabIndex='12' aria-labelledby='pubChatLabel' aria-describedby='pubChatDesc' />Public chat</label>
+        </div>
+        <div className={styles.hidden} id='pubChatLabel'>Public chat lock</div>
+        <div className={styles.hidden} id='pubChatDesc'>Disables public chat for all locked participants.</div>
+
+        <div style={{ height: '15%', paddingLeft: '10%' }} role='presentation'>
+          <label><input type='checkbox' tabIndex='13' aria-labelledby='privChatLabel' aria-describedby='privChatDesc' />Private chat</label>
+        </div>
+        <div className={styles.hidden} id='privChatLabel'>Private chat lock</div>
+        <div className={styles.hidden} id='privChatDesc'>Disables private chat for all locked participants.</div>
       </div>
     );
   }

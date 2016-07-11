@@ -16,7 +16,7 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
-    padding: 10,
+    padding: '10px',
     height: '40%',
     overflow: 'hidden',
     minHeight: '250px',
@@ -76,32 +76,35 @@ export default class BaseModal extends React.Component {
           onRequestClose={this.closeModal}
           shouldCloseOnOverlayClick={false}
           style={ customStyles } >
-
-          <div style={{ name: 'settingsTop' }} className={styles.settingsMenuTop}>
-            <div style={{ height: '70%' }}>
-              <span className={classNames(styles.modalHeaderTitle, 'largeFont')}>
-                {this.state.title}
-              </span>
-              <span className={styles.modalHeaderButtonContainer}>
-                <Button style={{ borderRadius: '18px', width: '90px', marginRight: '10px',
-                    border: 'none', boxShadow: 'none', }}
-                  label={'Cancel'}
-                  color={'primary'}
-                  ghost={true}
-                  onClick={this.closeModal}
-                />
-              <Button style={{ borderRadius: '18px', width: '90px',
-                border: 'none', boxShadow: 'none', }}
-                  label={'Done'}
-                  color={'primary'}
-                  onClick={this.closeModal}
-                />
-              </span>
+          <div style={{ name: 'settingsTop' }} className={styles.settingsMenuTop} role='presentation'>
+            <div className={classNames(styles.modalHeaderTitle, 'largeFont')}>
+              {this.state.title}
             </div>
-            <div style={{ height: '30%' }}>
+            <div className={styles.modalHeaderButtonContainer} role='presentation'>
+              <Button className={styles.modalBtn}
+                label={'Cancel'}
+                color={'primary'}
+                ghost={true}
+                onClick={this.closeModal}
+                tabIndex={1}
+                aria-labelledby={'cancelLabel'}
+                aria-describedby={'cancelDesc'}
+              />
+              <Button className={styles.modalBtn}
+                label={'Done'}
+                color={'primary'}
+                onClick={this.closeModal}
+                tabIndex={2}
+                aria-labelledby={'doneLabel'}
+                aria-describedby={'doneDesc'}
+              />
+            <div className={styles.hidden} id='cancelLabel'>Cancel</div>
+              <div className={styles.hidden} id='cancelDesc'>Disregards changes and closes the settings menu.</div>
+              <div className={styles.hidden} id='doneLabel'>Done</div>
+              <div className={styles.hidden} id='doneDesc'>Saves changes and closes the settings menu.</div>
             </div>
           </div>
-          <div style={{ name: 'settingsBottom' }} className={styles.settingsMenuBottom}>
+          <div style={{ name: 'settingsBottom' }} className={styles.settingsMenuBottom}  role='presentation'>
             {this.getContent()}
           </div>
         </Modal>

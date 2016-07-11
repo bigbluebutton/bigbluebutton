@@ -23,7 +23,7 @@ div.submenuContent select {
   border-top: none;
   border-left: none;
   border-right: none;
-  outline: none;
+  /*outline: none;*/
   color: $color-gray-light;
 }
 
@@ -57,15 +57,20 @@ ul li {
   padding-bottom: 9%;
 }
 
-
-/* Application Submenu */
-.applicationSubmenuContent {
-  height: 85%;
-  border-bottom: solid 1px $color-gray-light;
+.hidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
+/* Application Submenu */
 .applicationFontContainer {
-  height: 15%;
+  border-top: solid 1px $color-gray-light;
+  margin-top: 10%;
+  padding-top: 10%;
 }
 
 .fontBarLeft {
@@ -91,4 +96,22 @@ ul li {
   height: 100%;
   width: 25%;
   text-align: right;
+}
+
+.fontBarLeft p, .fontBarMid p {
+  margin: 0px;
+}
+
+/* Buttons */
+.defaultBtn {
+  width: 90px;
+  border-radius: 18px;
+  border: none;
+  box-shadow: none;
+}
+
+.testAudioBtn {
+  @extend .defaultBtn;
+  width: 140px;
+  float: left;
 }

@@ -23,3 +23,19 @@
 .testRadius {
   border-radius: 18px;
 }
+
+.modalBtn {
+  width: 90px;
+  border-radius: 18px;
+  border: none;
+  box-shadow: none;
+}
+
+.hidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

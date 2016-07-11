@@ -21,15 +21,15 @@ export default class SettingsModal extends BaseModal {
   componentWillMount() {
     this.setState({ activeSubmenu: 0 });
     this.submenus.push({ className: AudioMenu,
-      props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, });
+      props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, tabIndex: 3, });
     this.submenus.push({ className: VideoMenu,
-      props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, });
+      props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, tabIndex: 4, });
     this.submenus.push({ className: ApplicationMenu,
-      props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
+      props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, tabIndex: 5, });
     this.submenus.push({ className: UsersMenu,
-      props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
+      props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, tabIndex: 6, });
     this.submenus.push({ className: SessionMenu,
-      props: { title: 'Leave session', prependIconName: 'icon-', icon: 'bbb-logout', }, });
+      props: { title: 'Leave session', prependIconName: 'icon-', icon: 'bbb-logout', }, tabIndex: 7, });
   }
 
   componentDidMount() {
@@ -39,7 +39,13 @@ export default class SettingsModal extends BaseModal {
         icon={'more'}
         ghost={true}
         circle={true}
-      />, document.getElementById('settingsButtonPlaceHolder'));
+        hideLabel={true}
+        label={'Settings'}
+        aria-haspopup={'true'}
+        aria-labelledby={'settingsLabel'}
+        aria-describedby={'settingsDesc'}
+      />
+    , document.getElementById('settingsButtonPlaceHolder'));
   }
 
   createMenu() {
@@ -56,16 +62,23 @@ export default class SettingsModal extends BaseModal {
   }
 
   clickSubmenu(i) {
+    if (i <= 0) {
+      this.setState({ activeSubmenu: 0 });
+    }
+    if (i >= this.submenus.length) {
+      this.setState({ activeSubmenu: this.submenus.length - 1});
+    } else {
     this.setState({ activeSubmenu: i });
   }
 
   getContent() {
     return (
-      <div style={{ clear: 'both', height: '100%' }}>
+      <div style={{ clear: 'both', height: '100%' }} role='presentation'>
         <div className={styles.settingsMenuLeft}>
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
+          <ul style={{ listStyleType: 'none', paddingLeft: '0px' }} role='menu'>
             {this.submenus.map((value, index) => (
               <li key={index} onClick={this.clickSubmenu.bind(this, index)}
+                tabIndex={value.tabIndex} role='menuitem'
                 className={classNames(styles.settingsSubmenuItem,
                   index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
                 <Icon key={index} prependIconName={value.props.prependIconName}
@@ -75,7 +88,9 @@ export default class SettingsModal extends BaseModal {
             ))}
           </ul>
         </div>
-        <div className={styles.settingsMenuRight}>{this.createMenu()}</div>
+        <div className={styles.settingsMenuRight} role='presentation'>
+          {this.createMenu()}
+        </div>
       </div>
     );
   }
