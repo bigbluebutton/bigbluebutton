@@ -87,12 +87,12 @@ class MessageList extends Component {
     }
   }
 
-  componentDidUpdate() {
-    const { scrollPosition } = this.props;
+  componentDidUpdate(prevProps) {
+    const { scrollPosition, chatId } = this.props;
 
     if (this.shouldScrollBottom) {
       this.scrollTo();
-    } else {
+    } else if (prevProps.chatId !== chatId) {
       this.scrollTo(scrollPosition);
     }
   }
@@ -109,6 +109,16 @@ class MessageList extends Component {
 
     this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     scrollArea.removeEventListener('scroll', this.handleScrollChange, false);
+  }
+
+  shouldComponentUpdate(nextProps) {
+    if (this.props.chatId !== nextProps.chatId
+      || this.props.messages.length !== nextProps.messages.length
+      || !_.isEqual(this.props.messages, nextProps.messages)) {
+      return true;
+    }
+
+    return false;
   }
 
   render() {
