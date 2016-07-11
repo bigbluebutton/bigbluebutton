@@ -55,15 +55,11 @@ const reduceMessages = (previous, current, index, array) => {
   let lastMessage = previous[previous.length - 1];
   let currentPayload = current.message;
 
-  let unreadID = (currentPayload.chat_type == PUBLIC_CHAT_TYPE)
-    ? PUBLIC_CHAT_ID : currentPayload.from_userid;
-
   current.content = [];
   current.content.push({
     id: currentPayload._id,
     text: currentPayload.message,
     time: currentPayload.from_time,
-    unread: currentPayload.from_time > UnreadMessages.get(unreadID),
   });
 
   if (!lastMessage || !current.message.chat_type === SYSTEM_CHAT_TYPE) {
@@ -102,7 +98,9 @@ const getPublicMessages = () => {
   })
   .fetch();
 
-  return publicMessages.reduce(reduceMessages, []).map(mapMessage);
+  return publicMessages
+    .reduce(reduceMessages, [])
+    .map(mapMessage);
 };
 
 const getPrivateMessages = (userID) => {
@@ -141,6 +139,13 @@ const hasUnreadMessages = (receiverID) => {
   receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
 
   return UnreadMessages.count(receiverID) > 0;
+};
+
+const lastReadMessageTime = (receiverID) => {
+  const isPublic = receiverID === PUBLIC_CHAT_ID;
+  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+
+  return UnreadMessages.get(receiverID);
 };
 
 const sendMessage = (receiverID, message) => {
@@ -197,6 +202,7 @@ export default {
   getUser,
   getScrollPosition,
   hasUnreadMessages,
+  lastReadMessageTime,
   isChatLocked,
   updateScrollPosition,
   updateUnreadMessage,

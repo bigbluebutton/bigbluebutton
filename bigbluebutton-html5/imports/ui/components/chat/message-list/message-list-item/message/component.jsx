@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import _ from 'underscore';
-import { findDOMNode } from 'react-dom';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -40,7 +39,7 @@ export default class MessageListItem extends Component {
   handleMessageInViewport(e) {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
-        const node = findDOMNode(this);
+        const node = this.refs.text;
         const scrollArea = document.getElementById(this.props.chatAreaId);
 
         if (isElementInViewport(node)) {
@@ -56,11 +55,11 @@ export default class MessageListItem extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.unread) {
+    if (!this.props.lastReadMessageTime > this.props.time) {
       return;
     }
 
-    const node = findDOMNode(this);
+    const node = this.refs.text;
 
     if (isElementInViewport(node)) {
       this.props.handleReadMessage(this.props.time);
@@ -71,13 +70,11 @@ export default class MessageListItem extends Component {
   }
 
   componentWillUnmount() {
-    if (!this.props.unread) {
+    if (!this.props.lastReadMessageTime > this.props.time) {
       return;
     }
 
-    const node = findDOMNode(this);
     const scrollArea = document.getElementById(this.props.chatAreaId);
-
     eventsToBeBound.forEach(e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false));
   }
 
@@ -89,6 +86,7 @@ export default class MessageListItem extends Component {
 
     return (
       <p
+        ref="text"
         dangerouslySetInnerHTML={{ __html: text }}
         className={this.props.className}
       />

@@ -26,4 +26,5 @@
   border-radius: 0;
   text-transform: uppercase;
   margin-bottom: .5rem;
+  @extend %text-elipsis;
 }

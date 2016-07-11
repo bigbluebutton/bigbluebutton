@@ -56,8 +56,8 @@ export default class MessageListItem extends Component {
                 key={message.id}
                 text={message.text}
                 time={message.time}
-                unread={message.unread}
                 chatAreaId={this.props.chatAreaId}
+                lastReadMessageTime={this.props.lastReadMessageTime}
                 handleReadMessage={this.props.handleReadMessage}
               />
             ))}

@@ -20,6 +20,7 @@ export default class Chat extends Component {
       messages,
       scrollPosition,
       hasUnreadMessages,
+      lastReadMessageTime,
       isChatLocked,
       actions,
     } = this.props;
@@ -39,6 +40,7 @@ export default class Chat extends Component {
           hasUnreadMessages={hasUnreadMessages}
           handleScrollUpdate={actions.handleScrollUpdate}
           handleReadMessage={actions.handleReadMessage}
+          lastReadMessageTime={lastReadMessageTime}
           tabindex="0"
           role="log"
           aria-atomic="true"

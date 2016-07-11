@@ -68,11 +68,13 @@ export default injectIntl(createContainer(({ params, intl }) => {
 
   const scrollPosition = ChatService.getScrollPosition(chatID);
   const hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
+  const lastReadMessageTime = ChatService.lastReadMessageTime(chatID);
 
   return {
     chatID,
     title,
     messages,
+    lastReadMessageTime,
     hasUnreadMessages,
     isChatLocked,
     scrollPosition,

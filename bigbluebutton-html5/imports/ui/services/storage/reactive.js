@@ -33,6 +33,7 @@ export default class StorageTracker {
   getItem(key) {
     let prefixedKey = this._prefixedKey(key);
     this._ensureDeps(prefixedKey);
+    this._trackers[prefixedKey].depend();
 
     let value = this._storage.getItem(prefixedKey);
 
@@ -49,11 +50,11 @@ export default class StorageTracker {
     let prefixedKey = this._prefixedKey(key);
     this._ensureDeps(prefixedKey);
 
-    let currentValue = this.getItem(prefixedKey);
-
-    if (_.isEqual(currentValue, value)) {
-      return;
-    }
+    // let currentValue = this.getItem(prefixedKey);
+    //
+    // if (_.isEqual(currentValue, value)) {
+    //   return;
+    // }
 
     if (_.isObject(value)) {
       value = EJSON.stringify(value);

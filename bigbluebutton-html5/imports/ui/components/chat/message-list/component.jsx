@@ -113,11 +113,11 @@ class MessageList extends Component {
 
   shouldComponentUpdate(nextProps) {
     if (this.props.chatId !== nextProps.chatId
+      || this.props.hasUnreadMessages !== nextProps.hasUnreadMessages
       || this.props.messages.length !== nextProps.messages.length
       || !_.isEqual(this.props.messages, nextProps.messages)) {
       return true;
     }
-
     return false;
   }
 
@@ -136,7 +136,7 @@ class MessageList extends Component {
               user={message.sender}
               time={message.time}
               chatAreaId={this.props.id}
-              timeLastMessage={message.timeLastMessage}
+              lastReadMessageTime={this.props.lastReadMessageTime}
             />
           ))}
         </div>
