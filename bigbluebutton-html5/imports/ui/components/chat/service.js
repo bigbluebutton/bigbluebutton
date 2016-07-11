@@ -55,12 +55,15 @@ const reduceMessages = (previous, current, index, array) => {
   let lastMessage = previous[previous.length - 1];
   let currentPayload = current.message;
 
+  let unreadID = (currentPayload.chat_type == PUBLIC_CHAT_TYPE)
+    ? PUBLIC_CHAT_ID : currentPayload.from_userid;
+
   current.content = [];
   current.content.push({
     id: currentPayload._id,
     text: currentPayload.message,
     time: currentPayload.from_time,
-    unread: currentPayload.from_time > UnreadMessages.get(currentPayload.from_userid),
+    unread: currentPayload.from_time > UnreadMessages.get(unreadID),
   });
 
   if (!lastMessage || !current.message.chat_type === SYSTEM_CHAT_TYPE) {
