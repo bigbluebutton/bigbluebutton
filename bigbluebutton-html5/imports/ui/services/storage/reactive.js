@@ -22,6 +22,7 @@ export default class StorageTracker {
   }
 
   _prefixedKey(key) {
+    key = key.replace(this._prefix, '');
     return `${this._prefix}${key}`;
   }
 
@@ -30,11 +31,10 @@ export default class StorageTracker {
   }
 
   getItem(key) {
-    key = this._prefixedKey(key);
-    this._ensureDeps(key);
+    let prefixedKey = this._prefixedKey(key);
+    this._ensureDeps(prefixedKey);
 
-    this._trackers[key].depend();
-    let value = this._storage.getItem(key);
+    let value = this._storage.getItem(prefixedKey);
 
     if (value && _.isString(value)) {
       try {
@@ -46,22 +46,28 @@ export default class StorageTracker {
   }
 
   setItem(key, value) {
-    key = this._prefixedKey(key);
-    this._ensureDeps(key);
+    let prefixedKey = this._prefixedKey(key);
+    this._ensureDeps(prefixedKey);
+
+    let currentValue = this.getItem(prefixedKey);
+
+    if (_.isEqual(currentValue, value)) {
+      return;
+    }
 
     if (_.isObject(value)) {
       value = EJSON.stringify(value);
     }
 
-    this._storage.setItem(key, value);
-    this._trackers[key].changed();
+    this._storage.setItem(prefixedKey, value);
+    this._trackers[prefixedKey].changed();
   }
 
   removeItem(key) {
-    key = this._prefixedKey(key);
-    this._storage.removeItem(key);
-    this._trackers[key].changed();
-    delete this._trackers[key];
+    let prefixedKey = this._prefixedKey(key);
+    this._storage.removeItem(prefixedKey);
+    this._trackers[prefixedKey].changed();
+    delete this._trackers[prefixedKey];
   }
 
   clear() {
