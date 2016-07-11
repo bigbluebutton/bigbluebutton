@@ -147,6 +147,10 @@ public class Recording {
 		this.metadata.put(key, value);
 	}
 
+	public void deleteMetadata(String key) {
+		this.metadata.remove(key);
+	}
+
 	public boolean containsMetadata(String key) {
 		return this.metadata.containsKey(key);
 	}

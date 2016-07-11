@@ -400,7 +400,7 @@ public class RecordingService {
         updateMetaParams(recordIDs, metaParams, false);
     }
 
-    public void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams, boolean forced) {
+    public void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams, boolean force) {
 
         // Define the directories used to lookup the recording
         List<String> states = new ArrayList<String>();
@@ -422,10 +422,21 @@ public class RecordingService {
                     Recording rec = getRecordingInfo(recFile);
                     if (rec != null) {
                         for (Map.Entry<String,String> meta : metaParams.entrySet()) {
-                            if ( rec.containsMetadata(meta.getKey()) || forced ) {
-                                // The meta parameter already exists, update it
-                                // Or if doesn't exist but forced, then add it
-                                rec.updateMetadata(meta.getKey(), meta.getValue());
+                            if ( rec.containsMetadata(meta.getKey()) ) {
+                                // The meta parameter already exists
+                                if ( !"".equals(meta.getValue()) || !force ) {
+                                    // update it
+                                    rec.updateMetadata(meta.getKey(), meta.getValue());
+                                } else {
+                                    // delete it
+                                    rec.deleteMetadata(meta.getKey());
+                                }
+                            } else {
+                                // The meta parameter doesn't exist
+                                if ( force ) {
+                                    // but force is set to true, then add it
+                                    rec.updateMetadata(meta.getKey(), meta.getValue());
+                                }
                             }
                         }
                         // Process the changes by saving the recording into metadata.xml
