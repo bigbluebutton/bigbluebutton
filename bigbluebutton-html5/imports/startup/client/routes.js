@@ -18,8 +18,9 @@ export const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/join/:meetingID/:userID/:authToken" onEnter={setCredentials} />
     <Route path="/" onEnter={() => {
-        subscribeToCollections()
-      }}
+      subscribeToCollections();
+    }}
+
       getComponent={(nextState, cb) => {
         subscribeToCollections(() => cb(null, AppContainer));
       }}>

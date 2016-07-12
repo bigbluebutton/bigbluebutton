@@ -40,7 +40,7 @@ let loading = true;
 const loadingDep = new Tracker.Dependency;
 
 const getLoading = () => {
-  loadingDep.depend()
+  loadingDep.depend();
   return loading;
 };
 
@@ -60,7 +60,7 @@ export default createContainer(() => {
 
   return {
     isLoading: getLoading(),
-    actionsbar: <ActionsBarContainer />
+    actionsbar: <ActionsBarContainer />,
   };
 }, AppContainer);
 
