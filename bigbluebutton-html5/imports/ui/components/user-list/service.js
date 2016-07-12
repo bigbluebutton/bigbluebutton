@@ -196,12 +196,9 @@ const getOpenChats = chatID => {
 
 getCurrentUser = () => {
   let currentUserId = auth.getUser();
+  let currentUser = Users.findOne({ 'user.userid': currentUserId });
 
-  return mapUser(
-    Users
-    .findOne({ 'user.userid': currentUserId })
-    .user
-  );
+  return (currentUser) ? mapUser(currentUser.user) : null;
 };
 
 const userActions = {

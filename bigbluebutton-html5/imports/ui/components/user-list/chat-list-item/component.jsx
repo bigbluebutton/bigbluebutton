@@ -31,8 +31,8 @@ class ChatListItem extends Component {
     let linkClasses = {};
     linkClasses[styles.active] = chat.id === openChat;
     return (
-      <li {...this.props}>
-        <Link to={linkPath} className={cx(styles.chatListItem, linkClasses)}>
+      <li className={cx(styles.chatListItem, linkClasses)} {...this.props}>
+        <Link to={linkPath} className={styles.chatListItemLink}>
           {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
           <div className={styles.chatName}>
             <h3 className={styles.chatNameMain}>{chat.name}</h3>
