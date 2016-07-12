@@ -23,18 +23,14 @@ function subscribeForData() {
   }
 
   const subNames = [
-    'users', 'chat', 'cursor',
-    'deskshare', 'meetings',
-    'polls', 'presentations',
-    'shapes', 'slides',
+    'users', 'chat', 'cursor', 'deskshare', 'meetings',
+    'polls', 'presentations', 'shapes', 'slides',
   ];
 
   let subs = [];
   subNames.forEach(name => subs.push(subscribeFor(name)));
 
   dataSubscriptions = subs;
-
-  Auth.setLogOut();
   return subs;
 };
 

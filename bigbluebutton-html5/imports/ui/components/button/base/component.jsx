@@ -40,8 +40,12 @@ export default class ButtonBase extends Component {
   render() {
     let Component = this.props.tagName;
 
+    const remainingProps = Object.assign({}, this.props);
+    delete remainingProps.label;
+    delete remainingProps.tagName;
+
     return (
-      <Component aria-label={this.props.label} {...this.props}>
+      <Component aria-label={this.props.label} {...remainingProps}>
         {this.props.children}
       </Component>
     );

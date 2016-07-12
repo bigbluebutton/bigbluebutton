@@ -16,7 +16,7 @@ function videoIsBroadcasting() {
 
   if (ds.broadcasting) {
     console.log('Deskshare is now broadcasting');
-    if (ds.startedBy != Auth.getUser()) {
+    if (ds.startedBy != Auth.userID) {
       console.log('deskshare wasn\'t initiated by me');
       presenterDeskshareHasStarted();
       return true;
