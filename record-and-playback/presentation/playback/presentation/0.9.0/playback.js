@@ -19,25 +19,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
 
 goToSlide = function(time) {
-  console.log("==Going to slide");
   var pop = Popcorn("#video");
   pop.currentTime(time);
-}
+};
 
 getUrlParameters = function() {
-  console.log("==Getting url parameters");
   var map = {};
   var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
     map[key] = value;
   });
   return map;
-}
+};
 
 /*
  * From: http://stackoverflow.com/questions/1634748/how-can-i-delete-a-query-string-parameter-in-javascript/4827730#4827730
  */
 removeUrlParameter = function(url, param) {
-  console.log("==Removing url params");
   var urlparts= url.split('?');
   if (urlparts.length>=2) {
     var prefix= encodeURIComponent(param)+'=';
@@ -115,6 +112,7 @@ var MEETINGID = params['meetingId'];
 var RECORDINGS = "/presentation/" + MEETINGID;
 var SLIDES_XML = RECORDINGS + '/slides_new.xml';
 var SHAPES_SVG = RECORDINGS + '/shapes.svg';
+var hasVideo = false;
 
 /*
  * Sets the title attribute in a thumbnail.
@@ -124,11 +122,11 @@ setTitleOnThumbnail = function($thumb) {
   if (src !== undefined) {
     var num = "?";
     var name = "undefined";
-    var match = src.match(/slide-(.*).png/)
+    var match = src.match(/slide-(.*).png/);
     if (match) { num = match[1]; }
-    match = src.match(/([^/]*)\/slide-.*\.png/)
+    match = src.match(/([^/]*)\/slide-.*\.png/);
     if (match) { name = match[1]; }
-    $thumb.attr("title", name + " (" + num + ")")
+    $thumb.attr("title", name + " (" + num + ")");
   }
 }
 
@@ -137,7 +135,10 @@ setTitleOnThumbnail = function($thumb) {
  * mouse over/out functions, etc.
  */
 setEventsOnThumbnail = function($thumb) {
-  //console.log("== Setting event on thumbnail," ,$thumb);
+
+  // Note: use ceil() so it jumps to a part of the video that actually is showing
+  // this slide, while floor() would most likely jump to the previously slide
+
   // Popcorn event to mark a thumbnail when its slide is being shown
   var timeIn = $thumb.attr("data-in");
   var timeOut = $thumb.attr("data-out");
@@ -145,65 +146,45 @@ setEventsOnThumbnail = function($thumb) {
   pop.code({
     start: timeIn,
     end: timeOut,
-    onStart: function( options ) {
-      $parent = $("#thumbnail-" + options.start).parent();
+    onStart: function(options) {
+      $parent = $(".thumbnail-wrapper").removeClass("active");
+      $parent = $("#thumbnail-" + Math.ceil(options.start)).parent();
       $parent.addClass("active");
-      $(".thumbnail-label", $parent).show();
-
       animateToCurrentSlide();
     },
-    onEnd: function( options ) {
-      $parent = $("#thumbnail-" + options.start).parent();
+    onEnd: function(options) {
+      $parent = $("#thumbnail-" + Math.ceil(options.start)).parent();
       $parent.removeClass("active");
-      $(".thumbnail-label", $parent).hide();
     }
   });
 
   // Click on thumbnail changes the slide in popcorn
   $thumb.parent().on("click", function() {
-    goToSlide($thumb.attr("data-in"));
-    replaceTimeOnUrl($thumb.attr("data-in"));
+    var time = Math.ceil($thumb.attr("data-in"));
+    goToSlide(time);
+    replaceTimeOnUrl(time);
   });
 
   // Mouse over/out to show/hide the label over the thumbnail
   $wrapper = $thumb.parent();
   $wrapper.on("mouseover", function() {
-    $(".thumbnail-label", $(this)).show();
+    $(this).addClass("hovered");
   });
   $wrapper.on("mouseout", function() {
-    if (!$(this).hasClass("active")) {
-      $(".thumbnail-label", $(this)).hide();
-    }
+    $(this).removeClass("hovered");
   });
-}
+};
 
-$("input[name='autoscrollEnabled']").live('change', function() {
-  animateToCurrentSlide();
-});
+var animateToCurrentSlide = function() {
+  var $container = $("#thumbnails").parents(".left-off-canvas-menu");
 
-animateToCurrentSlide = function(force) {
-  console.log("==Animating to current slide");
-  force = typeof force !== 'undefined' ? force : false;
-
-  if (force || isAutoscrollEnabled()) {
-    var currentSlide = getCurrentSlide();
-    // animate the scroll of thumbnails to center the current slide
-    var thumbnailOffset = currentSlide.prop('offsetTop') - $("#thumbnails").prop('offsetTop') + (currentSlide.prop('offsetHeight') - $("#thumbnails").prop('offsetHeight')) / 2;
-    $("#thumbnails").animate({ scrollTop: thumbnailOffset }, 'slow');
-  }
-}
-
-isAutoscrollEnabled = function() {
-  return $("input[name='autoscrollEnabled']").is(':checked');
-}
-
-setAutoscrollEnabled = function(value) {
-  $('input[name=autoscrollEnabled]').attr('checked', value);
-}
-
-getCurrentSlide = function() {
-  return $(".thumbnail-wrapper.active");
-}
+  var currentThumb = $(".thumbnail-wrapper.active");
+  // animate the scroll of thumbnails to center the current slide
+  var thumbnailOffset = currentThumb.prop('offsetTop') - $container.prop('offsetTop') +
+        (currentThumb.prop('offsetHeight') - $container.prop('offsetHeight')) / 2;
+  $container.stop();
+  $container.animate({ scrollTop: thumbnailOffset }, 200);
+};
 
 /*
  * Generates the list of thumbnails using shapes.svg
@@ -218,7 +199,7 @@ generateThumbnails = function() {
   }
   xmlhttp.open("GET", SHAPES_SVG, false);
   xmlhttp.send(null);
-  
+
   if (xmlhttp.responseXML)
     var xmlDoc = xmlhttp.responseXML;
   else {
@@ -228,14 +209,14 @@ generateThumbnails = function() {
 
   var elementsMap = {};
   var imagesList = new Array();
-  
+
   xmlList = xmlDoc.getElementsByTagName("image");
   var slideCount = 0;
-  
+
   console.log("== Setting title on thumbnails");
   for (var i = 0; i < xmlList.length; i++) {
     var element = xmlList[i];
-    
+
     if (!$(element).attr("xlink:href"))
       continue;
     var src = RECORDINGS + "/" + element.getAttribute("xlink:href");
@@ -243,9 +224,10 @@ generateThumbnails = function() {
       var timeInList = xmlList[i].getAttribute("in").split(" ");
       var timeOutList = xmlList[i].getAttribute("out").split(" ");
       for (var j = 0; j < timeInList.length; j++) {
-        var timeIn = Math.floor(timeInList[j]);
-        var timeOut = Math.floor(timeOutList[j]);
-        
+
+        var timeIn = Math.ceil(timeInList[j]);
+        var timeOut = Math.ceil(timeOutList[j]);
+
         var img = $(document.createElement('img'));
         img.attr("src", src);
         img.attr("id", "thumbnail-" + timeIn);
@@ -270,19 +252,18 @@ generateThumbnails = function() {
         var div = $(document.createElement('div'));
         div.addClass("thumbnail-wrapper");
         div.attr("role", "link"); //tells accessibility software it can be clicked
-	      div.attr("aria-describedby", img.attr("id") + "description");
+        div.attr("aria-describedby", img.attr("id") + "description");
         div.append(img);
         div.append(label);
         div.append(hiddenDesc);
 
-        if (parseFloat(timeIn) == 0 ) {
+        if (parseFloat(timeIn) == 0) {
           div.addClass("active");
-          $(".thumbnail-label", div).show();
         }
 
         imagesList.push(timeIn);
         elementsMap[timeIn] = div;
-	
+
         setEventsOnThumbnail(img);
         setTitleOnThumbnail(img);
       }
@@ -307,22 +288,22 @@ google_frame_warning = function(){
   document.getElementById("chat").appendChild(line);
   document.getElementById("chat").appendChild(link);
 }
-  
+
 function checkUrl(url)
 {
-    console.log("==Checking Url",url)
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
-    http.send();
-    return http.status==200;
+  console.log("==Checking Url",url);
+  var http = new XMLHttpRequest();
+  http.open('HEAD', url, false);
+  http.send();
+  return http.status==200;
 }
 
 load_video = function(){
-   console.log("==Loading video")
-   //document.getElementById("video").style.visibility = "hidden"  
-   var video = document.createElement("video")   
-   video.setAttribute('id','video');  
-   video.setAttribute('class','webcam');  
+   console.log("==Loading video");
+   //document.getElementById("video").style.visibility = "hidden"
+   var video = document.createElement("video");
+   video.setAttribute('id','video');
+   video.setAttribute('class','webcam');
 
    var webmsource = document.createElement("source");
    webmsource.setAttribute('src', RECORDINGS + '/video/webcams.webm');
@@ -335,13 +316,13 @@ load_video = function(){
     pc_webcam.currentTime( this.currentTime() );
    });*/
 
-   video.setAttribute('data-timeline-sources', SLIDES_XML);    
+   video.setAttribute('data-timeline-sources', SLIDES_XML);
    //video.setAttribute('controls','');
    //leave auto play turned off for accessiblity support
    //video.setAttribute('autoplay','autoplay');
 
-   document.getElementById("videoRecordingWrapper").appendChild(video);
-}  
+   document.getElementById("video-area").appendChild(video);
+}
 
 load_audio = function() {
    console.log("Loading audio")
@@ -373,7 +354,7 @@ load_audio = function() {
    //audio.setAttribute('controls','');
    //leave auto play turned off for accessiblity support
    //audio.setAttribute('autoplay','autoplay');
-   document.getElementById("audioRecordingWrapper").appendChild(audio);
+   document.getElementById("audio-area").appendChild(audio);
 }
 
 load_script = function(file){
@@ -406,47 +387,44 @@ load_spinner = function(){
   };
   var target = document.getElementById('spinner');
   spinner = new Spinner(opts).spin(target);
-}
+};
 
 
-document.addEventListener( "DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
   console.log("==DOM content loaded");
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
   var spinner;
-  //var video = document.getElementById("webcam");
 
   if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
-    google_frame_warning
+    google_frame_warning();
   }
 
-  if (checkUrl(RECORDINGS + '/video/webcams.webm') == true){
-      videoContainer = document.getElementById("audioRecordingWrapper").style.display = "none";
-      load_video();
-  }else{
-      videoContainer = document.getElementById("videoRecordingWrapper").style.display = "none";       
-      chat = document.getElementById("chat");
-      chat.style.height = "600px";
-      chat.style.backgroundColor = "white";      
-      load_audio();
+  if (checkUrl(RECORDINGS + '/video/webcams.webm') == true) {
+    hasVideo = true;
+    $("#audio-area").attr("style", "display:none;");
+    load_video();
+  } else {
+    hasVideo = false;
+    $("#video-area").attr("style", "display:none;");
+    load_audio();
   }
-  
+
   load_spinner();
   console.log("==Hide playback content");
   $("#playback-content").css('visibility', 'hidden');
-  //load_audio();
-  load_script("lib/writing.js");
-  //generateThumbnails();
 
   //load up the acorn controls
   console.log("==Loading acorn media player ");
-  jQuery('#video').acornMediaPlayer({
-    theme: 'darkglass',
+  $('#video').acornMediaPlayer({
+    theme: 'bigbluebutton',
     volumeSlider: 'vertical'
   });
-  
- 
+  $('#video').on("swap", function() {
+    swapVideoPresentation();
+  });
 
+  resizeComponents();
 }, false);
 
 var secondsToWait = 0;
@@ -466,8 +444,112 @@ function Tick() {
     $('#countdown').html(""); // remove the timer
     return;
   }
-  
+
   secondsToWait -= 1;
   $('#countdown').html(secondsToWait);
   window.setTimeout("Tick()", 1000);
 }
+
+// Swap the position of the DOM elements `elm1` and `elm2`.
+function swapElements(elm1, elm2) {
+  var parent1, next1,
+      parent2, next2;
+
+  parent1 = elm1.parentNode;
+  next1   = elm1.nextSibling;
+  parent2 = elm2.parentNode;
+  next2   = elm2.nextSibling;
+
+  parent1.insertBefore(elm2, next1);
+  parent2.insertBefore(elm1, next2);
+}
+
+// Swaps the positions of the presentation and the video
+function swapVideoPresentation() {
+  var pop = Popcorn("#video");
+  var wasPaused = pop.paused();
+
+  var mainSectionChild = $("#main-section").children("[data-swap]");
+  var sideSectionChild = $("#side-section").children("[data-swap]");
+  swapElements(mainSectionChild[0], sideSectionChild[0]);
+  resizeComponents();
+
+  if (!wasPaused) {
+    pop.play();
+  }
+
+  // hide the cursor so it doesn't appear in the wrong place (e.g. on top of the video)
+  // if the cursor is currently being useful, he we'll be redrawn automatically soon
+  showCursor(false);
+
+  // wait for the svg with the slides to be fully loaded and then set the current image
+  // as visible.
+  function checkSVGLoaded() {
+    var done = false;
+    var svg = document.getElementsByTagName("object")[0];
+    if (svg !== undefined && svg !== null && currentImage && svg.getSVGDocument('svgfile')) {
+      var img = svg.getSVGDocument('svgfile').getElementById(currentImage.getAttribute("id"));
+      if (img !== undefined && img !== null) {
+        img.style.visibility = "visible";
+        resizeSlides();
+        done = true;
+      }
+    }
+    if (!done) {
+      setTimeout(checkSVGLoaded, 50);
+    }
+  }
+  checkSVGLoaded();
+}
+
+// Manually resize some components we can't properly resize just using css.
+// Mostly the components in the side-section, that has more than one component that
+// need to fill 100% height.
+function resizeComponents() {
+  var availableHeight = $("body").height();
+  if (hasVideo) {
+    availableHeight -= $("#video-area .acorn-controls").outerHeight(true);
+  } else {
+    availableHeight -= $("#audio-area .acorn-controls").outerHeight(true);
+  }
+  availableHeight -= $("#navbar").outerHeight(true); // navbar
+
+  // portrait mode
+  if (window.innerHeight > window.innerWidth) {
+    var height = availableHeight * 0.6; // 60% for top bar
+    $("#main-section").outerHeight(height);
+    availableHeight -= height;
+    $("#side-section").outerHeight(availableHeight);
+
+    var chatHeight = availableHeight;
+    $("#chat-area").innerHeight(chatHeight);
+  } else {
+    // $("#playback-row").outerHeight(availableHeight);
+    $("#main-section").outerHeight(availableHeight);
+    $("#side-section").outerHeight(availableHeight);
+
+    var chatHeight = availableHeight;
+    chatHeight -= $("#side-section").children("[data-swap]").outerHeight(true);
+    $("#chat-area").innerHeight(chatHeight);
+  }
+}
+
+// Need to resize the elements in a few occasions:
+// * Once the page and all assets are fully loaded
+// * When the page is resized
+// * When the video is fully loaded
+$(window).resize(function() {
+  resizeComponents();
+});
+document.addEventListener("load", function() {
+  resizeComponents();
+}, false);
+function checkVideoLoaded() {
+  var video = $('#video')[0];
+  if (video !== undefined && video !== null && video.readyState === 4) {
+    resizeComponents();
+  } else {
+    setTimeout(checkVideoLoaded, 50);
+  }
+}
+checkVideoLoaded();
