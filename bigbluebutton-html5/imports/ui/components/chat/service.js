@@ -24,6 +24,10 @@ const ScrollCollection = new Mongo.Collection(null);
 const mapUser = (user) => ({
   id: user.userid,
   name: user.name,
+  emoji: {
+    status: user.emoji_status,
+    changedAt: user.set_emoji_time,
+  },
   isPresenter: user.presenter,
   isModerator: user.role === 'MODERATOR',
   isCurrent: user.userid === Auth.userID,

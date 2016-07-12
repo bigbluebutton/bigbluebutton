@@ -13,34 +13,77 @@ $moderator-text: $color-white;
 $moderator-bg: $color-primary;
 
 .userAvatar {
-  @extend .flex-column;
-  transition: all 0.3s;
-  flex-basis: 1.7rem;
+  // @extend .flex-column;
+  flex-basis: 2.2rem;
+  height: 2.2rem;
   flex-shrink: 0;
-  height: 1.7rem;
+  line-height: 2.2rem;
   justify-content: center;
+  position: relative;
   display: flex;
   flex-flow: column;
-  font-size: 1rem;
+  font-size: 1.1rem;
   text-align: center;
   border-radius: 50%;
-  border: 2px solid $user-avatar-border;
-  color: $user-avatar-text;
+  color: $color-white;
   text-transform: capitalize;
 }
 
-.voiceUser {
-  background-color: $voice-user-bg;
-  color: $voice-user-text;
-  border: none;
-}
-
-.presenter {
+.userStatus {
+  position: absolute;
+  background-color: $color-white;
+  width: 0.625rem;
+  height: 0.625rem;
   border-radius: 2px;
+  top: 0;
+  left: 0;
+  -webkit-box-shadow: 0 0 0 1px $color-white;
+  -moz-box-shadow: 0 0 0 1px $color-white;
+  box-shadow: 0 0 0 1px $color-white;
+  transition: all 0.3s;
 }
 
 .moderator {
+  border: 1px solid $color-gray-light;
+  background-color: $color-white;
+}
+
+.presenter {
   background-color: $moderator-bg;
-  color: $moderator-text;
   border: none;
 }
+
+.userMediaStatus {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  border-radius: 50%;
+  width: 0.625rem;
+  height: 0.625rem;
+  top: 1.575rem;
+  left: 1.575rem;
+  -webkit-box-shadow: 0 0 0 1px $color-white;
+  -moz-box-shadow: 0 0 0 1px $color-white;
+  box-shadow: 0 0 0 1px $color-white;
+  transition: all 0.3s;
+  background-color: $color-success;
+}
+
+.voiceOnly {
+  border: 1px solid $color-gray-light;
+  background-color: $color-white;
+}
+
+.microphone {
+}
+
+.microphoneMuted {
+  margin-top: 0.05rem;
+  width: 2px;
+  transform: rotate(45deg);
+  height: 0.5rem;
+  background-color: $color-white;
+}
+
+// 10px x
+// 16px 1

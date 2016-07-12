@@ -29,7 +29,7 @@ export function clearCollections() {
     refreshes. Related to: https://github.com/meteor/meteor/issues/6576
   */
 
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     return;
   }
 
