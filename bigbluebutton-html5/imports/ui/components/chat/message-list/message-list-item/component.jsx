@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { FormattedTime } from 'react-intl';
-import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 
 import UserAvatar from '/imports/ui/components/user-avatar/component';

@@ -97,7 +97,6 @@ class MessageForm extends Component {
         <TextareaAutosize
           className={styles.input}
           id="message-input"
-          maxLength=""
           aria-controls={this.props.chatAreaId}
           aria-label={ intl.formatMessage(messages.inputLabel, { name: chatTitle }) }
           autoCorrect="off"
