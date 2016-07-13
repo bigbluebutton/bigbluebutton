@@ -52,9 +52,9 @@ package org.bigbluebutton.modules.deskshare.managers
 			service.sendStartedViewingNotification(stream);
 		}
 						
-		private function openWindow(window:IBbbModuleWindow):void{
+		private function openWindow(window:DesktopViewWindow):void{
 			var e:ShareEvent = new ShareEvent(ShareEvent.OPEN_DESKTOP_VIEW_TAB);
-			e.viewTabContent = window as DesktopViewWindow;
+			e.viewTabContent = window;
 			globalDispatcher.dispatchEvent(e);
 		}
 			
@@ -64,7 +64,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			isViewing = false;	
 		}
 		
-		private function closeWindow(window:IBbbModuleWindow):void {
+		private function closeWindow(window:DesktopViewWindow):void {
 			var e:ShareEvent = new ShareEvent(ShareEvent.CLOSE_DESKTOP_VIEW_TAB);
 			globalDispatcher.dispatchEvent(e);
 		}

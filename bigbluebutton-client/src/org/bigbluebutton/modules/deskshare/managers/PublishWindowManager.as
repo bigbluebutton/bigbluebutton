@@ -80,13 +80,13 @@ package org.bigbluebutton.modules.deskshare.managers
 			closeWindow(shareWindow);
 		}
 		
-		private function openWindow(window:IBbbModuleWindow):void {				
+		private function openWindow(window:DesktopPublishWindow):void {
 			var e:ShareEvent = new ShareEvent(ShareEvent.CREATE_DESKTOP_PUBLISH_TAB);
-			e.publishTabContent = window as DesktopPublishWindow;
+			e.publishTabContent = window;
 			globalDispatcher.dispatchEvent(e);
 		}
 					
-		private function closeWindow(window:IBbbModuleWindow):void {
+		private function closeWindow(window:DesktopPublishWindow):void {
 			var e:ShareEvent = new ShareEvent(ShareEvent.CLEAN_DESKTOP_PUBLISH_TAB);
 			globalDispatcher.dispatchEvent(e);
 		}

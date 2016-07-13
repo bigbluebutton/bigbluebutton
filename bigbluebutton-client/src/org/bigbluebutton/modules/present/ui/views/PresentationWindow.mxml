@@ -110,6 +110,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.IBbbCanvas;
+			import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
+			import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
 
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
@@ -171,6 +174,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Embed(source="../../../polling/sounds/Poll.mp3")] 
 			private var noticeSoundClass:Class;
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
+
+			private var whiteboardOverlay:IBbbCanvas = null;
+			private var DSPublishCanvas:DesktopPublishWindow = null;
+			private var DSViewCanvas:DesktopViewWindow = null;
 			
 			private function init():void{
 				presentOptions = new PresentOptions();
@@ -532,8 +539,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
         LOGGER.debug("OVERLAYING WHITEBOARD CANVAS");
+        whiteboardOverlay = e.canvas;
+
+        LOGGER.debug("addOverlayCanvas: Adding whiteboard canvas to SlideView");
         e.canvas.acceptOverlayCanvas(slideView);
         slideView.acceptOverlayCanvas(e.canvas);
+
+        if(currentTabIndex == DESKSHARE_VIEW_TAB_INDEX && DSViewCanvas != null) {
+           LOGGER.debug("addOverlayCanvas: Adding whiteboard canvas to DesktopViewWindow");
+           DSViewCanvas.acceptOverlayCanvas(whiteboardOverlay);
+           whiteboardOverlay.acceptOverlayCanvas(DSViewCanvas);
+        }
       }
 					
 			override protected function resourcesChanged():void{
@@ -842,11 +858,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   if(presenterTabs.selectedIndex == PRESENTATION_TAB_INDEX) {
 				       currentTabIndex = PRESENTATION_TAB_INDEX;
 				       LOGGER.debug("Presentation Tab selected.");
+
 				       if(sharing)
 					     stopSharing();
+
+				       if(whiteboardOverlay != null) {
+					      slideView.acceptOverlayCanvas(whiteboardOverlay);
+					      whiteboardOverlay.acceptOverlayCanvas(slideView);
+				       }
+
 				       if(currentControlBarState == PRESENTER_STATE) {
 					     setControlBarState("presenter");
-					     dispatchEvent(new PresenterStatusEvent(PresenterStatusEvent.SWITCHED_TO_PRESENTATION_TAB));
+					     annotationsPermissionChanged(true);
 				       }
 				   }
 
@@ -862,13 +885,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						        deskshareControls.visible = true;
 						        deskshareControls.includeInLayout = true;
 					          }
-					          dispatchEvent(new PresenterStatusEvent(PresenterStatusEvent.SWITCHED_TO_DESKSHARE_TAB));
+					          annotationsPermissionChanged(false);
 				       }
 				   }
 
 				   else {
 				       currentTabIndex = DESKSHARE_VIEW_TAB_INDEX;
 				       LOGGER.debug("Deskshare Viewing Tab selected.");
+
+				       if(whiteboardOverlay != null && DSViewCanvas != null) {
+					      DSViewCanvas.acceptOverlayCanvas(whiteboardOverlay);
+					      whiteboardOverlay.acceptOverlayCanvas(DSViewCanvas);
+				       } else LOGGER.debug("openDesktopViewTab: whiteboard overlay or desktop view canvas is null!");
 				    }
 				}
 			}
@@ -884,33 +912,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function createDesktopPublishTab(e:ShareEvent):void {
 				if(e.publishTabContent != null && desksharePublishTab.numElements == 0) {
-				   LOGGER.debug("Setting the content of dekstop share PUBLISHING tab");
-
+				   DSPublishCanvas = e.publishTabContent;
 				   canPublish = e.publishTabContent.canPublish();
 
+				   LOGGER.debug("Setting the content of dekstop share PUBLISHING tab");
 				   e.publishTabContent.percentHeight = 100;
 				   e.publishTabContent.percentWidth = 100;
 				   desksharePublishTab.addChild(e.publishTabContent);
 
 				   if(canPublish && e.publishTabContent.autoStart)
 				      handleDeskshareAutoStart();
+
 				}
 				else
 				   LOGGER.debug("publishTabContent is NULL.");
 			}
 
 			private function cleanDesktopPublishTab(e:ShareEvent):void {
-				LOGGER.debug("desksharePublishTab.numElements = " + desksharePublishTab.numElements)
 				if(desksharePublishTab.numElements != 0) {
 				      LOGGER.debug("Removing content of dekstop share PUBLISHING tab");
 				      desksharePublishTab.removeAllElements();
+				      DSPublishCanvas = null;
 				}
 			}
 
 			private function openDesktopViewTab(e:ShareEvent):void {
 				if(e.viewTabContent != null && presenterTabs.numElements == 2) {
-				   LOGGER.debug("Opening a new tab for dekstop share VIEWING");
+				   DSViewCanvas = e.viewTabContent;
 
+				   LOGGER.debug("Opening a new tab for dekstop share VIEWING");
 				   e.viewTabContent.percentHeight = 100;
 				   e.viewTabContent.percentWidth = 100;
 				   e.viewTabContent.setStyle("horizontalAlign","center");
@@ -926,11 +956,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function closeDesktopViewTab(e:ShareEvent):void {
 				LOGGER.debug("Closing the dekstop share VIEWING tab");
 				selectPresentationTab();
-				if(presenterTabs.numElements == 3)
+				if(presenterTabs.numElements == 3) {
 				   presenterTabs.removeChildAt(DESKSHARE_VIEW_TAB_INDEX);
+				   DSViewCanvas = null;
+				}
 			}
 
 			private function shareScreen(fullScreen:Boolean):void {
+
+			   if(whiteboardOverlay != null && DSPublishCanvas != null) {
+				   LOGGER.debug("Adding whiteboard layer to Deskshare Publish Canvas");
+				   DSPublishCanvas.acceptOverlayCanvas(whiteboardOverlay);
+				   whiteboardOverlay.acceptOverlayCanvas(DSPublishCanvas);
+				   annotationsPermissionChanged(true);
+			   } else LOGGER.debug("shareScreen: whiteboard overlay or desktop publish canvas is null!");
+
 				var e:ShareEvent = new ShareEvent(ShareEvent.SHARE_SCREEN);
 				e.fullScreen = fullScreen;
 
@@ -955,6 +995,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function selectDeskshareViewTab():void {
 				presenterTabs.selectedIndex = DESKSHARE_VIEW_TAB_INDEX;
 				onSelectTab();
+			}
+
+			private function annotationsPermissionChanged(enableAnnotations:Boolean):void {
+				var event:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.ANNOTATIONS_PERMISSION_CHANGE);
+				event.enableAnnotations = enableAnnotations;
+				dispatchEvent(event);
 			}
 
 			private function handleDeskshareAutoStart():void {

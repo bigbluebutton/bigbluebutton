@@ -25,9 +25,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[		
       import com.asfusion.mate.events.Dispatcher;
-      
+
       import mx.managers.CursorManager;
-      
+
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -40,7 +40,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
       import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
       import org.bigbluebutton.modules.whiteboard.models.Annotation;
+      import org.bigbluebutton.modules.present.ui.views.SlideView;
+      import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
+      import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
 			
+			private static const LOGGER:ILogger = getClassLogger(WhiteboardCanvas);
 			public var model:WhiteboardCanvasModel;	
             public var displayModel:WhiteboardCanvasDisplayModel;
             
@@ -68,6 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
             
       public function queryForAnnotationHistory(webId:String):void {
+         LOGGER.debug("Query for annotation history: " + webId);
          var dispatcher:Dispatcher = new Dispatcher();
          dispatcher.dispatchEvent(new GetWhiteboardShapesCommand(webId));
       }
@@ -111,7 +118,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function doMouseMove(event:Event):void {
 				model.doMouseMove(Math.min(Math.max(parent.mouseX, 0), parent.width-2) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-2) - this.y);
 			}
-			
 			
 			public function setShape(s:String):void {
 //                LogUtil.debug("SET SHAPE [" + s + "]");
@@ -244,6 +250,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void {
 //				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
 //				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
+
+				var changedCanvas:Boolean = false;
+				if( (this.bbbCanvas as DesktopPublishWindow != null || this.bbbCanvas as DesktopViewWindow != null) &&
+					 overlay as SlideView != null )
+					changedCanvas = true;
+				else if(this.bbbCanvas as SlideView != null &&
+				       (overlay as DesktopPublishWindow != null || overlay as DesktopViewWindow != null))
+				     changedCanvas = true;
                 
 				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
@@ -251,15 +265,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
         /**
          * Check if this is the first time we overlayed the whiteboard canvas into the
-         * presentation canvas. If so, query for annotations history.
+         * presentation canvas or the user changed tabs on Presentation Window. If so, query for annotations history.
          */
-        if (! displayModel.canvasInited) {
+        if (! displayModel.canvasInited || changedCanvas) {
           displayModel.parentCanvasInitialized();
           var webId:String = model.whiteboardModel.getCurrentWhiteboardId();
           if (webId != null) {
             queryForAnnotationHistory(webId);
           }        
-        }
+        } else LOGGER.debug("Not querying annotations history");
                     
 			}
 			

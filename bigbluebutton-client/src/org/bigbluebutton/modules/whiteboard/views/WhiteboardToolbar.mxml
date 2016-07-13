@@ -41,8 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
   <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
   <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
-  <mate:Listener type="{PresenterStatusEvent.SWITCHED_TO_PRESENTATION_TAB}" method="handlePresentationTabSelected" />
-  <mate:Listener type="{PresenterStatusEvent.SWITCHED_TO_DESKSHARE_TAB}" method="handleDeskshareTabSelected" />
+  <mate:Listener type="{PresenterStatusEvent.ANNOTATIONS_PERMISSION_CHANGE}" method="handleEnableAnnotations" />
     
   <mx:Style>
     .colorPickerStyle {
@@ -118,7 +117,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var mousedOver:Boolean = false;
 			private var slideLoaded:Boolean = false;
-			private var presentationTabSelected:Boolean = true;
+			private var enableAnnotations:Boolean = true;
 			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
@@ -254,7 +253,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && presentationTabSelected && (wbOptions.keepToolbarVisible || mousedOver)) {
+                if (toolbarAllowed() && slideLoaded && enableAnnotations && (wbOptions.keepToolbarVisible || mousedOver)) {
                     setPositionAndDepth();
                     showWhiteboardToolbar = true;
                 } else {
@@ -332,13 +331,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         return UsersUtil.amIModerator();
       }
 
-      private function handlePresentationTabSelected(e:PresenterStatusEvent):void {
-        presentationTabSelected = true;
-        checkVisibility();
-      }
-
-      private function handleDeskshareTabSelected(e:PresenterStatusEvent):void {
-        presentationTabSelected = false;
+      private function handleEnableAnnotations(e:PresenterStatusEvent):void {
+        enableAnnotations = e.enableAnnotations;
         checkVisibility();
       }
 

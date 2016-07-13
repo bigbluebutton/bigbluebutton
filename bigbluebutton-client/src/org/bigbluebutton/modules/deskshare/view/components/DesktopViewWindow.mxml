@@ -20,13 +20,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns="org.bigbluebutton.common.*"
+<mx:Canvas xmlns="org.bigbluebutton.common.*"
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:common="org.bigbluebutton.common.*"
     width="600" height="400"
 	initialize="init()"
 	creationComplete="onCreationComplete()"
-	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	implements="org.bigbluebutton.common.IBbbCanvas"
 	xmlns:mate="http://mate.asfusion.com/"
 	backgroundColor="#C0C0C0">
 	
@@ -86,6 +86,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var isMaximized:Boolean = false;
 			
 			[Bindable] private var dsOptions:DeskshareOptions;
+
+			private var whiteboardCanvasHolder:Canvas = new Canvas();
 									
 			private function init():void{
 				dsOptions = new DeskshareOptions();
@@ -94,7 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void{
 				videoHolder.addChild(video);				
 				videoHolder.addEventListener(ResizeEvent.RESIZE, onResize);
-				this.addChild(videoHolder);
+				this.addChildAt(videoHolder,0);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
 				fitVideoToWindow();
@@ -149,7 +151,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
-				
+
+			}
+
+			private function addWhiteboardCanvasHolder():void{
+				if(video != null) {
+					cleanCanvasHolder();
+					updateWhiteboardCanvasHolder();
+					this.addChild(whiteboardCanvasHolder);
+					LOGGER.debug("Whiteboard canvas holder added");
+				}
+			}
+
+			private function cleanCanvasHolder():void{
+				while (this.whiteboardCanvasHolder.rawChildren.numChildren > 0)
+				  this.whiteboardCanvasHolder.rawChildren.removeChildAt(0);
+			}
+
+			private function updateWhiteboardCanvasHolder():void{
+				if(video != null) {
+					whiteboardCanvasHolder.x = video.x;
+					whiteboardCanvasHolder.y = video.y;
+					whiteboardCanvasHolder.width = video.width;
+					whiteboardCanvasHolder.height = video.height;
+					LOGGER.debug("Whiteboard canvas holder dimensions updated");
+				}
 			}
 			
       protected function updateButtonsPosition():void {
@@ -243,6 +269,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
 					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
 				}
+
+				//update the whiteboard canvas holder with new video dimensions...
+				updateWhiteboardCanvasHolder();
 			}
 			
 			private function closeWindow():void {
@@ -255,6 +284,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function localeChanged(e:Event):void{
 				resourcesChanged();
+			}
+
+			/** Inherited from IBbbCanvas*/
+			public function addRawChild(child:DisplayObject):void{
+			       this.whiteboardCanvasHolder.rawChildren.addChild(child);
+			}
+
+			public function removeRawChild(child:DisplayObject):void{
+			       this.whiteboardCanvasHolder.rawChildren.removeChild(child);
+			}
+
+			public function doesContain(child:DisplayObject):Boolean{
+			       return this.whiteboardCanvasHolder.rawChildren.contains(child);
+			}
+
+			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
+			       LOGGER.debug("DesktopPublishWindow: acceptOverlayCanvas");
+			       addWhiteboardCanvasHolder();
+			}
+
+			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
+			       LOGGER.debug("DesktopPublishWindow: handleWhiteboardCanvasClick");
+			}
+
+			public function moveCanvas(x:Number, y:Number):void{
+			       LOGGER.debug("DesktopPublishWindow: moveCanvas");
+			}
+
+			public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
+			       LOGGER.debug("DesktopPublishWindow: zoomCanvas");
+			}
+
+			public function showCanvas(show:Boolean):void{
+			       LOGGER.debug("DesktopPublishWindow: showCanvas");
 			}
 			
 		]]>
@@ -274,4 +337,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
 				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"/>
 	</mx:HBox>
-</mx:VBox>
+</mx:Canvas>

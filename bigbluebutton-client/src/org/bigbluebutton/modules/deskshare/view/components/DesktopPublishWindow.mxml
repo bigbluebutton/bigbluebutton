@@ -20,9 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox
+<mx:Canvas
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	implements="org.bigbluebutton.common.IBbbCanvas"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="org.bigbluebutton.common.*"
 	initialize="init()"
@@ -63,6 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 			import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
 			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
+			import org.bigbluebutton.common.IBbbCanvas;
 			
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -97,6 +98,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var cursor:Sprite;
 			[Bindable] private var dsOptions:DeskshareOptions;
+
+			private var whiteboardCanvas:Canvas = null;
+			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			
       private var calledStopApplet:Boolean = false;
       
@@ -233,7 +237,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function startPreviewStream(nc:NetConnection, streamName:String, capWidth:Number, capHeight:Number):void{
-				if(cursor == null || cursorImg == null)
+				if(cursor == null || cursorImg == null || video != null)
 				    return;
 
 				streaming = true;
@@ -255,7 +259,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
-				this.addChild(videoHolder);
+				this.addChildAt(videoHolder,0);
 				fitVideoToWindow();
 											
 				ns = new NetStream(nc);
@@ -268,7 +272,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video.attachNetStream(ns);
 				ns.play(streamName);
 			}
-			
+
+			private function addWhiteboardCanvasHolder():void{
+				updateWhiteboardCanvasHolder();
+				if(streaming)
+					this.addChildAt(this.whiteboardCanvasHolder,1);
+			}
+
+			private function updateWhiteboardCanvasHolder():void{
+				if(video != null) {
+					this.whiteboardCanvasHolder.x = video.x;
+					this.whiteboardCanvasHolder.y = video.y;
+					this.whiteboardCanvasHolder.width = video.width;
+					this.whiteboardCanvasHolder.height = video.height;
+					LOGGER.debug("Whiteboard canvas holder dimensions updated");
+				}
+			}
+
+			public function addWhiteboardOverlay():void {
+				updateWhiteboardCanvasOverlay();
+				if(streaming && this.whiteboardCanvas != null) {
+					this.addChild(this.whiteboardCanvas);
+					LOGGER.debug("Whiteboard Canvas OVERLAY added.");
+				}
+				else
+				     LOGGER.debug("COULD NOT add whiteboard overlay");
+			}
+
+			private function updateWhiteboardCanvasOverlay():void{
+				if(video != null && this.whiteboardCanvas != null) {
+					this.whiteboardCanvas.x = video.x;
+					this.whiteboardCanvas.y = video.y;
+					this.whiteboardCanvas.width = video.width;
+					this.whiteboardCanvas.height = video.height;
+					LOGGER.debug("Whiteboard canvas overlay dimensions updated");
+				}
+			}
+
 			private function onResize(e:ResizeEvent):void {
 				fitVideoToWindow();
 			}
@@ -290,6 +330,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					video.y = 0;
 					video.x = (videoHolder.width - video.width) / 2;
 				}
+
+				//update the whiteboard canvas holder and overlay with new video dimensions...
+				updateWhiteboardCanvasHolder();
+				updateWhiteboardCanvasOverlay();
 			}
 
 			private function stopStream():void{
@@ -315,6 +359,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					break;
 				case "NetStream.Play.Start":
 					LOGGER.debug("Netstatus: {0}", [e.info.code]);
+					addWhiteboardCanvasHolder();
+					addWhiteboardOverlay();
 					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
 				}
 			}
@@ -377,6 +423,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 			}
+
+			/** Inherited from IBbbCanvas*/
+			public function addRawChild(child:DisplayObject):void{
+			       this.whiteboardCanvasHolder.rawChildren.addChild(child);
+			}
+
+			public function removeRawChild(child:DisplayObject):void{
+			       this.whiteboardCanvasHolder.rawChildren.removeChild(child);
+			}
+
+			public function doesContain(child:DisplayObject):Boolean{
+			       return this.whiteboardCanvasHolder.rawChildren.contains(child);
+			}
+
+			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
+			       LOGGER.debug("DesktopPublishWindow: acceptOverlayCanvas");
+			       whiteboardCanvas = overlay as Canvas;
+			}
+
+			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
+			       LOGGER.debug("DesktopPublishWindow: handleWhiteboardCanvasClick");
+			}
+
+			public function moveCanvas(x:Number, y:Number):void{
+			       LOGGER.debug("DesktopPublishWindow: moveCanvas");
+			}
+
+			public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
+			       LOGGER.debug("DesktopPublishWindow: zoomCanvas");
+			}
+
+			public function showCanvas(show:Boolean):void{
+			       LOGGER.debug("DesktopPublishWindow: showCanvas");
+			}
 		]]>
 	</mx:Script>
 
@@ -429,4 +509,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:states>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
-</mx:VBox>
+</mx:Canvas>
