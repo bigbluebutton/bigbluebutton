@@ -1,13 +1,13 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- * 
+ *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- * 
+ *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -350,7 +350,7 @@ public class MeetingService implements MessageListener {
     public List<Map<String, String>> listSubscriptions(String meetingId) {
         return messagingService.listSubscriptions(meetingId);
     }
-    
+
     public Meeting getMeeting(String meetingId) {
         return getMeeting(meetingId, false);
     }
@@ -478,7 +478,7 @@ public class MeetingService implements MessageListener {
 	    }
           }
 	}
-	
+
 	public void deleteRecordings(ArrayList<String> idList){
           for (String id : idList) {
             recordingService.changeState(id, Recording.STATE_DELETED);
@@ -588,7 +588,7 @@ public class MeetingService implements MessageListener {
 
 				Gson gson = new Gson();
 				String logStr =  gson.toJson(logData);
-				
+
 				log.info("Meeting restarted: data={}", logStr);
 			}
 			return;
@@ -666,16 +666,15 @@ public class MeetingService implements MessageListener {
             logData.put("role", user.getRole());
             logData.put("event", "user_joined_message");
             logData.put("description", "User had joined the meeting.");
-				
-				Gson gson = new Gson();
-		        String logStr =  gson.toJson(logData);
-				
-				log.info("User left meeting: data={}", logStr);
-				
-				return;
-			}
-			return;
-		}
+
+            Gson gson = new Gson();
+            String logStr =  gson.toJson(logData);
+            log.info("User joined meeting: data={}", logStr);
+
+            return;
+        }
+        return;
+    }
 
     private void userLeft(UserLeft message) {
         Meeting m = getMeeting(message.meetingId);
@@ -734,14 +733,14 @@ public class MeetingService implements MessageListener {
 
 	@Override
   public void handle(IMessage message) {
-			receivedMessages.add(message);    
+			receivedMessages.add(message);
   }
-	
-	
+
+
 	public void setParamsProcessorUtil(ParamsProcessorUtil util) {
-	  this.paramsProcessorUtil = util; 
+	  this.paramsProcessorUtil = util;
 	}
-	
+
 	public void setPresDownloadService(PresentationUrlDownloadService presDownloadService) {
 	  this.presDownloadService = presDownloadService;
 	}
@@ -870,7 +869,7 @@ public class MeetingService implements MessageListener {
 
         runExec.execute(task);
     }
-    
+
 
     public void start() {
         log.info("Starting Meeting Service.");
