@@ -62,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.core.BBB;
       
       private static const LOG:String = "SC::ScreensharePublishWIndow - ";	
       
@@ -210,6 +211,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{			
         
+        removeHowToHelpArea();
+        
         trace(LOG + "Viewing stream =[" + streamId + "]");
         streaming = true;
         
@@ -350,10 +353,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function isUsingMac():Boolean {
         return (Capabilities.os.indexOf("Mac") >= 0);
       }
+      
+      private function onHelpButtonClicked():void {
+        var option:ScreenshareOptions = new ScreenshareOptions();
+        option.parseOptions();
+        var DEFAULT_HELP_URL:String = option.helpUrl;
+        trace("onHelpButtonClicked - " + DEFAULT_HELP_URL);
+        navigateToURL(new URLRequest(DEFAULT_HELP_URL), "_blank")
+      }
+      
+      private function removeHowToHelpArea():void {
+        howToHelpArea.visible = howToHelpArea.includeInLayout = false;
+      }
     ]]>
   </mx:Script>
   
   <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
+  <mx:VBox id="howToHelpArea" includeInLayout="true" visible="true" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+    <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.help.title')}" />
+    <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.help.message')}" />
+    <mx:Button id="btnScreenshareView" 
+               toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.help.button')}" 
+               label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.help.button')}" 
+               visible="true" 
+               click="onHelpButtonClicked()" 
+               tabIndex="{baseIndex+3}"/>
+  </mx:VBox>
   <dspub:states>	    
     <mx:State name="dispFullRegionControlBar">   
       <mx:AddChild>
