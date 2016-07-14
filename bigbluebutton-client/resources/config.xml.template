@@ -49,6 +49,7 @@
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
+			help="http://HOST/client/screenshare-help.html"
 		/>
     
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
