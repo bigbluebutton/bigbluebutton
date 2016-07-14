@@ -151,4 +151,5 @@ const handledMessageTypes = [
   'get_all_meetings_reply_message',
   'send_caption_history_reply_message',
   'edit_caption_history_message',
+  'update_caption_owner_message',
 ];

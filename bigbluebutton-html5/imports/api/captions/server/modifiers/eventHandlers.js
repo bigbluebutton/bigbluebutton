@@ -34,6 +34,16 @@ eventEmitter.on('send_caption_history_reply_message', function (arg) {
   return arg.callback();
 });
 
+eventEmitter.on('update_caption_owner_message', function(arg) {
+  console.error(JSON.stringify(arg));
+  let payload = arg.payload;
+
+  //#TODO updating the channel's owner's information here
+  //Need to figure what collection to use, Captions or Channels.
+
+  return arg.callback();
+});
+
 eventEmitter.on('edit_caption_history_message', function (arg) {
   console.error(JSON.stringify(arg));
   let payload = arg.payload;
