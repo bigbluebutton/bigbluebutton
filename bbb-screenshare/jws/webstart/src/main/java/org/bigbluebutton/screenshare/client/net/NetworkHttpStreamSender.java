@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.text.SimpleDateFormat;
+import javax.net.ssl.HttpsURLConnection;
 
 public class NetworkHttpStreamSender {	
   private static final String SEQ_NUM = "sequenceNumber";
@@ -124,7 +125,11 @@ public class NetworkHttpStreamSender {
     long start = System.currentTimeMillis();
     try {			
       url = new URL(host + SCREEN_CAPTURE__URL);
-      conn = url.openConnection();
+      if (host.toLowerCase().startsWith("https://")) {
+        conn = (HttpsURLConnection)url.openConnection();
+      } else {
+        conn = url.openConnection();
+      }
     } catch (MalformedURLException e) {
       e.printStackTrace();
       throw new ConnectionException("MalformedURLException " + url.toString());
