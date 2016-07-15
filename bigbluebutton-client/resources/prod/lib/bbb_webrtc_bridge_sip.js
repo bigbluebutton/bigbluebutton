@@ -144,26 +144,29 @@ function createUA(username, server, callback, makeCallFunc) {
 
 	console.log("Fetching STUN/TURN server info for user agent");
 
-	$.ajax({
-		dataType: 'json',
-		url: '/bigbluebutton/api/stuns'
-	}).done(function(data) {
-		var stunsConfig = {};
-		stunsConfig['stunServers'] = ( data['stunServers'] ? data['stunServers'].map(function(data) {
-			return data['url'];
-		}) : [] );
-		stunsConfig['turnServers'] = ( data['turnServers'] ? data['turnServers'].map(function(data) {
-			return {
-				'urls': data['url'],
-				'username': data['username'],
-				'password': data['password']
-			};
-		}) : [] );
-		createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc);
-	}).fail(function(data, textStatus, errorThrown) {
-		BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
-		callback({'status':'failed', 'errorcode': 1009});
-	});
+  BBB.getSessionToken(function(sessionToken) {
+  	$.ajax({
+  		dataType: 'json',
+  		url: '/bigbluebutton/api/stuns',
+  		data: {sessionToken:sessionToken}
+  	}).done(function(data) {
+  		var stunsConfig = {};
+  		stunsConfig['stunServers'] = ( data['stunServers'] ? data['stunServers'].map(function(data) {
+  			return data['url'];
+  		}) : [] );
+  		stunsConfig['turnServers'] = ( data['turnServers'] ? data['turnServers'].map(function(data) {
+  			return {
+  				'urls': data['url'],
+  				'username': data['username'],
+  				'password': data['password']
+  			};
+  		}) : [] );
+  		createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc);
+  	}).fail(function(data, textStatus, errorThrown) {
+  		BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
+  		callback({'status':'failed', 'errorcode': 1009});
+  	});
+  });
 }
 
 function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc) {
@@ -181,8 +184,8 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 		traceSip: true,
 		autostart: false,
 		userAgentString: "BigBlueButton",
-		//stunServers: stunsConfig['stunServers'],
-		//turnServers: stunsConfig['turnServers']
+		stunServers: stunsConfig['stunServers'],
+		turnServers: stunsConfig['turnServers']
 	};
 	
 	uaConnected = false;
