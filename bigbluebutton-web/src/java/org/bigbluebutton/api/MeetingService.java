@@ -27,9 +27,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -292,7 +292,7 @@ public class MeetingService implements MessageListener {
     private void handleCreateMeeting(Meeting m) {
         meetings.put(m.getInternalId(), m);
         if (m.isRecord()) {
-            Map<String, String> metadata = new LinkedHashMap<String, String>();
+            Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
             // TODO: Need a better way to store these values for recordings
             metadata.put("meetingId", m.getExternalId());
@@ -421,7 +421,7 @@ public class MeetingService implements MessageListener {
                 r.setMeetingID(mid);
                 r.setName(name);
 
-                ArrayList<Playback> plays = new ArrayList<Playback>();
+                List<Playback> plays = new ArrayList<Playback>();
 
                 if (r.getPlaybackFormat() != null) {
                     plays.add(new Playback(r.getPlaybackFormat(), r
@@ -471,18 +471,22 @@ public class MeetingService implements MessageListener {
 
     public void setPublishRecording(List<String> idList, boolean publish) {
         for (String id : idList) {
-            if (publish) {
+          if (publish) {
               recordingService.changeState(id, Recording.STATE_PUBLISHED);
-            } else {
+          } else {
               recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
-	    }
           }
-	}
-
-	public void deleteRecordings(ArrayList<String> idList){
-          for (String id : idList) {
-            recordingService.changeState(id, Recording.STATE_DELETED);
         }
+    }
+
+    public void deleteRecordings(List<String> idList) {
+        for (String id : idList) {
+          recordingService.changeState(id, Recording.STATE_DELETED);
+        }
+    }
+
+    public void updateRecordings(List<String> idList, Map<String, String> metaParams, boolean force) {
+        recordingService.updateMetaParams(idList, metaParams, force);
     }
 
     public void processRecording(String meetingId) {
