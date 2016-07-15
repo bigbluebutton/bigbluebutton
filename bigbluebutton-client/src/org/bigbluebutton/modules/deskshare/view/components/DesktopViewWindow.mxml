@@ -170,11 +170,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function updateWhiteboardCanvasHolder():void{
 				if(video != null) {
+					resizeCanvasChildren();
 					whiteboardCanvasHolder.x = video.x;
 					whiteboardCanvasHolder.y = video.y;
 					whiteboardCanvasHolder.width = video.width;
 					whiteboardCanvasHolder.height = video.height;
 					LOGGER.debug("Whiteboard canvas holder dimensions updated");
+				}
+			}
+
+			private function resizeCanvasChildren():void{
+				var widthResizeRatio:Number = video.width/whiteboardCanvasHolder.width;
+				var heightResizeRatio:Number = video.height/whiteboardCanvasHolder.height;
+				for (var i:int = 0 ; i < this.whiteboardCanvasHolder.rawChildren.numChildren; i++) {
+					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).width =
+					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).width * widthResizeRatio;
+
+					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).height =
+					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).height * heightResizeRatio;
 				}
 			}
 			
@@ -269,7 +282,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
 					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
 				}
-
 				//update the whiteboard canvas holder with new video dimensions...
 				updateWhiteboardCanvasHolder();
 			}
