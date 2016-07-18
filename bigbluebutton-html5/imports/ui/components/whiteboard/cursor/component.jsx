@@ -2,12 +2,26 @@ import React, { Component, PropTypes } from 'react';
 import WhiteboardService from '/imports/ui/components/whiteboard/service.js';
 
 const propTypes = {
+  //Width of the view box
+  viewBoxWidth: PropTypes.number.isRequired,
+
+  //Height of the view box
+  viewBoxHeight: PropTypes.number.isRequired,
+
+  //x Position of the view box
+  viewBoxX: PropTypes.number.isRequired,
+
+  //y Position of the view box
+  viewBoxY: PropTypes.number.isRequired,
+
+  //Slide to view box width ratio
+  widthRatio: PropTypes.number.isRequired,
 
   //Defines the cursor x position
-  cx: PropTypes.number,
+  cursorX: PropTypes.number.isRequired,
 
   //Defines the cursor y position
-  cy: PropTypes.number,
+  cursorY: PropTypes.number.isRequired,
 
   /**
    * Defines the cursor fill colour
