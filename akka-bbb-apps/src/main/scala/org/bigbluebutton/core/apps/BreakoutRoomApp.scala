@@ -44,7 +44,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
       val r = breakoutModel.createBreakoutRoom(breakoutMeetingId, room.name, voiceConfId, room.users, presURL)
       val p = new BreakoutRoomOutPayload(r.id, r.name, mProps.meetingID,
         r.voiceConfId, msg.durationInMinutes, bbbWebModeratorPassword, bbbWebViewerPassword,
-        r.defaultPresentationURL)
+        r.defaultPresentationURL, mProps.recorded)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, mProps.recorded, p))
     }
     meetingModel.breakoutRoomsdurationInMinutes = msg.durationInMinutes;
