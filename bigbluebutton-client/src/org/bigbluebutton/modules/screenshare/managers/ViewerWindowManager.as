@@ -72,7 +72,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 			
 		public function startViewing(streamId:String, videoWidth:Number, videoHeight:Number):void{
-			trace(LOG + "ViewerWindowManager::startViewing");
+      LOGGER.debug(LOG + "ViewerWindowManager::startViewing");
 			viewWindow = new ScreenshareViewWindow();
 			viewWindow.startVideo(service.getConnection());
       openWindow(viewWindow);

@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 		
 		public function handleStartModuleEvent(module:ScreenshareModule):void {
-			trace(LOG + "Screenshare Module starting");
+      LOGGER.debug(LOG + "Screenshare Module starting");
 			this.module = module;			
 			service.handleStartModuleEvent(module);
       
@@ -65,14 +65,14 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 		
 		public function handleStopModuleEvent():void {
-			trace(LOG + "Screenshare Module stopping");
+      LOGGER.debug(LOG + "Screenshare Module stopping");
 			publishWindowManager.stopSharing();
 			viewWindowManager.stopViewing();		
 			service.disconnect();
 		}
 		
     public function handleConnectionSuccessEvent():void {
-      trace(LOG + "handle Connection Success Event");
+      LOGGER.debug(LOG + "handle Connection Success Event");
       service.checkIfPresenterIsSharingScreen();  
     }
     
@@ -164,7 +164,7 @@ package org.bigbluebutton.modules.screenshare.managers
     }
     
     public function handleShareStartRequestResponseEvent(event:ShareStartRequestResponseEvent):void {
-      trace(LOG + "handleShareStartRequestResponseEvent");
+      LOGGER.debug(LOG + "handleShareStartRequestResponseEvent");
       var dispatcher:Dispatcher = new Dispatcher();
       if (event.success) {
         ScreenshareModel.getInstance().authToken = event.token;
@@ -176,7 +176,7 @@ package org.bigbluebutton.modules.screenshare.managers
     }
     
 		public function handleStartSharingEvent(autoStart:Boolean):void {
-			trace(LOG + "handleStartSharingEvent");
+      LOGGER.debug(LOG + "handleStartSharingEvent");
 			//toolbarButtonManager.disableToolbarButton();
 			toolbarButtonManager.startedSharing();
 			var option:ScreenshareOptions = new ScreenshareOptions();
@@ -198,7 +198,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 					
 		private function handleStreamStartEvent(streamId: String, videoWidth:Number, videoHeight:Number):void{
-			trace(LOG + "Received start vieweing command");
+      LOGGER.debug(LOG + "Received start vieweing command");
 			viewWindowManager.startViewing(streamId, videoWidth, videoHeight);
 		}
     
