@@ -127,6 +127,21 @@
     }
 
     /**
+     * Query user's sessionToken.
+     *
+     * Params:
+     *    callback - function if you want a callback as response.
+     */
+    BBB.getSessionToken = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (typeof callback === 'function') {
+          callback(swfObj.getSessionToken());
+        }
+      }
+    }
+    
+    /**
      * Eject a user.
      *
      * Params:

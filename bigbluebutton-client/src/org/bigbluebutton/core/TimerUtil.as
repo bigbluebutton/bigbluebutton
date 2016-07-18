@@ -17,23 +17,23 @@
  *
  */
 package org.bigbluebutton.core {
-	
+
 	import flash.events.TimerEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
 	import mx.controls.Label;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
-	
+
 	public final class TimerUtil {
 		public static var timers:Dictionary = new Dictionary(true);
-		
-		public static function setCountDownTimer(label:Label, seconds:int, preLabel:String = ''):void {
+
+		public static function setCountDownTimer(label:Label, seconds:int):void {
 			var timer:Timer = getTimer(label.id, seconds);
 			if (!timer.hasEventListener(TimerEvent.TIMER)) {
 				timer.addEventListener(TimerEvent.TIMER, function():void {
 					var remainingSeconds:int = timer.repeatCount - timer.currentCount;
 					var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
-					label.text = preLabel + ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [formattedTime]);
+					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [formattedTime]);
 				});
 				timer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTimeEnded');
@@ -44,7 +44,7 @@ package org.bigbluebutton.core {
 			}
 			timer.start();
 		}
-		
+
 		public static function getTimer(name:String, defaultRepeatCount:Number):Timer {
 			if (timers[name] == undefined) {
 				timers[name] = new Timer(1000, defaultRepeatCount);
@@ -52,7 +52,7 @@ package org.bigbluebutton.core {
 			Timer(timers[name]).repeatCount = defaultRepeatCount;
 			return timers[name];
 		}
-		
+
 		public static function stopTimer(name:String):void {
 			if (timers[name] != undefined) {
 				timers[name].stop();
