@@ -585,7 +585,7 @@
 	<mx:VBox id="roomsBox" styleName="breakoutRoomsBox"
 			 visible="{breakoutRoomsList.length > 0 &amp;&amp; amIModerator}"
 			 includeInLayout="{breakoutRoomsList.length > 0 &amp;&amp; amIModerator}"
-			 width="100%" height="50%">
+			 width="100%" height="180">
 		<mx:HBox width="100%">
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
 			<mx:Label width="100%" textAlign="right" id="breakoutTimeLabel"/>
