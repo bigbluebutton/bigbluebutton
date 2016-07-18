@@ -51,8 +51,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
       
       private static const LOG:String = "SC::ScreenshareViewWIndow - ";
+      private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
       
 			private var screenHeight:Number = Capabilities.screenResolutionY;
 			private var screenWidth:Number = Capabilities.screenResolutionX;
@@ -198,7 +201,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				trace(LOG + "asyncerror " + e.toString());
+        LOGGER.debug(LOG + "asyncerror " + e.toString());
         var logData:Object = new Object();
         logData.error = e.toString();
         JSLog.debug(LOG + "asyncerror ", logData);
@@ -210,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
 				switch(e.info.code){
   				case "NetStream.Play.Start":
-  					trace(LOG + "NetStream.Publish.Start for broadcast stream " + streamId);
+            LOGGER.debug(LOG + "NetStream.Publish.Start for broadcast stream " + streamId);
             JSLog.debug(LOG + "NetStream.Publish.Start for broadcast stream ", logData);
   				  var dispatcher: Dispatcher  = new Dispatcher();
             var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
@@ -218,7 +221,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   				  dispatcher.dispatchEvent(viewEvent);
   					break;
   				case "NetStream.Play.UnpublishNotify":
-  					trace(LOG + "NetStream.Play.UnpublishNotify for broadcast stream " + streamId);
+            LOGGER.debug(LOG + "NetStream.Play.UnpublishNotify for broadcast stream " + streamId);
             JSLog.debug(LOG + "NetStream.Play.UnpublishNotify for broadcast stream ", logData);
   					stopViewing();
   					break;
