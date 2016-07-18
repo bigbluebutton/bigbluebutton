@@ -44,8 +44,6 @@ package org.bigbluebutton.modules.caption.model {
 		
 		public function receiveCaptionHistory(history:Object):void {
 			for (var locale:Object in history) {
-				trace("The class name of variable: " + locale + ", is: " + flash.utils.getQualifiedClassName(locale));
-				
 				// This convoluted conversion from Object to the actual class is required to get the accurate 
 				// String value. See, http://stackoverflow.com/a/204003, for more information
 				var localeClassName:String = flash.utils.getQualifiedClassName(locale);
