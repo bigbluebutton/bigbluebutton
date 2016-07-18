@@ -52,12 +52,13 @@ package org.bigbluebutton.modules.caption.views {
 		private var inputArea:TextArea2;
 		private var outputArea:TextArea2;
 		
-		public function TextTab() {
+		public function TextTab(startIndex:int) {
 			super();
 			
 			inputArea = new TextArea2();
 			inputArea.percentWidth = 100;
 			inputArea.percentHeight = 100;
+			inputArea.tabIndex = startIndex+1;
 			inputArea.addEventListener(TextEvent.TEXT_INPUT, onTranscriptTextInput);
 			inputArea.addEventListener(Event.CHANGE, onTranscriptTextChange);
 			inputArea.addEventListener(FlexEvent.DATA_CHANGE, onTranscriptDataChange);
@@ -66,6 +67,7 @@ package org.bigbluebutton.modules.caption.views {
 			outputArea = new TextArea2();
 			outputArea.percentWidth = 100;
 			outputArea.percentHeight = 100;
+			outputArea.tabIndex = startIndex+1;
 			addChild(outputArea);
 			
 			addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);

@@ -22,11 +22,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 			xmlns:mx="http://www.adobe.com/2006/mxml"
 			xmlns:containers="flexlib.containers.*"
+			xmlns:mate="http://mate.asfusion.com/"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
-			title="Closed Caption"
 			width="400" height="300"
 			showCloseButton="false"
 			creationComplete="onCreationComplete()">
+	
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -40,11 +43,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
 			import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
 			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
+			import org.bigbluebutton.modules.caption.model.CaptionOptions;
 			import org.bigbluebutton.modules.caption.model.Transcript;
 			import org.bigbluebutton.modules.caption.model.Transcripts;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -62,26 +67,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var optionsTab:OptionsTab;
 			private var textTab:TextTab;
 			
+			private var captionOptions:CaptionOptions = new CaptionOptions();
+			
 			override protected function createChildren():void {
 				super.createChildren();
 				
 				optionsTab = new OptionsTab();
-				optionsTab.label = "Options";
 				optionsTab.setChangeCallback(optionChange);
 				captionTabs.addChild(optionsTab);
 				
-				textTab = new TextTab();
+				textTab = new TextTab(captionOptions.baseTabIndex+5);
 			}
 			
 			private function onCreationComplete():void {
-				
-				
 				var requestTranscripts:RequestTranscriptsEvent = new RequestTranscriptsEvent(RequestTranscriptsEvent.REQUEST_TRANSCRIPTS_EVENT);
 				requestTranscripts.callback = setTranscripts;
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(requestTranscripts);
 				
 				captionTabs.closePolicy = SuperTab.CLOSE_NEVER;
+				
+				titleBarOverlay.tabIndex = captionOptions.baseTabIndex;
+				
+				minimizeBtn.tabIndex = captionOptions.baseTabIndex+1;
+				maximizeRestoreBtn.tabIndex = captionOptions.baseTabIndex+2;
+				closeBtn.tabIndex = captionOptions.baseTabIndex+3;
+				
+				captionTabs.tabIndex = captionOptions.baseTabIndex+4;
+				
+				optionsTab.tabIndexer.startIndex = captionOptions.baseTabIndex+5;
+				
+				resourcesChanged();
 			}
 			
 			private function setTranscripts(t:Transcripts):void {
@@ -144,22 +160,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onTranscriptOwnerIDChange(o:Object):void {
-				var ownerID:String = o as String;
+				var ownerId:String = o as String;
 				
-				optionsTab.transcriptOwnerIDChange(ownerID);
-				textTab.transcriptOwnerIDChange(ownerID);
+				optionsTab.transcriptOwnerIDChange(ownerId);
+				textTab.transcriptOwnerIDChange(ownerId);
 				
+				setTextTabLabel(ownerId);
+			}
+			
+			private function setTextTabLabel(ownerId:String):void {
 				textTab.label = currentTranscript.locale + " - ";
-				if (ownerID == "") {
+				if (ownerId == "") {
 					//unclaimed text
 					//ownerNameOutputLabel.text = "Owner - " + "None";
-					textTab.label += "None";
-				} else if (ownerID == UserManager.getInstance().getConference().getMyUserId()) {
+					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.noowner');
+				} else if (ownerId == UserManager.getInstance().getConference().getMyUserId()) {
 					//release text
-					textTab.label += "You";
+					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.youowner');
 				} else {
 					//claimed by other
-					textTab.label += UserManager.getInstance().getConference().getUser(ownerID).name;
+					textTab.label += UserManager.getInstance().getConference().getUser(ownerId).name;
 				}
 			}
 			
@@ -169,6 +189,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				textTab.setFontSize(int(optionsTab.fontSizeCombo.selectedItem));
 				
 				captionTabs.addChildAt(textTab, 0);
+			}
+			
+			private function localeChanged(e:Event):void{
+				resourcesChanged();
+			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString("bbb.caption.window.title");
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.caption.window.titleBar');
+				}
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.caption.window.minimizeBtn.accessibilityName");
+					
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.caption.window.maximizeRestoreBtn.accessibilityName");
+				}
+				
+				if (optionsTab != null) {
+					optionsTab.label = ResourceUtil.getInstance().getString('bbb.caption.option.label');
+				}
+				
+				if (currentTranscript != null) {
+					setTextTabLabel(currentTranscript.ownerID);
+				}
 			}
 			
 		]]>

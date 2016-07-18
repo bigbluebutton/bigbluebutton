@@ -20,7 +20,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml">	
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 xmlns:common="org.bigbluebutton.common.*">	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -30,6 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 			import org.bigbluebutton.modules.caption.model.Transcript;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable]
 			private var transcriptsCollection:ArrayCollection;
@@ -40,6 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function setTranscriptCollection(tc:ArrayCollection):void {
 				transcriptsCollection = tc;
+				localeCombo.selectedIndex = -1;
 			}
 			
 			public function setChangeCallback(f:Function):void {
@@ -79,6 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onClaimButtonClick():void {
 				claimTranscript(currentTranscript.locale, true);
+				localeCombo.setFocus();
 			}
 			
 			private function claimTranscript(locale:String, claim:Boolean):void {
@@ -93,38 +97,57 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
+	<common:TabIndexer id="tabIndexer" tabIndices="{[localeCombo, claimOwnershipButton, fontFamilyCombo, fontSizeCombo, backgroundColorPicker, textColorPicker]}"/>
+	
 	<mx:VBox>
 		<mx:HBox>
-			<mx:Label id="localeLabel" text="Language:" />
+			<mx:Label id="localeLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.language')}" />
 			<mx:ComboBox id="localeCombo" 
 						 dataProvider="{transcriptsCollection}"
 						 labelField="locale" 
 						 selectedIndex="-1"
 						 enabled="{transcriptsCollection.length > 0}" 
-						 change="onLocaleComboChange()" />
+						 change="onLocaleComboChange()"
+						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.language.tooltip')}"/>
 		</mx:HBox>
 		<mx:HBox>
-			<mx:Button id="claimOwnershipButton" label="Take Ownership" height="22" visible="false" click="onClaimButtonClick()" />
-		</mx:HBox>
-	</mx:VBox>
-	<mx:VBox>
-		<mx:HBox>
-			<mx:Label id="fontFamilyLabel" text="Font Family:" />
-			<mx:ComboBox id="fontFamilyCombo" dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" change="onFontFamilyComboChange()"/>
-		</mx:HBox>
-		<mx:HBox>
-			<mx:Label id="fontSizeLabel" text="Font Size:" />
-			<mx:ComboBox id="fontSizeCombo" dataProvider="[10, 12, 14, 18, 24, 36]" selectedIndex="1" change="onFontSizeComboChange()"/>
+			<mx:Button id="claimOwnershipButton" 
+					   label="{ResourceUtil.getInstance().getString('bbb.caption.option.takeowner')}"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.takeowner.tooltip')}"
+					   height="22" visible="false" click="onClaimButtonClick()" />
 		</mx:HBox>
 	</mx:VBox>
 	<mx:VBox>
 		<mx:HBox>
-			<mx:Label id="backgroundColorLabel" text="Background Color:" />
-			<mx:ColorPicker id="backgroundColorPicker" selectedColor="0xFFFFFF" change="onBackColorChange()" />
+			<mx:Label id="fontFamilyLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.fontfamily')}" />
+			<mx:ComboBox id="fontFamilyCombo" 
+						 dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" 
+						 change="onFontFamilyComboChange()"
+						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.fontfamily.tooltip')}" />
 		</mx:HBox>
 		<mx:HBox>
-			<mx:Label id="textColorLabel" text="Text Color:" />
-			<mx:ColorPicker id="textColorPicker" selectedColor="0x000000" change="onTextColorChange()" />
+			<mx:Label id="fontSizeLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.fontsize')}" />
+			<mx:ComboBox id="fontSizeCombo" 
+						 dataProvider="[10, 12, 14, 18, 24, 36]" 
+						 selectedIndex="1" 
+						 change="onFontSizeComboChange()"
+						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.fontsize.tooltip')}" />
+		</mx:HBox>
+	</mx:VBox>
+	<mx:VBox>
+		<mx:HBox>
+			<mx:Label id="backgroundColorLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.backcolor')}" />
+			<mx:ColorPicker id="backgroundColorPicker"
+							selectedColor="0xFFFFFF" 
+							change="onBackColorChange()"
+							toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.backcolor.tooltip')}" />
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label id="textColorLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.textcolor')}" />
+			<mx:ColorPicker id="textColorPicker"
+							selectedColor="0x000000"
+							change="onTextColorChange()"
+							toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.textcolor.tooltip')}"/>
 		</mx:HBox>
 	</mx:VBox>
 </mx:HBox>
