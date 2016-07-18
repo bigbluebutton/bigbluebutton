@@ -94,7 +94,7 @@ class JsonMessageSenderActor(val service: MessageSender)
   private def handleCreateBreakoutRoom(msg: CreateBreakoutRoom) {
     val payload = new CreateBreakoutRoomRequestPayload(msg.room.breakoutId, msg.room.parentId, msg.room.name,
       msg.room.voiceConfId, msg.room.viewerPassword, msg.room.moderatorPassword,
-      msg.room.durationInMinutes, msg.room.defaultPresentationURL)
+      msg.room.durationInMinutes, msg.room.defaultPresentationURL, msg.room.record)
     val request = new CreateBreakoutRoomRequest(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
   }
