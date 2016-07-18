@@ -88,6 +88,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var dsOptions:DeskshareOptions;
 
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
+			private var fullScreen:Boolean = false;
+
+			private var fullScreenWidth:Number = 1;
+			private var fullScreenHeight:Number = 1;
+			private var windowedWidth:Number = 1;
+			private var windowedHeight:Number = 1;
 									
 			private function init():void{
 				dsOptions = new DeskshareOptions();
@@ -188,6 +194,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).height =
 					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).height * heightResizeRatio;
+
+					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).x =
+					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).x * widthResizeRatio;
+
+					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).y =
+					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).y * heightResizeRatio;
 				}
 			}
 			
@@ -257,6 +269,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					video.y = 0;
 					video.x = (videoHolder.width - video.width) / 2;
 				}
+
+				fullScreen = false;
+				windowedWidth = video.width;
+				windowedHeight = video.height;
 			}
 						
 			/**
@@ -270,6 +286,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video.height = videoHeight;
 				video.x = Math.max(videoHolder.width - videoWidth, 0);
 				video.y = Math.max(videoHolder.height - videoHeight, 0);
+
+				fullScreen = true;
+				fullScreenWidth = video.width;
+				fullScreenHeight = video.height;
 			}
 			
 			private function determineHowToDisplayVideo():void {
@@ -300,6 +320,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			/** Inherited from IBbbCanvas*/
 			public function addRawChild(child:DisplayObject):void{
+			       if(fullScreen) {
+			          child.width = child.width * (fullScreenWidth/windowedWidth);
+			          child.x =  child.x * (fullScreenWidth/windowedWidth);
+			          child.height = child.height * (fullScreenHeight/windowedHeight);
+			          child.y = child.y * (fullScreenHeight/windowedHeight);
+			       }
 			       this.whiteboardCanvasHolder.rawChildren.addChild(child);
 			}
 
