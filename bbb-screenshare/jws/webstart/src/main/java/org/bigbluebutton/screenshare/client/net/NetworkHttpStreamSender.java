@@ -49,6 +49,7 @@ public class NetworkHttpStreamSender {
   private String streamId;
   private NetworkStreamListener listener;
   private final SequenceNumberGenerator seqNumGenerator;
+  private volatile boolean startSendingMessage = false;
 
   private ExecutorService executor;   
   private final BlockingQueue<Message> messages = new LinkedBlockingQueue<Message>();
@@ -72,8 +73,8 @@ public class NetworkHttpStreamSender {
 
   public void connect(String host) throws ConnectionException {
     this.host = host;
-    System.out.println("Starting NetworkHttpStreamSender to " + host);
-    openConnection();
+    //System.out.println("Starting NetworkHttpStreamSender to " + host);
+    //openConnection();
   }
 
   public void send(Message message) {
@@ -102,11 +103,15 @@ public class NetworkHttpStreamSender {
   
   private void sendMessageToServer(Message message) {
     if (message.getMessageType() == Message.MessageType.UPDATE) {
-      sendUpdateMessage((ShareUpdateMessage) message);
+      if (startSendingMessage) {
+        sendUpdateMessage((ShareUpdateMessage) message);
+      }
     } else if (message.getMessageType() == Message.MessageType.STARTED) {
+      startSendingMessage = true;
       sendStartStreamMessage((ShareStartedMessage)message);
     } else if (message.getMessageType() == Message.MessageType.STOPPED) {
       sendCaptureEndEvent();
+      startSendingMessage = false;
     }
   }
   
@@ -204,10 +209,9 @@ public class NetworkHttpStreamSender {
       ClientHttpRequest chr;
 
       try {
-
         // Open a connection to the web server and create a request that has
         // the room and event type.
-        //System.out.println(getTimeStamp() + " - Sending Update Sharing Event.");
+        System.out.println(getTimeStamp() + " - Sending Update Sharing Event.");
         openConnection();
         chr = new ClientHttpRequest(conn);
         chr.setParameter(MEETING_ID, meetingId);

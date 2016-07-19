@@ -64,12 +64,12 @@ public class NetworkStreamSender implements NetworkStreamListener {
 
 
   public void stopSharing() {
-    //System.out.println("Queueing ShareStoppedMessage");
+    System.out.println("Queueing ShareStoppedMessage");
     send(new ShareStoppedMessage(meetingId, streamId));
   }
 
   public void startSharing(int width, int height) {
-    //System.out.println("Queueing ShareStartedMessage");
+    System.out.println("Queueing ShareStartedMessage");
     send(new ShareStartedMessage(meetingId, streamId, width, height));
   }
 
@@ -78,7 +78,7 @@ public class NetworkStreamSender implements NetworkStreamListener {
   }
 
   public void start() {
-    System.out.println(NAME + "Starting network sender.");		
+    //System.out.println(NAME + "Starting network sender.");
     httpSenders.start();
     timer.scheduleAtFixedRate(timerTask, 0, 2 * 1000);
   }
@@ -109,7 +109,7 @@ public class NetworkStreamSender implements NetworkStreamListener {
   private class UpdateTimerTask extends TimerTask {
     @Override
     public void run() {
-      //System.out.println("Queueing ShareUpdateMessage");
+      System.out.println("Queueing ShareUpdateMessage");
       send(new ShareUpdateMessage(meetingId, streamId));
     }  
   }
