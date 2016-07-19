@@ -152,7 +152,9 @@ public class NetworkHttpStreamSender {
       openConnection();
       sendCaptureStartEvent(message.width, message.height);
     } catch (ConnectionException e) {
-      e.printStackTrace();
+      System.out.println("Exception in sendStartStreamMessage");
+      System.out.print(e.toString());
+      //e.printStackTrace();
       notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
     }
   }
@@ -169,6 +171,11 @@ public class NetworkHttpStreamSender {
       chr.setParameter(SCREEN, screenInfo);			
       chr.setParameter(EVENT, CaptureEvents.CAPTURE_START.getEvent());
       chr.post();
+
+      HttpURLConnection httpConnection = (HttpURLConnection) chr.connection;
+      int status = httpConnection.getResponseCode();
+
+      System.out.println("******* sendCaptureStartEvent response code = [" + status + "] ***************");
     } catch (IOException e) {
       e.printStackTrace();
       throw new ConnectionException("IOException while sending capture start event.");
@@ -200,6 +207,11 @@ public class NetworkHttpStreamSender {
       chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
       chr.setParameter(EVENT, CaptureEvents.CAPTURE_END.getEvent());
       chr.post();
+
+      HttpURLConnection httpConnection = (HttpURLConnection) chr.connection;
+      int status = httpConnection.getResponseCode();
+
+      System.out.println("******* sendCaptureEndEvent response code = [" + status + "] ***************");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -223,9 +235,10 @@ public class NetworkHttpStreamSender {
         HttpURLConnection httpConnection = (HttpURLConnection) chr.connection;
         int status = httpConnection.getResponseCode();
 
-        //System.out.println("******* POST status = [" + status + "] ***************");
+        System.out.println("******* sendUpdateMessage response code = [" + status + "] ***************");
 
       } catch (IOException e) {
+        System.out.println("Exception in sendUpdateMessage");
         notifyNetworkStreamListener(ExitCode.NORMAL);
       } catch (ConnectionException e) {
         System.out.println("ERROR: Failed to send block data.");

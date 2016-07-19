@@ -103,11 +103,12 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       ssi.scaleWidth = width;
       ssi.scaleHeight = height;
       sharer.updateScreenShareInfo(x, y, width, height);
-     
-      signalChannel.startSharing(width, height);
+
       sharer.addClientListener(listener);
 
       sharer.startSharing();
+
+      signalChannel.startSharing(width, height);
     }
 
     @Override
