@@ -97,7 +97,7 @@ public class NetworkStreamSender implements NetworkStreamListener {
   @Override
   public void networkException(ExitCode reason) {
     try {						
-      System.out.println(NAME + "Failed to use http tunneling. Stopping.");
+      System.out.println(NAME + "NetworkException - " + reason.getExitCode());
       stop();
       notifyNetworkConnectionListener(reason);
     } catch (ConnectionException e) {
