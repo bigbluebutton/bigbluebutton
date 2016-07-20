@@ -163,4 +163,80 @@ class LiveMeeting(val mProps: MeetingProperties,
   def permissionsEqual(other: Permissions): Boolean = {
     meetingModel.permissionsEqual(other)
   }
+
+
+  // WebRTC Desktop Sharing
+
+  def handleDeskShareStartedRequest(msg: DeskShareStartedRequest):Unit = {
+    log.info("handleDeskShareStartedRequest: dsStarted=" + meetingModel.getDeskShareStarted())
+
+    if (!meetingModel.getDeskShareStarted()) {
+      val timestamp = System.currentTimeMillis().toString
+      val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp +
+        "/" + mProps.meetingID + "/" + mProps.meetingID + "-" + timestamp
+      log.info("handleDeskShareStartedRequest: streamPath=" + streamPath)
+
+      // Tell FreeSwitch to broadcast to RTMP
+      outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath))
+
+      meetingModel.setDeskShareStarted(true)
+    }
+  }
+
+  def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit =  {
+    log.info("handleDeskShareStoppedRequest: dsStarted=" + meetingModel.getDeskShareStarted())
+
+    // Tell FreeSwitch to stop broadcasting to RTMP
+    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, meetingModel.getRTMPBroadcastingUrl()))
+
+    meetingModel.setDeskShareStarted(false)
+  }
+
+  def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit =  {
+    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+
+    // only valid if not broadcasting yet
+    if (!meetingModel.isBroadcastingRTMP()) {
+      meetingModel.setRTMPBroadcastingUrl(msg.streamname)
+      meetingModel.broadcastingRTMPStarted()
+      meetingModel.setDesktopShareVideoWidth(msg.videoWidth)
+      meetingModel.setDesktopShareVideoHeight(msg.videoHeight)
+      log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
+
+      // Notify viewers in the meeting that there's an rtmp stream to view
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname, msg.videoWidth, msg.videoHeight, true))
+    } else {
+      log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
+    }
+  }
+
+  def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit =  {
+    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+
+    // only valid if currently broadcasting
+    if (meetingModel.isBroadcastingRTMP()) {
+      log.info("STOP broadcast ALLOWED when isBroadcastingRTMP=true")
+      meetingModel.broadcastingRTMPStopped()
+
+      // notify viewers that RTMP broadcast stopped
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+        msg.videoWidth, msg.videoHeight, false))
+    } else {
+      log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
+    }
+  }
+
+  def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
+
+    log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting=" + meetingModel.isBroadcastingRTMP())
+    if (meetingModel.isBroadcastingRTMP()) {
+      // if the meeting has an ongoing WebRTC Deskshare session, send a notification
+      outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, meetingModel.getRTMPBroadcastingUrl(),
+        meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight(), true))
+    }
+  }
+
+
+
+
 }
