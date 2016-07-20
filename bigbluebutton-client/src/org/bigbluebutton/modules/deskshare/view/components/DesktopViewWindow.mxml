@@ -186,8 +186,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function resizeCanvasChildren():void{
-				var widthResizeRatio:Number = video.width/whiteboardCanvasHolder.width;
-				var heightResizeRatio:Number = video.height/whiteboardCanvasHolder.height;
+				var widthResizeRatio:Number = 1;
+				var heightResizeRatio:Number = 1;
+
+				if(fullScreen && whiteboardCanvasHolder.width == windowedWidth) {
+				   widthResizeRatio = fullScreenWidth/windowedWidth;
+				   heightResizeRatio = fullScreenHeight/windowedHeight;
+				}
+				else if(!fullScreen && whiteboardCanvasHolder.width == fullScreenWidth){
+				   widthResizeRatio = windowedWidth/fullScreenWidth;
+				   heightResizeRatio = windowedHeight/fullScreenHeight;
+				}
+
 				for (var i:int = 0 ; i < this.whiteboardCanvasHolder.rawChildren.numChildren; i++) {
 					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).width =
 					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).width * widthResizeRatio;
