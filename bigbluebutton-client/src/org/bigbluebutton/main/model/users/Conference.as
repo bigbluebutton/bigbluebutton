@@ -18,11 +18,12 @@
  */
 package org.bigbluebutton.main.model.users {
 	
-	import flash.utils.Dictionary;
+	import com.adobe.utils.ArrayUtil;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	
+	import org.as3commons.lang.ArrayUtils;
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
@@ -548,14 +549,14 @@ package org.bigbluebutton.main.model.users {
 				// Update users breakout rooms
 				for (var i:int = 0; i < breakoutUsers.length; i++) {
 					var userId:String = StringUtils.substringBeforeLast(breakoutUsers[i].id, "-");
-					getUser(userId).breakoutRoom = breakoutRoomNumber;
+					getUser(userId).addBreakoutRoom(breakoutRoomNumber);
 					updateUsers.push(userId);
 				}
 				// Remove users breakout rooms if the users left the breakout rooms
 				for (var j:int = 0; j < users.length; j++) {
 					var user:BBBUser = BBBUser(users.getItemAt(j));
-					if (updateUsers.indexOf(BBBUser(users.getItemAt(j)).userID) == -1 && user.breakoutRoom == breakoutRoomNumber) {
-						user.breakoutRoom = null;
+					if (updateUsers.indexOf(BBBUser(users.getItemAt(j)).userID) == -1 && ArrayUtils.contains(user.breakoutRooms, breakoutRoomNumber)) {
+						user.removeBreakoutRoom(breakoutRoomNumber);
 					}
 				}
 				users.refresh();
@@ -587,22 +588,21 @@ package org.bigbluebutton.main.model.users {
 			// Breakout room not found.
 			return null;
 		}
-		
+
 		public function removeBreakoutRoom(breakoutId:String):void {
 			var p:Object = getBreakoutRoomIndex(breakoutId);
 			if (p != null) {
 				breakoutRooms.removeItemAt(p.index);
 				breakoutRooms.refresh();
-
 				// Remove breakout room number display from users
-				for(var i:int; i < users.length; i++) {
-					if (users[i].breakoutRoom == StringUtils.substringAfterLast(breakoutId, "-")) {
-						users[i].breakoutRoom = null;
+				for (var i:int; i < users.length; i++) {
+					var breakoutRoomNumber:String = StringUtils.substringAfterLast(breakoutId, "-");
+					if (ArrayUtils.contains(users[i].breakoutRooms, breakoutRoomNumber)) {
+						users[i].removeBreakoutRoom(breakoutRoomNumber);
 					}
 				}
 				users.refresh();
 			}
-			
 		}
 		
 		public function hasBreakoutRoom(breakoutId:String):Boolean {

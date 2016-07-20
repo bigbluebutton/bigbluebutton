@@ -20,7 +20,9 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import org.as3commons.lang.StringUtils;
+	import flash.events.Event;
+	
+	import org.as3commons.lang.ArrayUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
@@ -329,25 +331,37 @@ package org.bigbluebutton.main.model.users
 			return _status.getStatus(name);
 		}
 
-		private var _breakoutRoom : String = null;
+		private var _breakoutRooms : Array = [];
 		
 		[Bindable("displayNameChange")]
 		public function get displayName() : String {
-			if (StringUtils.isBlank(_breakoutRoom)){
+			if (ArrayUtils.isEmpty(_breakoutRooms)){
 				return name;
 			}
 			else {
-				return "[" + _breakoutRoom + "] " +name;
+				return "[" + _breakoutRooms.join(",") + "] " +name;
 			}
 		}
-		
-		public function get breakoutRoom() : String {
-			return _breakoutRoom;
+
+		public function get breakoutRooms():Array {
+			return _breakoutRooms;
 		}
-		
-		public function set breakoutRoom( roomNumber : String ) : void {
-			_breakoutRoom = roomNumber;
-			dispatchEvent(new Event("displayNameChange")); 
+
+		public function set breakoutRooms(rooms:Array):void {
+			_breakoutRooms = rooms;
+			dispatchEvent(new Event("displayNameChange"));
+		}
+
+		public function addBreakoutRoom(roomNumber:String):void {
+			if (!ArrayUtils.contains(_breakoutRooms, roomNumber)) {
+				_breakoutRooms.push(roomNumber);
+				dispatchEvent(new Event("displayNameChange"));
+			}
+		}
+
+		public function removeBreakoutRoom(roomNumber:String):void {
+			_breakoutRooms.splice(_breakoutRooms.indexOf(roomNumber), 1);
+			dispatchEvent(new Event("displayNameChange"));
 		}
 
 		public static function copy(user:BBBUser):BBBUser {
