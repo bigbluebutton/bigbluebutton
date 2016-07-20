@@ -52,7 +52,7 @@ package org.bigbluebutton.modules.screenshare.services
 		}
 		
 		public function handleStartModuleEvent(module:ScreenshareModule):void {
-      LOGGER.debug(LOG + "Screenshare Module starting");
+      LOGGER.debug("Screenshare Module starting");
 			this.module = module;			
 			connect(module.uri, module.getRoom());
 		}
@@ -60,7 +60,7 @@ package org.bigbluebutton.modules.screenshare.services
 		public function connect(uri:String, room:String):void {
 			this.uri = uri;
       this.room = room;
-      LOGGER.debug(LOG + "Screenshare Service connecting to " + uri);
+      LOGGER.debug("Screenshare Service connecting to " + uri);
 			conn = new Connection(room);
 
       sender = new MessageSender(conn);
@@ -79,7 +79,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
     
     public function checkIfPresenterIsSharingScreen():void {
-      LOGGER.debug(LOG + "check if presenter is sharing screen");
+      LOGGER.debug("check if presenter is sharing screen");
       sender.isScreenSharing(UsersUtil.getInternalMeetingID());
     }
 		

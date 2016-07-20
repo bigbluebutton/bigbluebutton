@@ -65,8 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.BBB;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
-      
-      private static const LOG:String = "SC::ScreensharePublishWIndow - ";	
+	
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
       
       public static const SCALE:Number = 5;
@@ -163,7 +162,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       public function shareScreen(fullScreen:Boolean):void {
-        LOGGER.debug(LOG + "Calling shareScreen");
+        LOGGER.debug("Calling shareScreen");
         btnFSPublish.enabled = false;
         btnRegionPublish.enabled = false;
         startSharing(connection, uri, room, fullScreen);
@@ -175,12 +174,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         sharingFullScreen = fullScreen;
         var authToken:String = ScreenshareModel.getInstance().authToken;
         var jnlp: String = ScreenshareModel.getInstance().jnlp;
-        LOGGER.debug(LOG + "StartScreensharing jnlp=" + jnlp + " token=" + authToken);
+        LOGGER.debug("StartScreensharing jnlp=" + jnlp + " token=" + authToken);
         ExternalInterface.call("startScreensharing", jnlp, UsersUtil.getInternalMeetingID(), authToken, fullScreen);
       }
       
       public function stopSharing():void {
-        LOGGER.debug(LOG + "Calling stopSharing");
+        LOGGER.debug("Calling stopSharing");
         if (streaming) {
           stopStream();
           var streamEvent:RequestToStopSharing = new RequestToStopSharing();
@@ -205,7 +204,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
            
       private function handleStartViewStreamEvent(event:ViewStreamEvent):void{
-        LOGGER.debug(LOG + "handleStartViewStreamEvent");
+        LOGGER.debug("handleStartViewStreamEvent");
         var width: int = ScreenshareModel.getInstance().width;
         var height: int = ScreenshareModel.getInstance().height;
         var streamId: String = ScreenshareModel.getInstance().streamId;
@@ -216,7 +215,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         removeHowToHelpArea();
         
-        LOGGER.debug(LOG + "Viewing stream =[" + streamId + "]");
+        LOGGER.debug("Viewing stream =[" + streamId + "]");
         streaming = true;
         
         // Store capture dimensions so we can position cursor properly.

@@ -201,7 +201,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{
-        LOGGER.debug(LOG + "asyncerror " + e.toString());
+        LOGGER.debug("asyncerror " + e.toString());
         var logData:Object = new Object();
         logData.error = e.toString();
         JSLog.debug(LOG + "asyncerror ", logData);
@@ -213,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
 				switch(e.info.code){
   				case "NetStream.Play.Start":
-            LOGGER.debug(LOG + "NetStream.Publish.Start for broadcast stream " + streamId);
+            LOGGER.debug("NetStream.Publish.Start for broadcast stream " + streamId);
             JSLog.debug(LOG + "NetStream.Publish.Start for broadcast stream ", logData);
   				  var dispatcher: Dispatcher  = new Dispatcher();
             var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
@@ -221,7 +221,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   				  dispatcher.dispatchEvent(viewEvent);
   					break;
   				case "NetStream.Play.UnpublishNotify":
-            LOGGER.debug(LOG + "NetStream.Play.UnpublishNotify for broadcast stream " + streamId);
+            LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream " + streamId);
             JSLog.debug(LOG + "NetStream.Play.UnpublishNotify for broadcast stream ", logData);
   					stopViewing();
   					break;
