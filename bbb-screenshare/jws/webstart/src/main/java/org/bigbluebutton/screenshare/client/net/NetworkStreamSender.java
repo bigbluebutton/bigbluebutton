@@ -109,7 +109,7 @@ public class NetworkStreamSender implements NetworkStreamListener {
   private class UpdateTimerTask extends TimerTask {
     @Override
     public void run() {
-      System.out.println("Queueing ShareUpdateMessage");
+//      System.out.println("Queueing ShareUpdateMessage");
       send(new ShareUpdateMessage(meetingId, streamId));
     }  
   }
