@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
-import { subscribeForData, pollExists } from './service';
+import { subscribeForData } from './service';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
@@ -12,6 +12,7 @@ const defaultProps = {
   actionsbar: <ActionsBarContainer/>,
   media: <MediaContainer/>,
   settings: <SettingsModal />,
+  actionsbar: <ActionsBarContainer />,
 };
 
 class AppContainer extends Component {
@@ -27,14 +28,6 @@ class AppContainer extends Component {
     );
   }
 }
-
-const actionControlsToShow = () => {
-  if (pollExists()) {
-    return <PollingContainer />;
-  } else {
-    return <ActionsBarContainer />;
-  }
-};
 
 let loading = true;
 const loadingDep = new Tracker.Dependency;
@@ -60,7 +53,6 @@ export default createContainer(() => {
 
   return {
     isLoading: getLoading(),
-    actionsbar: <ActionsBarContainer />,
   };
 }, AppContainer);
 
