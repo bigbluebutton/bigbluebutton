@@ -60,7 +60,7 @@ class BigBlueButtonInGW(
           msg.payload.name,
           msg.payload.record,
           msg.payload.voiceConfId,
-          msg.payload.voiceConfId + "-DESKSHARE",
+          msg.payload.voiceConfId + "-DESKSHARE", // WebRTC Desktop conference id
           msg.payload.durationInMinutes,
           msg.payload.autoStartRecording,
           msg.payload.allowStartStopRecording,

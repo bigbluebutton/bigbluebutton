@@ -164,10 +164,9 @@ class LiveMeeting(val mProps: MeetingProperties,
     meetingModel.permissionsEqual(other)
   }
 
-
   // WebRTC Desktop Sharing
 
-  def handleDeskShareStartedRequest(msg: DeskShareStartedRequest):Unit = {
+  def handleDeskShareStartedRequest(msg: DeskShareStartedRequest): Unit = {
     log.info("handleDeskShareStartedRequest: dsStarted=" + meetingModel.getDeskShareStarted())
 
     if (!meetingModel.getDeskShareStarted()) {
@@ -183,7 +182,7 @@ class LiveMeeting(val mProps: MeetingProperties,
     }
   }
 
-  def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit =  {
+  def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit = {
     log.info("handleDeskShareStoppedRequest: dsStarted=" + meetingModel.getDeskShareStarted())
 
     // Tell FreeSwitch to stop broadcasting to RTMP
@@ -192,7 +191,7 @@ class LiveMeeting(val mProps: MeetingProperties,
     meetingModel.setDeskShareStarted(false)
   }
 
-  def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit =  {
+  def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit = {
     log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
 
     // only valid if not broadcasting yet
@@ -210,7 +209,7 @@ class LiveMeeting(val mProps: MeetingProperties,
     }
   }
 
-  def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit =  {
+  def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {
     log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
 
     // only valid if currently broadcasting
@@ -235,8 +234,5 @@ class LiveMeeting(val mProps: MeetingProperties,
         meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight(), true))
     }
   }
-
-
-
 
 }
