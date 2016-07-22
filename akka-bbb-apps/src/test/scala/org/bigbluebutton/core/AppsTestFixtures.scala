@@ -7,6 +7,7 @@ trait AppsTestFixtures {
   val meetingName = "test meeting"
   val record = false
   val voiceConfId = "85115"
+  val deskshareConfId = "85115-DESKSHARE"
   val durationInMinutes = 10
   val autoStartRecording = false
   val allowStartStopRecording = false
@@ -18,7 +19,7 @@ trait AppsTestFixtures {
 
   val mProps = new MeetingProperties(meetingId, externalMeetingId,
     meetingName, record,
-    voiceConfId,
+    voiceConfId, deskshareConfId,
     durationInMinutes,
     autoStartRecording, allowStartStopRecording,
     moderatorPassword, viewerPassword,

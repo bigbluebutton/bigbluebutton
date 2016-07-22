@@ -60,6 +60,7 @@ class BigBlueButtonInGW(
           msg.payload.name,
           msg.payload.record,
           msg.payload.voiceConfId,
+          msg.payload.voiceConfId + "-DESKSHARE", // WebRTC Desktop conference id
           msg.payload.durationInMinutes,
           msg.payload.autoStartRecording,
           msg.payload.allowStartStopRecording,
@@ -498,8 +499,11 @@ class BigBlueButtonInGW(
    * Message Interface for DeskShare
    * *****************************************************************
    */
-  def deskShareStarted(meetingId: String, callerId: String, callerIdName: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareStartedRequest(meetingId, callerId, callerIdName)))
+  def deskShareStarted(confId: String, callerId: String, callerIdName: String) {
+    println("____BigBlueButtonInGW::deskShareStarted " + confId + callerId + "    " +
+      callerIdName)
+    eventBus.publish(BigBlueButtonEvent(confId, new DeskShareStartedRequest(confId, callerId,
+      callerIdName)))
   }
 
   def deskShareStopped(meetingId: String, callerId: String, callerIdName: String) {

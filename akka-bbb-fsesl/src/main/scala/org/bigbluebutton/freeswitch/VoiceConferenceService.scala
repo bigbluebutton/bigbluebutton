@@ -14,8 +14,7 @@ import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStoppedEventMessa
 
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService {
 
-  val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system";
-  private final val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
+  val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system"
 
   def voiceConfRecordingStarted(voiceConfId: String, recordStream: String, recording: java.lang.Boolean, timestamp: String) {
     val msg = new VoiceConfRecordingStartedMessage(voiceConfId, recordStream, recording, timestamp)
@@ -52,30 +51,26 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def deskShareStarted(voiceConfId: String, callerIdNum: String, callerIdName: String) {
-    val trimmedVoiceConfId = voiceConfId.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-    println("******** FreeswitchConferenceService send deskShareStarted to BBB " + trimmedVoiceConfId)
-    val msg = new DeskShareStartedEventMessage(trimmedVoiceConfId, callerIdNum, callerIdName)
+    println("******** FreeswitchConferenceService send deskShareStarted to BBB " + voiceConfId)
+    val msg = new DeskShareStartedEventMessage(voiceConfId, callerIdNum, callerIdName)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
   def deskShareEnded(voiceConfId: String, callerIdNum: String, callerIdName: String) {
-    val trimmedVoiceConfId = voiceConfId.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-    println("******** FreeswitchConferenceService send deskShareStopped to BBB " + trimmedVoiceConfId)
-    val msg = new DeskShareStoppedEventMessage(trimmedVoiceConfId, callerIdNum, callerIdName)
+    println("******** FreeswitchConferenceService send deskShareStopped to BBB " + voiceConfId)
+    val msg = new DeskShareStoppedEventMessage(voiceConfId, callerIdNum, callerIdName)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
   def deskShareRTMPBroadcastStarted(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
-    val trimmedVoiceConfId = voiceConfId.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-    println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStarted to BBB " + trimmedVoiceConfId)
-    val msg = new DeskShareRTMPBroadcastStartedEventMessage(trimmedVoiceConfId, streamname, vw, vh, timestamp)
+    println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStarted to BBB " + voiceConfId)
+    val msg = new DeskShareRTMPBroadcastStartedEventMessage(voiceConfId, streamname, vw, vh, timestamp)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
   def deskShareRTMPBroadcastStopped(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
-    val trimmedVoiceConfId = voiceConfId.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-    println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStopped to BBB " + trimmedVoiceConfId)
-    val msg = new DeskShareRTMPBroadcastStoppedEventMessage(trimmedVoiceConfId, streamname, vw, vh, timestamp)
+    println("******** FreeswitchConferenceService send deskShareRTMPBroadcastStopped to BBB " + voiceConfId)
+    val msg = new DeskShareRTMPBroadcastStoppedEventMessage(voiceConfId, streamname, vw, vh, timestamp)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
