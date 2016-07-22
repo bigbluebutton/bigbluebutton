@@ -28,7 +28,7 @@
 			privateEnabled="true"  
 			fontSize="12"
 			position="top-right"
-			baseTabIndex="701"
+			baseTabIndex="801"
 			colorPickerIsVisible="false"
 			maxMessageLength="1024"
 		/>
@@ -55,6 +55,7 @@
 			vertoHostName="HOST.NAME"
 			vertoLogin="LOGIN"
 			vertoPassword="PASSWORD"
+			help="http://HOST/client/screenshare-help.html"
 		/>
     
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
@@ -123,6 +124,7 @@
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"
+			baseTabIndex="701"
 		/>
 
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"

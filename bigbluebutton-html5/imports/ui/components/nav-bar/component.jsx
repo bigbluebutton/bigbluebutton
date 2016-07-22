@@ -2,15 +2,18 @@ import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import { withRouter } from 'react-router';
 import Button from '../button/component';
+import RecordButton from './recordbutton/component';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
   hasUnreadMessages: PropTypes.bool.isRequired,
+  beingRecorded: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
+  beingRecorded: false,
 };
 
 class NavBar extends Component {
@@ -29,7 +32,9 @@ class NavBar extends Component {
   }
 
   render() {
-    const { presentationTitle } = this.props;
+    const { presentationTitle, beingRecorded } = this.props;
+    document.title = presentationTitle;
+
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
@@ -37,12 +42,18 @@ class NavBar extends Component {
           onClick={this.handleToggleUserList}
           ghost={true}
           circle={true}
+          hideLabel={true}
+          label={'Toggle User-List'}
           icon={'user'}
           className={styles.btn}
         />
         </div>
         <div className={styles.center}>
           <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+          <span className={styles.divideBar}> | </span>
+          <div className={styles.record}>
+            <RecordButton beingRecorded={beingRecorded}/>
+          </div>
         </div>
         <div className={styles.right}>
           <span id="settingsButtonPlaceHolder"></span>

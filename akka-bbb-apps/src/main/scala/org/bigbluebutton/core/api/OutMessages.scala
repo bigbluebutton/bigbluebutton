@@ -33,7 +33,7 @@ case class CreateBreakoutRoom(meetingId: String, recorded: Boolean, room: Breako
 case class EndBreakoutRoom(breakoutId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
-  defaultPresentationURL: String)
+  defaultPresentationURL: String, record: Boolean)
 case class BreakoutRoomJoinURLOutMessage(meetingId: String, recorded: Boolean, breakoutId: String, userId: String, joinURL: String) extends IOutMessage
 case class BreakoutRoomStartedOutMessage(meetingId: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
 case class BreakoutRoomBody(name: String, breakoutId: String)

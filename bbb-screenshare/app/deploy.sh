@@ -21,6 +21,7 @@ sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-sc
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/akka-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/config-1.3.0.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/gson-1.7.1.jar \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/jedis-2.7.2.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/spring-webmvc-4.2.5.RELEASE.jar  \
   /usr/share/red5/webapps/screenshare/WEB-INF/lib/
 

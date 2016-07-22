@@ -26,8 +26,7 @@ export function addMeetingToCollection(meetingId, name, intendedForRecording,
         lockOnJoinConfigurable: false, // TODO
       },
     },
-  }, (_this => {
-    return function (err, numChanged) {
+  }, (_this => function (err, numChanged) {
       let funct;
       if (numChanged.insertedId != null) {
         funct = function (cbk) {
@@ -40,8 +39,8 @@ export function addMeetingToCollection(meetingId, name, intendedForRecording,
         logger.error('nothing happened');
         return callback();
       }
-    };
-  })(this));
+    }
+  )(this));
 
   // initialize the cursor in the meeting
   return initializeCursor(meetingId);

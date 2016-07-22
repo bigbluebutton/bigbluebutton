@@ -4,8 +4,9 @@ import Users from '/imports/api/users';
 // all viewers that are in the audio bridge with a mic should be muted and locked
 export function handleLockingMic(meetingId, newSettings) {
   // send mute requests for the viewer users joined with mic
-  let i, results, userObject;
-  userObjects = Users.find({
+  let userObject;
+  let results = [];
+  const userObjects = Users.find({
     meetingId: meetingId,
     'user.role': 'VIEWER',
     'user.listenOnly': false,
@@ -13,10 +14,9 @@ export function handleLockingMic(meetingId, newSettings) {
     'user.voiceUser.joined': true,
     'user.voiceUser.muted': false,
   }).fetch();
+  const _userObjectsLength = userObjects.length;
 
-  _userObjects_length = userObjects.length;
-  results = [];
-  for (i = 0; i < _userObjects_length; i++) {
+  for (let i = 0; i < _userObjectsLength; i++) {
     userObject = userObjects[i];
     results.push(Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId,
         userObject.authToken, true)); //true for muted

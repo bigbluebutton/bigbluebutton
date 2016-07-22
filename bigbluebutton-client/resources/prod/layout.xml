@@ -3,6 +3,15 @@
   <layout name="bbb.layout.name.defaultlayout" default="true">
     <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
     <window name="BroadcastWindow" hidden="true" draggable="false" resizable="false"/>
+    <window name="PresentationWindow" width="0.513" height="1" x="0.180" y="0" />
+    <window name="CaptionWindow" hidden="true" width="0.513" height="0.308" x="0.180" y="0.692" />
+    <window name="VideoDock" width="0.177" height="0.313" x="0" y="0.687" minWidth="280" />
+    <window name="ChatWindow" width="0.304" height="1" x="0.696" y="0" />
+    <window name="UsersWindow" width="0.177" height="0.679" x="0" y="0" minWidth="280" />
+  </layout>
+  <layout name="bbb.layout.name.closedcaption">
+    <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
+    <window name="BroadcastWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="PresentationWindow" width="0.513" height="0.684" x="0.180" y="0" />
     <window name="CaptionWindow" width="0.513" height="0.308" x="0.180" y="0.692" />
     <window name="VideoDock" width="0.177" height="0.308" x="0" y="0.687" minWidth="280" />

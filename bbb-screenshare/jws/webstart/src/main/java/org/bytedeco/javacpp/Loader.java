@@ -30,14 +30,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.WeakHashMap;
+import java.util.*;
+
+import org.bigbluebutton.screenshare.client.DeskshareMain;
 import org.bytedeco.javacpp.annotation.Platform;
 import org.bytedeco.javacpp.tools.Builder;
 import org.bytedeco.javacpp.tools.Logger;
@@ -465,11 +460,14 @@ public class Loader {
             }
             targets.add(cls.getName());
         }
+
+        Set<String> targetClasses = new HashSet<String>();
         for (String s : targets) {
+            targetClasses.add(s);
+        }
+
+        for (String s : targetClasses) {
             try {
-                //if (logger.isDebugEnabled()) {
-                //    logger.debug("load: Loading class " + s);
-                //}
                 Class.forName(s, true, cls.getClassLoader());
             } catch (ClassNotFoundException ex) {
                 if (logger.isDebugEnabled()) {
@@ -484,25 +482,20 @@ public class Loader {
         // Preload native libraries desired by our class
         List<String> preloads = new ArrayList<String>();
         preloads.addAll(p.get("platform.preload"));
-//        for (String preload : preloads) {
-//            if (logger.isDebugEnabled()) {
-//                logger.debug("Platform Preload lib " + preload);
-//            }
-//        }
-//        preloads.addAll(p.get("platform.link"));
+
+        // Do not include the platform.link into our list of native libs.
+        // This will just add to the number of libs to search increasing
+        // delay on startup. (ralam - june 15, 2016).
+        //preloads.addAll(p.get("platform.link"));
+
         UnsatisfiedLinkError preloadError = null;
-//        for (String preload : preloads) {
-//            if (logger.isDebugEnabled()) {
-//                logger.debug("Plaform link lib " + preload);
-//            }
-//        }
 
         for (String preload : preloads) {
             try {
-                //if (logger.isDebugEnabled()) {
-                //    logger.debug("Loading class " + cls + " from preload lib " + preload);
-                //}
-                URL[] urls = findLibrary(cls, p, preload, pathsFirst);
+                // Do not try searching for the library. Let the system find the
+                // native library. Searching for it manually prolongs startup time.
+                // (ralam - june 15, 2016)
+                URL[] urls = new URL[0]; //findLibrary(cls, p, preload, pathsFirst);
                 loadLibrary(urls, preload);
             } catch (UnsatisfiedLinkError e) {
                 preloadError = e;
@@ -511,11 +504,12 @@ public class Loader {
 
         try {
             String library = p.getProperty("platform.library");
-            //if (logger.isDebugEnabled()) {
-            //    logger.debug("==================== Loading class " + cls + " from platform.library " + library + " ======\n");
-            //}
-            URL[] urls = findLibrary(cls, p, library, pathsFirst);
-            return loadLibrary(urls, library);
+            // Do not try searching for the library. Let the system find the
+            // native library. Searching for it manually prolongs startup time.
+            // (ralam - june 15, 2016)
+            URL[] urls = new URL[0]; //findLibrary(cls, p, library, pathsFirst);
+            String loadedLibPath = loadLibrary(urls, library);
+            return loadedLibPath;
         } catch (UnsatisfiedLinkError e) {
             if (preloadError != null && e.getCause() == null) {
                 e.initCause(preloadError);
@@ -547,9 +541,6 @@ public class Loader {
         String filename = loadedLibraries.get(libnameversion);
         if (filename != null) {
             try {
-                //if (logger.isDebugEnabled()) {
-                //    logger.debug("findLibrary: Found class " + cls + " in library " + libnameversion + " in " + filename);
-                //}
                 return new URL[] { new File(filename).toURI().toURL() };
             } catch (IOException ex) {
                 if (logger.isDebugEnabled()) {
@@ -558,10 +549,6 @@ public class Loader {
                 return new URL[] { };
             }
         }
-
-        //if (logger.isDebugEnabled()) {
-        //    logger.debug("findLibrary: Library " + libnameversion + " not found. Setting up search paths");
-        //}
 
         String subdir = properties.getProperty("platform") + '/';
         String prefix = properties.getProperty("platform.library.prefix", "") + libname;
@@ -582,54 +569,70 @@ public class Loader {
             }
         }
 
-        //for (int js=0; js < styles.length; js++) {
-        //    if (logger.isDebugEnabled()) {
-        //        logger.debug("findLibrary: Style " + styles[js]);
-        //    }
-        //}
+        Set<String> stylesStr = new HashSet<String>();
+        for (int js=0; js < styles.length; js++) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("findLibrary: Style " + styles[js]);
+            }
+            stylesStr.add(styles[js]);
+        }
+
+        /*
         List<String> paths = new ArrayList<String>();
         paths.addAll(properties.get("platform.preloadpath"));
         paths.addAll(properties.get("platform.linkpath"));
-//        String libpath = System.getProperty("java.library.path", "");
-//        if (logger.isDebugEnabled()) {
-//            logger.debug("findLibrary: java.library.path " + libpath);
-//        }
-//        if (libpath.length() > 0) {
-//            paths.addAll(Arrays.asList(libpath.split(File.pathSeparator)));
-//        }
-
-
-//        String userCache = System.getProperty("deployment.user.cachedir");
-//        paths.add(userCache + "/6.0/58/673fd6fa-1f88a081-n");
-        //for (String path : paths) {
-        //    if (logger.isDebugEnabled()) {
-        //        logger.debug("Java lib path: " + path);
-        //    }
-        //}
-        ArrayList<URL> urls = new ArrayList<URL>(styles.length * (1 + paths.size()));
-        for (int i = 0; cls != null && i < styles.length; i++) {
-            // ... then find it from in our resources ...
-            //if (logger.isDebugEnabled()) {
-            //    logger.debug("findLibrary: resource path " + subdir + styles[i]);
-            //}
-            URL u = cls.getResource(subdir + styles[i]);
-            if (u != null) {
-                urls.add(u);
-            }
+        String libpath = System.getProperty("java.library.path", "");
+        if (logger.isDebugEnabled()) {
+            logger.debug("findLibrary: java.library.path " + libpath);
         }
+        if (libpath.length() > 0) {
+            paths.addAll(Arrays.asList(libpath.split(File.pathSeparator)));
+        }
+
+        ArrayList<URL> urls = new ArrayList<URL>(styles.length * (1 + paths.size()));
+*/
+        if (logger.isDebugEnabled()) {
+            logger.debug("findLibrary: Before get resource");
+        }
+
+        String platform = Loader.getPlatform();
+        Set<URL> urls = new HashSet<URL>();
+        //for (int i = 0; cls != null && i < styles.length; i++) {
+        for (String st: stylesStr) {
+            // ... then find it from in our resources ...
+            if (logger.isDebugEnabled()) {
+                logger.debug("findLibrary: resource path " + subdir + st);
+            }
+            if (platform.startsWith("ghghghmacosx-x86_64")) {
+                URL u = cls.getResource(subdir + st);
+                if (u != null) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("findLibrary: cls.getResource " + u.toString());
+                    }
+                    urls.add(u);
+                }
+            }
+
+
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("findLibrary: After get resource");
+        }
+
+/*
         // ... and in case of bad resources search the paths last, or first on user request.
         int k = pathsFirst ? 0 : urls.size();
         for (int i = 0; paths.size() > 0 && i < styles.length; i++) {
             for (String path : paths) {
                 File file = new File(path, styles[i]);
-                //if (logger.isDebugEnabled()) {
-                //    logger.debug("findLibrary: url path " + path + " style " + styles[i]);
-                //}
+                if (logger.isDebugEnabled()) {
+                    logger.debug("findLibrary: url path " + path + " style " + styles[i]);
+                }
                 if (file.exists()) {
                     try {
-                        //if (logger.isDebugEnabled()) {
-                        //    logger.debug("findLibrary: url path " + file.toURI().toURL());
-                        //}
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("findLibrary: url path " + file.toURI().toURL());
+                        }
                         urls.add(file.toURI().toURL());
                         //urls.add(k++, file.toURI().toURL());
                     } catch (IOException ex) {
@@ -638,13 +641,13 @@ public class Loader {
                 }
             }
         }
-
+*/
         URL[] libUrls = urls.toArray(new URL[urls.size()]);
-        //for (URL url : libUrls) {
-        //    if (logger.isDebugEnabled()) {
-        //        logger.debug("findLibrary: Lib URL for " + libnameversion + " " + url);
-        //    }
-        //}
+        for (URL url : libUrls) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("findLibrary: Lib URL for " + libnameversion + " " + url);
+            }
+        }
 
         return libUrls;
     }
@@ -660,19 +663,10 @@ public class Loader {
      * @throws UnsatisfiedLinkError on failure
      */
     public static String loadLibrary(URL[] urls, String libnameversion) {
-        //if (logger.isDebugEnabled()) {
-        //    logger.debug("Attempt to load " + libnameversion + " url[] length=" + urls.length);
-        //}
-
-        //for (URL url : urls) {
-        //    if (logger.isDebugEnabled()) {
-        //        logger.debug("URL for " + libnameversion + " " + url);
-        //    }
-        //}
         if (!isLoadLibraries()) {
-            //if (logger.isDebugEnabled()) {
-            //    logger.debug("Not loading " + libnameversion );
-            //}
+            if (logger.isDebugEnabled()) {
+                logger.debug("Not loading " + libnameversion );
+            }
 
             return null;
         }
@@ -680,9 +674,6 @@ public class Loader {
         // If we do not already have the native library file ...
         String filename = loadedLibraries.get(libnameversion);
         if (filename != null) {
-            //if (logger.isDebugEnabled()) {
-            //    logger.debug("Not loading. " + libnameversion + " is already loaded in " + filename);
-            //}
             return filename;
         }
 
@@ -692,19 +683,13 @@ public class Loader {
             for (URL url : urls) {
                 File file;
 
-                //if (logger.isDebugEnabled()) {
-                //    logger.debug("Loading " + libnameversion + " from url " + url);
-                //}
-
                 // ... then check if it has not already been extracted, and if not ...
                 if (!(file = new File(getCacheDir() != null ? getCacheDir() : getTempDir(), new File(url.getPath()).getName())).exists()) {
                     if (tempFile != null && tempFile.exists()) {
                         tempFile.deleteOnExit();
                     }
+
                     // ... then extract it from our resources ...
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Extracting " + url);
-                    }
                     if (getCacheDir() != null) {
                         file = extractResource(url, getCacheDir(), null, null);
                     } else {
@@ -723,10 +708,6 @@ public class Loader {
                     filename = file.getAbsolutePath();
                     try {
                         // ... and load it!
-                        //if (logger.isDebugEnabled()) {
-                        //    logger.debug("Loading " + libnameversion + " from library " + filename);
-                        //    logger.debug("Storing " + libnameversion + " with library " + filename);
-                        //}
                         loadedLibraries.put(libnameversion, filename);
                         System.load(filename);
                         return filename;
@@ -741,30 +722,14 @@ public class Loader {
             }
             // ... or as last resort, try to load it via the system.
             String libname = libnameversion.split("@")[0];
-            //if (logger.isDebugEnabled()) {
-            //    logger.debug("Loading library " + libname);
-            //    logger.debug("Last resort: Storing " + libnameversion + " with library " + filename);
-            //}
             loadedLibraries.put(libnameversion, libname);
             System.loadLibrary(libname);
-            //if (logger.isDebugEnabled()) {
-            //    logger.debug("Loaded library " + libname);
-            //    logger.debug("Last resort: Stored " + libnameversion + " with library " + filename);
-            //}
             return libname;
         } catch (UnsatisfiedLinkError e) {
-            if (loadedLibraries.containsKey(libnameversion)) {
-                //if (logger.isDebugEnabled()) {
-                //    logger.debug("Removing entry for library " + libnameversion);
-                //}
-            }
             loadedLibraries.remove(libnameversion);
             if (loadError != null && e.getCause() == null) {
                 e.initCause(loadError);
             }
-            //if (logger.isDebugEnabled()) {
-            //    logger.debug("Failed to load for " + libnameversion + ": " + e);
-            //}
             throw e;
         } catch (IOException ex) {
             loadedLibraries.remove(libnameversion);
@@ -773,9 +738,6 @@ public class Loader {
             }
             Error e = new UnsatisfiedLinkError(ex.toString());
             e.initCause(ex);
-            //if (logger.isDebugEnabled()) {
-            //    logger.debug("Failed to extract for " + libnameversion + ": " + e);
-            //}
             throw e;
         } finally {
             if (tempFile != null && tempFile.exists()) {

@@ -1,14 +1,13 @@
 import Presentations from '/imports/api/presentations';
 import Shapes from '/imports/api/shapes';
 import Slides from '/imports/api/slides';
+import Cursor from '/imports/api/cursor';
 
 let getWhiteboardData = () => {
-  let currentPresentation;
   let currentSlide;
-  let presentationId;
   let shapes;
-  let ref;
-  currentPresentation = Presentations.findOne({
+  let cursor;
+  let currentPresentation = Presentations.findOne({
       'presentation.current': true,
     });
 
@@ -23,11 +22,16 @@ let getWhiteboardData = () => {
     shapes = Shapes.find({
         whiteboardId: currentSlide.slide.id,
       }).fetch();
+
+    cursor = Cursor.find({
+      meetingId: currentSlide.meetingId,
+    }).fetch();
   }
 
   return {
-    current_slide: currentSlide,
+    currentSlide: currentSlide,
     shapes: shapes,
+    cursor: cursor,
   };
 };
 

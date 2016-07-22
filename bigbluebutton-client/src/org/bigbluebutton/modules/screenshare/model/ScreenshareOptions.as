@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.screenshare.model
 		[Bindable] public var vertoHostName:String = null;
 		[Bindable] public var vertoLogin:String = null;
 		[Bindable] public var vertoPassword:String = null;
+    [Bindable] public var helpUrl:String;
 
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("ScreenshareModule");
@@ -69,6 +70,9 @@ package org.bigbluebutton.modules.screenshare.model
 				if (vxml.@vertoPassword != undefined) {
 					vertoPassword = vxml.@vertoPassword.toString();
 				}
+        if (vxml.@help != undefined){
+          helpUrl = vxml.@help; 
+        }
 			}
 		}
 	}

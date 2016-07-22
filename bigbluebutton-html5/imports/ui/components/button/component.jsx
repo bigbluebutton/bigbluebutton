@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import BaseButton from './base/component';
 import styles from './styles';
 import cx from 'classnames';
-import _ from 'underscore';
 
 import Icon from '../icon/component';
 
@@ -61,10 +60,10 @@ const propTypes = {
   iconRight: PropTypes.bool,
 
   /**
-   * Defines the button label
-   * @defaultValue undefined
+   * Defines the button label should be visible
+   * @defaultValue false
    */
-  label: PropTypes.string,
+  hideLabel: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -75,16 +74,12 @@ const defaultProps = {
   circle: false,
   block: false,
   iconRight: false,
+  hideLabel: false,
 };
 
 export default class Button extends BaseButton {
   constructor(props) {
     super(props);
-    props['aria-labelledby'] = this.id;
-  }
-
-  componentWillMount() {
-    this.labelId = _.uniqueId('btn-label-');
   }
 
   _getClassNames() {
@@ -119,13 +114,19 @@ export default class Button extends BaseButton {
 
   renderDefault() {
     const {
-      tagName,
       className,
       iconRight,
       ...otherProps,
     } = this.props;
 
-    const Component = tagName;
+    const remainingProps = Object.assign({}, otherProps);
+    delete remainingProps.icon;
+    delete remainingProps.size;
+    delete remainingProps.color;
+    delete remainingProps.ghost;
+    delete remainingProps.circle;
+    delete remainingProps.block;
+    delete remainingProps.hideLabel;
 
     /* TODO: We can change this and make the button with flexbox to avoid html
       changes */
@@ -133,34 +134,43 @@ export default class Button extends BaseButton {
     const renderRightFuncName = !iconRight ? 'renderLabel' : 'renderIcon';
 
     return (
-      <Component
+      <BaseButton
         className={cx(this._getClassNames(), className)}
-        {...otherProps}>
+        {...remainingProps}
+      >
         {this[renderLeftFuncName]()}
         {this[renderRightFuncName]()}
-      </Component>
+      </BaseButton>
     );
   }
 
   renderCircle() {
     const {
-      tagName,
       className,
       size,
       iconRight,
       ...otherProps,
     } = this.props;
 
-    const Component = tagName;
+    const remainingProps = Object.assign({}, otherProps);
+    delete remainingProps.icon;
+    delete remainingProps.color;
+    delete remainingProps.ghost;
+    delete remainingProps.circle;
+    delete remainingProps.block;
+    delete remainingProps.hideLabel;
 
     return (
-      <span className={cx(styles[size], styles.buttonWrapper, className)} {...otherProps}>
-        {!iconRight ? null : this.renderLabel(true)}
-        <Component className={cx(this._getClassNames())} aria-labelledby={this.labelId}>
+      <BaseButton
+        className={cx(styles[size], styles.buttonWrapper, className)}
+        {...remainingProps}
+      >
+        {!iconRight ? null : this.renderLabel()}
+        <span className={cx(this._getClassNames())}>
           {this.renderIcon()}
-        </Component>
-        {iconRight ? null : this.renderLabel(true)}
-      </span>
+        </span>
+        {iconRight ? null : this.renderLabel()}
+      </BaseButton>
     );
   }
 
@@ -174,28 +184,20 @@ export default class Button extends BaseButton {
     return null;
   }
 
-  renderLabel(labelledBy = false) {
-    const label = this.props.label;
+  renderLabel() {
+    const { label, hideLabel } = this.props;
 
-    if (label) {
-      if (labelledBy) {
-        return (
-          <span className={styles.label} id={this.labelId}>
-            {label}
-            {this.props.children}
-          </span>
-        );
-      }
+    let classNames = {};
 
-      return (
-        <span className={styles.label}>
-          {label}
-          {this.props.children}
-        </span>
-      );
-    }
+    classNames[styles.label] = true;
+    classNames[styles.hideLabel] = hideLabel;
 
-    return null;
+    return (
+      <span className={cx(classNames)}>
+        {label}
+        {this.props.children}
+      </span>
+    );
   }
 }
 

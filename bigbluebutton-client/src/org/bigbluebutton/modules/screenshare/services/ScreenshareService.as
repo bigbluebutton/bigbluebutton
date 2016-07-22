@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.screenshare.services
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.net.NetConnection;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.screenshare.services.red5.Connection;
 	
@@ -32,6 +34,7 @@ package org.bigbluebutton.modules.screenshare.services
 	public class ScreenshareService
 	{	
     private static const LOG:String = "SC::ScreenshareService - ";	
+    private static const LOGGER:ILogger = getClassLogger(ScreenshareService);
     
 		private var conn:Connection;
 
@@ -49,7 +52,7 @@ package org.bigbluebutton.modules.screenshare.services
 		}
 		
 		public function handleStartModuleEvent(module:ScreenshareModule):void {
-			trace(LOG + "Screenshare Module starting");
+      LOGGER.debug("Screenshare Module starting");
 			this.module = module;			
 			connect(module.uri, module.getRoom());
 		}
@@ -57,7 +60,7 @@ package org.bigbluebutton.modules.screenshare.services
 		public function connect(uri:String, room:String):void {
 			this.uri = uri;
       this.room = room;
-			trace(LOG + "Screenshare Service connecting to " + uri);
+      LOGGER.debug("Screenshare Service connecting to " + uri);
 			conn = new Connection(room);
 
       sender = new MessageSender(conn);
@@ -76,7 +79,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
     
     public function checkIfPresenterIsSharingScreen():void {
-      trace(LOG + "check if presenter is sharing screen");
+      LOGGER.debug("check if presenter is sharing screen");
       sender.isScreenSharing(UsersUtil.getInternalMeetingID());
     }
 		

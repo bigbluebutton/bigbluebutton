@@ -1,14 +1,14 @@
 import React from 'react';
-import { Router, Route, Redirect, IndexRoute,
-  IndexRedirect, useRouterHistory } from 'react-router';
+import { Router, Route, Redirect, IndexRoute, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 
 // route components
-import AppContainer from '../../ui/components/app/container';
-import {setCredentials, subscribeForData} from '../../ui/components/app/service';
+import AppContainer from '/imports/ui/components/app/container';
+import { subscribeToCollections, setCredentials } from '/imports/ui/components/app/service';
 
-import ChatContainer from '../../ui/components/chat/container';
-import UserListContainer from '../../ui/components/user-list/container';
+import ChatContainer from '/imports/ui/components/chat/container';
+import UserListContainer from '/imports/ui/components/user-list/container';
+import Loader from '/imports/ui/components/loader/component';
 
 const browserHistory = useRouterHistory(createHistory)({
   basename: '/html5client',
@@ -16,22 +16,31 @@ const browserHistory = useRouterHistory(createHistory)({
 
 export const renderRoutes = () => (
   <Router history={browserHistory}>
-    <Route path="/join/:meetingID/:userID/:authToken" onEnter={setCredentials} >
-      <IndexRedirect to="/" />
-      <Route path="/" component={AppContainer} onEnter={subscribeForData} >
-        <IndexRoute components={{}} />
+    <Route path="/join/:meetingID/:userID/:authToken" onEnter={setCredentials} />
+    <Route path="/" onEnter={() => {
+      subscribeToCollections();
+    }}
 
-        <Route name="users" path="users" components={{
+      getComponent={(nextState, cb) => {
+        subscribeToCollections(() => cb(null, AppContainer));
+      }}>
+      <IndexRoute components={{}} />
+
+      <Route name="users" path="users" getComponents={(nextState, cb) => {
+        subscribeToCollections(() => cb(null, {
           userList: UserListContainer,
-        }} />
+        }));
+      }} />
 
-        <Route name="chat" path="users/chat/:chatID" components={{
+      <Route name="chat" path="users/chat/:chatID" getComponents={(nextState, cb) => {
+        subscribeToCollections(() => cb(null, {
           userList: UserListContainer,
           chat: ChatContainer,
-        }} />
-        <Redirect from="users/chat" to="/users/chat/public" />
-      </Route>
-      <Redirect from="*" to="/" />
+        }));
+      }} />
+
+      <Redirect from="users/chat" to="/users/chat/public" />
     </Route>
+    <Redirect from="*" to="/" />
   </Router>
 );

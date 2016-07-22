@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
 import WhiteboardShapeModel from './shape-factory/component.jsx';
+import Cursor from './cursor/component.jsx';
 import { createContainer } from 'meteor/react-meteor-data';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import PollingContainer from '/imports/ui/components/polling/container';
 
 export default class Whiteboard extends React.Component {
   constructor(props) {
@@ -11,7 +13,13 @@ export default class Whiteboard extends React.Component {
   }
 
   renderWhiteboard() {
-    if (this.props.current_slide) {
+    let slideObj = this.props.currentSlide;
+    if (this.props.currentSlide) {
+      slideObj = this.props.currentSlide.slide;
+      let x = -slideObj.x_offset * 2 * slideObj.width / 100;
+      let y = -slideObj.y_offset * 2 * slideObj.height / 100;
+      let viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
+      let viewBoxHeight = slideObj.height * slideObj.height_ratio / 100;
       return (
         <ReactCSSTransitionGroup
           transitionName={ {
@@ -28,21 +36,43 @@ export default class Whiteboard extends React.Component {
           transitionLeaveTimeout={400}
         >
           <svg
-            viewBox={ '0 0 ' + this.props.current_slide.slide.width + ' ' + this.props.current_slide.slide.height}
+            viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"
-            xmlNS="http://www.w3.org/2000/svg"
-            className={styles.svgStyles}
-            key={this.props.current_slide.slide.id}
-          >
 
-            <Slide current_slide={this.props.current_slide}/>
-            {this.props.shapes ? this.props.shapes.map((shape) =>
-              <WhiteboardShapeModel
-                shape={shape}
-                key={shape.shape.id}
+            //it's supposed to be here in theory
+            //but now it's ignored by all the browsers and it's not supported by React
+            //xmlNS="http://www.w3.org/2000/svg"
+            className={styles.svgStyles}
+            key={slideObj.id}
+          >
+            <defs>
+              <clipPath id="viewBox">
+                <rect x={x} y={y} width="100%" height="100%" fill="none"/>
+              </clipPath>
+            </defs>
+            <g clipPath="url(#viewBox)">
+              <Slide currentSlide={this.props.currentSlide}/>
+              {this.props.shapes ? this.props.shapes.map((shape) =>
+                <WhiteboardShapeModel
+                  shape={shape.shape}
+                  key={shape.shape.id}
+                  slideWidth = {slideObj.width}
+                  slideHeight = {slideObj.height}
+                  widthRatio={slideObj.width_ratio}
+                  heightRatio={slideObj.height_ratio}
+                />
+                )
+              : null }
+              <Cursor
+                viewBoxWidth={viewBoxWidth}
+                viewBoxHeight={viewBoxHeight}
+                viewBoxX={x}
+                viewBoxY={y}
+                widthRatio={slideObj.width_ratio}
+                cursorX={this.props.cursor[0].x}
+                cursorY={this.props.cursor[0].y}
               />
-              )
-            : null }
+            </g>
           </svg>
         </ReactCSSTransitionGroup>
       );
@@ -53,8 +83,13 @@ export default class Whiteboard extends React.Component {
 
   render() {
     return (
-      <div className={styles.whiteboardPaper}>
-        {this.renderWhiteboard()}
+      <div className={styles.whiteboardContainer}>
+        <div className={styles.whiteboardWrapper}>
+          <div className={styles.whiteboardPaper}>
+            {this.renderWhiteboard()}
+          </div>
+        </div>
+        <PollingContainer />
       </div>
     );
   }

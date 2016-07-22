@@ -219,7 +219,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
           log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + scopeName);
           Map<String, String> event = new HashMap<String, String>();
           event.put("module", "Deskshare");
-          event.put("timestamp", new Long(System.currentTimeMillis()).toString());
+          event.put("timestamp", genTimestamp().toString());
           event.put("meetingId", scopeName);
           event.put("stream", stream.getPublishedName());
           event.put("file", filename);
