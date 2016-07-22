@@ -485,8 +485,8 @@ public class MeetingService implements MessageListener {
         }
     }
 
-    public void updateRecordings(List<String> idList, Map<String, String> metaParams, boolean force) {
-        recordingService.updateMetaParams(idList, metaParams, force);
+    public void updateRecordings(List<String> idList, Map<String, String> metaParams) {
+        recordingService.updateMetaParams(idList, metaParams);
     }
 
     public void processRecording(String meetingId) {

@@ -1984,17 +1984,11 @@ class ApiController {
        // END - backward compatibility
      }
 
-     // Do we have a publish status? If none, set default value.
-     String force = params.force
-     if (StringUtils.isEmpty(force)) {
-       force = "false"
-     }
-
      //Execute code specific for this call
      Map<String, String> metaParams = ParamsProcessorUtil.processMetaParam(params)
      if ( !metaParams.empty ) {
          //Proceed with the update
-         meetingService.updateRecordings(recordIdList, metaParams, force.toBoolean());
+         meetingService.updateRecordings(recordIdList, metaParams);
      }
      withFormat {
        xml {
