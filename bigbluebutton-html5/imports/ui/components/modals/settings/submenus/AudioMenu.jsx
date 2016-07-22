@@ -4,7 +4,7 @@ import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import BaseMenu from './BaseMenu';
 import {joinListenOnly, joinMicrophone, exitAudio} from '/imports/api/phone';
-import {watchVertoVideo} from '/imports/api/verto';
+import {vertoWatchVideo} from '/imports/api/verto';
 import {presenterDeskshareHasStarted} from '/imports/ui/components/deskshare/service';
 
 export default class AudioMenu extends BaseMenu {
@@ -36,7 +36,7 @@ export default class AudioMenu extends BaseMenu {
 
         <button onClick={
           function () {
-            watchVertoVideo();
+            vertoWatchVideo();
           }
         }>watch video</button>
       </div>
