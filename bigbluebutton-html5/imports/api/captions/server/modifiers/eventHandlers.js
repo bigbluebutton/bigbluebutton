@@ -5,28 +5,24 @@ import Meetings from '/imports/api/meetings';
 import Captions from '/imports/api/captions';
 
 eventEmitter.on('send_caption_history_reply_message', function (arg) {
-  console.error(JSON.stringify(arg));
+  console.error('message', JSON.stringify(arg));
   if (inReplyToHTML5Client(arg)) {
     const meetingId = arg.payload.meeting_id;
-    if (Meetings.findOne({
+    if (Captions.findOne({
         meetingId: meetingId,
       }) == null) {
       const captionHistory = arg.payload.caption_history;
-
       for (let locale in captionHistory) {
-        console.error(`locale:${locale}\n`);
-        // console.error(`locale:${locale}\n` + captionHistory[locale]);
-        for (let caption in captionHistory[locale]) {
-          console.error(`caption = ${captionHistory[locale][caption]}`);
-          Captions.upsert({
-            meetingId: meetingId,
+        const entry = {
+          meetingId: meetingId,
+          locale: locale,
+          captionHistory: {
             locale: locale,
-          }, {
-            meetingId: meetingId, //TODO check if we need these
-            locale: locale,
-            captions: captionHistory[locale],
-          });
-        }
+            ownerId: captionHistory[locale][0],
+            captions: captionHistory[locale][1],
+          },
+        };
+        Captions.insert(entry);
       }
     }
   }
@@ -34,12 +30,17 @@ eventEmitter.on('send_caption_history_reply_message', function (arg) {
   return arg.callback();
 });
 
-eventEmitter.on('update_caption_owner_message', function(arg) {
+eventEmitter.on('update_caption_owner_message', function (arg) {
   console.error(JSON.stringify(arg));
   let payload = arg.payload;
-
-  //#TODO updating the channel's owner's information here
-  //Need to figure what collection to use, Captions or Channels.
+  Captions.update({
+    meetingId: payload.meeting_id,
+    locale: payload.locale,
+  }, {
+    $set: {
+      'captionHistory.ownerId': payload.owner_id,
+    },
+  });
 
   return arg.callback();
 });
@@ -47,18 +48,26 @@ eventEmitter.on('update_caption_owner_message', function(arg) {
 eventEmitter.on('edit_caption_history_message', function (arg) {
   console.error(JSON.stringify(arg));
   let payload = arg.payload;
-
-  Captions.upsert({
+  let captionsObj = Captions.findOne({
     meetingId: payload.meeting_id,
     locale: payload.locale,
-  }, {
-    meetingId: payload.meeting_id, //TODO check upsert docs
-    locale: payload.locale,
-    startIndex: payload.start_index,
-    endIndex: payload.end_index,
-    text: payload.text,
-    enteredBy: payload.userid,
   });
+
+  if (captionsObj != null) {
+    let text = captionsObj.captionHistory.captions;
+    let start = payload.start_index;
+    let end = payload.end_index;
+
+    text = text.slice(0, start) + payload.text + text.slice(end, text.length);
+    Captions.update({
+      meetingId: payload.meeting_id,
+      locale: payload.locale,
+    }, {
+      $set: {
+        'captionHistory.captions': text,
+      },
+    });
+  }
 
   return arg.callback();
 });
