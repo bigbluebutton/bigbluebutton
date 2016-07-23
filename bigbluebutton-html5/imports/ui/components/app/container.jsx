@@ -6,6 +6,7 @@ import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 import SettingsModal from '../modals/settings/SettingsModal';
+import ClosedCaptionsContainer from '../closed-captions/container';
 
 const defaultProps = {
   navbar: <NavBarContainer/>,
@@ -13,6 +14,7 @@ const defaultProps = {
   media: <MediaContainer/>,
   settings: <SettingsModal />,
   actionsbar: <ActionsBarContainer />,
+  captions: <ClosedCaptionsContainer />,
 };
 
 class AppContainer extends Component {

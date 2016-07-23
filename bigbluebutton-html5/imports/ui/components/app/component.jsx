@@ -9,6 +9,7 @@ const propTypes = {
   media: PropTypes.element,
   actionsbar: PropTypes.element,
   settings: PropTypes.element,
+  captions: PropTypes.element,
 };
 
 export default class App extends Component {
@@ -82,6 +83,18 @@ export default class App extends Component {
     return false;
   }
 
+  renderClosedCaptions() {
+    const { captions } = this.props;
+
+    if (captions) {
+      return (
+        <section className={styles.closedCaptions}>
+          {captions}
+        </section>
+      );
+    }
+  }
+
   renderActionsBar() {
     const { actionsbar } = this.props;
 
@@ -129,6 +142,7 @@ export default class App extends Component {
           <div className={styles.content}>
             {this.renderNavBar()}
             {this.renderMedia()}
+            {this.renderClosedCaptions()}
             {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}
