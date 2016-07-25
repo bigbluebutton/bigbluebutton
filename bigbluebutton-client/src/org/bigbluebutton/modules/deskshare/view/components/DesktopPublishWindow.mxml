@@ -30,11 +30,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	width="365" height="350">
 	
-	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
-	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{DeskshareAppletLaunchedEvent.APPLET_LAUNCHED}" method="handleDeskshareAppletLaunchedEvent" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -53,12 +50,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
-			import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
-			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 			import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
@@ -223,16 +217,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 cursorImg.y = cursor.y;
 			}
 			
-			private function onAppletStart(event:AppletStartedEvent):void{
-				if (!connection.connected || !UsersUtil.amIPresenter()) return;
+			public function onAppletStart(videoWidth:Number, videoHeight:Number):void{
+				if (!connection.connected) return;
 				
 				LOGGER.debug("DeskShareWindow::onAppletStart");
 				clickBelowtoShareInfo.visible = false;
 				clickBelowtoShareInfo.includeInLayout = false;
-				startPreviewStream(connection, room, event.videoWidth, event.videoHeight);
+				startPreviewStream(connection, room, videoWidth, videoHeight);
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
-				streamEvent.videoWidth = event.videoWidth;
-				streamEvent.videoHeight = event.videoHeight;
+				streamEvent.videoWidth = videoWidth;
+				streamEvent.videoHeight = videoHeight;
 				dispatchEvent(streamEvent);
 			}
 			
@@ -384,7 +378,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         shareScreen(sharingFullScreen);
       }
 			
-			private function handleDeskshareAppletLaunchedEvent(e:DeskshareAppletLaunchedEvent):void {
+			public function handleDeskshareAppletLaunchedEvent():void {
 				if (javaTimer && javaTimer.running) {
 					javaTimer.stop();
 				}
@@ -398,11 +392,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function localeChanged(e:Event):void{
 				resourcesChanged();
-			}
-			
-			private function closePublishWindow(event:ViewStreamEvent):void{
-				stopStream();
-				closeWindow();
 			}
 
 			public function canPublish():Boolean {

@@ -30,7 +30,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/"
 	backgroundColor="#C0C0C0">
 	
-	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 		
@@ -51,7 +50,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.StartedViewingEvent;
-			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -227,12 +225,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			public function stopViewing():void {
-				ns.close();
+				if(ns != null) {
+				   ns.close();
+				   ns = null;
+				}
 				closeWindow();				
-			}
-			
-			private function onStopViewStreamEvent(event:ViewStreamEvent):void {
-				stopViewing();
 			}
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{

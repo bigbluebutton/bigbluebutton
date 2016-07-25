@@ -37,6 +37,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
+			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+			import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
@@ -82,6 +84,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStartEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
 
+	<EventHandlers type="{ViewStreamEvent.STOP}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleStopViewStreamEvent"/>
+	</EventHandlers>
+
 	<EventHandlers type="{ShareWindowEvent.CLOSE}">		
 		<MethodInvoker generator="{DeskshareManager}" method="handleShareWindowCloseEvent"/>
 	</EventHandlers>
@@ -102,5 +108,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{DeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 
-  	
+	<!-- Desktop Publish Events-->
+	<EventHandlers type="{AppletStartedEvent.APPLET_STARTED}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleAppletStarted" arguments="{[event.videoWidth, event.videoHeight]}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{DeskshareAppletLaunchedEvent.APPLET_LAUNCHED}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleDeskshareAppletLaunchedEvent"/>
+	</EventHandlers>
+
 </EventMap>

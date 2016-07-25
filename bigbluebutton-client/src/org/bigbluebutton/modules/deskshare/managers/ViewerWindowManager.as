@@ -44,7 +44,10 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function stopViewing():void {
-			if (isViewing) viewWindow.stopViewing();
+			if (viewWindow != null) {
+			    viewWindow.stopViewing();
+			    viewWindow = null;
+			}
 		}
 				
 		public function handleStartedViewingEvent(stream:String):void{
@@ -60,11 +63,11 @@ package org.bigbluebutton.modules.deskshare.managers
 			
 		public function handleViewWindowCloseEvent():void {
 			LOGGER.debug("ViewerWindowManager Received stop viewing command");				
-			closeWindow(viewWindow);
+			closeWindow();
 			isViewing = false;	
 		}
 		
-		private function closeWindow(window:DesktopViewWindow):void {
+		private function closeWindow():void {
 			var e:ShareEvent = new ShareEvent(ShareEvent.CLOSE_DESKTOP_VIEW_TAB);
 			globalDispatcher.dispatchEvent(e);
 		}

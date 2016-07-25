@@ -134,7 +134,23 @@ package org.bigbluebutton.modules.deskshare.managers
 			LOGGER.debug("Received start vieweing command");
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
+
+		public function handleStopViewStreamEvent():void{
+			viewWindowManager.stopViewing();
+			if(UsersUtil.amIPresenter())
+			   publishWindowManager.stopSharing();
+		}
     
-    
+		//Desktop Publish Events Handlers
+		public function handleAppletStarted(videoWidth:Number, videoHeight:Number):void{
+			if(UsersUtil.amIPresenter())
+			   publishWindowManager.handleAppletStarted(videoWidth,videoHeight);
+		}
+
+		public function handleDeskshareAppletLaunchedEvent():void{
+			if(UsersUtil.amIPresenter())
+			   publishWindowManager.handleDeskshareAppletLaunchedEvent();
+		}
+
 	}
 }

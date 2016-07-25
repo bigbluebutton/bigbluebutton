@@ -77,7 +77,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 
 		public function handleShareWindowCloseEvent():void {
-			closeWindow(shareWindow);
+			closeWindow();
 		}
 		
 		private function openWindow(window:DesktopPublishWindow):void {
@@ -86,9 +86,23 @@ package org.bigbluebutton.modules.deskshare.managers
 			globalDispatcher.dispatchEvent(e);
 		}
 					
-		private function closeWindow(window:DesktopPublishWindow):void {
+		private function closeWindow():void {
 			var e:ShareEvent = new ShareEvent(ShareEvent.CLEAN_DESKTOP_PUBLISH_TAB);
 			globalDispatcher.dispatchEvent(e);
+		}
+
+		public function handleAppletStarted(videoWidth:Number, videoHeight:Number):void{
+			if(shareWindow != null) {
+			   LOGGER.debug("DS:PublishWindowManager: calling shareWindow.onAppletStart");
+			   shareWindow.onAppletStart(videoWidth,videoHeight);
+			}
+		}
+
+		public function handleDeskshareAppletLaunchedEvent():void{
+			if(shareWindow != null) {
+			   LOGGER.debug("DS:PublishWindowManager: calling shareWindow.handleDeskshareAppletLaunchedEvent");
+			   shareWindow.handleDeskshareAppletLaunchedEvent();
+			}
 		}
 	}
 }
