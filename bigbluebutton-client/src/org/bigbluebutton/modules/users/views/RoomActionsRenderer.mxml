@@ -6,7 +6,9 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.model.users.BreakoutRoom;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -34,8 +36,9 @@
 
 	<mx:Button id="listenBtn" toggle="true"
 			   width="20" height="20"
+			   visible="{data.listenStatus != BreakoutRoom.OTHER &amp;&amp; UserManager.getInstance().getConference().voiceJoined}" includeInLayout="{listenBtn.visible}"
 			   icon="{images.transfer}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.transfer')}"
-			   click="listenToBreakoutRoom(event)" visible="{data.listenStatus != BreakoutRoom.OTHER}"/>
+			   click="listenToBreakoutRoom(event)"/>
 	<mx:Button id="joinImg" width="20" height="20"
 			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
 			   click="requestBreakoutJoinUrl(event)"/>
