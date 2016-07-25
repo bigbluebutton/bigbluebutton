@@ -43,7 +43,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
       val voiceConfId = BreakoutRoomsUtil.createVoiceConfId(mProps.voiceBridge, i)
       val r = breakoutModel.createBreakoutRoom(breakoutMeetingId, room.name, voiceConfId, room.users, presURL)
       val p = new BreakoutRoomOutPayload(r.id, r.name, mProps.meetingID,
-        r.voiceConfId, msg.durationInMinutes, bbbWebModeratorPassword, bbbWebViewerPassword,
+        r.voiceConfId, msg.durationInMinutes, mProps.moderatorPass, mProps.viewerPass,
         r.defaultPresentationURL, msg.recordType)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, p))
     }
@@ -55,7 +55,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     for {
       user <- usersModel.getUser(userId)
       apiCall = "join"
-      params = BreakoutRoomsUtil.joinParams(user.name, userId, true, breakoutId, bbbWebModeratorPassword, true)
+      params = BreakoutRoomsUtil.joinParams(user.name, userId, true, breakoutId, mProps.moderatorPass, true)
       baseString = BreakoutRoomsUtil.createBaseString(params)
       checksum = BreakoutRoomsUtil.calculateChecksum(apiCall, baseString, bbbWebSharedSecret)
       joinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, baseString, checksum)
