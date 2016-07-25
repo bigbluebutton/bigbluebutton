@@ -128,7 +128,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
                     this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
-                    this.destinationIp = params.get(Constants.SIP_HOST);
+                    this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.voiceBridge = params.get(Constants.VOICE_CONF);
                     this.callername  = params.get(Constants.CALLERNAME);
                     break;
@@ -138,7 +138,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
                     this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
-                    this.destinationIp = params.get(Constants.SIP_HOST);
+                    this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.voiceBridge = params.get(Constants.VOICE_CONF);
                     this.callername  = params.get(Constants.CALLERNAME);
                     this.videoStreamName = params.get(Constants.INPUT);
@@ -149,7 +149,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
                     this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
-                    this.destinationIp = params.get(Constants.SIP_HOST);
+                    this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.voiceBridge = params.get(Constants.VOICE_CONF);
                     this.callername  = params.get(Constants.CALLERNAME);
                     break;
@@ -159,7 +159,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
                     this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
-                    this.destinationIp = params.get(Constants.SIP_HOST);
+                    this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.voiceBridge = params.get(Constants.VOICE_CONF);
                     this.callername  = params.get(Constants.CALLERNAME);
                     break;
@@ -399,7 +399,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     String sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
                     String localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
                     String remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
-                    String destinationIp = params.get(Constants.SIP_HOST);
+                    String destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
 
                     setType(transcoderType);
                     setVideoStreamName(input);

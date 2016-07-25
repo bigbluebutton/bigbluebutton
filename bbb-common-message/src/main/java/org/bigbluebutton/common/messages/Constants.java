@@ -144,6 +144,7 @@ public class Constants {
   public static final String LOCAL_IP_ADDRESS                = "local_ip_address";
   public static final String LOCAL_VIDEO_PORT                = "local_video_port";
   public static final String REMOTE_VIDEO_PORT               = "remote_video_port";
+  public static final String DESTINATION_IP_ADDRESS          = "destination_ip_address";
   public static final String SIP_HOST                        = "sip_host";
   public static final String TRANSCODER_TYPE                 = "transcoder_type";
   public static final String INPUT                           = "input";
