@@ -1174,7 +1174,7 @@ check_state() {
         COUNT=0
         while [ $COUNT -lt 20 ]; do
           let COUNT=COUNT+1
-	  timeout 1s wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
+	  timeout 1s wget $PROTOCOL_HTTP://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
 	  if [ $? -eq 0 ]; then
             let COUNT=30
           else
@@ -1184,10 +1184,10 @@ check_state() {
         done
 	echo
 
-        if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
+        if ! wget $PROTOCOL_HTTP://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
                 echo "# Error: Could not connect to the configured hostname/IP address"
                 echo "#"
-                echo "#    http://$BBB_WEB/"
+                echo "#    $PROTOCOL_HTTP://$BBB_WEB/"
                 echo "#"
                 echo "# If your BigBlueButton server is behind a firewall, see FAQ."
                 echo
@@ -1457,7 +1457,7 @@ if [ $CHECK ]; then
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
 		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
@@ -1665,8 +1665,8 @@ if [ -n "$HOST" ]; then
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
-	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl http://$HOST/screenshare
-	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile http://$HOST/screenshare/screenshare.jnlp
+	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl $PROTOCOL_HTTP://$HOST/screenshare
+	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL_HTTP://$HOST/screenshare/screenshare.jnlp
 
 	if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
 		sudo sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
@@ -1684,8 +1684,14 @@ if [ -n "$HOST" ]; then
                         /usr/share/bbb-apps-akka/conf/application.conf
                 sed -i "s/deskshareip[ ]*=[ ]*\"[^\"]*\"/deskshareip=\"$HOST\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
+                sed -i  "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"${PROTOCOL_HTTP}:\/\/$HOST\/default.pdf\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
+                if grep sharedSecret /usr/share/bbb-apps-akka/conf/application.conf | grep -q \"changeme\"; then
+                        SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+                        sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
+                                /usr/share/bbb-apps-akka/conf/application.conf
+                fi
         fi
-
 
 	#
 	# Update api demos
