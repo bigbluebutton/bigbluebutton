@@ -45,7 +45,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable]
 			private var roomsProvider:Array;
-			
+
+			[Bindable]
+			private var recordTypesProvider:Array;
+
 			private var dispatcher:Dispatcher;
 
 			private function onCloseClicked():void {
@@ -77,6 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				if (totalUsers > 0) {
 					event.durationInMinutes = durationStepper.value;
+					event.recordType = recordTypesCombo.selectedItem.data;
 					dispatcher.dispatchEvent(event);
 					PopUpManager.removePopUp(this);
 				} else {
@@ -127,6 +131,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					roomsProvider.push(i.toString() + " " + ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')); 
 				}
 				roomsCombo.selectedIndex = 0;
+				
+				recordTypesProvider = new Array(
+					{label:ResourceUtil.getInstance().getString('bbb.users.breakout.recordTypeNone'), data:"none"},
+					{label:ResourceUtil.getInstance().getString('bbb.users.breakout.recordTypeModerator'), data:"moderator"},
+					{label:ResourceUtil.getInstance().getString('bbb.users.breakout.recordTypeAll'), data:"all"}
+				);
+				recordTypesCombo.selectedIndex = 0;
 				assignUsers();
 			}
 			
@@ -155,6 +166,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" />
 			<mx:NumericStepper id="durationStepper" value="15" minimum="1" maximum="600"/>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
+			<mx:Label paddingLeft="20" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}" />
+			<mx:ComboBox id="recordTypesCombo" dataProvider="{recordTypesProvider}"/>
 		</mx:HBox>
 		
 		<mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
