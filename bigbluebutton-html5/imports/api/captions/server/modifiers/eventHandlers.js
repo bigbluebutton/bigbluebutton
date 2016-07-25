@@ -1,6 +1,6 @@
 import { eventEmitter } from '/imports/startup/server';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
-
+import { addCaptionsToCollection } from './addCaptionsToCollection';
 import Meetings from '/imports/api/meetings';
 import Captions from '/imports/api/captions';
 
@@ -13,16 +13,7 @@ eventEmitter.on('send_caption_history_reply_message', function (arg) {
       }) == null) {
       const captionHistory = arg.payload.caption_history;
       for (let locale in captionHistory) {
-        const entry = {
-          meetingId: meetingId,
-          locale: locale,
-          captionHistory: {
-            locale: locale,
-            ownerId: captionHistory[locale][0],
-            captions: captionHistory[locale][1],
-          },
-        };
-        Captions.insert(entry);
+        addCaptionsToCollection(meetingId, locale, captionHistory[locale]);
       }
     }
   }
