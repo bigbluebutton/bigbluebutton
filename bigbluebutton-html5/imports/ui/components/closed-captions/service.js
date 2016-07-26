@@ -5,14 +5,35 @@ let getCCData = () => {
   const meetingID = Auth.meetingID;
   let captionObj = Captions.find({
     meetingId: meetingID,
+  }, {
+    sort: {
+      locale: 1,
+      'captionHistory.index': 1,
+    },
   }).fetch();
 
+  let locales = [];
   let captions = [];
   captionObj.forEach(function (obj) {
-    captions[obj.locale] = {
-      ownerId: obj.captionHistory.ownerId ? obj.captionHistory.ownerId : null,
-      captions: obj.captionHistory.captions,
-    };
+    if (locales.indexOf(obj.locale) > -1) {
+      captions[obj.locale].captions.push(
+        {
+          captions: obj.captionHistory.captions,
+          index: obj.captionHistory.index,
+        }
+      );
+    } else {
+      captions[obj.locale] = {
+        ownerId: obj.captionHistory.ownerId ? obj.captionHistory.ownerId : null,
+        captions: [
+          {
+            captions: obj.captionHistory.captions,
+            index: obj.captionHistory.index,
+          },
+        ],
+      };
+      locales.push(obj.locale);
+    }
   });
 
   return {
