@@ -1,0 +1,48 @@
+@import "imports/ui/components/button/styles.scss";
+@import "imports/ui/stylesheets/variables/_all";
+
+// Applies to all slide controls
+.slideControlsDiv > * {
+  background-color: $color-wb-controls-background !important;
+  color: $color-white;
+
+  //Uncomment For the dividing lines
+  // border-top: 0;
+  // border-right: $color-gray-light 2px solid;
+  // border-bottom: 0;
+  // border-left: 0;
+
+  //Uncomment for no border
+  //border: 0;
+
+  border-radius: 0;
+  box-shadow: none;
+}
+
+// For parents of slide controls
+.slideControlsDiv, .scaleLikeButtons {
+  padding: $line-height-computed / 2;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.slideControlsDiv {
+  flex: 1;
+}
+
+// Give non-buttons same height as buttons
+.scaleLikeButtons {
+  height: $line-height-computed * 2;
+}
+
+.ariaLabelsDescs {
+  position: fixed;
+  left: -999em;
+  margin: 0;
+}
+
+.zoomMinMax {
+  margin: 0 2%;
+}
