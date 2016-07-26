@@ -68,6 +68,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShareEvent.CLEAN_DESKTOP_PUBLISH_TAB}" method="cleanDesktopPublishTab" />
 	<mate:Listener type="{ShareEvent.OPEN_DESKTOP_VIEW_TAB}" method="openDesktopViewTab" />
 	<mate:Listener type="{ShareEvent.CLOSE_DESKTOP_VIEW_TAB}" method="closeDesktopViewTab" />
+	<mate:Listener type="{BBBEvent.DESKSHARE_STARTED}" method="handleDesksharePublishStarted" />
 
 	<mx:Script>
 		<![CDATA[
@@ -113,6 +114,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
 			import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
+			import org.bigbluebutton.main.events.BBBEvent;
+
 
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
@@ -131,7 +134,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var currentTabIndex:Number = PRESENTATION_TAB_INDEX;
 
 			private var sharing:Boolean = false;
-			private var canPublish:Boolean = false;
 			private var autoStart:Boolean = false;
 			private var deskshareTimer:Timer = null;
 			
@@ -450,7 +452,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function startDeskshareTabCreation():void {
 				 if(desksharePublishTab.numElements == 0) {
-					 canPublish = false;
 					 LOGGER.debug("DISPATCHING startDeskshareTabCreation");
 					 dispatchEvent(new ShareEvent(ShareEvent.START_SHARING));
 				 }
@@ -808,28 +809,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function setControlBarState(state:String):void {
 				if (state == "vote") {
+					pollStartBtn.visible = false;
 					presenterControls.visible = false;
 					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = true;
 					pollVoteBox.includeInLayout = true;
 					currentControlBarState = VOTE_STATE;
 				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
+					pollStartBtn.visible = true;
 					presenterControls.visible = true;
 					presenterControls.includeInLayout = true;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
 					deskshareControls.visible = false;
-					deskshareControls.includeInLayout = false;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = true;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = true;
 					currentControlBarState = PRESENTER_STATE;
 				} else {
+					pollStartBtn.visible = false;
 					presenterControls.visible = false;
 					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
 					deskshareControls.visible = false;
-					deskshareControls.includeInLayout = false;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
 					currentControlBarState = VIEW_STATE;
@@ -881,10 +883,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					       if(currentControlBarState == PRESENTER_STATE) {
 					          presenterControls.visible = false;
 					          presenterControls.includeInLayout = false;
-					          if(canPublish) {
-						        deskshareControls.visible = true;
-						        deskshareControls.includeInLayout = true;
-					          }
+					          pollStartBtn.visible = false;
 					          annotationsPermissionChanged(false);
 				       }
 				   }
@@ -905,22 +904,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Stopping desktop publish");
 				dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
 				sharing = false;
-				btnRegionPublish.enabled = true;
-				btnFSPublish.enabled = true;
-				btnClosePublish.enabled = false;
 			}
 
 			private function createDesktopPublishTab(e:ShareEvent):void {
 				if(e.publishTabContent != null && desksharePublishTab.numElements == 0) {
 				   DSPublishCanvas = e.publishTabContent;
-				   canPublish = e.publishTabContent.canPublish();
 
 				   LOGGER.debug("Setting the content of dekstop share PUBLISHING tab");
 				   e.publishTabContent.percentHeight = 100;
 				   e.publishTabContent.percentWidth = 100;
 				   desksharePublishTab.addChild(e.publishTabContent);
 
-				   if(canPublish && e.publishTabContent.autoStart)
+				   if(e.publishTabContent.canPublish() && e.publishTabContent.autoStart)
 				      handleDeskshareAutoStart();
 
 				}
@@ -962,24 +957,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			private function shareScreen(fullScreen:Boolean):void {
+			private function handleDesksharePublishStarted(e:BBBEvent):void {
+			    LOGGER.debug("$$ handleDesksharePublishStarted");
 
-			   if(whiteboardOverlay != null && DSPublishCanvas != null) {
+			    if(whiteboardOverlay != null && DSPublishCanvas != null) {
 				   LOGGER.debug("Adding whiteboard layer to Deskshare Publish Canvas");
 				   DSPublishCanvas.acceptOverlayCanvas(whiteboardOverlay);
 				   whiteboardOverlay.acceptOverlayCanvas(DSPublishCanvas);
 				   annotationsPermissionChanged(true);
-			   } else LOGGER.debug("shareScreen: whiteboard overlay or desktop publish canvas is null!");
+			    } else LOGGER.debug("Whiteboard overlay or desktop publish canvas is null!");
 
-				var e:ShareEvent = new ShareEvent(ShareEvent.SHARE_SCREEN);
-				e.fullScreen = fullScreen;
-
-				sharing = true;
-				btnRegionPublish.enabled = false;
-				btnFSPublish.enabled = false;
-				btnClosePublish.enabled = true;
-
-				dispatchEvent(e);
+			    sharing = true;
+			    pollStartBtn.visible = true;
+			    deskshareControls.visible = true;
 			}
 
 			private function selectPresentationTab():void {
@@ -1015,15 +1005,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(UsersUtil.amIPresenter()) {
 				   LOGGER.debug("Handling deskshare auto start");
 				   selectDesksharePublishTab();
-				   shareScreen(true);
+				   sendShareScreenEvent(true);
 				   deskshareTimer = null;
 				}
+			}
+
+			private function sendShareScreenEvent(fullScreen:Boolean):void {
+				var e:ShareEvent = new ShareEvent(ShareEvent.SHARE_SCREEN);
+				e.fullScreen = fullScreen;
+				dispatchEvent(e);
 			}
 		]]>
 	</mx:Script>
 	
 	<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
-					 tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage, btnFSPublish, btnClosePublish, btnRegionPublish]}"/>
+					 tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage, btnClosePublish]}"/>
   	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
@@ -1074,25 +1070,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>
 
-		<mx:HBox id="deskshareControls" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="left">
-			<mx:Button id="btnFSPublish" visible="true" height="30"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}"
-					   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}"
-					   click="shareScreen(true)"
-					   enabled="true" />
+		<mx:HBox id="deskshareControls" width="100%" height="100%" visible="false" includeInLayout="{deskshareControls.visible}" horizontalAlign="left">
 			<mx:Button id="btnClosePublish"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}"
 					   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}"
 					   visible="true"
-					   enabled="false"
 					   click="selectPresentationTab()" />
-			<mx:Button id="btnRegionPublish"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}"
-					   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}"
-					   visible="true"
-					   click="shareScreen(false)"
-					   focusEnabled="false"
-					   tabEnabled="false"/>
 		</mx:HBox>
 
 		<mx:HBox id="pollVoteBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" />

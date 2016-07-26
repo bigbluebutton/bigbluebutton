@@ -353,8 +353,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					break;
 				case "NetStream.Play.Start":
 					LOGGER.debug("Netstatus: {0}", [e.info.code]);
-					addWhiteboardCanvasHolder();
-					addWhiteboardOverlay();
 					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
 				}
 			}
@@ -429,6 +427,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
 			       LOGGER.debug("DesktopPublishWindow: acceptOverlayCanvas");
 			       whiteboardCanvas = overlay as Canvas;
+			       addWhiteboardCanvasHolder();
+			       addWhiteboardOverlay();
 			}
 
 			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
@@ -461,6 +461,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <mx:AddChild>
               <mx:VBox id="clickBelowtoShareInfo" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
                 <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.clickBelowToShareHint')}" />
+
+                <mx:HBox horizontalAlign="center">
+                     <mx:Button id="btnFSPublish"
+                                toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}"
+                                label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}"
+                                visible="true"
+                                click="shareScreen(true)" />
+                     <mx:Spacer width="100%"/>
+                     <mx:Button id="btnRegionPublish"
+                                toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}"
+                                label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}"
+                                visible="true"
+                                click="shareScreen(false)"
+                                focusEnabled="false"
+                                tabEnabled="false"/>
+                     <mx:Spacer width="100%"/>
+                </mx:HBox>
+
               </mx:VBox>
             </mx:AddChild>
         </mx:State>	
