@@ -223,7 +223,7 @@ public class NetworkHttpStreamSender {
       try {
         // Open a connection to the web server and create a request that has
         // the room and event type.
-        System.out.println(getTimeStamp() + " - Sending Update Sharing Event.");
+//        System.out.println(getTimeStamp() + " - Sending Update Sharing Event.");
         openConnection();
         chr = new ClientHttpRequest(conn);
         chr.setParameter(MEETING_ID, meetingId);
@@ -235,7 +235,7 @@ public class NetworkHttpStreamSender {
         HttpURLConnection httpConnection = (HttpURLConnection) chr.connection;
         int status = httpConnection.getResponseCode();
 
-        System.out.println("******* sendUpdateMessage response code = [" + status + "] ***************");
+//        System.out.println("******* sendUpdateMessage response code = [" + status + "] ***************");
 
       } catch (IOException e) {
         System.out.println("Exception in sendUpdateMessage");

@@ -155,7 +155,6 @@ docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callb
 		return;
 	}
 	// determine the resolution the user chose for webcam video
-	my_check_vid_res();
 	outgoingBandwidth = "default";
 	incomingBandwidth = "default";
 	var useVideo = useCamera = useMic = false;
@@ -335,7 +334,6 @@ function makeVerto(callbacks, stunsConfig, videoTag, vertoServerCredentials) {
 
 // sets verto to begin using the resolution that the user selected
 my_check_vid_res = function() {
-	return;
 	var selectedVideoConstraints = getChosenWebcamResolution();
 	my_real_size(selectedVideoConstraints);
 

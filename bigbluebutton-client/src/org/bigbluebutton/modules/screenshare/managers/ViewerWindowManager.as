@@ -31,7 +31,6 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
 			
 	public class ViewerWindowManager {		
-    private static const LOG:String = "SC::ViewerWindowManager - ";	
     private static const LOGGER:ILogger = getClassLogger(ViewerWindowManager);
     
 		private var viewWindow:ScreenshareViewWindow;
@@ -72,7 +71,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 			
 		public function startViewing(streamId:String, videoWidth:Number, videoHeight:Number):void{
-      LOGGER.debug(LOG + "ViewerWindowManager::startViewing");
+      LOGGER.debug("ViewerWindowManager::startViewing");
 			viewWindow = new ScreenshareViewWindow();
 			viewWindow.startVideo(service.getConnection());
       openWindow(viewWindow);

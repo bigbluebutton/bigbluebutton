@@ -106,6 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 dataProvider="{transcriptsCollection}"
 						 labelField="locale" 
 						 selectedIndex="-1"
+						 prompt="{ResourceUtil.getInstance().getString('bbb.caption.option.language.prompt', [transcriptsCollection.length])}"
 						 enabled="{transcriptsCollection.length > 0}" 
 						 change="onLocaleComboChange()"
 						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.language.tooltip')}"/>
