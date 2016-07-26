@@ -201,11 +201,10 @@ eventEmitter.on('presenter_assigned_message', function (arg) {
 });
 
 const handleRemoveUserEvent = function (arg) {
-  if (arg.payload.user != null &&
-    arg.payload.user.userid != null &&
+  if (arg.payload.userid != null &&
     arg.payload.meeting_id != null) {
     const meetingId = arg.payload.meeting_id;
-    const userId = arg.payload.user.userid;
+    const userId = arg.payload.userid;
     return markUserOffline(meetingId, userId, arg.callback);
   } else {
     logger.info('could not perform handleRemoveUserEvent');
