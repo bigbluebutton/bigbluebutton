@@ -1,16 +1,17 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
 import { subscribeForData, pollExists } from './service';
+
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 import SettingsModal from '../modals/settings/SettingsModal';
 
 const defaultProps = {
-  navbar: <NavBarContainer/>,
-  actionsbar: <ActionsBarContainer/>,
-  media: <MediaContainer/>,
+  navbar: <NavBarContainer />,
+  actionsbar: <ActionsBarContainer />,
+  media: <MediaContainer />,
   settings: <SettingsModal />,
 };
 
@@ -20,8 +21,11 @@ class AppContainer extends Component {
   }
 
   render() {
+    // inject location on the navbar container
+    let navbarWithLocation = cloneElement(this.props.navbar, { location: this.props.location });
+
     return (
-      <App {...this.props}>
+      <App {...this.props} navbar={navbarWithLocation}>
         {this.props.children}
       </App>
     );
