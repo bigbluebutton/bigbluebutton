@@ -1,5 +1,6 @@
 import sizeOf from 'image-size';
 import Slides from '/imports/api/slides';
+import { clientConfig } from '/config';
 
 export function addSlideToCollection(meetingId, presentationId, slideObject) {
   const url = Npm.require('url');
@@ -48,18 +49,18 @@ export function addSlideToCollection(meetingId, presentationId, slideObject) {
         }
     };
 
-    // HTTP connection
-    if (process.env.NODE_ENV === 'development') {
-      const http = Npm.require('http');
-
-      http.get(options, Meteor.bindEnvironment(function (response) {
-        addSlideHelper(response);
-      }));
-    } else {
-      // HTTPS connection
+    // HTTPS connection
+    if (clientConfig.app.httpsConnection) {
       const https = Npm.require('https');
 
       https.get(options, Meteor.bindEnvironment(function (response) {
+        addSlideHelper(response);
+      }));
+    } else {
+      // HTTP connection
+      const http = Npm.require('http');
+
+      http.get(options, Meteor.bindEnvironment(function (response) {
         addSlideHelper(response);
       }));
     }
