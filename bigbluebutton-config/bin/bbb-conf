@@ -580,10 +580,10 @@ while [ $# -gt 0 ]; do
 		SALT="${2}"
 		if [ -z "$SALT" ]; then
 			BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
-			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+			SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
 			echo
 			echo "       URL: $BBB_WEB_URL/bigbluebutton/"
-			echo "      Salt: $SALT"
+			echo "    Secret: $SECRET"
 			echo
 			exit 0
 		fi
@@ -646,11 +646,10 @@ if [ $SALT ]; then
 	fi
 
         if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
-                sed -i "s/sharedSecret.[ ]*=[ ]*\"[^\"]*\"/sharedSecret.=\"$SALT\"/g" \
+                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SALT\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
         fi
 
-	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
 	echo "Changed BigBlueButton's shared secret to $SALT"
 	echo
 fi
@@ -890,6 +889,14 @@ check_configuration() {
                 echo "# Warning: Detected the directory"
                 echo "#    /var/bigbluebutton"
                 echo "# is not owned by $TOMCAT_USER"
+        fi
+
+        if [ $PROTOCOL_HTTP == "https" ]; then
+            if ! grep jnlpUrl /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | grep -q https; then
+                echo "# Warning: Detected the value for jnlpUrl is not configured for HTTPS"
+                echo "#    /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+            fi
         fi
 }
 
@@ -1686,11 +1693,10 @@ if [ -n "$HOST" ]; then
                         /usr/share/bbb-apps-akka/conf/application.conf
                 sed -i  "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"${PROTOCOL_HTTP}:\/\/$HOST\/default.pdf\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
-                if grep sharedSecret /usr/share/bbb-apps-akka/conf/application.conf | grep -q \"changeme\"; then
-                        SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
-                        sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
-                                /usr/share/bbb-apps-akka/conf/application.conf
-                fi
+		# XXX Temporary fix to ensure application.conf has the latest shared secret
+                SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
         fi
 
 	#
