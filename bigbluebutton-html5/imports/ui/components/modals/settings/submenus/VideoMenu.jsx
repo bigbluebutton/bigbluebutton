@@ -14,10 +14,10 @@ export default class VideoMenu extends BaseMenu {
     return (
       <div style={{ height: '100%' }} role='presentation'>
         <div className={styles.containerLeftHalf}>
-          <label for='camera'>Select camera</label>
+          <label htmlFor='camera'>Select camera</label>
         </div>
         <div className={styles.containerRightHalf}>
-          <label for='quality'>Video quality</label>
+          <label htmlFor='quality'  >Video quality</label>
         </div>
         <div style={{ height: '20%' }} className={styles.containerLeftHalf} role='presentation'>
           <select id='camera' defaultValue='0' tabIndex='7' aria-labelledby='camLabel' aria-describedby='camDesc'>
@@ -26,7 +26,7 @@ export default class VideoMenu extends BaseMenu {
             <option value='2'>Camera 2</option>
             <option value='3'>Camera 3</option>
           </select>
-          <div className={styles.hidden} id='camLabel'>Select camera source</div>
+          <div className={styles.hidden} id='camLabel'>Camera source</div>
           <div className={styles.hidden} id='camDesc'>Chooses a camera source from the dropdown menu.</div>
         </div>
         <div style={{ height: '20%' }} className={styles.containerRightHalf} role='presentation'>
@@ -36,7 +36,7 @@ export default class VideoMenu extends BaseMenu {
             <option value='2'>Medium</option>
             <option value='3'>High</option>
           </select>
-          <div className={styles.hidden} id='vidLabel'>Select video quality</div>
+          <div className={styles.hidden} id='vidLabel'>Video quality</div>
           <div className={styles.hidden} id='vidDesc'>Chooses the video quality level from the dropdown menu.</div>
         </div>
         <div className={styles.containerLeftHalf}>

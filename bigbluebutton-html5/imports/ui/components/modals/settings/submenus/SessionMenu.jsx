@@ -47,11 +47,11 @@ export default class SessionMenu extends BaseMenu {
             <br />
             <button onClick={Auth.completeLogout}
                     className={classNames(styles.modalButton, styles.done)}
-                    tabindex="0"
+                    tabIndex='8'
                     role="button">Yes</button>
             <button onClick={this.closeLogout}
                     className={classNames(styles.modalButton, styles.close)}
-                    tabindex="1"
+                    tabIndex='9'
                     role="button">No</button>
         </Modal>
       </span>

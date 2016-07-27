@@ -20,6 +20,7 @@ export default class SettingsModal extends BaseModal {
 
   componentWillMount() {
     this.setState({ activeSubmenu: 0 });
+    this.setState({ focusSubmenu: 0 });
     this.submenus.push({ className: AudioMenu,
       props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, tabIndex: 3, });
     this.submenus.push({ className: VideoMenu,
@@ -64,51 +65,66 @@ export default class SettingsModal extends BaseModal {
   clickSubmenu(i) {
     if (i <= 0) {
       this.setState({ activeSubmenu: 0 });
+      this.setState({ focusSubmenu: 0 });
+      return;
     }
     if (i >= this.submenus.length) {
       this.setState({ activeSubmenu: this.submenus.length - 1});
+      this.setState({ focusSubmenu: this.submenus.length - 1});
+      return;
     } else {
-    this.setState({ activeSubmenu: i });
-    if (this.submenus[i].className != SessionMenu) {
       this.setState({ activeSubmenu: i });
-    };
-  }
-
-  doubleClickSubmenu(i) {
-    if (this.submenus[i].className == SessionMenu) {
-      this.setState({ activeSubmenu: i });
+      this.setState({ focusSubmenu: i });
     }
   }
 
-  handleKeyDown(event) {
-   console.log(event.activeSubmenu);
-    if (event.keyCode == '38') { // up arrow
-      // if (this.state.activeSubmenu <= 0) {
-      //   this.state.activeSubmenu = this.submenus.length - 1;
-      //   this.clickSubmenu(this.state.activeSubmenu);
-      // } else {
-      //   this.clickSubmenu(this.state.activeSubmenu - 1);
-      // }
-      if (this.state.activeSubmenu <= 0) {
-        this.state.activeSubmenu = this.submenus.length - 1;
-        this.refs.focus();
-      } else {
-        this.state.activeSubmenu - 1;
-        this.state.activeSubmenu.focus();
+  handleKeyDown(index, value, event, unknown, target) {
+    // tab
+    if (event.keyCode =='9') {
+      if (this.state.focusSubmenu >= this.submenus.length - 1) { // if at end of menu and tab is pressed, keep focus at end of menu
+        this.setState({ focusSubmenu: this.submenus.length - 1 });
+      }
+      else {
+        this.setState({ focusSubmenu: this.state.focusSubmenu + 1 });
       }
     }
-    if (event.keyCode == '40') { // down arrow
-      if (this.state.activeSubmenu >= this.submenus.length - 1) {
-        this.state.activeSubmenu = 0;
-        this.clickSubmenu(this.state.activeSubmenu);
+
+    // shift+tab keyCode 16
+    // if (event.keyCode == '16') {
+    //
+    // }
+
+    // up arrow
+    if (event.keyCode == '38') {
+      if (this.state.focusSubmenu <= 0) { // checks if at beginning of menu
+        this.setState({ focusSubmenu: this.submenus.length - 1 }, function() {
+          ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
+        }); // sets to end of menu
       } else {
-        this.clickSubmenu(this.state.activeSubmenu + 1);
+        this.setState({ focusSubmenu: this.state.focusSubmenu - 1 }, function() {
+          ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
+        });
       }
     }
-    if (event.keyCode == '32' || event.keyCode == '13') { // space or enter key
-      alert("Enter key pressed.");
-      this.clickSubmenu(this.state.activeSubmenu);
+
+    // down arrow
+    if (event.keyCode == '40') {
+      if (this.state.focusSubmenu >= this.submenus.length - 1) { // checks if at end of menu
+        this.setState({ focusSubmenu: 0 }, function() {
+          ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
+         }); // sets to beginning of menu
+      } else {
+        this.setState({ focusSubmenu: this.state.focusSubmenu + 1 }, function() {
+          ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
+        });
+      }
     }
+
+    //  spacebar or enter
+    if (event.keyCode == '32' || event.keyCode == '13') {
+      this.setState({ activeSubmenu: this.state.focusSubmenu });
+    }
+
   }
 
   getContent() {
@@ -117,9 +133,8 @@ export default class SettingsModal extends BaseModal {
         <div className={styles.settingsMenuLeft}>
           <ul style={{ listStyleType: 'none', paddingLeft: '0px' }} role='menu'>
             {this.submenus.map((value, index) => (
-              <li key={index} onClick={this.clickSubmenu.bind(this, index)}
-                tabIndex={value.tabIndex} role='menuitem'
-                onDoubleClick={this.doubleClickSubmenu.bind(this, index)}
+              <li key={index} onClick={this.clickSubmenu.bind(this, index)} ref={"submenu" + index}
+              tabIndex={value.tabIndex} role='menuitem' onKeyDown={this.handleKeyDown.bind(this, index, value)}
                 className={classNames(styles.settingsSubmenuItem,
                   index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
                 <Icon key={index} prependIconName={value.props.prependIconName}

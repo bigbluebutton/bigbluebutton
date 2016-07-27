@@ -9,16 +9,22 @@ import {joinVoiceCall, exitVoiceCall} from '/imports/api/phone';
 export default class AudioMenu extends BaseMenu {
   constructor(props) {
     super(props);
+
+    this.testAudio = this.testAudio.bind(this);
+  }
+
+  testAudio() {
+
   }
 
   getContent() {
     return (
       <div style={{ height: '100%', width: '100%'}} role='presentation'>
         <div className={styles.containerLeftHalf}>
-          <label for='microphone'>Microphone source</label>
+          <label htmlFor='microphone'>Microphone source</label>
         </div>
         <div className={styles.containerRightHalf}>
-          <label for='audioVolume'>Your audio stream volume</label>
+          <label htmlFor='audioVolume'>Your audio stream volume</label>
         </div>
         <div style={{ height: '20%' }} className={styles.containerLeftHalf} role='presentation'>
           <select id='microphone' defaultValue='0' tabIndex='8' role='listbox' aria-labelledby='micLabel' aria-describedby='micDesc'>
@@ -34,7 +40,7 @@ export default class AudioMenu extends BaseMenu {
           <input type='text' placeholder='volume bar placeholder' style={{ width: '90%' }} tabIndex='-1'></input>
         </div>
         <div className={styles.containerLeftHalf}>
-          <label for='speaker'>Speaker source</label>
+          <label htmlFor='speaker'>Speaker source</label>
         </div>
         <div className={styles.containerRightHalf}><br/></div>
         <div style={{ height: '20%' }} className={styles.containerLeftHalf} role='presentation'>
@@ -49,7 +55,7 @@ export default class AudioMenu extends BaseMenu {
         </div>
         <div style={{ height: '20%' }} className={styles.containerRightHalf} role='presentation'>
           <Button className={styles.testAudioBtn}
-            onClick={''}
+            onClick={this.testAudio}
             label={'Test Audio'}
             color={'primary'}
             ghost={true}
