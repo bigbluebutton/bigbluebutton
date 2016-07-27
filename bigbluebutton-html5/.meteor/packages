@@ -3,11 +3,10 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-standard-app-packages
-mrt:redis@0.1.3
+standard-app-packages@1.0.9
 arunoda:npm@0.2.6
 amplify
-blaze
+blaze@2.1.8
 francocatena:status
 mrt:external-file-loader@0.1.4
 brentjanderson:winston-client@0.0.4
@@ -17,9 +16,9 @@ clinical:nightwatch
 cfs:power-queue
 cfs:reactive-list
 cfs:micro-queue
-reactive-var
-ecmascript
+reactive-var@1.0.10
+ecmascript@0.5.7
 react-meteor-data
-standard-minifier-css
-standard-minifier-js
+standard-minifier-css@1.1.8
+standard-minifier-js@1.1.8
 nathantreid:css-modules

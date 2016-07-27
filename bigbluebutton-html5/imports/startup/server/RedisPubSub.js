@@ -2,6 +2,7 @@ import { logger } from '/imports/startup/server/logger';
 import { redisConfig } from '/config';
 import { myQueue } from '/imports/startup/server';
 import { indexOf, publish } from '/imports/api/common/server/helpers';
+import redis from 'redis';
 
 export class RedisPubSub {
   constructor() {
