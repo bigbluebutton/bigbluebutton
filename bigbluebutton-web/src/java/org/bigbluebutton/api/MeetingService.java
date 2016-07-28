@@ -524,7 +524,19 @@ public class MeetingService implements MessageListener {
         params.put("moderatorPW", message.moderatorPassword);
         params.put("voiceBridge", message.voiceConfId);
         params.put("duration", message.durationInMinutes.toString());
-        params.put("record", message.record.toString());
+        String recordType = message.recordType.toString();
+        if (recordType.equals("moderator")) {
+            params.put("record", "true");
+        }
+        else if (recordType.equals("all")) {
+            params.put("record", "true");
+            params.put("autoStartRecording", "true");
+            params.put("allowStartStopRecording", "false");
+        }
+        else {
+            // The sent value should "none", but whatever value is passed expecting "moderator" & "all" we set recording to false
+            params.put("record", "false");
+        }
 
         Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 
