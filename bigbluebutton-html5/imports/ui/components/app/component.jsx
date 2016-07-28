@@ -1,5 +1,8 @@
 import React, { Component, PropTypes } from 'react';
-import Loader from '../loader/component';
+import { FormattedMessage } from 'react-intl';
+import LoadingScreen from '../loading-screen/component';
+import KickedScreen from '../kicked-screen/component';
+import Button from '../button/component';
 import styles from './styles';
 
 const propTypes = {
@@ -117,8 +120,24 @@ export default class App extends Component {
   }
 
   render() {
+    if (this.props.wasKicked) {
+      return (
+        <KickedScreen>
+          <FormattedMessage
+            id="app.kickMessage"
+            description="Message when the user is kicked out of the meeting"
+            defaultMessage="You have been kicked out of the meeting"
+          />
+          <br/><br/>
+          <Button
+            label={'OK'}
+            onClick={this.props.redirectToLogoutUrl}/>
+        </KickedScreen>
+      );
+    }
+
     if (this.props.isLoading) {
-      return <Loader/>;
+      return <LoadingScreen/>;
     }
 
     return (

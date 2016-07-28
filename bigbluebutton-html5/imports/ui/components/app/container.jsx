@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
-import { subscribeForData, pollExists } from './service';
+import { subscribeForData, pollExists, didUserWasKicked, redirectToLogoutUrl } from './service';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
@@ -55,11 +55,12 @@ export default createContainer(() => {
   Promise.all(subscribeForData())
   .then(() => {
     setLoading(false);
-  })
-  .catch(reason => console.error(reason));
+  });
 
   return {
+    wasKicked: didUserWasKicked(),
     isLoading: getLoading(),
+    redirectToLogoutUrl,
     actionsbar: <ActionsBarContainer />,
   };
 }, AppContainer);
