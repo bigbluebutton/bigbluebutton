@@ -24,14 +24,21 @@ eventEmitter.on('send_caption_history_reply_message', function (arg) {
 eventEmitter.on('update_caption_owner_message', function (arg) {
   console.error(JSON.stringify(arg));
   let payload = arg.payload;
-  Captions.update({
-    meetingId: payload.meeting_id,
-    locale: payload.locale,
-  }, {
-    $set: {
-      'captionHistory.ownerId': payload.owner_id,
+
+  Captions.update(
+    {
+      meetingId: payload.meeting_id,
+      locale: payload.locale,
     },
-  });
+    {
+      $set: {
+        'captionHistory.ownerId': payload.owner_id,
+      },
+    },
+    {
+      multi: true,
+    }
+  );
 
   return arg.callback();
 });
