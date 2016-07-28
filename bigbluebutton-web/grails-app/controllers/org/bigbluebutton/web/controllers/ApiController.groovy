@@ -2242,7 +2242,7 @@ class ApiController {
   //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
   private void invalid(key, msg, redirectResponse=false) {
     // Note: This xml scheme will be DEPRECATED.
-    log.debug CONTROLLER_NAME + "#invalid"
+    log.debug CONTROLLER_NAME + "#invalid " + msg
     if (redirectResponse) {
         ArrayList<Object> errors = new ArrayList<Object>();
         Map<String,String> errorMap = new LinkedHashMap<String,String>()
