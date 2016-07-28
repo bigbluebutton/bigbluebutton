@@ -1,7 +1,7 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
-import { subscribeForData, pollExists, didUserWasKicked, redirectToLogoutUrl } from './service';
+import { subscribeForData, pollExists, wasUserKicked, redirectToLogoutUrl } from './service';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
@@ -61,7 +61,7 @@ export default createContainer(() => {
   });
 
   return {
-    wasKicked: didUserWasKicked(),
+    wasKicked: wasUserKicked(),
     isLoading: getLoading(),
     redirectToLogoutUrl,
     actionsbar: <ActionsBarContainer />,

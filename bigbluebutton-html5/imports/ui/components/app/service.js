@@ -80,7 +80,7 @@ function observeUserKick() {
   });
 }
 
-function didUserWasKicked() {
+function wasUserKicked() {
   wasKickedDep.depend();
   return wasKicked;
 }
@@ -90,6 +90,6 @@ export {
   setCredentials,
   subscribeFor,
   subscribeToCollections,
-  didUserWasKicked,
+  wasUserKicked,
   redirectToLogoutUrl
 };
