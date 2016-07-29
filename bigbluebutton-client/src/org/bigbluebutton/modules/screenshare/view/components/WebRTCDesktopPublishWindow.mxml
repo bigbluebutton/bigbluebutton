@@ -61,11 +61,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-			import org.bigbluebutton.modules.screenshare.services.red5.ConnectionEvent;
+			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.main.api.JSLog;
 
-			<!-- private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow); -->
+			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopPublishWindow);
 
 			public static const SCALE:Number = 5;
 			private static const VID_HEIGHT_PAD:Number = 73;
@@ -91,10 +91,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var autoStart:Boolean = false;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 
-			[Bindable] private var dsOptions:DeskshareOptions;
+			[Bindable] private var dsOptions:ScreenshareOptions;
 
 			private function init():void {
-				dsOptions = new DeskshareOptions();
+				dsOptions = new ScreenshareOptions();
 			}
 
 			private function onCreationComplete():void {
@@ -154,6 +154,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function startSharing(connection:NetConnection, uri:String , useTLS:Boolean , room:String, fullScreen:Boolean):void {
 				var captureX:Number = 0;
 				var captureY:Number = 0;
+				
 			}
 
 			public function stopSharing():void{
@@ -176,10 +177,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var myArray :Array = rtmp.split('/');
 				var meetingUrl:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
 				stream = rtmp.substring(rtmp.lastIndexOf('/')+1, rtmp.length);
-				LOGGER.debug("DesktopPublishWindow::startVideo meetingurl=[{0}] and stream=[{1}]",[meetingUrl, stream]);
+				LOGGER.debug("WebRTCDesktopPublishWindow::startVideo meetingurl=[{0}] and stream=[{1}]",[meetingUrl, stream]);
+				
+				JSLog.warn("WebRTCDesktopPublishWindow::startVideo meetingurl= ",meetingUrl);
+				JSLog.warn("WebRTCDesktopPublishWindow::startVideo stream=", stream);
 
-				JSLog.warn("DesktopPublishWindow::startVideo meetingurl= ",meetingUrl);
-				JSLog.warn("DesktopPublishWindow::startVideo stream=", stream);
 
 				connection = new NetConnection();
 				connection.proxyType = "best";
@@ -192,34 +194,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function netStatusHandler(event:NetStatusEvent):void {
-				var ce:ConnectionEvent = new ConnectionEvent();
+				var ce:WebRTCConnectionEvent = new WebRTCConnectionEvent();
 				LOGGER.debug("netStatusHandler   [{0}]",[event.info.code]);
 				switch(event.info.code){
 					case "NetConnection.Connect.Failed":
-						ce.status = ConnectionEvent.FAILED;
+						ce.status = WebRTCConnectionEvent.FAILED;
 
 						break;
 
 					case "NetConnection.Connect.Success":
-						ce.status = ConnectionEvent.SUCCESS;
+						ce.status = WebRTCConnectionEvent.SUCCESS;
 						startPreviewStream(stream, videoWidth, videoHeight);
 						break;
 
 					case "NetConnection.Connect.Rejected":
-						ce.status = ConnectionEvent.REJECTED;
+						ce.status = WebRTCConnectionEvent.REJECTED;
 						break;
 
 					case "NetConnection.Connect.Closed":
 						trace("Deskshare connection closed.");
-						ce.status = ConnectionEvent.CLOSED;
+						ce.status = WebRTCConnectionEvent.CLOSED;
 						break;
 
 					case "NetConnection.Connect.InvalidApp":
-						ce.status = ConnectionEvent.INVALIDAPP;
+						ce.status = WebRTCConnectionEvent.INVALIDAPP;
 						break;
 
 					case "NetConnection.Connect.AppShutdown":
-						ce.status = ConnectionEvent.APPSHUTDOWN;
+						ce.status = WebRTCConnectionEvent.APPSHUTDOWN;
 						break;
 
 					case "NetConnection.Connect.NetworkChange":
@@ -230,7 +232,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function securityErrorHandler(event:SecurityErrorEvent):void {
-				LOGGER.debug("ERROR DesktopPublishWindow::securityErrorHandler ");
+				LOGGER.debug("ERROR WebRTCDesktopPublishWindow::securityErrorHandler ");
 			}
 
 			private function startPreviewStream(streamName:String, capWidth:Number, capHeight:Number):void{
