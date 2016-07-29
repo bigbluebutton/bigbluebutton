@@ -23,7 +23,7 @@
 	<property name="BROADCAST" value="BroadcastModule" />
 	<property name="CHAT" value="ChatModule" />
 	<property name="PRESENT" value="PresentModule" />
-	<!-- <property name="DESKSHARE" value="DeskShareModule" /> -->
+	<property name="DESKSHARE" value="DeskShareModule" />
 	<property name="DESKSHARE_SA" value="DeskshareStandalone" />
 	<property name="SCREENSHARE" value="ScreenshareModule" />
 	<property name="SCREENSHARE_SA" value="ScreenshareStandalone" />
