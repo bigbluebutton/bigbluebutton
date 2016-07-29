@@ -9,5 +9,6 @@
   "app.chat.titlePublic": "Public Chat",
   "app.chat.titlePrivate": "Private Chat with {name}",
   "app.chat.partnerDisconnected": "{name} has left the meeting",
-  "app.chat.moreMessages": "More messages below"
+  "app.chat.moreMessages": "More messages below",
+  "app.kickMessage": "You have been kicked out of the meeting"
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styles from './styles.scss';
 
-class Loader extends Component {
+class LoadingScreen extends Component {
   render() {
     return (
       <div className={styles.background}>
@@ -14,4 +14,4 @@ class Loader extends Component {
     );
   }
 }
-export default Loader;
+export default LoadingScreen;
