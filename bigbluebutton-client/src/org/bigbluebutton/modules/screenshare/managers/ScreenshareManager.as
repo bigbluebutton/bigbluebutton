@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
 	import org.bigbluebutton.modules.screenshare.events.StartShareRequestFailedEvent;
 	import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
-	import org.bigbluebutton.modules.deskshare.events.UseJavaModeCommand;
+	import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
 	import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;

@@ -178,6 +178,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stream = rtmp.substring(rtmp.lastIndexOf('/')+1, rtmp.length);
 				LOGGER.debug("DesktopPublishWindow::startVideo meetingurl=[{0}] and stream=[{1}]",[meetingUrl, stream]);
 
+				JSLog.warn("DesktopPublishWindow::startVideo meetingurl= ",meetingUrl);
+				JSLog.warn("DesktopPublishWindow::startVideo stream=", stream);
+
 				connection = new NetConnection();
 				connection.proxyType = "best";
 				connection.objectEncoding = ObjectEncoding.AMF0;

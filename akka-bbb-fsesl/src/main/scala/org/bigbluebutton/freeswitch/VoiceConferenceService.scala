@@ -23,13 +23,14 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   def userJoinedVoiceConf(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
     callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean, avatarURL: String) {
-    //    println("******** FreeswitchConferenceService received voiceUserJoined vui=[" + userId + "] wui=[" + webUserId + "]")
+    println("******** FreeswitchConferenceService received voiceUserJoined vui=[" +
+      userId + "] wui=[" + voiceUserId + "]")
     val msg = new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum, muted, talking, avatarURL)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
   def userLeftVoiceConf(voiceConfId: String, voiceUserId: String) {
-    //    println("******** FreeswitchConferenceService received voiceUserLeft vui=[" + userId + "] conference=[" + conference + "]")
+    println("******** FreeswitchConferenceService received voiceUserLeft vui=[" + voiceUserId + "] conference=[" + voiceConfId + "]")
     val msg = new UserLeftVoiceConfMessage(voiceConfId, voiceUserId)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
