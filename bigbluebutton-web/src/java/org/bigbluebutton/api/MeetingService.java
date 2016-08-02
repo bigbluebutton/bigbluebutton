@@ -352,16 +352,15 @@ public class MeetingService implements MessageListener {
     }
 
     public Meeting getMeeting(String meetingId) {
-        return getMeeting(meetingId, false);
-    }
-
-    public Meeting getMeeting(String meetingId, Boolean exactMatch) {
         if (meetingId == null)
             return null;
+        int dashes = meetingId.split("-", -1).length - 1;
         for (String key : meetings.keySet()) {
-            if ((!exactMatch && key.startsWith(meetingId))
-                    || (exactMatch && key.equals(meetingId)))
+            int keyDashes = key.split("-", -1).length - 1;
+            if (dashes == 2 && key.equals(meetingId)
+                    || (dashes < 2 && keyDashes < 2 && key.startsWith(meetingId))) {
                 return (Meeting) meetings.get(key);
+            }
         }
 
         return null;
