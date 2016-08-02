@@ -125,7 +125,7 @@ module BigBlueButton
   def self.exec_ret(*command)
     BigBlueButton.logger.info "Executing: #{command.join(' ')}"
     IO.popen([*command, :err => [:child, :out]]) do |io|
-      io.lines.each do |line|
+      io.each_line do |line|
         BigBlueButton.logger.info line.chomp
       end
     end
@@ -139,7 +139,7 @@ module BigBlueButton
     IO.pipe do |r, w|
       pid = spawn(*command, :out => outio, :err => w)
       w.close
-      r.lines.each do |line|
+      r.each_line do |line|
         BigBlueButton.logger.info line.chomp
       end
       Process.waitpid(pid)
