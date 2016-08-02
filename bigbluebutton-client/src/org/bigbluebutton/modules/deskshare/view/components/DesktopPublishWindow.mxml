@@ -22,7 +22,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:Canvas
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	implements="org.bigbluebutton.common.IBbbCanvas"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="org.bigbluebutton.common.*"
 	initialize="init()"
@@ -30,7 +29,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	width="365" height="350">
 	
-	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
 	<mx:Script>
@@ -78,9 +76,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var sharingFullScreen:Boolean = false;
 			private var streaming:Boolean = false;
 			
-			private var video:Video;
-			private var ns:NetStream;
-			[Bindable] private var videoHolder:UIComponent;
 			private var stream:String;
 			private var videoHeight:Number;
 			private var videoWidth:Number;
@@ -197,164 +192,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (browser[0] == "Chrome")
 					javaHelpArea.visible = javaHelpArea.includeInLayout = true;
 			}
-			
-			private function onUpdateCursorEvent(event:CursorEvent):void {
-				if(cursor == null || video == null)
-				    return;
 
-				// DO NOT compute the x and y coordinate and assign directly to the cursorImg
-                // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
-				cursor.x = video.x + ((event.x/captureWidth)) * video.width;
-				cursor.y = video.y + ((event.y/captureHeight)) * video.height;
-				cursorImg.visible = true;
-
-				// Do not display cursor if they are outside the capture area.
-                if (cursor.x < video.x) cursor.x = video.x;
-                if (cursor.y < video.y) cursor.y = video.y;
-                if (cursor.x > video.x + video.width) cursor.x = video.x + video.width;
-                if (cursor.y > video.y + video.height) cursor.y = video.y + video.height;
-                cursorImg.x =  cursor.x;
-                cursorImg.y = cursor.y;
-			}
-			
 			public function onAppletStart(videoWidth:Number, videoHeight:Number):void{
 				if (!connection.connected) return;
 				
 				LOGGER.debug("DeskShareWindow::onAppletStart");
-				clickBelowtoShareInfo.visible = false;
-				clickBelowtoShareInfo.includeInLayout = false;
-				startPreviewStream(connection, room, videoWidth, videoHeight);
+				streaming = true;
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
 				streamEvent.videoWidth = videoWidth;
 				streamEvent.videoHeight = videoHeight;
 				dispatchEvent(streamEvent);
-			}
-			
-			private function startPreviewStream(nc:NetConnection, streamName:String, capWidth:Number, capHeight:Number):void{
-				if(cursor == null || cursorImg == null || video != null)
-				    return;
-
-				streaming = true;
-				
-				// Store capture dimensions so we can position cursor properly.
-				captureWidth = capWidth;
-				captureHeight = capHeight;
-				
-				videoHolder = new UIComponent();
-				videoHolder.x = videoHolder.y = 0;
-				videoHolder.addEventListener(ResizeEvent.RESIZE, onResize);
-				
-				var vidW:Number = captureWidth;
-				var vidH:Number = captureHeight;
-				
-				video = new Video(vidW, vidH);
-
-				videoHolder.addChild(video);
-				videoHolder.addChild(cursor);
-				videoHolder.addChild(cursorImg);
-				cursor.visible = false;
-				this.addChildAt(videoHolder,0);
-				fitVideoToWindow();
-											
-				ns = new NetStream(nc);
-				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
-				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
-				ns.client = this;
-				ns.bufferTime = 0;
-				ns.receiveVideo(true);
-				ns.receiveAudio(false);
-				video.attachNetStream(ns);
-				ns.play(streamName);
-			}
-
-			private function addWhiteboardCanvasHolder():void{
-				updateWhiteboardCanvasHolder();
-				if(streaming)
-					this.addChildAt(this.whiteboardCanvasHolder,1);
-			}
-
-			private function updateWhiteboardCanvasHolder():void{
-				if(video != null) {
-					this.whiteboardCanvasHolder.x = video.x;
-					this.whiteboardCanvasHolder.y = video.y;
-					this.whiteboardCanvasHolder.width = video.width;
-					this.whiteboardCanvasHolder.height = video.height;
-					LOGGER.debug("Whiteboard canvas holder dimensions updated");
-				}
-			}
-
-			public function addWhiteboardOverlay():void {
-				updateWhiteboardCanvasOverlay();
-				if(streaming && this.whiteboardCanvas != null) {
-					this.addChild(this.whiteboardCanvas);
-					LOGGER.debug("Whiteboard Canvas OVERLAY added.");
-				}
-				else
-				     LOGGER.debug("COULD NOT add whiteboard overlay");
-			}
-
-			private function updateWhiteboardCanvasOverlay():void{
-				if(video != null && this.whiteboardCanvas != null) {
-					this.whiteboardCanvas.x = video.x;
-					this.whiteboardCanvas.y = video.y;
-					this.whiteboardCanvas.width = video.width;
-					this.whiteboardCanvas.height = video.height;
-					LOGGER.debug("Whiteboard canvas overlay dimensions updated");
-				}
-			}
-
-			private function onResize(e:ResizeEvent):void {
-				fitVideoToWindow();
-			}
-
-			private function fitVideoToWindow():void {
-				videoHolder.percentWidth = 100;
-				videoHolder.percentHeight = 100;
-				
-				const videoAspectRatio:Number = captureWidth / captureHeight;
-				const windowAspectRatio:Number = videoHolder.width / videoHolder.height;
-				if (videoAspectRatio > windowAspectRatio) {
-					video.width = videoHolder.width;
-					video.height = Math.floor(video.width / videoAspectRatio);
-					video.x = 0;
-					video.y = (videoHolder.height - video.height) / 2;
-				} else {
-					video.height = videoHolder.height;
-					video.width = Math.floor(video.height * videoAspectRatio);
-					video.y = 0;
-					video.x = (videoHolder.width - video.width) / 2;
-				}
-
-				//update the whiteboard canvas holder and overlay with new video dimensions...
-				updateWhiteboardCanvasHolder();
-				updateWhiteboardCanvasOverlay();
 			}
 
 			private function stopStream():void{
 				streaming = false;
 				captureHeight = Capabilities.screenResolutionY;
 				captureWidth = Capabilities.screenResolutionX;
-				if(ns != null)
-				   ns.close();
-			}
-			
-			private function onAsyncError(e:AsyncErrorEvent):void{
-				LOGGER.debug("VIdeoWindow::asyncerror {0}", [e.toString()]);
-			}
-			
-			private function onNetStatus(e:NetStatusEvent):void{
-				switch(e.info.code){
-				case "NetStream.Publish.Start":
-					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);
-					break;
-				case "NetStream.Play.UnpublishNotify":
-					LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);
-					stopSharing();
-					break;
-				case "NetStream.Play.Start":
-					LOGGER.debug("Netstatus: {0}", [e.info.code]);
-					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
-				}
 			}
 
       private function callStopApplet():void {
@@ -409,42 +262,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						return true;
 					}
 				}
-			}
-
-			/** Inherited from IBbbCanvas*/
-			public function addRawChild(child:DisplayObject):void{
-			       this.whiteboardCanvasHolder.rawChildren.addChild(child);
-			}
-
-			public function removeRawChild(child:DisplayObject):void{
-			       this.whiteboardCanvasHolder.rawChildren.removeChild(child);
-			}
-
-			public function doesContain(child:DisplayObject):Boolean{
-			       return this.whiteboardCanvasHolder.rawChildren.contains(child);
-			}
-
-			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
-			       LOGGER.debug("DesktopPublishWindow: acceptOverlayCanvas");
-			       whiteboardCanvas = overlay as Canvas;
-			       addWhiteboardCanvasHolder();
-			       addWhiteboardOverlay();
-			}
-
-			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
-			       LOGGER.debug("DesktopPublishWindow: handleWhiteboardCanvasClick");
-			}
-
-			public function moveCanvas(x:Number, y:Number):void{
-			       LOGGER.debug("DesktopPublishWindow: moveCanvas");
-			}
-
-			public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
-			       LOGGER.debug("DesktopPublishWindow: zoomCanvas");
-			}
-
-			public function showCanvas(show:Boolean):void{
-			       LOGGER.debug("DesktopPublishWindow: showCanvas");
 			}
 		]]>
 	</mx:Script>

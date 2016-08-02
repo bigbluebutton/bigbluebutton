@@ -68,7 +68,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShareEvent.CLEAN_DESKTOP_PUBLISH_TAB}" method="cleanDesktopPublishTab" />
 	<mate:Listener type="{ShareEvent.OPEN_DESKTOP_VIEW_TAB}" method="openDesktopViewTab" />
 	<mate:Listener type="{ShareEvent.CLOSE_DESKTOP_VIEW_TAB}" method="closeDesktopViewTab" />
-	<mate:Listener type="{BBBEvent.DESKSHARE_STARTED}" method="handleDesksharePublishStarted" />
 
 	<mx:Script>
 		<![CDATA[
@@ -112,7 +111,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.IBbbCanvas;
-			import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
 			import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
 			import org.bigbluebutton.main.events.BBBEvent;
 
@@ -122,12 +120,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public static const TITLE:String = "Presentation";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
 
-			private static const VOTE_STATE:String = "vote";
-			private static const PRESENTER_STATE:String = "presenter";
-			private static const VIEW_STATE:String = "view";
-			private var currentControlBarState:String = "";
-
 			private static const TAB_MAX_WIDTH:Number = 200;
+			private static const NO_TAB_INDEX:Number = -1;
 			private static const PRESENTATION_TAB_INDEX:Number = 0;
 			private static const DESKSHARE_PUBLISH_TAB_INDEX:Number = 1;
 			private static const DESKSHARE_VIEW_TAB_INDEX:Number = 2;
@@ -178,7 +172,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 
 			private var whiteboardOverlay:IBbbCanvas = null;
-			private var DSPublishCanvas:DesktopPublishWindow = null;
 			private var DSViewCanvas:DesktopViewWindow = null;
 			
 			private function init():void{
@@ -410,7 +403,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				displaySlideNavigationControls(isPresenter, !!page);
 
 				setControlBarState("presenter");
-				currentTabIndex = -1;
+				currentTabIndex = NO_TAB_INDEX;
 				selectPresentationTab();
 			}
             private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
@@ -814,27 +807,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = true;
 					pollVoteBox.includeInLayout = true;
-					currentControlBarState = VOTE_STATE;
 				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
 					pollStartBtn.visible = true;
 					presenterControls.visible = true;
 					presenterControls.includeInLayout = true;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
-					deskshareControls.visible = false;
+					btnClosePublish.visible = false;
+					btnActualSize.visible = false;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = true;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = true;
-					currentControlBarState = PRESENTER_STATE;
 				} else {
 					pollStartBtn.visible = false;
 					presenterControls.visible = false;
 					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
-					deskshareControls.visible = false;
+					btnClosePublish.visible = false;
+					btnActualSize.visible = false;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
-					currentControlBarState = VIEW_STATE;
 				}
 				
 				// Need to call the function later because the heights haven't been validated yet
@@ -850,127 +842,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				setControlBarState("presenter");
 			}
 
-			private function onSelectTabEvent(event:MouseEvent):void {
-				onSelectTab();
-			}
-
-			private function onSelectTab():void {
-				if(presenterTabs.selectedIndex != currentTabIndex) {
-
-				   if(presenterTabs.selectedIndex == PRESENTATION_TAB_INDEX) {
-				       currentTabIndex = PRESENTATION_TAB_INDEX;
-				       LOGGER.debug("Presentation Tab selected.");
-
-				       if(sharing)
-					     stopSharing();
-
-				       if(whiteboardOverlay != null) {
-					      slideView.acceptOverlayCanvas(whiteboardOverlay);
-					      whiteboardOverlay.acceptOverlayCanvas(slideView);
-				       }
-
-				       if(currentControlBarState == PRESENTER_STATE) {
-					     setControlBarState("presenter");
-					     annotationsPermissionChanged(true);
-				       }
-				   }
-
-				   else if(presenterTabs.selectedIndex == DESKSHARE_PUBLISH_TAB_INDEX){
-					       currentTabIndex = DESKSHARE_PUBLISH_TAB_INDEX;
-					       startDeskshareTabCreation();
-					       LOGGER.debug("Deskshare Publishing Tab selected.");
-
-					       if(currentControlBarState == PRESENTER_STATE) {
-					          presenterControls.visible = false;
-					          presenterControls.includeInLayout = false;
-					          pollStartBtn.visible = false;
-					          annotationsPermissionChanged(false);
-				       }
-				   }
-
-				   else {
-				       currentTabIndex = DESKSHARE_VIEW_TAB_INDEX;
-				       LOGGER.debug("Deskshare Viewing Tab selected.");
-
-				       if(whiteboardOverlay != null && DSViewCanvas != null) {
-					      DSViewCanvas.acceptOverlayCanvas(whiteboardOverlay);
-					      whiteboardOverlay.acceptOverlayCanvas(DSViewCanvas);
-				       } else LOGGER.debug("openDesktopViewTab: whiteboard overlay or desktop view canvas is null!");
-				    }
-				}
-			}
-
-			private function stopSharing():void {
-				LOGGER.debug("Stopping desktop publish");
-				dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
-				sharing = false;
-			}
-
-			private function createDesktopPublishTab(e:ShareEvent):void {
-				if(e.publishTabContent != null && desksharePublishTab.numElements == 0) {
-				   DSPublishCanvas = e.publishTabContent;
-
-				   LOGGER.debug("Setting the content of dekstop share PUBLISHING tab");
-				   e.publishTabContent.percentHeight = 100;
-				   e.publishTabContent.percentWidth = 100;
-				   desksharePublishTab.addChild(e.publishTabContent);
-
-				   if(e.publishTabContent.canPublish() && e.publishTabContent.autoStart)
-				      handleDeskshareAutoStart();
-
-				}
-				else
-				   LOGGER.debug("publishTabContent is NULL.");
-			}
-
-			private function cleanDesktopPublishTab(e:ShareEvent):void {
-				if(desksharePublishTab.numElements != 0) {
-				      LOGGER.debug("Removing content of dekstop share PUBLISHING tab");
-				      desksharePublishTab.removeAllElements();
-				      DSPublishCanvas = null;
-				}
-			}
-
-			private function openDesktopViewTab(e:ShareEvent):void {
-				if(e.viewTabContent != null && presenterTabs.numElements == 2) {
-				   DSViewCanvas = e.viewTabContent;
-
-				   LOGGER.debug("Opening a new tab for dekstop share VIEWING");
-				   e.viewTabContent.percentHeight = 100;
-				   e.viewTabContent.percentWidth = 100;
-				   e.viewTabContent.setStyle("horizontalAlign","center");
-				   e.viewTabContent.label = ResourceUtil.getInstance().getString('bbb.desktopView.title');
-
-				   presenterTabs.addChild(e.viewTabContent);
-				   selectDeskshareViewTab();
-				}
-				else
-				   LOGGER.debug("viewTabContent is NULL.");
-			}
-
-			private function closeDesktopViewTab(e:ShareEvent):void {
-				LOGGER.debug("Closing the dekstop share VIEWING tab");
-				selectPresentationTab();
-				if(presenterTabs.numElements == 3) {
-				   presenterTabs.removeChildAt(DESKSHARE_VIEW_TAB_INDEX);
-				   DSViewCanvas = null;
-				}
-			}
-
-			private function handleDesksharePublishStarted(e:BBBEvent):void {
-			    LOGGER.debug("$$ handleDesksharePublishStarted");
-
-			    if(whiteboardOverlay != null && DSPublishCanvas != null) {
-				   LOGGER.debug("Adding whiteboard layer to Deskshare Publish Canvas");
-				   DSPublishCanvas.acceptOverlayCanvas(whiteboardOverlay);
-				   whiteboardOverlay.acceptOverlayCanvas(DSPublishCanvas);
-				   annotationsPermissionChanged(true);
-			    } else LOGGER.debug("Whiteboard overlay or desktop publish canvas is null!");
-
-			    sharing = true;
-			    pollStartBtn.visible = true;
-			    deskshareControls.visible = true;
-			}
 
 			private function selectPresentationTab():void {
 				presenterTabs.selectedIndex = PRESENTATION_TAB_INDEX;
@@ -987,10 +858,147 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				onSelectTab();
 			}
 
+			private function onSelectTabEvent(event:MouseEvent):void {
+				onSelectTab();
+			}
+
+			private function onSelectTab():void {
+				if(presenterTabs.selectedIndex != currentTabIndex) {
+				   if(presenterTabs.selectedIndex == PRESENTATION_TAB_INDEX)
+				       handlePresentationTabSelected();
+				   else if(presenterTabs.selectedIndex == DESKSHARE_PUBLISH_TAB_INDEX)
+					    handleDesktopPublishTabSelected();
+				   else
+				       handleDesktopViewTabSelected();
+				}
+			}
+
+			private function handlePresentationTabSelected():void {
+				LOGGER.debug("Handling Presentation Tab selected");
+				currentTabIndex = PRESENTATION_TAB_INDEX;
+
+				if(sharing)
+				   stopSharing();
+
+				if(whiteboardOverlay != null) {
+				   slideView.acceptOverlayCanvas(whiteboardOverlay);
+				   whiteboardOverlay.acceptOverlayCanvas(slideView);
+				}
+
+				setControlBarState("presenter");
+				if(UsersUtil.amIPresenter())
+				   annotationsPermissionChanged(true);
+			}
+
+			private function handleDesktopPublishTabSelected():void {
+				LOGGER.debug("Handling Desktop Publish Tab selected");
+				currentTabIndex = DESKSHARE_PUBLISH_TAB_INDEX;
+				startDeskshareTabCreation();
+
+				if(UsersUtil.amIPresenter()) {
+				   presenterControls.visible = false;
+				   presenterControls.includeInLayout = false;
+				   pollStartBtn.visible = false;
+				   annotationsPermissionChanged(false);
+				}
+			}
+
+			private function handleDesktopViewTabSelected():void {
+				LOGGER.debug("Handling Desktop View Tab selected");
+				currentTabIndex = DESKSHARE_VIEW_TAB_INDEX;
+
+				if(whiteboardOverlay != null && DSViewCanvas != null) {
+				   LOGGER.debug("Adding whiteboard layer to Deskshare View Canvas");
+				   DSViewCanvas.acceptOverlayCanvas(whiteboardOverlay);
+				   whiteboardOverlay.acceptOverlayCanvas(DSViewCanvas);
+				   if(UsersUtil.amIPresenter())
+				      annotationsPermissionChanged(true);
+				} else LOGGER.debug("openDesktopViewTab: whiteboard overlay or desktop view canvas is null!");
+
+				btnActualSize.visible = true;
+				if(UsersUtil.amIPresenter()) {
+				   pollStartBtn.visible = true;
+				   btnClosePublish.visible = true;
+				}
+			}
+
+			private function stopSharing():void {
+				LOGGER.debug("Stopping desktop publish");
+				presenterTabs.getTabAt(DESKSHARE_VIEW_TAB_INDEX).visible = false;
+				presenterTabs.getTabAt(DESKSHARE_VIEW_TAB_INDEX).includeInLayout = false;
+				dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
+				sharing = false;
+			}
+
+			private function createDesktopPublishTab(e:ShareEvent):void {
+				if(e.publishTabContent != null && desksharePublishTab.numElements == 0) {
+
+				   LOGGER.debug("Setting the content of dekstop share PUBLISHING tab");
+				   e.publishTabContent.percentHeight = 100;
+				   e.publishTabContent.percentWidth = 100;
+				   desksharePublishTab.addChild(e.publishTabContent);
+
+				   if(e.publishTabContent.canPublish() && e.publishTabContent.autoStart)
+				      handleDeskshareAutoStart();
+				}
+				else
+				   LOGGER.debug("publishTabContent is NULL.");
+			}
+
+			private function cleanDesktopPublishTab(e:ShareEvent):void {
+				if(desksharePublishTab.numElements != 0) {
+				      LOGGER.debug("Removing content of dekstop share PUBLISHING tab");
+				      desksharePublishTab.removeAllElements();
+				}
+			}
+
+			private function openDesktopViewTab(e:ShareEvent):void {
+				if(e.viewTabContent != null && presenterTabs.numElements == 2) {
+				   DSViewCanvas = e.viewTabContent;
+
+				   LOGGER.debug("Opening a new tab for dekstop share VIEWING");
+				   e.viewTabContent.percentHeight = 100;
+				   e.viewTabContent.percentWidth = 100;
+				   e.viewTabContent.setStyle("horizontalAlign","center");
+				   e.viewTabContent.label = ResourceUtil.getInstance().getString('bbb.desktopView.title');
+
+				   presenterTabs.addChild(e.viewTabContent);
+				   selectDeskshareViewTab();
+
+				   if(UsersUtil.amIPresenter()) {
+				      sharing = true;
+				      presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
+				      presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+				   }
+				}
+				else
+				   LOGGER.debug("viewTabContent is NULL.");
+			}
+
+			private function closeDesktopViewTab(e:ShareEvent):void {
+				LOGGER.debug("Closing the dekstop share VIEWING tab");
+				selectPresentationTab();
+				if(desktopViewTabExists()) {
+				   presenterTabs.removeChildAt(DESKSHARE_VIEW_TAB_INDEX);
+				   DSViewCanvas = null;
+				}
+			}
+
+			private function desktopViewTabExists():Boolean {
+				return presenterTabs.numElements == 3
+			}
+
 			private function annotationsPermissionChanged(enableAnnotations:Boolean):void {
 				var event:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.ANNOTATIONS_PERMISSION_CHANGE);
 				event.enableAnnotations = enableAnnotations;
 				dispatchEvent(event);
+			}
+
+			private function changeVideoDisplayMode():void {
+				var e:ShareEvent = new ShareEvent(ShareEvent.CHANGE_VIDEO_DISPLAY_MODE);
+				e.fullScreen = btnActualSize.selected;
+				LOGGER.debug("Dispatching event for change desktop video display mode. Full screen = " + e.fullScreen);
+				dispatchEvent(e);
 			}
 
 			private function handleDeskshareAutoStart():void {
@@ -1070,13 +1078,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>
 
-		<mx:HBox id="deskshareControls" width="100%" height="100%" visible="false" includeInLayout="{deskshareControls.visible}" horizontalAlign="left">
-			<mx:Button id="btnClosePublish"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}"
-					   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}"
-					   visible="true"
-					   click="selectPresentationTab()" />
-		</mx:HBox>
+		<mx:Button id="btnClosePublish"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}"
+			   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}"
+			   visible="false"
+			   includeInLayout="{btnClosePublish.visible}"
+			   click="selectPresentationTab()" />
+
+		<mx:Button id="btnActualSize"
+			   visible="false"
+			   includeInLayout="{btnActualSize.visible}"
+			   toggle="true"
+			   click="changeVideoDisplayMode()"
+			   selected="false"
+			   height="90%"
+			   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
+			   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"/>
 
 		<mx:HBox id="pollVoteBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" />
 

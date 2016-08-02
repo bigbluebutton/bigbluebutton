@@ -85,6 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var dsOptions:DeskshareOptions;
 
+			private var whiteboardCanvas:Canvas = null;
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			private var fullScreen:Boolean = false;
 
@@ -115,7 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onResize(e:ResizeEvent):void {
-				determineHowToDisplayVideo();
+				determineHowToDisplayVideo(fullScreen);
 			}
 			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
@@ -162,7 +163,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(video != null) {
 					cleanCanvasHolder();
 					updateWhiteboardCanvasHolder();
-					this.addChild(whiteboardCanvasHolder);
+					this.addChildAt(whiteboardCanvasHolder,1);
 					LOGGER.debug("Whiteboard canvas holder added");
 				}
 			}
@@ -210,20 +211,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.whiteboardCanvasHolder.rawChildren.getChildAt(i).y * heightResizeRatio;
 				}
 			}
+
+			public function addWhiteboardCanvasOverlay():void {
+				updateWhiteboardCanvasOverlay();
+				if(video != null && this.whiteboardCanvas != null) {
+					this.addChild(this.whiteboardCanvas);
+					LOGGER.debug("Whiteboard Canvas OVERLAY added.");
+				}
+				else
+				     LOGGER.debug("COULD NOT add whiteboard overlay");
+			}
+
+			private function updateWhiteboardCanvasOverlay():void{
+				if(video != null && this.whiteboardCanvas != null) {
+					this.whiteboardCanvas.x = whiteboardCanvasHolder.x;
+					this.whiteboardCanvas.y = whiteboardCanvasHolder.y;
+					this.whiteboardCanvas.width = whiteboardCanvasHolder.width;
+					this.whiteboardCanvas.height = whiteboardCanvasHolder.height;
+					LOGGER.debug("Whiteboard canvas overlay dimensions updated");
+				}
+			}
 			
-      protected function updateButtonsPosition():void {
-        if (this.width < bottomBar.width) {
-          bottomBar.visible = false;
-        }
-        
-        if (bottomBar.visible == false) {
-          bottomBar.y = bottomBar.x = 0;
-        } else {
-          bottomBar.y = (this.height - bottomBar.height) / 2;
-          bottomBar.x = (this.width - bottomBar.width) / 2;
-        }
-      }
-      
 			public function stopViewing():void {
 				if(ns != null) {
 				   ns.close();
@@ -299,18 +307,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				fullScreenHeight = video.height;
 			}
 			
-			private function determineHowToDisplayVideo():void {
-				if (btnActualSize.selected) {
+			public function determineHowToDisplayVideo(actualSize:Boolean):void {
+				if (actualSize)
 					fitToActualSize();			
-					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');	
-					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');
-				} else {
+				else
 					fitVideoToWindow();
-					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
-					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
-				}
-				//update the whiteboard canvas holder with new video dimensions...
+
+				//update the whiteboard canvas holder and overlay with new video dimensions...
 				updateWhiteboardCanvasHolder();
+				updateWhiteboardCanvasOverlay();
 			}
 			
 			private function closeWindow():void {
@@ -345,8 +350,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
-			       LOGGER.debug("DesktopPublishWindow: acceptOverlayCanvas");
+			       LOGGER.debug("DesktopViewWindow: acceptOverlayCanvas");
+			       whiteboardCanvas = overlay as Canvas;
 			       addWhiteboardCanvasHolder();
+			       addWhiteboardCanvasOverlay();
 			}
 
 			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
@@ -368,18 +375,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 
-	<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{btnActualSize}"/>
-
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-		
-	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
-		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
-				   toggle="true" 
-				   click="determineHowToDisplayVideo()" 
-				   selected="false"
-				   height="90%" 
-				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"/>
-	</mx:HBox>
 </mx:Canvas>

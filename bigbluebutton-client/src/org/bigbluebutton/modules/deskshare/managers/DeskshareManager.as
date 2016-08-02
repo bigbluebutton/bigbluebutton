@@ -130,7 +130,6 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
-			if (sharing || UsersUtil.amIPresenter()) return;
 			LOGGER.debug("Received start vieweing command");
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
@@ -139,6 +138,10 @@ package org.bigbluebutton.modules.deskshare.managers
 			viewWindowManager.stopViewing();
 			if(UsersUtil.amIPresenter())
 			   publishWindowManager.stopSharing();
+		}
+
+		public function handleVideoDisplayModeEvent(actualSize:Boolean):void{
+			viewWindowManager.handleVideoDisplayModeEvent(actualSize);
 		}
     
 		//Desktop Publish Events Handlers

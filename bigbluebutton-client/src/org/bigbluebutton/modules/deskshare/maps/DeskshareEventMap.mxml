@@ -59,6 +59,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{ShareEvent.STOP_SHARING}">
 		<MethodInvoker generator="{DeskshareManager}" method="handleStopSharingEvent"/>
 	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.CHANGE_VIDEO_DISPLAY_MODE}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleVideoDisplayModeEvent" arguments="{event.fullScreen}"/>
+	</EventHandlers>
 	
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
 		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent"/>

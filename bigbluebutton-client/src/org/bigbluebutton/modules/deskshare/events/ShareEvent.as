@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.deskshare.events
 		public static const CLOSE_DESKTOP_VIEW_TAB:String = "CLOSE DESKTOP VIEW TAB";
 
 		public static const SHARE_SCREEN:String = "SHARE SCREEN";
+		public static const CHANGE_VIDEO_DISPLAY_MODE:String = "CHANGE VIDEO DISPLAY MODE";
 		
 		public var publishTabContent:DesktopPublishWindow;
 		public var viewTabContent:DesktopViewWindow;

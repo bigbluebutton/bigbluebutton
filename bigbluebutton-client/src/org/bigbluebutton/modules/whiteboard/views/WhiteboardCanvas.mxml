@@ -41,7 +41,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
       import org.bigbluebutton.modules.whiteboard.models.Annotation;
       import org.bigbluebutton.modules.present.ui.views.SlideView;
-      import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
       import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
@@ -252,12 +251,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 //				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
 
 				var changedCanvas:Boolean = false;
-				if( (this.bbbCanvas as DesktopPublishWindow != null || this.bbbCanvas as DesktopViewWindow != null) &&
-					 overlay as SlideView != null )
-					changedCanvas = true;
-				else if(this.bbbCanvas as SlideView != null &&
-				       (overlay as DesktopPublishWindow != null || overlay as DesktopViewWindow != null))
-				     changedCanvas = true;
+				if(this.bbbCanvas as DesktopViewWindow != null && overlay as SlideView != null)
+				   changedCanvas = true;
+				else if(this.bbbCanvas as SlideView != null && overlay as DesktopViewWindow != null)
+				        changedCanvas = true;
                 
 				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.

@@ -80,5 +80,10 @@ package org.bigbluebutton.modules.deskshare.managers
 			openWindow(viewWindow);
 			isViewing = true;
 		}
+
+		public function handleVideoDisplayModeEvent(actualSize:Boolean):void{
+			if (viewWindow != null)
+			    viewWindow.determineHowToDisplayVideo(actualSize);
+		}
 	}
 }
