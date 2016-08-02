@@ -397,10 +397,6 @@ public class RecordingService {
     }
 
     public void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams) {
-        updateMetaParams(recordIDs, metaParams, false);
-    }
-
-    public void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams, boolean force) {
 
         // Define the directories used to lookup the recording
         List<String> states = new ArrayList<String>();
@@ -422,20 +418,13 @@ public class RecordingService {
                     Recording rec = getRecordingInfo(recFile);
                     if (rec != null) {
                         for (Map.Entry<String,String> meta : metaParams.entrySet()) {
-                            if ( rec.containsMetadata(meta.getKey()) ) {
-                                // The meta parameter already exists
-                                if ( !"".equals(meta.getValue()) || !force ) {
-                                    // update it
-                                    rec.updateMetadata(meta.getKey(), meta.getValue());
-                                } else {
-                                    // delete it
-                                    rec.deleteMetadata(meta.getKey());
-                                }
+                            if ( !"".equals(meta.getValue()) ) {
+                                // As it has a value, if the meta parameter exists update it, otherwise add it
+                                rec.updateMetadata(meta.getKey(), meta.getValue());
                             } else {
-                                // The meta parameter doesn't exist
-                                if ( force ) {
-                                    // but force is set to true, then add it
-                                    rec.updateMetadata(meta.getKey(), meta.getValue());
+                                // As it doesn't have a value, if it exists delete it
+                                if ( rec.containsMetadata(meta.getKey()) ) {
+                                    rec.deleteMetadata(meta.getKey());
                                 }
                             }
                         }
