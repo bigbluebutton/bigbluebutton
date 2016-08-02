@@ -1,0 +1,27 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility=1.7
+targetCompatibility=1.7
+
+version = '0.0.1'
+archivesBaseName = 'javacv-screenshare' 
+
+repositories {
+    flatDir name: 'localRepo', dirs: "./lib" 
+}
+
+dependencies {
+//  compile ":javacpp:@jar"
+  compile ":ffmpeg:@jar"
+//  compile ":javacv:@jar"
+}
+
+jar {
+   manifest.mainAttributes("Permissions": "all-permissions")
+   manifest.mainAttributes("Codebase": "*")
+   manifest.mainAttributes("Application-Name": "BigBlueButton Screenshare")
+   manifest.mainAttributes("Application-Library-Allowable-Codebase": "*")
+   manifest.mainAttributes("Caller-Allowable-Codebase": "*")
+   manifest.mainAttributes("Trusted-Only": "true")
+}

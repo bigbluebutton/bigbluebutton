@@ -192,4 +192,14 @@ object MeetingMessageToJsonConverter {
     val header = Util.buildHeader(TimeRemainingUpdate.NAME, None)
     Util.buildJson(header, payload)
   }
+
+  def breakoutRoomsTimeRemainingUpdateToJson(msg: BreakoutRoomsTimeRemainingUpdateOutMessage): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put("meetingId", msg.meetingId)
+    payload.put("recorded", msg.recorded)
+    payload.put("timeRemaining", msg.timeRemaining)
+
+    val header = Util.buildHeader(BreakoutRoomsTimeRemainingUpdate.NAME, None)
+    Util.buildJson(header, payload)
+  }
 }

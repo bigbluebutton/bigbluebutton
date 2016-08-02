@@ -5,23 +5,9 @@ import akka.actor.ActorLogging
 import akka.pattern.{ ask, pipe }
 import akka.util.Timeout
 import scala.concurrent.duration._
-import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.util._
-import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
-import scala.util.Success
-import scala.util.Failure
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.recorders.events.VoiceUserJoinedRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceUserLeftRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceUserLockedRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceUserMutedRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceStartRecordingRecordEvent
-import org.bigbluebutton.core.recorders.events.VoiceUserTalkingRecordEvent
-import org.bigbluebutton.core.service.recorder.RecorderApplication
-import scala.collection._
-import com.google.gson.Gson
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
@@ -45,7 +31,57 @@ class BigBlueButtonActor(val system: ActorSystem,
     case msg: PubSubPing => handlePubSubPingMessage(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
-    // case _ => // do nothing
+    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
+    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
+    case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
+    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
+    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
+    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
+    case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
+    case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
+    case _ => // do nothing
+  }
+
+  private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
+    meetings.values.find(m => { m.mProps.voiceBridge == voiceConfId })
+  }
+
+  private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
+  }
+
+  private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+    }
+  }
+
+  private def handleUserLockedInVoiceConfMessage(msg: UserLockedInVoiceConfMessage) {
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+    }
+  }
+
+  private def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+    }
+  }
+
+  private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+    }
+
+  }
+
+  private def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+    }
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {
@@ -131,40 +167,91 @@ class BigBlueButtonActor(val system: ActorSystem,
   }
 
   private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
+    val len = meetings.keys.size
+    var currPosition = len - 1
+    var resultArray: Array[MeetingInfo] = new Array[MeetingInfo](len)
 
-    var len = meetings.keys.size
-    println("meetings.size=" + meetings.size)
-    println("len_=" + len)
+    meetings.values.foreach(m => {
+      val id = m.mProps.meetingID
+      val duration = m.mProps.duration
+      val name = m.mProps.meetingName
+      val recorded = m.mProps.recorded
+      val voiceBridge = m.mProps.voiceBridge
 
-    val set = meetings.keySet
-    val arr: Array[String] = new Array[String](len)
-    set.copyToArray(arr)
-    val resultArray: Array[MeetingInfo] = new Array[MeetingInfo](len)
+      val info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
+      resultArray(currPosition) = info
+      currPosition = currPosition - 1
 
-    for (i <- 0 until arr.length) {
-      val id = arr(i)
-      val duration = meetings.get(arr(i)).head.mProps.duration
-      val name = meetings.get(arr(i)).head.mProps.meetingName
-      val recorded = meetings.get(arr(i)).head.mProps.recorded
-      val voiceBridge = meetings.get(arr(i)).head.mProps.voiceBridge
-
-      var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
-      resultArray(i) = info
+      val html5clientRequesterID = "nodeJSapp"
 
       //send the users
-      self ! (new GetUsers(id, "nodeJSapp"))
+      eventBus.publish(BigBlueButtonEvent(id, new GetUsers(id, html5clientRequesterID)))
 
       //send the presentation
-      self ! (new GetPresentationInfo(id, "nodeJSapp", "nodeJSapp"))
+      eventBus.publish(BigBlueButtonEvent(id, new GetPresentationInfo(id, html5clientRequesterID, html5clientRequesterID)))
 
       //send chat history
-      self ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
+      eventBus.publish(BigBlueButtonEvent(id, new GetChatHistoryRequest(id, html5clientRequesterID, html5clientRequesterID)))
 
       //send lock settings
-      self ! (new GetLockSettings(id, "nodeJSapp"))
-    }
+      eventBus.publish(BigBlueButtonEvent(id, new GetLockSettings(id, html5clientRequesterID)))
+
+      //send desktop sharing info
+      eventBus.publish(BigBlueButtonEvent(id, new DeskShareGetDeskShareInfoRequest(id, html5clientRequesterID, html5clientRequesterID)))
+
+      // send captions
+      eventBus.publish(BigBlueButtonEvent(id, new SendCaptionHistoryRequest(id, html5clientRequesterID)))
+    })
 
     outGW.send(new GetAllMeetingsReply(resultArray))
   }
 
+  private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
+    log.info("handleDeskShareStartedRequest: msg.conferenceName=" + msg.conferenceName)
+    findMeetingWithVoiceConfId(msg.conferenceName) foreach { m =>
+      {
+        //        println(msg.conferenceName + " (in for each) handleDeskShareStartedRequest BBBActor   ")
+        m.actorRef ! msg
+      }
+    }
+  }
+
+  private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
+    log.info("handleDeskShareStoppedRequest msg.conferenceName=" + msg.conferenceName)
+    findMeetingWithVoiceConfId(msg.conferenceName) foreach { m =>
+      {
+        //        println(msg.conferenceName + " (in for each) handleDeskShareStoppedRequest BBBActor   ")
+        m.actorRef ! msg
+      }
+    }
+  }
+
+  private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
+    log.info("handleDeskShareRTMPBroadcastStartedRequest msg.conferenceName=" + msg.conferenceName)
+    findMeetingWithVoiceConfId(msg.conferenceName) foreach { m =>
+      {
+        //        println(msg.conferenceName + " (in for each) handleDeskShareRTMPBroadcastStartedRequest BBBActor   ")
+        m.actorRef ! msg
+      }
+    }
+  }
+
+  private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
+    log.info("handleDeskShareRTMPBroadcastStoppedRequest msg.conferenceName=" + msg.conferenceName)
+    findMeetingWithVoiceConfId(msg.conferenceName) foreach { m =>
+      {
+        //        println(msg.conferenceName + " (in for each) handleDeskShareRTMPBroadcastStoppedRequest BBBActor   ")
+        m.actorRef ! msg
+      }
+    }
+  }
+
+  private def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
+    val m = meetings.values.find(m => {
+      m.mProps.meetingID == msg.conferenceName
+    })
+    m foreach { mActor => mActor.actorRef ! msg }
+  }
+
 }
+

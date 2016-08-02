@@ -42,7 +42,7 @@ case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String,
 // Sent by user to request the breakout rooms list of a room
 case class BreakoutRoomsListMessage(meetingId: String) extends InMessage
 // Sent by user to request creation of breakout rooms
-case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int,
+case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, recordType: String,
   rooms: Vector[BreakoutRoomInPayload]) extends InMessage
 case class BreakoutRoomInPayload(name: String, users: Vector[String])
 // Sent by user to request for a join URL in order to be able to join a breakout room
@@ -78,7 +78,7 @@ case class GetLockSettings(meetingID: String, userId: String) extends InMessage
 case class ValidateAuthToken(meetingID: String, userId: String, token: String,
   correlationId: String, sessionId: String) extends InMessage
 case class RegisterUser(meetingID: String, userID: String, name: String, role: Role,
-  extUserID: String, authToken: String) extends InMessage
+  extUserID: String, authToken: String, avatarURL: String) extends InMessage
 case class UserJoining(meetingID: String, userID: String, authToken: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
@@ -165,7 +165,7 @@ case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedB
 case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
   callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
 case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
-  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean) extends InMessage
+  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, avatarURL: String, listenOnly: Boolean) extends InMessage
 case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String) extends InMessage
 case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean) extends InMessage
 case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean) extends InMessage
@@ -188,3 +188,10 @@ case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy
 case class SendCaptionHistoryRequest(meetingID: String, requesterID: String) extends InMessage
 case class UpdateCaptionOwnerRequest(meetingID: String, locale: String, ownerID: String) extends InMessage
 case class EditCaptionHistoryRequest(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) extends InMessage
+// DeskShare
+case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
+case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
+case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
+case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) extends InMessage
+case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage
+

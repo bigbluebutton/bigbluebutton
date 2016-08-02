@@ -68,25 +68,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
+			import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
+
+			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);
 
 			public static const SCALE:Number = 5;
 			private static const VID_HEIGHT_PAD:Number = 73;
 			private static const VID_WIDTH_PAD:Number = 6;
-			
+
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 			[Bindable] private var cursorIcon:Class = images.cursorIcon;
-			
+
 			private var connection:NetConnection;
 			private var uri:String;
 			private var useTLS:Boolean;
 			private var room:String;
 			private var sharingFullScreen:Boolean = false;
 			private var streaming:Boolean = false;
-			
+
 			private var video:Video;
 			private var ns:NetStream;
 			[Bindable] private var videoHolder:UIComponent;
@@ -98,30 +99,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var autoStart:Boolean = false;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			private var javaTimer:Timer;
-			
+
 			[Bindable] private var cursor:Sprite;
 			[Bindable] private var dsOptions:DeskshareOptions;
-			
+
       private var calledStopApplet:Boolean = false;
-      
+
 			private function init():void {
 				dsOptions = new DeskshareOptions();
 			}
-			
+
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
-				
+
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);		
-				
-				if (isUsingLessThanChrome38OnMac()) {
+				cursor.graphics.drawCircle(0,0,3);
+
+				if (BrowserCheck.isUsingLessThanChrome38OnMac()) {
 					setCurrentState("chromeOnMacWarningState");
+				} else if (BrowserCheck.isUsingEdgePluginUnsupported()) {
+					setCurrentState("edgePluginWarningState");
 				} else {
 					var javaIssue:String = JavaCheck.checkJava();
-					
+
 					if (javaIssue != null) {
-						if (isChrome42OrHigher()) {
+						if (BrowserCheck.isChrome42OrHigher()) {
 							setCurrentState("chrome42WarningState");
 						} else {
 							setCurrentState("javaIssueWarningState");
@@ -395,24 +398,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.closeBtn.accessibilityName");
 				}
 			}
-			
+
 			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
-			
+
 			private function closePublishWindow(event:ViewStreamEvent):void{
 				stopStream();
 				closeWindow();
-			}
-			
-			private function isUsingLessThanChrome38OnMac():Boolean {
-				var browser:Array = ExternalInterface.call("determineBrowser");
-				return ((browser[0] == "Chrome") && (parseInt(browser[1]) <= 38) && (Capabilities.os.indexOf("Mac") >= 0));
-			}
-			
-			private function isChrome42OrHigher():Boolean {
-				var browser:Array = ExternalInterface.call("determineBrowser");
-				return ((browser[0] == "Chrome") && (parseInt(browser[1]) >= 42));
 			}
 		]]>
 	</mx:Script>
@@ -472,6 +465,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
 					<mx:Text id="chrome42WarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
 							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chrome42UnsupportedHint')}" />
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="edgePluginWarningState">
+			<mx:AddChild>
+				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:Text id="edgePluginWarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
+							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.edgePluginUnsupportedHint')}" />
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>

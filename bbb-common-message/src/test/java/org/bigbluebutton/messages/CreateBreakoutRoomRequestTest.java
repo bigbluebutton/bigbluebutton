@@ -17,10 +17,11 @@ public class CreateBreakoutRoomRequestTest {
     String viewerPassword = "vp";
     String moderatorPassword = "mp";
     String defaultPresentationURL = "http://localhost/foo.pdf";
+    String recordType = "none";
     
     CreateBreakoutRoomRequestPayload payload = 
         new CreateBreakoutRoomRequestPayload(breakoutId, parentId, name, voiceConfId, 
-            viewerPassword, moderatorPassword, durationInMinutes, defaultPresentationURL);
+            viewerPassword, moderatorPassword, durationInMinutes, defaultPresentationURL, recordType);
     CreateBreakoutRoomRequest msg = new CreateBreakoutRoomRequest(payload);    
     Gson gson = new Gson();
     String json = gson.toJson(msg);
@@ -36,5 +37,6 @@ public class CreateBreakoutRoomRequestTest {
     Assert.assertEquals(rxMsg.payload.moderatorPassword, moderatorPassword);
     Assert.assertEquals(rxMsg.payload.durationInMinutes, durationInMinutes);
     Assert.assertEquals(rxMsg.payload.defaultPresentationURL, defaultPresentationURL);
+    Assert.assertEquals(rxMsg.payload.recordType, recordType);
   }
 }

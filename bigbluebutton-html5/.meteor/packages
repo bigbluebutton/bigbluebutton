@@ -1,0 +1,25 @@
+# Meteor packages used by this project, one per line.
+#
+# 'meteor add' and 'meteor remove' will edit this file for you,
+# but you can also edit it by hand.
+
+standard-app-packages
+mrt:redis@0.1.3
+arunoda:npm@0.2.6
+amplify
+blaze
+francocatena:status
+mrt:external-file-loader@0.1.4
+brentjanderson:winston-client@0.0.4
+duongthienduc:meteor-winston
+mizzao:timesync
+clinical:nightwatch
+cfs:power-queue
+cfs:reactive-list
+cfs:micro-queue
+reactive-var
+ecmascript
+react-meteor-data
+standard-minifier-css
+standard-minifier-js
+nathantreid:css-modules

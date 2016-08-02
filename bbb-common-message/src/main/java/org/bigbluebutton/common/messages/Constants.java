@@ -131,4 +131,11 @@ public class Constants {
   public static final String TEXT                            = "text";
   public static final String OWNER_ID                        = "owner_id";
   public static final String CAPTION_HISTORY                 = "caption_history";
+  public static final String AVATAR_URL                      = "avatarURL";
+  public static final String STUNS                           = "stuns";
+  public static final String TURNS                           = "turns";
+  public static final String USERNAME                        = "username";
+  public static final String URL                             = "url";
+  public static final String TTL                             = "ttl";
+  public static final String PASSWORD                        = "password";
 }

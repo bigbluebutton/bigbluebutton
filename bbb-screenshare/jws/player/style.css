@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#menu {
+  border-bottom: 1px solid #bbb;
+  background: #eee;
+  padding: 20px;
+}
+
+#menu form {
+  padding: 0;
+  margin: 0;
+}
+
+.field {
+  clear: both;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field2 {
+  clear: both;
+  display: block;
+  margin-bottom: 5px;
+  margin-left: 160px;
+}
+
+.field .label {
+  width: 80px;
+  float: left;
+  text-align: right;
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
+.field input[type=text] {
+  width: 450px;
+}
+
+.field button {
+  margin-left: 210px;
+}
+
+#content {
+  padding: 30px;
+}
+
+#wrapper {
+  border: 1px solid red;
+  padding: 5px;
+}

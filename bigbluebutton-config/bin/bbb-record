@@ -31,6 +31,7 @@
 #   2013-04-03 GUG  Enable/Disable a recording workflow
 #   2013-04-05 GUG  Description is optional in bbb-record --watch
 #   2013-04-05 GUG  Map internal meeting id with external meeting id
+#   2016-07-02 FFD  Updates for 1.1
 
 #set -e
 #set -x
@@ -47,7 +48,7 @@ RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | se
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
 RAW_AUDIO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_audio_src\)/{s/.*raw_audio_src:[ ]*//;s/;//;p}')
 RAW_VIDEO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_video_src\)/{s/.*raw_video_src:[ ]*//;s/;//;p}')
-RAW_DESKSHARE_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_deskshare_src\)/{s/.*raw_deskshare_src:[ ]*//;s/;//;p}')
+RAW_SCREENSHARE_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_screenshare_src\)/{s/.*raw_screenshare_src:[ ]*//;s/;//;p}')
 RAW_PRESENTATION_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_presentation_src\)/{s/.*raw_presentation_src:[ ]*//;s/;//;p}')
 
 TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
@@ -372,7 +373,8 @@ if [ $DELETE ]; then
   rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
 
   rm -rf /usr/share/red5/webapps/video/streams/$MEETING_ID
-  rm -f /var/bigbluebutton/deskshare/$MEETING_ID*.flv
+  rm -rf /usr/share/red5/webapps/video-broadcast/streams/$MEETING_ID
+  rm -f /var/bigbluebutton/screenshare/$MEETING_ID*.flv
   rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
   rm -rf /var/bigbluebutton/$MEETING_ID
 fi
@@ -400,7 +402,8 @@ if [ $DELETEALL ]; then
   rm -rf /var/bigbluebutton/recording/raw/*
   
   find /usr/share/red5/webapps/video/streams -name "*.flv" -exec rm '{}' \;
-  rm -f /var/bigbluebutton/deskshare/*.flv
+  find /usr/share/red5/webapps/video-broadcast/streams -name "*.flv" -exec rm '{}' \;
+  rm -f /var/bigbluebutton/screenshare/*.flv
   rm -f /var/freeswitch/meetings/*.wav
 
   for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
@@ -492,9 +495,11 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 		echo -n " "
 	fi
 
+#echo "## $RAW_SCREENSHARE_SRC/$meeting-*.flv"
+#exit
 	#
 	# Check if there is any recorded desktop sharing
-	if ls -A $RAW_DESKSHARE_SRC/$meeting-*.flv &> /dev/null; then
+	if ls -A $RAW_SCREENSHARE_SRC/$meeting/*.flv &> /dev/null; then
 		echo -n "X"
 	else
 		echo -n " "

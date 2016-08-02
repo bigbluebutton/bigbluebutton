@@ -98,7 +98,7 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().avatarURL = result.avatarURL;
 				UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
 				UserManager.getInstance().getConference().dialNumber = result.dialnumber;
-				UserManager.getInstance().getConference().record = (result.record != "false");
+				UserManager.getInstance().getConference().record = (result.record.toUpperCase() == "TRUE");
 				
         
         
@@ -206,7 +206,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
-			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes);
+			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes, e.recordType);
 		}
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{

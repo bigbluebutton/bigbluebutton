@@ -1,0 +1,121 @@
+@font-face {
+    font-family: 'bbb-icons';
+    src: url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
+    src: url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
+         url('/html5client/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
+         url('/html5client/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
+         url('/html5client/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="icon-bbb-"], [class*=" icon-bbb-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'bbb-icons' !important;
+    speak: none;
+    position: relative;
+    /*top: 1px;*/
+    display: inline-block;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    width: 1.28571429em;
+    text-align: center;
+    vertical-align: middle;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-bbb-logout:before {
+    content: "\e900";
+}
+.icon-bbb-video:before {
+    content: "\1f554";
+}
+.icon-bbb-more:before {
+    content: "\e902";
+}
+.icon-bbb-promote:before {
+    content: "\e903";
+}
+.icon-bbb-application:before {
+    content: "\e904";
+}
+.icon-bbb-video-off:before {
+    content: "\e905";
+}
+.icon-bbb-user:before {
+    content: "\e906";
+}
+.icon-bbb-up-arrow:before {
+    content: "\e907";
+}
+.icon-bbb-undecided:before {
+    content: "\e908";
+}
+.icon-bbb-time:before {
+    content: "\e909";
+}
+.icon-bbb-sad:before {
+    content: "\e90a";
+}
+.icon-bbb-right-arrow:before {
+    content: "\e90b";
+}
+.icon-bbb-presentation:before {
+    content: "\e90c";
+}
+.icon-bbb-listen:before {
+    content: "\e90d";
+}
+.icon-bbb-left-arrow:before {
+    content: "\e90e";
+}
+.icon-bbb-happy:before {
+    content: "\e90f";
+}
+.icon-bbb-hand:before {
+    content: "\e910";
+}
+.icon-bbb-group-chat:before {
+    content: "\e911";
+}
+.icon-bbb-confused:before {
+    content: "\e912";
+}
+.icon-bbb-close:before {
+    content: "\e913";
+}
+.icon-bbb-clear-status:before {
+    content: "\e914";
+}
+.icon-bbb-circle:before {
+    content: "\e915";
+}
+.icon-bbb-circle-minus:before {
+    content: "\e916";
+}
+.icon-bbb-circle-close:before {
+    content: "\e917";
+}
+.icon-bbb-circle-add:before {
+    content: "\e918";
+}
+.icon-bbb-check:before {
+    content: "\e919";
+}
+.icon-bbb-chat:before {
+    content: "\e91a";
+}
+.icon-bbb-audio:before {
+    content: "\e91b";
+}
+.icon-bbb-audio-off:before {
+    content: "\e91c";
+}
+.rotate-quarter {
+  transform: rotate(-90deg);
+}

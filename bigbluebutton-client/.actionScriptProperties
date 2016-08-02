@@ -17,6 +17,7 @@
   <applications>
     <application path="BigBlueButton.mxml"/>
     <application path="DeskshareStandalone.mxml"/>
+    <application path="ScreenshareStandalone.mxml"/>
   </applications>
   <modules>
     <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>

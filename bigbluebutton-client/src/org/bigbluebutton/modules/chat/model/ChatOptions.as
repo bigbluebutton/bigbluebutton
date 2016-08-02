@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.chat.model {
 				if (cxml.@baseTabIndex != undefined) {
 					baseTabIndex = cxml.@baseTabIndex;
 				} else {
-					baseTabIndex = 701;
+					baseTabIndex = 801;
 				}
 				if (cxml.@colorPickerIsVisible != undefined) {
 					colorPickerIsVisible = (cxml.@colorPickerIsVisible.toString().toUpperCase() == "TRUE") ? true : false;

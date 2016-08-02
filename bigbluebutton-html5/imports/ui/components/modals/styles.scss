@@ -1,0 +1,37 @@
+.modalHeaderButtonContainer {
+  float: right;
+}
+
+.modalButton {
+  background: none;
+  border-radius: 25px;
+  color: #008CBA;
+  margin: 15px;
+  padding-bottom: 10px;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 10px;
+  text-align: center;
+  width: 100px;
+}
+
+.close {
+  background: none;
+  color: #008CBA;
+  margin: 15px;
+}
+
+.done {
+  background: #008CBA;
+  color: white;
+}
+
+.modalHeaderTitle {
+  color: black;
+  float: left;
+  margin-top: 20px;
+}
+
+.modalHorizontalRule {
+  clear: both;
+}

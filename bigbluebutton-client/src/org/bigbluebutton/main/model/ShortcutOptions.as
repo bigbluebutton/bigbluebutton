@@ -82,10 +82,6 @@ package org.bigbluebutton.main.model
 			if (presentation){generalResource.push('bbb.shortcutkey.focus.presentation');}
 			if (chat){generalResource.push('bbb.shortcutkey.focus.chat');}
 			
-			if (audio){
-				generalResource.push('bbb.shortcutkey.share.microphone');
-				generalResource.push('bbb.shortcutkey.share.pauseRemoteStream');
-			}
 			if (deskshare){generalResource.push('bbb.shortcutkey.share.desktop');}
 			if (webcam){generalResource.push('bbb.shortcutkey.share.webcam');}
 			generalResource.push('bbb.shortcutkey.shortcutWindow');

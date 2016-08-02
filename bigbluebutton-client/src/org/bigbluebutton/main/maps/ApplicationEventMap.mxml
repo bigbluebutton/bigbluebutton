@@ -60,6 +60,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
 	</EventHandlers>
+	
+	<EventHandlers type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" >
+		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+	</EventHandlers>
 		
 	<EventHandlers type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleConfigLoaded" />
@@ -102,11 +106,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.main.events.ConfigLoadedEvent;
 		import org.bigbluebutton.main.events.LoadConfigCommand;
+		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;
 		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 		import org.bigbluebutton.main.model.modules.ModulesProxy;
+		import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 		
 	]]>
 	</mx:Script>

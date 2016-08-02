@@ -28,7 +28,7 @@
 			privateEnabled="true"  
 			fontSize="12"
 			position="top-right"
-			baseTabIndex="701"
+			baseTabIndex="801"
 			colorPickerIsVisible="false"
 			maxMessageLength="1024"
 		/>
@@ -38,21 +38,20 @@
 			allowKickUser="true"
 			enableEmojiStatus="true"
 			enableSettingsButton="true"
+			enableBreakoutRooms="true"
 			baseTabIndex="301"
 		/>
 
-		
-		<module name="DeskShareModule" 
-			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
-			uri="rtmp://HOST/deskShare"
-			publishURI="HOST"
-			useTLS="false"
+		<module name="ScreenshareModule" 
+			url="http://HOST/client/ScreenshareModule.swf?v=VERSION" 
+			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
+			help="http://HOST/client/screenshare-help.html"
 		/>
-		
+    
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
@@ -119,6 +118,7 @@
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"
+			baseTabIndex="701"
 		/>
 
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"

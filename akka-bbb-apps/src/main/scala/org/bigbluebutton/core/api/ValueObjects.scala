@@ -69,7 +69,8 @@ case class RegisteredUser(
   externId: String,
   name: String,
   role: Role.Role,
-  authToken: String)
+  authToken: String,
+  avatarURL: String)
 
 case class Voice(
   id: String,
@@ -94,6 +95,7 @@ case class UserVO(
   phoneUser: Boolean,
   voiceUser: VoiceUser,
   listenOnly: Boolean,
+  avatarURL: String,
   joinedWeb: Boolean)
 
 case class VoiceUser(
@@ -105,6 +107,7 @@ case class VoiceUser(
   locked: Boolean,
   muted: Boolean,
   talking: Boolean,
+  avatarURL: String,
   listenOnly: Boolean)
 
 case class MeetingConfig(name: String,
@@ -129,4 +132,9 @@ case class MeetingPasswords(moderatorPass: String, viewerPass: String)
 case class MeetingDuration(duration: Int = 0, createdTime: Long = 0,
   startTime: Long = 0, endTime: Long = 0)
 
-case class MeetingInfo(meetingID: String, meetingName: String, recorded: Boolean, voiceBridge: String, duration: Int)
+case class MeetingInfo(
+  meetingID: String,
+  meetingName: String,
+  recorded: Boolean,
+  voiceBridge: String,
+  duration: Long)

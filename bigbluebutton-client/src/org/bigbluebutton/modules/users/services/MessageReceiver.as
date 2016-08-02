@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.users.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
@@ -47,27 +48,37 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
   
+  import org.bigbluebutton.modules.present.events.CursorEvent;
+  import org.bigbluebutton.modules.present.events.NavigationEvent;
+  import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+  import org.bigbluebutton.modules.present.events.UploadEvent;
+  import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+  import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+  import org.bigbluebutton.modules.deskshare.events.WebRTCViewStreamEvent;
+  import org.bigbluebutton.main.api.JSLog;
+  import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+
   public class MessageReceiver implements IMessageListener
   {
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
-       
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+
     private var dispatcher:Dispatcher;
     private var _conference:Conference;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
-    
+
     public function MessageReceiver() {
       _conference = UserManager.getInstance().getConference();
       BBB.initConnectionManager().addMessageListener(this);
       this.dispatcher = new Dispatcher();
     }
-    
+
     public function onMessage(messageName:String, message:Object):void {
-//      LOGGER.debug(" received message " + messageName);
-      
+      // LOGGER.debug(" received message " + messageName);
+
       switch (messageName) {
         case "getUsersReply":
           handleGetUsersReply(message);
-          break;		
+          break;
         case "assignPresenterCallback":
           handleAssignPresenterCallback(message);
           break;
@@ -128,12 +139,9 @@ package org.bigbluebutton.modules.users.services
         case "permissionsSettingsChanged":
           handlePermissionsSettingsChanged(message);
           break;
-		case "userLocked":
+        case "userLocked":
           handleUserLocked(message);
           break;
-		case "userEjectedFromMeeting":
-		 handleUserEjectedFromMeeting(message);
-		 break;
 		// Breakout room feature
 		case "breakoutRoomsList":
 		  handleBreakoutRoomsList(message)
@@ -147,23 +155,49 @@ package org.bigbluebutton.modules.users.services
 		case "timeRemainingUpdate":
 	      handleTimeRemainingUpdate(message);
 		  break;
+		case "breakoutRoomsTimeRemainingUpdate":
+			handleBreakoutRoomsTimeRemainingUpdate(message);
+			break;
 		case "breakoutRoomStarted":
 		  handleBreakoutRoomStarted(message);
 		  break;
 		case "breakoutRoomClosed":
 		  handleBreakoutRoomClosed(message);
 		  break;
+        case "userEjectedFromMeeting":
+          handleUserEjectedFromMeeting(message);
+          break;
+        case "DeskShareRTMPBroadcastNotification":
+          handleDeskShareRTMPBroadcastNotification(message);
+          break;
       }
-    }  
-    
-	private function handleUserEjectedFromMeeting(msg: Object):void {
-		UsersUtil.setUserEjected();
-	}
-	
+    }
+
+    private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
+      LOGGER.debug("*** handleDeskShareRTMPBroadcastNotification **** \n", [msg]);
+
+      var event:WebRTCViewStreamEvent;
+      if (msg.broadcasting) {
+        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
+      } else {
+        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
+      }
+
+      event.videoWidth = msg.width;
+      event.videoHeight = msg.height;
+      event.rtmp = msg.rtmpUrl;
+
+      dispatcher.dispatchEvent(event);
+    }
+
+    private function handleUserEjectedFromMeeting(msg: Object):void {
+      UsersUtil.setUserEjected();
+    }
+
 	private function handleUserLocked(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
 		var user:BBBUser = UsersUtil.getUser(map.user);
-		
+
 		if(user.userLocked != map.lock)
 			user.lockStatusChanged(map.lock);
 		return;
@@ -192,6 +226,7 @@ package org.bigbluebutton.modules.users.services
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;
+
       dispatcher.dispatchEvent(e);
     }
     
@@ -558,6 +593,7 @@ package org.bigbluebutton.modules.users.services
       user.isLeavingFlag = false;
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
+      user.avatarURL = joinedUser.avatarURL;
 	  
 	  LOGGER.info("User joined = " + JSON.stringify(user));
 	  
@@ -612,6 +648,7 @@ package org.bigbluebutton.modules.users.services
 		var map:Object = JSON.parse(msg.msg);
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
 		event.joinURL = map.joinURL;
+		event.breakoutId = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
 		dispatcher.dispatchEvent(event);
 	}
 	
@@ -619,10 +656,17 @@ package org.bigbluebutton.modules.users.services
 		var map:Object = JSON.parse(msg.msg);
 		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.users);
 	}
-	
-	private function handleTimeRemainingUpdate(msg:Object):void{
+
+	private function handleTimeRemainingUpdate(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
-		var e : BreakoutRoomEvent=  new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME);
+		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT);
+		e.durationInMinutes = map.timeRemaining;
+		dispatcher.dispatchEvent(e);
+	}
+	
+	private function handleBreakoutRoomsTimeRemainingUpdate(msg:Object):void {
+		var map:Object = JSON.parse(msg.msg);
+		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
 		e.durationInMinutes = map.timeRemaining;
 		dispatcher.dispatchEvent(e);
 	}

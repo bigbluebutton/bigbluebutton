@@ -6,7 +6,8 @@ import java.util.concurrent.TimeUnit
 case object StopMeetingActor
 case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
   voiceBridge: String, duration: Int, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, isBreakout: Boolean)
+  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String,
+  red5DeskShareIP: String, red5DeskShareApp: String, isBreakout: Boolean)
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
   sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
@@ -17,19 +18,80 @@ class MeetingModel {
   private var permissionsInited = false
   private var permissions = new Permissions()
   private var recording = false;
+  private var broadcastingRTMP = false
   private var muted = false;
   private var meetingEnded = false
   private var meetingMuted = false
 
-  val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
   private var lastWebUserLeftOnTimestamp: Long = 0
 
   private var voiceRecordingFilename: String = ""
+  private var rtmpBroadcastingUrl: String = ""
+  private var deskShareStarted = false
+  private var desktopShareVideoWidth = 0
+  private var desktopShareVideoHeight = 0
 
   private var extension = new MeetingExtensionProp
 
-  val startedOn = timeNowInMinutes;
+  val startedOn = timeNowInSeconds;
+
+  var breakoutRoomsStartedOn: Long = 0;
+  var breakoutRoomsdurationInMinutes: Int = 0;
+
+  def resetDesktopSharingParams() = {
+    broadcastingRTMP = false
+    deskShareStarted = false
+    rtmpBroadcastingUrl = ""
+    desktopShareVideoWidth = 0
+    desktopShareVideoHeight = 0
+  }
+
+  def getDeskShareStarted(): Boolean = {
+    return deskShareStarted
+  }
+
+  def setDeskShareStarted(b: Boolean) {
+    deskShareStarted = b
+    println("---deskshare status changed to:" + b)
+  }
+
+  def setDesktopShareVideoWidth(videoWidth: Int) {
+    desktopShareVideoWidth = videoWidth
+  }
+
+  def setDesktopShareVideoHeight(videoHeight: Int) {
+    desktopShareVideoHeight = videoHeight
+  }
+
+  def getDesktopShareVideoWidth(): Int = {
+    desktopShareVideoWidth
+  }
+
+  def getDesktopShareVideoHeight(): Int = {
+    desktopShareVideoHeight
+  }
+
+  def broadcastingRTMPStarted() {
+    broadcastingRTMP = true
+  }
+
+  def isBroadcastingRTMP(): Boolean = {
+    broadcastingRTMP
+  }
+
+  def broadcastingRTMPStopped() {
+    broadcastingRTMP = false
+  }
+
+  def setRTMPBroadcastingUrl(path: String) {
+    println("---RTMP broadcastUrl changed to:" + path)
+    rtmpBroadcastingUrl = path
+  }
+
+  def getRTMPBroadcastingUrl(): String = {
+    rtmpBroadcastingUrl
+  }
 
   def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
   def incNumExtension(): Int = {
@@ -66,4 +128,5 @@ class MeetingModel {
   def meetingHasEnded() = meetingEnded = true
   def hasMeetingEnded(): Boolean = meetingEnded
   def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
+  def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
 }

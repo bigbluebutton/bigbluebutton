@@ -22,6 +22,8 @@ import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 import org.bigbluebutton.common.messages._
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
+import org.bigbluebutton.common.messages.payload._
+import org.bigbluebutton.common.messages._
 import org.bigbluebutton.messages.payload._
 import org.bigbluebutton.messages._
 
@@ -75,6 +77,12 @@ class JsonMessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
   }
 
+  private def handleMeetingTimeRemainingUpdate(msg: BreakoutRoomsTimeRemainingUpdateOutMessage) {
+    val payload = new BreakoutRoomsTimeRemainingPayload(msg.meetingId, msg.timeRemaining)
+    val request = new BreakoutRoomsTimeRemainingUpdate(payload)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
+  }
+
   private def handleBreakoutRoomsList(msg: BreakoutRoomsListOutMessage) {
     val rooms = new java.util.ArrayList[BreakoutRoomPayload]()
     msg.rooms.foreach(r => rooms.add(new BreakoutRoomPayload(msg.meetingId, r.breakoutId, r.name)))
@@ -86,7 +94,7 @@ class JsonMessageSenderActor(val service: MessageSender)
   private def handleCreateBreakoutRoom(msg: CreateBreakoutRoom) {
     val payload = new CreateBreakoutRoomRequestPayload(msg.room.breakoutId, msg.room.parentId, msg.room.name,
       msg.room.voiceConfId, msg.room.viewerPassword, msg.room.moderatorPassword,
-      msg.room.durationInMinutes, msg.room.defaultPresentationURL)
+      msg.room.durationInMinutes, msg.room.defaultPresentationURL, msg.room.recordType)
     val request = new CreateBreakoutRoomRequest(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
   }

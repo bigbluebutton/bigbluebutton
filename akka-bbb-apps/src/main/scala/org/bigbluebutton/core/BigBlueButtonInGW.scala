@@ -26,13 +26,12 @@ import spray.json.JsonParser
 class BigBlueButtonInGW(
     val system: ActorSystem,
     eventBus: IncomingEventBus,
-    outGW: OutMessageGateway) extends IBigBlueButtonInGW {
+    outGW: OutMessageGateway,
+    val red5DeskShareIP: String,
+    val red5DeskShareApp: String) extends IBigBlueButtonInGW {
 
   val log = Logging(system, getClass)
-
-  val bbbActor = system.actorOf(
-    BigBlueButtonActor.props(system, eventBus, outGW), "bigbluebutton-actor")
-
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, outGW), "bigbluebutton-actor")
   eventBus.subscribe(bbbActor, "meeting-manager")
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
@@ -68,12 +67,10 @@ class BigBlueButtonInGW(
           msg.payload.viewerPassword,
           msg.payload.createTime,
           msg.payload.createDate,
+          red5DeskShareIP, red5DeskShareApp,
           msg.payload.isBreakout)
 
-        eventBus.publish(
-          BigBlueButtonEvent(
-            "meeting-manager",
-            new CreateMeeting(msg.payload.id, mProps)))
+        eventBus.publish(BigBlueButtonEvent("meeting-manager", new CreateMeeting(msg.payload.id, mProps)))
       }
     }
   }
@@ -97,6 +94,7 @@ class BigBlueButtonInGW(
   }
 
   def destroyMeeting(meetingID: String) {
+    forwardMessage(new EndAllBreakoutRooms(meetingID))
     eventBus.publish(
       BigBlueButtonEvent(
         "meeting-manager",
@@ -137,9 +135,9 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingId, new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId)))
   }
 
-  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String): Unit = {
+  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String, avatarURL: String): Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    eventBus.publish(BigBlueButtonEvent(meetingID, new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken)))
+    eventBus.publish(BigBlueButtonEvent(meetingID, new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken, avatarURL)))
   }
 
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -470,9 +468,9 @@ class BigBlueButtonInGW(
   }
 
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
-    callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
+    callerIdNum: String, muted: java.lang.Boolean, avatarURL: String, talking: java.lang.Boolean) {
     eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
-      callerIdNum, muted, talking, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )))
+      callerIdNum, muted, talking, avatarURL, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )))
   }
 
   def voiceUserLeft(voiceConfId: String, voiceUserId: String) {
@@ -497,10 +495,30 @@ class BigBlueButtonInGW(
 
   /**
    * *******************************************************************
-   * Message Interface for Polling
+   * Message Interface for DeskShare
    * *****************************************************************
    */
+  def deskShareStarted(meetingId: String, callerId: String, callerIdName: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareStartedRequest(meetingId, callerId, callerIdName)))
+  }
 
+  def deskShareStopped(meetingId: String, callerId: String, callerIdName: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareStoppedRequest(meetingId, callerId, callerIdName)))
+  }
+
+  def deskShareRTMPBroadcastStarted(meetingId: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareRTMPBroadcastStartedRequest(meetingId, streamname, videoWidth, videoHeight, timestamp)))
+  }
+
+  def deskShareRTMPBroadcastStopped(meetingId: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareRTMPBroadcastStoppedRequest(meetingId, streamname, videoWidth, videoHeight, timestamp)))
+  }
+
+  def deskShareGetInfoRequest(meetingId: String, requesterId: String, replyTo: String): Unit = {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new DeskShareGetDeskShareInfoRequest(meetingId, requesterId, replyTo)))
+  }
+
+  // Polling
   def votePoll(meetingId: String, userId: String, pollId: String, questionId: Integer, answerId: Integer) {
     eventBus.publish(BigBlueButtonEvent(meetingId, new RespondToPollRequest(meetingId, userId, pollId, questionId, answerId)))
   }
@@ -528,14 +546,14 @@ class BigBlueButtonInGW(
    */
 
   def sendCaptionHistory(meetingID: String, requesterID: String) {
-    bbbActor ! new SendCaptionHistoryRequest(meetingID, requesterID)
+    eventBus.publish(BigBlueButtonEvent(meetingID, new SendCaptionHistoryRequest(meetingID, requesterID)))
   }
 
   def updateCaptionOwner(meetingID: String, locale: String, ownerID: String) {
-    bbbActor ! new UpdateCaptionOwnerRequest(meetingID, locale, ownerID)
+    eventBus.publish(BigBlueButtonEvent(meetingID, new UpdateCaptionOwnerRequest(meetingID, locale, ownerID)))
   }
 
   def editCaptionHistory(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) {
-    bbbActor ! new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, text)
+    eventBus.publish(BigBlueButtonEvent(meetingID, new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, text)))
   }
 }

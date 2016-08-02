@@ -24,9 +24,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:mate="http://mate.asfusion.com/"
-				width="700" height="700"
+				width="630" height="650"
 				close="onCloseClicked()"
-				creationComplete="assignUsers()"
+				creationComplete="creationCompleteHandler(event)"
 				showCloseButton="false">
 
 	<fx:Script>
@@ -35,13 +35,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
-			import mx.events.SliderEvent;
+			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			[Bindable]
+			private var roomsProvider:Array;
+
+			[Bindable]
+			private var recordTypesProvider:Array;
 
 			private var dispatcher:Dispatcher;
 
@@ -58,12 +64,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS);
 				// event.meetingId is filled in the event handler for BreakoutRoomEvent in UserService class
 				event.rooms = new Array();
-				for (var i:int = 0; i < roomsSlider.value; i++) {
+				for (var i:int = 0; i < (roomsCombo.selectedIndex + 2); i++) {
 					var users:Array = BreakoutList(roomsContainer.getChildAt(i)).users.source;
 					totalUsers += users.length;
 					var room:Object = new Object();
 					room.users = new Array();
-					room.name = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (i + 1).toString();
+					room.name =
+						UserManager.getInstance().getConference().meetingName + " (" + 
+						ResourceUtil.getInstance().getString('bbb.users.breakout.room')
+						+ " - " + (i + 1).toString() + ")";;
 					for (var j:int = 0; j < users.length; j++) {
 						room.users.push(users[j].userID);
 					}
@@ -71,28 +80,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				if (totalUsers > 0) {
 					event.durationInMinutes = durationStepper.value;
+					event.recordType = recordTypesCombo.selectedItem.data;
 					dispatcher.dispatchEvent(event);
 					PopUpManager.removePopUp(this);
 				} else {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
 				}
 			}
-
+			
 			protected function assignUsers():void {
 				dispatcher = new Dispatcher();
-
 				var originalUsers:ArrayCollection = UserManager.getInstance().getConference().users;
 				var users:ArrayCollection = new ArrayCollection();
+				var me:BBBUser;
 				// Copy users to avoid removing the references from the original ArrayCollection
 				for (var l:int = 0; l < originalUsers.length; l++) {
-					users.addItem(BBBUser.copy(originalUsers[l]));
+					if (!UserManager.getInstance().getConference().amIThisUser(BBBUser(originalUsers[l]).userID)) {
+						users.addItem(BBBUser.copy(originalUsers[l]));
+					} // Put the current user to the unassigned box because he is the moderator
+					else {
+						me = originalUsers[l];
+					}
 				}
-				var rooms:int = roomsSlider.value;
+				var rooms:int = roomsCombo.selectedIndex + 2;
 				var perRoom:int = users.length / rooms;
 				var remaining:int = users.length % rooms;
 				var user:BBBUser;
 				roomsContainer.removeAllChildren();
-				// @fixme: don't send duplicate users and be sure that the number of rooms is correct
 				for (var r:int = 0; r < rooms; r++) {
 					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 					list.users = new ArrayCollection();
@@ -104,40 +118,64 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				for (var j:int = 0; j < remaining; j++) {
 					BreakoutList(roomsContainer.getChildAt(j)).users.addItem(users.removeItemAt(Math.floor(Math.random() * users.length)) as BBBUser);
 				}
-				var outList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
-				outList.users = new ArrayCollection();
-				outList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
-				
+				var unassignedList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
+				unassignedList.users = new ArrayCollection([me]);
+				unassignedList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
 				startButton.enabled = true;
+			}			
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				roomsProvider = new Array();
+				for (var i: int=2; i <=5; i++){
+					roomsProvider.push(i.toString() + " " + ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')); 
+				}
+				roomsCombo.selectedIndex = 0;
+				
+				recordTypesProvider = new Array(
+					{label:ResourceUtil.getInstance().getString('bbb.users.breakout.recordTypeNone'), data:"none"},
+					{label:ResourceUtil.getInstance().getString('bbb.users.breakout.recordTypeModerator'), data:"moderator"},
+					{label:ResourceUtil.getInstance().getString('bbb.users.breakout.recordTypeAll'), data:"all"}
+				);
+				recordTypesCombo.selectedIndex = 0;
+				assignUsers();
 			}
 			
 		]]>
 	</fx:Script>
 
 	<mx:VBox width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-		<mx:TextArea width="100%" borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}" id="textArea"/>
+		<mx:TextArea width="100%" borderSkin="{null}" editable="false"
+					 id="textArea" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"
+					 styleName="breakoutRoomSettingTitleStyle"/>
+		
+		<mx:Canvas width="100%" styleName="breakoutTipBox" backgroundColor="0xcccccc">
+			<mx:Text horizontalCenter="0" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
+		</mx:Canvas>
 		
 		<mx:HBox id="roomsBox" paddingTop="20" width="100%">
-			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')}" />
-			<!-- FIXME: The slider behaviour has to be changed -->
-			<mx:HSlider id="roomsSlider" minimum="2" maximum="5" snapInterval="1" tickInterval="1" width="50%" change="{startButton.enabled = false}"/>
-			<mx:Button paddingLeft="20" id="randomAssignBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.randomAssign')}" click="assignUsers()"/>
+			<mx:HBox width="50%" height="100%" horizontalAlign="left" verticalAlign="middle">
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')}" />
+				<mx:ComboBox id="roomsCombo" width="80%" change="{assignUsers()}" dataProvider="{roomsProvider}"/>				
+			</mx:HBox>
+			<mx:Button paddingLeft="20" width="50%" id="randomAssignBtn"
+					   label="{ResourceUtil.getInstance().getString('bbb.users.breakout.randomAssign')}" click="assignUsers()"/>
 		</mx:HBox>
 		
-		<mx:HBox width="100%" paddingTop="20">
+		<mx:HBox width="100%" paddingTop="12">
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" />
 			<mx:NumericStepper id="durationStepper" value="15" minimum="1" maximum="600"/>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
 		</mx:HBox>
 		
-		<mx:Tile id="roomsContainer" width="100%" height="100%"
-				 paddingTop="20" paddingBottom="20"/>
+		<mx:HBox width="100%" paddingTop="12">
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}" />
+			<mx:ComboBox id="recordTypesCombo" dataProvider="{recordTypesProvider}"/>
+		</mx:HBox>
+
+		<mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
 			
-		<mx:Box width="100%" styleName="breakoutTipBox" backgroundColor="0xcccccc">
-			<mx:Text text="{ResourceUtil.getInstance().getString('bbb.users.breakout.dragAndDropToolTip')}"/>
-		</mx:Box>
-		
-		<mx:HBox width="100%" horizontalAlign="right">
+		<mx:HBox width="100%" horizontalAlign="right" verticalGap="15">
 			<mx:Button id="startButton" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.start')}" click="onStartClicked()"/>
 			<mx:Button label="{ResourceUtil.getInstance().getString('bbb.users.breakout.close')}" click="onCloseClicked()"/>
 		</mx:HBox>

@@ -2,7 +2,6 @@
 package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.*;
-import org.bigbluebutton.core.api.EndAllBreakoutRooms;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.messages.*;
 import org.slf4j.Logger;
@@ -149,7 +148,7 @@ public class UsersMessageReceiver implements MessageHandler{
 	private void processUserJoinedVoiceConfMessage(String json) {
 		UserJoinedVoiceConfMessage msg = UserJoinedVoiceConfMessage.fromJson(json);
 		if (msg != null) {
-			bbbInGW.voiceUserJoined(msg.voiceConfId, msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, msg.muted, msg.talking);
+			bbbInGW.voiceUserJoined(msg.voiceConfId, msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, msg.muted, msg.avatarURL, msg.talking);
 		}
 	}
 

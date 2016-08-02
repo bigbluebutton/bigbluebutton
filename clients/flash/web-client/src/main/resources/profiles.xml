@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<profiles fallbackLocale="en_US">
+    <profile id="low">
+        <locale>
+            <en_US>Low quality</en_US>
+            <pt_BR>Baixa qualidade</pt_BR>
+        </locale>
+        <width>160</width>
+        <height>120</height>
+        <keyFrameInterval>5</keyFrameInterval>
+        <modeFps>10</modeFps>
+        <qualityBandwidth>0</qualityBandwidth>
+        <qualityPicture>90</qualityPicture>
+        <enableH264>true</enableH264>
+        <h264Level>2.1</h264Level>
+        <h264Profile>main</h264Profile>
+    </profile>
+    <profile id="medium" default="true">
+        <locale>
+            <en_US>Medium quality</en_US>
+            <pt_BR>Média qualidade</pt_BR>
+        </locale>
+        <width>320</width>
+        <height>240</height>
+        <keyFrameInterval>5</keyFrameInterval>
+        <modeFps>10</modeFps>
+        <qualityBandwidth>0</qualityBandwidth>
+        <qualityPicture>90</qualityPicture>
+        <enableH264>true</enableH264>
+        <h264Level>2.1</h264Level>
+        <h264Profile>main</h264Profile>
+    </profile>
+    <profile id="high">
+        <locale>
+            <en_US>High quality</en_US>
+            <pt_BR>Alta qualidade</pt_BR>
+        </locale>
+        <width>640</width>
+        <height>480</height>
+        <keyFrameInterval>5</keyFrameInterval>
+        <modeFps>15</modeFps>
+        <qualityBandwidth>0</qualityBandwidth>
+        <qualityPicture>90</qualityPicture>
+        <enableH264>true</enableH264>
+        <h264Level>2.1</h264Level>
+        <h264Profile>main</h264Profile>
+    </profile>
+    <profile id="wide">
+        <locale>
+            <en_US>Widescreen</en_US>
+            <pt_BR>Panorâmico</pt_BR>
+        </locale>
+        <width>1280</width>
+        <height>720</height>
+        <keyFrameInterval>5</keyFrameInterval>
+        <modeFps>15</modeFps>
+        <qualityBandwidth>0</qualityBandwidth>
+        <qualityPicture>90</qualityPicture>
+        <enableH264>true</enableH264>
+        <h264Level>2.1</h264Level>
+        <h264Profile>main</h264Profile>
+    </profile>
+    <profile id="lowlatency">
+        <locale>
+            <en_US>Low Latency</en_US>
+            <pt_BR>Baixa Latência</pt_BR>
+        </locale>
+        <width>640</width>
+        <height>480</height>
+        <keyFrameInterval>5</keyFrameInterval>
+        <modeFps>15</modeFps>
+        <qualityBandwidth>0</qualityBandwidth>
+        <qualityPicture>90</qualityPicture>
+        <enableH264>false</enableH264>
+        <h264Level>2.1</h264Level>
+        <h264Profile>main</h264Profile>
+    </profile>
+</profiles>

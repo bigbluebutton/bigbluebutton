@@ -43,6 +43,7 @@ package org.bigbluebutton.main.model {
 		 */
 		public var username:String;
 		
+		public var avatarURL:String;
 		/**
 		 * The role of the local user. Could be MODERATOR or VIEWER
 		 */

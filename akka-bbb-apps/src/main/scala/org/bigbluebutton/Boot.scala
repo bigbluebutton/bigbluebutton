@@ -49,11 +49,10 @@ object Boot extends App with SystemConfiguration {
   outgoingEventBus.subscribe(recorderActor, "outgoingMessageChannel")
   outgoingEventBus.subscribe(newMessageSenderActor, "outgoingMessageChannel")
 
-  val bbbInGW = new BigBlueButtonInGW(system, eventBus, outGW)
+  val bbbInGW = new BigBlueButtonInGW(system, eventBus, outGW, red5DeskShareIP, red5DeskShareApp)
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
 
   val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
-
 }
