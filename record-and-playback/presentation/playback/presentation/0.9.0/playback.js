@@ -311,12 +311,22 @@ load_video = function(){
    video.appendChild(webmsource);
 
    // Try to load the captions
-   // TODO this all should be done asyncronously...
+   // TODO this all should be done asynchronously...
    var capReq = new XMLHttpRequest();
    capReq.open('GET', RECORDINGS + '/captions.json', /*async=*/false);
    capReq.send();
    if (capReq.status == 200) {
-	   console.log("responseType", capReq.responseType);
+	   console.log("==Loading closed captions");
+	   // With sync request, responseType should always be blank (=="text")
+	   var captions = JSON.parse(capReq.responseText);
+	   for (var i = 0; i < captions.length; i++) {
+		   var track = document.createElement("track");
+		   track.setAttribute('kind', 'captions');
+		   track.setAttribute('label', captions[i]['localeName']);
+		   track.setAttribute('srclang', captions[i]['locale']);
+		   track.setAttribute('src', RECORDINGS + '/caption_' + captions[i]['locale'] + '.vtt');
+		   video.appendChild(track);
+	   }
    }
 
    /*var time_manager = Popcorn("#video");
