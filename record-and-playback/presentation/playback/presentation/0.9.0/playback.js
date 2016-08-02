@@ -310,6 +310,15 @@ load_video = function(){
    webmsource.setAttribute('type','video/webm; codecs="vp8.0, vorbis"');
    video.appendChild(webmsource);
 
+   // Try to load the captions
+   // TODO this all should be done asyncronously...
+   var capReq = new XMLHttpRequest();
+   capReq.open('GET', RECORDINGS + '/captions.json', /*async=*/false);
+   capReq.send();
+   if (capReq.status == 200) {
+	   console.log("responseType", capReq.responseType);
+   }
+
    /*var time_manager = Popcorn("#video");
    var pc_webcam = Popcorn("#webcam");
    time_manager.on( "timeupdate", function() {
