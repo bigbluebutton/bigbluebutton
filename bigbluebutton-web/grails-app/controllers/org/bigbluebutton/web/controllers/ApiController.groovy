@@ -1492,7 +1492,7 @@ class ApiController {
         reject = true;
       else {
         us = meetingService.getUserSession(sessionToken);
-        meeting = meetingService.getMeeting(us.meetingID, true);
+        meeting = meetingService.getMeeting(us.meetingID);
         if (meeting == null || meeting.isForciblyEnded()) {
           reject = true
         }
