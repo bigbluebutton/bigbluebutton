@@ -1,0 +1,28 @@
+@import '../../stylesheets/variables/palette';
+
+$bg: $color-gray-dark;
+$color: $color-white;
+
+.background {
+  position: fixed;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: $bg;
+  color: $color;
+  text-align: center;
+}
+
+.icon {
+  width: 100%;
+  font-size: 10rem;
+  margin-bottom: 2rem;
+}
+
+.message {
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  font-weight: 600;
+}

@@ -135,7 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
 
   <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="closeAllWindows"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleReconnectDisconnectedEvent"  arguments="{event}"/>
   </EventHandlers>
   <!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   

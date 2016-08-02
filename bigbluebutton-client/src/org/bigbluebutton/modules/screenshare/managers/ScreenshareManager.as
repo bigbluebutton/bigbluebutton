@@ -36,7 +36,6 @@ package org.bigbluebutton.modules.screenshare.managers
 			
 	public class ScreenshareManager {		
     private static const LOGGER:ILogger = getClassLogger(ScreenshareManager);
-    private static const LOG:String = "SC::ScreenshareManager - ";	
     
 		private var publishWindowManager:PublishWindowManager;
 		private var viewWindowManager:ViewerWindowManager;
@@ -55,7 +54,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 		
 		public function handleStartModuleEvent(module:ScreenshareModule):void {
-			trace(LOG + "Screenshare Module starting");
+      LOGGER.debug("Screenshare Module starting");
 			this.module = module;			
 			service.handleStartModuleEvent(module);
       
@@ -65,14 +64,14 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 		
 		public function handleStopModuleEvent():void {
-			trace(LOG + "Screenshare Module stopping");
+      LOGGER.debug("Screenshare Module stopping");
 			publishWindowManager.stopSharing();
 			viewWindowManager.stopViewing();		
 			service.disconnect();
 		}
 		
     public function handleConnectionSuccessEvent():void {
-      trace(LOG + "handle Connection Success Event");
+      LOGGER.debug("handle Connection Success Event");
       service.checkIfPresenterIsSharingScreen();  
     }
     
@@ -164,7 +163,7 @@ package org.bigbluebutton.modules.screenshare.managers
     }
     
     public function handleShareStartRequestResponseEvent(event:ShareStartRequestResponseEvent):void {
-      trace(LOG + "handleShareStartRequestResponseEvent");
+      LOGGER.debug("handleShareStartRequestResponseEvent");
       var dispatcher:Dispatcher = new Dispatcher();
       if (event.success) {
         ScreenshareModel.getInstance().authToken = event.token;
@@ -176,7 +175,7 @@ package org.bigbluebutton.modules.screenshare.managers
     }
     
 		public function handleStartSharingEvent(autoStart:Boolean):void {
-			trace(LOG + "handleStartSharingEvent");
+      LOGGER.debug("handleStartSharingEvent");
 			//toolbarButtonManager.disableToolbarButton();
 			toolbarButtonManager.startedSharing();
 			var option:ScreenshareOptions = new ScreenshareOptions();
@@ -198,7 +197,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 					
 		private function handleStreamStartEvent(streamId: String, videoWidth:Number, videoHeight:Number):void{
-			trace(LOG + "Received start vieweing command");
+      LOGGER.debug("Received start vieweing command");
 			viewWindowManager.startViewing(streamId, videoWidth, videoHeight);
 		}
     

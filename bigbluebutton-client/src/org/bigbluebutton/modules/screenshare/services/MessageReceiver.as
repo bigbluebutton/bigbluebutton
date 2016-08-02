@@ -18,7 +18,10 @@
  */
 package org.bigbluebutton.modules.screenshare.services
 {
-  import com.asfusion.mate.events.Dispatcher; 
+  import com.asfusion.mate.events.Dispatcher;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
   import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
   import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
@@ -30,7 +33,8 @@ package org.bigbluebutton.modules.screenshare.services
   
   public class MessageReceiver implements IMessageListener
   {
-    private static const LOG:String = "SC::MessageReceiver - ";
+    private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+    
     private var conn: Connection;
     private var dispatcher:Dispatcher = new Dispatcher();
     
@@ -40,7 +44,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
 
     public function onMessage(messageName:String, message:Object):void {
-      trace(LOG + " Received message " + messageName);
+      LOGGER.debug(" Received message " + messageName);
 
       switch (messageName) {
         case "isSharingScreenRequestResponse":
@@ -67,7 +71,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
 
     private function handleStartShareRequestResponse(message:Object):void {
-      trace(LOG + "handleStartShareRequestResponse " + message);      
+      LOGGER.debug("handleStartShareRequestResponse " + message);      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("authToken") && map.hasOwnProperty("jnlp")) {
         var shareSuccessEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(map.authToken, map.jnlp, true);
@@ -79,7 +83,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
 
     private function handleScreenShareStartedMessage(message:Object):void {
-      trace(LOG + "handleScreenShareStartedMessage " + message);      
+      LOGGER.debug("handleScreenShareStartedMessage " + message);      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("streamId")) {
         var streamEvent: ShareStartedEvent = new ShareStartedEvent(map.streamId);
@@ -88,7 +92,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
 
     private function handleScreenShareStoppedMessage(message:Object):void {
-      trace(LOG + "handleScreenShareStoppedMessage " + message);      
+      LOGGER.debug("handleScreenShareStoppedMessage " + message);      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("streamId")) {
         var streamEvent: ShareStoppedEvent = new ShareStoppedEvent(map.streamId);
@@ -97,7 +101,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
     
     private function handleScreenStreamStartedMessage(message:Object):void {
-      trace(LOG + "handleScreenStreamStartedMessage " + message);      
+      LOGGER.debug("handleScreenStreamStartedMessage " + message);      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("streamId") && map.hasOwnProperty("width") &&
         map.hasOwnProperty("height") && map.hasOwnProperty("url")) {
@@ -108,7 +112,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
     
     private function handleScreenStreamStoppedMessage(message:Object):void {
-      trace(LOG + "handleScreenStreamStoppedMessage " + message);      
+      LOGGER.debug("handleScreenStreamStoppedMessage " + message);      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("streamId")) {
         var streamEvent: StreamStoppedEvent = new StreamStoppedEvent(map.streamId);
@@ -117,7 +121,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
     
     private function handleIsSharingScreenRequestResponse(message:Object):void {
-      trace(LOG + "handleIsSharingScreenRequestResponse " + message);
+      LOGGER.debug("handleIsSharingScreenRequestResponse " + message);
       var map:Object = JSON.parse(message.msg);
       if (map.hasOwnProperty("sharing") && map.sharing) {
         if (map.hasOwnProperty("streamId") && map.hasOwnProperty("width") &&

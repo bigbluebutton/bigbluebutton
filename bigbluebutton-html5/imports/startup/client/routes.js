@@ -8,7 +8,6 @@ import { subscribeToCollections, setCredentials } from '/imports/ui/components/a
 
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
-import Loader from '/imports/ui/components/loader/component';
 
 const browserHistory = useRouterHistory(createHistory)({
   basename: '/html5client',

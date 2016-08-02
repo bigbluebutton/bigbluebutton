@@ -9,5 +9,6 @@
   "app.chat.titlePublic": "Conversa Publíca",
   "app.chat.titlePrivate": "Conversa Privada com {name}",
   "app.chat.partnerDisconnected": "{name} saiu da sala",
-  "app.chat.moreMessages": "Mais mensagens abaixo"
+  "app.chat.moreMessages": "Mais mensagens abaixo",
+  "app.kickMessage": "Você foi expulso da apresentação"
 }

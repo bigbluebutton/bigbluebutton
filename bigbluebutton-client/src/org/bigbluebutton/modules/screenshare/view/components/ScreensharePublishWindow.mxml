@@ -63,8 +63,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       import org.bigbluebutton.core.BBB;
-      
-      private static const LOG:String = "SC::ScreensharePublishWIndow - ";	
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+	
+      private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
       
       public static const SCALE:Number = 5;
       private static const VID_HEIGHT_PAD:Number = 73;
@@ -160,7 +162,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       public function shareScreen(fullScreen:Boolean):void {
-        trace(LOG + "Calling shareScreen");
+        LOGGER.debug("Calling shareScreen");
         btnFSPublish.enabled = false;
         btnRegionPublish.enabled = false;
         startSharing(connection, uri, room, fullScreen);
@@ -172,12 +174,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         sharingFullScreen = fullScreen;
         var authToken:String = ScreenshareModel.getInstance().authToken;
         var jnlp: String = ScreenshareModel.getInstance().jnlp;
-        trace(LOG + "StartScreensharing jnlp=" + jnlp + " token=" + authToken);
+        LOGGER.debug("StartScreensharing jnlp=" + jnlp + " token=" + authToken);
         ExternalInterface.call("startScreensharing", jnlp, UsersUtil.getInternalMeetingID(), authToken, fullScreen);
       }
       
       public function stopSharing():void {
-        trace(LOG + "Calling stopSharing");
+        LOGGER.debug("Calling stopSharing");
         if (streaming) {
           stopStream();
           var streamEvent:RequestToStopSharing = new RequestToStopSharing();
@@ -202,7 +204,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
            
       private function handleStartViewStreamEvent(event:ViewStreamEvent):void{
-        trace(LOG + "handleStartViewStreamEvent");
+        LOGGER.debug("handleStartViewStreamEvent");
         var width: int = ScreenshareModel.getInstance().width;
         var height: int = ScreenshareModel.getInstance().height;
         var streamId: String = ScreenshareModel.getInstance().streamId;
@@ -213,7 +215,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         removeHowToHelpArea();
         
-        trace(LOG + "Viewing stream =[" + streamId + "]");
+        LOGGER.debug("Viewing stream =[" + streamId + "]");
         streaming = true;
         
         // Store capture dimensions so we can position cursor properly.
@@ -240,7 +242,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           vidH = captureHeight;
         }
         
-        trace("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
+        LOGGER.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
         video = new Video(vidW, vidH);
         video.width = vidW;
         video.height = vidH;
@@ -269,7 +271,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       public function onMetaData(info:Object):void{
-        trace("metadata: width=" + info.width + " height=" + info.height);
+        LOGGER.debug("metadata: width=" + info.width + " height=" + info.height);
       }
       
       private function stopStream():void{
@@ -280,20 +282,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onAsyncError(e:AsyncErrorEvent):void{
-        trace("VIdeoWindow::asyncerror " + e.toString());
+        LOGGER.debug("VIdeoWindow::asyncerror " + e.toString());
       }
       
       private function onNetStatus(e:NetStatusEvent):void{
         switch(e.info.code){
           case "NetStream.Publish.Start":
-            trace("NetStream.Publish.Start for broadcast stream " + stream);
+            LOGGER.debug("NetStream.Publish.Start for broadcast stream " + stream);
             break;
           case "NetStream.Play.UnpublishNotify":
-            trace("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+            LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
             stopSharing();
             break;
           case "NetStream.Play.Start":
-            trace("Netstatus: " + e.info.code);
+            LOGGER.debug("Netstatus: " + e.info.code);
             globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
         }
       }
@@ -358,7 +360,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var option:ScreenshareOptions = new ScreenshareOptions();
         option.parseOptions();
         var DEFAULT_HELP_URL:String = option.helpUrl;
-        trace("onHelpButtonClicked - " + DEFAULT_HELP_URL);
+        LOGGER.debug("onHelpButtonClicked - " + DEFAULT_HELP_URL);
         navigateToURL(new URLRequest(DEFAULT_HELP_URL), "_blank")
       }
       

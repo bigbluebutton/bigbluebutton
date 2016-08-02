@@ -182,6 +182,12 @@ if not FileTest.directory?(target_dir)
       BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, width, height, presentation_props['audio_offset'], presentation_props['include_deskshare'])
     end
 
+    BigBlueButton.logger.info("Generating closed captions")
+    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
+    if ret != 0
+      raise "Generating closed caption files failed"
+    end
+
     process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
     process_done.write("Processed #{meeting_id}")
     process_done.close
