@@ -18,15 +18,15 @@ let getSlideData = (params) => {
 
   //Get total number of slides in this presentation
   const numberOfSlides = Slides.find({
-    'meetingId': meetingId,
-    'presentationId': presentationId,
+    meetingId: meetingId,
+    presentationId: presentationId,
   }).fetch().length;
 
   return {
     userIsPresenter: user.user.presenter,
     numberOfSlides: numberOfSlides,
   };
-}
+};
 
 export default {
   getSlideData,

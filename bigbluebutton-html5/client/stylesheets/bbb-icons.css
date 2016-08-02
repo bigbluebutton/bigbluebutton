@@ -161,10 +161,6 @@
 .icon-bbb-desktop:before {
   content: "\e929";
 }
-
-
-
-
 .rotate-quarter {
   transform: rotate(-90deg);
 }
