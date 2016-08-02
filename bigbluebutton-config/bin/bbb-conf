@@ -281,7 +281,7 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
-       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka
+       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer
     else
 	/etc/init.d/monit stop
 
@@ -324,7 +324,7 @@ stop_bigbluebutton () {
 start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
-       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka
+       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer
     else
 	$FREESWITCH_INIT_D start
 	
