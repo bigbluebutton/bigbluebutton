@@ -1,0 +1,470 @@
+@media screen and (max-width: 980px) {
+
+	/* set img max-width */
+	img {
+		width: auto\9; /* ie8 */
+		max-width: 100%;
+		height: auto;
+	}
+
+	/************************************************************************************
+	STRUCTURE
+	*************************************************************************************/
+	.pagewidth, #slider {
+		max-width: 94%;
+	}
+		
+	/* content */
+	#content {
+		margin: 7% 0 5%;
+	}
+	.sidebar1 #content {
+		max-width: 67.8%;
+	}
+	
+	/* sidebar */
+	#sidebar {
+		margin: 7% 0 5%;
+		max-width: 26.2%;
+	}
+	#sidebar .secondary {
+		max-width: 47%;
+	}
+	
+	/************************************************************************************
+	GRID
+	*************************************************************************************/
+	.col4-1,
+	.col4-2,
+	.col4-3,
+	.col3-1,
+	.col3-2,
+	.col2-1
+	{
+		margin-left: 2%;
+	}
+	.col4-1 {
+		max-width: 23%;
+	}
+	.col4-2, .col2-1 {
+		max-width: 48%;
+	}
+	.col4-3 {
+		max-width: 72%;
+	}
+	.col3-1 {
+		max-width: 31%;
+	}
+	.col3-2 {
+		max-width: 62%;
+	}
+	
+
+	/************************************************************************************
+	SLIDER
+	*************************************************************************************/
+	#slider .slide-feature-image {
+		max-width: 40%;
+		margin-right: 3%;
+		margin-bottom: 2%;
+	}
+	#slider .slide-content {
+		padding: 1% 0 0;
+		font-size: 100%;
+		line-height: 130%;
+		overflow: visible;
+	}
+	#slider img {
+		width: auto\9; /* ie8 */
+		max-width: 98.5%;
+		height: auto;
+	}
+
+	/************************************************************************************
+	LAYOUTS
+	*************************************************************************************/
+	/* list post */
+	.list-post .post,
+	.list-post .type-page,
+	.list-post .attachment {
+		width: 80% !important;
+	}
+	
+	/* grid4 */
+	.grid4 .post {
+		width: 23.125%;
+		margin-left: 2.5%;
+	}
+
+	/* grid3 */
+	.grid3 .post {
+		width: 31%;
+		margin-left: 3.5%;
+	}
+
+	/* grid2 */
+	.grid2 .post {
+		width: 48%;
+		margin-left: 3.75%;
+	}
+
+	.social-widget {
+		color:#30406B;
+	}
+	
+}
+
+@media screen and (max-width: 760px) {
+
+	/************************************************************************************
+	STRUCTURE
+	*************************************************************************************/
+	.sidebar1 #content {
+		width: 100%;
+		max-width: 100%;
+		float: none;
+		clear: both;
+	}
+	
+	/* sidebar */
+	#sidebar {
+		width: 100%;
+		max-width: 100%;
+		float: none;
+		clear: both;
+	}
+	#sidebar .secondary {
+		width: 48%;
+	}
+	
+	/************************************************************************************
+	HEADER
+	*************************************************************************************/
+	/* reset absolute elements to static */
+	#header .social-widget, #site-logo, #site-description, #header #searchform, #main-nav  {
+		position: static !important;
+		float: none;
+		clear: both;
+	}
+	
+	/* header */
+	#header {
+		height: auto;
+	}
+	
+	#header .rss a {
+		color:#30406B;
+	}
+	
+	/* header widget */
+	.header-widget {
+		position: static !important;
+		float: none;
+		text-align: left;
+		clear: both;
+		margin: 0;
+	}
+	.header-widget .widget {
+		margin: 0 0 10px;
+	}
+	
+	/* nav bar */
+	#nav-bar {
+		height: 10px;
+		position: static !important;
+	}
+
+	/* social widget */
+	#header .social-widget {
+		padding: 5px 0 20px;
+	}
+
+	/* search form */
+	#header #searchform {
+		position: absolute;
+		top: 0;
+		left: inherit;
+		right: 0;
+		width: 150px;
+	}
+	#header #searchform #s {
+		display:none;
+		/* float: right;
+		width: 85px;*/ 
+	}
+	#header #searchform input#s:focus {
+		width: 150px;
+	}
+	
+	/* site logo */
+	#site-logo {
+		/* margin: 15px 100px 10px 0; */
+		padding-top:30px;
+	}
+	#site-logo a {
+		font-size: 30px;
+	}
+
+	/* site description */
+	#site-description {
+		margin: 0 0 10px;
+	}
+
+	/************************************************************************************
+	MAIN NAV
+	*************************************************************************************/
+	#main-nav {
+		width:100%;
+		height: auto;
+		margin: 10px 0;
+		padding:10px;		
+		background-color: #30406B;
+	}
+	#main-nav a {
+	}
+
+	/************************************************************************************
+	SLIDER
+	*************************************************************************************/
+	#slider .slide-post-title {
+		font-size: 260%;
+		line-height: 100%;
+		margin: 0 0 1%;
+	}
+	#slider .slide-content {
+		font-size: 90%;
+	}
+	#slider .caption {
+		font-size: 80%;
+		line-height: 120%;
+	}
+	
+	/************************************************************************************
+	HOME HIGHLIGHTS
+	*************************************************************************************/
+	.home-highlights .home-highlights-content {
+		overflow: visible;
+	}
+
+	/************************************************************************************
+	LAYOUTS
+	*************************************************************************************/
+	/* list post */
+	.list-post .post,
+	.list-post .type-page,
+	.list-post .attachment {
+		width: 78% !important;
+	}
+
+	/************************************************************************************
+	FOOTER
+	*************************************************************************************/
+	.footer-nav {
+		padding-right: 200px;
+	}
+	.footer-nav li {
+		margin: 0 8px 5px 0;
+	}
+
+}
+
+@media screen and (max-width: 600px) {
+	
+	/************************************************************************************
+	LAYOUTS
+	*************************************************************************************/
+	/* list post */
+	.list-post .post,
+	.list-post .type-page,
+	.list-post .attachment {
+		padding-left: 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	.list-post .post-meta {
+		width: 100%;
+		text-align: left;
+		/* position: static; */
+		display: block;
+	height: 60px;
+	}
+	.list-post .post-meta span {
+		display: block;
+		margin: 0 5px 0 0;
+		border: none;
+		clear:both;
+	}
+	.list-post .post-icon {
+		/* width: 27px;
+		height: 30px;
+		display: block;
+		float: left;
+		margin: 2px 14px 5px 0;
+		border: none;
+		position: static; */
+	}
+
+	.list-post .post-title {
+		margin:0;
+	}
+
+	.list-post .post-meta .post-date {
+		margin-bottom:0px;
+	}
+
+
+	/* grid4 */
+	.grid4 .post, .sidebar1 .grid4 .post {
+		width: 100%;
+		margin-left: 0;
+		float: none;
+	}
+
+	/* grid3 */
+	.grid3 .post, .sidebar1 .grid3 .post {
+		width: 100%;
+		margin-left: 0;
+		float: none;
+	}
+	
+	/* action text */
+	.action-text {
+		padding: 3% 4%;
+	}
+	.action-text .button {
+		position: static;
+		clear: both;
+		width: auto;
+		margin: 2% 0 0;
+	}
+
+}
+
+@media screen and (max-width: 480px) {
+
+	/* disable webkit text size adjust (for iPhone) */
+	html {
+		-webkit-text-size-adjust: none;
+	}
+
+	/************************************************************************************
+	GRID
+	*************************************************************************************/
+	.col4-1,
+	.col4-2, .col2-1,
+	.col4-3,
+	.col3-1,
+	.col3-2	 {
+		margin-left: 0;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	/************************************************************************************
+	HEADER
+	*************************************************************************************/
+	#header hgroup {
+		text-align: left;
+	}
+	
+	/* site logo */
+	#site-logo {
+		font-size: 42px;
+		text-align: left;
+		padding: 0 90px 0 0;
+		width: auto;
+		/* margin: 10px 0; */
+		padding-top: 30px;
+	}
+	
+	/* site description */
+	#site-description {
+		text-align: left;
+		margin: 0 0 10px;
+	}
+	
+	/* searchform */
+	#header #searchform {
+		top: 0;
+		left: inherit;
+		right: 0;
+		width: 150px;
+	}
+	#header #searchform #s {
+		display:none;
+		/* float: right;
+		width: 85px; */ 
+	}
+	
+	/* social widget */
+	.social-widget {
+		position: static !important;
+		margin: 10px 0;
+		float: none;
+		padding: 0;
+	}
+
+	/************************************************************************************
+	LAYOUTS
+	*************************************************************************************/
+	/* grid4 */
+	.grid4 .post {
+		font-size: 100%;
+	}
+
+	/* grid2 */
+	.grid2 .post, .sidebar1 .grid2 .post {
+		width: 100%;
+		margin-left: 0;
+		float: none;
+	}
+	
+	/* post title */
+	.post-title {
+		margin: 0 0 2px !important;
+		padding-top: 4px;
+		font-size: 2em !important;
+	}
+
+	/************************************************************************************
+	POST NAV
+	*************************************************************************************/
+	.post-nav .prev, .post-nav .next {
+		display: block;
+		width: 100%;
+		clear: both;
+		margin-bottom: 10px;
+	}
+	
+	/************************************************************************************
+	COMMENTS
+	*************************************************************************************/
+	.commentlist {
+		padding-left: 0;
+	}
+	.commentlist .commententry {
+		clear: left;
+	}
+	.commentlist .avatar {
+		float: left;
+		width: 40px;
+		height: 40px;
+		margin: 0 10px 10px 0;
+	}
+
+	/* commentlist sub-levels */
+	.commentlist ul, .commentlist ol {
+		margin: 0 0 0 7%;
+	}
+
+	/************************************************************************************
+	FOOTER
+	*************************************************************************************/
+	#footer-logo {
+		position: static !important;
+	}
+	.footer-nav {
+		padding: 0;
+	}
+
+}

@@ -1,0 +1,75 @@
+
+#headerwrap {
+background-image: none;
+background-color: #dbebf6;
+}
+
+#nav-bar {
+background-image: url(http://r2.bigbluebutton.org/wp-content/themes/suco/uploads/bg/bg1.png);
+background-color: #30406b;
+background-repeat: repeat-x;
+}
+
+#upperwrap {
+background-image: url(http://r2.bigbluebutton.org/wp-content/themes/suco/uploads/bg/bg1.png);
+background-color: #F4F4F4 ;
+}
+
+.home-highlightswrap {
+background-image: none;
+background-color: #fff;
+}
+
+#body {
+background-image: none;
+background-color: #ffffff;
+}
+
+.footer-widgetswrap {
+background-image: none;
+background-color: #262626;
+}
+
+#footerwrap {
+background-image: none;
+background-color: #2a2a2a;
+}
+
+h1 {
+font-family: Arial, Helvetica, sans-serif;
+color: #00445e;
+}
+
+h2 {
+font-family: Arial, Helvetica, sans-serif;
+color: #00445e;
+}
+
+h3 {
+font-family: Arial, Helvetica, sans-serif;
+color: #00445e;
+}
+
+h4 {
+font-family: Arial, Helvetica, sans-serif;
+color: #30406b;
+}
+
+h5 {
+font-family: Arial, Helvetica, sans-serif;
+color: #30406b;
+}
+
+h6 {
+font-family: Arial, Helvetica, sans-serif;
+}
+
+#main-nav a:hover, #main-nav li:hover > a {
+color: #fff;
+}
+
+#main-nav .current_page_item a, #main-nav .current-menu-item a {
+color: #fff;
+background-color: #1a243f;
+}
+

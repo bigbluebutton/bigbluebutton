@@ -1,0 +1,1236 @@
+.TwitterCard .u-linkClean,.TwitterCard .u-linkClean:hover,.TwitterCard .u-linkClean:focus,.TwitterCard .u-linkClean:active {
+	text-decoration:none
+}
+.TwitterCard .u-linkComplex,.TwitterCard .u-linkComplex:hover,.TwitterCard .u-linkComplex:focus,.TwitterCard .u-linkComplex:active {
+	text-decoration:none
+}
+.TwitterCard .u-linkComplex:hover .u-linkComplex-target,.TwitterCard .u-linkComplex:focus .u-linkComplex-target,.TwitterCard .u-linkComplex:active .u-linkComplex-target {
+	text-decoration:underline
+}
+.TwitterCard .u-linkBlock,.TwitterCard .u-linkBlock:hover,.TwitterCard .u-linkBlock:focus,.TwitterCard .u-linkBlock:active {
+	display:block;
+	text-decoration:none
+}
+.TwitterCard .u-linkPseudo {
+	display:inline;
+	padding:0;
+	border:0;
+	margin:0;
+	background:transparent;
+	color:inherit;
+	cursor:pointer;
+	font:inherit
+}
+.TwitterCard .u-linkPseudo:hover,.TwitterCard .u-linkPseudo:focus,.TwitterCard .u-linkPseudo:active {
+	background:transparent;
+	color:inherit
+}
+.TwitterCard .FlexEmbed {
+	position:relative;
+	overflow:hidden;
+	height:0;
+	padding:0
+}
+.TwitterCard .FlexEmbed-item,.TwitterCard .FlexEmbed iframe,.TwitterCard .FlexEmbed embed,.TwitterCard .FlexEmbed object {
+	position:absolute;
+	left:0;
+	top:0;
+	width:100%;
+	height:100%
+}
+.TwitterCard .FlexEmbed--16by9 {
+	padding-bottom:56.25%
+}
+.TwitterCard .FlexEmbed--4by3 {
+	padding-bottom:75%
+}
+.TwitterCard .Button {
+	-webkit-appearance:none;
+	background:transparent;
+	border:1px solid;
+	-moz-box-sizing:border-box;
+	box-sizing:border-box;
+	color:inherit;
+	cursor:pointer;
+	display:inline-block;
+	font:inherit;
+	line-height:normal;
+	margin:0;
+	padding:.4em .75em;
+	position:relative;
+	text-align:center;
+	text-decoration:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	-webkit-user-select:none;
+	user-select:none;
+	vertical-align:middle;
+	white-space:nowrap
+}
+.TwitterCard .Button:hover,.TwitterCard .Button:focus,.TwitterCard .Button:active {
+	text-decoration:none
+}
+.TwitterCard .Button:disabled,.TwitterCard .Button.is-disabled {
+	cursor:default
+}
+.TwitterCard .Button::-moz-focus-inner {
+	border:0;
+	padding:0
+}
+.TwitterCard .Button--full {
+	display:block;
+	width:100%
+}
+.TwitterCard {
+	background:transparent;
+	color:inherit;
+	overflow:hidden
+}
+.TwitterCard--animation {
+	animation-duration:150ms;
+	animation-name:fadeInTwitterCard;
+	animation-timing-function:cubic-bezier(0.9,0,.9,0)
+}
+.TwitterCard b,.TwitterCard strong {
+	font-weight:700
+}
+.TwitterCard a[tabindex="-1"] {
+	outline:0
+}
+.TwitterCard .is-emojiCharacter {
+	font-weight:400!important
+}
+.TwitterCard-title {
+	font-size:1em;
+	margin:0 0 .15em
+}
+.TwitterCard-thumbnail {
+	width:97%;
+	width:calc(100% - 1em)
+}
+.TwitterCard-thumbnail--appIcon {
+	border-radius:17%;
+	width:66%
+}
+.TwitterCard-attribution--avatar {
+	border-radius:2px;
+	vertical-align:middle;
+	width:20px
+}
+.TwitterCard-attribution--name {
+	font-size:1em;
+	vertical-align:middle
+}
+.TwitterCard-container {
+	border-radius:.42857em;
+	border-width:1px;
+	border-style:solid;
+	border-color:#E1E8ED;
+	box-sizing:border-box;
+	color:inherit!important;
+	overflow:hidden
+}
+.TwitterCard-container[data-theme=dark] {
+	border-color:#8899A6
+}
+.TwitterCard-container--clickable {
+	cursor:pointer;
+	outline-offset:-1px;
+	transition:background-color .15s ease-in-out,border-color .15s ease-in-out
+}
+.TwitterCard-container--clickable:hover {
+	background:#F5F8FA;
+	border-color:#8899A6;
+	border-color:rgba(136,153,166,.5)
+}
+.TwitterCard-container--clickable[data-theme=dark]:hover {
+	background-color:rgba(255,255,255,.1);
+	border-color:#FFF
+}
+.tcu-linkImgFocus:focus {
+	outline:2px solid!important;
+	outline-offset:-2px
+}
+.tcu-linkImgFocus img {
+	display:block
+}
+.tcu-resetMargin {
+	margin:0
+}
+@keyframes fadeInTwitterCard {
+	from {
+		opacity:0
+	}
+	to {
+		opacity:1
+	}
+}
+.TwitterCard .showOnSuccess,.TwitterCard .showOnError {
+	display:none
+}
+.TwitterCard .successElements .showOnSuccess,.TwitterCard .errorElements .showOnError {
+	display:block
+}
+.TwitterCard .hideOnSuccess,.TwitterCard .hideOnError {
+	display:block
+}
+.TwitterCard .successElements .hideOnSuccess,.TwitterCard .errorElements .hideOnError {
+	display:none
+}
+.tcu-dir[dir=rtl] {
+	direction:rtl!important;
+	text-align:right!important;
+	unicode-bidi:embed
+}
+.tcu-dir[dir=ltr] {
+	direction:ltr!important;
+	text-align:left!important;
+	unicode-bidi:embed
+}
+.tcu-imageAspect--1to1:before {
+	padding-top:100%
+}
+.tcu-imageAspect--1to2:before {
+	padding-top:200%
+}
+.tcu-imageAspect--2to1:before {
+	padding-top:50%
+}
+.tcu-imageAspect--1_91to1:before {
+	padding-top:52.25%
+}
+.tcu-imageAspect--3to4:before {
+	padding-top:133.33%
+}
+.tcu-imageAspect--4to3:before {
+	padding-top:75%
+}
+.tcu-imageAspect--5to2:before {
+	padding-top:40%
+}
+.tcu-imageAspect--16to9:before {
+	padding-top:56.25%
+}
+.tcu-imageAspect--4to1:before {
+	padding-top:25%
+}
+.tcu-imageContainer {
+	position:relative;
+	width:100%;
+	overflow:hidden
+}
+.tcu-imageContainer:before {
+	content:"";
+	display:block
+}
+.tcu-imageWrapper {
+	position:absolute;
+	top:-1px;
+	left:-1px;
+	bottom:-1px;
+	right:-1px;
+	background-size:cover;
+	background-position:center;
+	background-repeat:no-repeat
+}
+.tcu-imageWrapper img {
+	width:100%;
+	height:100%;
+	opacity:0
+}
+.tcu-graylink {
+	color:#AAA;
+	text-decoration:none
+}
+.tcu-graylink:focus,.tcu-graylink:active,.tcu-graylink:hover {
+	text-decoration:underline
+}
+.tcu-clickable:hover {
+	cursor:pointer
+}
+.tcu-textWrap--break {
+	word-wrap:break-word
+}
+.tcu-textMute {
+	color:#777
+}
+.tcu-textSmall {
+	font-size:.857em
+}
+.tcu-textUppercase {
+	text-transform:uppercase
+}
+.tcu-textLowercase {
+	text-transform:lowercase
+}
+.tcu-textCapitalize {
+	text-transform:capitalize
+}
+.tcu-textEllipse {
+	max-height:1.3em;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis
+}
+.tcu-textBold {
+	font-weight:700
+}
+.tcu-textBold .is-emojiCharacter {
+	font-weight:400
+}
+.tcu-textEllipse--multiline {
+	overflow:hidden
+}
+.tcu-textInherit {
+	color:inherit
+}
+.tcu-textInherit:not(:focus):not(:hover):not(:active) {
+	color:inherit;
+	font-weight:inherit;
+	text-decoration:inherit
+}
+.tcu-textInheritAll,.tcu-textInheritAll:hover,.tcu-textInheritAll:focus,.tcu-textInheritAll:active,.tcu-textInheritAll:visited {
+	color:inherit
+}
+.TwitterCardsGrid .u-textNext {
+	text-align:right
+}
+.TwitterCardsGrid .u-textPrev {
+	text-align:left
+}
+.TwitterCardsGrid-rtl .u-textNext {
+	text-align:left
+}
+.TwitterCardsGrid-rtl .u-textPrev {
+	text-align:right
+}
+.TwitterCardsGrid {
+	display:block;
+	position:relative;
+	text-align:left
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--1 {
+	float:left;
+	margin-right:.32333em;
+	width:7%;
+	width:calc(8.33333% - .30556em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--1 {
+	margin-right:0;
+	width:8.33333%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--1 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--1,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--1 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--2 {
+	float:left;
+	margin-right:.32333em;
+	width:15%;
+	width:calc(16.66667% - .27778em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--2 {
+	margin-right:0;
+	width:16.66667%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--2 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--2,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--2 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--3 {
+	float:left;
+	margin-right:.32333em;
+	width:24%;
+	width:calc(25% - .25em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--3 {
+	margin-right:0;
+	width:25%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--3 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--3,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--3 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--4 {
+	float:left;
+	margin-right:.32333em;
+	width:32%;
+	width:calc(33.33333% - .22222em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--4 {
+	margin-right:0;
+	width:33.33333%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--4 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--4,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--4 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--5 {
+	float:left;
+	margin-right:.32333em;
+	width:40%;
+	width:calc(41.66667% - .19444em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--5 {
+	margin-right:0;
+	width:41.66667%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--5 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--5,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--5 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--6 {
+	float:left;
+	margin-right:.32333em;
+	width:49%;
+	width:calc(50% - .16667em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--6 {
+	margin-right:0;
+	width:50%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--6 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--6,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--6 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--7 {
+	float:left;
+	margin-right:.32333em;
+	width:57%;
+	width:calc(58.33333% - .13889em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--7 {
+	margin-right:0;
+	width:58.33333%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--7 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--7,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--7 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--8 {
+	float:left;
+	margin-right:.32333em;
+	width:65%;
+	width:calc(66.66667% - .11111em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--8 {
+	margin-right:0;
+	width:66.66667%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--8 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--8,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--8 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--9 {
+	float:left;
+	margin-right:.32333em;
+	width:74%;
+	width:calc(75% - .08333em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--9 {
+	margin-right:0;
+	width:75%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--9 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--9,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--9 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--10 {
+	float:left;
+	margin-right:.32333em;
+	width:82%;
+	width:calc(83.33333% - .05556em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--10 {
+	margin-right:0;
+	width:83.33333%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--10 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--10,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--10 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--11 {
+	float:left;
+	margin-right:.32333em;
+	width:90%;
+	width:calc(91.66667% - .02778em)
+}
+.TwitterCardsGrid .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--11 {
+	margin-right:0;
+	width:91.66667%
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--11 {
+	float:right;
+	margin-right:0;
+	margin-left:.32333em
+}
+.TwitterCardsGrid-rtl.TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--11,.TwitterCardsGrid-rtl .TwitterCardsGrid-noColSpacing .TwitterCardsGrid-col--11 {
+	margin-left:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--12 {
+	float:left;
+	width:100%;
+	clear:both
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--end {
+	margin-right:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--end~* {
+	clear:left
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--spacerAll,.TwitterCardsGrid-rtl .TwitterCardsGrid-col--spacerAll {
+	margin:.32333em
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--spacerPrevNext,.TwitterCardsGrid-rtl .TwitterCardsGrid-col--spacerPrevNext {
+	margin-left:.32333em;
+	margin-right:.32333em
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--spacerPrev,.TwitterCardsGrid-rtl .TwitterCardsGrid-col--spacerNext {
+	margin-left:.32333em
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--spacerNext,.TwitterCardsGrid-rtl .TwitterCardsGrid-col--spacerPrev {
+	margin-right:.32333em
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--spacerTopBottom,.TwitterCardsGrid-rtl .TwitterCardsGrid-col--spacerTopBottom {
+	margin-top:.32333em;
+	margin-bottom:.32333em
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--spacerTop,.TwitterCardsGrid-rtl .TwitterCardsGrid-col--spacerTop {
+	margin-top:.32333em
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--spacerBottom,.TwitterCardsGrid-rtl .TwitterCardsGrid-col--spacerBottom {
+	margin-bottom:.32333em
+}
+.TwitterCardsGrid .TwitterCardsGrid-col--spacerNone,.TwitterCardsGrid-rtl .TwitterCardsGrid-col--spacerNone {
+	margin-top:0;
+	margin-bottom:0;
+	margin-left:0;
+	margin-right:0
+}
+.TwitterCardsGrid .TwitterCardsGrid-float--next {
+	float:right
+}
+.TwitterCardsGrid .TwitterCardsGrid-float--prev {
+	float:left
+}
+.TwitterCardsGrid-rtl {
+	text-align:right
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--end {
+	margin-left:0
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-col--end~* {
+	clear:right
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-float--next {
+	float:left
+}
+.TwitterCardsGrid-rtl .TwitterCardsGrid-float--prev {
+	float:right
+}
+.TwitterCardsGrid .TwitterCardsGrid-el--fullWidth {
+	width:100%
+}
+.TwitterCard .Button--default {
+	background-color:#f5f5f5;
+	background-image:linear-gradient(#fff,#eee);
+	border-color:#ccc;
+	border-radius:4px;
+	font-weight:700;
+	margin-top:1em;
+	padding:.5em 1em
+}
+.TwitterCard .Button--default:hover,.TwitterCard .Button--default:focus,.TwitterCard .Button--default:active {
+	background:#eee;
+	border-color:#aaa;
+	color:inherit
+}
+.TwitterCard .Button--default:active {
+	box-shadow:inset 0 2px 5px -1px rgba(0,0,0,.2)
+}
+.TwitterCard .Button--smallGray {
+	background-color:#f5f8fA;
+	background-image:linear-gradient(0rad,#f5f8fA,#fff);
+	border:1px solid #e1e8ed;
+	border-radius:.25em;
+	font-weight:700;
+	margin-top:.5em;
+	padding:.5em 1em;
+	outline-offset:-4px!important
+}
+.TwitterCard .Button--smallGray[disabled] {
+	cursor:not-allowed
+}
+.TwitterCard .Button--smallGray:not([disabled]):hover,.TwitterCard .Button--smallGray:not([disabled]):focus,.TwitterCard .Button--smallGray:not([disabled]):active {
+	border:1px solid #E1E1EA;
+	background-color:#e1e8ed;
+	background-image:linear-gradient(0rad,#e1e8ed,#fff);
+	color:inherit
+}
+.TwitterCard .Button--smallGray:not([disabled]):active {
+	box-shadow:inset 0 2px 5px -1px rgba(0,0,0,.2)
+}
+.TwitterCard .Button--smallGray[data-theme=dark] {
+	background-color:transparent;
+	background-image:none;
+	border-color:#FFF;
+	color:#FFF
+}
+.TwitterCard .Button--smallGray[data-theme=dark]:not([disabled]):hover,.TwitterCard .Button--smallGray[data-theme=dark]:not([disabled]):focus,.TwitterCard .Button--smallGray[data-theme=dark]:not([disabled]):active {
+	background-color:rgba(255,255,255,.1);
+	background-image:none;
+	border-color:#FFF
+}
+.TwitterCard a.u-buttonLabel,.TwitterCard a.u-buttonLabel:hover,.TwitterCard a.u-buttonLabel:focus,.TwitterCard a.u-buttonLabel:active {
+	text-decoration:none;
+	color:#292F33
+}
+.TwitterCard .BuyNowCard-content {
+	padding:1em;
+	box-sizing:border-box
+}
+.TwitterCard .BuyNowCard-content .TwitterCard-title {
+	max-height:1.3em!important;
+	white-space:nowrap!important
+}
+.TwitterCard .BuyNowCard-byline {
+	color:#AAB8C2;
+	margin-bottom:0
+}
+.TwitterCard .BuyNowCard-image.TwitterCardsGrid-col--12 {
+	background-color:transparent
+}
+.TwitterCard .BuyNowCard-image--horizontal .tcu-imageWrapper {
+	background-size:cover!important
+}
+.TwitterCard .BuyNowCard-image--vertical .tcu-imageWrapper {
+	background-size:contain!important
+}
+.TwitterCard .BuyNowCard-image .tcu-imageWrapper {
+	background-color:#FFF
+}
+.TwitterCard .MomentCard {
+	background-color:#FFF
+}
+.TwitterCard .MomentCard-cover {
+	border-color:inherit;
+	border-right-width:1px;
+	border-right-style:solid;
+	box-sizing:border-box
+}
+.TwitterCard .MomentCard-content {
+	padding:1.14286em 1em
+}
+.TwitterCard .MomentCard-title .TwitterCard-title {
+	font-size:1.14286em;
+	line-height:1.25em;
+	margin-bottom:.35714em;
+	max-height:2.5em;
+	overflow:hidden
+}
+.TwitterCard .MomentCard-title h2 {
+	font-weight:500
+}
+.TwitterCard .MomentCard-subtitle {
+	color:#8899A6;
+	font-size:1em;
+	font-weight:300;
+	margin:.57143em 0;
+	position:relative
+}
+.TwitterCard .MomentCard-author,.TwitterCard .MomentCard-authorName {
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap
+}
+.TwitterCard .MomentCard-authorName {
+	color:#292F33;
+	display:inline-block;
+	font-weight:500;
+	max-width:60%;
+	vertical-align:middle
+}
+.TwitterCard .MomentCard-authorScreenName {
+	vertical-align:middle
+}
+.TwitterCard .MomentCard-authorAvatar {
+	border-radius:2px;
+	height:1em;
+	margin-right:.21429em;
+	vertical-align:middle;
+	width:1em
+}
+.TwitterCard .MomentCard-description p {
+	color:#8899A6;
+	font-weight:300;
+	max-height:6.5em
+}
+.TwitterCard .MomentCard-badge {
+	bottom:1.35714em;
+	color:#8899A6;
+	font-size:1em;
+	position:absolute
+}
+.TwitterCard .MomentCard-badgeText {
+	font-weight:300;
+	line-height:1.3em;
+	margin-left:1.1em
+}
+.TwitterCard .MomentCard-iconLightning {
+	background-image:url(//ton.twimg.com/tfw/assets/lightning_backup_v1_3275c7700965edb5fb32ecaec770602c42674edd.png);
+	background-image:url(//ton.twimg.com/tfw/assets/lightning_v1_de331faee24508022200dae98bac0dc01db54f32.svg);
+	background-repeat:no-repeat;
+	background-size:cover;
+	bottom:1px;
+	display:inline-block;
+	height:1.07143em;
+	position:absolute;
+	width:.57143em
+}
+.TwitterCard .MomentCard-iconVerified {
+	background-image:url(//ton.twimg.com/tfw/assets/verified_v1_de2dc8d110b03567621d054ebb48770d5fe228c6.svg);
+	background-repeat:no-repeat;
+	background-size:cover;
+	display:inline-block;
+	height:1em;
+	vertical-align:middle;
+	width:1em
+}
+.TwitterCard .MomentCard--unavailable {
+	background:#E1E8ED;
+	border-radius:.35714em;
+	color:#8899A6;
+	padding:.85714em;
+	text-align:center
+}
+.TwitterCard .MomentCard:not([data-card-breakpoints~=w500]) .MomentCard-cover {
+	width:40%;
+	width:calc(41.66667% - .19444em)
+}
+.TwitterCard .MomentCard:not([data-card-breakpoints~=w500]) .MomentCard-contentContainer {
+	width:57%;
+	width:calc(58.33333% - .13889em)
+}
+.TwitterCard .MomentCard:not([data-card-breakpoints~=w500]) .MomentCard-description p {
+	max-height:2.6em
+}
+.TwitterCard .MomentCard:not([data-card-breakpoints~=w450]) .MomentCard-description p {
+	max-height:1.3em
+}
+.TwitterCard .MomentCard:not([data-card-breakpoints~=w400]) .MomentCard-description {
+	display:none!important
+}
+.TwitterCard .MomentCard:not([data-card-breakpoints~=w300]) .MomentCard-title .TwitterCard-title,.TwitterCard .MomentCard:not([data-card-breakpoints~=w300]) .MomentCard-subtitle,.TwitterCard .MomentCard:not([data-card-breakpoints~=w300]) .MomentCard-badge {
+	font-size:.92857em
+}
+.TwitterCard .MomentCard.TwitterCardsGrid-rtl .MomentCard-cover {
+	border-left-width:1px;
+	border-left-style:solid;
+	border-right:0
+}
+.TwitterCard .PollXChoice {
+	box-sizing:border-box;
+	transition:all .3s cubic-bezier(0.5,1.2,.5,1.2)
+}
+.TwitterCard .PollXChoice--noTransitions * {
+	transition:none!important;
+	transition-duration:0s!important;
+	transition-property:none!important
+}
+.TwitterCard .PollXChoice[data-poll-image=true] .tcu-imageWrapper {
+	top:0;
+	left:0;
+	bottom:0;
+	right:0;
+	box-shadow:inset 0 0 50px rgba(0,0,0,.1)
+}
+.TwitterCard .PollXChoice[data-poll-image=true] .tcu-imageWrapper:before {
+	position:absolute;
+	height:100%;
+	width:100%;
+	content:""
+}
+.TwitterCard .PollXChoice-pollWrapper {
+	position:relative;
+	overflow:hidden;
+	border-radius:.35714em
+}
+.TwitterCard .PollXChoice-optionsWrapper {
+	box-sizing:border-box;
+	padding-left:4px;
+	padding-right:4px
+}
+.TwitterCard [data-poll-state=closed] .PollXChoice-optionsWrapper,.TwitterCard [data-poll-state=final] .PollXChoice-optionsWrapper {
+	padding-left:0;
+	padding-right:0
+}
+.TwitterCard [data-poll-image=true] .PollXChoice-optionsWrapper {
+	color:#FFF;
+	text-shadow:0 0 1px #000;
+	bottom:0;
+	position:absolute;
+	padding-left:1.28571em;
+	padding-right:1.28571em;
+	padding-top:9.14286em;
+	padding-bottom:1em;
+	background:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.7) 100%)
+}
+.TwitterCard [data-poll-image=true][data-poll-state=closed] .PollXChoice-optionsWrapper,.TwitterCard [data-poll-image=true][data-poll-state=final] .PollXChoice-optionsWrapper {
+	padding-left:1.92857em;
+	padding-right:1.92857em
+}
+.TwitterCard [data-poll-image=true][data-poll-state=final][data-poll-init-state=final] .PollXChoice-optionsWrapper {
+	padding-left:1.28571em;
+	padding-right:1.28571em;
+	padding-bottom:1.28571em
+}
+.TwitterCard .PollXChoice-optionContainer {
+	margin-bottom:.57143em;
+	position:relative;
+	box-sizing:border-box
+}
+.TwitterCard .PollXChoice[data-theme=dark][data-poll-state=closed] .PollXChoice-optionContainer,.TwitterCard .PollXChoice[data-theme=dark][data-poll-state=final] .PollXChoice-optionContainer {
+	color:#292F33
+}
+.TwitterCard [data-poll-vote-majority*="1"] .PollXChoice-optionContainer[data-poll-index="1"] .PollXChoice-choice--chart {
+	background:#77C7F7
+}
+.TwitterCard [data-poll-vote-majority*="1"][data-poll-image=true] .PollXChoice-optionContainer[data-poll-index="1"] .PollXChoice-choice--chart {
+	background:rgba(255,255,255,.4)
+}
+.TwitterCard [data-poll-vote-majority*="2"] .PollXChoice-optionContainer[data-poll-index="2"] .PollXChoice-choice--chart {
+	background:#77C7F7
+}
+.TwitterCard [data-poll-vote-majority*="2"][data-poll-image=true] .PollXChoice-optionContainer[data-poll-index="2"] .PollXChoice-choice--chart {
+	background:rgba(255,255,255,.4)
+}
+.TwitterCard [data-poll-vote-majority*="3"] .PollXChoice-optionContainer[data-poll-index="3"] .PollXChoice-choice--chart {
+	background:#77C7F7
+}
+.TwitterCard [data-poll-vote-majority*="3"][data-poll-image=true] .PollXChoice-optionContainer[data-poll-index="3"] .PollXChoice-choice--chart {
+	background:rgba(255,255,255,.4)
+}
+.TwitterCard [data-poll-vote-majority*="4"] .PollXChoice-optionContainer[data-poll-index="4"] .PollXChoice-choice--chart {
+	background:#77C7F7
+}
+.TwitterCard [data-poll-vote-majority*="4"][data-poll-image=true] .PollXChoice-optionContainer[data-poll-index="4"] .PollXChoice-choice--chart {
+	background:rgba(255,255,255,.4)
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-progress {
+	display:inline-block;
+	max-width:100%;
+	margin-left:.64286em;
+	margin-right:.64286em;
+	overflow:hidden;
+	transition-duration:.3s;
+	transition-timing-function:cubic-bezier(0.5,1.2,.5,1.2);
+	transition-property:width,margin-left,margin-right
+}
+.TwitterCard .TwitterCardsGrid-rtl .PollXChoice-optionContainer .PollXChoice-progress {
+	margin-left:.64286em;
+	margin-right:.64286em
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-progress span {
+	opacity:0
+}
+.TwitterCard [data-poll-state=opened] .PollXChoice-optionContainer .PollXChoice-progress {
+	max-width:0;
+	margin-left:-3em;
+	margin-right:3em
+}
+.TwitterCard .TwitterCardsGrid-rtl[data-poll-state=opened] .PollXChoice-optionContainer .PollXChoice-progress {
+	margin-left:3em;
+	margin-right:-3em
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice {
+	overflow:hidden;
+	position:relative;
+	display:block;
+	border-radius:.35714em;
+	cursor:inherit;
+	text-overflow:ellipsis;
+	white-space:nowrap
+}
+.TwitterCard [data-poll-state=opened] .PollXChoice-optionContainer .PollXChoice-choice:hover {
+	cursor:pointer
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--selected {
+	width:0;
+	height:1em;
+	display:inline-block;
+	transition:width .3s cubic-bezier(0.5,1.2,.5,1.2);
+	padding:.14286em;
+	background-size:100%;
+	background-repeat:no-repeat;
+	background-position:center center
+}
+.TwitterCard [data-poll-user-choice] .PollXChoice-optionContainer .PollXChoice-choice--selected {
+	width:1em;
+	margin-left:.64286em
+}
+.TwitterCard .TwitterCardsGrid-rtl[data-poll-user-choice] .PollXChoice-optionContainer .PollXChoice-choice--selected {
+	margin-left:0;
+	margin-right:.64286em
+}
+.TwitterCard [data-poll-user-choice="1"] .PollXChoice-optionContainer .PollXChoice-choice--selected[data-poll-index="1"] {
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_v1_06f15f494d711c69b89c759b68d1fcbbecdca631.svg)
+}
+.TwitterCard [data-poll-user-choice="1"][data-poll-image=true] .PollXChoice-optionContainer .PollXChoice-choice--selected[data-poll-index="1"] {
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_white_v1_f84278ac7fea1dc5e4dae8d85c26ac5ac2b094ea.svg)
+}
+.TwitterCard [data-poll-user-choice="2"] .PollXChoice-optionContainer .PollXChoice-choice--selected[data-poll-index="2"] {
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_v1_06f15f494d711c69b89c759b68d1fcbbecdca631.svg)
+}
+.TwitterCard [data-poll-user-choice="2"][data-poll-image=true] .PollXChoice-optionContainer .PollXChoice-choice--selected[data-poll-index="2"] {
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_white_v1_f84278ac7fea1dc5e4dae8d85c26ac5ac2b094ea.svg)
+}
+.TwitterCard [data-poll-user-choice="3"] .PollXChoice-optionContainer .PollXChoice-choice--selected[data-poll-index="3"] {
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_v1_06f15f494d711c69b89c759b68d1fcbbecdca631.svg)
+}
+.TwitterCard [data-poll-user-choice="3"][data-poll-image=true] .PollXChoice-optionContainer .PollXChoice-choice--selected[data-poll-index="3"] {
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_white_v1_f84278ac7fea1dc5e4dae8d85c26ac5ac2b094ea.svg)
+}
+.TwitterCard [data-poll-user-choice="4"] .PollXChoice-optionContainer .PollXChoice-choice--selected[data-poll-index="4"] {
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_v1_06f15f494d711c69b89c759b68d1fcbbecdca631.svg)
+}
+.TwitterCard [data-poll-user-choice="4"][data-poll-image=true] .PollXChoice-optionContainer .PollXChoice-choice--selected[data-poll-index="4"] {
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_white_v1_f84278ac7fea1dc5e4dae8d85c26ac5ac2b094ea.svg)
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--chart {
+	background:#E1E8ED;
+	position:absolute;
+	top:0;
+	left:0;
+	width:0;
+	height:100%;
+	border-top-left-radius:.35714em;
+	border-bottom-left-radius:.35714em;
+	transition:all .3s cubic-bezier(0.5,1.2,.5,1.2);
+	opacity:1
+}
+.TwitterCard .TwitterCardsGrid-rtl .PollXChoice-optionContainer .PollXChoice-choice--chart {
+	left:inherit;
+	right:0;
+	border-top-left-radius:0;
+	border-bottom-left-radius:0;
+	border-top-right-radius:.35714em;
+	border-bottom-right-radius:.35714em
+}
+.TwitterCard [data-poll-image=true] .PollXChoice-optionContainer .PollXChoice-choice--chart {
+	background:rgba(255,255,255,.2)
+}
+.TwitterCard [data-poll-state=opened] .PollXChoice-optionContainer .PollXChoice-choice--chart {
+	opacity:0
+}
+.TwitterCard [data-poll-state=final] .PollXChoice-optionContainer .PollXChoice-choice--chart {
+	border-top-right-radius:.35714em;
+	border-bottom-right-radius:.35714em
+}
+.TwitterCard .TwitterCardsGrid-rtl[data-poll-state=final] .PollXChoice-optionContainer .PollXChoice-choice--chart {
+	border-top-left-radius:.35714em;
+	border-bottom-left-radius:.35714em
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--radio {
+	position:relative;
+	display:inline-block;
+	box-sizing:border-box;
+	border:1px solid #8899A6;
+	width:1.3em;
+	height:1.3em;
+	border-radius:1em;
+	vertical-align:middle;
+	margin-right:.64286em;
+	transition:all .3s cubic-bezier(0.5,1.2,.5,1.2);
+	background-size:100%;
+	background-repeat:no-repeat
+}
+.TwitterCard .TwitterCardsGrid-rtl .PollXChoice-optionContainer .PollXChoice-choice--radio {
+	margin-right:0;
+	margin-left:.64286em;
+	margin-top:.14286em
+}
+.TwitterCard [data-poll-image=true] .PollXChoice-optionContainer .PollXChoice-choice--radio {
+	border:1px solid #FFF
+}
+.TwitterCard [data-poll-state=closed] .PollXChoice-optionContainer .PollXChoice-choice--radio,.TwitterCard [data-poll-state=final] .PollXChoice-optionContainer .PollXChoice-choice--radio {
+	width:0;
+	height:0;
+	margin-right:0;
+	margin-left:0;
+	border-width:0;
+	opacity:0
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--input {
+	position:relative;
+	display:none
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--input:checked+.PollXChoice-choice--radio {
+	border-color:#19CF86;
+	background-image:url(//ton.twimg.com/tfw/assets/checkmark_circle_green_v1_7c9f3050c9f6a85f83ede3cad267976a1633f0cc.svg)
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--text {
+	position:relative;
+	display:inline-block;
+	padding-top:.28571em;
+	padding-bottom:.28571em
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--text span {
+	vertical-align:middle
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--anchor {
+	display:block;
+	border:0;
+	margin:0;
+	padding:0;
+	position:relative;
+	color:#292F33;
+	text-decoration:none;
+	outline:0
+}
+.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--anchor:link,.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--anchor:visited,.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--anchor:hover,.TwitterCard .PollXChoice-optionContainer .PollXChoice-choice--anchor:active {
+	color:#292F33;
+	text-decoration:none;
+	outline:0
+}
+.TwitterCard .PollXChoice[data-theme=dark] .PollXChoice-optionContainer .PollXChoice-choice--anchor:link,.TwitterCard .PollXChoice[data-theme=dark] .PollXChoice-optionContainer .PollXChoice-choice--anchor:visited,.TwitterCard .PollXChoice[data-theme=dark] .PollXChoice-optionContainer .PollXChoice-choice--anchor:hover,.TwitterCard .PollXChoice[data-theme=dark] .PollXChoice-optionContainer .PollXChoice-choice--anchor:active {
+	color:#FFF
+}
+.TwitterCard .PollXChoice-footer {
+	color:#8899A6;
+	clear:both;
+	box-sizing:border-box
+}
+.TwitterCard [data-poll-image=true] .PollXChoice-footer {
+	color:#FFF
+}
+.TwitterCard .PollXChoice-footer span {
+	vertical-align:middle
+}
+.TwitterCard .PollXChoice-footer .PollXChoice-info {
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	margin:-2px -4px 0 -4px;
+	transition:all .3s cubic-bezier(0.5,1.2,.5,1.2)
+}
+.TwitterCard .PollXChoice-footer .PollXChoice-info span {
+	margin-top:calc(6px + .5em)
+}
+.TwitterCard [data-poll-state=closed] .PollXChoice-footer .PollXChoice-info,.TwitterCard [data-poll-state=final] .PollXChoice-footer .PollXChoice-info {
+	margin-left:0
+}
+.TwitterCard .PollXChoice-footer .PollXChoice-info .PollXChoice-vote {
+	display:inline-block;
+	margin-right:.64286em;
+	margin-top:0;
+	padding:4px;
+	border:1px solid transparent;
+	border-radius:.33333em;
+	transition:all .3s cubic-bezier(0.5,1.2,.5,1.2)
+}
+.TwitterCard .TwitterCardsGrid-rtl .PollXChoice-footer .PollXChoice-info .PollXChoice-vote {
+	margin-left:.64286em;
+	margin-right:0
+}
+.TwitterCard .PollXChoice-footer .PollXChoice-info .PollXChoice-vote:active {
+	border-color:#19CF86
+}
+.TwitterCard .PollXChoice-footer .PollXChoice-info .PollXChoice-vote button {
+	margin-top:0!important;
+	outline:0
+}
+.TwitterCard .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a {
+	display:block;
+	position:relative;
+	color:#292F33;
+	text-decoration:none;
+	outline:0;
+	margin-top:0
+}
+.TwitterCard .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a:link,.TwitterCard .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a:visited,.TwitterCard .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a:hover,.TwitterCard .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a:active {
+	color:#292F33;
+	text-decoration:none;
+	outline:0
+}
+.TwitterCard .PollXChoice[data-theme=dark] .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a {
+	background-color:transparent;
+	background-image:none;
+	border-color:#FFF;
+	color:#FFF
+}
+.TwitterCard .PollXChoice[data-theme=dark]:link .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a,.TwitterCard .PollXChoice[data-theme=dark]:visited .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a,.TwitterCard .PollXChoice[data-theme=dark]:hover .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a,.TwitterCard .PollXChoice[data-theme=dark]:active .PollXChoice-footer .PollXChoice-info .PollXChoice-vote a {
+	background-color:rgba(255,255,255,.1);
+	background-image:none;
+	border-color:#FFF
+}
+.TwitterCard [data-poll-state=closed] .PollXChoice-footer .PollXChoice-info .PollXChoice-vote,.TwitterCard [data-poll-state=final] .PollXChoice-footer .PollXChoice-info .PollXChoice-vote {
+	width:0;
+	margin-right:0;
+	margin-left:0;
+	overflow:hidden;
+	padding-left:0;
+	padding-right:0;
+	border-left:0;
+	border-right:0;
+	border-color:transparent
+}
+.TwitterCard [data-poll-state=closed] .PollXChoice-footer .PollXChoice-info .PollXChoice-vote:active,.TwitterCard [data-poll-state=final] .PollXChoice-footer .PollXChoice-info .PollXChoice-vote:active {
+	border-color:transparent
+}
+.TwitterCard [data-poll-image=true][data-poll-state=final][data-poll-init-state=final] .PollXChoice-footer .PollXChoice-info .PollXChoice-vote {
+	display:none!important
+}
+.TwitterCard .ProductAdCard-destination {
+	color:#8899A6;
+	max-height:1.3em;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap
+}
+.TwitterCard .ProductAdCard-destination .vanityUrl {
+	text-transform:lowercase
+}
+.TwitterCard .ProductAdCard--small .ProductAdCard-content {
+	padding:.55em .7em .7em
+}
+.TwitterCard .ProductAdCard--small .ProductAdCard-content .Button--smallGray {
+	float:left;
+	margin-top:2.1em
+}
+.TwitterCard .SummaryCard-content {
+	padding:.75em;
+	box-sizing:border-box;
+	text-decoration:none
+}
+.TwitterCard .SummaryCard-content .TwitterCard-title {
+	max-height:1.3em;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis
+}
+.TwitterCard .SummaryCard-content p {
+	overflow:hidden
+}
+.TwitterCard .SummaryCard-content .Button--smallGray {
+	float:left;
+	margin-top:.5em
+}
+.TwitterCard .SummaryCard-destination {
+	text-transform:lowercase;
+	color:#8899A6;
+	max-height:1.3em;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis
+}
+.TwitterCard .SummaryCard-image {
+	background-color:#E1E8ED;
+	border-style:solid;
+	border-color:inherit;
+	border-width:0
+}
+.TwitterCard .SummaryCard-image .tcu-imageWrapper {
+	background-image:url(//ton.twimg.com/tfw/assets/link_v1_e64f66f5650df987d97cc5f00c4cb5987f367028.svg);
+	background-size:3em;
+	transition-property:opacity;
+	transition-timing-function:cubic-bezier(0.9,0,.9,0);
+	transition-duration:0s
+}
+.TwitterCard .SummaryCard--small .SummaryCard-image {
+	width:8.81667em;
+	border-right-width:1px
+}
+.TwitterCard .SummaryCard--small .SummaryCard-contentContainer {
+	width:calc(100% - 8.81667em - 2px)
+}
+.TwitterCard .SummaryCard--small .SummaryCard-content p {
+	max-height:3.9em
+}
+.TwitterCard .SummaryCard--small:not([data-card-breakpoints~=w400]) .SummaryCard-image {
+	width:7.51667em;
+	height:7.51667em
+}
+.TwitterCard .SummaryCard--small:not([data-card-breakpoints~=w400]) .SummaryCard-contentContainer {
+	width:calc(100% - 7.51667em - 2px)
+}
+.TwitterCard .SummaryCard--small:not([data-card-breakpoints~=w400]) .SummaryCard-content p {
+	max-height:2.6em
+}
+.TwitterCard .SummaryCard--small:not([data-card-breakpoints~=w300]) .SummaryCard-image {
+	width:6.21667em;
+	height:6.21667em
+}
+.TwitterCard .SummaryCard--small:not([data-card-breakpoints~=w300]) .SummaryCard-contentContainer {
+	width:calc(100% - 6.21667em - 2px)
+}
+.TwitterCard .SummaryCard--small:not([data-card-breakpoints~=w300]) .SummaryCard-content p {
+	max-height:1.3em;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis
+}
+.TwitterCard .SummaryCard--large[data-pe-name] .TwitterCard-title {
+	white-space:normal;
+	max-height:2.6em;
+	padding-right:1em
+}
+.TwitterCard .SummaryCard--large .SummaryCard-image {
+	border-bottom-width:1px
+}
+.TwitterCard .SummaryCard--large .SummaryCard-content {
+	padding-left:1em;
+	padding-right:1em
+}
+.TwitterCard .SummaryCard--large .SummaryCard-content p {
+	max-height:2.6em
+}
+.TwitterCard .SummaryCard--large .SummaryCard-content .Button--smallGray {
+	float:right;
+	margin-top:.25em
+}
+.TwitterCard .SummaryCard--large:not([data-card-breakpoints~=w300]) .SummaryCard-content p {
+	max-height:1.3em;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis
+}
