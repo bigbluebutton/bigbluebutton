@@ -41,7 +41,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
   <mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
   <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-  
+  <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
+    
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;   
@@ -65,7 +66,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.BBB;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
-	
+      import org.bigbluebutton.core.managers.ReconnectionManager;
+      
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
       
       public static const SCALE:Number = 5;
@@ -143,18 +145,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         return MainCanvas.DESKTOP_SHARING_PUBLISH;
       }
       
+      public function handleDisconnectedEvent(event:BBBEvent):void {
+          if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
+            closeWindow();  
+          }
+      }
+      
       /*
       * Implement resizeable interface.
-      */			
+      */
       public function resetWidthAndHeight():void{/* do nothing */}
       
       public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
         this.connection = connection;
         this.uri = uri;
-        this.room = room;				
+        this.room = room;
         this.autoStart = autoStart;
         /*if(autoFullScreen)
-        shareScreen(true);*/		
+        shareScreen(true);*/
       }
       
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
@@ -170,7 +178,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
         var captureX:Number = 0;
-        var captureY:Number = 0;				
+        var captureY:Number = 0;
         sharingFullScreen = fullScreen;
         var authToken:String = ScreenshareModel.getInstance().authToken;
         var jnlp: String = ScreenshareModel.getInstance().jnlp;
@@ -183,7 +191,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (streaming) {
           stopStream();
           var streamEvent:RequestToStopSharing = new RequestToStopSharing();
-          dispatchEvent(streamEvent);					
+          dispatchEvent(streamEvent);
         }
         sharingFullScreen = false;
         streaming = false;
@@ -195,7 +203,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (streaming) {
           stopStream();
           var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
-          dispatchEvent(streamEvent);					
+          dispatchEvent(streamEvent);
         }
         sharingFullScreen = false;
         streaming = false;
@@ -266,7 +274,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ns.play(streamId);
         
         btnClosePublish.enabled = true;
-        btnFSPublish.enabled = false;				
+        btnFSPublish.enabled = false;
         btnRegionPublish.enabled = false;
       }
       
@@ -305,9 +313,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         closeWindow();
       }
       
-      private function closeWindow():void {			
-        dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));				
-      }		
+      private function closeWindow():void {
+        dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));
+      }
       
       private function restartJava():void {
         shareScreen(sharingFullScreen);

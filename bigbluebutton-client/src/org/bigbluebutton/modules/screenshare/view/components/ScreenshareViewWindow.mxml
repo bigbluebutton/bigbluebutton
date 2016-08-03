@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+    <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
   
 	<mx:Script>
 		<![CDATA[
@@ -53,6 +54,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.util.i18n.ResourceUtil;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.managers.ReconnectionManager;
+      import org.bigbluebutton.main.events.BBBEvent;
       
       private static const LOG:String = "SC::ScreenshareViewWIndow - ";
       private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
@@ -337,6 +340,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
+            
+       public function handleDisconnectedEvent(event:BBBEvent):void {
+          if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
+            closeWindow();  
+          }
+      }
 			
 		]]>
 	</mx:Script>

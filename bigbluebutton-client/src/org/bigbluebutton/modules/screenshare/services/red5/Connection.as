@@ -35,7 +35,9 @@ package org.bigbluebutton.modules.screenshare.services.red5
 	import org.bigbluebutton.modules.screenshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.screenshare.events.CursorEvent;
 	import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-
+	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
 	
 	public class Connection {
     private static const LOGGER:ILogger = getClassLogger(Connection);
@@ -54,6 +56,8 @@ package org.bigbluebutton.modules.screenshare.services.red5
     
     private var dispatcher:Dispatcher = new Dispatcher();    
     private var _messageListeners:Array = new Array();
+	private var logoutOnUserCommand:Boolean = false;
+    private var reconnecting:Boolean = false;
     
     public function Connection(meetingId:String) {
       this.meetingId = meetingId;
@@ -267,14 +271,31 @@ package org.bigbluebutton.modules.screenshare.services.red5
       var ce:ConnectionEvent;
 			switch(event.info.code){
 				case "NetConnection.Connect.Failed":
+          if (reconnecting) {
+            var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+            attemptFailedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+            dispatcher.dispatchEvent(attemptFailedEvent);
+          }
           ce = new ConnectionEvent(ConnectionEvent.FAILED);        
           dispatcher.dispatchEvent(ce);
 				break;
 				
 				case "NetConnection.Connect.Success":
+          if (reconnecting) {
+            reconnecting = false;
+			if (ScreenshareModel.getInstance().isSharing) {
+				stopShareRequest(UsersUtil.getInternalMeetingID(), ScreenshareModel.getInstance().streamId)				
+			}
+            
+            var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
+            attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+            dispatcher.dispatchEvent(attemptSucceeded);
+          }
+          
           sendUserIdToServer();
           ce = new ConnectionEvent(ConnectionEvent.SUCCESS);
           dispatcher.dispatchEvent(ce);
+                      
 				break;
 				
 				case "NetConnection.Connect.Rejected":
@@ -284,6 +305,23 @@ package org.bigbluebutton.modules.screenshare.services.red5
 				
 				case "NetConnection.Connect.Closed":
           LOGGER.debug("Screenshare connection closed.");
+		  if (UsersUtil.amIPresenter()) {
+			  // Let's keep our presenter status before disconnected. We can't
+			  // tell the other user's to stop desktop sharing as our connection is broken. (ralam july 24, 2015)
+			  
+		  } else {
+			  stopViewing();
+		  }
+          
+          if (!logoutOnUserCommand) { 
+            reconnecting = true;
+
+            var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+            disconnectedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+            disconnectedEvent.payload.callback = connect;
+            disconnectedEvent.payload.callbackParameters = [];
+            dispatcher.dispatchEvent(disconnectedEvent);
+          }
           ce = new ConnectionEvent(ConnectionEvent.CLOSED);
 				break;
 				
@@ -323,6 +361,7 @@ package org.bigbluebutton.modules.screenshare.services.red5
     }
       
     public function disconnect():void{
+		logoutOnUserCommand = true;
       if (netConn != null) netConn.close();
     }
         
