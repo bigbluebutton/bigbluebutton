@@ -392,9 +392,15 @@ class ApiController {
       if (conf == null) {
         // Check if this config is one of our pre-built config
         configxml = configService.getConfig(params.configToken)
+        log.info conf
         if (configxml == null) {
-          // Default to the default config.
-          configxml = conf.config;
+          // BEGIN - backward compatibility
+          invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+          return
+          // END - backward compatibility
+
+          errors.noConfigFound();
+          respondWithErrors(errors);
         }
       } else {
         configxml = conf.config;
@@ -402,6 +408,11 @@ class ApiController {
     } else {
       Config conf = meeting.getDefaultConfig();
       if (conf == null) {
+        // BEGIN - backward compatibility
+        invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+        return
+        // END - backward compatibility
+
         errors.noConfigFound();
         respondWithErrors(errors);
       } else {
@@ -410,6 +421,11 @@ class ApiController {
     }
 
     if (StringUtils.isEmpty(configxml)) {
+      // BEGIN - backward compatibility
+      invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+      return
+      // END - backward compatibility
+
       errors.noConfigFound();
       respondWithErrors(errors);
     }
