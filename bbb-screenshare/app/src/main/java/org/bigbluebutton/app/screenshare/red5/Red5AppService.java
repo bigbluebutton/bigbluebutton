@@ -2,8 +2,10 @@ package org.bigbluebutton.app.screenshare.red5;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 
@@ -26,17 +28,30 @@ public class Red5AppService {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String userId = (String) msg.get("userId");
 
+    String connType = getConnectionType(Red5.getConnectionLocal().getType());
+    String sessionId = Red5.getConnectionLocal().getSessionId();
+
+    /**
+     * Find if there are any other connections owned by this user. If we find one,
+     * that means that the connection is old and the user reconnected. Clear the
+     * userId attribute so that messages would not be sent in the defunct connection.
+     */
+    Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
+    for (IConnection conn : conns) {
+      String connUserId = (String) conn.getAttribute("USERID");
+      if (connUserId != null && connUserId.equals(userId) && conn.getSessionId().equals(sessionId)) {
+        conn.removeAttribute("USERID");
+      }
+    }
+
     Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
     Red5.getConnectionLocal().setAttribute("USERID", userId);
-
-    String connType = getConnectionType(Red5.getConnectionLocal().getType());
-    String connId = Red5.getConnectionLocal().getSessionId();
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", meetingId);
     logData.put("userId", userId);
     logData.put("connType", connType);
-    logData.put("connId", connId);
+    logData.put("connId", sessionId);
     logData.put("event", "user_joining_bbb_screenshare");
     logData.put("description", "User joining BBB Screenshare.");
 
