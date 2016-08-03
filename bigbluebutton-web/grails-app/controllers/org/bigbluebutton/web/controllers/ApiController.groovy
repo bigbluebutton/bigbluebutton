@@ -392,7 +392,6 @@ class ApiController {
       if (conf == null) {
         // Check if this config is one of our pre-built config
         configxml = configService.getConfig(params.configToken)
-        log.info conf
         if (configxml == null) {
           // BEGIN - backward compatibility
           invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
