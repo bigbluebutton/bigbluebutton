@@ -1,8 +1,7 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
-import { subscribeForData, pollExists } from './service';
-
+import { subscribeForData, pollExists, wasUserKicked, redirectToLogoutUrl } from './service';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
@@ -59,11 +58,12 @@ export default createContainer(() => {
   Promise.all(subscribeForData())
   .then(() => {
     setLoading(false);
-  })
-  .catch(reason => console.error(reason));
+  });
 
   return {
+    wasKicked: wasUserKicked(),
     isLoading: getLoading(),
+    redirectToLogoutUrl,
     actionsbar: <ActionsBarContainer />,
   };
 }, AppContainer);

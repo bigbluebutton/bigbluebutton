@@ -55,7 +55,7 @@
 			vertoHostName="HOST.NAME"
 			vertoLogin="LOGIN"
 			vertoPassword="PASSWORD"
-			help="http://HOST/client/screenshare-help.html"
+			help="http://HOST/client/help/screenshare-help.html"
 		/>
     
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 

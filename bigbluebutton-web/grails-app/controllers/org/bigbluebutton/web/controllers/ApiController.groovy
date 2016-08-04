@@ -393,8 +393,13 @@ class ApiController {
         // Check if this config is one of our pre-built config
         configxml = configService.getConfig(params.configToken)
         if (configxml == null) {
-          // Default to the default config.
-          configxml = conf.config;
+          // BEGIN - backward compatibility
+          invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+          return
+          // END - backward compatibility
+
+          errors.noConfigFound();
+          respondWithErrors(errors);
         }
       } else {
         configxml = conf.config;
@@ -402,6 +407,11 @@ class ApiController {
     } else {
       Config conf = meeting.getDefaultConfig();
       if (conf == null) {
+        // BEGIN - backward compatibility
+        invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+        return
+        // END - backward compatibility
+
         errors.noConfigFound();
         respondWithErrors(errors);
       } else {
@@ -410,6 +420,11 @@ class ApiController {
     }
 
     if (StringUtils.isEmpty(configxml)) {
+      // BEGIN - backward compatibility
+      invalid("noConfigFound","We could not find a config for this request.", REDIRECT_RESPONSE);
+      return
+      // END - backward compatibility
+
       errors.noConfigFound();
       respondWithErrors(errors);
     }
@@ -1398,10 +1413,18 @@ class ApiController {
         String API_CALL = "getDefaultConfigXML"
         ApiErrors errors = new ApiErrors();
 
+        // BEGIN - backward compatibility
         if (StringUtils.isEmpty(params.checksum)) {
             invalid("checksumError", "You did not pass the checksum security check")
             return
         }
+
+        if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+            invalid("checksumError", "You did not pass the checksum security check")
+            return
+        }
+        // END - backward compatibility
+
 
         // Do we agree on the checksum? If not, complain.
         if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
@@ -1484,7 +1507,7 @@ class ApiController {
         reject = true;
       else {
         us = meetingService.getUserSession(sessionToken);
-        meeting = meetingService.getMeeting(us.meetingID, true);
+        meeting = meetingService.getMeeting(us.meetingID);
         if (meeting == null || meeting.isForciblyEnded()) {
           reject = true
         }
@@ -1984,17 +2007,11 @@ class ApiController {
        // END - backward compatibility
      }
 
-     // Do we have a publish status? If none, set default value.
-     String force = params.force
-     if (StringUtils.isEmpty(force)) {
-       force = "false"
-     }
-
      //Execute code specific for this call
      Map<String, String> metaParams = ParamsProcessorUtil.processMetaParam(params)
      if ( !metaParams.empty ) {
          //Proceed with the update
-         meetingService.updateRecordings(recordIdList, metaParams, force.toBoolean());
+         meetingService.updateRecordings(recordIdList, metaParams);
      }
      withFormat {
        xml {
@@ -2240,7 +2257,7 @@ class ApiController {
   //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
   private void invalid(key, msg, redirectResponse=false) {
     // Note: This xml scheme will be DEPRECATED.
-    log.debug CONTROLLER_NAME + "#invalid"
+    log.debug CONTROLLER_NAME + "#invalid " + msg
     if (redirectResponse) {
         ArrayList<Object> errors = new ArrayList<Object>();
         Map<String,String> errorMap = new LinkedHashMap<String,String>()

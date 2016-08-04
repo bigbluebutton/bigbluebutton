@@ -1,0 +1,77 @@
+@charset "UTF-8";
+
+/*****************************/
+/* Dashboard widget styles
+/*****************************/
+
+
+/*****************************/
+/* Normal, page widget styles
+
+  displayed here in order rendered
+/*****************************/
+/* Each post is styled as follows:
+<li class="fbc_rc_comment old/even">
+	<div class="fbc_rc_comment-meta">
+		<cite class="fbc_rc_comment-author">
+			<a href="https://www.facebook.com/profile.php?id=FACEBOOKID">
+				USERNAME
+			</a>
+		</cite> 
+		<abbr class="fbc_rc_date">
+			Date/Time
+		</abbr>
+	</div>
+	<img class="avatar" height="50" width="50" />
+	<div class="fbc_rc_text">
+		COMMENT CONTENT
+	</div>
+	<div class="fbc_rc_permalink">
+		<a href=permalink>
+			Post or Page Title
+		</a>
+	</div>
+</li>
+*/
+
+/* Main widget, which is enclosed in a ul */
+#fbc_rc_widget {
+	width: auto;
+	margin-left:0 !important; /* override WP default */
+}
+li.fbc_rc_comment {
+	min-height: 80px; /* to prevent overlap */
+	height:100%;
+	position:relative;
+	margin:2px;
+	border-bottom: 1px dotted rgba(88,88,88,1);
+}
+/* odd and even are so you can style alternating posts differently, if you'd like to */
+ul#fbc_rc_widget li.odd { }
+ul#fbc_rc_widget li.even {
+	background-color:rgba(222,222,251,1);
+}/* change to float:left to display avatars on the left of comments */
+
+/* encloses both author and date */
+.fbc_rc_comment-meta { }
+.fbc_rc_comment-author { }
+.fbc_rc_date { 
+	font-size:.8em;
+}
+
+ul#fbc_rc_widget .avatar {
+	float: right; /* change to float:left to display avatars on the left of comments */
+	padding-bottom: 2px;
+}
+
+/* main comment text */
+.fbc_rc_text {
+	margin: 5px;
+	padding-bottom:25px; /* to prevent post titles from overlapping with comment text */
+}
+
+.fbc_rc_permalink {
+	position: absolute; 
+	bottom: 2px; 
+}
+
