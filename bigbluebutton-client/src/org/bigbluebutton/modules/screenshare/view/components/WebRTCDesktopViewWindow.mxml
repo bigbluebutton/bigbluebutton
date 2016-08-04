@@ -50,7 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.modules.screenshare.services.red5.ConnectionEvent;
+			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
 
 			public static const LOG:String = "Deskshare::DesktopViewWindow - ";
 			private var screenHeight:Number = Capabilities.screenResolutionY;
@@ -67,7 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoHeight:Number;
 			private var videoWidth:Number;
 
-			<!-- private static const LOGGER:ILogger = getClassLogger(DesktopViewWindow); -->
+			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopViewWindow);
 
 			private static const VIDEO_WIDTH_PADDING:int = 7;
 			private static const VIDEO_HEIGHT_PADDING:int = 65;
@@ -84,10 +84,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable] private var baseIndex:int;
 
-			[Bindable] private var dsOptions:DeskshareOptions;
+			[Bindable] private var dsOptions:ScreenshareOptions;
 
 			private function init():void{
-				dsOptions = new DeskshareOptions();
+				dsOptions = new ScreenshareOptions();
 			}
 
 			private function displayVideo():void{
@@ -163,34 +163,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function netStatusHandler(event:NetStatusEvent):void {
 //				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
-				var ce:ConnectionEvent = new ConnectionEvent();
+				var ce:WebRTCConnectionEvent = new WebRTCConnectionEvent();
 
 				switch(event.info.code){
 					case "NetConnection.Connect.Failed":
-						ce.status = ConnectionEvent.FAILED;
+						ce.status = WebRTCConnectionEvent.FAILED;
 
 						break;
 
 					case "NetConnection.Connect.Success":
-						ce.status = ConnectionEvent.SUCCESS;
+						ce.status = WebRTCConnectionEvent.SUCCESS;
 						connectionSuccessHandler();
 						break;
 
 					case "NetConnection.Connect.Rejected":
-						ce.status = ConnectionEvent.REJECTED;
+						ce.status = WebRTCConnectionEvent.REJECTED;
 						break;
 
 					case "NetConnection.Connect.Closed":
 						trace(LOG + "Deskshare connection closed.");
-						ce.status = ConnectionEvent.CLOSED;
+						ce.status = WebRTCConnectionEvent.CLOSED;
 						break;
 
 					case "NetConnection.Connect.InvalidApp":
-						ce.status = ConnectionEvent.INVALIDAPP;
+						ce.status = WebRTCConnectionEvent.INVALIDAPP;
 						break;
 
 					case "NetConnection.Connect.AppShutdown":
-						ce.status = ConnectionEvent.APPSHUTDOWN;
+						ce.status = WebRTCConnectionEvent.APPSHUTDOWN;
 						break;
 
 					case "NetConnection.Connect.NetworkChange":

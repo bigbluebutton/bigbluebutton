@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.screenshare.services.red5
 						event.videoHeight = height;
 						dispatcher.dispatchEvent(event); //TODO why?
 					} else {
-						LOGGER.debug("No deskshare stream being published");
+						LOGGER.debug("No screenshare stream being published");
 						var connEvent:WebRTCConnectionEvent = new WebRTCConnectionEvent();
 						connEvent.status = WebRTCConnectionEvent.NO_DESKSHARE_STREAM;
 						dispatcher.dispatchEvent(connEvent); //TODO why?
@@ -286,7 +286,7 @@ package org.bigbluebutton.modules.screenshare.services.red5
 			event.status = WebRTCConnectionEvent.CHECK_FOR_DESKSHARE_STREAM;
 			dispatcher.dispatchEvent(event); // TODO anton send to akka-bbb-apps
 
-			nc.call("deskshare.checkIfStreamIsPublishing", responder, room);
+			nc.call("screenshare.checkIfStreamIsPublishing", responder, room);
 		}
 
 		public function disconnect():void{

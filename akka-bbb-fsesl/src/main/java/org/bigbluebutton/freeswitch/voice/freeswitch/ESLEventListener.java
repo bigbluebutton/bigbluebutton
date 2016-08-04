@@ -66,9 +66,6 @@ public class ESLEventListener implements IEslEventListener {
 
         String voiceUserId = callerIdName;
 
-        System.out.println("User joined voice conference, user=[" + callerIdName + "], conf=[" +
-                confName + "] callerId=[" + callerId + "]");
-
         Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
         if (gapMatcher.matches()) {
             System.out.println("Ignoring GLOBAL AUDIO USER [" + callerIdName + "]");
@@ -78,6 +75,8 @@ public class ESLEventListener implements IEslEventListener {
         // (WebRTC) Deskstop sharing conferences' name is of the form ddddd-DESKSHARE
         // Voice conferences' name is of the form ddddd
         if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
+            System.out.println("User joined deskshare conference, user=[" + callerIdName + "], " +
+                    "conf=[" + confName + "] callerId=[" + callerId + "]");
             DeskShareStartedEvent dsStart = new DeskShareStartedEvent(confName, callerId, callerIdName);
             conferenceEventListener.handleConferenceEvent(dsStart);
         } else {
@@ -87,6 +86,9 @@ public class ESLEventListener implements IEslEventListener {
                 callerIdName = matcher.group(2).trim();
             }
 
+            System.out.println("User joined voice conference, user=[" + callerIdName + "], conf=[" +
+                    confName + "] callerId=[" + callerId + "]");
+
             VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, "");
             conferenceEventListener.handleConferenceEvent(pj);
         }
@@ -95,16 +97,19 @@ public class ESLEventListener implements IEslEventListener {
     @Override
     public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {      
         Integer memberId = this.getMemberIdFromEvent(event);
-        System.out.println("User left voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
 
         // (WebRTC) Deskstop sharing conferences' name is of the form ddddd-DESKSHARE
         // Voice conferences' name is of the form ddddd
         if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
+            System.out.println("User left deskshare conference, user=[" + memberId.toString() +
+                    "], " + "conf=[" + confName + "]");
             DeskShareEndedEvent dsEnd = new DeskShareEndedEvent(confName, callerId, callerIdName);
             conferenceEventListener.handleConferenceEvent(dsEnd);
         } else {
+            System.out.println("User left voice conference, user=[" + memberId.toString() + "], " +
+                    "conf=[" + confName + "]");
             VoiceUserLeftEvent pl = new VoiceUserLeftEvent(memberId.toString(), confName);
             conferenceEventListener.handleConferenceEvent(pl);
         }
@@ -224,7 +229,8 @@ public class ESLEventListener implements IEslEventListener {
     
     @Override
     public void eventReceived(EslEvent event) {
-        System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]");
+        System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]" +
+                event.getEventHeaders().toString());
 //        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
 ////           setChanged();
 //           notifyObservers(event);

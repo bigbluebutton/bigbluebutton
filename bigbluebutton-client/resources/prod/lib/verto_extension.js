@@ -8,6 +8,7 @@ Verto = function (
   onFail = null,
   chromeExtension = null) {
 
+  voiceBridge += "-DESKSHARE";
   this.cur_call = null;
   this.share_call = null;
   this.vertoHandle;
@@ -508,3 +509,5 @@ window.vertoExtensionGetChromeExtensionStatus = function (extensionid, callback)
   callback = Verto.normalizeCallback(callback);
   getChromeExtensionStatus(extensionid, callback);
 };
+
+

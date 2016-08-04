@@ -183,7 +183,8 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit = {
-    log.info("handleDeskShareStoppedRequest: dsStarted=" + meetingModel.getDeskShareStarted())
+    log.info("handleDeskShareStoppedRequest: dsStarted=" + meetingModel.getDeskShareStarted() +
+      " URL:" + meetingModel.getRTMPBroadcastingUrl())
 
     // Tell FreeSwitch to stop broadcasting to RTMP
     outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, meetingModel.getRTMPBroadcastingUrl()))
@@ -192,7 +193,8 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit = {
-    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP() +
+      " URL:" + meetingModel.getRTMPBroadcastingUrl())
 
     // only valid if not broadcasting yet
     if (!meetingModel.isBroadcastingRTMP()) {
@@ -210,7 +212,8 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {
-    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" + meetingModel
+      .isBroadcastingRTMP() + " URL:" + meetingModel.getRTMPBroadcastingUrl())
 
     // only valid if currently broadcasting
     if (meetingModel.isBroadcastingRTMP()) {
@@ -227,7 +230,8 @@ class LiveMeeting(val mProps: MeetingProperties,
 
   def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
 
-    log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting=" + meetingModel.isBroadcastingRTMP())
+    log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
+      + meetingModel.isBroadcastingRTMP() + " URL:" + meetingModel.getRTMPBroadcastingUrl())
     if (meetingModel.isBroadcastingRTMP()) {
       // if the meeting has an ongoing WebRTC Deskshare session, send a notification
       outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, meetingModel.getRTMPBroadcastingUrl(),
