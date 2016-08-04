@@ -32,17 +32,21 @@ package org.bigbluebutton.modules.caption.views {
 	import mx.binding.utils.BindingUtils;
 	import mx.binding.utils.ChangeWatcher;
 	import mx.containers.VBox;
+	import mx.controls.Alert;
 	import mx.controls.Button;
 	import mx.events.FlexEvent;
 	
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
 	import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
+	import org.bigbluebutton.modules.caption.model.CaptionOptions;
 	import org.bigbluebutton.modules.caption.model.Transcript;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.osmf.events.TimeEvent;
 
 	public class TextTab extends VBox {
+		
+		private var _captionOptions:CaptionOptions;
 		
 		[Bindable]
 		private var currentTranscript:Transcript;
@@ -60,8 +64,10 @@ package org.bigbluebutton.modules.caption.views {
 		private var outputArea:TextArea2;
 		private var claimButton:Button;
 		
-		public function TextTab(startIndex:int) {
+		public function TextTab(startIndex:int, captionOptions:CaptionOptions) {
 			super();
+			
+			_captionOptions = captionOptions;
 			
 			setStyle("horizontalAlign", "center");
 			
@@ -178,6 +184,12 @@ package org.bigbluebutton.modules.caption.views {
 		
 		private function onTranscriptTextInput(e:TextEvent):void {
 			//trace("Text entered: " + e.text + ", carat begin:" + inputArea.selectionBeginIndex + ", end: " + inputArea.selectionEndIndex);
+			
+			if (e.text.length > _captionOptions.maxPasteLength) {
+				e.preventDefault();
+				Alert.show(ResourceUtil.getInstance().getString("bbb.caption.transcript.pastewarning.text", [_captionOptions.maxPasteLength, e.text.length]), ResourceUtil.getInstance().getString("bbb.caption.transcript.pastewarning.title"), Alert.OK);
+				return;
+			}
 			
 			// There is no surefire way to detect whether the internal TextField is in overwrite mode or not. We need to 
 			// delay sending the message until after the text changes and then check length. This extra check is only 

@@ -76,7 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				optionsTab.setChangeCallback(optionChange);
 				captionTabs.addChild(optionsTab);
 				
-				textTab = new TextTab(captionOptions.baseTabIndex+5);
+				textTab = new TextTab(captionOptions.baseTabIndex+5, captionOptions);
 			}
 			
 			private function onCreationComplete():void {
