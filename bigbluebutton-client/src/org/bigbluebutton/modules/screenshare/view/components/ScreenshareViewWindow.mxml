@@ -219,10 +219,10 @@
   				case "NetStream.Play.Start":
             LOGGER.debug("NetStream.Publish.Start for broadcast stream " + streamId);
             JSLog.debug(LOG + "NetStream.Publish.Start for broadcast stream ", logData);
-  				  var dispatcher: Dispatcher  = new Dispatcher();
-            var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
-            viewEvent.stream = streamId;
-  				  dispatcher.dispatchEvent(viewEvent);
+//  				  var dispatcher: Dispatcher  = new Dispatcher();
+//            var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
+//            viewEvent.stream = streamId;
+//  				  dispatcher.dispatchEvent(viewEvent);
   					break;
   				case "NetStream.Play.UnpublishNotify":
             LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream " + streamId);
