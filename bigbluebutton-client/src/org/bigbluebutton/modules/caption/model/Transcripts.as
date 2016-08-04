@@ -61,7 +61,9 @@ package org.bigbluebutton.modules.caption.model {
 		}
 		
 		public function editCaptionHistory(locale:String, startIndex:int, endIndex:int, text:String):void {
-			findLocale(locale).editHistory(startIndex, endIndex, text);
+			if (_historyInited) { // ignore updates until after history has been loaded
+				findLocale(locale).editHistory(startIndex, endIndex, text);
+			}
 		}
 		
 		public function findLocale(locale:String):Transcript {
