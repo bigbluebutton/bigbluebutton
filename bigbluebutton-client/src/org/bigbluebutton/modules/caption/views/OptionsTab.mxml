@@ -53,10 +53,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				currentTranscript = t;
 			}
 			
-			public function transcriptOwnerIDChange(ownerID:String):void {
-				
-			}
-			
 			private function onLocaleComboChange():void {
 				if (transcriptsCollection && localeCombo.selectedIndex != -1) {
 					if (changeCallback != null) changeCallback(OptionENUM.LOCALE, localeCombo.selectedItem.locale);

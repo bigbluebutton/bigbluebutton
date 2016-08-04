@@ -162,7 +162,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onTranscriptOwnerIDChange(o:Object):void {
 				var ownerId:String = o as String;
 				
-				optionsTab.transcriptOwnerIDChange(ownerId);
 				textTab.transcriptOwnerIDChange(ownerId);
 				
 				setTextTabLabel(ownerId);
