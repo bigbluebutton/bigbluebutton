@@ -22,20 +22,27 @@ package org.bigbluebutton.modules.caption.views {
 	
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
+	import flash.events.TimerEvent;
 	import flash.text.TextFieldType;
 	import flash.ui.Keyboard;
+	import flash.utils.Timer;
 	
 	import mx.binding.utils.BindingUtils;
 	import mx.binding.utils.ChangeWatcher;
-	import mx.containers.Box;
+	import mx.containers.VBox;
+	import mx.controls.Button;
 	import mx.events.FlexEvent;
 	
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
+	import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 	import org.bigbluebutton.modules.caption.model.Transcript;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+	import org.osmf.events.TimeEvent;
 
-	public class TextTab extends Box {
+	public class TextTab extends VBox {
 		
 		[Bindable]
 		private var currentTranscript:Transcript;
@@ -51,9 +58,12 @@ package org.bigbluebutton.modules.caption.views {
 		
 		private var inputArea:TextArea2;
 		private var outputArea:TextArea2;
+		private var claimButton:Button;
 		
 		public function TextTab(startIndex:int) {
 			super();
+			
+			setStyle("horizontalAlign", "center");
 			
 			inputArea = new TextArea2();
 			inputArea.percentWidth = 100;
@@ -69,6 +79,19 @@ package org.bigbluebutton.modules.caption.views {
 			outputArea.percentHeight = 100;
 			outputArea.tabIndex = startIndex+1;
 			addChild(outputArea);
+			
+			claimButton = new Button();
+			claimButton.label = ResourceUtil.getInstance().getString('bbb.caption.option.takeowner');
+			claimButton.toolTip = ResourceUtil.getInstance().getString('bbb.caption.option.takeowner.tooltip');
+			claimButton.height = 22; 
+			claimButton.visible = false;
+			claimButton.includeInLayout = false;
+			claimButton.tabIndex = startIndex+1;
+			claimButton.addEventListener(MouseEvent.CLICK, onClaimButtonClick);
+			addChild(claimButton);
+			
+			_sendTimer = new Timer(TIME_TO_SEND, 1);
+			_sendTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onSendTimerComplete);
 			
 			addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
 		}
@@ -94,23 +117,30 @@ package org.bigbluebutton.modules.caption.views {
 		}
 		
 		public function transcriptOwnerIDChange(ownerID:String):void {
-			if (ownerID == "") {
-				//unclaimed text
-				inputArea.visible = inputArea.includeInLayout = false;
-				outputArea.visible = outputArea.includeInLayout = true;
-				inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
-			} else if (ownerID == UserManager.getInstance().getConference().getMyUserId()) {
+			if (ownerID == UserManager.getInstance().getConference().getMyUserId()) {
+				claimButton.visible = claimButton.includeInLayout = false;
+				
 				//release text
 				inputArea.visible = inputArea.includeInLayout = true;
 				outputArea.visible = outputArea.includeInLayout = false;
 				inputArea.getInternalTextField().type = TextFieldType.INPUT;
 				inputArea.text = currentTranscript.transcript;
 			} else {
-				//claimed by other
-				inputArea.visible = inputArea.includeInLayout = false;
-				outputArea.visible = outputArea.includeInLayout = true;
-				inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
+				claimButton.visible = claimButton.includeInLayout = UserManager.getInstance().getConference().amIModerator();
+				
+				if (ownerID == "") {
+					//unclaimed text
+					inputArea.visible = inputArea.includeInLayout = false;
+					outputArea.visible = outputArea.includeInLayout = true;
+					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
+				} else {
+					//claimed by other
+					inputArea.visible = inputArea.includeInLayout = false;
+					outputArea.visible = outputArea.includeInLayout = true;
+					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
+				}
 			}
+			
 		}
 		
 		public function setFontSize(fontSize:int):void {
@@ -133,8 +163,21 @@ package org.bigbluebutton.modules.caption.views {
 			outputArea.setStyle("backgroundColor", color);
 		}
 		
+		private function onClaimButtonClick(e:MouseEvent):void {
+			claimTranscript(currentTranscript.locale, true);
+		}
+		
+		private function claimTranscript(locale:String, claim:Boolean):void {
+			var updateCaptionOwnerEvent:SendUpdateCaptionOwnerEvent = new SendUpdateCaptionOwnerEvent(SendUpdateCaptionOwnerEvent.SEND_UPDATE_CAPTION_OWNER_EVENT);
+			updateCaptionOwnerEvent.locale = locale;
+			updateCaptionOwnerEvent.claim = claim;
+			
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(updateCaptionOwnerEvent);
+		}
+		
 		private function onTranscriptTextInput(e:TextEvent):void {
-			trace("Text entered: " + e.text + ", carat begin:" + inputArea.selectionBeginIndex + ", end: " + inputArea.selectionEndIndex);
+			//trace("Text entered: " + e.text + ", carat begin:" + inputArea.selectionBeginIndex + ", end: " + inputArea.selectionEndIndex);
 			
 			// There is no surefire way to detect whether the internal TextField is in overwrite mode or not. We need to 
 			// delay sending the message until after the text changes and then check length. This extra check is only 
@@ -149,7 +192,7 @@ package org.bigbluebutton.modules.caption.views {
 		}
 		
 		private function onTranscriptTextChange(e:Event):void {
-			trace("transcript change: " + inputArea.text);
+			//trace("transcript change: " + inputArea.text);
 			
 			if (_checkForOverwrite) {
 				_checkForOverwrite = false;
@@ -222,15 +265,67 @@ package org.bigbluebutton.modules.caption.views {
 			}
 		}
 		
+		private const LEN_TO_SEND:int = 7;
+		private const REP_TO_SEND:int = 3;
+		private const TIME_TO_SEND:int = 1000;
+		
+		private var _startIndex:int = -1;
+		private var _endIndex:int = -1;
+		private var _accText:String = "";
+		
+		private var _sendTimer:Timer;
+		
 		private function respondToTextChange(t:String, si:int, ei:int):void {
+			if (_startIndex == -1) {
+				_startIndex = si;
+				_endIndex = ei;
+				_accText = t;
+			} else if (ei < _startIndex || si > _startIndex + _accText.length) {
+				// edited away from current spot
+				sendTextToServer();
+			
+				_startIndex = si;
+				_endIndex = ei;
+				_accText = t;
+			} else {
+				var tempText:String = _accText;
+				var subStart:int = si - _startIndex;
+				
+				tempText = _accText.substr(0, Math.max(subStart, 0)) + t + _accText.substr(subStart+(ei-si));
+				
+				if (ei - _startIndex > _accText.length) _endIndex += ei - _accText.length - _startIndex;
+				if (si < _startIndex) _startIndex = si;
+				_accText = tempText;
+			}
+			
+			// start/restart the timer
+			if (_sendTimer.running) _sendTimer.stop();
+			_sendTimer.start();
+			
+			// check length
+			if (_accText.length >= LEN_TO_SEND || _endIndex - _startIndex >= REP_TO_SEND) {
+				sendTextToServer();
+			}
+		}
+		
+		private function onSendTimerComplete(e:TimerEvent):void {
+			sendTextToServer();
+		}
+		
+		private function sendTextToServer():void {
 			var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
 			editHistoryEvent.locale = currentTranscript.locale;
-			editHistoryEvent.startIndex = si;
-			editHistoryEvent.endIndex = ei;
-			editHistoryEvent.text = t;
+			editHistoryEvent.startIndex = _startIndex;
+			editHistoryEvent.endIndex = _endIndex;
+			editHistoryEvent.text = _accText;
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(editHistoryEvent);
+			
+			// reset variables after sending
+			_startIndex = -1;
+			_endIndex = -1;
+			_accText = "";
 		}
 	}
 }
