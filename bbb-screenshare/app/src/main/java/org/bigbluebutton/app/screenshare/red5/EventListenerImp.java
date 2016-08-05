@@ -11,8 +11,11 @@ import org.bigbluebutton.app.screenshare.events.StreamStartedEvent;
 import org.bigbluebutton.app.screenshare.events.StreamStoppedEvent;
 
 import com.google.gson.Gson;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 public class EventListenerImp implements IEventListener {
+  private static Logger log = Red5LoggerFactory.getLogger(EventListenerImp.class, "screenshare");
   private ConnectionInvokerService sender;
   
   @Override
@@ -40,6 +43,15 @@ public class EventListenerImp implements IEventListener {
     
     BroadcastClientMessage msg = new BroadcastClientMessage(event.meetingId, "screenShareStartedMessage", message);
     sender.sendMessage(msg);
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", event.meetingId);
+    logData.put("streamId", event.streamId);
+
+    gson = new Gson();
+    String logStr =  gson.toJson(logData);
+
+    log.info("Screenshare started message: data={}", logStr);
   }
   
   private void sendShareStoppedEvent(ShareStoppedEvent event) {
@@ -52,7 +64,17 @@ public class EventListenerImp implements IEventListener {
     message.put("msg", gson.toJson(data));
     
     BroadcastClientMessage msg = new BroadcastClientMessage(event.meetingId, "screenShareStoppedMessage", message);
-    sender.sendMessage(msg);    
+    sender.sendMessage(msg);
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", event.meetingId);
+    logData.put("streamId", event.streamId);
+
+    gson = new Gson();
+    String logStr =  gson.toJson(logData);
+
+    log.info("Screenshare stopped message: data={}", logStr);
+
   }
   
   private void sendStreamStartedEvent(StreamStartedEvent event) {
@@ -68,7 +90,19 @@ public class EventListenerImp implements IEventListener {
     message.put("msg", gson.toJson(data));
     
     BroadcastClientMessage msg = new BroadcastClientMessage(event.meetingId, "screenStreamStartedMessage", message);
-    sender.sendMessage(msg);    
+    sender.sendMessage(msg);
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", event.meetingId);
+    logData.put("streamId", event.streamId);
+    logData.put("width", event.width);
+    logData.put("height", event.height);
+    logData.put("url", event.url);
+
+    gson = new Gson();
+    String logStr =  gson.toJson(logData);
+
+    log.info("Screenshare stream started message: data={}", logStr);
   }
   
   private void sendStreamStoppedEvent(StreamStoppedEvent event) {
@@ -81,7 +115,16 @@ public class EventListenerImp implements IEventListener {
     message.put("msg", gson.toJson(data));
     
     BroadcastClientMessage msg = new BroadcastClientMessage(event.meetingId, "screenStreamStoppedMessage", message);
-    sender.sendMessage(msg);     
+    sender.sendMessage(msg);
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", event.meetingId);
+    logData.put("streamId", event.streamId);
+
+    gson = new Gson();
+    String logStr =  gson.toJson(logData);
+
+    log.info("Screenshare stream stopped message: data={}", logStr);
   }
   
   public void setMessageSender(ConnectionInvokerService sender) {

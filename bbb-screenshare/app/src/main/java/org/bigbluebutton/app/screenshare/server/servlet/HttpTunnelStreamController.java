@@ -96,7 +96,7 @@ public class HttpTunnelStreamController extends MultiActionController {
       String meetingId = request.getParameterValues("meetingId")[0];
       String streamId = request.getParameterValues("streamId")[0];
 
-      log.debug("Received stream update message for meetingId={} streamId={}", meetingId, streamId);
+      //log.debug("Received stream update message for meetingId={} streamId={}", meetingId, streamId);
 				
       if (! hasSessionManager) {
         screenShareApplication = getScreenShareApplication();
