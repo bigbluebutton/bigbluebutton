@@ -2,9 +2,7 @@ Verto = function (
   tag,
   voiceBridge,
   conferenceUsername,
-  conferenceIdNumber,
   userCallback,
-  credentials,
   onFail = null,
   chromeExtension = null) {
 
@@ -28,11 +26,11 @@ Verto = function (
   this.caller_id_name = conferenceUsername;
   this.caller_id_number = conferenceIdNumber;
 
-  this.vertoPort = credentials.vertoPort;
-  this.hostName = credentials.hostName;
+  this.vertoPort = "8082";
+  this.hostName = window.location.hostname;
   this.socketUrl = 'wss://' + this.hostName + ':' + this.vertoPort;
-  this.login = credentials.login;
-  this.password = credentials.password;
+  this.login = "bbbuser";
+  this.password = "secret";
   this.minWidth = '640';
   this.minHeight = '480';
   this.maxWidth = '1920';
@@ -509,5 +507,3 @@ window.vertoExtensionGetChromeExtensionStatus = function (extensionid, callback)
   callback = Verto.normalizeCallback(callback);
   getChromeExtensionStatus(extensionid, callback);
 };
-
-

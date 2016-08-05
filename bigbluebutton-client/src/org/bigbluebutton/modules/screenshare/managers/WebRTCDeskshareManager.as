@@ -49,7 +49,6 @@ package org.bigbluebutton.modules.screenshare.managers
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
 		private var chromeExtensionKey:String = null;
-		private var vertoServerCredentials:Object = new Object();
 
 		public function WebRTCDeskshareManager() {
 			JSLog.warn("WebRTCDeskshareManager::WebRTCDeskshareManager", {});
@@ -133,9 +132,7 @@ package org.bigbluebutton.modules.screenshare.managers
 					videoTag,
 					voiceBridge,
 					myName,
-					'1008',
 					null,
-					vertoServerCredentials,
 					"onFail",
 					chromeExtensionKey
 				);
@@ -150,24 +147,6 @@ package org.bigbluebutton.modules.screenshare.managers
 			if (options.chromeExtensionKey) {
 				chromeExtensionKey = options.chromeExtensionKey;
 			}
-			if (options.vertoPort) {
-				vertoServerCredentials.vertoPort = options.vertoPort;
-			}
-			if (options.vertoHostName) {
-				vertoServerCredentials.hostName = options.vertoHostName;
-			}
-			if (options.vertoLogin) {
-				vertoServerCredentials.login = options.vertoLogin;
-			}
-			if (options.vertoPassword) {
-				vertoServerCredentials.password = options.vertoPassword;
-			}
-			JSLog.warn("WebRTCDeskshareManager::initDeskshare - options", options);
-			JSLog.warn("WebRTCDeskshareManager::initDeskshare - chromeExtensionKey", chromeExtensionKey);
-			JSLog.warn("WebRTCDeskshareManager::initDeskshare - vertoServerCredentials.vertoPort", vertoServerCredentials.vertoPort);
-			JSLog.warn("WebRTCDeskshareManager::initDeskshare - vertoServerCredentials.hostName", vertoServerCredentials.hostName);
-			JSLog.warn("WebRTCDeskshareManager::initDeskshare - vertoServerCredentials.login", vertoServerCredentials.login);
-			JSLog.warn("WebRTCDeskshareManager::initDeskshare - vertoServerCredentials.password", vertoServerCredentials.password);
 			if (options.autoStart) {
 				handleStartSharingEvent(true);
 			}

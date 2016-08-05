@@ -11,15 +11,6 @@ function createVertoUserName() {
   return conferenceUsername;
 }
 
-function getVertoCredentials() {
-  return {
-    vertoPort: clientConfig.media.vertoPort,
-    hostName: clientConfig.media.vertoServerAddress,
-    login: '1008',
-    password: clientConfig.media.freeswitchProfilePassword,
-  };
-}
-
 function vertoExitAudio() {
   window.vertoExitAudio();
 }
@@ -29,9 +20,7 @@ function vertoJoinListenOnly() {
     'remote-media',
     getVoiceBridge(),
     createVertoUserName(),
-    '1008',
     null,
-    getVertoCredentials(),
   );
 }
 
@@ -40,9 +29,7 @@ function vertoJoinMicrophone() {
     'remote-media',
     getVoiceBridge(),
     createVertoUserName(),
-    '1008',
     null,
-    getVertoCredentials(),
   );
 }
 
@@ -51,9 +38,7 @@ function vertoWatchVideo() {
     'deskshareVideo',
     getVoiceBridge(),
     createVertoUserName(),
-    '1008',
     null,
-    getVertoCredentials(),
   );
 }
 
@@ -62,9 +47,7 @@ function shareVertoScreen() {
     'deskshareVideo',
     getVoiceBridge(),
     createVertoUserName(),
-    '1008',
     null,
-    getVertoCredentials(),
   );
 }
 

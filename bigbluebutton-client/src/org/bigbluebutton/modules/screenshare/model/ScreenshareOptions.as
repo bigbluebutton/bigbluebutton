@@ -28,10 +28,6 @@ package org.bigbluebutton.modules.screenshare.model
 		[Bindable] public var baseTabIndex:int;
 		[Bindable] public var useWebRTCIfAvailable:Boolean = true;
 		[Bindable] public var chromeExtensionKey:String = null;
-		[Bindable] public var vertoPort:String = null;
-		[Bindable] public var vertoHostName:String = null;
-		[Bindable] public var vertoLogin:String = null;
-		[Bindable] public var vertoPassword:String = null;
     [Bindable] public var helpUrl:String;
 
 		public function parseOptions():void {
@@ -57,18 +53,6 @@ package org.bigbluebutton.modules.screenshare.model
 				}
 				if (vxml.@chromeExtensionKey != undefined) {
 					chromeExtensionKey = vxml.@chromeExtensionKey.toString();
-				}
-				if (vxml.@vertoPort != undefined) {
-					vertoPort = vxml.@vertoPort.toString();
-				}
-				if (vxml.@vertoHostName != undefined) {
-					vertoHostName = vxml.@vertoHostName.toString();
-				}
-				if (vxml.@vertoLogin != undefined) {
-					vertoLogin = vxml.@vertoLogin.toString();
-				}
-				if (vxml.@vertoPassword != undefined) {
-					vertoPassword = vxml.@vertoPassword.toString();
 				}
         if (vxml.@help != undefined){
           helpUrl = vxml.@help; 
