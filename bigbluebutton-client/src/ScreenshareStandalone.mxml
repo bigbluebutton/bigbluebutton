@@ -216,7 +216,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           case "NetStream.Play.Start":
             trace("DeskshareSA::NetStream.Publish.Start for broadcast stream " + stream);
             trace("DeskshareSA::Dispatching start viewing event");
-            service.sendStartedViewingNotification(stream);
+            //service.sendStartedViewingNotification(stream);
             break;
           case "NetStream.Play.UnpublishNotify":
             trace("DeskshareSA::NetStream.Play.UnpublishNotify for broadcast stream " + stream);

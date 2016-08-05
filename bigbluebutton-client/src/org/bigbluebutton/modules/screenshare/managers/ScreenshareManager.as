@@ -73,12 +73,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             LOGGER.debug("handle Connection Success Event");
             service.checkIfPresenterIsSharingScreen();
         }
-        
-        public function handleStreamStoppedEvent():void {
-            LOGGER.debug("Sending deskshare stopped command");
-            service.stopSharingDesktop(module.getRoom(), module.getRoom());
-        }
-        
+               
         public function handleStreamStartedEvent(event:StreamStartedEvent):void {
             ScreenshareModel.getInstance().streamId = event.streamId;
             ScreenshareModel.getInstance().width = event.width;
@@ -114,10 +109,6 @@ package org.bigbluebutton.modules.screenshare.managers {
             dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.START));
         }
         
-        public function handleStartedViewingEvent(stream:String):void {
-            LOGGER.debug("handleStartedViewingEvent [" + stream + "]");
-            service.sendStartedViewingNotification(stream);
-        }
         
         private function initDeskshare():void {
             sharing = false;

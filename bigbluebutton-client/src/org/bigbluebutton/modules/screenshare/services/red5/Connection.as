@@ -379,14 +379,6 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             }
         }
         
-        public function sendStartedViewingNotification(stream:String):void {
-            LOGGER.debug("Sending start viewing to server");
-            netConn.call("deskshare.startedToViewStream", null, stream);
-        }
-        
-        public function stopSharingDesktop(meetingId:String, stream:String):void {
-            netConn.call("deskshare.stopSharingDesktop", null, meetingId);
-        }
         
         /**
          * Called by the server when a notification is received to start viewing the broadcast stream .
