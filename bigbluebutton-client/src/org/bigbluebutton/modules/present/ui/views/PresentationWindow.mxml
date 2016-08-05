@@ -303,7 +303,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
 				if(slideView != null)
-				   slideView.onParentResized(parentWidth, parentHeight);
+					slideView.onParentResized(parentWidth, parentHeight);
+				if(DSViewCanvas != null)
+					DSViewCanvas.onParentResized(parentWidth, parentHeight);
 			}
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {		

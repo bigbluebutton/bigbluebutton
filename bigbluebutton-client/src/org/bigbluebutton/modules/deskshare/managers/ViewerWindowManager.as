@@ -82,8 +82,9 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 
 		public function handleVideoDisplayModeEvent(actualSize:Boolean):void{
-			if (viewWindow != null)
-			    viewWindow.determineHowToDisplayVideo(actualSize);
+			if (viewWindow != null) {
+				viewWindow.actualSize = actualSize;
+			}
 		}
 	}
 }
