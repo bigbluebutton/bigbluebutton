@@ -56,10 +56,25 @@ public class Red5AppHandler {
     Map<String, Object> message = new HashMap<String, Object>(); 
     Gson gson = new Gson();
     message.put("msg", gson.toJson(data));
-    
-    log.info("Sending startShareRequestResponse to client, meetingId=" + meetingId + " userid=" + userId);
+
     DirectClientMessage msg = new DirectClientMessage(meetingId, userId, "startShareRequestResponse", message);
-    sender.sendMessage(msg);    
+    sender.sendMessage(msg);
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", meetingId);
+    logData.put("userId", userId);
+
+    if (resp.error != null) {
+      logData.put("error", resp.error.reason);
+    } else {
+      logData.put("authToken", resp.token);
+      logData.put("jnlp", resp.jnlp);
+    }
+
+    Gson gson2 = new Gson();
+    String logStr =  gson2.toJson(logData);
+
+    log.info("Start ScreenShare request response: data={}", logStr);
   }
   
   public void stopShareRequest(String meetingId, String streamId) {
@@ -75,10 +90,18 @@ public class Red5AppHandler {
     Map<String, Object> message = new HashMap<String, Object>(); 
     Gson gson = new Gson();
     message.put("msg", gson.toJson(data));
-    
-    log.info("Sending stopShareRequest to client, meetingId=" + meetingId + " streamId=" + streamId);
+
     BroadcastClientMessage msg = new BroadcastClientMessage(meetingId, "stopViewingStream", message);
-    sender.sendMessage(msg);   
+    sender.sendMessage(msg);
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", meetingId);
+    logData.put("streamId", streamId);
+
+    Gson gson2 = new Gson();
+    String logStr =  gson2.toJson(logData);
+
+    log.info("Stop viewing ScreenShare broadcast message: data={}", logStr);
   }
     
   public void setApplication(IScreenShareApplication app) {
