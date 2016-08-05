@@ -53,11 +53,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				currentTranscript = t;
 			}
 			
-			public function transcriptOwnerIDChange(ownerID:String):void {
-				claimOwnershipButton.visible = UserManager.getInstance().getConference().amIModerator() && 
-												ownerID != UserManager.getInstance().getConference().getMyUserId();
-			}
-			
 			private function onLocaleComboChange():void {
 				if (transcriptsCollection && localeCombo.selectedIndex != -1) {
 					if (changeCallback != null) changeCallback(OptionENUM.LOCALE, localeCombo.selectedItem.locale);
@@ -80,24 +75,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (changeCallback != null) changeCallback(OptionENUM.TEXTCOLOR, textColorPicker.selectedColor);
 			}
 			
-			private function onClaimButtonClick():void {
-				claimTranscript(currentTranscript.locale, true);
-				localeCombo.setFocus();
-			}
-			
-			private function claimTranscript(locale:String, claim:Boolean):void {
-				var updateCaptionOwnerEvent:SendUpdateCaptionOwnerEvent = new SendUpdateCaptionOwnerEvent(SendUpdateCaptionOwnerEvent.SEND_UPDATE_CAPTION_OWNER_EVENT);
-				updateCaptionOwnerEvent.locale = locale;
-				updateCaptionOwnerEvent.claim = claim;
-				
-				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(updateCaptionOwnerEvent);
-			}
-			
 		]]>
 	</mx:Script>
 	
-	<common:TabIndexer id="tabIndexer" tabIndices="{[localeCombo, claimOwnershipButton, fontFamilyCombo, fontSizeCombo, backgroundColorPicker, textColorPicker]}"/>
+	<common:TabIndexer id="tabIndexer" tabIndices="{[localeCombo, fontFamilyCombo, fontSizeCombo, backgroundColorPicker, textColorPicker]}"/>
 	
 	<mx:VBox>
 		<mx:HBox>
@@ -110,12 +91,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 enabled="{transcriptsCollection.length > 0}" 
 						 change="onLocaleComboChange()"
 						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.language.tooltip')}"/>
-		</mx:HBox>
-		<mx:HBox>
-			<mx:Button id="claimOwnershipButton" 
-					   label="{ResourceUtil.getInstance().getString('bbb.caption.option.takeowner')}"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.takeowner.tooltip')}"
-					   height="22" visible="false" click="onClaimButtonClick()" />
 		</mx:HBox>
 	</mx:VBox>
 	<mx:VBox>
