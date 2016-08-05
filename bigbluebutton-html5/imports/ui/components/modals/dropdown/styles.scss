@@ -1,0 +1,27 @@
+.settingsMenuLeft {
+  width: 14%;
+  float: right;
+}
+
+.settingsMenuItem {
+  padding-top:20px;
+}
+
+.settingsMenuItemActive {
+  color: #ffffff;
+}
+
+.settingsMenuLastItem {
+  padding-top:20px;
+  padding-bottom:20px;
+}
+
+.settingsMenuItemText {
+  margin-left: 10px;
+}
+
+.descModal {
+  position: fixed;
+  left: -999em;
+  margin: 0;
+}
