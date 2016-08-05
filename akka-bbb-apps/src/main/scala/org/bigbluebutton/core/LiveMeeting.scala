@@ -115,6 +115,12 @@ class LiveMeeting(val mProps: MeetingProperties,
 
   def handleEndMeeting(msg: EndMeeting) {
     meetingModel.meetingHasEnded
+
+    /**
+     * See if this meeting has breakout rooms. If so, we also need to end them.
+     */
+    handleEndAllBreakoutRooms(new EndAllBreakoutRooms(msg.meetingId))
+
     outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
     outGW.send(new DisconnectAllUsers(msg.meetingId))
   }

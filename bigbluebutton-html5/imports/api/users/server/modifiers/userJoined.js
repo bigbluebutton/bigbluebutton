@@ -109,10 +109,7 @@ export function userJoined(meetingId, user, callback) {
         to_userid: userId,
         from_userid: 'SYSTEM_MESSAGE',
         from_username: '',
-        from_time: (user != null && user.timeOfJoining != null) ?
-          user.timeOfJoining.toString()
-          :
-          void 0,
+        from_time: (user != null && user.timeOfJoining != null) ? +(user.timeOfJoining) : 0,
       },
     }, err => {
       if (err != null) {

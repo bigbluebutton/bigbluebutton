@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.screenshare.model
 		[Bindable] public var autoStart:Boolean = false;
 		[Bindable] public var autoFullScreen:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
+    [Bindable] public var helpUrl:String;
 		
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("ScreenshareModule");
@@ -45,6 +46,9 @@ package org.bigbluebutton.modules.screenshare.model
 				if (vxml.@showButton != undefined){
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false; 
 				}
+        if (vxml.@help != undefined){
+          helpUrl = vxml.@help; 
+        }
 			}
 		}
 	}

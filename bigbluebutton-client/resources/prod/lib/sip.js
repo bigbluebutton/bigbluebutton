@@ -1,6 +1,6 @@
 /*
- * SIP version 0.6.3
- * Copyright (c) 2014-2015 Junction Networks, Inc <http://www.onsip.com>
+ * SIP version 0.7.5
+ * Copyright (c) 2014-2016 Junction Networks, Inc <http://www.onsip.com>
  * Homepage: http://sipjs.com
  * License: http://sipjs.com/license/
  *
@@ -16,10 +16,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -32,22 +32,324 @@
  */
 
 
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.SIP=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SIP = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+function EventEmitter() {
+  this._events = this._events || {};
+  this._maxListeners = this._maxListeners || undefined;
+}
+module.exports = EventEmitter;
+
+// Backwards-compat with node 0.10.x
+EventEmitter.EventEmitter = EventEmitter;
+
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._maxListeners = undefined;
+
+// By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+EventEmitter.defaultMaxListeners = 10;
+
+// Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+EventEmitter.prototype.setMaxListeners = function(n) {
+  if (!isNumber(n) || n < 0 || isNaN(n))
+    throw TypeError('n must be a positive number');
+  this._maxListeners = n;
+  return this;
+};
+
+EventEmitter.prototype.emit = function(type) {
+  var er, handler, len, args, i, listeners;
+
+  if (!this._events)
+    this._events = {};
+
+  // If there is no 'error' event listener then throw.
+  if (type === 'error') {
+    if (!this._events.error ||
+        (isObject(this._events.error) && !this._events.error.length)) {
+      er = arguments[1];
+      if (er instanceof Error) {
+        throw er; // Unhandled 'error' event
+      }
+      throw TypeError('Uncaught, unspecified "error" event.');
+    }
+  }
+
+  handler = this._events[type];
+
+  if (isUndefined(handler))
+    return false;
+
+  if (isFunction(handler)) {
+    switch (arguments.length) {
+      // fast cases
+      case 1:
+        handler.call(this);
+        break;
+      case 2:
+        handler.call(this, arguments[1]);
+        break;
+      case 3:
+        handler.call(this, arguments[1], arguments[2]);
+        break;
+      // slower
+      default:
+        len = arguments.length;
+        args = new Array(len - 1);
+        for (i = 1; i < len; i++)
+          args[i - 1] = arguments[i];
+        handler.apply(this, args);
+    }
+  } else if (isObject(handler)) {
+    len = arguments.length;
+    args = new Array(len - 1);
+    for (i = 1; i < len; i++)
+      args[i - 1] = arguments[i];
+
+    listeners = handler.slice();
+    len = listeners.length;
+    for (i = 0; i < len; i++)
+      listeners[i].apply(this, args);
+  }
+
+  return true;
+};
+
+EventEmitter.prototype.addListener = function(type, listener) {
+  var m;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events)
+    this._events = {};
+
+  // To avoid recursion in the case that type === "newListener"! Before
+  // adding it to the listeners, first emit "newListener".
+  if (this._events.newListener)
+    this.emit('newListener', type,
+              isFunction(listener.listener) ?
+              listener.listener : listener);
+
+  if (!this._events[type])
+    // Optimize the case of one listener. Don't need the extra array object.
+    this._events[type] = listener;
+  else if (isObject(this._events[type]))
+    // If we've already got an array, just append.
+    this._events[type].push(listener);
+  else
+    // Adding the second element, need to change to array.
+    this._events[type] = [this._events[type], listener];
+
+  // Check for listener leak
+  if (isObject(this._events[type]) && !this._events[type].warned) {
+    var m;
+    if (!isUndefined(this._maxListeners)) {
+      m = this._maxListeners;
+    } else {
+      m = EventEmitter.defaultMaxListeners;
+    }
+
+    if (m && m > 0 && this._events[type].length > m) {
+      this._events[type].warned = true;
+      console.error('(node) warning: possible EventEmitter memory ' +
+                    'leak detected. %d listeners added. ' +
+                    'Use emitter.setMaxListeners() to increase limit.',
+                    this._events[type].length);
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
+    }
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function(type, listener) {
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  var fired = false;
+
+  function g() {
+    this.removeListener(type, g);
+
+    if (!fired) {
+      fired = true;
+      listener.apply(this, arguments);
+    }
+  }
+
+  g.listener = listener;
+  this.on(type, g);
+
+  return this;
+};
+
+// emits a 'removeListener' event iff the listener was removed
+EventEmitter.prototype.removeListener = function(type, listener) {
+  var list, position, length, i;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events || !this._events[type])
+    return this;
+
+  list = this._events[type];
+  length = list.length;
+  position = -1;
+
+  if (list === listener ||
+      (isFunction(list.listener) && list.listener === listener)) {
+    delete this._events[type];
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+
+  } else if (isObject(list)) {
+    for (i = length; i-- > 0;) {
+      if (list[i] === listener ||
+          (list[i].listener && list[i].listener === listener)) {
+        position = i;
+        break;
+      }
+    }
+
+    if (position < 0)
+      return this;
+
+    if (list.length === 1) {
+      list.length = 0;
+      delete this._events[type];
+    } else {
+      list.splice(position, 1);
+    }
+
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.removeAllListeners = function(type) {
+  var key, listeners;
+
+  if (!this._events)
+    return this;
+
+  // not listening for removeListener, no need to emit
+  if (!this._events.removeListener) {
+    if (arguments.length === 0)
+      this._events = {};
+    else if (this._events[type])
+      delete this._events[type];
+    return this;
+  }
+
+  // emit removeListener for all listeners on all events
+  if (arguments.length === 0) {
+    for (key in this._events) {
+      if (key === 'removeListener') continue;
+      this.removeAllListeners(key);
+    }
+    this.removeAllListeners('removeListener');
+    this._events = {};
+    return this;
+  }
+
+  listeners = this._events[type];
+
+  if (isFunction(listeners)) {
+    this.removeListener(type, listeners);
+  } else {
+    // LIFO order
+    while (listeners.length)
+      this.removeListener(type, listeners[listeners.length - 1]);
+  }
+  delete this._events[type];
+
+  return this;
+};
+
+EventEmitter.prototype.listeners = function(type) {
+  var ret;
+  if (!this._events || !this._events[type])
+    ret = [];
+  else if (isFunction(this._events[type]))
+    ret = [this._events[type]];
+  else
+    ret = this._events[type].slice();
+  return ret;
+};
+
+EventEmitter.listenerCount = function(emitter, type) {
+  var ret;
+  if (!emitter._events || !emitter._events[type])
+    ret = 0;
+  else if (isFunction(emitter._events[type]))
+    ret = 1;
+  else
+    ret = emitter._events[type].length;
+  return ret;
+};
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
+},{}],2:[function(require,module,exports){
 module.exports={
   "name": "sip.js",
   "title": "SIP.js",
   "description": "A simple, intuitive, and powerful JavaScript signaling library",
-  "version": "0.6.3",
+  "version": "0.7.5",
   "main": "src/index.js",
   "browser": {
-    "./src/Grammar/index.js": "./src/Grammar/dist/Grammar.js",
     "./src/environment.js": "./src/environment_browser.js"
   },
   "homepage": "http://sipjs.com",
-  "author": "Will Mitchell <will@onsip.com>",
+  "author": "OnSIP <developer@onsip.com> (http://sipjs.com/authors/)",
   "contributors": [
     {
-      "url": "http://sipjs.com/authors/"
+      "url": "https://github.com/onsip/SIP.js/blob/master/THANKS.md"
     }
   ],
   "repository": {
@@ -62,89 +364,90 @@ module.exports={
     "javascript"
   ],
   "devDependencies": {
+    "beefy": "^2.1.5",
+    "browserify": "^4.1.8",
     "grunt": "~0.4.0",
+    "grunt-browserify": "^4.0.1",
     "grunt-cli": "~0.1.6",
-    "grunt-contrib-jasmine": "~0.8.0",
+    "grunt-contrib-copy": "^0.5.0",
+    "grunt-contrib-jasmine": "^0.9.2",
     "grunt-contrib-jshint": ">0.5.0",
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-peg": "~1.3.1",
     "grunt-trimtrailingspaces": "^0.4.0",
-    "node-minify": "~0.7.2",
-    "sdp-transform": "~0.4.0",
-    "grunt-contrib-copy": "^0.5.0",
-    "browserify": "^4.1.8",
-    "grunt-browserify": "^2.1.0"
+    "pegjs": "^0.8.0"
   },
   "engines": {
     "node": ">=0.8"
   },
   "license": "MIT",
   "scripts": {
+    "repl": "beefy test/repl.js --open",
+    "build": "grunt build",
+    "prepublish": "cd src/Grammar && mkdir -p dist && pegjs --extra-options-file peg.json src/Grammar.pegjs dist/Grammar.js",
     "test": "grunt travis --verbose"
   },
   "dependencies": {
-    "pegjs": "0.8.0",
-    "ws": "^0.4.32"
+    "ws": "^0.6.4"
   },
   "optionalDependencies": {
     "promiscuous": "^0.6.0"
   }
 }
 
-},{}],2:[function(_dereq_,module,exports){
+},{}],3:[function(require,module,exports){
+"use strict";
 module.exports = function (SIP) {
 var ClientContext;
 
 ClientContext = function (ua, method, target, options) {
-  var params, extraHeaders,
-      originalTarget = target,
-      events = [
-        'progress',
-        'accepted',
-        'rejected',
-        'failed',
-        'cancel'
-      ];
+  var originalTarget = target;
 
+  // Validate arguments
   if (target === undefined) {
     throw new TypeError('Not enough arguments');
-  }
-
-  // Check target validity
-  target = ua.normalizeTarget(target);
-  if (!target) {
-    throw new TypeError('Invalid target: ' + originalTarget);
   }
 
   this.ua = ua;
   this.logger = ua.getLogger('sip.clientcontext');
   this.method = method;
-
-  params = options && options.params;
-  extraHeaders = (options && options.extraHeaders || []).slice();
-
-  if (options && options.body) {
-    this.body = options.body;
+  target = ua.normalizeTarget(target);
+  if (!target) {
+    throw new TypeError('Invalid target: ' + originalTarget);
   }
-  if (options && options.contentType) {
+
+  /* Options
+   * - extraHeaders
+   * - params
+   * - contentType
+   * - body
+   */
+  options = Object.create(options || Object.prototype);
+  options.extraHeaders = (options.extraHeaders || []).slice();
+
+  if (options.contentType) {
     this.contentType = options.contentType;
-    extraHeaders.push('Content-Type: ' + this.contentType);
+    options.extraHeaders.push('Content-Type: ' + this.contentType);
   }
 
-  this.request = new SIP.OutgoingRequest(this.method, target, this.ua, params, extraHeaders);
-
-  this.localIdentity = this.request.from;
-  this.remoteIdentity = this.request.to;
-
-  if (this.body) {
+  // Build the request
+  this.request = new SIP.OutgoingRequest(this.method,
+                                         target,
+                                         this.ua,
+                                         options.params,
+                                         options.extraHeaders);
+  if (options.body) {
+    this.body = options.body;
     this.request.body = this.body;
   }
 
-  this.data = {};
+  /* Set other properties from the request */
+  this.localIdentity = this.request.from;
+  this.remoteIdentity = this.request.to;
 
-  this.initEvents(events);
+  this.data = {};
 };
-ClientContext.prototype = new SIP.EventEmitter();
+ClientContext.prototype = Object.create(SIP.EventEmitter.prototype);
 
 ClientContext.prototype.send = function () {
   (new SIP.RequestSender(this, this.ua)).send();
@@ -197,7 +500,8 @@ ClientContext.prototype.onTransportError = function () {
 SIP.ClientContext = ClientContext;
 };
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],4:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview SIP Constants
  */
@@ -355,11 +659,51 @@ return {
     603: 'Decline',
     604: 'Does Not Exist Anywhere',
     606: 'Not Acceptable'
+  },
+
+  /* SIP Option Tags
+   * DOC: http://www.iana.org/assignments/sip-parameters/sip-parameters.xhtml#sip-parameters-4
+   */
+  OPTION_TAGS: {
+    '100rel':                   true,  // RFC 3262
+    199:                        true,  // RFC 6228
+    answermode:                 true,  // RFC 5373
+    'early-session':            true,  // RFC 3959
+    eventlist:                  true,  // RFC 4662
+    explicitsub:                true,  // RFC-ietf-sipcore-refer-explicit-subscription-03
+    'from-change':              true,  // RFC 4916
+    'geolocation-http':         true,  // RFC 6442
+    'geolocation-sip':          true,  // RFC 6442
+    gin:                        true,  // RFC 6140
+    gruu:                       true,  // RFC 5627
+    histinfo:                   true,  // RFC 7044
+    ice:                        true,  // RFC 5768
+    join:                       true,  // RFC 3911
+    'multiple-refer':           true,  // RFC 5368
+    norefersub:                 true,  // RFC 4488
+    nosub:                      true,  // RFC-ietf-sipcore-refer-explicit-subscription-03
+    outbound:                   true,  // RFC 5626
+    path:                       true,  // RFC 3327
+    policy:                     true,  // RFC 6794
+    precondition:               true,  // RFC 3312
+    pref:                       true,  // RFC 3840
+    privacy:                    true,  // RFC 3323
+    'recipient-list-invite':    true,  // RFC 5366
+    'recipient-list-message':   true,  // RFC 5365
+    'recipient-list-subscribe': true,  // RFC 5367
+    replaces:                   true,  // RFC 3891
+    'resource-priority':        true,  // RFC 4412
+    'sdp-anat':                 true,  // RFC 4092
+    'sec-agree':                true,  // RFC 3329
+    tdialog:                    true,  // RFC 4538
+    timer:                      true,  // RFC 4028
+    uui:                        true   // RFC 7433
   }
 };
 };
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],5:[function(require,module,exports){
+"use strict";
 
 /**
  * @fileoverview In-Dialog Request Sender
@@ -405,7 +749,7 @@ RequestSender.prototype = {
             this.state === SIP.Transactions.C.STATUS_COMPLETED ||
             this.state === SIP.Transactions.C.STATUS_TERMINATED) {
 
-          this.off('stateChanged', stateChanged);
+          this.removeListener('stateChanged', stateChanged);
           self.dialog.uac_pending_reply = false;
 
           if (self.dialog.uas_pending_reply === false) {
@@ -454,7 +798,8 @@ RequestSender.prototype = {
 return RequestSender;
 };
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],6:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview SIP Dialog
  */
@@ -469,7 +814,7 @@ return RequestSender;
  */
 module.exports = function (SIP) {
 
-var RequestSender = _dereq_('./Dialog/RequestSender')(SIP);
+var RequestSender = require('./Dialog/RequestSender')(SIP);
 
 var Dialog,
   C = {
@@ -548,6 +893,7 @@ Dialog = function(owner, message, type, state) {
   this.owner = owner;
   owner.ua.dialogs[this.id.toString()] = this;
   this.logger.log('new ' + type + ' dialog created with status ' + (this.state === C.STATUS_EARLY ? 'EARLY': 'CONFIRMED'));
+  owner.emit('dialog', this);
 };
 
 Dialog.prototype = {
@@ -647,7 +993,7 @@ Dialog.prototype = {
                 this.state === SIP.Transactions.C.STATUS_COMPLETED ||
                 this.state === SIP.Transactions.C.STATUS_TERMINATED) {
 
-              this.off('stateChanged', stateChanged);
+              this.removeListener('stateChanged', stateChanged);
               self.uas_pending_reply = false;
 
               if (self.uac_pending_reply === false) {
@@ -712,7 +1058,8 @@ Dialog.C = C;
 SIP.Dialog = Dialog;
 };
 
-},{"./Dialog/RequestSender":4}],6:[function(_dereq_,module,exports){
+},{"./Dialog/RequestSender":5}],7:[function(require,module,exports){
+"use strict";
 
 /**
  * @fileoverview SIP Digest Authentication
@@ -882,209 +1229,48 @@ DigestAuthentication.prototype.updateNcHex = function() {
 return DigestAuthentication;
 };
 
-},{}],7:[function(_dereq_,module,exports){
-/**
- * @fileoverview EventEmitter
- */
+},{}],8:[function(require,module,exports){
+"use strict";
+var NodeEventEmitter = require('events').EventEmitter;
 
-/**
- * @augments SIP
- * @class Class creating an event emitter.
- */
-module.exports = function (SIP) {
-var
-  EventEmitter,
-  logger = new SIP.LoggerFactory().getLogger('sip.eventemitter'),
-  C = {
-    MAX_LISTENERS: 10
-  };
+module.exports = function (console) {
 
-EventEmitter = function(){};
-EventEmitter.prototype = {
-  /**
-   * Initialize events dictionaries.
-   * @param {Array} events
-   */
-  initEvents: function(events) {
-    this.events = {};
+// Don't use `new SIP.EventEmitter()` for inheriting.
+// Use Object.create(SIP.EventEmitter.prototoype);
+function EventEmitter () {
+  NodeEventEmitter.call(this);
+}
 
-    return this.initMoreEvents(events);
-  },
+EventEmitter.prototype = Object.create(NodeEventEmitter.prototype, {
+  constructor: {
+    value: EventEmitter,
+    enumerable: false,
+    writable: true,
+    configurable: true
+  }
+});
 
-  initMoreEvents: function(events) {
-    var idx;
+EventEmitter.prototype.off = function off (eventName, listener) {
+  var warning = '';
+  warning += 'SIP.EventEmitter#off is deprecated and may be removed in future SIP.js versions.\n';
+  warning += 'Please use removeListener or removeAllListeners instead.\n';
+  warning += 'See here for more details:\n';
+  warning += 'http://nodejs.org/api/events.html#events_emitter_removelistener_event_listener';
+  console.warn(warning);
 
-    if (!this.logger) {
-      this.logger = logger;
-    }
-
-    this.maxListeners = C.MAX_LISTENERS;
-
-    for (idx = 0; idx < events.length; idx++) {
-      if (!this.events[events[idx]]) {
-        this.logger.log('adding event '+ events[idx]);
-        this.events[events[idx]] = [];
-      } else {
-        this.logger.log('skipping event '+ events[idx]+ ' - Event exists');
-      }
-    }
-
-    return this;
-  },
-
-  /**
-  * Check whether an event exists or not.
-  * @param {String} event
-  * @returns {Boolean}
-  */
-  checkEvent: function(event) {
-    return !!(this.events && this.events[event]);
-  },
-
-  /**
-  * Check whether an event exists and has at least one listener or not.
-  * @param {String} event
-  * @returns {Boolean}
-  */
-  checkListener: function(event) {
-    return this.checkEvent(event) && this.events[event].length > 0;
-  },
-
-  /**
-  * Add a listener to the end of the listeners array for the specified event.
-  * @param {String} event
-  * @param {Function} listener
-  */
-  on: function(event, listener, bindTarget) {
-    if (listener === undefined) {
-      return this;
-    } else if (typeof listener !== 'function') {
-      this.logger.error('listener must be a function');
-      return this;
-    } else if (!this.checkEvent(event)) {
-      this.logger.error('unable to add a listener to a nonexistent event '+ event);
-      throw new TypeError('Invalid or uninitialized event: ' + event);
-    }
-
-    var listenerObj = { listener: listener };
-    if (bindTarget) {
-      listenerObj.bindTarget = bindTarget;
-    }
-
-    if (this.events[event].length >= this.maxListeners) {
-      this.logger.warn('max listeners exceeded for event '+ event);
-      return this;
-    }
-
-    this.events[event].push(listenerObj);
-    this.logger.log('new listener added to event '+ event);
-    return this;
-  },
-
-  /**
-  * Add a one time listener for the specified event.
-  * The listener is invoked only the next time the event is fired, then it is removed.
-  * @param {String} event
-  * @param {Function} listener
-  */
-  once: function(event, listener, bindTarget) {
-    var self = this;
-    function listenOnce () {
-      listener.apply(this, arguments);
-      self.off(event, listenOnce, bindTarget);
-    }
-
-    return this.on(event, listenOnce, bindTarget);
-  },
-
-  /**
-  * Remove a listener from the listener array for the specified event.
-  * Note that the order of the array elements will change after removing the listener
-  * @param {String} event
-  * @param {Function} listener
-  */
-  off: function(event, listener, bindTarget) {
-    var events, length,
-      idx = 0;
-
-    if (listener && typeof listener !== 'function') {
-      this.logger.error('listener must be a function');
-      return this;
-    } else if (!event) {
-      for (idx in this.events) {
-        this.events[idx] = [];
-      }
-      return this;
-    } else if (!this.checkEvent(event)) {
-      this.logger.error('unable to remove a listener from a nonexistent event '+ event);
-      throw new TypeError('Invalid or uninitialized event: ' + event);
-    }
-
-    events = this.events[event];
-    length = events.length;
-
-    while (idx < length) {
-      if (events[idx] &&
-          (!listener || events[idx].listener === listener) &&
-          (!bindTarget || events[idx].bindTarget === bindTarget)) {
-        events.splice(idx,1);
-      } else {
-        idx ++;
-      }
-    }
-
-    return this;
-  },
-
-  /**
-  * By default EventEmitter will print a warning
-  * if more than C.MAX_LISTENERS listeners are added for a particular event.
-  * This function allows that limit to be modified.
-  * @param {Number} listeners
-  */
-  setMaxListeners: function(listeners) {
-    if (typeof listeners !== 'number' || listeners < 0) {
-      this.logger.error('listeners must be a positive number');
-      return this;
-    }
-
-    this.maxListeners = listeners;
-    return this;
-  },
-
-  /**
-  * Execute each of the listeners in order with the supplied arguments.
-  * @param {String} events
-  * @param {Array} args
-  */
-  emit: function(event) {
-    if (!this.checkEvent(event)) {
-      this.logger.error('unable to emit a nonexistent event '+ event);
-      throw new TypeError('Invalid or uninitialized event: ' + event);
-    }
-
-    this.logger.log('emitting event '+ event);
-
-    // Fire event listeners
-    var args = Array.prototype.slice.call(arguments, 1);
-    this.events[event].slice().forEach(function (listener) {
-      try {
-        listener.listener.apply(listener.bindTarget || this, args);
-      } catch(err) {
-        this.logger.error(err.stack);
-      }
-    }, this);
-
-    return this;
+  if (arguments.length < 2) {
+    return this.removeAllListeners.apply(this, arguments);
+  } else {
+    return this.removeListener(eventName, listener);
   }
 };
 
-EventEmitter.C = C;
+return EventEmitter;
 
-SIP.EventEmitter = EventEmitter;
 };
 
-},{}],8:[function(_dereq_,module,exports){
+},{"events":1}],9:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview Exceptions
  */
@@ -1138,8 +1324,9 @@ module.exports = {
   }())
 };
 
-},{}],9:[function(_dereq_,module,exports){
-var Grammar = _dereq_('./Grammar/index.js');
+},{}],10:[function(require,module,exports){
+"use strict";
+var Grammar = require('./Grammar/dist/Grammar');
 
 module.exports = function (SIP) {
 
@@ -1157,7 +1344,7 @@ return {
 
 };
 
-},{"./Grammar/index.js":10}],10:[function(_dereq_,module,exports){
+},{"./Grammar/dist/Grammar":11}],11:[function(require,module,exports){
 module.exports = (function() {
   /*
    * Generated by PEG.js 0.8.0.
@@ -1189,7 +1376,7 @@ module.exports = (function() {
 
         peg$FAILED = {},
 
-        peg$startRuleIndices = { Contact: 118, Name_Addr_Header: 155, Record_Route: 175, Request_Response: 81, SIP_URI: 45, Subscription_State: 182, Via: 190, absoluteURI: 84, Call_ID: 117, Content_Disposition: 129, Content_Length: 134, Content_Type: 135, CSeq: 145, displayName: 121, Event: 148, From: 150, host: 52, Max_Forwards: 153, Proxy_Authenticate: 156, quoted_string: 40, Refer_To: 177, stun_URI: 209, To: 188, turn_URI: 216, uuid: 219, WWW_Authenticate: 205, challenge: 157 },
+        peg$startRuleIndices = { Contact: 118, Name_Addr_Header: 155, Record_Route: 175, Request_Response: 81, SIP_URI: 45, Subscription_State: 185, Supported: 190, Require: 181, Via: 193, absoluteURI: 84, Call_ID: 117, Content_Disposition: 129, Content_Length: 134, Content_Type: 135, CSeq: 145, displayName: 121, Event: 148, From: 150, host: 52, Max_Forwards: 153, Min_SE: 212, Proxy_Authenticate: 156, quoted_string: 40, Refer_To: 177, Replaces: 178, Session_Expires: 209, stun_URI: 216, To: 191, turn_URI: 223, uuid: 226, WWW_Authenticate: 208, challenge: 157 },
         peg$startRuleIndex   = 118,
 
         peg$consts = [
@@ -1252,13 +1439,10 @@ module.exports = (function() {
           peg$FAILED,
           "%",
           { type: "literal", value: "%", description: "\"%\"" },
-          function(escaped) {return escaped.join(''); },
           null,
           [],
           function() {return " "; },
           function() {return ':'; },
-          function() {
-                              return text(); },
           /^[!-~]/,
           { type: "class", value: "[!-~]", description: "[!-~]" },
           /^[\x80-\uFFFF]/,
@@ -1269,8 +1453,6 @@ module.exports = (function() {
           { type: "class", value: "[a-f]", description: "[a-f]" },
           "`",
           { type: "literal", value: "`", description: "\"`\"" },
-          function() {
-                            return text(); },
           "<",
           { type: "literal", value: "<", description: "\"<\"" },
           ">",
@@ -1336,13 +1518,13 @@ module.exports = (function() {
           "sip",
           { type: "literal", value: "sip", description: "\"sip\"" },
           function(uri_scheme) {
-                              options.data.scheme = uri_scheme.toLowerCase(); },
+                              options.data.scheme = uri_scheme; },
           function() {
                               options.data.user = decodeURIComponent(text().slice(0, -1));},
           function() {
                               options.data.password = text(); },
           function() {
-                              options.data.host = text().toLowerCase();
+                              options.data.host = text();
                               return options.data.host; },
           function() {
                             options.data.host_type = 'domain';
@@ -1429,8 +1611,6 @@ module.exports = (function() {
                                   value = value[1];
                                 }
                                 options.data.uri_params[param.toLowerCase()] = value && value.toLowerCase();},
-          function(pname) {return pname.join(''); },
-          function(pvalue) {return pvalue.join(''); },
           function(hname, hvalue) {
                                 hname = hname.join('').toLowerCase();
                                 hvalue = hvalue.join('');
@@ -1679,6 +1859,38 @@ module.exports = (function() {
           function() {
                         options.data = new options.SIP.NameAddrHeader(options.data.uri, options.data.displayName, options.data.params);
                       },
+          function() {
+                                if (!(options.data.replaces_from_tag && options.data.replaces_to_tag)) {
+                                  options.data = -1;
+                                }
+                              },
+          function() {
+                                options.data = {
+                                  call_id: options.data
+                                };
+                              },
+          "from-tag",
+          { type: "literal", value: "from-tag", description: "\"from-tag\"" },
+          function(from_tag) {
+                                options.data.replaces_from_tag = from_tag;
+                              },
+          "to-tag",
+          { type: "literal", value: "to-tag", description: "\"to-tag\"" },
+          function(to_tag) {
+                                options.data.replaces_to_tag = to_tag;
+                              },
+          "early-only",
+          { type: "literal", value: "early-only", description: "\"early-only\"" },
+          function() {
+                                options.data.early_only = true;
+                              },
+          function(r) {return r;},
+          function(first, rest) { return list(first, rest); },
+          function(value) {
+                          if (options.startRule === 'Require') {
+                            options.data = value || [];
+                          }
+                        },
           function(rseq_value) {
                             options.data.value=parseInt(rseq_value.join('')); },
           "active",
@@ -1713,6 +1925,11 @@ module.exports = (function() {
           { type: "literal", value: "noresource", description: "\"noresource\"" },
           "invariant",
           { type: "literal", value: "invariant", description: "\"invariant\"" },
+          function(value) {
+                          if (options.startRule === 'Supported') {
+                            options.data = value || [];
+                          }
+                        },
           function() {
                         var tag = options.data.tag;
                           options.data = new options.SIP.NameAddrHeader(options.data.uri, options.data.displayName, options.data.params);
@@ -1753,6 +1970,27 @@ module.exports = (function() {
                                 options.data.port = parseInt(via_sent_by_port.join('')); },
           function(ttl) {
                                 return parseInt(ttl.join('')); },
+          function(deltaSeconds) {
+                                if (options.startRule === 'Session_Expires') {
+                                  options.data.deltaSeconds = deltaSeconds;
+                                }
+                              },
+          "refresher",
+          { type: "literal", value: "refresher", description: "\"refresher\"" },
+          "uas",
+          { type: "literal", value: "uas", description: "\"uas\"" },
+          "uac",
+          { type: "literal", value: "uac", description: "\"uac\"" },
+          function(endpoint) {
+                                if (options.startRule === 'Session_Expires') {
+                                  options.data.refresher = endpoint;
+                                }
+                              },
+          function(deltaSeconds) {
+                                if (options.startRule === 'Min_SE') {
+                                  options.data = deltaSeconds;
+                                }
+                              },
           "stuns",
           { type: "literal", value: "stuns", description: "\"stuns\"" },
           "stun",
@@ -1761,8 +1999,6 @@ module.exports = (function() {
                                 options.data.scheme = scheme; },
           function(host) {
                                 options.data.host = host; },
-          function() {
-                                return text(); },
           "?transport=",
           { type: "literal", value: "?transport=", description: "\"?transport=\"" },
           "turns",
@@ -1789,216 +2025,223 @@ module.exports = (function() {
           peg$decode(".2\"\"2233*\x89 \".4\"\"2435*} \".6\"\"2637*q \".8\"\"2839*e \".:\"\"2:3;*Y \".<\"\"2<3=*M \".>\"\"2>3?*A \".@\"\"2@3A*5 \".B\"\"2B3C*) \".D\"\"2D3E"),
           peg$decode("7)*# \"7,"),
           peg$decode(".F\"\"2F3G*} \".H\"\"2H3I*q \".J\"\"2J3K*e \".L\"\"2L3M*Y \".N\"\"2N3O*M \".P\"\"2P3Q*A \".R\"\"2R3S*5 \".T\"\"2T3U*) \".V\"\"2V3W"),
-          peg$decode("!!.Y\"\"2Y3Z+7$7#+-%7#+#%'#%$## X$\"# X\"# X+' 4!6[!! %"),
-          peg$decode("!! ]7$,#&7$\"+-$7 +#%'\"%$\"# X\"# X*# \" \\+@$ ]7$+&$,#&7$\"\"\" X+'%4\"6^\" %$\"# X\"# X"),
-          peg$decode("7.*# \" \\"),
-          peg$decode("! ]7'*# \"7(,)&7'*# \"7(\"+A$.8\"\"2839+1%7/+'%4#6_# %$## X$\"# X\"# X"),
-          peg$decode("! ]72+&$,#&72\"\"\" X+s$ ]! ]7.,#&7.\"+-$72+#%'\"%$\"# X\"# X,@&! ]7.,#&7.\"+-$72+#%'\"%$\"# X\"# X\"+'%4\"6`\" %$\"# X\"# X"),
-          peg$decode("0a\"\"1!3b*# \"73"),
+          peg$decode("!!.Y\"\"2Y3Z+7$7#+-%7#+#%'#%$## X$\"# X\"# X+! (%"),
+          peg$decode("!! \\7$,#&7$\"+-$7 +#%'\"%$\"# X\"# X*# \" [+@$ \\7$+&$,#&7$\"\"\" X+'%4\"6]\" %$\"# X\"# X"),
+          peg$decode("7.*# \" ["),
+          peg$decode("! \\7'*# \"7(,)&7'*# \"7(\"+A$.8\"\"2839+1%7/+'%4#6^# %$## X$\"# X\"# X"),
+          peg$decode("!! \\72+&$,#&72\"\"\" X+o$ \\! \\7.,#&7.\"+-$72+#%'\"%$\"# X\"# X,@&! \\7.,#&7.\"+-$72+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X+! (%"),
+          peg$decode("0_\"\"1!3`*# \"73"),
+          peg$decode("0a\"\"1!3b"),
           peg$decode("0c\"\"1!3d"),
-          peg$decode("0e\"\"1!3f"),
-          peg$decode("7!*) \"0g\"\"1!3h"),
-          peg$decode("! ]7)*\x95 \".F\"\"2F3G*\x89 \".J\"\"2J3K*} \".L\"\"2L3M*q \".Y\"\"2Y3Z*e \".P\"\"2P3Q*Y \".H\"\"2H3I*M \".@\"\"2@3A*A \".i\"\"2i3j*5 \".R\"\"2R3S*) \".N\"\"2N3O+\x9E$,\x9B&7)*\x95 \".F\"\"2F3G*\x89 \".J\"\"2J3K*} \".L\"\"2L3M*q \".Y\"\"2Y3Z*e \".P\"\"2P3Q*Y \".H\"\"2H3I*M \".@\"\"2@3A*A \".i\"\"2i3j*5 \".R\"\"2R3S*) \".N\"\"2N3O\"\"\" X+& 4!6k! %"),
-          peg$decode("! ]7)*\x89 \".F\"\"2F3G*} \".L\"\"2L3M*q \".Y\"\"2Y3Z*e \".P\"\"2P3Q*Y \".H\"\"2H3I*M \".@\"\"2@3A*A \".i\"\"2i3j*5 \".R\"\"2R3S*) \".N\"\"2N3O+\x92$,\x8F&7)*\x89 \".F\"\"2F3G*} \".L\"\"2L3M*q \".Y\"\"2Y3Z*e \".P\"\"2P3Q*Y \".H\"\"2H3I*M \".@\"\"2@3A*A \".i\"\"2i3j*5 \".R\"\"2R3S*) \".N\"\"2N3O\"\"\" X+& 4!6k! %"),
-          peg$decode(".T\"\"2T3U*\xE3 \".V\"\"2V3W*\xD7 \".l\"\"2l3m*\xCB \".n\"\"2n3o*\xBF \".:\"\"2:3;*\xB3 \".D\"\"2D3E*\xA7 \".2\"\"2233*\x9B \".8\"\"2839*\x8F \".p\"\"2p3q*\x83 \"7&*} \".4\"\"2435*q \".r\"\"2r3s*e \".t\"\"2t3u*Y \".6\"\"2637*M \".>\"\"2>3?*A \".v\"\"2v3w*5 \".x\"\"2x3y*) \"7'*# \"7("),
-          peg$decode("! ]7)*\u012B \".F\"\"2F3G*\u011F \".J\"\"2J3K*\u0113 \".L\"\"2L3M*\u0107 \".Y\"\"2Y3Z*\xFB \".P\"\"2P3Q*\xEF \".H\"\"2H3I*\xE3 \".@\"\"2@3A*\xD7 \".i\"\"2i3j*\xCB \".R\"\"2R3S*\xBF \".N\"\"2N3O*\xB3 \".T\"\"2T3U*\xA7 \".V\"\"2V3W*\x9B \".l\"\"2l3m*\x8F \".n\"\"2n3o*\x83 \".8\"\"2839*w \".p\"\"2p3q*k \"7&*e \".4\"\"2435*Y \".r\"\"2r3s*M \".t\"\"2t3u*A \".6\"\"2637*5 \".v\"\"2v3w*) \".x\"\"2x3y+\u0134$,\u0131&7)*\u012B \".F\"\"2F3G*\u011F \".J\"\"2J3K*\u0113 \".L\"\"2L3M*\u0107 \".Y\"\"2Y3Z*\xFB \".P\"\"2P3Q*\xEF \".H\"\"2H3I*\xE3 \".@\"\"2@3A*\xD7 \".i\"\"2i3j*\xCB \".R\"\"2R3S*\xBF \".N\"\"2N3O*\xB3 \".T\"\"2T3U*\xA7 \".V\"\"2V3W*\x9B \".l\"\"2l3m*\x8F \".n\"\"2n3o*\x83 \".8\"\"2839*w \".p\"\"2p3q*k \"7&*e \".4\"\"2435*Y \".r\"\"2r3s*M \".t\"\"2t3u*A \".6\"\"2637*5 \".v\"\"2v3w*) \".x\"\"2x3y\"\"\" X+& 4!6k! %"),
-          peg$decode("!7/+A$.P\"\"2P3Q+1%7/+'%4#6z# %$## X$\"# X\"# X"),
-          peg$decode("!7/+A$.4\"\"2435+1%7/+'%4#6{# %$## X$\"# X\"# X"),
-          peg$decode("!7/+A$.>\"\"2>3?+1%7/+'%4#6|# %$## X$\"# X\"# X"),
-          peg$decode("!7/+A$.T\"\"2T3U+1%7/+'%4#6}# %$## X$\"# X\"# X"),
-          peg$decode("!7/+A$.V\"\"2V3W+1%7/+'%4#6~# %$## X$\"# X\"# X"),
-          peg$decode("!.n\"\"2n3o+1$7/+'%4\"6\" %$\"# X\"# X"),
-          peg$decode("!7/+7$.l\"\"2l3m+'%4\"6\x80\" %$\"# X\"# X"),
-          peg$decode("!7/+A$.D\"\"2D3E+1%7/+'%4#6\x81# %$## X$\"# X\"# X"),
-          peg$decode("!7/+A$.2\"\"2233+1%7/+'%4#6\x82# %$## X$\"# X\"# X"),
-          peg$decode("!7/+A$.8\"\"2839+1%7/+'%4#6\x83# %$## X$\"# X\"# X"),
-          peg$decode("!7/+1$7&+'%4\"6\x84\" %$\"# X\"# X"),
-          peg$decode("!7&+1$7/+'%4\"6\x84\" %$\"# X\"# X"),
-          peg$decode("!7=+W$ ]7G*) \"7K*# \"7F,/&7G*) \"7K*# \"7F\"+-%7>+#%'#%$## X$\"# X\"# X"),
-          peg$decode("0\x85\"\"1!3\x86*A \"0\x87\"\"1!3\x88*5 \"0\x89\"\"1!3\x8A*) \"73*# \"7."),
-          peg$decode("!7/+Y$7&+O% ]7J*# \"7K,)&7J*# \"7K\"+1%7&+'%4$6k$ %$$# X$## X$\"# X\"# X"),
-          peg$decode("!7/+`$7&+V%! ]7J*# \"7K,)&7J*# \"7K\"+! (%+2%7&+(%4$6\x8B$!!%$$# X$## X$\"# X\"# X"),
-          peg$decode("7.*G \".L\"\"2L3M*; \"0\x8C\"\"1!3\x8D*/ \"0\x89\"\"1!3\x8A*# \"73"),
-          peg$decode("!.p\"\"2p3q+K$0\x8E\"\"1!3\x8F*5 \"0\x90\"\"1!3\x91*) \"0\x92\"\"1!3\x93+#%'\"%$\"# X\"# X"),
-          peg$decode("!7N+Q$.8\"\"2839+A%7O*# \" \\+1%7S+'%4$6\x94$ %$$# X$## X$\"# X\"# X"),
-          peg$decode("!7N+k$.8\"\"2839+[%7O*# \" \\+K%7S+A%7_+7%7l*# \" \\+'%4&6\x95& %$&# X$%# X$$# X$## X$\"# X\"# X"),
-          peg$decode("!/\x96\"\"1$3\x97*) \"/\x98\"\"1#3\x99+' 4!6\x9A!! %"),
-          peg$decode("!7P+b$!.8\"\"2839+-$7R+#%'\"%$\"# X\"# X*# \" \\+7%.:\"\"2:3;+'%4#6\x9B# %$## X$\"# X\"# X"),
-          peg$decode(" ]7+*) \"7-*# \"7Q+2$,/&7+*) \"7-*# \"7Q\"\"\" X"),
+          peg$decode("7!*) \"0e\"\"1!3f"),
+          peg$decode("! \\7)*\x95 \".F\"\"2F3G*\x89 \".J\"\"2J3K*} \".L\"\"2L3M*q \".Y\"\"2Y3Z*e \".P\"\"2P3Q*Y \".H\"\"2H3I*M \".@\"\"2@3A*A \".g\"\"2g3h*5 \".R\"\"2R3S*) \".N\"\"2N3O+\x9E$,\x9B&7)*\x95 \".F\"\"2F3G*\x89 \".J\"\"2J3K*} \".L\"\"2L3M*q \".Y\"\"2Y3Z*e \".P\"\"2P3Q*Y \".H\"\"2H3I*M \".@\"\"2@3A*A \".g\"\"2g3h*5 \".R\"\"2R3S*) \".N\"\"2N3O\"\"\" X+! (%"),
+          peg$decode("! \\7)*\x89 \".F\"\"2F3G*} \".L\"\"2L3M*q \".Y\"\"2Y3Z*e \".P\"\"2P3Q*Y \".H\"\"2H3I*M \".@\"\"2@3A*A \".g\"\"2g3h*5 \".R\"\"2R3S*) \".N\"\"2N3O+\x92$,\x8F&7)*\x89 \".F\"\"2F3G*} \".L\"\"2L3M*q \".Y\"\"2Y3Z*e \".P\"\"2P3Q*Y \".H\"\"2H3I*M \".@\"\"2@3A*A \".g\"\"2g3h*5 \".R\"\"2R3S*) \".N\"\"2N3O\"\"\" X+! (%"),
+          peg$decode(".T\"\"2T3U*\xE3 \".V\"\"2V3W*\xD7 \".i\"\"2i3j*\xCB \".k\"\"2k3l*\xBF \".:\"\"2:3;*\xB3 \".D\"\"2D3E*\xA7 \".2\"\"2233*\x9B \".8\"\"2839*\x8F \".m\"\"2m3n*\x83 \"7&*} \".4\"\"2435*q \".o\"\"2o3p*e \".q\"\"2q3r*Y \".6\"\"2637*M \".>\"\"2>3?*A \".s\"\"2s3t*5 \".u\"\"2u3v*) \"7'*# \"7("),
+          peg$decode("! \\7)*\u012B \".F\"\"2F3G*\u011F \".J\"\"2J3K*\u0113 \".L\"\"2L3M*\u0107 \".Y\"\"2Y3Z*\xFB \".P\"\"2P3Q*\xEF \".H\"\"2H3I*\xE3 \".@\"\"2@3A*\xD7 \".g\"\"2g3h*\xCB \".R\"\"2R3S*\xBF \".N\"\"2N3O*\xB3 \".T\"\"2T3U*\xA7 \".V\"\"2V3W*\x9B \".i\"\"2i3j*\x8F \".k\"\"2k3l*\x83 \".8\"\"2839*w \".m\"\"2m3n*k \"7&*e \".4\"\"2435*Y \".o\"\"2o3p*M \".q\"\"2q3r*A \".6\"\"2637*5 \".s\"\"2s3t*) \".u\"\"2u3v+\u0134$,\u0131&7)*\u012B \".F\"\"2F3G*\u011F \".J\"\"2J3K*\u0113 \".L\"\"2L3M*\u0107 \".Y\"\"2Y3Z*\xFB \".P\"\"2P3Q*\xEF \".H\"\"2H3I*\xE3 \".@\"\"2@3A*\xD7 \".g\"\"2g3h*\xCB \".R\"\"2R3S*\xBF \".N\"\"2N3O*\xB3 \".T\"\"2T3U*\xA7 \".V\"\"2V3W*\x9B \".i\"\"2i3j*\x8F \".k\"\"2k3l*\x83 \".8\"\"2839*w \".m\"\"2m3n*k \"7&*e \".4\"\"2435*Y \".o\"\"2o3p*M \".q\"\"2q3r*A \".6\"\"2637*5 \".s\"\"2s3t*) \".u\"\"2u3v\"\"\" X+! (%"),
+          peg$decode("!7/+A$.P\"\"2P3Q+1%7/+'%4#6w# %$## X$\"# X\"# X"),
+          peg$decode("!7/+A$.4\"\"2435+1%7/+'%4#6x# %$## X$\"# X\"# X"),
+          peg$decode("!7/+A$.>\"\"2>3?+1%7/+'%4#6y# %$## X$\"# X\"# X"),
+          peg$decode("!7/+A$.T\"\"2T3U+1%7/+'%4#6z# %$## X$\"# X\"# X"),
+          peg$decode("!7/+A$.V\"\"2V3W+1%7/+'%4#6{# %$## X$\"# X\"# X"),
+          peg$decode("!.k\"\"2k3l+1$7/+'%4\"6|\" %$\"# X\"# X"),
+          peg$decode("!7/+7$.i\"\"2i3j+'%4\"6}\" %$\"# X\"# X"),
+          peg$decode("!7/+A$.D\"\"2D3E+1%7/+'%4#6~# %$## X$\"# X\"# X"),
+          peg$decode("!7/+A$.2\"\"2233+1%7/+'%4#6# %$## X$\"# X\"# X"),
+          peg$decode("!7/+A$.8\"\"2839+1%7/+'%4#6\x80# %$## X$\"# X\"# X"),
+          peg$decode("!7/+1$7&+'%4\"6\x81\" %$\"# X\"# X"),
+          peg$decode("!7&+1$7/+'%4\"6\x81\" %$\"# X\"# X"),
+          peg$decode("!7=+W$ \\7G*) \"7K*# \"7F,/&7G*) \"7K*# \"7F\"+-%7>+#%'#%$## X$\"# X\"# X"),
+          peg$decode("0\x82\"\"1!3\x83*A \"0\x84\"\"1!3\x85*5 \"0\x86\"\"1!3\x87*) \"73*# \"7."),
+          peg$decode("!!7/+U$7&+K% \\7J*# \"7K,)&7J*# \"7K\"+-%7&+#%'$%$$# X$## X$\"# X\"# X+! (%"),
+          peg$decode("!7/+`$7&+V%! \\7J*# \"7K,)&7J*# \"7K\"+! (%+2%7&+(%4$6\x88$!!%$$# X$## X$\"# X\"# X"),
+          peg$decode("7.*G \".L\"\"2L3M*; \"0\x89\"\"1!3\x8A*/ \"0\x86\"\"1!3\x87*# \"73"),
+          peg$decode("!.m\"\"2m3n+K$0\x8B\"\"1!3\x8C*5 \"0\x8D\"\"1!3\x8E*) \"0\x8F\"\"1!3\x90+#%'\"%$\"# X\"# X"),
+          peg$decode("!7N+Q$.8\"\"2839+A%7O*# \" [+1%7S+'%4$6\x91$ %$$# X$## X$\"# X\"# X"),
+          peg$decode("!7N+k$.8\"\"2839+[%7O*# \" [+K%7S+A%7_+7%7l*# \" [+'%4&6\x92& %$&# X$%# X$$# X$## X$\"# X\"# X"),
+          peg$decode("!/\x93\"\"1$3\x94*) \"/\x95\"\"1#3\x96+' 4!6\x97!! %"),
+          peg$decode("!7P+b$!.8\"\"2839+-$7R+#%'\"%$\"# X\"# X*# \" [+7%.:\"\"2:3;+'%4#6\x98# %$## X$\"# X\"# X"),
+          peg$decode(" \\7+*) \"7-*# \"7Q+2$,/&7+*) \"7-*# \"7Q\"\"\" X"),
           peg$decode(".<\"\"2<3=*q \".>\"\"2>3?*e \".@\"\"2@3A*Y \".B\"\"2B3C*M \".D\"\"2D3E*A \".2\"\"2233*5 \".6\"\"2637*) \".4\"\"2435"),
-          peg$decode("! ]7+*_ \"7-*Y \".<\"\"2<3=*M \".>\"\"2>3?*A \".@\"\"2@3A*5 \".B\"\"2B3C*) \".D\"\"2D3E,e&7+*_ \"7-*Y \".<\"\"2<3=*M \".>\"\"2>3?*A \".@\"\"2@3A*5 \".B\"\"2B3C*) \".D\"\"2D3E\"+& 4!6\x9C! %"),
-          peg$decode("!7T+N$!.8\"\"2839+-$7^+#%'\"%$\"# X\"# X*# \" \\+#%'\"%$\"# X\"# X"),
-          peg$decode("!7U*) \"7\\*# \"7X+& 4!6\x9D! %"),
-          peg$decode("! ]!7V+3$.J\"\"2J3K+#%'\"%$\"# X\"# X,>&!7V+3$.J\"\"2J3K+#%'\"%$\"# X\"# X\"+G$7W+=%.J\"\"2J3K*# \" \\+'%4#6\x9E# %$## X$\"# X\"# X"),
-          peg$decode(" ]0\x9F\"\"1!3\xA0+,$,)&0\x9F\"\"1!3\xA0\"\"\" X"),
-          peg$decode("!0$\"\"1!3%+A$ ]0\xA1\"\"1!3\xA2,)&0\xA1\"\"1!3\xA2\"+#%'\"%$\"# X\"# X"),
-          peg$decode("!.r\"\"2r3s+A$7Y+7%.t\"\"2t3u+'%4#6\xA3# %$## X$\"# X\"# X"),
-          peg$decode("!!7Z+\xBF$.8\"\"2839+\xAF%7Z+\xA5%.8\"\"2839+\x95%7Z+\x8B%.8\"\"2839+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'-%$-# X$,# X$+# X$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0838 \"!.\xA4\"\"2\xA43\xA5+\xAF$7Z+\xA5%.8\"\"2839+\x95%7Z+\x8B%.8\"\"2839+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%',%$,# X$+# X$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0795 \"!.\xA4\"\"2\xA43\xA5+\x95$7Z+\x8B%.8\"\"2839+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'*%$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u070C \"!.\xA4\"\"2\xA43\xA5+{$7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'(%$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u069D \"!.\xA4\"\"2\xA43\xA5+a$7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'&%$&# X$%# X$$# X$## X$\"# X\"# X*\u0648 \"!.\xA4\"\"2\xA43\xA5+G$7Z+=%.8\"\"2839+-%7[+#%'$%$$# X$## X$\"# X\"# X*\u060D \"!.\xA4\"\"2\xA43\xA5+-$7[+#%'\"%$\"# X\"# X*\u05EC \"!.\xA4\"\"2\xA43\xA5+-$7Z+#%'\"%$\"# X\"# X*\u05CB \"!7Z+\xA5$.\xA4\"\"2\xA43\xA5+\x95%7Z+\x8B%.8\"\"2839+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'+%$+# X$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0538 \"!7Z+\xB6$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\x8B%.\xA4\"\"2\xA43\xA5+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'*%$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0494 \"!7Z+\xC7$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\x9C%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+q%.\xA4\"\"2\xA43\xA5+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%')%$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u03DF \"!7Z+\xD8$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\xAD%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\x82%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+W%.\xA4\"\"2\xA43\xA5+G%7Z+=%.8\"\"2839+-%7[+#%'(%$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0319 \"!7Z+\xE9$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\xBE%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\x93%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+h%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+=%.\xA4\"\"2\xA43\xA5+-%7[+#%''%$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0242 \"!7Z+\u0114$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\xE9%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\xBE%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\x93%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+h%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+=%.\xA4\"\"2\xA43\xA5+-%7Z+#%'(%$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0140 \"!7Z+\u0135$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\u010A%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\xDF%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\xB4%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+\x89%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+^%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" \\+3%.\xA4\"\"2\xA43\xA5+#%'(%$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X+& 4!6\xA6! %"),
-          peg$decode("!7#+S$7#*# \" \\+C%7#*# \" \\+3%7#*# \" \\+#%'$%$$# X$## X$\"# X\"# X"),
+          peg$decode("! \\7+*_ \"7-*Y \".<\"\"2<3=*M \".>\"\"2>3?*A \".@\"\"2@3A*5 \".B\"\"2B3C*) \".D\"\"2D3E,e&7+*_ \"7-*Y \".<\"\"2<3=*M \".>\"\"2>3?*A \".@\"\"2@3A*5 \".B\"\"2B3C*) \".D\"\"2D3E\"+& 4!6\x99! %"),
+          peg$decode("!7T+N$!.8\"\"2839+-$7^+#%'\"%$\"# X\"# X*# \" [+#%'\"%$\"# X\"# X"),
+          peg$decode("!7U*) \"7\\*# \"7X+& 4!6\x9A! %"),
+          peg$decode("! \\!7V+3$.J\"\"2J3K+#%'\"%$\"# X\"# X,>&!7V+3$.J\"\"2J3K+#%'\"%$\"# X\"# X\"+G$7W+=%.J\"\"2J3K*# \" [+'%4#6\x9B# %$## X$\"# X\"# X"),
+          peg$decode(" \\0\x9C\"\"1!3\x9D+,$,)&0\x9C\"\"1!3\x9D\"\"\" X"),
+          peg$decode("!0$\"\"1!3%+A$ \\0\x9E\"\"1!3\x9F,)&0\x9E\"\"1!3\x9F\"+#%'\"%$\"# X\"# X"),
+          peg$decode("!.o\"\"2o3p+A$7Y+7%.q\"\"2q3r+'%4#6\xA0# %$## X$\"# X\"# X"),
+          peg$decode("!!7Z+\xBF$.8\"\"2839+\xAF%7Z+\xA5%.8\"\"2839+\x95%7Z+\x8B%.8\"\"2839+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'-%$-# X$,# X$+# X$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0838 \"!.\xA1\"\"2\xA13\xA2+\xAF$7Z+\xA5%.8\"\"2839+\x95%7Z+\x8B%.8\"\"2839+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%',%$,# X$+# X$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0795 \"!.\xA1\"\"2\xA13\xA2+\x95$7Z+\x8B%.8\"\"2839+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'*%$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u070C \"!.\xA1\"\"2\xA13\xA2+{$7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'(%$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u069D \"!.\xA1\"\"2\xA13\xA2+a$7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'&%$&# X$%# X$$# X$## X$\"# X\"# X*\u0648 \"!.\xA1\"\"2\xA13\xA2+G$7Z+=%.8\"\"2839+-%7[+#%'$%$$# X$## X$\"# X\"# X*\u060D \"!.\xA1\"\"2\xA13\xA2+-$7[+#%'\"%$\"# X\"# X*\u05EC \"!.\xA1\"\"2\xA13\xA2+-$7Z+#%'\"%$\"# X\"# X*\u05CB \"!7Z+\xA5$.\xA1\"\"2\xA13\xA2+\x95%7Z+\x8B%.8\"\"2839+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'+%$+# X$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0538 \"!7Z+\xB6$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\x8B%.\xA1\"\"2\xA13\xA2+{%7Z+q%.8\"\"2839+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%'*%$*# X$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0494 \"!7Z+\xC7$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\x9C%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+q%.\xA1\"\"2\xA13\xA2+a%7Z+W%.8\"\"2839+G%7Z+=%.8\"\"2839+-%7[+#%')%$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u03DF \"!7Z+\xD8$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\xAD%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\x82%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+W%.\xA1\"\"2\xA13\xA2+G%7Z+=%.8\"\"2839+-%7[+#%'(%$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0319 \"!7Z+\xE9$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\xBE%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\x93%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+h%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+=%.\xA1\"\"2\xA13\xA2+-%7[+#%''%$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0242 \"!7Z+\u0114$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\xE9%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\xBE%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\x93%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+h%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+=%.\xA1\"\"2\xA13\xA2+-%7Z+#%'(%$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X*\u0140 \"!7Z+\u0135$!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\u010A%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\xDF%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\xB4%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+\x89%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+^%!.8\"\"2839+-$7Z+#%'\"%$\"# X\"# X*# \" [+3%.\xA1\"\"2\xA13\xA2+#%'(%$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X+& 4!6\xA3! %"),
+          peg$decode("!7#+S$7#*# \" [+C%7#*# \" [+3%7#*# \" [+#%'$%$$# X$## X$\"# X\"# X"),
           peg$decode("!7Z+=$.8\"\"2839+-%7Z+#%'#%$## X$\"# X\"# X*# \"7\\"),
-          peg$decode("!7]+u$.J\"\"2J3K+e%7]+[%.J\"\"2J3K+K%7]+A%.J\"\"2J3K+1%7]+'%4'6\xA7' %$'# X$&# X$%# X$$# X$## X$\"# X\"# X"),
-          peg$decode("!.\xA8\"\"2\xA83\xA9+3$0\xAA\"\"1!3\xAB+#%'\"%$\"# X\"# X*\xA0 \"!.\xAC\"\"2\xAC3\xAD+=$0\xAE\"\"1!3\xAF+-%7!+#%'#%$## X$\"# X\"# X*o \"!.\xB0\"\"2\xB03\xB1+7$7!+-%7!+#%'#%$## X$\"# X\"# X*D \"!0\xB2\"\"1!3\xB3+-$7!+#%'\"%$\"# X\"# X*# \"7!"),
-          peg$decode("!!7!*# \" \\+c$7!*# \" \\+S%7!*# \" \\+C%7!*# \" \\+3%7!*# \" \\+#%'%%$%# X$$# X$## X$\"# X\"# X+' 4!6\xB4!! %"),
-          peg$decode(" ]!.2\"\"2233+-$7`+#%'\"%$\"# X\"# X,>&!.2\"\"2233+-$7`+#%'\"%$\"# X\"# X\""),
+          peg$decode("!7]+u$.J\"\"2J3K+e%7]+[%.J\"\"2J3K+K%7]+A%.J\"\"2J3K+1%7]+'%4'6\xA4' %$'# X$&# X$%# X$$# X$## X$\"# X\"# X"),
+          peg$decode("!.\xA5\"\"2\xA53\xA6+3$0\xA7\"\"1!3\xA8+#%'\"%$\"# X\"# X*\xA0 \"!.\xA9\"\"2\xA93\xAA+=$0\xAB\"\"1!3\xAC+-%7!+#%'#%$## X$\"# X\"# X*o \"!.\xAD\"\"2\xAD3\xAE+7$7!+-%7!+#%'#%$## X$\"# X\"# X*D \"!0\xAF\"\"1!3\xB0+-$7!+#%'\"%$\"# X\"# X*# \"7!"),
+          peg$decode("!!7!*# \" [+c$7!*# \" [+S%7!*# \" [+C%7!*# \" [+3%7!*# \" [+#%'%%$%# X$$# X$## X$\"# X\"# X+' 4!6\xB1!! %"),
+          peg$decode(" \\!.2\"\"2233+-$7`+#%'\"%$\"# X\"# X,>&!.2\"\"2233+-$7`+#%'\"%$\"# X\"# X\""),
           peg$decode("7a*A \"7b*; \"7c*5 \"7d*/ \"7e*) \"7f*# \"7g"),
-          peg$decode("!/\xB5\"\"1*3\xB6+b$/\xB7\"\"1#3\xB8*G \"/\xB9\"\"1#3\xBA*; \"/\xBB\"\"1$3\xBC*/ \"/\xBD\"\"1#3\xBE*# \"76+(%4\"6\xBF\"! %$\"# X\"# X"),
-          peg$decode("!/\xC0\"\"1%3\xC1+J$/\xC2\"\"1%3\xC3*/ \"/\xC4\"\"1\"3\xC5*# \"76+(%4\"6\xC6\"! %$\"# X\"# X"),
-          peg$decode("!/\xC7\"\"1'3\xC8+2$7\x8F+(%4\"6\xC9\"! %$\"# X\"# X"),
-          peg$decode("!/\xCA\"\"1$3\xCB+2$7\xEC+(%4\"6\xCC\"! %$\"# X\"# X"),
-          peg$decode("!/\xCD\"\"1&3\xCE+2$7T+(%4\"6\xCF\"! %$\"# X\"# X"),
-          peg$decode("!/\xD0\"\"1\"3\xD1+R$!.>\"\"2>3?+-$76+#%'\"%$\"# X\"# X*# \" \\+'%4\"6\xD2\" %$\"# X\"# X"),
-          peg$decode("!7h+T$!.>\"\"2>3?+-$7i+#%'\"%$\"# X\"# X*# \" \\+)%4\"6\xD3\"\"! %$\"# X\"# X"),
-          peg$decode("! ]7j+&$,#&7j\"\"\" X+' 4!6\xD4!! %"),
-          peg$decode("! ]7j+&$,#&7j\"\"\" X+' 4!6\xD5!! %"),
+          peg$decode("!/\xB2\"\"1*3\xB3+b$/\xB4\"\"1#3\xB5*G \"/\xB6\"\"1#3\xB7*; \"/\xB8\"\"1$3\xB9*/ \"/\xBA\"\"1#3\xBB*# \"76+(%4\"6\xBC\"! %$\"# X\"# X"),
+          peg$decode("!/\xBD\"\"1%3\xBE+J$/\xBF\"\"1%3\xC0*/ \"/\xC1\"\"1\"3\xC2*# \"76+(%4\"6\xC3\"! %$\"# X\"# X"),
+          peg$decode("!/\xC4\"\"1'3\xC5+2$7\x8F+(%4\"6\xC6\"! %$\"# X\"# X"),
+          peg$decode("!/\xC7\"\"1$3\xC8+2$7\xEF+(%4\"6\xC9\"! %$\"# X\"# X"),
+          peg$decode("!/\xCA\"\"1&3\xCB+2$7T+(%4\"6\xCC\"! %$\"# X\"# X"),
+          peg$decode("!/\xCD\"\"1\"3\xCE+R$!.>\"\"2>3?+-$76+#%'\"%$\"# X\"# X*# \" [+'%4\"6\xCF\" %$\"# X\"# X"),
+          peg$decode("!7h+T$!.>\"\"2>3?+-$7i+#%'\"%$\"# X\"# X*# \" [+)%4\"6\xD0\"\"! %$\"# X\"# X"),
+          peg$decode("! \\7j+&$,#&7j\"\"\" X+! (%"),
+          peg$decode("! \\7j+&$,#&7j\"\"\" X+! (%"),
           peg$decode("7k*) \"7+*# \"7-"),
-          peg$decode(".r\"\"2r3s*e \".t\"\"2t3u*Y \".4\"\"2435*M \".8\"\"2839*A \".<\"\"2<3=*5 \".@\"\"2@3A*) \".B\"\"2B3C"),
-          peg$decode("!.6\"\"2637+u$7m+k% ]!.<\"\"2<3=+-$7m+#%'\"%$\"# X\"# X,>&!.<\"\"2<3=+-$7m+#%'\"%$\"# X\"# X\"+#%'#%$## X$\"# X\"# X"),
-          peg$decode("!7n+C$.>\"\"2>3?+3%7o+)%4#6\xD6#\"\" %$## X$\"# X\"# X"),
-          peg$decode(" ]7p*) \"7+*# \"7-+2$,/&7p*) \"7+*# \"7-\"\"\" X"),
-          peg$decode(" ]7p*) \"7+*# \"7-,/&7p*) \"7+*# \"7-\""),
-          peg$decode(".r\"\"2r3s*e \".t\"\"2t3u*Y \".4\"\"2435*M \".6\"\"2637*A \".8\"\"2839*5 \".@\"\"2@3A*) \".B\"\"2B3C"),
+          peg$decode(".o\"\"2o3p*e \".q\"\"2q3r*Y \".4\"\"2435*M \".8\"\"2839*A \".<\"\"2<3=*5 \".@\"\"2@3A*) \".B\"\"2B3C"),
+          peg$decode("!.6\"\"2637+u$7m+k% \\!.<\"\"2<3=+-$7m+#%'\"%$\"# X\"# X,>&!.<\"\"2<3=+-$7m+#%'\"%$\"# X\"# X\"+#%'#%$## X$\"# X\"# X"),
+          peg$decode("!7n+C$.>\"\"2>3?+3%7o+)%4#6\xD1#\"\" %$## X$\"# X\"# X"),
+          peg$decode(" \\7p*) \"7+*# \"7-+2$,/&7p*) \"7+*# \"7-\"\"\" X"),
+          peg$decode(" \\7p*) \"7+*# \"7-,/&7p*) \"7+*# \"7-\""),
+          peg$decode(".o\"\"2o3p*e \".q\"\"2q3r*Y \".4\"\"2435*M \".6\"\"2637*A \".8\"\"2839*5 \".@\"\"2@3A*) \".B\"\"2B3C"),
           peg$decode("7\x90*# \"7r"),
           peg$decode("!7\x8F+K$7'+A%7s+7%7'+-%7\x84+#%'%%$%# X$$# X$## X$\"# X\"# X"),
           peg$decode("7M*# \"7t"),
-          peg$decode("!7+G$.8\"\"2839+7%7u*# \"7x+'%4#6\xD7# %$## X$\"# X\"# X"),
-          peg$decode("!7v*# \"7w+N$!.6\"\"2637+-$7\x83+#%'\"%$\"# X\"# X*# \" \\+#%'\"%$\"# X\"# X"),
-          peg$decode("!.\xD8\"\"2\xD83\xD9+=$7\x80+3%7w*# \" \\+#%'#%$## X$\"# X\"# X"),
+          peg$decode("!7+G$.8\"\"2839+7%7u*# \"7x+'%4#6\xD2# %$## X$\"# X\"# X"),
+          peg$decode("!7v*# \"7w+N$!.6\"\"2637+-$7\x83+#%'\"%$\"# X\"# X*# \" [+#%'\"%$\"# X\"# X"),
+          peg$decode("!.\xD3\"\"2\xD33\xD4+=$7\x80+3%7w*# \" [+#%'#%$## X$\"# X\"# X"),
           peg$decode("!.4\"\"2435+-$7{+#%'\"%$\"# X\"# X"),
-          peg$decode("!7z+5$ ]7y,#&7y\"+#%'\"%$\"# X\"# X"),
+          peg$decode("!7z+5$ \\7y,#&7y\"+#%'\"%$\"# X\"# X"),
           peg$decode("7**) \"7+*# \"7-"),
           peg$decode("7+*\x8F \"7-*\x89 \".2\"\"2233*} \".6\"\"2637*q \".8\"\"2839*e \".:\"\"2:3;*Y \".<\"\"2<3=*M \".>\"\"2>3?*A \".@\"\"2@3A*5 \".B\"\"2B3C*) \".D\"\"2D3E"),
-          peg$decode("!7|+k$ ]!.4\"\"2435+-$7|+#%'\"%$\"# X\"# X,>&!.4\"\"2435+-$7|+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("! ]7~,#&7~\"+k$ ]!.2\"\"2233+-$7}+#%'\"%$\"# X\"# X,>&!.2\"\"2233+-$7}+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode(" ]7~,#&7~\""),
+          peg$decode("!7|+k$ \\!.4\"\"2435+-$7|+#%'\"%$\"# X\"# X,>&!.4\"\"2435+-$7|+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("! \\7~,#&7~\"+k$ \\!.2\"\"2233+-$7}+#%'\"%$\"# X\"# X,>&!.2\"\"2233+-$7}+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode(" \\7~,#&7~\""),
           peg$decode("7+*w \"7-*q \".8\"\"2839*e \".:\"\"2:3;*Y \".<\"\"2<3=*M \".>\"\"2>3?*A \".@\"\"2@3A*5 \".B\"\"2B3C*) \".D\"\"2D3E"),
-          peg$decode("!7\"+\x8D$ ]7\"*G \"7!*A \".@\"\"2@3A*5 \".F\"\"2F3G*) \".J\"\"2J3K,M&7\"*G \"7!*A \".@\"\"2@3A*5 \".F\"\"2F3G*) \".J\"\"2J3K\"+'%4\"6\xDA\" %$\"# X\"# X"),
+          peg$decode("!7\"+\x8D$ \\7\"*G \"7!*A \".@\"\"2@3A*5 \".F\"\"2F3G*) \".J\"\"2J3K,M&7\"*G \"7!*A \".@\"\"2@3A*5 \".F\"\"2F3G*) \".J\"\"2J3K\"+'%4\"6\xD5\" %$\"# X\"# X"),
           peg$decode("7\x81*# \"7\x82"),
-          peg$decode("!!7O+3$.:\"\"2:3;+#%'\"%$\"# X\"# X*# \" \\+-$7S+#%'\"%$\"# X\"# X*# \" \\"),
-          peg$decode(" ]7+*\x83 \"7-*} \".B\"\"2B3C*q \".D\"\"2D3E*e \".2\"\"2233*Y \".8\"\"2839*M \".:\"\"2:3;*A \".<\"\"2<3=*5 \".>\"\"2>3?*) \".@\"\"2@3A+\x8C$,\x89&7+*\x83 \"7-*} \".B\"\"2B3C*q \".D\"\"2D3E*e \".2\"\"2233*Y \".8\"\"2839*M \".:\"\"2:3;*A \".<\"\"2<3=*5 \".>\"\"2>3?*) \".@\"\"2@3A\"\"\" X"),
-          peg$decode(" ]7y,#&7y\""),
-          peg$decode("!/\x98\"\"1#3\xDB+y$.4\"\"2435+i% ]7!+&$,#&7!\"\"\" X+P%.J\"\"2J3K+@% ]7!+&$,#&7!\"\"\" X+'%4%6\xDC% %$%# X$$# X$## X$\"# X\"# X"),
-          peg$decode(".\xDD\"\"2\xDD3\xDE"),
-          peg$decode(".\xDF\"\"2\xDF3\xE0"),
-          peg$decode(".\xE1\"\"2\xE13\xE2"),
-          peg$decode(".\xE3\"\"2\xE33\xE4"),
-          peg$decode(".\xE5\"\"2\xE53\xE6"),
-          peg$decode(".\xE7\"\"2\xE73\xE8"),
-          peg$decode(".\xE9\"\"2\xE93\xEA"),
-          peg$decode(".\xEB\"\"2\xEB3\xEC"),
-          peg$decode(".\xED\"\"2\xED3\xEE"),
-          peg$decode(".\xEF\"\"2\xEF3\xF0"),
-          peg$decode("!7\x85*S \"7\x86*M \"7\x88*G \"7\x89*A \"7\x8A*; \"7\x8B*5 \"7\x8C*/ \"7\x8D*) \"7\x8E*# \"76+& 4!6\xF1! %"),
+          peg$decode("!!7O+3$.:\"\"2:3;+#%'\"%$\"# X\"# X*# \" [+-$7S+#%'\"%$\"# X\"# X*# \" ["),
+          peg$decode(" \\7+*\x83 \"7-*} \".B\"\"2B3C*q \".D\"\"2D3E*e \".2\"\"2233*Y \".8\"\"2839*M \".:\"\"2:3;*A \".<\"\"2<3=*5 \".>\"\"2>3?*) \".@\"\"2@3A+\x8C$,\x89&7+*\x83 \"7-*} \".B\"\"2B3C*q \".D\"\"2D3E*e \".2\"\"2233*Y \".8\"\"2839*M \".:\"\"2:3;*A \".<\"\"2<3=*5 \".>\"\"2>3?*) \".@\"\"2@3A\"\"\" X"),
+          peg$decode(" \\7y,#&7y\""),
+          peg$decode("!/\x95\"\"1#3\xD6+y$.4\"\"2435+i% \\7!+&$,#&7!\"\"\" X+P%.J\"\"2J3K+@% \\7!+&$,#&7!\"\"\" X+'%4%6\xD7% %$%# X$$# X$## X$\"# X\"# X"),
+          peg$decode(".\xD8\"\"2\xD83\xD9"),
+          peg$decode(".\xDA\"\"2\xDA3\xDB"),
+          peg$decode(".\xDC\"\"2\xDC3\xDD"),
+          peg$decode(".\xDE\"\"2\xDE3\xDF"),
+          peg$decode(".\xE0\"\"2\xE03\xE1"),
+          peg$decode(".\xE2\"\"2\xE23\xE3"),
+          peg$decode(".\xE4\"\"2\xE43\xE5"),
+          peg$decode(".\xE6\"\"2\xE63\xE7"),
+          peg$decode(".\xE8\"\"2\xE83\xE9"),
+          peg$decode(".\xEA\"\"2\xEA3\xEB"),
+          peg$decode("!7\x85*S \"7\x86*M \"7\x88*G \"7\x89*A \"7\x8A*; \"7\x8B*5 \"7\x8C*/ \"7\x8D*) \"7\x8E*# \"76+& 4!6\xEC! %"),
           peg$decode("!7\x84+K$7'+A%7\x91+7%7'+-%7\x93+#%'%%$%# X$$# X$## X$\"# X\"# X"),
-          peg$decode("!7\x92+' 4!6\xF2!! %"),
+          peg$decode("!7\x92+' 4!6\xED!! %"),
           peg$decode("!7!+7$7!+-%7!+#%'#%$## X$\"# X\"# X"),
-          peg$decode("! ]7**A \"7+*; \"7-*5 \"73*/ \"74*) \"7'*# \"7(,G&7**A \"7+*; \"7-*5 \"73*/ \"74*) \"7'*# \"7(\"+& 4!6\xF3! %"),
-          peg$decode("!7\xB5+_$ ]!7A+-$7\xB5+#%'\"%$\"# X\"# X,8&!7A+-$7\xB5+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("!79+R$!.:\"\"2:3;+-$79+#%'\"%$\"# X\"# X*# \" \\+'%4\"6\xF4\" %$\"# X\"# X"),
-          peg$decode("!7:*j \"!7\x97+_$ ]!7A+-$7\x97+#%'\"%$\"# X\"# X,8&!7A+-$7\x97+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X+& 4!6\xF5! %"),
-          peg$decode("!7L*# \"7\x98+c$ ]!7B+-$7\x9A+#%'\"%$\"# X\"# X,8&!7B+-$7\x9A+#%'\"%$\"# X\"# X\"+'%4\"6\xF6\" %$\"# X\"# X"),
-          peg$decode("!7\x99*# \" \\+A$7@+7%7M+-%7?+#%'$%$$# X$## X$\"# X\"# X"),
-          peg$decode("!!76+_$ ]!7.+-$76+#%'\"%$\"# X\"# X,8&!7.+-$76+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X*# \"7H+' 4!6\xF7!! %"),
+          peg$decode("! \\7**A \"7+*; \"7-*5 \"73*/ \"74*) \"7'*# \"7(,G&7**A \"7+*; \"7-*5 \"73*/ \"74*) \"7'*# \"7(\"+& 4!6\xEE! %"),
+          peg$decode("!7\xB5+_$ \\!7A+-$7\xB5+#%'\"%$\"# X\"# X,8&!7A+-$7\xB5+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("!79+R$!.:\"\"2:3;+-$79+#%'\"%$\"# X\"# X*# \" [+'%4\"6\xEF\" %$\"# X\"# X"),
+          peg$decode("!7:*j \"!7\x97+_$ \\!7A+-$7\x97+#%'\"%$\"# X\"# X,8&!7A+-$7\x97+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X+& 4!6\xF0! %"),
+          peg$decode("!7L*# \"7\x98+c$ \\!7B+-$7\x9A+#%'\"%$\"# X\"# X,8&!7B+-$7\x9A+#%'\"%$\"# X\"# X\"+'%4\"6\xF1\" %$\"# X\"# X"),
+          peg$decode("!7\x99*# \" [+A$7@+7%7M+-%7?+#%'$%$$# X$## X$\"# X\"# X"),
+          peg$decode("!!76+_$ \\!7.+-$76+#%'\"%$\"# X\"# X,8&!7.+-$76+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X*# \"7H+' 4!6\xF2!! %"),
           peg$decode("7\x9B*) \"7\x9C*# \"7\x9F"),
-          peg$decode("!/\xF8\"\"1!3\xF9+<$7<+2%7\x9E+(%4#6\xFA#! %$## X$\"# X\"# X"),
-          peg$decode("!/\xFB\"\"1'3\xFC+<$7<+2%7\x9D+(%4#6\xFD#! %$## X$\"# X\"# X"),
-          peg$decode("! ]7!+&$,#&7!\"\"\" X+' 4!6\xFE!! %"),
-          peg$decode("!.\xFF\"\"2\xFF3\u0100+x$!.J\"\"2J3K+S$7!*# \" \\+C%7!*# \" \\+3%7!*# \" \\+#%'$%$$# X$## X$\"# X\"# X*# \" \\+'%4\"6\u0101\" %$\"# X\"# X"),
-          peg$decode("!76+N$!7<+-$7\xA0+#%'\"%$\"# X\"# X*# \" \\+)%4\"6\u0102\"\"! %$\"# X\"# X"),
+          peg$decode("!/\xF3\"\"1!3\xF4+<$7<+2%7\x9E+(%4#6\xF5#! %$## X$\"# X\"# X"),
+          peg$decode("!/\xF6\"\"1'3\xF7+<$7<+2%7\x9D+(%4#6\xF8#! %$## X$\"# X\"# X"),
+          peg$decode("! \\7!+&$,#&7!\"\"\" X+' 4!6\xF9!! %"),
+          peg$decode("!.\xFA\"\"2\xFA3\xFB+x$!.J\"\"2J3K+S$7!*# \" [+C%7!*# \" [+3%7!*# \" [+#%'$%$$# X$## X$\"# X\"# X*# \" [+'%4\"6\xFC\" %$\"# X\"# X"),
+          peg$decode("!76+N$!7<+-$7\xA0+#%'\"%$\"# X\"# X*# \" [+)%4\"6\xFD\"\"! %$\"# X\"# X"),
           peg$decode("76*) \"7T*# \"7H"),
-          peg$decode("!7\xA2+_$ ]!7B+-$7\xA3+#%'\"%$\"# X\"# X,8&!7B+-$7\xA3+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("!/\u0103\"\"1&3\u0104*G \"/\u0105\"\"1'3\u0106*; \"/\u0107\"\"1$3\u0108*/ \"/\u0109\"\"1%3\u010A*# \"76+& 4!6\u010B! %"),
+          peg$decode("!7\xA2+_$ \\!7B+-$7\xA3+#%'\"%$\"# X\"# X,8&!7B+-$7\xA3+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("!/\xFE\"\"1&3\xFF*G \"/\u0100\"\"1'3\u0101*; \"/\u0102\"\"1$3\u0103*/ \"/\u0104\"\"1%3\u0105*# \"76+& 4!6\u0106! %"),
           peg$decode("7\xA4*# \"7\x9F"),
-          peg$decode("!/\u010C\"\"1(3\u010D+O$7<+E%/\u010E\"\"1(3\u010F*/ \"/\u0110\"\"1(3\u0111*# \"76+#%'#%$## X$\"# X\"# X"),
-          peg$decode("!76+_$ ]!7A+-$76+#%'\"%$\"# X\"# X,8&!7A+-$76+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("! ]7!+&$,#&7!\"\"\" X+' 4!6\u0112!! %"),
-          peg$decode("!7\xA8+& 4!6\u0113! %"),
-          peg$decode("!7\xA9+s$7;+i%7\xAE+_% ]!7B+-$7\xAF+#%'\"%$\"# X\"# X,8&!7B+-$7\xAF+#%'\"%$\"# X\"# X\"+#%'$%$$# X$## X$\"# X\"# X"),
+          peg$decode("!/\u0107\"\"1(3\u0108+O$7<+E%/\u0109\"\"1(3\u010A*/ \"/\u010B\"\"1(3\u010C*# \"76+#%'#%$## X$\"# X\"# X"),
+          peg$decode("!76+_$ \\!7A+-$76+#%'\"%$\"# X\"# X,8&!7A+-$76+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("! \\7!+&$,#&7!\"\"\" X+' 4!6\u010D!! %"),
+          peg$decode("!7\xA8+& 4!6\u010E! %"),
+          peg$decode("!7\xA9+s$7;+i%7\xAE+_% \\!7B+-$7\xAF+#%'\"%$\"# X\"# X,8&!7B+-$7\xAF+#%'\"%$\"# X\"# X\"+#%'$%$$# X$## X$\"# X\"# X"),
           peg$decode("7\xAA*# \"7\xAB"),
-          peg$decode("/\u0114\"\"1$3\u0115*S \"/\u0116\"\"1%3\u0117*G \"/\u0118\"\"1%3\u0119*; \"/\u011A\"\"1%3\u011B*/ \"/\u011C\"\"1+3\u011D*# \"7\xAC"),
-          peg$decode("/\u011E\"\"1'3\u011F*/ \"/\u0120\"\"1)3\u0121*# \"7\xAC"),
+          peg$decode("/\u010F\"\"1$3\u0110*S \"/\u0111\"\"1%3\u0112*G \"/\u0113\"\"1%3\u0114*; \"/\u0115\"\"1%3\u0116*/ \"/\u0117\"\"1+3\u0118*# \"7\xAC"),
+          peg$decode("/\u0119\"\"1'3\u011A*/ \"/\u011B\"\"1)3\u011C*# \"7\xAC"),
           peg$decode("76*# \"7\xAD"),
-          peg$decode("!/\u0122\"\"1\"3\u0123+-$76+#%'\"%$\"# X\"# X"),
+          peg$decode("!/\u011D\"\"1\"3\u011E+-$76+#%'\"%$\"# X\"# X"),
           peg$decode("7\xAC*# \"76"),
           peg$decode("!76+7$7<+-%7\xB0+#%'#%$## X$\"# X\"# X"),
           peg$decode("76*# \"7H"),
           peg$decode("!7\xB2+7$7.+-%7\x8F+#%'#%$## X$\"# X\"# X"),
-          peg$decode("! ]7!+&$,#&7!\"\"\" X+' 4!6\u0124!! %"),
-          peg$decode("!7\x9D+' 4!6\u0125!! %"),
-          peg$decode("!7\xB5+d$ ]!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+(%4\"6\u0126\"!!%$\"# X\"# X"),
-          peg$decode("!!77+k$ ]!.J\"\"2J3K+-$77+#%'\"%$\"# X\"# X,>&!.J\"\"2J3K+-$77+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X+! (%"),
-          peg$decode("!7L*# \"7\x98+c$ ]!7B+-$7\xB7+#%'\"%$\"# X\"# X,8&!7B+-$7\xB7+#%'\"%$\"# X\"# X\"+'%4\"6\u0127\" %$\"# X\"# X"),
+          peg$decode("! \\7!+&$,#&7!\"\"\" X+' 4!6\u011F!! %"),
+          peg$decode("!7\x9D+' 4!6\u0120!! %"),
+          peg$decode("!7\xB5+d$ \\!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+(%4\"6\u0121\"!!%$\"# X\"# X"),
+          peg$decode("!!77+k$ \\!.J\"\"2J3K+-$77+#%'\"%$\"# X\"# X,>&!.J\"\"2J3K+-$77+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X+! (%"),
+          peg$decode("!7L*# \"7\x98+c$ \\!7B+-$7\xB7+#%'\"%$\"# X\"# X,8&!7B+-$7\xB7+#%'\"%$\"# X\"# X\"+'%4\"6\u0122\" %$\"# X\"# X"),
           peg$decode("7\xB8*# \"7\x9F"),
-          peg$decode("!/\u0128\"\"1#3\u0129+<$7<+2%76+(%4#6\u012A#! %$## X$\"# X\"# X"),
-          peg$decode("! ]7!+&$,#&7!\"\"\" X+' 4!6\u012B!! %"),
-          peg$decode("!7\x9D+' 4!6\u012C!! %"),
-          peg$decode("! ]7\x99,#&7\x99\"+\x81$7@+w%7M+m%7?+c% ]!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+'%4%6\u012D% %$%# X$$# X$## X$\"# X\"# X"),
+          peg$decode("!/\u0123\"\"1#3\u0124+<$7<+2%76+(%4#6\u0125#! %$## X$\"# X\"# X"),
+          peg$decode("! \\7!+&$,#&7!\"\"\" X+' 4!6\u0126!! %"),
+          peg$decode("!7\x9D+' 4!6\u0127!! %"),
+          peg$decode("! \\7\x99,#&7\x99\"+\x81$7@+w%7M+m%7?+c% \\!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+'%4%6\u0128% %$%# X$$# X$## X$\"# X\"# X"),
           peg$decode("7\xBD"),
-          peg$decode("!/\u012E\"\"1&3\u012F+s$7.+i%7\xC0+_% ]!7A+-$7\xC0+#%'\"%$\"# X\"# X,8&!7A+-$7\xC0+#%'\"%$\"# X\"# X\"+#%'$%$$# X$## X$\"# X\"# X*# \"7\xBE"),
-          peg$decode("!76+s$7.+i%7\xBF+_% ]!7A+-$7\xBF+#%'\"%$\"# X\"# X,8&!7A+-$7\xBF+#%'\"%$\"# X\"# X\"+#%'$%$$# X$## X$\"# X\"# X"),
+          peg$decode("!/\u0129\"\"1&3\u012A+s$7.+i%7\xC0+_% \\!7A+-$7\xC0+#%'\"%$\"# X\"# X,8&!7A+-$7\xC0+#%'\"%$\"# X\"# X\"+#%'$%$$# X$## X$\"# X\"# X*# \"7\xBE"),
+          peg$decode("!76+s$7.+i%7\xBF+_% \\!7A+-$7\xBF+#%'\"%$\"# X\"# X,8&!7A+-$7\xBF+#%'\"%$\"# X\"# X\"+#%'$%$$# X$## X$\"# X\"# X"),
           peg$decode("!76+=$7<+3%76*# \"7H+#%'#%$## X$\"# X\"# X"),
           peg$decode("7\xC1*G \"7\xC3*A \"7\xC5*; \"7\xC7*5 \"7\xC8*/ \"7\xC9*) \"7\xCA*# \"7\xBF"),
-          peg$decode("!/\u0130\"\"1%3\u0131+7$7<+-%7\xC2+#%'#%$## X$\"# X\"# X"),
-          peg$decode("!7I+' 4!6\u0132!! %"),
-          peg$decode("!/\u0133\"\"1&3\u0134+\xA5$7<+\x9B%7D+\x91%7\xC4+\x87% ]! ]7'+&$,#&7'\"\"\" X+-$7\xC4+#%'\"%$\"# X\"# X,G&! ]7'+&$,#&7'\"\"\" X+-$7\xC4+#%'\"%$\"# X\"# X\"+-%7E+#%'&%$&# X$%# X$$# X$## X$\"# X\"# X"),
+          peg$decode("!/\u012B\"\"1%3\u012C+7$7<+-%7\xC2+#%'#%$## X$\"# X\"# X"),
+          peg$decode("!7I+' 4!6\u012D!! %"),
+          peg$decode("!/\u012E\"\"1&3\u012F+\xA5$7<+\x9B%7D+\x91%7\xC4+\x87% \\! \\7'+&$,#&7'\"\"\" X+-$7\xC4+#%'\"%$\"# X\"# X,G&! \\7'+&$,#&7'\"\"\" X+-$7\xC4+#%'\"%$\"# X\"# X\"+-%7E+#%'&%$&# X$%# X$$# X$## X$\"# X\"# X"),
           peg$decode("7t*# \"7w"),
-          peg$decode("!/\u0135\"\"1%3\u0136+7$7<+-%7\xC6+#%'#%$## X$\"# X\"# X"),
-          peg$decode("!7I+' 4!6\u0137!! %"),
-          peg$decode("!/\u0138\"\"1&3\u0139+<$7<+2%7I+(%4#6\u013A#! %$## X$\"# X\"# X"),
-          peg$decode("!/\u013B\"\"1%3\u013C+_$7<+U%!/\u013D\"\"1$3\u013E+& 4!6\u013F! %*4 \"!/\u0140\"\"1%3\u0141+& 4!6\u0142! %+#%'#%$## X$\"# X\"# X"),
-          peg$decode("!/\u0143\"\"1)3\u0144+T$7<+J%/\u0145\"\"1#3\u0146*/ \"/\u0147\"\"1(3\u0148*# \"76+(%4#6\u0149#! %$## X$\"# X\"# X"),
-          peg$decode("!/\u014A\"\"1#3\u014B+\x9E$7<+\x94%7D+\x8A%!7\xCB+k$ ]!.D\"\"2D3E+-$7\xCB+#%'\"%$\"# X\"# X,>&!.D\"\"2D3E+-$7\xCB+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X+-%7E+#%'%%$%# X$$# X$## X$\"# X\"# X"),
-          peg$decode("!/\u014C\"\"1(3\u014D*/ \"/\u014E\"\"1$3\u014F*# \"76+' 4!6\u0150!! %"),
-          peg$decode("!76+_$ ]!7A+-$76+#%'\"%$\"# X\"# X,8&!7A+-$76+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("!/\u0130\"\"1%3\u0131+7$7<+-%7\xC6+#%'#%$## X$\"# X\"# X"),
+          peg$decode("!7I+' 4!6\u0132!! %"),
+          peg$decode("!/\u0133\"\"1&3\u0134+<$7<+2%7I+(%4#6\u0135#! %$## X$\"# X\"# X"),
+          peg$decode("!/\u0136\"\"1%3\u0137+_$7<+U%!/\u0138\"\"1$3\u0139+& 4!6\u013A! %*4 \"!/\u013B\"\"1%3\u013C+& 4!6\u013D! %+#%'#%$## X$\"# X\"# X"),
+          peg$decode("!/\u013E\"\"1)3\u013F+T$7<+J%/\u0140\"\"1#3\u0141*/ \"/\u0142\"\"1(3\u0143*# \"76+(%4#6\u0144#! %$## X$\"# X\"# X"),
+          peg$decode("!/\u0145\"\"1#3\u0146+\x9E$7<+\x94%7D+\x8A%!7\xCB+k$ \\!.D\"\"2D3E+-$7\xCB+#%'\"%$\"# X\"# X,>&!.D\"\"2D3E+-$7\xCB+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X+-%7E+#%'%%$%# X$$# X$## X$\"# X\"# X"),
+          peg$decode("!/\u0147\"\"1(3\u0148*/ \"/\u0149\"\"1$3\u014A*# \"76+' 4!6\u014B!! %"),
+          peg$decode("!76+_$ \\!7A+-$76+#%'\"%$\"# X\"# X,8&!7A+-$76+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
           peg$decode("!7\xCE+K$7.+A%7\xCE+7%7.+-%7\x8F+#%'%%$%# X$$# X$## X$\"# X\"# X"),
-          peg$decode("! ]7!+&$,#&7!\"\"\" X+' 4!6\u0151!! %"),
-          peg$decode("!7\xD0+c$ ]!7A+-$7\xD0+#%'\"%$\"# X\"# X,8&!7A+-$7\xD0+#%'\"%$\"# X\"# X\"+'%4\"6\u0152\" %$\"# X\"# X"),
-          peg$decode("!7\x98+c$ ]!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+'%4\"6\u0153\" %$\"# X\"# X"),
-          peg$decode("!7L*) \"7\x98*# \"7t+c$ ]!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+'%4\"6\u0154\" %$\"# X\"# X"),
-          peg$decode("!76+_$ ]!7A+-$76+#%'\"%$\"# X\"# X,8&!7A+-$76+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("!7\xD4+_$ ]!7A+-$7\xD4+#%'\"%$\"# X\"# X,8&!7A+-$7\xD4+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("!7\x98+_$ ]!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("! ]7!+&$,#&7!\"\"\" X+' 4!6\u0155!! %"),
-          peg$decode("!7\xD7+_$ ]!7B+-$7\xD8+#%'\"%$\"# X\"# X,8&!7B+-$7\xD8+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("!/\u0156\"\"1&3\u0157*; \"/\u0158\"\"1'3\u0159*/ \"/\u015A\"\"1*3\u015B*# \"76+& 4!6\u015C! %"),
-          peg$decode("!/\u015D\"\"1&3\u015E+<$7<+2%7\xD9+(%4#6\u015F#! %$## X$\"# X\"# X*\x83 \"!/\xFB\"\"1'3\xFC+<$7<+2%7\x9D+(%4#6\u0160#! %$## X$\"# X\"# X*S \"!/\u0161\"\"1+3\u0162+<$7<+2%7\x9D+(%4#6\u0163#! %$## X$\"# X\"# X*# \"7\x9F"),
-          peg$decode("/\u0164\"\"1+3\u0165*k \"/\u0166\"\"1)3\u0167*_ \"/\u0168\"\"1(3\u0169*S \"/\u016A\"\"1'3\u016B*G \"/\u016C\"\"1&3\u016D*; \"/\u016E\"\"1*3\u016F*/ \"/\u0170\"\"1)3\u0171*# \"76"),
-          peg$decode("71*# \" \\"),
-          peg$decode("!76+_$ ]!7A+-$76+#%'\"%$\"# X\"# X,8&!7A+-$76+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X*# \" \\"),
-          peg$decode("!7L*# \"7\x98+c$ ]!7B+-$7\xDD+#%'\"%$\"# X\"# X,8&!7B+-$7\xDD+#%'\"%$\"# X\"# X\"+'%4\"6\u0172\" %$\"# X\"# X"),
+          peg$decode("! \\7!+&$,#&7!\"\"\" X+' 4!6\u014C!! %"),
+          peg$decode("!7\xD0+c$ \\!7A+-$7\xD0+#%'\"%$\"# X\"# X,8&!7A+-$7\xD0+#%'\"%$\"# X\"# X\"+'%4\"6\u014D\" %$\"# X\"# X"),
+          peg$decode("!7\x98+c$ \\!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+'%4\"6\u014E\" %$\"# X\"# X"),
+          peg$decode("!7L*T \"7\x98*N \"!7@*# \" [+=$7t+3%7?*# \" [+#%'#%$## X$\"# X\"# X+c$ \\!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+'%4\"6\u014F\" %$\"# X\"# X"),
+          peg$decode("!7\xD3+c$ \\!7B+-$7\xD4+#%'\"%$\"# X\"# X,8&!7B+-$7\xD4+#%'\"%$\"# X\"# X\"+'%4\"6\u0150\" %$\"# X\"# X"),
+          peg$decode("!7\x95+& 4!6\u0151! %"),
+          peg$decode("!/\u0152\"\"1(3\u0153+<$7<+2%76+(%4#6\u0154#! %$## X$\"# X\"# X*j \"!/\u0155\"\"1&3\u0156+<$7<+2%76+(%4#6\u0157#! %$## X$\"# X\"# X*: \"!/\u0158\"\"1*3\u0159+& 4!6\u015A! %*# \"7\x9F"),
+          peg$decode("!!76+o$ \\!7A+2$76+(%4\"6\u015B\"! %$\"# X\"# X,=&!7A+2$76+(%4\"6\u015B\"! %$\"# X\"# X\"+)%4\"6\u015C\"\"! %$\"# X\"# X*# \" [+' 4!6\u015D!! %"),
+          peg$decode("!7\xD7+_$ \\!7A+-$7\xD7+#%'\"%$\"# X\"# X,8&!7A+-$7\xD7+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("!7\x98+_$ \\!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("! \\7!+&$,#&7!\"\"\" X+' 4!6\u015E!! %"),
+          peg$decode("!7\xDA+_$ \\!7B+-$7\xDB+#%'\"%$\"# X\"# X,8&!7B+-$7\xDB+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("!/\u015F\"\"1&3\u0160*; \"/\u0161\"\"1'3\u0162*/ \"/\u0163\"\"1*3\u0164*# \"76+& 4!6\u0165! %"),
+          peg$decode("!/\u0166\"\"1&3\u0167+<$7<+2%7\xDC+(%4#6\u0168#! %$## X$\"# X\"# X*\x83 \"!/\xF6\"\"1'3\xF7+<$7<+2%7\x9D+(%4#6\u0169#! %$## X$\"# X\"# X*S \"!/\u016A\"\"1+3\u016B+<$7<+2%7\x9D+(%4#6\u016C#! %$## X$\"# X\"# X*# \"7\x9F"),
+          peg$decode("/\u016D\"\"1+3\u016E*k \"/\u016F\"\"1)3\u0170*_ \"/\u0171\"\"1(3\u0172*S \"/\u0173\"\"1'3\u0174*G \"/\u0175\"\"1&3\u0176*; \"/\u0177\"\"1*3\u0178*/ \"/\u0179\"\"1)3\u017A*# \"76"),
+          peg$decode("71*# \" ["),
+          peg$decode("!!76+o$ \\!7A+2$76+(%4\"6\u015B\"! %$\"# X\"# X,=&!7A+2$76+(%4\"6\u015B\"! %$\"# X\"# X\"+)%4\"6\u015C\"\"! %$\"# X\"# X*# \" [+' 4!6\u017B!! %"),
+          peg$decode("!7L*# \"7\x98+c$ \\!7B+-$7\xE0+#%'\"%$\"# X\"# X,8&!7B+-$7\xE0+#%'\"%$\"# X\"# X\"+'%4\"6\u017C\" %$\"# X\"# X"),
           peg$decode("7\xB8*# \"7\x9F"),
-          peg$decode("!7\xDF+_$ ]!7A+-$7\xDF+#%'\"%$\"# X\"# X,8&!7A+-$7\xDF+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
-          peg$decode("!7\xE6+s$7.+i%7\xE9+_% ]!7B+-$7\xE0+#%'\"%$\"# X\"# X,8&!7B+-$7\xE0+#%'\"%$\"# X\"# X\"+#%'$%$$# X$## X$\"# X\"# X"),
-          peg$decode("7\xE1*; \"7\xE2*5 \"7\xE3*/ \"7\xE4*) \"7\xE5*# \"7\x9F"),
-          peg$decode("!/\u0173\"\"1#3\u0174+<$7<+2%7\xEC+(%4#6\u0175#! %$## X$\"# X\"# X"),
-          peg$decode("!/\u0176\"\"1%3\u0177+<$7<+2%7T+(%4#6\u0178#! %$## X$\"# X\"# X"),
-          peg$decode("!/\u0179\"\"1(3\u017A+B$7<+8%7\\*# \"7Y+(%4#6\u017B#! %$## X$\"# X\"# X"),
-          peg$decode("!/\u017C\"\"1&3\u017D+<$7<+2%76+(%4#6\u017E#! %$## X$\"# X\"# X"),
-          peg$decode("!/\u017F\"\"1%3\u0180+T$!7<+5$ ]7!,#&7!\"+#%'\"%$\"# X\"# X*# \" \\+'%4\"6\u0181\" %$\"# X\"# X"),
-          peg$decode("!7\xE7+K$7;+A%76+7%7;+-%7\xE8+#%'%%$%# X$$# X$## X$\"# X\"# X"),
-          peg$decode("!/\x98\"\"1#3\xDB*# \"76+' 4!6\u0182!! %"),
-          peg$decode("!/\xB7\"\"1#3\u0183*G \"/\xB9\"\"1#3\u0184*; \"/\xBD\"\"1#3\u0185*/ \"/\xBB\"\"1$3\u0186*# \"76+' 4!6\u0187!! %"),
-          peg$decode("!7\xEA+H$!7C+-$7\xEB+#%'\"%$\"# X\"# X*# \" \\+#%'\"%$\"# X\"# X"),
-          peg$decode("!7U*) \"7\\*# \"7X+& 4!6\u0188! %"),
-          peg$decode("!!7!*# \" \\+c$7!*# \" \\+S%7!*# \" \\+C%7!*# \" \\+3%7!*# \" \\+#%'%%$%# X$$# X$## X$\"# X\"# X+' 4!6\u0189!! %"),
-          peg$decode("!!7!+C$7!*# \" \\+3%7!*# \" \\+#%'#%$## X$\"# X\"# X+' 4!6\u018A!! %"),
+          peg$decode("!7\xE2+_$ \\!7A+-$7\xE2+#%'\"%$\"# X\"# X,8&!7A+-$7\xE2+#%'\"%$\"# X\"# X\"+#%'\"%$\"# X\"# X"),
+          peg$decode("!7\xE9+s$7.+i%7\xEC+_% \\!7B+-$7\xE3+#%'\"%$\"# X\"# X,8&!7B+-$7\xE3+#%'\"%$\"# X\"# X\"+#%'$%$$# X$## X$\"# X\"# X"),
+          peg$decode("7\xE4*; \"7\xE5*5 \"7\xE6*/ \"7\xE7*) \"7\xE8*# \"7\x9F"),
+          peg$decode("!/\u017D\"\"1#3\u017E+<$7<+2%7\xEF+(%4#6\u017F#! %$## X$\"# X\"# X"),
+          peg$decode("!/\u0180\"\"1%3\u0181+<$7<+2%7T+(%4#6\u0182#! %$## X$\"# X\"# X"),
+          peg$decode("!/\u0183\"\"1(3\u0184+B$7<+8%7\\*# \"7Y+(%4#6\u0185#! %$## X$\"# X\"# X"),
+          peg$decode("!/\u0186\"\"1&3\u0187+<$7<+2%76+(%4#6\u0188#! %$## X$\"# X\"# X"),
+          peg$decode("!/\u0189\"\"1%3\u018A+T$!7<+5$ \\7!,#&7!\"+#%'\"%$\"# X\"# X*# \" [+'%4\"6\u018B\" %$\"# X\"# X"),
+          peg$decode("!7\xEA+K$7;+A%76+7%7;+-%7\xEB+#%'%%$%# X$$# X$## X$\"# X\"# X"),
+          peg$decode("!/\x95\"\"1#3\xD6*# \"76+' 4!6\u018C!! %"),
+          peg$decode("!/\xB4\"\"1#3\u018D*G \"/\xB6\"\"1#3\u018E*; \"/\xBA\"\"1#3\u018F*/ \"/\xB8\"\"1$3\u0190*# \"76+' 4!6\u0191!! %"),
+          peg$decode("!7\xED+H$!7C+-$7\xEE+#%'\"%$\"# X\"# X*# \" [+#%'\"%$\"# X\"# X"),
+          peg$decode("!7U*) \"7\\*# \"7X+& 4!6\u0192! %"),
+          peg$decode("!!7!*# \" [+c$7!*# \" [+S%7!*# \" [+C%7!*# \" [+3%7!*# \" [+#%'%%$%# X$$# X$## X$\"# X\"# X+' 4!6\u0193!! %"),
+          peg$decode("!!7!+C$7!*# \" [+3%7!*# \" [+#%'#%$## X$\"# X\"# X+' 4!6\u0194!! %"),
           peg$decode("7\xBD"),
-          peg$decode("!76+7$70+-%7\xEF+#%'#%$## X$\"# X\"# X"),
-          peg$decode(" ]72*) \"74*# \"7.,/&72*) \"74*# \"7.\""),
-          peg$decode(" ]7%,#&7%\""),
-          peg$decode("!7\xF2+=$.8\"\"2839+-%7\xF3+#%'#%$## X$\"# X\"# X"),
-          peg$decode("!/\u018B\"\"1%3\u018C*) \"/\u018D\"\"1$3\u018E+' 4!6\u018F!! %"),
-          peg$decode("!7\xF4+N$!.8\"\"2839+-$7^+#%'\"%$\"# X\"# X*# \" \\+#%'\"%$\"# X\"# X"),
-          peg$decode("!7\\*) \"7X*# \"7\x82+' 4!6\u0190!! %"),
-          peg$decode("! ]7\xF6*) \"7-*# \"7\xF7,/&7\xF6*) \"7-*# \"7\xF7\"+& 4!6\u0191! %"),
+          peg$decode("!7\x9D+d$ \\!7B+-$7\xF2+#%'\"%$\"# X\"# X,8&!7B+-$7\xF2+#%'\"%$\"# X\"# X\"+(%4\"6\u0195\"!!%$\"# X\"# X"),
+          peg$decode("7\xF3*# \"7\x9F"),
+          peg$decode("!.\u0196\"\"2\u01963\u0197+N$7<+D%.\u0198\"\"2\u01983\u0199*) \".\u019A\"\"2\u019A3\u019B+(%4#6\u019C#! %$## X$\"# X\"# X"),
+          peg$decode("!7\x9D+d$ \\!7B+-$7\x9F+#%'\"%$\"# X\"# X,8&!7B+-$7\x9F+#%'\"%$\"# X\"# X\"+(%4\"6\u019D\"!!%$\"# X\"# X"),
+          peg$decode("!76+7$70+-%7\xF6+#%'#%$## X$\"# X\"# X"),
+          peg$decode(" \\72*) \"74*# \"7.,/&72*) \"74*# \"7.\""),
+          peg$decode(" \\7%,#&7%\""),
+          peg$decode("!7\xF9+=$.8\"\"2839+-%7\xFA+#%'#%$## X$\"# X\"# X"),
+          peg$decode("!/\u019E\"\"1%3\u019F*) \"/\u01A0\"\"1$3\u01A1+' 4!6\u01A2!! %"),
+          peg$decode("!7\xFB+N$!.8\"\"2839+-$7^+#%'\"%$\"# X\"# X*# \" [+#%'\"%$\"# X\"# X"),
+          peg$decode("!7\\*) \"7X*# \"7\x82+' 4!6\u01A3!! %"),
+          peg$decode("! \\7\xFD*) \"7-*# \"7\xFE,/&7\xFD*) \"7-*# \"7\xFE\"+! (%"),
           peg$decode("7\"*S \"7!*M \".F\"\"2F3G*A \".J\"\"2J3K*5 \".H\"\"2H3I*) \".N\"\"2N3O"),
           peg$decode(".L\"\"2L3M*\x95 \".B\"\"2B3C*\x89 \".<\"\"2<3=*} \".R\"\"2R3S*q \".T\"\"2T3U*e \".V\"\"2V3W*Y \".P\"\"2P3Q*M \".@\"\"2@3A*A \".D\"\"2D3E*5 \".2\"\"2233*) \".>\"\"2>3?"),
-          peg$decode("!7\xF9+h$.8\"\"2839+X%7\xF3+N%!.\u0192\"\"2\u01923\u0193+-$7\xE8+#%'\"%$\"# X\"# X*# \" \\+#%'$%$$# X$## X$\"# X\"# X"),
-          peg$decode("!/\u0194\"\"1%3\u0195*) \"/\u0196\"\"1$3\u0197+' 4!6\u018F!! %"),
-          peg$decode("!7\xE8+Q$/\xB7\"\"1#3\xB8*7 \"/\xB9\"\"1#3\xBA*+ \" ]7+,#&7+\"+'%4\"6\u0198\" %$\"# X\"# X"),
-          peg$decode("!7\xFD+\x8F$.F\"\"2F3G+%7\xFC+u%.F\"\"2F3G+e%7\xFC+[%.F\"\"2F3G+K%7\xFC+A%.F\"\"2F3G+1%7\xFE+'%4)6\u0199) %$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X"),
+          peg$decode("!7\u0100+h$.8\"\"2839+X%7\xFA+N%!.\u01A4\"\"2\u01A43\u01A5+-$7\xEB+#%'\"%$\"# X\"# X*# \" [+#%'$%$$# X$## X$\"# X\"# X"),
+          peg$decode("!/\u01A6\"\"1%3\u01A7*) \"/\u01A8\"\"1$3\u01A9+' 4!6\u01A2!! %"),
+          peg$decode("!7\xEB+Q$/\xB4\"\"1#3\xB5*7 \"/\xB6\"\"1#3\xB7*+ \" \\7+,#&7+\"+'%4\"6\u01AA\" %$\"# X\"# X"),
+          peg$decode("!7\u0104+\x8F$.F\"\"2F3G+%7\u0103+u%.F\"\"2F3G+e%7\u0103+[%.F\"\"2F3G+K%7\u0103+A%.F\"\"2F3G+1%7\u0105+'%4)6\u01AB) %$)# X$(# X$'# X$&# X$%# X$$# X$## X$\"# X\"# X"),
           peg$decode("!7#+A$7#+7%7#+-%7#+#%'$%$$# X$## X$\"# X\"# X"),
-          peg$decode("!7\xFC+-$7\xFC+#%'\"%$\"# X\"# X"),
-          peg$decode("!7\xFC+7$7\xFC+-%7\xFC+#%'#%$## X$\"# X\"# X")
+          peg$decode("!7\u0103+-$7\u0103+#%'\"%$\"# X\"# X"),
+          peg$decode("!7\u0103+7$7\u0103+-%7\u0103+#%'#%$## X$\"# X\"# X")
         ],
 
         peg$currPos          = 0,
@@ -2426,7 +2669,13 @@ module.exports = (function() {
       return stack[0];
     }
 
-    options.data = {};
+
+      options.data = {}; // Object to which header attributes will be assigned during parsing
+
+      function list (first, rest) {
+        return [first].concat(rest);
+      }
+
 
     peg$result = peg$parseRule(peg$startRuleIndex);
 
@@ -2446,7 +2695,8 @@ module.exports = (function() {
     parse:       parse
   };
 })();
-},{}],11:[function(_dereq_,module,exports){
+},{}],12:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview Hacks - This file contains all of the things we
  * wish we didn't have to do, just for interop.  It is similar to
@@ -2455,7 +2705,12 @@ module.exports = (function() {
  * as to most easily track when particular hacks may not be necessary anymore.
  */
 
-var Hacks = module.exports = {
+module.exports = function (SIP) {
+
+//keep to quiet jshint, and remain consistent with other files
+SIP = SIP;
+
+var Hacks = {
   AllBrowsers: {
     maskDtls: function (message) {
       if (message.body) {
@@ -2515,7 +2770,7 @@ var Hacks = module.exports = {
           if (mlines[i].toString().search(/i=.*/) >= 0) {
             insertAt = sdp.indexOf(mlines[i].toString())+mlines[i].toString().length;
             if (sdp.substr(insertAt,2)!=='c=') {
-              sdp = sdp.substr(0,insertAt) + '\r\nc=IN IP 4 0.0.0.0' + sdp.substr(insertAt);
+              sdp = sdp.substr(0,insertAt) + '\r\nc=IN IP4 0.0.0.0' + sdp.substr(insertAt);
             }
 
           // else add the C line if it's missing
@@ -2527,15 +2782,6 @@ var Hacks = module.exports = {
       }
       return sdp;
     },
-
-    hackCLinInIP: function (sdp) {
-      /* Starting in Firefox 34 they have set the c line to 0.0.0.0 which
-       * means "hold" according to legacy SIP standards and Freeswitch
-       * interprets it according to the SIP standards. We replace the
-       * 0.0.0.0 with any other IP so that the call continues.
-       */
-      return sdp.replace("c=IN IP4 0.0.0.0", "c=IN IP4 127.0.0.1");
-    }
   },
 
   Chrome: {
@@ -2561,8 +2807,10 @@ var Hacks = module.exports = {
     }
   }
 };
-
-},{}],12:[function(_dereq_,module,exports){
+return Hacks;
+};
+},{}],13:[function(require,module,exports){
+"use strict";
 var levels = {
   'error': 0,
   'warn': 1,
@@ -2677,7 +2925,8 @@ LoggerFactory.prototype.getLogger = function(category, label) {
 return LoggerFactory;
 };
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],14:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview MediaHandler
  */
@@ -2721,7 +2970,8 @@ MediaHandler.prototype = Object.create(EventEmitter.prototype, {
 return MediaHandler;
 };
 
-},{}],14:[function(_dereq_,module,exports){
+},{}],15:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview SIP NameAddrHeader
  */
@@ -2755,6 +3005,10 @@ NameAddrHeader = function(uri, displayName, parameters) {
   }
 
   Object.defineProperties(this, {
+    friendlyName: {
+      get: function() { return this.displayName || uri.aor; }
+    },
+
     displayName: {
       get: function() { return displayName; },
       set: function(value) {
@@ -2819,7 +3073,8 @@ NameAddrHeader.parse = function(name_addr_header) {
 SIP.NameAddrHeader = NameAddrHeader;
 };
 
-},{}],15:[function(_dereq_,module,exports){
+},{}],16:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview SIP Message Parser
  */
@@ -3081,18 +3336,15 @@ Parser.parseMessage = function(data, ua) {
 SIP.Parser = Parser;
 };
 
-},{}],16:[function(_dereq_,module,exports){
+},{}],17:[function(require,module,exports){
+"use strict";
 module.exports = function (SIP) {
 
 var RegisterContext;
 
 RegisterContext = function (ua) {
   var params = {},
-      regId = 1,
-      events = [
-        'registered',
-        'unregistered'
-      ];
+      regId = 1;
 
   this.registrar = ua.configuration.registrarServer;
   this.expires = ua.configuration.registerExpires;
@@ -3113,6 +3365,7 @@ RegisterContext = function (ua) {
   this.to_uri = ua.configuration.uri;
 
   params.to_uri = this.to_uri;
+  params.to_displayName = ua.configuration.displayName;
   params.call_id = this.call_id;
   params.cseq = this.cseq;
 
@@ -3126,7 +3379,6 @@ RegisterContext = function (ua) {
   this.registered = false;
 
   this.logger = ua.getLogger('sip.registercontext');
-  this.initMoreEvents(events);
 };
 
 RegisterContext.prototype = {
@@ -3134,10 +3386,14 @@ RegisterContext.prototype = {
     var self = this, extraHeaders;
 
     // Handle Options
-    options = options || {};
-    extraHeaders = (options.extraHeaders || []).slice();
+    this.options = options || {};
+    extraHeaders = (this.options.extraHeaders || []).slice();
     extraHeaders.push('Contact: ' + this.contact + ';expires=' + this.expires);
-    extraHeaders.push('Allow: ' + SIP.Utils.getAllowedMethods(this.ua));
+    extraHeaders.push('Allow: ' + SIP.UA.C.ALLOWED_METHODS.toString());
+
+    // Save original extraHeaders to be used in .close
+    this.closeHeaders = this.options.closeWithHeaders ?
+      (this.options.extraHeaders || []).slice() : [];
 
     this.receiveResponse = function(response) {
       var contact, expires,
@@ -3200,7 +3456,7 @@ RegisterContext.prototype = {
           // For that, decrease the expires value. ie: 3 seconds
           this.registrationTimer = SIP.Timers.setTimeout(function() {
             self.registrationTimer = null;
-            self.register(options);
+            self.register(self.options);
           }, (expires * 1000) - 3000);
           this.registrationExpiredTimer = SIP.Timers.setTimeout(function () {
             self.logger.warn('registration expired');
@@ -3226,7 +3482,7 @@ RegisterContext.prototype = {
             // Increase our registration interval to the suggested minimum
             this.expires = response.getHeader('min-expires');
             // Attempt the registration again immediately
-            this.register(options);
+            this.register(this.options);
           } else { //This response MUST contain a Min-Expires header field
             this.logger.warn('423 response received for REGISTER without Min-Expires');
             this.registrationFailure(response, SIP.C.causes.SIP_FAILURE_CODE);
@@ -3275,23 +3531,29 @@ RegisterContext.prototype = {
   },
 
   onTransportConnected: function() {
-    this.register();
+    this.register(this.options);
   },
 
   close: function() {
+    var options = {
+      all: false,
+      extraHeaders: this.closeHeaders
+    };
+
     this.registered_before = this.registered;
-    this.unregister();
+    this.unregister(options);
   },
 
   unregister: function(options) {
     var extraHeaders;
 
-    if(!this.registered) {
+    options = options || {};
+
+    if(!this.registered && !options.all) {
       this.logger.warn('already unregistered');
       return;
     }
 
-    options = options || {};
     extraHeaders = (options.extraHeaders || []).slice();
 
     this.registered = false;
@@ -3360,7 +3622,8 @@ RegisterContext.prototype = {
 SIP.RegisterContext = RegisterContext;
 };
 
-},{}],17:[function(_dereq_,module,exports){
+},{}],18:[function(require,module,exports){
+"use strict";
 
 /**
  * @fileoverview Request Sender
@@ -3442,7 +3705,7 @@ RequestSender.prototype = {
     * Authentication
     * Authenticate once. _challenged_ flag used to avoid infinite authentications.
     */
-    if ((status_code === 401 || status_code === 407) && this.ua.configuration.password !== null) {
+    if (status_code === 401 || status_code === 407) {
 
       // Get and parse the appropriate WWW-Authenticate or Proxy-Authenticate header.
       if (response.status_code === 401) {
@@ -3500,19 +3763,18 @@ RequestSender.prototype = {
 SIP.RequestSender = RequestSender;
 };
 
-},{}],18:[function(_dereq_,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * @name SIP
  * @namespace
  */
 "use strict";
 
-var SIP = {};
 module.exports = function (environment) {
 
-var pkg = _dereq_('../package.json');
+var pkg = require('../package.json');
 
-Object.defineProperties(SIP, {
+var SIP = Object.defineProperties({}, {
   version: {
     get: function(){ return pkg.version; }
   },
@@ -3521,37 +3783,38 @@ Object.defineProperties(SIP, {
   }
 });
 
-_dereq_('./Utils')(SIP, environment);
-SIP.LoggerFactory = _dereq_('./LoggerFactory')(environment.console);
-_dereq_('./EventEmitter')(SIP);
-SIP.C = _dereq_('./Constants')(SIP.name, SIP.version);
-SIP.Exceptions = _dereq_('./Exceptions');
-SIP.Timers = _dereq_('./Timers')(environment.timers);
+require('./Utils')(SIP, environment);
+SIP.LoggerFactory = require('./LoggerFactory')(environment.console);
+SIP.EventEmitter = require('./EventEmitter')(environment.console);
+SIP.C = require('./Constants')(SIP.name, SIP.version);
+SIP.Exceptions = require('./Exceptions');
+SIP.Timers = require('./Timers')(environment.timers);
 SIP.Transport = environment.Transport(SIP, environment.WebSocket);
-_dereq_('./Parser')(SIP);
-_dereq_('./SIPMessage')(SIP);
-_dereq_('./URI')(SIP);
-_dereq_('./NameAddrHeader')(SIP);
-_dereq_('./Transactions')(SIP);
-_dereq_('./Dialogs')(SIP);
-_dereq_('./RequestSender')(SIP);
-_dereq_('./RegisterContext')(SIP);
-SIP.MediaHandler = _dereq_('./MediaHandler')(SIP.EventEmitter);
-_dereq_('./ClientContext')(SIP);
-_dereq_('./ServerContext')(SIP);
-_dereq_('./Session')(SIP, environment);
-_dereq_('./Subscription')(SIP);
-SIP.WebRTC = _dereq_('./WebRTC')(SIP, environment);
-_dereq_('./UA')(SIP);
-SIP.Hacks = _dereq_('./Hacks');
-_dereq_('./SanityCheck')(SIP);
-SIP.DigestAuthentication = _dereq_('./DigestAuthentication')(SIP.Utils);
-SIP.Grammar = _dereq_('./Grammar')(SIP);
+require('./Parser')(SIP);
+require('./SIPMessage')(SIP);
+require('./URI')(SIP);
+require('./NameAddrHeader')(SIP);
+require('./Transactions')(SIP);
+require('./Dialogs')(SIP);
+require('./RequestSender')(SIP);
+require('./RegisterContext')(SIP);
+SIP.MediaHandler = require('./MediaHandler')(SIP.EventEmitter);
+require('./ClientContext')(SIP);
+require('./ServerContext')(SIP);
+require('./Session')(SIP, environment);
+require('./Subscription')(SIP);
+SIP.WebRTC = require('./WebRTC')(SIP, environment);
+require('./UA')(SIP, environment);
+SIP.Hacks = require('./Hacks')(SIP);
+require('./SanityCheck')(SIP);
+SIP.DigestAuthentication = require('./DigestAuthentication')(SIP.Utils);
+SIP.Grammar = require('./Grammar')(SIP);
 
 return SIP;
 };
 
-},{"../package.json":1,"./ClientContext":2,"./Constants":3,"./Dialogs":5,"./DigestAuthentication":6,"./EventEmitter":7,"./Exceptions":8,"./Grammar":9,"./Hacks":11,"./LoggerFactory":12,"./MediaHandler":13,"./NameAddrHeader":14,"./Parser":15,"./RegisterContext":16,"./RequestSender":17,"./SIPMessage":19,"./SanityCheck":20,"./ServerContext":21,"./Session":22,"./Subscription":24,"./Timers":25,"./Transactions":26,"./UA":28,"./URI":29,"./Utils":30,"./WebRTC":31}],19:[function(_dereq_,module,exports){
+},{"../package.json":2,"./ClientContext":3,"./Constants":4,"./Dialogs":6,"./DigestAuthentication":7,"./EventEmitter":8,"./Exceptions":9,"./Grammar":10,"./Hacks":12,"./LoggerFactory":13,"./MediaHandler":14,"./NameAddrHeader":15,"./Parser":16,"./RegisterContext":17,"./RequestSender":18,"./SIPMessage":20,"./SanityCheck":21,"./ServerContext":22,"./Session":23,"./Subscription":25,"./Timers":26,"./Transactions":27,"./UA":29,"./URI":30,"./Utils":31,"./WebRTC":32}],20:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview SIP Message
  */
@@ -3562,6 +3825,39 @@ var
   IncomingMessage,
   IncomingRequest,
   IncomingResponse;
+
+function getSupportedHeader (request) {
+  var allowUnregistered = request.ua.configuration.hackAllowUnregisteredOptionTags;
+  var optionTags = [];
+  var optionTagSet = {};
+
+  if (request.method === SIP.C.REGISTER) {
+    optionTags.push('path', 'gruu');
+  } else if (request.method === SIP.C.INVITE &&
+             (request.ua.contact.pub_gruu || request.ua.contact.temp_gruu)) {
+    optionTags.push('gruu');
+  }
+
+  if (request.ua.configuration.rel100 === SIP.C.supported.SUPPORTED) {
+    optionTags.push('100rel');
+  }
+  if (request.ua.configuration.replaces === SIP.C.supported.SUPPORTED) {
+    optionTags.push('replaces');
+  }
+
+  optionTags.push('outbound');
+
+  optionTags = optionTags.concat(request.ua.configuration.extraSupported);
+
+  optionTags = optionTags.filter(function(optionTag) {
+    var registered = SIP.C.OPTION_TAGS[optionTag];
+    var unique = !optionTagSet[optionTag];
+    optionTagSet[optionTag] = true;
+    return (registered || allowUnregistered) && unique;
+  });
+
+  return 'Supported: ' + optionTags.join(', ') + '\r\n';
+}
 
 /**
  * @augments SIP
@@ -3580,7 +3876,9 @@ OutgoingRequest = function(method, ruri, ua, params, extraHeaders, body) {
     to,
     from,
     call_id,
-    cseq;
+    cseq,
+    to_uri,
+    from_uri;
 
   params = params || {};
 
@@ -3616,13 +3914,15 @@ OutgoingRequest = function(method, ruri, ua, params, extraHeaders, body) {
   this.setHeader('max-forwards', SIP.UA.C.MAX_FORWARDS);
 
   // To
+  to_uri = params.to_uri || ruri;
   to = (params.to_displayName || params.to_displayName === 0) ? '"' + params.to_displayName + '" ' : '';
-  to += '<' + (params.to_uri || ruri) + '>';
+  to += '<' + (to_uri && to_uri.toRaw ? to_uri.toRaw() : to_uri) + '>';
   to += params.to_tag ? ';tag=' + params.to_tag : '';
   this.to = new SIP.NameAddrHeader.parse(to);
   this.setHeader('to', to);
 
   // From
+  from_uri = params.from_uri || ua.configuration.uri;
   if (params.from_displayName || params.from_displayName === 0) {
     from = '"' + params.from_displayName + '" ';
   } else if (ua.configuration.displayName) {
@@ -3630,7 +3930,7 @@ OutgoingRequest = function(method, ruri, ua, params, extraHeaders, body) {
   } else {
     from = '';
   }
-  from += '<' + (params.from_uri || ua.configuration.uri) + '>;tag=';
+  from += '<' + (from_uri && from_uri.toRaw ? from_uri.toRaw() : from_uri) + '>;tag=';
   from += params.from_tag || SIP.Utils.newTag();
   this.from = new SIP.NameAddrHeader.parse(from);
   this.setHeader('from', from);
@@ -3736,9 +4036,9 @@ OutgoingRequest.prototype = {
   },
 
   toString: function() {
-    var msg = '', header, length, idx, supported = [];
+    var msg = '', header, length, idx;
 
-    msg += this.method + ' ' + this.ruri + ' SIP/2.0\r\n';
+    msg += this.method + ' ' + (this.ruri.toRaw ? this.ruri.toRaw() : this.ruri) + ' SIP/2.0\r\n';
 
     for (header in this.headers) {
       length = this.headers[header].length;
@@ -3752,21 +4052,7 @@ OutgoingRequest.prototype = {
       msg += this.extraHeaders[idx].trim() +'\r\n';
     }
 
-    //Supported
-    if (this.method === SIP.C.REGISTER) {
-      supported.push('path', 'gruu');
-    } else if (this.method === SIP.C.INVITE &&
-               (this.ua.contact.pub_gruu || this.ua.contact.temp_gruu)) {
-      supported.push('gruu');
-    }
-
-    if (this.ua.configuration.rel100 === SIP.C.supported.SUPPORTED) {
-      supported.push('100rel');
-    }
-
-    supported.push('outbound');
-
-    msg += 'Supported: ' +  supported +'\r\n';
+    msg += getSupportedHeader(this);
     msg += 'User-Agent: ' + this.ua.configuration.userAgentString +'\r\n';
 
     if(this.body) {
@@ -3961,7 +4247,6 @@ IncomingRequest.prototype = new IncomingMessage();
 */
 IncomingRequest.prototype.reply = function(code, reason, extraHeaders, body, onSuccess, onFailure) {
   var rr, vias, length, idx, response,
-  supported = [],
     to = this.getHeader('To'),
     r = 0,
     v = 0;
@@ -4001,19 +4286,8 @@ IncomingRequest.prototype.reply = function(code, reason, extraHeaders, body, onS
     response += extraHeaders[idx].trim() +'\r\n';
   }
 
-  //Supported
-  if (this.method === SIP.C.INVITE &&
-               (this.ua.contact.pub_gruu || this.ua.contact.temp_gruu)) {
-    supported.push('gruu');
-  }
-
-  if (this.ua.configuration.rel100 === SIP.C.supported.SUPPORTED) {
-    supported.push('100rel');
-  }
-
-  supported.push('outbound');
-
-  response += 'Supported: ' + supported + '\r\n';
+  response += getSupportedHeader(this);
+  response += 'User-Agent: ' + this.ua.configuration.userAgentString +'\r\n';
 
   if(body) {
     length = SIP.Utils.str_utf8_length(body);
@@ -4058,6 +4332,7 @@ IncomingRequest.prototype.reply_sl = function(code, reason) {
   response += 'From: ' + this.getHeader('From') + '\r\n';
   response += 'Call-ID: ' + this.call_id + '\r\n';
   response += 'CSeq: ' + this.cseq + ' ' + this.method + '\r\n';
+  response += 'User-Agent: ' + this.ua.configuration.userAgentString +'\r\n';
   response += 'Content-Length: ' + 0 + '\r\n\r\n';
 
   this.transport.send(response);
@@ -4081,7 +4356,8 @@ SIP.IncomingRequest = IncomingRequest;
 SIP.IncomingResponse = IncomingResponse;
 };
 
-},{}],20:[function(_dereq_,module,exports){
+},{}],21:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview Incoming SIP Message Sanity Check
  */
@@ -4102,6 +4378,33 @@ var sanityCheck,
  requests = [],
  responses = [],
  all = [];
+
+// Reply
+function reply(status_code) {
+  var to,
+    response = SIP.Utils.buildStatusLine(status_code),
+    vias = message.getHeaders('via'),
+    length = vias.length,
+    idx = 0;
+
+  for(idx; idx < length; idx++) {
+    response += "Via: " + vias[idx] + "\r\n";
+  }
+
+  to = message.getHeader('To');
+
+  if(!message.to_tag) {
+    to += ';tag=' + SIP.Utils.newTag();
+  }
+
+  response += "To: " + to + "\r\n";
+  response += "From: " + message.getHeader('From') + "\r\n";
+  response += "Call-ID: " + message.call_id + "\r\n";
+  response += "CSeq: " + message.cseq + " " + message.method + "\r\n";
+  response += "\r\n";
+
+  transport.send(response);
+}
 
 /*
  * Sanity Check for incoming Messages
@@ -4228,33 +4531,6 @@ function minimumHeaders() {
   }
 }
 
-// Reply
-function reply(status_code) {
-  var to,
-    response = SIP.Utils.buildStatusLine(status_code),
-    vias = message.getHeaders('via'),
-    length = vias.length,
-    idx = 0;
-
-  for(idx; idx < length; idx++) {
-    response += "Via: " + vias[idx] + "\r\n";
-  }
-
-  to = message.getHeader('To');
-
-  if(!message.to_tag) {
-    to += ';tag=' + SIP.Utils.newTag();
-  }
-
-  response += "To: " + to + "\r\n";
-  response += "From: " + message.getHeader('From') + "\r\n";
-  response += "Call-ID: " + message.call_id + "\r\n";
-  response += "CSeq: " + message.cseq + " " + message.method + "\r\n";
-  response += "\r\n";
-
-  transport.send(response);
-}
-
 requests.push(rfc3261_8_2_2_1);
 requests.push(rfc3261_16_3_4);
 requests.push(rfc3261_18_3_request);
@@ -4310,17 +4586,12 @@ sanityCheck = function(m, u, t) {
 SIP.sanityCheck = sanityCheck;
 };
 
-},{}],21:[function(_dereq_,module,exports){
+},{}],22:[function(require,module,exports){
+"use strict";
 module.exports = function (SIP) {
 var ServerContext;
 
 ServerContext = function (ua, request) {
-  var events = [
-      'progress',
-      'accepted',
-      'rejected',
-      'failed'
-    ];
   this.ua = ua;
   this.logger = ua.getLogger('sip.servercontext');
   this.request = request;
@@ -4342,31 +4613,47 @@ ServerContext = function (ua, request) {
 
   this.localIdentity = request.to;
   this.remoteIdentity = request.from;
-
-  this.initEvents(events);
 };
 
-ServerContext.prototype = new SIP.EventEmitter();
+ServerContext.prototype = Object.create(SIP.EventEmitter.prototype);
 
 ServerContext.prototype.progress = function (options) {
-  return replyHelper.call(this, options, 180, 100, 199, ['progress']);
+  options = Object.create(options || Object.prototype);
+  options.statusCode || (options.statusCode = 180);
+  options.minCode = 100;
+  options.maxCode = 199;
+  options.events = ['progress'];
+  return this.reply(options);
 };
 
 ServerContext.prototype.accept = function (options) {
-  return replyHelper.call(this, options, 200, 200, 299, ['accepted']);
+  options = Object.create(options || Object.prototype);
+  options.statusCode || (options.statusCode = 200);
+  options.minCode = 200;
+  options.maxCode = 299;
+  options.events = ['accepted'];
+  return this.reply(options);
 };
 
 ServerContext.prototype.reject = function (options) {
-  return replyHelper.call(this, options, 480, 300, 699, ['rejected', 'failed']);
+  options = Object.create(options || Object.prototype);
+  options.statusCode || (options.statusCode = 480);
+  options.minCode = 300;
+  options.maxCode = 699;
+  options.events = ['rejected', 'failed'];
+  return this.reply(options);
 };
 
-function replyHelper (options, defaultCode, minCode, maxCode, events) {
-  options = options || {};
+ServerContext.prototype.reply = function (options) {
+  options = options || {}; // This is okay, so long as we treat options as read-only in this method
   var
-    statusCode = options.statusCode || defaultCode,
+    statusCode = options.statusCode || 100,
+    minCode = options.minCode || 100,
+    maxCode = options.maxCode || 699,
     reasonPhrase = SIP.Utils.getReasonPhrase(statusCode, options.reasonPhrase),
-    extraHeaders = (options.extraHeaders || []).slice(),
+    extraHeaders = options.extraHeaders || [],
     body = options.body,
+    events = options.events || [],
     response;
 
   if (statusCode < minCode || statusCode > maxCode) {
@@ -4378,10 +4665,6 @@ function replyHelper (options, defaultCode, minCode, maxCode, events) {
   }, this);
 
   return this;
-}
-
-ServerContext.prototype.reply = function (options) {
-  return replyHelper.call(this, options, 100, 0, 699, []);
 };
 
 ServerContext.prototype.onRequestTimeout = function () {
@@ -4395,10 +4678,11 @@ ServerContext.prototype.onTransportError = function () {
 SIP.ServerContext = ServerContext;
 };
 
-},{}],22:[function(_dereq_,module,exports){
+},{}],23:[function(require,module,exports){
+"use strict";
 module.exports = function (SIP, environment) {
 
-var DTMF = _dereq_('./Session/DTMF')(SIP);
+var DTMF = require('./Session/DTMF')(SIP);
 
 var Session, InviteServerContext, InviteClientContext,
  C = {
@@ -4423,20 +4707,6 @@ var Session, InviteServerContext, InviteClientContext,
  *        (See the documentation for the mediaHandlerFactory argument of the UA constructor.)
  */
 Session = function (mediaHandlerFactory) {
-  var events = [
-  'connecting',
-  'terminated',
-  'dtmf',
-  'invite',
-  'cancel',
-  'refer',
-  'bye',
-  'hold',
-  'unhold',
-  'muted',
-  'unmuted'
-  ];
-
   this.status = C.STATUS_NULL;
   this.dialog = null;
   this.earlyDialogs = {};
@@ -4511,8 +4781,6 @@ Session = function (mediaHandlerFactory) {
 
   this.early_sdp = null;
   this.rel100 = SIP.C.supported.UNSUPPORTED;
-
-  this.initMoreEvents(events);
 };
 
 Session.prototype = {
@@ -4575,7 +4843,7 @@ Session.prototype = {
   },
 
   bye: function(options) {
-    options = options || {};
+    options = Object.create(options || Object.prototype);
     var statusCode = options.statusCode;
 
     // Check Session Status
@@ -4600,24 +4868,31 @@ Session.prototype = {
   refer: function(target, options) {
     options = options || {};
     var extraHeaders = (options.extraHeaders || []).slice(),
+        withReplaces =
+          target instanceof SIP.InviteServerContext ||
+          target instanceof SIP.InviteClientContext,
         originalTarget = target;
 
     if (target === undefined) {
       throw new TypeError('Not enough arguments');
-    } else if (target instanceof SIP.InviteServerContext || target instanceof SIP.InviteClientContext) {
+    }
+
+    // Check Session Status
+    if (this.status !== C.STATUS_CONFIRMED) {
+      throw new SIP.Exceptions.InvalidStateError(this.status);
+    }
+
+    // transform `target` so that it can be a Refer-To header value
+    if (withReplaces) {
       //Attended Transfer
       // B.transfer(C)
-      extraHeaders.push('Contact: '+ this.contact);
-      extraHeaders.push('Allow: '+ SIP.Utils.getAllowedMethods(this.ua));
-      extraHeaders.push('Refer-To: <' + target.dialog.remote_target.toString() + '?Replaces=' + target.dialog.id.call_id + '%3Bto-tag%3D' + target.dialog.id.remote_tag + '%3Bfrom-tag%3D' + target.dialog.id.local_tag + '>');
+      target = '"' + target.remoteIdentity.friendlyName + '" ' +
+        '<' + target.dialog.remote_target.toString() +
+        '?Replaces=' + target.dialog.id.call_id +
+        '%3Bto-tag%3D' + target.dialog.id.remote_tag +
+        '%3Bfrom-tag%3D' + target.dialog.id.local_tag + '>';
     } else {
       //Blind Transfer
-
-      // Check Session Status
-      if (this.status !== C.STATUS_CONFIRMED) {
-        throw new SIP.Exceptions.InvalidStateError(this.status);
-      }
-
       // normalizeTarget allows instances of SIP.URI to pass through unaltered,
       // so try to make one ahead of time
       try {
@@ -4632,29 +4907,34 @@ Session.prototype = {
       if (!target) {
         throw new TypeError('Invalid target: ' + originalTarget);
       }
-
-      extraHeaders.push('Contact: '+ this.contact);
-      extraHeaders.push('Allow: '+ SIP.Utils.getAllowedMethods(this.ua));
-      extraHeaders.push('Refer-To: '+ target);
     }
+
+    extraHeaders.push('Contact: '+ this.contact);
+    extraHeaders.push('Allow: '+ SIP.UA.C.ALLOWED_METHODS.toString());
+    extraHeaders.push('Refer-To: '+ target);
 
     // Send the request
     this.sendRequest(SIP.C.REFER, {
       extraHeaders: extraHeaders,
       body: options.body,
-      receiveResponse: function() {}
+      receiveResponse: function (response) {
+        if ( ! /^2[0-9]{2}$/.test(response.status_code) ) {
+          return;
+        }
+        // hang up only if we transferred to a SIP address
+        if (withReplaces || (target.scheme && target.scheme.match("^sips?$"))) {
+          this.terminate();
+        }
+      }.bind(this)
     });
-    // hang up only if we transferred to a SIP address
-    if (target.scheme.match("^sips?$")) {
-      this.terminate();
-    }
     return this;
   },
 
   followRefer: function followRefer (callback) {
     return function referListener (callback, request) {
       // open non-SIP URIs if possible and keep session open
-      var target = request.parseHeader('refer-to').uri;
+      var referTo = request.parseHeader('refer-to');
+      var target = referTo.uri;
       if (!target.scheme.match("^sips?$")) {
         var targetString = target.toString();
         if (typeof environment.open === "function") {
@@ -4665,14 +4945,33 @@ Session.prototype = {
         return;
       }
 
-      SIP.Hacks.Chrome.getsConfusedAboutGUM(this);
+      var extraHeaders = [];
+
+      /* Copy the Replaces query into a Replaces header */
+      /* TODO - make sure we don't copy a poorly formatted header? */
+      var replaces = target.getHeader('Replaces');
+      if (replaces !== undefined) {
+        extraHeaders.push('Replaces: ' + decodeURIComponent(replaces));
+      }
+
+      // don't embed headers into Request-URI of INVITE
+      target.clearHeaders();
 
       /*
         Harmless race condition.  Both sides of REFER
         may send a BYE, but in the end the dialogs are destroyed.
       */
-      var referSession = this.ua.invite(request.parseHeader('refer-to').uri, {
-        media: this.mediaHint
+      var getReferMedia = this.mediaHandler.getReferMedia;
+      var mediaHint = getReferMedia ? getReferMedia.call(this.mediaHandler) : this.mediaHint;
+
+      SIP.Hacks.Chrome.getsConfusedAboutGUM(this);
+
+      var referSession = this.ua.invite(target, {
+        media: mediaHint,
+        params: {
+          to_displayName: referTo.friendlyName
+        },
+        extraHeaders: extraHeaders
       });
 
       callback.call(this, request, referSession);
@@ -4718,9 +5017,7 @@ Session.prototype = {
     }, this.ua).send();
 
     // Emit the request event
-    if (this.checkEvent(method.toLowerCase())) {
-      this.emit(method.toLowerCase(), request);
-    }
+    this.emit(method.toLowerCase(), request);
 
     return this;
   },
@@ -4855,7 +5152,7 @@ Session.prototype = {
   /**
    * Hold
    */
-  hold: function() {
+  hold: function(options) {
 
     if (this.status !== C.STATUS_WAITING_FOR_ACK && this.status !== C.STATUS_CONFIRMED) {
       throw new SIP.Exceptions.InvalidStateError(this.status);
@@ -4881,27 +5178,28 @@ Session.prototype = {
 
     this.onhold('local');
 
-    this.sendReinvite({
-      mangle: function(body){
+    options = options || {};
+    options.mangle = function(body){
 
-        // Don't receive media
-        // TODO - This will break for media streams with different directions.
-        if (!(/a=(sendrecv|sendonly|recvonly|inactive)/).test(body)) {
-          body = body.replace(/(m=[^\r]*\r\n)/g, '$1a=sendonly\r\n');
-        } else {
-          body = body.replace(/a=sendrecv\r\n/g, 'a=sendonly\r\n');
-          body = body.replace(/a=recvonly\r\n/g, 'a=inactive\r\n');
-        }
-
-        return body;
+      // Don't receive media
+      // TODO - This will break for media streams with different directions.
+      if (!(/a=(sendrecv|sendonly|recvonly|inactive)/).test(body)) {
+        body = body.replace(/(m=[^\r]*\r\n)/g, '$1a=sendonly\r\n');
+      } else {
+        body = body.replace(/a=sendrecv\r\n/g, 'a=sendonly\r\n');
+        body = body.replace(/a=recvonly\r\n/g, 'a=inactive\r\n');
       }
-    });
+
+      return body;
+    };
+
+    this.sendReinvite(options);
   },
 
   /**
    * Unhold
    */
-  unhold: function() {
+  unhold: function(options) {
 
     if (this.status !== C.STATUS_WAITING_FOR_ACK && this.status !== C.STATUS_CONFIRMED) {
       throw new SIP.Exceptions.InvalidStateError(this.status);
@@ -4926,7 +5224,7 @@ Session.prototype = {
 
     this.onunhold('local');
 
-    this.sendReinvite();
+    this.sendReinvite(options);
   },
 
   /**
@@ -4992,19 +5290,20 @@ Session.prototype = {
 
     var
       self = this,
-       extraHeaders = (options.extraHeaders || []).slice(),
-       eventHandlers = options.eventHandlers || {},
-       mangle = options.mangle || null;
+      extraHeaders = (options.extraHeaders || []).slice(),
+      eventHandlers = options.eventHandlers || {},
+      mangle = options.mangle || null,
+      succeeded;
 
     if (eventHandlers.succeeded) {
-      this.reinviteSucceeded = eventHandlers.succeeded;
-    } else {
-      this.reinviteSucceeded = function(){
-        SIP.Timers.clearTimeout(self.timers.ackTimer);
-        SIP.Timers.clearTimeout(self.timers.invite2xxTimer);
-        self.status = C.STATUS_CONFIRMED;
-      };
+      succeeded = eventHandlers.succeeded;
     }
+    this.reinviteSucceeded = function(){
+      SIP.Timers.clearTimeout(self.timers.ackTimer);
+      SIP.Timers.clearTimeout(self.timers.invite2xxTimer);
+      self.status = C.STATUS_CONFIRMED;
+      succeeded && succeeded.apply(this, arguments);
+    };
     if (eventHandlers.failed) {
       this.reinviteFailed = eventHandlers.failed;
     } else {
@@ -5012,7 +5311,7 @@ Session.prototype = {
     }
 
     extraHeaders.push('Contact: ' + this.contact);
-    extraHeaders.push('Allow: '+ SIP.Utils.getAllowedMethods(this.ua));
+    extraHeaders.push('Allow: '+ SIP.UA.C.ALLOWED_METHODS.toString());
     extraHeaders.push('Content-Type: application/sdp');
 
     this.receiveResponse = this.receiveReinviteResponse;
@@ -5047,9 +5346,7 @@ Session.prototype = {
       case SIP.C.INVITE:
         if(this.status === C.STATUS_CONFIRMED) {
           this.logger.log('re-INVITE received');
-          // Switch these two lines to try re-INVITEs:
-          //this.receiveReinvite(request);
-          request.reply(488, null, ['Warning: 399 sipjs "Cannot update media description"']);
+          this.receiveReinvite(request);
         }
         break;
       case SIP.C.INFO:
@@ -5083,29 +5380,33 @@ Session.prototype = {
       case SIP.C.REFER:
         if(this.status ===  C.STATUS_CONFIRMED) {
           this.logger.log('REFER received');
-          request.reply(202, 'Accepted');
-          var
-            hasReferListener = this.checkListener('refer'),
-            notifyBody = hasReferListener ?
-              'SIP/2.0 100 Trying' :
-              // RFC 3515.2.4.2: 'the UA MAY decline the request.'
-              'SIP/2.0 603 Declined'
-          ;
-
-          this.sendRequest(SIP.C.NOTIFY, {
-            extraHeaders:[
-              'Event: refer',
-              'Subscription-State: terminated',
-              'Content-Type: message/sipfrag'
-            ],
-            body: notifyBody,
-            receiveResponse: function() {}
-          });
+          var hasReferListener = this.listeners('refer').length,
+              notifyBody;
 
           if (hasReferListener) {
+            request.reply(202, 'Accepted');
+            notifyBody = 'SIP/2.0 100 Trying';
+
+            this.sendRequest(SIP.C.NOTIFY, {
+              extraHeaders:[
+                'Event: refer',
+                'Subscription-State: terminated',
+                'Content-Type: message/sipfrag'
+              ],
+              body: notifyBody,
+              receiveResponse: function() {}
+            });
+
             this.emit('refer', request);
+          } else {
+            // RFC 3515.2.4.2: 'the UA MAY decline the request.'
+            request.reply(603, 'Declined');
           }
         }
+        break;
+      case SIP.C.NOTIFY:
+        request.reply(200, 'OK');
+        this.emit('notify', request);
         break;
     }
   },
@@ -5228,9 +5529,7 @@ Session.prototype = {
   },
 
   onTransportError: function() {
-    if (this.status === C.STATUS_CONFIRMED) {
-      this.terminated(null, SIP.C.causes.CONNECTION_ERROR);
-    } else if (this.status !== C.STATUS_TERMINATED) {
+    if (this.status !== C.STATUS_CONFIRMED && this.status !== C.STATUS_TERMINATED) {
       this.failed(null, SIP.C.causes.CONNECTION_ERROR);
     }
   },
@@ -5240,6 +5539,7 @@ Session.prototype = {
       this.terminated(null, SIP.C.causes.REQUEST_TIMEOUT);
     } else if (this.status !== C.STATUS_TERMINATED) {
       this.failed(null, SIP.C.causes.REQUEST_TIMEOUT);
+      this.terminated(null, SIP.C.causes.REQUEST_TIMEOUT);
     }
   },
 
@@ -5248,6 +5548,7 @@ Session.prototype = {
       this.terminated(response, SIP.C.causes.DIALOG_ERROR);
     } else if (this.status !== C.STATUS_TERMINATED) {
       this.failed(response, SIP.C.causes.DIALOG_ERROR);
+      this.terminated(response, SIP.C.causes.DIALOG_ERROR);
     }
   },
 
@@ -5288,21 +5589,24 @@ Session.prototype = {
   },
 
   failed: function(response, cause) {
-    this.close();
-    return this.emit('failed', response, cause);
+    if (this.status === C.STATUS_TERMINATED) {
+      return this;
+    }
+    this.emit('failed', response || null, cause || null);
+    return this;
   },
 
   rejected: function(response, cause) {
-    this.close();
-    return this.emit('rejected',
+    this.emit('rejected',
       response || null,
-      cause
+      cause || null
     );
+    return this;
   },
 
   canceled: function() {
-    this.close();
-    return this.emit('cancel');
+    this.emit('cancel');
+    return this;
   },
 
   accepted: function(response, cause) {
@@ -5310,23 +5614,52 @@ Session.prototype = {
 
     this.startTime = new Date();
 
-    return this.emit('accepted', response, cause);
+    if (this.replacee) {
+      this.replacee.emit('replaced', this);
+      this.replacee.terminate();
+    }
+    this.emit('accepted', response, cause);
+    return this;
   },
 
   terminated: function(message, cause) {
+    if (this.status === C.STATUS_TERMINATED) {
+      return this;
+    }
+
     this.endTime = new Date();
 
     this.close();
-    return this.emit('terminated', {
-      message: message || null,
-      cause: cause || null
-    });
+    this.emit('terminated',
+      message || null,
+      cause || null
+    );
+    return this;
   },
 
   connecting: function(request) {
-    return this.emit('connecting', { request: request });
+    this.emit('connecting', { request: request });
+    return this;
   }
 };
+
+Session.desugar = function desugar(options) {
+  if (environment.HTMLMediaElement && options instanceof environment.HTMLMediaElement) {
+    options = {
+      media: {
+        constraints: {
+          audio: true,
+          video: options.tagName === 'VIDEO'
+        },
+        render: {
+          remote: options
+        }
+      }
+    };
+  }
+  return options || {};
+};
+
 
 Session.C = C;
 SIP.Session = Session;
@@ -5415,6 +5748,7 @@ InviteServerContext = function(ua, request) {
     self.timers.userNoAnswerTimer = SIP.Timers.setTimeout(function() {
       request.reply(408);
       self.failed(request, SIP.C.causes.NO_ANSWER);
+      self.terminated(request, SIP.C.causes.NO_ANSWER);
     }, self.ua.configuration.noAnswerTimeout);
 
     /* Set expiresTimer
@@ -5425,6 +5759,7 @@ InviteServerContext = function(ua, request) {
         if(self.status === C.STATUS_WAITING_FOR_ANSWER) {
           request.reply(487);
           self.failed(request, SIP.C.causes.EXPIRES);
+          self.terminated(request, SIP.C.causes.EXPIRES);
         }
       }, expires);
     }
@@ -5457,7 +5792,7 @@ InviteServerContext.prototype = {
 
     this.logger.log('rejecting RTCSession');
 
-    SIP.ServerContext.prototype.reject.apply(this, [options]);
+    SIP.ServerContext.prototype.reject.call(this, options);
     return this.terminated();
   },
 
@@ -5549,6 +5884,9 @@ InviteServerContext.prototype = {
       statusCode = options.statusCode || 180,
       reasonPhrase = options.reasonPhrase,
       extraHeaders = (options.extraHeaders || []).slice(),
+      iceServers,
+      stunServers = options.stunServers || null,
+      turnServers = options.turnServers || null,
       body = options.body,
       response;
 
@@ -5560,7 +5898,33 @@ InviteServerContext.prototype = {
       return this;
     }
 
+    if (stunServers || turnServers) {
+      if (stunServers) {
+        iceServers = SIP.UA.configuration_check.optional['stunServers'](stunServers);
+        if (!iceServers) {
+          throw new TypeError('Invalid stunServers: '+ stunServers);
+        } else {
+          this.stunServers = iceServers;
+        }
+      }
+
+      if (turnServers) {
+        iceServers = SIP.UA.configuration_check.optional['turnServers'](turnServers);
+        if (!iceServers) {
+          throw new TypeError('Invalid turnServers: '+ turnServers);
+        } else {
+          this.turnServers = iceServers;
+        }
+      }
+
+      this.mediaHandler.updateIceServers({
+        stunServers: this.stunServers,
+        turnServers: this.turnServers
+      });
+    }
+
     function do100rel() {
+      /* jshint validthis: true */
       statusCode = options.statusCode || 183;
 
       // Set status and add extra headers
@@ -5609,12 +5973,15 @@ InviteServerContext.prototype = {
         }.bind(this),
 
         function onFailure () {
+          this.request.reply(480);
           this.failed(null, SIP.C.causes.WEBRTC_ERROR);
+          this.terminated(null, SIP.C.causes.WEBRTC_ERROR);
         }.bind(this)
       );
     } // end do100rel
 
     function normalReply() {
+      /* jshint validthis:true */
       response = this.request.reply(statusCode, reasonPhrase, extraHeaders, body);
       this.emit('progress', response, reasonPhrase);
     }
@@ -5634,8 +6001,7 @@ InviteServerContext.prototype = {
    * @param {Object} [options.media] gets passed to SIP.MediaHandler.getDescription as mediaHint
    */
   accept: function(options) {
-    options = options || {};
-
+    options = Object.create(Session.desugar(options));
     SIP.Utils.optionsOverride(options, 'media', 'mediaConstraints', true, this.logger, this.ua.configuration.media);
     this.mediaHint = options.media;
 
@@ -5646,6 +6012,9 @@ InviteServerContext.prototype = {
       request = this.request,
       extraHeaders = (options.extraHeaders || []).slice(),
     //mediaStream = options.mediaStream || null,
+      iceServers,
+      stunServers = options.stunServers || null,
+      turnServers = options.turnServers || null,
       sdpCreationSucceeded = function(body) {
         var
           response,
@@ -5660,6 +6029,7 @@ InviteServerContext.prototype = {
           // run for reply failure callback
           replyFailed = function() {
             self.failed(null, SIP.C.causes.CONNECTION_ERROR);
+            self.terminated(null, SIP.C.causes.CONNECTION_ERROR);
           };
 
         // Chrome might call onaddstream before accept() is called, which means
@@ -5671,6 +6041,7 @@ InviteServerContext.prototype = {
         self.mediaHandler.render();
 
         extraHeaders.push('Contact: ' + self.contact);
+        extraHeaders.push('Allow: ' + SIP.UA.C.ALLOWED_METHODS.toString());
 
         if(!self.hasOffer) {
           self.hasOffer = true;
@@ -5692,9 +6063,10 @@ InviteServerContext.prototype = {
           return;
         }
         // TODO - fail out on error
-        //response = request.reply(480);
+        self.request.reply(480);
         //self.failed(response, SIP.C.causes.USER_DENIED_MEDIA_ACCESS);
         self.failed(null, SIP.C.causes.WEBRTC_ERROR);
+        self.terminated(null, SIP.C.causes.WEBRTC_ERROR);
       };
 
     // Check Session Status
@@ -5705,6 +6077,32 @@ InviteServerContext.prototype = {
       this.status = C.STATUS_ANSWERED;
     } else if (this.status !== C.STATUS_EARLY_MEDIA) {
       throw new SIP.Exceptions.InvalidStateError(this.status);
+    }
+
+    if ((stunServers || turnServers) &&
+        (this.status !== C.STATUS_EARLY_MEDIA && this.status !== C.STATUS_ANSWERED_WAITING_FOR_PRACK)) {
+      if (stunServers) {
+        iceServers = SIP.UA.configuration_check.optional['stunServers'](stunServers);
+        if (!iceServers) {
+          throw new TypeError('Invalid stunServers: '+ stunServers);
+        } else {
+          this.stunServers = iceServers;
+        }
+      }
+
+      if (turnServers) {
+        iceServers = SIP.UA.configuration_check.optional['turnServers'](turnServers);
+        if (!iceServers) {
+          throw new TypeError('Invalid turnServers: '+ turnServers);
+        } else {
+          this.turnServers = iceServers;
+        }
+      }
+
+      this.mediaHandler.updateIceServers({
+        stunServers: this.stunServers,
+        turnServers: this.turnServers
+      });
     }
 
     // An error on dialog creation will fire 'failed' event
@@ -5767,6 +6165,7 @@ InviteServerContext.prototype = {
     // ISC RECEIVE REQUEST
 
     function confirmSession() {
+      /* jshint validthis:true */
       var contentType;
 
       SIP.Timers.clearTimeout(this.timers.ackTimer);
@@ -5806,6 +6205,7 @@ InviteServerContext.prototype = {
         this.canceled(request);
         this.rejected(request, SIP.C.causes.CANCELED);
         this.failed(request, SIP.C.causes.CANCELED);
+        this.terminated(request, SIP.C.causes.CANCELED);
       }
       break;
     case SIP.C.ACK:
@@ -5827,6 +6227,7 @@ InviteServerContext.prototype = {
                   reasonPhrase: 'Bad Media Description'
                 });
                 this.failed(request, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
+                this.terminated(request, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
               }.bind(this)
             );
           } else if (this.early_sdp) {
@@ -5834,6 +6235,7 @@ InviteServerContext.prototype = {
           } else {
             //TODO: Pass to mediahandler
             this.failed(request, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
+            this.terminated(request, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
           }
         } else {
           confirmSession.apply(this);
@@ -5868,6 +6270,7 @@ InviteServerContext.prototype = {
                   reasonPhrase: 'Bad Media Description'
                 });
                 this.failed(request, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
+                this.terminated(request, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
               }.bind(this)
             );
           } else {
@@ -5876,6 +6279,7 @@ InviteServerContext.prototype = {
               reasonPhrase: 'Bad Media Description'
             });
             this.failed(request, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
+            this.terminated(request, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
           }
         } else {
           SIP.Timers.clearTimeout(this.timers.rel1xxTimer);
@@ -5898,18 +6302,37 @@ InviteServerContext.prototype = {
       Session.prototype.receiveRequest.apply(this, [request]);
       break;
     }
+  },
+
+  onTransportError: function() {
+    if (this.status !== C.STATUS_CONFIRMED && this.status !== C.STATUS_TERMINATED) {
+      this.failed(null, SIP.C.causes.CONNECTION_ERROR);
+    }
+  },
+
+  onRequestTimeout: function() {
+    if (this.status === C.STATUS_CONFIRMED) {
+      this.terminated(null, SIP.C.causes.REQUEST_TIMEOUT);
+    } else if (this.status !== C.STATUS_TERMINATED) {
+      this.failed(null, SIP.C.causes.REQUEST_TIMEOUT);
+      this.terminated(null, SIP.C.causes.REQUEST_TIMEOUT);
+    }
   }
+
 };
 
 SIP.InviteServerContext = InviteServerContext;
 
 InviteClientContext = function(ua, target, options) {
-  options = options || {};
-  var requestParams, iceServers,
+  options = Object.create(Session.desugar(options));
+  options.params = Object.create(options.params || Object.prototype);
+
+  var iceServers,
     extraHeaders = (options.extraHeaders || []).slice(),
     stunServers = options.stunServers || null,
     turnServers = options.turnServers || null,
-    isMediaSupported = ua.configuration.mediaHandlerFactory.isSupported;
+    mediaHandlerFactory = options.mediaHandlerFactory || ua.configuration.mediaHandlerFactory,
+    isMediaSupported = mediaHandlerFactory.isSupported;
 
   // Check WebRTC support
   if (isMediaSupported && !isMediaSupported()) {
@@ -5926,7 +6349,7 @@ InviteClientContext = function(ua, target, options) {
   this.renderbody = options.renderbody || null;
   this.rendertype = options.rendertype || 'text/plain';
 
-  requestParams = {from_tag: this.from_tag};
+  options.params.from_tag = this.from_tag;
 
   /* Do not add ;ob in initial forming dialog requests if the registration over
    *  the current connection got a GRUU URI.
@@ -5937,14 +6360,14 @@ InviteClientContext = function(ua, target, options) {
   });
 
   if (this.anonymous) {
-    requestParams.from_displayName = 'Anonymous';
-    requestParams.from_uri = 'sip:anonymous@anonymous.invalid';
+    options.params.from_displayName = 'Anonymous';
+    options.params.from_uri = 'sip:anonymous@anonymous.invalid';
 
     extraHeaders.push('P-Preferred-Identity: '+ ua.configuration.uri.toString());
     extraHeaders.push('Privacy: id');
   }
   extraHeaders.push('Contact: '+ this.contact);
-  extraHeaders.push('Allow: '+ SIP.Utils.getAllowedMethods(ua));
+  extraHeaders.push('Allow: '+ SIP.UA.C.ALLOWED_METHODS.toString());
   if (!this.inviteWithoutSdp) {
     extraHeaders.push('Content-Type: application/sdp');
   } else if (this.renderbody) {
@@ -5955,12 +6378,14 @@ InviteClientContext = function(ua, target, options) {
   if (ua.configuration.rel100 === SIP.C.supported.REQUIRED) {
     extraHeaders.push('Require: 100rel');
   }
+  if (ua.configuration.replaces === SIP.C.supported.REQUIRED) {
+    extraHeaders.push('Require: replaces');
+  }
 
   options.extraHeaders = extraHeaders;
-  options.params = requestParams;
 
   SIP.Utils.augment(this, SIP.ClientContext, [ua, SIP.C.INVITE, target, options]);
-  SIP.Utils.augment(this, SIP.Session, [ua.configuration.mediaHandlerFactory]);
+  SIP.Utils.augment(this, SIP.Session, [mediaHandlerFactory]);
 
   // Check Session Status
   if (this.status !== C.STATUS_NULL) {
@@ -6014,18 +6439,14 @@ InviteClientContext = function(ua, target, options) {
     this.getRemoteStreams = this.mediaHandler.getRemoteStreams.bind(this.mediaHandler);
     this.getLocalStreams = this.mediaHandler.getLocalStreams.bind(this.mediaHandler);
   }
+
+  SIP.Utils.optionsOverride(options, 'media', 'mediaConstraints', true, this.logger, this.ua.configuration.media);
+  this.mediaHint = options.media;
 };
 
 InviteClientContext.prototype = {
-  /*
-   * @param {Object} [options.media] gets passed to SIP.MediaHandler.getDescription as mediaHint
-   */
-  invite: function (options) {
+  invite: function () {
     var self = this;
-    options = options || {};
-
-    SIP.Utils.optionsOverride(options, 'media', 'mediaConstraints', true, this.logger, this.ua.configuration.media);
-    this.mediaHint = options.media;
 
     //Save the session into the ua sessions collection.
     //Note: placing in constructor breaks call to request.cancel on close... User does not need this anyway
@@ -6045,9 +6466,6 @@ InviteClientContext.prototype = {
           if (self.isCanceled || self.status === C.STATUS_TERMINATED) {
             return;
           }
-
-          offer = SIP.Hacks.Firefox.hackCLinInIP(offer);
-
           self.hasOffer = true;
           self.request.body = offer;
           self.status = C.STATUS_INVITE_SENT;
@@ -6061,6 +6479,7 @@ InviteClientContext.prototype = {
           //self.failed(null, SIP.C.causes.USER_DENIED_MEDIA_ACCESS);
           //self.failed(null, SIP.C.causes.WEBRTC_ERROR);
           self.failed(null, SIP.C.causes.WEBRTC_ERROR);
+          self.terminated(null, SIP.C.causes.WEBRTC_ERROR);
         }
       );
     }
@@ -6096,6 +6515,7 @@ InviteClientContext.prototype = {
          */
         if(this.status !== C.STATUS_CONFIRMED) {
           this.failed(response, SIP.C.causes.WEBRTC_ERROR);
+          this.terminated(response, SIP.C.causes.WEBRTC_ERROR);
         }
         return;
       } else if (this.status === C.STATUS_CONFIRMED) {
@@ -6113,7 +6533,17 @@ InviteClientContext.prototype = {
         Early media has been set up with at least one other different branch,
         but a final 2xx response hasn't been received
       */
+      if (this.dialog.pracked.indexOf(response.getHeader('rseq')) !== -1 ||
+          (this.dialog.pracked[this.dialog.pracked.length-1] >= response.getHeader('rseq') && this.dialog.pracked.length > 0)) {
+        return;
+      }
+
       if (!this.earlyDialogs[id] && !this.createDialog(response, 'UAC', true)) {
+        return;
+      }
+
+      if (this.earlyDialogs[id].pracked.indexOf(response.getHeader('rseq')) !== -1 ||
+          (this.earlyDialogs[id].pracked[this.earlyDialogs[id].pracked.length-1] >= response.getHeader('rseq') && this.earlyDialogs[id].pracked.length > 0)) {
         return;
       }
 
@@ -6135,6 +6565,11 @@ InviteClientContext.prototype = {
       } else if(response.status_code >= 200 && response.status_code < 299) {
         this.acceptAndTerminate(response);
         this.emit('bye', this.request);
+      } else if (response.status_code >= 300) {
+        cause = SIP.C.REASON_PHRASE[response.status_code] || SIP.C.causes.CANCELED;
+        this.rejected(response, cause);
+        this.failed(response, cause);
+        this.terminated(response, cause);
       }
       return;
     }
@@ -6190,11 +6625,12 @@ InviteClientContext.prototype = {
               break;
             }
             this.hasAnswer = true;
+            this.dialog.pracked.push(response.getHeader('rseq'));
+
             this.mediaHandler.setDescription(response.body)
             .then(
               function onSuccess () {
                 extraHeaders.push('RAck: ' + response.getHeader('rseq') + ' ' + response.getHeader('cseq'));
-                session.dialog.pracked.push(response.getHeader('rseq'));
 
                 session.sendRequest(SIP.C.PRACK, {
                   extraHeaders: extraHeaders,
@@ -6247,6 +6683,7 @@ InviteClientContext.prototype = {
                 // TODO - fail out on error
                 // session.failed(gum error);
                 session.failed(null, SIP.C.causes.WEBRTC_ERROR);
+                session.terminated(null, SIP.C.causes.WEBRTC_ERROR);
               } else {
                 earlyDialog.pracked.splice(earlyDialog.pracked.indexOf(response.getHeader('rseq')), 1);
                 // Could not set remote description
@@ -6415,8 +6852,9 @@ InviteClientContext.prototype = {
         break;
       default:
         cause = SIP.Utils.sipErrorCause(response.status_code);
-        this.failed(response, cause);
         this.rejected(response, cause);
+        this.failed(response, cause);
+        this.terminated(response, cause);
     }
   },
 
@@ -6424,7 +6862,7 @@ InviteClientContext.prototype = {
     options = options || {};
 
     // Check Session Status
-    if (this.status === C.STATUS_TERMINATED) {
+    if (this.status === C.STATUS_TERMINATED || this.status === C.STATUS_CONFIRMED) {
       throw new SIP.Exceptions.InvalidStateError(this.status);
     }
 
@@ -6457,7 +6895,7 @@ InviteClientContext.prototype = {
       this.cancel(options);
     }
 
-    return this.terminated();
+    return this;
   },
 
   receiveRequest: function(request) {
@@ -6478,14 +6916,31 @@ InviteClientContext.prototype = {
     }
 
     return Session.prototype.receiveRequest.apply(this, [request]);
+  },
+
+  onTransportError: function() {
+    if (this.status !== C.STATUS_CONFIRMED && this.status !== C.STATUS_TERMINATED) {
+      this.failed(null, SIP.C.causes.CONNECTION_ERROR);
+    }
+  },
+
+  onRequestTimeout: function() {
+    if (this.status === C.STATUS_CONFIRMED) {
+      this.terminated(null, SIP.C.causes.REQUEST_TIMEOUT);
+    } else if (this.status !== C.STATUS_TERMINATED) {
+      this.failed(null, SIP.C.causes.REQUEST_TIMEOUT);
+      this.terminated(null, SIP.C.causes.REQUEST_TIMEOUT);
+    }
   }
+
 };
 
 SIP.InviteClientContext = InviteClientContext;
 
 };
 
-},{"./Session/DTMF":23}],23:[function(_dereq_,module,exports){
+},{"./Session/DTMF":24}],24:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview DTMF
  */
@@ -6506,10 +6961,7 @@ var DTMF,
   };
 
 DTMF = function(session, tone, options) {
-  var events = [
-  'succeeded',
-  'failed'
-  ], duration, interToneGap;
+  var duration, interToneGap;
 
   if (tone === undefined) {
     throw new TypeError('Not enough arguments');
@@ -6567,10 +7019,8 @@ DTMF = function(session, tone, options) {
     interToneGap = Math.abs(interToneGap);
   }
   this.interToneGap = interToneGap;
-
-  this.initEvents(events);
 };
-DTMF.prototype = new SIP.EventEmitter();
+DTMF.prototype = Object.create(SIP.EventEmitter.prototype);
 
 
 DTMF.prototype.send = function(options) {
@@ -6670,7 +7120,8 @@ DTMF.C = C;
 return DTMF;
 };
 
-},{}],24:[function(_dereq_,module,exports){
+},{}],25:[function(require,module,exports){
+"use strict";
 
 /**
  * @fileoverview SIP Subscriber (SIP-Specific Event Notifications RFC6665)
@@ -6682,12 +7133,9 @@ return DTMF;
  */
 module.exports = function (SIP) {
 SIP.Subscription = function (ua, target, event, options) {
-  var events;
+  options = Object.create(options || Object.prototype);
+  this.extraHeaders = options.extraHeaders = (options.extraHeaders || []).slice();
 
-  options = options || {};
-  options.extraHeaders = (options.extraHeaders || []).slice();
-
-  events = ['notify'];
   this.id = null;
   this.state = 'init';
 
@@ -6716,7 +7164,7 @@ SIP.Subscription = function (ua, target, event, options) {
   this.contact = ua.contact.toString();
 
   options.extraHeaders.push('Contact: '+ this.contact);
-  options.extraHeaders.push('Allow: '+ SIP.Utils.getAllowedMethods(ua));
+  options.extraHeaders.push('Allow: '+ SIP.UA.C.ALLOWED_METHODS.toString());
 
   SIP.Utils.augment(this, SIP.ClientContext, [ua, SIP.C.SUBSCRIBE, target, options]);
 
@@ -6725,13 +7173,19 @@ SIP.Subscription = function (ua, target, event, options) {
   this.dialog = null;
   this.timers = {N: null, sub_duration: null};
   this.errorCodes  = [404,405,410,416,480,481,482,483,484,485,489,501,604];
-
-  this.initMoreEvents(events);
 };
 
 SIP.Subscription.prototype = {
   subscribe: function() {
     var sub = this;
+
+     //these states point to an existing subscription, no subscribe is necessary
+    if (this.state === 'active') {
+      this.refresh();
+      return this;
+    } else if (this.state === 'notify_wait') {
+      return this;
+    }
 
     SIP.Timers.clearTimeout(this.timers.sub_duration);
     SIP.Timers.clearTimeout(this.timers.N);
@@ -6744,11 +7198,23 @@ SIP.Subscription.prototype = {
     return this;
   },
 
+  refresh: function () {
+    if (this.state === 'terminated' || this.state === 'pending' || this.state === 'notify_wait') {
+      return;
+    }
+
+    this.dialog.sendRequest(this, SIP.C.SUBSCRIBE, {
+      extraHeaders: this.extraHeaders,
+      body: this.body
+    });
+  },
+
   receiveResponse: function(response) {
     var expires, sub = this,
         cause = SIP.Utils.getReasonPhrase(response.status_code);
 
-    if (this.errorCodes.indexOf(response.status_code) !== -1) {
+    if ((this.state === 'notify_wait' && response.status_code >= 300) ||
+        (this.state !== 'notify_wait' && this.errorCodes.indexOf(response.status_code) !== -1)) {
       this.failed(response, null);
     } else if (/^2[0-9]{2}$/.test(response.status_code)){
       expires = response.getHeader('Expires');
@@ -6762,7 +7228,9 @@ SIP.Subscription.prototype = {
       }
 
       if (expires && expires <= this.expires) {
-        this.timers.sub_duration = SIP.Timers.setTimeout(sub.subscribe.bind(sub), expires * 1000);
+        // Preserve new expires value for subsequent requests
+        this.expires = expires;
+        this.timers.sub_duration = SIP.Timers.setTimeout(sub.refresh.bind(sub), expires * 900);
       } else {
         if (!expires) {
           this.logger.warn('Expires header missing in a 200-class response to SUBSCRIBE');
@@ -6784,18 +7252,19 @@ SIP.Subscription.prototype = {
     extraHeaders.push('Expires: 0');
 
     extraHeaders.push('Contact: '+ this.contact);
-    extraHeaders.push('Allow: '+ SIP.Utils.getAllowedMethods(this.ua));
+    extraHeaders.push('Allow: '+ SIP.UA.C.ALLOWED_METHODS.toString());
 
-    this.request = new SIP.OutgoingRequest(this.method, this.request.to.uri.toString(), this.ua, null, extraHeaders);
-
-    //MAYBE, may want to see state
+    //makes sure expires isn't set, and other typical resubscribe behavior
     this.receiveResponse = function(){};
+
+    this.dialog.sendRequest(this, this.method, {
+      extraHeaders: extraHeaders,
+      body: this.body
+    });
 
     SIP.Timers.clearTimeout(this.timers.sub_duration);
     SIP.Timers.clearTimeout(this.timers.N);
     this.timers.N = SIP.Timers.setTimeout(sub.timer_fire.bind(sub), SIP.Timers.TIMER_N);
-
-    this.send();
   },
 
   /**
@@ -6803,12 +7272,15 @@ SIP.Subscription.prototype = {
   */
   timer_fire: function(){
     if (this.state === 'terminated') {
-      this.close();
+      this.terminateDialog();
+      SIP.Timers.clearTimeout(this.timers.N);
+      SIP.Timers.clearTimeout(this.timers.sub_duration);
+
+      delete this.ua.subscriptions[this.id];
     } else if (this.state === 'pending' || this.state === 'notify_wait') {
-      this.state = 'terminated';
       this.close();
     } else {
-      this.subscribe();
+      this.refresh();
     }
   },
 
@@ -6816,15 +7288,9 @@ SIP.Subscription.prototype = {
   * @private
   */
   close: function() {
-    if(this.state !== 'terminated') {
+    if(this.state !== 'notify_wait' && this.state !== 'terminated') {
       this.unsubscribe();
     }
-
-    this.terminateDialog();
-    SIP.Timers.clearTimeout(this.timers.N);
-    SIP.Timers.clearTimeout(this.timers.sub_duration);
-
-    delete this.ua.subscriptions[this.id];
   },
 
   /**
@@ -6865,10 +7331,11 @@ SIP.Subscription.prototype = {
 
     function setExpiresTimeout() {
       if (sub_state.expires) {
+        SIP.Timers.clearTimeout(sub.timers.sub_duration);
         sub_state.expires = Math.min(sub.expires,
                                      Math.max(sub_state.expires, 0));
-        sub.timers.sub_duration = SIP.Timers.setTimeout(sub.subscribe.bind(sub),
-                                                    sub_state.expires * 1000);
+        sub.timers.sub_duration = SIP.Timers.setTimeout(sub.refresh.bind(sub),
+                                                    sub_state.expires * 900);
       }
     }
 
@@ -6882,9 +7349,21 @@ SIP.Subscription.prototype = {
     request.reply(200, SIP.C.REASON_200);
 
     SIP.Timers.clearTimeout(this.timers.N);
-    SIP.Timers.clearTimeout(this.timers.sub_duration);
 
     this.emit('notify', {request: request});
+
+    // if we've set state to terminated, no further processing should take place
+    // and we are only interested in cleaning up after the appropriate NOTIFY
+    if (this.state === 'terminated') {
+      if (sub_state.state === 'terminated') {
+        this.terminateDialog();
+        SIP.Timers.clearTimeout(this.timers.N);
+        SIP.Timers.clearTimeout(this.timers.sub_duration);
+
+        delete this.ua.subscriptions[this.id];
+      }
+      return;
+    }
 
     switch (sub_state.state) {
       case 'active':
@@ -6898,6 +7377,7 @@ SIP.Subscription.prototype = {
         this.state = 'pending';
         break;
       case 'terminated':
+        SIP.Timers.clearTimeout(this.timers.sub_duration);
         if (sub_state.reason) {
           this.logger.log('terminating subscription with reason '+ sub_state.reason);
           switch (sub_state.reason) {
@@ -6926,7 +7406,12 @@ SIP.Subscription.prototype = {
 
   failed: function(response, cause) {
     this.close();
-    return this.emit('failed', response, cause);
+    this.emit('failed', response, cause);
+    return this;
+  },
+
+  onDialogError: function(response) {
+    this.failed(response, SIP.C.causes.DIALOG_ERROR);
   },
 
   /**
@@ -6960,7 +7445,8 @@ SIP.Subscription.prototype = {
 };
 };
 
-},{}],25:[function(_dereq_,module,exports){
+},{}],26:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview SIP TIMERS
  */
@@ -7002,7 +7488,8 @@ module.exports = function (timers) {
   return Timers;
 };
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],27:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview SIP Transactions
  */
@@ -7030,6 +7517,16 @@ var
     INVITE_SERVER: 'ist'
   };
 
+function buildViaHeader (request_sender, transport, id) {
+  var via;
+  via = 'SIP/2.0/' + (request_sender.ua.configuration.hackViaTcp ? 'TCP' : transport.server.scheme);
+  via += ' ' + request_sender.ua.configuration.viaHost + ';branch=' + id;
+  if (request_sender.ua.configuration.forceRport) {
+    via += ';rport';
+  }
+  return via;
+}
+
 /**
 * @augments SIP.Transactions
 * @class Non Invite Client Transaction
@@ -7038,8 +7535,7 @@ var
 * @param {SIP.Transport} transport
 */
 var NonInviteClientTransaction = function(request_sender, request, transport) {
-  var via,
-    events = ['stateChanged'];
+  var via;
 
   this.type = C.NON_INVITE_CLIENT;
   this.transport = transport;
@@ -7049,16 +7545,12 @@ var NonInviteClientTransaction = function(request_sender, request, transport) {
 
   this.logger = request_sender.ua.getLogger('sip.transaction.nict', this.id);
 
-  via = 'SIP/2.0/' + (request_sender.ua.configuration.hackViaTcp ? 'TCP' : transport.server.scheme);
-  via += ' ' + request_sender.ua.configuration.viaHost + ';branch=' + this.id;
-
+  via = buildViaHeader(request_sender, transport, this.id);
   this.request.setHeader('via', via);
 
   this.request_sender.ua.newTransaction(this);
-
-  this.initEvents(events);
 };
-NonInviteClientTransaction.prototype = new SIP.EventEmitter();
+NonInviteClientTransaction.prototype = Object.create(SIP.EventEmitter.prototype);
 
 NonInviteClientTransaction.prototype.stateChanged = function(state) {
   this.state = state;
@@ -7142,8 +7634,7 @@ NonInviteClientTransaction.prototype.receiveResponse = function(response) {
 */
 var InviteClientTransaction = function(request_sender, request, transport) {
   var via,
-    tr = this,
-    events = ['stateChanged'];
+    tr = this;
 
   this.type = C.INVITE_CLIENT;
   this.transport = transport;
@@ -7153,9 +7644,7 @@ var InviteClientTransaction = function(request_sender, request, transport) {
 
   this.logger = request_sender.ua.getLogger('sip.transaction.ict', this.id);
 
-  via = 'SIP/2.0/' + (request_sender.ua.configuration.hackViaTcp ? 'TCP' : transport.server.scheme);
-  via += ' ' + request_sender.ua.configuration.viaHost + ';branch=' + this.id;
-
+  via = buildViaHeader(request_sender, transport, this.id);
   this.request.setHeader('via', via);
 
   this.request_sender.ua.newTransaction(this);
@@ -7165,10 +7654,8 @@ var InviteClientTransaction = function(request_sender, request, transport) {
   this.request.cancel = function(reason) {
     tr.cancel_request(tr, reason);
   };
-
-  this.initEvents(events);
 };
-InviteClientTransaction.prototype = new SIP.EventEmitter();
+InviteClientTransaction.prototype = Object.create(SIP.EventEmitter.prototype);
 
 InviteClientTransaction.prototype.stateChanged = function(state) {
   this.state = state;
@@ -7239,6 +7726,7 @@ InviteClientTransaction.prototype.sendACK = function(response) {
   this.ack += 'To: ' + response.getHeader('to') + '\r\n';
   this.ack += 'From: ' + this.request.headers['From'].toString() + '\r\n';
   this.ack += 'Call-ID: ' + this.request.headers['Call-ID'].toString() + '\r\n';
+  this.ack += 'Content-Length: 0\r\n';
   this.ack += 'CSeq: ' + this.request.headers['CSeq'].toString().split(' ')[0];
   this.ack += ' ACK\r\n\r\n';
 
@@ -7338,12 +7826,10 @@ var AckClientTransaction = function(request_sender, request, transport) {
 
   this.logger = request_sender.ua.getLogger('sip.transaction.nict', this.id);
 
-  via = 'SIP/2.0/' + (request_sender.ua.configuration.hackViaTcp ? 'TCP' : transport.server.scheme);
-  via += ' ' + request_sender.ua.configuration.viaHost + ';branch=' + this.id;
-
+  via = buildViaHeader(request_sender, transport, this.id);
   this.request.setHeader('via', via);
 };
-AckClientTransaction.prototype = new SIP.EventEmitter();
+AckClientTransaction.prototype = Object.create(SIP.EventEmitter.prototype);
 
 AckClientTransaction.prototype.send = function() {
   if(!this.transport.send(this.request)) {
@@ -7364,8 +7850,6 @@ AckClientTransaction.prototype.onTransportError = function() {
 * @param {SIP.UA} ua
 */
 var NonInviteServerTransaction = function(request, ua) {
-  var events = ['stateChanged'];
-
   this.type = C.NON_INVITE_SERVER;
   this.id = request.via_branch;
   this.request = request;
@@ -7379,10 +7863,8 @@ var NonInviteServerTransaction = function(request, ua) {
   this.state = C.STATUS_TRYING;
 
   ua.newTransaction(this);
-
-  this.initEvents(events);
 };
-NonInviteServerTransaction.prototype = new SIP.EventEmitter();
+NonInviteServerTransaction.prototype = Object.create(SIP.EventEmitter.prototype);
 
 NonInviteServerTransaction.prototype.stateChanged = function(state) {
   this.state = state;
@@ -7463,8 +7945,6 @@ NonInviteServerTransaction.prototype.receiveResponse = function(status_code, res
 * @param {SIP.UA} ua
 */
 var InviteServerTransaction = function(request, ua) {
-  var events = ['stateChanged'];
-
   this.type = C.INVITE_SERVER;
   this.id = request.via_branch;
   this.request = request;
@@ -7482,10 +7962,8 @@ var InviteServerTransaction = function(request, ua) {
   this.resendProvisionalTimer = null;
 
   request.reply(100);
-
-  this.initEvents(events);
 };
-InviteServerTransaction.prototype = new SIP.EventEmitter();
+InviteServerTransaction.prototype = Object.create(SIP.EventEmitter.prototype);
 
 InviteServerTransaction.prototype.stateChanged = function(state) {
   this.state = state;
@@ -7718,7 +8196,8 @@ SIP.Transactions = {
 
 };
 
-},{}],27:[function(_dereq_,module,exports){
+},{}],28:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview Transport
  */
@@ -7738,6 +8217,16 @@ var Transport,
     STATUS_ERROR:        2
   };
 
+/**
+ * Compute an amount of time in seconds to wait before sending another
+ * keep-alive.
+ * @returns {Number}
+ */
+function computeKeepAliveTimeout(upperBound) {
+  var lowerBound = upperBound * 0.8;
+  return 1000 * (Math.random() * (upperBound - lowerBound) + lowerBound);
+}
+
 Transport = function(ua, server) {
 
   this.logger = ua.getLogger('sip.transport');
@@ -7749,6 +8238,10 @@ Transport = function(ua, server) {
   this.connected = false;
   this.reconnectTimer = null;
   this.lastTransportError = {};
+
+  this.keepAliveInterval = ua.configuration.keepAliveInterval;
+  this.keepAliveTimeout = null;
+  this.keepAliveTimer = null;
 
   this.ua.transport = this;
 
@@ -7778,12 +8271,54 @@ Transport.prototype = {
   },
 
   /**
+   * Send a keep-alive (a double-CRLF sequence).
+   * @private
+   * @returns {Boolean}
+   */
+  sendKeepAlive: function() {
+    if(this.keepAliveTimeout) { return; }
+
+    this.keepAliveTimeout = SIP.Timers.setTimeout(function() {
+      this.ua.emit('keepAliveTimeout');
+    }.bind(this), 10000);
+
+    return this.send('\r\n\r\n');
+  },
+
+  /**
+   * Start sending keep-alives.
+   * @private
+   */
+  startSendingKeepAlives: function() {
+    if (this.keepAliveInterval && !this.keepAliveTimer) {
+      this.keepAliveTimer = SIP.Timers.setTimeout(function() {
+        this.sendKeepAlive();
+        this.keepAliveTimer = null;
+        this.startSendingKeepAlives();
+      }.bind(this), computeKeepAliveTimeout(this.keepAliveInterval));
+    }
+  },
+
+  /**
+   * Stop sending keep-alives.
+   * @private
+   */
+  stopSendingKeepAlives: function() {
+    SIP.Timers.clearTimeout(this.keepAliveTimer);
+    SIP.Timers.clearTimeout(this.keepAliveTimeout);
+    this.keepAliveTimer = null;
+    this.keepAliveTimeout = null;
+  },
+
+  /**
   * Disconnect socket.
   */
   disconnect: function() {
     if(this.ws) {
       // Clear reconnectTimer
       SIP.Timers.clearTimeout(this.reconnectTimer);
+
+      this.stopSendingKeepAlives();
 
       this.closed = true;
       this.logger.log('closing WebSocket ' + this.server.ws_uri);
@@ -7866,6 +8401,8 @@ Transport.prototype = {
     this.closed = false;
     // Trigger onTransportConnected callback
     this.ua.onTransportConnected(this);
+    // Start sending keep-alives
+    this.startSendingKeepAlives();
   },
 
   /**
@@ -7875,31 +8412,40 @@ Transport.prototype = {
   onClose: function(e) {
     var connected_before = this.connected;
 
-    this.connected = false;
     this.lastTransportError.code = e.code;
     this.lastTransportError.reason = e.reason;
-    this.logger.log('WebSocket disconnected (code: ' + e.code + (e.reason? '| reason: ' + e.reason : '') +')');
 
-    if(e.wasClean === false) {
-      this.logger.warn('WebSocket abrupt disconnection');
-    }
-    // Transport was connected
-    if(connected_before === true) {
-      this.ua.onTransportClosed(this);
-      // Check whether the user requested to close.
-      if(!this.closed) {
-        this.reConnect();
-      } else {
-        this.ua.emit('disconnected', {
-          transport: this,
-          code: this.lastTransportError.code,
-          reason: this.lastTransportError.reason
-        });
-      }
+    this.stopSendingKeepAlives();
+
+    if (this.reconnection_attempts > 0) {
+      this.logger.log('Reconnection attempt ' + this.reconnection_attempts + ' failed (code: ' + e.code + (e.reason? '| reason: ' + e.reason : '') +')');
+      this.reconnect();
     } else {
-      // This is the first connection attempt
-      //Network error
-      this.ua.onTransportError(this);
+      this.connected = false;
+      this.logger.log('WebSocket disconnected (code: ' + e.code + (e.reason? '| reason: ' + e.reason : '') +')');
+
+      if(e.wasClean === false) {
+        this.logger.warn('WebSocket abrupt disconnection');
+      }
+      // Transport was connected
+      if(connected_before === true) {
+        this.ua.onTransportClosed(this);
+        // Check whether the user requested to close.
+        if(!this.closed) {
+          this.reconnect();
+        } else {
+          this.ua.emit('disconnected', {
+            transport: this,
+            code: this.lastTransportError.code,
+            reason: this.lastTransportError.reason
+          });
+
+        }
+      } else {
+        // This is the first connection attempt
+        //Network error
+        this.ua.onTransportError(this);
+      }
     }
   },
 
@@ -7913,9 +8459,13 @@ Transport.prototype = {
 
     // CRLF Keep Alive response from server. Ignore it.
     if(data === '\r\n') {
+      SIP.Timers.clearTimeout(this.keepAliveTimeout);
+      this.keepAliveTimeout = null;
+
       if (this.ua.configuration.traceSip === true) {
         this.logger.log('received WebSocket message with CRLF Keep Alive response');
       }
+
       return;
     }
 
@@ -7986,14 +8536,14 @@ Transport.prototype = {
   * @param {event} e
   */
   onError: function(e) {
-    this.logger.warn('WebSocket connection error: ' + e);
+    this.logger.warn('WebSocket connection error: ' + JSON.stringify(e));
   },
 
   /**
   * Reconnection attempt logic.
   * @private
   */
-  reConnect: function() {
+  reconnect: function() {
     var transport = this;
 
     this.reconnection_attempts += 1;
@@ -8001,6 +8551,9 @@ Transport.prototype = {
     if(this.reconnection_attempts > this.ua.configuration.wsServerMaxReconnection) {
       this.logger.warn('maximum reconnection attempts for WebSocket ' + this.server.ws_uri);
       this.ua.onTransportError(this);
+    } else if (this.reconnection_attempts === 1) {
+      this.logger.log('Connection to WebSocket ' + this.server.ws_uri + ' severed, attempting first reconnect');
+      transport.connect();
     } else {
       this.logger.log('trying to reconnect to WebSocket ' + this.server.ws_uri + ' (reconnection attempt ' + this.reconnection_attempts + ')');
 
@@ -8016,8 +8569,9 @@ Transport.C = C;
 return Transport;
 };
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],29:[function(require,module,exports){
 (function (global){
+"use strict";
 /**
  * @augments SIP
  * @class Class creating a SIP User Agent.
@@ -8027,35 +8581,30 @@ return Transport;
  *
  * @param {Object} [configuration.media] gets passed to SIP.MediaHandler.getDescription as mediaHint
  */
-module.exports = function (SIP) {
+module.exports = function (SIP, environment) {
 var UA,
   C = {
     // UA status codes
-    STATUS_INIT :                0,
-    STATUS_READY:                1,
-    STATUS_USER_CLOSED:          2,
-    STATUS_NOT_READY:            3,
+    STATUS_INIT:                0,
+    STATUS_STARTING:            1,
+    STATUS_READY:               2,
+    STATUS_USER_CLOSED:         3,
+    STATUS_NOT_READY:           4,
 
     // UA error codes
     CONFIGURATION_ERROR:  1,
     NETWORK_ERROR:        2,
 
-    /* UA events and corresponding SIP Methods.
-     * Dynamically added to 'Allow' header field if the
-     * corresponding event handler is set.
-     */
-    EVENT_METHODS: {
-      'invite': 'INVITE',
-      'message': 'MESSAGE'
-    },
-
     ALLOWED_METHODS: [
       'ACK',
       'CANCEL',
+      'INVITE',
+      'MESSAGE',
       'BYE',
       'OPTIONS',
       'INFO',
-      'NOTIFY'
+      'NOTIFY',
+      'REFER'
     ],
 
     ACCEPTED_BODY_TYPES: [
@@ -8068,29 +8617,12 @@ var UA,
   };
 
 UA = function(configuration) {
-  var self = this,
-  events = [
-    'connecting',
-    'connected',
-    'disconnected',
-    'newTransaction',
-    'transactionDestroyed',
-    'registered',
-    'unregistered',
-    'registrationFailed',
-    'invite',
-    'newSession',
-    'message'
-  ], i, len;
+  var self = this;
 
   // Helper function for forwarding events
   function selfEmit(type) {
     //registrationFailed handler is invoked with two arguments. Allow event handlers to be invoked with a variable no. of arguments
     return self.emit.bind(self, type);
-  }
-
-  for (i = 0, len = C.ALLOWED_METHODS.length; i < len; i++) {
-    events.push(C.ALLOWED_METHODS[i].toLowerCase());
   }
 
   // Set Accepted Body Types
@@ -8198,7 +8730,6 @@ UA = function(configuration) {
 
   try {
     this.loadConfig(configuration);
-    this.initEvents(events);
   } catch(e) {
     this.status = C.STATUS_NOT_READY;
     this.error = C.CONFIGURATION_ERROR;
@@ -8215,11 +8746,15 @@ UA = function(configuration) {
     this.start();
   }
 
-  if (typeof global.addEventListener === 'function') {
-    global.addEventListener('unload', this.stop.bind(this));
+  if (typeof environment.addEventListener === 'function') {
+    // Google Chrome Packaged Apps don't allow 'unload' listeners:
+    // unload is not available in packaged apps
+    if (!(global.chrome && global.chrome.app && global.chrome.app.runtime)) {
+      environment.addEventListener('unload', this.stop.bind(this));
+    }
   }
 };
-UA.prototype = new SIP.EventEmitter();
+UA.prototype = Object.create(SIP.EventEmitter.prototype);
 
 //=================
 //  High Level API
@@ -8240,7 +8775,9 @@ UA.prototype.register = function(options) {
  */
 UA.prototype.unregister = function(options) {
   this.configuration.register = false;
-  this.registerContext.unregister(options);
+
+  var context = this.registerContext;
+  this.afterConnected(context.unregister.bind(context, options));
 
   return this;
 };
@@ -8276,12 +8813,9 @@ UA.prototype.afterConnected = function afterConnected (callback) {
  *
  */
 UA.prototype.invite = function(target, options) {
-  options = options || {};
-  SIP.Utils.optionsOverride(options, 'media', 'mediaConstraints', true, this.logger);
-
   var context = new SIP.InviteClientContext(this, target, options);
 
-  this.afterConnected(context.invite.bind(context, {media: options.media}));
+  this.afterConnected(context.invite.bind(context));
   return context;
 };
 
@@ -8307,8 +8841,9 @@ UA.prototype.message = function(target, body, options) {
     throw new TypeError('Not enough arguments');
   }
 
-  options = options || {};
-  options.contentType = options.contentType || 'text/plain';
+  // There is no Message module, so it is okay that the UA handles defaults here.
+  options = Object.create(options || Object.prototype);
+  options.contentType || (options.contentType = 'text/plain');
   options.body = body;
 
   return this.request(SIP.C.MESSAGE, target, options);
@@ -8331,7 +8866,7 @@ UA.prototype.stop = function() {
 
   function transactionsListener() {
     if (ua.nistTransactionsCount === 0 && ua.nictTransactionsCount === 0) {
-        ua.off('transactionDestroyed', transactionsListener);
+        ua.removeListener('transactionDestroyed', transactionsListener);
         ua.transport.disconnect();
     }
   }
@@ -8397,11 +8932,14 @@ UA.prototype.start = function() {
   this.logger.log('user requested startup...');
   if (this.status === C.STATUS_INIT) {
     server = this.getNextWsServer();
+    this.status = C.STATUS_STARTING;
     new SIP.Transport(this, server);
   } else if(this.status === C.STATUS_USER_CLOSED) {
     this.logger.log('resuming');
     this.status = C.STATUS_READY;
     this.transport.connect();
+  } else if (this.status === C.STATUS_STARTING) {
+    this.logger.log('UA is in STARTING status, not opening new connection');
   } else if (this.status === C.STATUS_READY) {
     this.logger.log('UA is in READY status, not resuming');
   } else {
@@ -8547,7 +9085,9 @@ UA.prototype.onTransportConnected = function(transport) {
   this.error = null;
 
   if(this.configuration.register) {
-    this.registerContext.onTransportConnected();
+    this.configuration.authenticationFactory.initialize().then(function () {
+      this.registerContext.onTransportConnected();
+    }.bind(this));
   }
 
   this.emit('connected', {
@@ -8607,7 +9147,8 @@ UA.prototype.receiveRequest = function(request) {
   var dialog, session, message,
     method = request.method,
     transaction,
-    methodLower = request.method.toLowerCase(),
+    replaces,
+    replacedDialog,
     self = this;
 
   function ruriMatches (uri) {
@@ -8645,16 +9186,10 @@ UA.prototype.receiveRequest = function(request) {
   if(method === SIP.C.OPTIONS) {
     new SIP.Transactions.NonInviteServerTransaction(request, this);
     request.reply(200, null, [
-      'Allow: '+ SIP.Utils.getAllowedMethods(this),
+      'Allow: '+ SIP.UA.C.ALLOWED_METHODS.toString(),
       'Accept: '+ C.ACCEPTED_BODY_TYPES
     ]);
   } else if (method === SIP.C.MESSAGE) {
-    if (!this.checkListener(methodLower)) {
-      // UA is not listening for this.  Reject immediately.
-      new SIP.Transactions.NonInviteServerTransaction(request, this);
-      request.reply(405, null, ['Allow: '+ SIP.Utils.getAllowedMethods(this)]);
-      return;
-    }
     message = new SIP.ServerContext(this, request);
     message.body = request.body;
     message.content_type = request.getHeader('Content-Type') || 'text/plain';
@@ -8671,12 +9206,33 @@ UA.prototype.receiveRequest = function(request) {
   if(!request.to_tag) {
     switch(method) {
       case SIP.C.INVITE:
+        replaces =
+          this.configuration.replaces !== SIP.C.supported.UNSUPPORTED &&
+          request.parseHeader('replaces');
+
+        if (replaces) {
+          replacedDialog = this.dialogs[replaces.call_id + replaces.replaces_to_tag + replaces.replaces_from_tag];
+
+          if (!replacedDialog) {
+            //Replaced header without a matching dialog, reject
+            request.reply_sl(481, null);
+            return;
+          } else if (replacedDialog.owner.status === SIP.Session.C.STATUS_TERMINATED) {
+            request.reply_sl(603, null);
+            return;
+          } else if (replacedDialog.state === SIP.Dialog.C.STATUS_CONFIRMED && replaces.early_only) {
+            request.reply_sl(486, null);
+            return;
+          }
+        }
+
         var isMediaSupported = this.configuration.mediaHandlerFactory.isSupported;
         if(!isMediaSupported || isMediaSupported()) {
-          session = new SIP.InviteServerContext(this, request)
-            .on('invite', function() {
-              self.emit('invite', this);
-            });
+          session = new SIP.InviteServerContext(this, request);
+          session.replacee = replacedDialog && replacedDialog.owner;
+          session.on('invite', function() {
+            self.emit('invite', this);
+          });
         } else {
           this.logger.warn('INVITE received but WebRTC is not supported');
           request.reply(488);
@@ -8840,6 +9396,18 @@ UA.prototype.recoverTransport = function(ua) {
     }, nextRetry * 1000);
 };
 
+function checkAuthenticationFactory (authenticationFactory) {
+  if (!(authenticationFactory instanceof Function)) {
+    return;
+  }
+  if (!authenticationFactory.initialize) {
+    authenticationFactory.initialize = function initialize () {
+      return SIP.Utils.Promise.resolve();
+    };
+  }
+  return authenticationFactory;
+}
+
 /**
  * Configuration load.
  * @private
@@ -8878,13 +9446,17 @@ UA.prototype.loadConfig = function(configuration) {
       connectionRecoveryMinInterval: 2,
       connectionRecoveryMaxInterval: 30,
 
+      keepAliveInterval: 0,
+
+      extraSupported: [],
+
       usePreloadedRoute: false,
 
       //string to be inserted into User-Agent request header
       userAgentString: SIP.C.USER_AGENT,
 
       // Session parameters
-	  iceCheckingTimeout: 5000,
+      iceCheckingTimeout: 5000,
       noAnswerTimeout: 60,
       stunServers: ['stun:stun.l.google.com:19302'],
       turnServers: [],
@@ -8896,6 +9468,10 @@ UA.prototype.loadConfig = function(configuration) {
       hackViaTcp: false,
       hackIpInContact: false,
       hackWssInTransport: false,
+      hackAllowUnregisteredOptionTags: false,
+
+      contactTransport: 'ws',
+      forceRport: false,
 
       //autostarting
       autostart: true,
@@ -8903,11 +9479,15 @@ UA.prototype.loadConfig = function(configuration) {
       //Reliable Provisional Responses
       rel100: SIP.C.supported.UNSUPPORTED,
 
+      // Replaces header (RFC 3891)
+      // http://tools.ietf.org/html/rfc3891
+      replaces: SIP.C.supported.UNSUPPORTED,
+
       mediaHandlerFactory: SIP.WebRTC.MediaHandler.defaultFactory,
 
-      authenticationFactory: function (ua) {
+      authenticationFactory: checkAuthenticationFactory(function authenticationFactory (ua) {
         return new SIP.DigestAuthentication(ua);
-      }
+      })
     };
 
   // Pre-Configuration
@@ -9000,7 +9580,7 @@ UA.prototype.loadConfig = function(configuration) {
   // String containing settings.uri without scheme and user.
   hostportParams = settings.uri.clone();
   hostportParams.user = null;
-  settings.hostportParams = hostportParams.toString().replace(/^sip:/i, '');
+  settings.hostportParams = hostportParams.toRaw().replace(/^sip:/i, '');
 
   /* Check whether authorizationUser is explicitly defined.
    * Take 'settings.uri.user' value if not.
@@ -9021,13 +9601,23 @@ UA.prototype.loadConfig = function(configuration) {
 
   // Via Host
   if (settings.hackIpInContact) {
-    settings.viaHost = SIP.Utils.getRandomTestNetIP();
+    if (typeof settings.hackIpInContact === 'boolean') {
+      settings.viaHost = SIP.Utils.getRandomTestNetIP();
+    }
+    else if (typeof settings.hackIpInContact === 'string') {
+      settings.viaHost = settings.hackIpInContact;
+    }
+  }
+
+  // Contact transport parameter
+  if (settings.hackWssInTransport) {
+    settings.contactTransport = 'wss';
   }
 
   this.contact = {
     pub_gruu: null,
     temp_gruu: null,
-    uri: new SIP.URI('sip', SIP.Utils.createRandomToken(8), settings.viaHost, null, {transport: ((settings.hackWssInTransport)?'wss':'ws')}),
+    uri: new SIP.URI('sip', SIP.Utils.createRandomToken(8), settings.viaHost, null, {transport: settings.contactTransport}),
     toString: function(options){
       options = options || {};
 
@@ -9037,7 +9627,7 @@ UA.prototype.loadConfig = function(configuration) {
         contact = '<';
 
       if (anonymous) {
-        contact += (this.temp_gruu || ('sip:anonymous@anonymous.invalid;transport='+(settings.hackWssInTransport)?'wss':'ws')).toString();
+        contact += (this.temp_gruu || ('sip:anonymous@anonymous.invalid;transport='+settings.contactTransport)).toString();
       } else {
         contact += (this.pub_gruu || this.uri).toString();
       }
@@ -9104,11 +9694,16 @@ UA.configuration_skeleton = (function() {
       "authorizationUser",
       "connectionRecoveryMaxInterval",
       "connectionRecoveryMinInterval",
+      "keepAliveInterval",
+      "extraSupported",
       "displayName",
       "hackViaTcp", // false.
       "hackIpInContact", //false
       "hackWssInTransport", //false
-	  "iceCheckingTimeout",
+      "hackAllowUnregisteredOptionTags", //false
+      "contactTransport", // 'ws'
+      "forceRport", // false
+      "iceCheckingTimeout",
       "instanceId",
       "noAnswerTimeout", // 30 seconds.
       "password",
@@ -9116,6 +9711,7 @@ UA.configuration_skeleton = (function() {
       "registrarServer",
       "reliable",
       "rel100",
+      "replaces",
       "userAgentString", //SIP.C.USER_AGENT
       "autostart",
       "stunServers",
@@ -9220,10 +9816,10 @@ UA.configuration_check = {
 
         if(url === -1) {
           return;
-        } else if(url.scheme !== 'wss' && url.scheme !== 'ws') {
+        } else if(['wss', 'ws', 'udp'].indexOf(url.scheme) < 0) {
           return;
         } else {
-          wsServers[idx].sip_uri = '<sip:' + url.host + (url.port ? ':' + url.port : '') + ';transport=ws;lr>';
+          wsServers[idx].sip_uri = '<sip:' + url.host + (url.port ? ':' + url.port : '') + ';transport=' + url.scheme.replace(/^wss$/i, 'ws') + ';lr>';
 
           if (!wsServers[idx].weight) {
             wsServers[idx].weight = 0;
@@ -9282,6 +9878,9 @@ UA.configuration_check = {
       if (typeof hackIpInContact === 'boolean') {
         return hackIpInContact;
       }
+      else if (typeof hackIpInContact === 'string' && SIP.Grammar.parse(hackIpInContact, 'host') !== -1) {
+        return hackIpInContact;
+      }
     },
 
     iceCheckingTimeout: function(iceCheckingTimeout) {
@@ -9293,6 +9892,24 @@ UA.configuration_check = {
     hackWssInTransport: function(hackWssInTransport) {
       if (typeof hackWssInTransport === 'boolean') {
         return hackWssInTransport;
+      }
+    },
+
+    hackAllowUnregisteredOptionTags: function(hackAllowUnregisteredOptionTags) {
+      if (typeof hackAllowUnregisteredOptionTags === 'boolean') {
+        return hackAllowUnregisteredOptionTags;
+      }
+    },
+
+    contactTransport: function(contactTransport) {
+      if (typeof contactTransport === 'string') {
+        return contactTransport;
+      }
+    },
+
+    forceRport: function(forceRport) {
+      if (typeof forceRport === 'boolean') {
+        return forceRport;
       }
     },
 
@@ -9310,6 +9927,33 @@ UA.configuration_check = {
       } else {
         return instanceId;
       }
+    },
+
+    keepAliveInterval: function(keepAliveInterval) {
+      var value;
+      if (SIP.Utils.isDecimal(keepAliveInterval)) {
+        value = Number(keepAliveInterval);
+        if (value > 0) {
+          return value;
+        }
+      }
+    },
+
+    extraSupported: function(optionTags) {
+      var idx, length;
+
+      if (!(optionTags instanceof Array)) {
+        return;
+      }
+
+      length = optionTags.length;
+      for (idx = 0; idx < length; idx++) {
+        if (typeof optionTags[idx] !== 'string') {
+          return;
+        }
+      }
+
+      return optionTags;
     },
 
     noAnswerTimeout: function(noAnswerTimeout) {
@@ -9330,6 +9974,16 @@ UA.configuration_check = {
       if(rel100 === SIP.C.supported.REQUIRED) {
         return SIP.C.supported.REQUIRED;
       } else if (rel100 === SIP.C.supported.SUPPORTED) {
+        return SIP.C.supported.SUPPORTED;
+      } else  {
+        return SIP.C.supported.UNSUPPORTED;
+      }
+    },
+
+    replaces: function(replaces) {
+      if(replaces === SIP.C.supported.REQUIRED) {
+        return SIP.C.supported.REQUIRED;
+      } else if (replaces === SIP.C.supported.SUPPORTED) {
         return SIP.C.supported.SUPPORTED;
       } else  {
         return SIP.C.supported.UNSUPPORTED;
@@ -9405,7 +10059,7 @@ UA.configuration_check = {
     },
 
     turnServers: function(turnServers) {
-      var idx, length, turn_server, url;
+      var idx, jdx, length, turn_server, num_turn_server_urls, url;
 
       if (turnServers instanceof Array) {
         // Do nothing
@@ -9425,13 +10079,15 @@ UA.configuration_check = {
           return;
         }
 
-        if (!(turn_server.urls instanceof Array)) {
+        if (turn_server.urls instanceof Array) {
+          num_turn_server_urls = turn_server.urls.length;
+        } else {
           turn_server.urls = [turn_server.urls];
+          num_turn_server_urls = 1;
         }
 
-        length = turn_server.urls.length;
-        for (idx = 0; idx < length; idx++) {
-          url = turn_server.urls[idx];
+        for (jdx = 0; jdx < num_turn_server_urls; jdx++) {
+          url = turn_server.urls[jdx];
 
           if (!(/^turns?:/.test(url))) {
             url = 'turn:' + url;
@@ -9485,15 +10141,29 @@ UA.configuration_check = {
 
     mediaHandlerFactory: function(mediaHandlerFactory) {
       if (mediaHandlerFactory instanceof Function) {
-        return mediaHandlerFactory;
+        var promisifiedFactory = function promisifiedFactory () {
+          var mediaHandler = mediaHandlerFactory.apply(this, arguments);
+
+          function patchMethod (methodName) {
+            var method = mediaHandler[methodName];
+            if (method.length > 1) {
+              var callbacksFirst = methodName === 'getDescription';
+              mediaHandler[methodName] = SIP.Utils.promisify(mediaHandler, methodName, callbacksFirst);
+            }
+          }
+
+          patchMethod('getDescription');
+          patchMethod('setDescription');
+
+          return mediaHandler;
+        };
+
+        promisifiedFactory.isSupported = mediaHandlerFactory.isSupported;
+        return promisifiedFactory;
       }
     },
 
-    authenticationFactory: function(authenticationFactory) {
-      if (authenticationFactory instanceof Function) {
-        return authenticationFactory;
-      }
-    }
+    authenticationFactory: checkAuthenticationFactory
   }
 };
 
@@ -9501,8 +10171,9 @@ UA.C = C;
 SIP.UA = UA;
 };
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],29:[function(_dereq_,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],30:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview SIP URI
  */
@@ -9523,7 +10194,7 @@ module.exports = function (SIP) {
 var URI;
 
 URI = function(scheme, user, host, port, parameters, headers) {
-  var param, header;
+  var param, header, raw, normal;
 
   // Checks
   if(!host) {
@@ -9543,36 +10214,67 @@ URI = function(scheme, user, host, port, parameters, headers) {
     this.setHeader(header, headers[header]);
   }
 
+  // Raw URI
+  raw = {
+    scheme: scheme,
+    user: user,
+    host: host,
+    port: port
+  };
+
+  // Normalized URI
+  normal = {
+    scheme: scheme.toLowerCase(),
+    user: user,
+    host: host.toLowerCase(),
+    port: port
+  };
+
   Object.defineProperties(this, {
+    _normal: {
+      get: function() { return normal; }
+    },
+
+    _raw: {
+      get: function() { return raw; }
+    },
+
     scheme: {
-      get: function(){ return scheme; },
-      set: function(value){
-        scheme = value.toLowerCase();
+      get: function() { return normal.scheme; },
+      set: function(value) {
+        raw.scheme = value;
+        normal.scheme = value.toLowerCase();
       }
     },
 
     user: {
-      get: function(){ return user; },
-      set: function(value){
-        user = value;
+      get: function() { return normal.user; },
+      set: function(value) {
+        normal.user = raw.user = value;
       }
     },
 
     host: {
-      get: function(){ return host; },
-      set: function(value){
-        host = value.toLowerCase();
+      get: function() { return normal.host; },
+      set: function(value) {
+        raw.host = value;
+        normal.host = value.toLowerCase();
       }
     },
 
+    aor: {
+      get: function() { return normal.user + '@' + normal.host; }
+    },
+
     port: {
-      get: function(){ return port; },
-      set: function(value){
-        port = value === 0 ? value : (parseInt(value,10) || null);
+      get: function() { return normal.port; },
+      set: function(value) {
+        normal.port = raw.port = value === 0 ? value : (parseInt(value,10) || null);
       }
     }
   });
 };
+
 URI.prototype = {
   setParam: function(key, value) {
     if(key) {
@@ -9638,36 +10340,43 @@ URI.prototype = {
 
   clone: function() {
     return new URI(
-      this.scheme,
-      this.user,
-      this.host,
-      this.port,
+      this._raw.scheme,
+      this._raw.user,
+      this._raw.host,
+      this._raw.port,
       JSON.parse(JSON.stringify(this.parameters)),
       JSON.parse(JSON.stringify(this.headers)));
   },
 
-  toString: function(){
-    var header, parameter, idx, uri,
-      headers = [];
+  toRaw: function() {
+    return this._toString(this._raw);
+  },
 
-    uri  = this.scheme + ':';
+  toString: function() {
+    return this._toString(this._normal);
+  },
+
+  _toString: function(uri) {
+    var header, parameter, idx, uriString, headers = [];
+
+    uriString  = uri.scheme + ':';
     // add slashes if it's not a sip(s) URI
-    if (!this.scheme.match("^sips?$")) {
-      uri += "//";
+    if (!uri.scheme.toLowerCase().match("^sips?$")) {
+      uriString += "//";
     }
-    if (this.user) {
-      uri += SIP.Utils.escapeUser(this.user) + '@';
+    if (uri.user) {
+      uriString += SIP.Utils.escapeUser(uri.user) + '@';
     }
-    uri += this.host;
-    if (this.port || this.port === 0) {
-      uri += ':' + this.port;
+    uriString += uri.host;
+    if (uri.port || uri.port === 0) {
+      uriString += ':' + uri.port;
     }
 
     for (parameter in this.parameters) {
-      uri += ';' + parameter;
+      uriString += ';' + parameter;
 
       if (this.parameters[parameter] !== null) {
-        uri += '='+ this.parameters[parameter];
+        uriString += '='+ this.parameters[parameter];
       }
     }
 
@@ -9678,10 +10387,10 @@ URI.prototype = {
     }
 
     if (headers.length > 0) {
-      uri += '?' + headers.join('&');
+      uriString += '?' + headers.join('&');
     }
 
-    return uri;
+    return uriString;
   }
 };
 
@@ -9705,7 +10414,8 @@ URI.parse = function(uri) {
 SIP.URI = URI;
 };
 
-},{}],30:[function(_dereq_,module,exports){
+},{}],31:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview Utils
  */
@@ -9724,6 +10434,19 @@ Utils= {
       deferred.reject = reject;
     });
     return deferred;
+  },
+
+  promisify: function promisify (object, methodName, callbacksFirst) {
+    var oldMethod = object[methodName];
+    return function promisifiedMethod (arg, onSuccess, onFailure) {
+      return new Utils.Promise(function (resolve, reject) {
+        var oldArgs = [arg, resolve, reject];
+        if (callbacksFirst) {
+          oldArgs = [resolve, reject, arg];
+        }
+        oldMethod.apply(object, oldArgs);
+      }).then(onSuccess, onFailure);
+    };
   },
 
   augment: function (object, constructor, args, override) {
@@ -9898,6 +10621,7 @@ Utils= {
     var exceptions = {
       'Call-Id': 'Call-ID',
       'Cseq': 'CSeq',
+      'Min-Se': 'Min-SE',
       'Rack': 'RAck',
       'Rseq': 'RSeq',
       'Www-Authenticate': 'WWW-Authenticate'
@@ -9972,19 +10696,6 @@ Utils= {
       return Math.floor(Math.random()*(to-from+1)+from);
     }
     return '192.0.2.' + getOctet(1, 254);
-  },
-
-  getAllowedMethods: function(ua) {
-    var event,
-      allowed = SIP.UA.C.ALLOWED_METHODS.toString();
-
-    for (event in SIP.UA.C.EVENT_METHODS) {
-      if (ua.checkListener(event)) {
-        allowed += ','+ SIP.UA.C.EVENT_METHODS[event];
-      }
-    }
-
-    return allowed;
   },
 
   // MD5 (Message-Digest Algorithm) http://www.webtoolkit.info
@@ -10200,7 +10911,8 @@ Utils= {
 SIP.Utils = Utils;
 };
 
-},{}],31:[function(_dereq_,module,exports){
+},{}],32:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview WebRTC
  */
@@ -10210,8 +10922,8 @@ var WebRTC;
 
 WebRTC = {};
 
-WebRTC.MediaHandler = _dereq_('./WebRTC/MediaHandler')(SIP);
-WebRTC.MediaStreamManager = _dereq_('./WebRTC/MediaStreamManager')(SIP, environment);
+WebRTC.MediaHandler = require('./WebRTC/MediaHandler')(SIP);
+WebRTC.MediaStreamManager = require('./WebRTC/MediaStreamManager')(SIP, environment);
 
 var _isSupported;
 
@@ -10227,10 +10939,7 @@ WebRTC.isSupported = function () {
 
   if (WebRTC.RTCPeerConnection && WebRTC.RTCSessionDescription) {
     if (WebRTC.getUserMedia) {
-      WebRTC.getUserMedia = function (constraints, onSuccess, onFailure) {
-        return new SIP.Utils.Promise(this.bind(null, constraints))
-          .then(onSuccess, onFailure);
-      }.bind(WebRTC.getUserMedia);
+      WebRTC.getUserMedia = SIP.Utils.promisify(environment, 'getUserMedia');
     }
     _isSupported = true;
   }
@@ -10243,7 +10952,8 @@ WebRTC.isSupported = function () {
 return WebRTC;
 };
 
-},{"./WebRTC/MediaHandler":32,"./WebRTC/MediaStreamManager":33}],32:[function(_dereq_,module,exports){
+},{"./WebRTC/MediaHandler":33,"./WebRTC/MediaStreamManager":34}],33:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview MediaHandler
  */
@@ -10259,22 +10969,6 @@ return WebRTC;
 module.exports = function (SIP) {
 
 var MediaHandler = function(session, options) {
-  var events = [
-    'userMediaRequest',
-    'userMedia',
-    'userMediaFailed',
-    'iceGathering',
-    'iceComplete',
-	'iceConnected',
-	'iceCompleted',
-    'iceFailed',
-    'iceDisconnected',
-    'iceClosed',
-    'getDescription',
-    'setDescription',
-    'dataChannel',
-    'addStream'
-  ];
   options = options || {};
 
   this.logger = session.ua.getLogger('sip.invitecontext.mediahandler', session.id);
@@ -10286,139 +10980,13 @@ var MediaHandler = function(session, options) {
   this.videoMuted = false;
 
   // old init() from here on
-  var idx, length, server,
-    self = this,
-    servers = [],
-    stunServers = options.stunServers || null,
-    turnServers = options.turnServers || null,
-    config = this.session.ua.configuration;
+  var servers = this.prepareIceServers(options.stunServers, options.turnServers);
   this.RTCConstraints = options.RTCConstraints || {};
 
-  if (!stunServers) {
-    stunServers = config.stunServers;
-  }
-
-  if(!turnServers) {
-    turnServers = config.turnServers;
-  }
-
-  /* Change 'url' to 'urls' whenever this issue is solved:
-   * https://code.google.com/p/webrtc/issues/detail?id=2096
-   */
-  [].concat(stunServers).forEach(function (server) {
-    servers.push({'url': server});
-  });
-
-  length = turnServers.length;
-  for (idx = 0; idx < length; idx++) {
-    server = turnServers[idx];
-    servers.push({
-      'url': server.urls,
-      'username': server.username,
-      'credential': server.password
-    });
-  }
-
-  this.onIceCompleted = SIP.Utils.defer();
-  this.onIceCompleted.promise.then(function(pc) {
-    self.logger.log('ICE Gathering Completed');
-    self.emit('iceComplete', pc);
-    if (self.iceCheckingTimer) {
-      SIP.Timers.clearTimeout(self.iceCheckingTimer);
-      self.iceCheckingTimer = null;
-    }
-  });
-
-  this.peerConnection = new SIP.WebRTC.RTCPeerConnection({'iceServers': servers}, this.RTCConstraints);
-
-  this.peerConnection.onaddstream = function(e) {
-    self.logger.log('stream added: '+ e.stream.id);
-    self.render();
-    self.emit('addStream', e);
-  };
-
-  this.peerConnection.onremovestream = function(e) {
-    self.logger.log('stream removed: '+ e.stream.id);
-  };
-
-  this.startIceCheckingTimer = function () {
-    if (!self.iceCheckingTimer) {
-      self.iceCheckingTimer = SIP.Timers.setTimeout(function() {
-        self.logger.log('RTCIceChecking Timeout Triggered after '+config.iceCheckingTimeout+' milliseconds');
-        self.onIceCompleted.resolve(this);
-      }.bind(this.peerConnection), config.iceCheckingTimeout);
-    }
-  };
-
-  this.peerConnection.onicecandidate = function(e) {
-    if (e.candidate) {
-      self.logger.log('ICE candidate received: '+ (e.candidate.candidate === null ? null : e.candidate.candidate.trim()));
-      self.startIceCheckingTimer();
-    } else {
-      self.onIceCompleted.resolve(this);
-    }
-  };
-
-  this.peerConnection.onicegatheringstatechange = function () {
-    self.logger.log('RTCIceGatheringState changed: ' + this.iceGatheringState);
-    if (this.iceGatheringState === 'gathering') {
-      self.emit('iceGathering', this);
-    }
-    if (this.iceGatheringState === 'complete') {
-      self.onIceCompleted.resolve(this);
-    }
-  };
-
-  this.peerConnection.oniceconnectionstatechange = function() {  //need e for commented out case
-    self.logger.log('ICE connection state changed to "'+ this.iceConnectionState +'"');
-
-    if (this.iceConnectionState === 'checking') {
-      self.startIceCheckingTimer();
-    }
-
-    if (this.iceConnectionState === 'failed') {
-      self.emit('iceFailed', this);
-    }
-
-    if (this.iceConnectionState === 'disconnected') {
-       self.emit('iceDisconnected', this);
-    }
-
-    if (this.iceConnectionState === 'closed') {
-        self.emit('iceClosed', this);
-    }
-
-	if (this.iceConnectionState === 'connected') {
-        self.emit('iceConnected', this);
-    }
-
-    if (this.iceConnectionState === 'completed') {
-        self.emit('iceCompleted', this);
-    }
-
-    //Bria state changes are always connected -> disconnected -> connected on accept, so session gets terminated
-    //normal calls switch from failed to connected in some cases, so checking for failed and terminated
-    /*if (this.iceConnectionState === 'failed') {
-      self.session.terminate({
-        cause: SIP.C.causes.RTP_TIMEOUT,
-        status_code: 200,
-        reason_phrase: SIP.C.causes.RTP_TIMEOUT
-      });
-    } else if (e.currentTarget.iceGatheringState === 'complete' && this.iceConnectionState !== 'closed') {
-      self.onIceCompleted(this);
-    }*/
-  };
-
-  this.peerConnection.onstatechange = function() {
-    self.logger.log('PeerConnection state changed to "'+ this.readyState +'"');
-  };
-
-  this.initEvents(events);
+  this.initPeerConnection(servers, this.RTCConstraints);
 
   function selfEmit(mh, event) {
-    if (mh.mediaStreamManager.on &&
-        mh.mediaStreamManager.checkEvent &&
-        mh.mediaStreamManager.checkEvent(event)) {
+    if (mh.mediaStreamManager.on) {
       mh.mediaStreamManager.on(event, function () {
         mh.emit.apply(mh, [event].concat(Array.prototype.slice.call(arguments)));
       });
@@ -10445,6 +11013,7 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
 
   close: {writable: true, value: function close () {
     this.logger.log('closing PeerConnection');
+    this._remoteStreams = [];
     // have to check signalingState since this.close() gets called multiple times
     // TODO figure out why that happens
     if(this.peerConnection && this.peerConnection.signalingState !== 'closed') {
@@ -10462,6 +11031,10 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
    */
   getDescription: {writable: true, value: function getDescription (mediaHint) {
     var self = this;
+    var acquire = self.mediaStreamManager.acquire;
+    if (acquire.length > 1) {
+      acquire = SIP.Utils.promisify(this.mediaStreamManager, 'acquire', true);
+    }
     mediaHint = mediaHint || {};
     if (mediaHint.dataChannel === true) {
       mediaHint.dataChannel = {};
@@ -10481,7 +11054,7 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     }
     else {
       self.logger.log('acquiring local media');
-      streamPromise = self.mediaStreamManager.acquire(mediaHint)
+      streamPromise = acquire.call(self.mediaStreamManager, mediaHint)
         .then(function acquireSucceeded(streams) {
           self.logger.log('acquired local media streams');
           self.localMedia = streams;
@@ -10533,7 +11106,46 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     this.emit('setDescription', rawDescription);
 
     var description = new SIP.WebRTC.RTCSessionDescription(rawDescription);
-    return new SIP.Utils.Promise(this.peerConnection.setRemoteDescription.bind(this.peerConnection, description));
+    return SIP.Utils.promisify(this.peerConnection, 'setRemoteDescription')(description);
+  }},
+
+  /**
+   * If the Session associated with this MediaHandler were to be referred,
+   * what mediaHint should be provided to the UA's invite method?
+   */
+  getReferMedia: {writable: true, value: function getReferMedia () {
+    function hasTracks (trackGetter, stream) {
+      return stream[trackGetter]().length > 0;
+    }
+
+    function bothHaveTracks (trackGetter) {
+      /* jshint validthis:true */
+      return this.getLocalStreams().some(hasTracks.bind(null, trackGetter)) &&
+             this.getRemoteStreams().some(hasTracks.bind(null, trackGetter));
+    }
+
+    return {
+      constraints: {
+        audio: bothHaveTracks.call(this, 'getAudioTracks'),
+        video: bothHaveTracks.call(this, 'getVideoTracks')
+      }
+    };
+  }},
+
+  updateIceServers: {writeable:true, value: function (options) {
+    var servers = this.prepareIceServers(options.stunServers, options.turnServers);
+    this.RTCConstraints = options.RTCConstraints || this.RTCConstraints;
+
+    this.initPeerConnection(servers, this.RTCConstraints);
+
+    /* once updateIce is implemented correctly, this is better than above
+    //no op if browser does not support this
+    if (!this.peerConnection.updateIce) {
+      return;
+    }
+
+    this.peerConnection.updateIce({'iceServers': servers}, this.RTCConstraints);
+    */
   }},
 
 // Functions the session can use, but only because it's convenient for the application
@@ -10649,8 +11261,8 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
   getRemoteStreams: {writable: true, value: function getRemoteStreams () {
     var pc = this.peerConnection;
     if (pc && pc.signalingState === 'closed') {
-      this.logger.warn('peerConnection is closed, getRemoteStreams returning []');
-      return [];
+      this.logger.warn('peerConnection is closed, getRemoteStreams returning this._remoteStreams');
+      return this._remoteStreams;
     }
     return(pc.getRemoteStreams && pc.getRemoteStreams()) ||
       pc.remoteStreams || [];
@@ -10679,24 +11291,155 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     // TODO consider signalingStates with 'pranswer'?
   }},
 
+  prepareIceServers: {writable: true, value: function prepareIceServers (stunServers, turnServers) {
+    var servers = [],
+      config = this.session.ua.configuration;
+
+    stunServers = stunServers || config.stunServers;
+    turnServers = turnServers || config.turnServers;
+
+    [].concat(stunServers).forEach(function (server) {
+      servers.push({'urls': server});
+    });
+
+    [].concat(turnServers).forEach(function (server) {
+      servers.push({
+        'urls': server.urls,
+        'username': server.username,
+        'credential': server.password
+      });
+    });
+
+    return servers;
+  }},
+
+  initPeerConnection: {writable: true, value: function initPeerConnection(servers, RTCConstraints) {
+    var self = this,
+      config = this.session.ua.configuration;
+
+    this.onIceCompleted = SIP.Utils.defer();
+    this.onIceCompleted.promise.then(function(pc) {
+      self.emit('iceGatheringComplete', pc);
+      if (self.iceCheckingTimer) {
+        SIP.Timers.clearTimeout(self.iceCheckingTimer);
+        self.iceCheckingTimer = null;
+      }
+    });
+
+    if (this.peerConnection) {
+      this.peerConnection.close();
+    }
+
+    this.peerConnection = new SIP.WebRTC.RTCPeerConnection({'iceServers': servers}, RTCConstraints);
+
+    // Firefox (35.0.1) sometimes throws on calls to peerConnection.getRemoteStreams
+    // even if peerConnection.onaddstream was just called. In order to make
+    // MediaHandler.prototype.getRemoteStreams work, keep track of them manually
+    this._remoteStreams = [];
+
+    this.peerConnection.onaddstream = function(e) {
+      self.logger.log('stream added: '+ e.stream.id);
+      self._remoteStreams.push(e.stream);
+      self.render();
+      self.emit('addStream', e);
+    };
+
+    this.peerConnection.onremovestream = function(e) {
+      self.logger.log('stream removed: '+ e.stream.id);
+    };
+
+    this.startIceCheckingTimer = function () {
+      if (!self.iceCheckingTimer) {
+        self.iceCheckingTimer = SIP.Timers.setTimeout(function() {
+          self.logger.log('RTCIceChecking Timeout Triggered after '+config.iceCheckingTimeout+' milliseconds');
+          self.onIceCompleted.resolve(this);
+        }.bind(this.peerConnection), config.iceCheckingTimeout);
+      }
+    };
+
+    this.peerConnection.onicecandidate = function(e) {
+      self.emit('iceCandidate', e);
+      if (e.candidate) {
+        self.logger.log('ICE candidate received: '+ (e.candidate.candidate === null ? null : e.candidate.candidate.trim()));
+        self.startIceCheckingTimer();
+      } else {
+        self.onIceCompleted.resolve(this);
+      }
+    };
+
+    this.peerConnection.onicegatheringstatechange = function () {
+      self.logger.log('RTCIceGatheringState changed: ' + this.iceGatheringState);
+      if (this.iceGatheringState === 'gathering') {
+        self.emit('iceGathering', this);
+      }
+      if (this.iceGatheringState === 'complete') {
+        self.onIceCompleted.resolve(this);
+      }
+    };
+
+    this.peerConnection.oniceconnectionstatechange = function() {  //need e for commented out case
+      var stateEvent;
+
+      if (this.iceConnectionState === 'checking') {
+        self.startIceCheckingTimer();
+      }
+
+      switch (this.iceConnectionState) {
+      case 'new':
+        stateEvent = 'iceConnection';
+        break;
+      case 'checking':
+        stateEvent = 'iceConnectionChecking';
+        break;
+      case 'connected':
+        stateEvent = 'iceConnectionConnected';
+        break;
+      case 'completed':
+        stateEvent = 'iceConnectionCompleted';
+        break;
+      case 'failed':
+        stateEvent = 'iceConnectionFailed';
+        break;
+      case 'disconnected':
+        stateEvent = 'iceConnectionDisconnected';
+        break;
+      case 'closed':
+        stateEvent = 'iceConnectionClosed';
+        break;
+      default:
+        self.logger.warn('Unknown iceConnection state:', this.iceConnectionState);
+        return;
+      }
+      self.emit(stateEvent, this);
+
+      //Bria state changes are always connected -> disconnected -> connected on accept, so session gets terminated
+      //normal calls switch from failed to connected in some cases, so checking for failed and terminated
+      /*if (this.iceConnectionState === 'failed') {
+        self.session.terminate({
+        cause: SIP.C.causes.RTP_TIMEOUT,
+        status_code: 200,
+        reason_phrase: SIP.C.causes.RTP_TIMEOUT
+      });
+      } else if (e.currentTarget.iceGatheringState === 'complete' && this.iceConnectionState !== 'closed') {
+      self.onIceCompleted(this);
+      }*/
+    };
+
+    this.peerConnection.onstatechange = function() {
+      self.logger.log('PeerConnection state changed to "'+ this.readyState +'"');
+    };
+  }},
+
   createOfferOrAnswer: {writable: true, value: function createOfferOrAnswer (constraints) {
     var self = this;
-    var methodName, promisifiedMethod;
+    var methodName;
     var pc = self.peerConnection;
-    var setLocalDescription = function (description) {
-      return new SIP.Utils.Promise(pc.setLocalDescription.bind(pc, description));
-    };
 
     self.ready = false;
     methodName = self.hasOffer('remote') ? 'createAnswer' : 'createOffer';
-    promisifiedMethod = function (constraints) {
-      return new SIP.Utils.Promise(function (resolve, reject) {
-        pc[methodName](resolve, reject, constraints);
-      });
-    };
 
-    return promisifiedMethod(constraints)
-      .then(setLocalDescription)
+    return SIP.Utils.promisify(pc, methodName, true)(constraints)
+      .then(SIP.Utils.promisify(pc, 'setLocalDescription'))
       .then(function onSetLocalDescriptionSuccess() {
         var deferred = SIP.Utils.defer();
         if (pc.iceGatheringState === 'complete' && (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed')) {
@@ -10732,6 +11475,7 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
 
   addStreams: {writable: true, value: function addStreams (streams) {
     try {
+      streams = [].concat(streams);
       streams.forEach(function (stream) {
         this.peerConnection.addStream(stream);
       }, this);
@@ -10765,7 +11509,8 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
 return MediaHandler;
 };
 
-},{}],33:[function(_dereq_,module,exports){
+},{}],34:[function(require,module,exports){
+"use strict";
 /**
  * @fileoverview MediaStreamManager
  */
@@ -10782,17 +11527,9 @@ var MediaStreamManager = function MediaStreamManager (logger, defaultMediaHint) 
     throw new SIP.Exceptions.NotSupportedError('Media not supported');
   }
 
-  var events = [
-    'userMediaRequest',
-    'userMedia',
-    'userMediaFailed'
-  ];
   this.mediaHint = defaultMediaHint || {
     constraints: {audio: true, video: true}
   };
-
-  this.logger = logger;
-  this.initEvents(events);
 
   // map of streams to acquisition manner:
   // true -> passed in as mediaHint.stream
@@ -10807,19 +11544,21 @@ MediaStreamManager.streamId = function (stream) {
     .join('');
 };
 
+/**
+ * @param {(Array of) MediaStream} streams - The streams to render
+ *
+ * @param {(Array of) HTMLMediaElement} elements
+ *        - The <audio>/<video> element(s) that should render the streams
+ *
+ * Each stream in streams renders to the corresponding element in elements,
+ * wrapping around elements if needed.
+ */
 MediaStreamManager.render = function render (streams, elements) {
-  // only render first stream, see pull request #76
-  var stream = streams[0];
-  if (!elements || !stream) {
+  if (!elements) {
     return false;
   }
-
-  function attachAndPlay (element, stream) {
-    if (typeof element === 'function') {
-      element = element();
-    }
-    (environment.attachMediaStream || attachMediaStream)(element, stream);
-    ensureMediaPlaying(element);
+  if (Array.isArray(elements) && !elements.length) {
+    throw new TypeError('elements must not be empty');
   }
 
   function attachMediaStream(element, stream) {
@@ -10847,15 +11586,19 @@ MediaStreamManager.render = function render (streams, elements) {
     }, interval);
   }
 
-  if (elements.video) {
-    if (elements.audio) {
-      elements.video.volume = 0;
+  function attachAndPlay (elements, stream, index) {
+    if (typeof elements === 'function') {
+      elements = elements();
     }
-    attachAndPlay(elements.video, stream);
+    var element = elements[index % elements.length];
+    (environment.attachMediaStream || attachMediaStream)(element, stream);
+    ensureMediaPlaying(element);
   }
-  if (elements.audio) {
-    attachAndPlay(elements.audio, stream);
-  }
+
+  // [].concat "casts" `elements` into an array
+  // so forEach works even if `elements` was a single element
+  elements = [].concat(elements);
+  [].concat(streams).forEach(attachAndPlay.bind(null, elements));
 };
 
 MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
@@ -10898,13 +11641,18 @@ MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
           return callback.apply(null, callbackArgs);
         }.bind(this);
 
-        deferred.resolve(
-          SIP.WebRTC.getUserMedia(constraints)
-          .then(
-            emitThenCall.bind(this, 'userMedia', saveSuccess.bind(null, false)),
-            emitThenCall.bind(this, 'userMediaFailed', function(e){throw e;})
-          )
-        );
+        if (constraints.audio || constraints.video) {
+          deferred.resolve(
+            SIP.WebRTC.getUserMedia(constraints)
+            .then(
+              emitThenCall.bind(this, 'userMedia', saveSuccess.bind(null, false)),
+              emitThenCall.bind(this, 'userMediaFailed', function(e){throw e;})
+            )
+          );
+        } else {
+          // Local streams were explicitly excluded.
+          deferred.resolve([]);
+        }
       }.bind(this), 0);
 
       return deferred.promise;
@@ -10929,8 +11677,12 @@ MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
 return MediaStreamManager;
 };
 
-},{}],34:[function(_dereq_,module,exports){
+},{}],35:[function(require,module,exports){
 (function (global){
+"use strict";
+
+var toplevel = global.window || global;
+
 function getPrefixedProperty (object, name) {
   if (object == null) {
     return;
@@ -10946,34 +11698,37 @@ function getPrefixedProperty (object, name) {
 }
 
 module.exports = {
-  WebSocket: global.WebSocket,
-  Transport: _dereq_('./Transport'),
-  open: global.open,
-  Promise: global.Promise,
-  timers: global,
+  WebSocket: toplevel.WebSocket,
+  Transport: require('./Transport'),
+  open: toplevel.open,
+  Promise: toplevel.Promise,
+  timers: toplevel,
 
   // Console is not defined in ECMAScript, so just in case...
-  console: global.console || {
+  console: toplevel.console || {
     debug: function () {},
     log: function () {},
     warn: function () {},
     error: function () {}
   },
 
-  MediaStream: getPrefixedProperty(global, 'MediaStream'),
-  getUserMedia: getPrefixedProperty(global.navigator, 'getUserMedia'),
-  RTCPeerConnection: getPrefixedProperty(global, 'RTCPeerConnection'),
-  RTCSessionDescription: getPrefixedProperty(global, 'RTCSessionDescription'),
+  MediaStream: getPrefixedProperty(toplevel, 'MediaStream'),
+  getUserMedia: getPrefixedProperty(toplevel.navigator, 'getUserMedia'),
+  RTCPeerConnection: getPrefixedProperty(toplevel, 'RTCPeerConnection'),
+  RTCSessionDescription: getPrefixedProperty(toplevel, 'RTCSessionDescription'),
 
-  attachMediaStream: global.attachMediaStream,
-  createObjectURL: global.URL && global.URL.createObjectURL,
-  revokeObjectURL: global.URL && global.URL.revokeObjectURL
+  addEventListener: getPrefixedProperty(toplevel, 'addEventListener'),
+  HTMLMediaElement: toplevel.HTMLMediaElement,
+
+  attachMediaStream: toplevel.attachMediaStream,
+  createObjectURL: toplevel.URL && toplevel.URL.createObjectURL,
+  revokeObjectURL: toplevel.URL && toplevel.URL.revokeObjectURL
 };
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Transport":27}],35:[function(_dereq_,module,exports){
-module.exports = _dereq_('./SIP')(_dereq_('./environment'));
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./Transport":28}],36:[function(require,module,exports){
+"use strict";
+module.exports = require('./SIP')(require('./environment'));
 
-},{"./SIP":18,"./environment":34}]},{},[35])
-(35)
+},{"./SIP":19,"./environment":35}]},{},[36])(36)
 });

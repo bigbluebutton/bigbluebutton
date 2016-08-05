@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import { withRouter } from 'react-router';
+
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
@@ -19,10 +21,11 @@ class NavBarContainer extends Component {
   }
 }
 
-export default createContainer(() => {
-  let meetingTitle, meetingRecorded;
+export default withRouter(createContainer(({ location, router }) => {
+  let meetingTitle;
+  let meetingRecorded;
 
-  const meetingId = Auth.getMeeting();
+  const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId: meetingId,
   });
@@ -32,10 +35,16 @@ export default createContainer(() => {
     meetingRecorded = meetingObject.currentlyBeingRecorded;
   }
 
-  let data = {
+  return {
     presentationTitle: meetingTitle,
     hasUnreadMessages: true,
     beingRecorded: meetingRecorded,
+    toggleUserList: () => {
+      if (location.pathname.indexOf('/users') !== -1) {
+        router.push('/');
+      } else {
+        router.push('/users');
+      }
+    },
   };
-  return data;
-}, NavBarContainer);
+}, NavBarContainer));

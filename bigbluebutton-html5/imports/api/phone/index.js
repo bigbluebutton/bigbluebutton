@@ -12,7 +12,7 @@ function getVoiceBridge() {
 }
 
 function amIListenOnly() {
-  const uid = Auth.getUser();
+  const uid = Auth.userID;
   return Users.findOne({ userId: uid }).user.listenOnly;
 }
 
@@ -88,7 +88,7 @@ function joinVoiceCall(options) {
 
     window.BBB = {};
     window.BBB.getMyUserInfo = function (callback) {
-      const uid = Auth.getUser();
+      const uid = Auth.userID;
       const result = {
         myUserID: uid,
         myUsername: Users.findOne({ userId: uid }).user.name,

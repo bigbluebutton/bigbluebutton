@@ -2,22 +2,14 @@ import React, { Component, PropTypes } from 'react';
 import { FormattedTime } from 'react-intl';
 import cx from 'classnames';
 
-import UserAvatar from '../../../user-avatar/component';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
+import Message from './message/component';
 
 import styles from './styles';
 
 const propTypes = {
-  user: React.PropTypes.shape({
-    name: React.PropTypes.string.isRequired,
-    isPresenter: React.PropTypes.bool.isRequired,
-    isVoiceUser: React.PropTypes.bool.isRequired,
-    isModerator: React.PropTypes.bool.isRequired,
-    image: React.PropTypes.string,
-  }),
-  message: React.PropTypes.oneOfType([
-    React.PropTypes.string,
-    React.PropTypes.arrayOf(React.PropTypes.string),
-  ]).isRequired,
+  user: PropTypes.object,
+  messages: PropTypes.array.isRequired,
   time: PropTypes.number.isRequired,
 };
 
@@ -25,10 +17,14 @@ const defaultProps = {
 };
 
 export default class MessageListItem extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     const {
       user,
-      message,
+      messages,
       time,
     } = this.props;
 
@@ -48,17 +44,23 @@ export default class MessageListItem extends Component {
             <div className={styles.name}>
               <span>{user.name}</span>
             </div>
-            <time className={styles.time} datetime={dateTime}>
+            <time className={styles.time} dateTime={dateTime}>
               <FormattedTime value={dateTime}/>
             </time>
           </div>
-          {message.map((text, i) => (
-            <p
-              className={styles.message}
-              key={i}
-              dangerouslySetInnerHTML={ { __html: text } } >
-            </p>
-          ))}
+          <div className={styles.messages}>
+            {messages.map((message, i) => (
+              <Message
+                className={styles.message}
+                key={message.id}
+                text={message.text}
+                time={message.time}
+                chatAreaId={this.props.chatAreaId}
+                lastReadMessageTime={this.props.lastReadMessageTime}
+                handleReadMessage={this.props.handleReadMessage}
+              />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -66,19 +68,24 @@ export default class MessageListItem extends Component {
 
   renderSystemMessage() {
     const {
-      message,
+      messages,
     } = this.props;
 
     return (
       <div className={cx(styles.item, styles.systemMessage)}>
         <div className={styles.content}>
-          {message.map((text, i) => (
-            <p
-              className={styles.message}
-              key={i}
-              dangerouslySetInnerHTML={ { __html: text } } >
-            </p>
-          ))}
+          <div className={styles.messages}>
+            {messages.map((message, i) => (
+              <Message
+                className={styles.message}
+                key={i}
+                text={message.text}
+                time={message.time}
+                chatAreaId={this.props.chatAreaId}
+                handleReadMessage={this.props.handleReadMessage}
+              />
+            ))}
+          </div>
         </div>
       </div>
     );

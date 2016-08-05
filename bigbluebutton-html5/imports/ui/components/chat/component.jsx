@@ -15,8 +15,12 @@ export default class Chat extends Component {
 
   render() {
     const {
+      chatID,
       title,
       messages,
+      scrollPosition,
+      hasUnreadMessages,
+      lastReadMessageTime,
       isChatLocked,
       actions,
     } = this.props;
@@ -29,12 +33,14 @@ export default class Chat extends Component {
           </Link>
         </header>
         <MessageList
+          chatId={chatID}
           messages={messages}
           id={ELEMENT_ID}
-          tabindex="0"
-          role="log"
-          aria-atomic="true"
-          aria-relevant="additions"
+          scrollPosition={scrollPosition}
+          hasUnreadMessages={hasUnreadMessages}
+          handleScrollUpdate={actions.handleScrollUpdate}
+          handleReadMessage={actions.handleReadMessage}
+          lastReadMessageTime={lastReadMessageTime}
         />
         <MessageForm
           disabled={isChatLocked}

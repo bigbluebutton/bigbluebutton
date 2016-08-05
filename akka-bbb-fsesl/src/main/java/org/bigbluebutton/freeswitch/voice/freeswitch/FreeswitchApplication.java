@@ -153,6 +153,11 @@ public class FreeswitchApplication {
 						EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
 						System.out.println("Sending EjectAllUsersCommand for conference = [" + cmd.getRoom() + "]");
 						manager.ejectAll(cmd);
+					} else if (command instanceof TransferUsetToMeetingCommand) {
+						TransferUsetToMeetingCommand cmd = (TransferUsetToMeetingCommand) command;
+						System.out.println("Sending TransferUsetToMeetingCommand for conference = ["
+										+ cmd.getRoom() + "]");
+						manager.tranfer(cmd);
 					} else if (command instanceof RecordConferenceCommand) {
 						manager.record((RecordConferenceCommand) command);
 					} else if (command instanceof DeskShareBroadcastRTMPCommand) {

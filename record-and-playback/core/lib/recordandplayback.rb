@@ -28,7 +28,6 @@ require 'recordandplayback/events_archiver'
 require 'recordandplayback/video_archiver'
 require 'recordandplayback/presentation_archiver'
 require 'recordandplayback/deskshare_archiver'
-require 'recordandplayback/webrtc_deskshare_archiver'
 require 'recordandplayback/generators/events'
 require 'recordandplayback/generators/audio'
 require 'recordandplayback/generators/video'
@@ -126,7 +125,7 @@ module BigBlueButton
   def self.exec_ret(*command)
     BigBlueButton.logger.info "Executing: #{command.join(' ')}"
     IO.popen([*command, :err => [:child, :out]]) do |io|
-      io.lines.each do |line|
+      io.each_line do |line|
         BigBlueButton.logger.info line.chomp
       end
     end
@@ -140,7 +139,7 @@ module BigBlueButton
     IO.pipe do |r, w|
       pid = spawn(*command, :out => outio, :err => w)
       w.close
-      r.lines.each do |line|
+      r.each_line do |line|
         BigBlueButton.logger.info line.chomp
       end
       Process.waitpid(pid)

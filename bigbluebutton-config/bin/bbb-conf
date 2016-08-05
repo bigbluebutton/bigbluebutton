@@ -51,26 +51,57 @@
 #   2015-03-12 FFD  Added start/stop of HTML5 server
 #   2016-01-13 FFD  Updates for 1.0
 #   2016-02-28 FFD  Updates to support HTTPS configuration
+#   2016-05-28 FFD  Initial updates for 1.1-dev
 
 #set -x
 #set -e
 
 PATH=$PATH:/sbin
 
-FREESWITCH_INIT_D="/etc/init.d/bbb-freeswitch"
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
 # Figure out our environemtn
 #
 
-PLATFORM=ubuntu
-
 RED5_DIR=/usr/share/red5
 
 SERVLET_CONTAINER=tomcat7
-SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
 SERVLET_DIR=/var/lib/$SERVLET_CONTAINER/webapps
+
+FREESWITCH_VARS=/opt/freeswitch/conf/vars.xml
+FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
+FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
+FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+
+if lsb_release -d | grep -q CentOS; then
+  DISTRIB_ID=centos
+  SERVLET_LOGS=/usr/share/$SERVLET_CONTAINER/logs
+  RED5=red5
+  FREESWITCH=freeswitch
+  FREESWITCH_INIT_D="/etc/init.d/freeswitch"
+  TOMCAT_USER=tomcat
+else
+  . /etc/lsb-release 
+  if [ "$DISTRIB_CODENAME" == "trusty" ]; then
+    SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
+    RED5=red5
+    FREESWITCH=freeswitch
+    FREESWITCH_INIT_D="/etc/init.d/freeswitch"
+    TOMCAT_USER=tomcat7
+  else
+    SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
+    RED5=red5
+    FREESWITCH=freeswitch
+    FREESWITCH_INIT_D="/etc/init.d/freeswitch"
+    TOMCAT_USER=tomcat7
+
+    FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
+    FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
+    FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
+    FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
+  fi
+fi
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
@@ -194,6 +225,7 @@ usage() {
         echo "   --stop                           Stop BigBlueButton"
         echo "   --start                          Start BigBlueButton"
         echo "   --clean                          Restart and clean all log files"
+        echo "   --status                         Display running status of components"
         echo "   --zip                            Zip up log files for reporting an error"
         echo
         echo "Testing:"
@@ -221,15 +253,10 @@ check_and_backup () {
 # 3 paramenter: the file, the variable name, the new value
 change_var_value () {
 	check_and_backup $1
-	sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=\"${3}\"<" $1
+	sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=${3}<" $1
 }
 
-change_var_ip () {
-        check_and_backup $1
-        sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=${3}<" $1
-}
-
-# same as change_var_value but without quotes
+# same as change_var_value but with quotes
 change_var_salt() {
 	check_and_backup $1
 	sed -i "s<^[[:blank:]#]*\(${2}\).*<\1="${3}"<" $1
@@ -252,17 +279,21 @@ uncomment () {
 }
 
 stop_bigbluebutton () {
+    echo "Stopping BigBlueButton"
+    if command -v systemctl >/dev/null; then
+       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer
+    else
 	/etc/init.d/monit stop
 
 	if [ -f /etc/init/bbb-html5.conf ]; then
 		stop bbb-html5
 	fi
 
-	/etc/init.d/bbb-red5 stop
+	/etc/init.d/$RED5 stop
 	/etc/init.d/${SERVLET_CONTAINER} stop
 	/etc/init.d/nginx stop
         
-	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+	if [ -a $FREESWITCH_PID ]; then
 		$FREESWITCH_INIT_D stop
 	fi
         
@@ -274,24 +305,36 @@ stop_bigbluebutton () {
 		/etc/init.d/bbb-record-core stop
 	fi
 
-	if [ -f /etc/init/bbb-apps-akka.conf ]; then
-        	service bbb-apps-akka stop
-	fi
-	if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
-        	service bbb-fsesl-akka stop
-	fi
+        if [ -f /etc/init/bbb-apps-akka.conf ]; then
+                service bbb-apps-akka stop
+        fi
+        if [ -f /etc/init.d/bbb-apps-akka ]; then
+                /etc/init.d/bbb-apps-akka stop
+        fi
+
+        if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
+                service bbb-fsesl-akka stop
+        fi
+        if [ -f /etc/init.d/bbb-fsesl-akka ]; then
+                /etc/init.d/bbb-fsesl-akka stop
+        fi
+   fi
 }
 
 start_bigbluebutton () {
+    echo "Starting BigBlueButton"
+    if command -v systemctl >/dev/null; then
+       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer
+    else
 	$FREESWITCH_INIT_D start
 	
-	FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-	check_no_value listen-ip /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
+	FREESWITCH_ESL_IP=$(cat $FREESWITCH_EVENT_SOCKET | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+	check_no_value listen-ip $FREESWITCH_EVENT_SOCKET $FREESWITCH_ESL_IP
 
 	echo -n "Waiting for FreeSWITCH to start: "
 
 	if [ ! -z $FREESWITCH_ESL_IP ]; then
-		while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
+		while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021 > /dev/null; do
 			echo -n "."
 			sleep 1
 		done
@@ -299,7 +342,7 @@ start_bigbluebutton () {
 	echo
 
 	/etc/init.d/nginx start
-	/etc/init.d/bbb-red5 start
+	/etc/init.d/$RED5 start
 	/etc/init.d/${SERVLET_CONTAINER} start
 
 	# monit will start libreoffice and bbb-rap-worker
@@ -321,12 +364,20 @@ start_bigbluebutton () {
 		fi
         fi
 
-	if [ -f /etc/init/bbb-apps-akka.conf ]; then
-        	service bbb-apps-akka start
-	fi
-	if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
-        	service bbb-fsesl-akka start
-	fi
+        if [ -f /etc/init/bbb-apps-akka.conf ]; then
+                service bbb-apps-akka start
+        fi
+        if [ -f /etc/init.d/bbb-apps-akka ]; then
+                /etc/init.d/bbb-apps-akka start
+        fi
+
+        if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
+                service bbb-fsesl-akka start
+        fi
+        if [ -f /etc/init.d/bbb-fsesl-akka ]; then
+                /etc/init.d/bbb-fsesl-akka start
+        fi
+
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
@@ -336,32 +387,38 @@ start_bigbluebutton () {
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
-        if ! nc -z -w 1 127.0.0.1 9123; then
-                while ! nc -z -w 1 127.0.0.1 9123; do
-                        echo -n "."
-                        sleep 1
-                done
-        fi
+        #if ! nc -z -w 1 127.0.0.1 9123 > /dev/null; then
+        #        while ! nc -z -w 1 127.0.0.1 9123 > /dev/null; do
+        #                echo -n "."
+        #                sleep 1
+        #        done
+        #fi
 
-	sleep 2
+	#sleep 5
 
-        if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
-                echo "Startup unsuccessful: could not connect to http://$BBB_WEB/bigbluebutton/api"
-                exit 1
-	fi
-
-        echo " done"
+        #if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
+        #        echo "Startup unsuccessful: could not connect to http://$BBB_WEB/bigbluebutton/api"
+        #        exit 1
+	#fi
+    fi
 }
 
 display_bigbluebutton_status () {
+    if command -v systemctl >/dev/null; then
+	units="start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka"
+	for unit in $units; do
+		echo "$unit: $(systemctl is-active $unit)"
+	done 
+    else
 	/etc/init.d/nginx status
-	/etc/init.d/bbb-red5 status
+	/etc/init.d/$RED5 status
 	/etc/init.d/${SERVLET_CONTAINER} status
+    fi
 }
 
 enable_webrtc(){
 	# Set server ip address in FreeSWITCH
-	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/conf/vars.xml
+	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  $FREESWITCH_VARS
 
 	# Set server ip address in red5 sip app. For flash client.
 	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
@@ -371,7 +428,7 @@ enable_webrtc(){
 	sed -i "s@useWebRTCIfAvailable=\".*\"@useWebRTCIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
 	# Enable port 5066 in FreeSWITCH
-	sed -i 's/^.*<!--<param name="ws-binding"  value=":5066"\/>-->.*$/\t<param name="ws-binding"  value=":5066"\/>/g' /opt/freeswitch/conf/sip_profiles/external.xml
+	sed -i 's/^.*<!--<param name="ws-binding"  value=":5066"\/>-->.*$/\t<param name="ws-binding"  value=":5066"\/>/g' $FREESWITCH_EXTERNAL
 
         PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx |  sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}')
         PORT=5066
@@ -389,7 +446,7 @@ enable_webrtc(){
 
 disable_webrtc(){
 	# Set 127.0.0.1 in FreeSWITCH
-	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  /opt/freeswitch/conf/vars.xml
+	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  $FREESWITCH_VARS
 
 	# Set 127.0.0.1 in red5 sip app. For flash client.
 	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
@@ -399,7 +456,7 @@ disable_webrtc(){
         sed -i "s@useWebRTCIfAvailable=\".*\"@useWebRTCIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
 	# Disable port 5066 in FreeSWITCH
-	sed -i 's/^.*<param name="ws-binding"  value=":5066"\/>.*$/\t<!--<param name="ws-binding"  value=":5066"\/>-->/g' /opt/freeswitch/conf/sip_profiles/external.xml
+	sed -i 's/^.*<param name="ws-binding"  value=":5066"\/>.*$/\t<!--<param name="ws-binding"  value=":5066"\/>-->/g' $FREESWITCH_EXTERNAL
 
         PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx |  sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}')
         sed -i "s/proxy_pass .*/proxy_pass $PROTOCOL:\/\/127.0.0.1:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
@@ -420,11 +477,13 @@ fi
 # Parse the parameters
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-stop" -o "$1" = "--stop" ]; then
+		need_root
 		stop_bigbluebutton
 		exit 0
 	fi
 
 	if [ "$1" = "-start" -o "$1" = "--start" ]; then
+		need_root
 		start_bigbluebutton
 		exit 0
 	fi
@@ -477,6 +536,11 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
+	if [ "$1" = "--status" -o "$1" = "-status" ]; then
+                display_bigbluebutton_status
+		exit 0
+        fi
+
 	if [ "$1" = "--restart" -o "$1" = "-restart" ]; then
                 RESTART=1
                 shift
@@ -516,10 +580,10 @@ while [ $# -gt 0 ]; do
 		SALT="${2}"
 		if [ -z "$SALT" ]; then
 			BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
-			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+			SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
 			echo
 			echo "       URL: $BBB_WEB_URL/bigbluebutton/"
-			echo "      Salt: $SALT"
+			echo "    Secret: $SECRET"
 			echo
 			exit 0
 		fi
@@ -581,7 +645,11 @@ if [ $SALT ]; then
 		sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
 	fi
 
-	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
+        if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
+                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SALT\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
+        fi
+
 	echo "Changed BigBlueButton's shared secret to $SALT"
 	echo
 fi
@@ -637,37 +705,24 @@ fi
 
 check_configuration() {
 	#
-	# Check if we've got the voice conference servers properly installed and configured
-	#
-       if [ ! -d /opt/freeswitch/conf/jingle_profiles ]; then
-		echo
-		echo "# You have an older version of FreeSWITCH installed.  To upgrade"
-		echo "# enter the following commands"
-		echo "# "
-		echo "#   sudo apt-get remove bbb-freeswitch"
-		echo "#   sudo apt-get install bigbluebutton"
-		echo "# "
-		echo
-	fi
-
-
-	#
 	# Check that freeswtich ESL matches the value in bigbluebutton.properties
 	#
-	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
-		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		check_no_value event_socket /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
+	if [ -f $FREESWITCH_EVENT_SOCKET ]; then 
+		FREESWITCH_ESL_IP=$(cat $FREESWITCH_EVENT_SOCKET | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		check_no_value event_socket $FREESWITCH_EVENT_SOCKET $FREESWITCH_ESL_IP
 
 		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep -v '#' | grep esl.host | sed 's/freeswitch.esl.host=//g')
 		check_no_value esl.host /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties $ESL_HOST
 
-		if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
+                if [ "$FREESWITCH_ESL_IP" != "::" ]; then
+                    if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
 			echo 
 			echo "# The values for listen-ip in   "
-			echo "#     /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
+			echo "#     $FREESWITCH_EVENT_SOCKET"
 			echo "# do not match the settings for esl.host in"
 			echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
 			echo 
+                    fi
 		fi
 	fi
 
@@ -724,10 +779,12 @@ check_configuration() {
 	#
  	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
- 	
-	HOSTS=$(which host)
-	if [ $HOSTS ]; then
-		HOSTS=`$HOSTS $NGINX_IP | awk '{ print $4 }'`
+ 
+	if which host > /dev/null 2>&1; then	
+		HOSTS=$(which host)
+		if [ $HOSTS ]; then
+			HOSTS=`$HOSTS $NGINX_IP | awk '{ print $4 }'`
+		fi
 	fi
 
 	if [ "$IP" != "$NGINX_IP" ]; then
@@ -801,25 +858,46 @@ check_configuration() {
 
         PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx |  sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}')
         if [[ $PROTOCOL == "https" ]]; then
-                if ! grep wss-binding /opt/freeswitch/conf/sip_profiles/external.xml > /dev/null; then
+                if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
 			echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
 			echo "# but no definition for wss-binding found in "
 			echo "#"
-			echo "#    /opt/freeswitch/conf/sip_profiles/external.xml"
+			echo "#    $FREESWITCH_EXTERNAL"
 			echo 
 		fi
 	fi
 
-        libreoffice_version=`dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g'`
-        if [[ "$libreoffice_version" > 1.0 ]]; then
-            if [[ "$libreoffice_version" < 4.4 ]]; then
-                echo "# Warning: Detected your running an older version of LibreOffice: $libreoffice_version"
-                echo "#"
-                echo "# Recommend updated to the latest version of LibreOffice 4.x (4.4 or later)"
-                echo
-            fi
+	if [ $DISTRIB_ID != "centos" ]; then
+          libreoffice_version=`dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g'`
+		if [[ "$libreoffice_version" > 1.0 ]]; then
+		    if [[ "$libreoffice_version" < 4.4 ]]; then
+			echo "# Warning: Detected your running an older version of LibreOffice: $libreoffice_version"
+			echo "#"
+			echo "# Recommend updated to the latest version of LibreOffice 4.x (4.4 or later)"
+			echo
+		    fi
+		fi
+	fi
+
+        if [ "$(ls -ld /var/bigbluebutton/screenshare | cut -d' ' -f3)" != "red5" ]; then
+                echo "# Warning: Detected the directory"
+                echo "#    /var/bigbluebutton/screenshare"
+                echo "# is not owned by red5"
         fi
 
+        if [ "$(ls -ld /var/bigbluebutton | cut -d' ' -f3)" != $TOMCAT_USER ]; then
+                echo "# Warning: Detected the directory"
+                echo "#    /var/bigbluebutton"
+                echo "# is not owned by $TOMCAT_USER"
+        fi
+
+        if [ $PROTOCOL_HTTP == "https" ]; then
+            if ! grep jnlpUrl /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | grep -q https; then
+                echo "# Warning: Detected the value for jnlpUrl is not configured for HTTPS"
+                echo "#    /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+            fi
+        fi
 }
 
 
@@ -842,7 +920,7 @@ check_state() {
 		RUNNING_APPS="${RUNNING_APPS} red5"
 	fi	
 
-	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+	if [ -a $FREESWITCH_PID ]; then
 		if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
 			print_header
 			NOT_RUNNING_APPS="${NOT_RUNNING_APPS} freeswitch"
@@ -850,15 +928,6 @@ check_state() {
 			RUNNING_APPS="${RUNNING_APPS} freeswitch"
 		fi
 	fi
-
-        if ! ps aux | grep -v grep | grep '[/]usr/lib/openoffice/program/soffice.bin' > /dev/null; then
-                if ! ps aux | grep -v grep | grep '[/]usr/lib/libreoffice/program/soffice.bin' > /dev/null; then
-                        print_header
-                        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} LibreOffice (check again in a minute as monit may not have started it yet)"
-                fi
-        else
-                RUNNING_APPS="${RUNNING_APPS} OpenOffice"
-        fi
 
 	if ! ps aux | grep -v grep | grep '[/]usr/sbin/nginx' > /dev/null; then
 		print_header
@@ -882,12 +951,12 @@ check_state() {
 
 	if ! netstat -ant | grep '8100' > /dev/null; then
                 print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} LibreOffice"
 	else
-		RUNNING_APPS="${RUNNING_APPS} OpenOffice"
+		RUNNING_APPS="${RUNNING_APPS} LibreOffice"
         fi  
 
-        if ! ps aux | grep -v grep | grep '[/]usr/bin/redis-server' > /dev/null; then
+        if ! ps aux | grep -v grep | grep '[/]usr/[s]*bin/redis-server' > /dev/null; then
                 print_header
                 NOT_RUNNING_APPS="${NOT_RUNNING_APPS} redis-server"
         else
@@ -895,7 +964,7 @@ check_state() {
         fi
 
 	if [ "$NOT_RUNNING_APPS" != "" ]; then
-		echo "# Not Running: ${NOT_RUNNING_APPS}"
+		echo "# Not running: ${NOT_RUNNING_APPS}"
 	fi
 
 
@@ -939,7 +1008,7 @@ check_state() {
 	#
 	AVAIL_RED5_APPS=""
 	UNAVAIL_RED5_APPS=""
-	DIRECTORIES="bigbluebutton sip video deskshare"
+	DIRECTORIES="bigbluebutton sip video screenshare"
 	for dir in $DIRECTORIES ; do
 		if [ ! -d $RED5_DIR/webapps/$dir ]; then
 			UNAVAIL_RED5_APPS="${UNAVAIL_RED5_APPS} $dir"
@@ -949,14 +1018,30 @@ check_state() {
 	done
 
 	if [ "$UNAVAIL_RED5_APPS" != "" ]; then
-		echo "# Unavailable Red5 apps ($RED5_DIR/webapps/): ${UNAVAIL_RED5_APPS}"
+		echo "# Unavailable red5 apps ($RED5_DIR/webapps/): ${UNAVAIL_RED5_APPS}"
 	fi
 
 
 	#
 	# Checking red5 apps log
 	#
-	RED5_LOG_FILES="bigbluebutton red5 sip video deskshare"
+	COUNT=0
+	while [ $COUNT -lt 20 ]; do
+    	  let COUNT=COUNT+1
+          if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
+            if [ $COUNT -gt 1 ]; then
+              sleep 5		# Looks like a clean restart -- give red5 a bit more time to startup 
+            fi
+	    let COUNT=20
+          else
+            echo -n "."
+            sleep 1
+          fi
+	done
+
+        echo -n " "
+
+	RED5_LOG_FILES="bigbluebutton red5 sip video screenshare-slf"
 	AVAIL_RED5_LOG=""
 	UNAVAIL_RED5_LOG=""
 	for file in $RED5_LOG_FILES ; do
@@ -968,14 +1053,26 @@ check_state() {
 	done
 
 	if [ "$UNAVAIL_RED5_LOG" != "" ]; then
-		echo "# Unavailable Red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
+		echo "# Unavailable red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
 	fi
 
 
 	#
 	# Check if any of the red5 BigBlueButton applications did not start propery
 	#
-	BBB_APPS="sip video bigbluebutton deskshare"
+	COUNT=0
+	while [ $COUNT -lt 20 ]; do
+    	  let COUNT=COUNT+1
+          if ! cat $RED5_DIR/log/bigbluebutton.log | tail -n10 | grep -q "Starting up context"; then
+            echo -n "."
+            sleep 1
+	  else
+	    let COUNT=20
+          fi
+	done
+        echo
+
+	BBB_APPS="sip video bigbluebutton screenshare-slf"
 	for bbb_app in $BBB_APPS ; do
 		if [ -a $RED5_DIR/log/$bbb_app.log ]; then
 			if cat $RED5_DIR/log/$bbb_app.log | tail -n1 | grep -q "Starting up context"; then
@@ -991,7 +1088,7 @@ check_state() {
 	#
 	COMMANDS="ruby gem ghostscript pdf2swf"
 	for cmd in $COMMANDS ; do
-		if ! which $cmd > /dev/null; then
+		if ! which $cmd > /dev/null 2>&1; then
 			echo "#    $cmd command not found"
 		fi
 	done
@@ -1001,7 +1098,7 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
 	case "$FFMPEG_VERSION" in
-	2.3.*)
+	2.8.*)
 		# This is the current supported version; OK.
 		;;
 	'')
@@ -1080,26 +1177,35 @@ check_state() {
 	#
         BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
-	if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then 
-		echo "# Error: Could not connect to the configured hostname/IP address"
-		echo "#"
-		echo "#    http://$BBB_WEB/"
-		echo "#"
-		echo "# If your BigBlueButton server is behind a firewall, see FAQ."
-		echo 
-	fi
+
+        COUNT=0
+        while [ $COUNT -lt 20 ]; do
+          let COUNT=COUNT+1
+	  timeout 1s wget $PROTOCOL_HTTP://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
+	  if [ $? -eq 0 ]; then
+            let COUNT=30
+          else
+            echo -n "."
+            sleep 1
+          fi
+        done
+	echo
+
+        if ! wget $PROTOCOL_HTTP://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
+                echo "# Error: Could not connect to the configured hostname/IP address"
+                echo "#"
+                echo "#    $PROTOCOL_HTTP://$BBB_WEB/"
+                echo "#"
+                echo "# If your BigBlueButton server is behind a firewall, see FAQ."
+                echo
+        fi
 
 	#
-	# Check that BigBlueButton can connect to port 80, 1935, and 9123
+	# Check that BigBlueButton can connect to port 1935
 	#
 	if [ ! -z $NGINX_IP ]; then
-		if ! nc -z -w 3 $NGINX_IP 1935; then
+		if ! nc -z -w 3 $NGINX_IP 1935 > /dev/null; then
 			echo "# Error: Unable to connect to port 1935 (RTMP) on $NGINX_IP"
-			echo 
-		fi
-
-		if ! nc -z -w 3 $NGINX_IP 9123; then
-			echo "# Error: Unable to connect to port 9123 (desktop sharing) on $NGINX_IP"
 			echo 
 		fi
 	fi
@@ -1143,12 +1249,12 @@ check_state() {
                 echo 
         fi
 
-        VARS_IP=$(cat /opt/freeswitch/conf/vars.xml | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
+        VARS_IP=$(cat $FREESWITCH_VARS | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
         if [[ "$VARS_IP" != "127.0.0.1" ]] && [[ "$VARS_IP" != "auto" ]]; then
                 if [ "$VARS_IP" != $IP ]; then
                         echo "# Warning: The setting of $VARS_IP for local_ip_v4 in"
                         echo "#"
-                        echo "#    /opt/freeswitch/conf/vars.xml"
+                        echo "#    $FREESWITCH_VARS"
                         echo "#"
                         echo "# does not match the local IP address ($IP)."
                         echo "# (This is OK if you've manually changed the values)"
@@ -1257,16 +1363,28 @@ check_state() {
         	fi
 	fi
 
-	RED5_PID_PS=$(ps -u red5 | grep java | sed 's/^[ ]*//g' | cut -d" " -f1)
-	RED5_PID_FILE=$(cat /var/run/red5.pid)
-
-	if [[ "$RED5_PID_PS" != "$RED5_PID_FILE" ]]; then
-		echo "# Error: red5 process ID does not match value in PID file"
-		echo "#"
-		echo "#         pid from top: $RED5_PID_PS"
-		echo "#    /var/run/red5.pid: $RED5_PID_FILE"  
-		echo "#"
-	fi
+	if [ -f /var/run/red5.pid ]; then
+          RED5_PID_PS=$(ps -u red5 | grep java | sed 's/^[ ]*//g' | cut -d" " -f1)
+          RED5_PID_FILE=$(cat /var/run/red5.pid)
+          if [[ "$RED5_PID_PS" != "$RED5_PID_FILE" ]]; then
+            if [ "$(ps -aef | grep "su -p -s /bin/sh red5 " | wc --lines)" == "2" ]; then
+                RED5_PID_PS=$(ps -aef | grep "su -p -s /bin/sh red5 " | head -n 1 | awk '{print $2}')
+                if [[ "$RED5_PID_PS" != "$RED5_PID_FILE" ]]; then
+                        echo "# Error: red5 process ID does not match value in PID file"
+                        echo "#"
+                        echo "#         pid from top: $RED5_PID_PS"
+                        echo "#    /var/run/red5.pid: $RED5_PID_FILE"  
+                        echo "#"
+                fi
+            else
+                echo "# Error: red5 process ID does not match value in PID file"
+                echo "#"
+                echo "#         pid from top: $RED5_PID_PS"
+                echo "#    /var/run/red5.pid: $RED5_PID_FILE"  
+                echo "#"
+            fi
+          fi
+        fi
 
 	exit 0
 }
@@ -1279,13 +1397,20 @@ if [ $CHECK ]; then
 	need_root
 	
 	echo 
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-demo | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-1ubuntu/{s/.*ubuntu//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
+        if [ $DISTRIB_ID == "centos" ]; then
+          echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-demo | grep -v bbb-lti | grep -v bbb-redis | grep -v bbb-tomcat | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
+        else 
+          echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-demo | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
+	fi
+
 	echo "                    Kernel version:" `uname -r`
 
-	if [ -e /etc/lsb-release ]; then
-		source /etc/lsb-release;
-		echo -n "                      Distribution: $DISTRIB_DESCRIPTION "
-	fi
+        if [ $DISTRIB_ID == "centos" ]; then
+                echo -n "                      Distribution: $(cat /etc/redhat-release)"
+        else
+                source /etc/lsb-release;
+                echo -n "                      Distribution: $DISTRIB_DESCRIPTION "
+        fi
 
 	if [ `uname -m` == "x86_64" ]; then
 		echo "(64-bit)"
@@ -1302,12 +1427,12 @@ if [ $CHECK ]; then
 
 	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*:\/\///;s/\/.*//;p}')
 	WEBRTC_ENABLED_CLIENT=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
-	echo "                              Red5: $RED5_IP"
+	echo "                              red5: $RED5_IP"
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
-	WEBRTC_SOCKET=$(sudo cat /opt/freeswitch/conf/sip_profiles/external.xml | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+	WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
 	echo
-	echo "/opt/freeswitch/conf/sip_profiles/external.xml (FreeSWITCH)"
+	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
 	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
@@ -1339,7 +1464,7 @@ if [ $CHECK ]; then
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
 		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
@@ -1361,8 +1486,8 @@ if [ $CHECK ]; then
 	CAPTURE_VIDEO="$(cat /usr/share/red5/webapps/video/WEB-INF/red5-web.xml | sed -n '/recordVideoStream/{s/^.*="//g;s/"\/>//g;p}')"
 	echo "                     capture video: $CAPTURE_VIDEO"
 
-	CAPTURE_DESKTOP="$(cat /usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml | grep -m 1 '<constructor-arg index="0" value'  | sed -n '/constructor-arg/{s/^.*="//g;s/"\/>//g;p}')"
-	echo "                   capture desktop: $CAPTURE_DESKTOP"
+	# CAPTURE_DESKTOP="$(cat /usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml | grep -m 1 '<constructor-arg index="0" value'  | sed -n '/constructor-arg/{s/^.*="//g;s/"\/>//g;p}')"
+	# echo "                   capture desktop: $CAPTURE_DESKTOP"
 
 
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
@@ -1373,7 +1498,7 @@ if [ $CHECK ]; then
 	fi
 
 	check_state
-	echo ""
+	echo
 
 	exit 0
 fi
@@ -1398,7 +1523,9 @@ if [ $ZIP ]; then
 	tar rf /tmp/$LOG_FILE.tar $SERVLET_LOGS			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar /var/log/syslog		> /dev/null 2>&1
+	if [ $DISTRIB_ID == "ubuntu" ]; then
+		tar rf /tmp/$LOG_FILE.tar /var/log/syslog		> /dev/null 2>&1
+	fi
 
 	tar tf /tmp/$LOG_FILE.tar
 	gzip /tmp/$LOG_FILE.tar
@@ -1470,12 +1597,14 @@ if [ $DEBUG ]; then
                 fi
         fi
 
-	rm -rf /tmp/t
-	sudo grep --directories=skip -i exception /var/log/syslog > /tmp/t 
-	if [ -s /tmp/t ]; then
-		echo "   -- Errors found in /var/log/syslog -- "
-		cat /tmp/t
-		echo
+	if [ $DISTRIB_ID == "Ubuntu" ]; then
+		rm -rf /tmp/t
+		sudo grep --directories=skip -i exception /var/log/syslog > /tmp/t 
+		if [ -s /tmp/t ]; then
+			echo "   -- Errors found in /var/log/syslog -- "
+			cat /tmp/t
+			echo
+		fi
 	fi
 
 	rm -rf /tmp/t
@@ -1502,7 +1631,9 @@ if [ $DEBUG ]; then
 	# Additional checks for record and playback
 	#
 
-	bbb-record --check
+        if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
+		bbb-record --check
+	fi
 
 	exit 0
 fi
@@ -1540,15 +1671,33 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
-	# 3 paramenter: the file, the variable name, the new value
-	# echo "Assigning $HOST for FreeSWITCH Event Socket Layer URL in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
-	# change_var_ip /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties esl.host $HOST
-
-	# cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
+	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl $PROTOCOL_HTTP://$HOST/screenshare
+	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL_HTTP://$HOST/screenshare/screenshare.jnlp
 
 	if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
 		sudo sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
 	fi
+
+        #
+        # Update bbb-apps-akka
+        #
+        echo "Assigning $HOST for web application URL in /usr/share/bbb-apps-akka/conf/application.conf"
+
+        if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
+                sed -i  "s/bbbWebAPI[ ]*=[ ]*\"[^\"]*\"/bbbWebAPI=\"${PROTOCOL_HTTP}:\/\/$HOST\/bigbluebutton\/api\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
+                sed -i "s/bbbWebHost[ ]*=[ ]*\"[^\"]*\"/bbbWebHost=\"$HOST\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
+                sed -i "s/deskshareip[ ]*=[ ]*\"[^\"]*\"/deskshareip=\"$HOST\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
+                sed -i  "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"${PROTOCOL_HTTP}:\/\/$HOST\/default.pdf\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
+		# XXX Temporary fix to ensure application.conf has the latest shared secret
+                SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
+        fi
 
 	#
 	# Update api demos
@@ -1616,9 +1765,6 @@ if [ $RESTART ]; then
 	echo "Restarting BigBlueButton ..."
 
 	stop_bigbluebutton
-	echo
-	display_bigbluebutton_status
-	echo
 	start_bigbluebutton
 	check_state
 fi
@@ -1636,7 +1782,7 @@ if [ $CLEAN ]; then
 	#
 
 	echo 
-	echo "Cleaning Log Files ..."
+	echo "Cleaning Log Files"
 	rm -f /var/log/bigbluebutton/bbb-web.log*
 	rm -f /var/log/bigbluebutton/*.log
 
@@ -1659,20 +1805,21 @@ if [ $CLEAN ]; then
 	fi
 
 	rm -rf /var/log/nginx/*
-	mv /var/log/syslog /tmp/syslog.$$
-	echo "" > /var/log/syslog
-	chown syslog:adm /var/log/syslog
+
+        #if [ $DISTRO == "ubuntu" ]; then
+	#  mv /var/log/syslog /tmp/syslog.$$
+	#  echo "" > /var/log/syslog
+	#  chown syslog:adm /var/log/syslog
+        #fi
 
 	if [ -d /var/log/bbb-fsesl-akka ]; then
 		rm -f /var/log/bbb-fsesl-akka/*
-  fi
+        fi
+
 	if [ -d /var/log/bbb-apps-akka ]; then
 		rm -f /var/log/bbb-apps-akka/*
-  fi
+        fi
 
-	display_bigbluebutton_status
-
-	echo ""
 	start_bigbluebutton
 	check_state
 fi

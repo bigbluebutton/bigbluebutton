@@ -79,8 +79,10 @@ public class MeetingMessageHandler implements MessageHandler {
                   msg.payload.viewerPassword, 
                   msg.payload.moderatorPassword, 
                   msg.payload.durationInMinutes, 
-                  msg.payload.defaultPresentationURL));
-              
+                  msg.payload.defaultPresentationURL,
+                  msg.payload.recordType
+                  )
+              );
             }
           }
           else if (EndBreakoutRoomRequest.NAME.equals(messageName)) {
