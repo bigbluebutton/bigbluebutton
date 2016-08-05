@@ -118,6 +118,7 @@
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"
+			maxPasteLength="1024"
 			baseTabIndex="701"
 		/>
 
