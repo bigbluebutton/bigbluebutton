@@ -32,6 +32,13 @@ const defaultProps = {
   role: 'button',
 };
 
+/**
+ * Event handlers below are used to intercept a parent event handler from
+ * firing when the Button is disabled.
+ * Key press event handlers intercept firing for
+ * keyboard users to comply with ARIA standards.
+ */
+
 export default class ButtonBase extends Component {
   constructor(props) {
     super(props);

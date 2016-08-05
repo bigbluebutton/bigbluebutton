@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import Button from '/imports/ui/components/button/component';
-import { callServer } from '/imports/ui/services/api/index.js';
 import classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 
@@ -10,11 +9,6 @@ export default class SlideControls extends Component {
     super(props);
 
     this.state = { sliderValue: 100 };
-
-    this.nextSlide = this.nextSlide.bind(this);
-    this.previousSlide = this.previousSlide.bind(this);
-    this.skipToSlide = this.skipToSlide.bind(this);
-    this.clickHandler = this.clickHandler.bind(this);
     this.handleValuesChange = this.handleValuesChange.bind(this);
   }
 
@@ -22,53 +16,12 @@ export default class SlideControls extends Component {
     this.setState({ sliderValue: event.target.value });
   }
 
-  // Change to the next slide
-  nextSlide() {
-    const currentSlideNum = this.props.currentSlideNum;
-    if (this.nextSlideAvailable()) {
-      callServer('publishSwitchToXSlideMessage', currentSlideNum + 1);
-    }
+  fitToWidthClickHandler() {
+    console.log('Not implemented yet');
   }
 
-  nextSlideAvailable() {
-    const currentSlideNum = this.props.currentSlideNum;
-    let nextSlideAvailable = true;
-
-    if (currentSlideNum == this.props.numberOfSlides) {
-      nextSlideAvailable = false;
-    }
-
-    return nextSlideAvailable;
-  }
-
-  // Change to the previous slide
-  previousSlide() {
-    const currentSlideNum = this.props.currentSlideNum;
-
-    if (this.prevSlideAvailable()) {
-      callServer('publishSwitchToXSlideMessage', currentSlideNum - 1);
-    }
-  }
-
-  prevSlideAvailable() {
-    const currentSlideNum = this.props.currentSlideNum;
-    let prevSlideAvailable = true;
-
-    if (currentSlideNum == 1) {
-      prevSlideAvailable = false;
-    }
-
-    return prevSlideAvailable;
-  }
-
-  // Change to a specific slide (using dropdown menu)
-  skipToSlide(event) {
-    const requestedSlideNum = event.target.value;
-    callServer('publishSwitchToXSlideMessage', requestedSlideNum);
-  }
-
-  clickHandler(buttonComponent) {
-    console.log('SlideControls::clickHandler()');
+  fitToScreenClickHandler() {
+    console.log('Not implemented yet');
   }
 
   renderSkipSlideOpts(numberOfSlides) {
@@ -94,10 +47,11 @@ export default class SlideControls extends Component {
     const {
       currentSlideNum,
       numberOfSlides,
+      actions,
     } = this.props;
 
     return (
-      <div id="slideControls" className={styles.slideControlsDiv}>
+      <div id="slideControlsWrapper" className={styles.slideControlsWrapper}>
         {this.renderAriaLabelsDescs()}
 
         {/*Previous Slide button*/}
@@ -106,11 +60,11 @@ export default class SlideControls extends Component {
           aria-labelledby="prevSlideLabel"
           aria-describedby="prevSlideDescrip"
           aria-controls="skipSlide slideComponent"
-          disabled={this.prevSlideAvailable() ? false : true}
+          disabled={currentSlideNum > 1 ? false : true}
           color={'default'}
           icon={'left-arrow'}
           size={'md'}
-          onClick={this.previousSlide}
+          onClick={actions.previousSlideHandler}
           label={'Previous Slide'}
           hideLabel={true}
           className={styles.prevSlide}
@@ -121,11 +75,11 @@ export default class SlideControls extends Component {
           aria-labelledby="nextSlideLabel"
           aria-describedby="nextSlideDescrip"
           aria-controls="skipSlide slideComponent"
-          disabled={this.nextSlideAvailable() ? false : true}
+          disabled={currentSlideNum < numberOfSlides ? false : true}
           color={'default'}
           icon={'right-arrow'}
           size={'md'}
-          onClick={this.nextSlide}
+          onClick={actions.nextSlideHandler}
           label={'Next Slide'}
           hideLabel={true}
         />
@@ -139,7 +93,7 @@ export default class SlideControls extends Component {
           aria-live="polite"
           aria-relevant="all"
           value={currentSlideNum}
-          onChange={this.skipToSlide}
+          onChange={actions.skipToSlideHandler}
           className={styles.skipSlide}
         >
           {this.renderSkipSlideOpts(numberOfSlides)}
@@ -153,7 +107,7 @@ export default class SlideControls extends Component {
           icon={'fit-to-width'}
           size={'md'}
           circle={false}
-          onClick={this.clickHandler}
+          onClick={this.fitToWidthClickHandler}
           label={'Fit to Width'}
           hideLabel={true}
         />
@@ -166,12 +120,12 @@ export default class SlideControls extends Component {
           icon={'fit-to-screen'}
           size={'md'}
           circle={false}
-          onClick={this.clickHandler}
+          onClick={this.fitToScreenClickHandler}
           label={'Fit to Screen'}
           hideLabel={true}
         />
         {/*Zoom slider*/}
-        <form
+        <div
           className={classNames(styles.zoomForm, { [styles.zoomFormNoBorder]: true })}
         >
           <div className={styles.zoomMinMax}> 100% </div>
@@ -192,104 +146,104 @@ export default class SlideControls extends Component {
             className={styles.zoomSlider}
           />
           <div className={styles.zoomMinMax}> 400% </div>
-        </form>
+        </div>
       </div>
      );
   }
 
   renderAriaLabelsDescs() {
     return (
-      <div className={styles.ariaLabelsDescs}>
+      <div hidden >
         {/*Previous Slide button aria*/}
-        <p id="prevSlideLabel">
+        <div id="prevSlideLabel">
           <FormattedMessage
             id="app.whiteboard.slideControls.prevSlideLabel"
             description="Aria label for when switching to previous slide"
             defaultMessage="Previous slide"
           />
-        </p>
-        <p id="prevSlideDescrip">
+        </div>
+        <div id="prevSlideDescrip">
           <FormattedMessage
             id="app.whiteboard.slideControls.prevSlideDescrip"
             description="Aria description for when switching to previous slide"
             defaultMessage="Change the presentation to the previous slide"
           />
-        </p>
+        </div>
         {/*Next Slide button aria*/}
-        <p id="nextSlideLabel">
+        <div id="nextSlideLabel">
           <FormattedMessage
             id="app.whiteboard.slideControls.nextSlideLabel"
             description="Aria label for when switching to next slide"
             defaultMessage="Next slide"
           />
-        </p>
-        <p id="nextSlideDescrip">
+        </div>
+        <div id="nextSlideDescrip">
           <FormattedMessage
             id="app.whiteboard.slideControls.nextSlideDescrip"
             description="Aria description for when switching to next slide"
             defaultMessage="Change the presentation to the next slide"
           />
-        </p>
+        </div>
         {/*Skip Slide drop down aria*/}
-        <p id="skipSlideLabel">
+        <div id="skipSlideLabel">
           <FormattedMessage
             id="app.whiteboard.slideControls.skipSlideLabel"
             description="Aria label for when switching to a specific slide"
             defaultMessage="Skip slide"
           />
-        </p>
-        <p id="skipSlideDescrip">
+        </div>
+        <div id="skipSlideDescrip">
           <FormattedMessage
             id="app.whiteboard.slideControls.skipSlideDescrip"
             description="Aria description for when switching to a specific slide"
             defaultMessage="Change the presentation to a specific slide"
           />
-        </p>
+        </div>
         {/*Fit to width button aria*/}
-        <p id="fitWidthLabel">
+        <div id="fitWidthLabel">
           <FormattedMessage
             id="app.whiteboard.slideControls.fitWidthLabel"
             description="Aria description to display the whole width of the slide"
             defaultMessage="Fit to width"
           />
-        </p>
-        <p id="fitWidthDescrip">
+        </div>
+        <div id="fitWidthDescrip">
           <FormattedMessage
             id="app.whiteboard.slideControls.fitWidthDescrip"
             description="Aria description to display the whole width of the slide"
             defaultMessage="Display the whole width of the slide"
           />
-        </p>
+        </div>
         {/*Fit to screen button aria*/}
-        <p id="fitScreenLabel">
+        <div id="fitScreenLabel">
           <FormattedMessage
             id="app.whiteboard.slideControls.fitScreenLabel"
             description="Aria label to display the whole slide"
             defaultMessage="Fit to screen"
           />
-        </p>
-        <p id="fitScreenDescrip">
+        </div>
+        <div id="fitScreenDescrip">
           <FormattedMessage
             id="app.whiteboard.slideControls.fitScreenDescrip"
             description="Aria label to display the whole slide"
             defaultMessage="Display the whole slide"
           />
-        </p>
+        </div>
         {/*Zoom slider aria*/}
-        <p id="zoomLabel">
+        <div id="zoomLabel">
           <FormattedMessage
             id="app.whiteboard.slideControls.zoomLabel"
             description="Aria label to zoom presentation"
             defaultMessage="Zoom"
           />
-        </p>
-        <p id="zoomDescrip">
+        </div>
+        <div id="zoomDescrip">
           <FormattedMessage
             id="app.whiteboard.slideControls.zoomDescrip"
             description="Aria label to zoom presentation"
             defaultMessage="Change the zoom level of the presentation"
           />
-        </p>
+        </div>
       </div>
     );
   }

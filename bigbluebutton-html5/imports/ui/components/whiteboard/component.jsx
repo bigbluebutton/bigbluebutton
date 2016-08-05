@@ -76,10 +76,6 @@ export default class Whiteboard extends React.Component {
               />
             </g>
           </svg>
-          <SlideControlsContainer
-            currentSlideNum={slideObj.num}
-            presentationId={this.props.currentSlide.presentationId}
-          />
         </ReactCSSTransitionGroup>
       );
     } else {
@@ -87,7 +83,30 @@ export default class Whiteboard extends React.Component {
     }
   }
 
+  renderSlideControlsContainer() {
+    if (this.props.currentSlide) {
+      return (
+        <SlideControlsContainer
+          currentSlideNum={this.props.currentSlide.slide.num}
+          presentationId={this.props.currentSlide.presentationId}
+        />
+      );
+    } else {
+      return null;
+    }
+  }
+
   render() {
+    if (this.props.currentSlide) {
+      slideControlsContainer =
+        <SlideControlsContainer
+          currentSlideNum={this.props.currentSlide.slide.num}
+          presentationId={this.props.currentSlide.presentationId}
+        />;
+    } else {
+      slideControlsContainer = null;
+    }
+
     return (
       <div className={styles.whiteboardContainer}>
         <div className={styles.whiteboardWrapper}>
@@ -96,7 +115,7 @@ export default class Whiteboard extends React.Component {
           </div>
         </div>
         <PollingContainer />
-
+        {this.renderSlideControlsContainer()}
       </div>
     );
   }

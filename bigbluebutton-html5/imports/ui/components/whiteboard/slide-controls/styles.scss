@@ -1,38 +1,45 @@
 @import "imports/ui/components/button/styles.scss";
 @import "imports/ui/stylesheets/variables/_all";
 
+$controls-color: #212121 !default;
+$controls-background: #F0F2F6 !default;
 
-// For parent of slide controls and zoom Form
-.slideControlsDiv, .zoomForm {
+.slideControlsWrapper,
+.zoomForm {
   padding: $line-height-computed / 2;
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-.slideControlsDiv {
+.slideControlsWrapper {
+  order: 2;
   flex: 1;
   justify-content: center;
-}
+  width: 100%;
+  margin-top: 2%;
+  margin-bottom: 2%;
 
-// Applies to all slide controls
-.slideControlsDiv > * {
-  background-color: #F0F2F6;
-  color: $color-wb-controls-background;
+  button,
+  select,
+  > div {
+    background-color: $controls-background;
+    color: $controls-color;
+    border-top: 0;
+    border-right: $color-gray-light 2px solid;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 0;
+    box-shadow: none;
+    height: 2.25rem;
+  }
 
-  border-top: 0;
-  border-right: $color-gray-light 2px solid;
-  border-bottom: 0;
-  border-left: 0;
+  button {
+    i {
+      font-weight: bolder;
+    }
+  }
 
-  border-radius: 0;
-  box-shadow: none;
-  height: 2.25rem;
-}
-
-// To make the icons bolder
-.slideControlsDiv > * > * {
-  font-weight: bolder;
 }
 
 .zoomForm {
@@ -59,10 +66,4 @@
 
 .zoomMinMax {
   font-weight: normal;
-}
-
-.ariaLabelsDescs {
-  position: fixed;
-  left: -999em;
-  margin: 0;
 }
