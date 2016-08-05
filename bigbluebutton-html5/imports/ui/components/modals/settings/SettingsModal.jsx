@@ -27,6 +27,8 @@ export default class SettingsModal extends BaseModal {
       props: { title: 'App', prependIconName: 'ion-', icon: 'ios-folder-outline', }, });
     this.submenus.push({ className: UsersMenu,
       props: { title: 'Participants', prependIconName: 'ion-', icon: 'person', }, });
+    this.submenus.push({ className: SessionMenu,
+      props: { title: 'Session', prependIconName: 'ion-', icon: 'android-exit', }, tabIndex: 7, });
   }
 
   componentDidMount() {
