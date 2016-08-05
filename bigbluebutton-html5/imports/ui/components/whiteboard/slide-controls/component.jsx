@@ -126,7 +126,7 @@ export default class SlideControls extends Component {
         />
         {/*Zoom slider*/}
         <div
-          className={classNames(styles.zoomForm, { [styles.zoomFormNoBorder]: true })}
+          className={classNames(styles.zoomWrapper, { [styles.zoomWrapperNoBorder]: true })}
         >
           <div className={styles.zoomMinMax}> 100% </div>
           <input
