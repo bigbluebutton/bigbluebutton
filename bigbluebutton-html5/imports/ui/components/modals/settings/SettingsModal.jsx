@@ -21,16 +21,16 @@ export default class SettingsModal extends BaseModal {
   componentWillMount() {
     this.setState({ activeSubmenu: 0 });
     this.setState({ focusSubmenu: 0 });
-    this.submenus.push({ className: AudioMenu,
-      props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, tabIndex: 3, });
-    this.submenus.push({ className: VideoMenu,
-      props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, tabIndex: 4, });
-    this.submenus.push({ className: ApplicationMenu,
-      props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, tabIndex: 5, });
-    this.submenus.push({ className: UsersMenu,
-      props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, tabIndex: 6, });
-    this.submenus.push({ className: SessionMenu,
-      props: { title: 'Leave session', prependIconName: 'icon-', icon: 'bbb-logout', }, tabIndex: 7, });
+    this.submenus.push({ className: AudioMenu, tabIndex: 3,
+      props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, });
+    this.submenus.push({ className: VideoMenu, tabIndex: 4,
+      props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, });
+    this.submenus.push({ className: ApplicationMenu, tabIndex: 5,
+      props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
+    this.submenus.push({ className: UsersMenu, tabIndex: 6,
+      props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
+    this.submenus.push({ className: SessionMenu, tabIndex: 7,
+      props: { title: 'Leave session', prependIconName: 'icon-', icon: 'bbb-logout', }, });
   }
 
   componentDidMount() {
@@ -45,8 +45,7 @@ export default class SettingsModal extends BaseModal {
         aria-haspopup={'true'}
         aria-labelledby={'settingsLabel'}
         aria-describedby={'settingsDesc'}
-      />
-    , document.getElementById('settingsButtonPlaceHolder'));
+      />, document.getElementById('settingsButtonPlaceHolder'));
   }
 
   createMenu() {
@@ -67,6 +66,7 @@ export default class SettingsModal extends BaseModal {
       this.setState({ activeSubmenu: 0, focusSubmenu: 0, });
       return;
     }
+
     if (i >= this.submenus.length) {
       this.setState({ activeSubmenu: this.submenus.length - 1,
         focusSubmenu: this.submenus.length - 1, });
@@ -85,6 +85,7 @@ export default class SettingsModal extends BaseModal {
       } else {
         newIndex = this.state.focusSubmenu + 1;
       }
+
       this.setState({ focusSubmenu: newIndex });
       return;
     }
@@ -97,6 +98,7 @@ export default class SettingsModal extends BaseModal {
       } else {
         newIndex = this.state.focusSubmenu - 1;
       }
+
       this.setState({ focusSubmenu: newIndex });
       return;
     }
@@ -104,28 +106,30 @@ export default class SettingsModal extends BaseModal {
     // up arrow
     if (event.keyCode === 38) {
       if (this.state.focusSubmenu <= 0) {
-        this.setState({ focusSubmenu: this.submenus.length - 1 }, function() {
+        this.setState({ focusSubmenu: this.submenus.length - 1 }, function () {
           ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
         });
       } else {
-        this.setState({ focusSubmenu: this.state.focusSubmenu - 1 }, function() {
+        this.setState({ focusSubmenu: this.state.focusSubmenu - 1 }, function () {
           ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
         });
       }
+
       return;
     }
 
     // down arrow
     if (event.keyCode === 40) {
       if (this.state.focusSubmenu >= this.submenus.length - 1) {
-        this.setState({ focusSubmenu: 0 }, function() {
+        this.setState({ focusSubmenu: 0 }, function () {
           ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
-         });
+        });
       } else {
-        this.setState({ focusSubmenu: this.state.focusSubmenu + 1 }, function() {
+        this.setState({ focusSubmenu: this.state.focusSubmenu + 1 }, function () {
           ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
         });
       }
+
       return;
     }
 
@@ -146,7 +150,7 @@ export default class SettingsModal extends BaseModal {
         <div className={styles.settingsMenuLeft}>
           <ul style={{ listStyleType: 'none', paddingLeft: '0px' }} role='menu'>
             {this.submenus.map((value, index) => (
-              <li key={index} ref={"submenu" + index} role='menuitem' tabIndex={value.tabIndex}
+              <li key={index} ref={'submenu' + index} role='menuitem' tabIndex={value.tabIndex}
                 onClick={this.clickSubmenu.bind(this, index)}
                 onKeyDown={this.handleKeyDown.bind(this)}
                 onFocus={this.handleFocus.bind(this, index)}

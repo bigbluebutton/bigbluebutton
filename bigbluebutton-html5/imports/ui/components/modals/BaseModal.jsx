@@ -77,7 +77,7 @@ export default class BaseModal extends React.Component {
           onRequestClose={this.closeModal}
           shouldCloseOnOverlayClick={false}
           style={ customStyles } >
-          <div style={{ name: 'settingsTop' }} className={styles.settingsMenuTop} role='presentation'>
+          <div className={styles.settingsMenuTop} role='presentation'>
             <div className={classNames(styles.modalHeaderTitle, 'largeFont')}>
               {this.state.title}
             </div>
@@ -100,12 +100,14 @@ export default class BaseModal extends React.Component {
                 aria-describedby={'doneDesc'}
               />
             <div className={styles.hidden} id='cancelLabel'>Cancel</div>
-              <div className={styles.hidden} id='cancelDesc'>Disregards changes and closes the settings menu.</div>
+              <div className={styles.hidden} id='cancelDesc'>
+                Disregards changes and closes the settings menu.</div>
               <div className={styles.hidden} id='doneLabel'>Done</div>
-              <div className={styles.hidden} id='doneDesc'>Saves changes and closes the settings menu.</div>
+              <div className={styles.hidden} id='doneDesc'>
+                Saves changes and closes the settings menu.</div>
             </div>
           </div>
-          <div style={{ name: 'settingsBottom' }} className={styles.settingsMenuBottom}  role='presentation'>
+          <div className={styles.settingsMenuBottom}  role='presentation'>
             {this.getContent()}
           </div>
         </Modal>

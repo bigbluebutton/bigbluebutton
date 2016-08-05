@@ -19,14 +19,18 @@ export default class ApplicationMenu extends BaseMenu {
     return (
       <div style={{ height: '100%' }} role='presentation'>
           <div style={{ height: '15%' }} role='presentation'>
-            <label><input type='checkbox' tabIndex='8' aria-labelledby='audioNotifLabel' aria-describedby='audioNotifDesc' />Audio notifications for chat</label>
+            <label><input type='checkbox' tabIndex='8' aria-labelledby='audioNotifLabel'
+              aria-describedby='audioNotifDesc' />Audio notifications for chat</label>
             <div className={styles.hidden} id='audioNotifLabel'>Audio notifications</div>
-            <div className={styles.hidden} id='audioNotifDesc'>Toggles the audio notifications for chat.</div>
+            <div className={styles.hidden} id='audioNotifDesc'>
+              Toggles the audio notifications for chat.</div>
           </div>
           <div style={{ height: '15%' }} role='presentation'>
-            <label><input type='checkbox' tabIndex='9' aria-labelledby='pushNotifLabel' aria-describedby='pushNotifDesc' />Push notifications for chat</label>
+            <label><input type='checkbox' tabIndex='9' aria-labelledby='pushNotifLabel'
+              aria-describedby='pushNotifDesc' />Push notifications for chat</label>
             <div className={styles.hidden} id='pushNotifLabel'>Push notifications</div>
-            <div className={styles.hidden} id='pushNotifDesc'>Toggles the push notifications for chat.</div>
+            <div className={styles.hidden} id='pushNotifDesc'>
+              Toggles the push notifications for chat.</div>
           </div>
         <div className={styles.applicationFontContainer} role='presentation'>
           <div className={styles.fontBarLeft}>
@@ -47,7 +51,8 @@ export default class ApplicationMenu extends BaseMenu {
               aria-describedby={'sizeUpDesc'}
             />
             <div className={styles.hidden} id='sizeUpLabel'>Font size up</div>
-            <div className={styles.hidden} id='sizeUpDesc'>Increases the font size of the application.</div>
+            <div className={styles.hidden} id='sizeUpDesc'>
+              Increases the font size of the application.</div>
             <Button
               onClick={FontControl.decreaseFontSize.bind(this)}
               icon={'circle-minus'}
@@ -59,7 +64,8 @@ export default class ApplicationMenu extends BaseMenu {
               aria-describedby={'sizeDownDesc'}
             />
           <div className={styles.hidden} id='sizeDownLabel'>Font size down</div>
-          <div className={styles.hidden} id='sizeDownDesc'>Decreases the font size of the application.</div>
+          <div className={styles.hidden} id='sizeDownDesc'>
+            Decreases the font size of the application.</div>
           </div>
         </div>
       </div>

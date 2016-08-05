@@ -19,7 +19,7 @@ export default class AudioMenu extends BaseMenu {
 
   getContent() {
     return (
-      <div style={{ height: '100%', width: '100%'}} role='presentation'>
+      <div style={{ height: '100%', width: '100%' }} role='presentation'>
         <div className={styles.containerLeftHalf}>
           <label htmlFor='microphone'>Microphone source</label>
         </div>
@@ -27,31 +27,36 @@ export default class AudioMenu extends BaseMenu {
           <label htmlFor='audioVolume'>Your audio stream volume</label>
         </div>
         <div style={{ height: '20%' }} className={styles.containerLeftHalf} role='presentation'>
-          <select id='microphone' defaultValue='0' tabIndex='8' role='listbox' aria-labelledby='micLabel' aria-describedby='micDesc'>
+          <select id='microphone' defaultValue='0' tabIndex='8' role='listbox'
+            aria-labelledby='micLabel' aria-describedby='micDesc'>
             <option value='0' disabled>Displace Audio</option>
             <option value='1' role='option'>audio 1</option>
             <option value='2' role='option'>audio 2</option>
             <option value='3' role='option'>audio 3</option>
           </select>
           <div className={styles.hidden} id='micLabel'>Select microphone source</div>
-          <div className={styles.hidden} id='micDesc'>Chooses a microphone source from the dropdown menu.</div>
+          <div className={styles.hidden} id='micDesc'>
+            Chooses a microphone source from the dropdown menu.</div>
         </div>
         <div style={{ height: '20%' }} className={styles.containerRightHalf}>
-          <input type='text' placeholder='volume bar placeholder' style={{ width: '90%' }} tabIndex='-1'></input>
+          <input style={{ width: '90%' }} type='text' placeholder='volume bar placeholder'
+            tabIndex='-1' />
         </div>
         <div className={styles.containerLeftHalf}>
           <label htmlFor='speaker'>Speaker source</label>
         </div>
         <div className={styles.containerRightHalf}><br/></div>
         <div style={{ height: '20%' }} className={styles.containerLeftHalf} role='presentation'>
-          <select id='speaker' defaultValue='0' tabIndex='9' role='listbox' aria-labelledby='spkrLabel' aria-describedby='spkrDesc'>
+          <select id='speaker' defaultValue='0' tabIndex='9' role='listbox'
+            aria-labelledby='spkrLabel' aria-describedby='spkrDesc'>
             <option value='0' disabled>Displace Audio</option>
             <option value='1' role='option'>audio 1</option>
             <option value='2' role='option'>audio 2</option>
             <option value='3' role='option'>audio 3</option>
           </select>
           <div className={styles.hidden} id='spkrLabel'>Select speaker source</div>
-          <div className={styles.hidden} id='spkrDesc'>Chooses a speaker source from the dropdown menu.</div>
+          <div className={styles.hidden} id='spkrDesc'>
+            Chooses a speaker source from the dropdown menu.</div>
         </div>
         <div style={{ height: '20%' }} className={styles.containerRightHalf} role='presentation'>
           <Button className={styles.testAudioBtn}
@@ -65,7 +70,8 @@ export default class AudioMenu extends BaseMenu {
             aria-describedby={'testAudioDesc'}
           />
         <div className={styles.hidden} id='testAudioLabel'>Test audio</div>
-        <div className={styles.hidden} id='testAudioDesc'>Previews the audio output of your microphone.</div>
+        <div className={styles.hidden} id='testAudioDesc'>
+          Previews the audio output of your microphone.</div>
         </div>
       </div>
     );
