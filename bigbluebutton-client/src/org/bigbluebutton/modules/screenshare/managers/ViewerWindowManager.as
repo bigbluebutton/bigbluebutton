@@ -46,10 +46,6 @@ package org.bigbluebutton.modules.screenshare.managers {
             if (isViewing) viewWindow.stopViewing();
         }
         
-        public function handleStartedViewingEvent(stream:String):void {
-            LOGGER.debug("ViewerWindowManager handleStartedViewingEvent");
-            service.sendStartedViewingNotification(stream);
-        }
         
         private function openWindow(window:IBbbModuleWindow):void {
             var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);

@@ -86,10 +86,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ScreenshareManager}" method="handleStreamStartedEvent" arguments="{event}"/>
 	</EventHandlers>
 
-	<EventHandlers type="{StreamEvent.STOP}" >
-		<MethodInvoker generator="{ScreenshareManager}" method="handleStreamStoppedEvent"/>
-	</EventHandlers>
-
 	<EventHandlers type="{IsSharingScreenEvent.IS_SCREENSHARING}">
 		<MethodInvoker generator="{ScreenshareManager}" method="handleIsSharingScreenEvent" arguments="{event}"/>
 	</EventHandlers>
@@ -103,9 +99,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ScreenshareManager}" method="handleConnectionSuccessEvent"/>
   </EventHandlers>
   
-	<EventHandlers type="{StartedViewingEvent.STARTED_VIEWING_EVENT}">		
-		<MethodInvoker generator="{ScreenshareManager}" method="handleStartedViewingEvent" arguments="{event.stream}"/>
-	</EventHandlers>
 		
 	<EventHandlers type="{ViewWindowEvent.CLOSE}">
 		<MethodInvoker generator="{ScreenshareManager}" 	method="handleViewWindowCloseEvent"/>

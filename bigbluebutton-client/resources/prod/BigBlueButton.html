@@ -140,7 +140,7 @@
         // and reuse them to join via the HTML5 client
         enterRequest = $.ajax({
            dataType: 'json',
-           url: '/bigbluebutton/api/enter'
+           url: '/bigbluebutton/api/enter' + document.location.search
         });
 
         enterRequest.done(function(enterData) {
@@ -151,7 +151,7 @@
           if ((meetingId != null) && (userId != null) && (authToken != null)) {
             // redirect to the html5 client with the received info
             // format <IP>/html5client/<meetingId>/<userId>/<authToken>
-            document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
+            document.location.pathname = "/html5client/join/"+meetingId+"/"+userId+"/"+authToken;
           } else {
             // go back to the redirection page
             document.location.pathname = originalPath;

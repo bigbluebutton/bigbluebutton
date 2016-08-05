@@ -88,17 +88,6 @@ package org.bigbluebutton.modules.screenshare.services {
             sender.stopShareRequest(UsersUtil.getInternalMeetingID(), streamId);
         }
         
-        public function sendStartViewingNotification(captureWidth:Number, captureHeight:Number):void {
-            conn.sendStartViewingNotification(captureWidth, captureHeight);
-        }
-        
-        public function sendStartedViewingNotification(stream:String):void {
-            conn.sendStartedViewingNotification(stream);
-        }
-        
-        public function stopSharingDesktop(meetingId:String, stream:String):void {
-            conn.stopSharingDesktop(meetingId, stream);
-        }
-    
+            
     }
 }
