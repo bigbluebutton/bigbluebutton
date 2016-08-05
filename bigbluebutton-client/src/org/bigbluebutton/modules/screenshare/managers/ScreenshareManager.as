@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.screenshare.managers {
     import org.bigbluebutton.modules.screenshare.services.ScreenshareService;
     import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
     import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
+    import org.bigbluebutton.main.api.JSLog;
     
     public class ScreenshareManager {
         private static const LOGGER:ILogger = getClassLogger(ScreenshareManager);
@@ -76,7 +77,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             LOGGER.debug("handle Connection Success Event");
             service.checkIfPresenterIsSharingScreen();
         }
-               
+        
         public function handleStreamStartedEvent(event:StreamStartedEvent):void {
             ScreenshareModel.getInstance().streamId = event.streamId;
             ScreenshareModel.getInstance().width = event.width;
@@ -111,8 +112,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             var dispatcher:Dispatcher = new Dispatcher();
             dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.START));
         }
-        
-        
+
         private function initDeskshare():void {
             sharing = false;
             var option:ScreenshareOptions = new ScreenshareOptions();
