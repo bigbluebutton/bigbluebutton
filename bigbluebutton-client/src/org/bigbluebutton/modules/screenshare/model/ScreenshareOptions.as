@@ -49,7 +49,7 @@ package org.bigbluebutton.modules.screenshare.model
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@useWebRTCIfAvailable != undefined) {
-					useWebRTCIfAvailable = (vxml.@useWebRTCIfAvailable.toString().toUpperCase() == "TRUE");
+					useWebRTCIfAvailable = (vxml.@useWebRTCIfAvailable.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@chromeExtensionKey != undefined) {
 					chromeExtensionKey = vxml.@chromeExtensionKey.toString();
