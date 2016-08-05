@@ -9,7 +9,7 @@ import classNames from 'classnames';
 
 const customModal = {
   overlay: {
-    zIndex: 1000,
+    zIndex: 2000,
   },
   content: {
     width: '25%',
@@ -23,7 +23,7 @@ const customModal = {
   },
 };
 
-export default class SessionMenu extends Component {
+export default class SessionMenu extends BaseMenu {
   constructor(props) {
     super(props);
     this.state = {
@@ -36,7 +36,7 @@ export default class SessionMenu extends Component {
     this.setState({ openConfirm: false });
   }
 
-  render() {
+  getContent() {
     return (
       <span>
         <Modal

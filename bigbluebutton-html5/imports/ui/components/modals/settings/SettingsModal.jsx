@@ -28,7 +28,7 @@ export default class SettingsModal extends BaseModal {
     this.submenus.push({ className: UsersMenu,
       props: { title: 'Participants', prependIconName: 'ion-', icon: 'person', }, });
     this.submenus.push({ className: SessionMenu,
-      props: { title: 'Session', prependIconName: 'ion-', icon: 'android-exit', }, tabIndex: 7, });
+      props: { title: 'Session', prependIconName: 'ion-', icon: 'android-exit', }, });
   }
 
   componentDidMount() {
@@ -51,6 +51,7 @@ export default class SettingsModal extends BaseModal {
   clickSubmenu(i) {
     this.setState({ activeSubmenu: i });
   }
+  
   getContent() {
     return (
       <div style={{ clear: 'both' }}>
