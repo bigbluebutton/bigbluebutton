@@ -31,19 +31,19 @@ let getSlideData = (params) => {
 
 const previousSlide = (currentSlideNum) => {
   if (currentSlideNum > 1) {
-    callServer('SwitchSlideMessage', currentSlideNum - 1);
+    callServer('switchSlideMessage', currentSlideNum - 1);
   }
 };
 
 const nextSlide = (currentSlideNum, numberOfSlides) => {
   if (currentSlideNum < numberOfSlides) {
-    callServer('SwitchSlideMessage', currentSlideNum + 1);
+    callServer('switchSlideMessage', currentSlideNum + 1);
   }
 };
 
 const skipToSlide = (event) => {
   const requestedSlideNum = event.target.value;
-  callServer('SwitchSlideMessage', requestedSlideNum);
+  callServer('switchSlideMessage', requestedSlideNum);
 };
 
 export default {

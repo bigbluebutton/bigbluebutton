@@ -97,16 +97,6 @@ export default class Whiteboard extends React.Component {
   }
 
   render() {
-    if (this.props.currentSlide) {
-      slideControlsContainer =
-        <SlideControlsContainer
-          currentSlideNum={this.props.currentSlide.slide.num}
-          presentationId={this.props.currentSlide.presentationId}
-        />;
-    } else {
-      slideControlsContainer = null;
-    }
-
     return (
       <div className={styles.whiteboardContainer}>
         <div className={styles.whiteboardWrapper}>

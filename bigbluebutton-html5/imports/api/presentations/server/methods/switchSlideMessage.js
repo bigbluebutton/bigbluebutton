@@ -6,7 +6,7 @@ import Slides from '/imports/api/slides';
 import { redisConfig } from '/config';
 
 Meteor.methods({
-  SwitchSlideMessage(credentials, requestedSlideNum) {
+  switchSlideMessage(credentials, requestedSlideNum) {
     const { meetingId, requesterUserId, requesterToken } = credentials;
 
     const currentPresentationDoc = Presentations.findOne({

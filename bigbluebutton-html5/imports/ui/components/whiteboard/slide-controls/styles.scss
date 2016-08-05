@@ -6,8 +6,8 @@ $controls-background: #F0F2F6 !default;
 
 .slideControlsWrapper,
 .zoomForm {
-  padding: $line-height-computed / 2;
   order: 2;
+  padding: $line-height-computed / 2;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -39,7 +39,6 @@ $controls-background: #F0F2F6 !default;
       font-weight: bolder;
     }
   }
-
 }
 
 .zoomForm {

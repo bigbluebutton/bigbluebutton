@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import SlideService from './service';
+import SlideControlsService from './service';
 import SlideControls from './component.jsx';
 
 const propTypes = {
@@ -48,7 +48,7 @@ class SlideControlsContainer extends React.Component {
 }
 
 export default createContainer((params) => {
-  const data = SlideService.getSlideData(params);
+  const data = SlideControlsService.getSlideData(params);
 
   const {
     userIsPresenter,
@@ -60,11 +60,11 @@ export default createContainer((params) => {
     numberOfSlides,
     actions: {
       nextSlideHandler: () =>
-        SlideService.nextSlide(params.currentSlideNum, numberOfSlides),
+        SlideControlsService.nextSlide(params.currentSlideNum, numberOfSlides),
       previousSlideHandler: () =>
-        SlideService.previousSlide(params.currentSlideNum, numberOfSlides),
+        SlideControlsService.previousSlide(params.currentSlideNum, numberOfSlides),
       skipToSlideHandler: (event) =>
-        SlideService.skipToSlide(event),
+        SlideControlsService.skipToSlide(event),
     },
   };
 }, SlideControlsContainer);

@@ -27,7 +27,7 @@ import '/imports/api/polls/server/modifiers/clearPollCollection';
 import '/imports/api/polls/server/modifiers/updatePollCollection';
 
 import '/imports/api/presentations/server/publications';
-import '/imports/api/presentations/server/methods/SwitchSlideMessage';
+import '/imports/api/presentations/server/methods/switchSlideMessage';
 import '/imports/api/presentations/server/modifiers/addPresentationToCollection';
 import '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
 import '/imports/api/presentations/server/modifiers/removePresentationFromCollection';
