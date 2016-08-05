@@ -64,67 +64,80 @@ export default class SettingsModal extends BaseModal {
 
   clickSubmenu(i) {
     if (i <= 0) {
-      this.setState({ activeSubmenu: 0 });
-      this.setState({ focusSubmenu: 0 });
+      this.setState({ activeSubmenu: 0, focusSubmenu: 0, });
       return;
     }
     if (i >= this.submenus.length) {
-      this.setState({ activeSubmenu: this.submenus.length - 1});
-      this.setState({ focusSubmenu: this.submenus.length - 1});
+      this.setState({ activeSubmenu: this.submenus.length - 1,
+        focusSubmenu: this.submenus.length - 1, });
       return;
     } else {
-      this.setState({ activeSubmenu: i });
-      this.setState({ focusSubmenu: i });
+      this.setState({ activeSubmenu: i, focusSubmenu: i, });
     }
   }
 
-  handleKeyDown(index, value, event, unknown, target) {
+  handleKeyDown(event) {
     // tab
-    if (event.keyCode =='9') {
-      if (this.state.focusSubmenu >= this.submenus.length - 1) { // if at end of menu and tab is pressed, keep focus at end of menu
-        this.setState({ focusSubmenu: this.submenus.length - 1 });
+    if (event.keyCode === 9) {
+      let newIndex = 0;
+      if (this.state.focusSubmenu >= this.submenus.length - 1) {
+        newIndex = this.submenus.length - 1;
+      } else {
+        newIndex = this.state.focusSubmenu + 1;
       }
-      else {
-        this.setState({ focusSubmenu: this.state.focusSubmenu + 1 });
-      }
+      this.setState({ focusSubmenu: newIndex });
+      return;
     }
 
-    // shift+tab keyCode 16
-    // if (event.keyCode == '16') {
-    //
-    // }
+    // shift+tab
+    if (event.shiftKey && event.keyCode === 9) {
+      let newIndex = 0;
+      if (this.state.focusSubmenu <= 0) {
+        newIndex = 0;
+      } else {
+        newIndex = this.state.focusSubmenu - 1;
+      }
+      this.setState({ focusSubmenu: newIndex });
+      return;
+    }
 
     // up arrow
-    if (event.keyCode == '38') {
-      if (this.state.focusSubmenu <= 0) { // checks if at beginning of menu
+    if (event.keyCode === 38) {
+      if (this.state.focusSubmenu <= 0) {
         this.setState({ focusSubmenu: this.submenus.length - 1 }, function() {
           ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
-        }); // sets to end of menu
+        });
       } else {
         this.setState({ focusSubmenu: this.state.focusSubmenu - 1 }, function() {
           ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
         });
       }
+      return;
     }
 
     // down arrow
-    if (event.keyCode == '40') {
-      if (this.state.focusSubmenu >= this.submenus.length - 1) { // checks if at end of menu
+    if (event.keyCode === 40) {
+      if (this.state.focusSubmenu >= this.submenus.length - 1) {
         this.setState({ focusSubmenu: 0 }, function() {
           ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
-         }); // sets to beginning of menu
+         });
       } else {
         this.setState({ focusSubmenu: this.state.focusSubmenu + 1 }, function() {
           ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
         });
       }
+      return;
     }
 
-    //  spacebar or enter
-    if (event.keyCode == '32' || event.keyCode == '13') {
+    // spacebar or enter
+    if (event.keyCode === 32 || event.keyCode === 13) {
       this.setState({ activeSubmenu: this.state.focusSubmenu });
+      return;
     }
+  }
 
+  handleFocus(index) {
+    this.setState({ focusSubmenu: index });
   }
 
   getContent() {
@@ -133,8 +146,10 @@ export default class SettingsModal extends BaseModal {
         <div className={styles.settingsMenuLeft}>
           <ul style={{ listStyleType: 'none', paddingLeft: '0px' }} role='menu'>
             {this.submenus.map((value, index) => (
-              <li key={index} onClick={this.clickSubmenu.bind(this, index)} ref={"submenu" + index}
-              tabIndex={value.tabIndex} role='menuitem' onKeyDown={this.handleKeyDown.bind(this, index, value)}
+              <li key={index} ref={"submenu" + index} role='menuitem' tabIndex={value.tabIndex}
+                onClick={this.clickSubmenu.bind(this, index)}
+                onKeyDown={this.handleKeyDown.bind(this)}
+                onFocus={this.handleFocus.bind(this, index)}
                 className={classNames(styles.settingsSubmenuItem,
                   index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
                 <Icon key={index} prependIconName={value.props.prependIconName}
