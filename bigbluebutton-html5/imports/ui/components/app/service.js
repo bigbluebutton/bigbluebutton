@@ -11,26 +11,26 @@ function setCredentials(nextState, replace) {
     const { meetingID, userID, authToken } = nextState.params;
     Auth.setCredentials(meetingID, userID, authToken);
     replace({
-      pathname: '/'
+      pathname: '/',
     });
   }
 };
 
 let dataSubscriptions = null;
 function subscribeForData() {
-  if(dataSubscriptions) {
+  if (dataSubscriptions) {
     return dataSubscriptions;
   }
 
-  const subNames = ['users', 'chat', 'cursor', 'deskshare', 'meetings',
-    'polls', 'presentations', 'shapes', 'slides'];
+  const subNames = [
+    'users', 'chat', 'cursor', 'deskshare', 'meetings',
+    'polls', 'presentations', 'shapes', 'slides',
+  ];
 
   let subs = [];
   subNames.forEach(name => subs.push(subscribeFor(name)));
 
   dataSubscriptions = subs;
-
-  Auth.setLogOut();
   return subs;
 };
 
@@ -45,26 +45,51 @@ function subscribeFor(collectionName) {
 };
 
 function subscribeToCollections(cb) {
-  subscribeFor('users').then(() => {
-    Promise.all(subscribeForData()).then(() => {
-      if(cb) {
-        cb();
-      }
+  subscribeFor('users')
+    .then(() => {
+      observeUserKick();
+      return Promise.all(subscribeForData())
+        .then(() => {
+          if (cb) {
+            return cb();
+          }
+        });
     })
-  })
+    .catch(redirectToLogoutUrl);
 };
 
-function onStop(error, result) {
-  console.log('OnError', error, result);
-};
+function redirectToLogoutUrl(reason) {
+  console.error(reason);
+  console.log('Redirecting user to the logoutURL...');
+  document.location.href = Auth.logoutURL;
+}
 
-function onReady() {
-  console.log("OnReady");
-};
+let wasKicked = false;
+const wasKickedDep = new Tracker.Dependency;
+
+function observeUserKick() {
+  Users.find().observe({
+    removed(old) {
+      if (old.userId === Auth.userID) {
+        Auth.clearCredentials(() => {
+          wasKicked = true;
+          wasKickedDep.changed();
+        });
+      }
+    },
+  });
+}
+
+function wasUserKicked() {
+  wasKickedDep.depend();
+  return wasKicked;
+}
 
 export {
   subscribeForData,
   setCredentials,
   subscribeFor,
   subscribeToCollections,
+  wasUserKicked,
+  redirectToLogoutUrl
 };

@@ -1,6 +1,7 @@
 import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
-import auth from '/imports/ui/services/auth';
+import Auth from '/imports/ui/services/auth';
+import UnreadMessages from '/imports/ui/services/unread-messages';
 
 import { callServer } from '/imports/ui/services/api';
 
@@ -19,7 +20,7 @@ const mapUser = user => ({
   },
   isPresenter: user.presenter,
   isModerator: user.role === ROLE_MODERATOR,
-  isCurrent: user.userid === auth.getUser(),
+  isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
@@ -28,8 +29,8 @@ const mapUser = user => ({
 });
 
 const mapOpenChats = chat => {
-  let currentUserId = auth.getUser();
-  return chat.message.from_userid !== auth.getUser()
+  let currentUserId = Auth.userID;
+  return chat.message.from_userid !== Auth.userID
                                     ? chat.message.from_userid
                                     : chat.message.to_userid;
 };
@@ -172,7 +173,7 @@ const getOpenChats = chatID => {
   .fetch()
   .map(mapOpenChats);
 
-  let currentUserId = auth.getUser();
+  let currentUserId = Auth.userID;
   if (chatID) {
     openChats.push(chatID);
   }
@@ -182,12 +183,17 @@ const getOpenChats = chatID => {
   openChats = Users
   .find({ 'user.userid': { $in: openChats } })
   .map(u => u.user)
-  .map(mapUser);
+  .map(mapUser)
+  .map(op => {
+    op.unreadCounter = UnreadMessages.count(op.id);
+    return op;
+  });
 
   openChats.push({
     id: 'public',
     name: 'Public Chat',
     icon: 'group-chat',
+    unreadCounter: UnreadMessages.count('public_chat_userid'),
   });
 
   return openChats
@@ -195,13 +201,10 @@ const getOpenChats = chatID => {
 };
 
 getCurrentUser = () => {
-  let currentUserId = auth.getUser();
+  let currentUserId = Auth.userID;
+  let currentUser = Users.findOne({ 'user.userid': currentUserId });
 
-  return mapUser(
-    Users
-    .findOne({ 'user.userid': currentUserId })
-    .user
-  );
+  return (currentUser) ? mapUser(currentUser.user) : null;
 };
 
 const userActions = {

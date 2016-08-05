@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import WhiteboardShapeModel from './shape-factory/component.jsx';
+import Cursor from './cursor/component.jsx';
 import { createContainer } from 'meteor/react-meteor-data';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
@@ -62,6 +63,15 @@ export default class Whiteboard extends React.Component {
                 />
                 )
               : null }
+              <Cursor
+                viewBoxWidth={viewBoxWidth}
+                viewBoxHeight={viewBoxHeight}
+                viewBoxX={x}
+                viewBoxY={y}
+                widthRatio={slideObj.width_ratio}
+                cursorX={this.props.cursor[0].x}
+                cursorY={this.props.cursor[0].y}
+              />
             </g>
           </svg>
         </ReactCSSTransitionGroup>

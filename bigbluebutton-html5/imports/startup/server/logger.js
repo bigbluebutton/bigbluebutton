@@ -1,7 +1,7 @@
 // Setting up a logger
 const log = {};
 if (process != null && process.env != null && process.env.NODE_ENV == 'production') {
-  log.path = '/var/log/bigbluebutton/bbbnode.log';
+  log.path = '/var/log/bigbluebutton/html5/html5client.log';
 } else {
   log.path = `${process.env.PWD}/log/development.log`;
 }

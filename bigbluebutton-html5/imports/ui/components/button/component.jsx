@@ -119,6 +119,15 @@ export default class Button extends BaseButton {
       ...otherProps,
     } = this.props;
 
+    const remainingProps = Object.assign({}, otherProps);
+    delete remainingProps.icon;
+    delete remainingProps.size;
+    delete remainingProps.color;
+    delete remainingProps.ghost;
+    delete remainingProps.circle;
+    delete remainingProps.block;
+    delete remainingProps.hideLabel;
+
     /* TODO: We can change this and make the button with flexbox to avoid html
       changes */
     const renderLeftFuncName = !iconRight ? 'renderIcon' : 'renderLabel';
@@ -127,7 +136,8 @@ export default class Button extends BaseButton {
     return (
       <BaseButton
         className={cx(this._getClassNames(), className)}
-        {...otherProps}>
+        {...remainingProps}
+      >
         {this[renderLeftFuncName]()}
         {this[renderRightFuncName]()}
       </BaseButton>
@@ -142,10 +152,19 @@ export default class Button extends BaseButton {
       ...otherProps,
     } = this.props;
 
+    const remainingProps = Object.assign({}, otherProps);
+    delete remainingProps.icon;
+    delete remainingProps.color;
+    delete remainingProps.ghost;
+    delete remainingProps.circle;
+    delete remainingProps.block;
+    delete remainingProps.hideLabel;
+
     return (
       <BaseButton
         className={cx(styles[size], styles.buttonWrapper, className)}
-        {...otherProps}>
+        {...remainingProps}
+      >
         {!iconRight ? null : this.renderLabel()}
         <span className={cx(this._getClassNames())}>
           {this.renderIcon()}

@@ -35,11 +35,23 @@
     "grunt-shell": "~1.2.1",
     "jscs": "~2.11.0",
     "load-grunt-tasks": "~3.4.1",
-    "grunt-newer": "~1.2.0"
+    "grunt-newer": "~1.2.0",
+    "postcss-modules-extract-imports": "1.0.0",
+    "postcss-modules-local-by-default": "1.0.0",
+    "postcss-modules-scope": "1.0.0",
+    "postcss-modules-values": "1.1.1",
+    "postcss-nested": "1.0.0"
   },
   "cssModules": {
     "extensions": [
       "scss"
-    ]
+    ],
+    "postcssPlugins": {
+      "postcss-nested": {},
+      "postcss-modules-local-by-default": {},
+      "postcss-modules-extract-imports": {},
+      "postcss-modules-scope": {},
+      "autoprefixer": {}
+    }
   }
 }

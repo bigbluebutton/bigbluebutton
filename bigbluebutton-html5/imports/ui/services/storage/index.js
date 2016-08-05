@@ -1,11 +1,7 @@
-const STORAGE = sessionStorage;
-const PREFIX = 'BBB_';
-
-const get = (key) => STORAGE.getItem(`${PREFIX}${key}`);
-
-const set = (key, value) => STORAGE.setItem(`${PREFIX}${key}`, value);
+import Local from './local';
+import Session from './session';
 
 export default {
-  get,
-  set,
+  Local,
+  Session,
 };

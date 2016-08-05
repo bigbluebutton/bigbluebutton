@@ -9,9 +9,7 @@ export default class ActionsBar extends Component {
   }
 
   handleClick() {
-    console.log('dummy handler');
   }
-
   render() {
     return (
       <div className={styles.actionsbar}>

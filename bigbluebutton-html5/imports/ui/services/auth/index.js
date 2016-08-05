@@ -1,82 +1,113 @@
-import Storage from '/imports/ui/services/storage';
+import Storage from '/imports/ui/services/storage/session';
 import { callServer } from '/imports/ui/services/api';
 
-export const setCredentials = (meeting, user, token) => {
-  Storage.set('meetingID', meeting);
-  Storage.set('userID', user);
-  Storage.set('authToken', token);
-};
+class Auth {
+  constructor() {
+    this._meetingID = Storage.getItem('meetingID');
+    this._userID = Storage.getItem('userID');
+    this._authToken = Storage.getItem('authToken');
+    this._logoutURL = Storage.getItem('logoutURL');
 
-export const getCredentials = () => ({
-  meetingId: Storage.get('meetingID'),
-  requesterUserId: Storage.get('userID'),
-  requesterToken: Storage.get('authToken'),
-});
-
-export const getMeeting = () => getCredentials().meetingId;
-
-export const getUser = () => getCredentials().requesterUserId;
-
-export const getToken = () => getCredentials().requesterToken;
-
-export const clearCredentials = (callback)=> {
-  Storage.set('meetingID', null);
-  Storage.set('userID', null);
-  Storage.set('authToken', null);
-  Storage.set('logoutURL', null);
-
-  if (callback != null) {
-    return callback();
+    if (!this._logoutURL) {
+      this._setLogOut();
+    }
   }
-};
 
-export const setLogOut = () => {
-  let request;
-  let handleLogoutUrlError;
+  get meetingID() {
+    return this._meetingID;
+  }
 
-  handleLogoutUrlError = function () {
-    console.log('Error : could not find the logoutURL');
-    Storage.set('logoutURL', document.location.hostname);
+  set meetingID(meetingID) {
+    this._meetingID = meetingID;
+    Storage.setItem('meetingID', this._meetingID);
+  }
+
+  get userID() {
+    return this._userID;
+  }
+
+  set userID(userID) {
+    this._userID = userID;
+    Storage.setItem('userID', this._userID);
+  }
+
+  get token() {
+    return this._authToken;
+  }
+
+  set token(authToken) {
+    this._authToken = authToken;
+    Storage.setItem('authToken', this._authToken);
+  }
+
+  get logoutURL() {
+    return this._logoutURL;
+  }
+
+  set logoutURL(logoutURL) {
+    this._logoutURL = logoutURL;
+    Storage.setItem('logoutURL', this._logoutURL);
+  }
+
+  setCredentials(meeting, user, token) {
+    this.meetingID = meeting;
+    this.userID = user;
+    this.token = token;
+  }
+
+  getCredentials() {
+    return {
+      meetingId: this.meetingID,
+      requesterUserId: this.userID,
+      requesterToken: this.token,
+    };
+  }
+
+  clearCredentials(callback) {
+    this.meetingID = null;
+    this.userID = null;
+    this.token = null;
+
+    if (typeof callback === 'function') {
+      return callback();
+    }
   };
 
-  // obtain the logoutURL
-  request = $.ajax({
-    dataType: 'json',
-    url: '/bigbluebutton/api/enter',
-  });
+  completeLogout() {
+    let logoutURL = this.logoutURL;
+    callServer('userLogout');
 
-  request.done(data => {
-    if (data.response.logoutURL != null) {
-      Storage.set('logoutURL', data.response.logoutURL);
-    } else {
-      if (data.response.logoutUrl != null) {
-        Storage.set('logoutURL', data.response.logoutUrl);
+    clearCredentials(() => {
+      document.location.href = logoutURL;
+    });
+  };
+
+  _setLogOut() {
+    let request;
+    let handleLogoutUrlError;
+
+    handleLogoutUrlError = function () {
+      console.log('Error : could not find the logoutURL');
+      this.logoutURL = document.location.hostname;
+    };
+
+    // obtain the logoutURL
+    request = $.ajax({
+      dataType: 'json',
+      url: '/bigbluebutton/api/enter',
+    });
+
+    request.done(data => {
+      if (data.response.logoutURL != null) {
+        this.logoutURL = data.response.logoutURL;
       } else {
         return handleLogoutUrlError();
       }
-    }
-  });
+    });
 
-  return request.fail(function (data, textStatus, errorThrown) {
-    return handleLogoutUrlError();
-  });
+    return request.fail(() => handleLogoutUrlError());
+  }
 };
 
-export const completeLogout = () => {
-  let logoutURL = Storage.get('logoutURL');
-  callServer('userLogout');
-  clearCredentials(() => {
-    document.location.href = logoutURL;
-  });
-};
-
-export default {
-  setCredentials,
-  getCredentials,
-  getMeeting,
-  getUser,
-  getToken,
-  clearCredentials,
-  setLogOut,
-  completeLogout,
-};
+let AuthSingleton = new Auth();
+export default AuthSingleton;

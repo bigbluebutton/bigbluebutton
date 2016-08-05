@@ -3,6 +3,7 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 
 import Auth from '/imports/ui/services/auth';
+import UnreadMessages from '/imports/ui/services/unread-messages';
 
 import { callServer } from '/imports/ui/services/api';
 
@@ -13,15 +14,23 @@ const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
 const PRIVATE_CHAT_TYPE = 'PRIVATE_CHAT';
 
 const PUBLIC_CHAT_ID = 'public';
+const PUBLIC_CHAT_USERID = 'public_chat_userid';
+const PUBLIC_CHAT_USERNAME = 'public_chat_username';
+
+const ScrollCollection = new Mongo.Collection(null);
 
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
 const mapUser = (user) => ({
   id: user.userid,
   name: user.name,
+  emoji: {
+    status: user.emoji_status,
+    changedAt: user.set_emoji_time,
+  },
   isPresenter: user.presenter,
   isModerator: user.role === 'MODERATOR',
-  isCurrent: user.userid === Auth.getUser(),
+  isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
@@ -29,10 +38,13 @@ const mapUser = (user) => ({
   isLocked: user.locked,
 });
 
-const mapMessage = (message) => {
+const mapMessage = (messagePayload) => {
+  const { message } = messagePayload;
+
   let mappedMessage = {
-    content: [message.message],
-    time: +(message.from_time), //+ message.from_tz_offset,
+    id: messagePayload._id,
+    content: messagePayload.content,
+    time: message.from_time, //+ message.from_tz_offset,
     sender: null,
   };
 
@@ -45,18 +57,28 @@ const mapMessage = (message) => {
 
 const reduceMessages = (previous, current, index, array) => {
   let lastMessage = previous[previous.length - 1];
+  let currentPayload = current.message;
 
-  if (!lastMessage || !lastMessage.sender || !current.sender) { // Skip system messages
+  current.content = [];
+  current.content.push({
+    id: current._id,
+    text: currentPayload.message,
+    time: currentPayload.from_time,
+  });
+
+  if (!lastMessage || !current.message.chat_type === SYSTEM_CHAT_TYPE) {
     return previous.concat(current);
   }
+
+  let lastPayload = lastMessage.message;
 
   // Check if the last message is from the same user and time discrepancy
   // between the two messages exceeds window and then group current message
   // with the last one
 
-  if (lastMessage.sender.id === current.sender.id
-   && (current.time - lastMessage.time) <= GROUPING_MESSAGES_WINDOW) {
-    lastMessage.content = lastMessage.content.concat(current.content);
+  if (lastPayload.from_userid === currentPayload.from_userid
+   && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
+    lastMessage.content.push(current.content.pop());
     return previous;
   } else {
     return previous.concat(current);
@@ -80,12 +102,9 @@ const getPublicMessages = () => {
   })
   .fetch();
 
-  let systemMessage = Chats.findOne({ 'message.chat_type': SYSTEM_CHAT_TYPE });
-
   return publicMessages
-    .map(m => m.message)
-    .map(mapMessage)
-    .reduce(reduceMessages, []);
+    .reduce(reduceMessages, [])
+    .map(mapMessage);
 };
 
 const getPrivateMessages = (userID) => {
@@ -99,15 +118,12 @@ const getPrivateMessages = (userID) => {
     sort: ['message.from_time'],
   }).fetch();
 
-  return messages
-    .map(m => m.message)
-    .map(mapMessage)
-    .reduce(reduceMessages, []);
+  return messages.reduce(reduceMessages, []).map(mapMessage);
 };
 
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
-  const currentUser = getUser(Auth.getUser());
+  const currentUser = getUser(Auth.userID);
   const meeting = Meetings.findOne({});
 
   const lockSettings = meeting.roomLockSettings || {
@@ -122,13 +138,27 @@ const isChatLocked = (receiverID) => {
   return isPublic ? lockSettings.disablePublicChat : lockSettings.disablePrivateChat;
 };
 
+const hasUnreadMessages = (receiverID) => {
+  const isPublic = receiverID === PUBLIC_CHAT_ID;
+  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+
+  return UnreadMessages.count(receiverID) > 0;
+};
+
+const lastReadMessageTime = (receiverID) => {
+  const isPublic = receiverID === PUBLIC_CHAT_ID;
+  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+
+  return UnreadMessages.get(receiverID);
+};
+
 const sendMessage = (receiverID, message) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
 
-  const sender = getUser(Auth.getUser());
+  const sender = getUser(Auth.userID);
   const receiver = !isPublic ? getUser(receiverID) : {
-    id: 'public_chat_userid',
-    name: 'public_chat_username',
+    id: PUBLIC_CHAT_USERID,
+    name: PUBLIC_CHAT_USERNAME,
   };
 
   /* FIX: Why we need all this payload to send a message?
@@ -148,13 +178,37 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
-  return callServer('sendChatMessagetoServer', messagePayload);
+  callServer('sendChatMessagetoServer', messagePayload);
+
+  return messagePayload;
+};
+
+const getScrollPosition = (receiverID) => {
+  let scroll = ScrollCollection.findOne({ receiver: receiverID }) || { position: null };
+  return scroll.position;
+};
+
+const updateScrollPosition =
+  (receiverID, position) => ScrollCollection.upsert(
+    { receiver: receiverID },
+    { $set: { position: position } },
+  );
+
+const updateUnreadMessage = (receiverID, timestamp) => {
+  const isPublic = receiverID === PUBLIC_CHAT_ID;
+  receiverID = isPublic ? PUBLIC_CHAT_USERID : receiverID;
+  return UnreadMessages.update(receiverID, timestamp);
 };
 
 export default {
   getPublicMessages,
   getPrivateMessages,
   getUser,
+  getScrollPosition,
+  hasUnreadMessages,
+  lastReadMessageTime,
   isChatLocked,
+  updateScrollPosition,
+  updateUnreadMessage,
   sendMessage,
 };

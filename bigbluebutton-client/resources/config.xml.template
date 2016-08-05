@@ -28,7 +28,7 @@
 			privateEnabled="true"  
 			fontSize="12"
 			position="top-right"
-			baseTabIndex="701"
+			baseTabIndex="801"
 			colorPickerIsVisible="false"
 			maxMessageLength="1024"
 		/>
@@ -49,6 +49,7 @@
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
+			help="http://HOST/client/help/screenshare-help.html"
 		/>
     
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
@@ -117,6 +118,8 @@
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"
+			maxPasteLength="1024"
+			baseTabIndex="701"
 		/>
 
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
