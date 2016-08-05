@@ -24,7 +24,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="org.bigbluebutton.common.*"
-	initialize="init()"
 	creationComplete="onCreationComplete()"	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	width="365" height="350">
@@ -76,27 +75,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var sharingFullScreen:Boolean = false;
 			private var streaming:Boolean = false;
 			
-			private var stream:String;
 			private var videoHeight:Number;
 			private var videoWidth:Number;
 			private var captureHeight:Number = Capabilities.screenResolutionY;
 			private var captureWidth:Number = Capabilities.screenResolutionX;
 			public var autoStart:Boolean = false;
-			private var globalDispatcher:Dispatcher = new Dispatcher();
 			private var javaTimer:Timer;
 			
 			[Bindable] private var cursor:Sprite;
-			[Bindable] private var dsOptions:DeskshareOptions;
 
-			private var whiteboardCanvas:Canvas = null;
-			private var whiteboardCanvasHolder:Canvas = new Canvas();
-			
       private var calledStopApplet:Boolean = false;
       
-			private function init():void {
-				dsOptions = new DeskshareOptions();
-			}
-			
 			private function onCreationComplete():void {
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
@@ -331,6 +320,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:AddChild>
 		</mx:State>
 	</mx:states>
-	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-
 </mx:Canvas>
