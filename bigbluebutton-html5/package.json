@@ -29,7 +29,6 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
-    "coffeelint": "^1.6.0",
     "grunt": "^0.4.5",
     "grunt-concurrent": "~2.2.1",
     "grunt-contrib-watch": "~1.0.0",
