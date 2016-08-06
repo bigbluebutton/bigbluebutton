@@ -289,6 +289,9 @@ stop_bigbluebutton () {
 	if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
         	service bbb-fsesl-akka stop
 	fi
+	if [ -f /etc/init/bbb-transcode-akka.conf ]; then
+		service bbb-transcode-akka stop
+	fi
 }
 
 start_bigbluebutton () {
@@ -335,6 +338,9 @@ start_bigbluebutton () {
 	fi
 	if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
         	service bbb-fsesl-akka start
+	fi
+	if [ -f /etc/init/bbb-transcode-akka.conf ]; then
+			service bbb-transcode-akka start
 	fi
 
 	#
@@ -1671,6 +1677,9 @@ if [ $CLEAN ]; then
 	if [ -d /var/log/bbb-apps-akka ]; then
 		rm -f /var/log/bbb-apps-akka/*
   fi
+	if [ -d /var/log/bbb-transcode-akka ]; then
+		rm -f /var/log/bbb-transcode-akka/*
+	fi
 
 	display_bigbluebutton_status
 
