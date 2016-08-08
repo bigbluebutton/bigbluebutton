@@ -17,7 +17,14 @@ export function addCaptionsToCollection(meetingId, locale, captionHistory) {
   }
 
   let i;
+  let next;
   for (i = 0; i < captions.length; i++) {
+    if (i < captions.length - 1) {
+      next = i + 1;
+    } else {
+      next = undefined;
+    }
+
     const entry = {
       meetingId: meetingId,
       locale: locale,
@@ -27,6 +34,7 @@ export function addCaptionsToCollection(meetingId, locale, captionHistory) {
         captions: captions[i],
         index: i,
         length: captions[i].length,
+        next: next,
       },
     };
     Captions.insert(entry);

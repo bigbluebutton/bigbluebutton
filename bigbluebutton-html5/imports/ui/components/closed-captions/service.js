@@ -11,30 +11,39 @@ let getCCData = () => {
       'captionHistory.index': 1,
     },
   }).fetch();
-
-  let locales = [];
+  console.log(captionObj);
+  //associative array that keeps locales with arrays of string objects related to those locales
   let captions = [];
-  captionObj.forEach(function (obj) {
-    if (locales.indexOf(obj.locale) > -1) {
-      captions[obj.locale].captions.push(
-        {
-          captions: obj.captionHistory.captions,
-          index: obj.captionHistory.index,
-        }
-      );
-    } else {
-      captions[obj.locale] = {
-        ownerId: obj.captionHistory.ownerId ? obj.captionHistory.ownerId : null,
-        captions: [
+
+  //to keep track of locales in the captions[]
+  let locales = [];
+
+  if (captionObj != null) {
+    let current = captionObj[0];
+    while (current != null) {
+      if (locales.indexOf(current.locale) > -1) {
+        captions[current.locale].captions.push(
           {
-            captions: obj.captionHistory.captions,
-            index: obj.captionHistory.index,
-          },
-        ],
-      };
-      locales.push(obj.locale);
+            captions: current.captionHistory.captions,
+            index: current.captionHistory.index,
+          }
+        );
+      } else {
+        captions[current.locale] = {
+          ownerId: current.captionHistory.ownerId ? current.captionHistory.ownerId : null,
+          captions: [
+            {
+              captions: current.captionHistory.captions,
+              index: current.captionHistory.index,
+            },
+          ],
+        };
+        locales.push(current.locale);
+      }
+
+      current = captionObj[current.captionHistory.next];
     }
-  });
+  }
 
   return {
     captions: captions,
