@@ -47,6 +47,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
   val actorSystem = aSystem //TODO remove
 
   def receive = {
+    case msg: PauseShareRequestMessage    => handlePauseShareRequestMessage(msg)
     case msg: StartShareRequestMessage    => handleStartShareRequestMessage(msg)
     case msg: StopShareRequestMessage     => handleStopShareRequestMessage(msg)
     case msg: StreamStartedMessage        => handleStreamStartedMessage(msg)
@@ -54,7 +55,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     case msg: SharingStartedMessage       => handleSharingStartedMessage(msg)
     case msg: SharingStoppedMessage       => handleSharingStoppedMessage(msg)
     case msg: IsStreamRecorded            => handleIsStreamRecorded(msg)
-    case msg: IsSharingStopped            => handleIsSharingStopped(msg)
+    case msg: GetSharingStatus            => handleGetSharingStatus(msg)
     case msg: IsScreenSharing             => handleIsScreenSharing(msg)
     case msg: ScreenShareInfoRequest      => handleScreenShareInfoRequest(msg)
     case msg: UpdateShareStatus           => handleUpdateShareStatus(msg)
@@ -149,13 +150,9 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     }
   }
 
-  private def handleIsSharingStopped(msg: IsSharingStopped) {
+  private def handleGetSharingStatus(msg: GetSharingStatus) {
     screenshares.get(msg.meetingId) foreach { s =>
-      implicit val timeout = Timeout(3 seconds)
-      val future = s.actorRef ? msg
-      val reply = Await.result(future, timeout.duration).asInstanceOf[IsSharingStoppedReply]
-
-      sender ! reply
+      s.actorRef forward msg
     }
   }
 
@@ -180,6 +177,15 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
     if (log.isDebugEnabled) {
       log.debug("Received stop share request message for meeting=[" + msg.meetingId + "]")
+    }
+    screenshares.get(msg.meetingId) foreach { screenshare =>
+      screenshare.actorRef ! msg
+    }
+  }
+
+  private def handlePauseShareRequestMessage(msg: PauseShareRequestMessage) {
+    if (log.isDebugEnabled) {
+      log.debug("Received pause share request message for meeting=[" + msg.meetingId + "]")
     }
     screenshares.get(msg.meetingId) foreach { screenshare =>
       screenshare.actorRef ! msg

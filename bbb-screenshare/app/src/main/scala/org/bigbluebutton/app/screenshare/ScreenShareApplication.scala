@@ -98,6 +98,14 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     response
   }
 
+  def pauseShareRequest(meetingId: String, userId: String, streamId: String) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Received pause share request on meeting=[" + meetingId
+        + "] for stream=[" + streamId + "]")
+    }
+    screenshareManager ! new PauseShareRequestMessage(meetingId, userId, streamId)
+  }
+
   def stopShareRequest(meetingId: String, streamId: String) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received stop share request on meeting=[" + meetingId 
@@ -146,19 +154,19 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     screenshareManager ! new UpdateShareStatus(meetingId, streamId, seqNum)
   }
 
-  def isSharingStopped(meetingId: String, streamId: String): java.lang.Boolean = {
+  def getSharingStatus(meetingId: String, streamId: String): SharingStatus = {
     if (logger.isDebugEnabled()) {
       logger.debug("Received sharing status on meeting=" + meetingId 
           + "for stream=" + streamId + "]")
     }
+
     var stopped = false
 
     implicit val timeout = Timeout(3 seconds)
-    val future = screenshareManager ? IsSharingStopped(meetingId, streamId)
-    val reply = Await.result(future, timeout.duration).asInstanceOf[IsSharingStoppedReply]
+    val future = screenshareManager ? GetSharingStatus(meetingId, streamId)
+    val reply = Await.result(future, timeout.duration).asInstanceOf[GetSharingStatusReply]
 
-    stopped = reply.stopped
-    stopped
+    new SharingStatus(reply.paused, reply.stopped)
   }
 
 }

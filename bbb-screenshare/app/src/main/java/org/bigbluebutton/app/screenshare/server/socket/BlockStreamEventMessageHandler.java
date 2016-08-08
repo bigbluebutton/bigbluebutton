@@ -20,6 +20,7 @@ package org.bigbluebutton.app.screenshare.server.socket;
 
 import org.apache.mina.core.future.CloseFuture;
 import org.bigbluebutton.app.screenshare.IScreenShareApplication;
+import org.bigbluebutton.app.screenshare.SharingStatus;
 import org.bigbluebutton.app.screenshare.server.messages.CaptureEndMessage;
 import org.bigbluebutton.app.screenshare.server.messages.CaptureStartMessage;
 import org.bigbluebutton.app.screenshare.server.messages.CaptureUpdateMessage;
@@ -64,7 +65,8 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
 //    		System.out.println("Got CaptureUpdateBlockEvent");
     		CaptureUpdateMessage event = (CaptureUpdateMessage) message;
 //    		sessionManager.updateBlock(event.getRoom(), event.getSequenceNum());
-    		if (app.isSharingStopped(event.getRoom(), event.getRoom())) {
+			SharingStatus sharingStatus = app.getSharingStatus(event.getRoom(), event.getRoom()) ;
+    		if (sharingStatus.sharingStopped) {
     			// The flash client told us to stop sharing. Force stopping by closing connection from applet.
     			// We're changing how to tell the applet to stop sharing as AS ExternalInterface to JS to Applet calls
     			// generates a popup dialog that users may or may not see causing the browser to hang. (ralam aug 24, 2014)

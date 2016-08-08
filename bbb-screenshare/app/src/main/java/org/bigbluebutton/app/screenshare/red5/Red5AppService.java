@@ -79,6 +79,14 @@ public class Red5AppService {
     handler.isScreenSharing(meetingId, userId);
   }
 
+  public void pauseShareRequest(Map<String, Object> msg) {
+    String meetingId = Red5.getConnectionLocal().getScope().getName();
+    log.debug("Received pauseShareRequest for meeting=[{}]", meetingId);
+    String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+    String streamId = (String) msg.get("streamId");
+    handler.pauseShareRequest(meetingId, userId, streamId);
+  }
+
   public void startShareRequest(Map<String, Object> msg) {
 	Boolean record = (Boolean) msg.get("record");
     String meetingId = Red5.getConnectionLocal().getScope().getName();

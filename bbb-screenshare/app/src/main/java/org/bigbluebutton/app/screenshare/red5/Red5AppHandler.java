@@ -76,7 +76,34 @@ public class Red5AppHandler {
 
     log.info("Start ScreenShare request response: data={}", logStr);
   }
-  
+
+  public void pauseShareRequest(String meetingId, String userId, String streamId) {
+    Matcher matcher = STREAM_ID_PATTERN.matcher(streamId);
+    if (matcher.matches()) {
+      app.pauseShareRequest(meetingId, userId, streamId);
+    }
+
+    Map<String, Object> data = new HashMap<String, Object>();
+    data.put("meetingId", meetingId);
+    data.put("streamId", streamId);
+
+    Map<String, Object> message = new HashMap<String, Object>();
+    Gson gson = new Gson();
+    message.put("msg", gson.toJson(data));
+
+    BroadcastClientMessage msg = new BroadcastClientMessage(meetingId, "pauseViewingStream", message);
+    sender.sendMessage(msg);
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", meetingId);
+    logData.put("streamId", streamId);
+
+    Gson gson2 = new Gson();
+    String logStr =  gson2.toJson(logData);
+
+    log.info("Stop viewing ScreenShare broadcast message: data={}", logStr);
+  }
+
   public void stopShareRequest(String meetingId, String streamId) {
     Matcher matcher = STREAM_ID_PATTERN.matcher(streamId);
     if (matcher.matches()) {            

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bigbluebutton.app.screenshare.IScreenShareApplication;
+import org.bigbluebutton.app.screenshare.SharingStatus;
 import org.bigbluebutton.app.screenshare.server.session.Dimension;
 import org.bigbluebutton.app.screenshare.server.session.ISessionManagerGateway;
 import org.bigbluebutton.app.screenshare.server.socket.BlockStreamEventMessageHandler;
@@ -54,7 +55,8 @@ public class HttpTunnelStreamController extends MultiActionController {
 		} else if (1 == captureRequest) {
 			handleCaptureUpdateRequest(request, response);
 			response.setStatus(HttpServletResponse.SC_OK);
-			if (isSharingStopped(request, response)) {			  
+			SharingStatus sharingStatus =  getSharingStatus(request, response);
+			if (sharingStatus.sharingStopped) {
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			}			
 		} else if (2 == captureRequest) {
@@ -67,15 +69,11 @@ public class HttpTunnelStreamController extends MultiActionController {
 		return null;
 	}	
 		
-	private Boolean isSharingStopped(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+	private SharingStatus getSharingStatus(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String meetingId = request.getParameterValues("meetingId")[0];
 		String streamId = request.getParameterValues("streamId")[0];
-		boolean stopped = screenShareApplication.isSharingStopped(meetingId, streamId);
-		if (stopped) {
-	        log.info("Screensharing for stream={} has stopped.", streamId);		  
-		}
-
-		return stopped;
+		SharingStatus sharingStatus = screenShareApplication.getSharingStatus(meetingId, streamId);
+		return sharingStatus;
 	}
 	
 	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
@@ -115,7 +113,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 		  screenShareApplication = getScreenShareApplication();
 			hasSessionManager = true;
 		}
-		System.out.println("HttpTunnel: Received Capture Enfd Event.");
+		System.out.println("HttpTunnel: Received Capture End Event.");
 		screenShareApplication.sharingStopped(meetingId, streamId);
 	}
 	    
