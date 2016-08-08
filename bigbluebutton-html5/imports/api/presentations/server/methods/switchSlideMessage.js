@@ -6,13 +6,14 @@ import Slides from '/imports/api/slides';
 import { redisConfig } from '/config';
 
 Meteor.methods({
-  publishSwitchToPreviousSlideMessage(credentials) {
+  switchSlideMessage(credentials, requestedSlideNum) {
     const { meetingId, requesterUserId, requesterToken } = credentials;
 
     const currentPresentationDoc = Presentations.findOne({
       meetingId: meetingId,
       'presentation.current': true,
     });
+
     if (currentPresentationDoc != null) {
       const currentSlideDoc = Slides.findOne({
         meetingId: meetingId,
@@ -20,18 +21,20 @@ Meteor.methods({
         'slide.current': true,
       });
       if (currentSlideDoc != null) {
-        const previousSlideDoc = Slides.findOne({
+        const requestedSlideDoc = Slides.findOne({
           meetingId: meetingId,
           presentationId: currentPresentationDoc.presentation.id,
-          'slide.num': currentSlideDoc.slide.num - 1,
+          'slide.num': parseInt(requestedSlideNum),
         });
-        if ((previousSlideDoc != null) && isAllowedTo('switchSlide', credentials)) {
+
+        if ((requestedSlideDoc != null) && isAllowedTo('switchSlide', credentials)) {
           let message = {
             payload: {
-              page: previousSlideDoc.slide.id,
+              page: requestedSlideDoc.slide.id,
               meeting_id: meetingId,
             },
           };
+
           message = appendMessageHeader('go_to_slide', message);
           return publish(redisConfig.channels.toBBBApps.presentation, message);
         }

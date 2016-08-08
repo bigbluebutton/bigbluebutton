@@ -87,6 +87,7 @@ export default class Button extends BaseButton {
       icon,
       size,
       color,
+      disabled,
       ghost,
       circle,
       block,
@@ -101,6 +102,7 @@ export default class Button extends BaseButton {
     propClassNames[styles.circle] = circle;
     propClassNames[styles.block] = block;
     propClassNames[styles.iconRight] = iconRight;
+    propClassNames[styles.disabled] = disabled;
 
     return propClassNames;
   }
