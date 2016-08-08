@@ -147,6 +147,10 @@ package org.bigbluebutton.modules.screenshare.managers {
             service.requestStartSharing();
         }
         
+        public function handleRequestPauseSharingEvent():void {
+            service.requestPauseSharing(ScreenshareModel.getInstance().streamId);
+        }
+        
         public function handleRequestStopSharingEvent():void {
             service.requestStopSharing(ScreenshareModel.getInstance().streamId);
         }

@@ -55,6 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+      import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
       import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
@@ -199,6 +200,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         closeWindow();
       }
       
+      public function pauseSharing():void {
+        LOGGER.debug("Calling pauseSharing");
+        if (streaming) {
+          stopStream();
+          var streamEvent:RequestToPauseSharing = new RequestToPauseSharing();
+          dispatchEvent(streamEvent);
+        }
+        sharingFullScreen = false;
+        streaming = false;
+      }
+      
       public function stopSharingEvent(evt:StopSharingButtonEvent):void{
         if (streaming) {
           stopStream();
@@ -329,7 +341,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       override public function close(event:MouseEvent = null):void {
         stopSharing();
         closeWindow();
-      }		
+      }
       
       override protected function resourcesChanged():void{
         super.resourcesChanged();
@@ -407,7 +419,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stop.label')}" 
                          visible="true" 
                          enabled="false" 
-                         click="stopSharing()" 
+                         click="pauseSharing()" 
                          tabIndex="{baseIndex+5}"/>
               <mx:Spacer width="100%"/>
               <mx:Button id="btnRegionPublish"

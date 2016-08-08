@@ -88,6 +88,10 @@ package org.bigbluebutton.modules.screenshare.services {
             sender.stopShareRequest(UsersUtil.getInternalMeetingID(), streamId);
         }
         
+        public function requestPauseSharing(streamId:String):void {
+            sender.pauseShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), streamId);
+        }
+        
             
     }
 }

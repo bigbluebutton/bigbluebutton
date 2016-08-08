@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.ModuleEvent;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+            import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
 			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
@@ -62,6 +63,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <EventHandlers type="{RequestToStartSharing.REQUEST_SHARE_START}">
     <MethodInvoker generator="{ScreenshareManager}" method="handleRequestStartSharingEvent"/>
+  </EventHandlers>
+    
+  <EventHandlers type="{RequestToPauseSharing.REQUEST_SHARE_PAUSE}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleRequestPauseSharingEvent"/>
   </EventHandlers>
   
   <EventHandlers type="{RequestToStopSharing.REQUEST_SHARE_STOP}">
