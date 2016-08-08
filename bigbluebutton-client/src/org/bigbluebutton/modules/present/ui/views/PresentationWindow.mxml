@@ -302,9 +302,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
 			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
-				if(slideView != null)
+				if(currentTabIndex == PRESENTATION_TAB_INDEX && slideView != null)
 					slideView.onParentResized(parentWidth, parentHeight);
-				if(DSViewCanvas != null)
+				else if(currentTabIndex == DESKSHARE_VIEW_TAB_INDEX && DSViewCanvas != null)
 					DSViewCanvas.onParentResized(parentWidth, parentHeight);
 			}
 			
