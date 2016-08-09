@@ -147,12 +147,14 @@ package org.bigbluebutton.modules.screenshare.managers {
 
             if (option.useWebRTCIfAvailable && !BrowserCheck.isWebRTCSupported()) {
               usingJava = true;
-              var autoStart:Boolean = false; // harcode for now
-              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart, option.autoFullScreen);
+              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), option.autoStart, option.autoFullScreen);
               sharing = true;
               service.requestStartSharing();
             } else {
+              sharing = true;
               usingJava = false;
+              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), option.autoStart, option.autoFullScreen);
+              service.requestStartSharing();
             }
         }
         
@@ -182,7 +184,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             toolbarButtonManager.startedSharing();
             var option:ScreenshareOptions = new ScreenshareOptions();
             option.parseOptions();
-            publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart, option.autoFullScreen);
+            publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), option.autoStart, option.autoFullScreen);
             sharing = true;
         }
         

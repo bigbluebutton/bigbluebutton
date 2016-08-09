@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.screenshare.model
 		[Bindable] public var autoStart:Boolean = false;
 		[Bindable] public var autoFullScreen:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
-		[Bindable] public var useWebRTCIfAvailable:Boolean = true;
+		[Bindable] public var useWebRTCIfAvailable:Boolean = false;
 		[Bindable] public var chromeExtensionKey:String = null;
     [Bindable] public var helpUrl:String;
 
