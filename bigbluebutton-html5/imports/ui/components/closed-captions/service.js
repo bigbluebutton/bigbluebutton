@@ -3,47 +3,42 @@ import Auth from '/imports/ui/services/auth';
 
 let getCCData = () => {
   const meetingID = Auth.meetingID;
-  let captionObj = Captions.find({
-    meetingId: meetingID,
-  }, {
-    sort: {
-      locale: 1,
-      'captionHistory.index': 1,
-    },
-  }).fetch();
-  console.log(captionObj);
+
+  //list of unique locales in the Captions Collection
+  let locales = _.uniq(Captions.find({}, {
+    sort: { locale: 1 },
+    fields: { locale: true },
+  }).fetch().map(function (obj) {
+    return obj.locale;
+  }), true);
+
   //associative array that keeps locales with arrays of string objects related to those locales
   let captions = [];
 
-  //to keep track of locales in the captions[]
-  let locales = [];
+  locales.forEach(function (locale) {
+    let captionObjects = Captions.find({
+      meetingId: meetingID,
+      locale: locale,
+    }, {
+      sort: {
+        locale: 1,
+        'captionHistory.index': 1,
+      },
+    }).fetch();
 
-  if (captionObj != null) {
-    let current = captionObj[0];
+    let current = captionObjects[0];
+    captions[current.locale] = {
+      ownerId: current.captionHistory.ownerId ? current.captionHistory.ownerId : null,
+      captions: [],
+    };
     while (current != null) {
-      if (locales.indexOf(current.locale) > -1) {
-        captions[current.locale].captions.push(
-          {
-            captions: current.captionHistory.captions,
-            index: current.captionHistory.index,
-          }
-        );
-      } else {
-        captions[current.locale] = {
-          ownerId: current.captionHistory.ownerId ? current.captionHistory.ownerId : null,
-          captions: [
-            {
-              captions: current.captionHistory.captions,
-              index: current.captionHistory.index,
-            },
-          ],
-        };
-        locales.push(current.locale);
-      }
-
-      current = captionObj[current.captionHistory.next];
+      captions[current.locale].captions.push({
+        captions: current.captionHistory.captions,
+        index: current.captionHistory.index,
+      });
+      current = captionObjects[current.captionHistory.next];
     }
-  }
+  });
 
   return {
     captions: captions,
