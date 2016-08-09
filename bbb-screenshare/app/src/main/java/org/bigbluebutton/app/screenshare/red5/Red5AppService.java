@@ -3,7 +3,9 @@ package org.bigbluebutton.app.screenshare.red5;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import org.bigbluebutton.app.screenshare.messaging.redis.MessageSender;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -15,7 +17,8 @@ import com.google.gson.Gson;
 public class Red5AppService {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppService.class, "screenshare");
   
-  private Red5AppHandler handler; 
+  private Red5AppHandler handler;
+  private MessageSender red5RedisSender;
 
   /**
    * Called from the client to pass us the userId.
@@ -85,7 +88,20 @@ public class Red5AppService {
     log.debug("Received startShareRequest for meeting=[{}]", meetingId);
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    handler.startShareRequest(meetingId, userId, record);
+
+
+
+    // Ensure that the user is the current presenter
+      Map<String, String> event = new HashMap<String, String>();
+      event.put("module", "Deskshare");
+      event.put("timestamp", genTimestamp().toString());
+      event.put("meetingId", meetingId);
+      event.put("userID", userId);
+      event.put("eventName", "AllowUserToShareDesktopRequest");
+//      red5RedisSender.record(meetingId, event);
+
+      log.info("_______Red5AppService::startShareRequest");
+    // handler.startShareRequest(meetingId, userId, record);
   }
 
   public void stopShareRequest(Map<String, Object> msg) {
@@ -96,8 +112,15 @@ public class Red5AppService {
     handler.stopShareRequest(meetingId, streamId);
   }
 
+  private Long genTimestamp() {
+    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
 
   public void setAppHandler(Red5AppHandler handler) {
     this.handler = handler;
+  }
+
+  public void setRed5RedisSender(MessageSender red5RedisSender) {
+      this.red5RedisSender = red5RedisSender;
   }
 }

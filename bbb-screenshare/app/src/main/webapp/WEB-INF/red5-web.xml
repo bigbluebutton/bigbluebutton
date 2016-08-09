@@ -56,8 +56,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <bean id="screenshare.service" class="org.bigbluebutton.app.screenshare.red5.Red5AppService">
     <property name="appHandler" ref="red5AppHandler"/>
+    <property name="red5RedisSender" ref="red5RedisSender"/>
   </bean>
-  
+
   <bean id="red5AppHandler" class="org.bigbluebutton.app.screenshare.red5.Red5AppHandler">
     <property name="application" ref="screenShareApplication"/>
     <property name="messageSender" ref="connectionInvokerService"/>
@@ -107,4 +108,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <constructor-arg index="0" value="${redis.host}"/>
     <constructor-arg index="1" value="${redis.port}"/>
   </bean>
+
+    <bean id="redisPubSubMessageHandler"
+          class="org.bigbluebutton.app.screenshare.messaging.redis.RedisPubSubMessageHandler">
+        <!--<property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>-->
+        <!--<property name="bbbAppsIsKeepAliveHandler"> <ref bean="bbbAppsIsKeepAliveHandler"/></property>-->
+    </bean>
+
+  <import resource="bbb-redis-pool.xml"/>
+  <import resource="bbb-red5-redis-pubsub.xml"/>
 </beans>

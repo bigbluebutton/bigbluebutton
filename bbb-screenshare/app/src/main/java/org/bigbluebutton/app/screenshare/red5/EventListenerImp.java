@@ -20,6 +20,7 @@ public class EventListenerImp implements IEventListener {
   
   @Override
   public void handleMessage(IEvent event) {
+      log.info("__EventListenerImp:::" + event.toString());
     if (event instanceof ShareStartedEvent) {
       sendShareStartedEvent((ShareStartedEvent) event);
     } else if (event instanceof ShareStoppedEvent) {
@@ -130,5 +131,8 @@ public class EventListenerImp implements IEventListener {
   public void setMessageSender(ConnectionInvokerService sender) {
     this.sender = sender;
   }
+
+
+
 
 }
