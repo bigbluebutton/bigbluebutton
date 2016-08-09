@@ -19,7 +19,13 @@ export default class SettingsModal extends BaseModal {
   }
 
   componentWillMount() {
+    /* activeSubmenu represents the submenu in the submenus array to be displayed to the user,
+     * initialized to 0
+     */
     this.setState({ activeSubmenu: 0 });
+    /* focusSubmenu represents the submenu in the submenus array which currently has focus,
+     * initialized to 0
+     */
     this.setState({ focusSubmenu: 0 });
     this.submenus.push({ className: AudioMenu, tabIndex: 3,
       props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, });
@@ -61,6 +67,12 @@ export default class SettingsModal extends BaseModal {
     return <Submenu {...props}/>;
   }
 
+  /* When an option in the menu is clicked, set the activeSubmenu and focusSubmenu
+   * to the value of index. If clicked out of bounds set to 0 or end of submenus array accordingly.
+   *
+   * activeSubmenu: the submenu to be displayed to the user
+   * focusSubmenu: the submenu to set focus to
+   */
   clickSubmenu(i) {
     if (i <= 0) {
       this.setState({ activeSubmenu: 0, focusSubmenu: 0, });
@@ -76,6 +88,15 @@ export default class SettingsModal extends BaseModal {
     }
   }
 
+  /* Checks for key presses within the submenu list. Key behaviour varies.
+   *
+   * Tab: changes focus to next submenu or element outside of menu
+   * Shift+Tab: changes focus to previous submenu or element outside of menu
+   * Up Arrow: changes focus to previous submenu, can cycle through menu
+   * Down Arrow: changes focus to next submenu, can cycle through menu
+   * Spacebar: selects submenu in focus and sets as active
+   * Enter: selects submenu in focus and sets as active
+   */
   handleKeyDown(event) {
     // tab
     if (event.keyCode === 9) {
@@ -140,6 +161,9 @@ export default class SettingsModal extends BaseModal {
     }
   }
 
+  /* Keeps the focusSubmenu variable at the correct value when
+   * tabbing or shift-tabbing out of the submenu array
+   */
   handleFocus(index) {
     this.setState({ focusSubmenu: index });
   }
