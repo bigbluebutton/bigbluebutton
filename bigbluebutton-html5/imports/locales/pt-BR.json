@@ -10,5 +10,8 @@
   "app.chat.titlePrivate": "Conversa Privada com {name}",
   "app.chat.partnerDisconnected": "{name} saiu da sala",
   "app.chat.moreMessages": "Mais mensagens abaixo",
-  "app.kickMessage": "Você foi expulso da apresentação"
+  "app.kickMessage": "Você foi expulso da apresentação",
+  "app.failedMessage": "Desculpas, estamos com problemas para se conectar ao servidor.",
+  "app.connectingMessage": "Conectando...",
+  "app.waitingMessage": "Disconectado. Tentando reconectar em {seconds} segundos..."
 }

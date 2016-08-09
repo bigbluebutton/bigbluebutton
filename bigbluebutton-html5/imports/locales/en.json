@@ -22,5 +22,8 @@
   "app.whiteboard.slideControls.fitScreenLabel": "Fit to screen",
   "app.whiteboard.slideControls.fitScreenDescrip": "Display the whole slide",
   "app.whiteboard.slideControls.zoomLabel": "Zoom",
-  "app.whiteboard.slideControls.zoomDescrip": "Change the zoom level of the presentation"
+  "app.whiteboard.slideControls.zoomDescrip": "Change the zoom level of the presentation",
+  "app.failedMessage": "Apologies, trouble connecting to the server.",
+  "app.connectingMessage": "Connecting...",
+  "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds..."
 }
