@@ -25,20 +25,39 @@ eventEmitter.on('update_caption_owner_message', function (arg) {
   console.error(JSON.stringify(arg));
   let payload = arg.payload;
 
-  Captions.update(
-    {
-      meetingId: payload.meeting_id,
+  if (Captions.findOne({
+      meetingId: meetingId,
       locale: payload.locale,
-    },
-    {
-      $set: {
-        'captionHistory.ownerId': payload.owner_id,
+    }) != null) {
+    Captions.update(
+      {
+        meetingId: payload.meeting_id,
+        locale: payload.locale,
       },
-    },
-    {
-      multi: true,
-    }
-  );
+      {
+        $set: {
+          'captionHistory.ownerId': payload.owner_id,
+        },
+      },
+      {
+        multi: true,
+      }
+    );
+  } else {
+    const entry = {
+      meetingId: meetingId,
+      locale: payload.locale,
+      captionHistory: {
+        locale: payload.locale,
+        ownerId: payload.owner_id,
+        captions: '',
+        index: 0,
+        length: 0,
+        next: null,
+      },
+    };
+    Captions.insert(entry);
+  }
 
   return arg.callback();
 });
