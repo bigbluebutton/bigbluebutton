@@ -49,7 +49,7 @@ clientConfig.app.listenOnly = false;
 clientConfig.app.skipCheck = false;
 
 // Flag for HTTPS. True by default
-clientConfig.app.httpsConnection = true;
+clientConfig.app.httpsConnection = false;
 
 // The amount of time the client will wait before making another call to
 // successfully hangup the WebRTC conference call

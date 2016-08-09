@@ -13,5 +13,5 @@
   "app.kickMessage": "Você foi expulso da apresentação",
   "app.failedMessage": "Desculpas, estamos com problemas para se conectar ao servidor.",
   "app.connectingMessage": "Conectando...",
-  "app.waitingMessage": "Disconectado. Tentando reconectar em {seconds} segundos..."
+  "app.waitingMessage": "Desconectado. Tentando reconectar em {seconds} segundos..."
 }
