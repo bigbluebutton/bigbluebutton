@@ -20,13 +20,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
-           xmlns:maps="org.bigbluebutton.modules.deskShare.maps.*"
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
+
            implements="org.bigbluebutton.common.IBigBlueButtonModule"
            creationComplete="onCreationComplete()" xmlns:maps1="org.bigbluebutton.modules.screenshare.maps.*">
-  
+
   <maps1:ScreenshareEventMap id="deskshareGlobalEventMap" />
-  
+  <maps1:WebRTCDeskshareEventMap id="webRTCDeskshareEventMap" />
+
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
