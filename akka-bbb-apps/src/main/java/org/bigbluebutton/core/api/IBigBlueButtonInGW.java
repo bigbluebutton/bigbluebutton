@@ -114,7 +114,7 @@ public interface IBigBlueButtonInGW {
 	void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String text);
 
 	// DeskShare
-	void deskShareStarted(String conferenceName, String callerId, String callerIdName);
+	void deskShareStarted(String confId, String callerId, String callerIdName);
 	void deskShareStopped(String conferenceName, String callerId, String callerIdName);
 	void deskShareRTMPBroadcastStarted(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
 	void deskShareRTMPBroadcastStopped(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);

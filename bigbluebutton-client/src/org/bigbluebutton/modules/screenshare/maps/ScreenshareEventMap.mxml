@@ -43,6 +43,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.managers.ScreenshareManager;
 			import org.bigbluebutton.modules.screenshare.services.red5.ConnectionEvent;
+			import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
+			import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
@@ -110,5 +112,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ScreenshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 
-  	
+	<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleUseJavaModeCommand"/>
+	</EventHandlers>
+
+	<EventHandlers type="{DeskshareToolbarEvent.STOP}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleDeskshareToolbarStopEvent"/>
+	</EventHandlers>
+
 </EventMap>
