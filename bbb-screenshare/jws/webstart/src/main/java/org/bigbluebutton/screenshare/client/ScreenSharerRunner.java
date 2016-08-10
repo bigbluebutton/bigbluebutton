@@ -25,7 +25,7 @@ import org.bigbluebutton.screenshare.client.javacv.FfmpegScreenshare;
 
 public class ScreenSharerRunner {
   public static final String NAME = "SCREENSHARERUNNER: ";
-	
+
   boolean connected = false;
   private boolean started = false;
   private ScreenShareInfo ssi;
@@ -70,16 +70,13 @@ public class ScreenSharerRunner {
   }
 
   public void disconnectSharing(){
-    System.out.println(NAME + "Disconneted");
-
+    System.out.println(NAME + "Disconnected");
     jcs.stop();
-  } // END FUNCTION disconnectSharing
+  }
 
   public void stopSharing() {
     System.out.println(NAME + "Stopping");
-    System.out.println(NAME + "Removing icon from system tray.");
-
-    jcs.stop();	
+    jcs.stop();
   }
 
   public void setCaptureCoordinates(int x, int y) {

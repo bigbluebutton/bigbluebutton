@@ -147,10 +147,10 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   }
 
   def updateShareStatus(meetingId: String, streamId : String, seqNum: java.lang.Integer) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received sharing status on meeting=" + meetingId 
-          + "for stream=" + streamId + "]")
-    }
+//    if (logger.isDebugEnabled()) {
+//      logger.debug("Received sharing status on meeting=" + meetingId
+//          + "for stream=" + streamId + "]")
+//    }
     screenshareManager ! new UpdateShareStatus(meetingId, streamId, seqNum)
   }
 

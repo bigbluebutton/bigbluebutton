@@ -42,6 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
   <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
   <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
+  <mate:Listener type="{StreamStoppedEvent.STREAM_STOPPED}" method="handleStreamStoppedEvent" />
     
   <mx:Script>
     <![CDATA[
@@ -60,6 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
       import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
       import org.bigbluebutton.modules.screenshare.events.StreamEvent;
+      import org.bigbluebutton.modules.screenshare.events.StreamStoppedEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -86,7 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var video:Video;
       private var ns:NetStream;
-      [Bindable] private var videoHolder:UIComponent;
+      [Bindable] private var videoHolder:UIComponent = null;
       private var stream:String;
       private var videoHeight:Number;
       private var videoWidth:Number;
@@ -170,6 +172,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
       }
       
+      private function handleStreamStoppedEvent(event:StreamStoppedEvent):void {
+        if (videoHolder != null) {
+            this.removeChild(videoHolder);
+            videoHolder = null;
+        }
+        
+        showHowToHelpArea();
+      }
+      
       public function shareScreen(fullScreen:Boolean):void {
         LOGGER.debug("Calling shareScreen");
         btnFSPublish.enabled = false;
@@ -191,9 +202,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         LOGGER.debug("Calling stopSharing");
         if (streaming) {
           stopStream();
-          var streamEvent:RequestToStopSharing = new RequestToStopSharing();
-          dispatchEvent(streamEvent);
         }
+        
+        var streamEvent:RequestToStopSharing = new RequestToStopSharing();
+        dispatchEvent(streamEvent);
+        
         sharingFullScreen = false;
         streaming = false;
         
@@ -382,6 +395,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var DEFAULT_HELP_URL:String = option.helpUrl;
         LOGGER.debug("onHelpButtonClicked - " + DEFAULT_HELP_URL);
         navigateToURL(new URLRequest(DEFAULT_HELP_URL), "_blank")
+      }
+      
+      private function showHowToHelpArea():void {
+        howToHelpArea.visible = howToHelpArea.includeInLayout = true;
       }
       
       private function removeHowToHelpArea():void {

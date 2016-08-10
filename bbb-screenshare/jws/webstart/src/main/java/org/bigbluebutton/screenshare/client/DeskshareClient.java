@@ -32,7 +32,7 @@ public class DeskshareClient {
     listener = l;
   }
 
-  public void start() {			
+  public void start() {
     if (ssi.fullScreen) {
       System.out.println(NAME + "Sharing full screen.");
       shareFullScreen();
@@ -45,7 +45,7 @@ public class DeskshareClient {
   private void shareWithFrame() {
     screenSharer = new ScreenRegionSharer(ssi);
     screenSharer.addClientListener(listener);
-    screenSharer.start(false);		
+    screenSharer.start(false);
   }
 
   private void shareFullScreen() {
@@ -55,16 +55,16 @@ public class DeskshareClient {
   }
 
   public void disconnected(){
-    System.out.println(NAME + "Disconneted");
+    System.out.println(NAME + "Disconnected");
     screenSharer.disconnected();
   } 
 
   public void stop() {
-    System.out.println(NAME + "Stop");		
+    System.out.println(NAME + "Stop");
     screenSharer.stop();
   }
 
-  private DeskshareClient(ScreenShareInfo ssi) {		
+  private DeskshareClient(ScreenShareInfo ssi) {
     this.ssi = ssi;
   }
 

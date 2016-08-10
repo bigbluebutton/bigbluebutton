@@ -90,20 +90,13 @@ public class NetworkStreamSender implements NetworkStreamListener {
       httpSenders.disconnect();
       httpSenders.stop();      
     }
-
   }
 
 
   @Override
   public void networkException(ExitCode reason) {
-    try {						
       System.out.println(NAME + "NetworkException - " + reason.getExitCode());
-      stop();
       notifyNetworkConnectionListener(reason);
-    } catch (ConnectionException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }		
   }
 
   private class UpdateTimerTask extends TimerTask {

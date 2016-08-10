@@ -32,6 +32,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   private NetworkStreamSender signalChannel;
   private DeskshareSystemTray tray = new DeskshareSystemTray();
   private ClientListener listener;
+  private volatile boolean paused = false;
   
   public ScreenRegionSharer(ScreenShareInfo ssi) {
     signalChannel = new NetworkStreamSender(ssi.host, ssi.meetingId, ssi.streamId);
@@ -46,8 +47,9 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
     frame = new CaptureRegionFrame(crl, 5);
     frame.setHeight(ssi.captureHeight);
     frame.setWidth(ssi.captureWidth);
-    frame.setLocation(ssi.x, ssi.y);		
+    frame.setLocation(ssi.x, ssi.y);
     System.out.println(NAME + "Launching Screen Capture Frame");
+    paused = false;
     frame.start(autoStart);
   }
 
@@ -63,20 +65,37 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
     sharer.disconnectSharing();
     System.out.println(NAME + "Change system tray icon message");
     tray.disconnectIconSystemTrayMessage();
-    System.out.println(NAME + "Desktop sharing disconneted");
+    System.out.println(NAME + "Desktop sharing disconnected");
   } 
 
   public void stop() {
-    frame.setVisible(false);	
+    frame.setVisible(false);
     sharer.stopSharing();
     signalChannel.stopSharing();
     tray.removeIconFromSystemTray();
     System.out.println(NAME + "Closing Screen Capture Frame");
   }
 
+  private void pause() {
+    if (!paused) {
+      frame.setVisible(false);
+      sharer.stopSharing();
+      paused = true;
+      System.out.println(NAME + "Paused. *************");
+    }
+  }
+
   @Override
   public void networkConnectionException(ExitCode reason) {
-    if (listener != null) listener.onClientStop(reason);
+    if (listener != null) {
+      if (reason.getExitCode() == ExitCode.PAUSED.getExitCode()) {
+        System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
+        pause();
+      } else {
+        System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
+        listener.onClientStop(reason);
+      }
+    }
   }
   
   private class CaptureRegionListenerImp implements CaptureRegionListener {
@@ -113,6 +132,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
 
     @Override
     public void onStopCapture() {
+      System.out.println("ON STOP CAPTURE");
       srs.stop();
     }
   }

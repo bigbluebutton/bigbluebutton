@@ -40,7 +40,7 @@ public class FfmpegScreenshare {
   }
   
   public void setCaptureCoordinates(int x, int y){
-    // do nothing. Shoudl remove. 
+    // do nothing. Should remove.
   }
   
   private Map<String, String> splitToMap(String source, String entriesSeparator, String keyValueSeparator) {
@@ -92,9 +92,7 @@ public class FfmpegScreenshare {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
-    
-    
+
 //    useH264(recorder, codecOptions);
     
     startTime = System.currentTimeMillis();
@@ -141,11 +139,13 @@ public class FfmpegScreenshare {
         try {
           mainRecorder.record(frame);
         } catch (Exception e) {
+          System.out.println("CaptureScreen Exception 1");
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }
     } catch (Exception e1) {
+      System.out.println("CaptureScreen Exception 2");
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
@@ -182,22 +182,27 @@ public class FfmpegScreenshare {
         while (startBroadcast){
           captureScreen();
         }
-        System.out.println("Stopping screen capture.");     
+        System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
       }
     };
     startBroadcastExec.execute(startBroadcastRunner);    
   }
 
   public void stop() {
+    System.out.println("Stopping screen capture.");
     startBroadcast = false;
     if (mainRecorder != null) {
-
       try {
+        System.out.println("mainRecorder.stop.");
         mainRecorder.stop();
+        System.out.println("mainRecorder.release.");
         mainRecorder.release();
-        grabber.stop();
+        System.out.println("grabber.stop.");
+        //grabber.stop();
+        System.out.println("End stop sequence.");
       } catch (Exception e) {
         // TODO Auto-generated catch block
+        System.out.println("Exception in Stopping screen capture." );
         e.printStackTrace();
       }
     }

@@ -57,8 +57,14 @@ public class HttpTunnelStreamController extends MultiActionController {
 			response.setStatus(HttpServletResponse.SC_OK);
 			SharingStatus sharingStatus =  getSharingStatus(request, response);
 			if (sharingStatus.sharingStopped) {
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			}			
+				//response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				log.warn("SHARING_STOPPED " + sharingStatus.sharingStopped);
+				response.addHeader("SHARING_STOPPED", "true");
+			} else if (sharingStatus.sharingPaused) {
+                //response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+				log.warn("SHARING_PAUSED " + sharingStatus.sharingPaused);
+				response.addHeader("SHARING_PAUSED", "true");
+            }
 		} else if (2 == captureRequest) {
 			handleCaptureEndRequest(request, response);
 			response.setStatus(HttpServletResponse.SC_OK);
