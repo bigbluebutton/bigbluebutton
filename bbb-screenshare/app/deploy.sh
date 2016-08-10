@@ -1,8 +1,3 @@
-##!/usr/bin/env bash
-#sudo chmod -R 777 /usr/share/red5/webapps
-#gradle clean war deploy
-#sudo chmod -R 777 /usr/share/red5/webapps
-
 #!/bin/bash
 # deploying 'screenshare' to /usr/share/red5/webapps
 
@@ -20,10 +15,11 @@ sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-sc
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/scala-library-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/akka-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/config-1.3.0.jar \
- ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/gson-1.7.1.jar \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/gson-2.5.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/jedis-2.7.2.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/commons-pool2-2.3.jar \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/spring-webmvc-4.2.5.RELEASE.jar  \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-common-message-0.0.18-SNAPSHOT.jar \
   /usr/share/red5/webapps/screenshare/WEB-INF/lib/
 
 

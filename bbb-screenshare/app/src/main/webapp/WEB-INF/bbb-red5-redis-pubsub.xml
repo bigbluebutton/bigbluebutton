@@ -32,7 +32,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     init-method="start" destroy-method="stop">
       <property name="host" value="${redis.host}" />
       <property name="port" value="${redis.port}" />
-        <!--<property name="redisPool" ref="redisPool"/>-->
     </bean>
 
     <bean id="red5RedisReceiver" class="org.bigbluebutton.app.screenshare.messaging.redis.MessageReceiver"

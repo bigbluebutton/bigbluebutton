@@ -3,7 +3,7 @@ package org.bigbluebutton.app.screenshare.messaging.redis;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-//import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.MessagingConstants;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 

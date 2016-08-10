@@ -7,7 +7,6 @@ organization := "org.bigbluebutton"
 
 version := "0.0.1"
 
-//scalaVersion  := "2.11.6"
 scalaVersion  := "2.11.7"
 
 scalacOptions ++= Seq(
@@ -16,7 +15,7 @@ scalacOptions ++= Seq(
   "-Xlint",
   "-Ywarn-dead-code",
   "-language:_",
-  "-target:jvm-1.8", //TODO this was 1.7
+  "-target:jvm-1.8",
   "-encoding", "UTF-8"
 )
 
@@ -34,7 +33,6 @@ publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/d
 retrieveManaged := true
 
 libraryDependencies ++= {
-//  val akkaVersion  = "2.3.11"
     val akkaVersion  = "2.4.2"
     val springVersion = "4.2.5.RELEASE"
   Seq(
@@ -51,14 +49,14 @@ libraryDependencies ++= {
     //    "org.apache.commons"        %  "commons-lang3"     % "3.2",
     "org.apache.commons"        %  "commons-pool2"     % "2.3",
     "org.red5"                  %  "red5-server"       % "1.0.7-M10",
-    "com.google.code.gson"      %  "gson"              % "1.7.1",
-
+    "com.google.code.gson"      %  "gson"              % "2.5",
     "org.springframework"       %  "spring-web"        % springVersion,
     "org.springframework"       %  "spring-beans"      % springVersion,
     "org.springframework"       %  "spring-context"    % springVersion,
     "org.springframework"       %  "spring-core"       % springVersion,
     "org.springframework"       %  "spring-webmvc"     % springVersion,
     "org.springframework"       %  "spring-aop"        % springVersion,
+    "org.bigbluebutton"         %  "bbb-common-message"% "0.0.18-SNAPSHOT",
     "javax.servlet"             %  "servlet-api"       % "2.5"
 
 
@@ -93,4 +91,3 @@ daemonUser in Linux := user
 
 // group which will execute the application
 daemonGroup in Linux := group
-
