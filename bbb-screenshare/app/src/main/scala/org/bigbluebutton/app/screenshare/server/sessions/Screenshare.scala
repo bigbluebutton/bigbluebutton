@@ -273,7 +273,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
     sessions += streamId -> session
     session.actorRef ! msg
-
+    status = START
     sender ! new StartShareRequestReplyMessage(token)
   }
 
