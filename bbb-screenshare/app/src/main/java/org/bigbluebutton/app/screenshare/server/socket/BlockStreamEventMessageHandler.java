@@ -66,7 +66,7 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     		CaptureUpdateMessage event = (CaptureUpdateMessage) message;
 //    		sessionManager.updateBlock(event.getRoom(), event.getSequenceNum());
 			SharingStatus sharingStatus = app.getSharingStatus(event.getRoom(), event.getRoom()) ;
-    		if (sharingStatus.sharingStopped) {
+    		if (sharingStatus.equals("STOP")) {
     			// The flash client told us to stop sharing. Force stopping by closing connection from applet.
     			// We're changing how to tell the applet to stop sharing as AS ExternalInterface to JS to Applet calls
     			// generates a popup dialog that users may or may not see causing the browser to hang. (ralam aug 24, 2014)

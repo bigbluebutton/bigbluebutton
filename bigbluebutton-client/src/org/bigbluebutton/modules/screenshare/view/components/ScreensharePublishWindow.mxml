@@ -56,6 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+      import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
       import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
@@ -99,6 +100,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       [Bindable] private var baseIndex:int;
       [Bindable] private var dsOptions:ScreenshareOptions;
+      
+      private var paused:Boolean = false;
       
       private function init():void {
         dsOptions = new ScreenshareOptions();
@@ -215,13 +218,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       public function pauseSharing():void {
         LOGGER.debug("Calling pauseSharing");
-        if (streaming) {
-          stopStream();
-          var streamEvent:RequestToPauseSharing = new RequestToPauseSharing();
-          dispatchEvent(streamEvent);
+        if (!paused) {
+          paused = true;
+          if (streaming) {
+            stopStream();
+            var streamEvent:RequestToPauseSharing = new RequestToPauseSharing();
+            dispatchEvent(streamEvent);
+          }
+          sharingFullScreen = false;
+          streaming = false;
+          btnClosePublish.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip');
+          btnClosePublish.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label');
+        } else {
+          paused = false;
+          var restartSharingEvent:RequestToRestartSharing = new RequestToRestartSharing();
+          dispatchEvent(restartSharingEvent);
         }
-        sharingFullScreen = false;
-        streaming = false;
+
       }
       
       public function stopSharingEvent(evt:StopSharingButtonEvent):void{
@@ -432,8 +445,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          tabIndex="{baseIndex+4}"/>
               <mx:Spacer width="100%"/>
               <mx:Button id="btnClosePublish" 
-                         toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stop.tooltip')}" 
-                         label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stop.label')}" 
+                         toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}" 
+                         label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}" 
                          visible="true" 
                          enabled="false" 
                          click="pauseSharing()" 

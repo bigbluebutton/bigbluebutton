@@ -21,6 +21,7 @@ package org.bigbluebutton.screenshare.client;
 public enum ExitCode {
   NORMAL(0),
   PAUSED(1),
+  START(2),
   BAD_PARAMETERS(400),
   CANNOT_CONNECT_TO_LIFELINE(401),
   ERROR_ON_LIFELINE_CONNECTION(402),

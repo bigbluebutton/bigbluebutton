@@ -237,19 +237,18 @@ public class NetworkHttpStreamSender {
         int status = httpConnection.getResponseCode();
 
         System.out.println("******* sendUpdateMessage response code = [" + status + "] ***************");
-        String sharingStopped =  httpConnection.getHeaderField("SHARING_STOPPED");
-        String sharingPaused =  httpConnection.getHeaderField("SHARING_PAUSED");
+        String sharingStatus =  httpConnection.getHeaderField("SHARING_STATUS");
 
-        if (sharingStopped != null) {
-          System.out.println("******* sendUpdateMessage sharingStopped = [" + sharingStopped + "] ***************");
-          if (sharingStopped.toUpperCase().equals("TRUE")) {
+        if (sharingStatus != null) {
+          System.out.println("******* sendUpdateMessage sharingStopped = [" + sharingStatus + "] ***************");
+          if (sharingStatus.toUpperCase().equals("STOP")) {
            notifyNetworkStreamListener(ExitCode.NORMAL);
-          }
-        } else if (sharingPaused != null) {
-          System.out.println("******* sendUpdateMessage sharingPaused = [" + sharingPaused + "] ***************");
-          if (sharingPaused.toUpperCase().equals("TRUE")) {
+          } else if (sharingStatus.toUpperCase().equals("PAUSE")) {
             notifyNetworkStreamListener(ExitCode.PAUSED);
-            System.out.println("******* GOT HERE sendUpdateMessage sharingPaused = [" + sharingPaused + "] ***************");
+            System.out.println("******* GOT HERE sendUpdateMessage sharingPaused = [" + sharingStatus + "] ***************");
+          } else if (sharingStatus.toUpperCase().equals("START")) {
+            notifyNetworkStreamListener(ExitCode.START);
+            System.out.println("******* GOT HERE sendUpdateMessage sharingStart = [" + sharingStatus + "] ***************");
           }
         }
 

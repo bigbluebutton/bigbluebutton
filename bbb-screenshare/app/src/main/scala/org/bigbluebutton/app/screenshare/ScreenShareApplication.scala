@@ -98,6 +98,14 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     response
   }
 
+  def restartShareRequest(meetingId: String, userId: String) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Received restart share request on meeting=[" + meetingId
+        + "] from userId=[" + userId + "]")
+    }
+    screenshareManager ! new RestartShareRequestMessage(meetingId, userId)
+  }
+
   def pauseShareRequest(meetingId: String, userId: String, streamId: String) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received pause share request on meeting=[" + meetingId
@@ -166,7 +174,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     val future = screenshareManager ? GetSharingStatus(meetingId, streamId)
     val reply = Await.result(future, timeout.duration).asInstanceOf[GetSharingStatusReply]
 
-    new SharingStatus(reply.paused, reply.stopped)
+    new SharingStatus(reply.status)
   }
 
 }

@@ -87,6 +87,13 @@ public class Red5AppService {
     handler.pauseShareRequest(meetingId, userId, streamId);
   }
 
+  public void restartShareRequest(Map<String, Object> msg) {
+    String meetingId = Red5.getConnectionLocal().getScope().getName();
+    log.debug("Received restartShareRequest for meeting=[{}]", meetingId);
+    String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+    handler.restartShareRequest(meetingId, userId);
+  }
+
   public void startShareRequest(Map<String, Object> msg) {
 	Boolean record = (Boolean) msg.get("record");
     String meetingId = Red5.getConnectionLocal().getScope().getName();

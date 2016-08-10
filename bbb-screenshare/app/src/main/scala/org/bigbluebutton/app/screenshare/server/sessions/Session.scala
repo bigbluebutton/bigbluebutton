@@ -186,7 +186,7 @@ class Session(parent: Screenshare,
   }
 
   private def handleGetSharingStatus(msg: GetSharingStatus) {
-    sender ! new GetSharingStatusReply(pauseShareRequested, stopShareRequested)
+    //sender ! new GetSharingStatusReply(pauseShareRequested, stopShareRequested)
   }
 
   private def handleUpdateShareStatus(msg: UpdateShareStatus): Unit = {

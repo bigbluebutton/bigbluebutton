@@ -46,7 +46,21 @@ class Screenshare(val sessionManager: ScreenshareManager,
   
   private var activeSession:Option[ActiveSession] = None
   private var stopped = false
-  
+
+  private val START = "START"
+  private val RUNNING = "RUNNING"
+  private val PAUSE = "PAUSE"
+  private val STOP = "STOP"
+
+  // start, running, pause, stop
+  private var status: String = START
+
+  // if the user has requested to pause sharing
+  private var pauseShareRequested = false
+
+  // if the user has requested to restart sharing
+  private var restartShareRequested = false
+
   private val IS_MEETING_RUNNING = "IsMeetingRunning"
 
   implicit def executionContext = sessionManager.actorSystem.dispatcher
@@ -57,6 +71,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
   }
 
   def receive = {
+    case msg: RestartShareRequestMessage => handleRestartShareRequestMessage(msg)
     case msg: PauseShareRequestMessage => handlePauseShareRequestMessage(msg)
     case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
     case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
@@ -215,6 +230,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     }
     sessions.get(msg.streamId) match {
       case Some(session) => {
+        status = STOP
         session.actorRef ! msg
       }
       case None => {
@@ -223,12 +239,25 @@ class Screenshare(val sessionManager: ScreenshareManager,
     }
   }
 
+  private def handleRestartShareRequestMessage(msg: RestartShareRequestMessage) {
+    if (log.isDebugEnabled) {
+      log.debug("Received RestartShareRequestMessage from userId=[" + msg.userId + "]")
+    }
+
+    restartShareRequested = true
+    pauseShareRequested = false
+
+    status = START
+  }
+
   private def handlePauseShareRequestMessage(msg: PauseShareRequestMessage) {
     if (log.isDebugEnabled) {
       log.debug("Received PauseShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
     sessions.get(msg.streamId) match {
       case Some(session) => {
+        pauseShareRequested = true
+        status = PAUSE
         session.actorRef ! msg
       }
       case None => {
@@ -249,14 +278,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
   }
 
   private def handleGetSharingStatus(msg: GetSharingStatus) {
-    sessions.get(msg.streamId) match {
-      case Some(session) => {
-        session.actorRef forward msg
-      }
-      case None => {
-        log.info("Stream stopped on a non-existing session=[" + msg.streamId + "]")
-      }
-    }
+    sender ! new GetSharingStatusReply(status)
   }
 
   private def handleStopSession() {

@@ -47,6 +47,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
   val actorSystem = aSystem //TODO remove
 
   def receive = {
+    case msg: RestartShareRequestMessage    => handleRestartShareRequestMessage(msg)
     case msg: PauseShareRequestMessage    => handlePauseShareRequestMessage(msg)
     case msg: StartShareRequestMessage    => handleStartShareRequestMessage(msg)
     case msg: StopShareRequestMessage     => handleStopShareRequestMessage(msg)
@@ -177,6 +178,15 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
     if (log.isDebugEnabled) {
       log.debug("Received stop share request message for meeting=[" + msg.meetingId + "]")
+    }
+    screenshares.get(msg.meetingId) foreach { screenshare =>
+      screenshare.actorRef ! msg
+    }
+  }
+
+  private def handleRestartShareRequestMessage(msg: RestartShareRequestMessage) {
+    if (log.isDebugEnabled) {
+      log.debug("Received restart share request message for meeting=[" + msg.meetingId + "]")
     }
     screenshares.get(msg.meetingId) foreach { screenshare =>
       screenshare.actorRef ! msg

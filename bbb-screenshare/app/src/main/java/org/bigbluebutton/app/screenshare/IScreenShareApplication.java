@@ -6,6 +6,7 @@ public interface IScreenShareApplication {
   ScreenShareInfoResponse getScreenShareInfo(String meetingId, String token);
   StartShareRequestResponse startShareRequest(String meetingId, String userId, Boolean record);
   void pauseShareRequest(String meetingId, String userId, String streamId);
+  void restartShareRequest(String meetingId, String userId);
   void stopShareRequest(String meetingId, String streamId);
   void streamStarted(String meetingId, String streamId, String url);
   void streamStopped(String meetingId, String streamId);

@@ -32,7 +32,13 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   private NetworkStreamSender signalChannel;
   private DeskshareSystemTray tray = new DeskshareSystemTray();
   private ClientListener listener;
-  private volatile boolean paused = false;
+
+  private final String START = "START";
+  private final String PAUSE = "PAUSE";
+  private final String STOP = "STOP";
+  private final String RUNNING = "RUNNING";
+
+  private String status = STOP;
   
   public ScreenRegionSharer(ScreenShareInfo ssi) {
     signalChannel = new NetworkStreamSender(ssi.host, ssi.meetingId, ssi.streamId);
@@ -43,14 +49,17 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   }
 
   public void start(boolean autoStart) {
-    CaptureRegionListener crl = new CaptureRegionListenerImp(this);
-    frame = new CaptureRegionFrame(crl, 5);
-    frame.setHeight(ssi.captureHeight);
-    frame.setWidth(ssi.captureWidth);
-    frame.setLocation(ssi.x, ssi.y);
-    System.out.println(NAME + "Launching Screen Capture Frame");
-    paused = false;
-    frame.start(autoStart);
+    if (status.toUpperCase().equals(STOP)) {
+      CaptureRegionListener crl = new CaptureRegionListenerImp(this);
+      frame = new CaptureRegionFrame(crl, 5);
+      frame.setHeight(ssi.captureHeight);
+      frame.setWidth(ssi.captureWidth);
+      frame.setLocation(ssi.x, ssi.y);
+      System.out.println(NAME + "Launching Screen Capture Frame");
+      status = "START";
+      frame.start(autoStart);
+    }
+
   }
 
   public void addClientListener(ClientListener l) {
@@ -69,6 +78,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   } 
 
   public void stop() {
+    status = STOP;
     frame.setVisible(false);
     sharer.stopSharing();
     signalChannel.stopSharing();
@@ -77,10 +87,10 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   }
 
   private void pause() {
-    if (!paused) {
+    if (status.toUpperCase().equals(PAUSE)) {
       frame.setVisible(false);
       sharer.stopSharing();
-      paused = true;
+      status = PAUSE;
       System.out.println(NAME + "Paused. *************");
     }
   }
@@ -91,6 +101,9 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       if (reason.getExitCode() == ExitCode.PAUSED.getExitCode()) {
         System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
         pause();
+      } else if (reason.getExitCode() == ExitCode.START.getExitCode()) {
+        System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
+        start(false);
       } else {
         System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
         listener.onClientStop(reason);

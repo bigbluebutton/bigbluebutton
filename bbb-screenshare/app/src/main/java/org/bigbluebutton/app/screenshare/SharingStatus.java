@@ -3,11 +3,9 @@ package org.bigbluebutton.app.screenshare;
 
 public class SharingStatus {
 
-    public final Boolean sharingPaused;
-    public final Boolean sharingStopped;
+    public final String status;
 
-    public SharingStatus(Boolean sharingPaused, Boolean sharingStopped) {
-        this.sharingPaused = sharingPaused;
-        this.sharingStopped = sharingStopped;
+    public SharingStatus(String status) {
+        this.status = status;
     }
 }
