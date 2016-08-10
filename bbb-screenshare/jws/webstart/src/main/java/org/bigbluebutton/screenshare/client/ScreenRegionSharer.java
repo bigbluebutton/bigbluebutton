@@ -49,7 +49,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   }
 
   public void start(boolean autoStart) {
-    if (status.toUpperCase().equals(STOP)) {
+    if (!status.toUpperCase().equals(START)) {
       CaptureRegionListener crl = new CaptureRegionListenerImp(this);
       frame = new CaptureRegionFrame(crl, 5);
       frame.setHeight(ssi.captureHeight);
@@ -78,16 +78,18 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   } 
 
   public void stop() {
-    status = STOP;
-    frame.setVisible(false);
-    sharer.stopSharing();
-    signalChannel.stopSharing();
-    tray.removeIconFromSystemTray();
-    System.out.println(NAME + "Closing Screen Capture Frame");
+    if (! status.toUpperCase().equals(STOP)) {
+      status = STOP;
+      frame.setVisible(false);
+      sharer.stopSharing();
+      signalChannel.stopSharing();
+      tray.removeIconFromSystemTray();
+      System.out.println(NAME + "Closing Screen Capture Frame");
+    }
   }
 
   private void pause() {
-    if (status.toUpperCase().equals(PAUSE)) {
+    if (! status.toUpperCase().equals(PAUSE)) {
       frame.setVisible(false);
       sharer.stopSharing();
       status = PAUSE;
@@ -102,7 +104,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
         System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
         pause();
       } else if (reason.getExitCode() == ExitCode.START.getExitCode()) {
-        System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
+        System.out.println(NAME + "starting. Reason=" + reason.getExitCode());
         start(false);
       } else {
         System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
