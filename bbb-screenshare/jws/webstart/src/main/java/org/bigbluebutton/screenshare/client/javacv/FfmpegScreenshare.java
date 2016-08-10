@@ -198,7 +198,9 @@ public class FfmpegScreenshare {
         System.out.println("mainRecorder.release.");
         mainRecorder.release();
         System.out.println("grabber.stop.");
-        //grabber.stop();
+        // Do not invoke grabber.stop as it exits the JWS app.
+        // Not sure why. (ralam - aug 10, 2016)
+        // grabber.stop();
         System.out.println("End stop sequence.");
       } catch (Exception e) {
         // TODO Auto-generated catch block
