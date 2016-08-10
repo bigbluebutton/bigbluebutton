@@ -231,6 +231,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           btnClosePublish.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label');
         } else {
           paused = false;
+          btnClosePublish.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip');
+          btnClosePublish.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label');
           var restartSharingEvent:RequestToRestartSharing = new RequestToRestartSharing();
           dispatchEvent(restartSharingEvent);
         }
