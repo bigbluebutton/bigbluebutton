@@ -891,9 +891,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				btnActualSize.visible = false;
+				btnClosePublish.visible = false;
 				if(UsersUtil.amIPresenter()) {
 					setControlBarState("presenter");
 					annotationsPermissionChanged(true);
+				}
+				else if(presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible) {
+						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
+						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
 				}
 			}
 
@@ -987,6 +992,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Closing the dekstop share VIEWING tab");
 				selectPresentationTab();
 				if(desktopViewTabExists()) {
+				   btnActualSize.selected = false;
 				   presenterTabs.removeChildAt(DESKSHARE_VIEW_TAB_INDEX);
 				   DSViewCanvas = null;
 				}
