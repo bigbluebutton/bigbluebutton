@@ -1,3 +1,5 @@
+@import "imports/ui/stylesheets/variables/_all";
+
 .settingsMenuLeft {
   width: 14%;
   float: right;
@@ -20,8 +22,40 @@
   margin-left: 10px;
 }
 
+.divModal {
+  clear: 'both';
+  height: 100%;
+}
+
+.menuList {
+  list-style-type: none;
+  padding-left: 0px;
+}
+
 .descModal {
   position: fixed;
   left: -999em;
   margin: 0;
+}
+
+.settingBtn {
+  -ms-transform: rotate( 90deg ); /* IE 9 */
+  -webkit-transform: rotate( 90deg ); /* Safari */
+  transform: rotate( 90deg );
+}
+
+.dropdown {
+    display: inline-block;
+}
+
+.dropdown__content {
+    display: none;
+}
+
+.dropdown__active__content {
+  height: auto;
+  width: auto;
+  display: block;
+  background-color: #ffffff;
+  font-size: $font-size-base * 1.2;
 }
