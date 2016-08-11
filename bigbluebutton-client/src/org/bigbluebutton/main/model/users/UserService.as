@@ -206,7 +206,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
-			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes, e.recordType);
+			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes, e.record);
 		}
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
