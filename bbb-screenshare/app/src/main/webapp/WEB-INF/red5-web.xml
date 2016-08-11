@@ -111,8 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="redisPubSubMessageHandler"
           class="org.bigbluebutton.app.screenshare.messaging.redis.RedisPubSubMessageHandler">
-        <!--<property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>-->
-        <!--<property name="bbbAppsIsKeepAliveHandler"> <ref bean="bbbAppsIsKeepAliveHandler"/></property>-->
+        <property name="appHandler" ref="red5AppHandler"/>
     </bean>
 
   <import resource="bbb-redis-pool.xml"/>

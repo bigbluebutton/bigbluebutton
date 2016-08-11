@@ -125,6 +125,16 @@ class LiveMeeting(val mProps: MeetingProperties,
     outGW.send(new DisconnectAllUsers(msg.meetingId))
   }
 
+  def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
+    usersModel.getCurrentPresenter() match {
+      case Some(curPres) => {
+        val allowed = msg.userID equals (curPres.userID)
+        outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
+      }
+      case None => // do nothing
+    }
+  }
+
   def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
     if (msg.recording) {
       meetingModel.setVoiceRecordingFilename(msg.recordStream)

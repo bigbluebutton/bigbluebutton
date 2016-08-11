@@ -90,12 +90,17 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     if (logger.isDebugEnabled()) {
       logger.debug("Received start share request on meeting=" + meetingId + "for user=" + userId + "]")
     }
-    implicit val timeout = Timeout(3 seconds)
-    val future = screenshareManager ? StartShareRequestMessage(meetingId, userId, record)
-    val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
+    if (record) {
+      implicit val timeout = Timeout(3 seconds)
+      val future = screenshareManager ? StartShareRequestMessage(meetingId, userId, record)
+      val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
 
-    val response = new StartShareRequestResponse(reply.token, jnlpFile, null)
-    response
+      val response = new StartShareRequestResponse(reply.token, jnlpFile, null)
+      response
+    } else {
+      new StartShareRequestResponse("none", "none", null) // was not allowed to share desktop
+    }
+
   }
 
   def stopShareRequest(meetingId: String, streamId: String) {

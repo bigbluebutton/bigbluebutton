@@ -6,6 +6,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.app.screenshare.messaging.redis.MessageSender;
+//import org.bigbluebutton.app.screenshare.messaging.redis.MessagingConstants;
+import org.bigbluebutton.common.messages.AllowUserToShareDesktopRequest;
+import org.bigbluebutton.common.messages.MessagingConstants;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -98,10 +101,15 @@ public class Red5AppService {
       event.put("meetingId", meetingId);
       event.put("userID", userId);
       event.put("eventName", "AllowUserToShareDesktopRequest");
-//      red5RedisSender.record(meetingId, event);
+//      red5RedisSender.record(meetingId, event); TODO
+
+      AllowUserToShareDesktopRequest requestMsg = new AllowUserToShareDesktopRequest(meetingId,
+              userId,
+              genTimestamp());
+      red5RedisSender.send(MessagingConstants.TO_USERS_CHANNEL, requestMsg.toJson());
 
       log.info("_______Red5AppService::startShareRequest");
-    // handler.startShareRequest(meetingId, userId, record);
+//     handler.startShareRequest(meetingId, userId, record); //TODO REMOVE
   }
 
   public void stopShareRequest(Map<String, Object> msg) {

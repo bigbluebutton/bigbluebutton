@@ -223,6 +223,10 @@ class Screenshare(val sessionManager: ScreenshareManager,
   }
 
   private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
+
+
+
+
     val token = RandomStringGenerator.randomAlphanumericString(16)
     val streamId = msg.meetingId + "-" + System.currentTimeMillis()
     val session = ActiveSession(this, bus, meetingId, streamId, token, msg.record, msg.userId)
@@ -230,7 +234,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
     sessions += streamId -> session
     session.actorRef ! msg
 
-    sender ! new StartShareRequestReplyMessage(token)
+    sender ! new StartShareRequestReplyMessage(token) // todo use forward here
+    // todo remove Request from the name of the case class
   }
 
   private def handleIsSharingStopped(msg: IsSharingStopped) {

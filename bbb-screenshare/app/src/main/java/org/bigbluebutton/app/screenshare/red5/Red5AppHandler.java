@@ -41,11 +41,13 @@ public class Red5AppHandler {
     sender.sendMessage(msg);    
   }
   
-  public void startShareRequest(String meetingId, String userId, Boolean record) {
-    StartShareRequestResponse resp = app.startShareRequest(meetingId, userId, record);
+  public void startShareRequest(String meetingId, String userId, Boolean allowed) {
+    StartShareRequestResponse resp = app.startShareRequest(meetingId, userId, allowed);
     
     Map<String, Object> data = new HashMap<String, Object>();
-    
+
+    data.put("allowed", allowed);
+
     if (resp.error != null) {
       data.put("error", resp.error.reason);
     } else {

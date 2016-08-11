@@ -105,6 +105,7 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: UserJoining => liveMeeting.handleUserJoin(msg)
     case msg: UserLeaving => liveMeeting.handleUserLeft(msg)
     case msg: AssignPresenter => liveMeeting.handleAssignPresenter(msg)
+    case msg: AllowUserToShareDesktop => liveMeeting.handleAllowUserToShareDesktop(msg)
     case msg: GetUsers => liveMeeting.handleGetUsers(msg)
     case msg: ChangeUserStatus => liveMeeting.handleChangeUserStatus(msg)
     case msg: EjectUserFromMeeting => liveMeeting.handleEjectUserFromMeeting(msg)

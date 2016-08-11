@@ -35,7 +35,7 @@ public class MessageReceiver {
             jedis = new Jedis(host, port);
             // Set the name of this client to be able to distinguish when doing
             // CLIENT LIST on redis-cli
-            jedis.clientSetname("BbbRed5AppsSub");
+            jedis.clientSetname("bbb-screenshare");
 
             Runnable messageReceiver = new Runnable() {
                 public void run() {
