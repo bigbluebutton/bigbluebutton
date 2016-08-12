@@ -302,9 +302,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
 			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
-				if(slideView != null)
+				if(currentTabIndex == PRESENTATION_TAB_INDEX && slideView != null)
 					slideView.onParentResized(parentWidth, parentHeight);
-				if(DSViewCanvas != null)
+				else if(currentTabIndex == DESKSHARE_VIEW_TAB_INDEX && DSViewCanvas != null)
 					DSViewCanvas.onParentResized(parentWidth, parentHeight);
 			}
 			
@@ -804,12 +804,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function setControlBarState(state:String):void {
 				if (state == "vote") {
-					pollStartBtn.visible = false;
+					btnActualSize.visible = false;
 					presenterControls.visible = false;
 					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = true;
 					pollVoteBox.includeInLayout = true;
-				} else if (state == "presenter" && UsersUtil.amIPresenter()) {
+				} else if (state == "presenter" && UsersUtil.amIPresenter() && currentTabIndex == PRESENTATION_TAB_INDEX) {
 					pollStartBtn.visible = true;
 					presenterControls.visible = true;
 					presenterControls.includeInLayout = true;
@@ -820,15 +820,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = true;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = true;
 				} else {
-					pollStartBtn.visible = false;
-					presenterControls.visible = false;
-					presenterControls.includeInLayout = false;
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
-					btnClosePublish.visible = false;
-					btnActualSize.visible = false;
-					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
-					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+					if(currentTabIndex == PRESENTATION_TAB_INDEX) {
+						pollStartBtn.visible = false;
+						presenterControls.visible = false;
+						presenterControls.includeInLayout = false;
+						btnActualSize.visible = false;
+						btnClosePublish.visible = false;
+						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
+						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+					} else if(currentTabIndex == DESKSHARE_VIEW_TAB_INDEX)
+							btnActualSize.visible = true;
 				}
 				
 				// Need to call the function later because the heights haven't been validated yet
@@ -887,9 +890,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   whiteboardOverlay.acceptOverlayCanvas(slideView);
 				}
 
-				setControlBarState("presenter");
-				if(UsersUtil.amIPresenter())
-				   annotationsPermissionChanged(true);
+				btnActualSize.visible = false;
+				btnClosePublish.visible = false;
+				if(UsersUtil.amIPresenter()) {
+					setControlBarState("presenter");
+					annotationsPermissionChanged(true);
+				}
+				else if(presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible) {
+						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
+						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+				}
 			}
 
 			private function handleDesktopPublishTabSelected():void {
@@ -917,7 +927,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				      annotationsPermissionChanged(true);
 				} else LOGGER.debug("openDesktopViewTab: whiteboard overlay or desktop view canvas is null!");
 
-				btnActualSize.visible = true;
+				if(!pollVoteBox.visible)
+					btnActualSize.visible = true;
 				if(UsersUtil.amIPresenter()) {
 				   pollStartBtn.visible = true;
 				   btnClosePublish.visible = true;
@@ -981,6 +992,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Closing the dekstop share VIEWING tab");
 				selectPresentationTab();
 				if(desktopViewTabExists()) {
+				   btnActualSize.selected = false;
 				   presenterTabs.removeChildAt(DESKSHARE_VIEW_TAB_INDEX);
 				   DSViewCanvas = null;
 				}

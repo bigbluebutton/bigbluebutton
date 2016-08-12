@@ -219,7 +219,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function updateWhiteboardCanvasOverlay():void{
 				if (video != null && whiteboardCanvas != null) {
 					whiteboardCanvas.moveCanvas(videoHolder.x, videoHolder.y);
-					whiteboardCanvas.zoomCanvas(videoHolder.width, videoHolder.height, videoHolder.width / videoWidth);
+
+					var zoomPercentage:Number = (videoHolder.width / videoWidth)*100;
+					if(zoomPercentage > 0)
+						whiteboardCanvas.zoomCanvas(videoHolder.width, videoHolder.height, zoomPercentage);
+
 					LOGGER.debug("Whiteboard canvas overlay dimensions updated");
 				}
 			}
