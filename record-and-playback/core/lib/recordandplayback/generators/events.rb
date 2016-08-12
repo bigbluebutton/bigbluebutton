@@ -443,6 +443,17 @@ module BigBlueButton
       matched_rec_events
     end
 
+    # Calculate the length of the final recording from the start/stop events
+    def self.get_recording_length(rec_events)
+      duration = 0
+      start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+              BigBlueButton::Events.get_start_and_stop_rec_events(rec_events))
+      start_stop_events.each do |start_stop|
+        duration += start_stop[:stop_timestamp] - start_stop[:start_timestamp]
+      end
+      duration
+    end
+
     # Version of the bbb server where it was recorded
     def self.bbb_version(events_xml)
       events = Nokogiri::XML(File.open(events_xml))      
