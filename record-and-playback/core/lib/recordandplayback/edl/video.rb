@@ -190,7 +190,7 @@ module BigBlueButton
           info = video_info(videofile)
           BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}"
 
-          if !info[:video] || !info[:video][:nb_read_frames]
+          if !info[:video]
             BigBlueButton.logger.warn "    This video file is corrupt! It will be removed from the output."
             corrupt_videos << videofile
           end
@@ -385,12 +385,27 @@ module BigBlueButton
             BigBlueButton.logger.debug "      offset: left: #{offset_x}, top: #{offset_y}"
 
             BigBlueButton.logger.debug "      start timestamp: #{video[:timestamp]}"
+            BigBlueButton.logger.debug("      codec: #{videoinfo[video[:filename]][:video][:codec_name].inspect}")
+
+            if videoinfo[video[:filename]][:video][:codec_name] == "flashsv2"
+              # Desktop sharing videos in flashsv2 do not have regular
+              # keyframes, so seeking in them doesn't really work.
+              # To make processing more reliable, always decode them from the
+              # start in each cut.
+              seek = 0
+            else
+              # Webcam videos are variable, low fps; it might be that there's
+              # no frame until some time after the seek point. Start decoding
+              # 30s before the desired point to avoid this issue.
+              seek = video[:timestamp] - 30000
+              seek = 0 if seek < 0
+            end
 
             ffmpeg_inputs << {
               :filename => video[:filename],
-              :seek => video[:timestamp]
+              :seek => seek
             }
-            ffmpeg_filter << "[in#{index}]; [#{index}]fps=24,scale=#{scale_width}:#{scale_height}"
+            ffmpeg_filter << "[in#{index}]; [#{index}]fps=24,trim=start=#{ms_to_s(video[:timestamp])},setpts=PTS-STARTPTS,scale=#{scale_width}:#{scale_height}"
             if layout_area[:pad]
               ffmpeg_filter << ",pad=w=#{tile_width}:h=#{tile_height}:x=#{offset_x}:y=#{offset_y}:color=white"
               offset_x = 0
@@ -411,7 +426,7 @@ module BigBlueButton
 
         ffmpeg_cmd = [*FFMPEG]
         ffmpeg_inputs.each do |input|
-          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-i', input[:filename]]
+          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-itsoffset', ms_to_s(input[:seek]), '-i', input[:filename]]
         end
         ffmpeg_cmd += ['-filter_complex', ffmpeg_filter, *FFMPEG_WF_ARGS, '-']
 

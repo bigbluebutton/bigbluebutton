@@ -32,6 +32,11 @@ module BigBlueButton
     #
     def self.process(archive_dir, file_basename)
       audio_edl = BigBlueButton::AudioEvents.create_audio_edl(archive_dir)
+      BigBlueButton::EDL::Audio.dump(audio_edl)
+
+      BigBlueButton.logger.info("Applying recording start stop events:")
+      audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, archive_dir)
+      BigBlueButton::EDL::Audio.dump(audio_edl)
 
       audio_dir = "#{archive_dir}/audio"
       events_xml = "#{archive_dir}/events.xml"
@@ -40,13 +45,13 @@ module BigBlueButton
 
       ogg_format = {
         :extension => 'ogg',
-        :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '48K', '-f', 'ogg' ] ]
+        :parameters => [ [ '-c:a', 'libvorbis', '-q:a', '2', '-f', 'ogg' ] ]
       }
       BigBlueButton::EDL.encode(wav_file, nil, ogg_format, file_basename)
 
       webm_format = {
         :extension => 'webm',
-        :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '48K', '-f', 'webm' ] ],
+        :parameters => [ [ '-c:a', 'libvorbis', '-q:a', '2', '-f', 'webm' ] ],
         :postprocess => [ [ 'mkclean', '--quiet', ':input', ':output' ] ]
       }
       BigBlueButton::EDL.encode(wav_file, nil, webm_format, file_basename)

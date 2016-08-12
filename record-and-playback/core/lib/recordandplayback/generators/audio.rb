@@ -251,7 +251,7 @@ module BigBlueButton
         :audio => nil
       }
 
-      return BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, archive_dir)
+      return audio_edl
     end
 
 
