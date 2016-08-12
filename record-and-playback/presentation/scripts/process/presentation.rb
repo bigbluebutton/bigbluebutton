@@ -172,7 +172,7 @@ if not FileTest.directory?(target_dir)
     if ret != 0
       raise "Generating closed caption files failed"
     end
-    captions = JSON.load(File.new('captions.json', 'r'))
+    captions = JSON.load(File.new("#{target_dir}/captions.json", 'r'))
 
     # We have to decide whether to actually generate the video file
     # We do so if any of the following conditions are true:
