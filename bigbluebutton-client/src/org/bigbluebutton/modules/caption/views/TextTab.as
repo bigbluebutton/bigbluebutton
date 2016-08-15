@@ -46,6 +46,16 @@ package org.bigbluebutton.modules.caption.views {
 
 	public class TextTab extends VBox {
 		
+		private const LEN_TO_SEND:int = 7;
+		private const REP_TO_SEND:int = 3;
+		private const TIME_TO_SEND:int = 1000;
+		
+		private var _startIndex:int = -1;
+		private var _endIndex:int = -1;
+		private var _accText:String = "";
+		
+		private var _sendTimer:Timer;
+		
 		private var _captionOptions:CaptionOptions;
 		
 		[Bindable]
@@ -145,6 +155,9 @@ package org.bigbluebutton.modules.caption.views {
 					outputArea.visible = outputArea.includeInLayout = true;
 					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
 				}
+				
+				resetOverwriteVars();
+				resetTextToSendVars();
 			}
 			
 		}
@@ -277,15 +290,14 @@ package org.bigbluebutton.modules.caption.views {
 			}
 		}
 		
-		private const LEN_TO_SEND:int = 7;
-		private const REP_TO_SEND:int = 3;
-		private const TIME_TO_SEND:int = 1000;
-		
-		private var _startIndex:int = -1;
-		private var _endIndex:int = -1;
-		private var _accText:String = "";
-		
-		private var _sendTimer:Timer;
+		private function resetOverwriteVars():void {
+			_checkForOverwrite = false;
+			_checkForDeletePreviousWord = false;
+			_checkForDeleteNextWord = false;
+			_lastTextInput = null;
+			_lastTextLength = -1;
+			_lastSelectionIndex = -1;
+		}
 		
 		private function respondToTextChange(t:String, si:int, ei:int):void {
 			if (_startIndex == -1) {
@@ -325,16 +337,22 @@ package org.bigbluebutton.modules.caption.views {
 		}
 		
 		private function sendTextToServer():void {
-			var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
-			editHistoryEvent.locale = currentTranscript.locale;
-			editHistoryEvent.startIndex = _startIndex;
-			editHistoryEvent.endIndex = _endIndex;
-			editHistoryEvent.text = _accText;
-			
-			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(editHistoryEvent);
-			
-			// reset variables after sending
+			if (_startIndex >= 0) {
+				var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
+				editHistoryEvent.locale = currentTranscript.locale;
+				editHistoryEvent.startIndex = _startIndex;
+				editHistoryEvent.endIndex = _endIndex;
+				editHistoryEvent.text = _accText;
+				
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(editHistoryEvent);
+				
+				// reset variables after sending
+				resetTextToSendVars();
+			}
+		}
+		
+		private function resetTextToSendVars():void {
 			_startIndex = -1;
 			_endIndex = -1;
 			_accText = "";
