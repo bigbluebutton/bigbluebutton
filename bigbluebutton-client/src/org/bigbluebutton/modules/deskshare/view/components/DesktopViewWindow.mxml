@@ -24,7 +24,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:common="org.bigbluebutton.common.*"
 	width="100%" height="100%"
-	initialize="init()"
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbCanvas"
 	xmlns:mate="http://mate.asfusion.com/"
@@ -41,24 +40,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.ResizeEvent;
 			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
-			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.modules.deskshare.managers.SmartWindowResizer;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private var images:Images = new Images();
-			
 			private var cursor:Shape;
 			
 			private var video:Video;
@@ -75,21 +66,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var resizer:SmartWindowResizer = new SmartWindowResizer();
 			
-			[Bindable] private var dsOptions:DeskshareOptions;
-
 			private var whiteboardCanvas:IBbbCanvas = null;
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
-			private var fullScreen:Boolean = false;
 
-			private var fullScreenWidth:Number = 1;
-			private var fullScreenHeight:Number = 1;
-			private var windowedWidth:Number = 1;
-			private var windowedHeight:Number = 1;
-									
-			private function init():void{
-				dsOptions = new DeskshareOptions();
-			}
-									
 			private function onCreationComplete():void{
 				addEventListener(ResizeEvent.RESIZE, onResizeEvent);
 				this.addChildAt(videoHolder,0);
@@ -261,10 +240,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					stopViewing();
 					break;
 				}
-			}
-			
-			public function getPrefferedPosition():String{
-				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
 			
 			private function toggleActualSize():void {

@@ -99,7 +99,6 @@ package org.bigbluebutton.modules.deskshare.managers
 		
 		public function handleStartSharingEvent():void {
 			LOGGER.debug("DeskshareManager::handleStartSharingEvent");
-
 			//toolbarButtonManager.disableToolbarButton();
 			toolbarButtonManager.startedSharing();
 			var option:DeskshareOptions = new DeskshareOptions();
@@ -134,26 +133,28 @@ package org.bigbluebutton.modules.deskshare.managers
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
 
-		public function handleStopViewStreamEvent():void{
+		public function handleStopViewStreamEvent():void {
 			viewWindowManager.stopViewing();
-			if(UsersUtil.amIPresenter())
-			   publishWindowManager.stopSharing();
+			if (UsersUtil.amIPresenter()) {
+				publishWindowManager.stopSharing();
+			}
 		}
 
-		public function handleVideoDisplayModeEvent(actualSize:Boolean):void{
+		public function handleVideoDisplayModeEvent(actualSize:Boolean):void {
 			viewWindowManager.handleVideoDisplayModeEvent(actualSize);
 		}
-    
-		//Desktop Publish Events Handlers
-		public function handleAppletStarted(videoWidth:Number, videoHeight:Number):void{
-			if(UsersUtil.amIPresenter())
-			   publishWindowManager.handleAppletStarted(videoWidth,videoHeight);
+
+		// Desktop Publish Events Handlers
+		public function handleAppletStarted(videoWidth:Number, videoHeight:Number):void {
+			if (UsersUtil.amIPresenter()) {
+				publishWindowManager.handleAppletStarted(videoWidth,videoHeight);
+			}
 		}
 
-		public function handleDeskshareAppletLaunchedEvent():void{
-			if(UsersUtil.amIPresenter())
-			   publishWindowManager.handleDeskshareAppletLaunchedEvent();
+		public function handleDeskshareAppletLaunchedEvent():void {
+			if (UsersUtil.amIPresenter()) {
+				publishWindowManager.handleDeskshareAppletLaunchedEvent();
+			}
 		}
-
 	}
 }

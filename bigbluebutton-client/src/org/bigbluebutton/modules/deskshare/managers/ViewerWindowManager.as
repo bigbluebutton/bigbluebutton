@@ -45,8 +45,8 @@ package org.bigbluebutton.modules.deskshare.managers
 					
 		public function stopViewing():void {
 			if (viewWindow != null) {
-			    viewWindow.stopViewing();
-			    viewWindow = null;
+				viewWindow.stopViewing();
+				viewWindow = null;
 			}
 		}
 				
@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			service.sendStartedViewingNotification(stream);
 		}
 						
-		private function openWindow(window:DesktopViewWindow):void{
+		private function openWindow(window:DesktopViewWindow):void {
 			var e:ShareEvent = new ShareEvent(ShareEvent.OPEN_DESKTOP_VIEW_TAB);
 			e.viewTabContent = window;
 			globalDispatcher.dispatchEvent(e);

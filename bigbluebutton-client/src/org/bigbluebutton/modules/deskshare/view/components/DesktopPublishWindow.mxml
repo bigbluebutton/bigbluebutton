@@ -32,42 +32,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.core.UIComponent;
-			import mx.events.ResizeEvent;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
-			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 			import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
-			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
-			import org.bigbluebutton.common.IBbbCanvas;
 			
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
 
-			public static const SCALE:Number = 5;
-			private static const VID_HEIGHT_PAD:Number = 40;
-			private static const VID_WIDTH_PAD:Number = 3;
-			
-			private var images:Images = new Images();
-			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-			[Bindable] private var cursorIcon:Class = images.cursorIcon;
-			
 			private var connection:NetConnection;
 			private var uri:String;
 			private var useTLS:Boolean;
@@ -77,20 +54,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var videoHeight:Number;
 			private var videoWidth:Number;
-			private var captureHeight:Number = Capabilities.screenResolutionY;
-			private var captureWidth:Number = Capabilities.screenResolutionX;
 			public var autoStart:Boolean = false;
 			private var javaTimer:Timer;
 			
-			[Bindable] private var cursor:Sprite;
-
       private var calledStopApplet:Boolean = false;
       
 			private function onCreationComplete():void {
-				cursor = new Sprite();
-				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);		
-				
 				if (BrowserCheck.isUsingLessThanChrome38OnMac()) {
 					setCurrentState("chromeOnMacWarningState");
 				} else if (BrowserCheck.isUsingEdgePluginUnsupported()) {
@@ -195,8 +164,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function stopStream():void{
 				streaming = false;
-				captureHeight = Capabilities.screenResolutionY;
-				captureWidth = Capabilities.screenResolutionX;
 			}
 
       private function callStopApplet():void {

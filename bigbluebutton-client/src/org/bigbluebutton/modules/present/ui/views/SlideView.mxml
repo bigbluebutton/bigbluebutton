@@ -473,8 +473,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
-				if(whiteboardCanvas != null)
-				   cleanCanvasHolder();
+				if (whiteboardCanvas != null) {
+					cleanCanvasHolder();
+				}
 
 				whiteboardCanvas = overlay;
 				var c:Canvas = overlay as Canvas;
@@ -522,8 +523,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function cleanCanvasHolder():void{
-				while (this.whiteboardCanvasHolder.rawChildren.numChildren > 0)
-				  this.whiteboardCanvasHolder.rawChildren.removeChildAt(0);
+				while (this.whiteboardCanvasHolder.rawChildren.numChildren > 0) {
+					this.whiteboardCanvasHolder.rawChildren.removeChildAt(0);
+				}
 			}
 			
 		]]>

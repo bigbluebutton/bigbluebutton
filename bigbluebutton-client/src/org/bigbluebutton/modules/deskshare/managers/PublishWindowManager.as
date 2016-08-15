@@ -70,8 +70,8 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 
 		public function handleShareScreenEvent(fullScreen:Boolean):void {
-			if(shareWindow != null) {
-				LOGGER.debug("DS:PublishWindowManager: starting deskshare publishing. fullScreen = " + fullScreen);
+			if (shareWindow != null) {
+				LOGGER.debug("Starting deskshare publishing. fullScreen = " + fullScreen);
 				shareWindow.shareScreen(fullScreen);
 			}
 		}
@@ -91,17 +91,17 @@ package org.bigbluebutton.modules.deskshare.managers
 			globalDispatcher.dispatchEvent(e);
 		}
 
-		public function handleAppletStarted(videoWidth:Number, videoHeight:Number):void{
-			if(shareWindow != null) {
-			   LOGGER.debug("DS:PublishWindowManager: calling shareWindow.onAppletStart");
-			   shareWindow.onAppletStart(videoWidth,videoHeight);
+		public function handleAppletStarted(videoWidth:Number, videoHeight:Number):void {
+			if (shareWindow != null) {
+				LOGGER.debug("Calling shareWindow.onAppletStart");
+				shareWindow.onAppletStart(videoWidth,videoHeight);
 			}
 		}
 
-		public function handleDeskshareAppletLaunchedEvent():void{
-			if(shareWindow != null) {
-			   LOGGER.debug("DS:PublishWindowManager: calling shareWindow.handleDeskshareAppletLaunchedEvent");
-			   shareWindow.handleDeskshareAppletLaunchedEvent();
+		public function handleDeskshareAppletLaunchedEvent():void {
+			if (shareWindow != null) {
+				LOGGER.debug("Calling shareWindow.handleDeskshareAppletLaunchedEvent");
+				shareWindow.handleDeskshareAppletLaunchedEvent();
 			}
 		}
 	}

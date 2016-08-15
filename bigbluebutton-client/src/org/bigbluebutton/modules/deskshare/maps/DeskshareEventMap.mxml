@@ -29,6 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+			import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
 			import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
@@ -37,8 +39,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
-			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
-			import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
@@ -120,5 +120,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{DeskshareAppletLaunchedEvent.APPLET_LAUNCHED}">
 		<MethodInvoker generator="{DeskshareManager}" method="handleDeskshareAppletLaunchedEvent"/>
 	</EventHandlers>
-
 </EventMap>
