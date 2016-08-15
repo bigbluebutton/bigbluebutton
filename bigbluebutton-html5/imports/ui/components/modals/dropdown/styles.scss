@@ -42,20 +42,45 @@
   -ms-transform: rotate( 90deg ); /* IE 9 */
   -webkit-transform: rotate( 90deg ); /* Safari */
   transform: rotate( 90deg );
+  color: #ffffff;
+  span {
+    border: 0px solid;
+    box-shadow: none;
+  }
+}
+
+.hrDropdown {
+  border: 0.5px solid black;
+  width: 150px;
+  text-align: center;
 }
 
 .dropdown {
-    display: inline-block;
-}
-
-.dropdown__content {
-    display: none;
+    position: relative;
 }
 
 .dropdown__active__content {
+  margin-top: 14px;
+  margin-right: -3px;
+  padding-left: 15px;
   height: auto;
-  width: auto;
+  width: 190px;
   display: block;
   background-color: #ffffff;
-  font-size: $font-size-base * 1.2;
+  font-size: $font-size-base * 1.1;
+  position: absolute;
+  right: 0;
+  text-align: left;
+  border-radius: 3%;
 }
+
+ .triangleOnDropdown {
+   position: absolute;
+   margin-top: 5px;
+   margin-left: -2px;
+   width: 0;
+   height: 0;
+   border-left: 18px solid transparent;
+   border-right: 18px solid transparent;
+   border-bottom: 18px solid #ffffff;
+ }
