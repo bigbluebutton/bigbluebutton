@@ -9,9 +9,11 @@ import scala.concurrent.Await
 import akka.actor.Actor
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common.converters.ToJsonEncoder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
-
+  private val log: Logger = LoggerFactory.getLogger(classOf[RedisPublisher])
   val redis = RedisClient(redisHost, redisPort)(system)
 
   // Set the name of this client to be able to distinguish when doing
@@ -27,7 +29,7 @@ class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
   system.scheduler.schedule(10 seconds, 10 seconds)(sendPingMessage())
 
   def publish(channel: String, data: String) {
-    //println("PUBLISH TO [" + channel + "]: \n [" + data + "]")
+    //log.debug("PUBLISH TO [" + channel + "]: \n [" + data + "]")
     redis.publish(channel, data)
   }
 

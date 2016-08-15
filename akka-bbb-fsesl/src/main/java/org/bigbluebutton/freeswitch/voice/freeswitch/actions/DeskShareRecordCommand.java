@@ -20,13 +20,17 @@ package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
 import org.freeswitch.esl.client.transport.message.EslMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeskShareRecordCommand extends FreeswitchCommand {
 
 	private String recordPath;
 	private boolean record;
+	private static final Logger log = LoggerFactory.getLogger(DeskShareRecordCommand.class);
 
-	public DeskShareRecordCommand(String room, String requesterId, boolean record, String recordPath){
+
+    public DeskShareRecordCommand(String room, String requesterId, boolean record, String recordPath){
 		super(room, requesterId);
 		this.recordPath = recordPath;
 		this.record = record;
@@ -39,12 +43,11 @@ public class DeskShareRecordCommand extends FreeswitchCommand {
 		if (record)
 			action = "record";
 
-		System.out.println("\n\n\n\n\n DESKSHARE RECORD " + record + "\n\n\n\n");
+		log.info("DESKSHARE RECORD " + record);
 		return SPACE + getRoom() + SPACE + action + SPACE + recordPath;
 	}
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
-		//Test for Known Conference
-		System.out.println("\n\n\n\n\nLALALALLALA\n\n\n\n");
+		//Test for Known Conference TODO
 	}
 }

@@ -36,7 +36,12 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class GetAllUsersCommand extends FreeswitchCommand {
+
+    private static final Logger log = LoggerFactory.getLogger(GetAllUsersCommand.class);
 
     public GetAllUsersCommand(String room, String requesterId) {
             super(room, requesterId);
@@ -58,7 +63,7 @@ public class GetAllUsersCommand extends FreeswitchCommand {
         //E.g. Conference 85115 not found
         
         if(!firstLine.startsWith("<?xml")) {
-//            System.out.println("Not XML: [{}]", firstLine);
+//            log.info("Not XML: [{}]", firstLine);
             return;
         }
 
@@ -104,11 +109,11 @@ public class GetAllUsersCommand extends FreeswitchCommand {
             }
 
         }catch(SAXException se) {
-//            System.out.println("Cannot parse repsonce. ", se);
+//            log.info("Cannot parse repsonce. ", se);
         }catch(ParserConfigurationException pce) {
-//            System.out.println("ParserConfigurationException. ", pce);
+//            log.info("ParserConfigurationException. ", pce);
         }catch (IOException ie) {
-//        	System.out.println("Cannot parse repsonce. IO Exception. ", ie);
+//        	log.info("Cannot parse repsonce. IO Exception. ", ie);
         }
     }
 
