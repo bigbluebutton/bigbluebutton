@@ -41,8 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
   <mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
   <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
-  <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
-    
+
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;   
@@ -66,8 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.BBB;
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.managers.ReconnectionManager;
-      
+
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
       
       public static const SCALE:Number = 5;
@@ -143,12 +141,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       public function getPrefferedPosition():String{
         return MainCanvas.DESKTOP_SHARING_PUBLISH;
-      }
-      
-      public function handleDisconnectedEvent(event:BBBEvent):void {
-          if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
-            closeWindow();  
-          }
       }
       
       /*
