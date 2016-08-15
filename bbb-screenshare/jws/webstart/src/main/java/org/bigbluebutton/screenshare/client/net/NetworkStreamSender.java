@@ -26,7 +26,8 @@ public class NetworkStreamSender implements NetworkStreamListener {
   public static final String NAME = "NETWORKSTREAMSENDER: ";
 
   private final String meetingId;
-  private final String streamId;
+  private String streamId;
+
   private NetworkHttpStreamSender httpSenders;
   private NetworkConnectionListener listener;
   private final SequenceNumberGenerator seqNumGenerator = new SequenceNumberGenerator();
@@ -38,7 +39,8 @@ public class NetworkStreamSender implements NetworkStreamListener {
   public NetworkStreamSender(String host, String meetingId, String streamId) {
     this.meetingId = meetingId;
     this.streamId = streamId;  
-    this.host = host; 
+    this.host = host;
+
     connect();
   }
 
@@ -46,12 +48,12 @@ public class NetworkStreamSender implements NetworkStreamListener {
     this.listener = listener;
   }
 
-  private void notifyNetworkConnectionListener(ExitCode reason) {
-    if (listener != null) listener.networkConnectionException(reason);
+  private void notifyNetworkConnectionListener(ExitCode reason, String streamId) {
+    if (listener != null) listener.networkConnectionException(reason, streamId);
   }
 
   private boolean connect() {
-    httpSenders = new NetworkHttpStreamSender(meetingId, streamId, seqNumGenerator);
+    httpSenders = new NetworkHttpStreamSender(meetingId, seqNumGenerator);
     httpSenders.addListener(this);
     try {
       httpSenders.connect(host);
@@ -68,8 +70,9 @@ public class NetworkStreamSender implements NetworkStreamListener {
     send(new ShareStoppedMessage(meetingId, streamId));
   }
 
-  public void startSharing(int width, int height) {
+  public void startSharing(int width, int height, String streamId) {
     System.out.println("Queueing ShareStartedMessage");
+    this.streamId = streamId;
     send(new ShareStartedMessage(meetingId, streamId, width, height));
   }
 
@@ -87,16 +90,16 @@ public class NetworkStreamSender implements NetworkStreamListener {
     timer.cancel();
 
     if (httpSenders != null) {
-      httpSenders.disconnect();
+      httpSenders.disconnect(streamId);
       httpSenders.stop();      
     }
   }
 
 
   @Override
-  public void networkException(ExitCode reason) {
+  public void networkException(ExitCode reason, String streamId) {
       System.out.println(NAME + "NetworkException - " + reason.getExitCode());
-      notifyNetworkConnectionListener(reason);
+      notifyNetworkConnectionListener(reason, streamId);
   }
 
   private class UpdateTimerTask extends TimerTask {

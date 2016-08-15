@@ -30,7 +30,7 @@ public class ScreenSharerRunner {
   private boolean started = false;
   private ScreenShareInfo ssi;
   private int x, y, width, height;
-  private final FfmpegScreenshare jcs;
+  private FfmpegScreenshare jcs;
 
   public ScreenSharerRunner(ScreenShareInfo ssi) {
     this.ssi = ssi;
@@ -38,7 +38,7 @@ public class ScreenSharerRunner {
 //    System.out.println("ScreenSharerRunner[captureWidth=" + ssi.captureWidth + ",captureHeight=" + ssi.captureHeight + "][" + ssi.x + "," + ssi.y +"]"
 //        + "[scaleWidth=" + ssi.scaleWidth + ",scaleHeight=" + ssi.scaleHeight + "]");
 
-    jcs = new FfmpegScreenshare(ssi);
+      jcs = new FfmpegScreenshare(ssi);
   }
 
   public void updateScreenShareInfo(int x, int y, int width, int height) {
@@ -48,11 +48,13 @@ public class ScreenSharerRunner {
     this.height = height;
   }
   
-  public void startSharing() {	
-//    printHeader();
+  public void startSharing(String streamId) {
+    //    printHeader();
 
     try {
-      jcs.go(ssi.URL, x, y, width, height);
+      String publishUrl = ssi.URL + "/" + streamId;
+      System.out.println("Publishing stream [" + streamId + "] to " + publishUrl);
+      jcs.go(publishUrl, x, y, width, height);
       jcs.start();
     } catch (IOException e) {
       // TODO Auto-generated catch block

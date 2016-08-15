@@ -32,8 +32,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
                              val streamBaseUrl: String) extends IScreenShareApplication with LogHelper {
 
   implicit val system = ActorSystem("bigbluebutton-screenshare-system")
-  val screenshareManager = system.actorOf(ScreenshareManager.props(system, bus),
-    "screenshare-manager")
+  val screenshareManager = system.actorOf(ScreenshareManager.props(system, bus), "screenshare-manager")
 
   implicit def executionContext = system.dispatcher
   val initError: Error = new Error("Uninitialized error.")
@@ -68,7 +67,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     val future = screenshareManager ? ScreenShareInfoRequest(meetingId, token)
     val reply = Await.result(future, timeout.duration).asInstanceOf[ScreenShareInfoRequestReply]
 
-    val publishUrl = streamBaseUrl + "/" + meetingId + "/" + reply.streamId
+    val publishUrl = streamBaseUrl + "/" + meetingId
     val info = new ScreenShareInfo(publishUrl, reply.streamId)
     new ScreenShareInfoResponse(info, null)
   }
@@ -174,7 +173,11 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     val future = screenshareManager ? GetSharingStatus(meetingId, streamId)
     val reply = Await.result(future, timeout.duration).asInstanceOf[GetSharingStatusReply]
 
-    new SharingStatus(reply.status)
+    reply.streamId match {
+      case Some(streamId)  => new SharingStatus(reply.status, streamId)
+      case None => new SharingStatus(reply.status, null)
+    }
+
   }
 
 }

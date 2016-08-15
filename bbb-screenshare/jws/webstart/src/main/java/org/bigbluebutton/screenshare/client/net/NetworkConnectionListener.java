@@ -22,5 +22,5 @@ import org.bigbluebutton.screenshare.client.ExitCode;
 
 public interface NetworkConnectionListener {
 
-	public void networkConnectionException(ExitCode reason);
+	public void networkConnectionException(ExitCode reason, String streamId);
 }

@@ -24,7 +24,7 @@ case class IsStreamRecordedReply(record: Boolean)
 
 case class GetSharingStatus(meetingId: String, streamId: String)
 
-case class GetSharingStatusReply(status: String)
+case class GetSharingStatusReply(status: String, streamId: Option[String])
 
 case class UpdateShareStatus(meetingId: String, streamId: String, sequence: Int)
 

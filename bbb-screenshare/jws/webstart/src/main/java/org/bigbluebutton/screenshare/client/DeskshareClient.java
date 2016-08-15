@@ -243,7 +243,7 @@ public class DeskshareClient {
 
       if (scale > 0 && scale <= 0.8) {
         scaleWidth = (int)(scale * (double)captureWidth);
-        scaleHeight = (int)(scale * (double)captureHeight);     			
+        scaleHeight = (int)(scale * (double)captureHeight);
       } 
 
       System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");

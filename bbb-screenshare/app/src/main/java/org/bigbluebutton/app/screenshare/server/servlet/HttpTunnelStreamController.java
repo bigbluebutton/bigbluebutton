@@ -58,10 +58,13 @@ public class HttpTunnelStreamController extends MultiActionController {
 			SharingStatus sharingStatus =  getSharingStatus(request, response);
 			log.warn("SHARING_STATUS " + sharingStatus.status);
 			response.addHeader("SHARING_STATUS", sharingStatus.status);
+			if (sharingStatus.status.toUpperCase().equals("START") && sharingStatus.status != null) {
+				response.addHeader("SHARING_STATUS_STREAMID", sharingStatus.streamId);
+			}
 		} else if (2 == captureRequest) {
 			handleCaptureEndRequest(request, response);
 			response.setStatus(HttpServletResponse.SC_OK);
-		} else {		
+		} else {
 			log.warn("Cannot handle screen capture event " + captureRequest);
 			response.setStatus(HttpServletResponse.SC_OK);
 		}
@@ -75,7 +78,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 		return sharingStatus;
 	}
 	
-	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String meetingId = request.getParameterValues("meetingId")[0];
 		String streamId = request.getParameterValues("streamId")[0];
 		String screenInfo = request.getParameterValues("screenInfo")[0];
@@ -86,7 +89,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 		    screenShareApplication = getScreenShareApplication();
 			hasSessionManager = true;
 		}
-		screenShareApplication.sharingStarted(meetingId, streamId, Integer.parseInt(screen[0]), Integer.parseInt(screen[1]));		
+		screenShareApplication.sharingStarted(meetingId, streamId, Integer.parseInt(screen[0]), Integer.parseInt(screen[1]));
 	}	
 	
 	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {

@@ -38,6 +38,8 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   private final String STOP = "STOP";
   private final String RUNNING = "RUNNING";
 
+  private String streamId = null;
+
   private String status = STOP;
   
   public ScreenRegionSharer(ScreenShareInfo ssi) {
@@ -45,6 +47,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
     signalChannel.addNetworkConnectionListener(this);
     signalChannel.start();
     this.ssi = ssi;
+    streamId = ssi.streamId;
     sharer = new ScreenSharerRunner(ssi);
   }
 
@@ -98,13 +101,14 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   }
 
   @Override
-  public void networkConnectionException(ExitCode reason) {
+  public void networkConnectionException(ExitCode reason, String streamId) {
     if (listener != null) {
       if (reason.getExitCode() == ExitCode.PAUSED.getExitCode()) {
         System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
         pause();
       } else if (reason.getExitCode() == ExitCode.START.getExitCode()) {
         System.out.println(NAME + "starting. Reason=" + reason.getExitCode());
+        this.streamId = streamId;
         start(false);
       } else {
         System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
@@ -140,9 +144,9 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
 
       sharer.addClientListener(listener);
 
-      sharer.startSharing();
+      sharer.startSharing(streamId);
 
-      signalChannel.startSharing(width, height);
+      signalChannel.startSharing(width, height, streamId);
     }
 
     @Override
