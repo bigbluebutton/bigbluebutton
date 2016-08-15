@@ -10,12 +10,12 @@ public class CreateBreakoutRoom implements IMessage {
     public final String moderatorPassword;
     public final Integer durationInMinutes; // The duration of the breakout room
     public final String defaultPresentationURL;
-    public final String recordType;
+    public final Boolean record;
 
     public CreateBreakoutRoom(String breakoutId, String parentId, String name,
             String voiceConfId, String viewerPassword,
             String moderatorPassword, Integer duration,
-            String defaultPresentationURL, String recordType) {
+            String defaultPresentationURL, Boolean record) {
         this.breakoutId = breakoutId;
         this.parentId = parentId;
         this.name = name;
@@ -24,6 +24,6 @@ public class CreateBreakoutRoom implements IMessage {
         this.moderatorPassword = moderatorPassword;
         this.durationInMinutes = duration;
         this.defaultPresentationURL = defaultPresentationURL;
-        this.recordType = recordType;
+        this.record = record;
     }
 }
