@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.screenshare.services
   import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
   import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
   import org.bigbluebutton.modules.screenshare.events.StreamStoppedEvent;
+  import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
   import org.bigbluebutton.modules.screenshare.services.red5.Connection;
   import org.bigbluebutton.modules.screenshare.services.red5.IMessageListener;
   
@@ -65,9 +66,21 @@ package org.bigbluebutton.modules.screenshare.services
         case "screenStreamStoppedMessage":
           handleScreenStreamStoppedMessage(message);
           break; 
+        case "pauseScreenSharingEvent":
+          handlePauseScreenSharingEvent(message);
+          break;
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
+    }
+    
+    private function handlePauseScreenSharingEvent(message:Object):void {
+      LOGGER.debug("handlePauseScreenSharingEvent " + JSON.stringify(message));      
+      var map:Object = JSON.parse(message.msg);      
+      if (map.hasOwnProperty("meetingId") && map.hasOwnProperty("streamId")) {
+        var sharePausedEvent: ScreenSharePausedEvent = new ScreenSharePausedEvent(map.streamId);
+        dispatcher.dispatchEvent(sharePausedEvent); 
+      } 
     }
 
     private function handleStartShareRequestResponse(message:Object):void {

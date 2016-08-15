@@ -100,12 +100,13 @@ public class Red5AppHandler {
     Map<String, Object> data = new HashMap<String, Object>();
     data.put("meetingId", meetingId);
     data.put("streamId", streamId);
+    data.put("userId", userId);
 
     Map<String, Object> message = new HashMap<String, Object>();
     Gson gson = new Gson();
     message.put("msg", gson.toJson(data));
 
-    BroadcastClientMessage msg = new BroadcastClientMessage(meetingId, "pauseViewingStream", message);
+    BroadcastClientMessage msg = new BroadcastClientMessage(meetingId, "pauseScreenSharingEvent", message);
     sender.sendMessage(msg);
 
     Map<String, Object> logData = new HashMap<String, Object>();

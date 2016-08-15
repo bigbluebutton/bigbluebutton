@@ -168,6 +168,8 @@ package org.bigbluebutton.modules.screenshare.managers {
         
         public function handleRequestStopSharingEvent():void {
             service.requestStopSharing(ScreenshareModel.getInstance().streamId);
+            publishWindowManager.handleShareWindowCloseEvent();
+            toolbarButtonManager.stoppedSharing();            
         }
         
         public function handleShareStartRequestResponseEvent(event:ShareStartRequestResponseEvent):void {
@@ -196,7 +198,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             //toolbarButtonManager.enableToolbarButton();
             publishWindowManager.handleShareWindowCloseEvent();
             sharing = false;
-            toolbarButtonManager.stopedSharing();
+            toolbarButtonManager.stoppedSharing();
         }
         
         public function handleViewWindowCloseEvent():void {
@@ -218,7 +220,7 @@ package org.bigbluebutton.modules.screenshare.managers {
 
         public function handleDeskshareToolbarStopEvent():void {
           JSLog.warn("ScreenshareManager::handleDeskshareToolbarStopEvent", {});
-          toolbarButtonManager.stopedSharing();
+          toolbarButtonManager.stoppedSharing();
         }
     }
 }
