@@ -9,13 +9,16 @@ import SettingsModal from '../settings/SettingsModal';
 import SessionMenu from '../settings/submenus/SessionMenu';
 import Dropdown from './Dropdown';
 import DropdownContent from './DropdownContent';
+
 export default class SettingsDropdown extends Component {
+
   constructor(props) {
     super(props);
-    console.log(this.props);
     this.menus = [];
   }
+
   componentWillMount() {
+    console.log("componentWillMount");
     this.setState({ activeMenu: -1, focusMenu: 0, });
     this.menus.push({ className: '',
       props: { title: 'Fullscreen', prependIconName: 'icon-',
@@ -27,9 +30,18 @@ export default class SettingsDropdown extends Component {
       props: { title: 'Leave Session', prependIconName: 'icon-',
                 icon: 'bbb-logout', }, tabIndex: 3, });
   }
+
+  componentWillUpdate() {
+    if (this.refs.dropdown.state.isMenuOpen && this.state.activeMenu > 0) {
+      this.setState({ activeMenu: -1, focusMenu: 0, });
+    }
+  }
+
+
   handleListKeyDown(event) {
     const pressedKey = event.keyCode;
     let menusLength = this.menus.length - 1;
+
     // tab
     if (pressedKey === 9) {
       let newIndex = 0;
@@ -38,9 +50,11 @@ export default class SettingsDropdown extends Component {
       } else {
         newIndex = this.state.focusMenu + 1;
       }
+
       this.setState({ focusMenu: newIndex });
       return;
     }
+
     // shift + tab
     if (event.shiftKey && pressedKey === 9) {
       let newIndex = 0;
@@ -49,9 +63,11 @@ export default class SettingsDropdown extends Component {
       } else {
         newIndex = this.state.focusMenu - 1;
       }
+
       this.setState({ focusMenu: newIndex });
       return;
     }
+
     // Up key
     if (pressedKey === 38) {
       if (this.state.focusMenu <= 0) { // checks if at end of menu
@@ -62,10 +78,13 @@ export default class SettingsDropdown extends Component {
         this.setState({ focusMenu: this.state.focusMenu - 1 },
            function () { ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus(); });
       }
+
       return;
     }
+
     // Down key
     if (pressedKey === 40) {
+      console.log(this.state.focusMenu);
       if (this.state.focusMenu >= menusLength) { // checks if at end of menu
         this.setState({ focusMenu: 0 },
            function () { ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus();
@@ -74,33 +93,47 @@ export default class SettingsDropdown extends Component {
         this.setState({ focusMenu: this.state.focusMenu + 1 },
            function () { ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus(); });
       }
+
       return;
     }
+
     // Enter and SpaceBar
     if (pressedKey === 13 || pressedKey === 32) {
       this.clickMenu(this.state.focusMenu);
       return;
     }
   }
+
+  handleFocus(index) {
+    this.setState({ focusMenu: index });
+  }
+
   clickMenu(i) {
     this.setState({ activeMenu: i, focusMenu: i, });
+
+    this.refs.dropdown.hideMenu();
   }
+
   createMenu() {
     const curr = this.state.activeMenu;
+
     if(curr === 0) {
       return console.log('full screen trigger');
     }
+
     if(curr === 1) {
       return <SettingsModal />;
     }
+
     if (curr == 2) {
       return <SessionMenu />;
     }
   }
+
   render() {
     return (
-      <Dropdown label='setting' icon='more'>
-        <DropdownContent>
+      <div>
+        <Dropdown label='setting' icon='more' ref='dropdown'>
           <div className={styles.triangleOnDropdown}></div>
           <div className={styles.dropdown__active__content}>
               <p id="dropdownModal" className={styles.descModal}>Settings dropdown</p>
@@ -110,6 +143,7 @@ export default class SettingsDropdown extends Component {
                     tabIndex={value.tabIndex}
                     onClick={this.clickMenu.bind(this, index)}
                     onKeyDown={this.handleListKeyDown.bind(this)}
+                    onFocus={this.handleFocus.bind(this, index)}
                     ref={'menu' + index}
                     className={styles.settingsMenuItem}>
                     <Icon key={index} prependIconName={value.props.prependIconName}
@@ -120,9 +154,9 @@ export default class SettingsDropdown extends Component {
                 ))}
               </ul>
           </div>
-        </DropdownContent>
+        </Dropdown>
         <div>{this.createMenu()}</div>
-      </Dropdown>
+      </div>
     );
   }
 }
