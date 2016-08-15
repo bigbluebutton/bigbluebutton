@@ -35,6 +35,8 @@ import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
 import org.freeswitch.esl.client.manager.ManagerConnection;
 import org.freeswitch.esl.client.transport.message.EslMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectionManager {
 
@@ -50,6 +52,7 @@ public class ConnectionManager {
 
 	private final ConferenceEventListener conferenceEventListener;
 	private final ESLEventListener eslEventListener;
+    private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
 
 	public ConnectionManager(ManagerConnection connManager,
 			ESLEventListener eventListener, ConferenceEventListener confListener) {
@@ -62,12 +65,12 @@ public class ConnectionManager {
 		try {
 			Client c = manager.getESLClient();
 			if (!c.canSend()) {
-				System.out.println("Attempting to connect to FreeSWITCH ESL");
+				log.info("Attempting to connect to FreeSWITCH ESL");
 				subscribed = false;
 				manager.connect();
 			} else {
 				if (!subscribed) {
-					System.out.println("Subscribing for ESL events.");
+					log.info("Subscribing for ESL events.");
 					c.cancelEventSubscriptions();
 					c.addEventListener(eslEventListener);
 					c.setEventSubscriptions("plain", "all");
@@ -78,12 +81,12 @@ public class ConnectionManager {
 				}
 			}
 		} catch (InboundConnectionFailure e) {
-			System.out.println("Failed to connect to ESL");
+			log.info("Failed to connect to ESL");
 		}
 	}
 
 	public void start() {
-		System.out.println("Starting FreeSWITCH ESL connection manager.");
+		log.info("Starting FreeSWITCH ESL connection manager.");
 		ConnectThread connector = new ConnectThread();
 		connectTask = (ScheduledFuture<ConnectThread>) connExec
 				.scheduleAtFixedRate(connector, 5, 5, TimeUnit.SECONDS);
@@ -120,10 +123,10 @@ public class ConnectionManager {
 	}
 
 	public void mute(MuteUserCommand mpc) {
-		System.out.println("Got mute request from FSApplication.");
+		log.info("Got mute request from FSApplication.");
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			System.out.println("Issuing command to FS ESL.");
+			log.info("Issuing command to FS ESL.");
 			c.sendAsyncApiCommand(mpc.getCommand(), mpc.getCommandArgs());
 		}
 	}
@@ -161,7 +164,7 @@ public class ConnectionManager {
 	public void broadcastRTMP(DeskShareBroadcastRTMPCommand rtmp) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			System.out.println("ConnectionManager: send to FS: broadcastRTMP "  + rtmp.getCommandArgs());
+			log.info("ConnectionManager: send to FS: broadcastRTMP "  + rtmp.getCommandArgs());
 			EslMessage response = c.sendSyncApiCommand(rtmp.getCommand(), rtmp.getCommandArgs());
 			rtmp.handleResponse(response, conferenceEventListener);
 		}
@@ -170,7 +173,7 @@ public class ConnectionManager {
 	public void hangUp(DeskShareHangUpCommand huCmd) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			System.out.println("ConnectionManager: send to FS: hangUp " + huCmd.getCommandArgs());
+			log.info("ConnectionManager: send to FS: hangUp " + huCmd.getCommandArgs());
 			EslMessage response = c.sendSyncApiCommand(huCmd.getCommand(), huCmd.getCommandArgs());
 			huCmd.handleResponse(response, conferenceEventListener);
 		}

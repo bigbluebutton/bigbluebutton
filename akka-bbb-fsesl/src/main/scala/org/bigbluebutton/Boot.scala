@@ -19,7 +19,7 @@ object Boot extends App with SystemConfiguration {
 
   val redisPublisher = new RedisPublisher(system)
 
-  val eslConnection = new DefaultManagerConnection(eslHost, eslPort, eslPassword);
+  val eslConnection = new DefaultManagerConnection(eslHost, eslPort, eslPassword)
 
   val voiceConfService = new VoiceConferenceService(redisPublisher)
 

@@ -14,6 +14,8 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RedisMessageReceiver {
 
@@ -23,7 +25,9 @@ public class RedisMessageReceiver {
 	public static final String TO_VOICE_CONF_SYSTEM_CHAN = TO_VOICE_CONF_CHANNEL
 			+ ":system";
 
-	private final FreeswitchApplication fsApp;
+    private static final Logger log = LoggerFactory.getLogger(RedisMessageReceiver.class);
+
+    private final FreeswitchApplication fsApp;
 
 	public RedisMessageReceiver(FreeswitchApplication fsApp) {
 		this.fsApp = fsApp;
@@ -62,16 +66,16 @@ public class RedisMessageReceiver {
 						processStopRecordingVoiceConfRequestMessage(message);
 						break;
 					  case DeskShareStartRTMPBroadcastEventMessage.DESKSHARE_START_RTMP_BROADCAST_MESSAGE:
-						  System.out.println("RedisMessageReceiver got DESKSHARE_START_RTMP_BROADCAST_MESSAGE");
-						  processDeskShareStartRTMPBroadcastEventMessage(message);
+							log.info("RedisMessageReceiver got " + "DESKSHARE_START_RTMP_BROADCAST_MESSAGE");
+							processDeskShareStartRTMPBroadcastEventMessage(message);
 					  break;
 					  case DeskShareStopRTMPBroadcastEventMessage.DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE:
-						  System.out.println("RedisMessageReceiver got DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE");
+							log.info("RedisMessageReceiver got " + "DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE");
 						  processDeskShareStopRTMPBroadcastEventMessage(message);
 					  break;
 					  case DeskShareHangUpEventMessage.DESKSHARE_HANG_UP_MESSAGE:
-						  System.out.println("RedisMessageReceiver got DESKSHARE_HANG_UP_MESSAGE");
-						  processDeskShareHangUpEventMessage(message);
+							log.info("RedisMessageReceiver got DESKSHARE_HANG_UP_MESSAGE");
+							processDeskShareHangUpEventMessage(message);
 					  break;
 					}
 				}

@@ -33,9 +33,12 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUsetToMeetingCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FreeswitchApplication {
 
+	private static final Logger log = LoggerFactory.getLogger(FreeswitchApplication.class);
 	private static final int SENDERTHREADS = 1;
 	private static final Executor msgSenderExec = Executors
 			.newFixedThreadPool(SENDERTHREADS);
@@ -139,23 +142,23 @@ public class FreeswitchApplication {
 				public void run() {
 					if (command instanceof GetAllUsersCommand) {
 						GetAllUsersCommand cmd = (GetAllUsersCommand) command;
-						System.out.println("Sending PopulateRoomCommand for conference = [" + cmd.getRoom() + "]");
+						log.info("Sending PopulateRoomCommand for conference = [" + cmd.getRoom() + "]");
 						manager.getUsers(cmd);
 					} else if (command instanceof MuteUserCommand) {
 						MuteUserCommand cmd = (MuteUserCommand) command;
-						System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
+						log.info("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						manager.mute(cmd);
 					} else if (command instanceof EjectUserCommand) {
 						EjectUserCommand cmd = (EjectUserCommand) command;
-						System.out.println("Sending EjectParticipantCommand for conference = [" + cmd.getRoom() + "]");
+						log.info("Sending EjectParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						manager.eject(cmd);
 					} else if (command instanceof EjectAllUsersCommand) {
 						EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
-						System.out.println("Sending EjectAllUsersCommand for conference = [" + cmd.getRoom() + "]");
+						log.info("Sending EjectAllUsersCommand for conference = [" + cmd.getRoom() + "]");
 						manager.ejectAll(cmd);
 					} else if (command instanceof TransferUsetToMeetingCommand) {
 						TransferUsetToMeetingCommand cmd = (TransferUsetToMeetingCommand) command;
-						System.out.println("Sending TransferUsetToMeetingCommand for conference = ["
+						log.info("Sending TransferUsetToMeetingCommand for conference = ["
 										+ cmd.getRoom() + "]");
 						manager.tranfer(cmd);
 					} else if (command instanceof RecordConferenceCommand) {

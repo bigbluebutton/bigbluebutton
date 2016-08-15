@@ -20,6 +20,8 @@ package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
 import org.freeswitch.esl.client.transport.message.EslMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
 
@@ -27,6 +29,7 @@ public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
 	private boolean broadcast;
 	private String timestamp;
 	private final String DESKSHARE_SUFFIX = "-DESKSHARE";
+	private static final Logger log = LoggerFactory.getLogger(DeskShareBroadcastRTMPCommand.class);
 
 	public DeskShareBroadcastRTMPCommand(String room, String requesterId, String broadcastPath, String timestamp, boolean broadcast){
 		super(room, requesterId);
@@ -53,6 +56,6 @@ public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 		//Test for Known Conference
-		System.out.println("\nDeskShareBroadcastRTMPCommand\n");
+		log.info("DeskShareBroadcastRTMPCommand");
 	}
 }
