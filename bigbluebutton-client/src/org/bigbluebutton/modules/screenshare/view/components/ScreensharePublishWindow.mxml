@@ -259,7 +259,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         startPreviewStream(connection, streamId, width, height);
       }
       
-      private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{			
+      private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{
         
         removeHowToHelpArea();
         
@@ -298,8 +298,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         videoHolder.height = vidH;
         video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
         video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
-        
-        
+                
         videoHolder.addChild(video);
         this.addChild(videoHolder);
         
@@ -433,7 +432,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                click="onHelpButtonClicked()" 
                tabIndex="{baseIndex+3}"/>
   </mx:VBox>
-  <dspub:states>	    
+  <dspub:states>    
     <mx:State name="dispFullRegionControlBar">   
       <mx:AddChild>
         <mx:ControlBar id="fullRegionBottomBar">

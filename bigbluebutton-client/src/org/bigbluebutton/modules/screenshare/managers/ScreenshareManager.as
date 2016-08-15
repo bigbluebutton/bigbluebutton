@@ -206,7 +206,7 @@ package org.bigbluebutton.modules.screenshare.managers {
         
         private function handleStreamStartEvent(streamId:String, videoWidth:Number, videoHeight:Number):void {
             LOGGER.debug("Received start vieweing command");
-            if (!usingJava) { return; }
+            //if (!usingJava) { return; }
             viewWindowManager.startViewing(streamId, videoWidth, videoHeight);
         }
 
