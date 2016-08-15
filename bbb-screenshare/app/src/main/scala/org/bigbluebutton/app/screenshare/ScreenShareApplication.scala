@@ -93,7 +93,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     val future = screenshareManager ? StartShareRequestMessage(meetingId, userId, record)
     val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
 
-    val response = new StartShareRequestResponse(reply.token, jnlpFile, null)
+    val response = new StartShareRequestResponse(reply.token, jnlpFile, reply.streamId, null)
     response
   }
 

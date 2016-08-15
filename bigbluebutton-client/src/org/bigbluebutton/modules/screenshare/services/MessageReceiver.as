@@ -86,11 +86,11 @@ package org.bigbluebutton.modules.screenshare.services
     private function handleStartShareRequestResponse(message:Object):void {
       LOGGER.debug("handleStartShareRequestResponse " + message);      
       var map:Object = JSON.parse(message.msg);      
-      if (map.hasOwnProperty("authToken") && map.hasOwnProperty("jnlp")) {
-        var shareSuccessEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(map.authToken, map.jnlp, true);
+      if (map.hasOwnProperty("authToken") && map.hasOwnProperty("jnlp") && map.hasOwnProperty("streamId")) {
+        var shareSuccessEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(map.authToken, map.jnlp, map.streamId, true);
         dispatcher.dispatchEvent(shareSuccessEvent); 
       } else {
-        var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, false);
+        var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, null, false);
         dispatcher.dispatchEvent(shareFailedEvent);         
       }
     }

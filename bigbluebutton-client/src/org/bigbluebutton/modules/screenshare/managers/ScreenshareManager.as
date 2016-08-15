@@ -178,6 +178,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             if (event.success) {
                 ScreenshareModel.getInstance().authToken = event.token;
                 ScreenshareModel.getInstance().jnlp = event.jnlp;
+                ScreenshareModel.getInstance().streamId = event.streamId;
                 dispatcher.dispatchEvent(new StartShareRequestSuccessEvent(ScreenshareModel.getInstance().authToken));
             } else {
                 dispatcher.dispatchEvent(new StartShareRequestFailedEvent());

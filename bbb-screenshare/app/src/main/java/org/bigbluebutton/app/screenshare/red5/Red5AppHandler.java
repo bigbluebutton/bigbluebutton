@@ -51,6 +51,7 @@ public class Red5AppHandler {
     } else {
       data.put("authToken", resp.token);
       data.put("jnlp", resp.jnlp);
+      data.put("streamId", resp.streamId);
     }
     
     Map<String, Object> message = new HashMap<String, Object>(); 

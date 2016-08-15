@@ -48,7 +48,6 @@ public class NetworkHttpStreamSender {
   private String meetingId;
   private NetworkStreamListener listener;
   private final SequenceNumberGenerator seqNumGenerator;
-  private volatile boolean startSendingMessage = false;
 
   private ExecutorService executor;   
   private final BlockingQueue<Message> messages = new LinkedBlockingQueue<Message>();
@@ -101,16 +100,11 @@ public class NetworkHttpStreamSender {
   
   private void sendMessageToServer(Message message) {
     if (message.getMessageType() == Message.MessageType.UPDATE) {
-      if (startSendingMessage) {
         sendUpdateMessage((ShareUpdateMessage) message);
-      }
     } else if (message.getMessageType() == Message.MessageType.STARTED) {
-      startSendingMessage = true;
       sendStartStreamMessage((ShareStartedMessage)message);
     } else if (message.getMessageType() == Message.MessageType.STOPPED) {
-
       sendCaptureEndEvent(((ShareStoppedMessage)message).streamId);
-      startSendingMessage = false;
     }
   }
   
@@ -254,8 +248,6 @@ public class NetworkHttpStreamSender {
               System.out.println("sendUpdateMessage sharingStart = [" + sharingStatus + "]. Terminating as no streamId passed.");
               notifyNetworkStreamListener(ExitCode.NORMAL, null);
             }
-
-
           }
         }
 

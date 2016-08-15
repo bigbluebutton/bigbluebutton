@@ -279,7 +279,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     sessions += streamId -> session
     status = START
     session.actorRef ! msg
-    sender ! new StartShareRequestReplyMessage(token)
+    sender ! new StartShareRequestReplyMessage(token, streamId)
   }
 
   private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
@@ -296,7 +296,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     status = START
 
     session.actorRef ! msg
-    sender ! new StartShareRequestReplyMessage(token)
+    sender ! new StartShareRequestReplyMessage(token, streamId)
   }
 
   private def handleGetSharingStatus(msg: GetSharingStatus) {
