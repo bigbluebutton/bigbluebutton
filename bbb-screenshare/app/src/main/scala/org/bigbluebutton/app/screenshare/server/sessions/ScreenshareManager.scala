@@ -61,6 +61,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     case msg: ScreenShareInfoRequest      => handleScreenShareInfoRequest(msg)
     case msg: UpdateShareStatus           => handleUpdateShareStatus(msg)
     case msg: UserDisconnected            => handleUserDisconnected(msg)
+    case msg: UserConnected               => handleUserConnected(msg)
     case msg: MeetingHasEnded             => handleMeetingHasEnded(msg)
 
     case msg: Any => log.warning("Unknown message " + msg)
@@ -69,6 +70,16 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
   private def handleUserDisconnected(msg: UserDisconnected) {
     if (log.isDebugEnabled) {
       log.debug("Received UserDisconnected message for meeting=[" + msg.meetingId + "]")
+    }
+
+    screenshares.get(msg.meetingId) foreach { screenshare =>
+      screenshare.actorRef ! msg
+    }
+  }
+
+  private def handleUserConnected(msg: UserConnected) {
+    if (log.isDebugEnabled) {
+      log.debug("Received UserConnected message for meeting=[" + msg.meetingId + "]")
     }
     screenshares.get(msg.meetingId) foreach { screenshare =>
       screenshare.actorRef ! msg

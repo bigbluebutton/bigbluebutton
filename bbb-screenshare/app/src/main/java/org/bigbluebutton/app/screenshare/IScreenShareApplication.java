@@ -16,4 +16,5 @@ public interface IScreenShareApplication {
   SharingStatus getSharingStatus(String meetingId, String streamId);
   Boolean recordStream(String meetingId, String streamId);
   void userDisconnected(String meetingId, String userId);
+  void userConnected(String meetingId, String userId);
 }

@@ -39,6 +39,14 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
 
   logger.info("Creating a new ScreenShareApplication")
 
+  def userConnected(meetingId: String, userId: String) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Received user disconnected on meeting=" + meetingId
+        + "] userid=[" + userId + "]")
+    }
+    screenshareManager ! new UserConnected(meetingId, userId)
+  }
+
   def userDisconnected(meetingId: String, userId: String) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received user disconnected on meeting=" + meetingId 

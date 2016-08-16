@@ -39,13 +39,15 @@ public class Red5AppService {
     Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
     for (IConnection conn : conns) {
       String connUserId = (String) conn.getAttribute("USERID");
-      if (connUserId != null && connUserId.equals(userId) && conn.getSessionId().equals(sessionId)) {
+      if (connUserId != null && connUserId.equals(userId) && !conn.getSessionId().equals(sessionId)) {
         conn.removeAttribute("USERID");
       }
     }
 
     Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
     Red5.getConnectionLocal().setAttribute("USERID", userId);
+
+    handler.userConnected(meetingId, userId);
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", meetingId);

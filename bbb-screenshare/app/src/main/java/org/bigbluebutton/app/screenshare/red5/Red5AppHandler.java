@@ -18,7 +18,11 @@ public class Red5AppHandler {
   private ConnectionInvokerService sender;
   
   private final Pattern STREAM_ID_PATTERN = Pattern.compile("(.*)-(.*)-(.*)$");
-  
+
+  public void userConnected(String meetingId, String userId) {
+    app.userConnected(meetingId, userId);
+  }
+
   public void isScreenSharing(String meetingId, String userId) {
     IsScreenSharingResponse resp = app.isScreenSharing(meetingId);
     

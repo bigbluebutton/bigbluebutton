@@ -38,3 +38,5 @@ case class ScreenShareInfoRequest(meetingId: String, token: String)
 case class ScreenShareInfoRequestReply(meetingId: String, streamId: String)
 
 case class UserDisconnected(meetingId: String, userId: String)
+
+case class UserConnected(meetingId: String, userId: String)
