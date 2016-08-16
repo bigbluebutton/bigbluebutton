@@ -40,11 +40,25 @@ $recording_dir = bbb_props['recording_dir']
 $raw_dir = "#{$recording_dir}/raw"
 $archived_dir = "#{$recording_dir}/status/archived"
 
+def getRequest(url)
+  BigBlueButton.logger.info("Fetching #{url}")
+  url_parsed = URI.parse(url)
+  http = Net::HTTP.new(url_parsed.host, url_parsed.port)
+  http.use_ssl = (url_parsed.scheme.downcase == "https")
+  http.get(url_parsed.request_uri)
+end
+
 def fetchRecordings(url)
-  #BigBlueButton.logger.debug("Fetching #{url}")
   doc = nil
   begin
-    doc = Nokogiri::XML(Net::HTTP.get_response(URI.parse(url)).body)
+    response = getRequest(url)
+    # follow redirects once only
+    if response.kind_of?(Net::HTTPRedirection)
+      BigBlueButton.logger.info("Received a redirect, will make a new request")
+      response = getRequest(response['location'])
+    end
+
+    doc = Nokogiri::XML(response.body)
     returncode = doc.xpath("//returncode")
     if returncode.empty? or returncode.text != "SUCCESS"
       BigBlueButton.logger.error "getRecordings didn't return success:\n#{doc.to_xml(:indent => 2)}"
