@@ -173,7 +173,6 @@ public class NetworkHttpStreamSender {
       e.printStackTrace();
       throw new ConnectionException("IOException while sending capture start event.");
     }
-
   }
 
   public void disconnect(String streamId) throws ConnectionException {
@@ -233,17 +232,17 @@ public class NetworkHttpStreamSender {
         String sharingStatus =  httpConnection.getHeaderField("SHARING_STATUS");
 
         if (sharingStatus != null) {
-          System.out.println("sendUpdateMessage sharingStopped = [" + sharingStatus + "]");
           if (sharingStatus.toUpperCase().equals("STOP")) {
+            System.out.println("sendUpdateMessage sharingStopped = [" + sharingStatus + "]");
            notifyNetworkStreamListener(ExitCode.NORMAL, null);
           } else if (sharingStatus.toUpperCase().equals("PAUSE")) {
-            notifyNetworkStreamListener(ExitCode.PAUSED, null);
             System.out.println("sendUpdateMessage sharingPaused = [" + sharingStatus + "]");
+            notifyNetworkStreamListener(ExitCode.PAUSED, null);
           } else if (sharingStatus.toUpperCase().equals("START")) {
             String streamId =  httpConnection.getHeaderField("SHARING_STATUS_STREAMID");
             if (streamId != null) {
-              notifyNetworkStreamListener(ExitCode.START, streamId);
               System.out.println("sendUpdateMessage sharingStart = [" + sharingStatus + "]");
+              notifyNetworkStreamListener(ExitCode.START, streamId);
             } else {
               System.out.println("sendUpdateMessage sharingStart = [" + sharingStatus + "]. Terminating as no streamId passed.");
               notifyNetworkStreamListener(ExitCode.NORMAL, null);

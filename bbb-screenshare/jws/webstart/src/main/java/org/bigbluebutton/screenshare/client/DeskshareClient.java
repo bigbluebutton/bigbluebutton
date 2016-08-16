@@ -75,7 +75,7 @@ public class DeskshareClient {
 
   /**
    * Builds the Deskstop Sharing Client.
-   */	
+   */
   public static class NewBuilder {
     private String host = "localhost";
     private int port = 9123;
@@ -257,7 +257,7 @@ public class DeskshareClient {
           double ratio = (double)captureHeight/(double)captureWidth;
           scaleHeight = (int)((double)scaleWidth * ratio);
           System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
-        }				
+        }
       }
 
     }

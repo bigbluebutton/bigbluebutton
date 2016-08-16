@@ -41,6 +41,9 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   private String streamId = null;
 
   private String status = STOP;
+
+  // If sharing full screen, autoStart is true
+  private volatile boolean fullScreen = false;
   
   public ScreenRegionSharer(ScreenShareInfo ssi) {
     signalChannel = new NetworkStreamSender(ssi.host, ssi.meetingId, ssi.streamId);
@@ -60,6 +63,8 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       frame.setLocation(ssi.x, ssi.y);
       System.out.println(NAME + "Launching Screen Capture Frame");
       status = "START";
+      this.fullScreen = autoStart;
+      System.out.println(NAME + "Starting Screen Capture Frame. StreamId=" + this.streamId + " autoStart=" + autoStart);
       frame.start(autoStart);
     }
 
@@ -96,7 +101,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       frame.setVisible(false);
       sharer.stopSharing();
       status = PAUSE;
-      System.out.println(NAME + "Paused. *************");
+      System.out.println(NAME + "Paused.");
     }
   }
 
@@ -107,9 +112,9 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
         System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
         pause();
       } else if (reason.getExitCode() == ExitCode.START.getExitCode()) {
-        System.out.println(NAME + "starting. Reason=" + reason.getExitCode());
         this.streamId = streamId;
-        start(false);
+        System.out.println(NAME + "starting. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
+        start(fullScreen);
       } else {
         System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
         listener.onClientStop(reason);
@@ -144,8 +149,8 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
 
       sharer.addClientListener(listener);
       signalChannel.startSharing(width, height, streamId);
-      sharer.startSharing(streamId);
 
+      sharer.startSharing(streamId);
 
     }
 

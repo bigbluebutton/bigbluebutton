@@ -75,7 +75,7 @@ public class CaptureRegionFrame {
     frame.setMoveBar(createMoveBar());
     setVisible(true);
     if (autoStart) {
-      startCapture();	
+      startCapture();
     } 
   }
 
