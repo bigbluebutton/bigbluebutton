@@ -202,12 +202,12 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received SharingStoppedMessage for streamId=[" + msg.streamId + "]")
     }
     sessions.get(msg.streamId) match {
-      case Some(session) => {
+      case Some(session) =>
         session.actorRef ! msg
-      }
-      case None => {
+
+      case None =>
         log.info("Sharing stopped on a non-existing session=[" + msg.streamId + "]")
-      }
+
     }
   }
 

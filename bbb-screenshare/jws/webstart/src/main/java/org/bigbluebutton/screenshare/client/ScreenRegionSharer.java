@@ -45,16 +45,19 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   // If sharing full screen, autoStart is true
   private volatile boolean fullScreen = false;
   
-  public ScreenRegionSharer(ScreenShareInfo ssi) {
+  public ScreenRegionSharer(ScreenShareInfo ssi, boolean autoStart) {
+    this.fullScreen = autoStart;
+    this.ssi = ssi;
+    streamId = ssi.streamId;
+
     signalChannel = new NetworkStreamSender(ssi.host, ssi.meetingId, ssi.streamId);
     signalChannel.addNetworkConnectionListener(this);
     signalChannel.start();
-    this.ssi = ssi;
-    streamId = ssi.streamId;
+
     sharer = new ScreenSharerRunner(ssi);
   }
 
-  public void start(boolean autoStart) {
+  public void start() {
     if (!status.toUpperCase().equals(START)) {
       CaptureRegionListener crl = new CaptureRegionListenerImp(this);
       frame = new CaptureRegionFrame(crl, 5);
@@ -63,9 +66,9 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       frame.setLocation(ssi.x, ssi.y);
       System.out.println(NAME + "Launching Screen Capture Frame");
       status = "START";
-      this.fullScreen = autoStart;
-      System.out.println(NAME + "Starting Screen Capture Frame. StreamId=" + this.streamId + " autoStart=" + autoStart);
-      frame.start(autoStart);
+
+      System.out.println(NAME + "Starting Screen Capture Frame. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
+      frame.start(fullScreen);
     }
 
   }
@@ -114,7 +117,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       } else if (reason.getExitCode() == ExitCode.START.getExitCode()) {
         this.streamId = streamId;
         System.out.println(NAME + "starting. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
-        start(fullScreen);
+        start();
       } else {
         System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
         listener.onClientStop(reason);
