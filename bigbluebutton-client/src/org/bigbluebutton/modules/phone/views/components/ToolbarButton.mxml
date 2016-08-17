@@ -157,7 +157,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		LOGGER.debug("onUserLeftConference enabled=[{0}] selected=[{1}]", [enabled, selected]);
         _currentState = DEFAULT_STATE;
         this.styleName = "voiceConfDefaultButtonStyle";
-        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');    
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+		UserManager.getInstance().getConference().resetBreakoutRooms();
       }
       
       private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {

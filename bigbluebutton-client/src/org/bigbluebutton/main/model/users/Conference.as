@@ -18,8 +18,6 @@
  */
 package org.bigbluebutton.main.model.users {
 	
-	import com.adobe.utils.ArrayUtil;
-	
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	
@@ -547,14 +545,18 @@ package org.bigbluebutton.main.model.users {
 				var breakoutRoomNumber:String = StringUtils.substringAfterLast(breakoutId, "-");
 				var updateUsers:Array = [];
 				// Update users breakout rooms
+				var user : BBBUser;
 				for (var i:int = 0; i < breakoutUsers.length; i++) {
 					var userId:String = StringUtils.substringBeforeLast(breakoutUsers[i].id, "-");
-					getUser(userId).addBreakoutRoom(breakoutRoomNumber);
+					user = getUser(userId);
+					if (user) {
+						user.addBreakoutRoom(breakoutRoomNumber)
+					}
 					updateUsers.push(userId);
 				}
 				// Remove users breakout rooms if the users left the breakout rooms
 				for (var j:int = 0; j < users.length; j++) {
-					var user:BBBUser = BBBUser(users.getItemAt(j));
+					user = BBBUser(users.getItemAt(j));
 					if (updateUsers.indexOf(BBBUser(users.getItemAt(j)).userID) == -1 && ArrayUtils.contains(user.breakoutRooms, breakoutRoomNumber)) {
 						user.removeBreakoutRoom(breakoutRoomNumber);
 					}
@@ -623,6 +625,13 @@ package org.bigbluebutton.main.model.users {
 				} else {
 					br.listenStatus = BreakoutRoom.OTHER;
 				}
+			}
+		}
+
+		public function resetBreakoutRooms():void {
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
+				br.listenStatus = BreakoutRoom.NONE;
 			}
 		}
 

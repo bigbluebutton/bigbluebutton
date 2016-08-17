@@ -42,15 +42,6 @@ module BigBlueButton
       Dir.glob("#{presentation_dir}/*.swf").size
     end
 
-    # Extract a page from the pdf file.
-    def self.extract_page_from_pdf(page_num, pdf_presentation, pdf_out)
-      BigBlueButton.logger.info("Task: Extracting a page from pdf file")
-      temp_out = "#{File.dirname(pdf_out)}/temp-#{File.basename(pdf_out)}"
-      command = "pdfseparate -f #{page_num} -l #{page_num} #{pdf_presentation} #{temp_out}"
-      BigBlueButton.execute(command)
-      FileUtils.mv(temp_out, pdf_out)
-    end
-
     # Extract a page from a pdf file as a png image
     def self.extract_png_page_from_pdf(page_num, pdf_presentation, png_out, resize = '800x600')
       BigBlueButton.logger.info("Task: Extracting a page from pdf file as png image")
