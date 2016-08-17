@@ -18,15 +18,13 @@
 */
 package org.bigbluebutton.app.screenshare.server.sessions
 
-import akka.actor.{ActorLogging, Actor, Props}
+import akka.actor.{Actor, ActorLogging, Props}
+import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.Session.KeepAliveTimeout
 import org.bigbluebutton.app.screenshare.server.util.TimeUtil
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
-import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
-import org.bigbluebutton.app.screenshare.events.ShareStartedEvent
-import org.bigbluebutton.app.screenshare.events.ShareStoppedEvent
-import org.bigbluebutton.app.screenshare.events.StreamStoppedEvent
-import org.bigbluebutton.app.screenshare.events.StreamStartedEvent
+import org.bigbluebutton.app.screenshare.events._
+
 import scala.concurrent.duration._
 
 object Session {
@@ -53,34 +51,35 @@ class Session(parent: Screenshare,
 
   // if ffmpeg is still broadcasting
   private var streamStopped = true
+
   // if jws is still running
   private var shareStopped = true
 
-  // if the user has requested to stop sharing
-  private var stopShareRequested = false
 
-  private var width: Int = 0
-  private var height: Int = 0
+  private var width: Option[Int] = None
+  private var height: Option[Int] = None
 
-  private var streamUrl: String = ""
+  private var streamUrl: Option[String] = None
 
   private val IS_STREAM_ALIVE = "IsStreamAlive"
+
+  private var lastStatusUpdate = 0L
 
   implicit def executionContext = parent.sessionManager.actorSystem.dispatcher
 
   def scheduleKeepAliveCheck() {
-    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds,
-      self, IS_STREAM_ALIVE)
+    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds, self, IS_STREAM_ALIVE)
   }
 
   def receive = {
+    case msg: PauseShareRequestMessage => handlePauseShareRequestMessage(msg)
     case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
     case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
     case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
     case msg: StreamStoppedMessage => handleStreamStoppedMessage(msg)
     case msg: SharingStartedMessage => handleSharingStartedMessage(msg)
     case msg: SharingStoppedMessage => handleSharingStoppedMessage(msg)
-    case msg: IsSharingStopped => handleIsSharingStopped(msg)
+    case msg: GetSharingStatus => handleGetSharingStatus(msg)
     case msg: IsScreenSharing => handleIsScreenSharing(msg)
     case msg: IsStreamRecorded => handleIsStreamRecorded(msg)
     case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
@@ -94,7 +93,6 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received UserDisconnected for streamId=[" + streamId + "]")
     }
-    stopShareRequested = true
   }
 
   private def handleIsStreamRecorded(msg: IsStreamRecorded) {
@@ -108,7 +106,16 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "]")
     }
-    sender ! new IsScreenSharingReply(true, streamId, width, height, streamUrl)
+
+    for {
+      w <- width
+      h <- height
+      url <- streamUrl
+    } yield {
+      val info = new StreamInfo(true, streamId, w, h, url)
+      bus.send(new IsScreenSharingResponse(meetingId, msg.userId, info))
+    }
+
   }
 
   private def handleScreenShareInfoRequest(msg: ScreenShareInfoRequest) {
@@ -124,20 +131,48 @@ class Session(parent: Screenshare,
       log.debug("Received SharingStoppedMessage for streamId=[" + msg.streamId + "]")
     }
     shareStopped = true
-    width = 0
-    height = 0
+    width = None
+    height = None
+    streamUrl = None
     bus.send(new ShareStoppedEvent(meetingId, streamId))
   }
+
 
   private def handleSharingStartedMessage(msg: SharingStartedMessage) {
     if (log.isDebugEnabled) {
       log.debug("Received SharingStartedMessagefor streamId=[" + msg.streamId + "]")
     }
-    stopShareRequested = false
     shareStopped = false
-    width = msg.width
-    height = msg.height
-    bus.send(new ShareStartedEvent(meetingId, streamId))
+    width = Some(msg.width)
+    height = Some(msg.height)
+
+    // We wait until we have the width, height, and stream url before notifying
+    // clients that stream has started. This way we prevent a race condition
+    // where we have the stream url but the width and height is zero. (ralam aug 16, 2016)
+    for {
+      w <- width
+      h <- height
+      url <- streamUrl
+    } yield (bus.send(new StreamStartedEvent(meetingId, streamId, w, h, url)))
+
+  }
+
+  private def handleStreamStartedMessage(msg: StreamStartedMessage) {
+    if (log.isDebugEnabled) {
+      log.debug("Received StreamStartedMessage for streamId=[" + msg.streamId + "]")
+    }
+    streamStopped = false
+    streamUrl = Some(msg.url)
+
+    // We wait until we have the width, height, and stream url before notifying
+    // clients that stream has started. This way we prevent a race condition
+    // where we have the stream url but the width and height is zero. (ralam aug 16, 2016)
+    for {
+      w <- width
+      h <- height
+      url <- streamUrl
+    } yield (bus.send(new StreamStartedEvent(meetingId, streamId, w, h, url)))
+
   }
 
   private def handleStreamStoppedMessage(msg: StreamStoppedMessage) {
@@ -148,20 +183,20 @@ class Session(parent: Screenshare,
     bus.send(new StreamStoppedEvent(meetingId, streamId))
   }
 
-  private def handleStreamStartedMessage(msg: StreamStartedMessage) {
-    if (log.isDebugEnabled) {
-      log.debug("Received StreamStartedMessage for streamId=[" + msg.streamId + "]")
-    }
-    streamStopped = false
-    streamUrl = msg.url
-    bus.send(new StreamStartedEvent(meetingId, streamId, width, height, msg.url))
-  }
-
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
     if (log.isDebugEnabled) {
       log.debug("Received StopShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
-    stopShareRequested = true
+
+    bus.send(new ShareStoppedEvent(meetingId, streamId))
+
+  }
+
+  private def handlePauseShareRequestMessage(msg: PauseShareRequestMessage) {
+    if (log.isDebugEnabled) {
+      log.debug("Received PauseShareRequestMessage for streamId=[" + msg.streamId + "]")
+    }
+
     bus.send(new ShareStoppedEvent(meetingId, streamId))
   }
 
@@ -172,8 +207,8 @@ class Session(parent: Screenshare,
     scheduleKeepAliveCheck()
   }
 
-  private def handleIsSharingStopped(msg: IsSharingStopped) {
-    sender ! new IsSharingStoppedReply(stopShareRequested)
+  private def handleGetSharingStatus(msg: GetSharingStatus) {
+    //sender ! new GetSharingStatusReply(pauseShareRequested, stopShareRequested)
   }
 
   private def handleUpdateShareStatus(msg: UpdateShareStatus): Unit = {

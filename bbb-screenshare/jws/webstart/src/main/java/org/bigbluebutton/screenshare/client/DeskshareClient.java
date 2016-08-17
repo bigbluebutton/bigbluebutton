@@ -32,7 +32,7 @@ public class DeskshareClient {
     listener = l;
   }
 
-  public void start() {			
+  public void start() {
     if (ssi.fullScreen) {
       System.out.println(NAME + "Sharing full screen.");
       shareFullScreen();
@@ -43,28 +43,26 @@ public class DeskshareClient {
   }
 
   private void shareWithFrame() {
-    screenSharer = new ScreenRegionSharer(ssi);
+    screenSharer = new ScreenRegionSharer(ssi, false);
     screenSharer.addClientListener(listener);
-    screenSharer.start(false);		
   }
 
   private void shareFullScreen() {
-    screenSharer = new ScreenRegionSharer(ssi);
+    screenSharer = new ScreenRegionSharer(ssi, true);
     screenSharer.addClientListener(listener);
-    screenSharer.start(true);
   }
 
   public void disconnected(){
-    System.out.println(NAME + "Disconneted");
+    System.out.println(NAME + "Disconnected");
     screenSharer.disconnected();
   } 
 
   public void stop() {
-    System.out.println(NAME + "Stop");		
+    System.out.println(NAME + "Stop");
     screenSharer.stop();
   }
 
-  private DeskshareClient(ScreenShareInfo ssi) {		
+  private DeskshareClient(ScreenShareInfo ssi) {
     this.ssi = ssi;
   }
 
@@ -75,7 +73,7 @@ public class DeskshareClient {
 
   /**
    * Builds the Deskstop Sharing Client.
-   */	
+   */
   public static class NewBuilder {
     private String host = "localhost";
     private int port = 9123;
@@ -243,7 +241,7 @@ public class DeskshareClient {
 
       if (scale > 0 && scale <= 0.8) {
         scaleWidth = (int)(scale * (double)captureWidth);
-        scaleHeight = (int)(scale * (double)captureHeight);     			
+        scaleHeight = (int)(scale * (double)captureHeight);
       } 
 
       System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
@@ -257,7 +255,7 @@ public class DeskshareClient {
           double ratio = (double)captureHeight/(double)captureWidth;
           scaleHeight = (int)((double)scaleWidth * ratio);
           System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
-        }				
+        }
       }
 
     }

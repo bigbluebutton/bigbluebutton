@@ -32,7 +32,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.screenshare.events.ModuleEvent;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
+      import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+            import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
 			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
@@ -43,6 +45,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.managers.ScreenshareManager;
 			import org.bigbluebutton.modules.screenshare.services.red5.ConnectionEvent;
+			import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
+			import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
@@ -62,6 +66,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <EventHandlers type="{RequestToStartSharing.REQUEST_SHARE_START}">
     <MethodInvoker generator="{ScreenshareManager}" method="handleRequestStartSharingEvent"/>
+  </EventHandlers>
+    
+  <EventHandlers type="{RequestToPauseSharing.REQUEST_SHARE_PAUSE}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleRequestPauseSharingEvent"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{RequestToRestartSharing.REQUEST_SHARE_RESTART}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleRequestRestartSharingEvent"/>
   </EventHandlers>
   
   <EventHandlers type="{RequestToStopSharing.REQUEST_SHARE_STOP}">
@@ -110,5 +122,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ScreenshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 
-  	
+	<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleUseJavaModeCommand"/>
+	</EventHandlers>
+
+	<EventHandlers type="{DeskshareToolbarEvent.STOP}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleDeskshareToolbarStopEvent"/>
+	</EventHandlers>
+
 </EventMap>

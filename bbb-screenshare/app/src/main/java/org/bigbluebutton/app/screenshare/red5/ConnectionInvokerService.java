@@ -65,7 +65,7 @@ public class ConnectionInvokerService {
           ClientMessage message;
           try {
             message = messages.take();
-            sendMessageToClient(message);	
+            sendMessageToClient(message);
           } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

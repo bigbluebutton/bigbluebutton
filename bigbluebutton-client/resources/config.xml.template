@@ -42,13 +42,15 @@
 			baseTabIndex="301"
 		/>
 
-		<module name="ScreenshareModule" 
-			url="http://HOST/client/ScreenshareModule.swf?v=VERSION" 
+		<module name="ScreenshareModule"
+			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			autoStart="false"
 			autoFullScreen="false"
 			baseTabIndex="201"
+			useWebRTCIfAvailable="false"
+			chromeExtensionKey=""
 			help="http://HOST/client/help/screenshare-help.html"
 		/>
     

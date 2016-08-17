@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.screenshare.services
   import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
   import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
   import org.bigbluebutton.modules.screenshare.events.StreamStoppedEvent;
+  import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
   import org.bigbluebutton.modules.screenshare.services.red5.Connection;
   import org.bigbluebutton.modules.screenshare.services.red5.IMessageListener;
   
@@ -65,19 +66,40 @@ package org.bigbluebutton.modules.screenshare.services
         case "screenStreamStoppedMessage":
           handleScreenStreamStoppedMessage(message);
           break; 
+        case "pauseScreenSharingEvent":
+          handlePauseScreenSharingEvent(message);
+          break;
+        case "startShareRequestRejectedResponse":
+          handleStartShareRequestRejectedResponse(message);
+          break;
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
     }
+    
+    private function handlePauseScreenSharingEvent(message:Object):void {
+      LOGGER.debug("handlePauseScreenSharingEvent " + JSON.stringify(message));      
+      var map:Object = JSON.parse(message.msg);      
+      if (map.hasOwnProperty("meetingId") && map.hasOwnProperty("streamId")) {
+        var sharePausedEvent: ScreenSharePausedEvent = new ScreenSharePausedEvent(map.streamId);
+        dispatcher.dispatchEvent(sharePausedEvent); 
+      } 
+    }
 
+    private function handleStartShareRequestRejectedResponse(message:Object):void {
+      LOGGER.debug("handleStartShareRequestRejectedResponse " + message);      
+      var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, null, false);
+      dispatcher.dispatchEvent(shareFailedEvent);         
+    }
+    
     private function handleStartShareRequestResponse(message:Object):void {
       LOGGER.debug("handleStartShareRequestResponse " + message);      
       var map:Object = JSON.parse(message.msg);      
-      if (map.hasOwnProperty("authToken") && map.hasOwnProperty("jnlp")) {
-        var shareSuccessEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(map.authToken, map.jnlp, true);
+      if (map.hasOwnProperty("authToken") && map.hasOwnProperty("jnlp") && map.hasOwnProperty("streamId")) {
+        var shareSuccessEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(map.authToken, map.jnlp, map.streamId, true);
         dispatcher.dispatchEvent(shareSuccessEvent); 
       } else {
-        var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, false);
+        var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, null, false);
         dispatcher.dispatchEvent(shareFailedEvent);         
       }
     }

@@ -178,6 +178,31 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
                 netConn.call(service, responder, message);
             }
         }
+
+        public function restartShareRequest(meetingId:String, userId:String):void {
+            var message:Object = new Object();
+            message["meetingId"] = meetingId;
+            message["userId"] = userId;
+            
+            sendMessage("screenshare.restartShareRequest", function(result:String):void { // On successful result
+                LOGGER.debug(result);
+            }, function(status:String):void { // status - On error occurred
+                LOGGER.error(status);
+            }, message);
+        }
+        
+        public function pauseShareRequest(meetingId:String, userId:String, streamId:String):void {
+            var message:Object = new Object();
+            message["meetingId"] = meetingId;
+            message["userId"] = userId;
+            message["streamId"] = streamId;
+            
+            sendMessage("screenshare.pauseShareRequest", function(result:String):void { // On successful result
+                LOGGER.debug(result);
+            }, function(status:String):void { // status - On error occurred
+                LOGGER.error(status);
+            }, message);
+        }
         
         public function startShareRequest(meetingId:String, userId:String, record:Boolean):void {
             var message:Object = new Object();

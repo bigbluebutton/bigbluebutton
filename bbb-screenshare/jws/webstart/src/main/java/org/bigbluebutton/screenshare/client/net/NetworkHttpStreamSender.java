@@ -46,18 +46,15 @@ public class NetworkHttpStreamSender {
   private URL url;
   private URLConnection conn;
   private String meetingId;
-  private String streamId;
   private NetworkStreamListener listener;
   private final SequenceNumberGenerator seqNumGenerator;
-  private volatile boolean startSendingMessage = false;
 
   private ExecutorService executor;   
   private final BlockingQueue<Message> messages = new LinkedBlockingQueue<Message>();
   private volatile boolean sendMessages = false;
   
-  public NetworkHttpStreamSender(String meetingId, String streamId, SequenceNumberGenerator seqNumGenerator) {
+  public NetworkHttpStreamSender(String meetingId, SequenceNumberGenerator seqNumGenerator) {
     this.meetingId = meetingId;
-    this.streamId = streamId;
     this.seqNumGenerator = seqNumGenerator;
     
     executor = Executors.newFixedThreadPool(1);
@@ -67,8 +64,8 @@ public class NetworkHttpStreamSender {
     this.listener = listener;
   }
 
-  private void notifyNetworkStreamListener(ExitCode reason) {
-    if (listener != null) listener.networkException(reason);
+  private void notifyNetworkStreamListener(ExitCode reason, String streamId) {
+    if (listener != null) listener.networkException(reason, streamId);
   }
 
   public void connect(String host) throws ConnectionException {
@@ -103,15 +100,11 @@ public class NetworkHttpStreamSender {
   
   private void sendMessageToServer(Message message) {
     if (message.getMessageType() == Message.MessageType.UPDATE) {
-      if (startSendingMessage) {
         sendUpdateMessage((ShareUpdateMessage) message);
-      }
     } else if (message.getMessageType() == Message.MessageType.STARTED) {
-      startSendingMessage = true;
       sendStartStreamMessage((ShareStartedMessage)message);
     } else if (message.getMessageType() == Message.MessageType.STOPPED) {
-      sendCaptureEndEvent();
-      startSendingMessage = false;
+      sendCaptureEndEvent(((ShareStoppedMessage)message).streamId);
     }
   }
   
@@ -126,9 +119,9 @@ public class NetworkHttpStreamSender {
      * 
      * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4382944
      * 
-     */				
+     */
     long start = System.currentTimeMillis();
-    try {			
+    try {
       url = new URL(host + SCREEN_CAPTURE__URL);
       if (host.toLowerCase().startsWith("https://")) {
         conn = (HttpsURLConnection)url.openConnection();
@@ -150,25 +143,25 @@ public class NetworkHttpStreamSender {
     try {
       System.out.println("Http Open connection. In sendStartStreamMessage");
       openConnection();
-      sendCaptureStartEvent(message.width, message.height);
+      sendCaptureStartEvent(message.width, message.height, message.streamId);
     } catch (ConnectionException e) {
       System.out.println("Exception in sendStartStreamMessage");
       System.out.print(e.toString());
       //e.printStackTrace();
-      notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
+      notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE, null);
     }
   }
 
-  private void sendCaptureStartEvent(int width, int height) throws ConnectionException {
+  private void sendCaptureStartEvent(int width, int height, String streamId) throws ConnectionException {
     ClientHttpRequest chr;
     try {
       System.out.println(getTimeStamp() + " - Sending Start Sharing Event.");
       chr = new ClientHttpRequest(conn);
-      chr.setParameter(MEETING_ID, meetingId);	
+      chr.setParameter(MEETING_ID, meetingId);
       chr.setParameter(STREAM_ID, streamId);
       chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
       String screenInfo = Integer.toString(width) + "x" + Integer.toString(height);
-      chr.setParameter(SCREEN, screenInfo);			
+      chr.setParameter(SCREEN, screenInfo);
       chr.setParameter(EVENT, CaptureEvents.CAPTURE_START.getEvent());
       chr.post();
 
@@ -180,24 +173,23 @@ public class NetworkHttpStreamSender {
       e.printStackTrace();
       throw new ConnectionException("IOException while sending capture start event.");
     }
-
   }
 
-  public void disconnect() throws ConnectionException {
+  public void disconnect(String streamId) throws ConnectionException {
     try {
       System.out.println("Http Open connection. In disconnect");
       openConnection();
-      sendCaptureEndEvent();
+      sendCaptureEndEvent(streamId);
     } catch (ConnectionException e) {
       e.printStackTrace();
-      notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
-      throw e;			
+      notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE, null);
+      throw e;
     } finally {
 
     }
   }
 
-  private void sendCaptureEndEvent() {
+  private void sendCaptureEndEvent(String streamId) {
     ClientHttpRequest chr;
     try {
       System.out.println(getTimeStamp() + " - Sending End Sharing Event.");
@@ -212,6 +204,7 @@ public class NetworkHttpStreamSender {
       int status = httpConnection.getResponseCode();
 
       System.out.println("******* sendCaptureEndEvent response code = [" + status + "] ***************");
+
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -227,7 +220,7 @@ public class NetworkHttpStreamSender {
         openConnection();
         chr = new ClientHttpRequest(conn);
         chr.setParameter(MEETING_ID, meetingId);
-        chr.setParameter(STREAM_ID, streamId);
+        chr.setParameter(STREAM_ID, message.streamId);
         chr.setParameter(EVENT, CaptureEvents.CAPTURE_UPDATE.getEvent());
 
         // Post the multi-part form to the server
@@ -235,11 +228,31 @@ public class NetworkHttpStreamSender {
         HttpURLConnection httpConnection = (HttpURLConnection) chr.connection;
         int status = httpConnection.getResponseCode();
 
-//        System.out.println("******* sendUpdateMessage response code = [" + status + "] ***************");
+        System.out.println("sendUpdateMessage response code = [" + status + "]");
+        String sharingStatus =  httpConnection.getHeaderField("SHARING_STATUS");
+
+        if (sharingStatus != null) {
+          if (sharingStatus.toUpperCase().equals("STOP")) {
+            System.out.println("sendUpdateMessage sharingStopped = [" + sharingStatus + "]");
+           notifyNetworkStreamListener(ExitCode.NORMAL, null);
+          } else if (sharingStatus.toUpperCase().equals("PAUSE")) {
+            System.out.println("sendUpdateMessage sharingPaused = [" + sharingStatus + "]");
+            notifyNetworkStreamListener(ExitCode.PAUSED, null);
+          } else if (sharingStatus.toUpperCase().equals("START")) {
+            String streamId =  httpConnection.getHeaderField("SHARING_STATUS_STREAMID");
+            if (streamId != null) {
+              System.out.println("sendUpdateMessage sharingStart = [" + sharingStatus + "]");
+              notifyNetworkStreamListener(ExitCode.START, streamId);
+            } else {
+              System.out.println("sendUpdateMessage sharingStart = [" + sharingStatus + "]. Terminating as no streamId passed.");
+              notifyNetworkStreamListener(ExitCode.NORMAL, null);
+            }
+          }
+        }
 
       } catch (IOException e) {
         System.out.println("Exception in sendUpdateMessage");
-        notifyNetworkStreamListener(ExitCode.NORMAL);
+        notifyNetworkStreamListener(ExitCode.NORMAL, null);
       } catch (ConnectionException e) {
         System.out.println("ERROR: Failed to send block data.");
       }

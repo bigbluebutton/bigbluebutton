@@ -41,7 +41,13 @@ package org.bigbluebutton.modules.screenshare.services
     public function stopShareRequest(meetingId: String, streamId: String):void {
       conn.stopShareRequest(meetingId, streamId);
     }
+    
+    public function pauseShareRequest(meetingId: String, userId: String, streamId: String):void {
+      conn.pauseShareRequest(meetingId, userId, streamId);
+    }
 
-					
+    public function restartShareRequest(meetingId: String, userId: String):void {
+      conn.restartShareRequest(meetingId, userId);
+    }
 	}
 }

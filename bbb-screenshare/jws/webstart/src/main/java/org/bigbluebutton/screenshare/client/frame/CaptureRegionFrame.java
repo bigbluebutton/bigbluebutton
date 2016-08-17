@@ -75,7 +75,7 @@ public class CaptureRegionFrame {
     frame.setMoveBar(createMoveBar());
     setVisible(true);
     if (autoStart) {
-      startCapture();	
+      startCapture();
     } 
   }
 
@@ -172,8 +172,8 @@ public class CaptureRegionFrame {
     System.out.println(CLASS + " - startCapture" );
   }
 
-  private void stopCapture() {		
-    frame.changeBorderToRed();
-    client.onStopCapture();
-  }
+//  private void stopCapture() {
+//    frame.changeBorderToRed();
+//    client.onStopCapture();
+//  }
 }
