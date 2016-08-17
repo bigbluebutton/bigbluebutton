@@ -69,6 +69,9 @@ package org.bigbluebutton.modules.screenshare.services
         case "pauseScreenSharingEvent":
           handlePauseScreenSharingEvent(message);
           break;
+        case "startShareRequestRejectedResponse":
+          handleStartShareRequestRejectedResponse(message);
+          break;
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
@@ -83,6 +86,12 @@ package org.bigbluebutton.modules.screenshare.services
       } 
     }
 
+    private function handleStartShareRequestRejectedResponse(message:Object):void {
+      LOGGER.debug("handleStartShareRequestRejectedResponse " + message);      
+      var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, null, false);
+      dispatcher.dispatchEvent(shareFailedEvent);         
+    }
+    
     private function handleStartShareRequestResponse(message:Object):void {
       LOGGER.debug("handleStartShareRequestResponse " + message);      
       var map:Object = JSON.parse(message.msg);      

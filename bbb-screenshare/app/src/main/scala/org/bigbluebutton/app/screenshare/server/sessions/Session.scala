@@ -18,14 +18,13 @@
 */
 package org.bigbluebutton.app.screenshare.server.sessions
 
-import akka.actor.{ActorLogging, Actor, Props}
+import akka.actor.{Actor, ActorLogging, Props}
+import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.Session.KeepAliveTimeout
 import org.bigbluebutton.app.screenshare.server.util.TimeUtil
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
-import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
-import org.bigbluebutton.app.screenshare.events.ShareStoppedEvent
-import org.bigbluebutton.app.screenshare.events.StreamStoppedEvent
-import org.bigbluebutton.app.screenshare.events.StreamStartedEvent
+import org.bigbluebutton.app.screenshare.events._
+
 import scala.concurrent.duration._
 
 object Session {
@@ -116,7 +115,10 @@ class Session(parent: Screenshare,
       w <- width
       h <- height
       url <- streamUrl
-    } yield (sender ! new IsScreenSharingReply(true, streamId, w, h, url))
+    } yield {
+      val info = new StreamInfo(true, streamId, w, h, url)
+      bus.send(new IsScreenSharingResponse(meetingId, msg.userId, info))
+    }
 
   }
 

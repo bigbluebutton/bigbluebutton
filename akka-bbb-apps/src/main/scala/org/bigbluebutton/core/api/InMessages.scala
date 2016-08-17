@@ -90,6 +90,7 @@ case class ChangeUserStatus(meetingID: String, userID: String, status: String, v
 case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
 case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
 case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
+case class AllowUserToShareDesktop(meetingID: String, userID: String) extends InMessage
 
 //////////////////////////////////////////////////////////////////////////////////
 // Chat

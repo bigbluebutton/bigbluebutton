@@ -19,12 +19,13 @@
 package org.bigbluebutton.app.screenshare
 
 import akka.util.Timeout
-import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
+import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, StartShareRequestResponse}
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.server.util.LogHelper
 import akka.actor.ActorSystem
 import akka.pattern.ask
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -38,6 +39,24 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   val initError: Error = new Error("Uninitialized error.")
 
   logger.info("Creating a new ScreenShareApplication")
+
+  def meetingHasEnded(meetingId: String) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Received meetingHasEnded on meeting=" + meetingId + "]")
+    }
+
+    screenshareManager ! new MeetingHasEnded(meetingId)
+
+  }
+
+  def meetingCreated(meetingId: String) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Received meetingCreated on meeting=" + meetingId + "]")
+    }
+
+    screenshareManager ! new MeetingCreated(meetingId)
+
+  }
 
   def userConnected(meetingId: String, userId: String) {
     if (logger.isDebugEnabled()) {
@@ -55,16 +74,12 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     screenshareManager ! new UserDisconnected(meetingId, userId)
   }
 
-  def isScreenSharing(meetingId: String):IsScreenSharingResponse = {
+  def isScreenSharing(meetingId: String, userId: String) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received is screen sharing on meeting=" + meetingId + "]")
     }
-    implicit val timeout = Timeout(3 seconds)
-    val future = screenshareManager ? IsScreenSharing(meetingId)
-    val reply = Await.result(future, timeout.duration).asInstanceOf[IsScreenSharingReply]
 
-    val info = new StreamInfo(reply.sharing, reply.streamId, reply.width, reply.height, reply.url)
-    new IsScreenSharingResponse(info, null)
+    screenshareManager ! IsScreenSharing(meetingId, userId)
   }
   
   def getScreenShareInfo(meetingId: String, token: String):ScreenShareInfoResponse = {
@@ -93,16 +108,12 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     record
   }
 
-  def startShareRequest(meetingId: String, userId: String, record: java.lang.Boolean): StartShareRequestResponse = {
+  def startShareRequest(meetingId: String, userId: String, record: java.lang.Boolean) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received start share request on meeting=" + meetingId + "for user=" + userId + "]")
     }
-    implicit val timeout = Timeout(3 seconds)
-    val future = screenshareManager ? StartShareRequestMessage(meetingId, userId, record)
-    val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
 
-    val response = new StartShareRequestResponse(reply.token, jnlpFile, reply.streamId, null)
-    response
+    screenshareManager ! StartShareRequestMessage(meetingId, userId, jnlpFile, record)
   }
 
   def restartShareRequest(meetingId: String, userId: String) {
