@@ -8,7 +8,6 @@ import { addSlideToCollection } from '/imports/api/slides/server/modifiers/addSl
 import Slides from '/imports/api/slides';
 import Presentations from '/imports/api/presentations';
 import { logger } from '/imports/startup/server/logger';
-import { redisConfig } from '/config';
 
 eventEmitter.on('presentation_page_resized_message', function (arg) {
   const payload = arg.payload;
@@ -106,6 +105,8 @@ eventEmitter.on('presentation_shared_message', function (arg) {
 });
 
 eventEmitter.on('get_presentation_info_reply', function (arg) {
+  const REDIS_CONFIG = Meteor.settings.redis;
+
   if (inReplyToHTML5Client(arg)) {
     const payload = arg.payload;
     const meetingId = payload.meeting_id;
@@ -136,7 +137,7 @@ eventEmitter.on('get_presentation_info_reply', function (arg) {
         };
         if (!!whiteboardId && !!meetingId) {
           message = appendMessageHeader('request_whiteboard_annotation_history_request', message);
-          publish(redisConfig.channels.toBBBApps.whiteboard, message);
+          publish(REDIS_CONFIG.channels.toBBBApps.whiteboard, message);
         } else {
           logger.info('did not have enough information to send a user_leaving_request');
         }
@@ -146,4 +147,3 @@ eventEmitter.on('get_presentation_info_reply', function (arg) {
 
   return arg.callback();
 });
-

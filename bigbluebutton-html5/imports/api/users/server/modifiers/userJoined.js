@@ -2,15 +2,13 @@ import Chat from '/imports/api/chat';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
-import { clientConfig } from '/config';
-
-const BREAK_TAG = '<br/>';
+import { BREAK_LINE } from '/imports/utils/lineEndings.js';
 
 const parseMessage = (message) => {
   message = message || '';
 
   // Replace \r and \n to <br/>
-  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_TAG + '$2');
+  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_LINE + '$2');
 
   // Replace flash links to html valid ones
   message = message.split(`<a href='event:`).join(`<a target="_blank" href='`);
@@ -20,6 +18,7 @@ const parseMessage = (message) => {
 };
 
 export function userJoined(meetingId, user, callback) {
+  const APP_CONFIG = Meteor.settings.public.app;
   let welcomeMessage;
   const userId = user.userid;
   const userObject = Users.findOne({
@@ -87,11 +86,11 @@ export function userJoined(meetingId, user, callback) {
       meetingId: meetingId,
     });
     if (meetingObject != null) {
-      welcomeMessage = clientConfig.defaultWelcomeMessage.replace(/%%CONFNAME%%/,
+      welcomeMessage = APP_CONFIG.defaultWelcomeMessage.replace(/%%CONFNAME%%/,
           meetingObject.meetingName);
     }
 
-    welcomeMessage = welcomeMessage + clientConfig.defaultWelcomeMessageFooter;
+    welcomeMessage = welcomeMessage + APP_CONFIG.defaultWelcomeMessageFooter;
 
     // add the welcome message if it's not there already OR update time_of_joining
     return Chat.upsert({

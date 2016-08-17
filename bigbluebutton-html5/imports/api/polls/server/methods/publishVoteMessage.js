@@ -3,10 +3,10 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/api/common/server/helpers';
 import Polls from '/imports/api/polls';
 import { logger } from '/imports/startup/server/logger';
-import { redisConfig } from '/config';
 
 Meteor.methods({
   publishVoteMessage(credentials, pollId, pollAnswerId) { //TODO discuss location
+    const REDIS_CONFIG = Meteor.settings.redis;
     if (isAllowedTo('subscribePoll', credentials)) {
       const { meetingId, requesterUserId, requesterToken } = credentials;
       const eventName = 'vote_poll_user_request_message';
@@ -42,7 +42,7 @@ Meteor.methods({
         });
         message = appendMessageHeader(eventName, message);
         logger.info('publishing Poll response to redis');
-        return publish(redisConfig.channels.toBBBApps.polling, message);
+        return publish(REDIS_CONFIG.channels.toBBBApps.polling, message);
       }
     }
   },

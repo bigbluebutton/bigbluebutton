@@ -1,10 +1,10 @@
 import { initializeCursor } from '/imports/api/cursor/server/modifiers/initializeCursor';
 import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
-import {clientConfig} from '/config';
 
 export function addMeetingToCollection(meetingId, name, intendedForRecording,
                                        voiceConf, duration, callback) {
+  const APP_CONFIG = Meteor.settings.public.app;
   //check if the meeting is already in the collection
   Meetings.upsert({
     meetingId: meetingId,
@@ -20,7 +20,7 @@ export function addMeetingToCollection(meetingId, name, intendedForRecording,
         disablePrivateChat: false,
         disableCam: false,
         disableMic: false,
-        lockOnJoin: clientConfig.lockOnJoin,
+        lockOnJoin: APP_CONFIG.lockOnJoin,
         lockedLayout: false,
         disablePublicChat: false,
         lockOnJoinConfigurable: false, // TODO

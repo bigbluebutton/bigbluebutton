@@ -1,6 +1,3 @@
 {
-  "public": {
-    "mode": "development"
-  },
   "rootURL": "http://127.0.0.1/html5client"
 }

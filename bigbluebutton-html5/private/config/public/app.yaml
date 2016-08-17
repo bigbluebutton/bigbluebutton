@@ -1,0 +1,25 @@
+#  Application configurations
+app:
+  # Default font sizes for mobile / desktop
+  mobileFont: 16
+  desktopFont: 14
+
+  # Will offer the user to join the audio when entering the meeting
+  autoJoinAudio: false
+  listenOnly: false
+  skipCheck: false
+
+  # Flag for HTTPS - true on production
+  httpsConnection: false
+
+  # Default global variables
+  appName: "BigBlueButton HTML5 Client"
+  bbbServerVersion: "1.0"
+  copyrightYear: "2015"
+  html5ClientBuild: "NNNN"
+  defaultWelcomeMessage: Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial videos</u></a>.\r\rTo join the audio bridge click the gear icon (upper-right hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
+  lockOnJoin: true
+  defaultWelcomeMessageFooter: This server is running a build of <a href="http://docs.bigbluebutton.org/1.0/10overview.html" target="_blank"><u>BigBlueButton 1.0</u></a>.
+
+  # Name displayed in the brower URL
+  basename: '/html5client'

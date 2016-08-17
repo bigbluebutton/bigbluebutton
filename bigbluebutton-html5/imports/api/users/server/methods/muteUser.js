@@ -3,7 +3,6 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/api/common/server/helpers';
 import { updateVoiceUser } from '/imports/api/users/server/modifiers/updateVoiceUser';
 import { logger } from '/imports/startup/server/logger';
-import { redisConfig } from '/config';
 
 Meteor.methods({
   // meetingId: the meetingId of the meeting the user[s] is in
@@ -11,6 +10,7 @@ Meteor.methods({
   // requesterUserId: the userId of the requester
   // requesterToken: the authToken of the requester
   muteUser(credentials, toMuteUserId) {
+    const REDIS_CONFIG = Meteor.settings.redis;
     const { meetingId, requesterUserId, requesterToken } = credentials;
     const action = function () {
       if (toMuteUserId === requesterUserId) {
@@ -31,7 +31,7 @@ Meteor.methods({
       };
       message = appendMessageHeader('mute_user_request_message', message);
       logger.info(`publishing a user mute request for ${toMuteUserId}`);
-      publish(redisConfig.channels.toBBBApps.users, message);
+      publish(REDIS_CONFIG.channels.toBBBApps.users, message);
       updateVoiceUser(meetingId, {
         web_userid: toMuteUserId,
         talking: false,

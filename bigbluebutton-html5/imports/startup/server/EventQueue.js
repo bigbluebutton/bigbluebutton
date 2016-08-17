@@ -98,7 +98,7 @@ const logRedisMessage = function (eventName, json) {
 
     // For DEVELOPMENT purposes only
     // Dynamic shapes' updates will slow down significantly
-    if (Meteor.settings.public.mode == 'development') {
+    if (Meteor.settings.runtime.env == 'development') {
       logger.info(`redis incoming message  ${eventName}  `, {
         message: json,
       });

@@ -10,6 +10,7 @@ import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPo
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
 import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server';
+import { BREAK_LINE, CARRIAGE_RETURN, NEW_LINE } from '/imports/utils/lineEndings.js';
 
 export function appendMessageHeader(eventName, messageObj) {
   let header;

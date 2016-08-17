@@ -2,12 +2,12 @@ import { publish } from '/imports/api/common/server/helpers';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import { logger } from '/imports/startup/server/logger';
-import { redisConfig } from '/config';
 
 // Corresponds to a valid action on the HTML clientside
 // After authorization, publish a user_leaving_request in redis
 // params: meetingid, userid as defined in BBB-App
 export function requestUserLeaving(meetingId, userId) {
+  const REDIS_CONFIG = Meteor.settings.redis;
   let voiceConf;
   const userObject = Users.findOne({
     meetingId: meetingId,
@@ -41,7 +41,7 @@ export function requestUserLeaving(meetingId, userId) {
           name: 'user_disconnected_from_global_audio',
         },
       };
-      publish(redisConfig.channels.toBBBApps.meeting, listenOnlyMessage);
+      publish(REDIS_CONFIG.channels.toBBBApps.meeting, listenOnlyMessage);
     }
 
     // remove user from meeting
@@ -56,7 +56,7 @@ export function requestUserLeaving(meetingId, userId) {
       },
     };
     logger.info(`sending a user_leaving_request for ${meetingId}:${userId}`);
-    return publish(redisConfig.channels.toBBBApps.users, message);
+    return publish(REDIS_CONFIG.channels.toBBBApps.users, message);
   } else {
     return logger.info('did not have enough information to send a user_leaving_request');
   }

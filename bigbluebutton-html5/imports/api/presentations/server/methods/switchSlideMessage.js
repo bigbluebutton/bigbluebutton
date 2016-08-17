@@ -3,10 +3,10 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/api/common/server/helpers';
 import Presentations from '/imports/api/presentations';
 import Slides from '/imports/api/slides';
-import { redisConfig } from '/config';
 
 Meteor.methods({
   switchSlideMessage(credentials, requestedSlideNum) {
+    const REDIS_CONFIG = Meteor.settings.redis;
     const { meetingId, requesterUserId, requesterToken } = credentials;
 
     const currentPresentationDoc = Presentations.findOne({
@@ -36,7 +36,7 @@ Meteor.methods({
           };
 
           message = appendMessageHeader('go_to_slide', message);
-          return publish(redisConfig.channels.toBBBApps.presentation, message);
+          return publish(REDIS_CONFIG.channels.toBBBApps.presentation, message);
         }
       }
     }

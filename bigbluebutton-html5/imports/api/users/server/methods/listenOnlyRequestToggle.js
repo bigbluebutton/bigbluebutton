@@ -3,7 +3,6 @@ import { appendMessageHeader, publish } from '/imports/api/common/server/helpers
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import { logger } from '/imports/startup/server/logger';
-import { redisConfig } from '/config';
 
 Meteor.methods({
   // meetingId: the meetingId of the meeting the user is in
@@ -11,6 +10,7 @@ Meteor.methods({
   // requesterUserId: the userId of the requester
   // requesterToken: the authToken of the requester
   listenOnlyRequestToggle(credentials, isJoining) {
+    const REDIS_CONFIG = Meteor.settings.redis;
     let username;
     let voiceConf;
     const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -45,7 +45,7 @@ Meteor.methods({
           `publishing a user listenOnly toggleRequest ${isJoining} ` +
           `request for ${requesterUserId}`
         );
-        publish(redisConfig.channels.toBBBApps.meeting, message);
+        publish(REDIS_CONFIG.channels.toBBBApps.meeting, message);
       }
     } else {
       if (isAllowedTo('leaveListenOnly', credentials)) {
@@ -62,7 +62,7 @@ Meteor.methods({
           `publishing a user listenOnly toggleRequest ${isJoining} ` +
           `request for ${requesterUserId}`
         );
-        publish(redisConfig.channels.toBBBApps.meeting, message);
+        publish(REDIS_CONFIG.channels.toBBBApps.meeting, message);
       }
     }
   },

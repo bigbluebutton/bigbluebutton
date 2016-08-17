@@ -1,5 +1,4 @@
 import Auth from '/imports/ui/services/auth';
-import { clientConfig } from '/config';
 import { getVoiceBridge } from '/imports/api/phone';
 
 function createVertoUserName() {
@@ -18,6 +17,7 @@ function watchVertoVideo(options) {
 }
 
 function joinVertoCall(options) {
+  const MEDIA_CONFIG = Meteor.settings.public.media;
   console.log('joinVertoCall');
   const extension = options.extension || getVoiceBridge();
 
@@ -25,12 +25,12 @@ function joinVertoCall(options) {
     return;
   }
 
-  if (!clientConfig.useSIPAudio) {
+  if (!MEDIA_CONFIG.useSIPAudio) {
     const vertoServerCredentials = {
-      vertoPort: clientConfig.media.vertoPort,
-      hostName: clientConfig.media.vertoServerAddress,
+      vertoPort: MEDIA_CONFIG.vertoPort,
+      hostName: MEDIA_CONFIG.vertoServerAddress,
       login: conferenceIdNumber,
-      password: clientConfig.media.freeswitchProfilePassword,
+      password: MEDIA_CONFIG.freeswitchProfilePassword,
     };
 
     let wasCallSuccessful = false;

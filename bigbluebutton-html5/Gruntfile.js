@@ -66,7 +66,7 @@ module.exports = function (grunt) {
         command: METEOR_DEV_COMMAND,
       },
       start_meteor_production: {
-        command: METEOR_DEV_COMMAND,
+        command: METEOR_PROD_COMMAND,
       },
     },
 

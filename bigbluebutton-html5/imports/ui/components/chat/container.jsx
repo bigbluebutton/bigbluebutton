@@ -2,7 +2,8 @@ import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { createContainer } from 'meteor/react-meteor-data';
 
-const PUBLIC_CHAT_KEY = 'public';
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 import Chat from './component';
 import ChatService from './service';
