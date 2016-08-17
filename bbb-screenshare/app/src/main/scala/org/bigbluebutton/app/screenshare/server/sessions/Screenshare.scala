@@ -21,7 +21,7 @@ package org.bigbluebutton.app.screenshare.server.sessions
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager.MeetingHasEnded
-
+import org.bigbluebutton.app.screenshare.server.sessions.Session.KeepAliveTimeout
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, StartShareRequestResponse}
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
@@ -78,6 +78,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     case msg: UserConnected => handleUserConnected(msg)
     case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
     case msg: MeetingHasEnded             => handleMeetingHasEnded(msg)
+    case msg: KeepAliveTimeout => handleKeepAliveTimeout(msg)
     case m: Any => log.warning("Session: Unknown message [{}]", m)
   }
 
@@ -363,6 +364,16 @@ class Screenshare(val sessionManager: ScreenshareManager,
           } else {
             sender ! new GetSharingStatusReply(STOP, None)
           }
+      }
+    }
+  }
+
+  private def handleKeepAliveTimeout(msg: KeepAliveTimeout) {
+    sessions.remove(msg.streamId) foreach { s =>
+      if (activeSession != None) {
+        activeSession foreach { as =>
+          if (as.streamId == s.streamId) activeSession = None
+        }
       }
     }
   }

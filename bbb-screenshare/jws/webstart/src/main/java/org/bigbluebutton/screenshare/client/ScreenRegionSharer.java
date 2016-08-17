@@ -54,7 +54,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
     signalChannel.addNetworkConnectionListener(this);
     signalChannel.start();
 
-    sharer = new ScreenSharerRunner(ssi);
+    sharer = new ScreenSharerRunner(ssi, this);
   }
 
   public void start() {

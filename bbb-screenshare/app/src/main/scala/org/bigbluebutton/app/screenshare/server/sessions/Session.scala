@@ -51,14 +51,10 @@ class Session(parent: Screenshare,
 
   // if ffmpeg is still broadcasting
   private var streamStopped = true
+
   // if jws is still running
   private var shareStopped = true
 
-  // if the user has requested to stop sharing
-  private var stopShareRequested = false
-
-  // if the user has requested to pause sharing
-  private var pauseShareRequested = false
 
   private var width: Option[Int] = None
   private var height: Option[Int] = None
@@ -67,11 +63,12 @@ class Session(parent: Screenshare,
 
   private val IS_STREAM_ALIVE = "IsStreamAlive"
 
+  private var lastStatusUpdate = 0L
+
   implicit def executionContext = parent.sessionManager.actorSystem.dispatcher
 
   def scheduleKeepAliveCheck() {
-    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds,
-      self, IS_STREAM_ALIVE)
+    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds, self, IS_STREAM_ALIVE)
   }
 
   def receive = {
@@ -96,7 +93,6 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received UserDisconnected for streamId=[" + streamId + "]")
     }
-    stopShareRequested = true
   }
 
   private def handleIsStreamRecorded(msg: IsStreamRecorded) {
@@ -146,7 +142,6 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received SharingStartedMessagefor streamId=[" + msg.streamId + "]")
     }
-    stopShareRequested = false
     shareStopped = false
     width = Some(msg.width)
     height = Some(msg.height)
@@ -192,7 +187,7 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received StopShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
-    stopShareRequested = true
+
     bus.send(new ShareStoppedEvent(meetingId, streamId))
 
   }
@@ -201,7 +196,7 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received PauseShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
-    pauseShareRequested = true
+
     bus.send(new ShareStoppedEvent(meetingId, streamId))
   }
 

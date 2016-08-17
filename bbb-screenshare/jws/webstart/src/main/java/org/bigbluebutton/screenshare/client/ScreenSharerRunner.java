@@ -22,6 +22,8 @@ import java.awt.AWTException;
 import java.io.IOException;
 
 import org.bigbluebutton.screenshare.client.javacv.FfmpegScreenshare;
+import org.bigbluebutton.screenshare.client.net.NetworkConnectionListener;
+import org.bigbluebutton.screenshare.client.net.NetworkStreamListener;
 
 public class ScreenSharerRunner {
   public static final String NAME = "SCREENSHARERUNNER: ";
@@ -31,14 +33,16 @@ public class ScreenSharerRunner {
   private ScreenShareInfo ssi;
   private int x, y, width, height;
   private FfmpegScreenshare jcs;
+  private NetworkConnectionListener listener;
 
-  public ScreenSharerRunner(ScreenShareInfo ssi) {
+  public ScreenSharerRunner(ScreenShareInfo ssi, NetworkConnectionListener listener) {
     this.ssi = ssi;
+    this.listener = listener;
 
 //    System.out.println("ScreenSharerRunner[captureWidth=" + ssi.captureWidth + ",captureHeight=" + ssi.captureHeight + "][" + ssi.x + "," + ssi.y +"]"
 //        + "[scaleWidth=" + ssi.scaleWidth + ",scaleHeight=" + ssi.scaleHeight + "]");
 
-      jcs = new FfmpegScreenshare(ssi);
+      jcs = new FfmpegScreenshare(ssi, listener);
   }
 
   public void updateScreenShareInfo(int x, int y, int width, int height) {

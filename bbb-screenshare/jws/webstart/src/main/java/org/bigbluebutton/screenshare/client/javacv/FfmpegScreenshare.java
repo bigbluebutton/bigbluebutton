@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import org.bigbluebutton.screenshare.client.ExitCode;
 import org.bigbluebutton.screenshare.client.ScreenShareInfo;
+import org.bigbluebutton.screenshare.client.net.NetworkConnectionListener;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
@@ -35,8 +38,13 @@ public class FfmpegScreenshare {
   private final String FRAMERATE_KEY = "frameRate";
   private final String KEYFRAMEINTERVAL_KEY = "keyFrameInterval";
 
-  public FfmpegScreenshare(ScreenShareInfo ssi) {
+  private volatile boolean ignoreDisconnect = true;
+
+  private NetworkConnectionListener listener;
+
+  public FfmpegScreenshare(ScreenShareInfo ssi, NetworkConnectionListener listener) {
     this.ssi = ssi;
+    this.listener = listener;
   }
   
   public void setCaptureCoordinates(int x, int y){
@@ -87,6 +95,7 @@ public class FfmpegScreenshare {
     
     grabber.setFrameRate(frameRate);
     try {
+      ignoreDisconnect = false;
       grabber.start();
     } catch (Exception e) {
       // TODO Auto-generated catch block
@@ -140,8 +149,10 @@ public class FfmpegScreenshare {
           mainRecorder.record(frame);
         } catch (Exception e) {
           System.out.println("CaptureScreen Exception 1");
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          if (!ignoreDisconnect) {
+            listener.networkConnectionException(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED, null);
+          }
+
         }
       }
     } catch (Exception e1) {
@@ -193,6 +204,7 @@ public class FfmpegScreenshare {
     startBroadcast = false;
     if (mainRecorder != null) {
       try {
+        ignoreDisconnect = true;
         System.out.println("mainRecorder.stop.");
         mainRecorder.stop();
         System.out.println("mainRecorder.release.");
