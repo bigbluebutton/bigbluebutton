@@ -9,6 +9,7 @@ import SettingsModal from '../settings/SettingsModal';
 import SessionMenu from '../settings/submenus/SessionMenu';
 import Dropdown from './Dropdown';
 import DropdownContent from './DropdownContent';
+import DropdownTrigger from './DropdownTrigger';
 
 export default class SettingsDropdown extends Component {
 
@@ -18,7 +19,6 @@ export default class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
-    console.log("componentWillMount");
     this.setState({ activeMenu: -1, focusMenu: 0, });
     this.menus.push({ className: '',
       props: { title: 'Fullscreen', prependIconName: 'icon-',
@@ -84,7 +84,6 @@ export default class SettingsDropdown extends Component {
 
     // Down key
     if (pressedKey === 40) {
-      console.log(this.state.focusMenu);
       if (this.state.focusMenu >= menusLength) { // checks if at end of menu
         this.setState({ focusMenu: 0 },
            function () { ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus();
@@ -109,14 +108,23 @@ export default class SettingsDropdown extends Component {
   }
 
   clickMenu(i) {
-    this.setState({ activeMenu: i, focusMenu: i, });
+
+    if (i < 0) {
+      this.setState({ activeMenu: -1, focusMenu: 0, });
+    }
+
+    if (i >= this.menus.length) {
+      this.setState({ activeMenu: this.menus.length - 1,
+          focusMenu: this.menus.length - 1, });
+    } else {
+      this.setState({ activeMenu: i, focusMenu: i, });
+    }
 
     this.refs.dropdown.hideMenu();
   }
 
   createMenu() {
     const curr = this.state.activeMenu;
-
     if(curr === 0) {
       return console.log('full screen trigger');
     }
@@ -133,27 +141,30 @@ export default class SettingsDropdown extends Component {
   render() {
     return (
       <div>
-        <Dropdown label='setting' icon='more' ref='dropdown'>
-          <div className={styles.triangleOnDropdown}></div>
-          <div className={styles.dropdown__active__content}>
-              <p id="dropdownModal" className={styles.descModal}>Settings dropdown</p>
-              <ul className={styles.menuList} role="menu">
-                {this.menus.map((value, index) => (
-                  <li key={index} role='menuitem'
-                    tabIndex={value.tabIndex}
-                    onClick={this.clickMenu.bind(this, index)}
-                    onKeyDown={this.handleListKeyDown.bind(this)}
-                    onFocus={this.handleFocus.bind(this, index)}
-                    ref={'menu' + index}
-                    className={styles.settingsMenuItem}>
-                    <Icon key={index} prependIconName={value.props.prependIconName}
-                      iconName={value.props.icon} title={value.props.title}/>
-                    <span className={styles.settingsMenuItemText}>{value.props.title}</span>
-                    {index == '0' ? <hr /> : null}
-                  </li>
-                ))}
-              </ul>
-          </div>
+        <Dropdown ref='dropdown' menuFocus={this.state.focusMenu}>
+          <DropdownTrigger labelBtn='setting' iconBtn='more' />
+          <DropdownContent>
+            <div className={styles.triangleOnDropdown}></div>
+            <div className={styles.dropdown_active_content}>
+                <p id="dropdownModal" className={styles.descModal}>Settings dropdown</p>
+                <ul className={styles.menuList} role="menu">
+                  {this.menus.map((value, index) => (
+                    <li key={index} role='menuitem'
+                      tabIndex={value.tabIndex}
+                      onClick={this.clickMenu.bind(this, index)}
+                      onKeyDown={this.handleListKeyDown.bind(this)}
+                      onFocus={this.handleFocus.bind(this, index)}
+                      ref={'menu' + index}
+                      className={styles.settingsMenuItem}>
+                      <Icon key={index} prependIconName={value.props.prependIconName}
+                        iconName={value.props.icon} title={value.props.title}/>
+                      <span className={styles.settingsMenuItemText}>{value.props.title}</span>
+                      {index == '0' ? <hr /> : null}
+                    </li>
+                  ))}
+                </ul>
+            </div>
+          </DropdownContent>
         </Dropdown>
         <div>{this.createMenu()}</div>
       </div>

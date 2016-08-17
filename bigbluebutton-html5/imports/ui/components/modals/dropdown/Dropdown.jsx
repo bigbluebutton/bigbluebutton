@@ -1,9 +1,12 @@
 import React, { Component, PropTypes } from 'react';
-import ReactDOM from 'react-dom';
+import { findDOMNode } from 'react-dom';
 import Button from '/imports/ui/components/button/component';
 import classNames from 'classnames';
 import Icon from '/imports/ui/components/icon/component';
+import cx from 'classnames';
 import styles from './styles';
+import DropdownContent from './DropdownContent';
+import DropdownTrigger from './DropdownTrigger';
 
 export default class Dropdown extends Component {
 
@@ -15,32 +18,64 @@ export default class Dropdown extends Component {
   }
 
   showMenu() {
-    this.setState({ isMenuOpen: !this.state.isMenuOpen });
+    this.setState({ isMenuOpen: !this.state.isMenuOpen, });
+
   }
 
   hideMenu() {
     this.setState({ isMenuOpen: false, });
+  }
 
+  componentDidMount () {
+    const { addEventListener } = window;
+    addEventListener( 'click', this.onWindowClick.bind(this), false );
+  }
+
+  componentWillUnmount () {
+    const { removeEventListener } = window;
+    removeEventListener( 'click', this.onWindowClick.bind(this), false );
+  }
+
+  onWindowClick(event) {
+    const dropdown_element = findDOMNode(this);
+    const shouldUpdateState = event.target !== dropdown_element &&
+                              !dropdown_element.contains(event.target) &&
+                              this.state.isMenuOpen;
+
+    if(shouldUpdateState) {
+      this.hideMenu();
+    }
+  }
+
+  toggle() {
+    if(this.state.isMenuOpen) {
+      this.hideMenu();
+    } else {
+      this.showMenu();
+    }
   }
 
   render() {
-    const { icon, label, circle } = this.props;
+    const toggleMenu = this.toggle.bind(this);
+
+    // // stick callback on trigger element
+    const boundChildren = React.Children.map( this.props.children, (child) => {
+      if( child.type === DropdownTrigger ){
+        child = React.cloneElement( child, {
+          toggleMenu: toggleMenu,
+        });
+      }
+      return child;
+    });
+
+    let trigger = boundChildren[0];
+    let content = boundChildren[1];
+
     return (
       <div className={styles.dropdown}>
-        <Button className={styles.settingBtn}
-            role='button'
-            label={'settings'}
-            icon={'more'}
-            ghost={true}
-            circle={true}
-            hideLabel={true}
-            onClick={this.showMenu}
-            onKeyDown={this.showMenu}/>
-        {
-          this.state.isMenuOpen ?
-          this.props.children
-          : null
-        }
+        {trigger}
+        { this.state.isMenuOpen ?
+          content : null}
       </div>
     );
   }
