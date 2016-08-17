@@ -91,10 +91,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
       log.debug("Received IsStreamRecorded message for meeting=[" + msg.meetingId + "]")
     }
     screenshares.get(msg.meetingId) foreach { screenshare =>
-      implicit val timeout = Timeout(3 seconds)
-      val future = screenshare.actorRef ? msg
-      val reply = Await.result(future, timeout.duration).asInstanceOf[IsStreamRecordedReply]
-      sender ! reply
+      screenshare.actorRef forward msg
     }
   }
 
@@ -107,11 +104,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
       sender ! new IsScreenSharingReply(false, "none", 0, 0, "none")
     } else {
       screenshares.get(msg.meetingId) foreach { screenshare =>
-        implicit val timeout = Timeout(3 seconds)
-        val future = screenshare.actorRef ? msg
-        val reply = Await.result(future, timeout.duration).asInstanceOf[IsScreenSharingReply]
-
-        sender ! reply
+        screenshare.actorRef forward msg
       }
     }
   }
@@ -127,11 +120,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     }
 
     screenshares.get(msg.meetingId) foreach { screenshare =>
-      implicit val timeout = Timeout(3 seconds)
-      val future = screenshare.actorRef ? msg
-      val reply = Await.result(future, timeout.duration).asInstanceOf[ScreenShareInfoRequestReply]
-
-      sender ! reply
+      screenshare.actorRef forward msg
     }
   }
 
@@ -225,21 +214,15 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
         val activeScreenshare = ActiveScreenshare(this, bus, msg.meetingId)
         screenshares += msg.meetingId -> activeScreenshare
 
-        implicit val timeout = Timeout(3 seconds)
-        val future = activeScreenshare.actorRef ? msg
-        val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
-
-        sender ! reply
+        activeScreenshare.actorRef forward msg
       }
       case Some(screenshare) => {
         if (log.isDebugEnabled) {
           log.debug("Screenshare already exists. screenshare=[" + msg.meetingId + "]")
         }
-        implicit val timeout = Timeout(3 seconds)
-        val future = screenshare.actorRef ? msg
-        val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
 
-        sender ! reply
+        screenshare.actorRef forward msg
+
       }
     }
   }

@@ -148,13 +148,16 @@ class Session(parent: Screenshare,
     shareStopped = false
     width = Some(msg.width)
     height = Some(msg.height)
+
+    // We wait until we have the width, height, and stream url before notifying
+    // clients that stream has started. This way we prevent a race condition
+    // where we have the stream url but the width and height is zero. (ralam aug 16, 2016)
     for {
       w <- width
       h <- height
       url <- streamUrl
     } yield (bus.send(new StreamStartedEvent(meetingId, streamId, w, h, url)))
 
-    //bus.send(new ShareStartedEvent(meetingId, streamId))
   }
 
   private def handleStreamStartedMessage(msg: StreamStartedMessage) {
@@ -164,13 +167,15 @@ class Session(parent: Screenshare,
     streamStopped = false
     streamUrl = Some(msg.url)
 
+    // We wait until we have the width, height, and stream url before notifying
+    // clients that stream has started. This way we prevent a race condition
+    // where we have the stream url but the width and height is zero. (ralam aug 16, 2016)
     for {
       w <- width
       h <- height
       url <- streamUrl
     } yield (bus.send(new StreamStartedEvent(meetingId, streamId, w, h, url)))
 
-    //bus.send(new StreamStartedEvent(meetingId, streamId, width, height, msg.url))
   }
 
   private def handleStreamStoppedMessage(msg: StreamStoppedMessage) {
@@ -181,14 +186,13 @@ class Session(parent: Screenshare,
     bus.send(new StreamStoppedEvent(meetingId, streamId))
   }
 
-
-
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
     if (log.isDebugEnabled) {
       log.debug("Received StopShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
     stopShareRequested = true
     bus.send(new ShareStoppedEvent(meetingId, streamId))
+
   }
 
   private def handlePauseShareRequestMessage(msg: PauseShareRequestMessage) {
