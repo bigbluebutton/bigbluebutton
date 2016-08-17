@@ -18,20 +18,13 @@
  */
 package org.bigbluebutton.app.screenshare.server.sessions
 
-import akka.pattern.ask
-
-import scala.concurrent.duration._
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
-import akka.util.Timeout
 import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.Session.StopSession
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager.MeetingHasEnded
-
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, StartShareRequestFailedResponse}
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
-
-import scala.concurrent.Await
 
 object ScreenshareManager {
   def props(system: ActorSystem, bus: IEventsMessageBus): Props =
