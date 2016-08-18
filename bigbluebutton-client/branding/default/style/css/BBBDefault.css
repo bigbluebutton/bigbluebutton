@@ -377,6 +377,18 @@ DataGrid {
   cornerRadius: 17;
 }
 
+.deskshareWarningLabelStyle {
+  fontWeight: bold;
+  fontSize: 18;
+  fontFamily: Arial;
+  color: #003399;
+}
+
+.deskshareWarningBackgroundStyle {
+  backgroundAlpha: 0.6;
+  backgroundColor: #78797e;
+}
+
 .videoMuteButtonStyle, .videoUnmutedButtonStyle, .videoSwitchPresenterButtonStyle, .videoEjectUserButtonStyle, .videoPrivateChatButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;

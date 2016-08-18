@@ -54,7 +54,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var video:Video;
 			private var ns:NetStream;
-			private var videoHolder:UIComponent = new UIComponent();
+			private var videoWithWarnings:VideoWithWarnings = new VideoWithWarnings();
+			private var videoHolder:UIComponent;
 			private var stream:String;
 			// these are the original video dimensions
 			private var videoHeight:Number;
@@ -71,7 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function onCreationComplete():void{
 				addEventListener(ResizeEvent.RESIZE, onResizeEvent);
-				this.addChildAt(videoHolder,0);
+				this.addChildAt(videoWithWarnings,0);
+				videoHolder = videoWithWarnings.videoHolder;
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
 				cursor = new Shape();
@@ -103,16 +105,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// this.width = externalWidth;
 				// this.height = externalHeight;
 
-				/* Reposition video within window */
-				videoHolder.x = internalOffsetX;
-				videoHolder.y = internalOffsetY;
+				if(videoHolder != null) {
+					/* Reposition video within window */
+					videoHolder.x = internalOffsetX;
+					videoHolder.y = internalOffsetY;
 
-				videoHolder.width = video.width = internalWidth;
-				videoHolder.height = video.height = internalHeight;
+					videoHolder.width = video.width = internalWidth;
+					videoHolder.height = video.height = internalHeight;
 
-				// update the whiteboard canvas holder and overlay with new video dimensions
-				updateWhiteboardCanvasHolder();
-				updateWhiteboardCanvasOverlay();
+					if(_actualSize) {
+						videoWithWarnings.width = videoHolder.width;
+						videoWithWarnings.height = videoHolder.height;
+					}
+					else {
+						videoWithWarnings.width = this.width;
+						videoWithWarnings.height = this.height;
+					}
+
+					// update the whiteboard canvas holder and overlay with new video dimensions
+					updateWhiteboardCanvasHolder();
+					updateWhiteboardCanvasOverlay();
+				}
 			}
 
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
@@ -152,10 +165,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.play(stream);	
 				this.stream = stream;
 
+				videoWithWarnings.setCallback(setVideo);
+			}
+
+			private function setVideo():void {
+				LOGGER.debug("Callback called. Adding video, its whiteboard canvas and resizing components...");
 				videoHolder.addChild(video);
+				addWhiteboardCanvasHolder();
+				addWhiteboardCanvasOverlay();
 				onResizeEvent();
 			}
-			
+
 			public function onMetaData(info:Object):void {
 				LOGGER.debug("onMetaData width=" + info.width + " height=" + info.height);
 			}
@@ -175,7 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function updateWhiteboardCanvasHolder():void{
-				if (video != null) {
+				if (video != null && videoHolder != null) {
 					whiteboardCanvasHolder.x = videoHolder.x;
 					whiteboardCanvasHolder.y = videoHolder.y;
 					whiteboardCanvasHolder.width = videoHolder.width;
@@ -186,7 +206,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function addWhiteboardCanvasOverlay():void {
 				updateWhiteboardCanvasOverlay();
-				if (video != null && whiteboardCanvas != null) {
+				if (video != null && whiteboardCanvas != null && videoHolder != null) {
 					this.addChild(whiteboardCanvas as Canvas);
 					LOGGER.debug("Whiteboard Canvas OVERLAY added.");
 				}
@@ -196,7 +216,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function updateWhiteboardCanvasOverlay():void{
-				if (video != null && whiteboardCanvas != null) {
+				if (video != null && whiteboardCanvas != null && videoHolder != null) {
 					whiteboardCanvas.moveCanvas(videoHolder.x, videoHolder.y);
 
 					var zoomPercentage:Number = (videoHolder.width / videoWidth)*100;

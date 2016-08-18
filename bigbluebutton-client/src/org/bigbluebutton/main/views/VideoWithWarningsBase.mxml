@@ -48,6 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 includeInLayout="{_text.visible}"
                 hideEffect="{dissolveOut}" showEffect="{dissolveIn}" >
             <mx:Box
+                    id="_textBackground"
                     width="100%"
                     styleName="videoMessageBackgroundStyle" >
                 <mx:Text
