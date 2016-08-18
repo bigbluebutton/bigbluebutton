@@ -41,7 +41,7 @@ $raw_dir = "#{$recording_dir}/raw"
 $archived_dir = "#{$recording_dir}/status/archived"
 
 def getRequest(url)
-  BigBlueButton.logger.info("Fetching #{url}")
+  BigBlueButton.logger.debug("Fetching #{url}")
   url_parsed = URI.parse(url)
   http = Net::HTTP.new(url_parsed.host, url_parsed.port)
   http.use_ssl = (url_parsed.scheme.downcase == "https")
@@ -54,7 +54,7 @@ def fetchRecordings(url)
     response = getRequest(url)
     # follow redirects once only
     if response.kind_of?(Net::HTTPRedirection)
-      BigBlueButton.logger.info("Received a redirect, will make a new request")
+      BigBlueButton.logger.debug("Received a redirect, will make a new request")
       response = getRequest(response['location'])
     end
 
