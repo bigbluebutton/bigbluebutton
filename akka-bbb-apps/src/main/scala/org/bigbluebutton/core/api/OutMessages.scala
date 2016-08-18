@@ -28,7 +28,7 @@ case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
 case object IsAliveMessage extends IOutMessage
 
 // Breakout Rooms
-case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomBody]) extends IOutMessage
+case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomBody], roomsReady: Boolean) extends IOutMessage
 case class CreateBreakoutRoom(meetingId: String, room: BreakoutRoomOutPayload) extends IOutMessage
 case class EndBreakoutRoom(breakoutId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,

@@ -31,7 +31,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleBreakoutRoomsList(msg: BreakoutRoomsListMessage) {
     val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id) }
-    outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms));
+    outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms, breakoutModel.pendingRoomsNumber == 0 && breakoutRooms.length > 0));
   }
 
   def handleCreateBreakoutRooms(msg: CreateBreakoutRooms) {
@@ -90,8 +90,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
           }
         }
       }
+      handleBreakoutRoomsList( new BreakoutRoomsListMessage(mProps.meetingID) )
     }
-
   }
 
   def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutId: String, voiceConfId: String) {
@@ -130,7 +130,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     else {
       targetVoiceBridge = mProps.voiceBridge.dropRight(1)
     }
-    // We check the iser from the mode
+    // We check the user from the mode
     usersModel.getUser(msg.userId) match {
       case Some(u) => {
         if (u.voiceUser.joined) {
