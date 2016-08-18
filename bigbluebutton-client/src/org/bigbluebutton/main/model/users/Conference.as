@@ -67,6 +67,9 @@ package org.bigbluebutton.main.model.users {
 		[Bindable]
 		public var breakoutRooms:ArrayCollection = null;
 		
+		[Bindable]
+		public var breakoutRoomsReady:Boolean = false;
+		
 		private var sort:Sort;
 		
 		private var defaultLayout:String;
@@ -596,6 +599,9 @@ package org.bigbluebutton.main.model.users {
 			if (p != null) {
 				breakoutRooms.removeItemAt(p.index);
 				breakoutRooms.refresh();
+				if (breakoutRooms.length == 0) {
+					breakoutRoomsReady = false;
+				}
 				// Remove breakout room number display from users
 				for (var i:int; i < users.length; i++) {
 					var breakoutRoomNumber:String = StringUtils.substringAfterLast(breakoutId, "-");
