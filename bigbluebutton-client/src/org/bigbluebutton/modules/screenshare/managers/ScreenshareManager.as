@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.screenshare.managers {
     import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
     import org.bigbluebutton.modules.screenshare.events.StartShareRequestFailedEvent;
     import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
+    import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
     import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
@@ -156,6 +157,11 @@ package org.bigbluebutton.modules.screenshare.managers {
               publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), option.autoStart, option.autoFullScreen);
               service.requestStartSharing();
             }
+        }
+       
+        public function handleScreenShareClientPingMessage(event: ScreenShareClientPingMessage):void {
+            LOGGER.debug("handleScreenShareClientPingMessage");
+            service.sendClientPongMessage(event.streamId, event.timestamp);
         }
         
         public function handleRequestPauseSharingEvent():void {

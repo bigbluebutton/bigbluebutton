@@ -46,8 +46,7 @@ class Session(parent: Screenshare,
               val userId: String) extends Actor with ActorLogging {
 
   log.info("Creating of new Session")
-  private var timeOfLastKeepAliveUpdate:Long = TimeUtil.getCurrentMonoTime()
-  private val KEEP_ALIVE_TIMEOUT = 60000
+
 
   // if ffmpeg is still broadcasting
   private var streamStopped = true
@@ -61,14 +60,26 @@ class Session(parent: Screenshare,
 
   private var streamUrl: Option[String] = None
 
-  private val IS_STREAM_ALIVE = "IsStreamAlive"
+  private val SESSION_AUDIT_MESSAGE = "SessionAuditMessage"
 
   private var lastStatusUpdate = 0L
+
+  // Number of seconds before we assume that the JWS is dead.
+  private val LAST_STATUS_UPDATE_TIMEOUT = 20
+
+  private var sessionStartedTimestamp:Long = TimeUtil.currentMonoTimeInSeconds()
+  private val SESSION_START_TIMEOUT = 60
+
+  // The last time we received a pong response from the client.
+  // We need to check if the client is still alive. If the client
+  // crashed, we need to end the screen sharing as soon as we detect it.
+  private var lastPongReceivedTimestamp = 0L
+  private val PONG_TIMEOUT_SEC = 20
 
   implicit def executionContext = parent.sessionManager.actorSystem.dispatcher
 
   def scheduleKeepAliveCheck() {
-    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds, self, IS_STREAM_ALIVE)
+    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds, self, SESSION_AUDIT_MESSAGE)
   }
 
   def receive = {
@@ -85,7 +96,8 @@ class Session(parent: Screenshare,
     case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
     case msg: UserDisconnected => handleUserDisconnected(msg)
     case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
-    case IS_STREAM_ALIVE => checkIfStreamIsAlive()
+    case SESSION_AUDIT_MESSAGE => handleSessionAuditMessage()
+    case msg: ClientPongMessage           => handleClientPongMessage(msg)
     case m: Any => log.warning("Session: Unknown message [%s]", m)
   }
 
@@ -181,6 +193,7 @@ class Session(parent: Screenshare,
     }
     streamStopped = true
     bus.send(new StreamStoppedEvent(meetingId, streamId))
+
   }
 
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
@@ -190,6 +203,7 @@ class Session(parent: Screenshare,
 
     bus.send(new ShareStoppedEvent(meetingId, streamId))
 
+    stopSession()
   }
 
   private def handlePauseShareRequestMessage(msg: PauseShareRequestMessage) {
@@ -212,16 +226,66 @@ class Session(parent: Screenshare,
   }
 
   private def handleUpdateShareStatus(msg: UpdateShareStatus): Unit = {
-    timeOfLastKeepAliveUpdate = TimeUtil.getCurrentMonoTime()
+    lastStatusUpdate = TimeUtil.currentMonoTimeInSeconds()
   }
 
-  private def checkIfStreamIsAlive() {
-    if (TimeUtil.getCurrentMonoTime - timeOfLastKeepAliveUpdate > KEEP_ALIVE_TIMEOUT) {
-      log.warning("Did not receive updates for more than 1 minute. Removing stream {}", streamId)
-      context.parent ! new KeepAliveTimeout(streamId)
-    } else {
-      scheduleKeepAliveCheck()
+  private def handleSessionAuditMessage() {
+    if (jwsStarted()) {
+      if (jwsIsStillAlive()) {
+        if (clientIsStillAlive()) {
+          scheduleKeepAliveCheck()
+        }
+      }
     }
+  }
+
+  private def jwsStarted(): Boolean = {
+    val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
+    if ((lastStatusUpdate == 0) && (currentTimeInSec - sessionStartedTimestamp > SESSION_START_TIMEOUT)) {
+      log.warning("JWS failed to start. streamId={}", streamId)
+      stopSession()
+      false
+    } else {
+      true
+    }
+  }
+
+  private def handleClientPongMessage(msg: ClientPongMessage) {
+    if (log.isDebugEnabled) {
+      log.debug("Received ClientPongMessage message for streamId=[" + msg.streamId + "]")
+    }
+
+    lastPongReceivedTimestamp = TimeUtil.currentMonoTimeInSeconds()
+
+  }
+
+  private def jwsIsStillAlive(): Boolean = {
+    val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
+
+    if ((lastStatusUpdate > 0) && (currentTimeInSec - lastStatusUpdate > LAST_STATUS_UPDATE_TIMEOUT)) {
+      log.warning("Did not receive status update from JWS. Assume it is dead. streamId={}", streamId)
+      stopSession()
+      false
+    } else {
+      true
+    }
+  }
+
+  private def clientIsStillAlive(): Boolean = {
+    val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
+    if ((lastPongReceivedTimestamp > 0) && (currentTimeInSec - lastPongReceivedTimestamp > PONG_TIMEOUT_SEC)) {
+      log.warning("Did not receive pong from client. Assume it is dead. streamId={}", streamId)
+      stopSession()
+      false
+    } else {
+      bus.send(new ScreenShareClientPing(meetingId, userId, streamId, currentTimeInSec))
+      true
+    }
+  }
+
+  private def stopSession(): Unit = {
+    context.parent ! new KeepAliveTimeout(streamId)
+    context.stop(self)
   }
 
 }

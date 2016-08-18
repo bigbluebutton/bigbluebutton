@@ -98,8 +98,7 @@ public class FfmpegScreenshare {
       ignoreDisconnect = false;
       grabber.start();
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      listener.networkConnectionException(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED, null);
     }
 
 //    useH264(recorder, codecOptions);
@@ -109,8 +108,7 @@ public class FfmpegScreenshare {
     try {
       mainRecorder.start();
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      listener.networkConnectionException(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED, null);
     }
   }
   
@@ -215,9 +213,7 @@ public class FfmpegScreenshare {
         // grabber.stop();
         System.out.println("End stop sequence.");
       } catch (Exception e) {
-        // TODO Auto-generated catch block
-        System.out.println("Exception in Stopping screen capture." );
-        e.printStackTrace();
+        listener.networkConnectionException(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED, null);
       }
     }
   }
