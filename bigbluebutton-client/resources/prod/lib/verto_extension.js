@@ -16,15 +16,17 @@ Verto = function (
 
   this.local_vid_width = 320;
   this.local_vid_height = 180;
-  this.outgoingBandwidth;
-  this.incomingBandwidth;
+  this.outgoingBandwidth = "default";
+  this.incomingBandwidth = "default";
   this.sessid = null;
 
   this.renderTag = 'remote-media';
 
   this.destination_number = voiceBridge;
   this.caller_id_name = conferenceUsername;
-  this.caller_id_number = conferenceIdNumber;
+  // this.caller_id_number = conferenceIdNumber;
+  this.caller_id_number = conferenceUsername;
+
 
   this.vertoPort = "8082";
   this.hostName = window.location.hostname;
@@ -192,8 +194,8 @@ Verto.prototype.vmute = function () {
 Verto.prototype.setWatchVideo = function (tag) {
   this.mediaCallback = this.docall;
   this.useVideo = true;
-  this.useCamera = 'none';
-  this.useMic = 'none';
+  this.useCamera = 'any'; // temp
+  this.useMic = 'any'; // temp
   this.create(tag);
 };
 
@@ -287,7 +289,7 @@ Verto.prototype.makeShare = function () {
           return _this.logError(error);
         }
 
-        screenInfo =  screenConstraints.mandatory;
+        screenInfo = screenConstraints.mandatory;
 
         _this.logger(screenInfo);
         _this.doShare(screenInfo);
@@ -297,15 +299,22 @@ Verto.prototype.makeShare = function () {
 };
 
 Verto.prototype.doShare = function (screenConstraints) {
+  //debugger;
   this.share_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,
     caller_id_name: this.caller_id_name,
     caller_id_number: this.caller_id_number,
-    outgoingBandwidth: this.outgoingBandwidth,
-    incomingBandwidth: this.incomingBandwidth,
+    outgoingBandwidth: "76800",
+    incomingBandwidth: "118154",
     videoParams: screenConstraints,
     useVideo: true,
     screenShare: true,
+
+    useCamera: 'any',
+    useMic: 'any',
+    useSpeak: 'any',
+
+
     dedEnc: true,
     mirrorInput: false,
     tag: this.renderTag,
@@ -317,6 +326,7 @@ Verto.prototype.init = function () {
 
   if (!window.vertoHandle) {
     window.vertoHandle = new $.verto({
+      useVideo: true,
       login: this.login,
       passwd: this.password,
       socketUrl: this.socketUrl,
@@ -507,3 +517,4 @@ window.vertoExtensionGetChromeExtensionStatus = function (extensionid, callback)
   callback = Verto.normalizeCallback(callback);
   getChromeExtensionStatus(extensionid, callback);
 };
+
