@@ -105,6 +105,8 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received UserDisconnected for streamId=[" + streamId + "]")
     }
+
+    handleStopShareRequestMessage(new StopShareRequestMessage(meetingId, streamId))
   }
 
   private def handleIsStreamRecorded(msg: IsStreamRecorded) {
