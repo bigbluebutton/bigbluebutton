@@ -27,15 +27,15 @@ export default class SettingsModal extends BaseModal {
      * initialized to 0
      */
     this.setState({ focusSubmenu: 0 });
-    this.submenus.push({ className: AudioMenu, tabIndex: 3,
+    this.submenus.push({ componentName: AudioMenu, tabIndex: 3,
       props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, });
-    this.submenus.push({ className: VideoMenu, tabIndex: 4,
+    this.submenus.push({ componentName: VideoMenu, tabIndex: 4,
       props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, });
-    this.submenus.push({ className: ApplicationMenu, tabIndex: 5,
+    this.submenus.push({ componentName: ApplicationMenu, tabIndex: 5,
       props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
-    this.submenus.push({ className: UsersMenu, tabIndex: 6,
+    this.submenus.push({ componentName: UsersMenu, tabIndex: 6,
       props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
-    this.submenus.push({ className: SessionMenu, tabIndex: 7,
+    this.submenus.push({ componentName: SessionMenu, tabIndex: 7,
       props: { title: 'Leave session', prependIconName: 'icon-', icon: 'bbb-logout', }, });
   }
 
@@ -63,7 +63,7 @@ export default class SettingsModal extends BaseModal {
       icon: this.submenus[curr].props.icon,
     };
 
-    const Submenu = this.submenus[curr].className;
+    const Submenu = this.submenus[curr].componentName;
     return <Submenu {...props}/>;
   }
 
@@ -86,6 +86,11 @@ export default class SettingsModal extends BaseModal {
     } else {
       this.setState({ activeSubmenu: i, focusSubmenu: i, });
     }
+  }
+
+  /* calls the focus method on an object in the submenu */
+  setFocus() {
+    ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
   }
 
   /* Checks for key presses within the submenu list. Key behaviour varies.
@@ -128,11 +133,11 @@ export default class SettingsModal extends BaseModal {
     if (event.keyCode === 38) {
       if (this.state.focusSubmenu <= 0) {
         this.setState({ focusSubmenu: this.submenus.length - 1 }, function () {
-          ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
+          this.setFocus();
         });
       } else {
         this.setState({ focusSubmenu: this.state.focusSubmenu - 1 }, function () {
-          ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
+          this.setFocus();
         });
       }
 
@@ -143,11 +148,11 @@ export default class SettingsModal extends BaseModal {
     if (event.keyCode === 40) {
       if (this.state.focusSubmenu >= this.submenus.length - 1) {
         this.setState({ focusSubmenu: 0 }, function () {
-          ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
+          this.setFocus();
         });
       } else {
         this.setState({ focusSubmenu: this.state.focusSubmenu + 1 }, function () {
-          ReactDOM.findDOMNode(this.refs[`submenu${this.state.focusSubmenu}`]).focus();
+          this.setFocus();
         });
       }
 

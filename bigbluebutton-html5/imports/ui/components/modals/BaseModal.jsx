@@ -20,7 +20,7 @@ const customStyles = {
     padding: '10px',
     height: '40%',
     overflow: 'hidden',
-    minHeight: '250px',
+    minHeight: '280px',
   },
 };
 
