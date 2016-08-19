@@ -229,6 +229,19 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             }, message);
         }
         
+        public function sendClientPongMessage(meetingId:String, streamId:String, timestamp: Number):void {
+            var message:Object = new Object();
+            message["meetingId"] = meetingId;
+            message["streamId"] = streamId;
+            message["timestamp"] = timestamp;
+            
+            sendMessage("screenshare.screenShareClientPongMessage", function(result:String):void { // On successful result
+                LOGGER.debug(result);
+            }, function(status:String):void { // status - On error occurred
+                LOGGER.error(status);
+            }, message);
+        }
+        
         public function setURI(p_URI:String):void {
             uri = p_URI;
         }

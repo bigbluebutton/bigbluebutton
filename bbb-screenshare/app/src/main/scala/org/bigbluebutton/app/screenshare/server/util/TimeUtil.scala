@@ -11,7 +11,15 @@ object TimeUtil {
   def getCurrentMonoTime():Long = {
     TimeUnit.NANOSECONDS.toMillis(System.nanoTime())
   }
-    
+
+  def millisToSeconds(millis: Long): Long = {
+    TimeUnit.MILLISECONDS.toSeconds(millis)
+  }
+
+  def currentMonoTimeInSeconds(): Long = {
+    millisToSeconds(getCurrentMonoTime())
+  }
+
   def getCurrentTime():Long = {
     System.currentTimeMillis();
   }

@@ -25,9 +25,27 @@ public class EventListenerImp implements IEventListener {
       sendStartShareRequestResponse((StartShareRequestResponse) event);
     } else if (event instanceof StartShareRequestFailedResponse) {
       sendStartShareRequestFailedResponse((StartShareRequestFailedResponse) event);
-    }  else if (event instanceof IsScreenSharingResponse) {
+    } else if (event instanceof IsScreenSharingResponse) {
         sendIsScreenSharingResponse((IsScreenSharingResponse) event);
+    } else if (event instanceof ScreenShareClientPing) {
+      sendScreenShareClientPing((ScreenShareClientPing) event);
     }
+
+  }
+
+  private void sendScreenShareClientPing(ScreenShareClientPing event) {
+    Map<String, Object> data = new HashMap<String, Object>();
+    data.put("meetingId", event.meetingId);
+    data.put("streamId", event.streamId);
+    data.put("timestamp", event.timestamp);
+
+    Map<String, Object> message = new HashMap<String, Object>();
+    Gson gson = new Gson();
+    message.put("msg", gson.toJson(data));
+
+    log.info("Sending ScreenShareClientPing to client, meetingId=" + event.meetingId + " userid=" + event.userId);
+    DirectClientMessage msg = new DirectClientMessage(event.meetingId, event.userId, "screenShareClientPingMessage", message);
+    sender.sendMessage(msg);
   }
 
   private void sendIsScreenSharingResponse(IsScreenSharingResponse event) {

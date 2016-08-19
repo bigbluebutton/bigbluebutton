@@ -37,6 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
 			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
+            import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
 			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.screenshare.events.StreamEvent;
@@ -84,6 +85,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ScreenshareManager}" method="handleShareStartRequestResponseEvent" arguments="{event}"/>
   </EventHandlers>
   
+  <EventHandlers type="{ScreenShareClientPingMessage.CLIENT_PING}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleScreenShareClientPingMessage" arguments="{event}"/>
+  </EventHandlers>
+  
+    
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
 		<MethodInvoker generator="{ScreenshareManager}" method="handleMadePresenterEvent" arguments="{event}"/>
 	</EventHandlers>
@@ -101,7 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 	
 		
-	<EventHandlers type="{ShareWindowEvent.CLOSE}">		
+	<EventHandlers type="{ShareWindowEvent.CLOSE}">	
 		<MethodInvoker generator="{ScreenshareManager}" method="handleShareWindowCloseEvent"/>
 	</EventHandlers>
 

@@ -29,7 +29,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 
                     } else if (MeetingCreatedMessage.MEETING_CREATED.equals(messageName)) {
                         MeetingCreatedMessage msg = MeetingCreatedMessage.fromJson(message);
-                        handler.meetingCreated(msg.meetingId);
+                        handler.meetingCreated(msg.meetingId, msg.record);
 
                     }
                 }

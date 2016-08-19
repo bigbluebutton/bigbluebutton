@@ -153,7 +153,6 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
           System.out.println("Waiting for trigger to Stop client.");
           ExitCode reason = dsMain.exitReasonQ.take();
           System.out.println("Stopping Java Web Start.");
-          dsMain.displayJavaWarning(reason.name());
           client.stop();
           System.exit(reason.getExitCode());
         } catch (InterruptedException e) {
