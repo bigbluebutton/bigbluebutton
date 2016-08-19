@@ -1,6 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTyes } from 'react';
 import ReactDOM from 'react-dom';
-import Modal from 'react-modal';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import classNames from 'classnames';
@@ -32,11 +31,15 @@ export default class SettingsDropdown extends Component {
   }
 
   componentWillUpdate() {
-    if (this.refs.dropdown.state.isMenuOpen && this.state.activeMenu > 0) {
+    if (!this.refs.dropdown.state.isMenuOpen && this.state.activeMenu > 0) {
       this.setState({ activeMenu: -1, focusMenu: 0, });
     }
   }
 
+  // call focus
+  setFocus() {
+    ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus();
+  }
 
   handleListKeyDown(event) {
     const pressedKey = event.keyCode;
@@ -47,11 +50,25 @@ export default class SettingsDropdown extends Component {
       let newIndex = 0;
       if (this.state.focusMenu >= menusLength) {
         newIndex = 0;
+        this.refs.dropdown.hideMenu();
       } else {
-        newIndex = this.state.focusMenu + 1;
+        newIndex = this.state.focusMenu;
       }
 
       this.setState({ focusMenu: newIndex });
+      return;
+    }
+
+    // Down key
+    if (pressedKey === 40) {
+      if (this.state.focusMenu >= menusLength) { // checks if at end of menu
+        this.setState({ focusMenu: 0 },
+           () => { this.setFocus(); });
+      } else {
+        this.setState({ focusMenu: this.state.focusMenu + 1 },
+           () => { this.setFocus(); });
+      }
+
       return;
     }
 
@@ -72,25 +89,10 @@ export default class SettingsDropdown extends Component {
     if (pressedKey === 38) {
       if (this.state.focusMenu <= 0) { // checks if at end of menu
         this.setState({ focusMenu: menusLength },
-           function () { ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus();
-         });
+           () => { this.setFocus(); });
       } else {
         this.setState({ focusMenu: this.state.focusMenu - 1 },
-           function () { ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus(); });
-      }
-
-      return;
-    }
-
-    // Down key
-    if (pressedKey === 40) {
-      if (this.state.focusMenu >= menusLength) { // checks if at end of menu
-        this.setState({ focusMenu: 0 },
-           function () { ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus();
-         });
-      } else {
-        this.setState({ focusMenu: this.state.focusMenu + 1 },
-           function () { ReactDOM.findDOMNode(this.refs[`menu${this.state.focusMenu}`]).focus(); });
+           () => { this.setFocus(); });
       }
 
       return;
@@ -101,49 +103,58 @@ export default class SettingsDropdown extends Component {
       this.clickMenu(this.state.focusMenu);
       return;
     }
+
+    //ESC
+    if (pressedKey == 27) {
+      this.setState({ activeMenu: -1, focusMenu: 0 });
+      this.refs.dropdown.hideMenu();
+    }
+
   }
 
   handleFocus(index) {
-    this.setState({ focusMenu: index });
+    this.setState({ focusMenu: index },
+       () => { this.setFocus(); });
   }
 
   clickMenu(i) {
-
-    if (i < 0) {
-      this.setState({ activeMenu: -1, focusMenu: 0, });
-    }
-
-    if (i >= this.menus.length) {
-      this.setState({ activeMenu: this.menus.length - 1,
-          focusMenu: this.menus.length - 1, });
-    } else {
-      this.setState({ activeMenu: i, focusMenu: i, });
-    }
-
+    this.setState({ activeMenu: i });
     this.refs.dropdown.hideMenu();
   }
 
   createMenu() {
     const curr = this.state.activeMenu;
-    if(curr === 0) {
-      return console.log('full screen trigger');
+    if (curr === 0) {
+      console.log(this.menus[curr].props.title);
     }
 
-    if(curr === 1) {
+    if (curr === 1) {
       return <SettingsModal />;
     }
 
-    if (curr == 2) {
+    if (curr === 2) {
       return <SessionMenu />;
     }
   }
 
+  openWithKey(event) {
+
+    // keep focus is located at the first menu
+    if (event.keyCode === 9) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    this.setState({ focusMenu: 0 }, () => { this.setFocus(); });
+  }
+
   render() {
+    const keyChange = this.openWithKey.bind(this);
     return (
       <div>
-        <Dropdown ref='dropdown' menuFocus={this.state.focusMenu}>
+        <Dropdown ref='dropdown' menuFocus={keyChange}>
           <DropdownTrigger labelBtn='setting' iconBtn='more' />
-          <DropdownContent>
+          <DropdownContent ref='content'>
             <div className={styles.triangleOnDropdown}></div>
             <div className={styles.dropdown_active_content}>
                 <p id="dropdownModal" className={styles.descModal}>Settings dropdown</p>
