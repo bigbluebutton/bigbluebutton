@@ -10,13 +10,15 @@ Meteor.startup(function () {
   clearCollections();
   const APP_CONFIG = Meteor.settings.public.app;
 
-  let determineConnectionType = function() {
+  let determineConnectionType = function () {
     let baseConnection = 'HTTP';
-    if(APP_CONFIG.httpsConnection){
+    if (APP_CONFIG.httpsConnection) {
       baseConnection += ('S');
     }
+
     return baseConnection;
   };
+
   logger.info(`server start. Connection type:${determineConnectionType()}`);
 });
 

@@ -43,7 +43,7 @@ export class RedisPubSub {
 
       // For DEVELOPMENT purposes only
       // Dynamic shapes' updates will slow down significantly
-      if (Meteor.settings.public.runtime.env == 'development') {
+      if (Meteor.settings.runtime.env == 'development') {
         logger.info(`Q ${eventName} ${myQueue.total()}`);
       }
 

@@ -5,6 +5,7 @@ import { logger } from '/imports/startup/server/logger';
 export function addMeetingToCollection(meetingId, name, intendedForRecording,
                                        voiceConf, duration, callback) {
   const APP_CONFIG = Meteor.settings.public.app;
+
   //check if the meeting is already in the collection
   Meetings.upsert({
     meetingId: meetingId,
