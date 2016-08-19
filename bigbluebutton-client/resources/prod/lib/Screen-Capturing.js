@@ -92,8 +92,6 @@ var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isChrome = !!window.chrome && !isOpera;
 
 function getChromeExtensionStatus(extensionid, callback) {
-    callback = normalizeCallback(callback);
-
     if (isFirefox) return callback('not-chrome');
 
     if (chromeMediaSource == 'desktop') return callback('installed-enabled');

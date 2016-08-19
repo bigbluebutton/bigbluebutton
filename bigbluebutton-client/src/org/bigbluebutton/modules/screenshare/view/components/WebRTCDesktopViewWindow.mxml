@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*"
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:common="org.bigbluebutton.common.*"
+	width="600" height="400"
+	initialize="init()"
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	xmlns:mate="http://mate.asfusion.com/"
+	title="{ResourceUtil.getInstance().getString('bbb.desktopView.title')}"
+	showCloseButton="false"
+	resize="fitToWindow()" >
+
+	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+
+			import flexlib.mdi.events.MDIWindowEvent;
+
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
+
+			public static const LOG:String = "Deskshare::DesktopViewWindow - ";
+			private var screenHeight:Number = Capabilities.screenResolutionY;
+			private var screenWidth:Number = Capabilities.screenResolutionX;
+
+			private var images:Images = new Images();
+			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
+			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
+
+			private var video:Video;
+			private var ns:NetStream;
+			private var videoHolder:UIComponent = new UIComponent();
+			private var stream:String;
+			private var videoHeight:Number;
+			private var videoWidth:Number;
+
+			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopViewWindow);
+
+			private static const VIDEO_WIDTH_PADDING:int = 7;
+			private static const VIDEO_HEIGHT_PADDING:int = 65;
+
+			// The following code block is to deal with a bug in FLexLib
+			// with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			private var streamID:String;
+			private var nc:NetConnection;
+
+			[Bindable] private var baseIndex:int;
+
+			[Bindable] private var dsOptions:ScreenshareOptions;
+
+			private function init():void{
+				dsOptions = new ScreenshareOptions();
+			}
+
+			private function displayVideo():void{
+				videoHolder.addChild(video);
+				this.addChild(videoHolder);
+				videoHolder.percentWidth = 100;
+				videoHolder.percentHeight = 100;
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				fitToActualSize();
+				maximize();
+
+				resourcesChanged();
+
+				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
+			}
+
+			private function onResizeEndEvent(event:MDIWindowEvent):void {
+				if (event.window == this) {
+					fitToWindow();
+				}
+			}
+
+			public function startVideo(rtmp:String, width:Number, height:Number):void{
+				var videoURL:String;
+
+				// split rtmp extract the streamId
+				this.videoWidth = width;
+				this.videoHeight = height;
+
+				var myArray :Array = rtmp.split('/');
+				// myArray.forEach ( function ( item:*, i:int, arr:Array) : void { JSLog.debug("^^^^" + i +"aa=" + item, logData); } );
+
+				streamID = myArray[5]; // Grab the streamID from the end of the rtmp string
+				videoURL = rtmp.substring(0, rtmp.lastIndexOf('/'));
+
+				connect(videoURL);
+			}
+
+			public function connect(rtmpUrl: String):void {
+				nc = new NetConnection();
+				nc.proxyType = "best";
+				nc.objectEncoding = ObjectEncoding.AMF0;
+				nc.client = this;
+
+				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+				nc.connect(rtmpUrl);
+			}
+
+			public function connectionSuccessHandler():void{
+				LOGGER.debug("SUCCESS  DesktopViewWindow::connectionSuccessHandler   SUCCESS" + videoHeight + videoWidth + streamID);
+				ns = new NetStream(nc);
+				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.client = this;
+
+				ns.bufferTime = 0;
+				ns.receiveVideo(true);
+				ns.receiveAudio(false);
+
+				video = new Video(videoWidth, videoHeight);
+
+				video.attachNetStream(ns);
+				ns.play(streamID);
+				displayVideo();
+				this.title = "Viewing Remote Desktop";
+			}
+
+
+
+			private function netStatusHandler(event:NetStatusEvent):void {
+//				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
+				var ce:WebRTCConnectionEvent = new WebRTCConnectionEvent();
+
+				switch(event.info.code){
+					case "NetConnection.Connect.Failed":
+						ce.status = WebRTCConnectionEvent.FAILED;
+
+						break;
+
+					case "NetConnection.Connect.Success":
+						ce.status = WebRTCConnectionEvent.SUCCESS;
+						connectionSuccessHandler();
+						break;
+
+					case "NetConnection.Connect.Rejected":
+						ce.status = WebRTCConnectionEvent.REJECTED;
+						break;
+
+					case "NetConnection.Connect.Closed":
+						trace(LOG + "Deskshare connection closed.");
+						ce.status = WebRTCConnectionEvent.CLOSED;
+						break;
+
+					case "NetConnection.Connect.InvalidApp":
+						ce.status = WebRTCConnectionEvent.INVALIDAPP;
+						break;
+
+					case "NetConnection.Connect.AppShutdown":
+						ce.status = WebRTCConnectionEvent.APPSHUTDOWN;
+						break;
+
+					case "NetConnection.Connect.NetworkChange":
+						trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+						break;
+				}
+			}
+
+			private function securityErrorHandler(event:SecurityErrorEvent):void {
+				LOGGER.debug("ERROR DesktopViewWindow::securityErrorHandler ");
+			}
+
+			public function stopViewing():void {
+				ns.close();
+				closeWindow();
+			}
+
+			private function onStopViewStreamEvent(event:ViewStreamEvent):void {
+				stopViewing();
+			}
+
+			protected function updateButtonsPosition():void {
+				if (this.width < bottomBar.width) {
+					bottomBar.visible = false;
+				}
+
+				if (bottomBar.visible == false) {
+					bottomBar.y = bottomBar.x = 0;
+				} else {
+					bottomBar.y = (this.height - bottomBar.height) / 2;
+					bottomBar.x = (this.width - bottomBar.width) / 2;
+				}
+			}
+
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				LOGGER.debug("VIdeoWindow::asyncerror {0}", [e.toString()]);
+			}
+
+			private function onNetStatus(e:NetStatusEvent):void{
+				LOGGER.debug("onNetStatus info={0}", [e.info.text]);
+
+				switch(e.info.code){
+				case "NetStream.Play.Start":
+					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);
+					LOGGER.debug("Dispatching start viewing event");
+
+					// TODO - do we want to know when a client has displayed ds view?
+					// var dispatcher: Dispatcher  = new Dispatcher();
+					// var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
+
+					// viewEvent.stream = stream;
+					// dispatcher.dispatchEvent(viewEvent);
+					break;
+				case "NetStream.Play.UnpublishNotify":
+					LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);
+					stopViewing();
+					break;
+				}
+			}
+
+			public function onBWCheck(... rest):Number {
+				return 0;
+			}
+
+			public function onBWDone(... rest):void {
+				var p_bw:Number;
+				if (rest.length > 0) p_bw = rest[0];
+				// your application should do something here
+				// when the bandwidth check is complete
+				trace("bandwidth = " + p_bw + " Kbps.");
+			}
+
+			public function getPrefferedPosition():String{
+				return MainCanvas.DESKTOP_SHARING_VIEW;
+			}
+
+			/**
+			 * resizes the desktop sharing video to fit to this window
+			 */
+			private function fitToWindow():void{
+				if (videoIsSmallerThanWindow()) {
+					fitWindowToVideo();
+				}
+
+				// Ignore if we are displaying the actual size of the video
+				if (! btnActualSize.selected) {
+					fitVideoToWindow();
+				}
+			}
+
+			private function fitVideoToWindow():void {
+				if (this.width < this.height) {
+					fitToWidthAndAdjustHeightToMaintainAspectRatio();
+				} else {
+					fitToHeightAndAdjustWidthToMaintainAspectRatio();
+				}
+			}
+
+			private function fitWindowToVideo():void {
+				video.width = videoWidth;
+				videoHolder.width = videoWidth;
+				video.height = videoHeight;
+				videoHolder.height = videoHeight;
+				this.height = videoHeight + VIDEO_HEIGHT_PADDING;
+				this.width = videoWidth + VIDEO_WIDTH_PADDING;
+			}
+
+			private function videoIsSmallerThanWindow():Boolean {
+				return (videoHeight < this.height) && (videoWidth < this.width);
+			}
+
+
+			private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+					video.width = this.width - VIDEO_WIDTH_PADDING;
+					videoHolder.width = video.width;
+					// Maintain aspect-ratio
+					video.height = (videoHeight * video.width) / videoWidth;
+					videoHolder.height = video.height;
+					this.height = video.height + VIDEO_HEIGHT_PADDING;
+			}
+
+			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+					video.height = this.height - VIDEO_HEIGHT_PADDING;
+					videoHolder.height = video.height;
+					// Maintain aspect-ratio
+					video.width = (videoWidth * video.height) / videoHeight;
+					videoHolder.width = video.width;
+					this.width = video.width + VIDEO_WIDTH_PADDING;
+			}
+
+			/**
+			 * resizes the desktop sharing video to actual video resolution
+			 */
+			private function fitToActualSize():void{
+				if (videoIsSmallerThanWindow()) {
+					fitWindowToVideo();
+				} else {
+					video.width = videoWidth;
+					videoHolder.width = videoWidth;
+					video.height = videoHeight;
+					videoHolder.height = videoHeight;
+				}
+			}
+
+			private function determineHowToDisplayVideo():void {
+				if (btnActualSize.selected) {
+					fitToActualSize();
+					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');
+					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');
+				} else {
+					fitToWindow();
+					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
+					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
+				}
+			}
+
+			private function closeWindow():void {
+				dispatchEvent(new ViewWindowEvent(ViewWindowEvent.CLOSE));
+			}
+
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString('bbb.desktopView.title');
+
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.minimizeBtn.accessibilityName");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.maximizeRestoreBtn.accessibilityName");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.closeBtn.accessibilityName");
+				}
+			}
+
+			private function localeChanged(e:Event):void{
+				resourcesChanged();
+			}
+
+		]]>
+	</mx:Script>
+
+	<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
+
+	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
+		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
+				   toggle="true"
+				   click="determineHowToDisplayVideo()"
+				   selected="false"
+				   height="90%"
+				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
+				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"/>
+	</mx:HBox>
+</CustomMdiWindow>

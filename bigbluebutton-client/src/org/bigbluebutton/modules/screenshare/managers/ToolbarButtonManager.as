@@ -77,7 +77,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			button.deskshareStatus(button.START_SHARING);
 		}
 
-		public function stopedSharing():void {
+		public function stoppedSharing():void {
 			button.deskshareStatus(button.STOP_SHARING);
 		}
 	}

@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.caption.services {
 		}
 		
 		private function sendCaptionHistoryReply(message:Object):void {
-			LOGGER.debug("sendCaptionHistoryReply " + message.msg);
+			//LOGGER.debug("sendCaptionHistoryReply " + message.msg);
 			var map:Object = JSON.parse(message.msg);
 			
 			var event:ReceiveCaptionHistoryEvent = new ReceiveCaptionHistoryEvent(ReceiveCaptionHistoryEvent.RECEIVE_CAPTION_HISTORY_EVENT);
@@ -60,7 +60,7 @@ package org.bigbluebutton.modules.caption.services {
 		}
 		
 		private function updateCaptionOwner(message:Object):void {
-			LOGGER.debug("updateCaptionOwner " + message);
+			//LOGGER.debug("updateCaptionOwner " + message);
 			//var map:Object = JSON.parse(message);
 			
 			var event:ReceiveUpdateCaptionOwnerEvent = new ReceiveUpdateCaptionOwnerEvent(ReceiveUpdateCaptionOwnerEvent.RECEIVE_UPDATE_CAPTION_OWNER_EVENT);
@@ -71,7 +71,7 @@ package org.bigbluebutton.modules.caption.services {
 		}
 		
 		private function editCaptionHistory(message:Object):void {
-			LOGGER.debug("editCaptionHistory " + message);
+			//LOGGER.debug("editCaptionHistory {start_index:" + message.start_index+",end_index:"+message.end_index+",locale:"+message.locale+",text:'"+message.text+"'}");
 			//var map:Object = JSON.parse(message);
 			
 			var event:ReceiveEditCaptionHistoryEvent = new ReceiveEditCaptionHistoryEvent(ReceiveEditCaptionHistoryEvent.RECEIVE_EDIT_CAPTION_HISTORY);

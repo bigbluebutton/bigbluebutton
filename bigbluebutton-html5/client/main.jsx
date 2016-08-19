@@ -32,8 +32,9 @@ function loadLib(libname, success, fail) {
     }
   };
 
-  const failCallback = function (cb) {
-    console.log(`failed to load lib - ${this}`);
+  const failCallback = function (cb, issue) {
+    console.error(`failed to load lib - ${this}`);
+    console.error(issue);
     if (typeof (cb) == 'function' || cb instanceof Function) {
       cb();
     }
@@ -49,12 +50,9 @@ Meteor.startup(() => {
   loadLib('bbblogger.js');
   loadLib('jquery.json-2.4.min.js');
   loadLib('jquery.FSRTC.js');
-  loadLib('jquery.verto.js', function () {
-    loadLib('verto_extension.js');
-  });
-
+  loadLib('jquery.verto.js');
+  loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
-  loadLib('verto_extension_share.js');
 
   render((
     <IntlProvider locale={locale} messages={messages}>

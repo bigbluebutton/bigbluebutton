@@ -21,27 +21,37 @@ package org.bigbluebutton.modules.screenshare.services
 	import org.bigbluebutton.modules.screenshare.services.red5.Connection;
 
 
-	public class MessageSender
-	{	
-    private static const LOG:String = "SC::MessageSender - ";	
-    private var conn: Connection;
-    
-    public function MessageSender(conn: Connection) {
-      this.conn = conn;  
-    }
-    
-    public function isScreenSharing(meetingId: String):void {
-      conn.isScreenSharing(meetingId);
-    }
-    
-    public function startShareRequest(meetingId: String, userId: String, record: Boolean):void {
-      conn.startShareRequest(meetingId, userId, record);
-    }
-    
-    public function stopShareRequest(meetingId: String, streamId: String):void {
-      conn.stopShareRequest(meetingId, streamId);
-    }
+    public class MessageSender
+    {	
+        private static const LOG:String = "SC::MessageSender - ";	
+        private var conn: Connection;
+        
+        public function MessageSender(conn: Connection) {
+          this.conn = conn;  
+        }
+        
+        public function isScreenSharing(meetingId: String):void {
+          conn.isScreenSharing(meetingId);
+        }
+        
+        public function startShareRequest(meetingId: String, userId: String, record: Boolean):void {
+          conn.startShareRequest(meetingId, userId, record);
+        }
+        
+        public function stopShareRequest(meetingId: String, streamId: String):void {
+          conn.stopShareRequest(meetingId, streamId);
+        }
+        
+        public function pauseShareRequest(meetingId: String, userId: String, streamId: String):void {
+          conn.pauseShareRequest(meetingId, userId, streamId);
+        }
 
-					
-	}
+        public function restartShareRequest(meetingId: String, userId: String):void {
+          conn.restartShareRequest(meetingId, userId);
+        }
+        
+        public function sendClientPongMessage(meetingId: String, streamId: String, timestamp: Number):void {
+          conn.sendClientPongMessage(meetingId, streamId, timestamp);
+        } 
+    }
 }

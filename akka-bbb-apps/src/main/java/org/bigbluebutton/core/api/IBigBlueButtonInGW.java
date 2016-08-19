@@ -40,6 +40,7 @@ public interface IBigBlueButtonInGW {
 	void userLeft(String meetingID, String userID, String sessionId);
 	void userJoin(String meetingID, String userID, String authToken);
 	void getCurrentPresenter(String meetingID, String requesterID);
+    void checkIfAllowedToShareDesktop(String meetingID, String userID);
 	void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy);
 	void setRecordingStatus(String meetingId, String userId, Boolean recording);
 	void getRecordingStatus(String meetingId, String userId);
@@ -114,7 +115,7 @@ public interface IBigBlueButtonInGW {
 	void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String text);
 
 	// DeskShare
-	void deskShareStarted(String conferenceName, String callerId, String callerIdName);
+	void deskShareStarted(String confId, String callerId, String callerIdName);
 	void deskShareStopped(String conferenceName, String callerId, String callerIdName);
 	void deskShareRTMPBroadcastStarted(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
 	void deskShareRTMPBroadcastStopped(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
