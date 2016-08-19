@@ -98,7 +98,7 @@ public class FfmpegScreenshare {
       ignoreDisconnect = false;
       grabber.start();
     } catch (Exception e) {
-      listener.networkConnectionException(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED, null);
+      listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
 //    useH264(recorder, codecOptions);
@@ -108,7 +108,7 @@ public class FfmpegScreenshare {
     try {
       mainRecorder.start();
     } catch (Exception e) {
-      listener.networkConnectionException(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED, null);
+      listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
   
@@ -148,15 +148,13 @@ public class FfmpegScreenshare {
         } catch (Exception e) {
           System.out.println("CaptureScreen Exception 1");
           if (!ignoreDisconnect) {
-            listener.networkConnectionException(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED, null);
+            listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
           }
 
         }
       }
     } catch (Exception e1) {
-      System.out.println("CaptureScreen Exception 2");
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
+      listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
 
@@ -213,7 +211,7 @@ public class FfmpegScreenshare {
         // grabber.stop();
         System.out.println("End stop sequence.");
       } catch (Exception e) {
-        listener.networkConnectionException(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED, null);
+        listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
       }
     }
   }
