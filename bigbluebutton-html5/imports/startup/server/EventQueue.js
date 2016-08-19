@@ -149,4 +149,6 @@ const handledMessageTypes = [
   'poll_stopped_message',
   'user_voted_poll_message',
   'get_all_meetings_reply_message',
+  'desk_share_notify_viewers_rtmp',
 ];
+

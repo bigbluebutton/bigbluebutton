@@ -7,7 +7,7 @@ import { getVoiceBridge } from '/imports/api/phone';
 function createVertoUserName() {
   const uid = Auth.userID;
   const uName = Users.findOne({ userId: uid }).user.name;
-  const conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
+  const conferenceUsername = encodeURIComponent(uName);
   return conferenceUsername;
 }
 
@@ -39,15 +39,19 @@ function vertoWatchVideo() {
     getVoiceBridge(),
     createVertoUserName(),
     null,
+    null,
+    null,
   );
 }
 
 function shareVertoScreen() {
-  vertoManager.shareScreen(
+  vertoShareScreen(
     'deskshareVideo',
     getVoiceBridge(),
     createVertoUserName(),
     null,
+    null,
+    "pholbikkacmlilmoalemamdjcdkahcga",
   );
 }
 
@@ -58,3 +62,4 @@ export {
   vertoExitAudio,
   shareVertoScreen,
 };
+

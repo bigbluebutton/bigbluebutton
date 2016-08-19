@@ -124,8 +124,7 @@ package org.bigbluebutton.modules.screenshare.managers
 				ExternalInterface.addCallback("onFail", onFail);
 
 				var voiceBridge:String = UserManager.getInstance().getConference().voiceBridge;
-				var myName:String = 'FreeSWITCH Users - ';
-				myName += UserManager.getInstance().getConference().getMyName();
+				var myName:String = UserManager.getInstance().getConference().getMyName();
 
 				ExternalInterface.call(
 					'vertoShareScreen',
@@ -246,13 +245,16 @@ package org.bigbluebutton.modules.screenshare.managers
 			JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent rtmp=", e.rtmp);
 			// if (!usingWebRTC) { return; } //TODO this was causing issues
 			if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
+			JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent after sharing return", {});
 			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
 			JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent isPresenter=", isPresenter);
 			LOGGER.debug("Received start viewing command when isPresenter==[{0}]",[isPresenter]);
 
 			if(isPresenter) {
+				JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent is presenter", {});
 				publishWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 			} else {
+				JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent is viewer", {});
 				viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 			}
 

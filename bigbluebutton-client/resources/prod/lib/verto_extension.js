@@ -223,7 +223,9 @@ Verto.prototype.setScreenShare = function (tag) {
 Verto.prototype.create = function (tag) {
   this.setRenderTag(tag);
   this.registerCallbacks();
-  this.configStuns(this.init);
+  //this.configStuns(this.init);
+  this.iceServers = true;
+  this.init();
 };
 
 Verto.prototype.docall = function () {
@@ -231,6 +233,7 @@ Verto.prototype.docall = function () {
     this.logger('Quitting: Call already in progress');
     return;
   }
+  //debugger;
 
   this.cur_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,

@@ -1,4 +1,4 @@
-import Meetings from '/imports/api/meetings';
+/*import Meetings from '/imports/api/meetings';
 
 export function handleIncomingDeskshareMessage(arg) {
   const payload = arg.payload;
@@ -11,4 +11,4 @@ export function handleIncomingDeskshareMessage(arg) {
     broadcasting: payload.broadcasting,
   };
   handleDeskShareChange(thisMeetingId, deskShareInfo);
-}
+}*/

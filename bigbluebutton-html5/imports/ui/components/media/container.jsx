@@ -8,7 +8,7 @@ import VideoDockContainer from '../video-dock/container';
 import DefaultContent from '../whiteboard/default-content/component';
 
 const defaultProps = {
-  overlay: null, //<VideoDockContainer/>,
+  overlay: <VideoDockContainer/>,
   content: <WhiteboardContainer/>,
   defaultContent: <DefaultContent />,
 };
