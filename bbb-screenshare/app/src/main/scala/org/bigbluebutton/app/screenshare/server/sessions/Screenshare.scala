@@ -57,9 +57,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
   private var sessionToken = ""
 
-//  private var currentStreamId:Option[String] = None
-//  private var currentPresenterId:Option[String] = None
-
 
   def receive = {
     case msg: RestartShareRequestMessage => handleRestartShareRequestMessage(msg)
@@ -130,26 +127,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received UserDisconnected for meetingId=[" + msg.meetingId + "] userId=[" + msg.userId + "]")
     }
 
-    /*
-    val userIdStringOps = new StringOps(msg.userId)
-    val userIdArray = userIdStringOps.split('_')
-
-    if (userIdArray.length == 2) {
-      val userId = userIdArray(0)
-      currentPresenterId foreach { presId =>
-        if (log.isDebugEnabled) {
-          log.debug("UserDisconnected. curPresId=[" + presId + "] userId=[" + msg.userId + "]")
-        }
-        if (presId == userId) {
-          // The user sharing the screen got disconnected. Stop the
-          // screen sharing.
-          currentStreamId foreach { curStreamId =>
-            handleStopShareRequestMessage(new StopShareRequestMessage(meetingId, curStreamId))
-          }
-        }
-      }
-    }
-    */
 
     trimUserId(msg.userId) foreach {userId =>
       sessions.values foreach { session =>
@@ -165,25 +142,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
     if (log.isDebugEnabled) {
       log.debug("Received UserConnected for meetingId=[" + msg.meetingId + "]")
     }
-
-    /*
-    val userIdStringOps = new StringOps(msg.userId)
-    val userIdArray = userIdStringOps.split('_')
-
-    if (userIdArray.length == 2) {
-      val userId = userIdArray(0)
-      currentPresenterId foreach { presId =>
-        if (presId == userId) {
-          // The user sharing the screen got disconnected. Stop the
-          // screen sharing.
-          currentStreamId foreach { curStreamId =>
-            handleStopShareRequestMessage(new StopShareRequestMessage(meetingId, curStreamId))
-          }
-        }
-      }
-    }
-    */
-
     trimUserId(msg.userId) foreach {userId =>
       sessions.values foreach { session =>
         if (session.userId == userId) {
@@ -197,16 +155,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     if (log.isDebugEnabled) {
       log.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "]")
     }
-/*
-    if (activeSession.isEmpty) {
-      val info = new StreamInfo(false, "", 0, 0, "")
-      bus.send(new IsScreenSharingResponse(meetingId, msg.userId, info))
-    } else {
-      activeSession foreach { session =>
-        session.actorRef forward msg
-      }
-    }
-*/
+
     activeSession match {
       case Some(as) =>
         as.actorRef forward msg
@@ -288,9 +237,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received StreamStoppedMessage for streamId=[" + msg.streamId + "]")
     }
 
-//    currentStreamId = None
-//    currentPresenterId = None
-
     sessions.get(msg.streamId) match {
       case Some(session) =>
         session.actorRef ! msg
@@ -324,8 +270,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
     sessions.get(msg.streamId) match {
       case Some(session) =>
         status = STOP
-//        currentPresenterId = None
-//        currentStreamId = None
         session.actorRef ! msg
 
       case None =>
@@ -341,8 +285,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
     sessions.get(msg.streamId) match {
       case Some(session) =>
         status = PAUSE
-//        currentPresenterId = None
-//        currentStreamId = None
         session.actorRef ! msg
 
       case None =>
@@ -365,8 +307,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
     val streamId = generateStreamId
     val token = streamId
 
-//    currentPresenterId = Some(msg.userId)
-//    currentStreamId = Some(streamId)
 
     val userId = trimUserId(msg.userId).getOrElse(msg.userId)
 
@@ -392,16 +332,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
     val streamId = generateStreamId
     val token = streamId
 
-/*
-    val userIdStringOps = new StringOps(msg.userId)
-    val userIdArray = userIdStringOps.split('_')
-    if (userIdArray.length == 2) {
-      val userId = userIdArray(0)
-      currentPresenterId = Some(userId)
-    }
-
-    currentStreamId = Some(streamId)
-*/
     val userId = trimUserId(msg.userId).getOrElse(msg.userId)
 
     val session = ActiveSession(this, bus, meetingId, streamId, token, msg.record, userId)
