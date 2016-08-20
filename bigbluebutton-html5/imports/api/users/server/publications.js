@@ -44,7 +44,7 @@ Meteor.publish('users', function (credentials) {
     }
   } else { //subscribing before the user was added to the collection
     Meteor.call('validateAuthToken', credentials);
-    logger.error(`there was no user ${userid} in ${meetingId}. Sending validateAuthToken`);
+    logger.info(`Sending validateAuthTokenthere for user ${userid} in ${meetingId}.`);
     return getUsers(meetingId);
   }
 });

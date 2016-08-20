@@ -167,18 +167,32 @@ if not FileTest.directory?(target_dir)
       end
     end
 
-    if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and
-      (!Dir["#{raw_archive_dir}/deskshare/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? ))
+    BigBlueButton.logger.info("Generating closed captions")
+    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
+    if ret != 0
+      raise "Generating closed caption files failed"
+    end
+    captions = JSON.load(File.new("#{target_dir}/captions.json", 'r'))
+
+    # We have to decide whether to actually generate the video file
+    # We do so if any of the following conditions are true:
+    # - There is webcam video present, or
+    # - We have deskshare video *enabled* and there's deskshare/broadcast video present, or
+    # - There are closed captions present (they need a video stream to be rendered on top of)
+    if !Dir["#{raw_archive_dir}/video/*"].empty? or
+        (presentation_props['include_deskshare'] and
+          (!Dir["#{raw_archive_dir}/deskshare/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?)) or
+        captions.length > 0
       width = presentation_props['video_output_width']
       height = presentation_props['video_output_height']
-      if !Dir["#{raw_archive_dir}/deskshare/*"].empty?
+
+      # Use a higher resolution video canvas if there's deskshare/broadcast video streams
+      if presentation_props['include_deskshare'] and
+          (!Dir["#{raw_archive_dir}/deskshare/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?)
         width = presentation_props['deskshare_output_width']
         height = presentation_props['deskshare_output_height']
       end
-      if !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?
-        width = presentation_props['deskshare_output_width']
-        height = presentation_props['deskshare_output_height']
-      end
+
       BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, width, height, presentation_props['audio_offset'], presentation_props['include_deskshare'])
     end
 

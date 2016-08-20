@@ -51,6 +51,8 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private String streamBaseUrl;
   private ConnectionInvokerService sender;
   private String recordingDirectory;
+
+  private final Pattern STREAM_ID_PATTERN = Pattern.compile("(.*)-(.*)-(.*)$");
   
   @Override
   public boolean appStart(IScope app) {
@@ -171,6 +173,17 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 	      stream.addStreamListener(listener);
 	      streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
 	    }
+
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", meetingId);
+      logData.put("streamId", streamId);
+      logData.put("url", url);
+      logData.put("recorded", recordVideoStream);
+
+      Gson gson = new Gson();
+      String logStr =  gson.toJson(logData);
+
+      log.info("ScreenShare broadcast started: data={}", logStr);
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
     }
@@ -179,8 +192,6 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private Long genTimestamp() {
     return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
   }
-
-  private final Pattern STREAM_ID_PATTERN = Pattern.compile("(.*)-(.*)$");
 
   @Override
   public void streamBroadcastClose(IBroadcastStream stream) {
@@ -216,7 +227,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
           filename = filename.concat(meetingId).concat("/").concat(stream.getPublishedName()).concat(".flv");
 
           long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
-          log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + scopeName);
+
           Map<String, String> event = new HashMap<String, String>();
           event.put("module", "Deskshare");
           event.put("timestamp", genTimestamp().toString());
@@ -227,6 +238,16 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
           event.put("eventName", "DeskshareStoppedEvent");
           recordingService.record(scopeName, event);
         }
+
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", meetingId);
+      logData.put("streamId", streamId);
+      logData.put("recorded", recordVideoStream);
+
+      Gson gson = new Gson();
+      String logStr =  gson.toJson(logData);
+
+      log.info("ScreenShare broadcast stopped: data={}", logStr);
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
     }

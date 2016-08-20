@@ -2,40 +2,42 @@
 
 <!--
 
-BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+     Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 
-This program is free software; you can redistribute it and/or modify it under the
-terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 3.0 of the License, or (at your option) any later
-version.
+     This program is free software; you can redistribute it and/or modify it under the
+     terms of the GNU Lesser General Public License as published by the Free Software
+     Foundation; either version 3.0 of the License, or (at your option) any later
+     version.
 
-BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+     BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+     WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+     PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along
-with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+     You should have received a copy of the GNU Lesser General Public License along
+     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
-	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="600" height="400"
-	initialize="init()"
-	creationComplete="onCreationComplete()"
-	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	xmlns:mate="http://mate.asfusion.com/"
-	title="{ResourceUtil.getInstance().getString('bbb.screenshareView.title')}" 
-	showCloseButton="false"
-	resize="fitToWindow()" >
-	
-	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-  
-	<mx:Script>
-		<![CDATA[
+<MDIWindow xmlns="flexlib.mdi.containers.*"
+           xmlns:mx="http://www.adobe.com/2006/mxml"
+           width="600"
+           height="400"
+           initialize="init()"
+           creationComplete="onCreationComplete()"
+           implements="org.bigbluebutton.common.IBbbModuleWindow"
+           xmlns:mate="http://mate.asfusion.com/"
+           title="{    ResourceUtil.getInstance().getString('bbb.screenshareView.title')    }"
+           showCloseButton="false"
+           resize="fitToWindow()">
+
+    <mate:Listener type="{    ViewStreamEvent.STOP    }" method="onStopViewStreamEvent" />
+    <mate:Listener type="{    LocaleChangeEvent.LOCALE_CHANGED    }" method="localeChanged" />
+    <mate:Listener type="{    BBBEvent.RECONNECT_DISCONNECTED_EVENT    }" method="handleDisconnectedEvent" />
+
+    <mx:Script>
+        <![CDATA[
       import com.asfusion.mate.events.Dispatcher;     
       import flexlib.mdi.events.MDIWindowEvent;      
       import mx.core.UIComponent;      
@@ -51,8 +53,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+      import org.bigbluebutton.core.managers.ReconnectionManager;
+      import org.bigbluebutton.main.events.BBBEvent;
       
       private static const LOG:String = "SC::ScreenshareViewWIndow - ";
+      private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
       
 			private var screenHeight:Number = Capabilities.screenResolutionY;
 			private var screenWidth:Number = Capabilities.screenResolutionX;
@@ -198,7 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				trace(LOG + "asyncerror " + e.toString());
+        LOGGER.debug("asyncerror " + e.toString());
         var logData:Object = new Object();
         logData.error = e.toString();
         JSLog.debug(LOG + "asyncerror ", logData);
@@ -210,15 +217,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
 				switch(e.info.code){
   				case "NetStream.Play.Start":
-  					trace(LOG + "NetStream.Publish.Start for broadcast stream " + streamId);
+            LOGGER.debug("NetStream.Publish.Start for broadcast stream " + streamId);
             JSLog.debug(LOG + "NetStream.Publish.Start for broadcast stream ", logData);
-  				  var dispatcher: Dispatcher  = new Dispatcher();
-            var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
-            viewEvent.stream = streamId;
-  				  dispatcher.dispatchEvent(viewEvent);
   					break;
   				case "NetStream.Play.UnpublishNotify":
-  					trace(LOG + "NetStream.Play.UnpublishNotify for broadcast stream " + streamId);
+            LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream " + streamId);
             JSLog.debug(LOG + "NetStream.Play.UnpublishNotify for broadcast stream ", logData);
   					stopViewing();
   					break;
@@ -295,7 +298,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					video.width = videoWidth;
 					videoHolder.width = videoWidth;
 					video.height = videoHeight;
-					videoHolder.height = videoHeight;					
+					videoHolder.height = videoHeight;
 				}
 			}
 			
@@ -334,18 +337,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
+            
+       public function handleDisconnectedEvent(event:BBBEvent):void {
+          if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
+            closeWindow();  
+          }
+      }
 			
 		]]>
-	</mx:Script>
+    </mx:Script>
 
-	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
-		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
-				   toggle="true" 
-				   click="determineHowToDisplayVideo()" 
-				   selected="false"
-				   height="90%" 
-				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')}" 
-				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')}" 
-				   tabIndex="{baseIndex+4}"/>
-	</mx:HBox>
+    <mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%">
+        <mx:Button id="btnActualSize"
+                   paddingTop="0"
+                   paddingBottom="0"
+                   styleName="deskshareControlButtonStyle"
+                   toggle="true"
+                   click="determineHowToDisplayVideo()"
+                   selected="false"
+                   height="90%"
+                   label="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"
+                   toolTip="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"
+                   tabIndex="{    baseIndex + 4    }" />
+    </mx:HBox>
 </MDIWindow>

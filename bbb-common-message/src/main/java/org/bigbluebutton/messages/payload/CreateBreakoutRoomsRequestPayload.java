@@ -9,12 +9,15 @@ public class CreateBreakoutRoomsRequestPayload {
   public final ArrayList<BreakoutRoomRequestPayload> rooms; 
   // The duration of the breakout room
   public final Integer durationInMinutes;
-  
+  // Breakout rooms recording option 
+  public final Boolean record;
+
   public CreateBreakoutRoomsRequestPayload(String meetingId, 
 		  ArrayList<BreakoutRoomRequestPayload> breakoutRooms, 
-		  Integer duration) {
+		  Integer duration, Boolean record) {
     this.meetingId = meetingId;
     this.rooms = breakoutRooms;
     this.durationInMinutes = duration;
+    this.record = record;
   }
 }

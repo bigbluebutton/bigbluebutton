@@ -1,5 +1,7 @@
 import React, { PropTypes } from 'react';
 import WhiteboardShapeModel from './shape-factory/component.jsx';
+import Cursor from './cursor/component.jsx';
+import SlideControlsContainer from './slide-controls/container.jsx'; //I added
 import { createContainer } from 'meteor/react-meteor-data';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
@@ -13,6 +15,7 @@ export default class Whiteboard extends React.Component {
 
   renderWhiteboard() {
     let slideObj = this.props.currentSlide;
+
     if (this.props.currentSlide) {
       slideObj = this.props.currentSlide.slide;
       let x = -slideObj.x_offset * 2 * slideObj.width / 100;
@@ -50,7 +53,7 @@ export default class Whiteboard extends React.Component {
               </clipPath>
             </defs>
             <g clipPath="url(#viewBox)">
-              <Slide currentSlide={this.props.currentSlide}/>
+              <Slide id="slideComponent" currentSlide={this.props.currentSlide}/>
               {this.props.shapes ? this.props.shapes.map((shape) =>
                 <WhiteboardShapeModel
                   shape={shape.shape}
@@ -62,9 +65,31 @@ export default class Whiteboard extends React.Component {
                 />
                 )
               : null }
+              <Cursor
+                viewBoxWidth={viewBoxWidth}
+                viewBoxHeight={viewBoxHeight}
+                viewBoxX={x}
+                viewBoxY={y}
+                widthRatio={slideObj.width_ratio}
+                cursorX={this.props.cursor[0].x}
+                cursorY={this.props.cursor[0].y}
+              />
             </g>
           </svg>
         </ReactCSSTransitionGroup>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  renderSlideControlsContainer() {
+    if (this.props.currentSlide) {
+      return (
+        <SlideControlsContainer
+          currentSlideNum={this.props.currentSlide.slide.num}
+          presentationId={this.props.currentSlide.presentationId}
+        />
       );
     } else {
       return null;
@@ -80,6 +105,7 @@ export default class Whiteboard extends React.Component {
           </div>
         </div>
         <PollingContainer />
+        {this.renderSlideControlsContainer()}
       </div>
     );
   }

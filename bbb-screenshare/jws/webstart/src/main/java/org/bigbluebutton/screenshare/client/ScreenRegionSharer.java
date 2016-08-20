@@ -32,23 +32,45 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   private NetworkStreamSender signalChannel;
   private DeskshareSystemTray tray = new DeskshareSystemTray();
   private ClientListener listener;
+
+  private final String START = "START";
+  private final String PAUSE = "PAUSE";
+  private final String STOP = "STOP";
+  private final String RUNNING = "RUNNING";
+
+  private String streamId = null;
+
+  private String status = STOP;
+
+  // If sharing full screen, autoStart is true
+  private volatile boolean fullScreen = false;
   
-  public ScreenRegionSharer(ScreenShareInfo ssi) {
+  public ScreenRegionSharer(ScreenShareInfo ssi, boolean autoStart) {
+    this.fullScreen = autoStart;
+    this.ssi = ssi;
+    streamId = ssi.streamId;
+
     signalChannel = new NetworkStreamSender(ssi.host, ssi.meetingId, ssi.streamId);
     signalChannel.addNetworkConnectionListener(this);
     signalChannel.start();
-    this.ssi = ssi;
-    sharer = new ScreenSharerRunner(ssi);
+
+    sharer = new ScreenSharerRunner(ssi, this);
   }
 
-  public void start(boolean autoStart) {
-    CaptureRegionListener crl = new CaptureRegionListenerImp(this);
-    frame = new CaptureRegionFrame(crl, 5);
-    frame.setHeight(ssi.captureHeight);
-    frame.setWidth(ssi.captureWidth);
-    frame.setLocation(ssi.x, ssi.y);		
-    System.out.println(NAME + "Launching Screen Capture Frame");
-    frame.start(autoStart);
+  public void start() {
+    if (!status.toUpperCase().equals(START)) {
+      CaptureRegionListener crl = new CaptureRegionListenerImp(this);
+      frame = new CaptureRegionFrame(crl, 5);
+      frame.setHeight(ssi.captureHeight);
+      frame.setWidth(ssi.captureWidth);
+      frame.setLocation(ssi.x, ssi.y);
+      System.out.println(NAME + "Launching Screen Capture Frame");
+      status = "START";
+
+      System.out.println(NAME + "Starting Screen Capture Frame. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
+      frame.start(fullScreen);
+    }
+
   }
 
   public void addClientListener(ClientListener l) {
@@ -63,20 +85,44 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
     sharer.disconnectSharing();
     System.out.println(NAME + "Change system tray icon message");
     tray.disconnectIconSystemTrayMessage();
-    System.out.println(NAME + "Desktop sharing disconneted");
+    System.out.println(NAME + "Desktop sharing disconnected");
   } 
 
   public void stop() {
-    frame.setVisible(false);	
-    sharer.stopSharing();
-    signalChannel.stopSharing();
-    tray.removeIconFromSystemTray();
-    System.out.println(NAME + "Closing Screen Capture Frame");
+    if (! status.toUpperCase().equals(STOP)) {
+      status = STOP;
+      frame.setVisible(false);
+      sharer.stopSharing();
+      signalChannel.stopSharing();
+      tray.removeIconFromSystemTray();
+      System.out.println(NAME + "Closing Screen Capture Frame");
+    }
+  }
+
+  private void pause() {
+    if (! status.toUpperCase().equals(PAUSE)) {
+      frame.setVisible(false);
+      sharer.stopSharing();
+      status = PAUSE;
+      System.out.println(NAME + "Paused.");
+    }
   }
 
   @Override
-  public void networkConnectionException(ExitCode reason) {
-    if (listener != null) listener.onClientStop(reason);
+  public void networkConnectionException(ExitCode reason, String streamId) {
+    if (listener != null) {
+      if (reason.getExitCode() == ExitCode.PAUSED.getExitCode()) {
+        System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
+        pause();
+      } else if (reason.getExitCode() == ExitCode.START.getExitCode()) {
+        this.streamId = streamId;
+        System.out.println(NAME + "starting. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
+        start();
+      } else {
+        System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
+        listener.onClientStop(reason);
+      }
+    }
   }
   
   private class CaptureRegionListenerImp implements CaptureRegionListener {
@@ -103,15 +149,17 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       ssi.scaleWidth = width;
       ssi.scaleHeight = height;
       sharer.updateScreenShareInfo(x, y, width, height);
-     
-      signalChannel.startSharing(width, height);
-      sharer.addClientListener(listener);
 
-      sharer.startSharing();
+      sharer.addClientListener(listener);
+      signalChannel.startSharing(width, height, streamId);
+
+      sharer.startSharing(streamId);
+
     }
 
     @Override
     public void onStopCapture() {
+      System.out.println("ON STOP CAPTURE");
       srs.stop();
     }
   }

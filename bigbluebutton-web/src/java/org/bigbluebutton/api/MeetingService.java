@@ -1,13 +1,13 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- * 
+ *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- * 
+ *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -27,9 +27,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -292,7 +292,7 @@ public class MeetingService implements MessageListener {
     private void handleCreateMeeting(Meeting m) {
         meetings.put(m.getInternalId(), m);
         if (m.isRecord()) {
-            Map<String, String> metadata = new LinkedHashMap<String, String>();
+            Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
             // TODO: Need a better way to store these values for recordings
             metadata.put("meetingId", m.getExternalId());
@@ -350,18 +350,17 @@ public class MeetingService implements MessageListener {
     public List<Map<String, String>> listSubscriptions(String meetingId) {
         return messagingService.listSubscriptions(meetingId);
     }
-    
-    public Meeting getMeeting(String meetingId) {
-        return getMeeting(meetingId, false);
-    }
 
-    public Meeting getMeeting(String meetingId, Boolean exactMatch) {
+    public Meeting getMeeting(String meetingId) {
         if (meetingId == null)
             return null;
+        int dashes = meetingId.split("-", -1).length - 1;
         for (String key : meetings.keySet()) {
-            if ((!exactMatch && key.startsWith(meetingId))
-                    || (exactMatch && key.equals(meetingId)))
+            int keyDashes = key.split("-", -1).length - 1;
+            if (dashes == 2 && key.equals(meetingId)
+                    || (dashes < 2 && keyDashes < 2 && key.startsWith(meetingId))) {
                 return (Meeting) meetings.get(key);
+            }
         }
 
         return null;
@@ -421,7 +420,7 @@ public class MeetingService implements MessageListener {
                 r.setMeetingID(mid);
                 r.setName(name);
 
-                ArrayList<Playback> plays = new ArrayList<Playback>();
+                List<Playback> plays = new ArrayList<Playback>();
 
                 if (r.getPlaybackFormat() != null) {
                     plays.add(new Playback(r.getPlaybackFormat(), r
@@ -471,18 +470,22 @@ public class MeetingService implements MessageListener {
 
     public void setPublishRecording(List<String> idList, boolean publish) {
         for (String id : idList) {
-            if (publish) {
+          if (publish) {
               recordingService.changeState(id, Recording.STATE_PUBLISHED);
-            } else {
+          } else {
               recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
-	    }
           }
-	}
-	
-	public void deleteRecordings(ArrayList<String> idList){
-          for (String id : idList) {
-            recordingService.changeState(id, Recording.STATE_DELETED);
         }
+    }
+
+    public void deleteRecordings(List<String> idList) {
+        for (String id : idList) {
+          recordingService.changeState(id, Recording.STATE_DELETED);
+        }
+    }
+
+    public void updateRecordings(List<String> idList, Map<String, String> metaParams) {
+        recordingService.updateMetaParams(idList, metaParams);
     }
 
     public void processRecording(String meetingId) {
@@ -520,6 +523,7 @@ public class MeetingService implements MessageListener {
         params.put("moderatorPW", message.moderatorPassword);
         params.put("voiceBridge", message.voiceConfId);
         params.put("duration", message.durationInMinutes.toString());
+        params.put("record", message.record.toString());
 
         Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 
@@ -588,7 +592,7 @@ public class MeetingService implements MessageListener {
 
 				Gson gson = new Gson();
 				String logStr =  gson.toJson(logData);
-				
+
 				log.info("Meeting restarted: data={}", logStr);
 			}
 			return;
@@ -666,16 +670,15 @@ public class MeetingService implements MessageListener {
             logData.put("role", user.getRole());
             logData.put("event", "user_joined_message");
             logData.put("description", "User had joined the meeting.");
-				
-				Gson gson = new Gson();
-		        String logStr =  gson.toJson(logData);
-				
-				log.info("User left meeting: data={}", logStr);
-				
-				return;
-			}
-			return;
-		}
+
+            Gson gson = new Gson();
+            String logStr =  gson.toJson(logData);
+            log.info("User joined meeting: data={}", logStr);
+
+            return;
+        }
+        return;
+    }
 
     private void userLeft(UserLeft message) {
         Meeting m = getMeeting(message.meetingId);
@@ -734,14 +737,14 @@ public class MeetingService implements MessageListener {
 
 	@Override
   public void handle(IMessage message) {
-			receivedMessages.add(message);    
+			receivedMessages.add(message);
   }
-	
-	
+
+
 	public void setParamsProcessorUtil(ParamsProcessorUtil util) {
-	  this.paramsProcessorUtil = util; 
+	  this.paramsProcessorUtil = util;
 	}
-	
+
 	public void setPresDownloadService(PresentationUrlDownloadService presDownloadService) {
 	  this.presDownloadService = presDownloadService;
 	}
@@ -854,10 +857,6 @@ public class MeetingService implements MessageListener {
                     processEndMeeting((EndMeeting) message);
                 } else if (message instanceof RegisterUser) {
                     processRegisterUser((RegisterUser) message);
-                }   else if (message instanceof CreateBreakoutRoom) {
-                    processCreateBreakoutRoom((CreateBreakoutRoom) message);
-                } else if (message instanceof EndBreakoutRoom) {
-                    processEndBreakoutRoom((EndBreakoutRoom) message);
                 } else if (message instanceof StunTurnInfoRequested) {
                     processStunTurnInfoRequested((StunTurnInfoRequested) message);
                 } else if (message instanceof CreateBreakoutRoom) {
@@ -870,7 +869,7 @@ public class MeetingService implements MessageListener {
 
         runExec.execute(task);
     }
-    
+
 
     public void start() {
         log.info("Starting Meeting Service.");

@@ -96,10 +96,10 @@ package org.bigbluebutton.modules.present.model
     }
     
     public function getCurrentPresentation():Presentation {
-	  LOGGER.debug("***** Call to getCurrentPresentation() *****");
+	  //LOGGER.debug("***** Call to getCurrentPresentation() *****");
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        LOGGER.debug("Is presentation [{0}] current [{1}]?", [pres.name, pres.current]);
+        //LOGGER.debug("Is presentation [{0}] current [{1}]?", [pres.name, pres.current]);
         if (pres.current) return pres;
       }
       LOGGER.debug("No current presentation.");

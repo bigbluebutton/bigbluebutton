@@ -1,14 +1,76 @@
-var callback = function(message){console.log(message);}; // holds the user's callback for a global scope
-callbacks = {};
-var callICEConnected = false;
-var callPurposefullyEnded = false; // used to determine whether the user ended the call or the call was ended from somewhere else outside
-var callTimeout = null; // function that will run if there is no call established
-var toDisplayDisconnectCallback = true; // if a call is dropped only display the error the first time
-var wasCallSuccessful = false; // when the websocket connection is closed this determines whether a call was ever successfully established
-webcamStream = "webcamStream";
-window[webcamStream] = null;
-verto = null;
-videoTag = null;
+Verto = function (
+  tag,
+  voiceBridge,
+  conferenceUsername,
+  userCallback,
+  onFail = null,
+  chromeExtension = null) {
+
+  voiceBridge += "-DESKSHARE";
+  this.cur_call = null;
+  this.share_call = null;
+  this.vertoHandle;
+
+  this.vid_width = 1920;
+  this.vid_height = 1080;
+
+  this.local_vid_width = 320;
+  this.local_vid_height = 180;
+  this.outgoingBandwidth;
+  this.incomingBandwidth;
+  this.sessid = null;
+
+  this.renderTag = 'remote-media';
+
+  this.destination_number = voiceBridge;
+  this.caller_id_name = conferenceUsername;
+  this.caller_id_number = conferenceIdNumber;
+
+  this.vertoPort = "8082";
+  this.hostName = window.location.hostname;
+  this.socketUrl = 'wss://' + this.hostName + ':' + this.vertoPort;
+  this.login = "bbbuser";
+  this.password = "secret";
+  this.minWidth = '640';
+  this.minHeight = '480';
+  this.maxWidth = '1920';
+  this.maxHeight = '1080';
+
+  this.useVideo = false;
+  this.useCamera = false;
+  this.useMic = false;
+
+  this.callWasSuccessful = false;
+
+  this.iceServers = null;
+
+  this.userCallback = userCallback;
+
+  if (chromeExtension != null) {
+    this.chromeExtension = chromeExtension;
+  }
+
+  if (onFail != null) {
+    this.onFail = Verto.normalizeCallback(onFail);
+  } else {
+    var _this = this;
+    this.onFail = function () {
+      _this.logError('Default error handler');
+    };
+  }
+};
+
+Verto.prototype.logger = function (obj) {
+  console.log(obj);
+};
+
+Verto.prototype.logError = function (obj) {
+  console.error(obj);
+};
+
+Verto.prototype.setRenderTag = function (tag) {
+  this.renderTag = tag;
+};
 
 // receives either a string variable holding the name of an actionscript
 // registered callback, or a javascript function object.
@@ -16,390 +78,432 @@ videoTag = null;
 // or if it is an actionscript string it will return a javascript Function
 // that when invokved will invoke the actionscript registered callback
 // and passes along parameters
-function normalizeCallback(callback) {
-	if (typeof callback == "function") {
-		return callback;
-	} else {
-		return function(args) {
-			document.getElementById("BigBlueButton")[callback](args);
-		};
-	}
-}
+Verto.normalizeCallback = function (callback) {
+  if (typeof callback == 'function') {
+    return callback;
+  } else {
+    return function (args) {
+      document.getElementById('BigBlueButton')[callback](args);
+    };
+  }
+};
 
-// save a copy of the hangup function registered for the verto object
-var oldHangup = $.verto.prototype.hangup;
-// overwrite the verto hangup handler with my own handler
-$.verto.prototype.hangup = function(callID, userCallback) {
-	console.log("call state callbacks - bye");
-	if (userCallback) {
-		callback = userCallback;
-	}
-	callActive = false;
+Verto.prototype.onWSLogin = function (v, success) {
+  this.cur_call = null;
+  if (success) {
+    this.callWasSuccessful = true;
+    this.mediaCallback();
+    return;
+  } else {
+    // error logging verto into freeswitch
+    this.logError({ status: 'failed', errorcode: '10XX' });
+    this.callWasSuccessful = false;
+    this.onFail();
+    return;
+  }
+};
 
-	if (cur_call) {
-		console.log('call ended ' + cur_call.audioStream.currentTime); // the duration of the call
-		if (callPurposefullyEnded === true) { // the user ended the call themself
-			callback({'status':'ended'});
-		} else {
-			callback({'status':'failed', 'errorcode': 1005}); // Call ended unexpectedly
-		}
-		clearTimeout(callTimeout);
-		cur_call = null;
-	} else {
-		console.log('bye event already received');
-	}
-	// call the original hangup procedure
-	return oldHangup.apply(this, arguments);
-}
+Verto.prototype.registerCallbacks = function () {
+  var callbacks = {
+    onMessage: function () {},
 
-// main entry point to making a verto call
-callIntoConference_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, videoTag, options, vertoServerCredentials) {
-	window.videoTag = videoTag;
-	// stores the user's callback in the global scope
-	if (userCallback) {
-		callback = userCallback;
-	}
-	if(!isLoggedIntoVerto()) { // start the verto log in procedure
-		// runs when a web socket is disconnected
-		callbacks.onWSClose = function(v, success) {
-			if(wasCallSuccessful) { // a call was established through the websocket
-				if(toDisplayDisconnectCallback) { // will only display the error the first time
-					// the connection was dropped in an already established call
-					console.log("websocket disconnected");
-					callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
-					toDisplayDisconnectCallback = false;
-				}
-			} else {
-				// this callback was triggered and a call was never successfully established
-				console.log("websocket connection could not be established");
-				callback({'status':'failed', 'errorcode': 1002}); // Could not make a WebSocket connection
-			}
-		}
-		// runs when the websocket is successfully created
-		callbacks.onWSLogin = function(v, success) {
-			cur_call = null;
-			ringing = false;
-			console.log("Inside onWSLogin");
+    onDialogState: function (d) {},
 
-			if (success) {
-				console.log("starting call");
-				toDisplayDisconnectCallback = true; // yes, display an error if the socket closes
-				wasCallSuccessful = true; // yes, a call was successfully established through the websocket
-				webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, options);
-			} else {
-				callback({'status':'failed', 'errorcode': '10XX'}); // eror logging verto into freeswitch
-			}
-		}
-		// set up verto
-		// $.verto.init({}, init(videoTag));
-		init(videoTag, vertoServerCredentials);
-	} else {
-		console.log("already logged into verto, going straight to making a call");
-		webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, options);
-	}
-}
+    onWSLogin: this.onWSLogin.bind(this),
 
-checkSupport = function(callback) {
-	if(!isWebRTCAvailable_verto()) {
-		callback({'status': 'failed', 'errorcode': 1003}); // Browser version not supported
-	}
+    onWSClose: function (v, success) {
+      cur_call = null;
+      if (this.callWasSuccessful) {
+        // the connection was dropped in an already established call
+        this.logError('websocket disconnected');
 
-	if (!navigator.getUserMedia) {
-		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-	}
+        // WebSocket disconnected
+        this.logError({ status:  'failed', errorcode: 1001 });
+        toDisplayDisconnectCallback = false;
+      } else {
+        // this callback was triggered and a call was never successfully established
+        this.logError('websocket connection could not be established');
 
-	if (!navigator.getUserMedia){
-		callback({'status': 'failed', 'errorcode': '10XX'}); // getUserMedia not supported in this browser
-	}
-}
+        // Could not make a WebSocket connection
+        this.logError({ status:  'failed', errorcode: 1002 });
+        this.onFail();
+        return;
+      }
+    }.bind(this),
+  };
+  this.callbacks = callbacks;
+};
 
-configStuns = function(callbacks, callback, videoTag, vertoServerCredentials) {
-	console.log("Fetching STUN/TURN server info for Verto initialization");
-	var stunsConfig = {};
-	$.ajax({
-		dataType: 'json',
-		url: '/bigbluebutton/api/stuns/'
-	}).done(function(data) {
-		console.log("ajax request done");
-		console.log(data);
-		if(data['response'] && data.response.returncode == "FAILED") {
-			console.error(data.response.message);
-			callback({'status':'failed', 'errorcode': data.response.message});
-			return;
-		}
-		stunsConfig['stunServers'] = ( data['stunServers'] ? data['stunServers'].map(function(data) {
-			return {'url': data['url']};
-		}) : [] );
-		stunsConfig['turnServers'] = ( data['turnServers'] ? data['turnServers'].map(function(data) {
-			return {
-				'urls': data['url'],
-				'username': data['username'],
-				'credential': data['password']
-			};
-		}) : [] );
-		stunsConfig = stunsConfig['stunServers'].concat(stunsConfig['turnServers']);
-		console.log("success got stun data, making verto");
-		makeVerto(callbacks, stunsConfig, videoTag, vertoServerCredentials);
-	}).fail(function(data, textStatus, errorThrown) {
-		// BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
-		callback({'status':'failed', 'errorcode': 1009});
-		return;
-	});
-}
+Verto.prototype.hold = function () {
+  this.cur_call.toggleHold();
+};
 
-docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callbacks, options) {
-	console.log(extension + ", " + conferenceUsername + ", " + conferenceIdNumber);
+Verto.prototype.hangup = function () {
+  if (this.cur_call) {
+    // the duration of the call
+    this.logger('call ended ' + this.cur_call.audioStream.currentTime);
+    this.cur_call.hangup();
+    this.cur_call = null;
+  }
 
-	if (cur_call) { // only allow for one call
-		console.log("Quitting: Call already in progress");
-		return;
-	}
-	// determine the resolution the user chose for webcam video
-	my_check_vid_res();
-	outgoingBandwidth = "default";
-	incomingBandwidth = "default";
-	var useVideo = useCamera = useMic = false;
-	// debugger;
-	if(options.watchOnly) {
-		window.watchOnly = true;
-		window.listenOnly = false;
-		window.joinAudio = false;
-		useVideo = true;
-		useCamera = false;
-		useMic = false;
-	} else if(options.listenOnly) {
-		window.listenOnly = true;
-		window.watchOnly = false;
-		window.joinAudio = false;
-		useVideo = false;
-		useCamera = false;
-		useMic = false;
-	} else if(options.joinAudio) {
-		window.joinAudio = true;
-		window.watchOnly = false;
-		window.listenOnly = false;
-		useVideo = false;
-		useCamera = false;
-		useMic = true;
-	}
+  if (this.share_call) {
+    // the duration of the call
+    this.logger('call ended ' + this.share_call.audioStream.currentTime);
+    this.share_call.hangup();
+    this.share_call = null;
+  }
 
-	cur_call = verto.newCall({
-		destination_number: extension,
-		caller_id_name: conferenceUsername,
-		caller_id_number: conferenceIdNumber,
-		outgoingBandwidth: outgoingBandwidth,
-		incomingBandwidth: incomingBandwidth,
-		useStereo: true,
-		useVideo: useVideo,
-		useCamera: useCamera,
-		useMic: useMic,
-		dedEnc: false,
-		mirrorInput: false
-	});
+  // the user ended the call themself
+  // if (callPurposefullyEnded === true) {
+  if (true) {
+    this.logger({ status: 'ended' });
+  } else {
+    // Call ended unexpectedly
+    this.logError({ status: 'failed', errorcode: 1005 });
+  }
+};
 
-	if (callbacks != null) { // add user supplied callbacks to the current call
-		cur_call.rtc.options.callbacks = $.extend(cur_call.rtc.options.callbacks, callbacks);
-	}
-}
+Verto.prototype.mute = function () {
+  this.cur_call.dtmf('0');
+};
 
-// check if logged into verto by seeing if there is a ready websocket connection
-function isLoggedIntoVerto() {
-	return (verto != null ? (ref = verto.rpcClient) != null ? ref.socketReady() : void 0 : void 0);
-}
+Verto.prototype.localmute = function () {
+  // var muted = cur_call.setMute('toggle');
+  // if (muted) {
+  //   display('Talking to: ' + cur_call.cidString() + ' [LOCALLY MUTED]');
+  // } else {
+  //   display('Talking to: ' + cur_call.cidString());
+  // }
+};
 
-// overwrite and substitute my own init function
-init = function(videoTag, vertoServerCredentials) {
-	videoTag = window.videoTag;
-	cur_call = null;
-	share_call = null;
-	incomingBandwidth = "default";
-	configStuns(callbacks, callback, videoTag, vertoServerCredentials);
-}
+Verto.prototype.localvidmute = function () {
+  // var muted = cur_call.setVideoMute('toggle');
+  // if (muted) {
+  //   display('Talking to: ' + cur_call.cidString() + ' [VIDEO LOCALLY MUTED]');
+  // } else {
+  //   display('Talking to: ' + cur_call.cidString());
+  // }
+};
+
+Verto.prototype.vmute = function () {
+  this.cur_call.dtmf('*0');
+};
+
+Verto.prototype.setWatchVideo = function (tag) {
+  this.mediaCallback = this.docall;
+  this.useVideo = true;
+  this.useCamera = 'none';
+  this.useMic = 'none';
+  this.create(tag);
+};
+
+Verto.prototype.setListenOnly = function (tag) {
+  this.mediaCallback = this.docall;
+  this.useVideo = false;
+  this.useCamera = 'none';
+  this.useMic = 'none';
+  this.create(tag);
+};
+
+Verto.prototype.setMicrophone = function (tag) {
+  this.mediaCallback = this.docall;
+  this.useVideo = false;
+  this.useCamera = 'none';
+  this.useMic = 'any';
+  this.create(tag);
+};
+
+Verto.prototype.setScreenShare = function (tag) {
+  this.mediaCallback = this.makeShare;
+  this.create(tag);
+};
+
+Verto.prototype.create = function (tag) {
+  this.setRenderTag(tag);
+  this.registerCallbacks();
+  this.configStuns(this.init);
+};
+
+Verto.prototype.docall = function () {
+  if (this.cur_call) {
+    this.logger('Quitting: Call already in progress');
+    return;
+  }
+
+  this.cur_call = window.vertoHandle.newCall({
+    destination_number: this.destination_number,
+    caller_id_name: this.caller_id_name,
+    caller_id_number: this.caller_id_number,
+    outgoingBandwidth: this.outgoingBandwidth,
+    incomingBandwidth: this.incomingBandwidth,
+    useVideo: this.useVideo,
+    useStereo: true,
+    useCamera: this.useCamera,
+    useMic: this.useMic,
+    useSpeak: 'any',
+    dedEnc: true,
+    tag: this.renderTag,
+  });
+  this.logger(this.cur_call);
+};
+
+Verto.prototype.makeShare = function () {
+  if (this.share_call) {
+    this.logError('Quitting: Call already in progress');
+    return;
+  }
+
+  var screenInfo = null;
+  if (!!navigator.mozGetUserMedia) {
+    screenInfo = {
+      video: {
+        mozMediaSource: 'window',
+        mediaSource: 'window',
+      },
+    };
+    this.doShare(screenInfo.video);
+  } else if (!!window.chrome) {
+    var _this = this;
+    if (!_this.chromeExtension) {
+      _this.logError({
+        status:  'failed',
+        message: 'Missing Chrome Extension key',
+      });
+      _this.onFail();
+      return;
+    }
+
+    getChromeExtensionStatus(this.chromeExtension, function (status) {
+      if (status != 'installed-enabled') {
+        _this.logError('No chrome Extension');
+        _this.onFail();
+        return -1;
+      }
+
+      // bring up Chrome screen picker
+      getScreenConstraints(function (error, screenConstraints) {
+        if (error) {
+          _this.onFail();
+          return _this.logError(error);
+        }
+
+        screenInfo =  screenConstraints.mandatory;
+
+        _this.logger(screenInfo);
+        _this.doShare(screenInfo);
+      });
+    });
+  }
+};
+
+Verto.prototype.doShare = function (screenConstraints) {
+  this.share_call = window.vertoHandle.newCall({
+    destination_number: this.destination_number,
+    caller_id_name: this.caller_id_name,
+    caller_id_number: this.caller_id_number,
+    outgoingBandwidth: this.outgoingBandwidth,
+    incomingBandwidth: this.incomingBandwidth,
+    videoParams: screenConstraints,
+    useVideo: true,
+    screenShare: true,
+    dedEnc: true,
+    mirrorInput: false,
+    tag: this.renderTag,
+  });
+};
+
+Verto.prototype.init = function () {
+  this.cur_call = null;
+
+  if (!window.vertoHandle) {
+    window.vertoHandle = new $.verto({
+      login: this.login,
+      passwd: this.password,
+      socketUrl: this.socketUrl,
+      tag: this.renderTag,
+      ringFile: 'sounds/bell_ring2.wav',
+      sessid: this.sessid,
+      videoParams: {
+        minWidth: this.vid_width,
+        minHeight: this.vid_height,
+        maxWidth: this.vid_width,
+        maxHeight: this.vid_height,
+        minFrameRate: 15,
+        vertoBestFrameRate: 30,
+      },
+
+      deviceParams: {
+        useCamera: false,
+        useMic: false,
+        useSpeak: 'none',
+      },
+
+      audioParams: {
+        googAutoGainControl: false,
+        googNoiseSuppression: false,
+        googHighpassFilter: false,
+      },
+
+      iceServers: this.iceServers,
+    }, this.callbacks);
+  } else {
+    this.mediaCallback();
+    return;
+  }
+};
+
+Verto.prototype.configStuns = function (callback) {
+  this.logger('Fetching STUN/TURN server info for Verto initialization');
+  var _this = this;
+  var stunsConfig = {};
+  $.ajax({
+    dataType: 'json',
+    url: '/bigbluebutton/api/stuns/',
+  }).done(function (data) {
+    _this.logger('ajax request done');
+    _this.logger(data);
+    if (data.response && data.response.returncode == 'FAILED') {
+      _this.logError(data.response.message, { error: true });
+      _this.logError({ status: 'failed', errorcode: data.response.message });
+      return;
+    }
+
+    stunsConfig.stunServers = (data.stunServers ? data.stunServers.map(function (data) {
+      return { url: data.url };
+    }) : []);
+
+    stunsConfig.turnServers = (data.turnServers ? data.turnServers.map(function (data) {
+      return {
+        urls: data.url,
+        username: data.username,
+        credential: data.password,
+      };
+    }) : []);
+
+    stunsConfig = stunsConfig.stunServers.concat(stunsConfig.turnServers);
+    _this.logger('success got stun data, making verto');
+    _this.iceServers = stunsConfig;
+    callback.apply(_this);
+  }).fail(function (data, textStatus, errorThrown) {
+    _this.logError({ status: 'failed', errorcode: 1009 });
+    _this.onFail();
+    return;
+  });
+};
 
 // checks whether Google Chrome or Firefox have the WebRTCPeerConnection object
-function isWebRTCAvailable_verto() {
-	return (typeof window.webkitRTCPeerConnection !== 'undefined' || typeof window.mozRTCPeerConnection !== 'undefined');
-}
-
-// exit point for conference
-function leaveWebRTCVoiceConference_verto() {
-	console.log("Leaving the voice conference");
-	webrtc_hangup_verto();
-}
-
-function make_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, server, recall, options) {
-	if (userCallback) {
-		callback = userCallback;
-	}
-	callPurposefullyEnded = false;
-
-	// after 15 seconds if a call hasn't been established display error, hangup and logout of verto
-	callTimeout = setTimeout(function() {
-		console.log('Ten seconds without updates sending timeout code');
-		callback({'status':'failed', 'errorcode': 1006}); // Failure on call
-		if (verto != null) {
-			verto.hangup();
-			verto.logout();
-			verto = null;
-		}
-		cur_call = null;
-	}, 10000*1.5);
-
-	var myRTCCallbacks = {
-		onError: function(vertoErrorObject, errorMessage) {
-			console.error("custom callback: onError");
-			console.error(vertoErrorObject);
-			console.error("ERROR:");
-			console.error(errorMessage);
-			if(errorMessage.name === "PermissionDeniedError") { // user denied access to media peripherals
-				console.error("User denied permission/access to hardware");
-				console.error("getUserMedia: failure - ", errorMessage);
-				callback({'status': 'mediafail', 'cause': errorMessage});
-			}
-			cur_call.hangup({cause: "Device or Permission Error"});
-			clearTimeout(callTimeout);
-		},
-		onICEComplete: function(self, candidate) { // ICE candidate negotiation is complete
-			console.log("custom callback: onICEComplete");
-			console.log('Received ICE status changed to completed');
-			if (callICEConnected === false) {
-				callICEConnected = true;
-				if (callActive === true) {
-					callback({'status':'started'});
-				}
-				clearTimeout(callTimeout);
-			}
-		},
-		onStream: function(rtc, stream) { // call has been established
-			console.log("getUserMicMedia: success");
-			callback({'status':'mediasuccess'});
-			console.log("custom callback: stream started");
-			callActive = true;
-			console.log('BigBlueButton call accepted');
-
-			if (callICEConnected === true) {
-				callback({'status':'started'});
-			} else {
-				callback({'status':'waitingforice'});
-			}
-			clearTimeout(callTimeout);
-		}
-	};
-
-	if(isLoggedIntoVerto()) {
-		console.log("Verto is logged into FreeSWITCH, socket is available, making call");
-		callICEConnected = false;
-
-		docall_verto(voiceBridge, conferenceUsername, conferenceIdNumber, myRTCCallbacks, options);
-
-		if(recall === false) {
-			console.log('call connecting');
-			callback({'status': 'connecting'});
-		} else {
-			console.log('call connecting again');
-		}
-
-		callback({'status':'mediarequest'});
-	} else {
-		console.error("Verto is NOT logged into FreeSWITCH, socket is NOT available, abandoning call request");
-	}
-}
-
-function makeVerto(callbacks, stunsConfig, videoTag, vertoServerCredentials) {
-	var vertoPort = vertoServerCredentials.vertoPort;
-	var hostName = vertoServerCredentials.hostName;
-	var socketUrl = "wss://" + hostName + ":" + vertoPort;
-	var login = vertoServerCredentials.login;
-	var password = vertoServerCredentials.password;
-	var minWidth = "640";
-	var minHeight = "480";
-	var maxWidth = "1920";
-	var maxHeight = "1080";
-
-	console.log("stuns info is");
-	console.log(stunsConfig);
-	// debugger;
-	verto = new $.verto({
-		login: login,
-		passwd: password,
-		socketUrl: socketUrl,
-		tag: videoTag,
-		ringFile: "sounds/bell_ring2.wav",
-		loginParams: {foo: true, bar: "yes"},
-		useVideo: false,
-		useCamera: false,
-		iceServers: stunsConfig, // use user supplied stun configuration
-		// iceServers: true, // use stun, use default verto configuration
-	}, callbacks);
-}
-
-// sets verto to begin using the resolution that the user selected
-my_check_vid_res = function() {
-	return;
-	var selectedVideoConstraints = getChosenWebcamResolution();
-	my_real_size(selectedVideoConstraints);
-
-	if (verto) {
-		verto.videoParams({
-			"minWidth": selectedVideoConstraints.constraints.minWidth,
-			"minHeight": selectedVideoConstraints.constraints.minHeight,
-			"maxWidth": selectedVideoConstraints.constraints.maxWidth,
-			"maxHeight": selectedVideoConstraints.constraints.maxHeight,
-			"minFrameRate": selectedVideoConstraints.constraints.minFrameRate,
-			"vertoBestFrameRate": selectedVideoConstraints.constraints.vertoBestFrameRate
-		});
-	}
-}
-
-my_real_size = function(selectedVideoConstraints) {
-	$("#" + window.videoTag).height("100%");
-	$("#" + window.videoTag).width("100%");
-}
-
-var RTCPeerConnectionCallbacks = {
-	iceFailed: function(e) {
-		console.log('received ice negotiation failed');
-		callback({'status':'failed', 'errorcode': 1007}); // Failure on call
-		//
-		// TODO unless I do this, the call only lasts for a few seconds.
-		// When I comment out the lines below, it works fine indefinitely
-		// Anton Georgiev Dec 10 2015
-		//
-		//cur_call = null;
-		//verto.hangup();
-		//verto = null;
-		//clearTimeout(callTimeout);
-	}
+Verto.prototype.isWebRTCAvailable = function () {
+  return (typeof window.webkitRTCPeerConnection !== 'undefined' ||
+    typeof window.mozRTCPeerConnection !== 'undefined');
 };
-this.RTCPeerConnectionCallbacks = RTCPeerConnectionCallbacks;
 
-window.verto_afterStreamPublish = function() {}
+this.VertoManager = function () {
+  this.vertoAudio = null;
+  this.vertoVideo = null;
+  this.vertoScreenShare = null;
+  window.vertoHandle = null;
+};
 
-function webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, options) {
-	if (userCallback) {
-		callback = userCallback;
-	}
-	console.log("webrtc_call\n"+voiceBridge + ", " + conferenceUsername + ", " + conferenceIdNumber + ", " + callback);
+Verto.prototype.logout = function () {
+  this.exitAudio();
+  this.exitVideo();
+  this.exitScreenShare();
+  window.vertoHandle.logout();
+};
 
-	if(!isWebRTCAvailable()) {
-		callback({'status': 'failed', 'errorcode': 1003}); // Browser version not supported
-		return;
-	}
+VertoManager.prototype.exitAudio = function () {
+  if (this.vertoAudio != null) {
+    console.log('Hanging up vertoAudio');
+    this.vertoAudio.hangup();
+    this.vertoAudio = null;
+  }
+};
 
-	var server = window.document.location.hostname;
-	console.log("user " + conferenceUsername + " calling to " +	voiceBridge);
-	if (isLoggedIntoVerto()) {
-		make_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, "", false, options);
-	}
-}
+VertoManager.prototype.exitVideo = function () {
+  if (this.vertoVideo != null) {
+    console.log('Hanging up vertoVideo');
+    this.vertoVideo.hangup();
+    this.vertoVideo = null;
+  }
+};
 
-function webrtc_hangup_verto(userCallback) {
-	if (userCallback) {
-		callback = userCallback;
-	}
-	callPurposefullyEnded = true;
-	console.log("Hanging up current session");
-	if(verto) {
-		verto.hangup(false, callback);
-	}
-}
+VertoManager.prototype.exitScreenShare = function () {
+  if (this.vertoScreenShare != null) {
+    console.log('Hanging up vertoScreenShare');
+    this.vertoScreenShare.hangup();
+    this.vertoScreenShare = null;
+  }
+};
+
+VertoManager.prototype.joinListenOnly = function (tag) {
+  this.exitAudio();
+  var obj = Object.create(Verto.prototype);
+  Verto.apply(obj, arguments);
+  this.vertoAudio = obj;
+  this.vertoAudio.setListenOnly(tag);
+};
+
+VertoManager.prototype.joinMicrophone = function (tag) {
+  this.exitAudio();
+  var obj = Object.create(Verto.prototype);
+  Verto.apply(obj, arguments);
+  this.vertoAudio = obj;
+  this.vertoAudio.setMicrophone(tag);
+};
+
+VertoManager.prototype.joinWatchVideo = function (tag) {
+  this.exitVideo();
+  var obj = Object.create(Verto.prototype);
+  Verto.apply(obj, arguments);
+  this.vertoVideo = obj;
+  this.vertoVideo.setWatchVideo(tag);
+};
+
+VertoManager.prototype.shareScreen = function (tag) {
+  this.exitScreenShare();
+  var obj = Object.create(Verto.prototype);
+  Verto.apply(obj, arguments);
+  this.vertoScreenShare = obj;
+  this.vertoScreenShare.setScreenShare(tag);
+};
+
+window.vertoInitialize = function () {
+  if (window.vertoManager == null || window.vertoManager == undefined) {
+    window.vertoManager = new VertoManager();
+  }
+};
+
+window.vertoExitAudio = function () {
+  window.vertoInitialize();
+  window.vertoManager.exitAudio();
+};
+
+window.vertoExitScreenShare = function () {
+  window.vertoInitialize();
+  window.vertoManager.exitScreenShare();
+};
+
+window.vertoJoinListenOnly = function () {
+  window.vertoInitialize();
+  window.vertoManager.joinListenOnly.apply(window.vertoManager, arguments);
+};
+
+window.vertoJoinMicrophone = function () {
+  window.vertoInitialize();
+  window.vertoManager.joinMicrophone.apply(window.vertoManager, arguments);
+};
+
+window.vertoWatchVideo = function () {
+  window.vertoInitialize();
+  window.vertoManager.joinWatchVideo.apply(window.vertoManager, arguments);
+};
+
+window.vertoShareScreen = function () {
+  window.vertoInitialize();
+  window.vertoManager.shareScreen.apply(window.vertoManager, arguments);
+};
+
+window.vertoExtensionGetChromeExtensionStatus = function (extensionid, callback) {
+  callback = Verto.normalizeCallback(callback);
+  getChromeExtensionStatus(extensionid, callback);
+};

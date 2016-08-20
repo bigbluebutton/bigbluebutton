@@ -44,12 +44,14 @@ find /usr/share/red5/webapps/video/streams/ -type d -empty -mtime +$history -exe
 #
 # Delete webrtc deskshare streams in red5 older than N days
 #
-find /usr/share/red5/webapps/video-broadcast/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
+if [[ -d /usr/share/red5/webapps/video-broadcast/streams ]]; then
+	find /usr/share/red5/webapps/video-broadcast/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
+fi
 
 #
 # Delete desktop sharing streams in red5 older than N days
 #
-find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' +
+find /usr/share/red5/webapps/screenshare/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
 
 #
 # Delete FreeSWITCH wav recordings older than N days
@@ -59,7 +61,7 @@ find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' +
 #
 # Delete FreeSWITCH log files and CDR
 #
-find /opt/freeswitch/log/ -name "*.xml" -type f -mtime +$history -exec rm '{}' +
+find /opt/freeswitch/var/log/freeswitch/ -name "*.xml" -type f -mtime +$history -exec rm '{}' +
 
 #
 # Delete raw files of recordings without recording marks older than N days
@@ -118,5 +120,5 @@ find /tmp -name "*.pfb" -mtime +$history -delete
 # If there are no users currently logged in, restart libreoffice to clear its memory usage
 #
 if [[ $(netstat -ant | egrep ":1935\ " | egrep -v ":::|0.0.0.0"  | wc | awk '{print $1}') == 0 ]]; then
-  service bbb-office restart
+  service libreoffice restart
 fi

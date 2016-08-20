@@ -14,6 +14,7 @@ public class CreateBreakoutRoomsRequestTest {
   public void testCreateBreakoutRoomsRequest() {
     String meetingId = "abc123";
     Integer durationInMinutes = 20;
+    Boolean record = true;
     
     ArrayList<String> room1Users = new ArrayList<String>();
     room1Users.add("Tidora"); room1Users.add("Nidora"); room1Users.add("Tinidora");
@@ -30,7 +31,7 @@ public class CreateBreakoutRoomsRequestTest {
     ArrayList<BreakoutRoomRequestPayload> rooms = new ArrayList<BreakoutRoomRequestPayload>();
     rooms.add(room1); rooms.add(room2); rooms.add(room3);
     
-    CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(meetingId, rooms, durationInMinutes);
+    CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(meetingId, rooms, durationInMinutes, record);
     CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(payload);    
     Gson gson = new Gson();
     String json = gson.toJson(msg);
@@ -42,5 +43,6 @@ public class CreateBreakoutRoomsRequestTest {
     Assert.assertEquals(rxMsg.payload.meetingId, meetingId);
     Assert.assertEquals(rxMsg.payload.rooms.size(), 3);
     Assert.assertEquals(rxMsg.payload.durationInMinutes, durationInMinutes);
+    Assert.assertEquals(rxMsg.payload.record, record);
   }
 }

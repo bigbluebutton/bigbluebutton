@@ -26,11 +26,14 @@ package org.bigbluebutton.core.managers
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
-	import flash.utils.Dictionary;	
+	import flash.utils.Dictionary;
+	
 	import mx.core.FlexGlobals;
-	import mx.utils.URLUtil;	
+	import mx.utils.URLUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.main.events.ConfigLoadedEvent;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
@@ -88,7 +91,12 @@ package org.bigbluebutton.core.managers
         dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.response.logoutURL));
       } else { 
         trace("Getting configXML passed [{0}]", [xml]);
+        
 		_config = new Config(new XML(e.target.data));
+        
+        trace("Initializing logging.");
+        LogUtil.initLogging();
+    
 		dispatcher.dispatchEvent(new ConfigLoadedEvent()); 	
       }
 		}

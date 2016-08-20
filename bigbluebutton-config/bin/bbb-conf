@@ -24,7 +24,7 @@
 #   2009-10-18 FFD  Inital Version   
 #   2009-11-05 FFD  Updated for 0.62   
 #   2009-12-09 FFD  Updated for 0.63   
-#   2009-12-11 FFD  Added ability to swtich conference servers   
+#   2009-12-11 FFD  Added ability to switch conference servers   
 #   2009-12-12 FFD  Added cleaning and watching of log files   
 #   2010-01-05 FFD  Added zipping of log files   
 #   2010-01-18 FFD  Added resetting of environment back to using packages   
@@ -32,7 +32,7 @@
 #   2010-04-02 FFD  Updated for 0.64   
 #   2010-06-21 SEB  Cleaned up some code / Updated for 0.70
 #   2010-06-25 SEB  Added ability to change the security salt
-#   2010-06-30 SEB  Added some extra errorchecking
+#   2010-06-30 SEB  Added some extra error checking
 #   2010-07-06 SEB  Added more error checking and report messages
 #   2010-09-15 FFD  Updates for 0.71-dev
 #   2010-10-16 FFD  Updates for 0.71-beta
@@ -52,6 +52,7 @@
 #   2016-01-13 FFD  Updates for 1.0
 #   2016-02-28 FFD  Updates to support HTTPS configuration
 #   2016-05-28 FFD  Initial updates for 1.1-dev
+#   2016-08-15 GTR  Archive more logs with zip option and show more applications with status
 
 #set -x
 #set -e
@@ -61,10 +62,11 @@ PATH=$PATH:/sbin
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
-# Figure out our environemtn
+# Figure out our environment
 #
 
 RED5_DIR=/usr/share/red5
+RED5=red5
 
 SERVLET_CONTAINER=tomcat7
 SERVLET_DIR=/var/lib/$SERVLET_CONTAINER/webapps
@@ -77,7 +79,6 @@ FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.
 if lsb_release -d | grep -q CentOS; then
   DISTRIB_ID=centos
   SERVLET_LOGS=/usr/share/$SERVLET_CONTAINER/logs
-  RED5=red5
   FREESWITCH=freeswitch
   FREESWITCH_INIT_D="/etc/init.d/freeswitch"
   TOMCAT_USER=tomcat
@@ -85,13 +86,11 @@ else
   . /etc/lsb-release 
   if [ "$DISTRIB_CODENAME" == "trusty" ]; then
     SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
-    RED5=red5
     FREESWITCH=freeswitch
     FREESWITCH_INIT_D="/etc/init.d/freeswitch"
     TOMCAT_USER=tomcat7
   else
     SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
-    RED5=red5
     FREESWITCH=freeswitch
     FREESWITCH_INIT_D="/etc/init.d/freeswitch"
     TOMCAT_USER=tomcat7
@@ -158,7 +157,7 @@ MEM=`free -m | grep Mem | awk '{ print $2}'`
 #
 # Check if the function has a value and, if not, print an error message
 # $1 -- name of value
-# $2 -- loctation of value
+# $2 -- location of value
 # $3 -- value to check
 #
 check_no_value() {
@@ -211,7 +210,7 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-	echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
+        echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
@@ -281,7 +280,7 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
-       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka
+       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer
     else
 	/etc/init.d/monit stop
 
@@ -324,7 +323,7 @@ stop_bigbluebutton () {
 start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
-       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka
+       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer
     else
 	$FREESWITCH_INIT_D start
 	
@@ -405,7 +404,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka"
+	units="start red5 tomcat7 nginx freeswitch redis-server libreoffice bbb-apps-akka bbb-fsesl-akka"
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 
@@ -580,10 +579,10 @@ while [ $# -gt 0 ]; do
 		SALT="${2}"
 		if [ -z "$SALT" ]; then
 			BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
-			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+			SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
 			echo
 			echo "       URL: $BBB_WEB_URL/bigbluebutton/"
-			echo "      Salt: $SALT"
+			echo "    Secret: $SECRET"
 			echo
 			exit 0
 		fi
@@ -646,11 +645,10 @@ if [ $SALT ]; then
 	fi
 
         if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
-                sed -i "s/sharedSecret.[ ]*=[ ]*\"[^\"]*\"/sharedSecret.=\"$SALT\"/g" \
+                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SALT\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
         fi
 
-	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
 	echo "Changed BigBlueButton's shared secret to $SALT"
 	echo
 fi
@@ -891,6 +889,14 @@ check_configuration() {
                 echo "#    /var/bigbluebutton"
                 echo "# is not owned by $TOMCAT_USER"
         fi
+
+        if [ $PROTOCOL_HTTP == "https" ]; then
+            if ! grep jnlpUrl /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | grep -q https; then
+                echo "# Warning: Detected the value for jnlpUrl is not configured for HTTPS"
+                echo "#    /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+            fi
+        fi
 }
 
 
@@ -997,7 +1003,7 @@ check_state() {
 
 
 	#
-	# Check red5 applictaions
+	# Check red5 applications
 	#
 	AVAIL_RED5_APPS=""
 	UNAVAIL_RED5_APPS=""
@@ -1051,7 +1057,7 @@ check_state() {
 
 
 	#
-	# Check if any of the red5 BigBlueButton applications did not start propery
+	# Check if any of the red5 BigBlueButton applications did not start properly
 	#
 	COUNT=0
 	while [ $COUNT -lt 20 ]; do
@@ -1141,7 +1147,7 @@ check_state() {
 	fi
 
 	#
-	# Check that bigbluebutton in red5 has started propertly (less than 100 lines indicates that it
+	# Check that bigbluebutton in red5 has started properly (less than 100 lines indicates that it
 	# didn't start)
 	# 
 	if [ -f $RED5_DIR/log/bigbluebutton.log ]; then
@@ -1174,7 +1180,7 @@ check_state() {
         COUNT=0
         while [ $COUNT -lt 20 ]; do
           let COUNT=COUNT+1
-	  timeout 1s wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
+	  timeout 1s wget $PROTOCOL_HTTP://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
 	  if [ $? -eq 0 ]; then
             let COUNT=30
           else
@@ -1184,10 +1190,10 @@ check_state() {
         done
 	echo
 
-        if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
+        if ! wget $PROTOCOL_HTTP://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
                 echo "# Error: Could not connect to the configured hostname/IP address"
                 echo "#"
-                echo "#    http://$BBB_WEB/"
+                echo "#    $PROTOCOL_HTTP://$BBB_WEB/"
                 echo "#"
                 echo "# If your BigBlueButton server is behind a firewall, see FAQ."
                 echo
@@ -1457,7 +1463,7 @@ if [ $CHECK ]; then
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
 		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
@@ -1511,11 +1517,13 @@ if [ $ZIP ]; then
 	rm -f /tmp/a
 
 	touch /tmp/empty
-	tar cf /tmp/$LOG_FILE.tar /tmp/empty			> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar $RED5_DIR/log			> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar $SERVLET_LOGS			> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
+	tar cf  /tmp/$LOG_FILE.tar /tmp/empty				> /dev/null 2>&1
+	tar rfh /tmp/$LOG_FILE.tar $RED5_DIR/log			> /dev/null 2>&1
+	tar rfh /tmp/$LOG_FILE.tar $SERVLET_LOGS			> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-apps-akka	> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-fsesl-akka	> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
 	if [ $DISTRIB_ID == "ubuntu" ]; then
 		tar rf /tmp/$LOG_FILE.tar /var/log/syslog		> /dev/null 2>&1
 	fi
@@ -1665,8 +1673,8 @@ if [ -n "$HOST" ]; then
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
-	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl http://$HOST/screenshare
-	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile http://$HOST/screenshare/screenshare.jnlp
+	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl $PROTOCOL_HTTP://$HOST/screenshare
+	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL_HTTP://$HOST/screenshare/screenshare.jnlp
 
 	if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
 		sudo sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
@@ -1684,8 +1692,13 @@ if [ -n "$HOST" ]; then
                         /usr/share/bbb-apps-akka/conf/application.conf
                 sed -i "s/deskshareip[ ]*=[ ]*\"[^\"]*\"/deskshareip=\"$HOST\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
+                sed -i  "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"${PROTOCOL_HTTP}:\/\/$HOST\/default.pdf\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
+		# XXX Temporary fix to ensure application.conf has the latest shared secret
+                SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
+                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
+                        /usr/share/bbb-apps-akka/conf/application.conf
         fi
-
 
 	#
 	# Update api demos

@@ -441,6 +441,9 @@
 		<copy todir="${OUTPUT_DIR}/lib/" >
 			<fileset dir="${PROD_RESOURCES_DIR}/lib"/>
 		</copy>
+		<copy todir="${OUTPUT_DIR}/help/" >
+			<fileset dir="${PROD_RESOURCES_DIR}/help"/>
+		</copy>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButtonTest.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>

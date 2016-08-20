@@ -75,7 +75,7 @@ public class CaptureRegionFrame {
     frame.setMoveBar(createMoveBar());
     setVisible(true);
     if (autoStart) {
-      startCapture();	
+      startCapture();
     } 
   }
 
@@ -162,19 +162,18 @@ public class CaptureRegionFrame {
     frame.repaint();
     frame.removeResizeListeners();
     Rectangle rect = frame.getFramedRectangle();
-    client.onStartCapture(rect.x, rect.y, frame.getWidth(), frame.getHeight());
-    System.out.println(CLASS + " - startCapture" );
     frame.hideControlFrames();
-
     String endDate = simpleDateFormat.format(new Date());
     System.out.println("Loading end time: " + endDate);
 
     frame.changeBorderToBlue();
     System.out.println(CLASS + " - startCapture:: Change border to blue" );
+    client.onStartCapture(rect.x, rect.y, frame.getWidth(), frame.getHeight());
+    System.out.println(CLASS + " - startCapture" );
   }
 
-  private void stopCapture() {		
-    frame.changeBorderToRed();
-    client.onStopCapture();
-  }
+//  private void stopCapture() {
+//    frame.changeBorderToRed();
+//    client.onStopCapture();
+//  }
 }

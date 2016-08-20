@@ -343,7 +343,8 @@ public class JnlpFileHandler {
     jnlpTemplate = substitute(jnlpTemplate, "$$site", urlprefix);
     
     
-    log.debug(jnlpTemplate);
+    log.info("JNLP Response: " + jnlpTemplate);
+
     return jnlpTemplate;
   }
 

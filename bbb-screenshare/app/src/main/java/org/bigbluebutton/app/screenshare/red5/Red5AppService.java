@@ -2,8 +2,15 @@ package org.bigbluebutton.app.screenshare.red5;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import org.bigbluebutton.app.screenshare.messaging.redis.MessageSender;
+//import org.bigbluebutton.app.screenshare.messaging.redis.MessagingConstants;
+import org.bigbluebutton.common.messages.AllowUserToShareDesktopRequest;
+import org.bigbluebutton.common.messages.MessagingConstants;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 
@@ -13,7 +20,8 @@ import com.google.gson.Gson;
 public class Red5AppService {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppService.class, "screenshare");
   
-  private Red5AppHandler handler; 
+  private Red5AppHandler handler;
+  private MessageSender red5RedisSender;
 
   /**
    * Called from the client to pass us the userId.
@@ -26,17 +34,32 @@ public class Red5AppService {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String userId = (String) msg.get("userId");
 
+    String connType = getConnectionType(Red5.getConnectionLocal().getType());
+    String sessionId = Red5.getConnectionLocal().getSessionId();
+
+    /**
+     * Find if there are any other connections owned by this user. If we find one,
+     * that means that the connection is old and the user reconnected. Clear the
+     * userId attribute so that messages would not be sent in the defunct connection.
+     */
+    Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
+    for (IConnection conn : conns) {
+      String connUserId = (String) conn.getAttribute("USERID");
+      if (connUserId != null && connUserId.equals(userId) && !conn.getSessionId().equals(sessionId)) {
+        conn.removeAttribute("USERID");
+      }
+    }
+
     Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
     Red5.getConnectionLocal().setAttribute("USERID", userId);
 
-    String connType = getConnectionType(Red5.getConnectionLocal().getType());
-    String connId = Red5.getConnectionLocal().getSessionId();
+    handler.userConnected(meetingId, userId);
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", meetingId);
     logData.put("userId", userId);
     logData.put("connType", connType);
-    logData.put("connId", connId);
+    logData.put("connId", sessionId);
     logData.put("event", "user_joining_bbb_screenshare");
     logData.put("description", "User joining BBB Screenshare.");
 
@@ -64,13 +87,28 @@ public class Red5AppService {
     handler.isScreenSharing(meetingId, userId);
   }
 
+  public void pauseShareRequest(Map<String, Object> msg) {
+    String meetingId = Red5.getConnectionLocal().getScope().getName();
+    log.debug("Received pauseShareRequest for meeting=[{}]", meetingId);
+    String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+    String streamId = (String) msg.get("streamId");
+    handler.pauseShareRequest(meetingId, userId, streamId);
+  }
+
+  public void restartShareRequest(Map<String, Object> msg) {
+    String meetingId = Red5.getConnectionLocal().getScope().getName();
+    log.debug("Received restartShareRequest for meeting=[{}]", meetingId);
+    String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+    handler.restartShareRequest(meetingId, userId);
+  }
+
   public void startShareRequest(Map<String, Object> msg) {
-	Boolean record = (Boolean) msg.get("record");
+    Boolean record = (Boolean) msg.get("record");
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     log.debug("Received startShareRequest for meeting=[{}]", meetingId);
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    handler.startShareRequest(meetingId, userId, record);
+    handler.startShareRequest(meetingId, userId, record); //TODO REMOVE
   }
 
   public void stopShareRequest(Map<String, Object> msg) {
@@ -81,8 +119,26 @@ public class Red5AppService {
     handler.stopShareRequest(meetingId, streamId);
   }
 
+  public void screenShareClientPongMessage(Map<String, Object> msg) {
+    String meetingId = Red5.getConnectionLocal().getScope().getName();
+    String streamId = (String) msg.get("streamId");
+    Double timestamp = (Double) msg.get("timestamp");
+    String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+
+    log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
+
+    handler.screenShareClientPongMessage(meetingId, userId, streamId, timestamp.longValue());
+  }
+
+  private Long genTimestamp() {
+    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
 
   public void setAppHandler(Red5AppHandler handler) {
     this.handler = handler;
+  }
+
+  public void setRed5RedisSender(MessageSender red5RedisSender) {
+      this.red5RedisSender = red5RedisSender;
   }
 }

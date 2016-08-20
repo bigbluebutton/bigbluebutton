@@ -21,6 +21,7 @@ package org.bigbluebutton.main.model.users {
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	
+	import org.as3commons.lang.ArrayUtils;
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
@@ -65,6 +66,9 @@ package org.bigbluebutton.main.model.users {
 		
 		[Bindable]
 		public var breakoutRooms:ArrayCollection = null;
+		
+		[Bindable]
+		public var breakoutRoomsReady:Boolean = false;
 		
 		private var sort:Sort;
 		
@@ -536,13 +540,29 @@ package org.bigbluebutton.main.model.users {
 			breakoutRooms.addItem(newRoom);
 			breakoutRooms.refresh();
 		}
-		
+
 		public function updateBreakoutRoomUsers(breakoutId:String, breakoutUsers:Array):void {
 			var room:Object = getBreakoutRoom(breakoutId);
 			if (room != null) {
 				BreakoutRoom(room).users = new ArrayCollection(breakoutUsers);
+				var breakoutRoomNumber:String = StringUtils.substringAfterLast(breakoutId, "-");
+				var updateUsers:Array = [];
+				// Update users breakout rooms
+				var user : BBBUser;
 				for (var i:int = 0; i < breakoutUsers.length; i++) {
-					getUser(StringUtils.substringBeforeLast(breakoutUsers[i].id,"-")).breakoutRoom = StringUtils.substringAfterLast(breakoutId, "-");
+					var userId:String = StringUtils.substringBeforeLast(breakoutUsers[i].id, "-");
+					user = getUser(userId);
+					if (user) {
+						user.addBreakoutRoom(breakoutRoomNumber)
+					}
+					updateUsers.push(userId);
+				}
+				// Remove users breakout rooms if the users left the breakout rooms
+				for (var j:int = 0; j < users.length; j++) {
+					user = BBBUser(users.getItemAt(j));
+					if (updateUsers.indexOf(BBBUser(users.getItemAt(j)).userID) == -1 && ArrayUtils.contains(user.breakoutRooms, breakoutRoomNumber)) {
+						user.removeBreakoutRoom(breakoutRoomNumber);
+					}
 				}
 				users.refresh();
 			}
@@ -573,22 +593,24 @@ package org.bigbluebutton.main.model.users {
 			// Breakout room not found.
 			return null;
 		}
-		
+
 		public function removeBreakoutRoom(breakoutId:String):void {
 			var p:Object = getBreakoutRoomIndex(breakoutId);
 			if (p != null) {
 				breakoutRooms.removeItemAt(p.index);
 				breakoutRooms.refresh();
-
+				if (breakoutRooms.length == 0) {
+					breakoutRoomsReady = false;
+				}
 				// Remove breakout room number display from users
-				for(var i:int; i < users.length; i++) {
-					if (users[i].breakoutRoom == StringUtils.substringAfterLast(breakoutId, "-")) {
-						users[i].breakoutRoom = null;
+				for (var i:int; i < users.length; i++) {
+					var breakoutRoomNumber:String = StringUtils.substringAfterLast(breakoutId, "-");
+					if (ArrayUtils.contains(users[i].breakoutRooms, breakoutRoomNumber)) {
+						users[i].removeBreakoutRoom(breakoutRoomNumber);
 					}
 				}
 				users.refresh();
 			}
-			
 		}
 		
 		public function hasBreakoutRoom(breakoutId:String):Boolean {
@@ -609,6 +631,13 @@ package org.bigbluebutton.main.model.users {
 				} else {
 					br.listenStatus = BreakoutRoom.OTHER;
 				}
+			}
+		}
+
+		public function resetBreakoutRooms():void {
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
+				br.listenStatus = BreakoutRoom.NONE;
 			}
 		}
 
