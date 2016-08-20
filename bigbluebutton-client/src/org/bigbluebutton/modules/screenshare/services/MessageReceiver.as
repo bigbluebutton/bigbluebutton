@@ -75,7 +75,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
     
     private function handleScreenShareClientPingMessage(message:Object):void {
-      LOGGER.debug("handleScreenShareClientPingMessage " + JSON.stringify(message));      
+      LOGGER.debug("handleScreenShareClientPingMessage " + message.msg);      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("meetingId") && map.hasOwnProperty("streamId") && map.hasOwnProperty("timestamp")) {
         if (ScreenshareModel.getInstance().streamId == map.streamId) {
@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.screenshare.services
     }
     
     private function handleScreenSharePausedMessage(message:Object):void {
-      LOGGER.debug("handleScreenSharePausedMessage " + JSON.stringify(message));      
+      LOGGER.debug("handleScreenSharePausedMessage " + message.msg);      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("meetingId") && map.hasOwnProperty("streamId")) {
         var sharePausedEvent: ScreenSharePausedEvent = new ScreenSharePausedEvent(map.streamId);
@@ -96,25 +96,25 @@ package org.bigbluebutton.modules.screenshare.services
     }
 
     private function handleStartShareRequestRejectedResponse(message:Object):void {
-      LOGGER.debug("handleStartShareRequestRejectedResponse " + message);      
-      var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, null, false);
+      LOGGER.debug("handleStartShareRequestRejectedResponse " + message.msg);      
+      var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, null, false, null);
       dispatcher.dispatchEvent(shareFailedEvent);         
     }
     
     private function handleStartShareRequestResponse(message:Object):void {
-      LOGGER.debug("handleStartShareRequestResponse " + message);      
+      LOGGER.debug("handleStartShareRequestResponse " + message.msg);      
       var map:Object = JSON.parse(message.msg);      
-      if (map.hasOwnProperty("authToken") && map.hasOwnProperty("jnlp") && map.hasOwnProperty("streamId")) {
-        var shareSuccessEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(map.authToken, map.jnlp, map.streamId, true);
+      if (map.hasOwnProperty("authToken") && map.hasOwnProperty("jnlp") && map.hasOwnProperty("streamId") && map.hasOwnProperty("session")) {
+        var shareSuccessEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(map.authToken, map.jnlp, map.streamId, true, map.session);
         dispatcher.dispatchEvent(shareSuccessEvent); 
       } else {
-        var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, null, false);
+        var shareFailedEvent: ShareStartRequestResponseEvent = new ShareStartRequestResponseEvent(null, null, null, false, null);
         dispatcher.dispatchEvent(shareFailedEvent);         
       }
     }
 
     private function handleScreenShareStartedMessage(message:Object):void {
-      LOGGER.debug("handleScreenShareStartedMessage " + message);      
+      LOGGER.debug("handleScreenShareStartedMessage " + message.msg);      
       var map:Object = JSON.parse(message.msg);
       if (map.hasOwnProperty("streamId") && map.hasOwnProperty("width") &&
         map.hasOwnProperty("height") && map.hasOwnProperty("url")) {
@@ -125,24 +125,24 @@ package org.bigbluebutton.modules.screenshare.services
     }
 
     private function handleScreenShareStoppedMessage(message:Object):void {
-      LOGGER.debug("handleScreenShareStoppedMessage " + message);      
+      LOGGER.debug("handleScreenShareStoppedMessage " + message.msg);      
       var map:Object = JSON.parse(message.msg);      
-      if (map.hasOwnProperty("streamId")) {
-          if (ScreenshareModel.getInstance().streamId == map.streamId) {
-            var streamEvent: ShareStoppedEvent = new ShareStoppedEvent(map.streamId);
+      if (map.hasOwnProperty("streamId") && map.hasOwnProperty("session")) {
+          if (ScreenshareModel.getInstance().session == map.session) {
+            var streamEvent: ShareStoppedEvent = new ShareStoppedEvent(map.streamId, map.session);
             dispatcher.dispatchEvent(streamEvent);   
           }
       }
     }
        
     private function handleIsSharingScreenRequestResponse(message:Object):void {
-      LOGGER.debug("handleIsSharingScreenRequestResponse " + message);
+      LOGGER.debug("handleIsSharingScreenRequestResponse " + message.msg);
       var map:Object = JSON.parse(message.msg);
       if (map.hasOwnProperty("sharing") && map.sharing) {
         if (map.hasOwnProperty("streamId") && map.hasOwnProperty("width") &&
-          map.hasOwnProperty("height") && map.hasOwnProperty("url")) {
+          map.hasOwnProperty("height") && map.hasOwnProperty("url") && map.hasOwnProperty("session")) {
           var shareEvent: IsSharingScreenEvent = new IsSharingScreenEvent(map.streamId, map.width,
-            map.height, map.url);
+            map.height, map.url, map.session);
           dispatcher.dispatchEvent(shareEvent); 
         }
       }

@@ -120,7 +120,7 @@ class Session(parent: Screenshare,
       url <- streamUrl
     } yield {
       val info = new StreamInfo(true, streamId, w, h, url)
-      bus.send(new IsScreenSharingResponse(meetingId, msg.userId, info))
+      bus.send(new IsScreenSharingResponse(meetingId, msg.userId, streamId, info))
     }
 
   }
@@ -141,7 +141,7 @@ class Session(parent: Screenshare,
     width = None
     height = None
     streamUrl = None
-    bus.send(new ScreenShareStoppedEvent(meetingId, streamId))
+    bus.send(new ScreenShareStoppedEvent(meetingId, streamId, streamId))
   }
 
 
@@ -196,7 +196,7 @@ class Session(parent: Screenshare,
       log.debug("Received StopShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
 
-    bus.send(new ScreenShareStoppedEvent(meetingId, streamId))
+    bus.send(new ScreenShareStoppedEvent(meetingId, streamId, streamId))
 
     stopSession(true)
   }
@@ -206,7 +206,7 @@ class Session(parent: Screenshare,
       log.debug("Received PauseShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
 
-    bus.send(new ScreenShareStoppedEvent(meetingId, streamId))
+    bus.send(new ScreenShareStoppedEvent(meetingId, streamId, streamId))
 
     stopSession(false)
   }

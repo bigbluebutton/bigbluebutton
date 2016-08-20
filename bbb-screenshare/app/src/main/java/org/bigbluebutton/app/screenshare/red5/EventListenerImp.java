@@ -55,6 +55,7 @@ public class EventListenerImp implements IEventListener {
           data.put("width", event.info.width);
           data.put("height", event.info.height);
           data.put("url", event.info.url);
+          data.put("session", event.session);
       }
 
       Map<String, Object> message = new HashMap<String, Object>();
@@ -95,6 +96,7 @@ public class EventListenerImp implements IEventListener {
     data.put("authToken", event.token);
     data.put("jnlp", event.jnlp);
     data.put("streamId", event.streamId);
+    data.put("session", event.session);
 
     Map<String, Object> message = new HashMap<String, Object>();
     Gson gson = new Gson();
@@ -168,6 +170,7 @@ public class EventListenerImp implements IEventListener {
     Map<String, Object> data = new HashMap<String, Object>();
     data.put("meetingId", event.meetingId);
     data.put("streamId", event.streamId);
+    data.put("session", event.session);
 
     Map<String, Object> message = new HashMap<String, Object>(); 
     Gson gson = new Gson();

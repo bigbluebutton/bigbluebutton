@@ -110,8 +110,8 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     }
 
     if (screenshares.get(msg.meetingId).isEmpty) {
-      val info = new StreamInfo(false, "", 0, 0, "")
-      bus.send(new IsScreenSharingResponse(msg.meetingId, msg.userId, info))
+      val info = new StreamInfo(false, "none", 0, 0, "none")
+      bus.send(new IsScreenSharingResponse(msg.meetingId, msg.userId, "none", info))
     } else {
       screenshares.get(msg.meetingId) foreach { screenshare =>
         screenshare.actorRef forward msg
