@@ -17,8 +17,9 @@ cfs:power-queue
 cfs:reactive-list
 cfs:micro-queue
 reactive-var@1.0.10
-ecmascript@0.5.7
+ecmascript@0.5.8
 react-meteor-data
-standard-minifier-css@1.1.8
-standard-minifier-js@1.1.8
+standard-minifier-css@1.2.0
+standard-minifier-js@1.2.0
 nathantreid:css-modules
+shell-server
