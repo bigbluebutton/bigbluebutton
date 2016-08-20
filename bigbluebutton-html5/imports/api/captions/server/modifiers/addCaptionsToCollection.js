@@ -1,7 +1,6 @@
 import Captions from '/imports/api/captions';
 import { logger } from '/imports/startup/server/logger';
 
-// called on server start and meeting end
 export function addCaptionsToCollection(meetingId, locale, captionHistory) {
   let captionsString = captionHistory[1].slice(0);
   let captions = [];
@@ -37,7 +36,6 @@ export function addCaptionsToCollection(meetingId, locale, captionHistory) {
         ownerId: captionHistory[0],
         captions: captions[i],
         index: i,
-        length: captions[i].length,
         next: next,
       },
     };

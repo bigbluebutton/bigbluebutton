@@ -1,6 +1,7 @@
 import { eventEmitter } from '/imports/startup/server';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import { addCaptionsToCollection } from './addCaptionsToCollection';
+import { updateCaptionsCollection } from './updateCaptionsCollection';
 import Meetings from '/imports/api/meetings';
 import Captions from '/imports/api/captions';
 
@@ -23,6 +24,7 @@ eventEmitter.on('send_caption_history_reply_message', function (arg) {
 
 eventEmitter.on('update_caption_owner_message', function (arg) {
   console.error(JSON.stringify(arg));
+  const meetingId = arg.payload.meeting_id;
   let payload = arg.payload;
 
   if (Captions.findOne({
@@ -31,7 +33,7 @@ eventEmitter.on('update_caption_owner_message', function (arg) {
     }) != null) {
     Captions.update(
       {
-        meetingId: payload.meeting_id,
+        meetingId: meetingId,
         locale: payload.locale,
       },
       {
@@ -65,25 +67,11 @@ eventEmitter.on('update_caption_owner_message', function (arg) {
 eventEmitter.on('edit_caption_history_message', function (arg) {
   console.error(JSON.stringify(arg));
   let payload = arg.payload;
-  let captionsObj = Captions.findOne({
-    meetingId: payload.meeting_id,
-    locale: payload.locale,
-  });
+  let meetingId = payload.meeting_id;
+  let locale = payload.locale;
 
-  if (captionsObj != null) {
-    let text = captionsObj.captionHistory.captions;
-    let start = payload.start_index;
-    let end = payload.end_index;
-
-    text = text.slice(0, start) + payload.text + text.slice(end, text.length);
-    Captions.update({
-      meetingId: payload.meeting_id,
-      locale: payload.locale,
-    }, {
-      $set: {
-        'captionHistory.captions': text,
-      },
-    });
+  if (meetingId != null) {
+    updateCaptionsCollection(meetingId, locale, payload);
   }
 
   return arg.callback();
