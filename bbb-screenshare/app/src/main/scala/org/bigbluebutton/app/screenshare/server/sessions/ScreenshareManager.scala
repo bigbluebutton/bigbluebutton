@@ -22,8 +22,9 @@ import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.Session.StopSession
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager.MeetingHasEnded
+
 import scala.collection.mutable.HashMap
-import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, StartShareRequestFailedResponse}
+import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, ScreenShareStartRequestFailedResponse}
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 
 object ScreenshareManager {
@@ -245,7 +246,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
         if (log.isDebugEnabled) {
           log.warning("Reqeusting to share on non-existing meeting with id=[" + msg.meetingId + "]")
         }
-        bus.send(new StartShareRequestFailedResponse(msg.meetingId, msg.userId, "UNKNOWN_MEETING"))
+        bus.send(new ScreenShareStartRequestFailedResponse(msg.meetingId, msg.userId, "UNKNOWN_MEETING"))
 
       case Some(screenshare) =>
         if (log.isDebugEnabled) {
