@@ -20,11 +20,9 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.app.screenshare.StreamInfo
-import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager.MeetingHasEnded
-
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events._
-import org.bigbluebutton.app.screenshare.server.sessions.Screenshare.{KeepAliveTimeout, SessionAuditMessage}
+import org.bigbluebutton.app.screenshare.server.sessions.Screenshare.{SessionAuditMessage}
 import org.bigbluebutton.app.screenshare.server.sessions.messages.{StartShareRequestMessage, _}
 import org.bigbluebutton.app.screenshare.server.util.TimeUtil
 import scala.concurrent.duration._
@@ -73,7 +71,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
   private val LAST_STATUS_UPDATE_TIMEOUT = 20
   private var lastStatusUpdate = 0L
 
-  private var sessionStartedTimestamp:Long = TimeUtil.currentMonoTimeInSeconds()
+  private var sessionStartedTimestamp:Long = 0L // TimeUtil.currentMonoTimeInSeconds()
   private val SESSION_START_TIMEOUT = 60
 
   // The last time we received a pong response from the client.
@@ -85,7 +83,9 @@ class Screenshare(val sessionManager: ScreenshareManager,
   implicit def executionContext = sessionManager.actorSystem.dispatcher
 
   def scheduleKeepAliveCheck() {
-    sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds, self, SessionAuditMessage)
+    if (status != STOP) {
+      sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds, self, SessionAuditMessage)
+    }
   }
 
   def receive = {
@@ -183,12 +183,19 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
   private def handleIsScreenSharing(msg: IsScreenSharing) {
     if (log.isDebugEnabled) {
-      log.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "]")
+      log.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "] from userId=" + msg.userId)
     }
 
     activeSession match {
       case Some(as) =>
-        as.actorRef forward msg
+        for {
+          w <- width
+          h <- height
+          url <- streamUrl
+        } yield {
+          val info = new StreamInfo(true, as.streamId, w, h, url)
+          bus.send(new IsScreenSharingResponse(meetingId, msg.userId, info))
+        }
       case None =>
         val info = new StreamInfo(false, "", 0, 0, "")
         bus.send(new IsScreenSharingResponse(meetingId, msg.userId, info))
@@ -269,6 +276,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     activeSession foreach { as =>
       if (as.streamId == msg.streamId) {
         if (status == PAUSE) {
+          log.info("Sending screen share paused event for streamId=" + as.streamId)
           bus.send(new ScreenSharePausedEvent(meetingId, as.streamId))
           resetScreenShareSession()
         }
@@ -300,6 +308,9 @@ class Screenshare(val sessionManager: ScreenshareManager,
     height = None
     streamUrl = None
     activeSession = None
+    lastPongReceivedTimestamp = 0L
+    lastStatusUpdate = 0L
+
   }
 
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
@@ -320,12 +331,11 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received PauseShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
 
-
-
     activeSession foreach { as =>
       if (as.streamId == msg.streamId) {
         status = PAUSE
         if (! isStreaming(streamUrl)) {
+          log.info("Sending screen share paused event for streamId=" + as.streamId)
           bus.send(new ScreenSharePausedEvent(meetingId, as.streamId))
           resetScreenShareSession()
         }
@@ -353,7 +363,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     val session = ActiveSession(this, bus, meetingId, streamId, token, record, userId)
 
     activeSession = Some(session)
-
+    sessionStartedTimestamp = TimeUtil.currentMonoTimeInSeconds()
     status = START
 
     scheduleKeepAliveCheck()
@@ -377,7 +387,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     activeSession = Some(session)
 
     status = START
-
+    sessionStartedTimestamp = TimeUtil.currentMonoTimeInSeconds()
     bus.send(new ScreenShareStartRequestSuccessResponse(meetingId, msg.userId, token, msg.jnlp, streamId))
 
     scheduleKeepAliveCheck()
@@ -465,6 +475,9 @@ class Screenshare(val sessionManager: ScreenshareManager,
         stopScreenSharing(session, session.streamId)
         false
       } else {
+        if (log.isDebugEnabled) {
+          log.debug("Sending client ping for streamId=[" + session.streamId + "].")
+        }
         bus.send(new ScreenShareClientPing(meetingId, session.userId, session.streamId, currentTimeInSec))
         true
       }
