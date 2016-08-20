@@ -7,20 +7,23 @@ export default class ClosedCaptions extends React.Component {
   }
 
   renderCaptions(caption) {
-    const BREAK_TAG = '<br/>';
-    let text = caption.captions.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_TAG + '$2');
-
+    let text = caption.captions;
     return (
-      <span dangerouslySetInnerHTML={{ __html: text }} key={caption.index}/>
+      <span
+        style={{ whiteSpace: 'pre-wrap' }}
+        dangerouslySetInnerHTML={{ __html: text }}
+        key={caption.index}
+      />
     );
   }
 
   render() {
+    console.log(this.props.captions);
     return (
       <div disabled className={styles.ccbox}>
-      {this.props.captions.English.captions.map((caption) => (
+      {this.props.captions.English ? this.props.captions.English.captions.map((caption) => (
         this.renderCaptions(caption)
-      ))}
+      )) : null }
       </div>
     );
   }
