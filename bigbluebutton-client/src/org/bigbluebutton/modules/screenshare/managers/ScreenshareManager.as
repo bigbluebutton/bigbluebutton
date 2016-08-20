@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.screenshare.managers {
     import org.bigbluebutton.modules.screenshare.events.StartShareRequestFailedEvent;
     import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
     import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
-    import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
+    import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -79,7 +79,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             service.checkIfPresenterIsSharingScreen();
         }
         
-        public function handleStreamStartedEvent(event:StreamStartedEvent):void {
+        public function handleScreenShareStartedEvent(event:ShareStartedEvent):void {
             ScreenshareModel.getInstance().streamId = event.streamId;
             ScreenshareModel.getInstance().width = event.width;
             ScreenshareModel.getInstance().height = event.height;
@@ -112,6 +112,12 @@ package org.bigbluebutton.modules.screenshare.managers {
             
             var dispatcher:Dispatcher = new Dispatcher();
             dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.START));
+        }
+        
+        private function handleStreamStartEvent(streamId:String, videoWidth:Number, videoHeight:Number):void {
+            LOGGER.debug("Received start vieweing command");
+            //if (!usingJava) { return; }
+            viewWindowManager.startViewing(streamId, videoWidth, videoHeight);
         }
 
         private function initDeskshare():void {
@@ -213,11 +219,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             viewWindowManager.handleViewWindowCloseEvent();
         }
         
-        private function handleStreamStartEvent(streamId:String, videoWidth:Number, videoHeight:Number):void {
-            LOGGER.debug("Received start vieweing command");
-            //if (!usingJava) { return; }
-            viewWindowManager.startViewing(streamId, videoWidth, videoHeight);
-        }
+
 
         public function handleUseJavaModeCommand():void {
           JSLog.warn("ScreenshareManager::handleUseJavaModeCommand", {});
