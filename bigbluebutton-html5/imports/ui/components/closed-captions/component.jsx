@@ -18,7 +18,6 @@ export default class ClosedCaptions extends React.Component {
   }
 
   render() {
-    console.log(this.props.captions);
     return (
       <div disabled className={styles.ccbox}>
       {this.props.captions.English ? this.props.captions.English.captions.map((caption) => (

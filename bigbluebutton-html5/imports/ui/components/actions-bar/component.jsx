@@ -10,6 +10,7 @@ export default class ActionsBar extends Component {
 
   handleClick() {
   }
+
   render() {
     return (
       <div className={styles.actionsbar}>

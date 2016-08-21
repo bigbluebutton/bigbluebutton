@@ -13,7 +13,9 @@ const defaultProps = {
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
   settings: <SettingsModal />,
-  captions: <ClosedCaptionsContainer />,
+
+  //CCs UI is commented till the next pull request
+  //captions: <ClosedCaptionsContainer />,
 };
 
 class AppContainer extends Component {
