@@ -93,18 +93,18 @@ export function updateCaptionsCollection(meetingId, locale, payload) {
     //looking for the strings which exceed the limit and split them into multiple objects
     let maxIndex = captionsObjects.length - 1;
     for (i = 0; i < objectsToUpdate.length; i++) {
-      if (objectsToUpdate[i].captionHistory.captions.length > 100) {
+      if (objectsToUpdate[i].captionHistory.captions.length > 1000) {
         //string is too large. Check if the next object exists and if it can
         //accomodate the part of the string that exceeds the limits
         let _nextIndex = objectsToUpdate[i].captionHistory.next;
         if (_nextIndex != null &&
-            captionsObjects[_nextIndex].captionHistory.captions.length < 100) {
+            captionsObjects[_nextIndex].captionHistory.captions.length < 1000) {
 
-          let extraString = objectsToUpdate[i].captionHistory.captions.slice(100);
+          let extraString = objectsToUpdate[i].captionHistory.captions.slice(1000);
 
           //could assign it directly, but our linter complained
           let _captions = objectsToUpdate[i].captionHistory.captions;
-          _captions = _captions.slice(0, 100);
+          _captions = _captions.slice(0, 1000);
           objectsToUpdate[i].captionHistory.captions = _captions;
 
           //check to see if the next object was added to objectsToUpdate array
@@ -125,8 +125,8 @@ export function updateCaptionsCollection(meetingId, locale, payload) {
           //need to take a current object out of the objectsToUpdate and add it back after
           //every other object, so that Captions collection could be updated in a proper order
           let tempObj = objectsToUpdate.splice(i, 1);
-          let extraString = tempObj[0].captionHistory.captions.slice(100);
-          tempObj[0].captionHistory.captions = tempObj[0].captionHistory.captions.slice(0, 100);
+          let extraString = tempObj[0].captionHistory.captions.slice(1000);
+          tempObj[0].captionHistory.captions = tempObj[0].captionHistory.captions.slice(0, 1000);
 
           maxIndex += 1;
           let tempIndex = tempObj[0].captionHistory.next;
@@ -139,13 +139,13 @@ export function updateCaptionsCollection(meetingId, locale, payload) {
               captionHistory: {
                 locale: locale,
                 ownerId: tempObj[0].captionHistory.ownerId,
-                captions: extraString.slice(0, 100),
+                captions: extraString.slice(0, 1000),
                 index: maxIndex,
                 next: null,
               },
             };
             maxIndex += 1;
-            extraString = extraString.slice(100);
+            extraString = extraString.slice(1000);
             if (extraString.length > 0) {
               entry.captionHistory.next = maxIndex;
             } else {

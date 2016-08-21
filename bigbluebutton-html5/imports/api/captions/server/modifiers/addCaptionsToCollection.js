@@ -7,9 +7,9 @@ export function addCaptionsToCollection(meetingId, locale, captionHistory) {
 
   if (captionsString.length > 0) {
     while (captionsString.length > 0) {
-      if (captionsString.length > 100) {
-        captions.push(captionsString.slice(0, 100));
-        captionsString = captionsString.slice(100);
+      if (captionsString.length > 1000) {
+        captions.push(captionsString.slice(0, 1000));
+        captionsString = captionsString.slice(1000);
       } else {
         captions.push(captionsString);
         captionsString = captionsString.slice(captionsString.length);
