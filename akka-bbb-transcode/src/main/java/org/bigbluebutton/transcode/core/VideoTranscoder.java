@@ -24,6 +24,8 @@ import akka.japi.Creator;
 import org.bigbluebutton.transcode.api.InternalMessage;
 import org.bigbluebutton.transcode.api.DestroyVideoTranscoderRequest;
 import org.bigbluebutton.transcode.api.DestroyVideoTranscoderReply;
+import org.bigbluebutton.transcode.api.DestroyMeetingTranscoderRequest;
+import org.bigbluebutton.transcode.api.DestroyMeetingTranscoderReply;
 import org.bigbluebutton.transcode.api.RestartVideoTranscoderRequest;
 import org.bigbluebutton.transcode.api.RestartVideoTranscoderReply;
 import org.bigbluebutton.transcode.api.StartVideoProbingRequest;
@@ -100,6 +102,10 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
             update(uvtr.getParams());
         } else if (msg instanceof DestroyVideoTranscoderRequest) {
             destroyTranscoder();
+        } else if (msg instanceof DestroyMeetingTranscoderRequest) {
+            DestroyMeetingTranscoderRequest dmtr = (DestroyMeetingTranscoderRequest) msg;
+            if ( (dmtr.meetingId != null) && dmtr.meetingId.equals(getMeetingId()))
+                destroyMeetingTranscoder();
         } else if (msg instanceof RestartVideoTranscoderRequest) {
             restart();
         } else if (msg instanceof StartVideoProbingRequest) {
@@ -382,6 +388,13 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
         status = Status.STOPPED;
         stopTranscoder();
         sendMessage(new DestroyVideoTranscoderReply(meetingId, transcoderId));
+        stopActor();
+    }
+
+    private synchronized void destroyMeetingTranscoder() {
+        status = Status.STOPPED;
+        stopTranscoder();
+        sendMessage(new DestroyMeetingTranscoderReply(meetingId, transcoderId));
         stopActor();
     }
 

@@ -179,6 +179,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
         log.info("Kick everyone out on meetingId={}", msg.meetingID)
         outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
         outGW.send(new DisconnectAllUsers(msg.meetingID))
+        outGW.send(new StopMeetingTranscoders(msg.meetingID))
         log.info("Destroyed meetingId={}", msg.meetingID)
         outGW.send(new MeetingDestroyed(msg.meetingID))
 

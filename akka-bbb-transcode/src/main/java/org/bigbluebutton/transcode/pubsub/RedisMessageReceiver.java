@@ -5,6 +5,7 @@ import org.bigbluebutton.transcode.core.api.ITranscodingInGW;
 import org.bigbluebutton.common.messages.StartTranscoderRequestMessage;
 import org.bigbluebutton.common.messages.UpdateTranscoderRequestMessage;
 import org.bigbluebutton.common.messages.StopTranscoderRequestMessage;
+import org.bigbluebutton.common.messages.StopMeetingTranscodersMessage;
 import org.bigbluebutton.common.messages.StartProbingRequestMessage;
 
 import com.google.gson.JsonObject;
@@ -42,6 +43,9 @@ public class RedisMessageReceiver {
 					  case StopTranscoderRequestMessage.STOP_TRANSCODER_REQUEST:
 						processStopTranscoderRequestMessage(message);
 					  break;
+					  case StopMeetingTranscodersMessage.STOP_MEETING_TRANSCODERS:
+						processStopMeetingTranscodersMessage(message);
+						break;
 					  case StartProbingRequestMessage.START_PROBING_REQUEST:
 						processStartProbingRequestMessage(message);
 					}
@@ -63,6 +67,11 @@ public class RedisMessageReceiver {
 	private void processStopTranscoderRequestMessage(String json) {
 		StopTranscoderRequestMessage msg = StopTranscoderRequestMessage.fromJson(json);
 		transcodingInGW.stopTranscoder(msg.meetingId, msg.transcoderId);
+	}
+
+	private void processStopMeetingTranscodersMessage(String json) {
+		StopMeetingTranscodersMessage msg = StopMeetingTranscodersMessage.fromJson(json);
+		transcodingInGW.stopMeetingTranscoders(msg.meetingId);
 	}
 
 	private void processStartProbingRequestMessage(String json) {

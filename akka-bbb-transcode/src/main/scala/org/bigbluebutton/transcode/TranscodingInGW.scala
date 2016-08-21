@@ -24,6 +24,10 @@ class TranscodingInGW(val system: ActorSystem, messageSender: RedisPublisher) ex
     transcodingActor ! new StopTranscoderRequest(meetingId, transcoderId)
   }
 
+  def stopMeetingTranscoders(meetingId: String) {
+    transcodingActor ! new StopMeetingTranscoders(meetingId)
+  }
+
   def startProbing(meetingId: String, transcoderId: String, params: java.util.Map[String, String]) {
     transcodingActor ! new StartProbingRequest(meetingId, transcoderId, params)
   }

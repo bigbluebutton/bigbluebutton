@@ -36,6 +36,7 @@ import org.bigbluebutton.common.converters.ToJsonEncoder
 import org.bigbluebutton.common.messages.StartTranscoderRequestMessage
 import org.bigbluebutton.common.messages.UpdateTranscoderRequestMessage
 import org.bigbluebutton.common.messages.StopTranscoderRequestMessage
+import org.bigbluebutton.common.messages.StopMeetingTranscodersMessage
 
 object MessageSenderActor {
   def props(meetingId: String, msgSender: MessageSender): Props =
@@ -130,6 +131,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: StartTranscoderRequest => handleStartTranscoderRequest(msg)
     case msg: UpdateTranscoderRequest => handleUpdateTranscoderRequest(msg)
     case msg: StopTranscoderRequest => handleStopTranscoderRequest(msg)
+    case msg: StopMeetingTranscoders => handleStopMeetingTranscoders(msg)
     case msg: GetCurrentLayoutReply => handleGetCurrentLayoutReply(msg)
     case msg: BroadcastLayoutEvent => handleBroadcastLayoutEvent(msg)
     case msg: LockLayoutEvent => handleLockLayoutEvent(msg)
@@ -688,6 +690,11 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   private def handleStopTranscoderRequest(msg: StopTranscoderRequest) {
     val str = new StopTranscoderRequestMessage(msg.meetingID, msg.transcoderId)
     service.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, str.toJson())
+  }
+
+  private def handleStopMeetingTranscoders(msg: StopMeetingTranscoders) {
+    val smt = new StopMeetingTranscodersMessage(msg.meetingID)
+    service.send(MessagingConstants.TO_BBB_TRANSCODE_SYSTEM_CHAN, smt.toJson())
   }
 
   private def handleGetWhiteboardShapesReply(msg: GetWhiteboardShapesReply) {

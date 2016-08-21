@@ -356,6 +356,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
   private def handleEndMeeting(msg: EndMeeting) {
     meetingModel.meetingHasEnded
+    outGW.send(new StopMeetingTranscoders(msg.meetingID))
     outGW.send(new MeetingEnded(msg.meetingID, mProps.recorded, mProps.voiceBridge))
     outGW.send(new DisconnectAllUsers(msg.meetingID))
   }

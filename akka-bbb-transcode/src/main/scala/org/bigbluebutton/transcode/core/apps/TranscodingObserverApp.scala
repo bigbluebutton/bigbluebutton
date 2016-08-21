@@ -56,6 +56,19 @@ trait TranscodingObserverApp {
     messageSenderActor ! new StopTranscoderReply(msg.getMeetingId(), msg.getTranscoderId())
   }
 
+  def handleDestroyMeetingTranscoderReply(msg: DestroyMeetingTranscoderReply) = {
+    log.info("\n  > Transcoder with id = {} stopped", msg.transcoderId)
+    transcodersModel.getTranscoder(msg.transcoderId) match {
+      case Some(vt) => {
+        transcodersModel.removeTranscoder(msg.transcoderId)
+        messageSenderActor ! new StopTranscoderReply(msg.meetingId, msg.transcoderId)
+      }
+      case None => {
+        log.info("\n  > Transcoder with id = {} not found (might be finished already).", msg.transcoderId)
+      }
+    }
+  }
+
   def handleRestartVideoTranscoderReply(msg: RestartVideoTranscoderReply) = {
     log.info("\n  > Transcoder with id = {} restarted", msg.getTranscoderId())
     val params = new scala.collection.mutable.HashMap[String, String]

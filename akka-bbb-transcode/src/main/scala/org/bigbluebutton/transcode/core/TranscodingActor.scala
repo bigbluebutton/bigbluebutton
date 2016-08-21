@@ -26,12 +26,14 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
     case msg: StartTranscoderRequest => handleStartTranscoderRequest(msg)
     case msg: UpdateTranscoderRequest => handleUpdateTranscoderRequest(msg)
     case msg: StopTranscoderRequest => handleStopTranscoderRequest(msg)
+    case msg: StopMeetingTranscoders => handleStopMeetingTranscoders(msg)
     case msg: StartProbingRequest => handleStartProbingRequest(msg)
 
     //internal messages
     case msg: StartVideoTranscoderReply => handleStartVideoTranscoderReply(msg)
     case msg: UpdateVideoTranscoderReply => handleUpdateVideoTranscoderReply(msg)
     case msg: DestroyVideoTranscoderReply => handleDestroyVideoTranscoderReply(msg)
+    case msg: DestroyMeetingTranscoderReply => handleDestroyMeetingTranscoderReply(msg)
     case msg: TranscodingFinishedUnsuccessfully => handleTranscodingFinishedUnsuccessfully(msg)
     case msg: TranscodingFinishedSuccessfully => handleTranscodingFinishedSuccessfully(msg)
     case msg: RestartVideoTranscoderReply => handleRestartVideoTranscoderReply(msg)
@@ -83,6 +85,15 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
       case None => {
         log.info("\n  > Transcoder with id = {} not found (might be finished already).", msg.transcoderId)
       }
+    }
+  }
+
+  private def handleStopMeetingTranscoders(msg: StopMeetingTranscoders) {
+    log.info("\n  > Received StopMeetingTranscoders. Params:\n"
+      + "    meetingId = " + msg.meetingId + "\n")
+
+    transcodersModel.getTranscoders() foreach { //broadcast
+      vt => vt ! new DestroyMeetingTranscoderRequest(msg.meetingId)
     }
   }
 
