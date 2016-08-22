@@ -958,3 +958,10 @@ EmojiGrid {
 	paddingTop: 12;
 	horizontalAlign: center;
 }
+
+.breakoutRoomTimerBox {
+	fontWeight: bold;
+	backgroundColor: 0xCCCCCC;
+	verticalAlign: middle;
+	horizontalAlign: center;
+}
