@@ -21,7 +21,10 @@ package org.bigbluebutton.core {
 	import flash.events.TimerEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
+	
 	import mx.controls.Label;
+	
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class TimerUtil {
@@ -33,7 +36,7 @@ package org.bigbluebutton.core {
 				timer.addEventListener(TimerEvent.TIMER, function():void {
 					var remainingSeconds:int = timer.repeatCount - timer.currentCount;
 					var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
-					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [formattedTime]);
+					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [UserManager.getInstance().getConference().meetingName, formattedTime]);
 				});
 				timer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTimeEnded');
