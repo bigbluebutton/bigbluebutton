@@ -78,7 +78,7 @@ package org.bigbluebutton.modules.screenshare.services
       LOGGER.debug("handleScreenShareClientPingMessage " + message.msg);      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("meetingId") && map.hasOwnProperty("streamId") && map.hasOwnProperty("timestamp")) {
-        if (ScreenshareModel.getInstance().streamId == map.streamId) {
+        if (ScreenshareModel.getInstance().session == map.streamId) {
             LOGGER.debug("handleScreenShareClientPingMessage - sending ping for streamId=[" + map.streamId + "]"); 
             var sharePingEvent: ScreenShareClientPingMessage = new ScreenShareClientPingMessage(map.streamId, map.timestamp);
             dispatcher.dispatchEvent(sharePingEvent);             
