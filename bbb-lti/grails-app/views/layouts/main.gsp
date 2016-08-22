@@ -23,7 +23,7 @@
 			<asset:image src="spinner.gif" alt="Spinner"/>
 		</div>
 		<div class="logo" id="logo" role="banner">
-			<a href="http://bigbluebutton.org"><asset:image src="bbb_logo.jpg" alt="<g:message code="tool.view.app" />"/></a>
+			<a href="http://bigbluebutton.org"><asset:image src="bbb_logo.jpg" alt="BigBlueButton"/></a>
 		</div>
 		<g:layoutBody />
 		<div class="footer" role="contentinfo"></div>
