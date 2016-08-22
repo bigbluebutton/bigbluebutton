@@ -22,12 +22,14 @@ import java.util.ArrayList;
 
 public class BreakoutRoomsListPayload {
 
-	public final String meetingId;
-	public final ArrayList<BreakoutRoomPayload> rooms;
+    public final String meetingId;
+    public final ArrayList<BreakoutRoomPayload> rooms;
+    public final Boolean roomsReady;
 
-	public BreakoutRoomsListPayload(String meetingId,
-			ArrayList<BreakoutRoomPayload> rooms) {
-		this.meetingId = meetingId;
-		this.rooms = rooms;
-	}
+    public BreakoutRoomsListPayload(String meetingId,
+            ArrayList<BreakoutRoomPayload> rooms, Boolean roomsReady) {
+        this.meetingId = meetingId;
+        this.rooms = rooms;
+        this.roomsReady = roomsReady;
+    }
 }

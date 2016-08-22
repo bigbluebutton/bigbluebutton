@@ -28,18 +28,18 @@ object JsonTest {
                                                   //> xroom3  : org.bigbluebutton.core.api.BreakoutRoomInPayload = BreakoutRoomInP
                                                   //| ayload(baz,Vector(q, r, s))
 
-  val xmsg = new CreateBreakoutRooms("test-meeting", 10, Vector(xroom1, xroom2, xroom3))
+  val xmsg = new CreateBreakoutRooms("test-meeting", 10, false, Vector(xroom1, xroom2, xroom3))
                                                   //> xmsg  : org.bigbluebutton.core.api.CreateBreakoutRooms = CreateBreakoutRoom
-                                                  //| s(test-meeting,10,Vector(BreakoutRoomInPayload(foo,Vector(a, b, c)), Breako
-                                                  //| utRoomInPayload(bar,Vector(x, y, z)), BreakoutRoomInPayload(baz,Vector(q, r
-                                                  //| , s))))
+                                                  //| s(test-meeting,10,false,Vector(BreakoutRoomInPayload(foo,Vector(a, b, c)), 
+                                                  //| BreakoutRoomInPayload(bar,Vector(x, y, z)), BreakoutRoomInPayload(baz,Vecto
+                                                  //| r(q, r, s))))
 
   val xjsonAst = xmsg.toJson                      //> xjsonAst  : spray.json.JsValue = {"meetingId":"test-meeting","durationInMin
-                                                  //| utes":10,"rooms":[{"name":"foo","users":["a","b","c"]},{"name":"bar","users
-                                                  //| ":["x","y","z"]},{"name":"baz","users":["q","r","s"]}]}
+                                                  //| utes":10,"record":false,"rooms":[{"name":"foo","users":["a","b","c"]},{"nam
+                                                  //| e":"bar","users":["x","y","z"]},{"name":"baz","users":["q","r","s"]}]}
   val xjson = xjsonAst.asJsObject                 //> xjson  : spray.json.JsObject = {"meetingId":"test-meeting","durationInMinut
-                                                  //| es":10,"rooms":[{"name":"foo","users":["a","b","c"]},{"name":"bar","users":
-                                                  //| ["x","y","z"]},{"name":"baz","users":["q","r","s"]}]}
+                                                  //| es":10,"record":false,"rooms":[{"name":"foo","users":["a","b","c"]},{"name"
+                                                  //| :"bar","users":["x","y","z"]},{"name":"baz","users":["q","r","s"]}]}
   val meetingId = for {
     meetingId <- xjson.fields.get("meetingId")
   } yield meetingId                               //> meetingId  : Option[spray.json.JsValue] = Some("test-meeting")
@@ -53,10 +53,7 @@ object JsonTest {
                                                   //| den","Yaya Dub"]}],"durationInMinutes":20}}
                                                   //|  "
 
-  JsonMessageDecoder.decode(cbrm)                 //> res0: Option[org.bigbluebutton.core.api.InMessage] = Some(CreateBreakoutRoo
-                                                  //| ms(abc123,20,Vector(BreakoutRoomInPayload(room1,Vector(Tidora, Nidora, Tini
-                                                  //| dora)), BreakoutRoomInPayload(room2,Vector(Jose, Wally, Paolo)), BreakoutRo
-                                                  //| omInPayload(room3,Vector(Alden, Yaya Dub)))))
+  JsonMessageDecoder.decode(cbrm)                 //> res0: Option[org.bigbluebutton.core.api.InMessage] = None
   val rbju = """
   {"header":{"name":"RequestBreakoutJoinURL"},"payload":{"userId":"id6pa5t8m1c9_1","meetingId":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1452692983357","breakoutId":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1452692983357-2"}}
  """                                              //> rbju  : String = "
@@ -91,10 +88,10 @@ object JsonTest {
   val vector = Vector(jsObj)                      //> vector  : scala.collection.immutable.Vector[spray.json.JsObject] = Vector({
                                                   //| "name":"Breakout Room","breakoutId":"br-id-1"})
 
-  val brlum = new BreakoutRoomsListOutMessage("main-meeting-1", Vector(brb))
+  val brlum = new BreakoutRoomsListOutMessage("main-meeting-1", Vector(brb), false)
                                                   //> brlum  : org.bigbluebutton.core.api.BreakoutRoomsListOutMessage = BreakoutR
                                                   //| oomsListOutMessage(main-meeting-1,Vector(BreakoutRoomBody(Breakout Room,br-
-                                                  //| id-1)))
+                                                  //| id-1)),false)
   var roomsJsVector: ListBuffer[JsObject] = new ListBuffer[JsObject]()
                                                   //> roomsJsVector  : scala.collection.mutable.ListBuffer[spray.json.JsObject] =
                                                   //|  ListBuffer()
@@ -112,9 +109,10 @@ object JsonTest {
                                                   //| ]
 
   MeetingMessageToJsonConverter.breakoutRoomsListOutMessageToJson(brlum);
-                                                  //> res5: String = {"payload":{"meetingId":"main-meeting-1","rooms":[{"name":"B
-                                                  //| reakout Room","breakoutId":"br-id-1"}]},"header":{"timestamp":47333494,"nam
-                                                  //| e":"BreakoutRoomsList","current_time":1453399680291,"version":"0.0.1"}}
+                                                  //> res5: String = {"payload":{"meetingId":"main-meeting-1","roomsReady":false,
+                                                  //| "rooms":[{"name":"Breakout Room","breakoutId":"br-id-1"}]},"header":{"times
+                                                  //| tamp":9652644,"name":"BreakoutRoomsList","current_time":1471504366540,"vers
+                                                  //| ion":"0.0.1"}}
 
   //  JsonMessageDecoder.unmarshall(cbrm) match {
   //    case Success(validMsg) => println(validMsg)

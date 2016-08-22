@@ -34,6 +34,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   resizable="false">
   
   <mate:Listener type="{StartShareRequestSuccessEvent.START_SHARE_REQUEST_SUCCESS}" method="handleStartShareRequestSuccessEvent" />
+  <mate:Listener type="{ScreenSharePausedEvent.SCREENSHARE_PAUSED}" method="handleScreenSharePausedEvent" />
+  <mate:Listener type="{ShareStoppedEvent.SHARE_STOPPED}" method="handleScreenShareShareStoppedEvent" />
   <mate:Listener type="{ViewStreamEvent.START}" method="handleStartViewStreamEvent" />
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
@@ -55,10 +57,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+      import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
+      import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
+      import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
+      import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
       import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-      import org.bigbluebutton.modules.screenshare.events.StreamEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -85,7 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var video:Video;
       private var ns:NetStream;
-      [Bindable] private var videoHolder:UIComponent;
+      [Bindable] private var videoHolder:UIComponent = null;
       private var stream:String;
       private var videoHeight:Number;
       private var videoWidth:Number;
@@ -96,6 +101,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       [Bindable] private var baseIndex:int;
       [Bindable] private var dsOptions:ScreenshareOptions;
+      
+      private var paused:Boolean = false;
       
       private function init():void {
         dsOptions = new ScreenshareOptions();
@@ -161,13 +168,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         this.uri = uri;
         this.room = room;
         this.autoStart = autoStart;
-        /*if(autoFullScreen)
-        shareScreen(true);*/
       }
       
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
         
       }
+      
+      private function handleScreenShareShareStoppedEvent(event:ShareStoppedEvent):void {
+        LOGGER.debug("handleScreenShareShareStoppedEvent");     
+        closeWindow();
+      }
+      
+      private function handleScreenSharePausedEvent(event:ScreenSharePausedEvent):void {
+        LOGGER.debug("handleScreenSharePausedEvent");
+        
+        if (videoHolder != null) {
+            this.removeChild(videoHolder);
+            videoHolder = null;
+            
+            if (paused) {
+                LOGGER.debug("handleScreenSharePausedEvent - enable push button.");
+                btnClosePublish.enabled = true;
+            }
+        }
+        
+        showHowToHelpArea();
+      }
+      
       
       public function shareScreen(fullScreen:Boolean):void {
         LOGGER.debug("Calling shareScreen");
@@ -190,20 +217,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         LOGGER.debug("Calling stopSharing");
         if (streaming) {
           stopStream();
-          var streamEvent:RequestToStopSharing = new RequestToStopSharing();
-          dispatchEvent(streamEvent);
         }
+        
+        var streamEvent:RequestToStopSharing = new RequestToStopSharing();
+        dispatchEvent(streamEvent);
+        
         sharingFullScreen = false;
         streaming = false;
         
         closeWindow();
       }
       
+      public function pauseSharing():void {
+        LOGGER.debug("Calling pauseSharing");
+        if (!paused) {
+          paused = true;
+          if (streaming) {
+            stopStream();
+            var streamEvent:RequestToPauseSharing = new RequestToPauseSharing();
+            dispatchEvent(streamEvent);
+          }
+          sharingFullScreen = false;
+          streaming = false;
+          btnClosePublish.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip');
+          btnClosePublish.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label');
+          btnClosePublish.enabled = false;
+        } else {
+          paused = false;
+          btnClosePublish.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip');
+          btnClosePublish.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label');
+          btnClosePublish.enabled = false;
+          var restartSharingEvent:RequestToRestartSharing = new RequestToRestartSharing();
+          dispatchEvent(restartSharingEvent);
+        }
+
+      }
+      
       public function stopSharingEvent(evt:StopSharingButtonEvent):void{
         if (streaming) {
           stopStream();
-          var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
-          dispatchEvent(streamEvent);
         }
         sharingFullScreen = false;
         streaming = false;
@@ -219,7 +271,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         startPreviewStream(connection, streamId, width, height);
       }
       
-      private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{			
+      private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{
         
         removeHowToHelpArea();
         
@@ -258,8 +310,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         videoHolder.height = vidH;
         video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
         video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
-        
-        
+                
         videoHolder.addChild(video);
         this.addChild(videoHolder);
         
@@ -329,7 +380,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       override public function close(event:MouseEvent = null):void {
         stopSharing();
         closeWindow();
-      }		
+      }
       
       override protected function resourcesChanged():void{
         super.resourcesChanged();
@@ -372,6 +423,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         navigateToURL(new URLRequest(DEFAULT_HELP_URL), "_blank")
       }
       
+      private function showHowToHelpArea():void {
+        howToHelpArea.visible = howToHelpArea.includeInLayout = true;
+      }
+      
       private function removeHowToHelpArea():void {
         howToHelpArea.visible = howToHelpArea.includeInLayout = false;
       }
@@ -389,7 +444,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                click="onHelpButtonClicked()" 
                tabIndex="{baseIndex+3}"/>
   </mx:VBox>
-  <dspub:states>	    
+  <dspub:states>    
     <mx:State name="dispFullRegionControlBar">   
       <mx:AddChild>
         <mx:ControlBar id="fullRegionBottomBar">
@@ -403,11 +458,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          tabIndex="{baseIndex+4}"/>
               <mx:Spacer width="100%"/>
               <mx:Button id="btnClosePublish" 
-                         toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stop.tooltip')}" 
-                         label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stop.label')}" 
+                         toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}" 
+                         label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}" 
                          visible="true" 
                          enabled="false" 
-                         click="stopSharing()" 
+                         click="pauseSharing()" 
                          tabIndex="{baseIndex+5}"/>
               <mx:Spacer width="100%"/>
               <mx:Button id="btnRegionPublish"

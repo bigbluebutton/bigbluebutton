@@ -21,7 +21,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-		 xmlns:common="org.bigbluebutton.common.*">	
+		 xmlns:common="org.bigbluebutton.common.*"
+		 height="100%"
+		 width="95%">	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -42,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function setTranscriptCollection(tc:ArrayCollection):void {
 				transcriptsCollection = tc;
-				localeCombo.selectedIndex = -1;
+				localeList.selectedIndex = -1;
 			}
 			
 			public function setChangeCallback(f:Function):void {
@@ -53,9 +55,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				currentTranscript = t;
 			}
 			
-			private function onLocaleComboChange():void {
-				if (transcriptsCollection && localeCombo.selectedIndex != -1) {
-					if (changeCallback != null) changeCallback(OptionENUM.LOCALE, localeCombo.selectedItem.locale);
+			private function onLocaleItemClick():void {
+				if (transcriptsCollection && localeList.selectedIndex != -1) {
+					if (changeCallback != null) changeCallback(OptionENUM.LOCALE, localeList.selectedItem.locale);
+				}
+			}
+			
+			private function onLocaleListKeyUp(e:KeyboardEvent):void {
+				if (e.keyCode == 32){
+					onLocaleItemClick();
 				}
 			}
 			
@@ -78,22 +86,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-	<common:TabIndexer id="tabIndexer" tabIndices="{[localeCombo, fontFamilyCombo, fontSizeCombo, backgroundColorPicker, textColorPicker]}"/>
+	<common:TabIndexer id="tabIndexer" tabIndices="{[localeList, fontFamilyCombo, fontSizeCombo, backgroundColorPicker, textColorPicker]}"/>
 	
-	<mx:VBox>
-		<mx:HBox>
+	<mx:VBox height="100%">
+		<mx:HBox height="100%">
 			<mx:Label id="localeLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.language')}" />
-			<mx:ComboBox id="localeCombo" 
-						 dataProvider="{transcriptsCollection}"
-						 labelField="locale" 
-						 selectedIndex="-1"
-						 prompt="{ResourceUtil.getInstance().getString('bbb.caption.option.language.prompt', [transcriptsCollection.length])}"
-						 enabled="{transcriptsCollection.length > 0}" 
-						 change="onLocaleComboChange()"
-						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.language.tooltip')}"/>
+			<mx:List id="localeList"
+					 height="90%"
+					 width="150"
+					 dataProvider="{transcriptsCollection}"
+					 labelField="locale"
+					 enabled="{transcriptsCollection.length > 0}" 
+					 itemClick="onLocaleItemClick()"
+					 keyUp="onLocaleListKeyUp(event)"
+					 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.language.tooltip')}"/>
 		</mx:HBox>
 	</mx:VBox>
-	<mx:VBox>
+	<mx:VBox height="100%">
 		<mx:HBox>
 			<mx:Label id="fontFamilyLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.fontfamily')}" />
 			<mx:ComboBox id="fontFamilyCombo" 
@@ -110,7 +119,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.fontsize.tooltip')}" />
 		</mx:HBox>
 	</mx:VBox>
-	<mx:VBox>
+	<mx:VBox height="100%">
 		<mx:HBox>
 			<mx:Label id="backgroundColorLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.backcolor')}" />
 			<mx:ColorPicker id="backgroundColorPicker"

@@ -2,6 +2,9 @@ import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import LoadingScreen from '../loading-screen/component';
 import KickedScreen from '../kicked-screen/component';
+
+import NotificationsBarContainer from '../notifications-bar/container';
+
 import Button from '../button/component';
 import styles from './styles';
 
@@ -142,6 +145,7 @@ export default class App extends Component {
 
     return (
       <main className={styles.main}>
+        <NotificationsBarContainer />
         <section className={styles.wrapper}>
           {this.renderUserList()}
           {this.renderChat()}
