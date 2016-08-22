@@ -961,7 +961,7 @@ EmojiGrid {
 
 .breakoutRoomTimerBox {
 	fontWeight: bold;
-	backgroundColor: 0xCCCCCC;
+	backgroundColor: #CCCCCC;
 	verticalAlign: middle;
 	horizontalAlign: center;
 }
