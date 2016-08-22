@@ -8,16 +8,18 @@ package org.bigbluebutton.modules.screenshare.events
     private var _width: int;
     private var _height: int;
     private var _url: String;
+    public var session: String
     
     public static const IS_SCREENSHARING: String = "screenshare is sharing screen event";
     
-    public function IsSharingScreenEvent(streamId: String, width: int, height: int, url: String)
+    public function IsSharingScreenEvent(streamId: String, width: int, height: int, url: String, session: String)
     {
       super(IS_SCREENSHARING, true, false);
       _streamId = streamId;
       _width = width;
       _height = height;
       _url = url;
+      this.session = session;
     }
     
     public function get streamId():String {

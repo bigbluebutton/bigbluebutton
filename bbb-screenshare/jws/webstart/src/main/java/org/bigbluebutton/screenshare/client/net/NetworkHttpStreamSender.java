@@ -37,6 +37,7 @@ public class NetworkHttpStreamSender {
   private static final String SEQ_NUM = "sequenceNumber";
   private static final String MEETING_ID = "meetingId";
   private static final String STREAM_ID = "streamId";
+  private static final String SESSION = "session";
   
   private static final String EVENT = "event";
   private static final String SCREEN = "screenInfo";
@@ -104,7 +105,7 @@ public class NetworkHttpStreamSender {
     } else if (message.getMessageType() == Message.MessageType.STARTED) {
       sendStartStreamMessage((ShareStartedMessage)message);
     } else if (message.getMessageType() == Message.MessageType.STOPPED) {
-      sendCaptureEndEvent(((ShareStoppedMessage)message).streamId);
+      sendCaptureEndEvent((ShareStoppedMessage)message);
     }
   }
   
@@ -143,7 +144,7 @@ public class NetworkHttpStreamSender {
     try {
       System.out.println("Http Open connection. In sendStartStreamMessage");
       openConnection();
-      sendCaptureStartEvent(message.width, message.height, message.streamId);
+      sendCaptureStartEvent(message.width, message.height, message.streamId, message.session);
     } catch (ConnectionException e) {
       System.out.println("Exception in sendStartStreamMessage");
       System.out.print(e.toString());
@@ -152,13 +153,14 @@ public class NetworkHttpStreamSender {
     }
   }
 
-  private void sendCaptureStartEvent(int width, int height, String streamId) throws ConnectionException {
+  private void sendCaptureStartEvent(int width, int height, String streamId, String session) throws ConnectionException {
     ClientHttpRequest chr;
     try {
       System.out.println(getTimeStamp() + " - Sending Start Sharing Event.");
       chr = new ClientHttpRequest(conn);
       chr.setParameter(MEETING_ID, meetingId);
       chr.setParameter(STREAM_ID, streamId);
+      chr.setParameter(SESSION, session);
       chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
       String screenInfo = Integer.toString(width) + "x" + Integer.toString(height);
       chr.setParameter(SCREEN, screenInfo);
@@ -175,11 +177,11 @@ public class NetworkHttpStreamSender {
     }
   }
 
-  public void disconnect(String streamId) throws ConnectionException {
+  public void disconnect(String streamId, String session) throws ConnectionException {
     try {
       System.out.println("Http Open connection. In disconnect");
       openConnection();
-      sendCaptureEndEvent(streamId);
+      sendCaptureEndEvent(new ShareStoppedMessage(meetingId, streamId, session));
     } catch (ConnectionException e) {
       e.printStackTrace();
       notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE, null);
@@ -189,13 +191,14 @@ public class NetworkHttpStreamSender {
     }
   }
 
-  private void sendCaptureEndEvent(String streamId) {
+  private void sendCaptureEndEvent(ShareStoppedMessage message) {
     ClientHttpRequest chr;
     try {
       System.out.println(getTimeStamp() + " - Sending End Sharing Event.");
       chr = new ClientHttpRequest(conn);
       chr.setParameter(MEETING_ID, meetingId);
-      chr.setParameter(STREAM_ID, streamId);
+      chr.setParameter(STREAM_ID, message.streamId);
+      chr.setParameter(SESSION, message.session);
       chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
       chr.setParameter(EVENT, CaptureEvents.CAPTURE_END.getEvent());
       chr.post();
@@ -221,6 +224,7 @@ public class NetworkHttpStreamSender {
         chr = new ClientHttpRequest(conn);
         chr.setParameter(MEETING_ID, meetingId);
         chr.setParameter(STREAM_ID, message.streamId);
+        chr.setParameter(SESSION, message.session);
         chr.setParameter(EVENT, CaptureEvents.CAPTURE_UPDATE.getEvent());
 
         // Post the multi-part form to the server

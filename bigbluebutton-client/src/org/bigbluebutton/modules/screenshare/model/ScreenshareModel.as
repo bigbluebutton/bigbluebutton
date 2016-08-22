@@ -71,6 +71,14 @@ package org.bigbluebutton.modules.screenshare.model {
         public function set jnlp(j:String):void {
             _stream.jnlp = j;
         }
+        
+        public function get session():String {
+            return _stream.session;
+        }
+        
+        public function set session(j:String):void {
+            _stream.session = j;
+        }
     }
 }
 
