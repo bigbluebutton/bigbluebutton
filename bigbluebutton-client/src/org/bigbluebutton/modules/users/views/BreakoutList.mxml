@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</fx:Script>
-	<mx:Label text="{roomName}" width="100%" />
+	<mx:Label text="{roomName}" width="100%" fontWeight="bold" />
 	<mx:List width="100%" height="100%" dataProvider="{users}" labelField="name"
 			 dragEnabled="true" dragMoveEnabled="true" dropEnabled="true"/>
 </mx:VBox>
