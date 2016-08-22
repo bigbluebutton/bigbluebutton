@@ -79,6 +79,7 @@
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(UsersWindow);
@@ -331,7 +332,8 @@
 					function(e:CloseEvent):void {
 						if (e.detail == Alert.YES) {
 							dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
-							navigateToURL(new URLRequest(event.joinURL));
+							dispatcher.dispatchEvent(new StopBroadcastEvent());
+							navigateToURL(new URLRequest(event.joinURL), "_blank");
 						}
 					},
 					null, Alert.YES);
