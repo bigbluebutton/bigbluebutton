@@ -54,7 +54,7 @@ export class EventQueue {
             //},
           });
         } else {
-          logger.error('not handling messages of type:' + eventName + data.jsonMsg); //TODO temp
+          logger.info('not handling messages of type:' + eventName + data.jsonMsg); //TODO temp
           return next();
         }
       }
