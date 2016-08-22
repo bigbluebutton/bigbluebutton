@@ -94,6 +94,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
   private val START = "START"
   private val PAUSE = "PAUSE"
+  private val RUNNING = "RUNNING"
   private val STOP = "STOP"
   private val SHUTDOWN = "SHUTDOWN"
 
@@ -104,7 +105,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
   // start-pause-stop
   private var streamIdCount = 0
 
-  private var screenShareSession = ""
+  private var screenShareSession: Option[String] = None
+  private var currentPresenterId: Option[String]  = None
 
   private var width: Option[Int] = None
   private var height: Option[Int] = None
@@ -113,10 +115,10 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
 
   // Number of seconds before we assume that the JWS is dead.
-  private val LAST_STATUS_UPDATE_TIMEOUT = 20
+  private val LAST_JWS_STATUS_UPDATE_TIMEOUT = 10
   private var lastJwsStatusUpdate = 0L
 
-  private var sessionStartedTimestamp:Long = 0L // TimeUtil.currentMonoTimeInSeconds()
+  private var sessionStartedTimestamp:Long = 0L
   private val SESSION_START_TIMEOUT = 60
 
   // The last time we received a pong response from the client.
@@ -143,7 +145,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     case msg: UserDisconnected => handleUserDisconnected(msg)
     case msg: UserConnected => handleUserConnected(msg)
     case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
-    case msg: MeetingHasEnded             => handleMeetingHasEnded(msg)
+    case msg: MeetingEnded             => handleMeetingHasEnded(msg)
     case msg: SessionAuditMessage => handleSessionAuditMessage(msg)
     case msg: ClientPongMessage    => handleClientPongMessage(msg)
     case m: Any => log.warning("Session: Unknown message [{}]", m)
@@ -160,17 +162,17 @@ class Screenshare(val sessionManager: ScreenshareManager,
         lastClientPongReceivedTimestamp = TimeUtil.currentMonoTimeInSeconds()
       }
     }
-
   }
 
-  private def handleMeetingHasEnded(msg: MeetingHasEnded) {
+  private def handleMeetingHasEnded(msg: MeetingEnded) {
     if (log.isDebugEnabled) {
       log.debug("Received MeetingHasEnded for meetingId=[" + msg.meetingId + "]")
     }
 
-    activeSession foreach { as =>
-      bus.send(new ScreenShareStoppedEvent(meetingId, as.streamId, screenShareSession))
-    }
+    for {
+      as <- activeSession
+      sss <- screenShareSession
+    } yield (bus.send(new ScreenShareStoppedEvent(meetingId, sss)))
 
     context.stop(sessionAudit)
     context.stop(self)
@@ -194,15 +196,24 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
   private def handleUserDisconnected(msg: UserDisconnected) {
     if (log.isDebugEnabled) {
-      log.debug("Received UserDisconnected for meetingId=[" + msg.meetingId + "] userId=[" + msg.userId + "]")
+      log.debug("Received UserDisconnected for meetingId=[" + msg.meetingId +
+        "] userId=[" + trimUserId(msg.userId) + "], sss=" + screenShareSession + ",curPres=" + currentPresenterId)
     }
 
-    trimUserId(msg.userId) foreach {userId =>
-      activeSession foreach { as =>
-        if (as.userId == userId) {
-          bus.send(new ScreenShareStoppedEvent(meetingId, as.streamId, screenShareSession))
-          activeSession = None
+    for {
+      sss <- screenShareSession
+      presenterId <- currentPresenterId
+      curPresenterId <- trimUserId(presenterId)
+      userId <- trimUserId(msg.userId)
+    } yield {
+      if (log.isDebugEnabled) {
+        log.debug("Received UserDisconnected for curPresenterId=[" + curPresenterId + "] userId=[" + userId + "]")
+      }
+      if (userId == curPresenterId) {
+        if (log.isDebugEnabled) {
+          log.debug("STOPPING UserDisconnected for curPresenterId=[" + curPresenterId + "] userId=[" + userId + "]")
         }
+        stopScreenSharing(sss)
       }
     }
   }
@@ -211,12 +222,15 @@ class Screenshare(val sessionManager: ScreenshareManager,
     if (log.isDebugEnabled) {
       log.debug("Received UserConnected for meetingId=[" + msg.meetingId + "]")
     }
-    trimUserId(msg.userId) foreach {userId =>
-      activeSession foreach { as =>
-        if (as.userId == userId) {
-          bus.send(new ScreenShareStoppedEvent(meetingId, as.streamId, screenShareSession))
-          activeSession = None
-        }
+
+    for {
+      sss <- screenShareSession
+      presenterId <- currentPresenterId
+      curPresenterId <- trimUserId(presenterId)
+      userId <- trimUserId(msg.userId)
+    } yield {
+      if (userId == curPresenterId) {
+        stopScreenSharing(sss)
       }
     }
   }
@@ -232,13 +246,14 @@ class Screenshare(val sessionManager: ScreenshareManager,
           w <- width
           h <- height
           url <- streamUrl
+          sss <- screenShareSession
         } yield {
-          val info = new StreamInfo(true, as.streamId, w, h, url)
-          bus.send(new IsScreenSharingResponse(meetingId, msg.userId, screenShareSession, info))
+          val info = new StreamInfo(true, as.streamId, w, h, url, sss)
+          bus.send(new IsScreenSharingResponse(meetingId, msg.userId, info))
         }
       case None =>
-        val info = new StreamInfo(false, "", 0, 0, "")
-        bus.send(new IsScreenSharingResponse(meetingId, msg.userId, screenShareSession, info))
+        val info = new StreamInfo(false, "", 0, 0, "", "")
+        bus.send(new IsScreenSharingResponse(meetingId, msg.userId, info))
     }
   }
 
@@ -247,9 +262,12 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received ScreenShareInfoRequest for token=[" + msg.token + "]")
     }
 
-    activeSession foreach { as =>
+    for {
+      as <- activeSession
+      sss <- screenShareSession
+    } yield {
       if (as.token == msg.token) {
-        sender ! new ScreenShareInfoRequestReply(msg.meetingId, as.streamId)
+        sender ! new ScreenShareInfoRequestReply(msg.meetingId, as.streamId, sss)
       }
 
     }
@@ -269,8 +287,11 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received JWS UpdateShareStatus for streamId=[" + msg.streamId + "]")
     }
 
-    activeSession foreach { as =>
-      if (as.streamId == msg.streamId) {
+    screenShareSession foreach { sss =>
+      if (msg.streamId.startsWith(sss)) {
+        if (log.isDebugEnabled) {
+          log.debug("UpdateShareStatus for streamId=[" + msg.streamId + "] session stale.")
+        }
         lastJwsStatusUpdate = TimeUtil.currentMonoTimeInSeconds()
       }
     }
@@ -282,7 +303,11 @@ class Screenshare(val sessionManager: ScreenshareManager,
     }
 
     status = STOP
-    stopScreenSharing(screenShareSession)
+
+    for {
+      sss <- screenShareSession
+    } yield (stopScreenSharing(sss))
+
   }
 
   private def handleSharingStartedMessage(msg: SharingStartedMessage) {
@@ -291,6 +316,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
     }
 
     activeSession foreach { as =>
+      status = RUNNING
+
       width = Some(msg.width)
       height = Some(msg.height)
 
@@ -346,6 +373,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     height = None
     streamUrl = None
     activeSession = None
+
   }
 
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
@@ -355,7 +383,10 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
     status = STOP
 
-    stopScreenSharing(screenShareSession)
+    screenShareSession foreach { sss =>
+      stopScreenSharing(sss)
+    }
+
 
   }
 
@@ -378,8 +409,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
   private def handleRestartShareRequestMessage(msg: RestartShareRequestMessage) {
 
-    def generateStreamId(): String = {
-      val streamId = screenShareSession + "-" + streamIdCount
+    def generateStreamId(sessionToken: String): String = {
+      val streamId = sessionToken + "-" + streamIdCount
       streamIdCount = streamIdCount + 1
       streamId
     }
@@ -388,10 +419,13 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received RestartShareRequestMessage from userId=[" + msg.userId + "]")
     }
 
-    val streamId = generateStreamId
+    val sessionToken = screenShareSession.get
+    val streamId = generateStreamId(sessionToken)
     val token = streamId
 
     val userId = trimUserId(msg.userId).getOrElse(msg.userId)
+
+    //currentPresenterId = Some(msg.userId)
 
     val session = ActiveSession(this, bus, meetingId, streamId, token, record, userId)
 
@@ -402,14 +436,19 @@ class Screenshare(val sessionManager: ScreenshareManager,
   }
 
   private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
-    def generateStreamId():String = {
-      screenShareSession =  meetingId + "-" + System.currentTimeMillis()
-      val streamId = screenShareSession + "-" + streamIdCount
+    def genSessionToken(): String = {
+      meetingId + "-" + System.currentTimeMillis()
+    }
+    def generateStreamId(sessionToken: String):String = {
+      val streamId = sessionToken + "-" + streamIdCount
       streamIdCount = streamIdCount + 1
       streamId
     }
 
-    val streamId = generateStreamId
+    val sessionToken = genSessionToken()
+    screenShareSession =  Some(sessionToken)
+
+    val streamId = generateStreamId(sessionToken)
     val token = streamId
 
     val userId = trimUserId(msg.userId).getOrElse(msg.userId)
@@ -422,9 +461,14 @@ class Screenshare(val sessionManager: ScreenshareManager,
     lastClientPongReceivedTimestamp = 0L
     lastJwsStatusUpdate = 0L
 
-    bus.send(new ScreenShareStartRequestSuccessResponse(meetingId, msg.userId, token, msg.jnlp, streamId, screenShareSession))
+    currentPresenterId = Some(msg.userId)
 
-    sessionAudit ! StartSendingAudit(screenShareSession)
+    screenShareSession foreach { sss =>
+      bus.send(new ScreenShareStartRequestSuccessResponse(meetingId, msg.userId, token, msg.jnlp, streamId, sss))
+
+      sessionAudit ! StartSendingAudit(sss)
+    }
+
   }
 
   private def handleGetSharingStatus(msg: GetSharingStatus) {
@@ -432,43 +476,60 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received GetSharingStatus for streamId=[" + msg.streamId + "]")
     }
 
-    if (! msg.streamId.startsWith(screenShareSession)) {
-      if (log.isDebugEnabled) {
-        log.debug("Stopping JWS. GetSharingStatus for streamId=[" + msg.streamId + "] session stale.")
-      }
-      sender ! new GetSharingStatusReply(STOP, None)
-    } else {
-      if (status == PAUSE) {
+    screenShareSession foreach { sss =>
+      if (! msg.streamId.startsWith(sss)) {
         if (log.isDebugEnabled) {
-          log.debug("Replying PAUSED JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
-        }
-        sender ! new GetSharingStatusReply(PAUSE, None)
-      } else if (status == START && activeSession != None) {
-        activeSession.foreach { as =>
-          if (log.isDebugEnabled) {
-            log.debug("Replying START JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
-          }
-          sender ! new GetSharingStatusReply(START, Some(as.streamId))
-        }
-      } else {
-        if (log.isDebugEnabled) {
-          log.debug("Replying STOP JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
+          log.debug("Stopping JWS. GetSharingStatus for streamId=[" + msg.streamId + "] session stale.")
         }
         sender ! new GetSharingStatusReply(STOP, None)
+      } else {
+        if (status == PAUSE) {
+          if (log.isDebugEnabled) {
+            log.debug("Replying PAUSED JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
+          }
+          sender ! new GetSharingStatusReply(PAUSE, None)
+        } else if (status == START) {
+          activeSession match {
+            case Some(as) =>
+              if (log.isDebugEnabled) {
+                log.debug("Replying START JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
+              }
+              sender ! new GetSharingStatusReply(START, Some(as.streamId))
+            case None =>
+              log.warning("status == START but no active session for streamId=[" + msg.streamId + "].")
+              sender ! new GetSharingStatusReply(STOP, None)
+          }
+        } else if (status == RUNNING) {
+          if (log.isDebugEnabled) {
+            log.debug("Replying RUNNING JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
+          }
+          sender ! new GetSharingStatusReply(RUNNING, None)
+        } else {
+          if (log.isDebugEnabled) {
+            log.debug("Replying STOP JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
+          }
+          sender ! new GetSharingStatusReply(STOP, None)
+        }
       }
     }
   }
 
   private def stopScreenSharing(session : String): Unit = {
-      if (session == screenShareSession) {
-        bus.send(new ScreenShareStoppedEvent(meetingId, screenShareSession, screenShareSession))
+    screenShareSession foreach { sss =>
+      if (session == sss) {
+        bus.send(new ScreenShareStoppedEvent(meetingId, sss))
         resetScreenShareSession()
       }
 
-    if (log.isDebugEnabled) {
-      log.debug("stopScreenSharing session=[" + screenShareSession + "] on session=[" + session + "]")
+      if (log.isDebugEnabled) {
+        log.debug("stopScreenSharing session=[" + session + "]")
+      }
+
+      if (status != STOP) status = STOP
+      currentPresenterId = None
+      sessionAudit ! StopSendingAudit(sss)
     }
-    sessionAudit ! StopSendingAudit(screenShareSession)
+
   }
 
   private def handleSessionAuditMessage(msg: SessionAuditMessage) {
@@ -478,7 +539,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     if (status != STOP) {
       if (jwsStarted(msg.session)) {
         if (jwsIsStillAlive(msg.session)) {
-          if (clientIsStillAlive(msg.session)) {
+          if (isClientStillAlive(msg.session)) {
             //sessionAudit ! StartSendingAudit(screenShareSession)
           }
         }
@@ -488,7 +549,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
   private def jwsStarted(session: String): Boolean = {
       val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
-      if ((lastJwsStatusUpdate == 0) && (currentTimeInSec - sessionStartedTimestamp > SESSION_START_TIMEOUT)) {
+      if ((status == START) && (currentTimeInSec - sessionStartedTimestamp > SESSION_START_TIMEOUT)) {
           log.warning("JWS failed to start. session={}", session)
           stopScreenSharing(session)
         false
@@ -501,32 +562,32 @@ class Screenshare(val sessionManager: ScreenshareManager,
   private def jwsIsStillAlive(session: String): Boolean = {
       val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
 
-      if (lastJwsStatusUpdate > 0 && (currentTimeInSec - lastJwsStatusUpdate > LAST_STATUS_UPDATE_TIMEOUT)) {
+      if ((status == RUNNING || status == PAUSE) &&
+        (lastJwsStatusUpdate > 0) &&
+        (currentTimeInSec - lastJwsStatusUpdate > LAST_JWS_STATUS_UPDATE_TIMEOUT)) {
           log.warning("Did not receive status update from JWS. Assume it is dead. session={}", session)
           stopScreenSharing(session)
         false
       } else {
         if (log.isDebugEnabled) {
-          log.debug("JWS still alive. currentTimeInSec=" + currentTimeInSec + ";lastJwsStatusUpdate=" + lastJwsStatusUpdate +
+          log.debug("JWS still alive. status=" + status + ";currentTimeInSec=" + currentTimeInSec + ";lastJwsStatusUpdate=" + lastJwsStatusUpdate +
             ";timeout=" + (currentTimeInSec - lastJwsStatusUpdate))
         }
         true
       }
   }
 
-  private def clientIsStillAlive(session: String): Boolean = {
+  private def isClientStillAlive(session: String): Boolean = {
       val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
       if ((lastClientPongReceivedTimestamp > 0) && (currentTimeInSec - lastClientPongReceivedTimestamp > PONG_TIMEOUT_SEC)) {
           log.warning("Did not receive pong from client. Assume it is dead. streamId={}", session)
           stopScreenSharing(session)
         false
       } else {
-        activeSession foreach { session =>
-          if (log.isDebugEnabled) {
-            log.debug("Sending client ping for streamId=[" + session.streamId + "].")
-          }
-          bus.send(new ScreenShareClientPing(meetingId, session.userId, screenShareSession, currentTimeInSec))
-        }
+        for {
+          sss <- screenShareSession
+          presenterId <- currentPresenterId
+        }  yield (bus.send(new ScreenShareClientPing(meetingId, presenterId, sss, currentTimeInSec)))
 
         true
       }

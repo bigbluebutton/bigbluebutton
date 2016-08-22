@@ -34,7 +34,7 @@ public class EventListenerImp implements IEventListener {
   private void sendScreenShareClientPing(ScreenShareClientPing event) {
     Map<String, Object> data = new HashMap<String, Object>();
     data.put("meetingId", event.meetingId);
-    data.put("streamId", event.streamId);
+    data.put("session", event.session);
     data.put("timestamp", event.timestamp);
 
     Map<String, Object> message = new HashMap<String, Object>();
@@ -55,7 +55,7 @@ public class EventListenerImp implements IEventListener {
           data.put("width", event.info.width);
           data.put("height", event.info.height);
           data.put("url", event.info.url);
-          data.put("session", event.session);
+          data.put("session", event.info.session);
       }
 
       Map<String, Object> message = new HashMap<String, Object>();
@@ -169,7 +169,6 @@ public class EventListenerImp implements IEventListener {
   private void sendShareStoppedEvent(ScreenShareStoppedEvent event) {
     Map<String, Object> data = new HashMap<String, Object>();
     data.put("meetingId", event.meetingId);
-    data.put("streamId", event.streamId);
     data.put("session", event.session);
 
     Map<String, Object> message = new HashMap<String, Object>(); 
@@ -181,7 +180,6 @@ public class EventListenerImp implements IEventListener {
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", event.meetingId);
-    logData.put("streamId", event.streamId);
 
     gson = new Gson();
     String logStr =  gson.toJson(logData);

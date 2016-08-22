@@ -27,6 +27,7 @@ public class NetworkStreamSender implements NetworkStreamListener {
 
   private final String meetingId;
   private String streamId;
+  private String session;
 
   private NetworkHttpStreamSender httpSenders;
   private NetworkConnectionListener listener;
@@ -36,10 +37,11 @@ public class NetworkStreamSender implements NetworkStreamListener {
   private TimerTask timerTask = new UpdateTimerTask();
   private Timer timer = new Timer();
 
-  public NetworkStreamSender(String host, String meetingId, String streamId) {
+  public NetworkStreamSender(String host, String meetingId, String streamId, String session) {
     this.meetingId = meetingId;
     this.streamId = streamId;  
     this.host = host;
+    this.session = session;
 
     connect();
   }
@@ -67,13 +69,13 @@ public class NetworkStreamSender implements NetworkStreamListener {
 
   public void stopSharing() {
     System.out.println("Queueing ShareStoppedMessage");
-    send(new ShareStoppedMessage(meetingId, streamId));
+    send(new ShareStoppedMessage(meetingId, streamId, session));
   }
 
-  public void startSharing(int width, int height, String streamId) {
+  public void startSharing(int width, int height, String streamId, String session) {
     System.out.println("Queueing ShareStartedMessage");
     this.streamId = streamId;
-    send(new ShareStartedMessage(meetingId, streamId, width, height));
+    send(new ShareStartedMessage(meetingId, streamId, width, height, session));
   }
 
   private void send(Message message) {
@@ -90,7 +92,7 @@ public class NetworkStreamSender implements NetworkStreamListener {
     timer.cancel();
 
     if (httpSenders != null) {
-      httpSenders.disconnect(streamId);
+      httpSenders.disconnect(streamId, session);
       httpSenders.stop();      
     }
   }
@@ -106,7 +108,7 @@ public class NetworkStreamSender implements NetworkStreamListener {
     @Override
     public void run() {
 //      System.out.println("Queueing ShareUpdateMessage");
-      send(new ShareUpdateMessage(meetingId, streamId));
+      send(new ShareUpdateMessage(meetingId, streamId, session));
     }  
   }
 
