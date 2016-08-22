@@ -13,5 +13,5 @@ object ActiveSession {
 class ActiveSession(parent: Screenshare, bus: IEventsMessageBus, val meetingId: String,
                     val streamId: String, val token: String, val recorded: Boolean,
                     val userId: String)(implicit val context: ActorContext) {
-  val actorRef = context.actorOf(Session.props(parent, bus, meetingId, streamId, token, recorded, userId))
+//  val actorRef = context.actorOf(Session.props(parent, bus, meetingId, streamId, token, recorded, userId))
 }

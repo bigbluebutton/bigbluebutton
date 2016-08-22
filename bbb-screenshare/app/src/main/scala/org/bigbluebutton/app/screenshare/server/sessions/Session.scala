@@ -20,7 +20,7 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.app.screenshare.StreamInfo
-import org.bigbluebutton.app.screenshare.server.sessions.Session.KeepAliveTimeout
+import org.bigbluebutton.app.screenshare.server.sessions.Session.{KeepAliveTimeout, SessionAuditMessage}
 import org.bigbluebutton.app.screenshare.server.util.TimeUtil
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.events._
@@ -34,7 +34,8 @@ object Session {
 
   case object StartSession
   case object StopSession
-  case class KeepAliveTimeout(streamId: String)
+  case object SessionAuditMessage
+  case class KeepAliveTimeout(streamId: String, stopSharing: Boolean)
 }
 
 class Session(parent: Screenshare,
@@ -45,14 +46,7 @@ class Session(parent: Screenshare,
               val recorded: Boolean,
               val userId: String) extends Actor with ActorLogging {
 
-  log.info("Creating of new Session")
-
-
-  // if ffmpeg is still broadcasting
-  private var streamStopped = true
-
-  // if jws is still running
-  private var shareStopped = true
+  log.info("Creating of new Session streamId=[" + streamId + "]")
 
 
   private var width: Option[Int] = None
@@ -62,10 +56,9 @@ class Session(parent: Screenshare,
 
   private val SESSION_AUDIT_MESSAGE = "SessionAuditMessage"
 
-  private var lastStatusUpdate = 0L
-
   // Number of seconds before we assume that the JWS is dead.
   private val LAST_STATUS_UPDATE_TIMEOUT = 20
+  private var lastStatusUpdate = 0L
 
   private var sessionStartedTimestamp:Long = TimeUtil.currentMonoTimeInSeconds()
   private val SESSION_START_TIMEOUT = 60
@@ -79,7 +72,7 @@ class Session(parent: Screenshare,
   implicit def executionContext = parent.sessionManager.actorSystem.dispatcher
 
   def scheduleKeepAliveCheck() {
-    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds, self, SESSION_AUDIT_MESSAGE)
+    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds, self, SessionAuditMessage)
   }
 
   def receive = {
@@ -96,7 +89,7 @@ class Session(parent: Screenshare,
     case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
     case msg: UserDisconnected => handleUserDisconnected(msg)
     case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
-    case SESSION_AUDIT_MESSAGE => handleSessionAuditMessage()
+    case SessionAuditMessage => handleSessionAuditMessage()
     case msg: ClientPongMessage           => handleClientPongMessage(msg)
     case m: Any => log.warning("Session: Unknown message [%s]", m)
   }
@@ -144,11 +137,11 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received SharingStoppedMessage for streamId=[" + msg.streamId + "]")
     }
-    shareStopped = true
+
     width = None
     height = None
     streamUrl = None
-    bus.send(new ShareStoppedEvent(meetingId, streamId))
+    bus.send(new ScreenShareStoppedEvent(meetingId, streamId))
   }
 
 
@@ -156,7 +149,7 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received SharingStartedMessagefor streamId=[" + msg.streamId + "]")
     }
-    shareStopped = false
+
     width = Some(msg.width)
     height = Some(msg.height)
 
@@ -175,7 +168,7 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received StreamStartedMessage for streamId=[" + msg.streamId + "]")
     }
-    streamStopped = false
+
     streamUrl = Some(msg.url)
 
     // We wait until we have the width, height, and stream url before notifying
@@ -193,7 +186,7 @@ class Session(parent: Screenshare,
     if (log.isDebugEnabled) {
       log.debug("Received StreamStoppedMessage streamId=[" + msg.streamId + "]")
     }
-    streamStopped = true
+
     bus.send(new StreamStoppedEvent(meetingId, streamId))
 
   }
@@ -203,9 +196,9 @@ class Session(parent: Screenshare,
       log.debug("Received StopShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
 
-    bus.send(new ShareStoppedEvent(meetingId, streamId))
+    bus.send(new ScreenShareStoppedEvent(meetingId, streamId))
 
-    stopSession()
+    stopSession(true)
   }
 
   private def handlePauseShareRequestMessage(msg: PauseShareRequestMessage) {
@@ -213,7 +206,9 @@ class Session(parent: Screenshare,
       log.debug("Received PauseShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
 
-    bus.send(new ShareStoppedEvent(meetingId, streamId))
+    bus.send(new ScreenShareStoppedEvent(meetingId, streamId))
+
+    stopSession(false)
   }
 
   private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
@@ -245,7 +240,7 @@ class Session(parent: Screenshare,
     val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
     if ((lastStatusUpdate == 0) && (currentTimeInSec - sessionStartedTimestamp > SESSION_START_TIMEOUT)) {
       log.warning("JWS failed to start. streamId={}", streamId)
-      stopSession()
+      stopSession(true)
       false
     } else {
       true
@@ -266,7 +261,7 @@ class Session(parent: Screenshare,
 
     if ((lastStatusUpdate > 0) && (currentTimeInSec - lastStatusUpdate > LAST_STATUS_UPDATE_TIMEOUT)) {
       log.warning("Did not receive status update from JWS. Assume it is dead. streamId={}", streamId)
-      stopSession()
+      stopSession(true)
       false
     } else {
       true
@@ -277,7 +272,7 @@ class Session(parent: Screenshare,
     val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
     if ((lastPongReceivedTimestamp > 0) && (currentTimeInSec - lastPongReceivedTimestamp > PONG_TIMEOUT_SEC)) {
       log.warning("Did not receive pong from client. Assume it is dead. streamId={}", streamId)
-      stopSession()
+      stopSession(true)
       false
     } else {
       bus.send(new ScreenShareClientPing(meetingId, userId, streamId, currentTimeInSec))
@@ -285,9 +280,8 @@ class Session(parent: Screenshare,
     }
   }
 
-  private def stopSession(): Unit = {
-    context.parent ! new KeepAliveTimeout(streamId)
-    context.stop(self)
+  private def stopSession(stopSharing: Boolean): Unit = {
+    context.parent ! new KeepAliveTimeout(streamId, stopSharing)
   }
 
 }
