@@ -17,7 +17,6 @@
 		<asset:stylesheet src="application.css"/>
 		<asset:javascript src="application.js"/>
 		<g:layoutHead/>
-		<g:javascript library="application"/>		
 	</head>
 	<body>
 		<div id="spinner" class="spinner" style="display:none;">
