@@ -3,13 +3,20 @@
         <title><g:message code="tool.view.title" /></title>
         <link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">
         <asset:stylesheet src="bootstrap.css"/>
+        <asset:stylesheet src="tool.css"/>
+        <asset:stylesheet src="dataTables.bootstrap.min.css"/>
+        <asset:javascript src="jquery-1.12.3.min.js"/>
+        <asset:javascript src="jquery.dataTables.min.js"/>
+        <asset:javascript src="dataTables.bootstrap.min.js"/>
+        <asset:javascript src="bootstrap.js"/>
+        <asset:javascript src="tool.js"/>
     </head>
     <body>
 <!-- tool.index  -->
         <h1 style="margin-left:20px; text-align: center;"><a title="<g:message code="tool.view.join" />" class="btn btn-primary btn-large" href="${createLink(controller:'tool', action:'join', id: '0')}"><g:message code="tool.view.join" /></a></h1>
         <br><br>
-        <div class="table-responsive">
-        <table class="table table-striped table-bordered table-condensed">
+        <div class="container">
+        <table id="recordings" class="table table-striped table-bordered dt-responsive" width="100%">
             <thead>
                 <tr>
                     <th class="header c0" style="text-align:center;" scope="col"><g:message code="tool.view.recording" /></th>
