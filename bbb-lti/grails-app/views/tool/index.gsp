@@ -8,11 +8,12 @@
         <asset:javascript src="jquery-1.12.3.min.js"/>
         <asset:javascript src="jquery.dataTables.min.js"/>
         <asset:javascript src="dataTables.bootstrap.min.js"/>
+        <asset:javascript src="dataTables.plugin.datetime.js"/>
+        <asset:javascript src="moment-with-locales.min.js"/>
         <asset:javascript src="bootstrap.js"/>
         <asset:javascript src="tool.js"/>
     </head>
     <body>
-<!-- tool.index  -->
         <h1 style="margin-left:20px; text-align: center;"><a title="<g:message code="tool.view.join" />" class="btn btn-primary btn-large" href="${createLink(controller:'tool', action:'join', id: '0')}"><g:message code="tool.view.join" /></a></h1>
         <br><br>
         <div class="container">
@@ -40,17 +41,17 @@
                     </td>
                     <td class="cell c1" style="text-align:center;">${r.name}</td>
                     <td class="cell c2" style="text-align:center;">${r.metadata.contextactivitydescription}</td>
-                    <td class="cell c3" style="text-align:center;">${new Date( Long.valueOf(r.startTime).longValue() )}</td>
+                    <td class="cell c3" style="text-align:center;">${r.unixDate}</td>
                     <td class="cell c4" style="text-align:center;">${r.duration}</td>
                     <g:if test="${ismoderator}">
                     <td class="cell c5 lastcol" style="text-align:center;">
                       <g:if test="${r.published == 'true'}">
-                      <button class="btn btn-default btn-xs" name="unpublish_recording" type="submit" value="${r.recordID}" onClick="window.location='${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}'; return false;"><g:message code="tool.view.unpublishRecording" /></button>
+                      <button class="btn btn-default btn-sm glyphicon glyphicon-eye-close" name="unpublish_recording" type="submit" value="${r.recordID}" onClick="window.location='${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}'; return false;"></button>
                       </g:if>
                       <g:else>
-                      <button class="btn btn-default btn-xs" name="publish_recording" type="submit" value="${r.recordID}" onClick="window.location='${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}'; return false;"><g:message code="tool.view.publishRecording" /></button>
+                      <button class="btn btn-default btn-sm glyphicon glyphicon-eye-open" name="publish_recording" type="submit" value="${r.recordID}" onClick="window.location='${createLink(controller:'tool',action:'publish',id: '0')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}'; return false;"></button>
                       </g:else>
-                      <button class="btn btn-danger btn-xs" name="delete_recording" type="submit" value="${r.recordID}" onClick="if(confirm('<g:message code="tool.view.deleteRecordingConfirmation" />')) window.location='${createLink(controller:'tool',action:'delete',id: '0')}?bbb_recording_id=${r.recordID}'; return false;"><g:message code="tool.view.deleteRecording" /></button>
+                      <button class="btn btn-danger btn-sm glyphicon glyphicon-trash" name="delete_recording" type="submit" value="${r.recordID}" onClick="if(confirm('<g:message code="tool.view.deleteRecordingConfirmation" />')) window.location='${createLink(controller:'tool',action:'delete',id: '0')}?bbb_recording_id=${r.recordID}'; return false;"></button>
                     </td>
                     </g:if>
                 </tr>
@@ -60,4 +61,7 @@
         </table>
         </div>
     </body>
+    <g:javascript>
+        var locale = '${params.launch_presentation_locale}';
+    </g:javascript>  
 </html>

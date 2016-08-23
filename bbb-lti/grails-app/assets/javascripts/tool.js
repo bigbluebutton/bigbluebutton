@@ -18,7 +18,6 @@
 $(document).ready( function () {
 	if (typeof jQuery !== 'undefined') {
 		(function($) {
-			console.info("Init jquery");
 			$('#spinner').ajaxStart(function() {
 				$(this).fadeIn();
 			}).ajaxStop(function() {
@@ -26,17 +25,21 @@ $(document).ready( function () {
 			});
 		})(jQuery);
 		
-		console.info("Init datatable");
 		$('#recordings').dataTable({
+			columnDefs: [ {
+				targets: 3,
+				render: $.fn.dataTable.render.moment('X', 'LLL', locale)
+			} ],
 			sPaginationType : "full_numbers",
 			"columns": [
-					null,
-					null,
-					null,
-					null,
-					null,
-				 { "width": "160px" }
-			]
+				null,
+				null,
+				null,
+				null,
+				null,
+				{ "width": "160px" }
+			],
+			"order": [[ 3, "desc" ]]
 		});
 		
 	}

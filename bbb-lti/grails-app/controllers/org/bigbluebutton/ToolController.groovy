@@ -17,6 +17,8 @@ package org.bigbluebutton
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
 
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
@@ -122,7 +124,14 @@ class ToolController {
                     startTime -= (startTime % 1000)
                     int duration = (endTime - startTime) / 60000
                     /// Add duration
-                    recording.put("duration", duration )
+                    recording.put("duration", duration)
+
+                    /// Calculate reportDate
+                    DateFormat df = new SimpleDateFormat(message(code: "tool.view.dateFormat"))
+                    String reportDate = df.format(new Date(startTime))
+                    /// Add reportDate
+                    recording.put("reportDate", reportDate)
+                    recording.put("unixDate", startTime / 1000)
                 }
                 render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
             }
