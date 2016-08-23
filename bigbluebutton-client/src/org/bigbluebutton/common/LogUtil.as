@@ -31,7 +31,7 @@ package org.bigbluebutton.common {
 	/**
 	 * The logging can be configured in config.xml. The <logging> tag can be configured like the following
 	 *
-	 * <logging enabled="true" target="trace" level="info" uri="http://HOST" logPattern="*" />
+	 * <logging enabled="true" target="trace" level="info" uri="http://HOST" logPattern=".*" />
 	 * - enabled : true or false
 	 * - target  : + trace     : write logs using trace function
 	 *             + logwindow : write logs in LogWindow view
@@ -55,8 +55,8 @@ package org.bigbluebutton.common {
 	 *             + {person}     : The Person that wrote this statement
 	 *             + {atPerson}   : he Person that wrote this statement with the 'at' prefix
 	 * - uri     : HOST will contain the URL of the logging server
-	 * - logPattern :  pattern for which to enable logging. Non matching patterns are
-	 *             not logged
+	 * - logPattern : RegExp pattern for which to enable logging. Non matching patterns are
+	 *             not logged. Only pass the first part of the RegExp, the flag is 'g' by default
 	 */
 	public class LogUtil {
 		public static const TRACE:String = "trace";
