@@ -12,14 +12,14 @@ export default class VideoMenu extends BaseMenu {
 
   getContent() {
     return (
-      <div style={{ height: '100%' }} role='presentation'>
+      <div className={styles.full} role='presentation'>
         <div className={styles.containerLeftHalf}>
           <label htmlFor='camera'>Select camera</label>
         </div>
         <div className={styles.containerRightHalf}>
           <label htmlFor='quality'  >Video quality</label>
         </div>
-        <div style={{ height: '20%' }} className={styles.containerLeftHalf} role='presentation'>
+        <div className={styles.containerLeftHalfContent} role='presentation'>
           <select id='camera' defaultValue='0' tabIndex='7'
             aria-labelledby='camLabel' aria-describedby='camDesc'>
             <option value='0' disabled>Select camera</option>
@@ -27,11 +27,11 @@ export default class VideoMenu extends BaseMenu {
             <option value='2'>Camera 2</option>
             <option value='3'>Camera 3</option>
           </select>
-          <div className={styles.hidden} id='camLabel'>Camera source</div>
-          <div className={styles.hidden} id='camDesc'>
+          <div id='camLabel' hidden>Camera source</div>
+          <div id='camDesc' hidden>
             Chooses a camera source from the dropdown menu.</div>
         </div>
-        <div style={{ height: '20%' }} className={styles.containerRightHalf} role='presentation'>
+        <div className={styles.containerRightHalfContent} role='presentation'>
           <select id='quality' defaultValue='0' tabIndex='8'
             aria-labelledby='vidLabel' aria-describedby='vidDesc'>
             <option value='0' disabled>Select quality</option>
@@ -39,12 +39,12 @@ export default class VideoMenu extends BaseMenu {
             <option value='2'>Medium</option>
             <option value='3'>High</option>
           </select>
-          <div className={styles.hidden} id='vidLabel'>Video quality</div>
-          <div className={styles.hidden} id='vidDesc'>
+          <div id='vidLabel' hidden>Video quality</div>
+          <div id='vidDesc' hidden>
             Chooses the video quality level from the dropdown menu.</div>
         </div>
-        <div className={styles.containerLeftHalf}>
-          <p style={{ margin: '0px' }}>Viewing participants webcams</p>
+        <div className={styles.row}>
+          <div>Viewing participants webcams</div>
         </div>
       </div>
     );

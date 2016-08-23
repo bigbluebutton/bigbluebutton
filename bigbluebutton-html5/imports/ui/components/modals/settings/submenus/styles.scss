@@ -37,6 +37,16 @@ div.submenuContent select {
   float: right;
 }
 
+.containerLeftHalfContent {
+  @extend .containerLeftHalf;
+  @extend .row;
+}
+
+.containerRightHalfContent {
+  @extend .containerRightHalf;
+  @extend .row;
+}
+
 div.containerLeftHalf label, div.containerRightHalf label {
   font-size: 0.75em;
   font-weight: 600;
@@ -55,15 +65,6 @@ ul {
 
 ul li {
   padding-bottom: 9%;
-}
-
-.hidden {
-  position: absolute;
-  left: -10000px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
 }
 
 /* Application Submenu */
@@ -114,4 +115,20 @@ ul li {
   @extend .defaultBtn;
   width: 140px;
   float: left;
+}
+
+/* Submenu containers */
+.full {
+  clear: both;
+  height: 100%;
+  width: 100%;
+}
+
+.row {
+  height: 20%;
+}
+
+.indentedRow {
+  @extend .row;
+  padding-left: 10%;
 }

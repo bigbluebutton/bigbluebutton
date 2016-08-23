@@ -99,11 +99,11 @@ export default class BaseModal extends React.Component {
                 aria-labelledby={'doneLabel'}
                 aria-describedby={'doneDesc'}
               />
-            <div className={styles.hidden} id='cancelLabel'>Cancel</div>
-              <div className={styles.hidden} id='cancelDesc'>
+            <div id='cancelLabel' hidden>Cancel</div>
+              <div id='cancelDesc' hidden>
                 Disregards changes and closes the settings menu.</div>
-              <div className={styles.hidden} id='doneLabel'>Done</div>
-              <div className={styles.hidden} id='doneDesc'>
+              <div id='doneLabel' hidden>Done</div>
+              <div id='doneDesc' hidden>
                 Saves changes and closes the settings menu.</div>
             </div>
           </div>

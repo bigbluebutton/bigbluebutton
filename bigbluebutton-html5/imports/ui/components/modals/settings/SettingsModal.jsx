@@ -175,9 +175,9 @@ export default class SettingsModal extends BaseModal {
 
   getContent() {
     return (
-      <div style={{ clear: 'both', height: '100%' }} role='presentation'>
+      <div className={styles.full} role='presentation'>
         <div className={styles.settingsMenuLeft}>
-          <ul style={{ listStyleType: 'none', paddingLeft: '0px' }} role='menu'>
+          <ul className={styles.settingsSubmenu} role='menu'>
             {this.submenus.map((value, index) => (
               <li key={index} ref={'submenu' + index} role='menuitem' tabIndex={value.tabIndex}
                 onClick={this.clickSubmenu.bind(this, index)}
