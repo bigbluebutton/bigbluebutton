@@ -425,8 +425,6 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
     val userId = trimUserId(msg.userId).getOrElse(msg.userId)
 
-    //currentPresenterId = Some(msg.userId)
-
     val session = ActiveSession(this, bus, meetingId, streamId, token, record, userId)
 
     activeSession = Some(session)
@@ -476,34 +474,50 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received GetSharingStatus for streamId=[" + msg.streamId + "]")
     }
 
+    def processStaleSession(): Unit = {
+      if (log.isDebugEnabled) {
+        log.debug("Stopping JWS. GetSharingStatus for streamId=[" + msg.streamId + "] session stale.")
+      }
+      sender ! new GetSharingStatusReply(STOP, None)
+    }
+
+    def processPausedStatus(): Unit = {
+      if (log.isDebugEnabled) {
+        log.debug("Replying PAUSED JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
+      }
+      sender ! new GetSharingStatusReply(PAUSE, None)
+    }
+
+    def processStartStatus(): Unit = {
+      activeSession match {
+        case Some(as) =>
+          if (log.isDebugEnabled) {
+            log.debug("Replying START JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
+          }
+          sender ! new GetSharingStatusReply(START, Some(as.streamId))
+        case None =>
+          log.warning("status == START but no active session for streamId=[" + msg.streamId + "].")
+          sender ! new GetSharingStatusReply(STOP, None)
+      }
+    }
+
+    def processRunningStatus(): Unit = {
+      if (log.isDebugEnabled) {
+        log.debug("Replying RUNNING JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
+      }
+      sender ! new GetSharingStatusReply(RUNNING, None)
+    }
+
     screenShareSession foreach { sss =>
       if (! msg.streamId.startsWith(sss)) {
-        if (log.isDebugEnabled) {
-          log.debug("Stopping JWS. GetSharingStatus for streamId=[" + msg.streamId + "] session stale.")
-        }
-        sender ! new GetSharingStatusReply(STOP, None)
+        processStaleSession()
       } else {
         if (status == PAUSE) {
-          if (log.isDebugEnabled) {
-            log.debug("Replying PAUSED JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
-          }
-          sender ! new GetSharingStatusReply(PAUSE, None)
+          processPausedStatus()
         } else if (status == START) {
-          activeSession match {
-            case Some(as) =>
-              if (log.isDebugEnabled) {
-                log.debug("Replying START JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
-              }
-              sender ! new GetSharingStatusReply(START, Some(as.streamId))
-            case None =>
-              log.warning("status == START but no active session for streamId=[" + msg.streamId + "].")
-              sender ! new GetSharingStatusReply(STOP, None)
-          }
+          processStartStatus()
         } else if (status == RUNNING) {
-          if (log.isDebugEnabled) {
-            log.debug("Replying RUNNING JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
-          }
-          sender ! new GetSharingStatusReply(RUNNING, None)
+          processRunningStatus()
         } else {
           if (log.isDebugEnabled) {
             log.debug("Replying STOP JWS. GetSharingStatus for streamId=[" + msg.streamId + "].")
