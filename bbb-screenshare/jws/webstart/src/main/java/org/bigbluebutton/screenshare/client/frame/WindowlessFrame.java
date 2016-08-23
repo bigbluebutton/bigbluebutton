@@ -747,7 +747,7 @@ class WindowlessFrame implements Serializable {
       newWidth = makeLengthEven(width);  
 //      System.out.println("Capture width is not even [" + width + "]. Changing to [" + newWidth + "]");
     }
-    mOverallSize.width = newWidth + BORDER_THICKNESS;
+    mOverallSize.width = newWidth - BORDER_THICKNESS;
   }
 
   public final void setHeight(int height) {
@@ -757,7 +757,7 @@ class WindowlessFrame implements Serializable {
       newHeight = makeLengthEven(height);
 //      System.out.println("Capture height is not even [" + height + "]. Changing to [" + newHeight + "]");
     }
-    mOverallSize.height = newHeight + BORDER_THICKNESS;
+    mOverallSize.height = newHeight - BORDER_THICKNESS;
   }
 
   public final void setLocation(int x, int y) {
