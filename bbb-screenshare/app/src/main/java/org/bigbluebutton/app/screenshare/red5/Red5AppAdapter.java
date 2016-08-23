@@ -51,6 +51,8 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private String streamBaseUrl;
   private ConnectionInvokerService sender;
   private String recordingDirectory;
+
+  private final Pattern STREAM_ID_PATTERN = Pattern.compile("(.*)-(.*)-(.*)$");
   
   @Override
   public boolean appStart(IScope app) {
@@ -190,8 +192,6 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private Long genTimestamp() {
     return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
   }
-
-  private final Pattern STREAM_ID_PATTERN = Pattern.compile("(.*)-(.*)$");
 
   @Override
   public void streamBroadcastClose(IBroadcastStream stream) {

@@ -490,6 +490,10 @@ module BigBlueButton
       "#{temp_dir}/#{meeting_id}")
     BigBlueButton::EDL::Audio.dump(audio_edl)
 
+    BigBlueButton.logger.info("Applying recording start stop events:")
+    audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, "#{temp_dir}/#{meeting_id}")
+    BigBlueButton::EDL::Audio.dump(audio_edl)
+
     audio_file = BigBlueButton::EDL::Audio.render(
       audio_edl, "#{target_dir}/webcams")
 
@@ -498,8 +502,13 @@ module BigBlueButton
       "#{temp_dir}/#{meeting_id}")
     deskshare_edl = BigBlueButton::Events.create_deskshare_edl(
       "#{temp_dir}/#{meeting_id}")
-    temporary_video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
-    video_edl = BigBlueButton::Events.edl_match_recording_marks_video(temporary_video_edl, "#{temp_dir}/#{meeting_id}")
+    video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
+    BigBlueButton.logger.debug("Merged video EDL:")
+    BigBlueButton::EDL::Video.dump(video_edl)
+
+    BigBlueButton.logger.debug("Applying recording start stop events:")
+    video_edl = BigBlueButton::Events.edl_match_recording_marks_video(video_edl,
+                    "#{temp_dir}/#{meeting_id}")
     BigBlueButton::EDL::Video.dump(video_edl)
 
     layout = {
@@ -518,9 +527,10 @@ module BigBlueButton
       {
         :extension => 'webm',
         :parameters => [
-          [ '-c:v', 'libvpx', '-crf', '34', '-b:v', '60M',
-            '-threads', '2', '-deadline', 'good', '-cpu-used', '3',
-            '-c:a', 'libvorbis', '-b:a', '48K',
+          [ '-c:v', 'libvpx',
+            '-crf', '34', '-b:v', '60M', '-threads', '2', '-deadline', 'good', '-cpu-used', '3',
+            '-c:a', 'libvorbis',
+            '-q:a', '2',
             '-f', 'webm' ]
         ],
         :postprocess => [

@@ -44,6 +44,7 @@
         <argument>$$streamId</argument>
         <argument>$$fullScreen</argument>
         <argument>$$codecOptions</argument>
+        <argument>$$session</argument>
         <argument>$$errorMessage</argument>
      </application-desc>
      <security><all-permissions/></security>

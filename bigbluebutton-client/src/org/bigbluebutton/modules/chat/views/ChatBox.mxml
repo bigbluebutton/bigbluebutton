@@ -779,9 +779,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						   itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
 						   dataProvider="{chatMessages.messages}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
-		<mx:HBox id="timerBox" backgroundColor="0xcccccc"
+		<mx:HBox id="timerBox" styleName="breakoutRoomTimerBox"
 				 includeInLayout="false" visible="false"
-				 width="100%" height="0" verticalAlign="middle" horizontalAlign="center">
+				 width="100%" height="0">
 			<mx:Label id="timerLabel" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.calculatingRemainingTime')}"/>
 		</mx:HBox>
 	</mx:VBox>

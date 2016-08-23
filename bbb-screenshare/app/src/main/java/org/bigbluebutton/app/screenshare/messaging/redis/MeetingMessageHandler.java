@@ -6,7 +6,7 @@ import java.util.Map;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import com.google.gson.Gson;
-
+import org.bigbluebutton.common.messages.MessagingConstants;
 
 public class MeetingMessageHandler implements MessageHandler {
 	private static Logger log = Red5LoggerFactory.getLogger(MeetingMessageHandler.class, "screenshare");

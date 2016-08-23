@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.screenshare.events
 	public class StreamEvent extends Event
 	{
 		public static const START:String = "SCREENSHARE Stream Started Event";
-		public static const STOP:String = "SCREENSHARE Stream Stopped Event";
+		//public static const STOP:String = "SCREENSHARE Stream Stopped Event";
 		
 		public var videoWidth:Number = 0;
 		public var videoHeight:Number = 0;

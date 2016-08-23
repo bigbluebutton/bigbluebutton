@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import org.bigbluebutton.screenshare.client.ExitCode;
 import org.bigbluebutton.screenshare.client.ScreenShareInfo;
+import org.bigbluebutton.screenshare.client.net.NetworkConnectionListener;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
@@ -35,12 +38,17 @@ public class FfmpegScreenshare {
   private final String FRAMERATE_KEY = "frameRate";
   private final String KEYFRAMEINTERVAL_KEY = "keyFrameInterval";
 
-  public FfmpegScreenshare(ScreenShareInfo ssi) {
+  private volatile boolean ignoreDisconnect = true;
+
+  private NetworkConnectionListener listener;
+
+  public FfmpegScreenshare(ScreenShareInfo ssi, NetworkConnectionListener listener) {
     this.ssi = ssi;
+    this.listener = listener;
   }
   
   public void setCaptureCoordinates(int x, int y){
-    // do nothing. Shoudl remove. 
+    // do nothing. Should remove.
   }
   
   private Map<String, String> splitToMap(String source, String entriesSeparator, String keyValueSeparator) {
@@ -87,14 +95,12 @@ public class FfmpegScreenshare {
     
     grabber.setFrameRate(frameRate);
     try {
+      ignoreDisconnect = false;
       grabber.start();
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
-    
-    
-    
+
 //    useH264(recorder, codecOptions);
     
     startTime = System.currentTimeMillis();
@@ -102,8 +108,7 @@ public class FfmpegScreenshare {
     try {
       mainRecorder.start();
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
   
@@ -141,13 +146,15 @@ public class FfmpegScreenshare {
         try {
           mainRecorder.record(frame);
         } catch (Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          System.out.println("CaptureScreen Exception 1");
+          if (!ignoreDisconnect) {
+            listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
+          }
+
         }
       }
     } catch (Exception e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
+      listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
 
@@ -182,23 +189,29 @@ public class FfmpegScreenshare {
         while (startBroadcast){
           captureScreen();
         }
-        System.out.println("Stopping screen capture.");     
+        System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
       }
     };
     startBroadcastExec.execute(startBroadcastRunner);    
   }
 
   public void stop() {
+    System.out.println("Stopping screen capture.");
     startBroadcast = false;
     if (mainRecorder != null) {
-
       try {
+        ignoreDisconnect = true;
+        System.out.println("mainRecorder.stop.");
         mainRecorder.stop();
+        System.out.println("mainRecorder.release.");
         mainRecorder.release();
-        grabber.stop();
+        System.out.println("grabber.stop.");
+        // Do not invoke grabber.stop as it exits the JWS app.
+        // Not sure why. (ralam - aug 10, 2016)
+        // grabber.stop();
+        System.out.println("End stop sequence.");
       } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
       }
     }
   }

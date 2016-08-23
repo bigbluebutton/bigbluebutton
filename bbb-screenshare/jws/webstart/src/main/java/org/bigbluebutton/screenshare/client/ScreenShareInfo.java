@@ -39,4 +39,5 @@ public class ScreenShareInfo {
   public Image sysTrayIcon;
   public boolean enableTrayActions;
   public String URL;
+  public String session;
 }

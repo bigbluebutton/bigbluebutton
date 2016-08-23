@@ -19,7 +19,7 @@
 package org.bigbluebutton.screenshare.client;
 
 public interface ScreenSharer {	
-  void start(boolean autoStart);	
+  void start();
   void disconnected();
   void stop();
   void addClientListener(ClientListener l);

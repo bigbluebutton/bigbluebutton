@@ -22,23 +22,27 @@ import java.awt.AWTException;
 import java.io.IOException;
 
 import org.bigbluebutton.screenshare.client.javacv.FfmpegScreenshare;
+import org.bigbluebutton.screenshare.client.net.NetworkConnectionListener;
+import org.bigbluebutton.screenshare.client.net.NetworkStreamListener;
 
 public class ScreenSharerRunner {
   public static final String NAME = "SCREENSHARERUNNER: ";
-	
+
   boolean connected = false;
   private boolean started = false;
   private ScreenShareInfo ssi;
   private int x, y, width, height;
-  private final FfmpegScreenshare jcs;
+  private FfmpegScreenshare jcs;
+  private NetworkConnectionListener listener;
 
-  public ScreenSharerRunner(ScreenShareInfo ssi) {
+  public ScreenSharerRunner(ScreenShareInfo ssi, NetworkConnectionListener listener) {
     this.ssi = ssi;
+    this.listener = listener;
 
 //    System.out.println("ScreenSharerRunner[captureWidth=" + ssi.captureWidth + ",captureHeight=" + ssi.captureHeight + "][" + ssi.x + "," + ssi.y +"]"
 //        + "[scaleWidth=" + ssi.scaleWidth + ",scaleHeight=" + ssi.scaleHeight + "]");
 
-    jcs = new FfmpegScreenshare(ssi);
+      jcs = new FfmpegScreenshare(ssi, listener);
   }
 
   public void updateScreenShareInfo(int x, int y, int width, int height) {
@@ -48,11 +52,13 @@ public class ScreenSharerRunner {
     this.height = height;
   }
   
-  public void startSharing() {	
-//    printHeader();
+  public void startSharing(String streamId) {
+    //    printHeader();
 
     try {
-      jcs.go(ssi.URL, x, y, width, height);
+      String publishUrl = ssi.URL + "/" + streamId;
+      System.out.println("Publishing stream [" + streamId + "] to " + publishUrl);
+      jcs.go(publishUrl, x, y, width, height);
       jcs.start();
     } catch (IOException e) {
       // TODO Auto-generated catch block
@@ -70,16 +76,13 @@ public class ScreenSharerRunner {
   }
 
   public void disconnectSharing(){
-    System.out.println(NAME + "Disconneted");
-
+    System.out.println(NAME + "Disconnected");
     jcs.stop();
-  } // END FUNCTION disconnectSharing
+  }
 
   public void stopSharing() {
     System.out.println(NAME + "Stopping");
-    System.out.println(NAME + "Removing icon from system tray.");
-
-    jcs.stop();	
+    jcs.stop();
   }
 
   public void setCaptureCoordinates(int x, int y) {

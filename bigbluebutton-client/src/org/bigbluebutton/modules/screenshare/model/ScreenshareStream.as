@@ -8,5 +8,6 @@ package org.bigbluebutton.modules.screenshare.model
     public var url: String;
     public var authToken: String;
     public var jnlp: String;
+    public var session: String;
   }
 }

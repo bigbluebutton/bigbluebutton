@@ -8,14 +8,18 @@ package org.bigbluebutton.modules.screenshare.events
     
     public var token: String = null;
     public var jnlp: String = null;
+    public var streamId: String = null;
     public var success: Boolean;
+    public var session: String;
     
-    public function ShareStartRequestResponseEvent(token: String, jnlp: String, success: Boolean)
+    public function ShareStartRequestResponseEvent(token: String, jnlp: String, streamId: String, success: Boolean, session: String)
     {
       super(SHARE_START_REQUEST_RESPONSE, true, false);
       this.token = token;
       this.jnlp = jnlp;
+      this.streamId = streamId;
       this.success = success;
+      this.session = session;
     }
   }
 }

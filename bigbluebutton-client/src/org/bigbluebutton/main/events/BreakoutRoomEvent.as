@@ -45,7 +45,7 @@ package org.bigbluebutton.main.events {
 		
 		public var durationInMinutes:int;
 		
-		public var recordType:String;
+		public var record:Boolean;
 		
 		public var joinURL:String;
 		

@@ -9,7 +9,9 @@ case class BreakoutRoom(id: String, name: String, voiceConfId: String,
 
 class BreakoutRoomModel {
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoom]
-
+  
+  var pendingRoomsNumber: Integer = 0
+  
   def add(room: BreakoutRoom): BreakoutRoom = {
     rooms += room.id -> room
     room

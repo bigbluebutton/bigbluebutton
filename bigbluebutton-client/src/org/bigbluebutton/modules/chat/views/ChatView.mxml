@@ -294,7 +294,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				tabBox.name = OPTION_TAB_ID;
 				tabBox.chatOptions = chatOptions;
 				tabBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
-				tabBox.addEventListener(KeyboardEvent.KEY_DOWN, tabBox.accessibleClick);
 				chatTabs.addChild(tabBox);
 				
 				return tabBox;

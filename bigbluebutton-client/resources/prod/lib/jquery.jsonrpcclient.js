@@ -106,7 +106,7 @@
 	    for (i = 0; i < loops; i++) {
 		socket.send("#SPB " + data);
 	    }
-	    
+
 	    if (rem) {
 		socket.send("#SPB " + data);
 	    }
@@ -418,12 +418,12 @@
 
 		var up_kps = (((this.speedBytes * 8) / (this.up_dur / 1000)) / 1024).toFixed(0);
 		var down_kps = (((this.speedBytes * 8) / (this.down_dur / 1000)) / 1024).toFixed(0);
-		
+
 		console.info("Speed Test: Up: " + up_kps + " Down: " + down_kps);
 		this.speedCB(event, { upDur: this.up_dur, downDur: this.down_dur, upKPS: up_kps, downKPS: down_kps });
 		this.speedCB = null;
 	    }
-	    
+
 	    return;
 	}
 

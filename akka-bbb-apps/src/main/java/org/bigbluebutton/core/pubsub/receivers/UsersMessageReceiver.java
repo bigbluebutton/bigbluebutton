@@ -33,6 +33,9 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case UserLeavingMessage.USER_LEAVING:
 						  processUserLeavingMessage(message);
 						  break;
+					  case AllowUserToShareDesktopRequest.NAME:
+						  processAllowUserToShareDesktopRequest(message);
+						  break;
 					  case AssignPresenterRequestMessage.ASSIGN_PRESENTER_REQUEST:
 						  processAssignPresenterRequestMessage(message);
 						  break;
@@ -193,7 +196,14 @@ public class UsersMessageReceiver implements MessageHandler{
 			  bbbInGW.userLeft(ulm.meetingId, ulm.userId, ulm.meetingId);
 		  }		
 	}
-	
+
+    private void processAllowUserToShareDesktopRequest(String message) {
+        AllowUserToShareDesktopRequest msg = AllowUserToShareDesktopRequest.fromJson(message);
+        if (msg != null) {
+            bbbInGW.checkIfAllowedToShareDesktop(msg.meetingId, msg.userId);
+        }
+    }
+
 	private void processAssignPresenterRequestMessage(String message) {
 		AssignPresenterRequestMessage apm = AssignPresenterRequestMessage.fromJson(message);
 		if (apm != null) {

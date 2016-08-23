@@ -31,11 +31,17 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleBreakoutRoomsList(msg: BreakoutRoomsListMessage) {
     val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id) }
-    outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms));
+    outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms, breakoutModel.pendingRoomsNumber == 0 && breakoutRooms.length > 0));
   }
 
   def handleCreateBreakoutRooms(msg: CreateBreakoutRooms) {
+    // If breakout rooms are being created we ignore the coming message
+    if (breakoutModel.pendingRoomsNumber > 0) {
+      log.warning("CreateBreakoutRooms event received while {} are pending to be created for meeting {}", breakoutModel.pendingRoomsNumber, mProps.meetingID)
+      return
+    }
     var i = 0
+    breakoutModel.pendingRoomsNumber = msg.rooms.length;
     for (room <- msg.rooms) {
       i += 1
       val presURL = bbbWebDefaultPresentationURL
@@ -44,7 +50,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
       val r = breakoutModel.createBreakoutRoom(breakoutMeetingId, room.name, voiceConfId, room.users, presURL)
       val p = new BreakoutRoomOutPayload(r.id, r.name, mProps.meetingID,
         r.voiceConfId, msg.durationInMinutes, mProps.moderatorPass, mProps.viewerPass,
-        r.defaultPresentationURL, msg.recordType)
+        r.defaultPresentationURL, msg.record)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, p))
     }
     meetingModel.breakoutRoomsdurationInMinutes = msg.durationInMinutes;
@@ -67,16 +73,24 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {
+    breakoutModel.pendingRoomsNumber -= 1
     val room = breakoutModel.getBreakoutRoom(msg.breakoutRoomId)
     room foreach { room =>
       sendBreakoutRoomStarted(mProps.meetingID, room.name, room.id, room.voiceConfId)
     }
 
-    breakoutModel.getAssignedUsers(msg.breakoutRoomId) foreach { users =>
-      users.foreach { u =>
-        log.debug("## Sending Join URL for users: {}", u);
-        sendJoinURL(u, msg.breakoutRoomId)
+    // We avoid sending invitation
+    if (breakoutModel.pendingRoomsNumber == 0) {
+      log.info("All breakout rooms created for meetingId={}", mProps.meetingID)
+      breakoutModel.getRooms().foreach { room =>
+        breakoutModel.getAssignedUsers(room.id) foreach { users =>
+          users.foreach { u =>
+            log.debug("## Sending Join URL for users: {}", u);
+            sendJoinURL(u, room.id)
+          }
+        }
       }
+      handleBreakoutRoomsList( new BreakoutRoomsListMessage(mProps.meetingID) )
     }
   }
 
@@ -116,7 +130,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     else {
       targetVoiceBridge = mProps.voiceBridge.dropRight(1)
     }
-    // We check the iser from the mode
+    // We check the user from the mode
     usersModel.getUser(msg.userId) match {
       case Some(u) => {
         if (u.voiceUser.joined) {

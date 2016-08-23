@@ -68,10 +68,11 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
   }
 
-  &:disabled {
+  &[aria-disabled="true"] {
     cursor: not-allowed;
     opacity: .65;
     box-shadow: none;
+    pointer-events: none;
   }
 }
 
@@ -167,14 +168,6 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
       border-color: darken($border, 25%);
     }
   }
-
-  &:disabled {
-    &:focus,
-    &:hover {
-      background-color: $background;
-      border-color: $border;
-    }
-  }
 }
 
 @mixin button-ghost-variant($color, $variant) {
@@ -202,13 +195,6 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
       border-color: darken($color, 25%);
     }
   }
-
-  &:disabled {
-    &:focus,
-    &:hover {
-      border-color: lighten($color, 20%);
-    }
-  }
 }
 
 .default {
@@ -226,6 +212,7 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
 .danger {
   @include button-variant($btn-danger-color, $btn-danger-bg, $btn-danger-border);
 }
+
 
 /* Styles
  * ==========
@@ -253,6 +240,7 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
     @include button-ghost-variant($btn-danger-bg, $btn-danger-color);
   }
 }
+
 
 .circle {
   $btn-sm-padding-x: nth($btn-sm-padding, 1) / 2;

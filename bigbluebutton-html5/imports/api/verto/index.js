@@ -1,3 +1,5 @@
+import {getInStorage} from '/imports/ui/components/app/service';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { clientConfig } from '/config';
 import { getVoiceBridge } from '/imports/api/phone';
@@ -9,61 +11,50 @@ function createVertoUserName() {
   return conferenceUsername;
 }
 
-function joinVertoAudio(options) {
-  joinVertoCall(options);
+function vertoExitAudio() {
+  window.vertoExitAudio();
 }
 
-function watchVertoVideo(options) {
-  joinVertoCall(options);
+function vertoJoinListenOnly() {
+  window.vertoJoinListenOnly(
+    'remote-media',
+    getVoiceBridge(),
+    createVertoUserName(),
+    null,
+  );
 }
 
-function joinVertoCall(options) {
-  console.log('joinVertoCall');
-  const extension = options.extension || getVoiceBridge();
+function vertoJoinMicrophone() {
+  window.vertoJoinMicrophone(
+    'remote-media',
+    getVoiceBridge(),
+    createVertoUserName(),
+    null,
+  );
+}
 
-  if (!isWebRTCAvailable()) {
-    return;
-  }
+function vertoWatchVideo() {
+  window.vertoWatchVideo(
+    'deskshareVideo',
+    getVoiceBridge(),
+    createVertoUserName(),
+    null,
+  );
+}
 
-  if (!clientConfig.useSIPAudio) {
-    const vertoServerCredentials = {
-      vertoPort: clientConfig.media.vertoPort,
-      hostName: clientConfig.media.vertoServerAddress,
-      login: conferenceIdNumber,
-      password: clientConfig.media.freeswitchProfilePassword,
-    };
-
-    let wasCallSuccessful = false;
-    let conferenceUsername = createVertoUserName();
-    let debuggerCallback = function (message) {
-      console.log('CALLBACK: ' + JSON.stringify(message));
-
-      //
-      // Beginning of hacky method to make Firefox media calls succeed.
-      // Always fail the first time. Retry on failure.
-      //
-      if (!!navigator.mozGetUserMedia && message.errorcode == 1001) {
-        const logCallback = function (m) {
-          console.log('CALLBACK: ' + JSON.stringify(m));
-        };
-
-        callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, logCallback,
-          'webcam', options, vertoServerCredentials);
-      }
-
-      //
-      // End of hacky method
-      //
-    };
-
-    callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback,
-      'webcam', options, vertoServerCredentials);
-    return;
-  }
+function shareVertoScreen() {
+  vertoManager.shareScreen(
+    'deskshareVideo',
+    getVoiceBridge(),
+    createVertoUserName(),
+    null,
+  );
 }
 
 export {
-  createVertoUserName,
-  joinVertoAudio,
-  watchVertoVideo,
+  vertoJoinListenOnly,
+  vertoJoinMicrophone,
+  vertoWatchVideo,
+  vertoExitAudio,
+  shareVertoScreen,
 };

@@ -24,7 +24,7 @@
 #   2009-10-18 FFD  Inital Version   
 #   2009-11-05 FFD  Updated for 0.62   
 #   2009-12-09 FFD  Updated for 0.63   
-#   2009-12-11 FFD  Added ability to swtich conference servers   
+#   2009-12-11 FFD  Added ability to switch conference servers   
 #   2009-12-12 FFD  Added cleaning and watching of log files   
 #   2010-01-05 FFD  Added zipping of log files   
 #   2010-01-18 FFD  Added resetting of environment back to using packages   
@@ -32,7 +32,7 @@
 #   2010-04-02 FFD  Updated for 0.64   
 #   2010-06-21 SEB  Cleaned up some code / Updated for 0.70
 #   2010-06-25 SEB  Added ability to change the security salt
-#   2010-06-30 SEB  Added some extra errorchecking
+#   2010-06-30 SEB  Added some extra error checking
 #   2010-07-06 SEB  Added more error checking and report messages
 #   2010-09-15 FFD  Updates for 0.71-dev
 #   2010-10-16 FFD  Updates for 0.71-beta
@@ -52,6 +52,7 @@
 #   2016-01-13 FFD  Updates for 1.0
 #   2016-02-28 FFD  Updates to support HTTPS configuration
 #   2016-05-28 FFD  Initial updates for 1.1-dev
+#   2016-08-15 GTR  Archive more logs with zip option and show more applications with status
 
 #set -x
 #set -e
@@ -61,10 +62,11 @@ PATH=$PATH:/sbin
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
-# Figure out our environemtn
+# Figure out our environment
 #
 
 RED5_DIR=/usr/share/red5
+RED5=red5
 
 SERVLET_CONTAINER=tomcat7
 SERVLET_DIR=/var/lib/$SERVLET_CONTAINER/webapps
@@ -77,7 +79,6 @@ FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.
 if lsb_release -d | grep -q CentOS; then
   DISTRIB_ID=centos
   SERVLET_LOGS=/usr/share/$SERVLET_CONTAINER/logs
-  RED5=red5
   FREESWITCH=freeswitch
   FREESWITCH_INIT_D="/etc/init.d/freeswitch"
   TOMCAT_USER=tomcat
@@ -85,13 +86,11 @@ else
   . /etc/lsb-release 
   if [ "$DISTRIB_CODENAME" == "trusty" ]; then
     SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
-    RED5=red5
     FREESWITCH=freeswitch
     FREESWITCH_INIT_D="/etc/init.d/freeswitch"
     TOMCAT_USER=tomcat7
   else
     SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
-    RED5=red5
     FREESWITCH=freeswitch
     FREESWITCH_INIT_D="/etc/init.d/freeswitch"
     TOMCAT_USER=tomcat7
@@ -158,7 +157,7 @@ MEM=`free -m | grep Mem | awk '{ print $2}'`
 #
 # Check if the function has a value and, if not, print an error message
 # $1 -- name of value
-# $2 -- loctation of value
+# $2 -- location of value
 # $3 -- value to check
 #
 check_no_value() {
@@ -211,7 +210,7 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-	echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
+        echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
@@ -405,7 +404,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka"
+	units="start red5 tomcat7 nginx freeswitch redis-server libreoffice bbb-apps-akka bbb-fsesl-akka"
 	for unit in $units; do
 		echo "$unit: $(systemctl is-active $unit)"
 	done 
@@ -1004,7 +1003,7 @@ check_state() {
 
 
 	#
-	# Check red5 applictaions
+	# Check red5 applications
 	#
 	AVAIL_RED5_APPS=""
 	UNAVAIL_RED5_APPS=""
@@ -1058,7 +1057,7 @@ check_state() {
 
 
 	#
-	# Check if any of the red5 BigBlueButton applications did not start propery
+	# Check if any of the red5 BigBlueButton applications did not start properly
 	#
 	COUNT=0
 	while [ $COUNT -lt 20 ]; do
@@ -1148,7 +1147,7 @@ check_state() {
 	fi
 
 	#
-	# Check that bigbluebutton in red5 has started propertly (less than 100 lines indicates that it
+	# Check that bigbluebutton in red5 has started properly (less than 100 lines indicates that it
 	# didn't start)
 	# 
 	if [ -f $RED5_DIR/log/bigbluebutton.log ]; then
@@ -1518,11 +1517,13 @@ if [ $ZIP ]; then
 	rm -f /tmp/a
 
 	touch /tmp/empty
-	tar cf /tmp/$LOG_FILE.tar /tmp/empty			> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar $RED5_DIR/log			> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar $SERVLET_LOGS			> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
+	tar cf  /tmp/$LOG_FILE.tar /tmp/empty				> /dev/null 2>&1
+	tar rfh /tmp/$LOG_FILE.tar $RED5_DIR/log			> /dev/null 2>&1
+	tar rfh /tmp/$LOG_FILE.tar $SERVLET_LOGS			> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-apps-akka	> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/bbb-fsesl-akka	> /dev/null 2>&1
+	tar rf  /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
 	if [ $DISTRIB_ID == "ubuntu" ]; then
 		tar rf /tmp/$LOG_FILE.tar /var/log/syslog		> /dev/null 2>&1
 	fi

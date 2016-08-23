@@ -16,10 +16,10 @@
         <!-- other extensions -->
 
         <extension name="public_extensions">
-            <condition field="destination_number" expression="^\d{5}$">
-                <action application="log" data="INFO ************ redirecting ${destination_number} to ${destination_number}-DESKSHARE@video-mcu-stereo ***********" />
+            <condition field="destination_number" expression="^\d{5}-DESKSHARE$">
+                <action application="log" data="INFO ************WEBRTC DESKSHARE EXT***********" />
                 <action application="answer"/>
-                <action application="conference" data="${destination_number}-DESKSHARE@video-mcu-stereo"/>
+                <action application="conference" data="${destination_number}@video-mcu-stereo"/>
             </condition>
         </extension>
 
