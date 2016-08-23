@@ -8,6 +8,8 @@ import { clearMeetingsCollection }
   from '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
 import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
+import { clearCaptionsCollection }
+  from '/imports/api/captions/server/modifiers/clearCaptionsCollection';
 import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server';
 
@@ -33,14 +35,28 @@ export function clearCollections() {
     return;
   }
 
-  clearUsersCollection();
-  clearChatCollection();
-  clearMeetingsCollection();
-  clearShapesCollection();
-  clearSlidesCollection();
-  clearPresentationsCollection();
-  clearPollCollection();
-  clearCursorCollection();
+  const meetingId = arguments[0];
+  if (meetingId != null) {
+    clearUsersCollection(meetingId);
+    clearChatCollection(meetingId);
+    clearMeetingsCollection(meetingId);
+    clearShapesCollection(meetingId);
+    clearSlidesCollection(meetingId);
+    clearPresentationsCollection(meetingId);
+    clearPollCollection(meetingId);
+    clearCursorCollection(meetingId);
+    clearCaptionsCollection(meetingId);
+  } else {
+    clearUsersCollection();
+    clearChatCollection();
+    clearMeetingsCollection();
+    clearShapesCollection();
+    clearSlidesCollection();
+    clearPresentationsCollection();
+    clearPollCollection();
+    clearCursorCollection();
+    clearCaptionsCollection();
+  }
 }
 
 export const indexOf = [].indexOf || function (item) {

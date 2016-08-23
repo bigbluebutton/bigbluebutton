@@ -77,7 +77,9 @@ class MessageList extends Component {
     }
 
     const { scrollArea } = this.refs;
-    this.shouldScrollBottom = scrollArea.scrollTop + scrollArea.offsetHeight === scrollArea.scrollHeight;
+    this.shouldScrollBottom = scrollArea.scrollTop +
+                              scrollArea.offsetHeight ===
+                              scrollArea.scrollHeight;
 
     const d = document;
     const isDocumentHidden = d.hidden || d.mozHidden || d.msHidden || d.webkitHidden;
