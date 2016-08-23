@@ -25,5 +25,9 @@
   "app.whiteboard.slideControls.zoomDescrip": "Change the zoom level of the presentation",
   "app.failedMessage": "Apologies, trouble connecting to the server.",
   "app.connectingMessage": "Connecting...",
-  "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds..."
+  "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds...",
+  "app.modals.dropdown.settingsDropdown": "Settings dropdown",
+  "app.modals.dropdown.fullScreen": "Make fullscreen",
+  "app.modals.dropdown.settingsModal": "Open settings menu",
+  "app.modals.dropdown.leaveSession": "Logout"
 }

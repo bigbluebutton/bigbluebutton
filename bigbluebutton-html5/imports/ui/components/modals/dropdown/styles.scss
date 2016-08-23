@@ -1,41 +1,16 @@
 @import "imports/ui/stylesheets/variables/_all";
 
-.settingsMenuLeft {
-  width: 14%;
-  float: right;
-}
-
 .settingsMenuItem {
   padding-top:20px;
-}
-
-.settingsMenuItemActive {
-  color: #ffffff;
-}
-
-.settingsMenuLastItem {
-  padding-top:20px;
-  padding-bottom:20px;
 }
 
 .settingsMenuItemText {
   margin-left: 10px;
 }
 
-.divModal {
-  clear: 'both';
-  height: 100%;
-}
-
 .menuList {
   list-style-type: none;
   padding-left: 0px;
-}
-
-.descModal {
-  position: fixed;
-  left: -999em;
-  margin: 0;
 }
 
 .settingBtn {
@@ -59,7 +34,7 @@
     position: relative;
 }
 
-.dropdown_active_content {
+.dropdownActiveContent {
   margin-top: 14px;
   margin-right: -3px;
   padding-left: 15px;
@@ -72,6 +47,7 @@
   text-align: left;
   font-size: $font-size-base;
   border-radius: 3%;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
 }
 
  .triangleOnDropdown {

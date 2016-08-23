@@ -12,16 +12,17 @@ export default class DropdownTrigger extends Component {
     const { labelBtn, iconBtn } = this.props;
 
     return (
-      <Button className={styles.settingBtn}
-          role='button'
-          label={labelBtn}
-          icon={iconBtn}
-          ghost={true}
-          circle={true}
-          hideLabel={true}
-          onClick={this.toggle}
-          onKeyDown={this.toggle}
-          aria-haspopup={'true'}/>
+      <Button
+        className={styles.settingBtn}
+        role='button'
+        label={labelBtn}
+        icon={iconBtn}
+        ghost={true}
+        circle={true}
+        hideLabel={true}
+        onClick={this.toggle}
+        onKeyDown={this.toggle}
+        aria-haspopup={'true'}/>
     );
   }
 }
