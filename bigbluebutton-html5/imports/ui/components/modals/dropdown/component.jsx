@@ -31,7 +31,7 @@ export default class SettingsDropdown extends Component {
   }
 
   componentWillUpdate() {
-    if (!this.refs.dropdown.state.isMenuOpen && this.state.activeMenu > 0) {
+    if (this.refs.dropdown.state.isMenuOpen && this.state.activeMenu >= 0) {
       this.setState({ activeMenu: -1, focusMenu: 0, });
     }
   }
@@ -50,25 +50,14 @@ export default class SettingsDropdown extends Component {
       let newIndex = 0;
       if (this.state.focusMenu >= menusLength) {
         newIndex = 0;
-        this.refs.dropdown.hideMenu();
+        if(!event.shiftKey) {
+          this.refs.dropdown.hideMenu();
+        }
       } else {
         newIndex = this.state.focusMenu;
       }
 
       this.setState({ focusMenu: newIndex });
-      return;
-    }
-
-    // Down key
-    if (pressedKey === 40) {
-      if (this.state.focusMenu >= menusLength) { // checks if at end of menu
-        this.setState({ focusMenu: 0 },
-           () => { this.setFocus(); });
-      } else {
-        this.setState({ focusMenu: this.state.focusMenu + 1 },
-           () => { this.setFocus(); });
-      }
-
       return;
     }
 
@@ -81,7 +70,8 @@ export default class SettingsDropdown extends Component {
         newIndex = this.state.focusMenu - 1;
       }
 
-      this.setState({ focusMenu: newIndex });
+      this.setState({ focusMenu: newIndex },
+        () => {console.log(this.state.focusMenu);});
       return;
     }
 
@@ -92,6 +82,19 @@ export default class SettingsDropdown extends Component {
            () => { this.setFocus(); });
       } else {
         this.setState({ focusMenu: this.state.focusMenu - 1 },
+           () => { this.setFocus(); });
+      }
+
+      return;
+    }
+
+    // Down key
+    if (pressedKey === 40) {
+      if (this.state.focusMenu >= menusLength) { // checks if at end of menu
+        this.setState({ focusMenu: 0 },
+           () => { this.setFocus(); });
+      } else {
+        this.setState({ focusMenu: this.state.focusMenu + 1 },
            () => { this.setFocus(); });
       }
 
@@ -170,7 +173,7 @@ export default class SettingsDropdown extends Component {
                       <Icon key={index} prependIconName={value.props.prependIconName}
                         iconName={value.props.icon} title={value.props.title}/>
                       <span className={styles.settingsMenuItemText}>{value.props.title}</span>
-                      {index == '0' ? <hr /> : null}
+                      {index == '0' ? <hr className={styles.hrDropdown}/> : null}
                     </li>
                   ))}
                 </ul>

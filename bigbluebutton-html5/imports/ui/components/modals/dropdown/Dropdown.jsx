@@ -17,7 +17,7 @@ export default class Dropdown extends Component {
   }
 
   showMenu(event) {
-    this.setState({ isMenuOpen: true, });
+    this.setState({ isMenuOpen: !this.state.isMenuOpen, });
     let pressedKey = event.keyCode;
 
     if (pressedKey === 9 || pressedKey == 40) {
@@ -59,7 +59,7 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const toggleMenu = this.toggle.bind(this);
+    const toggleMenu = this.showMenu.bind(this);
 
     // stick callback on trigger element
     const boundChildren = React.Children.map(this.props.children, (child) => {
