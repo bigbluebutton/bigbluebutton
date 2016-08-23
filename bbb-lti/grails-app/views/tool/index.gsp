@@ -36,7 +36,7 @@
                 <tr class="r0 lastrow">
                     <td class="cell c0" style="text-align:center;">
                     <g:each in="${r.playback}" var="p">
-                        <a title="${p.type}" target="_new" href="${p.url}">${p.type}</a>&#32;
+                        <a title="<g:message code="tool.view.recording.format.${p.type}" />" target="_new" href="${p.url}"><g:message code="tool.view.recording.format.${p.type}" /></a>&#32;
                     </g:each>
                     </td>
                     <td class="cell c1" style="text-align:center;">${r.name}</td>
