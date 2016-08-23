@@ -125,9 +125,6 @@ package org.bigbluebutton.modules.screenshare.managers {
             sharing = false;
             var option:ScreenshareOptions = new ScreenshareOptions();
             option.parseOptions();
-            if (option.autoStart) {
-                handleStartSharingEvent(true);
-            }
             if (option.showButton) {
                 toolbarButtonManager.addToolbarButton();
             }
@@ -155,13 +152,13 @@ package org.bigbluebutton.modules.screenshare.managers {
 
             if (option.useWebRTCIfAvailable && !BrowserCheck.isWebRTCSupported()) {
               usingJava = true;
-              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), option.autoStart, option.autoFullScreen);
+              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom());
               sharing = true;
               service.requestStartSharing();
             } else {
               sharing = true;
               usingJava = false;
-              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), option.autoStart, option.autoFullScreen);
+              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom());
               service.requestStartSharing();
             }
         }
@@ -200,13 +197,13 @@ package org.bigbluebutton.modules.screenshare.managers {
             }
         }
         
-        public function handleStartSharingEvent(autoStart:Boolean):void {
+        public function handleStartSharingEvent():void {
             LOGGER.debug("handleStartSharingEvent");
             //toolbarButtonManager.disableToolbarButton();
             toolbarButtonManager.startedSharing();
             var option:ScreenshareOptions = new ScreenshareOptions();
             option.parseOptions();
-            publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), option.autoStart, option.autoFullScreen);
+            publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom());
             sharing = true;
         }
         
@@ -227,7 +224,7 @@ package org.bigbluebutton.modules.screenshare.managers {
         public function handleUseJavaModeCommand():void {
           JSLog.warn("ScreenshareManager::handleUseJavaModeCommand", {});
           usingJava = true;
-          handleStartSharingEvent(true);
+          handleStartSharingEvent();
         }
 
         public function handleDeskshareToolbarStopEvent():void {
