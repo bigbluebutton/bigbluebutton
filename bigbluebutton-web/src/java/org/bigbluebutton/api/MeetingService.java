@@ -524,6 +524,8 @@ public class MeetingService implements MessageListener {
         params.put("voiceBridge", message.voiceConfId);
         params.put("duration", message.durationInMinutes.toString());
         params.put("record", message.record.toString());
+        params.put("welcome", getMeeting(message.parentId)
+                .getWelcomeMessageTemplate());
 
         Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 

@@ -198,7 +198,7 @@ class BigbluebuttonService {
     private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, Integer voiceBridge, String logoutURL, String record, Integer duration, String meta ) {
         voiceBridge = ( voiceBridge == null || voiceBridge == 0 )? 70000 + new Random(System.currentTimeMillis()).nextInt(10000): voiceBridge;
 
-        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", record, duration.toString(), meta );
+        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, null, voiceBridge.toString(), null, logoutURL, null, record, duration.toString(), meta );
         return url;
     }
 

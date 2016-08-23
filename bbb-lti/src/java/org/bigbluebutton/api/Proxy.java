@@ -79,10 +79,16 @@ public class Proxy {
         url += "&attendeePW=" + attendeePW;
         url += "&welcome=" + getStringEncoded(welcome);
         url += "&logoutURL=" + getStringEncoded(logoutURL);
-        url += "&maxParticipants=" + maxParticipants;
         url += "&voiceBridge=" + voiceBridge;
-        url += "&dialNumber=" + dialNumber;
-        url += "&webVoice=" + webVoice;
+        if ( maxParticipants != null ) {
+            url += "&maxParticipants=" + maxParticipants;
+        }
+        if ( dialNumber != null ) {
+            url += "&dialNumber=" + dialNumber;
+        }
+        if ( webVoice != null ) {
+            url += "&webVoice=" + webVoice;
+        }
         url += "&record=" + record;
         url += "&duration=" + duration;
         url += "&" + meta;

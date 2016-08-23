@@ -382,8 +382,8 @@ class ToolController {
         def lti_endpoint = ltiService.retrieveBasicLtiEndpoint() + '/' + grailsApplication.metadata['app.name']
         def launch_url = 'http://' + lti_endpoint + '/tool'
         def secure_launch_url = 'https://' + lti_endpoint + '/tool'
-        def icon = 'http://' + lti_endpoint + '/images/icon.ico'
-        def secure_icon = 'https://' + lti_endpoint + '/images/icon.ico'
+        def icon = 'http://' + lti_endpoint + '/assets/icon.ico'
+        def secure_icon = 'https://' + lti_endpoint + '/assets/icon.ico'
         def isSSLEnabled = ltiService.isSSLEnabled('https://' + lti_endpoint + '/tool/test')
         def cartridge = '' +
                 '<?xml version="1.0" encoding="UTF-8"?>' +

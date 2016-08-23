@@ -137,6 +137,7 @@ object MeetingMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
     payload.put("rooms", msg.rooms.toArray)
+    payload.put("roomsReady", msg.roomsReady)
 
     val header = Util.buildHeader(BreakoutRoomsList.NAME, None)
     Util.buildJson(header, payload)

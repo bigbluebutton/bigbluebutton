@@ -316,14 +316,15 @@ public class ParamsProcessorUtil {
 	    boolean record = processRecordMeeting(params.get("record"));
 	    int maxUsers = processMaxUser(params.get("maxParticipants"));
 	    int meetingDuration = processMeetingDuration(params.get("duration"));
-	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
-	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
-	   
-	    // set is breakout room property
-	    boolean isBreakout = false;
-	    if (! StringUtils.isEmpty(params.get("isBreakout"))) {
-	      isBreakout = new Boolean(params.get("isBreakout"));
-	    }
+	    
+        // set is breakout room property
+        boolean isBreakout = false;
+        if (!StringUtils.isEmpty(params.get("isBreakout"))) {
+            isBreakout = new Boolean(params.get("isBreakout"));
+        }
+
+        String welcomeMessageTemplate = processWelcomeMessage(params.get("welcome"), isBreakout);
+        String welcomeMessage = substituteKeywords(welcomeMessageTemplate, dialNumber, telVoice, meetingName);
 	      
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 	    
@@ -358,31 +359,40 @@ public class ParamsProcessorUtil {
 	    // app can reuse the external meeting id.
 	    long createTime = System.currentTimeMillis();
 	    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString();
-	    
-      // If this create meeting request is for a breakout room, we just used
-      // the passed in breakoutId as the internal meetingId so we can correlate
-      // the breakout meeting with it's parent meeting.
-      if (isBreakout) {
-        internalMeetingId = params.get("breakoutId");
-      }
-      
-	    // Create the meeting with all passed in parameters.
-	    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId, createTime)
-	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
-	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
-	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-	        .withDefaultAvatarURL(defaultAvatarURL).withAutoStartRecording(autoStartRec).withAllowStartStopRecording(allowStartStoptRec)
-	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).isBreakout(isBreakout).build();
-	    
-	    String configXML = getDefaultConfigXML();
-	    meeting.storeConfig(true, configXML);
-	     
-	    if (! StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
-	      String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
-	      meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
-	    }
-	    
-	    return meeting;
+
+        // If this create meeting request is for a breakout room, we just used
+        // the passed in breakoutId as the internal meetingId so we can
+        // correlate
+        // the breakout meeting with it's parent meeting.
+        if (isBreakout) {
+            internalMeetingId = params.get("breakoutId");
+        }
+
+        // Create the meeting with all passed in parameters.
+        Meeting meeting = new Meeting.Builder(externalMeetingId,
+                internalMeetingId, createTime).withName(meetingName)
+                .withMaxUsers(maxUsers).withModeratorPass(modPass)
+                .withViewerPass(viewerPass).withRecording(record)
+                .withDuration(meetingDuration).withLogoutUrl(logoutUrl)
+                .withTelVoice(telVoice).withWebVoice(webVoice)
+                .withDialNumber(dialNumber)
+                .withDefaultAvatarURL(defaultAvatarURL)
+                .withAutoStartRecording(autoStartRec)
+                .withAllowStartStopRecording(allowStartStoptRec)
+                .withMetadata(meetingInfo)
+                .withWelcomeMessageTemplate(welcomeMessageTemplate)
+                .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
+                .build();
+
+        String configXML = getDefaultConfigXML();
+        meeting.storeConfig(true, configXML);
+
+        if (!StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
+            String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
+            meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
+        }
+
+        return meeting;
 	}
 	
 	public String getApiVersion() {
@@ -440,15 +450,15 @@ public class ParamsProcessorUtil {
      	}
 	}
 	
-	public String processWelcomeMessage(String message) {
-		String welcomeMessage = message;
-		if (StringUtils.isEmpty(message)) {
-			welcomeMessage = defaultWelcomeMessage;
-		}
-		if( !StringUtils.isEmpty(defaultWelcomeMessageFooter) )
-		    welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
-		return welcomeMessage;
-	}
+    public String processWelcomeMessage(String message, Boolean isBreakout) {
+        String welcomeMessage = message;
+        if (StringUtils.isEmpty(message)) {
+            welcomeMessage = defaultWelcomeMessage;
+        }
+        if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout)
+            welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
+        return welcomeMessage;
+    }
 
 	public String convertToInternalMeetingId(String extMeetingId) {
 		return DigestUtils.shaHex(extMeetingId);

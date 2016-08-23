@@ -121,6 +121,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var unassignedList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 				unassignedList.users = new ArrayCollection([me]);
 				unassignedList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
+				unassignedList.notAssignedUsers = true;
 				startButton.enabled = true;
 			}			
 			
