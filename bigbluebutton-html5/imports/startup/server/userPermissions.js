@@ -49,6 +49,9 @@ const moderator = {
   //user control
   kickUser: true,
   setPresenter: true,
+
+  //captions
+  subscribeCaptions: true,
 };
 
 // holds the values for whether the viewer user is allowed to perform an action (true)
@@ -104,6 +107,9 @@ const viewer = function (meetingId, userId) {
     //emojis
     setEmojiStatus: true,
     clearEmojiStatus: true,
+
+    //captions
+    subscribeCaptions: true,
   };
 };
 
