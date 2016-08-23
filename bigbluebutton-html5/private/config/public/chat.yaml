@@ -12,4 +12,4 @@ chat:
   # Keys
   storage_key: 'UNREAD_CHATS'
   # Chat paths
-  private_path: 'users/chat/'  # TODO: change private_path to path_route
+  path_route: 'users/chat/'

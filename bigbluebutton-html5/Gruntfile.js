@@ -6,26 +6,23 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
 
   // importing the Meteor settings:
-  var SETTINGS_DEV = require('./settings-development.json');
-  var SETTINGS_PROD = require('./settings-production.json');
+  var SHELL_CONFIG = require('./private/config/server/shell.yaml');
+  var PROD_SHELL_CONFIG = require('./private/config/production/server/shell.yaml');
 
   // root URL in development/production:
-  var devRootURL = (SETTINGS_DEV.rootURL == undefined)
+  var rootURL = (SHELL_CONFIG.rootURL == undefined)
     ? 'http://127.0.0.1/html5client'
-    : SETTINGS_DEV.rootURL;
-  var prodRootURL = (SETTINGS_PROD.rootURL == undefined)
-    ? 'http://127.0.0.1/html5client'
-    : SETTINGS_PROD.rootURL;
+    : SHELL_CONFIG.rootURL;
 
-  // command line string containing the Meteor's home directory in development/production:
-  var devHomeStr = (SETTINGS_DEV.home == undefined) ? '' : ('HOME=' + SETTINGS_DEV.home + ' ');
-  var prodHomeStr = (SETTINGS_PROD.home == undefined) ? '' : ('HOME=' + SETTINGS_PROD.home + ' ');
+  // command line string containing the Meteor's home directory in production:
+  var prodHomeStr =
+    (PROD_SHELL_CONFIG.home == undefined) ? '' : ('HOME=' + SETTINGS_PROD.home + ' ');
 
   // final commands:
-  var METEOR_DEV_COMMAND = devHomeStr + 'ROOT_URL=' +
-    devRootURL + ' meteor --settings settings-development.json';
+  var METEOR_DEV_COMMAND = 'ROOT_URL=' +
+    rootURL + ' NODE_ENV=development' + ' meteor';
   var METEOR_PROD_COMMAND = prodHomeStr + 'ROOT_URL=' +
-    prodRootURL + ' meteor --settings settings-production.json';
+    rootURL + ' NODE_ENV=production' + ' meteor';
 
   // configure Grunt
   grunt.initConfig({

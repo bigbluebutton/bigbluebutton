@@ -7,7 +7,7 @@ import { Link } from 'react-router';
 import cx from 'classnames';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PRIVATE_CHAT_PATH = CHAT_CONFIG.private_path;
+const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
 
 const propTypes = {
   chat: React.PropTypes.shape({
