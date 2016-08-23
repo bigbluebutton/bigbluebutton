@@ -27,7 +27,8 @@ package org.bigbluebutton.modules.screenshare.managers {
     import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
     import org.bigbluebutton.modules.screenshare.events.StartShareRequestFailedEvent;
     import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
-    import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
+    import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
+    import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -78,7 +79,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             service.checkIfPresenterIsSharingScreen();
         }
         
-        public function handleStreamStartedEvent(event:StreamStartedEvent):void {
+        public function handleScreenShareStartedEvent(event:ShareStartedEvent):void {
             ScreenshareModel.getInstance().streamId = event.streamId;
             ScreenshareModel.getInstance().width = event.width;
             ScreenshareModel.getInstance().height = event.height;
@@ -100,6 +101,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             ScreenshareModel.getInstance().width = event.width;
             ScreenshareModel.getInstance().height = event.height;
             ScreenshareModel.getInstance().url = event.url;
+            ScreenshareModel.getInstance().session = event.session
             
             if (UsersUtil.amIPresenter()) {
                 //        var dispatcher:Dispatcher = new Dispatcher();
@@ -111,6 +113,12 @@ package org.bigbluebutton.modules.screenshare.managers {
             
             var dispatcher:Dispatcher = new Dispatcher();
             dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.START));
+        }
+        
+        private function handleStreamStartEvent(streamId:String, videoWidth:Number, videoHeight:Number):void {
+            LOGGER.debug("Received start vieweing command");
+            //if (!usingJava) { return; }
+            viewWindowManager.startViewing(streamId, videoWidth, videoHeight);
         }
 
         private function initDeskshare():void {
@@ -157,6 +165,11 @@ package org.bigbluebutton.modules.screenshare.managers {
               service.requestStartSharing();
             }
         }
+       
+        public function handleScreenShareClientPingMessage(event: ScreenShareClientPingMessage):void {
+            LOGGER.debug("handleScreenShareClientPingMessage");
+            service.sendClientPongMessage(event.streamId, event.timestamp);
+        }
         
         public function handleRequestPauseSharingEvent():void {
             service.requestPauseSharing(ScreenshareModel.getInstance().streamId);
@@ -179,6 +192,8 @@ package org.bigbluebutton.modules.screenshare.managers {
                 ScreenshareModel.getInstance().authToken = event.token;
                 ScreenshareModel.getInstance().jnlp = event.jnlp;
                 ScreenshareModel.getInstance().streamId = event.streamId;
+                ScreenshareModel.getInstance().session = event.session;
+                
                 dispatcher.dispatchEvent(new StartShareRequestSuccessEvent(ScreenshareModel.getInstance().authToken));
             } else {
                 dispatcher.dispatchEvent(new StartShareRequestFailedEvent());
@@ -207,11 +222,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             viewWindowManager.handleViewWindowCloseEvent();
         }
         
-        private function handleStreamStartEvent(streamId:String, videoWidth:Number, videoHeight:Number):void {
-            LOGGER.debug("Received start vieweing command");
-            //if (!usingJava) { return; }
-            viewWindowManager.startViewing(streamId, videoWidth, videoHeight);
-        }
+
 
         public function handleUseJavaModeCommand():void {
           JSLog.warn("ScreenshareManager::handleUseJavaModeCommand", {});

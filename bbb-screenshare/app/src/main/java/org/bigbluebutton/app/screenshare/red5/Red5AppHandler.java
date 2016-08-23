@@ -22,8 +22,8 @@ public class Red5AppHandler {
     app.meetingHasEnded(meetingId);
   }
 
-  public void meetingCreated(String meetingId) {
-    app.meetingCreated(meetingId);
+  public void meetingCreated(String meetingId, Boolean record) {
+    app.meetingCreated(meetingId, record);
   }
 
   public void userConnected(String meetingId, String userId) {
@@ -56,6 +56,10 @@ public class Red5AppHandler {
     if (matcher.matches()) {            
         app.stopShareRequest(meetingId, streamId);
     }
+  }
+
+  public void screenShareClientPongMessage(String meetingId, String userId, String streamId, Long timestamp) {
+    app.screenShareClientPongMessage(meetingId, userId, streamId, timestamp);
   }
     
   public void setApplication(IScreenShareApplication app) {

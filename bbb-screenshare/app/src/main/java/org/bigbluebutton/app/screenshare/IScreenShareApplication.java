@@ -23,5 +23,6 @@ public interface IScreenShareApplication {
   void userDisconnected(String meetingId, String userId);
   void userConnected(String meetingId, String userId);
   void meetingHasEnded(String meetingId);
-  void meetingCreated(String meetingId);
+  void meetingCreated(String meetingId, Boolean record);
+  void screenShareClientPongMessage(String meetingId, String userId, String streamId, Long timestamp);
 }

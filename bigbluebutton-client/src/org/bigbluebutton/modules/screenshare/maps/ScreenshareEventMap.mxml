@@ -35,12 +35,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
             import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
-			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
+			import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
+            import org.bigbluebutton.modules.screenshare.events.ShareEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
+            import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
 			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.screenshare.events.StreamEvent;
-			import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
 			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.managers.ScreenshareManager;
@@ -84,6 +85,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ScreenshareManager}" method="handleShareStartRequestResponseEvent" arguments="{event}"/>
   </EventHandlers>
   
+  <EventHandlers type="{ScreenShareClientPingMessage.CLIENT_PING}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleScreenShareClientPingMessage" arguments="{event}"/>
+  </EventHandlers>
+  
+    
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
 		<MethodInvoker generator="{ScreenshareManager}" method="handleMadePresenterEvent" arguments="{event}"/>
 	</EventHandlers>
@@ -92,8 +98,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ScreenshareManager}" method="handleMadeViewerEvent" arguments="{event}"/>
 	</EventHandlers>
 			
-	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
-		<MethodInvoker generator="{ScreenshareManager}" method="handleStreamStartedEvent" arguments="{event}"/>
+	<EventHandlers type="{ShareStartedEvent.SHARE_STATED}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleScreenShareStartedEvent" arguments="{event}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{IsSharingScreenEvent.IS_SCREENSHARING}">
@@ -101,7 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 	
 		
-	<EventHandlers type="{ShareWindowEvent.CLOSE}">		
+	<EventHandlers type="{ShareWindowEvent.CLOSE}">	
 		<MethodInvoker generator="{ScreenshareManager}" method="handleShareWindowCloseEvent"/>
 	</EventHandlers>
 

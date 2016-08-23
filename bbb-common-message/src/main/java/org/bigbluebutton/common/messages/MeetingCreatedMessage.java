@@ -10,9 +10,11 @@ public class MeetingCreatedMessage implements ISubscribedMessage {
 	public final String VERSION = "0.0.1";
 
 	public final String meetingId;
+	public final Boolean record;
 
-	public MeetingCreatedMessage(String meetingID) {
-		this.meetingId = meetingID;
+	public MeetingCreatedMessage(String meetingId, Boolean record) {
+		this.meetingId = meetingId;
+		this.record = record;
 	}
 
 	public String toJson() {
@@ -35,10 +37,10 @@ public class MeetingCreatedMessage implements ISubscribedMessage {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (MEETING_CREATED.equals(messageName)) {
-					if (payload.has(Constants.MEETING_ID)) {
+					if (payload.has(Constants.MEETING_ID) && payload.has(Constants.RECORDED)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
-
-						return new MeetingCreatedMessage(meetingId);
+						Boolean record = payload.get(Constants.RECORDED).getAsBoolean();
+						return new MeetingCreatedMessage(meetingId, record);
 					}
 				}
 			}

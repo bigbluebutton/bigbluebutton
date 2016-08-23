@@ -44,7 +44,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
   <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
   <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="handleDisconnectedEvent" />
-  <mate:Listener type="{StreamStoppedEvent.STREAM_STOPPED}" method="handleStreamStoppedEvent" />
     
   <mx:Script>
     <![CDATA[
@@ -71,8 +70,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
       import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-      import org.bigbluebutton.modules.screenshare.events.StreamEvent;
-      import org.bigbluebutton.modules.screenshare.events.StreamStoppedEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -206,14 +203,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleScreenShareShareStoppedEvent(event:ShareStoppedEvent):void {
         LOGGER.debug("handleScreenShareShareStoppedEvent");     
-        //closeWindow();
+        closeWindow();
       }
       
       private function handleScreenSharePausedEvent(event:ScreenSharePausedEvent):void {
-        LOGGER.debug("handleScreenSharePausedEvent");         
-      }
-      
-      private function handleStreamStoppedEvent(event:StreamStoppedEvent):void {
         if (videoHolder != null && video != null && video.parent == videoHolder) {
             videoHolder.removeChild(video);
             
@@ -286,8 +279,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function stopSharingEvent(evt:StopSharingButtonEvent):void{
         if (streaming) {
           stopStream();
-          var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
-          dispatchEvent(streamEvent);
         }
         sharingFullScreen = false;
         streaming = false;

@@ -21,18 +21,13 @@ package org.bigbluebutton.app.screenshare.server.sessions
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.Session.StopSession
-import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager.MeetingHasEnded
 import scala.collection.mutable.HashMap
-import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, StartShareRequestFailedResponse}
+import org.bigbluebutton.app.screenshare.events.{IEventsMessageBus, IsScreenSharingResponse, ScreenShareStartRequestFailedResponse}
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 
 object ScreenshareManager {
   def props(system: ActorSystem, bus: IEventsMessageBus): Props =
   Props(classOf[ScreenshareManager], system, bus)
-
-  case class HasScreenShareSession(meetingId: String)
-  case class HasScreenShareSessionReply(meetingId: String, sharing: Boolean, streamId:Option[String])
-  case class MeetingHasEnded(meetingId: String)
 }
 
 class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
@@ -58,11 +53,21 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     case msg: UpdateShareStatus           => handleUpdateShareStatus(msg)
     case msg: UserDisconnected            => handleUserDisconnected(msg)
     case msg: UserConnected               => handleUserConnected(msg)
-    case msg: MeetingHasEnded             => handleMeetingHasEnded(msg)
+    case msg: MeetingEnded             => handleMeetingHasEnded(msg)
     case msg: MeetingCreated              => handleMeetingCreated(msg)
-
+    case msg: ClientPongMessage           => handleClientPongMessage(msg)
 
     case msg: Any => log.warning("Unknown message " + msg)
+  }
+
+  private def handleClientPongMessage(msg: ClientPongMessage) {
+    if (log.isDebugEnabled) {
+      log.debug("Received ClientPongMessage message for meeting=[" + msg.meetingId + "]")
+    }
+
+    screenshares.get(msg.meetingId) foreach { screenshare =>
+      screenshare.actorRef ! msg
+    }
   }
 
   private def handleUserDisconnected(msg: UserDisconnected) {
@@ -99,7 +104,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     }
 
     if (screenshares.get(msg.meetingId).isEmpty) {
-      val info = new StreamInfo(false, "", 0, 0, "")
+      val info = new StreamInfo(false, "none", 0, 0, "none", "none")
       bus.send(new IsScreenSharingResponse(msg.meetingId, msg.userId, info))
     } else {
       screenshares.get(msg.meetingId) foreach { screenshare =>
@@ -108,7 +113,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     }
   }
 
-  private def handleMeetingHasEnded(msg: MeetingHasEnded) {
+  private def handleMeetingHasEnded(msg: MeetingEnded) {
     log.info("Removing meeting [" + msg.meetingId + "]")
 
     screenshares.get(msg.meetingId) foreach { screenshare =>
@@ -126,7 +131,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
         if (log.isDebugEnabled) {
           log.debug("Creating screenshare=[" + msg.meetingId + "]")
         }
-        val activeScreenshare = ActiveScreenshare(this, bus, msg.meetingId)
+        val activeScreenshare = ActiveScreenshare(this, bus, msg.meetingId, msg.record)
         screenshares += msg.meetingId -> activeScreenshare
 
       }
@@ -235,7 +240,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
         if (log.isDebugEnabled) {
           log.warning("Reqeusting to share on non-existing meeting with id=[" + msg.meetingId + "]")
         }
-        bus.send(new StartShareRequestFailedResponse(msg.meetingId, msg.userId, "UNKNOWN_MEETING"))
+        bus.send(new ScreenShareStartRequestFailedResponse(msg.meetingId, msg.userId, "UNKNOWN_MEETING"))
 
       case Some(screenshare) =>
         if (log.isDebugEnabled) {
