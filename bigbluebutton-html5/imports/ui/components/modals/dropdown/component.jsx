@@ -70,8 +70,7 @@ export default class SettingsDropdown extends Component {
         newIndex = this.state.focusMenu - 1;
       }
 
-      this.setState({ focusMenu: newIndex },
-        () => {console.log(this.state.focusMenu);});
+      this.setState({ focusMenu: newIndex });
       return;
     }
 
@@ -171,7 +170,7 @@ export default class SettingsDropdown extends Component {
                       ref={'menu' + index}
                       className={styles.settingsMenuItem}>
                       <Icon key={index} prependIconName={value.props.prependIconName}
-                        iconName={value.props.icon} title={value.props.title}/>
+                        iconName={value.props.icon} title={value.props.title} className={styles.iconColor}/>
                       <span className={styles.settingsMenuItemText}>{value.props.title}</span>
                       {index == '0' ? <hr className={styles.hrDropdown}/> : null}
                     </li>
@@ -180,7 +179,7 @@ export default class SettingsDropdown extends Component {
             </div>
           </DropdownContent>
         </Dropdown>
-        <div>{this.createMenu()}</div>
+        <div role='presentation'>{this.createMenu()}</div>
       </div>
     );
   }

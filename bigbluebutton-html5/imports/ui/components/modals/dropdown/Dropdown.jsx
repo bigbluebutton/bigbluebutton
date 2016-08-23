@@ -14,11 +14,13 @@ export default class Dropdown extends Component {
     this.state = { isMenuOpen: false, };
     this.showMenu = this.showMenu.bind(this);
     this.hideMenu = this.hideMenu.bind(this);
+    this.toggle = this.toggle.bind(this);
   }
 
   showMenu(event) {
-    this.setState({ isMenuOpen: !this.state.isMenuOpen, });
     let pressedKey = event.keyCode;
+
+    this.setState({ isMenuOpen: !this.state.isMenuOpen, });
 
     if (pressedKey === 9 || pressedKey == 40) {
       this.props.menuFocus(event);
@@ -59,13 +61,13 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const toggleMenu = this.showMenu.bind(this);
+    const toggle = this.toggle;
 
     // stick callback on trigger element
     const boundChildren = React.Children.map(this.props.children, (child) => {
       if (child.type === DropdownTrigger) {
         child = React.cloneElement(child, {
-          toggleMenu: toggleMenu,
+          toggle: toggle,
         });
       }
 
@@ -78,8 +80,8 @@ export default class Dropdown extends Component {
     return (
       <div className={styles.dropdown}>
         {trigger}
-        { this.state.isMenuOpen ?
-          content : null }
+        {this.state.isMenuOpen ?
+          content : null}
       </div>
     );
   }

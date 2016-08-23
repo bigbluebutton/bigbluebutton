@@ -50,8 +50,8 @@
 }
 
 .hrDropdown {
-  border: 0.5px solid black;
-  width: 150px;
+  border: 0.3px solid $color-gray-light;
+  width: 165px;
   text-align: center;
 }
 
@@ -67,10 +67,10 @@
   width: 190px;
   display: block;
   background-color: #ffffff;
-  font-size: $font-size-base * 1.1;
   position: absolute;
   right: 0;
   text-align: left;
+  font-size: $font-size-base;
   border-radius: 3%;
 }
 
@@ -83,4 +83,9 @@
    border-left: 18px solid transparent;
    border-right: 18px solid transparent;
    border-bottom: 18px solid #ffffff;
+ }
+
+ .iconColor {
+   font-size: $font-size-base;
+   color: $color-gray-light;
  }

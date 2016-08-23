@@ -5,11 +5,12 @@ import styles from './styles';
 export default class DropdownTrigger extends Component {
   constructor(props) {
     super(props);
+    this.toggle = this.props.toggle.bind(this);
   }
 
   render() {
     const { labelBtn, iconBtn } = this.props;
-    const toggle = this.props.toggleMenu.bind(this);
+
     return (
       <Button className={styles.settingBtn}
           role='button'
@@ -18,8 +19,8 @@ export default class DropdownTrigger extends Component {
           ghost={true}
           circle={true}
           hideLabel={true}
-          onClick={toggle}
-          onKeyDown={toggle}
+          onClick={this.toggle}
+          onKeyDown={this.toggle}
           aria-haspopup={'true'}/>
     );
   }

@@ -55,7 +55,7 @@ export default class ButtonBase extends Component {
     this.internalKeyUpHandler = this.internalKeyUpHandler.bind(this);
   }
 
-  validateDisabled(eventHandler, args) {
+  validateDisabled(eventHandler, ...args) {
     if (!this.props.disabled && typeof eventHandler === 'function') {
       return eventHandler(...args);
     }
