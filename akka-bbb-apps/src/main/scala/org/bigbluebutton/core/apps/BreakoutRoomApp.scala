@@ -90,7 +90,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
           }
         }
       }
-      handleBreakoutRoomsList( new BreakoutRoomsListMessage(mProps.meetingID) )
+      handleBreakoutRoomsList(new BreakoutRoomsListMessage(mProps.meetingID))
     }
   }
 
