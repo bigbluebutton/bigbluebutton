@@ -1063,3 +1063,9 @@ EmojiGrid {
 	paddingTop: 12;
 	horizontalAlign: center;
 }
+
+.breakoutRoomTimerBox {
+	backgroundColor: #CCCCCC;
+	verticalAlign: middle;
+	horizontalAlign: center;
+}

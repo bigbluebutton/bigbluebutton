@@ -28,16 +28,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
-			
+
 			[Bindable]
-			public var roomName : String
-			
+			public var roomName:String
+
 			[Bindable]
-			public var users : ArrayCollection;
-			
+			public var users:ArrayCollection;
+
+			[Bindable]
+			public var notAssignedUsers:Boolean;
 		]]>
 	</fx:Script>
-	<mx:Label text="{roomName}" width="100%" />
+	<mx:Label text="{roomName}" width="100%" fontWeight="{notAssignedUsers ? 'normal' : 'bold'}" />
 	<mx:List width="100%" height="100%" dataProvider="{users}" labelField="name"
 			 dragEnabled="true" dragMoveEnabled="true" dropEnabled="true"/>
 </mx:VBox>
