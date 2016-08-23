@@ -107,7 +107,6 @@ eventEmitter.on('user_joined_message', function (arg) {
 
 eventEmitter.on('get_users_reply', function (arg) {
   if (inReplyToHTML5Client(arg)) {
-    console.log('get_users_reply handling');
     let users = arg.payload.users;
     const meetingId = arg.payload.meeting_id;
 
