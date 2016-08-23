@@ -101,6 +101,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             ScreenshareModel.getInstance().width = event.width;
             ScreenshareModel.getInstance().height = event.height;
             ScreenshareModel.getInstance().url = event.url;
+            ScreenshareModel.getInstance().session = event.session
             
             if (UsersUtil.amIPresenter()) {
                 //        var dispatcher:Dispatcher = new Dispatcher();
@@ -191,6 +192,8 @@ package org.bigbluebutton.modules.screenshare.managers {
                 ScreenshareModel.getInstance().authToken = event.token;
                 ScreenshareModel.getInstance().jnlp = event.jnlp;
                 ScreenshareModel.getInstance().streamId = event.streamId;
+                ScreenshareModel.getInstance().session = event.session;
+                
                 dispatcher.dispatchEvent(new StartShareRequestSuccessEvent(ScreenshareModel.getInstance().authToken));
             } else {
                 dispatcher.dispatchEvent(new StartShareRequestFailedEvent());

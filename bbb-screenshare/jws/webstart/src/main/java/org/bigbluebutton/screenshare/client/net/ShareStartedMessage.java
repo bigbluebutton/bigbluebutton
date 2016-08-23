@@ -6,12 +6,14 @@ public class ShareStartedMessage implements Message {
   public final String streamId;
   public final int width;
   public final int height;
+  public final String session;
   
-  public ShareStartedMessage(String meetingId, String streamId, int width, int height) {
+  public ShareStartedMessage(String meetingId, String streamId, int width, int height, String session) {
     this.meetingId = meetingId;
     this.streamId = streamId;
     this.width = width;
     this.height = height;
+    this.session = session;
   }
   
   @Override

@@ -104,9 +104,10 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     String streamId = null;
     String serverUrl = null;
     Boolean captureFullScreen = false;
+    String session = null;
     String codecOptions = null;
     
-    if(args != null && args.length == 7) {
+    if(args != null && args.length == 8) {
       System.out.println("Using passed args: length=[" + args.length + "]");
       url = args[0];
       serverUrl = args[1];
@@ -116,8 +117,10 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
       
       System.out.println("Using passed args: [" + url + "] meetingId=[" + meetingId + "] streamId=[" + streamId + "] captureFullScreen=" + captureFullScreen);
       codecOptions = args[5];
-      
-      String errorMessage = args[6];
+
+      session = args[6];
+
+      String errorMessage = args[7];
       
       if (! errorMessage.equalsIgnoreCase("NO_ERRORS")) {
         dsMain.displayJavaWarning(errorMessage);

@@ -506,7 +506,112 @@ TitleWindow {
 	fontWeight: bold;
 }
 
+.desktopShareViewStyle {
+	backgroundColor: #FFFFFF;
+	paddingTop: 15;
+	paddingLeft: 15;
+	paddingBottom: 15;
+	paddingRight: 15;
+}
+
+.publishHelppcIE1 {
+	imageSource: Embed(source='assets/images/bbb_pc_ie_1.png');
+}
+
+.publishHelppcIE2 {
+	imageSource: Embed(source='assets/images/bbb_pc_ie_2.png');
+}
+
+.publishHelppcIE3 {
+	imageSource: Embed(source='assets/images/bbb_pc_ie_3.png');
+}
+
+.publishHelppcFirefox1 {
+	imageSource: Embed(source='assets/images/bbb_pc_firefox_1.png');
+}
+
+.publishHelppcFirefox2 {
+	imageSource: Embed(source='assets/images/bbb_pc_firefox_2.png');
+}
+
+.publishHelppcFirefox3 {
+	imageSource: Embed(source='assets/images/bbb_pc_firefox_3.png');
+}
+
+.publishHelppcChrome1 {
+	imageSource: Embed(source='assets/images/bbb_pc_chrome_1.png');
+}
+
+.publishHelppcChrome2 {
+	imageSource: Embed(source='assets/images/bbb_pc_chrome_2.png');
+}
+
+.publishHelppcChrome3 {
+	imageSource: Embed(source='assets/images/bbb_pc_chrome_3.png');
+}
+
+.publishHelpmacSafari1 {
+	imageSource: Embed(source='assets/images/bbb_mac_safari_1.png');
+}
+
+.publishHelpmacSafari2 {
+	imageSource: Embed(source='assets/images/bbb_mac_safari_2.png');
+}
+
+.publishHelpmacSafari3 {
+	imageSource: Embed(source='assets/images/bbb_mac_safari_3.png');
+}
+
+.publishHelpmacFirefox1 {
+	imageSource: Embed(source='assets/images/bbb_mac_firefox_1.png');
+}
+
+.publishHelpmacFirefox2 {
+	imageSource: Embed(source='assets/images/bbb_mac_firefox_2.png');
+}
+
+.publishHelpmacFirefox3 {
+	imageSource: Embed(source='assets/images/bbb_mac_firefox_3.png');
+}
+
+.publishHelpmacChrome1 {
+	imageSource: Embed(source='assets/images/bbb_mac_chrome_1.png');
+}
+
+.publishHelpmacChrome2 {
+	imageSource: Embed(source='assets/images/bbb_mac_chrome_2.png');
+}
+
+.publishHelpmacChrome3 {
+	imageSource: Embed(source='assets/images/bbb_mac_chrome_3.png');
+}
+
+.publishHelplinuxFirefox1 {
+	imageSource: Embed(source='assets/images/bbb_linux_firefox_1.png');
+}
+
+.publishHelplinuxFirefox2 {
+	imageSource: Embed(source='assets/images/bbb_linux_firefox_2.png');
+}
+
+.publishHelplinuxFirefox3 {
+	imageSource: Embed(source='assets/images/bbb_linux_firefox_3.png');
+}
+
+.publishHelplinuxChrome1 {
+	imageSource: Embed(source='assets/images/bbb_linux_chrome_1.png');
+}
+
+.publishHelplinuxChrome2 {
+	imageSource: Embed(source='assets/images/bbb_linux_chrome_2.png');
+}
+
+.publishHelplinuxChrome3 {
+	imageSource: Embed(source='assets/images/bbb_linux_chrome_3.png');
+}
+
 .desktopShareTextStyle {
+	color: #3f3f3f;
 	fontSize:	11;
 	fontWeight:	bold;	
 }
@@ -956,5 +1061,11 @@ EmojiGrid {
 
 .breakoutRoomsBox {
 	paddingTop: 12;
+	horizontalAlign: center;
+}
+
+.breakoutRoomTimerBox {
+	backgroundColor: #CCCCCC;
+	verticalAlign: middle;
 	horizontalAlign: center;
 }

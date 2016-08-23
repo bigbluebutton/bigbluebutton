@@ -51,7 +51,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       logger.debug("Received meetingHasEnded on meeting=" + meetingId + "]")
     }
 
-    screenShareManager ! new MeetingHasEnded(meetingId)
+    screenShareManager ! new MeetingEnded(meetingId)
 
   }
 
@@ -98,7 +98,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       val reply = Await.result(future, timeout.duration).asInstanceOf[ScreenShareInfoRequestReply]
 
       val publishUrl = streamBaseUrl + "/" + meetingId
-      val info = new ScreenShareInfo(publishUrl, reply.streamId)
+      val info = new ScreenShareInfo(reply.session, publishUrl, reply.streamId)
       new ScreenShareInfoResponse(info, null)
     } catch {
       case e: TimeoutException =>
