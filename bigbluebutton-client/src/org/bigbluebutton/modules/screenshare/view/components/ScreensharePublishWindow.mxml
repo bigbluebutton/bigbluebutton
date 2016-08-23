@@ -73,6 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+      import org.bigbluebutton.modules.screenshare.services.red5.Connection;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
@@ -84,7 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var images:Images = new Images();
       [Bindable] public var bbbLogo:Class = images.bbb_logo;
       
-      private var connection:NetConnection;
+      private var connection:Connection;
       private var uri:String;
       private var room:String;
       private var sharingFullScreen:Boolean = false;
@@ -178,7 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       */
       public function resetWidthAndHeight():void{/* do nothing */}
       
-      public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
+      public function initWindow(connection:Connection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
         this.connection = connection;
         this.uri = uri;
         this.room = room;
@@ -224,7 +225,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function shareScreen(fullScreen:Boolean):void {
         LOGGER.debug("Calling shareScreen");
         startBtn.enabled = false;
-        startSharing(connection, uri, room, fullScreen);
+        startSharing(connection.getConnection(), uri, room, fullScreen);
       }
       
       private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
@@ -291,7 +292,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var width: int = ScreenshareModel.getInstance().width;
         var height: int = ScreenshareModel.getInstance().height;
         var streamId: String = ScreenshareModel.getInstance().streamId;
-        startPreviewStream(connection, streamId, width, height);
+        startPreviewStream(connection.getConnection(), streamId, width, height);
       }
       
       private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{

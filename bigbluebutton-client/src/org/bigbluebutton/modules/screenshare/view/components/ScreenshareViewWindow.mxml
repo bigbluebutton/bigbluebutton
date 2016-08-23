@@ -57,6 +57,7 @@
       import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.core.managers.ReconnectionManager;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.modules.screenshare.services.red5.Connection;
       
       private static const LOG:String = "SC::ScreenshareViewWIndow - ";
       private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
@@ -87,7 +88,7 @@
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
-			private var connection:NetConnection;
+			private var connection:Connection;
       
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:ScreenshareOptions;
@@ -129,7 +130,7 @@
 				}
 			}
 					
-			public function startVideo(connection:NetConnection):void{
+			public function startVideo(connection:Connection):void{
         var logData:Object = new Object();
         logData.width = videoWidth;
         logData.height = videoHeight;
@@ -152,7 +153,7 @@
         
         JSLog.debug(LOG + "viewScreenshareStream Chrome", logData);
         
-        ns = new NetStream(connection);
+        ns = new NetStream(connection.getConnection());
         ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
         ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
         ns.client = this;
