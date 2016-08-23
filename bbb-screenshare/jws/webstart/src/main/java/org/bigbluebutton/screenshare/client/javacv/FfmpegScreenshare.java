@@ -178,7 +178,7 @@ public class FfmpegScreenshare {
     try{
       Thread.sleep(dur);
     } catch (Exception e){
-      System.out.println("Exception sleeping.");
+      listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
 
@@ -208,7 +208,7 @@ public class FfmpegScreenshare {
         System.out.println("grabber.stop.");
         // Do not invoke grabber.stop as it exits the JWS app.
         // Not sure why. (ralam - aug 10, 2016)
-        // grabber.stop();
+        //grabber.stop();
         System.out.println("End stop sequence.");
       } catch (Exception e) {
         listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
