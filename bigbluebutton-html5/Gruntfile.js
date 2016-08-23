@@ -10,13 +10,13 @@ module.exports = function (grunt) {
   var PROD_SHELL_CONFIG = require('./private/config/production/server/shell.yaml');
 
   // root URL in development/production:
-  var rootURL = (SHELL_CONFIG.rootURL == undefined)
+  var rootURL = (SHELL_CONFIG.shell.rootURL == undefined)
     ? 'http://127.0.0.1/html5client'
-    : SHELL_CONFIG.rootURL;
+    : SHELL_CONFIG.shell.rootURL;
 
   // command line string containing the Meteor's home directory in production:
-  var prodHomeStr =
-    (PROD_SHELL_CONFIG.home == undefined) ? '' : ('HOME=' + SETTINGS_PROD.home + ' ');
+  var prodHomeStr = (PROD_SHELL_CONFIG.shell.home == undefined) ? ''
+                        : ('HOME=' + PROD_SHELL_CONFIG.shell.home + ' ');
 
   // final commands:
   var METEOR_DEV_COMMAND = 'ROOT_URL=' +

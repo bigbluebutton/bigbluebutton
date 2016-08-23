@@ -3,33 +3,29 @@ import Winston from 'winston';
 
 let Logger = new Winston.Logger();
 
+// Write logs to console
+Logger.add(Winston.transports.Console, {
+    prettyPrint: true,
+    humanReadableUnhandledException: true,
+    colorize: true,
+});
+
 Meteor.startup(() => {
   const LOG_CONFIG = Meteor.settings.log || {};
+  let filename = LOG_CONFIG.filename;
 
   // Determine file to write logs to
-  if (LOG_CONFIG.filename) {
-    let filename = LOG_CONFIG.filename;
-
-    if (Meteor.settings.runtime.env == 'production') {
-      Logger.add(Winston.transports.File,
-        { filename: LOG_CONFIG.filename,
-          prettyPrint: true,
-        });
-    } else {
-      Logger.add(Winston.transports.File,
-        { filename: `${process.env.PWD}/` + LOG_CONFIG.filename,
-          prettyPrint: true,
-        });
+  if (filename) {
+    if (Meteor.settings.runtime.env === 'development') {
+      const path = Npm.require('path');
+      filename = path.join(process.env.PWD, filename);
     }
+
+    Logger.add(Winston.transports.File, {
+        filename: filename,
+        prettyPrint: true,
+    });
   }
-
-  // Write logs to console
-  Logger.add(Winston.transports.Console,
-    { prettyPrint: true,
-      humanReadableUnhandledException: true,
-      colorize: true,
-    }
-  );
 });
 
 export default Logger;
