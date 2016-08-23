@@ -75,7 +75,7 @@ package org.bigbluebutton.common {
 		
 		private static var loggingTargetName:String = "trace";
 		
-		private static var logPattern:String = "/^*$/g";
+		private static var logPattern:String = ".*";
 
 		/**
 		 * Initialises logging from the application configuration.

@@ -77,17 +77,11 @@ package org.bigbluebutton.util.logging
 
 		public function log(name:String, shortName:String, level:int, timeStamp:Number, message:*, parameters:Array, person:String):void
 		{
-			// check if contains info from config field
-			import org.bigbluebutton.main.api.JSLog;
-			var logData:Object = new Object();
-
 			var formattedMessage:String=_formatter.format(name, shortName, level, timeStamp, message, parameters, person);
 
+			// check if contains info from config field
 			var reg1:RegExp = new RegExp(_logPattern, "g");
-			// JSLog.debug("~~~~~~log:" + formattedMessage, new Object());
-
 			if(reg1.test(formattedMessage)) { // only log messages of the specified pattern
-				// JSLog.debug(reg1.source + " check was true", new Object());
 				if (UsersUtil.getInternalMeetingID() != null && UsersUtil.getMyUserID() != "UNKNOWN USER") {
 					var arr:Array = new Array ();
 					arr.push({"name":name, "shortName":shortName, "level":level, "timeStamp":timeStamp, "message":formattedMessage, "parameters":parameters, "person":person});
@@ -146,8 +140,7 @@ package org.bigbluebutton.util.logging
 		{
 			if (!_sending)
 			{
-				/*_sending=true;
-				_variables.message=_queue[0];
+				_sending=true;
 
 				// We will alwasy recycle the URLRequest instance and use it to send logging HTTP requests
 				if (!_request)
@@ -156,9 +149,9 @@ package org.bigbluebutton.util.logging
 					_request.method=URLRequestMethod.POST;
 				}
 
-				var JsonObj:String = JSON.stringify(_variables);
 				_request.contentType = "application/json";
-				_request.data=JsonObj;
+				var logMessage:String = _queue[0];
+				_request.data = logMessage;
 
 				var loader:URLLoader=new URLLoader();
 				loader.addEventListener(IOErrorEvent.IO_ERROR, function(event:Event):void
@@ -168,10 +161,10 @@ package org.bigbluebutton.util.logging
 				});
 				loader.addEventListener(Event.COMPLETE, function(event:Event):void
 				{
-					removeFromQueue(_variables.message);
+					removeFromQueue(logMessage);
 					_sending=false;
 				});
-				loader.load(_request);*/
+				loader.load(_request);
 			}
 		}
 	}
