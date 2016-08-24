@@ -17,8 +17,13 @@ export default class Dropdown extends Component {
     let pressedKey = event.keyCode;
     this.setState({ isMenuOpen: true, });
 
-    // User pressed tab or down arrow
-    if (pressedKey === 9 || pressedKey == 40) {
+    // User pressed tab
+    if (pressedKey === 9) {
+      this.hideMenu();
+    }
+
+    // User pressed down arrow or enter or space
+    if (pressedKey === 40 || pressedKey === 13 || pressedKey === 32) {
       this.props.focusMenu(event);
     }
   }

@@ -24,7 +24,7 @@ export default class SettingsDropdown extends Component {
         props: { title: 'Fullscreen', prependIconName: 'icon-', icon: 'bbb-full-screen', },
         tabIndex: 1, });
     this.menus.push({ className: SettingsModal,
-        props: { title: 'Settings/Options', prependIconName: 'icon-', icon: 'bbb-more', },
+        props: { title: 'Settings', prependIconName: 'icon-', icon: 'bbb-more', },
         tabIndex: 2, });
     this.menus.push({ className: SessionMenu,
         props: { title: 'Leave Session', prependIconName: 'icon-', icon: 'bbb-logout', },
@@ -169,8 +169,8 @@ export default class SettingsDropdown extends Component {
         <p id="settingsModal" hidden>
           <FormattedMessage
             id="app.modals.dropdown.settingsModal"
-            description="Aria label for settingsModal"
-            defaultMessage="Open settings menu"
+            description="Aria label for settings"
+            defaultMessage="Open Settings"
           />
         </p>
         );
@@ -180,7 +180,7 @@ export default class SettingsDropdown extends Component {
         <p id="leaveSession" hidden>
           <FormattedMessage
             id="app.modals.dropdown.leaveSession"
-            description="Aria label for settings dropdown"
+            description="Aria label for logout"
             defaultMessage="Logout"
           />
         </p>
@@ -233,8 +233,8 @@ export default class SettingsDropdown extends Component {
         <p id="settingsDropdown" hidden>
           <FormattedMessage
             id="app.modals.dropdown.settingsDropdown"
-            description="Aria label for settings dropdown"
-            defaultMessage="Settings dropdown"
+            description="Aria label for Options"
+            defaultMessage="Options"
           />
         </p>
       </div>
