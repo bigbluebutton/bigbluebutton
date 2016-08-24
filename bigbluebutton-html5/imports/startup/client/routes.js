@@ -10,7 +10,8 @@ import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
 
 const browserHistory = useRouterHistory(createHistory)({
-  basename: '/html5client',
+  // Name displayed in the brower URL
+  basename: Meteor.settings.public.app.basename,
 });
 
 export const renderRoutes = () => (

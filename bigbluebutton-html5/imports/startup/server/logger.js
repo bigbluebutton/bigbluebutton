@@ -1,15 +1,33 @@
-// Setting up a logger
-const log = {};
-if (process != null && process.env != null && process.env.NODE_ENV == 'production') {
-  log.path = '/var/log/bigbluebutton/html5/html5client.log';
-} else {
-  log.path = `${process.env.PWD}/log/development.log`;
-}
+import { Meteor } from 'meteor/meteor';
+import Winston from 'winston';
 
-export let logger = new Winston.Logger({
-  transports: [
-    new Winston.transports.Console(), new Winston.transports.File({
-      filename: log.path,
-    }),
-  ],
+let Logger = new Winston.Logger();
+
+// Write logs to console
+Logger.add(Winston.transports.Console, {
+    prettyPrint: true,
+    humanReadableUnhandledException: true,
+    colorize: true,
 });
+
+Meteor.startup(() => {
+  const LOG_CONFIG = Meteor.settings.log || {};
+  let filename = LOG_CONFIG.filename;
+
+  // Determine file to write logs to
+  if (filename) {
+    if (Meteor.settings.runtime.env === 'development') {
+      const path = Npm.require('path');
+      filename = path.join(process.env.PWD, filename);
+    }
+
+    Logger.add(Winston.transports.File, {
+        filename: filename,
+        prettyPrint: true,
+    });
+  }
+});
+
+export default Logger;
+
+export let logger = Logger;

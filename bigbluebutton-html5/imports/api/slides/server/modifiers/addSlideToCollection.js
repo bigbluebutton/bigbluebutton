@@ -1,8 +1,8 @@
 import sizeOf from 'image-size';
 import Slides from '/imports/api/slides';
-import { clientConfig } from '/config';
 
 export function addSlideToCollection(meetingId, presentationId, slideObject) {
+  const APP_CONFIG = Meteor.settings.public.app;
   const url = Npm.require('url');
 
   const imageUri = slideObject.svg_uri != null ? slideObject.svg_uri : slideObject.png_uri;
@@ -50,7 +50,7 @@ export function addSlideToCollection(meetingId, presentationId, slideObject) {
     };
 
     // HTTPS connection
-    if (clientConfig.app.httpsConnection) {
+    if (APP_CONFIG.httpsConnection) {
       const https = Npm.require('https');
 
       https.get(options, Meteor.bindEnvironment(function (response) {

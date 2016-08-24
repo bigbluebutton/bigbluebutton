@@ -1,7 +1,0 @@
-{
-  "public": {
-    "mode": "production"
-  },
-  "rootURL": "http://127.0.0.1/html5client",
-  "home": "/usr/share/meteor"
-}

@@ -65,6 +65,8 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       frame.setWidth(ssi.captureWidth);
       frame.setLocation(ssi.x, ssi.y);
       System.out.println(NAME + "Launching Screen Capture Frame");
+      System.out.println(NAME + " - Launching Screen Capture Frame:: x=" + ssi.x + ",y=" + ssi.y + ",w=" +
+              ssi.captureWidth + ",h=" + ssi.captureHeight);
       status = "START";
 
       System.out.println(NAME + "Starting Screen Capture Frame. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
@@ -134,20 +136,14 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
 
     @Override
     public void onCaptureRegionMoved(int x, int y) {
-      ssi.x = x;
-      ssi.y = y;
       if (sharer != null)
         sharer.setCaptureCoordinates(x, y);
     }
 
     @Override
     public void onStartCapture(int x, int y, int width, int height) {
-      ssi.x = x;
-      ssi.y = y;
-      ssi.captureWidth = width;
-      ssi.captureHeight = height;
-      ssi.scaleWidth = width;
-      ssi.scaleHeight = height;
+      System.out.println(NAME + " - onStartCapture x=" + ssi.x + ",y=" + ssi.y + ",w=" +
+              ssi.captureWidth + ",h=" + ssi.captureHeight);
       sharer.updateScreenShareInfo(x, y, width, height);
 
       sharer.addClientListener(listener);
