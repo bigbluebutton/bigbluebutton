@@ -10,5 +10,20 @@
   "app.chat.titlePrivate": "Private Chat with {name}",
   "app.chat.partnerDisconnected": "{name} has left the meeting",
   "app.chat.moreMessages": "More messages below",
-  "app.kickMessage": "You have been kicked out of the meeting"
+  "app.kickMessage": "You have been kicked out of the meeting",
+  "app.whiteboard.slideControls.prevSlideLabel": "Previous slide",
+  "app.whiteboard.slideControls.prevSlideDescrip": "Change the presentation to the previous slide",
+  "app.whiteboard.slideControls.nextSlideLabel": "Next slide",
+  "app.whiteboard.slideControls.nextSlideDescrip": "Change the presentation to the next slide",
+  "app.whiteboard.slideControls.skipSlideLabel": "Skip slide",
+  "app.whiteboard.slideControls.skipSlideDescrip": "Change the presentation to a specific slide",
+  "app.whiteboard.slideControls.fitWidthLabel": "Fit to width",
+  "app.whiteboard.slideControls.fitWidthDescrip": "Display the whole width of the slide",
+  "app.whiteboard.slideControls.fitScreenLabel": "Fit to screen",
+  "app.whiteboard.slideControls.fitScreenDescrip": "Display the whole slide",
+  "app.whiteboard.slideControls.zoomLabel": "Zoom",
+  "app.whiteboard.slideControls.zoomDescrip": "Change the zoom level of the presentation",
+  "app.failedMessage": "Apologies, trouble connecting to the server.",
+  "app.connectingMessage": "Connecting...",
+  "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds..."
 }

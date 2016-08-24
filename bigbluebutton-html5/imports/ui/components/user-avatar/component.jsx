@@ -20,11 +20,11 @@ const defaultProps = {
 export default class UserAvatar extends Component {
   render() {
     const {
-      user
+      user,
     } = this.props;
 
     let avatarStyles = {
-      'backgroundColor': getColor(user.name),
+      backgroundColor: getColor(user.name),
     };
 
     return (
@@ -43,8 +43,8 @@ export default class UserAvatar extends Component {
 
     let content = user.name.slice(0, 2);
 
-    if (user.emoji.status !== "none") {
-      content = <Icon iconName={user.emoji.status}/>
+    if (user.emoji.status !== 'none') {
+      content = <Icon iconName={user.emoji.status}/>;
     }
 
     return content;

@@ -1,8 +1,8 @@
 <html>
     <head>
         <title><g:message code="tool.view.title" /></title>
-        <link rel="stylesheet" href="${resource(dir:'css',file:'bootstrap.css')}" />
-        <link rel="shortcut icon" href="${resource(dir:'images',file:'favicon.ico')}" type="image/x-icon" />
+        <link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">
+        <asset:stylesheet src="bootstrap.css"/>
     </head>
     <body>
 <!-- tool.index  -->

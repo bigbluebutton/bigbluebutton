@@ -46,6 +46,16 @@ package org.bigbluebutton.modules.caption.views {
 
 	public class TextTab extends VBox {
 		
+		private const LEN_TO_SEND:int = 7;
+		private const REP_TO_SEND:int = 3;
+		private const TIME_TO_SEND:int = 1000;
+		
+		private var _startIndex:int = -1;
+		private var _endIndex:int = -1;
+		private var _accText:String = "";
+		
+		private var _sendTimer:Timer;
+		
 		private var _captionOptions:CaptionOptions;
 		
 		[Bindable]
@@ -145,6 +155,9 @@ package org.bigbluebutton.modules.caption.views {
 					outputArea.visible = outputArea.includeInLayout = true;
 					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
 				}
+				
+				resetOverwriteVars();
+				resetTextToSendVars();
 			}
 			
 		}
@@ -197,7 +210,10 @@ package org.bigbluebutton.modules.caption.views {
 			if (e.text.length == 1 && inputArea.selectionBeginIndex == inputArea.selectionEndIndex) {
 				_checkForOverwrite = true;
 				_lastTextInput = e.text;
-				_lastTextLength = inputArea.text.length;
+				_lastTextLength = inputArea.getInternalTextField().text.length; // ****** length is the problem *******
+				//trace("input text: '"+inputArea.text+"'  char0 " + inputArea.text.charCodeAt(0)+", char1 "+inputArea.text.charCodeAt(1));
+				//trace("** input len: "+ inputArea.text.length + ", trans len: " + currentTranscript.transcript.length + " ***");
+				//trace("** internal len: "+ inputArea.getInternalTextField().text.length + " **");
 			} else {
 				respondToTextChange(e.text, inputArea.selectionBeginIndex, inputArea.selectionEndIndex);
 			}
@@ -205,10 +221,10 @@ package org.bigbluebutton.modules.caption.views {
 		
 		private function onTranscriptTextChange(e:Event):void {
 			//trace("transcript change: " + inputArea.text);
-			
+			//trace("** input len: "+ inputArea.text.length + ", trans len: " + currentTranscript.transcript.length + " ***");
 			if (_checkForOverwrite) {
 				_checkForOverwrite = false;
-				if (inputArea.text.length > _lastTextLength) { // not an overwrite
+				if (inputArea.getInternalTextField().text.length > _lastTextLength) { // not an overwrite
 					respondToTextChange(_lastTextInput, inputArea.selectionBeginIndex-1, inputArea.selectionEndIndex-1);
 				} else {											// an overwrite
 					respondToTextChange(_lastTextInput, inputArea.selectionBeginIndex-1, inputArea.selectionEndIndex);
@@ -217,12 +233,12 @@ package org.bigbluebutton.modules.caption.views {
 				_lastTextLength = 0;
 			} else if (_checkForDeletePreviousWord) {
 				_checkForDeletePreviousWord = false;
-				respondToTextChange("", _lastSelectionIndex-(_lastTextLength-inputArea.text.length), _lastSelectionIndex);
+				respondToTextChange("", _lastSelectionIndex-(_lastTextLength-inputArea.getInternalTextField().text.length), _lastSelectionIndex);
 				_lastSelectionIndex = 0;
 				_lastTextLength = 0;
 			} else if (_checkForDeleteNextWord) {
 				_checkForDeleteNextWord = false;
-				respondToTextChange("", _lastSelectionIndex, _lastSelectionIndex+(_lastTextLength-inputArea.text.length));
+				respondToTextChange("", _lastSelectionIndex, _lastSelectionIndex+(_lastTextLength-inputArea.getInternalTextField().text.length));
 				_lastSelectionIndex = 0;
 				_lastTextLength = 0;
 			}
@@ -240,7 +256,7 @@ package org.bigbluebutton.modules.caption.views {
 				case Keyboard.BACKSPACE:
 					if (e.ctrlKey || e.altKey) {
 						_lastSelectionIndex = ei;
-						_lastTextLength = inputArea.text.length;
+						_lastTextLength = inputArea.getInternalTextField().text.length;
 						_checkForDeletePreviousWord = true;
 						return;
 					}
@@ -255,7 +271,7 @@ package org.bigbluebutton.modules.caption.views {
 				case Keyboard.DELETE:
 					if (e.ctrlKey || e.altKey) {
 						_lastSelectionIndex = si;
-						_lastTextLength = inputArea.text.length;
+						_lastTextLength = inputArea.getInternalTextField().text.length;
 						_checkForDeleteNextWord = true;
 						return;
 					}
@@ -277,15 +293,14 @@ package org.bigbluebutton.modules.caption.views {
 			}
 		}
 		
-		private const LEN_TO_SEND:int = 7;
-		private const REP_TO_SEND:int = 3;
-		private const TIME_TO_SEND:int = 1000;
-		
-		private var _startIndex:int = -1;
-		private var _endIndex:int = -1;
-		private var _accText:String = "";
-		
-		private var _sendTimer:Timer;
+		private function resetOverwriteVars():void {
+			_checkForOverwrite = false;
+			_checkForDeletePreviousWord = false;
+			_checkForDeleteNextWord = false;
+			_lastTextInput = null;
+			_lastTextLength = -1;
+			_lastSelectionIndex = -1;
+		}
 		
 		private function respondToTextChange(t:String, si:int, ei:int):void {
 			if (_startIndex == -1) {
@@ -325,16 +340,22 @@ package org.bigbluebutton.modules.caption.views {
 		}
 		
 		private function sendTextToServer():void {
-			var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
-			editHistoryEvent.locale = currentTranscript.locale;
-			editHistoryEvent.startIndex = _startIndex;
-			editHistoryEvent.endIndex = _endIndex;
-			editHistoryEvent.text = _accText;
-			
-			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(editHistoryEvent);
-			
-			// reset variables after sending
+			if (_startIndex >= 0) {
+				var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
+				editHistoryEvent.locale = currentTranscript.locale;
+				editHistoryEvent.startIndex = _startIndex;
+				editHistoryEvent.endIndex = _endIndex;
+				editHistoryEvent.text = _accText;
+				
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(editHistoryEvent);
+				
+				// reset variables after sending
+				resetTextToSendVars();
+			}
+		}
+		
+		private function resetTextToSendVars():void {
 			_startIndex = -1;
 			_endIndex = -1;
 			_accText = "";

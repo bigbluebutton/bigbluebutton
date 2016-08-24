@@ -523,19 +523,9 @@ public class MeetingService implements MessageListener {
         params.put("moderatorPW", message.moderatorPassword);
         params.put("voiceBridge", message.voiceConfId);
         params.put("duration", message.durationInMinutes.toString());
-        String recordType = message.recordType.toString();
-        if (recordType.equals("moderator")) {
-            params.put("record", "true");
-        }
-        else if (recordType.equals("all")) {
-            params.put("record", "true");
-            params.put("autoStartRecording", "true");
-            params.put("allowStartStopRecording", "false");
-        }
-        else {
-            // The sent value should "none", but whatever value is passed expecting "moderator" & "all" we set recording to false
-            params.put("record", "false");
-        }
+        params.put("record", message.record.toString());
+        params.put("welcome", getMeeting(message.parentId)
+                .getWelcomeMessageTemplate());
 
         Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 
@@ -869,10 +859,6 @@ public class MeetingService implements MessageListener {
                     processEndMeeting((EndMeeting) message);
                 } else if (message instanceof RegisterUser) {
                     processRegisterUser((RegisterUser) message);
-                }   else if (message instanceof CreateBreakoutRoom) {
-                    processCreateBreakoutRoom((CreateBreakoutRoom) message);
-                } else if (message instanceof EndBreakoutRoom) {
-                    processEndBreakoutRoom((EndBreakoutRoom) message);
                 } else if (message instanceof StunTurnInfoRequested) {
                     processStunTurnInfoRequested((StunTurnInfoRequested) message);
                 } else if (message instanceof CreateBreakoutRoom) {

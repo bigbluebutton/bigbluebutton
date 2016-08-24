@@ -28,12 +28,12 @@ case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
 case object IsAliveMessage extends IOutMessage
 
 // Breakout Rooms
-case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomBody]) extends IOutMessage
+case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomBody], roomsReady: Boolean) extends IOutMessage
 case class CreateBreakoutRoom(meetingId: String, room: BreakoutRoomOutPayload) extends IOutMessage
 case class EndBreakoutRoom(breakoutId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
-  defaultPresentationURL: String, recordType: String)
+  defaultPresentationURL: String, record: Boolean)
 case class BreakoutRoomJoinURLOutMessage(meetingId: String, recorded: Boolean, breakoutId: String, userId: String, joinURL: String) extends IOutMessage
 case class BreakoutRoomStartedOutMessage(meetingId: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
 case class BreakoutRoomBody(name: String, breakoutId: String)
@@ -73,6 +73,7 @@ case class EjectVoiceUser(meetingID: String, recorded: Boolean, requesterID: Str
 case class TransferUserToMeeting(voiceConfId: String, targetVoiceConfId: String, userId: String) extends IOutMessage
 case class UserJoinedVoice(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class UserLeftVoice(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
+case class AllowUserToShareDesktopOut(meetingID: String, userID: String, allowed: Boolean) extends IOutMessage
 
 // Voice
 case class IsMeetingMutedReply(meetingID: String, recorded: Boolean, requesterID: String, meetingMuted: Boolean) extends IOutMessage

@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -43,17 +44,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
-			
-      private function redirect():void { 
-		var logoutURL:String = BBB.getLogoutURL();
-        var request:URLRequest = new URLRequest(logoutURL);
-				LOGGER.debug("Log out url: " + logoutURL);
-				request.method = URLRequestMethod.GET;
-				urlLoader = new URLLoader();
-				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
-				urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleRedirectError);
-				urlLoader.load(request);
-      }
+
+			private function redirect():void {
+				if (!UserManager.getInstance().getConference().isBreakout) {
+					var logoutURL:String = BBB.getLogoutURL();
+					var request:URLRequest = new URLRequest(logoutURL);
+					LOGGER.debug("Log out url: " + logoutURL);
+					request.method = URLRequestMethod.GET;
+					urlLoader = new URLLoader();
+					urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleRedirectError);
+					urlLoader.load(request);
+				} else {
+					ExternalInterface.call("window.close");
+				}
+			}
+
       
 			private function handleComplete(e:Event):void {
 				LOGGER.debug("Client URL=[{0}]", [FlexGlobals.topLevelApplication.url]);

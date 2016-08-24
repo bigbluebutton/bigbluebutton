@@ -270,125 +270,127 @@ module BigBlueButton
     end
 
     def self.edl_match_recording_marks_audio(edl, archive_dir)
-      calculate_entry_files_timestamp = Proc.new do |edl_entry, offset|
-        edl_entry[:audio][:timestamp] += offset if edl_entry[:audio]
+      edl_entry_offset = Proc.new do |edl_entry, offset|
+        new_entry = { :audio => nil }
+        if edl_entry[:audio]
+          new_entry[:audio] = {
+            :filename => edl_entry[:audio][:filename],
+            :timestamp => edl_entry[:audio][:timestamp] + offset
+          }
+        end
+        if edl_entry[:original_duration]
+          new_entry[:original_duration] = edl_entry[:original_duration]
+        end
+        new_entry
       end
-
-      empty_entry = {
-        :timestamp => nil,
-        :audio => nil
-      }
-
-      return edl_match_recording_marks(edl, archive_dir, calculate_entry_files_timestamp, empty_entry)
+      edl_empty_entry = Proc.new do
+        { :audio => nil }
+      end
+      return BigBlueButton::Events.edl_match_recording_marks(edl, archive_dir,
+                      edl_entry_offset, edl_empty_entry)
     end
 
     def self.edl_match_recording_marks_video(edl, archive_dir)
-      calculate_entry_files_timestamp = Proc.new do |edl_entry, offset|
-        if edl_entry[:areas][:webcam]
-          edl_entry[:areas][:webcam].each do |webcam_entry|
-            webcam_entry[:timestamp] += offset
+      edl_entry_offset = Proc.new do |edl_entry, offset|
+        new_entry = { :areas => {} }
+        edl_entry[:areas].each do |area, videos|
+          new_entry[:areas][area] = []
+          videos.each do |video|
+            new_entry[:areas][area] << {
+              :filename => video[:filename],
+              :timestamp => video[:timestamp] + offset
+            }
           end
         end
-        if edl_entry[:areas][:deskshare]
-          edl_entry[:areas][:deskshare].each do |deskshare_entry|
-            deskshare_entry[:timestamp] += offset
-          end
-        end
+        new_entry
       end
-
-      empty_entry = {
-        :timestamp => nil,
-        :areas => { :webcam => [], :deskshare => [] }
-      }
-
-      return edl_match_recording_marks(edl, archive_dir, calculate_entry_files_timestamp, empty_entry)
+      edl_empty_entry = Proc.new do
+        { :areas => {} }
+      end
+      return BigBlueButton::Events.edl_match_recording_marks(edl, archive_dir,
+                      edl_entry_offset, edl_empty_entry)
     end
 
-    def self.edl_match_recording_marks_deskshare(edl, archive_dir)
-      calculate_entry_files_timestamp = Proc.new do |edl_entry, offset|
-        edl_entry[:areas][:deskshare].each do |webcam_entry|
-          webcam_entry[:timestamp] += offset
-        end
-      end
-
-      empty_entry = {
-        :timestamp => nil,
-        :areas => { :deskshare => [] }
-      }
-
-      return edl_match_recording_marks(edl, archive_dir, calculate_entry_files_timestamp, empty_entry)
-    end
-
-    def self.edl_match_recording_marks(edl, archive_dir, calculate_entry_files_timestamp, empty_entry)
-      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
-      event = events.at_xpath('/recording/event[position()=1]')
-      initial_timestamp = event['timestamp'].to_i
-
-      start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(BigBlueButton::Events.get_start_and_stop_rec_events("#{archive_dir}/events.xml"))
-      # translated the timestamps to the recording timestamp
+    def self.get_start_stop_events_for_edl(archive_dir)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(
+              "#{archive_dir}/events.xml")
+      start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+              BigBlueButton::Events.get_start_and_stop_rec_events(
+                     "#{archive_dir}/events.xml"))
       start_stop_events.each do |record_event|
         record_event[:start_timestamp] -= initial_timestamp
         record_event[:stop_timestamp] -= initial_timestamp
       end
-      BigBlueButton.logger.debug "start_stop_events:\n#{BigBlueButton.hash_to_str(start_stop_events)}"
+      return start_stop_events
+    end
 
-      # add duration to EDL
-      edl.each_with_index do |edl_entry, i|
-        if i == edl.length-1
-          edl_entry[:duration] = 0
-        else
-          edl_entry[:duration] = edl[i+1][:timestamp] - edl_entry[:timestamp]
+    def self.edl_match_recording_marks(edl, archive_dir, edl_entry_offset, edl_empty_entry)
+      start_stop_events = BigBlueButton::Events.get_start_stop_events_for_edl(archive_dir)
+
+      last_stop_timestamp = 0
+      offset = 0
+
+      new_edl = [ edl_empty_entry.call ]
+
+      # Do a sanity check on the values
+      if edl.first[:timestamp] > start_stop_events.first[:start_timestamp]
+        raise "Recording start event is before first EDL entry"
+      end
+      if edl.last[:timestamp] < start_stop_events.last[:stop_timestamp]
+        raise "Recording stop event is after last EDL entry"
+      end
+
+      output_i = 0
+
+      # Loop over all the recorded intervals to build the new edl
+      start_stop_events.each do |start_stop_event|
+        BigBlueButton.logger.debug("Recording interval: #{start_stop_event[:start_timestamp]} to #{start_stop_event[:stop_timestamp]}")
+        offset += start_stop_event[:start_timestamp] - last_stop_timestamp
+        BigBlueButton.logger.debug("Offset is now #{offset}")
+
+        input_i = 0
+
+        # Find the last EDL event from before or at the recording start
+        loop do
+          break if edl[input_i+1][:timestamp] > start_stop_event[:start_timestamp]
+          input_i += 1
         end
-      end
 
-      BigBlueButton.logger.debug "edl with duration:\n#{BigBlueButton.hash_to_str(edl)}"
+        BigBlueButton.logger.debug("Found last event prior to recording start:")
+        BigBlueButton.logger.debug(BigBlueButton.hash_to_str(edl[input_i]))
 
-      edl_postprocessed = []
-      start_stop_events.each do |record_event|
-        edl.each do |edl_entry|
-          edl_copy = Marshal.load(Marshal.dump(edl_entry))
+        # Add the first event, trimming the start as needed.
+        initial_trim = start_stop_event[:start_timestamp] - edl[input_i][:timestamp]
+        BigBlueButton.logger.debug("Have to trim #{initial_trim}")
+        new_edl[output_i] = edl_entry_offset.call(edl[input_i], initial_trim)
+        new_edl[output_i][:timestamp] = start_stop_event[:start_timestamp] - offset
+        BigBlueButton.logger.debug("New event at recording start:")
+        BigBlueButton.logger.debug(BigBlueButton.hash_to_str(new_edl[output_i]))
+        output_i += 1
 
-          edl_start = edl_entry[:timestamp]
-          edl_stop = edl_entry[:timestamp] + edl_entry[:duration]
-          rec_start = record_event[:start_timestamp]
-          rec_stop = record_event[:stop_timestamp]
+        # Add the intervening events up to the stop
+        loop do
+          input_i += 1
+          break if edl[input_i][:timestamp] >= start_stop_event[:stop_timestamp]
 
-          # edl doesn't match with the recording marks
-          if (edl_start < rec_start and edl_stop < rec_start) or (edl_start > rec_stop and edl_stop > rec_stop)
-            next
-          end
+          new_edl[output_i] = edl_entry_offset.call(edl[input_i], 0)
+          new_edl[output_i][:timestamp] = edl[input_i][:timestamp] - offset
 
-          # adjust the beginning timestamp
-          if edl_start < rec_start
-            edl_copy[:timestamp] = rec_start
-            edl_copy[:duration] -= rec_start - edl_start
-            calculate_entry_files_timestamp.call(edl_copy, rec_start - edl_start)
-            # edl_copy[:audio][:timestamp] = rec_start - edl_start
-          end
-
-          # adjust the duration
-          if edl_stop > rec_stop
-            edl_copy[:duration] -= edl_stop - rec_stop
-          end
-
-          edl_postprocessed << edl_copy
+          output_i += 1
         end
+
+        # Add a terminating event at the stop timestamp
+        new_edl[output_i] = edl_empty_entry.call
+        new_edl[output_i][:timestamp] = start_stop_event[:stop_timestamp] - offset
+
+        # Note that output_i isn't incremented here
+        # In the next loop iteration, the terminating entry will be replaced
+        # with the next video start.
+
+        last_stop_timestamp = start_stop_event[:stop_timestamp]
       end
 
-      # trim the intervals
-      next_timestamp = 0
-      edl_postprocessed.each do |edl_entry|
-        edl_entry[:timestamp] = next_timestamp
-        next_timestamp += edl_entry[:duration]
-      end
-      empty_entry[:timestamp] = next_timestamp
-      edl_postprocessed << empty_entry
-#      edl_postprocessed << {
-#        :timestamp => next_timestamp,
-#        media_symbol => nil
-#      }
-      BigBlueButton.logger.debug "edl_postprocessed:\n#{BigBlueButton.hash_to_str(edl_postprocessed)}"
-      return edl_postprocessed
+      return new_edl
     end
 
     def self.linkify( text )
@@ -441,6 +443,71 @@ module BigBlueButton
         end
       end
       matched_rec_events
+    end
+
+    # Calculate the length of the final recording from the start/stop events
+    def self.get_recording_length(rec_events)
+      duration = 0
+      start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+              BigBlueButton::Events.get_start_and_stop_rec_events(rec_events))
+      start_stop_events.each do |start_stop|
+        duration += start_stop[:stop_timestamp] - start_stop[:start_timestamp]
+      end
+      duration
+    end
+
+    # Check whether any webcams were shared during the recording
+    # This can be used to e.g. skip webcam processing or change the layout
+    # of the final recording
+    def self.have_webcam_events(events_xml)
+      BigBlueButton.logger.debug("Checking if webcams were used...")
+      webcam_events = events_xml.xpath('/recording/event[@module="WEBCAM"]')
+      if webcam_events.length > 0
+        BigBlueButton.logger.debug("Webcam events seen in recording")
+        return true
+      else
+        BigBlueButton.logger.debug("No webcam events were seen in recording")
+        return false
+      end
+    end
+
+    # Check whether any of the presentation features were used in the recording
+    # This can be used to e.g. skip presentation processing or change the
+    # layout of the final recording.
+    def self.have_presentation_events(events_xml)
+      BigBlueButton.logger.debug("Checking if presentation area was used...")
+      pres_events = events_xml.xpath('/recording/event[@module="PRESENTATION" or @module="WHITEBOARD"]')
+      seen_share_presentation = false
+      pres_events.each do |event|
+        case event['eventname']
+        # The following events are considered to indicate that the presentation
+        # area was actively used during the session.
+        when 'AddShapeEvent', 'ModifyTextEvent', 'UndoShapeEvent',
+            'ClearPageEvent'
+        BigBlueButton.logger.debug("Seen a #{event['eventname']} event, presentation area used.")
+          return true
+        # We ignore the first SharePresentationEvent, since it's the default
+        # presentation
+        when 'SharePresentationEvent'
+          if seen_share_presentation
+            BigBlueButton.logger.debug("Have a non-default SharePresentation")
+            return true
+          else
+            BigBlueButton.logger.debug("Skipping default SharePresentation")
+            seen_share_presentation = true
+          end
+        # We ignore the 'GotoSlideEvent' for page 0 (first page)
+        when 'GotoSlideEvent'
+          slide = event.at_xpath('./slide').content.to_i
+          if slide != 0
+            BigBlueButton.logger.debug("Switched to slide #{slide}")
+            return true
+          end
+          BigBlueButton.logger.debug("Ignoring GotoSlide with default slide #")
+        end
+      end
+      BigBlueButton.logger.debug("No important presentation events found")
+      return false
     end
 
     # Version of the bbb server where it was recorded

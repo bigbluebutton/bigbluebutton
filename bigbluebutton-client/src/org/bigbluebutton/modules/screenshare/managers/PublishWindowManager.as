@@ -62,20 +62,6 @@ package org.bigbluebutton.modules.screenshare.managers {
             shareWindow.initWindow(service.getConnection(), uri, room, autoStart, autoFullScreen);
             shareWindow.visible = true;
             openWindow(shareWindow);
-            if (autoStart || autoFullScreen) {
-                /*
-                 * Need to have a timer to trigger auto-publishing of deskshare.
-                 */
-                shareWindow.btnFSPublish.enabled = false;
-                shareWindow.btnRegionPublish.enabled = false;
-                autoPublishTimer = new Timer(2000, 1);
-                autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-                autoPublishTimer.start();
-            }
-        }
-        
-        private function autopublishTimerHandler(event:TimerEvent):void {
-            shareWindow.shareScreen(true);
         }
         
         public function handleShareWindowCloseEvent():void {

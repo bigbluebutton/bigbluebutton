@@ -13,17 +13,9 @@
 <include>
     <context name="default">
     <extension name="public_extensions">
-        <condition field="destination_number" expression="^\d{5}$">
+        <condition field="destination_number" expression="^\d{5}-DESKSHARE$">
             <action application="log" data="INFO AAAAAA transferring to $1 XML public!!"/>
             <action application="transfer" data="${destination_number} XML public"/>
-        </condition>
-    </extension>
-
-
-    <extension name="public_extensions">
-        <condition field="destination_number" expression="^(\d{5})(-screen)$">
-            <action application="log" data="INFO BB  $1  $2   BBBB transferring to $1 XML public!!"/>
-            <action application="transfer" data="$1 XML public"/>
         </condition>
     </extension>
 

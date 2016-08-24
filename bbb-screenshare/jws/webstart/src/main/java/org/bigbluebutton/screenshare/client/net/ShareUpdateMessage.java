@@ -4,10 +4,12 @@ public class ShareUpdateMessage implements Message {
 
   public final String meetingId;
   public final String streamId;
+  public final String session;
   
-  public ShareUpdateMessage(String meetingId, String streamId) {
+  public ShareUpdateMessage(String meetingId, String streamId, String session) {
     this.meetingId = meetingId;
     this.streamId = streamId;
+    this.session = session;
   }
   
   @Override

@@ -2,6 +2,9 @@ import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import LoadingScreen from '../loading-screen/component';
 import KickedScreen from '../kicked-screen/component';
+
+import NotificationsBarContainer from '../notifications-bar/container';
+
 import Button from '../button/component';
 import styles from './styles';
 
@@ -12,6 +15,7 @@ const propTypes = {
   media: PropTypes.element,
   actionsbar: PropTypes.element,
   settings: PropTypes.element,
+  captions: PropTypes.element,
 };
 
 export default class App extends Component {
@@ -85,6 +89,18 @@ export default class App extends Component {
     return false;
   }
 
+  renderClosedCaptions() {
+    const { captions } = this.props;
+
+    if (captions) {
+      return (
+        <section className={styles.closedCaptions}>
+          {captions}
+        </section>
+      );
+    }
+  }
+
   renderActionsBar() {
     const { actionsbar } = this.props;
 
@@ -142,12 +158,14 @@ export default class App extends Component {
 
     return (
       <main className={styles.main}>
+        <NotificationsBarContainer />
         <section className={styles.wrapper}>
           {this.renderUserList()}
           {this.renderChat()}
           <div className={styles.content}>
             {this.renderNavBar()}
             {this.renderMedia()}
+            {this.renderClosedCaptions()}
             {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}

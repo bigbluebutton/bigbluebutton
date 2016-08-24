@@ -67,8 +67,8 @@ package org.bigbluebutton.modules.screenshare.services {
             conn.connect();
         }
         
-        public function getConnection():NetConnection {
-            return conn.getConnection();
+        public function getConnection():Connection {
+            return conn;
         }
         
         public function disconnect():void {
@@ -88,6 +88,17 @@ package org.bigbluebutton.modules.screenshare.services {
             sender.stopShareRequest(UsersUtil.getInternalMeetingID(), streamId);
         }
         
-            
+        public function requestPauseSharing(streamId:String):void {
+            sender.pauseShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), streamId);
+        }
+        
+        public function requestRestartSharing():void {
+            sender.restartShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
+        }
+        
+        public function sendClientPongMessage(streamId: String, timestamp: Number):void {
+            LOGGER.debug("sendClientPongMessage");
+            sender.sendClientPongMessage(UsersUtil.getInternalMeetingID(), streamId, timestamp);
+        }    
     }
 }

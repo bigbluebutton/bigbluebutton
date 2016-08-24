@@ -1,0 +1,69 @@
+@import "../../button/styles.scss";
+@import "../../../stylesheets/variables/_all";
+
+$controls-color: #212121 !default;
+$controls-background: #F0F2F6 !default;
+
+.slideControlsWrapper,
+.zoomWrapper {
+  order: 2;
+  padding: $line-height-computed / 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.slideControlsWrapper {
+  flex: 1;
+  justify-content: center;
+  width: 100%;
+  margin-top: 2%;
+  margin-bottom: 2%;
+
+  button,
+  select,
+  > div {
+    background-color: $controls-background;
+    color: $controls-color;
+    border-top: 0;
+    border-right: $color-gray-light 2px solid;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 0;
+    box-shadow: none;
+    height: 2.25rem;
+  }
+
+  button {
+    i {
+      font-weight: bolder;
+    }
+  }
+}
+
+.zoomWrapper {
+  border-radius: 0 5px 5px 0;
+  justify-content: space-between;
+  width: 11.5%;
+  min-width: 175px;
+}
+
+.zoomWrapperNoBorder {
+  border-right: 0 !important;
+}
+
+.prevSlide {
+  border-radius: 5px 0 0 5px;
+}
+
+.skipSlide {
+  padding: 0 0.8%;
+}
+
+.zoomSlider {
+  width: 50%;
+}
+
+.zoomMinMax {
+  font-weight: normal;
+}

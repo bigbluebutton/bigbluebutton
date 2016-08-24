@@ -80,7 +80,7 @@ public class MeetingMessageHandler implements MessageHandler {
                   msg.payload.moderatorPassword, 
                   msg.payload.durationInMinutes, 
                   msg.payload.defaultPresentationURL,
-                  msg.payload.recordType
+                  msg.payload.record
                   )
               );
             }

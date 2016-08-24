@@ -1,4 +1,4 @@
-@import "imports/ui/stylesheets/variables/_all";
+@import "../../stylesheets/variables/_all";
 
 $navbar-height: 60px; // TODO: Change to NavBar real height
 $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
@@ -155,9 +155,13 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   }
 }
 
+.closedCaptions {
+  order: 2;
+}
+
 .actionsbar {
   position: relative;
-  order: 2;
+  order: 3;
 
   @include mq($small-only) {
     position: absolute;

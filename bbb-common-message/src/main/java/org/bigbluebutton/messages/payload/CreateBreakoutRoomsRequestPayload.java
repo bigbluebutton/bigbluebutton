@@ -10,14 +10,14 @@ public class CreateBreakoutRoomsRequestPayload {
   // The duration of the breakout room
   public final Integer durationInMinutes;
   // Breakout rooms recording option 
-  public final String recordType;
+  public final Boolean record;
 
   public CreateBreakoutRoomsRequestPayload(String meetingId, 
 		  ArrayList<BreakoutRoomRequestPayload> breakoutRooms, 
-		  Integer duration, String recordType) {
+		  Integer duration, Boolean record) {
     this.meetingId = meetingId;
     this.rooms = breakoutRooms;
     this.durationInMinutes = duration;
-    this.recordType = recordType;
+    this.record = record;
   }
 }

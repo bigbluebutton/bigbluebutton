@@ -44,7 +44,9 @@ export default class MessageListItem extends Component {
 
         if (isElementInViewport(node)) {
           this.props.handleReadMessage(this.props.time);
-          eventsToBeBound.forEach(e => scrollArea.removeEventListener(e, this.handleMessageInViewport));
+          eventsToBeBound.forEach(
+            e => scrollArea.removeEventListener(e, this.handleMessageInViewport)
+          );
         }
 
         this.ticking = false;
@@ -65,7 +67,9 @@ export default class MessageListItem extends Component {
       this.props.handleReadMessage(this.props.time);
     } else {
       const scrollArea = document.getElementById(this.props.chatAreaId);
-      eventsToBeBound.forEach(e => scrollArea.addEventListener(e, this.handleMessageInViewport, false));
+      eventsToBeBound.forEach(
+        e => scrollArea.addEventListener(e, this.handleMessageInViewport, false)
+      );
     }
   }
 
@@ -75,7 +79,9 @@ export default class MessageListItem extends Component {
     }
 
     const scrollArea = document.getElementById(this.props.chatAreaId);
-    eventsToBeBound.forEach(e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false));
+    eventsToBeBound.forEach(
+      e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false)
+    );
   }
 
   render() {

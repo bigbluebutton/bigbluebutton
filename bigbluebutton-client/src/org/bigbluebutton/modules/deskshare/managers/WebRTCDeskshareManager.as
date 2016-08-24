@@ -109,23 +109,26 @@ package org.bigbluebutton.modules.deskshare.managers
 		private function startWebRTCDeskshare():void {
 			LOGGER.debug("DeskshareManager::startWebRTCDeskshare");
 
-			var result:String;
 			if (ExternalInterface.available) {
-				var loggingCallback:Function = function(args:Object):void {LOGGER.debug(args); JSLog.warn("loggingCallback", args)};
-				ExternalInterface.addCallback("loggingCallback", loggingCallback);
 				var videoTag:String = "localVertoVideo";
-				var modifyResolution:Boolean = false;
-				// register these callbacks
-				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
-				ExternalInterface.addCallback("onSuccess", onSuccess);
 				var onFail:Function = function(args:Object):void {
 					JSLog.warn("onFail - as", args);
 					JSLog.warn("WebRTCDeskshareManager::startWebRTCDeskshare - falling back to java", {});
 					globalDispatcher.dispatchEvent(new UseJavaModeCommand())
 				};
 				ExternalInterface.addCallback("onFail", onFail);
-				JSLog.warn("calling startScreenshare", {});
-				result = ExternalInterface.call("startScreenshare", "loggingCallback", videoTag, vertoServerCredentials, chromeExtensionKey, modifyResolution, "onSuccess", "onFail");
+
+				ExternalInterface.call(
+					'vertoShareScreen',
+					videoTag,
+					'3500',
+					'FreeSWITCH USers - abc',
+					'1008',
+					null,
+					vertoServerCredentials,
+					chromeExtensionKey,
+					onFail
+				);
 			}
 		}
 

@@ -4,6 +4,7 @@ import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Meetings from '/imports/api/meetings';
 import Cursor from '/imports/api/cursor';
+import Captions from '/imports/api/captions';
 import Polls from '/imports/api/polls';
 
 function setCredentials(nextState, replace) {
@@ -24,7 +25,7 @@ function subscribeForData() {
 
   const subNames = [
     'users', 'chat', 'cursor', 'deskshare', 'meetings',
-    'polls', 'presentations', 'shapes', 'slides',
+    'polls', 'presentations', 'shapes', 'slides', 'captions',
   ];
 
   let subs = [];

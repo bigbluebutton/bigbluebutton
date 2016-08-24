@@ -20,7 +20,6 @@ package org.bigbluebutton.screenshare.client;
 
 import jargs.gnu.CmdLineParser;
 import jargs.gnu.CmdLineParser.Option;
-
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
   private final BlockingQueue<ExitCode> exitReasonQ = new LinkedBlockingQueue<ExitCode>(5);
 
   private List<String> optionHelpStrings = new ArrayList<String>();
-  private static LifeLine lifeline;
+
   private static DeskshareClient client;
 
   private Option addHelp(Option option, String helpString) {
@@ -105,9 +104,10 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     String streamId = null;
     String serverUrl = null;
     Boolean captureFullScreen = false;
+    String session = null;
     String codecOptions = null;
     
-    if(args != null && args.length == 7) {
+    if(args != null && args.length == 8) {
       System.out.println("Using passed args: length=[" + args.length + "]");
       url = args[0];
       serverUrl = args[1];
@@ -117,8 +117,10 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
       
       System.out.println("Using passed args: [" + url + "] meetingId=[" + meetingId + "] streamId=[" + streamId + "] captureFullScreen=" + captureFullScreen);
       codecOptions = args[5];
-      
-      String errorMessage = args[6];
+
+      session = args[6];
+
+      String errorMessage = args[7];
       
       if (! errorMessage.equalsIgnoreCase("NO_ERRORS")) {
         dsMain.displayJavaWarning(errorMessage);
@@ -134,12 +136,8 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         } else {
           image = Toolkit.getDefaultToolkit().getImage("bbb.gif");
         }
-        
-        
+
         dsMain.displaySystemProperties();
-        
-        lifeline = new LifeLine(listenPortValue.intValue(), dsMain);
-        lifeline.listen();
 
         System.setProperty("org.bytedeco.javacpp.logger.debug", "true");
         System.out.println("org.bytedeco.javacpp.logger.debug : " + System.getProperty("org.bytedeco.javacpp.logger.debug"));
@@ -159,15 +157,13 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
           ExitCode reason = dsMain.exitReasonQ.take();
           System.out.println("Stopping Java Web Start.");
           client.stop();
-          lifeline.disconnect();
           System.exit(reason.getExitCode());
         } catch (InterruptedException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
           System.exit(500);
-        }        
+        }
       }
-      
    } else {
      System.out.println("Using default args: [" + url + "] width=[" + cWidthValue + "] height=[" + cHeightValue + "]");
      System.out.println("args null =[" + (args == null) + "] args.length=[" + args.length + "]");
@@ -215,19 +211,18 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 
   @Override
   public void disconnected(ExitCode reason) {
-    queueExitCode(reason);		
+    queueExitCode(reason);
   }
 
   private void queueExitCode(ExitCode reason) {
     try {
-      //			System.out.println("Trigger stop client ." + exitReasonQ.remainingCapacity());
+      System.out.println("Trigger stop client. " + exitReasonQ.remainingCapacity());
       exitReasonQ.put(reason);
       System.out.println("Triggered stop client.");
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
       client.stop();
-      lifeline.disconnect();
       System.exit(reason.getExitCode());
     }
   }

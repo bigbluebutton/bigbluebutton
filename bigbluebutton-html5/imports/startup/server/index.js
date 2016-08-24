@@ -7,13 +7,15 @@ import { clientConfig } from '/config';
 
 Meteor.startup(function () {
   clearCollections();
-  let determineConnectionType = function() {
+  let determineConnectionType = function () {
     let baseConnection = 'HTTP';
-    if(clientConfig.app.httpsConnection) {
+    if (clientConfig.app.httpsConnection) {
       baseConnection += ('S');
     }
+
     return baseConnection;
   };
+
   logger.info(`server start. Connection type:${determineConnectionType()}`);
 });
 

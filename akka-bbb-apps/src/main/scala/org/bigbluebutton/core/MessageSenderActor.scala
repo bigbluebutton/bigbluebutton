@@ -15,7 +15,9 @@ import org.bigbluebutton.core.pubsub.senders.CaptionMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.DeskShareMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 import org.bigbluebutton.common.messages.PresentationRemovedMessage
+import org.bigbluebutton.common.messages.AllowUserToShareDesktopReply
 import org.bigbluebutton.core.apps.Page
+
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
@@ -31,6 +33,7 @@ import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
 import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
+import org.bigbluebutton.core
 
 object MessageSenderActor {
   def props(msgSender: MessageSender): Props =
@@ -82,6 +85,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: MeetingMuted => handleMeetingMuted(msg)
     case msg: MeetingState => handleMeetingState(msg)
     case msg: DisconnectAllUsers => handleDisconnectAllUsers(msg)
+    case msg: AllowUserToShareDesktopOut => handleAllowUserToShareDesktopOut(msg)
     case msg: DisconnectUser => handleDisconnectUser(msg)
     case msg: PermissionsSettingInitialized => handlePermissionsSettingInitialized(msg)
     case msg: NewPermissionsSetting => handleNewPermissionsSetting(msg)
@@ -532,6 +536,13 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleDisconnectUser(msg: DisconnectUser) {
     val json = UsersMessageToJsonConverter.disconnectUserToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+
+  private def handleAllowUserToShareDesktopOut(msg: AllowUserToShareDesktopOut): Unit = {
+    val obj = new AllowUserToShareDesktopReply(msg.meetingID, msg.userID, msg.allowed,
+      TimestampGenerator.generateTimestamp)
+    val json = obj.toJson()
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 

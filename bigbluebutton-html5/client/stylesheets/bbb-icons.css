@@ -1,10 +1,10 @@
 @font-face {
     font-family: 'bbb-icons';
-    src: url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
-    src: url('/html5client/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
-         url('/html5client/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
-         url('/html5client/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
-         url('/html5client/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
+    src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
+    src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
+         url('/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
+         url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
+         url('/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -115,6 +115,51 @@
 }
 .icon-bbb-audio-off:before {
     content: "\e91c";
+}
+.icon-bbb-fit-to-screen:before {
+    content: "\e92a";
+}
+.icon-bbb-full-screen:before {
+    content: "\e924";
+}
+.icon-bbb-logout2:before {
+  content: "\e901";
+}
+.icon-bbb-line-tool:before {
+  content: "\e91d";
+}
+.icon-bbb-circle-tool:before {
+  content: "\e91e";
+}
+.icon-bbb-triangle-tool:before {
+  content: "\e91f";
+}
+.icon-bbb-square-tool:before {
+  content: "\e920";
+}
+.icon-bbb-text-tool:before {
+  content: "\e921";
+}
+.icon-bbb-plus:before {
+  content: "\e922";
+}
+.icon-bbb-fit-to-width:before {
+  content: "\e923";
+}
+.icon-bbb-undo:before {
+  content: "\e925";
+}
+.icon-bbb-pen-tool:before {
+  content: "\e926";
+}
+.icon-bbb-lock:before {
+  content: "\e927";
+}
+.icon-bbb-polling:before {
+  content: "\e928";
+}
+.icon-bbb-desktop:before {
+  content: "\e929";
 }
 .rotate-quarter {
   transform: rotate(-90deg);
