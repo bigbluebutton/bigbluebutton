@@ -151,21 +151,16 @@ export default class SettingsDropdown extends Component {
     this.setState({ focusedMenu: 0 }, () => { this.setFocus(); });
   }
 
-  renderAriaLabelsDescs(i) {
-    switch (i) {
-      case 0:
-        return (
-          <p id="fullScreen" hidden>
-          <FormattedMessage
-            id="app.modals.dropdown.fullScreen"
-            description="Aria label for fullscreen"
-            defaultMessage="Make fullscreen"
-          />
+  renderAriaLabelsDescs() {
+    return (
+      <div>
+        <p id="fullScreen" hidden>
+        <FormattedMessage
+          id="app.modals.dropdown.fullScreen"
+          description="Aria label for fullscreen"
+          defaultMessage="Make fullscreen"
+        />
         </p>
-        );
-        break;
-      case 1:
-        return (
         <p id="settingsModal" hidden>
           <FormattedMessage
             id="app.modals.dropdown.settingsModal"
@@ -173,10 +168,6 @@ export default class SettingsDropdown extends Component {
             defaultMessage="Open Settings"
           />
         </p>
-        );
-        break;
-      case 2:
-        return (
         <p id="leaveSession" hidden>
           <FormattedMessage
             id="app.modals.dropdown.leaveSession"
@@ -184,11 +175,8 @@ export default class SettingsDropdown extends Component {
             defaultMessage="Logout"
           />
         </p>
-        );
-        break;
-      default:
-        return;
-    }
+      </div>
+    );
 
   }
 
@@ -222,10 +210,10 @@ export default class SettingsDropdown extends Component {
 
                     <span className={styles.settingsMenuItemText}>{value.props.title}</span>
                     {index == '0' ? <hr className={styles.hrDropdown}/> : null}
-                    {this.renderAriaLabelsDescs(index)}
                   </li>
                 ))}
               </ul>
+              {this.renderAriaLabelsDescs()}
             </div>
           </DropdownContent>
         </Dropdown>
