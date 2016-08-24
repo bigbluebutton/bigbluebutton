@@ -5,11 +5,11 @@ import Button from '/imports/ui/components/button/component';
 import classNames from 'classnames';
 import styles from './styles';
 import { FormattedMessage } from 'react-intl';
-import SettingsModal from '../settings/SettingsModal';
-import SessionMenu from '../settings/submenus/SessionMenu';
-import Dropdown from './Dropdown';
-import DropdownContent from './DropdownContent';
-import DropdownTrigger from './DropdownTrigger';
+import SettingsModal from '../modals/settings/SettingsModal';
+import SessionMenu from '../modals/settings/submenus/SessionMenu';
+import Dropdown from './dropdown-menu/component';
+import DropdownTrigger from './dropdown-trigger/component';
+import DropdownContent from './dropdown-content/component';
 
 export default class SettingsDropdown extends Component {
   constructor(props) {
