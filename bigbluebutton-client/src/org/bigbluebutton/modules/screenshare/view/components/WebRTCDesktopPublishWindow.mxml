@@ -88,7 +88,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoWidth:Number;
 			private var captureHeight:Number = Capabilities.screenResolutionY;
 			private var captureWidth:Number = Capabilities.screenResolutionX;
-			private var autoStart:Boolean = false;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 
 			[Bindable] private var dsOptions:ScreenshareOptions;
@@ -136,14 +135,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			public function resetWidthAndHeight():void{/* do nothing */}
 
-			public function initWindow(connection:NetConnection, uri:String, useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
+			public function initWindow(connection:NetConnection, uri:String, useTLS:Boolean , room:String):void {
 				this.connection = connection;
 				this.uri = uri;
 				this.useTLS = useTLS;
 				this.room = room;
-				this.autoStart = autoStart;
-				/*if(autoFullScreen)
-					shareScreen(true);*/
 			}
 
 			public function shareScreen(fullScreen:Boolean):void {

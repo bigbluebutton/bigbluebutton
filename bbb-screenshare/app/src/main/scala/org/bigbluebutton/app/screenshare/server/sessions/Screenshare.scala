@@ -119,7 +119,14 @@ class Screenshare(val sessionManager: ScreenshareManager,
   private var lastJwsStatusUpdate = 0L
 
   private var sessionStartedTimestamp:Long = 0L
-  private val SESSION_START_TIMEOUT = 60
+  private val JWS_START_TIMEOUT = 60
+
+  // The number of seconds we wait for the JWS to launch when
+  // resuming sharing. Sometimes, on PAUSE, the JWS crashes but
+  // the server doesn't detect it before the presenter resumes sharing.
+  private val JWS_RESTART_TIMEOUT = 10
+
+  private var jwsLaunchTimeout = JWS_START_TIMEOUT
 
   // The last time we received a pong response from the client.
   // We need to check if the client is still alive. If the client
@@ -419,18 +426,20 @@ class Screenshare(val sessionManager: ScreenshareManager,
       log.debug("Received RestartShareRequestMessage from userId=[" + msg.userId + "]")
     }
 
-    val sessionToken = screenShareSession.get
-    val streamId = generateStreamId(sessionToken)
-    val token = streamId
+    screenShareSession match {
+      case Some(sessionToken) =>
+        val streamId = generateStreamId(sessionToken)
+        val token = streamId
 
-    val userId = trimUserId(msg.userId).getOrElse(msg.userId)
-
-    val session = ActiveSession(this, bus, meetingId, streamId, token, record, userId)
-
-    activeSession = Some(session)
-    sessionStartedTimestamp = TimeUtil.currentMonoTimeInSeconds()
-    status = START
-
+        val userId = trimUserId(msg.userId).getOrElse(msg.userId)
+        val session = ActiveSession(this, bus, meetingId, streamId, token, record, userId)
+        activeSession = Some(session)
+        sessionStartedTimestamp = TimeUtil.currentMonoTimeInSeconds()
+        status = START
+        jwsLaunchTimeout = JWS_RESTART_TIMEOUT
+      case None =>
+        log.warning("Restarting sharing but no previous session for meetingId=" + meetingId)
+    }
   }
 
   private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
@@ -461,6 +470,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
     currentPresenterId = Some(msg.userId)
 
+    jwsLaunchTimeout = JWS_START_TIMEOUT
+
     screenShareSession foreach { sss =>
       bus.send(new ScreenShareStartRequestSuccessResponse(meetingId, msg.userId, token, msg.jnlp, streamId, sss))
 
@@ -475,9 +486,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     }
 
     def processStaleSession(): Unit = {
-      if (log.isDebugEnabled) {
-        log.debug("Stopping JWS. GetSharingStatus for streamId=[" + msg.streamId + "] session stale.")
-      }
+      log.warning("Stopping JWS. GetSharingStatus for streamId=[" + msg.streamId + "] session stale.")
       sender ! new GetSharingStatusReply(STOP, None)
     }
 
@@ -496,7 +505,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
           }
           sender ! new GetSharingStatusReply(START, Some(as.streamId))
         case None =>
-          log.warning("status == START but no active session for streamId=[" + msg.streamId + "].")
+          log.warning("Forcing stop. No active session for meetingId=" + meetingId + ",streamId=[" + msg.streamId + "].")
           sender ! new GetSharingStatusReply(STOP, None)
       }
     }
@@ -552,7 +561,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     }
     if (status != STOP) {
       if (jwsStarted(msg.session)) {
-        if (jwsIsStillAlive(msg.session)) {
+        if (isJwsStillAlive(msg.session)) {
           if (isClientStillAlive(msg.session)) {
             //sessionAudit ! StartSendingAudit(screenShareSession)
           }
@@ -563,8 +572,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
   private def jwsStarted(session: String): Boolean = {
       val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
-      if ((status == START) && (currentTimeInSec - sessionStartedTimestamp > SESSION_START_TIMEOUT)) {
-          log.warning("JWS failed to start. session={}", session)
+      if ((status == START) && (currentTimeInSec - sessionStartedTimestamp > jwsLaunchTimeout)) {
+          log.warning("JWS failed to start for meetingId=" + meetingId + ",session=" + session)
           stopScreenSharing(session)
         false
       } else {
@@ -573,13 +582,13 @@ class Screenshare(val sessionManager: ScreenshareManager,
   }
 
 
-  private def jwsIsStillAlive(session: String): Boolean = {
+  private def isJwsStillAlive(session: String): Boolean = {
       val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
 
-      if ((status == RUNNING || status == PAUSE) &&
-        (lastJwsStatusUpdate > 0) &&
+      if ((status == RUNNING || status == PAUSE) && (lastJwsStatusUpdate > 0) &&
         (currentTimeInSec - lastJwsStatusUpdate > LAST_JWS_STATUS_UPDATE_TIMEOUT)) {
-          log.warning("Did not receive status update from JWS. Assume it is dead. session={}", session)
+          log.warning("Did not receive status update from JWS. Assume JWS crashed for meetingId=" +
+            meetingId + ",session=" + session)
           stopScreenSharing(session)
         false
       } else {
@@ -594,7 +603,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
   private def isClientStillAlive(session: String): Boolean = {
       val currentTimeInSec = TimeUtil.currentMonoTimeInSeconds()
       if ((lastClientPongReceivedTimestamp > 0) && (currentTimeInSec - lastClientPongReceivedTimestamp > PONG_TIMEOUT_SEC)) {
-          log.warning("Did not receive pong from client. Assume it is dead. streamId={}", session)
+          log.warning("Did not receive pong from client. Assume client crashed for meetingId=" +
+            meetingId + ",streamId=" + session)
           stopScreenSharing(session)
         false
       } else {

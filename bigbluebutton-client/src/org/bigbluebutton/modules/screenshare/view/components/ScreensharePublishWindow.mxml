@@ -73,6 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+      import org.bigbluebutton.modules.screenshare.services.red5.Connection;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
@@ -84,7 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var images:Images = new Images();
       [Bindable] public var bbbLogo:Class = images.bbb_logo;
       
-      private var connection:NetConnection;
+      private var connection:Connection;
       private var uri:String;
       private var room:String;
       private var sharingFullScreen:Boolean = false;
@@ -97,7 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var videoWidth:Number;
       private var captureHeight:Number = Capabilities.screenResolutionY;
       private var captureWidth:Number = Capabilities.screenResolutionX;
-      private var autoStart:Boolean = false;
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
       [Bindable] private var baseIndex:int;
@@ -133,14 +133,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         windowControls.maximizeRestoreBtn.enabled = false;
         
-        resourcesChanged();
-        
         titleBarOverlay.tabIndex = baseIndex;
         titleBarOverlay.focusEnabled = true;
         
         minimizeBtn.tabIndex = baseIndex+1;
         maximizeRestoreBtn.tabIndex = baseIndex+2;
         closeBtn.tabIndex = baseIndex+3;
+        
+        resourcesChanged();
       }
       
       private function remoteFocus(e:ShortcutEvent):void{
@@ -178,23 +178,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       */
       public function resetWidthAndHeight():void{/* do nothing */}
       
-      public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
+      public function initWindow(connection:Connection, uri:String, room:String):void {
         this.connection = connection;
         this.uri = uri;
         this.room = room;
-        this.autoStart = autoStart;
-        
-        // TODO: I'm not sure if auto-start still makes sense with the new JNLP workflow so I'm leaving it commented out for now
-        /*
-        if (autoStart || autoFullScreen) {
-          /*
-           * Need to have a timer to trigger auto-publishing of deskshare.
-            /
-          autoPublishTimer = new Timer(2000, 1);
-          autoPublishTimer.addEventListener(TimerEvent.TIMER, function() {shareWindow.shareScreen(true);});
-          autoPublishTimer.start();
-        }
-        */
       }
       
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
@@ -207,14 +194,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleScreenSharePausedEvent(event:ScreenSharePausedEvent):void {
-        if (videoHolder != null && video != null && video.parent == videoHolder) {
-            videoHolder.removeChild(video);
+        if (videoWrapper != null && video != null && video.parent == videoWrapper) {
+            videoWrapper.removeChild(video);
             
             if (paused) {
                 LOGGER.debug("handleScreenSharePausedEvent - enable push button.");
                 pauseBtn.enabled = true;
                 pauseBtn.visible = pauseBtn.includeInLayout = false;
                 restartBtn.visible = restartBtn.includeInLayout = true;
+                pauseBox.visible = pauseBox.includeInLayout = true;
+                videoWrapper.visible = videoWrapper.includeInLayout = false;
             } else {
                 switchView(true);
 			}
@@ -224,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function shareScreen(fullScreen:Boolean):void {
         LOGGER.debug("Calling shareScreen");
         startBtn.enabled = false;
-        startSharing(connection, uri, room, fullScreen);
+        startSharing(connection.getConnection(), uri, room, fullScreen);
       }
       
       private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
@@ -291,7 +280,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var width: int = ScreenshareModel.getInstance().width;
         var height: int = ScreenshareModel.getInstance().height;
         var streamId: String = ScreenshareModel.getInstance().streamId;
-        startPreviewStream(connection, streamId, width, height);
+        startPreviewStream(connection.getConnection(), streamId, width, height);
       }
       
       private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{
@@ -312,23 +301,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var vidW:Number = captureWidth;
         var vidH:Number = captureHeight;
         
-        vidW = videoHolder.width;
-        vidH = videoHolder.width * captureHeight / captureWidth;
+        // for some reason videoHolder's height is always '0' even when set to 100% so we have to do it manually
+        videoWrapper.height = this.height - controlBar.height - this.titleBar.height - pauseBtn.height - publishView.getStyle('paddingTop') - publishView.getStyle('paddingBottom') - 10;
+        videoWrapper.width = this.width - publishView.getStyle('paddingLeft') - publishView.getStyle('paddingRight') - 10;
         
-        // for some reason videoHolder's height is always '0' even when set to 100%
-        videoHolder.height = publishView.height - pauseBtn.height - 45;
+        vidW = videoWrapper.width;
+        vidH = videoWrapper.width * captureHeight / captureWidth;
         
-        if (vidH > videoHolder.height) {
-          vidH = videoHolder.height;
-          vidW = videoHolder.height * captureWidth / captureHeight;
+        if (vidH > videoWrapper.height) {
+          vidH = videoWrapper.height;
+          vidW = videoWrapper.height * captureWidth / captureHeight;
         }
         
         LOGGER.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
         video = new Video(vidW, vidH);
 		
-        videoHolder.addChild(video);
-        video.x = videoHolder.width/2 - video.width/2;
-        video.y = videoHolder.height/2 - video.height/2;
+        videoWrapper.addChild(video);
+        video.x = videoWrapper.width/2 - video.width/2;
+        video.y = videoWrapper.height/2 - video.height/2;
         
         ns = new NetStream(nc);
         ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -339,6 +329,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ns.receiveAudio(false);
         video.attachNetStream(ns);
         ns.play(streamId);
+        
+        pauseBox.visible = pauseBox.includeInLayout = false;
+        videoWrapper.visible = videoWrapper.includeInLayout = true;
+        pauseBox.width = vidW;
+        pauseBox.height = vidH;
       }
       
       public function onMetaData(info:Object):void{
@@ -442,10 +437,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function setHelpText():void {
         if (helpBox != null) {
-          var info:String;
+          var info:String = "";
           if (os == "Windows") {
             shareTypeBox.visible = true;
-            info = "pc";
+            info = "PC";
             if (browser == "Microsoft Internet Explorer" || browser == "Edge") {
               info += "IE";
             } else if (browser == "Firefox") {
@@ -471,14 +466,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
           }
           
-          helpImg1.styleName = "publishHelp" + info + "1";
-          helpLbl1.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"1");
-          
-          helpImg2.styleName = "publishHelp" + info + "2";
-          helpLbl2.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"2");
-          
-          helpImg3.styleName = "publishHelp" + info + "3";
-          helpLbl3.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"3");
+          if (info != "") {
+            helpImg1.styleName = "publishHelp" + info + "1";
+            helpLbl1.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"1");
+            
+            helpImg2.styleName = "publishHelp" + info + "2";
+            helpLbl2.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"2");
+            
+            helpImg3.styleName = "publishHelp" + info + "3";
+            helpLbl3.text = ResourceUtil.getInstance().getString("bbb.screensharePublish.helpText."+info+"3");
+          }
         }
       }
       
@@ -531,22 +528,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:ComboBox id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
       </mx:HBox>
     </mx:VBox>
-    <mx:VBox id="previewBox" width="100%" height="100%" visible="false" horizontalAlign="center">
-      <mx:UIComponent id="videoHolder" width="100%" height="100%" />
+    <mx:VBox id="previewBox" width="100%" height="100%" visible="false" horizontalAlign="center" >
+      <mx:Box id="videoHolder" width="100%" height="90%" horizontalAlign="center">
+        <mx:UIComponent id="videoWrapper" width="100%" height="100%" />
+        <mx:VBox id="pauseBox" visible="false" includeInLayout="false" styleName="desksharePublishPauseBox" >
+          <mx:Label width="100%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pauseMessage.label')}" />
+        </mx:VBox>
+	  </mx:Box>
       <mx:Button id="pauseBtn"
                  click="pauseSharing()"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}" 
                  label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}" />
-		<mx:Button id="restartBtn"
-                   visible="false" includeInLayout="false"
-                   click="pauseSharing()"
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip')}" 
-                   label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label')}" />
+      <mx:Button id="restartBtn"
+                 visible="false" includeInLayout="false"
+                 click="pauseSharing()"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip')}" 
+                 label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label')}" />
     </mx:VBox>
   </mx:Box>
   <mx:ControlBar horizontalAlign="right">
-    <mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
     <mx:Button id="startBtn" click="onStartButtonClick()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startButton.label')}" />
+    <mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
     <mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" />
   </mx:ControlBar>
 </dspub:MDIWindow>

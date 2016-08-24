@@ -85,7 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function onAppletStart(event:AppletStartedEvent):void{
         trace("DeskshareSA::onAppletStart.");
-        startVideo(service.getConnection(), room, event.videoWidth, event.videoHeight);
+        startVideo(service.getConnection().getConnection(), room, event.videoWidth, event.videoHeight);
       }
       
       private function onViewStreamStart(event:ViewStreamEvent):void {

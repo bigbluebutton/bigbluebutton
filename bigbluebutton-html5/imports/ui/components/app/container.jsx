@@ -1,16 +1,19 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
-import { subscribeForData, pollExists, wasUserKicked, redirectToLogoutUrl } from './service';
+import { subscribeForData, wasUserKicked, redirectToLogoutUrl } from './service';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import PollingContainer from '../polling/container';
+import ClosedCaptionsContainer from '../closed-captions/container';
 
 const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
+
+  //CCs UI is commented till the next pull request
+  //captions: <ClosedCaptionsContainer />,
 };
 
 class AppContainer extends Component {
@@ -29,14 +32,6 @@ class AppContainer extends Component {
     );
   }
 }
-
-const actionControlsToShow = () => {
-  if (pollExists()) {
-    return <PollingContainer />;
-  } else {
-    return <ActionsBarContainer />;
-  }
-};
 
 let loading = true;
 const loadingDep = new Tracker.Dependency;
@@ -63,7 +58,6 @@ export default createContainer(() => {
     wasKicked: wasUserKicked(),
     isLoading: getLoading(),
     redirectToLogoutUrl,
-    actionsbar: <ActionsBarContainer />,
   };
 }, AppContainer);
 

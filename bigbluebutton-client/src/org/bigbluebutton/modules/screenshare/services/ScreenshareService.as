@@ -67,8 +67,8 @@ package org.bigbluebutton.modules.screenshare.services {
             conn.connect();
         }
         
-        public function getConnection():NetConnection {
-            return conn.getConnection();
+        public function getConnection():Connection {
+            return conn;
         }
         
         public function disconnect():void {

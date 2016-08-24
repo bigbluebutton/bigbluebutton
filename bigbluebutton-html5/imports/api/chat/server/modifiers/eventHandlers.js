@@ -1,12 +1,12 @@
 import { eventEmitter } from '/imports/startup/server';
 import { addChatToCollection } from '/imports/api/chat/server/modifiers/addChatToCollection';
-import Meetings from '/imports/api/meetings';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
+import Chat from '/imports/api/chat';
 
 eventEmitter.on('get_chat_history_reply', function (arg) {
   if (inReplyToHTML5Client(arg)) {
     const meetingId = arg.payload.meeting_id;
-    if (Meetings.findOne({
+    if (Chat.findOne({
         meetingId: meetingId,
       }) == null) {
       const chatHistory = arg.payload.chat_history;
