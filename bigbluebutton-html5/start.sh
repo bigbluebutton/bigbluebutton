@@ -1,5 +1,4 @@
-#
-# the idea is that this way we prevent test runs (for whenever needed)
+#!/bin/bash
 
 # Change to start meteor in production or development mode
 ENVIRONMENT_TYPE=development
