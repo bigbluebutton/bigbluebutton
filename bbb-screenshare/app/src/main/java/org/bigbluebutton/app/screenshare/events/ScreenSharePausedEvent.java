@@ -3,10 +3,10 @@ package org.bigbluebutton.app.screenshare.events;
 public class ScreenSharePausedEvent implements IEvent {
 
   public final String meetingId;
-  public final String streamId;
+  public final String session;
 
-  public ScreenSharePausedEvent(String meetingId, String streamId) {
+  public ScreenSharePausedEvent(String meetingId, String session) {
     this.meetingId = meetingId;
-    this.streamId = streamId;
+    this.session = session;
   }
 }

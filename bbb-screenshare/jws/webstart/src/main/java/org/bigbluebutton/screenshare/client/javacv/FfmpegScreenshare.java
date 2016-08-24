@@ -146,7 +146,7 @@ public class FfmpegScreenshare {
         try {
           mainRecorder.record(frame);
         } catch (Exception e) {
-          System.out.println("CaptureScreen Exception 1");
+          //System.out.println("CaptureScreen Exception 1");
           if (!ignoreDisconnect) {
             listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
           }
@@ -189,27 +189,27 @@ public class FfmpegScreenshare {
         while (startBroadcast){
           captureScreen();
         }
-        System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
+        //System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
       }
     };
     startBroadcastExec.execute(startBroadcastRunner);    
   }
 
   public void stop() {
-    System.out.println("Stopping screen capture.");
+    //System.out.println("Stopping screen capture.");
     startBroadcast = false;
     if (mainRecorder != null) {
       try {
         ignoreDisconnect = true;
-        System.out.println("mainRecorder.stop.");
+        //System.out.println("mainRecorder.stop.");
         mainRecorder.stop();
-        System.out.println("mainRecorder.release.");
+        //System.out.println("mainRecorder.release.");
         mainRecorder.release();
-        System.out.println("grabber.stop.");
+        //System.out.println("grabber.stop.");
         // Do not invoke grabber.stop as it exits the JWS app.
         // Not sure why. (ralam - aug 10, 2016)
         //grabber.stop();
-        System.out.println("End stop sequence.");
+        //System.out.println("End stop sequence.");
       } catch (Exception e) {
         listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
       }

@@ -141,7 +141,7 @@ class Session(parent: Screenshare,
     width = None
     height = None
     streamUrl = None
-    bus.send(new ScreenShareStoppedEvent(meetingId, streamId))
+    bus.send(new ScreenShareStoppedEvent(meetingId, streamId, "NORMAL"))
   }
 
 
@@ -196,7 +196,7 @@ class Session(parent: Screenshare,
       log.debug("Received StopShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
 
-    bus.send(new ScreenShareStoppedEvent(meetingId, token))
+    bus.send(new ScreenShareStoppedEvent(meetingId, token, "NORMAL"))
 
     stopSession(true)
   }
@@ -206,7 +206,7 @@ class Session(parent: Screenshare,
       log.debug("Received PauseShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
 
-    bus.send(new ScreenShareStoppedEvent(meetingId, streamId))
+    bus.send(new ScreenShareStoppedEvent(meetingId, streamId, "NORMAL"))
 
     stopSession(false)
   }

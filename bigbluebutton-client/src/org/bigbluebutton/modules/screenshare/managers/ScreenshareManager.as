@@ -164,8 +164,7 @@ package org.bigbluebutton.modules.screenshare.managers {
         }
        
         public function handleScreenShareClientPingMessage(event: ScreenShareClientPingMessage):void {
-            LOGGER.debug("handleScreenShareClientPingMessage");
-            service.sendClientPongMessage(event.streamId, event.timestamp);
+            service.sendClientPongMessage(event.session, event.timestamp);
         }
         
         public function handleRequestPauseSharingEvent():void {
@@ -183,7 +182,6 @@ package org.bigbluebutton.modules.screenshare.managers {
         }
         
         public function handleShareStartRequestResponseEvent(event:ShareStartRequestResponseEvent):void {
-            LOGGER.debug("handleShareStartRequestResponseEvent");
             var dispatcher:Dispatcher = new Dispatcher();
             if (event.success) {
                 ScreenshareModel.getInstance().authToken = event.token;
@@ -198,7 +196,6 @@ package org.bigbluebutton.modules.screenshare.managers {
         }
         
         public function handleStartSharingEvent():void {
-            LOGGER.debug("handleStartSharingEvent");
             //toolbarButtonManager.disableToolbarButton();
             toolbarButtonManager.startedSharing();
             var option:ScreenshareOptions = new ScreenshareOptions();
@@ -215,7 +212,6 @@ package org.bigbluebutton.modules.screenshare.managers {
         }
         
         public function handleViewWindowCloseEvent():void {
-            LOGGER.debug("Received stop viewing command");
             viewWindowManager.handleViewWindowCloseEvent();
         }
         
