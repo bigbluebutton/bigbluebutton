@@ -5,7 +5,7 @@
         <asset:stylesheet src="bootstrap.css"/>
         <asset:stylesheet src="tool.css"/>
         <asset:stylesheet src="dataTables.bootstrap.min.css"/>
-        <asset:javascript src="jquery-1.12.3.min.js"/>
+        <asset:javascript src="jquery.js"/>
         <asset:javascript src="jquery.dataTables.min.js"/>
         <asset:javascript src="dataTables.bootstrap.min.js"/>
         <asset:javascript src="dataTables.plugin.datetime.js"/>

@@ -4,7 +4,7 @@
     <title>Error</title>
     <asset:stylesheet src="bootstrap.css"/>
     <asset:stylesheet src="tool.css"/>
-    <asset:javascript src="jquery-1.12.3.min.js"/>
+    <asset:javascript src="jquery.js"/>
     <asset:javascript src="bootstrap.js"/>
   </head>
   <body>
