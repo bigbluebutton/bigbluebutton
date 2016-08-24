@@ -76,12 +76,12 @@ public class ScreenSharerRunner {
   }
 
   public void disconnectSharing(){
-    System.out.println(NAME + "Disconnected");
+    //System.out.println(NAME + "Disconnected");
     jcs.stop();
   }
 
   public void stopSharing() {
-    System.out.println(NAME + "Stopping");
+    //System.out.println(NAME + "Stopping");
     jcs.stop();
   }
 

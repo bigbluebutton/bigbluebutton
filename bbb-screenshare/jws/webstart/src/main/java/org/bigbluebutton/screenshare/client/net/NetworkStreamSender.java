@@ -68,12 +68,12 @@ public class NetworkStreamSender implements NetworkStreamListener {
 
 
   public void stopSharing() {
-    System.out.println("Queueing ShareStoppedMessage");
+    //System.out.println("Queueing ShareStoppedMessage");
     send(new ShareStoppedMessage(meetingId, streamId, session));
   }
 
   public void startSharing(int width, int height, String streamId, String session) {
-    System.out.println("Queueing ShareStartedMessage");
+    //System.out.println("Queueing ShareStartedMessage");
     this.streamId = streamId;
     send(new ShareStartedMessage(meetingId, streamId, width, height, session));
   }
@@ -100,7 +100,7 @@ public class NetworkStreamSender implements NetworkStreamListener {
 
   @Override
   public void networkException(ExitCode reason, String streamId) {
-      System.out.println(NAME + "NetworkException - " + reason.getExitCode());
+      //System.out.println(NAME + "NetworkException - " + reason.getExitCode());
       notifyNetworkConnectionListener(reason, streamId);
   }
 

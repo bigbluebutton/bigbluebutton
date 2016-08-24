@@ -84,6 +84,6 @@ grails.project.dependency.resolution = {
         // plugins needed at runtime but not for compilation
         runtime ":database-migration:1.4.0"
         runtime ":jquery:1.11.1"
-        runtime ':twitter-bootstrap:3.3.4'
+        runtime ':twitter-bootstrap:3.3.5'
     }
 }
