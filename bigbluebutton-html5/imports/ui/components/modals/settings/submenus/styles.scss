@@ -1,4 +1,4 @@
-@import "imports/ui/stylesheets/variables/_all";
+@import "../../../../stylesheets/variables/_all";
 
 /* General Submenu */
 .submenuTitle {
@@ -102,6 +102,12 @@ ul li {
 .fontBarLeft p, .fontBarMid p {
   margin: 0px;
 }
+
+/* Users Submenu */
+.checkboxOffset {
+  margin-right: 5%;
+}
+
 
 /* Buttons */
 .defaultBtn {
