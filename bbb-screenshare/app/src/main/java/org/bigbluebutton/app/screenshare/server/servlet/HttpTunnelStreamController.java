@@ -56,7 +56,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 			handleCaptureUpdateRequest(request, response);
 			response.setStatus(HttpServletResponse.SC_OK);
 			SharingStatus sharingStatus =  getSharingStatus(request, response);
-			log.warn("SHARING_STATUS " + sharingStatus.status);
+			//log.warn("SHARING_STATUS " + sharingStatus.status);
 			response.addHeader("SHARING_STATUS", sharingStatus.status);
 			if (sharingStatus.status.toUpperCase().equals("START") && sharingStatus.status != null) {
 				response.addHeader("SHARING_STATUS_STREAMID", sharingStatus.streamId);

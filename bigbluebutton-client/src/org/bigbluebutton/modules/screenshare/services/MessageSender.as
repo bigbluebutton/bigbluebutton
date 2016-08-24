@@ -50,8 +50,8 @@ package org.bigbluebutton.modules.screenshare.services
           conn.restartShareRequest(meetingId, userId);
         }
         
-        public function sendClientPongMessage(meetingId: String, streamId: String, timestamp: Number):void {
-          conn.sendClientPongMessage(meetingId, streamId, timestamp);
+        public function sendClientPongMessage(meetingId: String, session: String, timestamp: Number):void {
+          conn.sendClientPongMessage(meetingId, session, timestamp);
         } 
     }
 }

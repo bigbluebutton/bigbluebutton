@@ -96,9 +96,8 @@ package org.bigbluebutton.modules.screenshare.services {
             sender.restartShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
         }
         
-        public function sendClientPongMessage(streamId: String, timestamp: Number):void {
-            LOGGER.debug("sendClientPongMessage");
-            sender.sendClientPongMessage(UsersUtil.getInternalMeetingID(), streamId, timestamp);
+        public function sendClientPongMessage(session: String, timestamp: Number):void {
+            sender.sendClientPongMessage(UsersUtil.getInternalMeetingID(), session, timestamp);
         }    
     }
 }

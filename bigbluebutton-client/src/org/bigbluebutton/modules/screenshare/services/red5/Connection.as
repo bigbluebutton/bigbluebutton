@@ -229,10 +229,10 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             }, message);
         }
         
-        public function sendClientPongMessage(meetingId:String, streamId:String, timestamp: Number):void {
+        public function sendClientPongMessage(meetingId:String, session:String, timestamp: Number):void {
             var message:Object = new Object();
             message["meetingId"] = meetingId;
-            message["streamId"] = streamId;
+            message["session"] = session;
             message["timestamp"] = timestamp;
             
             sendMessage("screenshare.screenShareClientPongMessage", function(result:String):void { // On successful result
