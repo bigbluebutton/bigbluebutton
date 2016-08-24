@@ -116,6 +116,8 @@
 			[Bindable]
 			private var amIPresenter:Boolean = false;
 			
+			private var joinAlert : Alert;
+			
 			private const FOCUS_USERS_LIST:String = "Focus Users List";
 			private const MAKE_PRESENTER:String = "Make Presenter";
 			private const KICK_USER:String = "Kick User";
@@ -317,14 +319,18 @@
 			}
 
 			private function breakoutRoomsListChangeListener(event:CollectionEvent):void {
-				if(breakoutRoomsList.length == 0) {
+				if (breakoutRoomsList.length == 0) {
 					breakoutTimeLabel.text = "...";
 					TimerUtil.stopTimer(breakoutTimeLabel.id);
+					// All breakout rooms were close we don't need to display the join URL alert anymore
+					removeJoinAlert();
 				}
 			}
 
 			private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
-				var alert:Alert = Alert.show(
+				// We display only one alert
+				removeJoinAlert();
+				joinAlert = Alert.show(
 					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL', [StringUtils.substringAfterLast(event.breakoutId, "-")]),
 					ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
 					Alert.YES | Alert.NO,
@@ -337,6 +343,12 @@
 						}
 					},
 					null, Alert.YES);
+			}
+
+			private function removeJoinAlert():void {
+				if (joinAlert != null) {
+					PopUpManager.removePopUp(joinAlert);
+				}
 			}
 
 			/*private function unlockAll():void {
