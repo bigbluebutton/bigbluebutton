@@ -13,13 +13,11 @@
       <div class="container">
       <g:if test="${ (resultMessageKey == 'InvalidEPortfolioUserId')}">
         <div class="alert alert-warning">
-          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
           ${resultMessage}
         </div>
       </g:if>
       <g:else>
         <div class="alert alert-danger">
-          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
           <g:message code="tool.error.general" />
         </div>
       </g:else>
