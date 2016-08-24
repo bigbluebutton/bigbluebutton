@@ -36,7 +36,7 @@ class ChatListItem extends Component {
         <Link to={linkPath} className={styles.chatListItemLink}>
           {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
           <div className={styles.chatName}>
-            <h3 className={styles.chatNameMain}>{chat.name}</h3>
+            {!this.props.compact ? <h3 className={styles.chatNameMain}>{chat.name}</h3> : null }
           </div>
           {(chat.unreadCounter > 0) ?
             <div className={styles.unreadMessages}>

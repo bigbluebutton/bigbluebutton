@@ -19,6 +19,11 @@
   }
 }
 
+.userItemContentsCompact {
+  background-color: red;
+  margin-right: 0.7rem;
+}
+
 .userName {
   @extend %flex-column;
   min-width: 0;
@@ -74,7 +79,7 @@
 }
 
 .userItemContents {
-  flex-grow: 1;
+  flex-grow: 0;
   display: flex;
   flex-flow: row;
 }
