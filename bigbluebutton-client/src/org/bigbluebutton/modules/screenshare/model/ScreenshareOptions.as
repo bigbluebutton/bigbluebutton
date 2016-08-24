@@ -23,8 +23,6 @@ package org.bigbluebutton.modules.screenshare.model
 	public class ScreenshareOptions
 	{
 		[Bindable] public var showButton:Boolean = true;
-		[Bindable] public var autoStart:Boolean = false;
-		[Bindable] public var autoFullScreen:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
 		[Bindable] public var useWebRTCIfAvailable:Boolean = false;
 		[Bindable] public var chromeExtensionKey:String = null;
@@ -33,12 +31,6 @@ package org.bigbluebutton.modules.screenshare.model
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("ScreenshareModule");
 			if (vxml != null) {
-				if (vxml.@autoStart != undefined) {
-					autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@autoFullScreen != undefined){
-					autoFullScreen = (vxml.@autoFullScreen.toString().toUpperCase() == "TRUE") ? true : false;
-				}
 				if (vxml.@baseTabIndex != undefined) {
 					baseTabIndex = vxml.@baseTabIndex;
 				}

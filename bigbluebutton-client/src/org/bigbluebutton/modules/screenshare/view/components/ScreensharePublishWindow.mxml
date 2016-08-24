@@ -98,7 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var videoWidth:Number;
       private var captureHeight:Number = Capabilities.screenResolutionY;
       private var captureWidth:Number = Capabilities.screenResolutionX;
-      private var autoStart:Boolean = false;
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
       [Bindable] private var baseIndex:int;
@@ -179,23 +178,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       */
       public function resetWidthAndHeight():void{/* do nothing */}
       
-      public function initWindow(connection:Connection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
+      public function initWindow(connection:Connection, uri:String, room:String):void {
         this.connection = connection;
         this.uri = uri;
         this.room = room;
-        this.autoStart = autoStart;
-        
-        // TODO: I'm not sure if auto-start still makes sense with the new JNLP workflow so I'm leaving it commented out for now
-        /*
-        if (autoStart || autoFullScreen) {
-          /*
-           * Need to have a timer to trigger auto-publishing of deskshare.
-            /
-          autoPublishTimer = new Timer(2000, 1);
-          autoPublishTimer.addEventListener(TimerEvent.TIMER, function() {shareWindow.shareScreen(true);});
-          autoPublishTimer.start();
-        }
-        */
       }
       
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
@@ -561,8 +547,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:VBox>
   </mx:Box>
   <mx:ControlBar horizontalAlign="right">
-    <mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
     <mx:Button id="startBtn" click="onStartButtonClick()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startButton.label')}" />
+    <mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
     <mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" />
   </mx:ControlBar>
 </dspub:MDIWindow>
