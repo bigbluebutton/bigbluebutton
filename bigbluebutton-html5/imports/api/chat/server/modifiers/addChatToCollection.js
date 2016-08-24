@@ -1,13 +1,12 @@
 import Chat from '/imports/api/chat';
 import { logger } from '/imports/startup/server/logger';
-
-const BREAK_TAG = '<br/>';
+import { BREAK_LINE } from '/imports/utils/lineEndings.js';
 
 const parseMessage = (message) => {
   message = message || '';
 
   // Replace \r and \n to <br/>
-  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_TAG + '$2');
+  message = message.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + BREAK_LINE + '$2');
 
   // Replace flash links to html valid ones
   message = message.split(`<a href='event:`).join(`<a target="_blank" href='`);

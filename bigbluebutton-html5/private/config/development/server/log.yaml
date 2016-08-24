@@ -1,0 +1,2 @@
+log:
+  filename: '/log/development.log'
