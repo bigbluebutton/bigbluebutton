@@ -55,11 +55,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 
 	<EventHandlers type="{ShareEvent.START_SHARING}">
-		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartSharingEvent" arguments="{false}"/>
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartSharingEvent"/>
 	</EventHandlers>
 
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
-		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartSharingEvent" arguments="{true}"/>
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartSharingEvent"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{RequestToStartSharing.REQUEST_SHARE_START}">
