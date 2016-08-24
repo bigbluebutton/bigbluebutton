@@ -3,7 +3,6 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/api/common/server/helpers';
 import { translateHTML5ToFlash } from '/imports/api/common/server/helpers';
 import { logger } from '/imports/startup/server/logger';
-import { redisConfig } from '/config';
 
 import RegexWebUrl from '/imports/utils/regex-weburl';
 
@@ -37,6 +36,8 @@ Meteor.methods({
   // requesterUserId: the userId of the user sending chat
   // requesterToken: the authToken of the requester
   sendChatMessagetoServer(credentials, chatObject) {
+    const REDIS_CONFIG = Meteor.settings.redis;
+
     const { meetingId, requesterUserId, requesterToken } = credentials;
 
     let message;
@@ -70,7 +71,7 @@ Meteor.methods({
       };
       message = appendMessageHeader(eventName, message);
       logger.info('publishing chat to redis');
-      publish(redisConfig.channels.toBBBApps.chat, message);
+      publish(REDIS_CONFIG.channels.toBBBApps.chat, message);
     }
   },
 });

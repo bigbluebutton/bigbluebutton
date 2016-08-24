@@ -12,6 +12,7 @@ import { clearCaptionsCollection }
   from '/imports/api/captions/server/modifiers/clearCaptionsCollection';
 import { logger } from '/imports/startup/server/logger';
 import { redisPubSub } from '/imports/startup/server';
+import { BREAK_LINE, CARRIAGE_RETURN, NEW_LINE } from '/imports/utils/lineEndings.js';
 
 export function appendMessageHeader(eventName, messageObj) {
   let header;

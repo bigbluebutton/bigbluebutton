@@ -1,7 +1,6 @@
 import { publish } from '/imports/api/common/server/helpers';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import { appendMessageHeader } from '/imports/api/common/server/helpers';
-import { redisConfig } from '/config';
 
 Meteor.methods({
   //meetingId: the meeting where the user is
@@ -13,6 +12,7 @@ Meteor.methods({
     credentials,
     newPresenterId,
     newPresenterName) {
+    const REDIS_CONFIG = Meteor.settings.redis;
     const { meetingId, requesterSetPresenter, requesterToken } = credentials;
     let message;
     if (isAllowedTo('setPresenter', credentials)) {
@@ -26,7 +26,7 @@ Meteor.methods({
       };
 
       message = appendMessageHeader('assign_presenter_request_message', message);
-      return publish(redisConfig.channels.toBBBApps.users, message);
+      return publish(REDIS_CONFIG.channels.toBBBApps.users, message);
     }
   },
 });
