@@ -23,7 +23,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 xmlns:common="org.bigbluebutton.common.*"
 		 height="100%"
-		 width="95%">	
+		 width="100%"
+		 minWidth="0">	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
