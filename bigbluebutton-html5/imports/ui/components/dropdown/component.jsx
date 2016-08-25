@@ -160,8 +160,14 @@ export default class SettingsDropdown extends Component {
   renderAriaLabelsDescs() {
     return (
       <div>
-
         {/* aria-labelledby */}
+        <p id="optionsDropdownLabel" hidden>
+          <FormattedMessage
+            id="app.dropdown.optionsDropdownLabel"
+            description="Aria label for options"
+            defaultMessage="Options"
+          />
+        </p>
         <p id="fullscreenLabel" hidden>
         <FormattedMessage
           id="app.dropdown.fullscreenLabel"
@@ -185,24 +191,31 @@ export default class SettingsDropdown extends Component {
         </p>
 
         {/* aria-describedby */}
+        <p id="optionsDropdownDesc" hidden>
+          <FormattedMessage
+            id="app.dropdown.optionsDropdownDesc"
+            description="Aria description for options"
+            defaultMessage="Open options"
+          />
+        </p>
         <p id="fullscreenDesc" hidden>
         <FormattedMessage
           id="app.dropdown.fullscreenDesc"
-          description="Aria label for fullscreen"
+          description="Aria description for fullscreen"
           defaultMessage="Make the settings menu fullscreen"
         />
         </p>
         <p id="settingsDesc" hidden>
           <FormattedMessage
             id="app.dropdown.settingsDesc"
-            description="Aria label for settings"
+            description="Aria description for settings"
             defaultMessage="Change the general settings"
           />
         </p>
         <p id="leaveSessionDesc" hidden>
           <FormattedMessage
             id="app.dropdown.leaveSessionDesc"
-            description="Aria label for logout"
+            description="Aria description for logout"
             defaultMessage="Leave the meeting"
           />
         </p>
@@ -216,7 +229,9 @@ export default class SettingsDropdown extends Component {
     return (
       <div>
         <Dropdown ref='dropdown' focusMenu={this.openWithKey}>
-          <DropdownTrigger labelBtn='setting' iconBtn='more' />
+          <DropdownTrigger labelBtn='setting' iconBtn='more'
+             aria-labelledby='optionsDropdownLabel'
+             aria-describedby='optionsDropdownDesc'/>
           <DropdownContent>
             <div className={styles.triangleOnDropdown}></div>
             <div className={styles.dropdownActiveContent}>
@@ -251,13 +266,6 @@ export default class SettingsDropdown extends Component {
           </DropdownContent>
         </Dropdown>
         <div role='presentation'>{this.createMenu()}</div>
-        <p id="settingsDropdown" hidden>
-          <FormattedMessage
-            id="app.dropdown.options"
-            description="Aria label for Options"
-            defaultMessage="Options"
-          />
-        </p>
       </div>
     );
   }
