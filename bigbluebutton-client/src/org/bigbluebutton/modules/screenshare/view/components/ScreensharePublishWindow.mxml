@@ -189,8 +189,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleScreenShareShareStoppedEvent(event:ShareStoppedEvent):void {
-        LOGGER.debug("handleScreenShareShareStoppedEvent");     
-        closeWindow();
+        LOGGER.debug("handleScreenShareShareStoppedEvent reason="+event.reason);
+        
+        var showReason:Boolean = false;
+        
+        if (event.reason == "JWS_START_FAILED_REASON") {
+          showReason = true;
+          if (paused) {
+            restartFailedLbl.visible = restartFailedLbl.includeInLayout = true;
+          } else {
+            startFailedLbl.visible = startFailedLbl.includeInLayout = true;
+          }
+        } else if (event.reason == "JWS_GONE_REASON") {
+          showReason = true;
+          jwsCrashedLbl.visible = jwsCrashedLbl.includeInLayout = true;
+        }
+        
+        if (showReason) {
+          helpInfoBox.visible = helpInfoBox.includeInLayout = false;
+          previewBox.visible = previewBox.includeInLayout = false;
+          errorBox.visible = errorBox.includeInLayout = true;
+          
+          shareTypeBox.visible = false;
+          cancelBtn.visible = cancelBtn.includeInLayout = true;
+          startBtn.visible = startBtn.includeInLayout = false;
+          stopBtn.visible = stopBtn.includeInLayout = false;
+        } else {
+          closeWindow();
+        }
       }
       
       private function handleScreenSharePausedEvent(event:ScreenSharePausedEvent):void {
@@ -238,7 +264,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         sharingFullScreen = false;
         streaming = false;
         
-        closeWindow();
+        //closeWindow();
       }
       
       public function pauseSharing():void {
@@ -485,8 +511,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function switchView(showHelp:Boolean):void {
         helpInfoBox.visible = helpInfoBox.includeInLayout = showHelp;
-        previewBox.visible =  !showHelp;
+        previewBox.visible = !showHelp;
         
+        shareTypeBox.visible = showHelp;
         cancelBtn.visible = cancelBtn.includeInLayout = showHelp;
         startBtn.visible = startBtn.includeInLayout = showHelp;
         stopBtn.visible = stopBtn.includeInLayout = !showHelp;
@@ -523,10 +550,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           <mx:Label id="helpLbl3" styleName="desktopShareTextStyle" />
         </mx:VBox>
       </mx:HBox>
-      <mx:HBox id="shareTypeBox" visible="false">
-        <mx:Label styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.shareTypeLabel.text')}" />
-        <mx:ComboBox id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
-      </mx:HBox>
     </mx:VBox>
     <mx:VBox id="previewBox" width="100%" height="100%" visible="false" horizontalAlign="center" >
       <mx:Box id="videoHolder" width="100%" height="90%" horizontalAlign="center">
@@ -545,8 +568,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.tooltip')}" 
                  label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label')}" />
     </mx:VBox>
+    <mx:VBox id="errorBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">
+      <mx:Label id="startFailedLbl" width="70%" visible="false" includeInLayout="false" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startFailed.label')}"/>
+      <mx:Label id="restartFailedLbl" width="70%" textAlign="center" visible="false" includeInLayout="false" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restartFailed.label')}"/>
+      <mx:Label id="jwsCrashedLbl" width="70%" textAlign="center" visible="false" includeInLayout="false" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.jwsCrashed.label')}"/>
+      <mx:Label width="70%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.commonErrorMessage.label')}"/>
+    </mx:VBox>
   </mx:Box>
   <mx:ControlBar horizontalAlign="right">
+    <mx:Spacer width="100%" />
+      <mx:HBox id="shareTypeBox" visible="false" verticalAlign="middle">
+        <mx:Label styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.shareTypeLabel.text')}" />
+        <mx:ComboBox id="shareTypeCombo" dataProvider="{shareTypeProvider}" />
+      </mx:HBox>
+    <mx:Spacer width="80%" />
     <mx:Button id="startBtn" click="onStartButtonClick()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startButton.label')}" />
     <mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
     <mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" />
