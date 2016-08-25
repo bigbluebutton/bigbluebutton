@@ -27,7 +27,7 @@ export default class AudioMenu extends BaseMenu {
           <label htmlFor='audioVolume'>Your audio stream volume</label>
         </div>
         <div className={styles.containerLeftHalfContent} role='presentation'>
-          <select id='microphone' defaultValue='0' tabIndex='8' role='listbox'
+          <select id='microphone' defaultValue='0' tabIndex='7' role='listbox'
             aria-labelledby='micLabel' aria-describedby='micDesc'>
             <option value='0' disabled>Displace Audio</option>
             <option value='1' role='option'>audio 1</option>
@@ -47,7 +47,7 @@ export default class AudioMenu extends BaseMenu {
         </div>
         <div className={styles.containerRightHalf}><br/></div>
         <div className={styles.containerLeftHalfContent} role='presentation'>
-          <select id='speaker' defaultValue='0' tabIndex='9' role='listbox'
+          <select id='speaker' defaultValue='0' tabIndex='8' role='listbox'
             aria-labelledby='spkrLabel' aria-describedby='spkrDesc'>
             <option value='0' disabled>Displace Audio</option>
             <option value='1' role='option'>audio 1</option>
@@ -65,7 +65,7 @@ export default class AudioMenu extends BaseMenu {
             color={'primary'}
             ghost={true}
             icon={'audio'}
-            tabIndex={10}
+            tabIndex={9}
             aria-labelledby={'testAudioLabel'}
             aria-describedby={'testAudioDesc'}
           />

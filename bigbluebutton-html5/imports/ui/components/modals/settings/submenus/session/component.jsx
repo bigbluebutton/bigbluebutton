@@ -50,13 +50,13 @@ export default class SessionMenu extends BaseMenu {
             <br />
             <Button onClick={Auth.completeLogout}
                     className={classNames(styles.modalBtn, styles.done)}
-                    tabIndex='8'
+                    tabIndex='7'
                     aria-labelledby="logout_okay"
                     aria-describedby="logout_okay"
                     role="button">Yes</Button>
             <Button onClick={this.closeLogout}
                     className={classNames(styles.modalBtn, styles.close)}
-                    tabIndex='9'
+                    tabIndex='8'
                     aria-labelledby="logout_cancel"
                     aria-describedby="logout_cancel"
                     role="button">No</Button>

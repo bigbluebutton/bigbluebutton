@@ -19,14 +19,14 @@ export default class ApplicationMenu extends BaseMenu {
     return (
       <div className={styles.full} role='presentation'>
           <div className={styles.row} role='presentation'>
-            <label><input type='checkbox' tabIndex='8' aria-labelledby='audioNotifLabel'
+            <label><input type='checkbox' tabIndex='7' aria-labelledby='audioNotifLabel'
               aria-describedby='audioNotifDesc' />Audio notifications for chat</label>
             <div id='audioNotifLabel' hidden>Audio notifications</div>
             <div id='audioNotifDesc' hidden>
               Toggles the audio notifications for chat.</div>
           </div>
           <div className={styles.row} role='presentation'>
-            <label><input type='checkbox' tabIndex='9' aria-labelledby='pushNotifLabel'
+            <label><input type='checkbox' tabIndex='8' aria-labelledby='pushNotifLabel'
               aria-describedby='pushNotifDesc' />Push notifications for chat</label>
             <div id='pushNotifLabel' hidden>Push notifications</div>
             <div id='pushNotifDesc' hidden>
@@ -44,7 +44,7 @@ export default class ApplicationMenu extends BaseMenu {
               onClick={FontControl.increaseFontSize.bind(this)}
               icon={'circle-add'}
               circle={true}
-              tabIndex={10}
+              tabIndex={9}
               hideLabel={true}
               label={'Increase Font'}
               aria-labelledby={'sizeUpLabel'}
@@ -57,7 +57,7 @@ export default class ApplicationMenu extends BaseMenu {
               onClick={FontControl.decreaseFontSize.bind(this)}
               icon={'circle-minus'}
               circle={true}
-              tabIndex={11}
+              tabIndex={10}
               hideLabel={true}
               label={'Decrease Font'}
               aria-labelledby={'sizeDownLabel'}

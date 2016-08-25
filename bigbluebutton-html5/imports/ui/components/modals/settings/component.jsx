@@ -35,8 +35,6 @@ export default class SettingsModal extends BaseModal {
       props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
     this.submenus.push({ componentName: UsersMenu, tabIndex: 6,
       props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
-    this.submenus.push({ componentName: SessionMenu, tabIndex: 7,
-      props: { title: 'Leave session', prependIconName: 'icon-', icon: 'bbb-logout', }, });
   }
 
   componentDidMount() {
