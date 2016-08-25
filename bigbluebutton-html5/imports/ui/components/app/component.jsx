@@ -7,6 +7,7 @@ import NotificationsBarContainer from '../notifications-bar/container';
 
 import Button from '../button/component';
 import styles from './styles';
+import cx from 'classnames';
 
 const propTypes = {
   navbar: PropTypes.element,
@@ -50,9 +51,12 @@ export default class App extends Component {
   renderUserList() {
     const { userList } = this.props;
 
+    const userListStyle = {};
+    userListStyle[styles.minview] = false;
+
     if (userList) {
       return (
-        <nav className={styles.userList}>
+        <nav className={cx(styles.userList, userListStyle)}>
           {userList}
         </nav>
       );

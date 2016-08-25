@@ -7,6 +7,7 @@ import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
+import cx from 'classnames';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -100,9 +101,12 @@ class UserListItem extends Component {
       user,
     } = this.props;
 
+    const userItemContentsStyle = {};
+    userItemContentsStyle[styles.userItemContentsCompact] = this.props.compact;
+
     return (
       <li onClick={this.handleToggleActions.bind(this, user)}
-          className={styles.userListItem} {...this.props}>
+          className={cx(styles.userListItem, userItemContentsStyle)} {...this.props}>
         <div className={styles.userItemContents}>
           <UserAvatar user={this.props.user}/>
           {this.renderUserName()}
@@ -118,6 +122,10 @@ class UserListItem extends Component {
       user,
       intl,
     } = this.props;
+
+    if (this.props.compact) {
+      return;
+    }
 
     let userNameSub = [];
     if (user.isPresenter) {
@@ -146,6 +154,10 @@ class UserListItem extends Component {
     const {
       user,
     } = this.props;
+
+    if (this.props.compact) {
+      return;
+    }
 
     let audioChatIcon = null;
     if (user.isVoiceUser || user.isListenOnly) {
