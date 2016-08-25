@@ -196,7 +196,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						if (y < 0) y = 1;
 						break;
 					case DESKTOP_SHARING_PUBLISH:
-						y = (this.height - win.height) - 23;
+						y = (this.height - win.height) - 43;
 						x = 8;
 						break;
 					case DESKTOP_SHARING_VIEW:
