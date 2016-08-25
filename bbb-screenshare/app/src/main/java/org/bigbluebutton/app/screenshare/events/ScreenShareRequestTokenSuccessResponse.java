@@ -1,6 +1,6 @@
 package org.bigbluebutton.app.screenshare.events;
 
-public class ScreenShareStartRequestSuccessResponse implements IEvent {
+public class ScreenShareRequestTokenSuccessResponse implements IEvent {
 
   public final String meetingId;
   public final String userId;
@@ -9,7 +9,7 @@ public class ScreenShareStartRequestSuccessResponse implements IEvent {
   public final String streamId;
   public final String session;
   
-  public ScreenShareStartRequestSuccessResponse(String meetingId, String userId, String token,
+  public ScreenShareRequestTokenSuccessResponse(String meetingId, String userId, String token,
                                                 String jnlp, String streamId, String session) {
     this.meetingId = meetingId;
     this.userId = userId;

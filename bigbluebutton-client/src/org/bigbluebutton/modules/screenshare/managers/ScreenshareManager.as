@@ -154,15 +154,19 @@ package org.bigbluebutton.modules.screenshare.managers {
               usingJava = true;
               publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom());
               sharing = true;
-              service.requestStartSharing();
+              service.requestShareToken();
             } else {
               sharing = true;
               usingJava = false;
               publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom());
-              service.requestStartSharing();
+              service.requestShareToken();
             }
         }
        
+        public function handleShareStartEvent():void {
+            service.sharingStartMessage(ScreenshareModel.getInstance().session);    
+        }
+        
         public function handleScreenShareClientPingMessage(event: ScreenShareClientPingMessage):void {
             service.sendClientPongMessage(event.session, event.timestamp);
         }

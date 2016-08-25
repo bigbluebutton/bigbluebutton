@@ -1,6 +1,8 @@
 package org.bigbluebutton.app.screenshare.server.sessions.messages
 
-case class StartShareRequestMessage(meetingId: String, userId: String, jnlp: String, record: Boolean)
+case class RequestShareTokenMessage(meetingId: String, userId: String, jnlp: String, record: Boolean)
+
+case class StartShareRequestMessage(meetingId: String, userId: String, session: String)
 
 case class StartShareRequestReplyMessage(token: String, streamId: String)
 
