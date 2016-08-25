@@ -30,7 +30,7 @@ class UserList extends Component {
     super(props);
 
     this.state = {
-      compact: true,
+      compact: false,
     };
   }
 
@@ -83,7 +83,7 @@ class UserList extends Component {
               description="Title for the messages list"
               defaultMessage="Messages"
             />
-          </h3> : <hr></hr>
+          </h3> : <hr className={styles.separator}></hr>
         }
         <div className={styles.scrollableList}>
           <ReactCSSTransitionGroup
@@ -126,7 +126,7 @@ class UserList extends Component {
               defaultMessage="Participants"
             />
             &nbsp;({this.props.users.length})
-          </h3> : <hr></hr>
+          </h3> : <hr className={styles.separator}></hr>
         }
         <ReactCSSTransitionGroup
           transitionName={listTransition}
