@@ -26,11 +26,11 @@
   "app.failedMessage": "Apologies, trouble connecting to the server.",
   "app.connectingMessage": "Connecting...",
   "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds...",
-  "app.dropdown.optionsDropdownLabel": "Options",
-  "app.dropdown.optionsDropdownDesc": "Open options",
+  "app.dropdown.optionsLabel": "Options",
   "app.dropdown.fullscreenLabel": "Make fullscreen",
   "app.dropdown.settingsLabel": "Open settings",
   "app.dropdown.leaveSessionLabel": "Logout",
+  "app.dropdown.optionsDesc": "Open options",
   "app.dropdown.fullscreenDesc": "Make the settings menu fullscreen",
   "app.dropdown.settingsDesc": "Change the general settings",
   "app.dropdown.leaveSessionDesc": "Leave the meeting"

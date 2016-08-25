@@ -5,11 +5,11 @@ import Button from '/imports/ui/components/button/component';
 import classNames from 'classnames';
 import styles from './styles';
 import { FormattedMessage } from 'react-intl';
-import SettingsModal from '../modals/settings/component';
-import SessionMenu from '../modals/settings/submenus/session/component';
-import Dropdown from './dropdown-menu/component';
-import DropdownTrigger from './dropdown-trigger/component';
-import DropdownContent from './dropdown-content/component';
+import SettingsModal from '../modals/settings/SettingsModal';
+import SessionMenu from '../modals/settings/submenus/SessionMenu';
+import Dropdown from '../dropdown/dropdown-menu/component';
+import DropdownTrigger from '../dropdown/dropdown-trigger/component';
+import DropdownContent from '../dropdown/dropdown-content/component';
 
 export default class SettingsDropdown extends Component {
   constructor(props) {
@@ -160,11 +160,12 @@ export default class SettingsDropdown extends Component {
   renderAriaLabelsDescs() {
     return (
       <div>
+
         {/* aria-labelledby */}
-        <p id="optionsDropdownLabel" hidden>
+        <p id="optionsLabel" hidden>
           <FormattedMessage
-            id="app.dropdown.optionsDropdownLabel"
-            description="Aria label for options"
+            id="app.dropdown.optionsLabel"
+            description="Aria label for Options"
             defaultMessage="Options"
           />
         </p>
@@ -191,10 +192,10 @@ export default class SettingsDropdown extends Component {
         </p>
 
         {/* aria-describedby */}
-        <p id="optionsDropdownDesc" hidden>
+        <p id="optionsDesc" hidden>
           <FormattedMessage
-            id="app.dropdown.optionsDropdownDesc"
-            description="Aria description for options"
+            id="app.dropdown.optionsDesc"
+            description="Aria description for Options"
             defaultMessage="Open options"
           />
         </p>
@@ -228,10 +229,12 @@ export default class SettingsDropdown extends Component {
 
     return (
       <div>
-        <Dropdown ref='dropdown' focusMenu={this.openWithKey}>
+        <Dropdown ref='dropdown' focusMenu={this.openWithKey}
+          aria-labelledby='optionsLabel'
+          aria-describedby='optionsDesc'>
           <DropdownTrigger labelBtn='setting' iconBtn='more'
-             aria-labelledby='optionsDropdownLabel'
-             aria-describedby='optionsDropdownDesc'/>
+            ghostBtn={true} hideBtn={true}
+            styleBtn={styles}/>
           <DropdownContent>
             <div className={styles.triangleOnDropdown}></div>
             <div className={styles.dropdownActiveContent}>
