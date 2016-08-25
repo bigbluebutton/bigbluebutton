@@ -2,9 +2,9 @@
 
 /* General Submenu */
 .submenuTitle {
-  height: 15%;
+  height: 45px;
   margin: 0px;
-  padding-top: 18px;
+  padding-top: 12px;
   font-size: $font-size-large;
   font-weight: $headings-font-weight;
 }
@@ -12,7 +12,7 @@
 .submenuContent {
   height: 85%;
   margin: 0px;
-  padding-top: 18px;
+  padding-top: 12px;
   font-size: $font-size-base;
   color: $color-gray-light;
 }
@@ -131,7 +131,7 @@ ul li {
 }
 
 .row {
-  height: 20%;
+  height: 42px;
 }
 
 .indentedRow {
