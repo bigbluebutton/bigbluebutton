@@ -25,5 +25,12 @@
   "app.whiteboard.slideControls.zoomDescrip": "Change the zoom level of the presentation",
   "app.failedMessage": "Apologies, trouble connecting to the server.",
   "app.connectingMessage": "Connecting...",
-  "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds..."
+  "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds...",
+  "app.dropdown.options": "Options",
+  "app.dropdown.fullscreenLabel": "Make fullscreen",
+  "app.dropdown.settingsLabel": "Open settings",
+  "app.dropdown.leaveSessionLabel": "Logout",
+  "app.dropdown.fullscreenDesc": "Make the settings menu fullscreen",
+  "app.dropdown.settingsDesc": "Change the general settings",
+  "app.dropdown.leaveSessionDesc": "Leave the meeting"
 }

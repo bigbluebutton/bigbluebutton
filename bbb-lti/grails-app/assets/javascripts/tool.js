@@ -18,29 +18,23 @@
 $(document).ready( function () {
 	if (typeof jQuery !== 'undefined') {
 		(function($) {
-			$('#spinner').ajaxStart(function() {
-				$(this).fadeIn();
-			}).ajaxStop(function() {
-				$(this).fadeOut();
+			$('[data-toggle="confirmation"]').confirmation({popout: true});
+			$('#recordings').dataTable({
+				columnDefs: [ {
+					targets: 3,
+					render: $.fn.dataTable.render.moment('X', 'LLL', locale)
+				} ],
+				sPaginationType : "full_numbers",
+				"columns": [
+					null,
+					null,
+					null,
+					null,
+					null,
+					{ "width": "160px" }
+				],
+				"order": [[ 3, "desc" ]]
 			});
 		})(jQuery);
-		
-		$('#recordings').dataTable({
-			columnDefs: [ {
-				targets: 3,
-				render: $.fn.dataTable.render.moment('X', 'LLL', locale)
-			} ],
-			sPaginationType : "full_numbers",
-			"columns": [
-				null,
-				null,
-				null,
-				null,
-				null,
-				{ "width": "160px" }
-			],
-			"order": [[ 3, "desc" ]]
-		});
-		
 	}
 });

@@ -41,7 +41,10 @@ public class EventListenerImp implements IEventListener {
     Gson gson = new Gson();
     message.put("msg", gson.toJson(data));
 
-    log.info("Sending ScreenShareClientPing to client, meetingId=" + event.meetingId + " userid=" + event.userId);
+    if (log.isDebugEnabled()) {
+      log.debug("Sending ScreenShareClientPing to client, meetingId=" + event.meetingId + " userid=" + event.userId);
+    }
+
     DirectClientMessage msg = new DirectClientMessage(event.meetingId, event.userId, "screenShareClientPingMessage", message);
     sender.sendMessage(msg);
   }
@@ -62,7 +65,10 @@ public class EventListenerImp implements IEventListener {
       Gson gson = new Gson();
       message.put("msg", gson.toJson(data));
 
-      log.info("Sending isSharingScreenRequestResponse to client, meetingId=" + event.meetingId + " userid=" + event.userId);
+      if (log.isDebugEnabled()) {
+        log.debug("Sending isSharingScreenRequestResponse to client, meetingId=" + event.meetingId + " userid=" + event.userId);
+      }
+
       DirectClientMessage msg = new DirectClientMessage(event.meetingId, event.userId, "isSharingScreenRequestResponse", message);
       sender.sendMessage(msg);
   }
@@ -87,7 +93,7 @@ public class EventListenerImp implements IEventListener {
     Gson gson2 = new Gson();
     String logStr =  gson2.toJson(logData);
 
-    log.info("Start ScreenShare request rejected response: data={}", logStr);
+    log.info("Send to client start screen share request rejected response: data={}", logStr);
   }
 
   private void  sendStartShareRequestResponse(ScreenShareStartRequestSuccessResponse event) {
@@ -108,7 +114,7 @@ public class EventListenerImp implements IEventListener {
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", event.meetingId);
     logData.put("userId", event.userId);
-
+    logData.put("session", event.session);
     logData.put("authToken", event.token);
     logData.put("jnlp", event.jnlp);
 
@@ -116,13 +122,13 @@ public class EventListenerImp implements IEventListener {
     Gson gson2 = new Gson();
     String logStr =  gson2.toJson(logData);
 
-    log.info("Start ScreenShare request response: data={}", logStr);
+    log.info("Send to client start screen share request response: data={}", logStr);
   }
 
   private void sendSharePausedEvent(ScreenSharePausedEvent event) {
     Map<String, Object> data = new HashMap<String, Object>();
     data.put("meetingId", event.meetingId);
-    data.put("streamId", event.streamId);
+    data.put("session", event.session);
 
     Map<String, Object> message = new HashMap<String, Object>();
     Gson gson = new Gson();
@@ -133,12 +139,12 @@ public class EventListenerImp implements IEventListener {
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", event.meetingId);
-    logData.put("streamId", event.streamId);
+    logData.put("session", event.session);
 
     gson = new Gson();
     String logStr =  gson.toJson(logData);
 
-    log.info("Screenshare paused message: data={}", logStr);
+    log.info("Send to client screen share paused message: data={}", logStr);
   }
 
   private void sendShareStartedEvent(ScreenShareStartedEvent event) {
@@ -148,6 +154,7 @@ public class EventListenerImp implements IEventListener {
     data.put("width", event.width);
     data.put("height", event.height);
     data.put("url", event.url);
+    data.put("session", event.session);
 
     Map<String, Object> message = new HashMap<String, Object>();
     Gson gson = new Gson();
@@ -159,17 +166,22 @@ public class EventListenerImp implements IEventListener {
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", event.meetingId);
     logData.put("streamId", event.streamId);
+    logData.put("width", event.width);
+    logData.put("height", event.height);
+    logData.put("url", event.url);
+    logData.put("session", event.session);
 
     gson = new Gson();
     String logStr =  gson.toJson(logData);
 
-    log.info("Screenshare started message: data={}", logStr);
+    log.info("Send to client screen share started message: data={}", logStr);
   }
   
   private void sendShareStoppedEvent(ScreenShareStoppedEvent event) {
     Map<String, Object> data = new HashMap<String, Object>();
     data.put("meetingId", event.meetingId);
     data.put("session", event.session);
+    data.put("reason", event.reason);
 
     Map<String, Object> message = new HashMap<String, Object>(); 
     Gson gson = new Gson();
@@ -180,11 +192,14 @@ public class EventListenerImp implements IEventListener {
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", event.meetingId);
+    logData.put("session", event.session);
+    logData.put("reason", event.reason);
 
     gson = new Gson();
     String logStr =  gson.toJson(logData);
 
-    log.info("Screenshare stopped message: data={}", logStr);
+    log.info("Send to client screen share stopped message: data={}", logStr);
+
 
   }
   
