@@ -4,8 +4,9 @@ import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
 import Chats from '/imports/api/chat';
 
-const PUBLIC_CHAT_USERID = 'public_chat_userid';
-const STORAGE_KEY = 'UNREAD_CHATS';
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
+const STORAGE_KEY = CHAT_CONFIG.storage_key;
 
 class UnreadMessagesTracker {
   constructor() {

@@ -16,20 +16,24 @@ export function displayThisSlide(meetingId, newSlideId, slideObject) {
   });
 
   // first update the new slide as current and update its ratios/offsets
-  Slides.update(newSlide._id, {
-    $set: {
-      'slide.current': true,
-      'slide.height_ratio': slideObject.height_ratio,
-      'slide.width_ratio': slideObject.width_ratio,
-      'slide.x_offset': slideObject.x_offset,
-      'slide.y_offset': slideObject.y_offset,
-    },
-  });
+  if (newSlide != undefined) {
+    Slides.update(newSlide._id, {
+      $set: {
+        'slide.current': true,
+        'slide.height_ratio': slideObject.height_ratio,
+        'slide.width_ratio': slideObject.width_ratio,
+        'slide.x_offset': slideObject.x_offset,
+        'slide.y_offset': slideObject.y_offset,
+      },
+    });
+  }
 
   // change current to false for the old slide after update the new one
-  Slides.update(currentSlide._id, {
-    $set: {
-      'slide.current': false,
-    },
-  });
+  if (currentSlide != undefined) {
+    Slides.update(currentSlide._id, {
+      $set: {
+        'slide.current': false,
+      },
+    });
+  }
 };

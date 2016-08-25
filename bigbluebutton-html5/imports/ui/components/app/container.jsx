@@ -12,7 +12,6 @@ const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
-  settings: <SettingsModal />,
 
   //CCs UI is commented till the next pull request
   //captions: <ClosedCaptionsContainer />,

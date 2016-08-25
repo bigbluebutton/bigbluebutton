@@ -3,13 +3,16 @@ import '/server/server';
 import { RedisPubSub } from '/imports/startup/server/RedisPubSub';
 import { EventQueue } from '/imports/startup/server/EventQueue';
 import { clearCollections } from '/imports/api/common/server/helpers';
-import { clientConfig } from '/config';
 
 Meteor.startup(function () {
+  redisPubSub = new RedisPubSub();
+
   clearCollections();
+  const APP_CONFIG = Meteor.settings.public.app;
+
   let determineConnectionType = function () {
     let baseConnection = 'HTTP';
-    if (clientConfig.app.httpsConnection) {
+    if (APP_CONFIG.httpsConnection) {
       baseConnection += ('S');
     }
 
@@ -17,6 +20,9 @@ Meteor.startup(function () {
   };
 
   logger.info(`server start. Connection type:${determineConnectionType()}`);
+  logger.info('APP_CONFIG=');
+  logger.info(APP_CONFIG);
+  logger.info('Running in environment type:' + Meteor.settings.runtime.env);
 });
 
 WebApp.connectHandlers.use('/check', (req, res, next) => {
@@ -31,4 +37,4 @@ export const myQueue = new EventQueue();
 
 export const eventEmitter = new (Npm.require('events').EventEmitter);
 
-export const redisPubSub = new RedisPubSub();
+export let redisPubSub = {};

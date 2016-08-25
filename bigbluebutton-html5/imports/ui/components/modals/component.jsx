@@ -28,15 +28,13 @@ export default class BaseModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      modalIsOpen: false,
+      // You need to set isOpen={true} on the modal component for it to render its children.
+      modalIsOpen: true,
       title: props.title || 'title',
       content: <div>hello</div>,
     };
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
-    this.handleModalCloseRequest = this.handleModalCloseRequest.bind(this);
-    this.handleSaveClicked = this.handleSaveClicked.bind(this);
-    this.afterOpenModal = this.afterOpenModal.bind(this);
     this.setTitle = this.setTitle.bind(this);
   }
 
@@ -52,18 +50,6 @@ export default class BaseModal extends React.Component {
     this.setState({ modalIsOpen: false });
   }
 
-  afterOpenModal() {}
-
-  handleModalCloseRequest() {
-    // opportunity to validate something and keep the modal open even if it
-    // requested to be closed
-    this.setState({ modalIsOpen: false });
-  }
-
-  handleSaveClicked(e) {
-    alert('Save button was clicked');
-  }
-
   getContent() {
     return (<div>parent content</div>);
   }
@@ -73,10 +59,9 @@ export default class BaseModal extends React.Component {
       <span>
         <Modal
           isOpen={this.state.modalIsOpen}
-          onAfterOpen={this.afterOpenModal}
           onRequestClose={this.closeModal}
           shouldCloseOnOverlayClick={false}
-          style={ customStyles } >
+          style={customStyles} >
           <div className={styles.settingsMenuTop} role='presentation'>
             <div className={classNames(styles.modalHeaderTitle, 'largeFont')}>
               {this.state.title}
@@ -99,12 +84,10 @@ export default class BaseModal extends React.Component {
                 aria-labelledby={'doneLabel'}
                 aria-describedby={'doneDesc'}
               />
-            <div id='cancelLabel' hidden>Cancel</div>
-              <div id='cancelDesc' hidden>
-                Disregards changes and closes the settings menu.</div>
+              <div id='cancelLabel' hidden>Cancel</div>
+              <div id='cancelDesc' hidden>Disregards changes and closes the settings menu.</div>
               <div id='doneLabel' hidden>Done</div>
-              <div id='doneDesc' hidden>
-                Saves changes and closes the settings menu.</div>
+              <div id='doneDesc' hidden>Saves changes and closes the settings menu.</div>
             </div>
           </div>
           <div className={styles.settingsMenuBottom}  role='presentation'>

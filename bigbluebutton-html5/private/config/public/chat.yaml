@@ -1,0 +1,15 @@
+# Chat service configurations
+chat:
+  grouping_messages_window: 60000
+  # Chat types
+  type_system: 'SYSTEM_MESSAGE'
+  type_public: 'PUBLIC_CHAT'
+  type_private: 'PRIVATE_CHAT'
+  # Chat ids and names
+  public_id: 'public'
+  public_userid: 'public_chat_userid'
+  public_username: 'public_chat_username'
+  # Keys
+  storage_key: 'UNREAD_CHATS'
+  # Chat paths
+  path_route: 'users/chat/'

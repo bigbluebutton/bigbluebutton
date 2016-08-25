@@ -6,12 +6,12 @@ package org.bigbluebutton.modules.screenshare.events
     {
         public static const SCREENSHARE_PAUSED:String = "screenshare share paused event";
     
-        public var streamId:String;
+        public var session:String;
     
-        public function ScreenSharePausedEvent(streamId: String) 
+        public function ScreenSharePausedEvent(session: String) 
         {
             super(SCREENSHARE_PAUSED, true, false);
-            this.streamId = streamId;
+            this.session = session;
         }
         
     }
