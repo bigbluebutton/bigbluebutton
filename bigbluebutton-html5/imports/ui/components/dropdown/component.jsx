@@ -21,13 +21,16 @@ export default class SettingsDropdown extends Component {
   componentWillMount() {
     this.setState({ activeMenu: -1, focusedMenu: 0, });
     this.menus.push({ className: '',
-        props: { title: 'Fullscreen', prependIconName: 'icon-', icon: 'bbb-full-screen', },
+        props: { title: 'Fullscreen', prependIconName: 'icon-', icon: 'bbb-full-screen',
+                ariaLabelleby: 'fullscreenLabel', ariaDescribedby:'fullscreenDesc', },
         tabIndex: 1, });
     this.menus.push({ className: SettingsModal,
-        props: { title: 'Settings', prependIconName: 'icon-', icon: 'bbb-more', },
+        props: { title: 'Settings', prependIconName: 'icon-', icon: 'bbb-more',
+                ariaLabelleby: 'settingsLabel', ariaDescribedby:'settingsDesc', },
         tabIndex: 2, });
     this.menus.push({ className: SessionMenu,
-        props: { title: 'Leave Session', prependIconName: 'icon-', icon: 'bbb-logout', },
+        props: { title: 'Leave Session', prependIconName: 'icon-', icon: 'bbb-logout',
+                ariaLabelleby: 'leaveSessionLabel', ariaDescribedby:'leaveSessionDesc', },
         tabIndex: 3, });
   }
 
@@ -84,6 +87,7 @@ export default class SettingsDropdown extends Component {
         this.setState({ focusedMenu: this.state.focusedMenu - 1, },
            () => { this.setFocus(); });
       }
+
       return;
     }
 
@@ -96,6 +100,7 @@ export default class SettingsDropdown extends Component {
         this.setState({ focusedMenu: this.state.focusedMenu + 1, },
            () => { this.setFocus(); });
       }
+
       return;
     }
 
@@ -110,6 +115,7 @@ export default class SettingsDropdown extends Component {
       this.setState({ activeMenu: -1, focusedMenu: 0, });
       this.refs.dropdown.hideMenu();
     }
+
     return;
   }
 
@@ -154,25 +160,50 @@ export default class SettingsDropdown extends Component {
   renderAriaLabelsDescs() {
     return (
       <div>
-        <p id="fullScreen" hidden>
+
+        {/* aria-labelledby */}
+        <p id="fullscreenLabel" hidden>
         <FormattedMessage
-          id="app.modals.dropdown.fullScreen"
+          id="app.dropdown.fullscreenLabel"
           description="Aria label for fullscreen"
           defaultMessage="Make fullscreen"
         />
         </p>
-        <p id="settingsModal" hidden>
+        <p id="settingsLabel" hidden>
           <FormattedMessage
-            id="app.modals.dropdown.settingsModal"
+            id="app.dropdown.settingsLabel"
             description="Aria label for settings"
             defaultMessage="Open Settings"
           />
         </p>
-        <p id="leaveSession" hidden>
+        <p id="leaveSessionLabel" hidden>
           <FormattedMessage
-            id="app.modals.dropdown.leaveSession"
+            id="app.dropdown.leaveSessionLabel"
             description="Aria label for logout"
             defaultMessage="Logout"
+          />
+        </p>
+
+        {/* aria-describedby */}
+        <p id="fullscreenDesc" hidden>
+        <FormattedMessage
+          id="app.dropdown.fullscreenDesc"
+          description="Aria label for fullscreen"
+          defaultMessage="Make the settings menu fullscreen"
+        />
+        </p>
+        <p id="settingsDesc" hidden>
+          <FormattedMessage
+            id="app.dropdown.settingsDesc"
+            description="Aria label for settings"
+            defaultMessage="Change the general settings"
+          />
+        </p>
+        <p id="leaveSessionDesc" hidden>
+          <FormattedMessage
+            id="app.dropdown.leaveSessionDesc"
+            description="Aria label for logout"
+            defaultMessage="Leave the meeting"
           />
         </p>
       </div>
@@ -199,7 +230,9 @@ export default class SettingsDropdown extends Component {
                     onKeyDown={this.handleListKeyDown.bind(this)}
                     onFocus={this.handleFocus.bind(this, index)}
                     ref={'menu' + index}
-                    className={styles.settingsMenuItem}>
+                    className={styles.settingsMenuItem}
+                    aria-labelledby={value.props.ariaLabelleby}
+                    aria-describedby={value.props.ariaDescribedby}>
 
                     <Icon
                       key={index}
@@ -220,7 +253,7 @@ export default class SettingsDropdown extends Component {
         <div role='presentation'>{this.createMenu()}</div>
         <p id="settingsDropdown" hidden>
           <FormattedMessage
-            id="app.modals.dropdown.settingsDropdown"
+            id="app.dropdown.options"
             description="Aria label for Options"
             defaultMessage="Options"
           />

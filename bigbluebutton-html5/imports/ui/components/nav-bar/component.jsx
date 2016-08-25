@@ -27,11 +27,6 @@ class NavBar extends Component {
     this.props.toggleUserList();
   }
 
-  clickEvent() {
-    console.log("Clicked button");
-    return <Dropdown beingClicked={true} />;
-  }
-
   render() {
     const { presentationTitle, beingRecorded } = this.props;
     document.title = presentationTitle;
