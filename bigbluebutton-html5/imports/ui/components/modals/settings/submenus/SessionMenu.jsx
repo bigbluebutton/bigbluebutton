@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
 import Button from '/imports/ui/components/button/component';
 import BaseMenu from './BaseMenu';
@@ -40,18 +41,24 @@ export default class SessionMenu extends BaseMenu {
       <span>
         <Modal
           isOpen={this.state.openConfirm}
-          style={customModal} >
+          style={customModal}
+          onRequestClose={this.closeLogout}
+          tabIndex="-1">
             <span className={classNames(styles.modalHeaderTitle, 'largeFont')}> Leave Session</span>
             <hr className={styles.modalHorizontalRule} />
             <span>Do you want to leave this meeting?</span>
             <br />
             <button onClick={Auth.completeLogout}
                     className={classNames(styles.modalButton, styles.done)}
-                    tabindex="0"
+                    tabIndex='8'
+                    aria-labelledby="logout_okay"
+                    aria-describedby="logout_okay"
                     role="button">Yes</button>
             <button onClick={this.closeLogout}
                     className={classNames(styles.modalButton, styles.close)}
-                    tabindex="1"
+                    tabIndex='9'
+                    aria-labelledby="logout_cancel"
+                    aria-describedby="logout_cancel"
                     role="button">No</button>
         </Modal>
       </span>

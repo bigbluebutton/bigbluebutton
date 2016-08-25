@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import Button from '../button/component';
 import RecordButton from './recordbutton/component';
+import SettingsDropdown from '../dropdown/component';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -51,7 +52,7 @@ class NavBar extends Component {
           </div>
         </div>
         <div className={styles.right}>
-          <span id="settingsButtonPlaceHolder"></span>
+          <SettingsDropdown />
         </div>
       </div>
     );
