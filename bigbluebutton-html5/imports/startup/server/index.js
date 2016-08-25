@@ -20,6 +20,9 @@ Meteor.startup(function () {
   };
 
   logger.info(`server start. Connection type:${determineConnectionType()}`);
+  logger.info('APP_CONFIG=');
+  logger.info(APP_CONFIG);
+  logger.info('Running in environment type:' + Meteor.settings.runtime.env);
 });
 
 WebApp.connectHandlers.use('/check', (req, res, next) => {

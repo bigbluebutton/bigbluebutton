@@ -94,6 +94,7 @@ package org.bigbluebutton.modules.caption.views {
 			outputArea.percentWidth = 100;
 			outputArea.percentHeight = 100;
 			outputArea.tabIndex = startIndex+1;
+			outputArea.addEventListener(FlexEvent.VALUE_COMMIT, onOutputAreaValueCommit);
 			addChild(outputArea);
 			
 			claimButton = new Button();
@@ -180,6 +181,10 @@ package org.bigbluebutton.modules.caption.views {
 		public function setBackgroundColor(color:uint):void {
 			inputArea.setStyle("backgroundColor", color);
 			outputArea.setStyle("backgroundColor", color);
+		}
+		
+		private function onOutputAreaValueCommit(e:FlexEvent):void {
+			outputArea.verticalScrollPosition = outputArea.maxVerticalScrollPosition;
 		}
 		
 		private function onClaimButtonClick(e:MouseEvent):void {
