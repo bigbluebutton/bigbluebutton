@@ -9,9 +9,6 @@ app:
   listenOnly: false
   skipCheck: false
 
-  # Flag for HTTPS - true on production
-  httpsConnection: false
-
   # Default global variables
   appName: "BigBlueButton HTML5 Client"
   bbbServerVersion: "1.0"
