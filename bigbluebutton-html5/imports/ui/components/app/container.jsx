@@ -5,6 +5,7 @@ import { subscribeForData, wasUserKicked, redirectToLogoutUrl } from './service'
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
+import SettingsModal from '../modals/settings/component';
 import ClosedCaptionsContainer from '../closed-captions/container';
 
 const defaultProps = {
