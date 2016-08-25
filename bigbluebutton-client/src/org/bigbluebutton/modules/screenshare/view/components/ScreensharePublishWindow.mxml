@@ -67,6 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
       import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
+      import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
       import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
@@ -239,6 +240,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function shareScreen(fullScreen:Boolean):void {
         LOGGER.debug("Calling shareScreen");
         startBtn.enabled = false;
+        var shareStartEvent:ShareStartEvent = new ShareStartEvent();
+        dispatchEvent(shareStartEvent);
         startSharing(connection.getConnection(), uri, room, fullScreen);
       }
       

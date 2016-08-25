@@ -148,6 +148,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
   def receive = {
     case msg: RestartShareRequestMessage => handleRestartShareRequestMessage(msg)
     case msg: PauseShareRequestMessage => handlePauseShareRequestMessage(msg)
+    case msg: RequestShareTokenMessage => handleRequestShareTokenMessage(msg)
     case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
     case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
     case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
@@ -455,7 +456,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
     }
   }
 
-  private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
+  private def handleRequestShareTokenMessage(msg: RequestShareTokenMessage): Unit = {
     def genSessionToken(): String = {
       meetingId + "-" + System.currentTimeMillis()
     }
@@ -476,17 +477,22 @@ class Screenshare(val sessionManager: ScreenshareManager,
     val session = ActiveSession(this, bus, meetingId, streamId, token, msg.record, userId)
     activeSession = Some(session)
 
+    currentPresenterId = Some(msg.userId)
+
+    screenShareSession foreach { sss =>
+      bus.send(new ScreenShareRequestTokenSuccessResponse(meetingId, msg.userId, token, msg.jnlp, streamId, sss))
+    }
+  }
+
+  private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
+
     status = START
     sessionStartedTimestamp = TimeUtil.currentMonoTimeInSeconds()
     lastClientPongReceivedTimestamp = 0L
     lastJwsStatusUpdate = 0L
-
-    currentPresenterId = Some(msg.userId)
-
     jwsLaunchTimeout = JWS_START_TIMEOUT
 
     screenShareSession foreach { sss =>
-      bus.send(new ScreenShareStartRequestSuccessResponse(meetingId, msg.userId, token, msg.jnlp, streamId, sss))
 
       sessionAudit ! StartSendingAudit(sss)
     }
