@@ -80,8 +80,12 @@ package org.bigbluebutton.modules.screenshare.services {
             sender.isScreenSharing(UsersUtil.getInternalMeetingID());
         }
         
-        public function requestStartSharing():void {
-            sender.startShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), UsersUtil.isRecorded());
+        public function requestShareToken():void {
+            sender.requestShareToken(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), UsersUtil.isRecorded());
+        }
+        
+        public function sharingStartMessage(session: String):void {
+            sender.startShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), session);
         }
         
         public function requestStopSharing(streamId:String):void {

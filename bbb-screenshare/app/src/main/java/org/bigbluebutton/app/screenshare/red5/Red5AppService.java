@@ -110,6 +110,18 @@ public class Red5AppService {
   }
 
   public void startShareRequest(Map<String, Object> msg) {
+    String session = (String) msg.get("session");
+    String meetingId = Red5.getConnectionLocal().getScope().getName();
+    String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+
+    if (log.isDebugEnabled()) {
+      log.debug("Received startShareRequest for meetingId=" + meetingId + " from user=" + userId);
+    }
+
+    handler.startShareRequest(meetingId, userId, session);
+  }
+
+  public void requestShareToken(Map<String, Object> msg) {
     Boolean record = (Boolean) msg.get("record");
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
@@ -118,7 +130,7 @@ public class Red5AppService {
       log.debug("Received startShareRequest for meetingId=" + meetingId + " from user=" + userId);
     }
 
-    handler.startShareRequest(meetingId, userId, record); //TODO REMOVE
+    handler.requestShareToken(meetingId, userId, record);
   }
 
   public void stopShareRequest(Map<String, Object> msg) {
