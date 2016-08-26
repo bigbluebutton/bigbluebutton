@@ -10,6 +10,8 @@ export default class DropdownTrigger extends Component {
   }
 
   render() {
+
+    /*pass these props from your component to specialize your button */
     const { styleBtn, labelBtn, iconBtn, ghostBtn, colorBtn, sizeBtn, hideBtn, } = this.props;
 
     return (

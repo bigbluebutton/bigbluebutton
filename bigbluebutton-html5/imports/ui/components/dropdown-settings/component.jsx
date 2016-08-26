@@ -7,7 +7,7 @@ import styles from './styles';
 import { FormattedMessage } from 'react-intl';
 import SettingsModal from '../modals/settings/component';
 import SessionMenu from '../modals/settings/submenus/session/component';
-import Dropdown from '../dropdown/dropdown-menu/component';
+import DropdownWrapper from '../dropdown/dropdown-wrapper/component';
 import DropdownTrigger from '../dropdown/dropdown-trigger/component';
 import DropdownContent from '../dropdown/dropdown-content/component';
 
@@ -19,6 +19,7 @@ export default class SettingsDropdown extends Component {
   }
 
   componentWillMount() {
+    /* Fill this with your menu items */
     this.setState({ activeMenu: -1, focusedMenu: 0, });
     this.menus.push({ className: '',
         props: { title: 'Fullscreen', prependIconName: 'icon-', icon: 'bbb-full-screen',
@@ -35,6 +36,7 @@ export default class SettingsDropdown extends Component {
   }
 
   componentWillUpdate() {
+    /* Reset each menuitem so it can be selected again */
     const DROPDOWN = this.refs.dropdown;
     if (DROPDOWN.state.isMenuOpen && this.state.activeMenu >= 0) {
       this.setState({ activeMenu: -1, focusedMenu: 0, });
@@ -160,8 +162,7 @@ export default class SettingsDropdown extends Component {
   renderAriaLabelsDescs() {
     return (
       <div>
-
-        {/* aria-labelledby */}
+        {/* aria-labelledby for the whole component */}
         <p id="optionsLabel" hidden>
           <FormattedMessage
             id="app.dropdown.optionsLabel"
@@ -191,7 +192,7 @@ export default class SettingsDropdown extends Component {
           />
         </p>
 
-        {/* aria-describedby */}
+        {/* aria-describedby for the whole component */}
         <p id="optionsDesc" hidden>
           <FormattedMessage
             id="app.dropdown.optionsDesc"
@@ -229,12 +230,22 @@ export default class SettingsDropdown extends Component {
 
     return (
       <div>
-        <Dropdown ref='dropdown' focusMenu={this.openWithKey}
+        {/* DropdownWrapper contains DropdownTrigger and DropdownContent */}
+        <DropdownWrapper
+          ref='dropdown'
+          focusMenu={this.openWithKey}
           aria-labelledby='optionsLabel'
           aria-describedby='optionsDesc'>
-          <DropdownTrigger labelBtn='setting' iconBtn='more'
-            ghostBtn={true} hideBtn={true}
+
+          {/* Trigger to open dropdown menu */}
+          <DropdownTrigger
+            labelBtn='setting'
+            iconBtn='more'
+            ghostBtn={true}
+            hideBtn={true}
             styleBtn={styles}/>
+
+          {/* Content for the dropdown menu */}
           <DropdownContent>
             <div className={styles.triangleOnDropdown}></div>
             <div className={styles.dropdownActiveContent}>
@@ -259,7 +270,12 @@ export default class SettingsDropdown extends Component {
                       title={value.props.title}
                       className={styles.iconColor}/>
 
+                    {/* Below is the label for each menuitem because this is not using Button
+                        Using Button in a list confuses the screen reader.
+                        (Complies with WAI-ARIA) */}
                     <span className={styles.settingsMenuItemText}>{value.props.title}</span>
+
+                    {/* Dividing line after the first menuitem */}
                     {index == '0' ? <hr className={styles.hrDropdown}/> : null}
                   </li>
                 ))}
@@ -267,8 +283,8 @@ export default class SettingsDropdown extends Component {
               {this.renderAriaLabelsDescs()}
             </div>
           </DropdownContent>
-        </Dropdown>
-        <div role='presentation'>{this.createMenu()}</div>
+        </DropdownWrapper>
+        {this.createMenu()}
       </div>
     );
   }

@@ -4,7 +4,7 @@ import styles from '../styles';
 import DropdownTrigger from '../dropdown-trigger/component';
 import DropdownContent from '../dropdown-content/component';
 
-export default class DropdownWrapper extends Component {
+export default class Dropdown extends Component {
   constructor(props) {
     super(props);
     this.state = { isMenuOpen: false, };
