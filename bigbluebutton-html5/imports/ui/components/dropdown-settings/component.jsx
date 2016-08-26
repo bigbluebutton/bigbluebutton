@@ -239,13 +239,14 @@ export default class SettingsDropdown extends Component {
 
           {/* Trigger to open dropdown menu */}
           <DropdownTrigger
+            styleBtn={styles}
             labelBtn='setting'
             iconBtn='more'
             ghostBtn={true}
-            hideBtn={true}
-            styleBtn={styles}/>
+            hideBtn={true}/>
 
-          {/* Content for the dropdown menu */}
+          {/* Content for the dropdown menu.
+              onKeyDown : To remove lag if user holds key down */}
           <DropdownContent>
             <div className={styles.triangleOnDropdown}></div>
             <div className={styles.dropdownActiveContent}>

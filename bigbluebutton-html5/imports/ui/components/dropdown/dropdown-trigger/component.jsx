@@ -14,6 +14,7 @@ export default class DropdownTrigger extends Component {
     /*pass these props from your component to specialize your button */
     const { styleBtn, labelBtn, iconBtn, ghostBtn, colorBtn, sizeBtn, hideBtn, } = this.props;
 
+    /* onKeyDown : To remove lag if user holds key down */
     return (
       <Button
         className={styleBtn.triggerBtn}
