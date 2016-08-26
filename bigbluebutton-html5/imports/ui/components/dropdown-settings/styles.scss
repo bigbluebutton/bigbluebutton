@@ -1,7 +1,7 @@
 @import "../../stylesheets/variables/_all";
 
 .settingsMenuItem {
-  padding-top: 20px;
+  padding-top: 10px;
 }
 
 .settingsMenuItemText {
@@ -27,6 +27,7 @@
 .hrDropdown {
   border: 0.3px solid $color-gray-light;
   width: 165px;
+  margin-top: 10px;
   text-align: center;
 }
 

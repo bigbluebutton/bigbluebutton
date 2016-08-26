@@ -37,21 +37,6 @@ export default class SettingsModal extends BaseModal {
       props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
   }
 
-  componentDidMount() {
-    ReactDOM.render(
-      <Button style={{ transform: 'rotate(90deg)' }}
-        onClick={this.openModal}
-        icon={'more'}
-        ghost={true}
-        circle={true}
-        hideLabel={true}
-        label={'Settings'}
-        aria-haspopup={'true'}
-        aria-labelledby={'settingsLabel'}
-        aria-describedby={'settingsDesc'}
-      />, document.getElementById('settingsButtonPlaceHolder'));
-  }
-
   createMenu() {
     const curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
 
