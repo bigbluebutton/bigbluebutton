@@ -2,8 +2,9 @@ import React, { Component, PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
 import styles from '../styles';
 import DropdownTrigger from '../dropdown-trigger/component';
+import DropdownContent from '../dropdown-content/component';
 
-export default class Dropdown extends Component {
+export default class DropdownWrapper extends Component {
   constructor(props) {
     super(props);
     this.state = { isMenuOpen: false, };
@@ -75,8 +76,15 @@ export default class Dropdown extends Component {
       return child;
     });
 
-    let trigger = boundChildren[0];
-    let content = boundChildren[1];
+    let trigger = {};
+    let content = {};
+
+    for (let i = 0; i < boundChildren.length; i++) {
+      if (boundChildren[i].type === DropdownTrigger) {
+        trigger = boundChildren[i];
+      } else if (boundChildren[i].type === DropdownContent)
+        content = boundChildren[i];
+    }
 
     return (
       <div className={styles.dropdown}>

@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import Button from '/imports/ui/components/button/component';
 import styles from '../styles';
+import settingStyles from '../../dropdown-settings/styles';
 
 export default class DropdownTrigger extends Component {
   constructor(props) {
@@ -9,17 +10,22 @@ export default class DropdownTrigger extends Component {
   }
 
   render() {
-    const { labelBtn, iconBtn } = this.props;
 
+    /*pass these props from your component to specialize your button */
+    const { styleBtn, labelBtn, iconBtn, ghostBtn, colorBtn, sizeBtn, hideBtn, } = this.props;
+
+    /* onKeyDown : To remove lag if user holds key down */
     return (
       <Button
-        className={styles.settingBtn}
+        className={styleBtn.triggerBtn}
         role='button'
         label={labelBtn}
         icon={iconBtn}
-        ghost={true}
+        ghost={ghostBtn}
+        color={colorBtn}
+        size={sizeBtn}
+        hideLabel={hideBtn}
         circle={true}
-        hideLabel={true}
         onClick={this.toggle}
         onKeyDown={this.toggle}
         aria-haspopup={'true'}/>
