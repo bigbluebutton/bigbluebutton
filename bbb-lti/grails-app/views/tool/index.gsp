@@ -3,7 +3,6 @@
         <title><g:message code="tool.view.title" /></title>
         <link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">
         <asset:stylesheet src="bootstrap.css"/>
-        <asset:stylesheet src="tool.css"/>
         <asset:stylesheet src="dataTables.bootstrap.min.css"/>
         <asset:javascript src="jquery.js"/>
         <asset:javascript src="jquery.dataTables.min.js"/>
