@@ -19,10 +19,10 @@
 package org.bigbluebutton.core {
 
 	import flash.system.Capabilities;
-
+	
 	import mx.core.FlexGlobals;
 	import mx.utils.URLUtil;
-
+	
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
@@ -131,19 +131,26 @@ package org.bigbluebutton.core {
 		}
 
 		public static function getLogoutURL():String {
-			var protocol:String = URLUtil.getProtocol(FlexGlobals.topLevelApplication.url);
-			var serverName:String = URLUtil.getServerNameWithPort(FlexGlobals.topLevelApplication.url);
-			var sessionToken:String = BBB.sessionTokenUtil.getSessionToken();
-			var logoutUrl:String = protocol + "://" + serverName;
-			if (sessionToken != "") {
-				logoutUrl += "/bigbluebutton/api/signOut?sessionToken=" + sessionToken;
-				if (!UserManager.getInstance().getConference().isBreakout) {
-					logoutUrl += "&redirect=true";
-				} else {
-					logoutUrl += "&redirect=true";
-				}
+			var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
+			if (logoutUrl == null) {
+				logoutUrl = getBaseURL();
 			}
 			return logoutUrl;
+		}
+
+		public static function getSignoutURL():String {
+			var sessionToken:String = BBB.sessionTokenUtil.getSessionToken();
+			var logoutUrl:String = getBaseURL();
+			if (sessionToken != "") {
+				logoutUrl += "/bigbluebutton/api/signOut?sessionToken=" + sessionToken;
+			}
+			return logoutUrl;
+		}
+
+		public static function getBaseURL():String {
+			var protocol:String = URLUtil.getProtocol(FlexGlobals.topLevelApplication.url);
+			var serverName:String = URLUtil.getServerNameWithPort(FlexGlobals.topLevelApplication.url);
+			return protocol + "://" + serverName;
 		}
 	}
 }

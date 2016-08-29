@@ -1677,31 +1677,14 @@ class ApiController {
       println("SessionToken = " + sessionToken)
     }
 
-    //check if exists the param redirect
-    boolean redirectClient = true;
-    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
-
-    if(! StringUtils.isEmpty(params.redirect)) {
-      try{
-        redirectClient = Boolean.parseBoolean(params.redirect);
-      }catch(Exception e){
-        redirectClient = true;
-      }
-    }
-
     Meeting meeting = null;
 
     if (sessionToken != null) {
       log.info("Found session for user in conference.")
       UserSession us = meetingService.removeUserSession(sessionToken);
       session.removeAttribute(sessionToken)
-      if ( redirectClient ) {
-        log.info("Successfully signed out. Redirecting to ${us.logoutUrl}");
-        redirect(url: us.logoutUrl);
-      }
     }
-    
-    /* If the redirection is not triggered we will render an XML answer */
+
     response.addHeader("Cache-Control", "no-cache")
     withFormat {
       xml {

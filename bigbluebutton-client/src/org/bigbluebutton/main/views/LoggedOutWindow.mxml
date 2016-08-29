@@ -27,9 +27,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import flash.net.navigateToURL;
-
+			
 			import mx.managers.PopUpManager;
-
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
@@ -51,40 +51,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
 
-			private function redirect():void {
-				var logoutURL:String = BBB.getLogoutURL();
+			private function callSignOut():void {
+				var logoutURL:String = BBB.getSignoutURL();
 				var request:URLRequest = new URLRequest(logoutURL);
 				LOGGER.debug("Log out url: " + logoutURL);
-				if (!isBreakouRoom) {
-					navigateToURL(request, "_self");
-				} else {
-					request.method = URLRequestMethod.GET;
-					urlLoader = new URLLoader();
-					// If the redirect value is set to false handleComplete will be triggered
-					urlLoader.addEventListener(Event.COMPLETE, handleComplete);
-					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleRedirectError);
-					urlLoader.load(request);
-				}
+				request.method = URLRequestMethod.GET;
+				urlLoader = new URLLoader();
+				// If the redirect value is set to false handleComplete will be triggered
+				urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+				urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleRedirectError);
+				urlLoader.load(request);
 			}
 
 			private function okBtnClickHandler(event:MouseEvent):void {
+				callSignOut();
+			}
+
+			private function exitApplication():void {
 				if (!isBreakouRoom) {
-					redirect();
+					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
 				} else {
 					ExternalInterface.call("window.close");
 				}
 			}
 
 			private function handleComplete(e:Event):void {
-				// The server redirects by default to the logout URL
-				// If logout when redirection is disabled extra sign
-				// out step should be implemented here
 				PopUpManager.removePopUp(this);
+				exitApplication();
 			}
 
 			private function handleRedirectError(e:IOErrorEvent):void {
 				LOGGER.error("Log out redirection returned with error.");
 				PopUpManager.removePopUp(this);
+				exitApplication();
 			}
 
 			private function onUserLoggedOutWindowClose(e:Event):void {
@@ -121,7 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
-						redirect(); // we know that the disconnect was requested so automatically redirect 
+						callSignOut(); // we know that the disconnect was requested so automatically redirect 
 						break;
 				}
 			}
