@@ -11,11 +11,13 @@ public class UpdateCaptionOwnerMessage implements ISubscribedMessage {
 	
 	public final String meetingID;
 	public final String locale;
+	public final String localeCode;
 	public final String ownerID;
 	
-	public UpdateCaptionOwnerMessage(String meetingID, String locale, String ownerID) {
+	public UpdateCaptionOwnerMessage(String meetingID, String locale, String localeCode, String ownerID) {
 		this.meetingID = meetingID;
 		this.locale = locale;
+		this.localeCode = localeCode;
 		this.ownerID = ownerID;
 	}
 	
@@ -23,6 +25,7 @@ public class UpdateCaptionOwnerMessage implements ISubscribedMessage {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingID);
 		payload.put(Constants.LOCALE, locale);
+		payload.put(Constants.LOCALE_CODE, localeCode);
 		payload.put(Constants.OWNER_ID, ownerID);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(UPDATE_CAPTION_OWNER, VERSION, null);
@@ -43,12 +46,14 @@ public class UpdateCaptionOwnerMessage implements ISubscribedMessage {
 				if (UPDATE_CAPTION_OWNER.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID)
 							&& payload.has(Constants.LOCALE)
+							&& payload.has(Constants.LOCALE_CODE)
 							&& payload.has(Constants.OWNER_ID)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String locale = payload.get(Constants.LOCALE).getAsString();
+						String localeCode = payload.get(Constants.LOCALE_CODE). getAsString();
 						String ownerID = payload.get(Constants.OWNER_ID).getAsString();
 								
-						return new UpdateCaptionOwnerMessage(meetingID, locale, ownerID);					
+						return new UpdateCaptionOwnerMessage(meetingID, locale, localeCode, ownerID);
 					}
 				} 
 			}

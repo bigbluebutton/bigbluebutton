@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.caption.events {
 		public static const RECEIVE_UPDATE_CAPTION_OWNER_EVENT:String = "RECEIVE_UPDATE_CAPTION_OWNER_EVENT";
 		
 		public var locale:String = "";
+		public var localeCode:String = "";
 		public var ownerID:String = "";
 		
 		public function ReceiveUpdateCaptionOwnerEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false) {

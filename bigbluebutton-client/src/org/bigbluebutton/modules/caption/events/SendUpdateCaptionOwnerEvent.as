@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.caption.events {
 		public static const SEND_UPDATE_CAPTION_OWNER_EVENT:String = "SEND_UPDATE_CAPTION_OWNER_EVENT";
 		
 		public var locale:String = "";
+		public var localeCode:String = "";
 		public var claim:Boolean = false;
 		
 		public function SendUpdateCaptionOwnerEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false) {
