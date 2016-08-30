@@ -7,6 +7,7 @@ import AudioMenu from './submenus/audio/component';
 import VideoMenu from './submenus/video/component';
 import ApplicationMenu from './submenus/application/component';
 import UsersMenu from './submenus/users/component';
+import ClosedCaptionsMenu from './submenus/closed-captions/component';
 import SessionMenu from './submenus/session/component';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
@@ -35,6 +36,8 @@ export default class SettingsModal extends BaseModal {
       props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
     this.submenus.push({ componentName: UsersMenu, tabIndex: 6,
       props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
+    this.submenus.push({ componentName: ClosedCaptionsMenu, tabIndex: 7,
+      props: { title: 'Closed Captions', prependIconName: 'icon-', icon: 'bbb-user', }, });
   }
 
   createMenu() {
