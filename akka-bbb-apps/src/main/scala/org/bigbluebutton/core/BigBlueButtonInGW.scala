@@ -39,7 +39,7 @@ class BigBlueButtonInGW(
       case msg: StartCustomPollRequestMessage => {
         eventBus.publish(
           BigBlueButtonEvent(
-            "meeting-manager",
+            msg.payload.meetingId,
             new StartCustomPollRequest(
               msg.payload.meetingId,
               msg.payload.requesterId,
