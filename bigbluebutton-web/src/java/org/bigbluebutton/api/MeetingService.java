@@ -514,25 +514,39 @@ public class MeetingService implements MessageListener {
     }
 
     private void processCreateBreakoutRoom(CreateBreakoutRoom message) {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("name", message.name);
-        params.put("breakoutId", message.breakoutId);
-        params.put("meetingID", message.parentId);
-        params.put("isBreakout", "true");
-        params.put("attendeePW", message.viewerPassword);
-        params.put("moderatorPW", message.moderatorPassword);
-        params.put("voiceBridge", message.voiceConfId);
-        params.put("duration", message.durationInMinutes.toString());
-        params.put("record", message.record.toString());
-        params.put("welcome", getMeeting(message.parentId)
-                .getWelcomeMessageTemplate());
+        Meeting parentMeeting = getMeeting(message.parentId);
+        if (parentMeeting != null) {
 
-        Meeting breakout = paramsProcessorUtil.processCreateParams(params);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("name", message.name);
+            params.put("breakoutId", message.breakoutId);
+            params.put("meetingID", message.parentId);
+            params.put("isBreakout", "true");
+            params.put("attendeePW", message.viewerPassword);
+            params.put("moderatorPW", message.moderatorPassword);
+            params.put("voiceBridge", message.voiceConfId);
+            params.put("duration", message.durationInMinutes.toString());
+            params.put("record", message.record.toString());
+            params.put("welcome", getMeeting(message.parentId).getWelcomeMessageTemplate());
 
-        handleCreateMeeting(breakout);
+            Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
-        presDownloadService.downloadAndProcessDocument(
-                message.defaultPresentationURL, breakout.getInternalId());
+            String metaPrefix = "meta_";
+            for (String key: parentMeetingMetadata.keySet()) {
+                String metaName = metaPrefix + key;
+                // Inject metadata from parent meeting into the breakout room.
+                params.put(metaName, parentMeetingMetadata.get(key));
+            }
+
+            Meeting breakout = paramsProcessorUtil.processCreateParams(params);
+
+            handleCreateMeeting(breakout);
+
+            presDownloadService.downloadAndProcessDocument(
+                        message.defaultPresentationURL, breakout.getInternalId());
+        } else {
+            log.error("Failed to create breakout room " + message.breakoutId + ". Parent meeting not found.");
+        }
     }
 
     private void processEndBreakoutRoom(EndBreakoutRoom message) {
