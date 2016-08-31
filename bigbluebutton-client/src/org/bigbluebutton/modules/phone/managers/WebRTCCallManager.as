@@ -203,6 +203,7 @@ package org.bigbluebutton.modules.phone.managers
 	  var logData:Object = new Object();       
 	  logData.user = UsersUtil.getUserData();
 	  logData.user.reason = errorString;
+      logData.message = "WebRtc Echo test failed.";
 	  JSLog.warn("WebRtc Echo test failed.", logData);
 	  
 	  LOGGER.info(jsonXify(logData));
@@ -217,6 +218,7 @@ package org.bigbluebutton.modules.phone.managers
 	  var logData:Object = new Object();       
 	  logData.user = UsersUtil.getUserData();
 	  logData.user.reason = errorString;
+      logData.message = "WebRtc Echo test ended unexpectedly.";
 	  LOGGER.info(jsonXify(logData));
 	  
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);

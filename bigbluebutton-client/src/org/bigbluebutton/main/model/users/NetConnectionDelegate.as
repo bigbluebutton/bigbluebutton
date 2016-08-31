@@ -307,7 +307,7 @@ package org.bigbluebutton.main.model.users
     private var _bwMon:BandwidthMonitor = new BandwidthMonitor();
     
     private function startMonitoringBandwidth():void {
-	  LOGGER.info("Start monitoring bandwidth.");
+	  LOGGER.debug("Start monitoring bandwidth.");
       var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
       var result:Array = pattern.exec(_applicationURI);
       _bwMon.serverURL = result.server;
@@ -402,44 +402,49 @@ package org.bigbluebutton.main.model.users
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}	
 			
-		private function sendConnectionFailedEvent(reason:String):void{
-      var logData:Object = new Object();
+        private function sendConnectionFailedEvent(reason:String):void{
+            var logData:Object = new Object();
 
-			if (this.logoutOnUserCommand) {
-        logData.reason = "User requested.";
-        logData.user = UsersUtil.getUserData();
-        JSLog.debug("User logged out from BBB App.", logData);
-        sendUserLoggedOutEvent();
-      } else if (reason == ConnectionFailedEvent.CONNECTION_CLOSED && !UsersUtil.isUserEjected()) {
-        // do not try to reconnect if the connection failed is different than CONNECTION_CLOSED  
-        logData.reason = reason;
-        logData.user = UsersUtil.getUserData();
-        JSLog.warn("User disconnected from BBB App.", logData);
+            if (this.logoutOnUserCommand) {
+                logData.reason = "User requested.";
+                logData.user = UsersUtil.getUserData();
+                logData.message = "User logged out from BBB App.";
+                LOGGER.info(JSON.stringify(logData));
+                
+                sendUserLoggedOutEvent();
+            } else if (reason == ConnectionFailedEvent.CONNECTION_CLOSED && !UsersUtil.isUserEjected()) {
+                // do not try to reconnect if the connection failed is different than CONNECTION_CLOSED  
+                logData.reason = reason;
+                logData.user = UsersUtil.getUserData();
+                logData.message = "User disconnected from BBB App.";
+                LOGGER.info(JSON.stringify(logData));
 
-        if (reconnecting) {
-          var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-          attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
-          dispatcher.dispatchEvent(attemptFailedEvent);
-        } else {
-          reconnecting = true;
-          authenticated = false;
+                if (reconnecting) {
+                  var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+                  attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                  dispatcher.dispatchEvent(attemptFailedEvent);
+                } else {
+                  reconnecting = true;
+                  authenticated = false;
 
-          var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
-          disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
-          disconnectedEvent.payload.callback = connect;
-          disconnectedEvent.payload.callbackParameters = new Array(_conferenceParameters, tried_tunneling);
-          dispatcher.dispatchEvent(disconnectedEvent);
+                  var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+                  disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                  disconnectedEvent.payload.callback = connect;
+                  disconnectedEvent.payload.callbackParameters = new Array(_conferenceParameters, tried_tunneling);
+                  dispatcher.dispatchEvent(disconnectedEvent);
+                }
+            } else {
+                if (UsersUtil.isUserEjected()) {
+                    logData.user = UsersUtil.getUserData();
+                    logData.message = "User has been ejected from meeting.";
+                    LOGGER.info(JSON.stringify(logData));
+                    reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
+                }
+                LOGGER.debug("Connection failed event - " + reason);
+                var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+                dispatcher.dispatchEvent(e);
+            }
         }
-      } else {
-        if (UsersUtil.isUserEjected()) {
-            LOGGER.debug("User has been ejected from meeting.");
-            reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
-        }
-        LOGGER.debug("Connection failed event - " + reason);
-        var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-        dispatcher.dispatchEvent(e);
-      }
-		}
 		
 		private function sendUserLoggedOutEvent():void{
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
