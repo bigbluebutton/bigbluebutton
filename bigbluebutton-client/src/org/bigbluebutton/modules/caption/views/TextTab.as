@@ -188,12 +188,13 @@ package org.bigbluebutton.modules.caption.views {
 		}
 		
 		private function onClaimButtonClick(e:MouseEvent):void {
-			claimTranscript(currentTranscript.locale, true);
+			claimTranscript(currentTranscript.locale, currentTranscript.localeCode, true);
 		}
 		
-		private function claimTranscript(locale:String, claim:Boolean):void {
+		private function claimTranscript(locale:String, localeCode:String, claim:Boolean):void {
 			var updateCaptionOwnerEvent:SendUpdateCaptionOwnerEvent = new SendUpdateCaptionOwnerEvent(SendUpdateCaptionOwnerEvent.SEND_UPDATE_CAPTION_OWNER_EVENT);
 			updateCaptionOwnerEvent.locale = locale;
+			updateCaptionOwnerEvent.localeCode = localeCode;
 			updateCaptionOwnerEvent.claim = claim;
 			
 			var dispatcher:Dispatcher = new Dispatcher();
@@ -348,6 +349,7 @@ package org.bigbluebutton.modules.caption.views {
 			if (_startIndex >= 0) {
 				var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
 				editHistoryEvent.locale = currentTranscript.locale;
+				editHistoryEvent.localeCode = currentTranscript.localeCode;
 				editHistoryEvent.startIndex = _startIndex;
 				editHistoryEvent.endIndex = _endIndex;
 				editHistoryEvent.text = _accText;

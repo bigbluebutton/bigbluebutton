@@ -187,8 +187,8 @@ case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy
 
 // Caption
 case class SendCaptionHistoryRequest(meetingID: String, requesterID: String) extends InMessage
-case class UpdateCaptionOwnerRequest(meetingID: String, locale: String, ownerID: String) extends InMessage
-case class EditCaptionHistoryRequest(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) extends InMessage
+case class UpdateCaptionOwnerRequest(meetingID: String, locale: String, localeCode: String, ownerID: String) extends InMessage
+case class EditCaptionHistoryRequest(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) extends InMessage
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
 case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

@@ -32,10 +32,10 @@ public class CaptionMessageReceiver implements MessageHandler{
 						bbbGW.sendCaptionHistory(msg.meetingID, msg.requesterID);
 					} else if (UpdateCaptionOwnerMessage.UPDATE_CAPTION_OWNER.equals(messageName)) {
 						UpdateCaptionOwnerMessage msg = UpdateCaptionOwnerMessage.fromJson(message);
-						bbbGW.updateCaptionOwner(msg.meetingID, msg.locale, msg.ownerID);
+						bbbGW.updateCaptionOwner(msg.meetingID, msg.locale, msg.localeCode, msg.ownerID);
 					} else if (EditCaptionHistoryMessage.EDIT_CAPTION_HISTORY.equals(messageName)) {
 						EditCaptionHistoryMessage msg = EditCaptionHistoryMessage.fromJson(message);
-						bbbGW.editCaptionHistory(msg.meetingID, msg.userID, msg.startIndex, msg.endIndex, msg.locale, msg.text);
+						bbbGW.editCaptionHistory(msg.meetingID, msg.userID, msg.startIndex, msg.endIndex, msg.locale, msg.localeCode, msg.text);
 					} 
 				}
 			}

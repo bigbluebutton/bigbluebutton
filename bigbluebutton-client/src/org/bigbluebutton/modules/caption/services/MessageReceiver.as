@@ -65,19 +65,21 @@ package org.bigbluebutton.modules.caption.services {
 			
 			var event:ReceiveUpdateCaptionOwnerEvent = new ReceiveUpdateCaptionOwnerEvent(ReceiveUpdateCaptionOwnerEvent.RECEIVE_UPDATE_CAPTION_OWNER_EVENT);
 			event.locale = message.locale;
+			event.localeCode = message.localeCode;
 			event.ownerID = message.owner_id;
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);
 		}
 		
 		private function editCaptionHistory(message:Object):void {
-			//LOGGER.debug("editCaptionHistory {start_index:" + message.start_index+",end_index:"+message.end_index+",locale:"+message.locale+",text:'"+message.text+"'}");
+			//LOGGER.debug("editCaptionHistory {start_index:" + message.start_index+",end_index:"+message.end_index+",locale:"+message.locale+",locale_code"+message.locale_code+",text:'"+message.text+"'}");
 			//var map:Object = JSON.parse(message);
 			
 			var event:ReceiveEditCaptionHistoryEvent = new ReceiveEditCaptionHistoryEvent(ReceiveEditCaptionHistoryEvent.RECEIVE_EDIT_CAPTION_HISTORY);
 			event.startIndex = int(message.start_index);
 			event.endIndex = int(message.end_index);
 			event.locale = message.locale;
+			event.localeCode = message.locale_code;
 			event.text = message.text;
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);

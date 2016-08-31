@@ -111,8 +111,8 @@ public interface IBigBlueButtonInGW {
 	
 	// Caption
 	void sendCaptionHistory(String meetingID, String requesterID);
-    void updateCaptionOwner(String meetingID, String locale, String ownerID);
-	void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String text);
+	void updateCaptionOwner(String meetingID, String locale, String localeCode, String ownerID);
+	void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String localeCode, String text);
 
 	// DeskShare
 	void deskShareStarted(String confId, String callerId, String callerIdName);

@@ -298,14 +298,14 @@ public class MessagePublisher {
 		SendCaptionHistoryRequestMessage msg = new SendCaptionHistoryRequestMessage(meetingID, requesterID);
 		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
 	}
-    
-    public void updateCaptionOwner(String meetingID, String locale, String ownerID) {
-        UpdateCaptionOwnerMessage msg = new UpdateCaptionOwnerMessage(meetingID, locale, ownerID);
-		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
-    }
 	
-	public void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String text) {
-		EditCaptionHistoryMessage msg = new EditCaptionHistoryMessage(meetingID, userID, startIndex, endIndex, locale, text);
+	public void updateCaptionOwner(String meetingID, String locale, String localeCode, String ownerID) {
+		UpdateCaptionOwnerMessage msg = new UpdateCaptionOwnerMessage(meetingID, locale, localeCode, ownerID);
+		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
+	}
+	
+	public void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String localeCode, String text) {
+		EditCaptionHistoryMessage msg = new EditCaptionHistoryMessage(meetingID, userID, startIndex, endIndex, locale, localeCode, text);
 		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
 	}
 }
