@@ -72,6 +72,22 @@ SERVLET_CONTAINER=tomcat7
 SERVLET_LOGS=/var/lib/$SERVLET_CONTAINER/logs
 SERVLET_DIR=/var/lib/$SERVLET_CONTAINER/webapps
 
+#
+# Set FreeSWITCH config path
+#
+
+FREESWITCH_VARS=/opt/freeswitch/conf/vars.xml
+FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
+FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
+FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+
+if [ ! -d /opt/freeswitch/conf ]; then
+	FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
+	FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
+	FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
+	FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
+fi
+
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
 	echo "# BigBlueButton does not appear to be installed.  Could not"
@@ -262,7 +278,7 @@ stop_bigbluebutton () {
 	/etc/init.d/${SERVLET_CONTAINER} stop
 	/etc/init.d/nginx stop
         
-	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+	if [ -a $FREESWITCH_PID ]; then
 		$FREESWITCH_INIT_D stop
 	fi
         
@@ -285,8 +301,8 @@ stop_bigbluebutton () {
 start_bigbluebutton () {
 	$FREESWITCH_INIT_D start
 	
-	FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-	check_no_value listen-ip /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
+	FREESWITCH_ESL_IP=$(sudo cat $FREESWITCH_EVENT_SOCKET | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+	check_no_value listen-ip $FREESWITCH_EVENT_SOCKET $FREESWITCH_ESL_IP
 
 	echo -n "Waiting for FreeSWITCH to start: "
 
@@ -361,7 +377,7 @@ display_bigbluebutton_status () {
 
 enable_webrtc(){
 	# Set server ip address in FreeSWITCH
-	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/conf/vars.xml
+	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  $FREESWITCH_VARS
 
 	# Set server ip address in red5 sip app. For flash client.
 	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
@@ -371,8 +387,8 @@ enable_webrtc(){
 	sed -i "s@useWebRTCIfAvailable=\".*\"@useWebRTCIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
 	# Enable port 5066 in FreeSWITCH
-	sed -i 's/^.*<!--<param name="ws-binding"  value=":5066"\/>-->.*$/\t<param name="ws-binding"  value=":5066"\/>/g' /opt/freeswitch/conf/sip_profiles/external.xml
-	sed -i 's/^.*<!--<param name="wss-binding"  value=":7443"\/>-->.*$/\t<param name="wss-binding"  value=":7443"\/>/g' /opt/freeswitch/conf/sip_profiles/external.xml
+	sed -i 's/^.*<!--<param name="ws-binding"  value=":5066"\/>-->.*$/\t<param name="ws-binding"  value=":5066"\/>/g' $FREESWITCH_EXTERNAL
+	sed -i 's/^.*<!--<param name="wss-binding"  value=":7443"\/>-->.*$/\t<param name="wss-binding"  value=":7443"\/>/g' $FREESWITCH_EXTERNAL
 
         sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
         sed -i "s/proxy_pass .*/proxy_pass https:\/\/$IP:7443;/g" /etc/bigbluebutton/nginx/sip-secure.nginx
@@ -386,7 +402,7 @@ enable_webrtc(){
 
 disable_webrtc(){
 	# Set 127.0.0.1 in FreeSWITCH
-	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  /opt/freeswitch/conf/vars.xml
+	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  $FREESWITCH_VARS
 
 	# Set 127.0.0.1 in red5 sip app. For flash client.
 	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
@@ -396,8 +412,8 @@ disable_webrtc(){
         sed -i "s@useWebRTCIfAvailable=\".*\"@useWebRTCIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
 	# Disable port 5066 in FreeSWITCH
-	sed -i 's/^.*<param name="ws-binding"  value=":5066"\/>.*$/\t<!--<param name="ws-binding"  value=":5066"\/>-->/g' /opt/freeswitch/conf/sip_profiles/external.xml
-	sed -i 's/^.*<param name="wss-binding"  value=":7443"\/>.*$/\t<!--<param name="wss-binding"  value=":7443"\/>-->/g' /opt/freeswitch/conf/sip_profiles/external.xml
+	sed -i 's/^.*<param name="ws-binding"  value=":5066"\/>.*$/\t<!--<param name="ws-binding"  value=":5066"\/>-->/g' $FREESWITCH_EXTERNAL
+	sed -i 's/^.*<param name="wss-binding"  value=":7443"\/>.*$/\t<!--<param name="wss-binding"  value=":7443"\/>-->/g' $FREESWITCH_EXTERNAL
 
         sed -i "s/proxy_pass .*/proxy_pass http:\/\/127.0.0.1:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
         sed -i "s/proxy_pass .*/proxy_pass http:\/\/127.0.0.1:7443;/g" /etc/bigbluebutton/nginx/sip-secure.nginx
@@ -640,7 +656,7 @@ check_configuration() {
 	#
 	# Check if we've got the voice conference servers properly installed and configured
 	#
-       if [ ! -d /opt/freeswitch/conf/jingle_profiles ]; then
+       if [ ! -d /opt/freeswitch/etc/freeswitch/jingle_profiles ]; then
 		echo
 		echo "# You have an older version of FreeSWITCH installed.  To upgrade"
 		echo "# enter the following commands"
@@ -655,20 +671,22 @@ check_configuration() {
 	#
 	# Check that freeswtich ESL matches the value in bigbluebutton.properties
 	#
-	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
-		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		check_no_value event_socket /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
+	if [ -f $FREESWITCH_EVENT_SOCKET ]; then 
+		FREESWITCH_ESL_IP=$(sudo cat $FREESWITCH_EVENT_SOCKET | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		check_no_value event_socket $FREESWITCH_EVENT_SOCKET $FREESWITCH_ESL_IP
 
 		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep -v '#' | grep esl.host | sed 's/freeswitch.esl.host=//g')
 		check_no_value esl.host /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties $ESL_HOST
 
-		if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
-			echo 
-			echo "# The values for listen-ip in   "
-			echo "#     /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
-			echo "# do not match the settings for esl.host in"
-			echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
-			echo 
+		if [ "$FREESWITCH_ESL_IP" != "::" ]; then
+			if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
+				echo 
+				echo "# The values for listen-ip in   "
+				echo "#     $FREESWITCH_EVENT_SOCKET"
+				echo "# do not match the settings for esl.host in"
+				echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+				echo 
+			fi
 		fi
 	fi
 
@@ -833,7 +851,7 @@ check_state() {
 		RUNNING_APPS="${RUNNING_APPS} red5"
 	fi	
 
-	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+	if [ -a $FREESWITCH_PID ]; then
 		if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
 			print_header
 			NOT_RUNNING_APPS="${NOT_RUNNING_APPS} freeswitch"
@@ -1134,12 +1152,12 @@ check_state() {
                 echo 
         fi
 
-        VARS_IP=$(cat /opt/freeswitch/conf/vars.xml | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
+        VARS_IP=$(cat $FREESWITCH_VARS | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
         if [[ "$VARS_IP" != "127.0.0.1" ]] && [[ "$VARS_IP" != "auto" ]]; then
                 if [ "$VARS_IP" != $IP ]; then
                         echo "# Warning: The setting of $VARS_IP for local_ip_v4 in"
                         echo "#"
-                        echo "#    /opt/freeswitch/conf/vars.xml"
+                        echo "#    $FREESWITCH_VARS"
                         echo "#"
                         echo "# does not match the local IP address ($IP)."
                         echo "# (This is OK if you've manually changed the values)"
@@ -1296,9 +1314,9 @@ if [ $CHECK ]; then
 	echo "                              Red5: $RED5_IP"
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
-	WEBRTC_SOCKET=$(sudo cat /opt/freeswitch/conf/sip_profiles/external.xml | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+	WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
 	echo
-	echo "/opt/freeswitch/conf/sip_profiles/external.xml (FreeSWITCH)"
+	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
 	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	

@@ -52,9 +52,19 @@ find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' 
 find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' +
 
 #
+# Set FreeSWITCH log path
+#
+
+FREESWITCH_LOG=/opt/freeswitch/log/
+
+if [ ! -d /opt/freeswitch/log ]; then
+    FREESWITCH_VARS=/opt/freeswitch/var/log/freeswitch/
+fi
+
+#
 # Delete FreeSWITCH log files and CDR
 #
-find /opt/freeswitch/log/ -name "*.xml" -type f -mtime +$history -exec rm '{}' +
+find $FREESWITCH_VARS -name "*.xml" -type f -mtime +$history -exec rm '{}' +
 
 #
 # Delete raw files of recordings without recording marks older than N days
