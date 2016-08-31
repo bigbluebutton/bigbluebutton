@@ -21,7 +21,6 @@ const propTypes = {
 
 const defaultProps = {
   isOpen: true,
-  title: 'LUL LUL',
   confirm: {
     label: 'Done',
     description: 'Saves changes and closes the modal',
@@ -68,8 +67,6 @@ export default class Modal extends Component {
     } = this.props;
 
     const { isOpen } = this.state;
-
-    console.log('oi', confirm);
 
     return (
       <ModalBase
