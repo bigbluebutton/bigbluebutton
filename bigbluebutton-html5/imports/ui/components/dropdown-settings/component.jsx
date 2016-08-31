@@ -1,4 +1,4 @@
-import React, { Component, PropTyes } from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';

@@ -3,6 +3,16 @@ import Button from '/imports/ui/components/button/component';
 import styles from '../styles';
 import settingStyles from '../../dropdown-settings/styles';
 
+const propTypes = {
+  styleBtn: PropTypes.object,
+  labelBtn: PropTypes.string,
+  iconBtn: PropTypes.string,
+  ghostBtn: PropTypes.bool,
+  colorBtn: PropTypes.string,
+  sizeBtn: PropTypes.string,
+  hideBtn: PropTypes.bool,
+};
+
 export default class DropdownTrigger extends Component {
   constructor(props) {
     super(props);
@@ -32,3 +42,5 @@ export default class DropdownTrigger extends Component {
     );
   }
 }
+
+DropdownTrigger.propTypes = propTypes;
