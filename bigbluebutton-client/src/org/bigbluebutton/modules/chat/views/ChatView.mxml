@@ -400,6 +400,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					chatTabs.removeChild(selectedTab as DisplayObject);
 				}
 			}
+
+			// This message comes from the chat box and must get to the chat window
+			public function handleDraggableStatus(value:Boolean):void {
+				parentDocument.handleDraggableStatus(value);
+			}
+
+			// This message comes from the chat box and must get to the chat window
+			public function handleResizableStatus(value:Boolean):void {
+				parentDocument.handleResizableStatus(value);
+			}
 			
 		]]>
 	</mx:Script>

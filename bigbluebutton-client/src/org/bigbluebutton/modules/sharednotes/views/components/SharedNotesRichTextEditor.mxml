@@ -985,6 +985,8 @@
     //  Shared Notes
     //----------------------------------
     private var refreshSelection:Boolean = false;
+    private var shiftPressed:Boolean = false;
+    private var ctrlPressed:Boolean = false;
 
     public function restoreVerticalScroll(oldVerticalScroll:Number):void
     {
@@ -1158,11 +1160,39 @@
         setTextStyles('kerning', true);
     }
 
+    private function checkNavigableButtonDown(e:KeyboardEvent):void
+    {
+        if (e.shiftKey && !shiftPressed)
+        {
+            shiftPressed = true;
+            parentDocument.handleDraggableStatus(false);
+        }
+        if (e.ctrlKey && !ctrlPressed)
+        {
+            ctrlPressed = true;
+            parentDocument.handleResizableStatus(false);
+        }
+    }
+
+    private function checkNavigableButtonUp(e:KeyboardEvent):void
+    {
+        if (!e.shiftKey && shiftPressed)
+        {
+            shiftPressed = false;
+            parentDocument.handleDraggableStatus(true);
+        }
+        if (!e.ctrlKey && ctrlPressed)
+        {
+            ctrlPressed = false;
+            parentDocument.handleResizableStatus(true);
+        }
+    }
+
     private function onKeyDown(event:KeyboardEvent):void
     {
-
 //        LOGGER.debug(event.keyCode);
 //        LOGGER.debug(event);
+        checkNavigableButtonDown(event);
         if (textArea.selectionBeginIndex != textArea.selectionEndIndex)
         {
             var beginIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionBeginIndex);
@@ -1192,6 +1222,7 @@
 
     private function onKeyUp(event:KeyboardEvent):void
     {
+        checkNavigableButtonUp(event);
         getTextStyles();
         if (event.keyCode == 8 || event.keyCode == 46 || refreshSelection) {
             refreshTextStyle();
@@ -1223,7 +1254,19 @@
 //      LOGGER.debug("roll-out");
     }
 
-
+    private function releaseNavigableButton(focus:FocusEvent):void
+    {
+        if (shiftPressed)
+        {
+            shiftPressed = false;
+            parentDocument.handleDraggableStatus(true);
+        }
+        if (ctrlPressed)
+        {
+            ctrlPressed = false;
+            parentDocument.handleResizableStatus(true);
+        }
+    }
     ]]>
     </mx:Script>
     <!--- @private -->
@@ -1236,7 +1279,8 @@
                  mouseDown="systemManager.addEventListener(
                     MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);"
                  textInput= "onTextInput(event);"
-                 rollOut= "onRightClick(event);"/>
+                 rollOut= "onRightClick(event);"
+                 focusOut="releaseNavigableButton(event)"/>
 
     <mx:ControlBar> 
         <!--- @private -->

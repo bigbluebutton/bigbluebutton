@@ -155,6 +155,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var chatToolbarHeight:Number = 80;
 			
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
+
+			private var shiftPressed:Boolean = false;
+			private var ctrlPressed:Boolean = false;
       
 			private function onCreationComplete():void {    
         		bindToHeightToDetermineHeightOfMessageList();
@@ -177,6 +180,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		        txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
 				txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, handleMsgAreaKeyDown);
 
+		        // Listen for the navigable keys to avoid moving and resizing the chat box while text selection
+		        txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, checkNavigableButtonDown);
+		        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, checkNavigableButtonUp);
+		        chatMessagesList.addEventListener(KeyboardEvent.KEY_DOWN, checkNavigableButtonDown);
+		        chatMessagesList.addEventListener(KeyboardEvent.KEY_UP, checkNavigableButtonUp);
+
+		        this.addEventListener(FocusEvent.FOCUS_OUT, releaseNavigableButton);
+		        
 		        queryForChatHistory();
 
 		        if(chatMessagesList.accessibilityProperties == null)
@@ -194,7 +205,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, adjustToolbarWidthAccordingToScrollBar);
 			}
-			
+
+			private function checkNavigableButtonDown(e:KeyboardEvent):void {
+				if (e.shiftKey && !shiftPressed) {
+					shiftPressed = true;
+					parentDocument.handleDraggableStatus(false);
+				}
+				if (e.ctrlKey && !ctrlPressed) {
+					ctrlPressed = true;
+					parentDocument.handleResizableStatus(false);
+				}
+			}
+
+			private function checkNavigableButtonUp(e:KeyboardEvent):void {
+				if (!e.shiftKey && shiftPressed) {
+					shiftPressed = false;
+					parentDocument.handleDraggableStatus(true);
+				}
+				if (!e.ctrlKey && ctrlPressed) {
+					ctrlPressed = false;
+					parentDocument.handleResizableStatus(true);
+				}
+			}
+
+			private function releaseNavigableButton(focus:FocusEvent):void {
+				if (shiftPressed) {
+					shiftPressed = false;
+					parentDocument.handleDraggableStatus(true);
+				}
+				if (ctrlPressed) {
+					ctrlPressed = false;
+					parentDocument.handleResizableStatus(true);
+				}
+			}
+
 			private function focusChatBox(e:ShortcutEvent):void{
 				focusManager.setFocus(chatMessagesList);
 			}
