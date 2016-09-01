@@ -1,5 +1,7 @@
+
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
+
 import LoadingScreen from '../loading-screen/component';
 import KickedScreen from '../kicked-screen/component';
 
@@ -14,11 +16,15 @@ const propTypes = {
   sidebarRight: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  settings: PropTypes.element,
   captions: PropTypes.element,
+  modal: PropTypes.element,
 };
 
 export default class App extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   renderNavBar() {
     const { navbar } = this.props;
 
@@ -115,24 +121,20 @@ export default class App extends Component {
     return false;
   }
 
-  renderSettings() {
-    const { settings } = this.props;
-
-    if (settings) {
-      return (
-        <section>
-          {settings}
-        </section>
-      );
-    }
-
-    return false;
-  }
-
   renderAudioElement() {
     return (
       <audio id="remote-media" autoPlay="autoplay"></audio>
     );
+  }
+
+  renderModal() {
+    const { modal } = this.props;
+
+    if (modal) {
+      return (<div>{modal}</div>);
+    }
+
+    return false;
   }
 
   render() {
@@ -170,8 +172,8 @@ export default class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
-        {this.renderSettings()}
         {this.renderAudioElement()}
+        {this.renderModal()}
       </main>
     );
   }
