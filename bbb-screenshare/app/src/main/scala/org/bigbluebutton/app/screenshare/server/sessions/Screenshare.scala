@@ -119,7 +119,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
   private var lastJwsStatusUpdate = 0L
 
   private var sessionStartedTimestamp:Long = 0L
-  private val JWS_START_TIMEOUT = 60
+  private val JWS_START_TIMEOUT = 90
 
   // The number of seconds we wait for the JWS to launch when
   // resuming sharing. Sometimes, on PAUSE, the JWS crashes but
