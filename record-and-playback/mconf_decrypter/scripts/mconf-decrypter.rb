@@ -23,6 +23,7 @@ require '../../core/lib/recordandplayback'
 require 'rubygems'
 require 'yaml'
 require 'net/http'
+require 'net/https'
 require 'rexml/document'
 require 'open-uri'
 require 'digest/md5'
@@ -36,6 +37,7 @@ mconf_props = YAML::load(File.open('mconf-decrypter.yml'))
 # these properties must be global variables (starting with $)
 $private_key = mconf_props['private_key']
 $get_recordings_url = mconf_props['get_recordings_url']
+$verify_ssl_certificate = mconf_props['verify_ssl_certificate']
 $recording_dir = bbb_props['recording_dir'] 
 $raw_dir = "#{$recording_dir}/raw"
 $archived_dir = "#{$recording_dir}/status/archived"
@@ -45,6 +47,7 @@ def getRequest(url)
   url_parsed = URI.parse(url)
   http = Net::HTTP.new(url_parsed.host, url_parsed.port)
   http.use_ssl = (url_parsed.scheme.downcase == "https")
+  http.verify_mode = OpenSSL::SSL::VERIFY_NONE if http.use_ssl? && ! $verify_ssl_certificate
   http.get(url_parsed.request_uri)
 end
 
