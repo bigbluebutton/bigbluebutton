@@ -20,6 +20,7 @@ package org.bigbluebutton.red5.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
 
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
@@ -60,7 +61,7 @@ public class ChatService {
 		String fromUserID = msg.get(ChatKeyUtil.FROM_USERID).toString();
 		String fromUsername = msg.get(ChatKeyUtil.FROM_USERNAME ).toString();
 		String fromColor = msg.get(ChatKeyUtil.FROM_COLOR).toString();
-		String fromTime = msg.get(ChatKeyUtil.FROM_TIME).toString();   
+		String fromTime = Long.toString(new Date().getTime());
 		String fromTimezoneOffset = msg.get(ChatKeyUtil.FROM_TZ_OFFSET).toString();
 		String toUserID = msg.get(ChatKeyUtil.TO_USERID).toString();
 		String toUsername = msg.get(ChatKeyUtil.TO_USERNAME).toString();
@@ -103,7 +104,7 @@ public class ChatService {
 		String fromUserID = msg.get(ChatKeyUtil.FROM_USERID).toString();
 		String fromUsername = msg.get(ChatKeyUtil.FROM_USERNAME ).toString();
 		String fromColor = msg.get(ChatKeyUtil.FROM_COLOR).toString();
-		String fromTime = msg.get(ChatKeyUtil.FROM_TIME).toString();   
+		String fromTime = Long.toString(new Date().getTime());
 		String fromTimezoneOffset = msg.get(ChatKeyUtil.FROM_TZ_OFFSET).toString();
 		String toUserID = msg.get(ChatKeyUtil.TO_USERID).toString();
 		String toUsername = msg.get(ChatKeyUtil.TO_USERNAME).toString();
