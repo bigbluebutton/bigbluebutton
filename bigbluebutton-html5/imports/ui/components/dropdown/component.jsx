@@ -5,8 +5,8 @@ import Button from '/imports/ui/components/button/component';
 import classNames from 'classnames';
 import styles from './styles';
 import { FormattedMessage } from 'react-intl';
-import SettingsModal from '../modals-old/settings/component';
-import SessionMenu from '../modals-old/settings/submenus/session/component';
+// import SettingsModal from '../modals-old/settings/component';
+// import SessionMenu from '../modals-old/settings/submenus/session/component';
 import Dropdown from './dropdown-menu/component';
 import DropdownTrigger from './dropdown-trigger/component';
 import DropdownContent from './dropdown-content/component';
@@ -24,11 +24,11 @@ export default class SettingsDropdown extends Component {
         props: { title: 'Fullscreen', prependIconName: 'icon-', icon: 'bbb-full-screen',
                 ariaLabelleby: 'fullscreenLabel', ariaDescribedby:'fullscreenDesc', },
         tabIndex: 1, });
-    this.menus.push({ className: SettingsModal,
+    this.menus.push({ className: <span>settings</span>,
         props: { title: 'Settings', prependIconName: 'icon-', icon: 'bbb-more',
                 ariaLabelleby: 'settingsLabel', ariaDescribedby:'settingsDesc', },
         tabIndex: 2, });
-    this.menus.push({ className: SessionMenu,
+    this.menus.push({ className: <span>leave</span>,
         props: { title: 'Leave Session', prependIconName: 'icon-', icon: 'bbb-logout',
                 ariaLabelleby: 'leaveSessionLabel', ariaDescribedby:'leaveSessionDesc', },
         tabIndex: 3, });
