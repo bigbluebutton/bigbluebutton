@@ -90,7 +90,7 @@ dependencies {
 //	  testRuntime 'org/testng:testng:5.8@jar'
 	  testRuntime 'org.easymock:easymock:2.4@jar'
 	    
-	compile 'javax/media:jmf:2.1.1e@jar'
+	compile 'javax.media:jmf:2.1.1e@jar'
 	
 	// Redis pubsub
 	compile "redis.clients:jedis:2.1.0"
