@@ -9,6 +9,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 import cx from 'classnames';
 
+import Dropdown from '/imports/ui/components/dropdown/dropdown-menu/component';
+import DropdownTrigger from '/imports/ui/components/dropdown/dropdown-trigger/component';
+import DropdownContent from '/imports/ui/components/dropdown/dropdown-content/component';
+
 const propTypes = {
   user: React.PropTypes.shape({
     name: React.PropTypes.string.isRequired,
@@ -103,17 +107,50 @@ class UserListItem extends Component {
 
     const userItemContentsStyle = {};
     userItemContentsStyle[styles.userItemContentsCompact] = this.props.compact;
+    let contentPositioning = {
+      top: this.state.contentTop,
+    };
+
+    let trigger = (
+      <DropdownTrigger>
+          <li className={cx(styles.userListItem, userItemContentsStyle)}>
+            <div className={styles.userItemContents}>
+              <UserAvatar user={this.props.user}/>
+              {this.renderUserName()}
+              {this.renderUserIcons()}
+            </div>
+          </li>
+      </DropdownTrigger>
+    );
+
+    let onActionsOpen = () => {
+      const dropdown = findDOMNode(this.refs.dropdown);
+
+      console.log(dropdown.parentElement.offsetTop);
+      console.log(dropdown.offsetTop);
+      console.log(dropdown);
+
+      this.setState({ contentTop: dropdown.offsetTop - dropdown.parentElement.scrollTop });
+      this.props.onUserActionsOpen();
+    };
 
     return (
-      <li onClick={this.handleToggleActions.bind(this, user)}
-          className={cx(styles.userListItem, userItemContentsStyle)} {...this.props}>
-        <div className={styles.userItemContents}>
-          <UserAvatar user={this.props.user}/>
-          {this.renderUserName()}
-          {this.renderUserIcons()}
-        </div>
-        {this.renderUserActions()}
-      </li>
+      <Dropdown
+        ref='dropdown'
+        onOpen={onActionsOpen}
+        onClose={this.props.onUserActionsClose}>
+          {trigger}
+        <DropdownContent>
+          <div
+            className={styles.triangleOnDropdown}
+            style={contentPositioning}></div>
+          <div
+            className={styles.dropdownActiveContent}
+            style={contentPositioning}>
+            {this.renderUserActions()}
+          </div>
+        </DropdownContent>
+      </Dropdown>
     );
   }
 
@@ -187,14 +224,6 @@ class UserListItem extends Component {
       userActions,
     } = this.props;
 
-    let visibleActions = null;
-    if (this.state.visibleActions) {
-      visibleActions = <UserActions
-                  user={user}
-                  currentUser={currentUser}
-                  userActions={userActions}/>;
-    }
-
     return (
       <ReactCSSTransitionGroup
         transitionName={userActionsTransition}
@@ -205,7 +234,10 @@ class UserListItem extends Component {
         transitionEnterTimeout={0}
         transitionLeaveTimeout={0}
       >
-        {visibleActions}
+        <UserActions
+          user={user}
+          currentUser={currentUser}
+          userActions={userActions}/>
       </ReactCSSTransitionGroup>
     );
   }

@@ -8,7 +8,11 @@ class UserListContainer extends Component {
   render() {
     return (
       <UserList
-        {...this.props}>
+        users={this.props.users}
+        currentUser={this.props.currentUser}
+        openChats={this.props.openChats}
+        openChat={this.props.openChat}
+        userActions={this.props.userActions}>
         {this.props.children}
       </UserList>
     );

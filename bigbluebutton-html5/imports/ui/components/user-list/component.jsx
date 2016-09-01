@@ -31,6 +31,7 @@ class UserList extends Component {
 
     this.state = {
       compact: false,
+      participantsScrollable: true,
     };
   }
 
@@ -66,6 +67,19 @@ class UserList extends Component {
         {this.renderParticipants()}
       </div>
     );
+  }
+
+  openActions() {
+    console.log('4HEAD');
+    this.setState({
+      participantsScrollable: false,
+    });
+  }
+
+  closeActions() {
+    this.setState({
+      participantsScrollable: true,
+    });
   }
 
   renderMessages() {
@@ -145,6 +159,8 @@ class UserList extends Component {
               user={user}
               currentUser={currentUser}
               userActions={userActions}
+              onUserActionsOpen={() => this.openActions()}
+              onUserActionsClose={() => this.closeActions()}
             />
           ))}
         </ReactCSSTransitionGroup>

@@ -9,7 +9,22 @@ export default class DropdownTrigger extends Component {
   }
 
   render() {
-    const { labelBtn, iconBtn } = this.props;
+    return this.props.children ? this.renderChildren() : this.renderButton();
+  }
+
+  renderChildren() {
+    return (
+      <span onClick={this.toggle}>
+        { this.props.children }
+      </span>
+    );
+  }
+
+  renderButton() {
+    const {
+      labelBtn,
+      iconBtn,
+    } = this.props;
 
     return (
       <Button

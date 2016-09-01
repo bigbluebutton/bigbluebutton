@@ -14,8 +14,13 @@ export default class Dropdown extends Component {
   }
 
   showMenu(event) {
+    console.log('4Head');
     let pressedKey = event.keyCode;
     this.setState({ isMenuOpen: true, });
+
+    if (this.props.onOpen) {
+      this.props.onOpen();
+    }
 
     // User pressed tab
     if (pressedKey === 9) {
@@ -30,6 +35,10 @@ export default class Dropdown extends Component {
 
   hideMenu() {
     this.setState({ isMenuOpen: false, });
+
+    if (this.props.onClose) {
+      this.props.onClose();
+    }
   }
 
   componentDidMount () {

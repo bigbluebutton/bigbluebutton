@@ -21,6 +21,7 @@
   span {
     border: 0px solid;
     box-shadow: none;
+    color: red;
   }
 }
 
@@ -31,7 +32,7 @@
 }
 
 .dropdown {
-    position: relative;
+  position: static;
 }
 
 .dropdownActiveContent {
