@@ -7,6 +7,6 @@ export default class DropdownContent extends Component {
   }
 
   render() {
-    return <div>{this.props.children}</div>;
+    return <div className={styles.content}>{this.props.children}</div>;
   }
 }
