@@ -110,7 +110,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var codes:Array = ResourceUtil.getInstance().localeCodes;
 					
 					for (var i:int=0; i<names.length; i++) {
-						transcriptsCollection.addItem({locale: names[i], code: codes[i]});
+						transcriptsCollection.addItem({locale: names[i], localeCode: codes[i]});
 					}
 				} else {
 					transcriptsCollection = t.transcriptCollection;
@@ -144,7 +144,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onLocaleChange(item:Object):void {
-				currentTranscript = transcriptsObject.findLocale(item.locale, item.code);
+				currentTranscript = transcriptsObject.findLocale(item.locale, item.localeCode);
 				
 				optionsTab.setCurrentTranscript(currentTranscript);
 				textTab.setCurrentTranscript(currentTranscript);
