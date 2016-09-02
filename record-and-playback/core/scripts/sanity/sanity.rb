@@ -44,7 +44,10 @@ def check_audio_files(raw_dir,meeting_id)
     	raise Exception,  "Audio file #{raw_audio_file} doesn't exist in raw directory." if not File.exists?(raw_audio_file)
 
     	#checking length
-    	raise Exception,  "Audio file #{raw_audio_file} length is zero." if BigBlueButton::AudioEvents.determine_length_of_audio_from_file(raw_audio_file) <= 0 
+        info = BigBlueButton::EDL::Audio.audio_info(filename)
+        if info[:duration].nil? or info[:duration] == 0
+          raise Exception, "Audio file #{raw_audio_file} length is zero."
+        end
     }
 
 end
@@ -80,7 +83,7 @@ def check_webcam_files(raw_dir, meeting_id)
 
     Dir.glob("#{meeting_dir}/video/#{meeting_id}/*").each do |video|
         info = BigBlueButton::EDL::Video.video_info(video)
-        if info[:duration] == 0.0
+        if info[:duration].nil? or info[:duration] == 0
             video_name =  File.basename(video,File.extname(video))
             removed_elements = events_xml.xpath("//event[contains(., '#{video_name}')]").remove
             BigBlueButton.logger.info "Removed #{removed_elements.size} events for webcam stream '#{video_name}' ."
