@@ -1,7 +1,0 @@
-source "http://rubygems.org"
-gem "sinatra", :require => "sinatra/base"
-gem "haml"
-gem "thin"
-gem "nokogiri"
-gem "rack", "1.2.0"
-gem "bigbluebutton-api-ruby", :git => "git://github.com/markoscalderon/bigbluebutton-api-ruby.git", :branch => "api-0.8"
