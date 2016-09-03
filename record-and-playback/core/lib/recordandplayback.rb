@@ -36,6 +36,7 @@ require 'recordandplayback/generators/presentation'
 require 'open4'
 require 'pp'
 require 'absolute_time'
+require 'logger'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError

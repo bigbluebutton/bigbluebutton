@@ -44,7 +44,7 @@ def check_audio_files(raw_dir,meeting_id)
     	raise Exception,  "Audio file #{raw_audio_file} doesn't exist in raw directory." if not File.exists?(raw_audio_file)
 
     	#checking length
-        info = BigBlueButton::EDL::Audio.audio_info(filename)
+        info = BigBlueButton::EDL::Audio.audio_info(raw_audio_file)
         if info[:duration].nil? or info[:duration] == 0
           raise Exception, "Audio file #{raw_audio_file} length is zero."
         end
