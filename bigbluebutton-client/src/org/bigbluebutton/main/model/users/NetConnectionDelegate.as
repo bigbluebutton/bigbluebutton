@@ -272,7 +272,12 @@ package org.bigbluebutton.main.model.users
             
 			try {	
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
-
+				
+				if (tunnel) {
+					uri = uri.replace(/rtmp:/gi, "rtmpt:");
+				}
+				LOGGER.debug("BBB Apps URI=" + uri);
+				
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
