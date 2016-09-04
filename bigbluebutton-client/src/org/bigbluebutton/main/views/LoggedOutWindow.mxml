@@ -40,14 +40,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOGGER:ILogger = getClassLogger(LoggedOutWindow);
 
 			[Bindable]
-			private var message:String = "You have logged out of the conference";
+			private var message:String;
 
 			private var urlLoader:URLLoader;
 
-			private var isBreakouRoom:Boolean;
-
 			private function init():void {
-				isBreakouRoom = UserManager.getInstance().getConference().isBreakout;
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
 
@@ -63,12 +60,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				urlLoader.load(request);
 			}
 
-			private function okBtnClickHandler(event:MouseEvent):void {
-				callSignOut();
-			}
-
 			private function exitApplication():void {
-				if (!isBreakouRoom) {
+				if (!UserManager.getInstance().getConference().isBreakout) {
 					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
 				} else {
 					ExternalInterface.call("window.close");
@@ -120,14 +113,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
-						callSignOut(); // we know that the disconnect was requested so automatically redirect 
 						break;
+				}
+				if (message && UserManager.getInstance().getConference().isBreakout) {
+					message += "\n" + ResourceUtil.getInstance().getString('bbb.logour.breakoutRoomClose');
 				}
 			}
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" horizontalAlign="center">
-		<mx:Text text="{message}"/>
-		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="okBtnClickHandler(event)"/>
+		<mx:Text text="{message}" textAlign="center"/>
+		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="callSignOut()"/>
 	</mx:VBox>
 </mx:TitleWindow> 
