@@ -21,10 +21,6 @@ const propTypes = {
 };
 
 export default class App extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   renderNavBar() {
     const { navbar } = this.props;
 

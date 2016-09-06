@@ -17,10 +17,6 @@ const defaultProps = {
 };
 
 class AppContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     // inject location on the navbar container
     let navbarWithLocation = cloneElement(this.props.navbar, { location: this.props.location });
