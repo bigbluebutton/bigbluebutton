@@ -281,6 +281,9 @@ module BigBlueButton
             info[:width] = info[:video][:width].to_i
             info[:height] = info[:video][:height].to_i
 
+            return {} if info[:width] == 0 or info[:height] == 0
+            return {} if info[:video][:display_aspect_ratio] == '0:0'
+
             info[:aspect_ratio] = info[:video][:display_aspect_ratio].to_r
             if info[:aspect_ratio] == 0
               info[:aspect_ratio] = Rational(info[:width], info[:height])
