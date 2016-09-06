@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.caption.services {
 		public function sendUpdateCaptionOwner(e:SendUpdateCaptionOwnerEvent):void {
 			var msg:Object = new Object();
 			msg.locale = e.locale;
+			msg.localeCode = e.localeCode;
 			msg.claim = e.claim;
 			
 			sender.sendUpdateCaptionOwner(msg);
@@ -47,6 +48,7 @@ package org.bigbluebutton.modules.caption.services {
 				msg.startIndex = e.startIndex;
 				msg.endIndex = e.endIndex;
 				msg.locale = e.locale;
+				msg.localeCode = e.localeCode;
 				msg.text = e.text;
 				
 				sender.sendEditCaptionHistory(msg);

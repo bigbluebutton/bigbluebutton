@@ -146,10 +146,10 @@ case class WhiteboardEnabledEvent(meetingID: String, recorded: Boolean, requeste
 case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean, replyTo: String) extends IOutMessage
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
-// Chat
+// Caption
 case class SendCaptionHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, history: Map[String, Array[String]]) extends IOutMessage
-case class UpdateCaptionOwnerReply(meetingID: String, recorded: Boolean, locale: String, ownerID: String) extends IOutMessage
-case class EditCaptionHistoryReply(meetingID: String, recorded: Boolean, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) extends IOutMessage
+case class UpdateCaptionOwnerReply(meetingID: String, recorded: Boolean, locale: String, localeCode: String, ownerID: String) extends IOutMessage
+case class EditCaptionHistoryReply(meetingID: String, recorded: Boolean, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) extends IOutMessage
 // DeskShare
 case class DeskShareStartRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage
 case class DeskShareStopRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage

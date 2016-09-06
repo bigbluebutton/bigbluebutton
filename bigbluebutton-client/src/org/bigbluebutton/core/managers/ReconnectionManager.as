@@ -76,7 +76,6 @@ package org.bigbluebutton.core.managers
     }
 
     private function timeout(e:TimerEvent = null):void {
-      LOGGER.debug("timeout");
       _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
       _dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
     }
