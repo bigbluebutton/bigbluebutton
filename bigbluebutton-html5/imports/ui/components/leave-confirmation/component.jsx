@@ -43,7 +43,7 @@ class LeaveConfirmation extends Component {
       <Modal
         title={intl.formatMessage(intlMessages.title)}
         confirm={{
-          callback: this.handleLeave,
+          callback: this.handleLeaveConfirmation,
           label: intl.formatMessage(intlMessages.confirmBtn),
           description: null,
         }}
