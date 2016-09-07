@@ -9,7 +9,8 @@ import classNames from 'classnames';
 
 const customModal = {
   overlay: {
-    zIndex: 2000,
+    zIndex: 1000,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   content: {
     width: '25%',
@@ -45,21 +46,25 @@ export default class SessionMenu extends BaseMenu {
           onRequestClose={this.closeLogout}
           tabIndex="-1">
             <span className={classNames(styles.modalHeaderTitle, 'largeFont')}> Leave Session</span>
+            <br />
+            <br />
             <hr />
             <span>Do you want to leave this meeting?</span>
             <br />
             <Button onClick={Auth.completeLogout}
-                    className={classNames(styles.modalBtn, styles.done)}
+                    className={styles.modalBtn}
                     tabIndex='7'
+                    label='Yes'
                     aria-labelledby="logout_okay"
                     aria-describedby="logout_okay"
-                    role="button">Yes</Button>
+                    role="button" />
             <Button onClick={this.closeLogout}
-                    className={classNames(styles.modalBtn, styles.close)}
+                    className={styles.modalBtn}
                     tabIndex='8'
+                    label='No'
                     aria-labelledby="logout_cancel"
                     aria-describedby="logout_cancel"
-                    role="button">No</Button>
+                    role="button" />
         </Modal>
       </span>
     );
