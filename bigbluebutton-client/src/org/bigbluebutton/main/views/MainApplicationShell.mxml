@@ -624,9 +624,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ls.y = point1.y - (ls.height/2);	
 			}
 			
-			private function openBreakoutRoomsWindow(e:Event = null):void  {
+			private function openBreakoutRoomsWindow(e:BreakoutRoomEvent):void  {
 				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, BreakoutRoomSettings, true);
 				PopUpManager.centerPopUp(popUp);
+				BreakoutRoomSettings(popUp).initCreateBreakoutRooms(e.joinMode);
 			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void{

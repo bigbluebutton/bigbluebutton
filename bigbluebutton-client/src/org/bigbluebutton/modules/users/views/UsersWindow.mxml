@@ -268,8 +268,12 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler: muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				if (partOptions.enableBreakoutRooms && breakoutRoomsList.length == 0 && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
-					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
+				if (partOptions.enableBreakoutRooms && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
+					if (breakoutRoomsList.length == 0) {
+						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
+					} else {
+						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.sendBreakoutRoomsInvitations'), handler: sendBreakoutRoomsInvitations});
+					}
 				}
 
 				// make sure the previous menu is closed before opening a new one
@@ -309,11 +313,18 @@
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.OPEN_LOCK_SETTINGS);
 				dispatcher.dispatchEvent(event);
 			}
-
 			private function breakoutRooms():void {
-				dispatcher.dispatchEvent(new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL));
+				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL);
+				event.joinMode = "create";
+				dispatcher.dispatchEvent(event);
 			}
-			
+
+			private function sendBreakoutRoomsInvitations():void {
+				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL);
+				event.joinMode = "invite";
+				dispatcher.dispatchEvent(event);
+			}
+
 			private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void {
 				TimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
 			}

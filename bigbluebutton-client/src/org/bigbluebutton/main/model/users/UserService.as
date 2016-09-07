@@ -210,7 +210,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
-			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid);
+			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutId, e.userId);
 		}
 		
 		public function listenInOnBreakout(e:BreakoutRoomEvent):void {
