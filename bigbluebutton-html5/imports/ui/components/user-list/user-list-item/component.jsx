@@ -9,9 +9,17 @@ import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 import cx from 'classnames';
 
-import Dropdown from '/imports/ui/components/dropdown/dropdown-menu/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/dropdown-trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/dropdown-content/component';
+import Button from '/imports/ui/components/button/component';
+import Dropdown from '/imports/ui/components/dropdown/component';
+import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
+import DropdownContent from '/imports/ui/components/dropdown/content/component';
+import DropdownList from '/imports/ui/components/dropdown/list/component';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+
+// import Dropdown from '/imports/ui/components/dropdown/dropdown-menu/component';
+// import DropdownTrigger from '/imports/ui/components/dropdown/dropdown-trigger/component';
+// import DropdownContent from '/imports/ui/components/dropdown/dropdown-content/component';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -111,47 +119,85 @@ class UserListItem extends Component {
       top: this.state.contentTop,
     };
 
-    let trigger = (
-      <DropdownTrigger>
-          <li className={cx(styles.userListItem, userItemContentsStyle)}>
-            <div className={styles.userItemContents}>
-              <UserAvatar user={this.props.user}/>
-              {this.renderUserName()}
-              {this.renderUserIcons()}
-            </div>
-          </li>
-      </DropdownTrigger>
-    );
+    // let trigger = (
+    //   <DropdownTrigger>
+    //       <li className={cx(styles.userListItem, userItemContentsStyle)}>
+    //         <div className={styles.userItemContents}>
+    //           <UserAvatar user={this.props.user}/>
+    //           {this.renderUserName()}
+    //           {this.renderUserIcons()}
+    //         </div>
+    //       </li>
+    //   </DropdownTrigger>
+    // );
 
     let onActionsOpen = () => {
-      const dropdown = findDOMNode(this.refs.dropdown);
+      // const dropdown = findDOMNode(this.refs.dropdown);
 
-      console.log(dropdown.parentElement.offsetTop);
-      console.log(dropdown.offsetTop);
-      console.log(dropdown);
+      // console.log(dropdown.parentElement.offsetTop);
+      // console.log(dropdown.offsetTop);
+      // console.log(dropdown);
 
       this.setState({ contentTop: dropdown.offsetTop - dropdown.parentElement.scrollTop });
       this.props.onUserActionsOpen();
     };
 
+
+    console.log('Kappa');
     return (
-      <Dropdown
-        ref='dropdown'
-        onOpen={onActionsOpen}
-        onClose={this.props.onUserActionsClose}>
-          {trigger}
-        <DropdownContent>
-          <div
-            className={styles.triangleOnDropdown}
-            style={contentPositioning}></div>
-          <div
-            className={styles.dropdownActiveContent}
-            style={contentPositioning}>
-            {this.renderUserActions()}
-          </div>
-        </DropdownContent>
-      </Dropdown>
+      <li className={cx(styles.userListItem, userItemContentsStyle)}>
+        <Dropdown ref="dropdown">
+          <DropdownTrigger>
+           <div className={styles.userItemContents}>
+             <UserAvatar user={this.props.user}/>
+             {this.renderUserName()}
+             {this.renderUserIcons()}
+           </div>
+          </DropdownTrigger>
+          <DropdownContent placement="right top">
+            <DropdownList>
+              <DropdownListItem
+                icon="full-screen"
+                label="Fullscreen"
+                defaultMessage="Make the application fullscreen"
+                onClick={() => {}}
+              />
+              <DropdownListItem
+                icon="more"
+                label="Settings"
+                description="Change the general settings"
+                onClick={() => {}}
+              />
+              <DropdownListSeparator />
+              <DropdownListItem
+                icon="logout"
+                label="Leave Session"
+                description="Leave the meeting"
+                onClick={() => {}}
+              />
+            </DropdownList>
+          </DropdownContent>
+        </Dropdown>
+      </li>
     );
+
+    // <Dropdown
+    //   ref='dropdown'
+    //   onOpen={onActionsOpen}
+    //   onClose={this.props.onUserActionsClose}>
+    //     {trigger}
+    //   <DropdownContent>
+    //     <div
+    //       className={styles.triangleOnDropdown}
+    //       style={contentPositioning}></div>
+    //     <div
+    //       className={styles.dropdownActiveContent}
+    //       style={contentPositioning}>
+    //       {this.renderUserActions()}
+    //     </div>
+    //   </DropdownContent>
+    // </Dropdown>
+    // );
   }
 
   renderUserName() {
