@@ -44,9 +44,6 @@ export default class DropdownList extends Component {
     const { dropdownHide } = this.props;
     const { activeItemIndex } = this.state;
 
-    event.preventDefault();
-    event.stopPropagation();
-
     if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.which)) {
       return event.currentTarget.click();
     }
@@ -61,16 +58,16 @@ export default class DropdownList extends Component {
       nextActiveItemIndex = activeItemIndex + 1;
     }
 
-    if (KEY_CODES.ESCAPE === event.which) {
-      dropdownHide();
-    }
-
     if (nextActiveItemIndex > (this.childrenRefs.length - 1)) {
       nextActiveItemIndex = 0;
     }
 
     if (nextActiveItemIndex < 0) {
       nextActiveItemIndex = this.childrenRefs.length - 1;
+    }
+
+    if ([KEY_CODES.TAB, KEY_CODES.ESCAPE].includes(event.which)) {
+      dropdownHide();
     }
 
     this.setState({ activeItemIndex: nextActiveItemIndex });
