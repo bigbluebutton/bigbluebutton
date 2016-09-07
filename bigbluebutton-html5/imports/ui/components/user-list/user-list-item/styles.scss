@@ -190,17 +190,12 @@
   left: 15.5vw;
   top: 263px;
   position: absolute;
-  /* margin-top: 5px; */
-  z-index: 10000;
-  /* margin-left: -2px; */
+  z-index: 5;
   width: 0;
   height: 0;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-right: 9px solid #ffffff;
 }
 
- .iconColor {
-   font-size: $font-size-base;
-   color: $color-gray-light;
- }
+.iconColor {
+ font-size: $font-size-base;
+ color: $color-gray-light;
+}
