@@ -19,10 +19,10 @@ public class EventListenerImp implements IEventListener {
       sendShareStoppedEvent((ScreenShareStoppedEvent) event);
     } else if (event instanceof ScreenSharePausedEvent) {
       sendSharePausedEvent((ScreenSharePausedEvent) event);
-    } else if (event instanceof ScreenShareStartRequestSuccessResponse) {
-      sendStartShareRequestResponse((ScreenShareStartRequestSuccessResponse) event);
-    } else if (event instanceof ScreenShareStartRequestFailedResponse) {
-      sendStartShareRequestFailedResponse((ScreenShareStartRequestFailedResponse) event);
+    } else if (event instanceof ScreenShareRequestTokenSuccessResponse) {
+      sendStartShareRequestResponse((ScreenShareRequestTokenSuccessResponse) event);
+    } else if (event instanceof ScreenShareRequestTokenFailedResponse) {
+      sendStartShareRequestFailedResponse((ScreenShareRequestTokenFailedResponse) event);
     } else if (event instanceof IsScreenSharingResponse) {
         sendIsScreenSharingResponse((IsScreenSharingResponse) event);
     } else if (event instanceof ScreenShareClientPing) {
@@ -73,7 +73,7 @@ public class EventListenerImp implements IEventListener {
       sender.sendMessage(msg);
   }
 
-  private void  sendStartShareRequestFailedResponse(ScreenShareStartRequestFailedResponse event) {
+  private void  sendStartShareRequestFailedResponse(ScreenShareRequestTokenFailedResponse event) {
     Map<String, Object> data = new HashMap<String, Object>();
 
     data.put("reason", event.reason);
@@ -96,7 +96,7 @@ public class EventListenerImp implements IEventListener {
     log.info("Send to client start screen share request rejected response: data={}", logStr);
   }
 
-  private void  sendStartShareRequestResponse(ScreenShareStartRequestSuccessResponse event) {
+  private void  sendStartShareRequestResponse(ScreenShareRequestTokenSuccessResponse event) {
     Map<String, Object> data = new HashMap<String, Object>();
 
     data.put("authToken", event.token);

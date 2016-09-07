@@ -39,7 +39,7 @@ class BigBlueButtonInGW(
       case msg: StartCustomPollRequestMessage => {
         eventBus.publish(
           BigBlueButtonEvent(
-            "meeting-manager",
+            msg.payload.meetingId,
             new StartCustomPollRequest(
               msg.payload.meetingId,
               msg.payload.requesterId,
@@ -558,11 +558,11 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingID, new SendCaptionHistoryRequest(meetingID, requesterID)))
   }
 
-  def updateCaptionOwner(meetingID: String, locale: String, ownerID: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new UpdateCaptionOwnerRequest(meetingID, locale, ownerID)))
+  def updateCaptionOwner(meetingID: String, locale: String, localeCode: String, ownerID: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new UpdateCaptionOwnerRequest(meetingID, locale, localeCode, ownerID)))
   }
 
-  def editCaptionHistory(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, text)))
+  def editCaptionHistory(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, localeCode, text)))
   }
 }

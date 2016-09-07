@@ -157,13 +157,20 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
 
   }
 
+  def requestShareToken(meetingId: String, userId: String, record: java.lang.Boolean) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Received request share token on meeting=" + meetingId + "for user=" + userId + "]")
+    }
 
-  def startShareRequest(meetingId: String, userId: String, record: java.lang.Boolean) {
+    screenShareManager ! RequestShareTokenMessage(meetingId, userId, jnlpFile, record)
+  }
+
+  def startShareRequest(meetingId: String, userId: String, session: String) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received start share request on meeting=" + meetingId + "for user=" + userId + "]")
     }
 
-    screenShareManager ! StartShareRequestMessage(meetingId, userId, jnlpFile, record)
+    screenShareManager ! StartShareRequestMessage(meetingId, userId, session)
   }
 
   def restartShareRequest(meetingId: String, userId: String) {

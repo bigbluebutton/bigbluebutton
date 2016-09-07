@@ -40,14 +40,14 @@ public class CaptionClientMessageSender {
 							processSendCaptionHistoryReplyMessage(sch);
 						}
 						break;
-                    case UpdateCaptionOwnerMessage.UPDATE_CAPTION_OWNER:
+					case UpdateCaptionOwnerMessage.UPDATE_CAPTION_OWNER:
 						UpdateCaptionOwnerMessage uco = UpdateCaptionOwnerMessage.fromJson(message);
 
 						if (uco != null) {
 							processUpdateCaptionOwnerMessage(uco);
 						}
 						break;
-                    case EditCaptionHistoryMessage.EDIT_CAPTION_HISTORY:
+					case EditCaptionHistoryMessage.EDIT_CAPTION_HISTORY:
 						EditCaptionHistoryMessage ech = EditCaptionHistoryMessage.fromJson(message);
 
 						if (ech != null) {
@@ -71,6 +71,7 @@ public class CaptionClientMessageSender {
 	private void processUpdateCaptionOwnerMessage(UpdateCaptionOwnerMessage msg) {
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put(Constants.LOCALE, msg.locale);
+		message.put(Constants.LOCALE_CODE, msg.localeCode);
 		message.put(Constants.OWNER_ID, msg.ownerID);
 
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "updateCaptionOwner", message);
@@ -82,6 +83,7 @@ public class CaptionClientMessageSender {
 		message.put(Constants.START_INDEX, msg.startIndex);
 		message.put(Constants.END_INDEX, msg.endIndex);
 		message.put(Constants.LOCALE, msg.locale);
+		message.put(Constants.LOCALE_CODE, msg.localeCode);
 		message.put(Constants.TEXT, msg.text);
 
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "editCaptionHistory", message);

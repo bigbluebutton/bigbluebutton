@@ -56,11 +56,11 @@ package org.bigbluebutton.modules.caption.managers {
 		}
 		
 		public function receiveUpdateCaptionOwner(event:ReceiveUpdateCaptionOwnerEvent):void {
-			_transcripts.updateCaptionOwner(event.locale, event.ownerID);
+			_transcripts.updateCaptionOwner(event.locale, event.localeCode, event.ownerID);
 		}
 		
 		public function receiveEditCaptionHistory(event:ReceiveEditCaptionHistoryEvent):void {
-			_transcripts.editCaptionHistory(event.locale, event.startIndex, event.endIndex, event.text);
+			_transcripts.editCaptionHistory(event.locale, event.localeCode, event.startIndex, event.endIndex, event.text);
 		}
 		
 		public function openWindow():void {

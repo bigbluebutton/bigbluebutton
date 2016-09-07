@@ -570,6 +570,10 @@ TitleWindow {
 	imageSource: Embed(source='assets/images/bbb_mac_safari_3.png');
 }
 
+.publishHelpMacSafari4 {
+	imageSource: Embed(source='assets/images/bbb_mac_safari_4.png');
+}
+
 .publishHelpMacFirefox1 {
 	imageSource: Embed(source='assets/images/bbb_mac_firefox_1.png');
 }
@@ -582,6 +586,10 @@ TitleWindow {
 	imageSource: Embed(source='assets/images/bbb_mac_firefox_3.png');
 }
 
+.publishHelpMacFirefox4 {
+	imageSource: Embed(source='assets/images/bbb_mac_firefox_4.png');
+}
+
 .publishHelpMacChrome1 {
 	imageSource: Embed(source='assets/images/bbb_mac_chrome_1.png');
 }
@@ -592,6 +600,10 @@ TitleWindow {
 
 .publishHelpMacChrome3 {
 	imageSource: Embed(source='assets/images/bbb_mac_chrome_3.png');
+}
+
+.publishHelpMacChrome4 {
+	imageSource: Embed(source='assets/images/bbb_mac_chrome_4.png');
 }
 
 .publishHelpLinuxFirefox1 {

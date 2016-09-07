@@ -14,14 +14,16 @@ public class EditCaptionHistoryMessage implements ISubscribedMessage {
 	public final Integer startIndex;
 	public final Integer endIndex;
 	public final String locale;
+	public final String localeCode;
 	public final String text;
 	
-	public EditCaptionHistoryMessage(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String text) {
+	public EditCaptionHistoryMessage(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String localeCode,  String text) {
 		this.meetingID = meetingID;
 		this.userID = userID;
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
 		this.locale = locale;
+		this.localeCode = localeCode;
 		this.text = text;
 	}
 	
@@ -32,6 +34,7 @@ public class EditCaptionHistoryMessage implements ISubscribedMessage {
 		payload.put(Constants.START_INDEX, startIndex);
 		payload.put(Constants.END_INDEX, endIndex);
 		payload.put(Constants.LOCALE, locale);
+		payload.put(Constants.LOCALE_CODE, localeCode);
 		payload.put(Constants.TEXT, text);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(EDIT_CAPTION_HISTORY, VERSION, null);
@@ -55,15 +58,17 @@ public class EditCaptionHistoryMessage implements ISubscribedMessage {
 							&& payload.has(Constants.START_INDEX)
 							&& payload.has(Constants.END_INDEX)
 							&& payload.has(Constants.LOCALE)
+							&& payload.has(Constants.LOCALE_CODE)
 							&& payload.has(Constants.TEXT)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String userID = payload.get(Constants.USER_ID).getAsString();
 						Integer startIndex = payload.get(Constants.START_INDEX).getAsInt();
 						Integer endIndex = payload.get(Constants.END_INDEX).getAsInt();
 						String locale = payload.get(Constants.LOCALE).getAsString();
+						String localeCode = payload.get(Constants.LOCALE_CODE).getAsString();
 						String text = payload.get(Constants.TEXT).getAsString();
 								
-						return new EditCaptionHistoryMessage(meetingID, userID, startIndex, endIndex, locale, text);					
+						return new EditCaptionHistoryMessage(meetingID, userID, startIndex, endIndex, locale, localeCode, text);
 					}
 				} 
 			}

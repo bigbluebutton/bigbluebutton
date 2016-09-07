@@ -26,7 +26,7 @@ public class SendCaptionHistoryReplyMessage implements ISubscribedMessage {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingID);
 		payload.put(Constants.REQUESTER_ID, requesterID);
-		payload.put(Constants.CHAT_HISTORY, captionHistory);
+		payload.put(Constants.CAPTION_HISTORY, captionHistory);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_CAPTION_HISTORY_REPLY, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);

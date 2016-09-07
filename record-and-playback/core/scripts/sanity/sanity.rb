@@ -44,7 +44,10 @@ def check_audio_files(raw_dir,meeting_id)
     	raise Exception,  "Audio file #{raw_audio_file} doesn't exist in raw directory." if not File.exists?(raw_audio_file)
 
     	#checking length
-    	raise Exception,  "Audio file #{raw_audio_file} length is zero." if BigBlueButton::AudioEvents.determine_length_of_audio_from_file(raw_audio_file) <= 0 
+        info = BigBlueButton::EDL::Audio.audio_info(raw_audio_file)
+        if info[:duration].nil? or info[:duration] == 0
+          raise Exception, "Audio file #{raw_audio_file} length is zero."
+        end
     }
 
 end
@@ -79,12 +82,13 @@ def check_webcam_files(raw_dir, meeting_id)
     original_num_events = events_xml.xpath("//event").size
 
     Dir.glob("#{meeting_dir}/video/#{meeting_id}/*").each do |video|
-        if FFMPEG::Movie.new(video).duration == 0.0
-                video_name =  File.basename(video,File.extname(video))
-                removed_elements = events_xml.xpath("//event[contains(., '#{video_name}')]").remove
-                BigBlueButton.logger.info "Removed #{removed_elements.size} events for webcam stream '#{video_name}' ."
-                FileUtils.rm video
-                BigBlueButton.logger.info "Removing webcam file #{video} from raw dir due to length zero."
+        info = BigBlueButton::EDL::Video.video_info(video)
+        if info[:duration].nil? or info[:duration] == 0
+            video_name =  File.basename(video,File.extname(video))
+            removed_elements = events_xml.xpath("//event[contains(., '#{video_name}')]").remove
+            BigBlueButton.logger.info "Removed #{removed_elements.size} events for webcam stream '#{video_name}' ."
+            FileUtils.rm video
+            BigBlueButton.logger.info "Removing webcam file #{video} from raw dir due to length zero."
         end
     end
 

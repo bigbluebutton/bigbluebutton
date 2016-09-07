@@ -85,6 +85,14 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
   background: none;
   border: 0;
   padding: 0 !important;
+
+  &:active {
+    &:focus {
+      outline: thin dotted;
+      outline: 5px auto -webkit-focus-ring-color;
+      outline-offset: -2px;
+    }
+  }
 }
 
 .label {
@@ -149,13 +157,16 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
   border-color: $border;
 
   &:hover,
-  &:focus {
+  &:focus,
+  .buttonWrapper:hover &,
+  .buttonWrapper:focus & {
     color: $color;
     background-color: $active-background;
     border-color: $active-border;
   }
 
-  &:active {
+  &:active,
+  .buttonWrapper:active & {
     color: $color;
     background-color: $active-background;
     border-color: $active-border;
@@ -177,13 +188,16 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
   border-color: $color;
 
   &:focus,
-  &:hover {
+  &:hover,
+  .buttonWrapper:hover &,
+  .buttonWrapper:focus & {
     color: $variant;
     background-color: $color;
     border-color: $color;
   }
 
-  &:active {
+  &:active,
+  .buttonWrapper:active & {
     color: $variant;
     background-color: $color;
     border-color: $color;
