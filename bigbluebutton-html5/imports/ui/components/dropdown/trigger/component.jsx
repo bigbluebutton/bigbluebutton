@@ -23,6 +23,9 @@ export default class DropdownTrigger extends Component {
     const { dropdownShow, dropdownHide } = this.props;
 
     if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.which)) {
+      e.preventDefault();
+      e.stopPropagation();
+
       return findDOMNode(this).click();
     }
 

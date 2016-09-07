@@ -45,6 +45,9 @@ export default class DropdownList extends Component {
     const { activeItemIndex } = this.state;
 
     if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.which)) {
+      e.preventDefault();
+      e.stopPropagation();
+      
       return event.currentTarget.click();
     }
 
