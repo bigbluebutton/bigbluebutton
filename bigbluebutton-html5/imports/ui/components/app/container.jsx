@@ -1,11 +1,10 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
-import { subscribeForData, wasUserKicked, redirectToLogoutUrl } from './service';
+import { subscribeForData, wasUserKicked, redirectToLogoutUrl, getModal } from './service';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import SettingsModal from '../modals/settings/component';
 import ClosedCaptionsContainer from '../closed-captions/container';
 
 const defaultProps = {
@@ -18,10 +17,6 @@ const defaultProps = {
 };
 
 class AppContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     // inject location on the navbar container
     let navbarWithLocation = cloneElement(this.props.navbar, { location: this.props.location });
@@ -58,6 +53,7 @@ export default createContainer(() => {
   return {
     wasKicked: wasUserKicked(),
     isLoading: getLoading(),
+    modal: getModal(),
     redirectToLogoutUrl,
   };
 }, AppContainer);

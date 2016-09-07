@@ -2,7 +2,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
-import styles from '../styles';
+import styles from '../styles.scss';
 
 export default class BaseMenu extends React.Component {
   constructor(props) {

@@ -1,18 +1,16 @@
 import React from 'react';
-import Modal from 'react-modal';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
-import BaseModal from '../component';
+import Modal from '/imports/ui/components/modal/component';
 import AudioMenu from './submenus/audio/component';
 import VideoMenu from './submenus/video/component';
 import ApplicationMenu from './submenus/application/component';
 import UsersMenu from './submenus/users/component';
-import SessionMenu from './submenus/session/component';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
-import styles from './styles';
+import styles from './styles.scss';
 
-export default class SettingsModal extends BaseModal {
+export default class Settings extends React.Component {
   constructor(props) {
     super(props);
     this.submenus = [];
@@ -35,21 +33,6 @@ export default class SettingsModal extends BaseModal {
       props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
     this.submenus.push({ componentName: UsersMenu, tabIndex: 6,
       props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
-  }
-
-  componentDidMount() {
-    ReactDOM.render(
-      <Button style={{ transform: 'rotate(90deg)' }}
-        onClick={this.openModal}
-        icon={'more'}
-        ghost={true}
-        circle={true}
-        hideLabel={true}
-        label={'Settings'}
-        aria-haspopup={'true'}
-        aria-labelledby={'settingsLabel'}
-        aria-describedby={'settingsDesc'}
-      />, document.getElementById('settingsButtonPlaceHolder'));
   }
 
   createMenu() {
@@ -171,31 +154,50 @@ export default class SettingsModal extends BaseModal {
     this.setState({ focusSubmenu: index });
   }
 
-  getContent() {
+  render() {
     return (
-      <div className={styles.full} role='presentation'>
-        <div className={styles.settingsMenuLeft}>
-          <ul className={styles.settingsSubmenu} role='menu'>
-            {this.submenus.map((value, index) => (
-              <li key={index} ref={'submenu' + index} role='menuitem' tabIndex={value.tabIndex}
-                onClick={this.clickSubmenu.bind(this, index)}
-                onKeyDown={this.handleKeyDown.bind(this)}
-                onFocus={this.handleFocus.bind(this, index)}
-                className={classNames(styles.settingsSubmenuItem,
-                  index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
-                <Icon key={index} prependIconName={value.props.prependIconName}
-                  iconName={value.props.icon} title={value.props.title}/>
-                <span className={styles.settingsSubmenuItemText}>{value.props.title}</span>
-              </li>
-            ))}
-          </ul>
+      <Modal
+        title="Settings"
+        confirm={{
+          callback: (() => {
+            this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
+            console.log('SHOULD APPLY SETTINGS CHANGES');
+          }),
+          label: 'Done',
+          description: 'Saves the changes and close the settings menu',
+        }}
+        dismiss={{
+          callback: (() => {
+            this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
+            console.log('SHOULD DISCART SETTINGS CHANGES');
+          }),
+          label: 'Cancel',
+          description: 'Discart the changes and close the settings menu',
+        }}>
+        <div className={styles.full} role='presentation'>
+          <div className={styles.settingsMenuLeft}>
+            <ul className={styles.settingsSubmenu} role='menu'>
+              {this.submenus.map((value, index) => (
+                <li key={index} ref={'submenu' + index} role='menuitem' tabIndex={value.tabIndex}
+                  onClick={this.clickSubmenu.bind(this, index)}
+                  onKeyDown={this.handleKeyDown.bind(this)}
+                  onFocus={this.handleFocus.bind(this, index)}
+                  className={classNames(styles.settingsSubmenuItem,
+                    index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
+                  <Icon key={index} prependIconName={value.props.prependIconName}
+                    iconName={value.props.icon} title={value.props.title}/>
+                  <span className={styles.settingsSubmenuItemText}>{value.props.title}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className={styles.settingsMenuRight} role='presentation'>
+            {this.createMenu()}
+          </div>
         </div>
-        <div className={styles.settingsMenuRight} role='presentation'>
-          {this.createMenu()}
-        </div>
-      </div>
+      </Modal>
     );
   }
 };
 
-SettingsModal.defaultProps = { title: 'Settings' };
+Settings.defaultProps = { title: 'Settings' };
