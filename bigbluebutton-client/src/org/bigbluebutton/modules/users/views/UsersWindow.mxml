@@ -71,6 +71,7 @@
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.BreakoutRoom;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -496,11 +497,19 @@
 					}
 				}
 			}
-			
+
 			private function endAllBreakoutRoomsHandler(event:MouseEvent):void {
+				// We need to switch the use back to the main audio confrence if he is in a breakout audio conference
+				var br:BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomInListen();
+				if (br != null) {
+					var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+					e.breakoutId = br.breakoutId;
+					e.listen = false;
+					dispatcher.dispatchEvent(e);
+				}
 				dispatcher.dispatchEvent(new BreakoutRoomEvent(BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS));
 			}
-			
+
 			private function focusWindow(e:ShortcutEvent):void {
 				focusManager.setFocus(titleBarOverlay);
 			}
