@@ -24,8 +24,6 @@ import akka.japi.Creator;
 import org.bigbluebutton.transcode.api.InternalMessage;
 import org.bigbluebutton.transcode.api.DestroyVideoTranscoderRequest;
 import org.bigbluebutton.transcode.api.DestroyVideoTranscoderReply;
-import org.bigbluebutton.transcode.api.DestroyMeetingTranscoderRequest;
-import org.bigbluebutton.transcode.api.DestroyMeetingTranscoderReply;
 import org.bigbluebutton.transcode.api.RestartVideoTranscoderRequest;
 import org.bigbluebutton.transcode.api.RestartVideoTranscoderReply;
 import org.bigbluebutton.transcode.api.StartVideoProbingRequest;
@@ -102,10 +100,6 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
             update(uvtr.getParams());
         } else if (msg instanceof DestroyVideoTranscoderRequest) {
             destroyTranscoder();
-        } else if (msg instanceof DestroyMeetingTranscoderRequest) {
-            DestroyMeetingTranscoderRequest dmtr = (DestroyMeetingTranscoderRequest) msg;
-            if ( (dmtr.meetingId != null) && dmtr.meetingId.equals(getMeetingId()))
-                destroyMeetingTranscoder();
         } else if (msg instanceof RestartVideoTranscoderRequest) {
             restart();
         } else if (msg instanceof StartVideoProbingRequest) {
@@ -391,13 +385,6 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
         stopActor();
     }
 
-    private synchronized void destroyMeetingTranscoder() {
-        status = Status.STOPPED;
-        stopTranscoder();
-        sendMessage(new DestroyMeetingTranscoderReply(meetingId, transcoderId));
-        stopActor();
-    }
-
     private synchronized void update(Map<String,String> params) {
         switch (status) {
             case UPDATING:
@@ -456,7 +443,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
     }
 
     public synchronized void transcodingFinishedSuccessfully() {
-        sendMessage(new TranscodingFinishedSuccessfully(transcoderId)); //tell parent for clean up
+        sendMessage(new TranscodingFinishedSuccessfully(meetingId, transcoderId)); //tell parent for clean up
         stopActor();
     }
 
@@ -504,7 +491,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
         }
 
         if (FFMPEG_NAME.equals(processMonitorName)){
-            sendMessage(new TranscodingFinishedUnsuccessfully(transcoderId));
+            sendMessage(new TranscodingFinishedUnsuccessfully(meetingId, transcoderId));
         }else if (FFPROBE_NAME.equals(processMonitorName)){
             System.out.println("  > Failed to probe video stream " + outputLive);
         }

@@ -14,7 +14,7 @@ trait TranscodingObserverApp {
   val messageSenderActor: ActorRef
 
   def handleTranscodingFinishedUnsuccessfully(msg: TranscodingFinishedUnsuccessfully) = {
-    transcodersModel.getTranscoder(msg.getTranscoderId()) match {
+    transcodersModel.getTranscoder(msg.getMeetingId(), msg.getTranscoderId()) match {
       case Some(vt) => {
         log.info("\n   > Transcoder for this user {} stopped unsuccessfully, restarting it...", msg.getTranscoderId())
         vt ! new RestartVideoTranscoderRequest()
@@ -26,10 +26,10 @@ trait TranscodingObserverApp {
   }
 
   def handleTranscodingFinishedSuccessfully(msg: TranscodingFinishedSuccessfully) = {
-    transcodersModel.getTranscoder(msg.getTranscoderId()) match {
+    transcodersModel.getTranscoder(msg.getMeetingId(), msg.getTranscoderId()) match {
       case Some(vt) => {
         log.info("\n   > Transcoder for this user {} stopped with success, removing it from transcoder's list...", msg.getTranscoderId())
-        transcodersModel.removeTranscoder(msg.getTranscoderId())
+        transcodersModel.removeTranscoder(msg.getMeetingId(), msg.getTranscoderId())
       }
       case None => {
         log.info("\n  > Video transcoder with id = {} not found (might be destroyed already).", msg.getTranscoderId())
@@ -54,19 +54,6 @@ trait TranscodingObserverApp {
   def handleDestroyVideoTranscoderReply(msg: DestroyVideoTranscoderReply) = {
     log.info("\n  > Transcoder with id = {} stopped", msg.getTranscoderId())
     messageSenderActor ! new StopTranscoderReply(msg.getMeetingId(), msg.getTranscoderId())
-  }
-
-  def handleDestroyMeetingTranscoderReply(msg: DestroyMeetingTranscoderReply) = {
-    log.info("\n  > Transcoder with id = {} stopped", msg.transcoderId)
-    transcodersModel.getTranscoder(msg.transcoderId) match {
-      case Some(vt) => {
-        transcodersModel.removeTranscoder(msg.transcoderId)
-        messageSenderActor ! new StopTranscoderReply(msg.meetingId, msg.transcoderId)
-      }
-      case None => {
-        log.info("\n  > Transcoder with id = {} not found (might be finished already).", msg.transcoderId)
-      }
-    }
   }
 
   def handleRestartVideoTranscoderReply(msg: RestartVideoTranscoderReply) = {

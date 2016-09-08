@@ -33,7 +33,6 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
     case msg: StartVideoTranscoderReply => handleStartVideoTranscoderReply(msg)
     case msg: UpdateVideoTranscoderReply => handleUpdateVideoTranscoderReply(msg)
     case msg: DestroyVideoTranscoderReply => handleDestroyVideoTranscoderReply(msg)
-    case msg: DestroyMeetingTranscoderReply => handleDestroyMeetingTranscoderReply(msg)
     case msg: TranscodingFinishedUnsuccessfully => handleTranscodingFinishedUnsuccessfully(msg)
     case msg: TranscodingFinishedSuccessfully => handleTranscodingFinishedSuccessfully(msg)
     case msg: RestartVideoTranscoderReply => handleRestartVideoTranscoderReply(msg)
@@ -47,14 +46,14 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
       + "    transcoderId = " + msg.transcoderId + "\n"
       + "    params = " + msg.params.toString() + "\n")
 
-    transcodersModel.getTranscoder(msg.transcoderId) match {
+    transcodersModel.getTranscoder(msg.meetingId, msg.transcoderId) match {
       case Some(vt) => {
         log.info("\n   > Found a transcoder for this user {}", msg.transcoderId)
         vt ! new StartVideoTranscoderRequest()
       }
       case None => {
         val vt = context.actorOf(VideoTranscoder.props(self, msg.meetingId, msg.transcoderId, msg.params))
-        transcodersModel.addTranscoder(msg.transcoderId, vt)
+        transcodersModel.addTranscoder(msg.meetingId, msg.transcoderId, vt)
         vt ! new StartVideoTranscoderRequest()
       }
     }
@@ -66,7 +65,7 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
       + "    transcoderId = " + msg.transcoderId + "\n"
       + "    params = " + msg.params.toString() + "\n")
 
-    transcodersModel.getTranscoder(msg.transcoderId) match {
+    transcodersModel.getTranscoder(msg.meetingId, msg.transcoderId) match {
       case Some(vt) => vt ! new UpdateVideoTranscoderRequest(msg.params)
       case None =>
         log.info("\n  > Video transcoder with id = {} not found (might be finished already or it is restarting).", msg.transcoderId)
@@ -77,9 +76,9 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
     log.info("\n  > Received StopTranscoderRequest. Params:\n"
       + "    meetingId = " + msg.meetingId + "\n"
       + "    transcoderId = " + msg.transcoderId + "\n")
-    transcodersModel.getTranscoder(msg.transcoderId) match {
+    transcodersModel.getTranscoder(msg.meetingId, msg.transcoderId) match {
       case Some(vt) => {
-        transcodersModel.removeTranscoder(msg.transcoderId)
+        transcodersModel.removeTranscoder(msg.meetingId, msg.transcoderId)
         vt ! new DestroyVideoTranscoderRequest() //stop transcoder and destroy it's actor
       }
       case None => {
@@ -92,8 +91,8 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
     log.info("\n  > Received StopMeetingTranscoders. Params:\n"
       + "    meetingId = " + msg.meetingId + "\n")
 
-    transcodersModel.getTranscoders() foreach { //broadcast
-      vt => vt ! new DestroyMeetingTranscoderRequest(msg.meetingId)
+    transcodersModel.getTranscoders(msg.meetingId) foreach {
+      vt => vt ! new DestroyVideoTranscoderRequest()
     }
   }
 
@@ -101,14 +100,14 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
     log.info("\n  > Received StartProbingRequest. Params:\n"
       + "    meetingId = " + msg.meetingId + "\n"
       + "    transcoderId = " + msg.transcoderId + "\n")
-    transcodersModel.getTranscoder(msg.transcoderId) match {
+    transcodersModel.getTranscoder(msg.meetingId, msg.transcoderId) match {
       case Some(vt) => {
         log.info("\n   > Found a transcoder for this user {}", msg.transcoderId)
         vt ! new StartVideoProbingRequest()
       }
       case None => {
         val vt = context.actorOf(VideoTranscoder.props(self, msg.meetingId, msg.transcoderId, msg.params))
-        transcodersModel.addTranscoder(msg.transcoderId, vt)
+        transcodersModel.addTranscoder(msg.meetingId, msg.transcoderId, vt)
         vt ! new StartVideoProbingRequest()
       }
     }

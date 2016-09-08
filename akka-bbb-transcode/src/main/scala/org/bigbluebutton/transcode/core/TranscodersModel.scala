@@ -6,21 +6,36 @@ import akka.actor.ActorRef
 
 class TranscodersModel {
 
-  private var transcoders = new HashMap[String, ActorRef]
+  private var meetings = new HashMap[String, HashMap[String, ActorRef]]
 
-  def addTranscoder(transcoderId: String, transcoderActor: ActorRef) {
-    transcoders += transcoderId -> transcoderActor
+  def addTranscoder(meetingId: String, transcoderId: String, transcoderActor: ActorRef) {
+    meetings.get(meetingId) match {
+      case Some(transcoders) => transcoders += transcoderId -> transcoderActor
+      case _ =>
+        var transcoders = new HashMap[String, ActorRef]
+        transcoders += transcoderId -> transcoderActor
+        meetings += meetingId -> transcoders
+    }
   }
 
-  def removeTranscoder(transcoderId: String) {
-    transcoders -= transcoderId
+  def removeTranscoder(meetingId: String, transcoderId: String) {
+    meetings.get(meetingId) match {
+      case Some(transcoders) => transcoders -= transcoderId
+      case _ =>
+    }
   }
 
-  def getTranscoder(transcoderId: String): Option[ActorRef] = {
-    transcoders.get(transcoderId)
+  def getTranscoder(meetingId: String, transcoderId: String): Option[ActorRef] = {
+    meetings.get(meetingId) match {
+      case Some(transcoders) => transcoders.get(transcoderId)
+      case _ => None
+    }
   }
 
-  def getTranscoders(): Array[ActorRef] = {
-    transcoders.values toArray
+  def getTranscoders(meetingId: String): Array[ActorRef] = {
+    meetings.get(meetingId) match {
+      case Some(transcoders) => transcoders.values toArray
+      case _ => Array.empty
+    }
   }
 }
