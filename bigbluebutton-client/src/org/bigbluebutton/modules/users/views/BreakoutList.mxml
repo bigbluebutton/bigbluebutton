@@ -28,6 +28,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
+			import mx.events.DragEvent;
+
+			import org.bigbluebutton.main.model.users.BBBUser;
 
 			[Bindable]
 			public var roomName:String
@@ -37,9 +40,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable]
 			public var notAssignedUsers:Boolean;
+
+			[Bindable]
+			public var mode:String;
+
+			protected function startDragHandler(event:DragEvent):void {
+				var selectedNode:BBBUser = usersList.selectedItem as BBBUser;
+				if (mode == "invite" && selectedNode.breakoutRooms.length > 0) {
+					event.stopImmediatePropagation();
+				}
+			}
 		]]>
 	</fx:Script>
 	<mx:Label text="{roomName}" width="100%" fontWeight="{notAssignedUsers ? 'normal' : 'bold'}" />
-	<mx:List width="100%" height="100%" dataProvider="{users}" labelField="name"
-			 dragEnabled="true" dragMoveEnabled="true" dropEnabled="true"/>
+	<mx:List id="usersList" width="100%" height="100%" dataProvider="{users}" labelField="name"
+			 dragEnabled="true" dragMoveEnabled="true" dropEnabled="true"
+			 itemRenderer="org.bigbluebutton.modules.users.views.UserItemRenderer"
+			 dragStart="startDragHandler(event)" />
 </mx:VBox>
