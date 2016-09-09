@@ -858,6 +858,34 @@ def processChatMessages
   end
 end
 
+def processDeskshareEvents
+  BigBlueButton.logger.info("Processing deskshare events on presentation.rb")
+
+  BigBlueButton.logger.info("Getting deskshare events in #{$process_dir}/events.xml" );
+  deskshare_start_evts = BigBlueButton::Events.get_start_deskshare_events("#{$process_dir}/events.xml")
+  deskshare_stop_evts = BigBlueButton::Events.get_stop_deskshare_events("#{$process_dir}/events.xml")
+  deskshare_matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(deskshare_start_evts, deskshare_stop_evts)
+
+  $deskshare_xml = Nokogiri::XML::Builder.new do |xml|
+    $xml = xml
+    $xml.recording('id' => 'deskshare_events') do
+      if(!deskshare_matched_evts.empty?)
+        deskshare_matched_evts.each do |start_evt|
+          start_timestamp_orig = start_evt[:start_timestamp].to_f
+          stop_timestamp_orig = start_evt[:stop_timestamp].to_f
+
+          start_timestamp = ( translateTimestamp(start_timestamp_orig) / 1000 ).round(1)
+          stop_timestamp = ( translateTimestamp(stop_timestamp_orig) / 1000 ).round(1)
+          BigBlueButton.logger.info("start_timestamp = #{start_timestamp}, stop_timestamp = #{stop_timestamp}")
+
+          $xml.event(:start_timestamp => start_timestamp, :stop_timestamp => stop_timestamp)
+        end
+      end
+    end
+  end
+  BigBlueButton.logger.info("Finished processing deskshare events on presentation.rb")
+end
+
 $vbox_width = 1600
 $vbox_height = 1200
 $magic_mystery_number = 2
@@ -865,6 +893,7 @@ $shapesold_svg_filename = 'shapes_old.svg'
 $shapes_svg_filename = 'shapes.svg'
 $panzooms_xml_filename = 'panzooms.xml'
 $cursor_xml_filename = 'cursor.xml'
+$deskshare_xml_filename = 'deskshare.xml'
 
 $originX = "NaN"
 $originY = "NaN"
@@ -1050,6 +1079,8 @@ begin
 
         processCursorEvents()
 
+        processDeskshareEvents()
+
         # Write slides.xml to file
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
         # Write shapes.svg to file
@@ -1060,6 +1091,9 @@ begin
 
         # Write panzooms.xml to file
         File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
+
+        # Write deskshare.xml to file
+        File.open("#{package_dir}/#{$deskshare_xml_filename}", 'w') { |f| f.puts $deskshare_xml.to_xml }
 
         BigBlueButton.logger.info("Copying files to package dir")
         FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
