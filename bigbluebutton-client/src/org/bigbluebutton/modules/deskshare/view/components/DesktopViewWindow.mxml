@@ -182,7 +182,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function addWhiteboardCanvasHolder():void{
 				if(video != null) {
-					cleanCanvasHolder();
 					this.addChildAt(whiteboardCanvasHolder, 1);
 					LOGGER.debug("Whiteboard canvas holder added");
 				}
@@ -302,10 +301,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
 				LOGGER.debug("DesktopViewWindow: acceptOverlayCanvas");
+				cleanCanvasHolder();
 				whiteboardCanvas = overlay;
-				addWhiteboardCanvasHolder();
-				addWhiteboardCanvasOverlay();
-				onResizeEvent();
 			}
 
 			private function handleWhiteboardCanvasClick(e:MouseEvent):void {

@@ -250,13 +250,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void {
 //				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
 //				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
-
-				var changedCanvas:Boolean =
-						(bbbCanvas != null && (
-							(bbbCanvas is DesktopViewWindow && overlay is SlideView) ||
-							(bbbCanvas is SlideView && overlay is DesktopViewWindow)
-						));
-				LOGGER.debug("Canvas changed? " + changedCanvas);
                 
 				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
@@ -266,7 +259,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          * Check if this is the first time we overlayed the whiteboard canvas into the
          * presentation canvas or the user changed tabs on Presentation Window. If so, query for annotations history.
          */
-        if (! displayModel.canvasInited || changedCanvas) {
+        if (! displayModel.canvasInited) {
           displayModel.parentCanvasInitialized();
           var webId:String = model.whiteboardModel.getCurrentWhiteboardId();
           if (webId != null) {
