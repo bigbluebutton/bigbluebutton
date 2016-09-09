@@ -2,7 +2,7 @@ import React, { Component, PropTyes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-import styles from './styles';
+import styles from '../styles';
 
 import { showModal } from '/imports/ui/components/app/service';
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
@@ -63,6 +63,7 @@ export default class SettingsDropdown extends Component {
             ghost={true}
             circle={true}
             hideLabel={true}
+            className={styles.settingBtn}
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
