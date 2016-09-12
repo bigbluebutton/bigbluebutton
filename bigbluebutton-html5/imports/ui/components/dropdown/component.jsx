@@ -3,6 +3,7 @@ import { findDOMNode } from 'react-dom';
 import styles from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
+import cx from 'classnames';
 
 const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
 
@@ -52,17 +53,42 @@ export default class Dropdown extends Component {
     this.handleWindowClick = this.handleWindowClick.bind(this);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.isOpen !== this.props.isOpen
+      && this.state.isOpen !== this.props.isOpen) {
+      this.setState({ isOpen: this.props.isOpen }, () => {
+        if (this.state.isOpen) {
+          if (this.props.onShow) {
+            this.props.onShow();
+          }
+        } else {
+          if (this.props.onHide) {
+            this.props.onHide();
+          }
+        }
+      });
+    }
+  }
+
   handleShow() {
     this.setState({ isOpen: true });
 
     const contentElement = findDOMNode(this.refs.content);
     contentElement.querySelector(FOCUSABLE_CHILDREN).focus();
+
+    if (this.props.onShow) {
+      this.props.onShow();
+    }
   }
 
   handleHide() {
     this.setState({ isOpen: false });
     const triggerElement = findDOMNode(this.refs.trigger);
     triggerElement.focus();
+
+    if (this.props.onHide) {
+      this.props.onHide();
+    }
   }
 
   componentDidMount () {
@@ -114,7 +140,7 @@ export default class Dropdown extends Component {
     });
 
     return (
-      <div className={styles.dropdown}>
+      <div className={cx(styles.dropdown, this.props.className)}>
         {trigger}
         {content}
       </div>

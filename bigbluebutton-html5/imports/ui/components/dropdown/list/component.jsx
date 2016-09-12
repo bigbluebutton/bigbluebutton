@@ -84,6 +84,7 @@ export default class DropdownList extends Component {
     const { dropdownHide } = this.props;
 
     this.setState({ activeItemIndex: null });
+
     dropdownHide();
 
     if (typeof callback === 'function') {

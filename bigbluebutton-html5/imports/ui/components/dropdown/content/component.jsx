@@ -41,6 +41,7 @@ export default class DropdownContent extends Component {
 
     return (
       <div
+        style={this.props.style}
         aria-expanded={this.props['aria-expanded']}
         className={cx(styles.content, styles[placementName], className)}>
         {boundChildren}
