@@ -54,7 +54,7 @@ export default class App extends Component {
     const { userList } = this.props;
 
     const userListStyle = {};
-    userListStyle[styles.minview] = false;
+    userListStyle[styles.compact] = false;
 
     if (userList) {
       return (

@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
+import _ from 'underscore';
+
+import DropdownList from '/imports/ui/components/dropdown/list/component';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -19,10 +23,6 @@ const defaultProps = {
 };
 
 class UserActions extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       user,
@@ -38,17 +38,18 @@ class UserActions extends Component {
       kick,
     } = this.props.userActions;
 
-    return (
-      <div key={user.id} className={styles.userItemActions}>
-        <ul className={styles.userActionsList}>
+    let actions = [
+      (!user.isCurrent ? this.renderUserAction(openChat, router, user) : null),
+      (currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null),
+      (currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null),
+      (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
+      (currentUser.isModerator ? this.renderUserAction(kick, user) : null),
+    ];
 
-          {!user.isCurrent ? this.renderUserAction(openChat, router, user) : null}
-          {currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null}
-          {currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null}
-          {currentUser.isModerator ? this.renderUserAction(promote, user) : null}
-          {currentUser.isModerator ? this.renderUserAction(kick, user) : null}
-        </ul>
-      </div>
+    return (
+      <DropdownList {...this.props}>
+        {_.compact(actions)}
+      </DropdownList>
     );
   }
 
@@ -57,13 +58,12 @@ class UserActions extends Component {
     const user = this.props.user;
 
     const userAction = (
-      <li onClick={action.handler.bind(this, ...parameters)}
-          className={styles.userActionsItem}>
-        <Icon iconName={action.icon} className={styles.actionIcon}/>
-        <span className={styles.actionText}>
-          {action.label}
-        </span>
-      </li>
+      <DropdownListItem
+        icon={action.icon}
+        label={action.label}
+        defaultMessage={action.label}
+        onClick={action.handler.bind(this, ...parameters)}
+      />
     );
 
     return userAction;
