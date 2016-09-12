@@ -40,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.controls.Button;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
@@ -161,6 +162,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!captionTabs.contains(textTab)) {
 					addTextTab();
 				}
+				
+				var tab:Button = captionTabs.getTabAt(0);
+				if (tab != null) {
+					tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
+				}
 			}
 			
 			private function onTranscriptOwnerIDChange(o:Object):void {
@@ -192,6 +198,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				textTab.setFontSize(int(optionsTab.fontSizeCombo.selectedItem));
 				
 				captionTabs.addChildAt(textTab, 0);
+			}
+			
+			private function onTabChange():void {
+				var tab:Button = captionTabs.getTabAt(captionTabs.selectedIndex);
+				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -228,6 +239,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Box width="100%" height="100%" horizontalAlign="left">
 		<containers:SuperTabNavigator id="captionTabs"
 									  width="100%" height="100%" minTabWidth="20"
-									  dragEnabled="false" popUpButtonPolicy="off" />
+									  dragEnabled="false" popUpButtonPolicy="off" 
+									  change="onTabChange()"/>
 	</mx:Box>
 </CustomMdiWindow>
