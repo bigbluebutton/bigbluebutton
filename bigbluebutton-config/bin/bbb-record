@@ -602,8 +602,9 @@ fi
 done
 	echo
 	echo "--"
-	ps fU $SERVLET_CONTAINER -o "%c%a" | grep -v COMMAND | grep -v logging.properties
-
+	systemctl --all --no-pager list-timers bbb-record-core.timer
+	echo "--"
+	systemctl --no-pager status bbb-record-core.service
 	echo "--"
 
 	if tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep -q "is recorded. Process it."; then
