@@ -62,7 +62,6 @@ function subscribeToCollections(cb) {
 function redirectToLogoutUrl(reason) {
   console.error(reason);
   console.log('Redirecting user to the logoutURL...');
-
   document.location.href = Auth.logoutURL;
 }
 
