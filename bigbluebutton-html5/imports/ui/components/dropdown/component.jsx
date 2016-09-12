@@ -56,39 +56,33 @@ export default class Dropdown extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.isOpen !== this.props.isOpen
       && this.state.isOpen !== this.props.isOpen) {
-      this.setState({ isOpen: this.props.isOpen }, () => {
-        if (this.state.isOpen) {
-          if (this.props.onShow) {
-            this.props.onShow();
-          }
-        } else {
-          if (this.props.onHide) {
-            this.props.onHide();
-          }
-        }
-      });
+      this.setState({ isOpen: this.props.isOpen }, () => this.handleStateCallback());
+    }
+  }
+
+  handleStateCallback() {
+    if (this.state.isOpen) {
+      if (this.props.onShow) {
+        this.props.onShow();
+      }
+    } else {
+      if (this.props.onHide) {
+        this.props.onHide();
+      }
     }
   }
 
   handleShow() {
-    this.setState({ isOpen: true });
+    this.setState({ isOpen: true }, () => this.handleStateCallback());
 
     const contentElement = findDOMNode(this.refs.content);
     contentElement.querySelector(FOCUSABLE_CHILDREN).focus();
-
-    if (this.props.onShow) {
-      this.props.onShow();
-    }
   }
 
   handleHide() {
-    this.setState({ isOpen: false });
+    this.setState({ isOpen: false }, () => this.handleStateCallback());
     const triggerElement = findDOMNode(this.refs.trigger);
     triggerElement.focus();
-
-    if (this.props.onHide) {
-      this.props.onHide();
-    }
   }
 
   componentDidMount () {
