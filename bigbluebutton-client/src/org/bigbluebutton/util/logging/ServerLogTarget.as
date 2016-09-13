@@ -77,10 +77,10 @@ package org.bigbluebutton.util.logging
 
 		public function log(name:String, shortName:String, level:int, timeStamp:Number, message:*, parameters:Array, person:String):void
 		{
-      var userId:String = UsersUtil.getMyUserID();
-      var meetingId:String = UsersUtil.getInternalMeetingID();
-      name = "--userID=" + userId + " meetingID=" + meetingId + " " + name;
-      var formattedMessage:String=_formatter.format(name, shortName, level, timeStamp, message, parameters, person);
+			var userId:String = UsersUtil.getMyUserID();
+			var meetingId:String = UsersUtil.getInternalMeetingID();
+			name = userId + " " + meetingId + " " + name;
+			var formattedMessage:String=_formatter.format(name, shortName, level, timeStamp, message, parameters, person);
 
 			// check if contains info from config field
 			var reg1:RegExp = new RegExp(_logPattern, "g");
