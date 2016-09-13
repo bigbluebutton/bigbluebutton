@@ -28,31 +28,29 @@ package org.bigbluebutton.main.model {
 		private static const LOGGER:ILogger = getClassLogger(PortTestProxy);      
     
 		private var nc:NetConnection;
-		private var protocol:String;
+		private var tunnel:Boolean;
 		private var port:String;
 		private var hostname:String;
 		private var application:String;
-		private var uri:String;
 		private var modulesDispatcher:ModulesDispatcher;
 		
 		public function PortTestProxy(modulesDispatcher: ModulesDispatcher) {
 			this.modulesDispatcher = modulesDispatcher;
 		}
 		
-		public function connect(protocol:String = "", hostname:String = "", port:String = "", application:String = "", testTimeout:Number = 10000):void {
-			var portTest:PortTest = new PortTest(protocol,hostname,port,application, testTimeout);
+		public function connect(tunnel:Boolean, hostname:String = "", port:String = "", application:String = "", testTimeout:Number = 10000):void {
+      this.tunnel = tunnel;
+			var portTest:PortTest = new PortTest(tunnel, hostname, port, application, testTimeout);
 			portTest.addConnectionSuccessListener(connectionListener);
-      var red5Url:String = protocol + "://" + hostname + "/" + application;
-      
+
 			portTest.connect();
 		}
 		
-		private function connectionListener(status:String, protocol:String, hostname:String, port:String, application:String):void {
-			uri = protocol + "://" + hostname + "/" + application;
+		private function connectionListener(status:String, tunnel:Boolean, hostname:String, port:String, application:String):void {
 			if (status == "SUCCESS") {				
-				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, protocol, application);			
+				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, tunnel, application);			
 			} else {
-				modulesDispatcher.sendPortTestFailedEvent(port, hostname, protocol, application);
+				modulesDispatcher.sendPortTestFailedEvent(port, hostname, tunnel, application);
 			}				 		
 		}
 					
@@ -66,14 +64,13 @@ package org.bigbluebutton.main.model {
 			var statusCode : String = info.code;
 			
 			if (statusCode == "NetConnection.Connect.Success") {
-				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, protocol, application);
+				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, tunnel, application);
 			} else if (statusCode == "NetConnection.Connect.Rejected" ||
 				 	  statusCode == "NetConnection.Connect.Failed" || 
 				 	  statusCode == "NetConnection.Connect.Closed" ) {
-				LOGGER.error("::netStatusEventHandler - Failed to connect to {0}", [uri]);
-				modulesDispatcher.sendPortTestFailedEvent(port, hostname, protocol, application);
+				modulesDispatcher.sendPortTestFailedEvent(port, hostname, tunnel, application);
 			} else {
-				LOGGER.error("Failed to connect to {0} due to {1}", [uri, statusCode]);
+        modulesDispatcher.sendPortTestFailedEvent(port, hostname, tunnel, application);
 			}
 			// Close NetConnection.
 			close();
