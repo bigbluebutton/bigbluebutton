@@ -86,6 +86,8 @@ class UserListItem extends Component {
     };
 
     this.handleScroll = this.handleScroll.bind(this);
+    this.onActionsShow = this.onActionsShow.bind(this);
+    this.onActionsHide = this.onActionsHide.bind(this);
   }
 
   handleScroll() {
@@ -94,7 +96,7 @@ class UserListItem extends Component {
     });
   }
 
-  getUserActions() {
+  getAvailableActions() {
     const {
       currentUser,
       user,
@@ -117,6 +119,24 @@ class UserListItem extends Component {
       (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
       (currentUser.isModerator ? this.renderUserAction(kick, user) : null),
     ]);
+  }
+
+  onActionsShow() {
+    const dropdown = findDOMNode(this.refs.dropdown);
+    this.setState({
+      contentTop: `${dropdown.offsetTop - dropdown.parentElement.parentElement.scrollTop}px`,
+      isActionsOpen: true,
+      active: true,
+    });
+    findDOMNode(this).parentElement.addEventListener('scroll', this.handleScroll, false);
+  }
+
+  onActionsHide() {
+    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
+    this.setState({
+      active: false,
+      isActionsOpen: false,
+    });
   }
 
   render() {
@@ -143,7 +163,7 @@ class UserListItem extends Component {
       user,
     } = this.props;
 
-    let actions = this.getUserActions();
+    let actions = this.getAvailableActions();
     let contents = (
       <div tabIndex={0} className={styles.userItemContents}>
         <UserAvatar user={user}/>
@@ -151,25 +171,6 @@ class UserListItem extends Component {
         {this.renderUserIcons()}
       </div>
     );
-
-    let onActionsShow = () => {
-      const dropdown = findDOMNode(this.refs.dropdown);
-      this.setState({
-        contentTop: `${dropdown.offsetTop - dropdown.parentElement.parentElement.scrollTop}px`,
-        isActionsOpen: true,
-        active: true,
-      });
-
-      findDOMNode(this).parentElement.addEventListener('scroll', this.handleScroll, false);
-    };
-
-    let onActionsHide = () => {
-      findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
-      this.setState({
-        active: false,
-        isActionsOpen: false,
-      });
-    };
 
     if (actions.length) {
       actions = [
@@ -186,8 +187,8 @@ class UserListItem extends Component {
         <Dropdown
           isOpen={this.state.isActionsOpen}
           ref="dropdown"
-          onShow={onActionsShow}
-          onHide={onActionsHide}
+          onShow={this.onActionsShow}
+          onHide={this.onActionsHide}
           className={styles.dropdown}>
           <DropdownTrigger>
             {contents}
