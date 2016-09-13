@@ -18,8 +18,7 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -27,8 +26,7 @@ package org.bigbluebutton.main.model.users
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.utils.Timer;
-	
+	import flash.utils.Timer;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -394,7 +392,7 @@ package org.bigbluebutton.main.model.users
                 logData.user = UsersUtil.getUserData();
                 logData.message = "User disconnected from BBB App.";
                 LOGGER.info(JSON.stringify(logData));
-/*
+
                 if (reconnecting) {
                   var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
                   attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
@@ -406,10 +404,10 @@ package org.bigbluebutton.main.model.users
                   var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
                   disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
                   disconnectedEvent.payload.callback = connect;
-                  disconnectedEvent.payload.callbackParameters = new Array(_conferenceParameters, tried_tunneling);
+                  disconnectedEvent.payload.callbackParameters = new Array();
                   dispatcher.dispatchEvent(disconnectedEvent);
                 }
-                */
+
             } else {
                 if (UsersUtil.isUserEjected()) {
                     logData.user = UsersUtil.getUserData();

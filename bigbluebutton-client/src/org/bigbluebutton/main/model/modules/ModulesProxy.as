@@ -43,6 +43,7 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		public function portTestSuccess(tunnel:Boolean):void {
+      LOGGER.debug("Successfully tested connection to server. isTunnelling=" + tunnel);
 			modulesManager.useProtocol(tunnel);
 			modulesManager.startUserServices();
 		}
