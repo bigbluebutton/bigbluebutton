@@ -160,7 +160,8 @@ public class FfmpegScreenshare {
 
     long sleepFramerate = (long) (1000 / frameRate);
     long timestamp = now - startTime;
-    mainRecorder.setTimestamp(timestamp * 1000);
+    // Do not override timestamp from system screen grabber. Otherwise, we will have skewed recorded file.
+    // mainRecorder.setTimestamp(timestamp * 1000);
 
     //        System.out.println("i=[" + i + "] timestamp=[" + timestamp + "]");
     mainRecorder.setFrameNumber(frameNumber);
