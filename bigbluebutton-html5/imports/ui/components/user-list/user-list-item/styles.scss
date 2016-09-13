@@ -143,4 +143,14 @@
 
 .dropdown {
   position: static;
+  cursor: default;
+}
+
+.actionsHeader {
+  color: $color-gray;
+
+  &:hover {
+    color: $color-gray !important;
+    cursor: default;
+  }
 }

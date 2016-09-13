@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import styles from '../styles';
 import _ from 'underscore';
+import cx from 'classnames';
 
 import Icon from '/imports/ui/components/icon/component';
 
@@ -39,7 +40,7 @@ export default class DropdownListItem extends Component {
         tabIndex={tabIndex}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}
-        className={styles.item}
+        className={cx(styles.item, this.props.className)}
         role="menuitem">
         {
           children ? children

@@ -156,6 +156,8 @@ class UserListItem extends Component {
       const dropdown = findDOMNode(this.refs.dropdown);
       this.setState({
         contentTop: `${dropdown.offsetTop - dropdown.parentElement.parentElement.scrollTop}px`,
+        isActionsOpen: true,
+        active: true,
       });
 
       findDOMNode(this).parentElement.addEventListener('scroll', this.handleScroll, false);
@@ -163,11 +165,17 @@ class UserListItem extends Component {
 
     let onActionsHide = () => {
       findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
+      this.setState({
+        active: false,
+        isActionsOpen: false,
+      });
     };
 
     if (actions.length) {
       actions = [
-        (<DropdownListItem key={_.uniqueId('action-header')}
+        (<DropdownListItem
+          className={styles.actionsHeader}
+          key={_.uniqueId('action-header')}
           label={user.name}
           defaultMessage={user.name}
         />),
