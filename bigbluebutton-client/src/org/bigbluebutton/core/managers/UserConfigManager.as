@@ -27,6 +27,10 @@ package org.bigbluebutton.core.managers {
 			conferenceParameters = c;
 		}
 
+    public function getConfParams():ConferenceParameters {
+      return conferenceParameters;
+    }
+    
 		public function getLogoutUrl():String {
 			if (conferenceParameters == null)
 				return null;

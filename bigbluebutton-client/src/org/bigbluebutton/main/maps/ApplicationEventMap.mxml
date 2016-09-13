@@ -46,11 +46,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 
 	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
-		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.protocol}" />
+		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.tunnel}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PortTestEvent.PORT_TEST_FAILED}" >
-		<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event.protocol}" />
+		<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event.tunnel}" />
 	</EventHandlers>
 
   <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >

@@ -18,15 +18,19 @@
 */
 package org.bigbluebutton.main.model.modules
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.system.ApplicationDomain;
-	import flash.utils.Dictionary;	
-	import mx.collections.ArrayCollection;	
+	import flash.utils.Dictionary;
+	
+	import mx.collections.ArrayCollection;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	
@@ -43,8 +47,6 @@ package org.bigbluebutton.main.model.modules
 		
 		private var _applicationDomain:ApplicationDomain;
 		private var conferenceParameters:ConferenceParameters;
-		
-		private var _protocol:String;
 		
 		private var modulesDispatcher:ModulesDispatcher;
 		
@@ -72,8 +74,8 @@ package org.bigbluebutton.main.model.modules
 			BBB.loadConfig();
 		}
 		
-		public function useProtocol(protocol:String):void {
-			_protocol = protocol;			
+		public function useProtocol(tunnel:Boolean):void {
+      BBB.initConnectionManager().isTunnelling = tunnel;			
 		}
 		
 		public function get portTestHost():String {
@@ -96,7 +98,11 @@ package org.bigbluebutton.main.model.modules
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				m.loadConfigAttributes(conferenceParameters, _protocol);
+        var protocol:String = "rtmp";
+        if (BBB.initConnectionManager().isTunnelling) {
+          protocol = "rtmpt";
+        }
+				m.loadConfigAttributes(conferenceParameters, protocol);
 				bbb.start(m.attributes);		
 			}	
 		}
@@ -155,8 +161,7 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function startUserServices():void {
-			var appURL:String = BBB.getConfigManager().config.application.uri.replace(/rtmp:/gi, _protocol + ":");
-			modulesDispatcher.sendStartUserServicesEvent(appURL, BBB.getConfigManager().config.application.host, _protocol.toUpperCase() == "RTMPT");
+			modulesDispatcher.sendStartUserServicesEvent();
 		}
 		
 		public function loadAllModules(parameters:ConferenceParameters):void{
