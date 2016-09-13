@@ -3,6 +3,8 @@ import styles from './styles.scss';
 
 import Button from '../button/component';
 
+import Actions from '../actions/component';
+
 export default class ActionsBar extends Component {
   constructor(props) {
     super(props);
@@ -15,14 +17,7 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          <Button
-            onClick={this.handleClick}
-            label={'Actions'}
-            color={'primary'}
-            icon={'circle-add'}
-            size={'lg'}
-            circle={true}
-          />
+          <Actions />
         </div>
         <div className={styles.center}>
           <Button

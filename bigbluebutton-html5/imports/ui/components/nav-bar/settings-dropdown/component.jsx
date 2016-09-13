@@ -73,7 +73,7 @@ export default class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <DropdownListItem
-              icon="full-screen"
+              icon="fullscreen"
               label="Fullscreen"
               defaultMessage="Make the application fullscreen"
               onClick={toggleFullScreen.bind(this)}
