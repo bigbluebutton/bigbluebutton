@@ -86,15 +86,6 @@ $dropdown-caret-height: 8px;
     top: 50%;
     right: 0;
   }
-
-  &:before {
-    border-top: 200px solid transparent;
-    border-bottom: 200px solid transparent;
-    border-left: 200px solid red;
-    margin-right: -($dropdown-caret-height);
-    top: 50%;
-    right: 0;
-  }
 }
 
 %left-caret {
