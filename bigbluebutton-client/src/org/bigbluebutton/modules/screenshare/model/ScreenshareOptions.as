@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.screenshare.model
 	{
 		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var baseTabIndex:int;
-		[Bindable] public var useWebRTCIfAvailable:Boolean = false;
+		[Bindable] public var tryWebRTCFirst:Boolean = false;
 		[Bindable] public var chromeExtensionKey:String = null;
     [Bindable] public var helpUrl:String;
 
@@ -40,8 +40,8 @@ package org.bigbluebutton.modules.screenshare.model
 				if (vxml.@showButton != undefined){
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
-				if (vxml.@useWebRTCIfAvailable != undefined) {
-					useWebRTCIfAvailable = (vxml.@useWebRTCIfAvailable.toString().toUpperCase() == "TRUE") ? true : false;
+				if (vxml.@tryWebRTCFirst != undefined) {
+					tryWebRTCFirst = (vxml.@tryWebRTCFirst.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@chromeExtensionKey != undefined) {
 					chromeExtensionKey = vxml.@chromeExtensionKey.toString();
