@@ -104,9 +104,13 @@ class StreamManager(record:Boolean, recordingService:RecordingService) extends A
 	  }
 	}
  
-  	def destroyStream(room: String) {
-  		this ! new RemoveStream(room)
-  	}  	
+	def destroyStream(room: String) {
+		streams.get(room) match {
+			case Some(stream) => stream.destroyStream()
+			case None => log.info("Tried to destroy, but could not find deskshare stream for room [ %s ]", room)
+		}
+		this ! new RemoveStream(room)
+	}
    
   	override def exit() : Nothing = {
 	  log.warning("StreamManager: **** Exiting  Actor")

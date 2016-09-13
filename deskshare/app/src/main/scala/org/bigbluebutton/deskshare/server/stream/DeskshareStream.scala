@@ -81,6 +81,10 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	   } 
 	   return false
 	}
+
+	def destroyStream():Boolean = {
+		return app.destroyScreenVideoBroadcastStream(name)
+	}
  
 	private def stopStream() = {
 		log.debug("DeskShareStream: Stopping stream %s", name)
