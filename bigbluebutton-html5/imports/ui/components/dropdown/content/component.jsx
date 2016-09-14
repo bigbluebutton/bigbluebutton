@@ -23,12 +23,8 @@ const defaultProps = {
 };
 
 export default class DropdownContent extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
-    const { placement, className, children } = this.props;
+    const { placement, className, children, style } = this.props;
     const { dropdownToggle, dropdownShow, dropdownHide } = this.props;
 
     let placementName = placement.split(' ').join('-');
@@ -41,7 +37,7 @@ export default class DropdownContent extends Component {
 
     return (
       <div
-        style={this.props.style}
+        style={style}
         aria-expanded={this.props['aria-expanded']}
         className={cx(styles.content, styles[placementName], className)}>
         {boundChildren}

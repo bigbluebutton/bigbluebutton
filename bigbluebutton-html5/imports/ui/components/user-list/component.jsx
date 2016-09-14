@@ -28,9 +28,8 @@ const listTransition = {
 class UserList extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
-      compact: false,
+      compact: this.props.compact,
     };
   }
 
@@ -46,7 +45,8 @@ class UserList extends Component {
   renderHeader() {
     return (
       <div className={styles.header}>
-        {!this.state.compact ?
+        {
+          !this.state.compact ?
           <h2 className={styles.headerTitle}>
             <FormattedMessage
               id="app.userlist.participantsTitle"
@@ -76,7 +76,8 @@ class UserList extends Component {
 
     return (
       <div className={styles.messages}>
-        {!this.state.compact ?
+        {
+          !this.state.compact ?
           <h3 className={styles.smallTitle}>
             <FormattedMessage
               id="app.userlist.messagesTitle"
@@ -114,18 +115,20 @@ class UserList extends Component {
       users,
       currentUser,
       userActions,
+      compact,
     } = this.props;
 
     return (
       <div className={styles.participants}>
-        {!this.state.compact ?
+        {
+          !this.state.compact ?
           <h3 className={styles.smallTitle}>
             <FormattedMessage
               id="app.userlist.participantsTitle"
               description="Title for the Participants list"
               defaultMessage="Participants"
             />
-            &nbsp;({this.props.users.length})
+            &nbsp;({users.length})
           </h3> : <hr className={styles.separator}></hr>
         }
         <ReactCSSTransitionGroup
@@ -138,7 +141,8 @@ class UserList extends Component {
           transitionLeaveTimeout={0}
           component="ul"
           className={cx(styles.participantsList, styles.scrollableList)}>
-          {users.map(user => (
+          {
+            users.map(user => (
             <UserListItem
               compact={this.state.compact}
               key={user.id}

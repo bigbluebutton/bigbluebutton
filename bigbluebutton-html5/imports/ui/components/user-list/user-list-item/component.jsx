@@ -128,15 +128,17 @@ class UserListItem extends Component {
       isActionsOpen: true,
       active: true,
     });
+
     findDOMNode(this).parentElement.addEventListener('scroll', this.handleScroll, false);
   }
 
   onActionsHide() {
-    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
     this.setState({
       active: false,
       isActionsOpen: false,
     });
+
+    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
   }
 
   render() {
@@ -144,10 +146,11 @@ class UserListItem extends Component {
       user,
       currentUser,
       userActions,
+      compact,
     } = this.props;
 
     let userItemContentsStyle = {};
-    userItemContentsStyle[styles.userItemContentsCompact] = this.props.compact;
+    userItemContentsStyle[styles.userItemContentsCompact] = compact;
     userItemContentsStyle[styles.active] = this.state.active;
 
     return (
@@ -172,42 +175,42 @@ class UserListItem extends Component {
       </div>
     );
 
-    if (actions.length) {
-      actions = [
-        (<DropdownListItem
-          className={styles.actionsHeader}
-          key={_.uniqueId('action-header')}
-          label={user.name}
-          defaultMessage={user.name}
-        />),
-        (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
-      ].concat(actions);
-
-      contents = (
-        <Dropdown
-          isOpen={this.state.isActionsOpen}
-          ref="dropdown"
-          onShow={this.onActionsShow}
-          onHide={this.onActionsHide}
-          className={styles.dropdown}>
-          <DropdownTrigger>
-            {contents}
-          </DropdownTrigger>
-          <DropdownContent
-            style={{
-              top: this.state.contentTop,
-            }}
-            placement="right top">
-
-            <DropdownList {...this.props}>
-              {actions}
-            </DropdownList>
-          </DropdownContent>
-        </Dropdown>
-      );
+    if (!actions.length) {
+      return contents;
     }
 
-    return contents;
+    return (
+      <Dropdown
+        isOpen={this.state.isActionsOpen}
+        ref="dropdown"
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+        className={styles.dropdown}>
+        <DropdownTrigger>
+          {contents}
+        </DropdownTrigger>
+        <DropdownContent
+          style={{
+            top: this.state.contentTop,
+          }}
+          className={styles.dropdownContent}
+          placement="right top">
+
+          <DropdownList>
+            {
+              [
+                (<DropdownListItem
+                  className={styles.actionsHeader}
+                  key={_.uniqueId('action-header')}
+                  label={user.name}
+                  defaultMessage={user.name}/>),
+                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
+              ].concat(actions)
+            }
+          </DropdownList>
+        </DropdownContent>
+      </Dropdown>
+    );
   }
 
   renderUserName() {
@@ -247,9 +250,10 @@ class UserListItem extends Component {
   renderUserIcons() {
     const {
       user,
+      compact,
     } = this.props;
 
-    if (this.props.compact) {
+    if (compact) {
       return;
     }
 
@@ -275,8 +279,10 @@ class UserListItem extends Component {
   }
 
   renderUserAction(action, ...parameters) {
-    const currentUser = this.props.currentUser;
-    const user = this.props.user;
+    const {
+      currentUser,
+      user,
+    } = this.props;
 
     const userAction = (
       <DropdownListItem key={_.uniqueId('action-item-')}

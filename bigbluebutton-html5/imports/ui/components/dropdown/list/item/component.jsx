@@ -24,13 +24,14 @@ export default class DropdownListItem extends Component {
 
     return [
       (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon}/> : null),
-      (label ? <span className={styles.itemLabel} key="label">{label}</span> : null),
+      (<span className={styles.itemLabel} key="label">{label}</span>),
     ];
   }
 
   render() {
     const { label, description, children,
-      injectRef, tabIndex, onClick, onKeyDown, } = this.props;
+      injectRef, tabIndex, onClick, onKeyDown,
+      className, style, } = this.props;
 
     return (
       <li
@@ -40,7 +41,8 @@ export default class DropdownListItem extends Component {
         tabIndex={tabIndex}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}
-        className={cx(styles.item, this.props.className)}
+        className={cx(styles.item, className)}
+        style={style}
         role="menuitem">
         {
           children ? children

@@ -22,6 +22,14 @@ const propTypes = {
 };
 
 export default class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      compactUserList: false, //TODO: Change this on userlist resize (?)
+    };
+  }
+
   renderNavBar() {
     const { navbar } = this.props;
 
@@ -51,12 +59,16 @@ export default class App extends Component {
   }
 
   renderUserList() {
-    const { userList } = this.props;
+    let { userList } = this.props;
+    const { compactUserList } = this.state;
 
-    const userListStyle = {};
-    userListStyle[styles.compact] = false;
-
+    let userListStyle = {};
+    userListStyle[styles.compact] = compactUserList;
     if (userList) {
+      userList = React.cloneElement(userList, {
+        compact: compactUserList,
+      });
+
       return (
         <nav className={cx(styles.userList, userListStyle)}>
           {userList}

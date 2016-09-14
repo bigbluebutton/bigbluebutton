@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
+import cx from 'classnames';
 
 import KEY_CODES from '/imports/utils/keyCodes';
 
@@ -40,7 +41,7 @@ export default class DropdownTrigger extends Component {
   }
 
   render() {
-    const { children } = this.props;
+    const { children, style, className } = this.props;
     const TriggerComponent = React.Children.only(children);
 
     const TriggerComponentBounded = React.cloneElement(children, {
@@ -48,6 +49,8 @@ export default class DropdownTrigger extends Component {
       onKeyDown: this.handleKeyDown,
       'aria-haspopup': true,
       tabIndex: '0',
+      style: style,
+      className: cx(children.props.className, className),
     });
 
     return TriggerComponentBounded;

@@ -61,14 +61,12 @@ export default class Dropdown extends Component {
   }
 
   handleStateCallback() {
-    if (this.state.isOpen) {
-      if (this.props.onShow) {
-        this.props.onShow();
-      }
-    } else {
-      if (this.props.onHide) {
-        this.props.onHide();
-      }
+    const { onShow, onHide } = this.props;
+
+    if (this.state.isOpen && onShow) {
+      onShow();
+    } else if (onHide) {
+      onHide();
     }
   }
 
@@ -113,7 +111,7 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const { children } = this.props;
+    const { children, className, style } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
@@ -134,7 +132,7 @@ export default class Dropdown extends Component {
     });
 
     return (
-      <div className={cx(styles.dropdown, this.props.className)}>
+      <div style={style} className={cx(styles.dropdown, className)}>
         {trigger}
         {content}
       </div>
