@@ -118,6 +118,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function shareScreen(fullScreen:Boolean):void {
 				LOGGER.debug("Calling shareScreen");
+				btnFSPublish.enabled = false;
+				btnRegionPublish.enabled = false;
 //				useSVC2Check.enabled = false;
 				javaTimer = new Timer(7000, 1);
 				javaTimer.addEventListener(TimerEvent.TIMER, onJavaTimer);
@@ -251,7 +253,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                                 tabEnabled="false"/>
                      <mx:Spacer width="100%"/>
                 </mx:HBox>
-
               </mx:VBox>
             </mx:AddChild>
         </mx:State>	
