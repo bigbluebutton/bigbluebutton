@@ -389,6 +389,7 @@ package org.bigbluebutton.main.model.users
 			n.disableMyMic = user.disableMyMic;
 			n.disableMyPrivateChat = user.disableMyPrivateChat;
 			n.disableMyPublicChat = user.disableMyPublicChat;
+			n.breakoutRooms = user.breakoutRooms.concat(); // concatenate an array with nothing to deliver a new array.
 			return n;		
 		}
 		

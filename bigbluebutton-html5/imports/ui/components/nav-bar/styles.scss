@@ -1,4 +1,4 @@
-@import "imports/ui/stylesheets/variables/_all";
+@import "../../stylesheets/variables/_all";
 
 .navbar {
   padding: $line-height-computed / 2;
@@ -50,4 +50,21 @@
 
 .recordImage {
   margin-left: -5px;
+}
+
+.hidden {
+  position:absolute;
+  left:-10000px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+
+.settingBtn {
+  transform: rotate(90deg);
+  span {
+    border: none;
+    box-shadow: none;
+  }
 }

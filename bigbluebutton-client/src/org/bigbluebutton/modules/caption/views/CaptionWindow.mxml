@@ -40,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.controls.Button;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
@@ -105,8 +106,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (UserManager.getInstance().getConference().amIModerator()) {
 					transcriptsCollection = new ArrayCollection();
-					for each (var l:String in ResourceUtil.getInstance().localeNames) {
-						transcriptsCollection.addItem({locale: l});
+					
+					var names:Array = ResourceUtil.getInstance().localeNames;
+					var codes:Array = ResourceUtil.getInstance().localeCodes;
+					
+					for (var i:int=0; i<names.length; i++) {
+						transcriptsCollection.addItem({locale: names[i], localeCode: codes[i]});
 					}
 				} else {
 					transcriptsCollection = t.transcriptCollection;
@@ -122,7 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function optionChange(type:int, val:Object):void {
 				switch (type) {
 					case OptionENUM.LOCALE:
-						onLocaleChange(String(val));
+						onLocaleChange(val);
 						break;
 					case OptionENUM.SIZE:
 						textTab.setFontSize(int(val));
@@ -139,8 +144,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			private function onLocaleChange(locale:String):void {
-				currentTranscript = transcriptsObject.findLocale(locale);
+			private function onLocaleChange(item:Object):void {
+				currentTranscript = transcriptsObject.findLocale(item.locale, item.localeCode);
 				
 				optionsTab.setCurrentTranscript(currentTranscript);
 				textTab.setCurrentTranscript(currentTranscript);
@@ -156,6 +161,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (!captionTabs.contains(textTab)) {
 					addTextTab();
+				}
+				
+				var tab:Button = captionTabs.getTabAt(0);
+				if (tab != null) {
+					tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
 				}
 			}
 			
@@ -188,6 +198,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				textTab.setFontSize(int(optionsTab.fontSizeCombo.selectedItem));
 				
 				captionTabs.addChildAt(textTab, 0);
+			}
+			
+			private function onTabChange():void {
+				var tab:Button = captionTabs.getTabAt(captionTabs.selectedIndex);
+				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -224,6 +239,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Box width="100%" height="100%" horizontalAlign="left">
 		<containers:SuperTabNavigator id="captionTabs"
 									  width="100%" height="100%" minTabWidth="20"
-									  dragEnabled="false" popUpButtonPolicy="off" />
+									  dragEnabled="false" popUpButtonPolicy="off" 
+									  change="onTabChange()"/>
 	</mx:Box>
 </CustomMdiWindow>

@@ -54,7 +54,7 @@ export class EventQueue {
             //},
           });
         } else {
-          logger.info('not handling messages of type:' + eventName);
+          logger.info('not handling messages of type:' + eventName + data.jsonMsg); //TODO temp
           return next();
         }
       }
@@ -98,7 +98,7 @@ const logRedisMessage = function (eventName, json) {
 
     // For DEVELOPMENT purposes only
     // Dynamic shapes' updates will slow down significantly
-    if (Meteor.settings.public.mode == 'development') {
+    if (Meteor.settings.runtime.env == 'development') {
       logger.info(`redis incoming message  ${eventName}  `, {
         message: json,
       });
@@ -150,5 +150,8 @@ const handledMessageTypes = [
   'user_voted_poll_message',
   'get_all_meetings_reply_message',
   'desk_share_notify_viewers_rtmp',
+  'send_caption_history_reply_message',
+  'edit_caption_history_message',
+  'update_caption_owner_message',
 ];
 

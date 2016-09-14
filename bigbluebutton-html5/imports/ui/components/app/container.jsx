@@ -1,24 +1,22 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
-import { subscribeForData, pollExists, wasUserKicked, redirectToLogoutUrl } from './service';
+import { subscribeForData, wasUserKicked, redirectToLogoutUrl, getModal } from './service';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import SettingsModal from '../modals/settings/SettingsModal';
+import ClosedCaptionsContainer from '../closed-captions/container';
 
 const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
-  settings: <SettingsModal />,
+
+  //CCs UI is commented till the next pull request
+  //captions: <ClosedCaptionsContainer />,
 };
 
 class AppContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     // inject location on the navbar container
     let navbarWithLocation = cloneElement(this.props.navbar, { location: this.props.location });
@@ -30,14 +28,6 @@ class AppContainer extends Component {
     );
   }
 }
-
-const actionControlsToShow = () => {
-  if (pollExists()) {
-    return <PollingContainer />;
-  } else {
-    return <ActionsBarContainer />;
-  }
-};
 
 let loading = true;
 const loadingDep = new Tracker.Dependency;
@@ -63,8 +53,8 @@ export default createContainer(() => {
   return {
     wasKicked: wasUserKicked(),
     isLoading: getLoading(),
+    modal: getModal(),
     redirectToLogoutUrl,
-    actionsbar: <ActionsBarContainer />,
   };
 }, AppContainer);
 

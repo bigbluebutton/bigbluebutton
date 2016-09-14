@@ -1,11 +1,11 @@
 import { logger } from '/imports/startup/server/logger';
-import { redisConfig } from '/config';
 import { createDummyUser } from '/imports/api/users/server/modifiers/createDummyUser';
 import { publish } from '/imports/api/common/server/helpers';
 
 Meteor.methods({
   // Construct and send a message to bbb-web to validate the user
   validateAuthToken(credentials) {
+    const REDIS_CONFIG = Meteor.settings.redis;
     const { meetingId, requesterUserId, requesterToken } = credentials;
     logger.info('sending a validate_auth_token with', {
       userid: requesterUserId,
@@ -26,7 +26,7 @@ Meteor.methods({
     };
     if ((requesterToken != null) && (requesterUserId != null) && (meetingId != null)) {
       createDummyUser(meetingId, requesterUserId, requesterToken);
-      return publish(redisConfig.channels.toBBBApps.meeting, message);
+      return publish(REDIS_CONFIG.channels.toBBBApps.meeting, message);
     } else {
       return logger.info('did not have enough information to send a validate_auth_token message');
     }

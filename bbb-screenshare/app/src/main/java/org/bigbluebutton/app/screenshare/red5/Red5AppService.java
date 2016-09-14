@@ -81,8 +81,11 @@ public class Red5AppService {
 
   public void isScreenSharing(Map<String, Object> msg) {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
-    log.debug("Received check if publishing for meeting=[{}]", meetingId);
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+
+    if (log.isDebugEnabled()) {
+      log.debug("Received check if publishing for meetingId=" + meetingId + " from user=" + userId);
+    }
 
     handler.isScreenSharing(meetingId, userId);
   }
@@ -97,24 +100,47 @@ public class Red5AppService {
 
   public void restartShareRequest(Map<String, Object> msg) {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
-    log.debug("Received restartShareRequest for meeting=[{}]", meetingId);
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+
+    if (log.isDebugEnabled()) {
+      log.debug("Received restartShareRequest for meetingId=" + meetingId + " from user=" + userId);
+    }
+
     handler.restartShareRequest(meetingId, userId);
   }
 
   public void startShareRequest(Map<String, Object> msg) {
-    Boolean record = (Boolean) msg.get("record");
+    String session = (String) msg.get("session");
     String meetingId = Red5.getConnectionLocal().getScope().getName();
-    log.debug("Received startShareRequest for meeting=[{}]", meetingId);
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    handler.startShareRequest(meetingId, userId, record); //TODO REMOVE
+    if (log.isDebugEnabled()) {
+      log.debug("Received startShareRequest for meetingId=" + meetingId + " from user=" + userId);
+    }
+
+    handler.startShareRequest(meetingId, userId, session);
+  }
+
+  public void requestShareToken(Map<String, Object> msg) {
+    Boolean record = (Boolean) msg.get("record");
+    String meetingId = Red5.getConnectionLocal().getScope().getName();
+    String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+
+    if (log.isDebugEnabled()) {
+      log.debug("Received startShareRequest for meetingId=" + meetingId + " from user=" + userId);
+    }
+
+    handler.requestShareToken(meetingId, userId, record);
   }
 
   public void stopShareRequest(Map<String, Object> msg) {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String streamId = (String) msg.get("streamId");
-    log.debug("Received stopShareRequest for meeting=[{}]", meetingId);
+    String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+
+    if (log.isDebugEnabled()) {
+      log.debug("Received stopShareRequest for meetingId=" + meetingId + " from user=" + userId);
+    }
 
     handler.stopShareRequest(meetingId, streamId);
   }
@@ -125,7 +151,7 @@ public class Red5AppService {
     Double timestamp = (Double) msg.get("timestamp");
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
+    //log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
 
     handler.screenShareClientPongMessage(meetingId, userId, streamId, timestamp.longValue());
   }

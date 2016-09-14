@@ -18,18 +18,15 @@
 */
 package org.bigbluebutton.core.managers
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher; 
   import flash.display.DisplayObject;
   import flash.events.TimerEvent;
   import flash.utils.Dictionary;
-  import flash.utils.Timer;
-  
+  import flash.utils.Timer; 
   import mx.collections.ArrayCollection;
   import mx.core.FlexGlobals;
   import mx.core.IFlexDisplayObject;
-  import mx.managers.PopUpManager;
-  
+  import mx.managers.PopUpManager;  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
@@ -76,7 +73,6 @@ package org.bigbluebutton.core.managers
     }
 
     private function timeout(e:TimerEvent = null):void {
-      LOGGER.debug("timeout");
       _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
       _dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
     }

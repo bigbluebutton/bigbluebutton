@@ -49,29 +49,29 @@ package org.bigbluebutton.modules.caption.model {
 				var localeClassName:String = flash.utils.getQualifiedClassName(locale);
 				var localeClass:Class = flash.utils.getDefinitionByName(localeClassName) as Class;
 				
-				var t:Transcript = findLocale((locale as localeClass).toString());
+				var t:Transcript = findLocale((locale as localeClass).toString(), history[locale][2]);
 				t.ownerID = history[locale][0];
 				t.editHistory(0,0,history[locale][1]);
 			}
 			_historyInited = true;
 		}
 		
-		public function updateCaptionOwner(locale:String, ownerID:String):void {
-			findLocale(locale).ownerID = ownerID;
+		public function updateCaptionOwner(locale:String, code:String, ownerID:String):void {
+			findLocale(locale, code).ownerID = ownerID;
 		}
 		
-		public function editCaptionHistory(locale:String, startIndex:int, endIndex:int, text:String):void {
+		public function editCaptionHistory(locale:String, code:String, startIndex:int, endIndex:int, text:String):void {
 			if (_historyInited) { // ignore updates until after history has been loaded
-				findLocale(locale).editHistory(startIndex, endIndex, text);
+				findLocale(locale, code).editHistory(startIndex, endIndex, text);
 			}
 		}
 		
-		public function findLocale(locale:String):Transcript {
+		public function findLocale(locale:String, code:String):Transcript {
 			for each (var t:Transcript in transcriptCollection) {
 				if (t.locale == locale) return t;
 			}
 			
-			var newTranscript:Transcript = new Transcript(locale);
+			var newTranscript:Transcript = new Transcript(locale, code);
 			transcriptCollection.addItem(newTranscript);
 			return newTranscript;
 		}

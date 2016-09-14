@@ -65,15 +65,17 @@ export default class Whiteboard extends React.Component {
                 />
                 )
               : null }
-              <Cursor
+              {this.props.cursor ?
+                <Cursor
                 viewBoxWidth={viewBoxWidth}
                 viewBoxHeight={viewBoxHeight}
                 viewBoxX={x}
                 viewBoxY={y}
                 widthRatio={slideObj.width_ratio}
-                cursorX={this.props.cursor[0].x}
-                cursorY={this.props.cursor[0].y}
-              />
+                cursorX={this.props.cursor.x}
+                cursorY={this.props.cursor.y}
+                />
+              : null }
             </g>
           </svg>
         </ReactCSSTransitionGroup>

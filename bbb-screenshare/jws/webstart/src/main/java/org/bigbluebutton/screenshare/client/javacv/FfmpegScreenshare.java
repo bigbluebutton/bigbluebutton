@@ -16,6 +16,7 @@ import org.bigbluebutton.screenshare.client.ExitCode;
 import org.bigbluebutton.screenshare.client.ScreenShareInfo;
 import org.bigbluebutton.screenshare.client.net.NetworkConnectionListener;
 import org.bytedeco.javacpp.Loader;
+import org.bytedeco.javacpp.avcodec;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
@@ -144,25 +145,27 @@ public class FfmpegScreenshare {
       frame = grabber.grabImage();
       if (frame != null) {
         try {
+          long timestamp = now - startTime;
+          // Override timestamp from system screen grabber. Otherwise, we will have skewed recorded file.
+          // FfmpegFrameRecorder needs to propagate this timestamp into the avpacket sent to the server.
+          // ralam - Sept. 14, 2016
+          frame.timestamp = timestamp;
+          //System.out.println("frame timestamp=[" + frame.timestamp + "] ");
           mainRecorder.record(frame);
         } catch (Exception e) {
-          System.out.println("CaptureScreen Exception 1");
+          //System.out.println("CaptureScreen Exception 1");
           if (!ignoreDisconnect) {
             listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
           }
-
         }
       }
     } catch (Exception e1) {
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
-
     long sleepFramerate = (long) (1000 / frameRate);
-    long timestamp = now - startTime;
-    mainRecorder.setTimestamp(timestamp * 1000);
 
-    //        System.out.println("i=[" + i + "] timestamp=[" + timestamp + "]");
+    //System.out.println("timestamp=[" + timestamp + "]");
     mainRecorder.setFrameNumber(frameNumber);
 
 //    System.out.println("[ENCODER] encoded image " + frameNumber + " in " + (System.currentTimeMillis() - now));
@@ -178,7 +181,7 @@ public class FfmpegScreenshare {
     try{
       Thread.sleep(dur);
     } catch (Exception e){
-      System.out.println("Exception sleeping.");
+      listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
 
@@ -189,27 +192,27 @@ public class FfmpegScreenshare {
         while (startBroadcast){
           captureScreen();
         }
-        System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
+        //System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
       }
     };
     startBroadcastExec.execute(startBroadcastRunner);    
   }
 
   public void stop() {
-    System.out.println("Stopping screen capture.");
+    //System.out.println("Stopping screen capture.");
     startBroadcast = false;
     if (mainRecorder != null) {
       try {
         ignoreDisconnect = true;
-        System.out.println("mainRecorder.stop.");
+        //System.out.println("mainRecorder.stop.");
         mainRecorder.stop();
-        System.out.println("mainRecorder.release.");
+        //System.out.println("mainRecorder.release.");
         mainRecorder.release();
-        System.out.println("grabber.stop.");
+        //System.out.println("grabber.stop.");
         // Do not invoke grabber.stop as it exits the JWS app.
         // Not sure why. (ralam - aug 10, 2016)
-        // grabber.stop();
-        System.out.println("End stop sequence.");
+        //grabber.stop();
+        //System.out.println("End stop sequence.");
       } catch (Exception e) {
         listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
       }

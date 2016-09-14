@@ -452,6 +452,7 @@ class RecorderActor(val recorder: RecorderApplication)
       ev.setStartIndex(msg.startIndex.toString());
       ev.setEndIndex(msg.endIndex.toString());
       ev.setLocale(msg.locale);
+      ev.setLocaleCode(msg.localeCode);
       ev.setText(msg.text);
       recorder.record(msg.meetingID, ev);
     }

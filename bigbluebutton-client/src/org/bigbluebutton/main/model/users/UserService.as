@@ -18,11 +18,9 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.external.ExternalInterface;
-	import flash.net.NetConnection;
-	
+	import flash.net.NetConnection;	
 	import mx.collections.ArrayCollection;
 	
 	import org.as3commons.logging.api.ILogger;
@@ -67,14 +65,10 @@ package org.bigbluebutton.main.model.users
 			dispatcher = new Dispatcher();
 		}
 		
-		public function startService(e:UserServicesEvent):void {
-			applicationURI = e.applicationURI;
-			hostURI = e.hostURI;
-			BBB.initConnectionManager().isTunnelling = e.isTunnelling;
-      
+		public function startService(e:UserServicesEvent):void {      
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
-			joinService.load(e.hostURI);
+			joinService.load(BBB.getConfigManager().config.application.host);
 		}
 		
 		private function joinListener(success:Boolean, result:Object):void {
@@ -110,7 +104,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.username = result.username;
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
-        		_conferenceParameters.authToken = result.authToken;
+        _conferenceParameters.authToken = result.authToken;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
 				_conferenceParameters.welcome = result.welcome;
@@ -148,8 +142,7 @@ package org.bigbluebutton.main.model.users
 		
     private function connect():void{
       _connectionManager = BBB.initConnectionManager();
-      _connectionManager.setUri(applicationURI);
-      _connectionManager.connect(_conferenceParameters);
+      _connectionManager.connect();
     }
 	
     public function logoutUser():void {
@@ -210,7 +203,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
-			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid);
+			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutId, e.userId);
 		}
 		
 		public function listenInOnBreakout(e:BreakoutRoomEvent):void {

@@ -11,7 +11,8 @@ public interface IScreenShareApplication {
   Boolean recordStream(String meetingId, String streamId);
 
   void isScreenSharing(String meetingId, String userId);
-  void startShareRequest(String meetingId, String userId, Boolean record);
+  void requestShareToken(String meetingId, String userId, Boolean record);
+  void startShareRequest(String meetingId, String userId, String session);
   void pauseShareRequest(String meetingId, String userId, String streamId);
   void restartShareRequest(String meetingId, String userId);
   void stopShareRequest(String meetingId, String streamId);

@@ -50,7 +50,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
     this.ssi = ssi;
     streamId = ssi.streamId;
 
-    signalChannel = new NetworkStreamSender(ssi.host, ssi.meetingId, ssi.streamId);
+    signalChannel = new NetworkStreamSender(ssi.host, ssi.meetingId, ssi.streamId, ssi.session);
     signalChannel.addNetworkConnectionListener(this);
     signalChannel.start();
 
@@ -65,6 +65,8 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       frame.setWidth(ssi.captureWidth);
       frame.setLocation(ssi.x, ssi.y);
       System.out.println(NAME + "Launching Screen Capture Frame");
+      System.out.println(NAME + " - Launching Screen Capture Frame:: x=" + ssi.x + ",y=" + ssi.y + ",w=" +
+              ssi.captureWidth + ",h=" + ssi.captureHeight);
       status = "START";
 
       System.out.println(NAME + "Starting Screen Capture Frame. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
@@ -104,7 +106,7 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
       frame.setVisible(false);
       sharer.stopSharing();
       status = PAUSE;
-      System.out.println(NAME + "Paused.");
+      //System.out.println(NAME + "Paused.");
     }
   }
 
@@ -112,14 +114,14 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   public void networkConnectionException(ExitCode reason, String streamId) {
     if (listener != null) {
       if (reason.getExitCode() == ExitCode.PAUSED.getExitCode()) {
-        System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
+        //System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
         pause();
       } else if (reason.getExitCode() == ExitCode.START.getExitCode()) {
         this.streamId = streamId;
-        System.out.println(NAME + "starting. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
+        //System.out.println(NAME + "starting. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
         start();
       } else {
-        System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
+        //System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
         listener.onClientStop(reason);
       }
     }
@@ -134,24 +136,18 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
 
     @Override
     public void onCaptureRegionMoved(int x, int y) {
-      ssi.x = x;
-      ssi.y = y;
       if (sharer != null)
         sharer.setCaptureCoordinates(x, y);
     }
 
     @Override
     public void onStartCapture(int x, int y, int width, int height) {
-      ssi.x = x;
-      ssi.y = y;
-      ssi.captureWidth = width;
-      ssi.captureHeight = height;
-      ssi.scaleWidth = width;
-      ssi.scaleHeight = height;
+      System.out.println(NAME + " - onStartCapture x=" + ssi.x + ",y=" + ssi.y + ",w=" +
+              ssi.captureWidth + ",h=" + ssi.captureHeight);
       sharer.updateScreenShareInfo(x, y, width, height);
 
       sharer.addClientListener(listener);
-      signalChannel.startSharing(width, height, streamId);
+      signalChannel.startSharing(width, height, streamId, ssi.session);
 
       sharer.startSharing(streamId);
 

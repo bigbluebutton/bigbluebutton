@@ -47,6 +47,7 @@ public class Meeting {
 	private String webVoice;
 	private String moderatorPass;
 	private String viewerPass;
+	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage;
 	private String logoutUrl;
@@ -67,34 +68,35 @@ public class Meeting {
 	
 	private long lastUserLeftOn = 0;
 	
-	public Meeting(Builder builder) {
-		name = builder.name;
-		extMeetingId = builder.externalId;
-		intMeetingId = builder.internalId;
-		viewerPass = builder.viewerPass;
-		moderatorPass = builder.moderatorPass;
-		maxUsers = builder.maxUsers;
-		logoutUrl = builder.logoutUrl;
-		defaultAvatarURL = builder.defaultAvatarURL;
-		record = builder.record;
-		autoStartRecording = builder.autoStartRecording;
-		allowStartStopRecording = builder.allowStartStopRecording;
-   	duration = builder.duration;
-   	webVoice = builder.webVoice;
-   	telVoice = builder.telVoice;
-   	welcomeMsg = builder.welcomeMsg;
-   	dialNumber = builder.dialNumber;
-   	metadata = builder.metadata;
-   	createdTime = builder.createdTime;
-   	isBreakout = builder.isBreakout;
-   	
-   	userCustomData = new HashMap<String, Object>();
+    public Meeting(Builder builder) {
+        name = builder.name;
+        extMeetingId = builder.externalId;
+        intMeetingId = builder.internalId;
+        viewerPass = builder.viewerPass;
+        moderatorPass = builder.moderatorPass;
+        maxUsers = builder.maxUsers;
+        logoutUrl = builder.logoutUrl;
+        defaultAvatarURL = builder.defaultAvatarURL;
+        record = builder.record;
+        autoStartRecording = builder.autoStartRecording;
+        allowStartStopRecording = builder.allowStartStopRecording;
+        duration = builder.duration;
+        webVoice = builder.webVoice;
+        telVoice = builder.telVoice;
+        welcomeMsgTemplate = builder.welcomeMsgTemplate;
+        welcomeMsg = builder.welcomeMsg;
+        dialNumber = builder.dialNumber;
+        metadata = builder.metadata;
+        createdTime = builder.createdTime;
+        isBreakout = builder.isBreakout;
 
-		users = new ConcurrentHashMap<String, User>();
-		registeredUsers = new ConcurrentHashMap<String, Long>();
-		
-		configs = new ConcurrentHashMap<String, Config>();
-	}
+        userCustomData = new HashMap<String, Object>();
+
+        users = new ConcurrentHashMap<String, User>();
+        registeredUsers = new ConcurrentHashMap<String, Long>();
+
+        configs = new ConcurrentHashMap<String, Config>();
+    }
 
 	public String storeConfig(boolean defaultConfig, String config) {
 		String token = RandomStringUtils.randomAlphanumeric(8);
@@ -214,6 +216,10 @@ public class Meeting {
 	public String getViewerPassword() {
 		return viewerPass;
 	}
+	
+    public String getWelcomeMessageTemplate() {
+        return welcomeMsgTemplate;
+    }
 
 	public String getWelcomeMessage() {
 		return welcomeMsg;
@@ -379,6 +385,7 @@ public class Meeting {
     	private int duration;
     	private String webVoice;
     	private String telVoice;
+    	private String welcomeMsgTemplate;
     	private String welcomeMsg;
     	private String logoutUrl;
     	private Map<String, String> metadata;
@@ -452,7 +459,12 @@ public class Meeting {
     		welcomeMsg = w;
     		return this;
     	}
-    	
+
+	    public Builder withWelcomeMessageTemplate(String w) {
+            welcomeMsgTemplate = w;
+            return this;
+        }
+           
     	public Builder withDefaultAvatarURL(String w) {
     		defaultAvatarURL = w;
     		return this;

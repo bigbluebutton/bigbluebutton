@@ -77,7 +77,7 @@ class Auth {
     let logoutURL = this.logoutURL;
     callServer('userLogout');
 
-    clearCredentials(() => {
+    this.clearCredentials(() => {
       document.location.href = logoutURL;
     });
   };

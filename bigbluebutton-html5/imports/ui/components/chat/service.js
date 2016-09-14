@@ -7,15 +7,16 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 
 import { callServer } from '/imports/ui/services/api';
 
-const GROUPING_MESSAGES_WINDOW = 60000;
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
 
-const SYSTEM_CHAT_TYPE = 'SYSTEM_MESSAGE';
-const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
-const PRIVATE_CHAT_TYPE = 'PRIVATE_CHAT';
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 
-const PUBLIC_CHAT_ID = 'public';
-const PUBLIC_CHAT_USERID = 'public_chat_userid';
-const PUBLIC_CHAT_USERNAME = 'public_chat_username';
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
+const PUBLIC_CHAT_USERNAME = CHAT_CONFIG.public_username;
 
 const ScrollCollection = new Mongo.Collection(null);
 

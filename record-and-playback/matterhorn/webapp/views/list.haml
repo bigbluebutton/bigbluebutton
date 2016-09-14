@@ -1,9 +1,0 @@
-%h1 BigBlueButton Conferences Running
-%p= @message
-%ul{ :id => "conference-list" } 
-	- @conflist.each do |attr|
-		%li
-			%a{ :href => "enter?meetingid=#{attr[:meetingID]}" }= attr[:meetingID]
-			%p="running:#{attr[:running]}"
-- if session['role'] == 'instructor'
-	%a{ :href => "metadata" } Create Conference

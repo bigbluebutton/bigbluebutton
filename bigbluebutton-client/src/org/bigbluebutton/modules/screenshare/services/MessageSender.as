@@ -34,8 +34,12 @@ package org.bigbluebutton.modules.screenshare.services
           conn.isScreenSharing(meetingId);
         }
         
-        public function startShareRequest(meetingId: String, userId: String, record: Boolean):void {
-          conn.startShareRequest(meetingId, userId, record);
+        public function requestShareToken(meetingId: String, userId: String, record: Boolean):void {
+          conn.requestShareToken(meetingId, userId, record);
+        }
+        
+        public function startShareRequest(meetingId: String, userId: String, session: String):void {
+          conn.startShareRequest(meetingId, userId, session);
         }
         
         public function stopShareRequest(meetingId: String, streamId: String):void {
@@ -50,8 +54,8 @@ package org.bigbluebutton.modules.screenshare.services
           conn.restartShareRequest(meetingId, userId);
         }
         
-        public function sendClientPongMessage(meetingId: String, streamId: String, timestamp: Number):void {
-          conn.sendClientPongMessage(meetingId, streamId, timestamp);
+        public function sendClientPongMessage(meetingId: String, session: String, timestamp: Number):void {
+          conn.sendClientPongMessage(meetingId, session, timestamp);
         } 
     }
 }

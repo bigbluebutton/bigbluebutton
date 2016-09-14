@@ -310,11 +310,13 @@ public class JnlpFileHandler {
     ScreenShareInfo sInfo =  configurator.getScreenShareInfo(meetingId, authToken);
     String publishUrl = "unknown";
     String streamId = "unknown";
+    String session = "none";
     if (sInfo == null) {
       errorMessage = "ERROR_GETTING_INFO_USING_TOKEN";
     } else {
       publishUrl = sInfo.publishUrl;
       streamId = sInfo.streamId;
+      session = sInfo.session;
     }
     
     String jnlpUrl = configurator.getJnlpUrl();
@@ -332,6 +334,7 @@ public class JnlpFileHandler {
     jnlpTemplate = substitute(jnlpTemplate, "$$publishUrl",  publishUrl);
     jnlpTemplate = substitute(jnlpTemplate, "$$fullScreen",  fullScreen);
     jnlpTemplate = substitute(jnlpTemplate, "$$meetingId",  meetingId);
+    jnlpTemplate = substitute(jnlpTemplate, "$$session",  session);
     jnlpTemplate = substitute(jnlpTemplate, "$$streamId",  streamId);
     jnlpTemplate = substitute(jnlpTemplate, "$$codecOptions",  codecOptions);
     jnlpTemplate = substitute(jnlpTemplate, "$$errorMessage",  errorMessage);

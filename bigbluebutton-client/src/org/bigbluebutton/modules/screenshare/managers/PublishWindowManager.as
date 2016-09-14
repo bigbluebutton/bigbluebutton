@@ -40,12 +40,6 @@ package org.bigbluebutton.modules.screenshare.managers {
         private var service:ScreenshareService;
         private var buttonShownOnToolbar:Boolean = false;
         
-        // Timer to auto-publish webcam. We need this timer to delay
-        // the auto-publishing until after the Viewers's window has loaded
-        // to receive the publishing events. Otherwise, the user joining next
-        // won't be able to view the webcam.
-        private var autoPublishTimer:Timer;
-        
         public function PublishWindowManager(service:ScreenshareService) {
             LOGGER.debug("PublishWindowManager init");
             globalDispatcher = new Dispatcher();
@@ -56,26 +50,12 @@ package org.bigbluebutton.modules.screenshare.managers {
             if (shareWindow != null) shareWindow.stopSharing();
         }
         
-        public function startSharing(uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
-            LOGGER.debug("DS:PublishWindowManager::opening desk share window, autostart=" + autoStart + " autoFullScreen=" + autoFullScreen);
+        public function startSharing(uri:String, room:String):void {
+            LOGGER.debug("DS:PublishWindowManager::opening desk share window");
             shareWindow = new ScreensharePublishWindow();
-            shareWindow.initWindow(service.getConnection(), uri, room, autoStart, autoFullScreen);
+            shareWindow.initWindow(service.getConnection(), uri, room);
             shareWindow.visible = true;
             openWindow(shareWindow);
-            if (autoStart || autoFullScreen) {
-                /*
-                 * Need to have a timer to trigger auto-publishing of deskshare.
-                 */
-                shareWindow.btnFSPublish.enabled = false;
-                shareWindow.btnRegionPublish.enabled = false;
-                autoPublishTimer = new Timer(2000, 1);
-                autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-                autoPublishTimer.start();
-            }
-        }
-        
-        private function autopublishTimerHandler(event:TimerEvent):void {
-            shareWindow.shareScreen(true);
         }
         
         public function handleShareWindowCloseEvent():void {

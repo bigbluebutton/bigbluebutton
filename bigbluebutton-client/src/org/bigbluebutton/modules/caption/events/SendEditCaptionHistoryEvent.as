@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.caption.events {
 		public var startIndex:int = -1;
 		public var endIndex:int = -1;
 		public var locale:String = "";
+		public var localeCode:String = "";
 		public var text:String = "";
 		
 		public function SendEditCaptionHistoryEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false) {

@@ -26,9 +26,9 @@ let getWhiteboardData = () => {
         whiteboardId: currentSlide.slide.id,
       }).fetch();
 
-    cursor = Cursor.find({
+    cursor = Cursor.findOne({
       meetingId: currentSlide.meetingId,
-    }).fetch();
+    });
 
     // Get user to check if they are the presenter
     userIsPresenter = Users.findOne({

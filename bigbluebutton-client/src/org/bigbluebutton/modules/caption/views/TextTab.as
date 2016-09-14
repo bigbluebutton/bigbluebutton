@@ -94,6 +94,7 @@ package org.bigbluebutton.modules.caption.views {
 			outputArea.percentWidth = 100;
 			outputArea.percentHeight = 100;
 			outputArea.tabIndex = startIndex+1;
+			outputArea.addEventListener(FlexEvent.VALUE_COMMIT, onOutputAreaValueCommit);
 			addChild(outputArea);
 			
 			claimButton = new Button();
@@ -182,13 +183,18 @@ package org.bigbluebutton.modules.caption.views {
 			outputArea.setStyle("backgroundColor", color);
 		}
 		
-		private function onClaimButtonClick(e:MouseEvent):void {
-			claimTranscript(currentTranscript.locale, true);
+		private function onOutputAreaValueCommit(e:FlexEvent):void {
+			outputArea.verticalScrollPosition = outputArea.maxVerticalScrollPosition;
 		}
 		
-		private function claimTranscript(locale:String, claim:Boolean):void {
+		private function onClaimButtonClick(e:MouseEvent):void {
+			claimTranscript(currentTranscript.locale, currentTranscript.localeCode, true);
+		}
+		
+		private function claimTranscript(locale:String, localeCode:String, claim:Boolean):void {
 			var updateCaptionOwnerEvent:SendUpdateCaptionOwnerEvent = new SendUpdateCaptionOwnerEvent(SendUpdateCaptionOwnerEvent.SEND_UPDATE_CAPTION_OWNER_EVENT);
 			updateCaptionOwnerEvent.locale = locale;
+			updateCaptionOwnerEvent.localeCode = localeCode;
 			updateCaptionOwnerEvent.claim = claim;
 			
 			var dispatcher:Dispatcher = new Dispatcher();
@@ -343,6 +349,7 @@ package org.bigbluebutton.modules.caption.views {
 			if (_startIndex >= 0) {
 				var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
 				editHistoryEvent.locale = currentTranscript.locale;
+				editHistoryEvent.localeCode = currentTranscript.localeCode;
 				editHistoryEvent.startIndex = _startIndex;
 				editHistoryEvent.endIndex = _endIndex;
 				editHistoryEvent.text = _accText;

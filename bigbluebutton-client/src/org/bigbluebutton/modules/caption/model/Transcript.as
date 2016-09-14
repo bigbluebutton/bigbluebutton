@@ -31,8 +31,12 @@ package org.bigbluebutton.modules.caption.model {
 		[Bindable]
 		public var locale:String;
 		
-		public function Transcript(l:String) {
+		[Bindable]
+		public var localeCode:String;
+		
+		public function Transcript(l:String, c:String) {
 			locale = l;
+			localeCode = c;
 			transcript = "";
 			ownerID = "";
 		}

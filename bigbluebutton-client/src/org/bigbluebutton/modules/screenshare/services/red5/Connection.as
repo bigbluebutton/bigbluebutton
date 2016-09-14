@@ -204,11 +204,24 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             }, message);
         }
         
-        public function startShareRequest(meetingId:String, userId:String, record:Boolean):void {
+        public function requestShareToken(meetingId:String, userId:String, record:Boolean):void {
             var message:Object = new Object();
             message["meetingId"] = meetingId;
             message["userId"] = userId;
             message["record"] = record;
+            
+            sendMessage("screenshare.requestShareToken", function(result:String):void { // On successful result
+                LOGGER.debug(result);
+            }, function(status:String):void { // status - On error occurred
+                LOGGER.error(status);
+            }, message);
+        }
+        
+        public function startShareRequest(meetingId:String, userId:String, session:String):void {
+            var message:Object = new Object();
+            message["meetingId"] = meetingId;
+            message["userId"] = userId;
+            message["session"] = session;
             
             sendMessage("screenshare.startShareRequest", function(result:String):void { // On successful result
                 LOGGER.debug(result);
@@ -229,10 +242,10 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             }, message);
         }
         
-        public function sendClientPongMessage(meetingId:String, streamId:String, timestamp: Number):void {
+        public function sendClientPongMessage(meetingId:String, session:String, timestamp: Number):void {
             var message:Object = new Object();
             message["meetingId"] = meetingId;
-            message["streamId"] = streamId;
+            message["session"] = session;
             message["timestamp"] = timestamp;
             
             sendMessage("screenshare.screenShareClientPongMessage", function(result:String):void { // On successful result

@@ -7,7 +7,6 @@ public class IsScreenSharingResponse implements IEvent {
 
   public final String meetingId;
   public final String userId;
-
   public final StreamInfo info;
   
   public IsScreenSharingResponse(String meetingId, String userId, StreamInfo info) {

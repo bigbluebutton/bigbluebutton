@@ -71,6 +71,7 @@
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.BreakoutRoom;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -79,6 +80,7 @@
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(UsersWindow);
@@ -114,6 +116,8 @@
 			
 			[Bindable]
 			private var amIPresenter:Boolean = false;
+			
+			private var joinAlert : Alert;
 			
 			private const FOCUS_USERS_LIST:String = "Focus Users List";
 			private const MAKE_PRESENTER:String = "Make Presenter";
@@ -265,8 +269,12 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler: muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				if (partOptions.enableBreakoutRooms && breakoutRoomsList.length == 0 && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
-					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
+				if (partOptions.enableBreakoutRooms && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
+					if (breakoutRoomsList.length == 0) {
+						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
+					} else {
+						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.sendBreakoutRoomsInvitations'), handler: sendBreakoutRoomsInvitations});
+					}
 				}
 
 				// make sure the previous menu is closed before opening a new one
@@ -306,24 +314,35 @@
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.OPEN_LOCK_SETTINGS);
 				dispatcher.dispatchEvent(event);
 			}
-
 			private function breakoutRooms():void {
-				dispatcher.dispatchEvent(new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL));
+				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL);
+				event.joinMode = "create";
+				dispatcher.dispatchEvent(event);
 			}
-			
+
+			private function sendBreakoutRoomsInvitations():void {
+				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL);
+				event.joinMode = "invite";
+				dispatcher.dispatchEvent(event);
+			}
+
 			private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void {
 				TimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
 			}
 
 			private function breakoutRoomsListChangeListener(event:CollectionEvent):void {
-				if(breakoutRoomsList.length == 0) {
+				if (breakoutRoomsList.length == 0) {
 					breakoutTimeLabel.text = "...";
 					TimerUtil.stopTimer(breakoutTimeLabel.id);
+					// All breakout rooms were close we don't need to display the join URL alert anymore
+					removeJoinAlert();
 				}
 			}
 
 			private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
-				var alert:Alert = Alert.show(
+				// We display only one alert
+				removeJoinAlert();
+				joinAlert = Alert.show(
 					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL', [StringUtils.substringAfterLast(event.breakoutId, "-")]),
 					ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
 					Alert.YES | Alert.NO,
@@ -331,10 +350,17 @@
 					function(e:CloseEvent):void {
 						if (e.detail == Alert.YES) {
 							dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
-							navigateToURL(new URLRequest(event.joinURL));
+							dispatcher.dispatchEvent(new StopBroadcastEvent());
+							navigateToURL(new URLRequest(event.joinURL), "_blank");
 						}
 					},
 					null, Alert.YES);
+			}
+
+			private function removeJoinAlert():void {
+				if (joinAlert != null) {
+					PopUpManager.removePopUp(joinAlert);
+				}
 			}
 
 			/*private function unlockAll():void {
@@ -482,11 +508,19 @@
 					}
 				}
 			}
-			
+
 			private function endAllBreakoutRoomsHandler(event:MouseEvent):void {
+				// We need to switch the use back to the main audio confrence if he is in a breakout audio conference
+				var br:BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomInListen();
+				if (br != null) {
+					var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+					e.breakoutId = br.breakoutId;
+					e.listen = false;
+					dispatcher.dispatchEvent(e);
+				}
 				dispatcher.dispatchEvent(new BreakoutRoomEvent(BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS));
 			}
-			
+
 			private function focusWindow(e:ShortcutEvent):void {
 				focusManager.setFocus(titleBarOverlay);
 			}

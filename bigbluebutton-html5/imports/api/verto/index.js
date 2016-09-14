@@ -1,7 +1,6 @@
 import {getInStorage} from '/imports/ui/components/app/service';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { clientConfig } from '/config';
 import { getVoiceBridge } from '/imports/api/phone';
 
 function createVertoUserName() {

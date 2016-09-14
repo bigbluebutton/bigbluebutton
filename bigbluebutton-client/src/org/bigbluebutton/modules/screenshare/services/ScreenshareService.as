@@ -67,8 +67,8 @@ package org.bigbluebutton.modules.screenshare.services {
             conn.connect();
         }
         
-        public function getConnection():NetConnection {
-            return conn.getConnection();
+        public function getConnection():Connection {
+            return conn;
         }
         
         public function disconnect():void {
@@ -80,8 +80,12 @@ package org.bigbluebutton.modules.screenshare.services {
             sender.isScreenSharing(UsersUtil.getInternalMeetingID());
         }
         
-        public function requestStartSharing():void {
-            sender.startShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), UsersUtil.isRecorded());
+        public function requestShareToken():void {
+            sender.requestShareToken(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), UsersUtil.isRecorded());
+        }
+        
+        public function sharingStartMessage(session: String):void {
+            sender.startShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), session);
         }
         
         public function requestStopSharing(streamId:String):void {
@@ -96,9 +100,8 @@ package org.bigbluebutton.modules.screenshare.services {
             sender.restartShareRequest(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
         }
         
-        public function sendClientPongMessage(streamId: String, timestamp: Number):void {
-            LOGGER.debug("sendClientPongMessage");
-            sender.sendClientPongMessage(UsersUtil.getInternalMeetingID(), streamId, timestamp);
+        public function sendClientPongMessage(session: String, timestamp: Number):void {
+            sender.sendClientPongMessage(UsersUtil.getInternalMeetingID(), session, timestamp);
         }    
     }
 }

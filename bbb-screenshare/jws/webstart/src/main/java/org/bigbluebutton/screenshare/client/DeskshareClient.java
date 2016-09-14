@@ -93,6 +93,7 @@ public class DeskshareClient {
     private boolean enableTrayActions = false;
     private boolean fullScreen = false;
     private String URL = "rtmp://192.168.23.23/live/foo/room2";
+    private String session = "";
 
     public NewBuilder host(String host) {
       this.host = host;
@@ -112,7 +113,12 @@ public class DeskshareClient {
     public NewBuilder streamId(String streamId) {
       this.streamId = streamId;
       return this;
-    }    
+    }
+
+    public NewBuilder session(String s) {
+      this.session = s;
+      return this;
+    }
 
     public NewBuilder codecOptions(String options) {
       this.codecOptions = options;
@@ -212,6 +218,7 @@ public class DeskshareClient {
       ssi.codecOptions = codecOptions;
       ssi.sysTrayIcon = sysTrayIcon;
       ssi.enableTrayActions = enableTrayActions;
+      ssi.session = session;
 
       System.out.println("ScreenShareInfo[captureWidth=" + captureWidth + ",captureHeight=" + captureHeight + "][" + x + "," + y +"]"
           + "[scaleWidth=" + scaleWidth + ",scaleHeight=" + scaleHeight + "]");

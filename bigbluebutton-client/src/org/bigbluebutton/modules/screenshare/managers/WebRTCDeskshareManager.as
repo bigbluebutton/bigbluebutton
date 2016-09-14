@@ -146,9 +146,6 @@ package org.bigbluebutton.modules.screenshare.managers
 			if (options.chromeExtensionKey) {
 				chromeExtensionKey = options.chromeExtensionKey;
 			}
-			if (options.autoStart) {
-				handleStartSharingEvent(true);
-			}
 		}
 
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
@@ -171,7 +168,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			var options:ScreenshareOptions = new ScreenshareOptions();
 			options.parseOptions();
 
-			if (options.useWebRTCIfAvailable && BrowserCheck.isWebRTCSupported()) {
+			if (options.tryWebRTCFirst && BrowserCheck.isWebRTCSupported()) {
 				JSLog.warn("WebRTCDeskshareManager::handleStartSharingEvent WebRTC Supported", {});
 				if (BrowserCheck.isFirefox()) {
 					onSuccess("Firefox, lets try");
@@ -206,7 +203,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		/*handle start sharing event*/
-		public function handleStartSharingEvent(autoStart:Boolean):void {
+		public function handleStartSharingEvent():void {
 			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
 			JSLog.warn("WebRTCDeskshareManager::handleStartSharingEvent", {});
 
@@ -269,7 +266,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		public function handleRequestStartSharingEvent():void {
 			JSLog.warn("WebRTCDeskshareManager::handleRequestStartSharingEvent", {});
 			initDeskshare();
-			handleStartSharingEvent(true);
+			handleStartSharingEvent();
 		}
 
 		public function handleStreamStartedEvent(event: WebRTCViewStreamEvent):void {

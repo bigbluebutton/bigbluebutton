@@ -7,13 +7,13 @@ package org.bigbluebutton.modules.screenshare.events
     {
         public static const CLIENT_PING:String = "screenshare client ping message";
         
-        public var streamId: String;
+        public var session: String;
         public var timestamp: Number;
         
-        public function ScreenShareClientPingMessage(streamId: String, timestamp: Number) 
+        public function ScreenShareClientPingMessage(session: String, timestamp: Number) 
         {
             super(CLIENT_PING, true, false);
-            this.streamId = streamId;
+            this.session = session;
             this.timestamp = timestamp;
 			
         }
