@@ -688,7 +688,7 @@ public class FFmpegFrameRecorder extends FrameRecorder {
         if (oc != null) {
             try {
                 /* flush all the buffers */
-                while (video_st != null  && ifmt_ctx == null && recordImage(0, 0, 0, 0, 0, AV_PIX_FMT_NONE, (Buffer[])null));
+                while (video_st != null  && ifmt_ctx == null && recordImage(0, 0, 0, 0, 0, AV_PIX_FMT_NONE, 0, (Buffer[])null));
                 while (audio_st != null && ifmt_ctx == null && recordSamples(0, 0, (Buffer[])null));
 
                 if (interleaved && video_st != null && audio_st != null) {
@@ -710,11 +710,11 @@ public class FFmpegFrameRecorder extends FrameRecorder {
     }
     public void record(Frame frame, int pixelFormat) throws Exception {
         if (frame == null || (frame.image == null && frame.samples == null)) {
-            recordImage(0, 0, 0, 0, 0, pixelFormat, (Buffer[])null);
+            recordImage(0, 0, 0, 0, 0, pixelFormat, frame.timestamp, (Buffer[])null);
         } else {
             if (frame.image != null) {
                 frame.keyFrame = recordImage(frame.imageWidth, frame.imageHeight, frame.imageDepth,
-                        frame.imageChannels, frame.imageStride, pixelFormat, frame.image);
+                        frame.imageChannels, frame.imageStride, pixelFormat, frame.timestamp, frame.image);
             }
             if (frame.samples != null) {
                 frame.keyFrame = recordSamples(frame.sampleRate, frame.audioChannels, frame.samples);
@@ -722,7 +722,8 @@ public class FFmpegFrameRecorder extends FrameRecorder {
         }
     }
 
-    public boolean recordImage(int width, int height, int depth, int channels, int stride, int pixelFormat, Buffer ... image) throws Exception {
+    public boolean recordImage(int width, int height, int depth, int channels, int stride,
+                               int pixelFormat, long frameTimestamp, Buffer ... image) throws Exception {
         if (video_st == null) {
             throw new Exception("No video output stream (Is imageWidth > 0 && imageHeight > 0 and has start() been called?)");
         }
@@ -808,10 +809,15 @@ public class FFmpegFrameRecorder extends FrameRecorder {
             /* if zero size, it means the image was buffered */
             if (got_video_packet[0] != 0) {
                 if (video_pkt.pts() != AV_NOPTS_VALUE) {
-                    video_pkt.pts(av_rescale_q(video_pkt.pts(), video_c.time_base(), video_st.time_base()));
+                    // Override timestamp from system screen grabber. Otherwise, we will have skewed recorded file.
+                    // FfmpegFrameRecorder needs to propagate this timestamp into the avpacket sent to the server.
+                    // ralam - Sept. 14, 2016
+                    video_pkt.pts(frameTimestamp);
+                    //video_pkt.pts(av_rescale_q(video_pkt.pts(), video_c.time_base(), video_st.time_base()));
                 }
                 if (video_pkt.dts() != AV_NOPTS_VALUE) {
-                    video_pkt.dts(av_rescale_q(video_pkt.dts(), video_c.time_base(), video_st.time_base()));
+                    video_pkt.dts(frameTimestamp);
+                    //video_pkt.dts(av_rescale_q(video_pkt.dts(), video_c.time_base(), video_st.time_base()));
                 }
                 video_pkt.stream_index(video_st.index());
             } else {
