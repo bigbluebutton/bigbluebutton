@@ -122,6 +122,36 @@ function removeSlideChangeAttribute() {
 	Popcorn('#video').unlisten(Popcorn.play, 'removeSlideChangeAttribute');
 }
 
+function hideWhiteboardIfDeskshare(time) {
+  var num_current = current_image.substr(5);
+  var wbcanvas;
+
+  if(svgobj.contentDocument)
+    wbcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
+  else
+    wbcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
+
+  if(wbcanvas !== null) {
+    var sharing = false;
+
+    for (var m = 0; m < deskshareTimes.length; m++) {
+      var start_timestamp = deskshareTimes[m][0];
+      var stop_timestamp = deskshareTimes[m][1];
+
+      if(time >= start_timestamp && time <= stop_timestamp)
+        sharing = true;
+    }
+
+    if(sharing) {
+      wbcanvas.setAttribute("display", "none");
+      document.getElementById("cursor").style.display = 'none';
+    } else {
+      wbcanvas.setAttribute("display", "");
+      document.getElementById("cursor").style.display = '';
+    }
+  }
+}
+
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 
@@ -257,6 +287,23 @@ function runPopcorn() {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
 
+
+  // PROCESS DESKSHARE.XML
+  console.log("** Getting deskshare.xml");
+  xmlhttp.open("GET", deskshare_xml, false);
+  xmlhttp.send();
+  xmlDoc = xmlhttp.responseXML;
+  //getting all the event tags
+  console.log("** Processing deskshare.xml");
+  var deskelements = xmlDoc.getElementsByTagName("recording");
+  var deskshareArray = deskelements[0].getElementsByTagName("event");
+
+  if(deskshareArray != null && deskshareArray.length != 0) {
+    for (var m = 0; m < deskshareArray.length; m++) {
+      var deskTimes = [parseFloat(deskshareArray[m].getAttribute("start_timestamp")),parseFloat(deskshareArray[m].getAttribute("stop_timestamp"))];
+      deskshareTimes[m] = deskTimes;
+    }
+  }
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
   svgobj.style.top = "0px";
@@ -428,6 +475,7 @@ function runPopcorn() {
             currentImage = thisimg;
             resizeSlides();
           }
+          hideWhiteboardIfDeskshare(t);
        }
     }
   });
@@ -502,6 +550,7 @@ var imageAtTime = {};
 var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;
 var cursorShownAt = 0;
+var deskshareTimes = [];
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
@@ -512,6 +561,7 @@ var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
 var metadata_xml = url + '/metadata.xml';
+var deskshare_xml = url + '/deskshare.xml';
 
 var firstLoad = true;
 var svjobjLoaded = false;

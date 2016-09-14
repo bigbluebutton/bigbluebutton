@@ -44,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
   <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
   <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
+  <mate:Listener type="{PresenterStatusEvent.ANNOTATIONS_PERMISSION_CHANGE}" method="handleEnableAnnotations" />
     
   <mx:Style>
     .colorPickerStyle {
@@ -77,6 +78,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.MadePresenterEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.events.PresenterStatusEvent;
 		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 		import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -119,13 +121,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var mousedOver:Boolean = false;
 			private var slideLoaded:Boolean = false;
+			private var enableAnnotations:Boolean = true;
 			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
-
+			
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
 			private function init():void{
@@ -255,20 +258,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     checkVisibility();
                 }
 			}
-
+			
 			private function refreshRole(e:ChangeMyRole):void {
 				checkVisibility();
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver) && !presentationWindow.minimized) {
+                if (toolbarAllowed() && slideLoaded && enableAnnotations && (wbOptions.keepToolbarVisible || mousedOver)) {
                     setPositionAndDepth();
                     showToolbar();
                 } else {
                     hideToolbar();
                 }
             }
-
+            
 			private function showToolbar():void {
 				_hideToolbarTimer.reset();
 				showWhiteboardToolbar = true;
@@ -352,7 +355,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function get isModerator():Boolean {
         return UsersUtil.amIModerator();
       }
-		           
+
+      private function handleEnableAnnotations(e:PresenterStatusEvent):void {
+        enableAnnotations = e.enableAnnotations;
+        checkVisibility();
+      }
+
 		]]>
 	</mx:Script>
 	

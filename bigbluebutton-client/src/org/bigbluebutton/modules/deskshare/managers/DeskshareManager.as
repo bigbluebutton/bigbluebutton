@@ -38,6 +38,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var service:DeskshareService;
 		private var globalDispatcher:Dispatcher;
 		private var sharing:Boolean = false;
+		private var autoStart:Boolean = false;
 		
 		public function DeskshareManager() {
 			service = new DeskshareService();
@@ -84,12 +85,7 @@ package org.bigbluebutton.modules.deskshare.managers
       sharing = false;
       var option:DeskshareOptions = new DeskshareOptions();
       option.parseOptions();
-      if (option.autoStart) {
-        handleStartSharingEvent(true);
-      }
-      if(option.showButton){
-        toolbarButtonManager.addToolbarButton();
-      }      
+      autoStart = option.autoStart;
     }
     
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
@@ -98,15 +94,10 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 		
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
-			LOGGER.debug("Got MadeViewerEvent ");
-			toolbarButtonManager.removeToolbarButton();
-			if (sharing) {
-				publishWindowManager.stopSharing();
-			}
 			sharing = false;
 		}
 		
-		public function handleStartSharingEvent(autoStart:Boolean):void {
+		public function handleStartSharingEvent():void {
 			LOGGER.debug("DeskshareManager::handleStartSharingEvent");
 			//toolbarButtonManager.disableToolbarButton();
 			toolbarButtonManager.startedSharing();
@@ -114,6 +105,15 @@ package org.bigbluebutton.modules.deskshare.managers
 			option.parseOptions();
 			publishWindowManager.startSharing(option.publishURI , option.useTLS , module.getRoom(), autoStart, option.autoFullScreen);
 			sharing = true;
+		}
+
+		public function handleShareScreenEvent(fullScreen:Boolean):void {
+			publishWindowManager.handleShareScreenEvent(fullScreen);
+		}
+
+		public function handleStopSharingEvent():void {
+			sharing = false;
+			publishWindowManager.stopSharing();
 		}
 		
 		public function handleShareWindowCloseEvent():void {
@@ -129,11 +129,32 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
-			if (sharing) return;
 			LOGGER.debug("Received start vieweing command");
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
-    
-    
+
+		public function handleStopViewStreamEvent():void {
+			viewWindowManager.stopViewing();
+			if (UsersUtil.amIPresenter()) {
+				publishWindowManager.stopSharing();
+			}
+		}
+
+		public function handleVideoDisplayModeEvent(actualSize:Boolean):void {
+			viewWindowManager.handleVideoDisplayModeEvent(actualSize);
+		}
+
+		// Desktop Publish Events Handlers
+		public function handleAppletStarted(videoWidth:Number, videoHeight:Number):void {
+			if (UsersUtil.amIPresenter()) {
+				publishWindowManager.handleAppletStarted(videoWidth,videoHeight);
+			}
+		}
+
+		public function handleDeskshareAppletLaunchedEvent():void {
+			if (UsersUtil.amIPresenter()) {
+				publishWindowManager.handleDeskshareAppletLaunchedEvent();
+			}
+		}
 	}
 }

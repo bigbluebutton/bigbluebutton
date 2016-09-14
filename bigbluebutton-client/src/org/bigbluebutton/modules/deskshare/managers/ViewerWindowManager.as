@@ -28,7 +28,8 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
-			
+	import org.bigbluebutton.modules.deskshare.events.ShareEvent;
+
 	public class ViewerWindowManager {		
 		private static const LOGGER:ILogger = getClassLogger(ViewerWindowManager);
 
@@ -43,7 +44,10 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function stopViewing():void {
-			if (isViewing) viewWindow.stopViewing();
+			if (viewWindow != null) {
+				viewWindow.stopViewing();
+				viewWindow = null;
+			}
 		}
 				
 		public function handleStartedViewingEvent(stream:String):void{
@@ -51,22 +55,21 @@ package org.bigbluebutton.modules.deskshare.managers
 			service.sendStartedViewingNotification(stream);
 		}
 						
-		private function openWindow(window:IBbbModuleWindow):void{				
-			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			event.window = window;
-			globalDispatcher.dispatchEvent(event);
+		private function openWindow(window:DesktopViewWindow):void {
+			var e:ShareEvent = new ShareEvent(ShareEvent.OPEN_DESKTOP_VIEW_TAB);
+			e.viewTabContent = window;
+			globalDispatcher.dispatchEvent(e);
 		}
 			
 		public function handleViewWindowCloseEvent():void {
 			LOGGER.debug("ViewerWindowManager Received stop viewing command");				
-			closeWindow(viewWindow);
+			closeWindow();
 			isViewing = false;	
 		}
 		
-		private function closeWindow(window:IBbbModuleWindow):void {
-			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-			event.window = window;
-			globalDispatcher.dispatchEvent(event);
+		private function closeWindow():void {
+			var e:ShareEvent = new ShareEvent(ShareEvent.CLOSE_DESKTOP_VIEW_TAB);
+			globalDispatcher.dispatchEvent(e);
 		}
 			
 		public function startViewing(room:String, videoWidth:Number, videoHeight:Number):void{
@@ -76,6 +79,12 @@ package org.bigbluebutton.modules.deskshare.managers
 			
 			openWindow(viewWindow);
 			isViewing = true;
+		}
+
+		public function handleVideoDisplayModeEvent(actualSize:Boolean):void{
+			if (viewWindow != null) {
+				viewWindow.actualSize = actualSize;
+			}
 		}
 	}
 }

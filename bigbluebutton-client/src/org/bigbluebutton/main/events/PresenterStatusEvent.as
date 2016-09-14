@@ -25,10 +25,12 @@ package org.bigbluebutton.main.events
 		public static const PRESENTER_NAME_CHANGE:String = "PRESENTER_NAME_CHANGE";
 		public static const SWITCH_TO_VIEWER_MODE:String = "VIEWER_MODE";
 		public static const SWITCH_TO_PRESENTER_MODE:String = "PRESENTER_MODE";
+		public static const ANNOTATIONS_PERMISSION_CHANGE:String = "ANNOTATIONS_PERMISSION_CHANGE";
 		
 		public var presenterName:String;
 		public var assignerBy:Number;
 		public var userID:String;
+		public var enableAnnotations:Boolean;
 		
 		public function PresenterStatusEvent(type:String)
 		{

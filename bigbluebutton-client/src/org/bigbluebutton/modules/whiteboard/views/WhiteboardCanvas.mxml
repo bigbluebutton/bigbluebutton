@@ -28,9 +28,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       import mx.managers.CursorManager;
       
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
+
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
+      import org.bigbluebutton.modules.present.ui.views.SlideView;
       import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
       import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
       import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
@@ -41,6 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
       import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			
+			private static const LOGGER:ILogger = getClassLogger(WhiteboardCanvas);
 			public var model:WhiteboardCanvasModel;	
             public var displayModel:WhiteboardCanvasDisplayModel;
             
@@ -251,7 +257,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
         /**
          * Check if this is the first time we overlayed the whiteboard canvas into the
-         * presentation canvas. If so, query for annotations history.
+         * presentation canvas or the user changed tabs on Presentation Window. If so, query for annotations history.
          */
         if (! displayModel.canvasInited) {
           displayModel.parentCanvasInitialized();
@@ -259,6 +265,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           if (webId != null) {
             queryForAnnotationHistory(webId);
           }        
+        } else {
+          LOGGER.debug("Not querying annotations history");
         }
                     
 			}

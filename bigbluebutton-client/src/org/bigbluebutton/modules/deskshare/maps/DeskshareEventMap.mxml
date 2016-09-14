@@ -29,6 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+			import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
 			import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
@@ -47,11 +49,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 		
 	<EventHandlers type="{ShareEvent.START_SHARING}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent" arguments="{false}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.SHARE_SCREEN}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleShareScreenEvent" arguments="{event.fullScreen}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.STOP_SHARING}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleStopSharingEvent"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.CHANGE_VIDEO_DISPLAY_MODE}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleVideoDisplayModeEvent" arguments="{event.fullScreen}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent" arguments="{true}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
@@ -74,6 +88,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStartEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
 
+	<EventHandlers type="{ViewStreamEvent.STOP}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleStopViewStreamEvent"/>
+	</EventHandlers>
+
 	<EventHandlers type="{ShareWindowEvent.CLOSE}">		
 		<MethodInvoker generator="{DeskshareManager}" method="handleShareWindowCloseEvent"/>
 	</EventHandlers>
@@ -94,5 +112,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{DeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 
-  	
+	<!-- Desktop Publish Events-->
+	<EventHandlers type="{AppletStartedEvent.APPLET_STARTED}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleAppletStarted" arguments="{[event.videoWidth, event.videoHeight]}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{DeskshareAppletLaunchedEvent.APPLET_LAUNCHED}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleDeskshareAppletLaunchedEvent"/>
+	</EventHandlers>
 </EventMap>
