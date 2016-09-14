@@ -6,12 +6,10 @@ import {getVoiceBridge} from '/imports/api/phone';
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video
 // and display it, or end the call and hide the video
-function videoIsBroadcasting() {
-  console.log("inside ds:: videoIsBroadcasting");
+function isVideoBroadcasting() {
   const ds = Deskshare.findOne({});
   if (ds == null || !ds.broadcasting) {
     console.log('Deskshare broadcasting has ended');
-    presenterDeskshareHasEnded();
     return false;
   } else {
     console.log("DS isnt empty");
@@ -21,21 +19,33 @@ function videoIsBroadcasting() {
     console.log('Deskshare is now broadcasting');
     if (ds.startedBy != Auth.userID) {
       console.log('deskshare wasn\'t initiated by me');
-      presenterDeskshareHasStarted();
       return true;
     } else {
       console.log("ending DS");
-      presenterDeskshareHasEnded();
       return false;
     }
   } else {
     console.log("DS int broadcasting");
+    return false;
   }
 }
 
+function shouldShowComponent() {
+  let isThereVideo = isVideoBroadcasting();
+
+  if (isThereVideo) {
+    presenterDeskshareHasStarted();
+    return true;
+  } else {
+    presenterDeskshareHasEnded();
+    return false;
+   }
+ }
+
+
 // if remote deskshare has been ended disconnect and hide the video stream
 function presenterDeskshareHasEnded() {
-  // exitVoiceCall();
+  vertoExitVideo();
   console.log("presenterDeskshareHasEnded");
 };
 
@@ -46,6 +56,8 @@ function presenterDeskshareHasStarted() {
 };
 
 export {
-  videoIsBroadcasting, presenterDeskshareHasEnded, presenterDeskshareHasStarted
+  isVideoBroadcasting, presenterDeskshareHasEnded, presenterDeskshareHasStarted,
+  shouldShowComponent,
+
 };
 

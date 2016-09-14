@@ -11,14 +11,14 @@ Verto = function (
   this.share_call = null;
   this.vertoHandle;
 
-  this.vid_width = 1920;
-  this.vid_height = 1080;
+  this.vid_width = 640; // 1920;
+  this.vid_height = 480; // 1080;
 
   this.local_vid_width = 320;
   this.local_vid_height = 180;
   this.outgoingBandwidth = "default";
   this.incomingBandwidth = "default";
-  this.sessid = null;
+  this.sessid = $.verto.genUUID();
 
   this.renderTag = 'remote-media';
 
@@ -35,8 +35,8 @@ Verto = function (
   this.password = "secret";
   this.minWidth = '640';
   this.minHeight = '480';
-  this.maxWidth = '1920';
-  this.maxHeight = '1080';
+  this.maxWidth = '640'; // '1920';
+  this.maxHeight = '480'; // '1080';
 
   this.useVideo = false;
   this.useCamera = false;
@@ -194,7 +194,7 @@ Verto.prototype.vmute = function () {
 Verto.prototype.setWatchVideo = function (tag) {
   this.mediaCallback = this.docall;
   this.useVideo = true;
-  this.useCamera = 'any'; // temp
+  this.useCamera = 'none'; // temp
   this.useMic = 'any'; // temp
   this.create(tag);
 };
@@ -489,6 +489,11 @@ window.vertoInitialize = function () {
 window.vertoExitAudio = function () {
   window.vertoInitialize();
   window.vertoManager.exitAudio();
+};
+
+window.vertoExitVideo = function () {
+  window.vertoInitialize();
+  window.vertoManager.exitVideo();
 };
 
 window.vertoExitScreenShare = function () {
