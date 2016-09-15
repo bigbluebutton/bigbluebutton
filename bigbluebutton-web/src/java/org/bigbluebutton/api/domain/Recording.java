@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import groovy.util.slurpersupport.GPathResult;
-
 public class Recording {
 	private String id;
 	private String meetingID;
@@ -44,16 +42,16 @@ public class Recording {
 	private String playbackLink;
 	private String playbackFormat;
 	private String playbackDuration;
-	private GPathResult playbackExtensions;
+	private List<Extension> playbackExtensions;
 
-    public static final String STATE_PROCESSING = "processing";
-    public static final String STATE_PROCESSED = "processed";
-    public static final String STATE_PUBLISING = "publishing";
-    public static final String STATE_PUBLISHED = "published";
-    public static final String STATE_UNPUBLISING = "unpublishing";
-    public static final String STATE_UNPUBLISHED = "unpublished";
-    public static final String STATE_DELETING = "deleting";
-    public static final String STATE_DELETED = "deleted";
+	public static final String STATE_PROCESSING = "processing";
+	public static final String STATE_PROCESSED = "processed";
+	public static final String STATE_PUBLISING = "publishing";
+	public static final String STATE_PUBLISHED = "published";
+	public static final String STATE_UNPUBLISING = "unpublishing";
+	public static final String STATE_UNPUBLISHED = "unpublished";
+	public static final String STATE_DELETING = "deleting";
+	public static final String STATE_DELETED = "deleted";
 
 	public String getId() {
 		return id;
@@ -123,11 +121,11 @@ public class Recording {
 		this.playbackDuration = playbackDuration;
 	}
 
-	public GPathResult getPlaybackExtensions() {
+	public List<Extension> getPlaybackExtensions() {
 		return playbackExtensions;
 	}
 
-	public void setPlaybackExtensions(GPathResult playbackExtensions) {
+	public void setPlaybackExtensions(List<Extension> playbackExtensions) {
 		this.playbackExtensions = playbackExtensions;
 	}
 	

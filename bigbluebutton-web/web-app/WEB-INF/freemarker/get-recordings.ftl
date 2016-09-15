@@ -28,7 +28,28 @@
             <type>${p.getFormat()}</type>
             <url>${p.getUrl()}</url>
             <length>${p.getLength()}</length>
-            <#-- Missing p.getExtensions() -->
+            <#if p.getExtensions()??>
+            <#list p.getExtensions() as extension>
+              <${extension.getType()}>
+                <#assign attributes = extension.getAttributes()>
+                <#if extension.getType() == "preview">
+                  <#list attributes?keys as attribute>
+                  <${attribute}>
+                  <#if attribute == "text">
+                    ${attributes[attribute]}
+                  <#elseif attribute == "images">
+                    <#list attributes[attribute]?keys as images>
+                    <#list attributes[attribute][images] as image>
+                    <image>${image}</image>
+                    </#list>
+                    </#list>
+                  </#if>
+                  </${attribute}>
+                  </#list>
+                </#if>
+              </${extension.getType()}>
+            </#list>
+            </#if>
           </format>
           </#if>
         </#list>

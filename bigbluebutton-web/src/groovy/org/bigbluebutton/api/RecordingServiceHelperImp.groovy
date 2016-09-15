@@ -20,11 +20,15 @@
 package org.bigbluebutton.api;
 
 import groovy.util.XmlSlurper;
+import groovy.util.slurpersupport.Attributes;
 import groovy.util.slurpersupport.GPathResult;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.bigbluebutton.api.domain.Extension;
 import org.bigbluebutton.api.domain.Recording;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +48,18 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             <processing_time>5429</processing_time>
             <duration>101014</duration>
             <extension>
-                ... Any XML element, to be passed through into playback format element.
+              <!-- Any XML element, to be passed through into playback format element. -->
+              <preview> <!-- The first level is the name of the extension -->
+                <text>Introduction to Unit 1 Professor Jones Office Hours are Wedn</text>
+                <images>
+                  <image width="240" height="135">http://example.com/f000057.jpg</image>
+                  <image width="240" height="135">http://example.com/f001032.jpg</image>
+                  <image width="240" height="135">http://example.com/f002103.jpg</image>
+                </images>
+              </preview>
+              <cc>
+                <subtitles>en</subtitles>
+              </cc>
             </extension>
         </playback>
         <meta>
@@ -116,11 +131,11 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             r.setPlaybackDuration(rec.playback.duration.text());
         }
 
-/*
-        Commenting this out to see if this is causing memory to hang around resulting in
-        OOM in tomcat7 (ralam july 23, 2015)
-        r.setPlaybackExtensions(rec.playback.extension.children());
-*/		
+        List<Extension> extensions = new ArrayList<Extension>()
+        rec.playback.extensions.children().each { extension ->
+            extensions.add( new Extension(extension.name(),parse(extension)) )
+        }
+        r.setPlaybackExtensions(extensions)
         Map<String, String> meta = new HashMap<String, String>();
         rec.meta.children().each { anode ->
             meta.put(anode.name().toString(), anode.text().toString());
@@ -129,4 +144,42 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         return r;
     }
 
+    private Map<String, ?> processNode( Map<String, ?> map, node) {
+        if (  !map[node.name()] ) {
+            map[node.name()] = map.getClass().newInstance()
+        }
+        Map<String, ?> nodeMap = map[node.name()]
+        node.children().each { it ->
+            if (it.children().size() == 0) {
+                processLeaf( nodeMap, it)
+            } else {
+                processNode( nodeMap, it)
+            }
+        }
+        nodeMap
+    }
+
+    private Map<String, ?> processLeaf(Map<String, ?> map, node) {
+        if ( map[node.name()] == null) {
+            map[node.name()] = node.text()
+        } else {
+            if ( ! (map[node.name()] instanceof List) ) {
+                map[node.name()] = [ map[node.name()] ]
+            }
+            map[node.name()] << node.text()
+        }
+        map
+    }
+
+    private Map<String, ?> parse(GPathResult xml) {
+        Map<String, ?> map = [ : ]
+        xml.children().each {
+            if ( it.children().size() == 0 ) {
+                processLeaf(map, it)
+            } else {
+                processNode(map, it)
+            }
+        }
+        map
+    }
 }
