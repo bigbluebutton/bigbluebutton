@@ -23,6 +23,7 @@ package org.bigbluebutton.main.events {
     
 		public static const END_MEETING_EVENT:String = 'END_MEETING_EVENT';
 		public static const LOGOUT_END_MEETING_EVENT:String = 'LOGOUT_END_MEETING_EVENT';
+		public static const CONFIRM_LOGOUT_END_MEETING_EVENT:String = 'CONFIRM_LOGOUT_END_MEETING_EVENT';
 		public static const INACTIVITY_WARNING_EVENT:String = 'INACTIVITY_WARNING_EVENT';
 		public static const ACTIVITY_RESPONSE_EVENT:String = 'ACTIVITY_RESPONSE_EVENT';
 		public static const MEETING_IS_ACTIVE_EVENT:String = 'MEETING_IS_ACTIVE_EVENT';

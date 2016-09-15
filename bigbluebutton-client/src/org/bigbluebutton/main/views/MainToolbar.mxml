@@ -44,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
   
 	<mx:Script>
 		<![CDATA[
@@ -261,8 +262,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			
 			private function confirmLogout():void {
-				if (toolbarOptions.confirmLogout){
-
+				if (toolbarOptions.confirmLogout) {
 					var logoutWindow:LogoutWindow;
 					logoutWindow = LogoutWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LogoutWindow, true));
 
@@ -273,15 +273,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 					logoutWindow.x = newX;
 					logoutWindow.y = newY;
-
-				}
-				else{
+				} else {
 					doLogout();
 				}
 			}
 
 			private function doLogout():void {
 				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
+			}
+			
+			private function confirmEndSession(event:BBBEvent):void {
+				var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.endSession.confirm.message'), ResourceUtil.getInstance().getString('bbb.endSession.confirm.title'), Alert.YES | Alert.NO, null, onConfirmEndSessionAlertClosed, null, Alert.YES);
+				// we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially
+				alert.setStyle("modalTransparencyDuration", 250);
+			}
+
+			private function onConfirmEndSessionAlertClosed(e:CloseEvent):void {
+				// Check to see if the YES button was pressed.
+				if (e.detail == Alert.YES) {
+					endSession();
+				}
+			}
+			
+			private function endSession():void {
+				dispatchEvent(new BBBEvent(BBBEvent.LOGOUT_END_MEETING_EVENT));
 			}
 			
 			private function hideToolbar(e:ConnectionFailedEvent):void{

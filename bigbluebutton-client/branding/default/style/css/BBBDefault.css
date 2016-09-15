@@ -906,6 +906,18 @@ Alert {
 	color: #000000;
 }
 
+.logoutWindowStyle {
+	borderColor: #DFDFDF;
+	backgroundColor: #EFEFEF;
+	borderAlpha: 1;
+	shadowDistance: 1;
+	dropShadowColor: #FFFFFF;
+	color: #000000;
+	headerHeight: 32;
+	/* we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially */
+	modalTransparencyDuration: 250;
+}
+
 .lockSettingsDefaultLabelStyle {
 	fontFamily: Arial;
 	fontSize: 14;
