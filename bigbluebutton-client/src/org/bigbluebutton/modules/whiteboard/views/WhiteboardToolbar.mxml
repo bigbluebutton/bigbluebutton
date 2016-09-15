@@ -77,8 +77,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.MadePresenterEvent;
-		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.events.PresenterStatusEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 		import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -264,7 +264,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && enableAnnotations && (wbOptions.keepToolbarVisible || mousedOver)) {
+                if (toolbarAllowed() && slideLoaded && enableAnnotations && (wbOptions.keepToolbarVisible || mousedOver) && !presentationWindow.minimized) {
                     setPositionAndDepth();
                     showToolbar();
                 } else {
