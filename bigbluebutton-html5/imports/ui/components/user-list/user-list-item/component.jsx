@@ -2,11 +2,19 @@ import React, { Component } from 'react';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import Icon from '/imports/ui/components/icon/component';
-import UserActions from './user-actions/component';
 import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
+import cx from 'classnames';
+import _ from 'underscore';
+
+import Dropdown from '/imports/ui/components/dropdown/component';
+import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
+import DropdownContent from '/imports/ui/components/dropdown/content/component';
+import DropdownList from '/imports/ui/components/dropdown/list/component';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -74,42 +82,134 @@ class UserListItem extends Component {
     super(props);
 
     this.state = {
-      visibleActions: false,
+      isActionsOpen: false,
     };
 
-    this.handleToggleActions = this.handleToggleActions.bind(this);
-    this.handleClickOutsideDropdown = this.handleClickOutsideDropdown.bind(this);
+    this.handleScroll = this.handleScroll.bind(this);
+    this.onActionsShow = this.onActionsShow.bind(this);
+    this.onActionsHide = this.onActionsHide.bind(this);
   }
 
-  handleClickOutsideDropdown(e) {
-    const node = findDOMNode(this);
-    const shouldUpdateState = e.target !== node &&
-                              !node.contains(e.target) &&
-                              this.state.visibleActions;
-    if (shouldUpdateState) {
-      this.setState({ visibleActions: false });
-    }
+  handleScroll() {
+    this.setState({
+      isActionsOpen: false,
+    });
   }
 
-  handleToggleActions() {
-    this.setState({ visibleActions: !this.state.visibleActions });
+  getAvailableActions() {
+    const {
+      currentUser,
+      user,
+      userActions,
+      router,
+    } = this.props;
+
+    const {
+      openChat,
+      clearStatus,
+      setPresenter,
+      promote,
+      kick,
+    } = userActions;
+
+    return _.compact([
+      (!user.isCurrent ? this.renderUserAction(openChat, router, user) : null),
+      (currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null),
+      (currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null),
+      (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
+      (currentUser.isModerator ? this.renderUserAction(kick, user) : null),
+    ]);
+  }
+
+  onActionsShow() {
+    const dropdown = findDOMNode(this.refs.dropdown);
+    this.setState({
+      contentTop: `${dropdown.offsetTop - dropdown.parentElement.parentElement.scrollTop}px`,
+      isActionsOpen: true,
+      active: true,
+    });
+
+    findDOMNode(this).parentElement.addEventListener('scroll', this.handleScroll, false);
+  }
+
+  onActionsHide() {
+    this.setState({
+      active: false,
+      isActionsOpen: false,
+    });
+
+    findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
   }
 
   render() {
     const {
       user,
+      currentUser,
+      userActions,
+      compact,
     } = this.props;
 
+    let userItemContentsStyle = {};
+    userItemContentsStyle[styles.userItemContentsCompact] = compact;
+    userItemContentsStyle[styles.active] = this.state.active;
+
     return (
-      <li onClick={this.handleToggleActions.bind(this, user)}
-          className={styles.userListItem} {...this.props}>
-        <div className={styles.userItemContents}>
-          <UserAvatar user={this.props.user}/>
-          {this.renderUserName()}
-          {this.renderUserIcons()}
-        </div>
-        {this.renderUserActions()}
+      <li
+        className={cx(styles.userListItem, userItemContentsStyle)}>
+        {this.renderUserContents()}
       </li>
+    );
+  }
+
+  renderUserContents() {
+    const {
+      user,
+    } = this.props;
+
+    let actions = this.getAvailableActions();
+    let contents = (
+      <div tabIndex={0} className={styles.userItemContents}>
+        <UserAvatar user={user}/>
+        {this.renderUserName()}
+        {this.renderUserIcons()}
+      </div>
+    );
+
+    if (!actions.length) {
+      return contents;
+    }
+
+    return (
+      <Dropdown
+        isOpen={this.state.isActionsOpen}
+        ref="dropdown"
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+        className={styles.dropdown}>
+        <DropdownTrigger>
+          {contents}
+        </DropdownTrigger>
+        <DropdownContent
+          style={{
+            top: this.state.contentTop,
+          }}
+          className={styles.dropdownContent}
+          placement="right top">
+
+          <DropdownList>
+            {
+              [
+                (<DropdownListItem
+                  className={styles.actionsHeader}
+                  key={_.uniqueId('action-header')}
+                  label={user.name}
+                  defaultMessage={user.name}/>),
+                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
+              ].concat(actions)
+            }
+          </DropdownList>
+        </DropdownContent>
+      </Dropdown>
     );
   }
 
@@ -117,7 +217,12 @@ class UserListItem extends Component {
     const {
       user,
       intl,
+      compact,
     } = this.props;
+
+    if (compact) {
+      return;
+    }
 
     let userNameSub = [];
     if (user.isPresenter) {
@@ -145,7 +250,12 @@ class UserListItem extends Component {
   renderUserIcons() {
     const {
       user,
+      compact,
     } = this.props;
+
+    if (compact) {
+      return;
+    }
 
     let audioChatIcon = null;
     if (user.isVoiceUser || user.isListenOnly) {
@@ -168,34 +278,22 @@ class UserListItem extends Component {
     );
   }
 
-  renderUserActions() {
+  renderUserAction(action, ...parameters) {
     const {
-      user,
       currentUser,
-      userActions,
+      user,
     } = this.props;
 
-    let visibleActions = null;
-    if (this.state.visibleActions) {
-      visibleActions = <UserActions
-                  user={user}
-                  currentUser={currentUser}
-                  userActions={userActions}/>;
-    }
-
-    return (
-      <ReactCSSTransitionGroup
-        transitionName={userActionsTransition}
-        transitionAppear={true}
-        transitionEnter={true}
-        transitionLeave={true}
-        transitionAppearTimeout={0}
-        transitionEnterTimeout={0}
-        transitionLeaveTimeout={0}
-      >
-        {visibleActions}
-      </ReactCSSTransitionGroup>
+    const userAction = (
+      <DropdownListItem key={_.uniqueId('action-item-')}
+        icon={action.icon}
+        label={action.label}
+        defaultMessage={action.label}
+        onClick={action.handler.bind(this, ...parameters)}
+      />
     );
+
+    return userAction;
   }
 }
 
