@@ -49,6 +49,7 @@ export default class Dropdown extends Component {
     this.state = { isOpen: false, };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
+    this.handleStateCallback = this.handleStateCallback.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
   }
@@ -56,7 +57,7 @@ export default class Dropdown extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.isOpen !== this.props.isOpen
       && this.state.isOpen !== this.props.isOpen) {
-      this.setState({ isOpen: this.props.isOpen }, () => this.handleStateCallback());
+      this.setState({ isOpen: this.props.isOpen }, this.handleStateCallback);
     }
   }
 
@@ -71,14 +72,14 @@ export default class Dropdown extends Component {
   }
 
   handleShow() {
-    this.setState({ isOpen: true }, () => this.handleStateCallback());
+    this.setState({ isOpen: true }, this.handleStateCallback);
 
     const contentElement = findDOMNode(this.refs.content);
     contentElement.querySelector(FOCUSABLE_CHILDREN).focus();
   }
 
   handleHide() {
-    this.setState({ isOpen: false }, () => this.handleStateCallback());
+    this.setState({ isOpen: false }, this.handleStateCallback);
     const triggerElement = findDOMNode(this.refs.trigger);
     triggerElement.focus();
   }
