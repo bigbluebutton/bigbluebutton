@@ -23,11 +23,11 @@ import java.util.Map;
 
 public class Extension {
 	private String type;
-	private Map<String,Object> attributes;
+	private Map<String,Object> properties;
 	
-	public Extension(String type, Map<String,Object> attributes) {
+	public Extension(String type, Map<String,Object> properties) {
 		this.type = type;
-		this.attributes = attributes;
+		this.properties = properties;
 	}
 	public String getType() {
 		return type;
@@ -35,10 +35,10 @@ public class Extension {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public Map<String,Object> getAttributes() {
-		return attributes;
+	public Map<String,Object> getProperties() {
+		return properties;
 	}
-	public void setAttributes(Map<String,Object> attributes) {
-		this.attributes = attributes;
+	public void setProperties(Map<String,Object> properties) {
+		this.properties = properties;
 	}
 }
