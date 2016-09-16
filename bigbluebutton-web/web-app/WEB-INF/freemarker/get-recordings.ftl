@@ -31,20 +31,23 @@
             <#if p.getExtensions()??>
             <#list p.getExtensions() as extension>
               <${extension.getType()}>
-                <#assign attributes = extension.getAttributes()>
+                <#assign properties = extension.getProperties()>
                 <#if extension.getType() == "preview">
-                  <#list attributes?keys as attribute>
-                  <${attribute}>
-                  <#if attribute == "text">
-                    ${attributes[attribute]["text"]}
-                  <#elseif attribute == "images">
-                    <#list attributes[attribute]?keys as images>
-                    <#list attributes[attribute][images] as image>
+                  <#list properties?keys as property>
+                  <${property}>
+                  <#if property == "text">
+                    ${properties[property]["text"]}
+                  <#elseif property == "images">
+                    <#if properties[property]["image"]?is_hash>
+                    <#assign image = properties[property]["image"]>
+                    <image width="${image["attributes"]["width"]}" height="${image["attributes"]["height"]}">${image["text"]}</image>
+                    <#elseif properties[property]["image"]?is_enumerable>
+                    <#list properties[property]["image"] as image>
                     <image width="${image["attributes"]["width"]}" height="${image["attributes"]["height"]}">${image["text"]}</image>
                     </#list>
-                    </#list>
+                    </#if>
                   </#if>
-                  </${attribute}>
+                  </${property}>
                   </#list>
                 </#if>
               </${extension.getType()}>
