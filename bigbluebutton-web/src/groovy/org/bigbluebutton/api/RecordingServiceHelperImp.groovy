@@ -160,13 +160,26 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
     }
 
     private Map<String, ?> processLeaf(Map<String, ?> map, node) {
+        //Initialize map for node content
+        Map<String, ?> nodeContent = [ : ]
+        //Assign node content text
+        nodeContent["text"] = node.text()
+        //Assign node content attributes (if any)
+        Map attributes = node.attributes()
+        if( attributes.size() > 0 ) {
+            nodeContent["attributes"] = [ : ]
+            attributes.each { attribute ->
+              nodeContent["attributes"][attribute.getKey()] = attribute.getValue()
+            }
+        }
+        //Add content to the node
         if ( map[node.name()] == null) {
-            map[node.name()] = node.text()
+            map[node.name()] = nodeContent
         } else {
             if ( ! (map[node.name()] instanceof List) ) {
                 map[node.name()] = [ map[node.name()] ]
             }
-            map[node.name()] << node.text()
+            map[node.name()] << nodeContent
         }
         map
     }
@@ -182,4 +195,5 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         }
         map
     }
+
 }

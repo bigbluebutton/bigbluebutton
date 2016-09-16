@@ -36,11 +36,11 @@
                   <#list attributes?keys as attribute>
                   <${attribute}>
                   <#if attribute == "text">
-                    ${attributes[attribute]}
+                    ${attributes[attribute]["text"]}
                   <#elseif attribute == "images">
                     <#list attributes[attribute]?keys as images>
                     <#list attributes[attribute][images] as image>
-                    <image>${image}</image>
+                    <image width="${image["attributes"]["width"]}" height="${image["attributes"]["height"]}">${image["text"]}</image>
                     </#list>
                     </#list>
                   </#if>
