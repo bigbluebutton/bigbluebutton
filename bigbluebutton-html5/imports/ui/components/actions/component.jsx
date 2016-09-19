@@ -1,7 +1,14 @@
 import React, { Component, PropTyes } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+
+const intlMessages = defineMessages({
+  label: {
+    id: 'app.presenterActions.label',
+    defaultMessage: 'Actions',
+  },
+});
 
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
@@ -17,18 +24,20 @@ const polling = () => {console.log('Should initiate a polling');};
 
 const shareScreen = () => {console.log('Should start screen sharing');};
 
-export default class Actions extends Component {
+class Actions extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
+    const { intl } = this.props;
+
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
           <Button
             role="button"
-            label="Actions"
+            label={intl.formatMessage(intlMessages.label)}
             icon="circle-add"
             color="primary"
             size="lg"
@@ -65,3 +74,5 @@ export default class Actions extends Component {
     );
   }
 }
+
+export default injectIntl(Actions);
