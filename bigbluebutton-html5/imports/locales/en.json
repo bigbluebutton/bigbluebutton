@@ -38,5 +38,6 @@
   "app.leaveConfirmation.confirmLabel": "Leave",
   "app.leaveConfirmation.confirmDesc": "Logs you out of the meeting",
   "app.leaveConfirmation.dismissLabel": "Cancel",
-  "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation"
+  "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation",
+  "app.presenterActions.label": "Actions"
 }
