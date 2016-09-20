@@ -1022,7 +1022,7 @@ begin
           playback.remove
         end
         ## Add the actual playback
-        presentation = BigBlueButton::Presentation.get_presentation_for_preview("#{$process_dir}/events.xml")
+        presentation = BigBlueButton::Presentation.get_presentation_for_preview("#{$process_dir}")
         metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
             xml.playback {
               xml.format("presentation")
@@ -1033,7 +1033,7 @@ begin
                 xml.extensions {
                   xml.preview {
                     unless !presentation.has_key?("text")
-                      xml.text("#{presentation["text"]}")
+                      xml.text_("#{presentation["text"]}")
                     end
                     xml.images {
                       xml.image(:width => "176", :height => "136"){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation["id"]}/thumbnails/thumb-1.png") }

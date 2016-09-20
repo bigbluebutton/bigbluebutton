@@ -67,25 +67,40 @@ module BigBlueButton
       self.extract_png_page_from_pdf(1, pdf_page, png_out, '800x600')
     end
 
-    #Convert an image to a png	
+    # Convert an image to a png
     def self.convert_image_to_png(image, png_image, resize = '800x600')
         BigBlueButton.logger.info("Task: Converting image to .png")      
         command = "convert #{image} -resize #{resize} -background white -flatten #{png_image}"
         BigBlueButton.execute(command)
     end
 
-    def self.get_presentation_for_preview(events_xml)
+    # Get the presentation that will be used for preview.
+    def self.get_presentation_for_preview(process_dir)
+      events_xml = "#{process_dir}/events.xml"
       BigBlueButton.logger.info("Task: Getting presentation to be used for preview from events")
       presentation = {}
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='SharePresentationEvent']").each do |presentation_event|
         presentation["id"] = presentation_event.xpath("presentationName").text
         presentation["filename"] = presentation_event.xpath("originalFilename").text
-        if presentation_event.xpath("originalFilename").text != "default.pdf"
+        unless presentation_event.xpath("originalFilename").text == "default.pdf"
+          # Gathers the text from the slide
+          textfiles_dir = "#{process_dir}/presentation/#{presentation["id"]}/textfiles"
+          if File.file?("#{textfiles_dir}/slide-1.txt")
+            presentation["text"] = File.open("#{textfiles_dir}/slide-1.txt") {|f| f.readline}
+            unless presentation["text"] == nil 
+              presentation["text"] = presentation["text"].strip
+            end
+          end
+          # Break because something else than default.pdf was found
           break
         end
       end
       presentation
     end
+  end
+
+  # Extract a page from a pdf file as a png image
+  def self.extract_page_title_from_pdf(page_num, pdf_presentation)
   end
 end

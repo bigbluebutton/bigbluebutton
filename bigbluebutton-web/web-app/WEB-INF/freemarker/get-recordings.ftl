@@ -34,10 +34,10 @@
                 <#assign properties = extension.getProperties()>
                 <#if extension.getType() == "preview">
                   <#list properties?keys as property>
-                  <${property}>
                   <#if property == "text">
-                    ${properties[property]["text"]}
+                  <${property}>${properties[property]["text"]}</${property}>
                   <#elseif property == "images">
+                  <${property}>
                     <#if properties[property]["image"]?is_hash>
                     <#assign image = properties[property]["image"]>
                     <image <#if image["attributes"]?? && image["attributes"]["width"]??>width="${image["attributes"]["width"]}"</#if> <#if image["attributes"]?? && image["attributes"]["height"]??>height="${image["attributes"]["height"]}"</#if>>${image["text"]}</image>
@@ -46,8 +46,10 @@
                     <image <#if image["attributes"]?? && image["attributes"]["width"]??>width="${image["attributes"]["width"]}"</#if> <#if image["attributes"]?? && image["attributes"]["height"]??>height="${image["attributes"]["height"]}"</#if>>${image["text"]}</image>
                     </#list>
                     </#if>
-                  </#if>
                   </${property}>
+                  <#else>
+                  <${property} />
+                  </#if>
                   </#list>
                 </#if>
               </${extension.getType()}>
