@@ -74,5 +74,18 @@ module BigBlueButton
         BigBlueButton.execute(command)
     end
 
+    def self.get_presentation_for_preview(events_xml)
+      BigBlueButton.logger.info("Task: Getting presentation to be used for preview from events")
+      presentation = {}
+      doc = Nokogiri::XML(File.open(events_xml))
+      doc.xpath("//event[@eventname='SharePresentationEvent']").each do |presentation_event|
+        presentation["id"] = presentation_event.xpath("presentationName").text
+        presentation["filename"] = presentation_event.xpath("originalFilename").text
+        if presentation_event.xpath("originalFilename").text != "default.pdf"
+          break
+        end
+      end
+      presentation
+    end
   end
 end

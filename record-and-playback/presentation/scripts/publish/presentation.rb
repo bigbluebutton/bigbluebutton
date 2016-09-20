@@ -1022,21 +1022,25 @@ begin
           playback.remove
         end
         ## Add the actual playback
-        presentations = BigBlueButton::Presentation.get_presentations("#{$process_dir}/events.xml")
+        presentation = BigBlueButton::Presentation.get_presentation_for_preview("#{$process_dir}/events.xml")
         metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
             xml.playback {
               xml.format("presentation")
               xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
               xml.processing_time("#{processing_time}")
               xml.duration("#{recording_time}")
-              if presentations.any?
-                presentation_id = presentations.first
+              unless presentation.empty?
                 xml.extensions {
                   xml.preview {
+                    unless !presentation.has_key?("text")
+                      xml.text("#{presentation["text"]}")
+                    end
                     xml.images {
-                      xml.image("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation_id}/thumbnails/thumb-1.png")
-                      xml.image("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation_id}/thumbnails/thumb-2.png")
-                      xml.image("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation_id}/thumbnails/thumb-3.png")
+                      xml.image(:width => "176", :height => "136"){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation["id"]}/thumbnails/thumb-1.png") }
+                      unless presentation["filename"] == "default.pdf"
+                        xml.image(:width => "176", :height => "136"){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation["id"]}/thumbnails/thumb-2.png") }
+                        xml.image(:width => "176", :height => "136"){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation["id"]}/thumbnails/thumb-3.png") }
+                      end
                     }
                   }
                 }
