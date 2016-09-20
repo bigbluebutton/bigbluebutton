@@ -97,7 +97,7 @@
     iframe.onload = function() {
         iframe.isLoaded = true;
     };
-    iframe.src = 'https://www.webrtc-experiment.com/getSourceId/';
+    // iframe.src = 'https://www.webrtc-experiment.com/getSourceId/';
     iframe.style.display = 'none';
     (document.body || document.documentElement).appendChild(iframe);
 })();
