@@ -269,7 +269,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			handleStartSharingEvent();
 		}
 
-		public function handleStreamStartedEvent(event: WebRTCViewStreamEvent):void {
+		public function handleScreenShareStartedEvent(event: WebRTCViewStreamEvent):void {
 			if (UsersUtil.amIPresenter()) {
 			} else {
 				/*handleStreamStartEvent(ScreenshareModel.getInstance().streamId, event.width, event.height);*/
