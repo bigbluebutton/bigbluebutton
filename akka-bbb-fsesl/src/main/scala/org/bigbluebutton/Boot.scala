@@ -31,7 +31,7 @@ object Boot extends App with SystemConfiguration {
 
   connManager.start()
 
-  val fsApplication = new FreeswitchApplication(connManager)
+  val fsApplication = new FreeswitchApplication(connManager, fsProfile)
   fsApplication.start()
 
   val redisMsgReceiver = new RedisMessageReceiver(fsApplication)
