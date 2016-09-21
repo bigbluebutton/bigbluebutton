@@ -40,10 +40,10 @@
                   <${property}>
                     <#if properties[property]["image"]?is_hash>
                     <#assign image = properties[property]["image"]>
-                    <image <#if image["attributes"]?? && image["attributes"]["width"]??>width="${image["attributes"]["width"]}"</#if> <#if image["attributes"]?? && image["attributes"]["height"]??>height="${image["attributes"]["height"]}"</#if>>${image["text"]}</image>
+                    <image <#if image["attributes"]?? && image["attributes"]["width"]??>width="${image["attributes"]["width"]}"</#if> <#if image["attributes"]?? && image["attributes"]["height"]??>height="${image["attributes"]["height"]}"</#if> <#if image["attributes"]?? && image["attributes"]["alt"]??>alt="${image["attributes"]["alt"]}"</#if>>${image["text"]}</image>
                     <#elseif properties[property]["image"]?is_enumerable>
                     <#list properties[property]["image"] as image>
-                    <image <#if image["attributes"]?? && image["attributes"]["width"]??>width="${image["attributes"]["width"]}"</#if> <#if image["attributes"]?? && image["attributes"]["height"]??>height="${image["attributes"]["height"]}"</#if>>${image["text"]}</image>
+                    <image <#if image["attributes"]?? && image["attributes"]["width"]??>width="${image["attributes"]["width"]}"</#if> <#if image["attributes"]?? && image["attributes"]["height"]??>height="${image["attributes"]["height"]}"</#if> <#if image["attributes"]?? && image["attributes"]["alt"]??>alt="${image["attributes"]["alt"]}"</#if>>${image["text"]}</image>
                     </#list>
                     </#if>
                   </${property}>
