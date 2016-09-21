@@ -105,6 +105,7 @@ module BigBlueButton
       end
 
       msg = build_message build_header(message_type), additional_payload.merge({
+        "record_id" => meeting_id,
         "meeting_id" => meeting_id
       })
       @redis.publish RECORDINGS_CHANNEL, msg.to_json

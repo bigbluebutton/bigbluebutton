@@ -134,28 +134,28 @@ public class RedisMessagingService implements MessagingService {
 		storeService.removeMeeting(meetingId);
 	}
 	
-	private void publishRecording(String meetingId, String externalMeetingId, String format) {
-		PublishRecordingMessage msg = new PublishRecordingMessage(meetingId, externalMeetingId, format);
+	private void publishRecording(String recordId, String meetingId, String externalMeetingId, String format) {
+		PublishRecordingMessage msg = new PublishRecordingMessage(recordId, meetingId, externalMeetingId, format);
 		String json = MessageToJson.publishRecordingMessageToJson(msg);
 		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
 	}
 	
-	private void unpublishRecording(String meetingId, String externalMeetingId, String format) {
-		UnpublishRecordingMessage msg = new UnpublishRecordingMessage(meetingId, externalMeetingId, format);
+	private void unpublishRecording(String recordId, String meetingId, String externalMeetingId, String format) {
+		UnpublishRecordingMessage msg = new UnpublishRecordingMessage(recordId, meetingId, externalMeetingId, format);
 		String json = MessageToJson.unpublishRecordingMessageToJson(msg);
 		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
 	}
 	
-	public void publishRecording(String meetingId, String externalMeetingId, String format, boolean publish) {
+	public void publishRecording(String recordId, String meetingId, String externalMeetingId, String format, boolean publish) {
 		if (publish) {
-			publishRecording(meetingId, externalMeetingId, format);
+			publishRecording(recordId, meetingId, externalMeetingId, format);
 		} else {
-			unpublishRecording(meetingId, externalMeetingId, format);
+			unpublishRecording(recordId, meetingId, externalMeetingId, format);
 		}
 	}
 
-	public void deleteRecording(String meetingId, String externalMeetingId, String format) {
-		DeleteRecordingMessage msg = new DeleteRecordingMessage(meetingId, externalMeetingId, format);
+	public void deleteRecording(String recordId, String meetingId, String externalMeetingId, String format) {
+		DeleteRecordingMessage msg = new DeleteRecordingMessage(recordId, meetingId, externalMeetingId, format);
 		String json = MessageToJson.deleteRecordingMessageToJson(msg);
 		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
 	}

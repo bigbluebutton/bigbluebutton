@@ -341,7 +341,7 @@ public class RecordingService {
                                 deleteRecording(recordingId, deletedDir);
                             }
                             recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings.get(f).getName(), r);
-                            sendRedisEvent(r.getId(), r.getExternalMeetingId(), format[i], state);
+                            sendRedisEvent(r.getId(), r.getId(), r.getExternalMeetingId(), format[i], state);
                             log.debug(String.format("Recording successfully %s!", state));
                         } else {
                             log.debug("Recording was not moved");
@@ -354,14 +354,14 @@ public class RecordingService {
         return anyResult;
     }
 
-    private void sendRedisEvent(String meetingId, String externalMeetingId, String format, String state) {
+    private void sendRedisEvent(String recordId, String meetingId, String externalMeetingId, String format, String state) {
         log.debug("Sending Redis event for meeting {} {}", meetingId, format);
         if (state.equals(Recording.STATE_PUBLISHED)) {
-            messagingService.publishRecording(meetingId, externalMeetingId, format, true);
+            messagingService.publishRecording(recordId, meetingId, externalMeetingId, format, true);
         } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
-            messagingService.publishRecording(meetingId, externalMeetingId, format, false);
+            messagingService.publishRecording(recordId, meetingId, externalMeetingId, format, false);
         } else if (state.equals(Recording.STATE_DELETED)) {
-            messagingService.deleteRecording(meetingId, externalMeetingId, format);
+            messagingService.deleteRecording(recordId, meetingId, externalMeetingId, format);
         } else {
             log.debug("No event for {}", state);
         }
