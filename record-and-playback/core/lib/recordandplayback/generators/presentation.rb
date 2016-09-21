@@ -69,29 +69,45 @@ module BigBlueButton
 
     # Convert an image to a png
     def self.convert_image_to_png(image, png_image, resize = '800x600')
-        BigBlueButton.logger.info("Task: Converting image to .png")      
-        command = "convert #{image} -resize #{resize} -background white -flatten #{png_image}"
-        BigBlueButton.execute(command)
+      BigBlueButton.logger.info("Task: Converting image to .png")
+      command = "convert #{image} -resize #{resize} -background white -flatten #{png_image}"
+      BigBlueButton.execute(command)
     end
 
-    # Get the presentation that will be used for preview.
+    # Gathers the text from the slide
+    def self.get_text_from_slide(textfiles_dir, slide_num)
+      text_from_slide = nil
+      if File.file?("#{textfiles_dir}/slide-#{slide_num}.txt")
+        text_from_slide = File.open("#{textfiles_dir}/slide-#{slide_num}.txt") {|f| f.readline}
+        BigBlueButton.logger.info(text_from_slide)
+        unless text_from_slide == nil
+          text_from_slide = text_from_slide.strip
+        end
+      end
+      text_from_slide
+    end
+
+    # Get from events the presentation that will be used for preview.
     def self.get_presentation_for_preview(process_dir)
       events_xml = "#{process_dir}/events.xml"
-      BigBlueButton.logger.info("Task: Getting presentation to be used for preview from events")
+      BigBlueButton.logger.info("Task: Getting from events the presentation to be used for preview")
       presentation = {}
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='SharePresentationEvent']").each do |presentation_event|
-        presentation["id"] = presentation_event.xpath("presentationName").text
-        presentation["filename"] = presentation_event.xpath("originalFilename").text
-        unless presentation_event.xpath("originalFilename").text == "default.pdf"
-          # Gathers the text from the slide
-          textfiles_dir = "#{process_dir}/presentation/#{presentation["id"]}/textfiles"
-          if File.file?("#{textfiles_dir}/slide-1.txt")
-            presentation["text"] = File.open("#{textfiles_dir}/slide-1.txt") {|f| f.readline}
-            unless presentation["text"] == nil 
-              presentation["text"] = presentation["text"].strip
-            end
-          end
+        # Extract presentation data from events
+        presentation_id = presentation_event.xpath("presentationName").text
+        presentation_filename = presentation_event.xpath("originalFilename").text
+        # Set textfile directory
+        textfiles_dir = "#{process_dir}/presentation/#{presentation_id}/textfiles"
+        # Set presentation hashmap to be returned
+        presentation[:id] = presentation_id
+        presentation[:filename] = presentation_filename
+        presentation[:slides] = {}
+        presentation[:slides][1] = { :alt => self.get_text_from_slide(textfiles_dir, 1) }
+        unless presentation_filename == "default.pdf"
+          presentation[:text] = presentation[:slides][1][:alt]
+          presentation[:slides][2] = { :alt => self.get_text_from_slide(textfiles_dir, 2) }
+          presentation[:slides][3] = { :alt => self.get_text_from_slide(textfiles_dir, 3) }
           # Break because something else than default.pdf was found
           break
         end
@@ -100,7 +116,4 @@ module BigBlueButton
     end
   end
 
-  # Extract a page from a pdf file as a png image
-  def self.extract_page_title_from_pdf(page_num, pdf_presentation)
-  end
 end
