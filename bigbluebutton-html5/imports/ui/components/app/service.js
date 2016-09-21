@@ -101,7 +101,7 @@ const showModal = (val) => {
   }
 };
 
-const clearModal = (val) => {
+const clearModal = () => {
   showModal(null);
 };
 
