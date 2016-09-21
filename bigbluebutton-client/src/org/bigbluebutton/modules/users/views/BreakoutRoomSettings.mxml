@@ -46,13 +46,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var roomsProvider:Array;
 
 			private var dispatcher:Dispatcher;
-			
+
 			[Bindable]
 			private var mode:String;
+
+			private static var assignement : Dictionary;
 
 			private function onCloseClicked():void {
 				PopUpManager.removePopUp(this);
 			}
+
 			/**
 			 * Dispatches a BreakoutRoomEvent to start creating breakout rooms
 			 */
@@ -70,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					room.name =
 						UserManager.getInstance().getConference().meetingName + " (" +
 						ResourceUtil.getInstance().getString('bbb.users.breakout.room')
-						+ " - " + (i + 1).toString() + ")";;
+						+ " - " + (i + 1).toString() + ")";
 					for (var j:int = 0; j < users.length; j++) {
 						room.users.push(users[j].userID);
 					}
@@ -80,6 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					event.durationInMinutes = durationStepper.value;
 					event.record = recordCheckbox.selected;
 					dispatcher.dispatchEvent(event);
+					storeAssignement();
 					PopUpManager.removePopUp(this);
 				} else {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
@@ -149,6 +153,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				startButton.enabled = true;
 			}
 
+			protected function loadAssignement():void {
+				var rooms:int = assignement['rooms'];
+				roomsCombo.selectedIndex = assignement['rooms'] - 2;
+				recordCheckbox.selected = assignement['record'];
+				durationStepper.value = assignement['duration'];
+				var user:BBBUser;
+				var currentUsers:ArrayCollection = UserManager.getInstance().getConference().users;
+				// Create breakout rooms boxes
+				for (var r:int = 1; r <= rooms; r++) {
+					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
+					list.users = new ArrayCollection();
+					list.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r).toString();
+				}
+				// Load user assignment from the previous action
+				var unassignedUsers:ArrayCollection = new ArrayCollection();
+				for (var u:int = 0; u < currentUsers.length; u++) {
+					user = currentUsers.getItemAt(u) as BBBUser;
+					if (assignement.hasOwnProperty(user.userID)) {
+						BreakoutList(roomsContainer.getChildAt(assignement[user.userID])).users.addItem(BBBUser.copy(user));
+					} else {
+						unassignedUsers.addItem(BBBUser.copy(user));
+					}
+				}
+				// Create not assigned users list
+				createUnassignedList(unassignedUsers);
+			}
+
 			protected function assignUsersForInvitation():void {
 				var originalUsers:ArrayCollection = UserManager.getInstance().getConference().users;
 				var users:ArrayCollection = new ArrayCollection();
@@ -177,12 +208,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						unassignedUsers.addItem(user);
 					}
 				}
-				var unassignedList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
-				unassignedList.users = unassignedUsers;
-				unassignedList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
-				unassignedList.notAssignedUsers = true;
+				createUnassignedList(unassignedUsers);
 				startButton.enabled = true;
 			}
+
+			private function createUnassignedList(dataProvider:ArrayCollection):void {
+				var unassignedList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
+				unassignedList.users = dataProvider;
+				unassignedList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
+				unassignedList.notAssignedUsers = true;
+			}
+
+			private function storeAssignement():void {
+				assignement = new Dictionary(true);
+				assignement['rooms'] = roomsCombo.selectedIndex + 2;
+				assignement['record'] = recordCheckbox.selected;
+				assignement['duration'] = durationStepper.value;
+				for (var r:int = 0; r < assignement['rooms']; r++) {
+					var users:ArrayCollection = BreakoutList(roomsContainer.getChildAt(r)).users;
+					for (var u:int = 0; u < users.length; u++) {
+						// We store pairs { userID : roomNumber } to be easier to check later
+						assignement[BBBUser(users[u]).userID] = r;
+					}
+				}
+			}
+
 			public function initCreateBreakoutRooms(mode:String):void {
 				dispatcher = new Dispatcher();
 				roomsProvider = new Array();
@@ -194,7 +244,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (this.mode == "create") {
 					startButton.label = ResourceUtil.getInstance().getString('bbb.users.breakout.start');
 					textArea.text = ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms');
-					assignUsersForCreation();
+					if (assignement == null) {
+						assignUsersForCreation();
+					} else {
+						loadAssignement();
+					}
 					visible = true;
 				} else {
 					startButton.label = ResourceUtil.getInstance().getString('bbb.users.breakout.invite');

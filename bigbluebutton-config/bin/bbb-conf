@@ -280,13 +280,12 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
-       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer
+       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+          HTML5=bbb-html5
+       fi
+       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer $HTML5
     else
 	/etc/init.d/monit stop
-
-	if [ -f /etc/init/bbb-html5.conf ]; then
-		stop bbb-html5
-	fi
 
 	/etc/init.d/$RED5 stop
 	/etc/init.d/${SERVLET_CONTAINER} stop
@@ -323,7 +322,10 @@ stop_bigbluebutton () {
 start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
-       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer
+       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+          HTML5=bbb-html5
+       fi
+       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5
     else
 	$FREESWITCH_INIT_D start
 	
