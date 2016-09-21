@@ -79,7 +79,6 @@ module BigBlueButton
       text_from_slide = nil
       if File.file?("#{textfiles_dir}/slide-#{slide_num}.txt")
         text_from_slide = File.open("#{textfiles_dir}/slide-#{slide_num}.txt") {|f| f.readline}
-        BigBlueButton.logger.info(text_from_slide)
         unless text_from_slide == nil
           text_from_slide = text_from_slide.strip
         end
