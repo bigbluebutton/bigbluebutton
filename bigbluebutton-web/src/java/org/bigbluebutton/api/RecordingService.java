@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.messaging.MessagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,7 @@ public class RecordingService {
     private String unpublishedDir = "/var/bigbluebutton/unpublished";
     private String deletedDir = "/var/bigbluebutton/deleted";
     private RecordingServiceHelper recordingServiceHelper;
+    private MessagingService messagingService;
     private String recordStatusDir;
 
     public void startIngestAndProcessing(String meetingId) {
@@ -339,6 +341,7 @@ public class RecordingService {
                                 deleteRecording(recordingId, deletedDir);
                             }
                             recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings.get(f).getName(), r);
+                            sendRedisEvent(r.getId(), r.getExternalMeetingId(), format[i], state);
                             log.debug(String.format("Recording successfully %s!", state));
                         } else {
                             log.debug("Recording was not moved");
@@ -349,6 +352,19 @@ public class RecordingService {
             }
         }
         return anyResult;
+    }
+
+    private void sendRedisEvent(String meetingId, String externalMeetingId, String format, String state) {
+        log.debug("Sending Redis event for meeting {} {}", meetingId, format);
+        if (state.equals(Recording.STATE_PUBLISHED)) {
+            messagingService.publishRecording(meetingId, externalMeetingId, format, true);
+        } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
+            messagingService.publishRecording(meetingId, externalMeetingId, format, false);
+        } else if (state.equals(Recording.STATE_DELETED)) {
+            messagingService.deleteRecording(meetingId, externalMeetingId, format);
+        } else {
+            log.debug("No event for {}", state);
+        }
     }
 
     private List<File> getAllDirectories(String state) {
@@ -404,6 +420,10 @@ public class RecordingService {
         }
 
         return allDirectories;
+    }
+
+    public void setMessagingService(MessagingService service) {
+        messagingService = service;
     }
 
 }

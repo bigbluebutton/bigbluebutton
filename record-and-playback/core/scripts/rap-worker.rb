@@ -242,13 +242,19 @@ def publish_processed_meeting(recording_dir)
       playback = {}
       metadata = {}
       download = {}
+      raw_size = {}
+      start_time = {}
+      end_time = {}
       metadata_xml_path = "#{published_dir}/#{publish_type}/#{meeting_id}/metadata.xml"
       if File.exists? metadata_xml_path
         begin
           doc = Hash.from_xml(File.open(metadata_xml_path))
           playback = doc[:recording][:playback] if !doc[:recording][:playback].nil?
-          metadata = doc[:recording][:metadata] if !doc[:recording][:metadata].nil?
+          metadata = doc[:recording][:meta] if !doc[:recording][:meta].nil?
           download = doc[:recording][:download] if !doc[:recording][:download].nil?
+          raw_size = doc[:recording][:raw_size] if !doc[:recording][:raw_size].nil?
+          start_time = doc[:recording][:start_time] if !doc[:recording][:start_time].nil?
+          end_time = doc[:recording][:end_time] if !doc[:recording][:end_time].nil?
         rescue Exception => e
           BigBlueButton.logger.warn "An exception occurred while loading the extra information for the publish event"
           BigBlueButton.logger.warn e.message
@@ -265,7 +271,10 @@ def publish_processed_meeting(recording_dir)
         "step_time" => step_time,
         "playback" => playback,
         "metadata" => metadata,
-        "download" => download
+        "download" => download,
+        "raw_size" => raw_size,
+        "start_time" => start_time,
+        "end_time" => end_time
       }
 
       if step_succeeded

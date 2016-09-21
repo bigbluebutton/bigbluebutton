@@ -445,7 +445,7 @@ public class MeetingService implements MessageListener {
                 success = recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
             }
             if (success) {
-                messagingService.publishRecording(id, publish);
+                log.debug("Publish recording operation succeeded for meeting {}", id);
             }
         }
     }
@@ -454,7 +454,7 @@ public class MeetingService implements MessageListener {
         for (String id : idList) {
             boolean success = recordingService.changeState(id, Recording.STATE_DELETED);
             if (success) {
-                messagingService.deleteRecording(id);
+                log.debug("Delete recording operation succeeded for meeting {}", id);
             }
         }
     }
