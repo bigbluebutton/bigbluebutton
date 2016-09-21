@@ -3,7 +3,7 @@ import styles from './styles.scss';
 
 import Button from '../button/component';
 
-import Actions from '../actions-dropdown/component';
+import Actions from './actions-dropdown/component';
 
 export default class ActionsBar extends Component {
   constructor(props) {
