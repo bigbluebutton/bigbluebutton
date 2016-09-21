@@ -36,16 +36,12 @@ package org.bigbluebutton.core.managers
 		}
    
        
-    public function setUri(uri:String):void {
-      connDelegate.setUri(uri);
-    }
-
     public function get connection():NetConnection {
       return connDelegate.connection;
     }
         
-    public function connect(params:ConferenceParameters):void {
-        connDelegate.connect(params);
+    public function connect():void {
+        connDelegate.connect();
     }
         
     public function disconnect(onUserAction:Boolean):void {

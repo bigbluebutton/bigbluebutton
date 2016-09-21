@@ -1,5 +1,6 @@
 import React, { Component, PropTypes, Children, cloneElement } from 'react';
 import styles from './styles';
+import cx from 'classnames';
 
 import KEY_CODES from '/imports/utils/keyCodes';
 
@@ -84,6 +85,7 @@ export default class DropdownList extends Component {
     const { dropdownHide } = this.props;
 
     this.setState({ activeItemIndex: null });
+
     dropdownHide();
 
     if (typeof callback === 'function') {
@@ -92,7 +94,9 @@ export default class DropdownList extends Component {
   }
 
   render() {
-    const boundChildren = Children.map(this.props.children,
+    const { children, style, className } = this.props;
+
+    const boundChildren = Children.map(children,
       (item, i) => {
         if (item.type === ListSeparator) {
           return item;
@@ -122,7 +126,7 @@ export default class DropdownList extends Component {
       });
 
     return (
-      <ul className={styles.list} role="menu">
+      <ul style={style} className={cx(styles.list, className)} role="menu">
         {boundChildren}
       </ul>
     );

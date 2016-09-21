@@ -28,6 +28,9 @@ const listTransition = {
 class UserList extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      compact: this.props.compact,
+    };
   }
 
   render() {
@@ -42,13 +45,16 @@ class UserList extends Component {
   renderHeader() {
     return (
       <div className={styles.header}>
-        <h2 className={styles.headerTitle}>
-          <FormattedMessage
-            id="app.userlist.participantsTitle"
-            description="Title for the Header"
-            defaultMessage="Participants"
-          />
-        </h2>
+        {
+          !this.state.compact ?
+          <h2 className={styles.headerTitle}>
+            <FormattedMessage
+              id="app.userlist.participantsTitle"
+              description="Title for the Header"
+              defaultMessage="Participants"
+            />
+          </h2> : null
+        }
       </div>
     );
   }
@@ -70,13 +76,16 @@ class UserList extends Component {
 
     return (
       <div className={styles.messages}>
-        <h3 className={styles.smallTitle}>
-          <FormattedMessage
-            id="app.userlist.messagesTitle"
-            description="Title for the messages list"
-            defaultMessage="Messages"
-          />
-        </h3>
+        {
+          !this.state.compact ?
+          <h3 className={styles.smallTitle}>
+            <FormattedMessage
+              id="app.userlist.messagesTitle"
+              description="Title for the messages list"
+              defaultMessage="Messages"
+            />
+          </h3> : <hr className={styles.separator}></hr>
+        }
         <div className={styles.scrollableList}>
           <ReactCSSTransitionGroup
             transitionName={listTransition}
@@ -90,6 +99,7 @@ class UserList extends Component {
             className={cx(styles.chatsList, styles.scrollableList)}>
               {openChats.map(chat => (
                 <ChatListItem
+                  compact={this.state.compact}
                   key={chat.id}
                   openChat={openChat}
                   chat={chat} />
@@ -105,18 +115,22 @@ class UserList extends Component {
       users,
       currentUser,
       userActions,
+      compact,
     } = this.props;
 
     return (
       <div className={styles.participants}>
-        <h3 className={styles.smallTitle}>
-          <FormattedMessage
-            id="app.userlist.participantsTitle"
-            description="Title for the Participants list"
-            defaultMessage="Participants"
-          />
-          &nbsp;({this.props.users.length})
-        </h3>
+        {
+          !this.state.compact ?
+          <h3 className={styles.smallTitle}>
+            <FormattedMessage
+              id="app.userlist.participantsTitle"
+              description="Title for the Participants list"
+              defaultMessage="Participants"
+            />
+            &nbsp;({users.length})
+          </h3> : <hr className={styles.separator}></hr>
+        }
         <ReactCSSTransitionGroup
           transitionName={listTransition}
           transitionAppear={true}
@@ -127,8 +141,10 @@ class UserList extends Component {
           transitionLeaveTimeout={0}
           component="ul"
           className={cx(styles.participantsList, styles.scrollableList)}>
-          {users.map(user => (
+          {
+            users.map(user => (
             <UserListItem
+              compact={this.state.compact}
               key={user.id}
               user={user}
               currentUser={currentUser}

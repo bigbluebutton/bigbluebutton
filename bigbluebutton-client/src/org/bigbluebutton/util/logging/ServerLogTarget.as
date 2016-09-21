@@ -77,22 +77,23 @@ package org.bigbluebutton.util.logging
 
 		public function log(name:String, shortName:String, level:int, timeStamp:Number, message:*, parameters:Array, person:String):void
 		{
+			var userId:String = UsersUtil.getMyUserID();
+			var meetingId:String = UsersUtil.getInternalMeetingID();
+			name = userId + " " + meetingId + " " + name;
 			var formattedMessage:String=_formatter.format(name, shortName, level, timeStamp, message, parameters, person);
 
 			// check if contains info from config field
 			var reg1:RegExp = new RegExp(_logPattern, "g");
 			if(reg1.test(formattedMessage)) { // only log messages of the specified pattern
-				if (UsersUtil.getInternalMeetingID() != null && UsersUtil.getMyUserID() != "UNKNOWN USER") {
-					var arr:Array = new Array ();
-					arr.push({"name":name, "shortName":shortName, "level":level, "timeStamp":timeStamp, "message":formattedMessage, "parameters":parameters, "person":person});
+				if (meetingId != null && userId != "UNKNOWN USER") {
 
 					// We will always recycle the URLRequest instance and use it to send logging HTTP requests
 					if (!_request)
 					{
-						_request=new URLRequest(_serverUri + "/" + CLIENT + "/" + UsersUtil.getInternalMeetingID() + "/" + UsersUtil.getMyUserID());
+						_request=new URLRequest(_serverUri + "/" + CLIENT + "/" + meetingId + "/" + userId);
 						_request.method=URLRequestMethod.POST;
 					}
-					var JsonObj:String = JSON.stringify(arr);
+					var JsonObj:String = JSON.stringify(formattedMessage);
 					_request.contentType = "application/json";
 
 					_request.data=JsonObj;
