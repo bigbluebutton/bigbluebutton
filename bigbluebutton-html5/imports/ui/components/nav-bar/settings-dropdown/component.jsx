@@ -1,14 +1,11 @@
-import React, { Component, PropTyes } from 'react';
-import { FormattedMessage } from 'react-intl';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
+import React, { Component, PropTypes } from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import styles from '../styles';
 
 import { showModal } from '/imports/ui/components/app/service';
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
 import Settings from '/imports/ui/components/settings/component';
 
-import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -16,6 +13,25 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+
+const intlMessages = defineMessages({
+  buttonLabel: {
+    id: 'app.dropdown.options',
+    defaultMessage: 'Options',
+  },
+  fullscreenLabel: {
+    id: 'app.dropdown.fullscreenLabel',
+    defaultMessage: 'Make fullscreen',
+  },
+  settingsLabel: {
+    id: 'app.dropdown.settingsLabel',
+    defaultMessage: 'Open settings',
+  },
+  leaveSessionLabel: {
+    id: 'app.dropdown.leaveSessionLabel',
+    defaultMessage: 'Logout',
+  },
+});
 
 const toggleFullScreen = () => {
   let element = document.documentElement;
@@ -53,12 +69,13 @@ export default class SettingsDropdown extends Component {
   }
 
   render() {
+    const { intl } = this.props;
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
           <Button
             role="button"
-            label="Settings"
+            label={intl.formatMessage(intlMessages.buttonLabel)}
             icon="more"
             ghost={true}
             circle={true}
@@ -74,20 +91,20 @@ export default class SettingsDropdown extends Component {
           <DropdownList>
             <DropdownListItem
               icon="fullscreen"
-              label="Fullscreen"
-              defaultMessage="Make the application fullscreen"
+              label={intl.formatMessage(intlMessages.fullscreenLabel)}
+              description="Make the application fullscreen"
               onClick={toggleFullScreen.bind(this)}
             />
             <DropdownListItem
               icon="more"
-              label="Settings"
+              label={intl.formatMessage(intlMessages.settingsLabel)}
               description="Change the general settings"
               onClick={openSettings.bind(this)}
             />
             <DropdownListSeparator />
             <DropdownListItem
               icon="logout"
-              label="Leave Session"
+              label={intl.formatMessage(intlMessages.leaveSessionLabel)}
               description="Leave the meeting"
               onClick={openLogoutConfirmation.bind(this)}
             />
@@ -97,3 +114,5 @@ export default class SettingsDropdown extends Component {
     );
   }
 }
+
+export default injectIntl(SettingsDropdown);
