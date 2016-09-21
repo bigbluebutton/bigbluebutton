@@ -1,15 +1,31 @@
-import React, { Component, PropTyes } from 'react';
-import { FormattedMessage } from 'react-intl';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
+import React, { Component, PropTypes } from 'react';
+import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 
-import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+
+const intlMessages = defineMessages({
+  buttonLabel: {
+    id: 'app.actions.options',
+    defaultMessage: 'Actions button',
+  },
+  presentationLab: {
+    id: 'app.actions.options.presentation',
+    defaultMessage: 'Upload a presentation',
+  },
+  initPollLab: {
+    id: 'app.actions.options.initPoll',
+    defaultMessage: 'Initiate a poll',
+  },
+  desktopShareLab: {
+    id: 'app.actions.options.desktopShare',
+    defaultMessage: 'Share your screen',
+  },
+});
 
 const presentation = () => {console.log('Should show the uploader component');};
 
@@ -23,12 +39,13 @@ export default class Actions extends Component {
   }
 
   render() {
+    const { intl } = this.props;
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
           <Button
             role="button"
-            label="Actions"
+            label={intl.formatMessage(intlMessages.buttonLabel)}
             icon="circle-add"
             color="primary"
             size="lg"
@@ -40,8 +57,8 @@ export default class Actions extends Component {
           <DropdownList>
             <DropdownListItem
               icon="presentation"
-              label="Upload a presentation"
-              defaultMessage="Upload a presentation"
+              label={intl.formatMessage(intlMessages.presentationLab)}
+              description="Upload a presentation"
               onClick={presentation.bind(this)}
             />
 
@@ -49,14 +66,14 @@ export default class Actions extends Component {
                 Check it later */}
             <DropdownListItem
               icon="polling"
-              label="Initiate a poll"
+              label={intl.formatMessage(intlMessages.initPollLab)}
               description="Initiate a poll"
               onClick={polling.bind(this)}
             />
             <DropdownListItem
               icon="desktop"
-              label="Share your screen"
-              description="Share a screen"
+              label={intl.formatMessage(intlMessages.desktopShareLab)}
+              description="Share your screen"
               onClick={shareScreen.bind(this)}
             />
           </DropdownList>
@@ -65,3 +82,5 @@ export default class Actions extends Component {
     );
   }
 }
+
+export default injectIntl(Actions);
