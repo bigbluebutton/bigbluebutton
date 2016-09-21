@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
