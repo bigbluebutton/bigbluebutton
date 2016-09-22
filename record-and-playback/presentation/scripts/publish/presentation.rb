@@ -1032,9 +1032,6 @@ begin
               unless presentation.empty?
                 xml.extensions {
                   xml.preview {
-                    unless !presentation.has_key?(:text)
-                      xml.text_("#{presentation[:text]}")
-                    end
                     xml.images {
                       xml.image(:width => "176", :height => "136", :alt => (presentation[:slides][1][:alt] != nil)? "#{presentation[:slides][1][:alt]}": ""){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-1.png") }
                       unless presentation[:filename] == "default.pdf"

@@ -104,7 +104,6 @@ module BigBlueButton
         presentation[:slides] = {}
         presentation[:slides][1] = { :alt => self.get_text_from_slide(textfiles_dir, 1) }
         unless presentation_filename == "default.pdf"
-          presentation[:text] = presentation[:slides][1][:alt]
           presentation[:slides][2] = { :alt => self.get_text_from_slide(textfiles_dir, 2) }
           presentation[:slides][3] = { :alt => self.get_text_from_slide(textfiles_dir, 3) }
           # Break because something else than default.pdf was found
