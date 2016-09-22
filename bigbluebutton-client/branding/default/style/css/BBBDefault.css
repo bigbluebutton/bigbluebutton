@@ -1061,6 +1061,10 @@ EmojiGrid {
 	horizontalGap: 6;
 }
 
+.breakoutRoomUserWindowHeadingStyle {
+	fontWeight: bold;
+}
+
 .breakoutRoomSettingTitleStyle {
 	fontFamily: Arial;
 	fontSize: 20;  
