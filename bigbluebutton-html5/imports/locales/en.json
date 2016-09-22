@@ -39,7 +39,7 @@
   "app.leaveConfirmation.confirmDesc": "Logs you out of the meeting",
   "app.leaveConfirmation.dismissLabel": "Cancel",
   "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation",
-  "app.actions.optionsLabel": "Actions",
+  "app.actions.actionsLabel": "Actions",
   "app.actions.options.presentationLabel": "Upload a presentation",
   "app.actions.options.initPollLabel": "Initiate a poll",
   "app.actions.options.desktopShareLabel": "Share your screen"

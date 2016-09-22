@@ -9,8 +9,8 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 
 const intlMessages = defineMessages({
-  buttonLabel: {
-    id: 'app.actions.optionsLabel',
+  actionsLabel: {
+    id: 'app.actions.actionsLabel',
     defaultMessage: 'Actions button',
   },
   presentationLabel: {
@@ -45,7 +45,7 @@ export default class Actions extends Component {
         <DropdownTrigger>
           <Button
             role="button"
-            label={intl.formatMessage(intlMessages.buttonLabel)}
+            label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="circle-add"
             color="primary"
             size="lg"
