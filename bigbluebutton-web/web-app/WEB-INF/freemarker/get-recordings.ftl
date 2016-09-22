@@ -34,9 +34,7 @@
                 <#assign properties = extension.getProperties()>
                 <#if extension.getType() == "preview">
                   <#list properties?keys as property>
-                  <#if property == "text">
-                  <${property}>${properties[property]["text"]}</${property}>
-                  <#elseif property == "images">
+                  <#if property == "images">
                   <${property}>
                     <#if properties[property]["image"]?is_hash>
                     <#assign image = properties[property]["image"]>
