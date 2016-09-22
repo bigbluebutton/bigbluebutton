@@ -31,7 +31,7 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUsetToMeetingCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUserToMeetingCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 
 public class FreeswitchApplication {
@@ -48,9 +48,12 @@ public class FreeswitchApplication {
 	private final String USER = "0"; /* not used for now */
 
 	private volatile boolean sendMessages = false;
+	
+	private final String audioProfile;
 
-	public FreeswitchApplication(ConnectionManager manager) {
+	public FreeswitchApplication(ConnectionManager manager, String profile) {
 		this.manager = manager;
+		this.audioProfile = profile;
 	}
 
 	private void queueMessage(FreeswitchCommand command) {
@@ -62,12 +65,13 @@ public class FreeswitchApplication {
 		}
 	}
 
-	public void transferUserToMeeting(String voiceConfId,
-			String targetVoiceConfId, String voiceUserId) {
-		TransferUsetToMeetingCommand tutmc = new TransferUsetToMeetingCommand(
-				voiceConfId, targetVoiceConfId, voiceUserId, USER);
-		queueMessage(tutmc);
-	}
+    public void transferUserToMeeting(String voiceConfId,
+            String targetVoiceConfId, String voiceUserId) {
+        TransferUserToMeetingCommand tutmc = new TransferUserToMeetingCommand(
+                voiceConfId, targetVoiceConfId, voiceUserId, this.audioProfile,
+                USER);
+        queueMessage(tutmc);
+    }
 
 	public void start() {
 		sendMessages = true;
@@ -153,8 +157,8 @@ public class FreeswitchApplication {
 						EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
 						System.out.println("Sending EjectAllUsersCommand for conference = [" + cmd.getRoom() + "]");
 						manager.ejectAll(cmd);
-					} else if (command instanceof TransferUsetToMeetingCommand) {
-						TransferUsetToMeetingCommand cmd = (TransferUsetToMeetingCommand) command;
+					} else if (command instanceof TransferUserToMeetingCommand) {
+						TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
 						System.out.println("Sending TransferUsetToMeetingCommand for conference = ["
 										+ cmd.getRoom() + "]");
 						manager.tranfer(cmd);
