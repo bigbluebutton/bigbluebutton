@@ -50,16 +50,13 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             <extension>
               <!-- Any XML element, to be passed through into playback format element. -->
               <preview> <!-- The first level is the name of the extension -->
-                <text>Introduction to Unit 1 Professor Jones Office Hours are Wedn</text>
+                <text>Instrument Flying</text>
                 <images>
-                  <image width="240" height="135">http://example.com/f000057.jpg</image>
-                  <image width="240" height="135">http://example.com/f001032.jpg</image>
-                  <image width="240" height="135">http://example.com/f002103.jpg</image>
+                  <image width="176" height="136" alt="Instrument Flying">http://bbb-server/.../thumb-1.png</image>
+                  <image width="176" height="136" alt="Course Structure">http://bbb-server/.../thumb-2.png</image>
+                  <image width="176" height="136" alt="Requirements">http://bbb-server/.../thumb-3.png</image>
                 </images>
               </preview>
-              <cc>
-                <subtitles>en</subtitles>
-              </cc>
             </extension>
         </playback>
         <meta>
