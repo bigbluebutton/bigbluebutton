@@ -9,21 +9,33 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 
 const intlMessages = defineMessages({
-  buttonLabel: {
-    id: 'app.actions.options',
+  actionsLabel: {
+    id: 'app.actions.actionsLabel',
     defaultMessage: 'Actions button',
   },
   presentationLabel: {
-    id: 'app.actions.options.presentation',
+    id: 'app.actions.options.presentationLabel',
     defaultMessage: 'Upload a presentation',
   },
   initPollLabel: {
-    id: 'app.actions.options.initPoll',
+    id: 'app.actions.options.initPollLabel',
     defaultMessage: 'Initiate a poll',
   },
   desktopShareLabel: {
-    id: 'app.actions.options.desktopShare',
+    id: 'app.actions.options.desktopShareLabel',
     defaultMessage: 'Share your screen',
+  },
+  presentationDesc: {
+    id: 'app.actions.options.presentationDesc',
+    defaultMessage: 'Upload your presentation',
+  },
+  initPollDesc: {
+    id: 'app.actions.options.initPollDesc',
+    defaultMessage: 'Initiate a poll',
+  },
+  desktopShareDesc: {
+    id: 'app.actions.options.desktopShareDesc',
+    defaultMessage: 'Share your screen with others',
   },
 });
 
@@ -45,7 +57,7 @@ export default class Actions extends Component {
         <DropdownTrigger>
           <Button
             role="button"
-            label={intl.formatMessage(intlMessages.buttonLabel)}
+            label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="circle-add"
             color="primary"
             size="lg"
@@ -58,7 +70,7 @@ export default class Actions extends Component {
             <DropdownListItem
               icon="presentation"
               label={intl.formatMessage(intlMessages.presentationLabel)}
-              description="Upload a presentation"
+              description={intl.formatMessage(intlMessages.presentationDesc)}
               onClick={presentation.bind(this)}
             />
 
@@ -67,13 +79,13 @@ export default class Actions extends Component {
             <DropdownListItem
               icon="polling"
               label={intl.formatMessage(intlMessages.initPollLabel)}
-              description="Initiate a poll"
+              description={intl.formatMessage(intlMessages.initPollDesc)}
               onClick={polling.bind(this)}
             />
             <DropdownListItem
               icon="desktop"
               label={intl.formatMessage(intlMessages.desktopShareLabel)}
-              description="Share your screen"
+              description={intl.formatMessage(intlMessages.desktopShareDesc)}
               onClick={shareScreen.bind(this)}
             />
           </DropdownList>

@@ -26,7 +26,7 @@
   "app.failedMessage": "Apologies, trouble connecting to the server.",
   "app.connectingMessage": "Connecting...",
   "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds...",
-  "app.dropdown.options": "Options",
+  "app.dropdown.optionsLabel": "Options",
   "app.dropdown.fullscreenLabel": "Make fullscreen",
   "app.dropdown.settingsLabel": "Open settings",
   "app.dropdown.leaveSessionLabel": "Logout",
@@ -39,8 +39,11 @@
   "app.leaveConfirmation.confirmDesc": "Logs you out of the meeting",
   "app.leaveConfirmation.dismissLabel": "Cancel",
   "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation",
-  "app.actions.options": "Actions",
-  "app.actions.options.presentation": "Upload a presentation",
-  "app.actions.options.initPoll": "Initiate a poll",
-  "app.actions.options.desktopShare": "Share your screen"
+  "app.actions.actionsLabel": "Actions",
+  "app.actions.options.presentationLabel": "Upload a presentation",
+  "app.actions.options.initPollLabel": "Initiate a poll",
+  "app.actions.options.desktopShareLabel": "Share your screen",
+  "app.actions.options.presentationDesc": "Upload your presentation",
+  "app.actions.options.initPollDesc": "Initiate a poll",
+  "app.actions.options.desktopShareDesc": "Share your screen with others"
 }

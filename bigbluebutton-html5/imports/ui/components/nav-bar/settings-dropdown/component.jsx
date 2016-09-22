@@ -15,8 +15,8 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 
 const intlMessages = defineMessages({
-  buttonLabel: {
-    id: 'app.dropdown.options',
+  optionsLabel: {
+    id: 'app.dropdown.optionsLabel',
     defaultMessage: 'Options',
   },
   fullscreenLabel: {
@@ -30,6 +30,18 @@ const intlMessages = defineMessages({
   leaveSessionLabel: {
     id: 'app.dropdown.leaveSessionLabel',
     defaultMessage: 'Logout',
+  },
+  fullscreenDesc: {
+    id: 'app.dropdown.fullscreenDesc',
+    defaultMessage: 'Make the settings menu fullscreen',
+  },
+  settingsDesc: {
+    id: 'app.dropdown.settingsDesc',
+    defaultMessage: 'Change the general settings',
+  },
+  leaveSessionDesc: {
+    id: 'app.dropdown.leaveSessionDesc',
+    defaultMessage: 'Leave the meeting',
   },
 });
 
@@ -75,7 +87,7 @@ export default class SettingsDropdown extends Component {
         <DropdownTrigger>
           <Button
             role="button"
-            label={intl.formatMessage(intlMessages.buttonLabel)}
+            label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             ghost={true}
             circle={true}
@@ -92,20 +104,20 @@ export default class SettingsDropdown extends Component {
             <DropdownListItem
               icon="fullscreen"
               label={intl.formatMessage(intlMessages.fullscreenLabel)}
-              description="Make the application fullscreen"
+              description={intl.formatMessage(intlMessages.fullscreenDesc)}
               onClick={toggleFullScreen.bind(this)}
             />
             <DropdownListItem
               icon="more"
               label={intl.formatMessage(intlMessages.settingsLabel)}
-              description="Change the general settings"
+              description={intl.formatMessage(intlMessages.settingsDesc)}
               onClick={openSettings.bind(this)}
             />
             <DropdownListSeparator />
             <DropdownListItem
               icon="logout"
               label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-              description="Leave the meeting"
+              description={intl.formatMessage(intlMessages.leaveSessionDesc)}
               onClick={openLogoutConfirmation.bind(this)}
             />
           </DropdownList>
