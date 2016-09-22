@@ -42,8 +42,9 @@ package org.bigbluebutton.main.model.modules
 			return _user.username;
 		}
 
-		public function portTestSuccess(protocol:String):void {
-			modulesManager.useProtocol(protocol);
+		public function portTestSuccess(tunnel:Boolean):void {
+      LOGGER.debug("Successfully tested connection to server. isTunnelling=" + tunnel);
+			modulesManager.useProtocol(tunnel);
 			modulesManager.startUserServices();
 		}
 						
@@ -72,12 +73,16 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function testRTMP():void{
-			portTestProxy.connect("RTMP", getPortTestHost(), "1935", getPortTestApplication(), getPortTestTimeout());
+			portTestProxy.connect(false /*"RTMP"*/, getPortTestHost(), "1935", getPortTestApplication(), getPortTestTimeout());
 		}
 		
-		public function testRTMPT(protocol:String):void{
-			if (protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
-			else modulesDispatcher.sendTunnelingFailedEvent(getPortTestHost(), getPortTestApplication());
+		public function testRTMPT(tunnel:Boolean):void{
+			if (! tunnel) {
+        // Try to test using rtmpt as rtmp failed.
+        portTestProxy.connect(true /*"RTMPT"*/, getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
+      } else {
+        modulesDispatcher.sendTunnelingFailedEvent(getPortTestHost(), getPortTestApplication());
+      }
 		}
 		
 		public function loadAllModules(params:ConferenceParameters):void{

@@ -18,10 +18,8 @@
  */
 package org.bigbluebutton.main.model.modules
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
-  import flash.events.TimerEvent;
-  
+  import com.asfusion.mate.events.Dispatcher;  
+  import flash.events.TimerEvent; 
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
@@ -71,11 +69,8 @@ package org.bigbluebutton.main.model.modules
       dispatcher.dispatchEvent(loginEvent);	
     }
     
-    public function sendStartUserServicesEvent(application:String, host:String, isTunnelling:Boolean):void{
+    public function sendStartUserServicesEvent():void{
       var e:UserServicesEvent = new UserServicesEvent(UserServicesEvent.START_USER_SERVICES);
-      e.applicationURI = application;
-      e.hostURI = host;
-      e.isTunnelling = isTunnelling;
       dispatcher.dispatchEvent(e);
     }
     
@@ -130,11 +125,11 @@ package org.bigbluebutton.main.model.modules
       dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
     }
     
-    public function sendPortTestSuccessEvent(port:String, host:String, protocol:String, app:String):void{
+    public function sendPortTestSuccessEvent(port:String, host:String, tunnel:Boolean, app:String):void{
       var logData:Object = new Object();
       logData.port = port;
       logData.server = host;
-      logData.protocol = protocol;
+      logData.tunnel = tunnel;
       logData.app = app;      
       logData.userId = meetingInfo.userId;
       logData.username = meetingInfo.username;
@@ -145,17 +140,17 @@ package org.bigbluebutton.main.model.modules
       var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
       portEvent.port = port;
       portEvent.hostname = host;
-      portEvent.protocol = protocol;
+      portEvent.tunnel = tunnel;
       portEvent.app = app;
       dispatcher.dispatchEvent(portEvent);
       
     }
     
-    public function sendPortTestFailedEvent(port:String, host:String, protocol:String, app:String):void{
+    public function sendPortTestFailedEvent(port:String, host:String, tunnel:Boolean, app:String):void{
       var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
       portFailEvent.port = port;
       portFailEvent.hostname = host;
-      portFailEvent.protocol = protocol;
+      portFailEvent.tunnel = tunnel;
       portFailEvent.app = app;
       dispatcher.dispatchEvent(portFailEvent);
       

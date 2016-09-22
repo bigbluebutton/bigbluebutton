@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import styles from '../styles';
 import _ from 'underscore';
+import cx from 'classnames';
 
 import Icon from '/imports/ui/components/icon/component';
 
@@ -22,14 +23,15 @@ export default class DropdownListItem extends Component {
     const { icon, label } = this.props;
 
     return [
-      (<Icon iconName={icon} key="icon" className={styles.itemIcon}/>),
+      (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon}/> : null),
       (<span className={styles.itemLabel} key="label">{label}</span>),
     ];
   }
 
   render() {
     const { label, description, children,
-      injectRef, tabIndex, onClick, onKeyDown, } = this.props;
+      injectRef, tabIndex, onClick, onKeyDown,
+      className, style, } = this.props;
 
     return (
       <li
@@ -39,7 +41,8 @@ export default class DropdownListItem extends Component {
         tabIndex={tabIndex}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}
-        className={styles.item}
+        className={cx(styles.item, className)}
+        style={style}
         role="menuitem">
         {
           children ? children

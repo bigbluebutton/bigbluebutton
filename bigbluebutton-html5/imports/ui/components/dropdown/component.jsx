@@ -3,6 +3,7 @@ import { findDOMNode } from 'react-dom';
 import styles from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
+import cx from 'classnames';
 
 const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
 
@@ -48,19 +49,37 @@ export default class Dropdown extends Component {
     this.state = { isOpen: false, };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
+    this.handleStateCallback = this.handleStateCallback.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleWindowClick = this.handleWindowClick.bind(this);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.isOpen !== this.props.isOpen
+      && this.state.isOpen !== this.props.isOpen) {
+      this.setState({ isOpen: this.props.isOpen }, this.handleStateCallback);
+    }
+  }
+
+  handleStateCallback() {
+    const { onShow, onHide } = this.props;
+
+    if (this.state.isOpen && onShow) {
+      onShow();
+    } else if (onHide) {
+      onHide();
+    }
+  }
+
   handleShow() {
-    this.setState({ isOpen: true });
+    this.setState({ isOpen: true }, this.handleStateCallback);
 
     const contentElement = findDOMNode(this.refs.content);
     contentElement.querySelector(FOCUSABLE_CHILDREN).focus();
   }
 
   handleHide() {
-    this.setState({ isOpen: false });
+    this.setState({ isOpen: false }, this.handleStateCallback);
     const triggerElement = findDOMNode(this.refs.trigger);
     triggerElement.focus();
   }
@@ -93,7 +112,7 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const { children } = this.props;
+    const { children, className, style } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
@@ -114,7 +133,7 @@ export default class Dropdown extends Component {
     });
 
     return (
-      <div className={styles.dropdown}>
+      <div style={style} className={cx(styles.dropdown, className)}>
         {trigger}
         {content}
       </div>

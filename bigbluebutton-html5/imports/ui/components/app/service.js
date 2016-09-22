@@ -101,6 +101,10 @@ const showModal = (val) => {
   }
 };
 
+const clearModal = () => {
+  showModal(null);
+};
+
 export {
   subscribeForData,
   setCredentials,
@@ -110,4 +114,5 @@ export {
   redirectToLogoutUrl,
   getModal,
   showModal,
+  clearModal,
 };

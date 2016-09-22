@@ -150,7 +150,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             var option:ScreenshareOptions = new ScreenshareOptions();
             option.parseOptions();
 
-            if (option.useWebRTCIfAvailable && !BrowserCheck.isWebRTCSupported()) {
+            if (option.tryWebRTCFirst && !BrowserCheck.isWebRTCSupported()) {
               usingJava = true;
               publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom());
               sharing = true;

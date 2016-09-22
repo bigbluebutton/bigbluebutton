@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { clearModal } from '/imports/ui/components/app/service';
 import ModalBase from './base/component';
 import Button from '../button/component';
 import styles from './styles.scss';
@@ -45,6 +46,7 @@ export default class Modal extends Component {
 
   handleDismiss() {
     this.setState({ isOpen: false });
+    clearModal();
   }
 
   handleConfirm() {
