@@ -42,5 +42,8 @@
   "app.actions.actionsLabel": "Actions",
   "app.actions.options.presentationLabel": "Upload a presentation",
   "app.actions.options.initPollLabel": "Initiate a poll",
-  "app.actions.options.desktopShareLabel": "Share your screen"
+  "app.actions.options.desktopShareLabel": "Share your screen",
+  "app.actions.options.presentationDesc": "Upload your presentation",
+  "app.actions.options.initPollDesc": "Initiate a poll",
+  "app.actions.options.desktopShareDesc": "Share your screen with others"
 }

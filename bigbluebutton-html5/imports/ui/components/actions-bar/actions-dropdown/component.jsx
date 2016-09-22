@@ -25,6 +25,18 @@ const intlMessages = defineMessages({
     id: 'app.actions.options.desktopShareLabel',
     defaultMessage: 'Share your screen',
   },
+  presentationDesc: {
+    id: 'app.actions.options.presentationDesc',
+    defaultMessage: 'Upload your presentation',
+  },
+  initPollDesc: {
+    id: 'app.actions.options.initPollDesc',
+    defaultMessage: 'Initiate a poll',
+  },
+  desktopShareDesc: {
+    id: 'app.actions.options.desktopShareDesc',
+    defaultMessage: 'Share your screen with others',
+  },
 });
 
 const presentation = () => {console.log('Should show the uploader component');};
@@ -58,7 +70,7 @@ export default class Actions extends Component {
             <DropdownListItem
               icon="presentation"
               label={intl.formatMessage(intlMessages.presentationLabel)}
-              description="Upload a presentation"
+              description={intl.formatMessage(intlMessages.presentationDesc)}
               onClick={presentation.bind(this)}
             />
 
@@ -67,13 +79,13 @@ export default class Actions extends Component {
             <DropdownListItem
               icon="polling"
               label={intl.formatMessage(intlMessages.initPollLabel)}
-              description="Initiate a poll"
+              description={intl.formatMessage(intlMessages.initPollDesc)}
               onClick={polling.bind(this)}
             />
             <DropdownListItem
               icon="desktop"
               label={intl.formatMessage(intlMessages.desktopShareLabel)}
-              description="Share your screen"
+              description={intl.formatMessage(intlMessages.desktopShareDesc)}
               onClick={shareScreen.bind(this)}
             />
           </DropdownList>
