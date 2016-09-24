@@ -19,9 +19,11 @@
 
 package org.bigbluebutton.api;
 
+import groovy.json.JsonBuilder;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.Attributes;
 import groovy.util.slurpersupport.GPathResult;
+import groovy.xml.MarkupBuilder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -71,7 +73,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
     public void writeRecordingInfo(String path, Recording info) {
         def writer = new StringWriter()
         def builder = new groovy.xml.MarkupBuilder(writer)
-        def metadataXml = builder.recording {
+        builder.recording {
             builder.id(info.getId())
             builder.state(info.getState())
             builder.published(info.isPublished())
@@ -84,7 +86,17 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                     builder.format(info.getPlaybackFormat())
                     builder.link(info.getPlaybackLink())
                     builder.duration(info.getPlaybackDuration())
-                    builder.extension(info.getPlaybackExtensions())
+                    def extensions = info.getPlaybackExtensions()
+                    if ( !extensions.isEmpty() ) {
+                        builder.extensions {
+                            extensions.each { extension ->
+                                def extensionType = extension.getType()
+                                builder."${extensionType}"{
+                                    extensionPropertiesToXML(builder, extension.getProperties())
+                                }
+                            }
+                        }
+                    }
                 }
             }
             Map<String,String> metainfo = info.getMetadata();
@@ -117,6 +129,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 
     private Recording getInfo(GPathResult rec) {
         Recording r = new Recording();
+        //Add basic information
         r.setId(rec.id.text());
         r.setState(rec.state.text());
         r.setPublished(Boolean.parseBoolean(rec.published.text()));
@@ -128,11 +141,14 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             r.setPlaybackDuration(rec.playback.duration.text());
         }
 
+        //Add extensions
         List<Extension> extensions = new ArrayList<Extension>()
         rec.playback.extensions.children().each { extension ->
-            extensions.add( new Extension(extension.name(),parse(extension)) )
+            extensions.add( new Extension(extension.name(), extensionPropertiesToMap(extension)) )
         }
         r.setPlaybackExtensions(extensions)
+
+        //Add metadata
         Map<String, String> meta = new HashMap<String, String>();
         rec.meta.children().each { anode ->
             meta.put(anode.name().toString(), anode.text().toString());
@@ -170,7 +186,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             }
         }
         //Add content to the node
-        if ( map[node.name()] == null) {
+        if ( map[node.name()] == null ) {
             map[node.name()] = nodeContent
         } else {
             if ( ! (map[node.name()] instanceof List) ) {
@@ -181,7 +197,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         map
     }
 
-    private Map<String, ?> parse(GPathResult xml) {
+    private Map<String, ?> extensionPropertiesToMap(GPathResult xml) {
         Map<String, ?> map = [ : ]
         xml.children().each {
             if ( it.children().size() == 0 ) {
@@ -193,4 +209,41 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         map
     }
 
+    private void processMap(builder, node) {
+        node.each { key, value ->
+            if ( value instanceof Collection ) {
+                processCollection(builder, key, value)
+            } else if ( value instanceof Map ) {
+                if ( value.containsKey("text") && value.containsKey("attributes") ) {
+                    builder."${key}"(value["attributes"], value["text"])
+                } else {
+                    builder."${key}" {
+                        processMap(builder, value)
+                    }
+                }
+            } else {
+                builder."${key}"(value)
+            }
+        }
+    }
+
+    private void processCollection(builder, nodesKey, nodes) {
+        nodes.each { node ->
+            processMap(builder, [ "${nodesKey}" : node ])
+        }
+    }
+
+    private void extensionPropertiesToXML(builder, properties) {
+        properties.each { propertyKey, propertyValue ->
+            if ( propertyValue instanceof Collection ) {
+                builder."${propertyKey}" {
+                    processCollection(builder, propertyKey, propertyValue)
+                }
+            } else {
+                builder."${propertyKey}" {
+                    processMap(builder, propertyValue)
+                }
+            }
+        }
+    }
 }
