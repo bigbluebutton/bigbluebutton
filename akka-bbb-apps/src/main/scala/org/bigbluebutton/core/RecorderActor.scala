@@ -196,6 +196,7 @@ class RecorderActor(val recorder: RecorderApplication)
       val ev = new ParticipantJoinRecordEvent();
       ev.setTimestamp(TimestampGenerator.generateTimestamp);
       ev.setUserId(msg.user.userID);
+      ev.setExternalUserId(msg.user.externUserID);
       ev.setName(msg.user.name);
       ev.setMeetingId(msg.meetingID);
       ev.setRole(msg.user.role.toString());
