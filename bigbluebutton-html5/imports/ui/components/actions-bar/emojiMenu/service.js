@@ -6,7 +6,7 @@ let getEmojiData = () => {
 
   // Get userId and meetingId
   const credentials = Auth.getCredentials();
-  const { requesterUserId: userId , meetingId } = credentials;
+  const { requesterUserId: userId, meetingId } = credentials;
 
   // Find the Emoji Status of this specific meeting and userid
   const userEmojiStatus = Users.findOne({
@@ -22,7 +22,6 @@ let getEmojiData = () => {
 
 // Below doesn't even need to receieve credentials
 const setEmoji = (toRaiseUserId, status) => {
-  console.log("-----------------CALLING USERSETEMOJI-----------------");
   callServer('userSetEmoji', toRaiseUserId, status);
 };
 

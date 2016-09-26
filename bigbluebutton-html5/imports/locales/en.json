@@ -38,5 +38,20 @@
   "app.leaveConfirmation.confirmLabel": "Leave",
   "app.leaveConfirmation.confirmDesc": "Logs you out of the meeting",
   "app.leaveConfirmation.dismissLabel": "Cancel",
-  "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation"
+  "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation",
+  "app.actionsBar.emojiMenu.statusTriggerLabel": "Status",
+  "app.actionsBar.emojiMenu.awayLabel": "Away",
+  "app.actionsBar.emojiMenu.awayDesc": "Change your status to away",
+  "app.actionsBar.emojiMenu.raiseLabel": "Raise",
+  "app.actionsBar.emojiMenu.raiseDesc": "Raise your hand to ask a question",
+  "app.actionsBar.emojiMenu.undecidedLabel": "Undecided",
+  "app.actionsBar.emojiMenu.undecidedDesc": "Change your status to undecided",
+  "app.actionsBar.emojiMenu.confusedLabel": "Confused",
+  "app.actionsBar.emojiMenu.confusedDesc": "Change your status to confused",
+  "app.actionsBar.emojiMenu.sadLabel": "Sad",
+  "app.actionsBar.emojiMenu.sadDesc": "Change your status to sad",
+  "app.actionsBar.emojiMenu.happyLabel": "Happy",
+  "app.actionsBar.emojiMenu.happyDesc": "Change your status to happy",
+  "app.actionsBar.emojiMenu.clearLabel": "Clear",
+  "app.actionsBar.emojiMenu.clearDesc": "Clear your status"
 }
