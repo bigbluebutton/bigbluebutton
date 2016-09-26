@@ -307,18 +307,20 @@ function runPopcorn() {
   xmlhttp.open("GET", deskshare_xml, false);
   xmlhttp.send();
   xmlDoc = xmlhttp.responseXML;
-  //getting all the event tags
-  console.log("** Processing deskshare.xml");
-  var deskelements = xmlDoc.getElementsByTagName("recording");
-  var deskshareArray = deskelements[0].getElementsByTagName("event");
+  if (xmlDoc) {
+    //getting all the event tags
+    console.log("** Processing deskshare.xml");
+    var deskelements = xmlDoc.getElementsByTagName("recording");
+    var deskshareArray = deskelements[0].getElementsByTagName("event");
 
-  if(deskshareArray != null && deskshareArray.length != 0) {
-    for (var m = 0; m < deskshareArray.length; m++) {
-      var deskTimes = [parseFloat(deskshareArray[m].getAttribute("start_timestamp")),
-                       parseFloat(deskshareArray[m].getAttribute("stop_timestamp")),
-                       parseFloat(deskshareArray[m].getAttribute("video_width")),
-                       parseFloat(deskshareArray[m].getAttribute("video_height"))];
-      deskshareTimes[m] = deskTimes;
+    if(deskshareArray != null && deskshareArray.length != 0) {
+      for (var m = 0; m < deskshareArray.length; m++) {
+        var deskTimes = [parseFloat(deskshareArray[m].getAttribute("start_timestamp")),
+                         parseFloat(deskshareArray[m].getAttribute("stop_timestamp")),
+                         parseFloat(deskshareArray[m].getAttribute("video_width")),
+                         parseFloat(deskshareArray[m].getAttribute("video_height"))];
+        deskshareTimes[m] = deskTimes;
+      }
     }
   }
 
