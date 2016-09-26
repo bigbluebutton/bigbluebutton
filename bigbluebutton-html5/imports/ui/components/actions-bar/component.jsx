@@ -3,7 +3,7 @@ import styles from './styles.scss';
 
 import Button from '../button/component';
 
-import Actions from './actions-dropdown/component';
+import ActionsDropdown from './actions-dropdown/component';
 
 export default class ActionsBar extends Component {
   constructor(props) {
@@ -17,7 +17,7 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          <Actions />
+          <ActionsDropdown />
         </div>
         <div className={styles.center}>
           <Button
