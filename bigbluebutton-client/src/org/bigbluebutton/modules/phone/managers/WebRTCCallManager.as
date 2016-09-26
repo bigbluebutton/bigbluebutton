@@ -307,6 +307,8 @@ package org.bigbluebutton.modules.phone.managers
       });
       popUpDelayTimer.start();
       dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, title, error));
+
+      LOGGER.warn("WebRTCAlert:" + title + " " + error + " " + message);
     }
   }
 }
