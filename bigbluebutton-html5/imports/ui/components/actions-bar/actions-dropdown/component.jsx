@@ -10,31 +10,31 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 
 const intlMessages = defineMessages({
   actionsLabel: {
-    id: 'app.actions.actionsLabel',
-    defaultMessage: 'Actions button',
+    id: 'app.actionsBar.actionsDropdown.actionsLabel',
+    defaultMessage: 'Actions',
   },
   presentationLabel: {
-    id: 'app.actions.options.presentationLabel',
+    id: 'app.actionsBar.actionsDropdown.presentationLabel',
     defaultMessage: 'Upload a presentation',
   },
   initPollLabel: {
-    id: 'app.actions.options.initPollLabel',
+    id: 'app.actionsBar.actionsDropdown.initPollLabel',
     defaultMessage: 'Initiate a poll',
   },
   desktopShareLabel: {
-    id: 'app.actions.options.desktopShareLabel',
+    id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
     defaultMessage: 'Share your screen',
   },
   presentationDesc: {
-    id: 'app.actions.options.presentationDesc',
+    id: 'app.actionsBar.actionsDropdown.presentationDesc',
     defaultMessage: 'Upload your presentation',
   },
   initPollDesc: {
-    id: 'app.actions.options.initPollDesc',
+    id: 'app.actionsBar.actionsDropdown.initPollDesc',
     defaultMessage: 'Initiate a poll',
   },
   desktopShareDesc: {
-    id: 'app.actions.options.desktopShareDesc',
+    id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
     defaultMessage: 'Share your screen with others',
   },
 });
@@ -45,7 +45,7 @@ const polling = () => {console.log('Should initiate a polling');};
 
 const shareScreen = () => {console.log('Should start screen sharing');};
 
-export default class Actions extends Component {
+class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
   }
@@ -56,7 +56,6 @@ export default class Actions extends Component {
       <Dropdown ref="dropdown">
         <DropdownTrigger>
           <Button
-            role="button"
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="circle-add"
             color="primary"
@@ -95,4 +94,4 @@ export default class Actions extends Component {
   }
 }
 
-export default injectIntl(Actions);
+export default injectIntl(ActionsDropdown);

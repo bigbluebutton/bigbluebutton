@@ -16,31 +16,31 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 
 const intlMessages = defineMessages({
   optionsLabel: {
-    id: 'app.dropdown.optionsLabel',
+    id: 'app.navBar.settingsDropdown.optionsLabel',
     defaultMessage: 'Options',
   },
   fullscreenLabel: {
-    id: 'app.dropdown.fullscreenLabel',
+    id: 'app.navBar.settingsDropdown.fullscreenLabel',
     defaultMessage: 'Make fullscreen',
   },
   settingsLabel: {
-    id: 'app.dropdown.settingsLabel',
+    id: 'app.navBar.settingsDropdown.settingsLabel',
     defaultMessage: 'Open settings',
   },
   leaveSessionLabel: {
-    id: 'app.dropdown.leaveSessionLabel',
+    id: 'app.navBar.settingsDropdown.leaveSessionLabel',
     defaultMessage: 'Logout',
   },
   fullscreenDesc: {
-    id: 'app.dropdown.fullscreenDesc',
+    id: 'app.navBar.settingsDropdown.fullscreenDesc',
     defaultMessage: 'Make the settings menu fullscreen',
   },
   settingsDesc: {
-    id: 'app.dropdown.settingsDesc',
+    id: 'app.navBar.settingsDropdown.settingsDesc',
     defaultMessage: 'Change the general settings',
   },
   leaveSessionDesc: {
-    id: 'app.dropdown.leaveSessionDesc',
+    id: 'app.navBar.settingsDropdown.leaveSessionDesc',
     defaultMessage: 'Leave the meeting',
   },
 });
@@ -75,7 +75,7 @@ const openSettings = () => showModal(<Settings />);
 
 const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
 
-export default class SettingsDropdown extends Component {
+class SettingsDropdown extends Component {
   constructor(props) {
     super(props);
   }
@@ -86,7 +86,6 @@ export default class SettingsDropdown extends Component {
       <Dropdown ref="dropdown">
         <DropdownTrigger>
           <Button
-            role="button"
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             ghost={true}
