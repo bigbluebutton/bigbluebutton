@@ -1033,10 +1033,10 @@ begin
                 xml.extensions {
                   xml.preview {
                     xml.images {
-                      xml.image(:width => "176", :height => "136", :alt => (presentation[:slides][1][:alt] != nil)? "#{presentation[:slides][1][:alt]}": ""){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-1.png") }
-                      unless presentation[:filename] == "default.pdf"
-                        xml.image(:width => "176", :height => "136", :alt => (presentation[:slides][2][:alt] != nil)? "#{presentation[:slides][2][:alt]}": ""){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-2.png") }
-                        xml.image(:width => "176", :height => "136", :alt => (presentation[:slides][3][:alt] != nil)? "#{presentation[:slides][3][:alt]}": ""){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-3.png") }
+                      presentation[:slides].each do |key,val|
+                        attributes = {:width => "176", :height => "136"}
+                        attributes[:alt] = val[:alt] if val[:alt] != nil
+                        xml.image(attributes){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png") }
                       end
                     }
                   }
