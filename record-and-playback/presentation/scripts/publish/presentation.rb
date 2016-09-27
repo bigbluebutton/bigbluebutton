@@ -1034,8 +1034,7 @@ begin
                   xml.preview {
                     xml.images {
                       presentation[:slides].each do |key,val|
-                        attributes = {:width => "176", :height => "136"}
-                        attributes[:alt] = val[:alt] if val[:alt] != nil
+                        attributes = {:width => "176", :height => "136", :alt => (val[:alt] != nil)? "#{val[:alt]}": ""}
                         xml.image(attributes){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png") }
                       end
                     }
