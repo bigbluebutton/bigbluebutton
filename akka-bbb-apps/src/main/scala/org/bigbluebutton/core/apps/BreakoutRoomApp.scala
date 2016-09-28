@@ -20,15 +20,6 @@ trait BreakoutRoomApp extends SystemConfiguration {
   val outGW: OutMessageGateway
   val eventBus: IncomingEventBus
 
-  def getDefaultPresentationURL(): String = {
-    var presURL = bbbWebDefaultPresentationURL
-    val page = presModel.getCurrentPage()
-    page foreach { p =>
-      presURL = BreakoutRoomsUtil.fromSWFtoPDF(p.swfUri)
-    }
-    presURL
-  }
-
   def handleBreakoutRoomsList(msg: BreakoutRoomsListMessage) {
     val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id) }
     outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms, breakoutModel.pendingRoomsNumber == 0 && breakoutRooms.length > 0));
@@ -40,17 +31,20 @@ trait BreakoutRoomApp extends SystemConfiguration {
       log.warning("CreateBreakoutRooms event received while {} are pending to be created for meeting {}", breakoutModel.pendingRoomsNumber, mProps.meetingID)
       return
     }
+
     var i = 0
+    val sourcePresentationId = presModel.getCurrentPresentation().get.id
+    val sourcePresentationSlide = presModel.getCurrentPage().get.num
     breakoutModel.pendingRoomsNumber = msg.rooms.length;
+
     for (room <- msg.rooms) {
       i += 1
-      val presURL = bbbWebDefaultPresentationURL
       val breakoutMeetingId = BreakoutRoomsUtil.createMeetingId(mProps.meetingID, i)
       val voiceConfId = BreakoutRoomsUtil.createVoiceConfId(mProps.voiceBridge, i)
-      val r = breakoutModel.createBreakoutRoom(breakoutMeetingId, room.name, voiceConfId, room.users, presURL)
+      val r = breakoutModel.createBreakoutRoom(breakoutMeetingId, room.name, voiceConfId, room.users)
       val p = new BreakoutRoomOutPayload(r.id, r.name, mProps.meetingID,
         r.voiceConfId, msg.durationInMinutes, mProps.moderatorPass, mProps.viewerPass,
-        r.defaultPresentationURL, msg.record)
+        sourcePresentationId, sourcePresentationSlide, msg.record)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, p))
     }
     meetingModel.breakoutRoomsdurationInMinutes = msg.durationInMinutes;
@@ -85,7 +79,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
       breakoutModel.getRooms().foreach { room =>
         breakoutModel.getAssignedUsers(room.id) foreach { users =>
           users.foreach { u =>
-            log.debug("## Sending Join URL for users: {}", u);
+            log.debug("Sending Join URL for users: {}", u);
             sendJoinURL(u, room.id)
           }
         }
@@ -181,7 +175,7 @@ object BreakoutRoomsUtil {
   }
 
   def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutId: String,
-    password: String, redirect: Boolean): mutable.Map[String, String] = {
+                 password: String, redirect: Boolean): mutable.Map[String, String] = {
     val params = new collection.mutable.HashMap[String, String]
     params += "fullName" -> urlEncode(username)
     params += "userID" -> urlEncode(userId + "-" + breakoutId.substring(breakoutId.lastIndexOf("-") + 1));
