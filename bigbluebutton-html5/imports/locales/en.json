@@ -45,5 +45,20 @@
   "app.actionsBar.actionsDropdown.desktopShareLabel": "Share your screen",
   "app.actionsBar.actionsDropdown.presentationDesc": "Upload your presentation",
   "app.actionsBar.actionsDropdown.initPollDesc": "Initiate a poll",
-  "app.actionsBar.actionsDropdown.desktopShareDesc": "Share your screen with others"
+  "app.actionsBar.actionsDropdown.desktopShareDesc": "Share your screen with others",
+  "app.actionsBar.emojiMenu.statusTriggerLabel": "Status",
+  "app.actionsBar.emojiMenu.awayLabel": "Away",
+  "app.actionsBar.emojiMenu.awayDesc": "Change your status to away",
+  "app.actionsBar.emojiMenu.raiseLabel": "Raise",
+  "app.actionsBar.emojiMenu.raiseDesc": "Raise your hand to ask a question",
+  "app.actionsBar.emojiMenu.undecidedLabel": "Undecided",
+  "app.actionsBar.emojiMenu.undecidedDesc": "Change your status to undecided",
+  "app.actionsBar.emojiMenu.confusedLabel": "Confused",
+  "app.actionsBar.emojiMenu.confusedDesc": "Change your status to confused",
+  "app.actionsBar.emojiMenu.sadLabel": "Sad",
+  "app.actionsBar.emojiMenu.sadDesc": "Change your status to sad",
+  "app.actionsBar.emojiMenu.happyLabel": "Happy",
+  "app.actionsBar.emojiMenu.happyDesc": "Change your status to happy",
+  "app.actionsBar.emojiMenu.clearLabel": "Clear",
+  "app.actionsBar.emojiMenu.clearDesc": "Clear your status"
 }

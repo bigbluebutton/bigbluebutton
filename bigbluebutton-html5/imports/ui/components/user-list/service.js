@@ -2,13 +2,13 @@ import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
 import { callServer } from '/imports/ui/services/api';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
-const EMOJI_STATUSES = ['raiseHand', 'happy', 'smile', 'neutral', 'sad', 'confused', 'away'];
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 
 /* TODO: Same map is done in the chat/service we should share this someway */
