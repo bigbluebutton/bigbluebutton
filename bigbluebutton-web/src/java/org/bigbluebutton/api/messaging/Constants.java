@@ -94,4 +94,6 @@ public class Constants {
   public static final String CREATE_DATE                     = "create_date";
   public static final String GUEST                           = "guest";
   public static final String WAITING_FOR_ACCEPTANCE          = "waiting_for_acceptance";
+  public static final String FORMAT                          = "format";
+  public static final String RECORD_ID                       = "record_id";
 }

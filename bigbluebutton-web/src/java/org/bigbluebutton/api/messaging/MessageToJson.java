@@ -73,7 +73,10 @@ public class MessageToJson {
 	
 	public static String publishRecordingMessageToJson(PublishRecordingMessage message) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
+		payload.put(Constants.RECORD_ID, message.recordId);
 		payload.put(Constants.MEETING_ID, message.meetingId);
+		payload.put(Constants.EXTERNAL_MEETING_ID, message.externalMeetingId);
+		payload.put(Constants.FORMAT, message.format);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(PublishRecordingMessage.PUBLISH_RECORDING, PublishRecordingMessage.VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
@@ -81,7 +84,10 @@ public class MessageToJson {
 
 	public static String unpublishRecordingMessageToJson(UnpublishRecordingMessage message) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
+		payload.put(Constants.RECORD_ID, message.recordId);
 		payload.put(Constants.MEETING_ID, message.meetingId);
+		payload.put(Constants.EXTERNAL_MEETING_ID, message.externalMeetingId);
+		payload.put(Constants.FORMAT, message.format);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(UnpublishRecordingMessage.UNPUBLISH_RECORDING, UnpublishRecordingMessage.VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
@@ -89,7 +95,10 @@ public class MessageToJson {
 
 	public static String deleteRecordingMessageToJson(DeleteRecordingMessage message) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
+		payload.put(Constants.RECORD_ID, message.recordId);
 		payload.put(Constants.MEETING_ID, message.meetingId);
+		payload.put(Constants.EXTERNAL_MEETING_ID, message.externalMeetingId);
+		payload.put(Constants.FORMAT, message.format);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DeleteRecordingMessage.DELETE_RECORDING, DeleteRecordingMessage.VERSION, null);
 		return MessageBuilder.buildJson(header, payload);

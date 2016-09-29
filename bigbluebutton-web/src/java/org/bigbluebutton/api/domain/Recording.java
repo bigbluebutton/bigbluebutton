@@ -282,6 +282,18 @@ public class Recording {
 		return newdate;
 	}
 	
+	public String getExternalMeetingId() {
+		String externalMeetingId = null;
+		if (this.metadata != null) {
+			externalMeetingId = this.metadata.get("meetingId");
+		}
+
+		if (externalMeetingId != null) {
+			return externalMeetingId;
+		} else {
+			return "";
+		}
+	}
 }
 
 /*
