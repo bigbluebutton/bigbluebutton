@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import javax.servlet.ServletRequest;
+
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,7 +29,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.api.domain.Config;
@@ -2057,9 +2060,8 @@ class ApiController {
     }
   }
 
-
   def processDocumentFromRawBytes(bytes, presFilename, meetingId) {
-    def filenameExt = Util.getFilenameExt(presFilename);
+    def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
     def presId = Util.generatePresentationId(presFilename)
     File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId)
@@ -2080,7 +2082,7 @@ class ApiController {
   def downloadAndProcessDocument(address, meetingId) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
     String presFilename = address.tokenize("/")[-1];
-    def filenameExt = presDownloadService.getFilenameExt(presFilename);
+    def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
 
     def presId = presDownloadService.generatePresentationId(presFilename)
