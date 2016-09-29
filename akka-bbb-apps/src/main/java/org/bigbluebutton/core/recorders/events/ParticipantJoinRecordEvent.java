@@ -28,6 +28,10 @@ public class ParticipantJoinRecordEvent extends AbstractParticipantRecordEvent {
 	public void setUserId(String userId) {
 		eventMap.put("userId", userId);
 	}
+
+	public void setExternalUserId(String externalUserId) {
+		eventMap.put("externalUserId", externalUserId);
+	}
 	
 	public void setName(String name){
 		eventMap.put("name",name);

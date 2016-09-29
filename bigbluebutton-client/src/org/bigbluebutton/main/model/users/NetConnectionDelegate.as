@@ -18,8 +18,7 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -30,6 +29,7 @@ package org.bigbluebutton.main.model.users
 	import flash.utils.Timer;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
@@ -39,7 +39,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-		
+  
 	public class NetConnectionDelegate
 	{
 		private static const LOGGER:ILogger = getClassLogger(NetConnectionDelegate);
@@ -50,17 +50,8 @@ package org.bigbluebutton.main.model.users
 		
 		private var _userid:Number = -1;
 		private var _role:String = "unknown";
-		private var _applicationURI:String;
-		private var _conferenceParameters:ConferenceParameters;
 		
-		// These two are just placeholders. We'll get this from the server later and
-		// then pass to other modules.
-		private var _authToken:String = "AUTHORIZED";
-		private var _room:String;
-		private var tried_tunneling:Boolean = false;
 		private var logoutOnUserCommand:Boolean = false;
-		private var backoff:Number = 2000;
-		
 		private var dispatcher:Dispatcher;    
     private var _messageListeners:Array = new Array();
     
@@ -70,24 +61,10 @@ package org.bigbluebutton.main.model.users
 	
 		private var _validateTokenTimer:Timer = null;	
 	
-		public function NetConnectionDelegate():void
-		{
+		public function NetConnectionDelegate():void {
 			dispatcher = new Dispatcher();
-			
-			_netConnection = new NetConnection();				
-			_netConnection.proxyType = "best";
-			_netConnection.client = this;
-			_netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
-			_netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
-			_netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
-			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 		}
-		
-    public function setUri(uri:String):void {
-      _applicationURI = uri;
-    }
-       
-        
+		  
 		public function get connection():NetConnection {
 			return _netConnection;
 		}
@@ -136,9 +113,11 @@ package org.bigbluebutton.main.model.users
 	}
 	
     private function validateToken():void {
+      var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
+      
       var message:Object = new Object();
-      message["userId"] = _conferenceParameters.internalUserID;
-      message["authToken"] = _conferenceParameters.authToken;
+      message["userId"] = confParams.internalUserID;
+      message["authToken"] = confParams.authToken;
       
 	  _validateTokenTimer = new Timer(7000, 1);
 	  _validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
@@ -265,23 +244,39 @@ package org.bigbluebutton.main.model.users
 		 * mode: LIVE/PLAYBACK - Live:when used to collaborate, Playback:when being used to playback a recorded conference.
 		 * room: Need the room number when playing back a recorded conference. When LIVE, the room is taken from the URI.
 		 */
-		public function connect(params:ConferenceParameters, tunnel:Boolean = false):void {	
-			_conferenceParameters = params;
+		public function connect():void {	
+      var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
 			
-			tried_tunneling = tunnel;	
+      _netConnection = new NetConnection();				
+      _netConnection.proxyType = "best";
+      _netConnection.client = this;
+      _netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
+      _netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
+      _netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
+      _netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
             
 			try {	
-				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
+        var appURL:String = BBB.getConfigManager().config.application.uri;
+        var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+        var result:Array = pattern.exec(appURL);
+        
+        var protocol:String = "rtmp";
+        var uri:String = appURL + "/" + confParams.room;
+        
+        if (BBB.initConnectionManager().isTunnelling) {
+          uri = "rtmpt://" + result.server + "/" + result.app + "/" + confParams.room;
+        } else {
+          uri = "rtmp://" + result.server + ":1935/" + result.app + "/" + confParams.room;
+        }
 				
-				if (tunnel) {
-					uri = uri.replace(/rtmp:/gi, "rtmpt:");
-				}
+				
 				LOGGER.debug("BBB Apps URI=" + uri);
 				
-				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
-											_conferenceParameters.room, _conferenceParameters.voicebridge, 
-											_conferenceParameters.record, _conferenceParameters.externUserID,
-											_conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings);			
+				_netConnection.connect(uri, confParams.username, confParams.role,
+          confParams.room, confParams.voicebridge, 
+          confParams.record, confParams.externUserID,
+          confParams.internalUserID, confParams.muteOnStart, confParams.lockSettings);
+               
 			} catch(e:ArgumentError) {
 				// Invalid parameters.
 				switch (e.errorID) {
@@ -309,17 +304,6 @@ package org.bigbluebutton.main.model.users
 			handleResult( event );
 		}
 		
-    private var _bwMon:BandwidthMonitor = new BandwidthMonitor();
-    
-    private function startMonitoringBandwidth():void {
-	  LOGGER.debug("Start monitoring bandwidth.");
-      var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
-      var result:Array = pattern.exec(_applicationURI);
-      _bwMon.serverURL = result.server;
-      _bwMon.serverApplication = "video";
-      _bwMon.start();
-    }
-    
 		public function handleResult(event:Object):void {
 			var info : Object = event.info;
 			var statusCode : String = info.code;
@@ -331,29 +315,18 @@ package org.bigbluebutton.main.model.users
 				case "NetConnection.Connect.Success":
 					numNetworkChangeCount = 0;
           JSLog.debug("Successfully connected to BBB App.", logData);
-
           validateToken();
-			
 					break;
 			
 				case "NetConnection.Connect.Failed":					
-					if (tried_tunneling) {
             LOGGER.error(":Connection to viewers application failed...even when tunneling");
-						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
-					} else {
-						disconnect(false);
-            LOGGER.error(":Connection to viewers application failed...try tunneling");
-						var rtmptRetryTimer:Timer = new Timer(1000, 1);
-            rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
-            rtmptRetryTimer.start();						
-					}									
+						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);								
 					break;
 					
 				case "NetConnection.Connect.Closed":	
 					logData.message = "NetConnection.Connect.Closed on bbb-apps";
 					LOGGER.info(JSON.stringify(logData));
           sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
-											
 					break;
 					
 				case "NetConnection.Connect.InvalidApp":	
@@ -367,7 +340,8 @@ package org.bigbluebutton.main.model.users
 					break;
 					
 				case "NetConnection.Connect.Rejected":
-          LOGGER.debug(":Connection to the server rejected. Uri: {0}. Check if the red5 specified in the uri exists and is running", [_applicationURI]);
+          var appURL:String = BBB.getConfigManager().config.application.uri
+          LOGGER.debug(":Connection to the server rejected. Uri: {0}. Check if the red5 specified in the uri exists and is running", [appURL]);
 					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);		
 					break;
 				
@@ -386,11 +360,6 @@ package org.bigbluebutton.main.model.users
 				   break;
 			}
 		}
-		
-		private function rtmptRetryTimerHandler(event:TimerEvent):void {
-	  LOGGER.debug("rtmptRetryTimerHandler: {0}", [event]);
-      connect(_conferenceParameters, true);
-    }
 			
 		protected function netSecurityError(event: SecurityErrorEvent):void {
       LOGGER.error("Security error - {0}", [event.text]);
@@ -435,9 +404,10 @@ package org.bigbluebutton.main.model.users
                   var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
                   disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
                   disconnectedEvent.payload.callback = connect;
-                  disconnectedEvent.payload.callbackParameters = new Array(_conferenceParameters, tried_tunneling);
+                  disconnectedEvent.payload.callbackParameters = new Array();
                   dispatcher.dispatchEvent(disconnectedEvent);
                 }
+
             } else {
                 if (UsersUtil.isUserEjected()) {
                     logData.user = UsersUtil.getUserData();

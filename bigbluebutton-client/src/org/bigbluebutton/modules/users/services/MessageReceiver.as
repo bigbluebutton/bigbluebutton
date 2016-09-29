@@ -174,10 +174,6 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
-      LOGGER.debug("*** handleDeskShareRTMPBroadcastNotification **** \n", [msg]);
-      LOGGER.debug("*** handleDeskShareRTMPBroadcastNotification **** url=", msg.rtmpUrl);
-      LOGGER.debug("*** handleDeskShareRTMPBroadcastNotification **** broadcasting=", msg.broadcasting);
-
       var event:WebRTCViewStreamEvent;
       if (msg.broadcasting) {
         event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);

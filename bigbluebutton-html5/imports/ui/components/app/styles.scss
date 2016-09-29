@@ -97,11 +97,7 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
 .userList {
   @extend %full-page;
   z-index: 2;
-  overflow: hidden;
-
-  @include mq($small-only) {
-    padding-top: $navbar-height;
-  }
+  overflow: visible;
 
   @include mq($small-only) {
     padding-top: $navbar-height;
@@ -117,11 +113,15 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   }
 }
 
+.compact {
+  flex-basis: 4.6rem;
+}
+
 .chat {
   @extend %full-page;
-  z-index: 3;
 
   @include mq($small-only) {
+    z-index: 3;
     padding-top: $navbar-height;
   }
 

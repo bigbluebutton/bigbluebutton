@@ -16,6 +16,7 @@ import org.bigbluebutton.screenshare.client.ExitCode;
 import org.bigbluebutton.screenshare.client.ScreenShareInfo;
 import org.bigbluebutton.screenshare.client.net.NetworkConnectionListener;
 import org.bytedeco.javacpp.Loader;
+import org.bytedeco.javacpp.avcodec;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
@@ -144,25 +145,27 @@ public class FfmpegScreenshare {
       frame = grabber.grabImage();
       if (frame != null) {
         try {
+          long timestamp = now - startTime;
+          // Override timestamp from system screen grabber. Otherwise, we will have skewed recorded file.
+          // FfmpegFrameRecorder needs to propagate this timestamp into the avpacket sent to the server.
+          // ralam - Sept. 14, 2016
+          frame.timestamp = timestamp;
+          //System.out.println("frame timestamp=[" + frame.timestamp + "] ");
           mainRecorder.record(frame);
         } catch (Exception e) {
           //System.out.println("CaptureScreen Exception 1");
           if (!ignoreDisconnect) {
             listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
           }
-
         }
       }
     } catch (Exception e1) {
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
-
     long sleepFramerate = (long) (1000 / frameRate);
-    long timestamp = now - startTime;
-    mainRecorder.setTimestamp(timestamp * 1000);
 
-    //        System.out.println("i=[" + i + "] timestamp=[" + timestamp + "]");
+    //System.out.println("timestamp=[" + timestamp + "]");
     mainRecorder.setFrameNumber(frameNumber);
 
 //    System.out.println("[ENCODER] encoded image " + frameNumber + " in " + (System.currentTimeMillis() - now));

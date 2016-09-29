@@ -6,10 +6,25 @@ import UserList from './component.jsx';
 
 class UserListContainer extends Component {
   render() {
+    const {
+      compact,
+      users,
+      currentUser,
+      openChats,
+      openChat,
+      userActions,
+      children,
+    } = this.props;
+
     return (
       <UserList
-        {...this.props}>
-        {this.props.children}
+        compact={compact}
+        users={users}
+        currentUser={currentUser}
+        openChats={openChats}
+        openChat={openChat}
+        userActions={userActions}>
+        {children}
       </UserList>
     );
   }

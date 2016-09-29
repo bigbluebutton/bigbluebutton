@@ -43,7 +43,7 @@ $user-icons-color-hover: $color-gray;
   padding-left: 0.5rem;
   padding-right: 0rem;
   margin-left: 0.7rem;
-  margin-top: 0.9rem;
+  margin-top: 0.3rem;
   display: flex;
   flex-flow: row;
   transition: all 0.3s;
@@ -102,6 +102,7 @@ $user-icons-color-hover: $color-gray;
 .participantsList,
 .chatsList {
   @extend .lists;
+  overflow-x: hidden;
   flex-shrink: 1;
 }
 
@@ -128,6 +129,13 @@ $user-icons-color-hover: $color-gray;
   flex-basis: 31rem;
   flex-grow: 1;
   flex-shrink: 1;
+}
+
+.separator {
+  margin: 1rem auto;
+  width: 2.2rem;
+  border: 0;
+  border-top: 1px solid $color-gray-lighter;
 }
 
 .enter, .appear {

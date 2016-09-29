@@ -169,7 +169,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			var options:ScreenshareOptions = new ScreenshareOptions();
 			options.parseOptions();
 
-			if (options.useWebRTCIfAvailable && BrowserCheck.isWebRTCSupported()) {
+			if (options.tryWebRTCFirst && BrowserCheck.isWebRTCSupported()) {
 				JSLog.warn("WebRTCDeskshareManager::handleStartSharingEvent WebRTC Supported", {});
 				if (BrowserCheck.isFirefox()) {
 					onSuccess("Firefox, lets try");

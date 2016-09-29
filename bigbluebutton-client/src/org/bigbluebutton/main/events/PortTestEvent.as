@@ -30,7 +30,7 @@ package org.bigbluebutton.main.events
 		public static const PORT_TEST_UPDATE:String = "PORT_TEST_UPDATE";
 		public static const TUNNELING_FAILED:String = "RTMTP_ALSO_FAILED";
 		
-		public var protocol:String;
+		public var tunnel:Boolean;
 		public var hostname:String;
 		public var port:String;
 		public var app:String;
