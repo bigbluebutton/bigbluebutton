@@ -401,10 +401,8 @@ public class MeetingService implements MessageListener {
         return null;
     }
 
-    public Map<String, Recording> getRecordings(List<String> idList,
-            List<String> states) {
-        List<Recording> recsList = recordingService.getRecordings(idList,
-                states);
+    public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
+        List<Recording> recsList = recordingService.getRecordings(idList, states);
         Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
@@ -412,8 +410,7 @@ public class MeetingService implements MessageListener {
     public Map<String, Recording> filterRecordingsByMetadata(
             Map<String, Recording> recordings,
             Map<String, String> metadataFilters) {
-        return recordingService.filterRecordingsByMetadata(recordings,
-                metadataFilters);
+        return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
     }
 
     public Map<String, Recording> reorderRecordings(List<Recording> olds) {
@@ -430,9 +427,8 @@ public class MeetingService implements MessageListener {
                 List<Playback> plays = new ArrayList<Playback>();
 
                 if (r.getPlaybackFormat() != null) {
-                    plays.add(new Playback(r.getPlaybackFormat(), r
-                            .getPlaybackLink(), getDurationRecording(
-                            r.getPlaybackDuration(), r.getEndTime(),
+                    plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+                            getDurationRecording(r.getPlaybackDuration(), r.getEndTime(),
                             r.getStartTime()), r.getPlaybackExtensions()));
                 }
 
@@ -440,12 +436,9 @@ public class MeetingService implements MessageListener {
                 map.put(r.getId(), r);
             } else {
                 Recording rec = map.get(r.getId());
-                rec.getPlaybacks().add(
-                        new Playback(r.getPlaybackFormat(),
-                                r.getPlaybackLink(), getDurationRecording(
-                                        r.getPlaybackDuration(),
-                                        r.getEndTime(), r.getStartTime()), r
-                                        .getPlaybackExtensions()));
+                rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+                                    getDurationRecording(r.getPlaybackDuration(), r.getEndTime(),
+                                    r.getStartTime()), r.getPlaybackExtensions()));
             }
         }
 
