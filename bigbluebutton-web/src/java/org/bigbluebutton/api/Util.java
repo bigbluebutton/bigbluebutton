@@ -10,9 +10,9 @@ public final class Util {
 		return DigestUtils.shaHex(name) + "-" + timestamp;
 	}
 	
-	public static String createNewFilename(String presId, String fileExt) {
-		return presId + fileExt;
-	}
+    public static String createNewFilename(String presId, String fileExt) {
+        return presId + "." + fileExt;
+    }
 	
 	public static File createPresentationDirectory(String meetingId, String presentationDir, String presentationId) {
 		String meetingPath = presentationDir + File.separatorChar + meetingId + File.separatorChar + meetingId;

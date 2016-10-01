@@ -2089,7 +2089,7 @@ class ApiController {
     def presId = presDownloadService.generatePresentationId(presFilename)
     File uploadDir = presDownloadService.createPresentationDirectory(meetingId, presentationDir, presId)
     if (uploadDir != null) {
-      def newFilename = presDownloadService.createNewFilename(presId, filenameExt)
+      def newFilename = Util.createNewFilename(presId, filenameExt)
       def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
 
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {

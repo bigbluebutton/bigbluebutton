@@ -14,6 +14,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.bigbluebutton.api.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,7 @@ public class PresentationUrlDownloadService {
             String filenameExt = FilenameUtils
                     .getExtension(sourcePresentationFile.getName());
             String presId = generatePresentationId(presentationId);
-            String newFilename = createNewFilename(presId, filenameExt);
+            String newFilename = Util.createNewFilename(presId, filenameExt);
 
             File uploadDir = createPresentationDirectory(destinationMeetingId,
                     presentationDir, presId);
@@ -84,10 +85,6 @@ public class PresentationUrlDownloadService {
     public String generatePresentationId(String name) {
         long timestamp = System.currentTimeMillis();
         return DigestUtils.shaHex(name) + "-" + timestamp;
-    }
-
-    public String createNewFilename(String presId, String fileExt) {
-        return presId + "." + fileExt;
     }
 
     public File createPresentationDirectory(String meetingId,
