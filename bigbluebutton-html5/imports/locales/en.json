@@ -1,3 +1,6 @@
+
+
+
 {
   "app.home.greeting": "Welcome {name}! Your presentation will begin shortly...",
   "app.userlist.participantsTitle": "Participants",
@@ -39,6 +42,9 @@
   "app.leaveConfirmation.confirmDesc": "Logs you out of the meeting",
   "app.leaveConfirmation.dismissLabel": "Cancel",
   "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation",
+  "app.actionsBar.muteLabel": "Mute",
+  "app.actionsBar.camOffLabel": "Cam Off",
+  "app.actionsBar.raiseLabel": "Raise",
   "app.actionsBar.actionsDropdown.actionsLabel": "Actions",
   "app.actionsBar.actionsDropdown.presentationLabel": "Upload a presentation",
   "app.actionsBar.actionsDropdown.initPollLabel": "Initiate a poll",
