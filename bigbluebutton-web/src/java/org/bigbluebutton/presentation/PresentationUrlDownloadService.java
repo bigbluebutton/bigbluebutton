@@ -49,20 +49,29 @@ public class PresentationUrlDownloadService {
                 + File.separator + presentationId);
 
         final String presentationFilter = presentationId;
-        FilenameFilter filter = new FilenameFilter() {
+        FilenameFilter pdfFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.startsWith(presentationFilter);
+                return name.startsWith(presentationFilter)
+                        && name.toLowerCase().endsWith("pdf");
             }
         };
 
-        File[] children = sourceMeetingPath.listFiles(filter);
+        File[] matches = sourceMeetingPath.listFiles(pdfFilter);
+        if (matches.length != 1) {
+            // No PDF presentation was found, we look for an image presentation
+            FilenameFilter imgFlter = new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.startsWith(presentationFilter);
+                }
+            };
 
-        if (children.length != 1) {
-            log.error("Not matching file with prefix {} found at {}",
+            matches = sourceMeetingPath.listFiles(imgFlter);
+        }
+        if (matches.length != 1) {
+            log.info("Not matching PDF file with prefix {} found at {}",
                     sourceMeetingId, sourceMeetingPath);
-            return;
         } else {
-            File sourcePresentationFile = children[0];
+            File sourcePresentationFile = matches[0];
             String filenameExt = FilenameUtils
                     .getExtension(sourcePresentationFile.getName());
             String presId = generatePresentationId(presentationId);
@@ -72,13 +81,25 @@ public class PresentationUrlDownloadService {
                     presentationDir, presId);
             String newFilePath = uploadDir.getAbsolutePath()
                     + File.separatorChar + newFilename;
+            File newPresentation = new File(newFilePath);
 
-            pageExtractor.extractPage(sourcePresentationFile, new File(
-                    newFilePath), presentationSlide);
+            if (sourcePresentationFile.getName().toLowerCase().endsWith("pdf")) {
+                pageExtractor.extractPage(sourcePresentationFile, new File(
+                        newFilePath), presentationSlide);
+            } else {
+                try {
+                    FileUtils.copyFile(sourcePresentationFile, newPresentation);
+                } catch (IOException e) {
+                    log.error("Could not copy presentation {} to {}",
+                            sourcePresentationFile.getAbsolutePath(),
+                            newPresentation.getAbsolutePath());
+                    e.printStackTrace();
+                }
+            }
 
-            File pres = new File(newFilePath);
             processUploadedFile(destinationMeetingId, presId, "default-"
-                    + presentationSlide.toString() + "." + filenameExt, pres);
+                    + presentationSlide.toString() + "." + filenameExt,
+                    newPresentation);
         }
     }
 
