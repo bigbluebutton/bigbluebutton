@@ -3,9 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import { renderRoutes } from '../imports/startup/client/routes.js';
 import { IntlProvider } from 'react-intl';
-
 import LangProvider from './langprovider';
-
 
 // Helper to load javascript libraries from the BBB server
 function loadLib(libname, success, fail) {

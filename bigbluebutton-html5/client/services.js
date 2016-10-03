@@ -5,12 +5,17 @@ var extend = require('util')._extend;
 
 function loadMessages(defaultMsgs, defaultLocale,  lang, langRegion) {
   let newMessages;
-  let langOnly = false, langRegionOnly = false;
-  //let localeFound = false, attempted = false;
 
+  let langOnly = false;
+
+  let langRegionOnly = false;
+
+  //let localeFound = false;
+  //let attempted = false;
 
   //pt_BR is used for testing.
-  let pt_BR = {
+  /*
+  let PT_BR = {
     "app.home.greeting": "Bem-vindo {name}! Sua aprensentação começará em breve...",
     "app.userlist.participantsTitle": "Participantes",
     "app.userlist.messagesTitle": "Mensagens",
@@ -27,8 +32,7 @@ function loadMessages(defaultMsgs, defaultLocale,  lang, langRegion) {
     "app.connectingMessage": "Conectando...",
     "app.waitingMessage": "Desconectado. Tentando reconectar em {seconds} segundos..."
   }
-
-
+  */
 
   //TODO: get ajax calls to work, issue is with the url. doesnt have access to locale .json files
   /*
@@ -67,15 +71,16 @@ function loadMessages(defaultMsgs, defaultLocale,  lang, langRegion) {
   }
   */
 
-  var combined = extend(defaultMsgs, newMessages);
   //var combined = extend(defaultMsgs, pt_BR);
 
+  var combined = extend(defaultMsgs, newMessages);
+
   let results = [];
-  if(langOnly){
+  if (langOnly) {
     results = [lang, combined];
   }else if (langRegionOnly) {
     results = [langRegion, combined];
-  }else{
+  }else {
     results = [defaultLocale, combined];
   }
 
