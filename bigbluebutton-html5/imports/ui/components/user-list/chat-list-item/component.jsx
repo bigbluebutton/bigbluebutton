@@ -25,6 +25,7 @@ class ChatListItem extends Component {
     const {
       chat,
       openChat,
+      compact,
     } = this.props;
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
@@ -33,11 +34,11 @@ class ChatListItem extends Component {
     linkClasses[styles.active] = chat.id === openChat;
 
     return (
-      <li className={cx(styles.chatListItem, linkClasses)} {...this.props}>
+      <li className={cx(styles.chatListItem, linkClasses)}>
         <Link to={linkPath} className={styles.chatListItemLink}>
           {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
           <div className={styles.chatName}>
-            <h3 className={styles.chatNameMain}>{chat.name}</h3>
+            {!compact ? <h3 className={styles.chatNameMain}>{chat.name}</h3> : null }
           </div>
           {(chat.unreadCounter > 0) ?
             <div className={styles.unreadMessages}>

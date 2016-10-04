@@ -23,6 +23,7 @@ object CaptionMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.LOCALE, msg.locale)
+    payload.put(Constants.LOCALE_CODE, msg.localeCode)
     payload.put(Constants.OWNER_ID, msg.ownerID)
 
     val header = Util.buildHeader(MessageNames.UPDATE_CAPTION_OWNER, None)
@@ -36,6 +37,7 @@ object CaptionMessageToJsonConverter {
     payload.put(Constants.START_INDEX, msg.startIndex)
     payload.put(Constants.END_INDEX, msg.endIndex)
     payload.put(Constants.LOCALE, msg.locale)
+    payload.put(Constants.LOCALE_CODE, msg.localeCode)
     payload.put(Constants.TEXT, msg.text)
 
     val header = Util.buildHeader(MessageNames.EDIT_CAPTION_HISTORY, None)

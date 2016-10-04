@@ -18,15 +18,16 @@
 */
 
 package org.bigbluebutton.api.domain;
-import groovy.util.slurpersupport.GPathResult;
+
+import java.util.List;
 
 public class Playback {
 	private String format;
 	private String url;
 	private int length;
-	private GPathResult extensions;
+	private List<Extension> extensions;
 	
-	public Playback(String format, String url, int length, GPathResult extensions) {
+	public Playback(String format, String url, int length, List<Extension> extensions) {
 		this.format = format;
 		this.url = url;
 		this.length = length;
@@ -50,11 +51,10 @@ public class Playback {
 	public void setLength(int length) {
 		this.length = length;
 	}
-	public GPathResult getExtensions() {
+	public List<Extension> getExtensions() {
 		return extensions;
 	}
-	public void setExtensions(GPathResult extensions) {
+	public void setExtensions(List<Extension> extensions) {
 		this.extensions = extensions;
 	}
-	
 }

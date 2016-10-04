@@ -79,7 +79,8 @@ public class MeetingMessageHandler implements MessageHandler {
                   msg.payload.viewerPassword, 
                   msg.payload.moderatorPassword, 
                   msg.payload.durationInMinutes, 
-                  msg.payload.defaultPresentationURL,
+                  msg.payload.sourcePresentationId,
+                  msg.payload.sourcePresentationSlide,
                   msg.payload.record
                   )
               );

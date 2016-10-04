@@ -41,9 +41,23 @@ public class PollingService {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String userId = getBbbSession().getInternalUserID();
 		String pollId = (String) message.get("pollId");
-		Integer questionId = (Integer) message.get("answerId");
-		Integer answerId = (Integer) message.get("answerId");
-										
+
+		Integer questionId;
+		if (message.get("answerId") instanceof Double) {
+			Double tempQuestionId = (Double) message.get("answerId");
+			questionId = tempQuestionId.intValue();
+		} else {
+			questionId = (Integer) message.get("answerId");
+		}
+
+		Integer answerId;
+		if (message.get("answerId") instanceof Double) {
+			Double tempAnswerId = (Double) message.get("answerId");
+			answerId = tempAnswerId.intValue();
+		} else {
+			answerId = (Integer) message.get("answerId");
+		}
+
 		red5GW.votePoll(meetingID, userId, pollId, questionId, answerId);
 	}
 	

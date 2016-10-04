@@ -37,7 +37,7 @@ export function addMeetingToCollection(meetingId, name, intendedForRecording,
 
         return funct(callback);
       } else {
-        logger.error('nothing happened');
+        logger.info('the meeting already existed so no information was added');
         return callback();
       }
     }

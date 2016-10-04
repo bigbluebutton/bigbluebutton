@@ -86,11 +86,33 @@ function wasUserKicked() {
   return wasKicked;
 }
 
+let modal = null;
+const modalDep = new Tracker.Dependency;
+
+const getModal = () => {
+  modalDep.depend();
+  return modal;
+};
+
+const showModal = (val) => {
+  if (val !== modal) {
+    modal = val;
+    modalDep.changed();
+  }
+};
+
+const clearModal = () => {
+  showModal(null);
+};
+
 export {
   subscribeForData,
   setCredentials,
   subscribeFor,
   subscribeToCollections,
   wasUserKicked,
-  redirectToLogoutUrl
+  redirectToLogoutUrl,
+  getModal,
+  showModal,
+  clearModal,
 };

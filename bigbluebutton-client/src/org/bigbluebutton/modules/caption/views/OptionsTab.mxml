@@ -58,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onLocaleItemClick():void {
 				if (transcriptsCollection && localeList.selectedIndex != -1) {
-					if (changeCallback != null) changeCallback(OptionENUM.LOCALE, localeList.selectedItem.locale);
+					if (changeCallback != null) changeCallback(OptionENUM.LOCALE, localeList.selectedItem);
 				}
 			}
 			

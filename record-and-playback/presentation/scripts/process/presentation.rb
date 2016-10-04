@@ -165,6 +165,9 @@ if not FileTest.directory?(target_dir)
         command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
         BigBlueButton.execute(command)
       end
+
+      # Copy thumbnails from raw files
+      FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails")
     end
 
     BigBlueButton.logger.info("Generating closed captions")

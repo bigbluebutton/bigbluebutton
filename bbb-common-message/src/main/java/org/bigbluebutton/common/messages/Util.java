@@ -724,7 +724,7 @@ public class Util {
 		for (Map.Entry<String,JsonElement> entry : history.entrySet()) {
 			String locale = entry.getKey();
 			JsonArray values = entry.getValue().getAsJsonArray();
-			String[] localeValueArray = new String[2];
+			String[] localeValueArray = new String[3];
 			
             int i = 0;
 			Iterator<JsonElement> valuesIter = values.iterator();

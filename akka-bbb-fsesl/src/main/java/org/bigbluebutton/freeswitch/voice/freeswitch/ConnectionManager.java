@@ -29,7 +29,7 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUsetToMeetingCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUserToMeetingCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
@@ -128,7 +128,7 @@ public class ConnectionManager {
 		}
 	}
 
-	public void tranfer(TransferUsetToMeetingCommand tutmc) {
+	public void tranfer(TransferUserToMeetingCommand tutmc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
 			c.sendAsyncApiCommand(tutmc.getCommand(), tutmc.getCommandArgs());

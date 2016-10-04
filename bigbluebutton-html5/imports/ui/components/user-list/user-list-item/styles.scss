@@ -17,6 +17,18 @@
       opacity: 1;
     }
   }
+
+  &:last-child {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.active {
+  background-color: $list-item-bg-hover;
+  outline: none;
+}
+
+.userItemContentsCompact {
 }
 
 .userName {
@@ -35,7 +47,6 @@
   line-height: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-transform: capitalize;
   white-space: nowrap;
   transition: all 0.3s;
 }
@@ -74,7 +85,7 @@
 }
 
 .userItemContents {
-  flex-grow: 1;
+  flex-grow: 0;
   display: flex;
   flex-flow: row;
 }
@@ -128,4 +139,21 @@
   opacity: 0;
   transition: all 300ms;
   transform: translateY(-100%);
+}
+
+.dropdown {
+  position: static;
+}
+
+.dropdownContent {
+  cursor: default;
+}
+
+.actionsHeader {
+  color: $color-gray;
+
+  &:hover {
+    color: $color-gray !important;
+    cursor: default;
+  }
 }

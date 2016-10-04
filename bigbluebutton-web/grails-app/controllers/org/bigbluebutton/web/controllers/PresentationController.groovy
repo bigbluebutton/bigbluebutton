@@ -19,6 +19,8 @@
 package org.bigbluebutton.web.controllers
 
 import grails.converters.*
+
+import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.api.MeetingService;
@@ -48,7 +50,7 @@ class PresentationController {
     if (file && !file.empty) {
       flash.message = 'Your file has been uploaded'
       def presFilename = file.getOriginalFilename()
-      def filenameExt = Util.getFilenameExt(presFilename);
+      def filenameExt = FilenameUtils.getExtension(presFilename);
       String presentationDir = presentationService.getPresentationDir()
       def presId = Util.generatePresentationId(presFilename)
       File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId) 

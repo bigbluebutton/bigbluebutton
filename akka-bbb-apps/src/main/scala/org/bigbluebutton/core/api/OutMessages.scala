@@ -33,7 +33,7 @@ case class CreateBreakoutRoom(meetingId: String, room: BreakoutRoomOutPayload) e
 case class EndBreakoutRoom(breakoutId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
-  defaultPresentationURL: String, record: Boolean)
+  sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
 case class BreakoutRoomJoinURLOutMessage(meetingId: String, recorded: Boolean, breakoutId: String, userId: String, joinURL: String) extends IOutMessage
 case class BreakoutRoomStartedOutMessage(meetingId: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
 case class BreakoutRoomBody(name: String, breakoutId: String)
@@ -146,10 +146,10 @@ case class WhiteboardEnabledEvent(meetingID: String, recorded: Boolean, requeste
 case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean, replyTo: String) extends IOutMessage
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
-// Chat
+// Caption
 case class SendCaptionHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, history: Map[String, Array[String]]) extends IOutMessage
-case class UpdateCaptionOwnerReply(meetingID: String, recorded: Boolean, locale: String, ownerID: String) extends IOutMessage
-case class EditCaptionHistoryReply(meetingID: String, recorded: Boolean, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) extends IOutMessage
+case class UpdateCaptionOwnerReply(meetingID: String, recorded: Boolean, locale: String, localeCode: String, ownerID: String) extends IOutMessage
+case class EditCaptionHistoryReply(meetingID: String, recorded: Boolean, userID: String, startIndex: Integer, endIndex: Integer, locale: String, localeCode: String, text: String) extends IOutMessage
 // DeskShare
 case class DeskShareStartRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage
 case class DeskShareStopRTMPBroadcast(conferenceName: String, streamPath: String) extends IOutMessage

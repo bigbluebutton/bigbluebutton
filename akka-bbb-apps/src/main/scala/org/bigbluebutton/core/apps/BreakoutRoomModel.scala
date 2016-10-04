@@ -5,7 +5,7 @@ import scala.collection.immutable.HashMap
 
 case class BreakoutUser(id: String, name: String)
 case class BreakoutRoom(id: String, name: String, voiceConfId: String,
-  assignedUsers: Vector[String], users: Vector[BreakoutUser], defaultPresentationURL: String)
+  assignedUsers: Vector[String], users: Vector[BreakoutUser])
 
 class BreakoutRoomModel {
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoom]
@@ -22,8 +22,8 @@ class BreakoutRoomModel {
   }
 
   def createBreakoutRoom(id: String, name: String, voiceConfId: String,
-    assignedUsers: Vector[String], defaultPresentationURL: String): BreakoutRoom = {
-    val room = new BreakoutRoom(id, name, voiceConfId, assignedUsers, Vector(), defaultPresentationURL)
+    assignedUsers: Vector[String]): BreakoutRoom = {
+    val room = new BreakoutRoom(id, name, voiceConfId, assignedUsers, Vector())
     add(room)
   }
 

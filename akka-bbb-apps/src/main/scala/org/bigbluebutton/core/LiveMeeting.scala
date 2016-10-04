@@ -117,7 +117,7 @@ class LiveMeeting(val mProps: MeetingProperties,
     meetingModel.meetingHasEnded
 
     /**
-     * See if this meeting has breakout rooms. If so, we also need to end them.
+     * Check if this meeting has breakout rooms. If so, we also need to end them.
      */
     handleEndAllBreakoutRooms(new EndAllBreakoutRooms(msg.meetingId))
 

@@ -94,16 +94,10 @@ trait PresentationApp {
   }
 
   def handleGotoSlide(msg: GotoSlide) {
-    //      println("Received GotoSlide for meeting=[" +  msg.meetingID + "] page=[" + msg.page + "]")
-    //      println("*** Before change page ****")
-    //      printPresentations
     presModel.changePage(msg.page) foreach { page =>
-      //        println("Switching page for meeting=[" +  msg.meetingID + "] page=[" + page.id + "]")
+      log.debug("Switching page for meeting=[{}] page=[{}]", msg.meetingID, page.num);
       outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
-
     }
-    //      println("*** After change page ****")
-    //      printPresentations
 
     usersModel.getCurrentPresenter() foreach { pres =>
       handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.userID))

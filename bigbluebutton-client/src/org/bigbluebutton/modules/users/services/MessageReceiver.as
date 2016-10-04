@@ -174,10 +174,6 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
-      LOGGER.debug("*** handleDeskShareRTMPBroadcastNotification **** \n", [msg]);
-      JSLog.warn("*** handleDeskShareRTMPBroadcastNotification **** url=", msg.rtmpUrl);
-      JSLog.warn("*** handleDeskShareRTMPBroadcastNotification **** broadcasting=", msg.broadcasting);
-
       var event:WebRTCViewStreamEvent;
       if (msg.broadcasting) {
         event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
@@ -597,7 +593,10 @@ package org.bigbluebutton.modules.users.services
       user.userLocked = joinedUser.locked;
       user.avatarURL = joinedUser.avatarURL;
 	  
-	  LOGGER.info("User joined = " + JSON.stringify(user));
+      var logData:Object = new Object();
+	  logData.user = user;
+      logData.message = "User joined.";
+	  LOGGER.info(JSON.stringify(logData));
 	  
       UserManager.getInstance().getConference().addUser(user);
       

@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import Button from '../button/component';
 import RecordButton from './recordbutton/component';
-import SettingsDropdown from '../dropdown/component';
+import SettingsDropdown from './settings-dropdown/component';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,

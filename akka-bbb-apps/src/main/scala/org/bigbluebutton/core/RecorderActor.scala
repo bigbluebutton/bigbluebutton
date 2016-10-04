@@ -196,6 +196,7 @@ class RecorderActor(val recorder: RecorderApplication)
       val ev = new ParticipantJoinRecordEvent();
       ev.setTimestamp(TimestampGenerator.generateTimestamp);
       ev.setUserId(msg.user.userID);
+      ev.setExternalUserId(msg.user.externUserID);
       ev.setName(msg.user.name);
       ev.setMeetingId(msg.meetingID);
       ev.setRole(msg.user.role.toString());
@@ -452,6 +453,7 @@ class RecorderActor(val recorder: RecorderApplication)
       ev.setStartIndex(msg.startIndex.toString());
       ev.setEndIndex(msg.endIndex.toString());
       ev.setLocale(msg.locale);
+      ev.setLocaleCode(msg.localeCode);
       ev.setText(msg.text);
       recorder.record(msg.meetingID, ev);
     }

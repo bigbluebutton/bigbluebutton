@@ -23,6 +23,7 @@ public class EditCaptionHistoryRecordEvent extends AbstractCaptionRecordEvent {
 	private static final String START_INDEX = "startIndex";
 	private static final String END_INDEX = "endIndex";
 	private static final String LOCALE = "locale";
+	private static final String LOCALE_CODE = "localeCode";
 	private static final String TEXT = "text";
 	
 	public EditCaptionHistoryRecordEvent() {
@@ -33,13 +34,17 @@ public class EditCaptionHistoryRecordEvent extends AbstractCaptionRecordEvent {
 	public void setStartIndex(String startIndex) {
 		eventMap.put(START_INDEX, startIndex);
 	}
-    
+	
 	public void setEndIndex(String endIndex) {
 		eventMap.put(END_INDEX, endIndex);
 	}
 	
 	public void setLocale(String locale) {
 		eventMap.put(LOCALE, locale);
+	}
+	
+	public void setLocaleCode(String localeCode) {
+		eventMap.put(LOCALE_CODE, localeCode);
 	}
 	
 	public void setText(String text) {

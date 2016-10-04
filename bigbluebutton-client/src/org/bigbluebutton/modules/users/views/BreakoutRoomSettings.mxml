@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:mate="http://mate.asfusion.com/"
 				width="630" height="650"
 				close="onCloseClicked()"
-				creationComplete="creationCompleteHandler(event)"
+				visible="false"
 				showCloseButton="false">
 
 	<fx:Script>
@@ -35,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
-			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.core.managers.UserManager;
@@ -48,14 +47,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var dispatcher:Dispatcher;
 
+			[Bindable]
+			private var mode:String;
+
+			private static var assignement : Dictionary;
+
 			private function onCloseClicked():void {
 				PopUpManager.removePopUp(this);
 			}
-			
+
 			/**
 			 * Dispatches a BreakoutRoomEvent to start creating breakout rooms
 			 */
-			private function onStartClicked():void {
+			private function createBreakoutRooms():void {
 				// Will be used to check that all the new breakout room contains at least one users
 				var totalUsers:int;
 				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS);
@@ -67,9 +71,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var room:Object = new Object();
 					room.users = new Array();
 					room.name =
-						UserManager.getInstance().getConference().meetingName + " (" + 
+						UserManager.getInstance().getConference().meetingName + " (" +
 						ResourceUtil.getInstance().getString('bbb.users.breakout.room')
-						+ " - " + (i + 1).toString() + ")";;
+						+ " - " + (i + 1).toString() + ")";
 					for (var j:int = 0; j < users.length; j++) {
 						room.users.push(users[j].userID);
 					}
@@ -78,18 +82,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (totalUsers > 0) {
 					event.durationInMinutes = durationStepper.value;
 					event.record = recordCheckbox.selected;
-					
-					
-					
 					dispatcher.dispatchEvent(event);
+					storeAssignement();
 					PopUpManager.removePopUp(this);
 				} else {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
 				}
 			}
-			
-			protected function assignUsers():void {
-				dispatcher = new Dispatcher();
+
+			/**
+			 * Dispatches a BreakoutRoomEvent to send breakout rooms join URL invitations
+			 */
+			private function inviteUsersToBreakoutRooms():void {
+				var list:BreakoutList;
+				var user:BBBUser;
+				var usersInvited:Boolean = false;
+				for (var i:int; i < roomsContainer.numChildren - 1; i++) {
+					list = roomsContainer.getChildAt(i) as BreakoutList;
+					for (var u:int = 0; u < list.users.length; u++) {
+						user = list.users.getItemAt(u) as BBBUser;
+						if (user.breakoutRooms.length == 0) {
+							usersInvited ||= true;
+							var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
+							event.userId = user.userID;
+							event.breakoutId = UserManager.getInstance().getConference().internalMeetingID + "-" + (i + 1);
+							dispatcher.dispatchEvent(event);
+						}
+					}
+				}
+				if (usersInvited) {
+					PopUpManager.removePopUp(this);
+				} else {
+					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
+				}
+			}
+
+			protected function assignUsersForCreation():void {
 				var originalUsers:ArrayCollection = UserManager.getInstance().getConference().users;
 				var users:ArrayCollection = new ArrayCollection();
 				var me:BBBUser;
@@ -110,7 +138,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				for (var r:int = 0; r < rooms; r++) {
 					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 					list.users = new ArrayCollection();
-					list.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r + 1).toString()
+					list.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r + 1).toString();
+					list.usersList.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r + 1).toString();
 					for (var i:int = 0; i < perRoom; i++) {
 						list.users.addItem(users.removeItemAt(Math.floor(Math.random() * users.length)) as BBBUser);
 					}
@@ -121,21 +150,120 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var unassignedList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 				unassignedList.users = new ArrayCollection([me]);
 				unassignedList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
+				unassignedList.usersList.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
 				unassignedList.notAssignedUsers = true;
 				startButton.enabled = true;
-			}			
-			
-			protected function creationCompleteHandler(event:FlexEvent):void
-			{
+			}
+
+			protected function loadAssignement():void {
+				var rooms:int = assignement['rooms'];
+				roomsCombo.selectedIndex = assignement['rooms'] - 2;
+				recordCheckbox.selected = assignement['record'];
+				durationStepper.value = assignement['duration'];
+				var user:BBBUser;
+				var currentUsers:ArrayCollection = UserManager.getInstance().getConference().users;
+				// Create breakout rooms boxes
+				for (var r:int = 1; r <= rooms; r++) {
+					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
+					list.users = new ArrayCollection();
+					list.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r).toString();
+					list.usersList.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r).toString();
+				}
+				// Load user assignment from the previous action
+				var unassignedUsers:ArrayCollection = new ArrayCollection();
+				for (var u:int = 0; u < currentUsers.length; u++) {
+					user = currentUsers.getItemAt(u) as BBBUser;
+					if (assignement.hasOwnProperty(user.userID)) {
+						BreakoutList(roomsContainer.getChildAt(assignement[user.userID])).users.addItem(BBBUser.copy(user));
+					} else {
+						unassignedUsers.addItem(BBBUser.copy(user));
+					}
+				}
+				// Create not assigned users list
+				createUnassignedList(unassignedUsers);
+			}
+
+			protected function assignUsersForInvitation():void {
+				var originalUsers:ArrayCollection = UserManager.getInstance().getConference().users;
+				var users:ArrayCollection = new ArrayCollection();
+				// Copy users to avoid removing the references from the original ArrayCollection
+				for (var l:int = 0; l < originalUsers.length; l++) {
+					users.addItem(BBBUser.copy(originalUsers[l]));
+				}
+				// Create breakout rooms lists
+				var rooms:int = UserManager.getInstance().getConference().breakoutRooms.length;
+				var user:BBBUser;
+				roomsContainer.removeAllChildren();
+				for (var r:int = 0; r < rooms; r++) {
+					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
+					list.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r + 1).toString()
+					list.usersList.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (r + 1).toString()
+					list.users = new ArrayCollection();
+					list.mode = mode;
+				}
+				var unassignedUsers:ArrayCollection = new ArrayCollection();
+				for (var j:int = 0; j < users.length; j++) {
+					user = users[j] as BBBUser;
+					if (user.breakoutRooms.length > 0) {
+						for (var b:int = 0; b < user.breakoutRooms.length; b++) {
+							BreakoutList(roomsContainer.getChildAt(user.breakoutRooms[b] - 1)).users.addItem(user as BBBUser);
+						}
+					} else {
+						unassignedUsers.addItem(user);
+					}
+				}
+				createUnassignedList(unassignedUsers);
+				startButton.enabled = true;
+			}
+
+			private function createUnassignedList(dataProvider:ArrayCollection):void {
+				var unassignedList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
+				unassignedList.users = dataProvider;
+				unassignedList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
+				unassignedList.usersList.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
+				unassignedList.notAssignedUsers = true;
+			}
+
+			private function storeAssignement():void {
+				assignement = new Dictionary(true);
+				assignement['rooms'] = roomsCombo.selectedIndex + 2;
+				assignement['record'] = recordCheckbox.selected;
+				assignement['duration'] = durationStepper.value;
+				for (var r:int = 0; r < assignement['rooms']; r++) {
+					var users:ArrayCollection = BreakoutList(roomsContainer.getChildAt(r)).users;
+					for (var u:int = 0; u < users.length; u++) {
+						// We store pairs { userID : roomNumber } to be easier to check later
+						assignement[BBBUser(users[u]).userID] = r;
+					}
+				}
+			}
+
+			public function initCreateBreakoutRooms(mode:String):void {
+				dispatcher = new Dispatcher();
 				roomsProvider = new Array();
-				for (var i: int=2; i <=5; i++){
-					roomsProvider.push(i.toString() + " " + ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')); 
+				this.mode = mode;
+				for (var i:int = 2; i <= 5; i++) {
+					roomsProvider.push(i.toString() + " " + ResourceUtil.getInstance().getString('bbb.users.breakout.rooms'));
 				}
 				roomsCombo.selectedIndex = 0;
-
-				assignUsers();
+				if (this.mode == "create") {
+					startButton.label = ResourceUtil.getInstance().getString('bbb.users.breakout.start');
+					textArea.text = ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms');
+					if (assignement == null) {
+						assignUsersForCreation();
+					} else {
+						loadAssignement();
+					}
+					visible = true;
+				} else {
+					startButton.label = ResourceUtil.getInstance().getString('bbb.users.breakout.invite');
+					roomsBox.visible = durationBox.visible = recordBox.visible =
+						roomsBox.includeInLayout = durationBox.includeInLayout = recordBox.includeInLayout = false;
+					textArea.text = ResourceUtil.getInstance().getString('bbb.users.breakout.updateBreakoutRooms');
+					assignUsersForInvitation();
+					visible = true;
+				}
 			}
-			
 		]]>
 	</fx:Script>
 
@@ -151,27 +279,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox id="roomsBox" paddingTop="20" width="100%">
 			<mx:HBox width="50%" height="100%" horizontalAlign="left" verticalAlign="middle">
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.rooms')}" />
-				<mx:ComboBox id="roomsCombo" width="80%" change="{assignUsers()}" dataProvider="{roomsProvider}"/>				
+				<mx:ComboBox id="roomsCombo" width="80%" change="{assignUsersForCreation()}" dataProvider="{roomsProvider}" 
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.roomsCombo.accessibilityName')}" />
 			</mx:HBox>
 			<!-- <mx:Button paddingLeft="20" width="50%" id="randomAssignBtn"
 					   label="{ResourceUtil.getInstance().getString('bbb.users.breakout.randomAssign')}" click="assignUsers()"/> -->
 		</mx:HBox>
 		
-		<mx:HBox width="100%" paddingTop="12">
+		<mx:HBox id="durationBox" width="100%" paddingTop="12">
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" />
-			<mx:NumericStepper id="durationStepper" value="15" minimum="1" maximum="600"/>
+			<mx:NumericStepper id="durationStepper" value="15" minimum="1" maximum="600" 
+							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.durationStepper.accessibilityName')}"/>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
 		</mx:HBox>
 		
-		<mx:HBox width="100%" paddingTop="12">
-			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}" />
-			<mx:CheckBox id="recordCheckbox" />
+		<mx:HBox id="recordBox" width="100%" paddingTop="12">
+		    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}" visible="false" />
+			<mx:CheckBox id="recordCheckbox" visible="false" 
+						 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
 		</mx:HBox>
-
 		<mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
 			
 		<mx:HBox width="100%" horizontalAlign="right" verticalGap="15">
-			<mx:Button id="startButton" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.start')}" click="onStartClicked()"/>
+			<mx:Button id="startButton"
+					   click="this.mode == 'create' ? createBreakoutRooms() : inviteUsersToBreakoutRooms()"/>
 			<mx:Button label="{ResourceUtil.getInstance().getString('bbb.users.breakout.close')}" click="onCloseClicked()"/>
 		</mx:HBox>
 	</mx:VBox>

@@ -633,6 +633,16 @@ package org.bigbluebutton.main.model.users {
 				}
 			}
 		}
+		
+		public function getBreakoutRoomInListen() : BreakoutRoom {
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
+				if (br.listenStatus == BreakoutRoom.SELF) {
+					return br;
+				}
+			}
+			return null;
+		}
 
 		public function resetBreakoutRooms():void {
 			for (var i:int = 0; i < breakoutRooms.length; i++) {
