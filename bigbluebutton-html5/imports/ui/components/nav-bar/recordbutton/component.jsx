@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import styles from '../styles.scss';
-import Meetings from '/imports/api/meetings';
 
 export default class RecordButton extends Component{
   constructor(props) {

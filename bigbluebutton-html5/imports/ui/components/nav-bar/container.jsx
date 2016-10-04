@@ -2,10 +2,16 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 
-import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
+import Auth from '/imports/ui/services/auth';
+import Service from '../user-list/service';
+import ChatService from '../chat/service';
+
 import NavBar from './component';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 class NavBarContainer extends Component {
   constructor(props) {
@@ -35,9 +41,22 @@ export default withRouter(createContainer(({ location, router }) => {
     meetingRecorded = meetingObject.currentlyBeingRecorded;
   }
 
+  const users = Service.getUsers();
+  let unreadMessagesFromUsers;
+  let unreadMessagesFromPublic = ChatService.hasUnreadMessages(PUBLIC_CHAT_KEY);
+  let hasUnreadMessages;
+
+  for (let i = 0; i < users.length; i++) {
+    if (users[i].id !== Auth.userID) {
+      unreadMessagesFromUsers = ChatService.hasUnreadMessages(users[i].id);
+    }
+  }
+
+  hasUnreadMessages = unreadMessagesFromPublic || unreadMessagesFromUsers;
+
   return {
     presentationTitle: meetingTitle,
-    hasUnreadMessages: true,
+    hasUnreadMessages: hasUnreadMessages,
     beingRecorded: meetingRecorded,
     toggleUserList: () => {
       if (location.pathname.indexOf('/users') !== -1) {
