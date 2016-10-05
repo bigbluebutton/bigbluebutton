@@ -151,6 +151,7 @@ Verto.prototype.hangup = function () {
   if (this.share_call) {
     // the duration of the call
     this.logger('call ended ' + this.share_call.audioStream.currentTime);
+    this.share_call.rtc.localStream.getTracks().forEach(track => track.stop());
     this.share_call.hangup();
     this.share_call = null;
   }
@@ -233,7 +234,6 @@ Verto.prototype.docall = function () {
     this.logger('Quitting: Call already in progress');
     return;
   }
-  //debugger;
 
   this.cur_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,
@@ -313,11 +313,25 @@ Verto.prototype.doShare = function (screenConstraints) {
     useMic: 'any',
     useSpeak: 'any',
 
-
     dedEnc: true,
     mirrorInput: false,
     tag: this.renderTag,
   });
+
+  var stopSharing = function() {
+    console.log("stopSharing");
+    this.share_call.hangup();
+    this.share_call = null;
+  };
+
+  var _this = this;
+  // Override onStream callback in $.FSRTC instance
+  this.share_call.rtc.options.callbacks.onStream = function (rtc, stream) {
+    if (stream) {
+      var StreamTrack = stream.getVideoTracks()[0];
+      StreamTrack.addEventListener('ended', stopSharing.bind(_this));
+    }
+  };
 };
 
 Verto.prototype.init = function () {
