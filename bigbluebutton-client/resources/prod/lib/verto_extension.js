@@ -278,38 +278,34 @@ Verto.prototype.makeShare = function () {
       return;
     }
 
-    getChromeExtensionStatus(this.chromeExtension, function (status) {
-      if (status != 'installed-enabled') {
-        _this.logError('No chrome Extension');
+    // bring up Chrome screen picker
+    getMyScreenConstraints(function (constraints) {
+      if (constraints == null || constraints == "" || constraints.streamId == null || constraints.streamId == "") {
         _this.onFail();
-        return -1;
+        return _this.logError(constraints);
       }
 
-      // bring up Chrome screen picker
-      getScreenConstraints(function (error, screenConstraints) {
-        if (error) {
-          _this.onFail();
-          return _this.logError(error);
-        }
+      screenInfo = constraints.streamId;
 
-        screenInfo = screenConstraints.mandatory;
-
-        _this.logger(screenInfo);
-        _this.doShare(screenInfo);
-      });
-    });
+      _this.logger(screenInfo);
+      _this.doShare(screenInfo);
+    }, _this.chromeExtension);
   }
 };
 
 Verto.prototype.doShare = function (screenConstraints) {
-  //debugger;
   this.share_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,
     caller_id_name: this.caller_id_name,
     caller_id_number: this.caller_id_number,
-    outgoingBandwidth: "76800",
-    incomingBandwidth: "118154",
-    videoParams: screenConstraints,
+    outgoingBandwidth: "default",
+    incomingBandwidth: "default",
+    videoParams: {
+      chromeMediaSource: "desktop",
+      chromeMediaSourceId: screenConstraints,
+      maxWidth: 640,
+      maxHeight: 480
+    },
     useVideo: true,
     screenShare: true,
 
@@ -526,3 +522,54 @@ window.vertoExtensionGetChromeExtensionStatus = function (extensionid, callback)
   getChromeExtensionStatus(extensionid, callback);
 };
 
+// a function to check whether the browser (Chrome only) is in an isIncognito
+// session. Requires 1 mandatory callback that only gets called if the browser
+// session is incognito. The callback for not being incognito is optional.
+// Attempts to retrieve the chrome filesystem API.
+window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {}) {
+  isIncognito = Verto.normalizeCallback(isIncognito);
+  isNotIncognito = Verto.normalizeCallback(isNotIncognito);
+
+  var fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+  if (!fs) {
+    isNotIncognito();
+    return;
+  }
+  fs(window.TEMPORARY, 100, function(){isNotIncognito()}, function(){isIncognito()});
+};
+
+window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
+  callback = Verto.normalizeCallback(callback);
+
+  if (typeof chrome === "undefined" || !chrome || !chrome.runtime) {
+    // No API, so no extension for sure
+    callback(false);
+    return;
+  }
+  chrome.runtime.sendMessage(
+    chromeExtensionId,
+    { getVersion: true },
+    function (response) {
+      if (!response || !response.version) {
+        // Communication failure - assume that no endpoint exists
+        callback(false);
+        return;
+      }
+      callback(true);
+    }
+  );
+}
+
+window.getMyScreenConstraints = function(theCallback, extensionId) {
+  theCallback = Verto.normalizeCallback(theCallback);
+  chrome.runtime.sendMessage(extensionId, {
+    getStream: true,
+    sources: [
+      "window",
+      "screen"
+    ]},
+    function(response) {
+      console.log(response);
+      theCallback(response);
+   });
+};

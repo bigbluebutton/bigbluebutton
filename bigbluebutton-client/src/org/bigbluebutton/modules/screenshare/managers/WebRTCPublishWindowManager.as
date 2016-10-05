@@ -64,9 +64,17 @@ package org.bigbluebutton.modules.screenshare.managers
 			closeWindow(shareWindow);
 		}
 
-		private function openWindow(window:IBbbModuleWindow):void {
+		public function openWindow(window:IBbbModuleWindow = null):void {
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			event.window = window;
+
+			if (window == null) {
+				shareWindow = new WebRTCDesktopPublishWindow();
+				shareWindow.visible = true;
+				event.window = shareWindow;
+			} else {
+				event.window = window;
+			}
+
 			globalDispatcher.dispatchEvent(event);
 		}
 
@@ -77,10 +85,14 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
-			shareWindow = new WebRTCDesktopPublishWindow();
-			shareWindow.visible = true;
-			openWindow(shareWindow);
-			shareWindow.startVideo(rtmp, videoWidth, videoHeight);
+			if (shareWindow != null) {
+				shareWindow.startVideo(rtmp, videoWidth, videoHeight);
+			} else {
+				shareWindow = new WebRTCDesktopPublishWindow();
+				shareWindow.visible = true;
+				openWindow(shareWindow);
+				shareWindow.startVideo(rtmp, videoWidth, videoHeight);
+			}
 		}
 	}
 }
