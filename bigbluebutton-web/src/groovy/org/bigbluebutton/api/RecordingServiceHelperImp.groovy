@@ -19,12 +19,18 @@
 
 package org.bigbluebutton.api;
 
+import groovy.json.JsonBuilder;
 import groovy.util.XmlSlurper;
+import groovy.util.slurpersupport.Attributes;
 import groovy.util.slurpersupport.GPathResult;
+import groovy.xml.MarkupBuilder;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.bigbluebutton.api.domain.Extension;
 import org.bigbluebutton.api.domain.Recording;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +50,15 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             <processing_time>5429</processing_time>
             <duration>101014</duration>
             <extension>
-                ... Any XML element, to be passed through into playback format element.
+              <!-- Any XML element, to be passed through into playback format element. -->
+              <preview> <!-- The first level is the name of the extension -->
+                <text>Instrument Flying</text>
+                <images>
+                  <image width="176" height="136" alt="Instrument Flying">http://bbb-server/.../thumb-1.png</image>
+                  <image width="176" height="136" alt="Course Structure">http://bbb-server/.../thumb-2.png</image>
+                  <image width="176" height="136" alt="Requirements">http://bbb-server/.../thumb-3.png</image>
+                </images>
+              </preview>
             </extension>
         </playback>
         <meta>
@@ -59,7 +73,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
     public void writeRecordingInfo(String path, Recording info) {
         def writer = new StringWriter()
         def builder = new groovy.xml.MarkupBuilder(writer)
-        def metadataXml = builder.recording {
+        builder.recording {
             builder.id(info.getId())
             builder.state(info.getState())
             builder.published(info.isPublished())
@@ -72,7 +86,17 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                     builder.format(info.getPlaybackFormat())
                     builder.link(info.getPlaybackLink())
                     builder.duration(info.getPlaybackDuration())
-                    builder.extension(info.getPlaybackExtensions())
+                    def extensions = info.getPlaybackExtensions()
+                    if ( !extensions.isEmpty() ) {
+                        builder.extensions {
+                            extensions.each { extension ->
+                                def extensionType = extension.getType()
+                                builder."${extensionType}"{
+                                    extensionPropertiesToXML(builder, extension.getProperties())
+                                }
+                            }
+                        }
+                    }
                 }
             }
             Map<String,String> metainfo = info.getMetadata();
@@ -105,6 +129,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 
     private Recording getInfo(GPathResult rec) {
         Recording r = new Recording();
+        //Add basic information
         r.setId(rec.id.text());
         r.setState(rec.state.text());
         r.setPublished(Boolean.parseBoolean(rec.published.text()));
@@ -116,11 +141,14 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             r.setPlaybackDuration(rec.playback.duration.text());
         }
 
-/*
-        Commenting this out to see if this is causing memory to hang around resulting in
-        OOM in tomcat7 (ralam july 23, 2015)
-        r.setPlaybackExtensions(rec.playback.extension.children());
-*/		
+        //Add extensions
+        List<Extension> extensions = new ArrayList<Extension>()
+        rec.playback.extensions.children().each { extension ->
+            extensions.add( new Extension(extension.name(), extensionPropertiesToMap(extension)) )
+        }
+        r.setPlaybackExtensions(extensions)
+
+        //Add metadata
         Map<String, String> meta = new HashMap<String, String>();
         rec.meta.children().each { anode ->
             meta.put(anode.name().toString(), anode.text().toString());
@@ -129,4 +157,93 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         return r;
     }
 
+    private Map<String, ?> processNode( Map<String, ?> map, node) {
+        if (  !map[node.name()] ) {
+            map[node.name()] = map.getClass().newInstance()
+        }
+        Map<String, ?> nodeMap = map[node.name()]
+        node.children().each { it ->
+            if (it.children().size() == 0) {
+                processLeaf( nodeMap, it)
+            } else {
+                processNode( nodeMap, it)
+            }
+        }
+        nodeMap
+    }
+
+    private Map<String, ?> processLeaf(Map<String, ?> map, node) {
+        //Initialize map for node content
+        Map<String, ?> nodeContent = [ : ]
+        //Assign node content text
+        nodeContent["text"] = node.text()
+        //Assign node content attributes (if any)
+        Map attributes = node.attributes()
+        if( attributes.size() > 0 ) {
+            nodeContent["attributes"] = [ : ]
+            attributes.each { attribute ->
+              nodeContent["attributes"][attribute.getKey()] = attribute.getValue()
+            }
+        }
+        //Add content to the node
+        if ( map[node.name()] == null ) {
+            map[node.name()] = nodeContent
+        } else {
+            if ( ! (map[node.name()] instanceof List) ) {
+                map[node.name()] = [ map[node.name()] ]
+            }
+            map[node.name()] << nodeContent
+        }
+        map
+    }
+
+    private Map<String, ?> extensionPropertiesToMap(GPathResult xml) {
+        Map<String, ?> map = [ : ]
+        xml.children().each {
+            if ( it.children().size() == 0 ) {
+                processLeaf(map, it)
+            } else {
+                processNode(map, it)
+            }
+        }
+        map
+    }
+
+    private void processMap(builder, node) {
+        node.each { key, value ->
+            if ( value instanceof Collection ) {
+                processCollection(builder, key, value)
+            } else if ( value instanceof Map ) {
+                if ( value.containsKey("text") && value.containsKey("attributes") ) {
+                    builder."${key}"(value["attributes"], value["text"])
+                } else {
+                    builder."${key}" {
+                        processMap(builder, value)
+                    }
+                }
+            } else {
+                builder."${key}"(value)
+            }
+        }
+    }
+
+    private void processCollection(builder, nodesKey, nodes) {
+        nodes.each { node ->
+            processMap(builder, [ "${nodesKey}" : node ])
+        }
+    }
+
+    private void extensionPropertiesToXML(builder, properties) {
+        properties.each { propertyKey, propertyValue ->
+            if ( propertyValue instanceof Collection ) {
+                builder."${propertyKey}" {
+                    processCollection(builder, propertyKey, propertyValue)
+                }
+            } else {
+                builder."${propertyKey}" {
+                    processMap(builder, propertyValue)
+                }
+            }
+        }
+    }
 }

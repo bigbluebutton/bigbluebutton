@@ -21,7 +21,7 @@ dependencies {
 	compile 'commons-io:commons-io:2.4'
     compile 'com.google.code.gson:gson:1.7.1'
 	compile 'commons-httpclient:commons-httpclient:3.1'
-	compile 'com.zaxxer:nuprocess:1.0.4'
+	compile 'com.zaxxer:nuprocess:1.1.0'
 
 	compile 'org.bigbluebutton:bbb-common-message:0.0.18-SNAPSHOT'
 	

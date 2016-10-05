@@ -600,11 +600,12 @@
 		]]>
 	</mx:Script>
 
+	<mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
+	
 	<mx:DataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
     	dragEnabled="false" width="100%" height="100%" draggableColumns="false"
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)" 
-		tabIndex="{partOptions.baseTabIndex+5}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
     		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
@@ -622,12 +623,13 @@
 			 horizontalScrollPolicy="off"
 			 width="100%" height="180">
 		<mx:HBox width="100%">
-			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
-			<mx:Label width="100%" textAlign="right" id="breakoutTimeLabel" text="..."/>
+			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
+			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" id="breakoutTimeLabel" text="..."/>
 		</mx:HBox>
 
 		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
-					 dragEnabled="false" width="100%" height="100%" draggableColumns="false">
+					 dragEnabled="false" width="100%" height="100%" draggableColumns="false"
+					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}">
 			<mx:columns>
 				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
 				<mx:DataGridColumn dataField="numberOfUsers" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
@@ -645,9 +647,9 @@
 		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()"
-				   visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
+				   visible="true" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
+					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" />
 		<mx:VBox>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />

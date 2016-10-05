@@ -1022,12 +1022,25 @@ begin
           playback.remove
         end
         ## Add the actual playback
+        presentation = BigBlueButton::Presentation.get_presentation_for_preview("#{$process_dir}")
         metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
             xml.playback {
               xml.format("presentation")
               xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
               xml.processing_time("#{processing_time}")
               xml.duration("#{recording_time}")
+              unless presentation.empty?
+                xml.extensions {
+                  xml.preview {
+                    xml.images {
+                      presentation[:slides].each do |key,val|
+                        attributes = {:width => "176", :height => "136", :alt => (val[:alt] != nil)? "#{val[:alt]}": ""}
+                        xml.image(attributes){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png") }
+                      end
+                    }
+                  }
+                }
+              end
             }
         end
         ## Write the new metadata.xml

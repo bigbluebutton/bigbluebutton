@@ -113,7 +113,8 @@ public class MeetingService implements MessageListener {
     }
 
     public void registerUser(String meetingID, String internalUserId,
-            String fullname, String role, String externUserID, String authToken, String avatarURL) {
+            String fullname, String role, String externUserID,
+            String authToken, String avatarURL) {
         handle(new RegisterUser(meetingID, internalUserId, fullname, role,
                 externUserID, authToken, avatarURL));
     }
@@ -142,19 +143,22 @@ public class MeetingService implements MessageListener {
      * Remove registered users who did not successfully joined the meeting.
      */
     public void purgeRegisteredUsers() {
-        for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
+        for (AbstractMap.Entry<String, Meeting> entry : this.meetings
+                .entrySet()) {
             Long now = System.nanoTime();
             Meeting meeting = entry.getValue();
 
             ConcurrentMap<String, User> users = meeting.getUsersMap();
 
-            for (AbstractMap.Entry<String, Long> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+            for (AbstractMap.Entry<String, Long> registeredUser : meeting
+                    .getRegisteredUsers().entrySet()) {
                 String registeredUserID = registeredUser.getKey();
                 Long registeredUserDate = registeredUser.getValue();
 
                 long registrationTime = registeredUserDate.longValue();
                 long elapsedTime = now - registrationTime;
-                if ( elapsedTime >= 60000 && !users.containsKey(registeredUserID)) {
+                if (elapsedTime >= 60000
+                        && !users.containsKey(registeredUserID)) {
                     meeting.userUnregistered(registeredUserID);
                 }
             }
@@ -319,7 +323,8 @@ public class MeetingService implements MessageListener {
                 m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration(),
                 m.getAutoStartRecording(), m.getAllowStartStopRecording(),
                 m.getModeratorPassword(), m.getViewerPassword(),
-                m.getCreateTime(), formatPrettyDate(m.getCreateTime()), m.isBreakout());
+                m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
+                m.isBreakout());
     }
 
     private String formatPrettyDate(Long timestamp) {
@@ -357,8 +362,10 @@ public class MeetingService implements MessageListener {
         int dashes = meetingId.split("-", -1).length - 1;
         for (String key : meetings.keySet()) {
             int keyDashes = key.split("-", -1).length - 1;
-            if (dashes == 2 && key.equals(meetingId)
-                    || (dashes < 2 && keyDashes < 2 && key.startsWith(meetingId))) {
+            if (dashes == 2
+                    && key.equals(meetingId)
+                    || (dashes < 2 && keyDashes < 2 && key
+                            .startsWith(meetingId))) {
                 return (Meeting) meetings.get(key);
             }
         }
@@ -394,10 +401,8 @@ public class MeetingService implements MessageListener {
         return null;
     }
 
-    public Map<String, Recording> getRecordings(List<String> idList,
-            List<String> states) {
-        List<Recording> recsList = recordingService.getRecordings(idList,
-                states);
+    public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
+        List<Recording> recsList = recordingService.getRecordings(idList, states);
         Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
@@ -405,8 +410,7 @@ public class MeetingService implements MessageListener {
     public Map<String, Recording> filterRecordingsByMetadata(
             Map<String, Recording> recordings,
             Map<String, String> metadataFilters) {
-        return recordingService.filterRecordingsByMetadata(recordings,
-                metadataFilters);
+        return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
     }
 
     public Map<String, Recording> reorderRecordings(List<Recording> olds) {
@@ -423,9 +427,8 @@ public class MeetingService implements MessageListener {
                 List<Playback> plays = new ArrayList<Playback>();
 
                 if (r.getPlaybackFormat() != null) {
-                    plays.add(new Playback(r.getPlaybackFormat(), r
-                            .getPlaybackLink(), getDurationRecording(
-                            r.getPlaybackDuration(), r.getEndTime(),
+                    plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+                            getDurationRecording(r.getPlaybackDuration(), r.getEndTime(),
                             r.getStartTime()), r.getPlaybackExtensions()));
                 }
 
@@ -433,12 +436,9 @@ public class MeetingService implements MessageListener {
                 map.put(r.getId(), r);
             } else {
                 Recording rec = map.get(r.getId());
-                rec.getPlaybacks().add(
-                        new Playback(r.getPlaybackFormat(),
-                                r.getPlaybackLink(), getDurationRecording(
-                                        r.getPlaybackDuration(),
-                                        r.getEndTime(), r.getStartTime()), r
-                                        .getPlaybackExtensions()));
+                rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+                                    getDurationRecording(r.getPlaybackDuration(), r.getEndTime(),
+                                    r.getStartTime()), r.getPlaybackExtensions()));
             }
         }
 
@@ -470,21 +470,22 @@ public class MeetingService implements MessageListener {
 
     public void setPublishRecording(List<String> idList, boolean publish) {
         for (String id : idList) {
-          if (publish) {
-              recordingService.changeState(id, Recording.STATE_PUBLISHED);
-          } else {
-              recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
-          }
+            if (publish) {
+                recordingService.changeState(id, Recording.STATE_PUBLISHED);
+            } else {
+                recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
+            }
         }
     }
 
     public void deleteRecordings(List<String> idList) {
         for (String id : idList) {
-          recordingService.changeState(id, Recording.STATE_DELETED);
+            recordingService.changeState(id, Recording.STATE_DELETED);
         }
     }
 
-    public void updateRecordings(List<String> idList, Map<String, String> metaParams) {
+    public void updateRecordings(List<String> idList,
+            Map<String, String> metaParams) {
         recordingService.updateMetaParams(idList, metaParams);
     }
 
@@ -527,12 +528,14 @@ public class MeetingService implements MessageListener {
             params.put("voiceBridge", message.voiceConfId);
             params.put("duration", message.durationInMinutes.toString());
             params.put("record", message.record.toString());
-            params.put("welcome", getMeeting(message.parentId).getWelcomeMessageTemplate());
+            params.put("welcome", getMeeting(message.parentId)
+                    .getWelcomeMessageTemplate());
 
-            Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
+            Map<String, String> parentMeetingMetadata = parentMeeting
+                    .getMetadata();
 
             String metaPrefix = "meta_";
-            for (String key: parentMeetingMetadata.keySet()) {
+            for (String key : parentMeetingMetadata.keySet()) {
                 String metaName = metaPrefix + key;
                 // Inject metadata from parent meeting into the breakout room.
                 params.put(metaName, parentMeetingMetadata.get(key));
@@ -542,10 +545,12 @@ public class MeetingService implements MessageListener {
 
             handleCreateMeeting(breakout);
 
-            presDownloadService.downloadAndProcessDocument(
-                        message.defaultPresentationURL, breakout.getInternalId());
+            presDownloadService.extractPage(message.parentId,
+                    message.sourcePresentationId,
+                    message.sourcePresentationSlide, breakout.getInternalId());
         } else {
-            log.error("Failed to create breakout room " + message.breakoutId + ". Parent meeting not found.");
+            log.error("Failed to create breakout room " + message.breakoutId
+                    + ".Reason: Parent meeting not found.");
         }
     }
 
@@ -595,6 +600,8 @@ public class MeetingService implements MessageListener {
 
                 Gson gson = new Gson();
                 String logStr = gson.toJson(logData);
+
+                log.info("Meeting restarted: data={}", logStr);
             } else {
                 Map<String, Object> logData = new HashMap<String, Object>();
                 logData.put("meetingId", m.getInternalId());
@@ -606,14 +613,14 @@ public class MeetingService implements MessageListener {
                 logData.put("event", "meeting_restarted");
                 logData.put("description", "Meeting has restarted.");
 
-				Gson gson = new Gson();
-				String logStr =  gson.toJson(logData);
+                Gson gson = new Gson();
+                String logStr = gson.toJson(logData);
 
-				log.info("Meeting restarted: data={}", logStr);
-			}
-			return;
-		}
-	}
+                log.info("Meeting restarted: data={}", logStr);
+            }
+            return;
+        }
+    }
 
     private void meetingDestroyed(MeetingDestroyed message) {
         Meeting m = getMeeting(message.meetingId);
@@ -655,7 +662,7 @@ public class MeetingService implements MessageListener {
             logData.put("description", "Meeting has been destroyed.");
 
             Gson gson = new Gson();
-            String logStr =  gson.toJson(logData);
+            String logStr = gson.toJson(logData);
 
             log.info("Meeting destroyed: data={}", logStr);
 
@@ -688,7 +695,7 @@ public class MeetingService implements MessageListener {
             logData.put("description", "User had joined the meeting.");
 
             Gson gson = new Gson();
-            String logStr =  gson.toJson(logData);
+            String logStr = gson.toJson(logData);
             log.info("User joined meeting: data={}", logStr);
 
             return;
@@ -738,47 +745,49 @@ public class MeetingService implements MessageListener {
         }
     }
 
-	private void updatedStatus(UserStatusChanged message) {
-		Meeting m = getMeeting(message.meetingId);
-		if (m != null) {
-			User user = m.getUserById(message.userId);
-			if(user != null){
-				user.setStatus(message.status, message.value);
-				return;
-			}
-			return;
-		}
-	}
-
-
-	@Override
-  public void handle(IMessage message) {
-			receivedMessages.add(message);
-  }
-
-
-	public void setParamsProcessorUtil(ParamsProcessorUtil util) {
-	  this.paramsProcessorUtil = util;
-	}
-
-	public void setPresDownloadService(PresentationUrlDownloadService presDownloadService) {
-	  this.presDownloadService = presDownloadService;
-	}
-
-    private void processStunTurnInfoRequested (StunTurnInfoRequested message) {
-        Set<StunServer> stuns = stunTurnService.getStunServers();
-        log.info("\nhere are the stuns:");
-        for(StunServer s : stuns) {
-            log.info("a stun: " + s.url);
+    private void updatedStatus(UserStatusChanged message) {
+        Meeting m = getMeeting(message.meetingId);
+        if (m != null) {
+            User user = m.getUserById(message.userId);
+            if (user != null) {
+                user.setStatus(message.status, message.value);
+                return;
+            }
+            return;
         }
-        Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(message.internalUserId);
-        log.info("\nhere are the (" + turns.size() +") turns for internalUserId:" + message.internalUserId);
-        for(TurnEntry t : turns) {
-            log.info("a turn: " + t.url + "username/pass=" + t.username + '/' + t.password);
-        }
-        messagingService.sendStunTurnInfo(message.meetingId, message.internalUserId, stuns, turns);
     }
 
+    @Override
+    public void handle(IMessage message) {
+        receivedMessages.add(message);
+    }
+
+    public void setParamsProcessorUtil(ParamsProcessorUtil util) {
+        this.paramsProcessorUtil = util;
+    }
+
+    public void setPresDownloadService(
+            PresentationUrlDownloadService presDownloadService) {
+        this.presDownloadService = presDownloadService;
+    }
+
+    private void processStunTurnInfoRequested(StunTurnInfoRequested message) {
+        Set<StunServer> stuns = stunTurnService.getStunServers();
+        log.info("\nhere are the stuns:");
+        for (StunServer s : stuns) {
+            log.info("a stun: " + s.url);
+        }
+        Set<TurnEntry> turns = stunTurnService
+                .getStunAndTurnServersFor(message.internalUserId);
+        log.info("\nhere are the (" + turns.size()
+                + ") turns for internalUserId:" + message.internalUserId);
+        for (TurnEntry t : turns) {
+            log.info("a turn: " + t.url + "username/pass=" + t.username + '/'
+                    + t.password);
+        }
+        messagingService.sendStunTurnInfo(message.meetingId,
+                message.internalUserId, stuns, turns);
+    }
 
     public void userJoinedVoice(UserJoinedVoice message) {
         Meeting m = getMeeting(message.meetingId);
@@ -886,7 +895,6 @@ public class MeetingService implements MessageListener {
         runExec.execute(task);
     }
 
-
     public void start() {
         log.info("Starting Meeting Service.");
         try {
@@ -936,7 +944,8 @@ public class MeetingService implements MessageListener {
         messagingService = mess;
     }
 
-    public void setExpiredMeetingCleanupTimerTask(ExpiredMeetingCleanupTimerTask c) {
+    public void setExpiredMeetingCleanupTimerTask(
+            ExpiredMeetingCleanupTimerTask c) {
         cleaner = c;
         cleaner.setMeetingService(this);
         cleaner.start();
@@ -946,11 +955,14 @@ public class MeetingService implements MessageListener {
         removeMeetingWhenEnded = s;
     }
 
-    public void setRegisteredUserCleanupTimerTask(RegisteredUserCleanupTimerTask c) {
+    public void setRegisteredUserCleanupTimerTask(
+            RegisteredUserCleanupTimerTask c) {
         registeredUserCleaner = c;
         registeredUserCleaner.setMeetingService(this);
         registeredUserCleaner.start();
     }
 
-    public void setStunTurnService(StunTurnService s) { stunTurnService = s; }
+    public void setStunTurnService(StunTurnService s) {
+        stunTurnService = s;
+    }
 }

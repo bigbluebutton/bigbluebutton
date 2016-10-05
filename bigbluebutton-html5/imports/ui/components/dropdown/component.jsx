@@ -41,6 +41,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  isOpen: false,
 };
 
 export default class Dropdown extends Component {

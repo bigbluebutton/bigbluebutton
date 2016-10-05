@@ -33,7 +33,7 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
   implicit val inMsgHeaderFormat = jsonFormat1(InMessageHeader)
   implicit val outMsgHeaderFormat = jsonFormat1(OutMsgHeader)
   implicit val outMsgEnvelopeHeaderFormat = jsonFormat2(OutMsgEnvelopeHeader)
-  implicit val createBreakoutRoomOutMsgPayloadFormat = jsonFormat8(CreateBreakoutRoomOutMsgPayload)
+  implicit val createBreakoutRoomOutMsgPayloadFormat = jsonFormat10(CreateBreakoutRoomOutMsgPayload)
   implicit val createBreakoutRoomOutMsgEnvelopePayloadFormat = jsonFormat2(CreateBreakoutRoomOutMsgEnvelopePayload)
   implicit val createBreakoutRoomOutMsgEnvelopeFormat = jsonFormat2(CreateBreakoutRoomOutMsgEnvelope)
 

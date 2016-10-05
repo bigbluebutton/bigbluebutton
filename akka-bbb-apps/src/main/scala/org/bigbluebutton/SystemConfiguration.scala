@@ -18,7 +18,6 @@ trait SystemConfiguration {
   lazy val bbbWebSharedSecret = Try(config.getString("services.sharedSecret")).getOrElse("changeme")
   lazy val bbbWebModeratorPassword = Try(config.getString("services.moderatorPassword")).getOrElse("changeme")
   lazy val bbbWebViewerPassword = Try(config.getString("services.viewerPassword")).getOrElse("changeme")
-  lazy val bbbWebDefaultPresentationURL = Try(config.getString("services.defaultPresentationURL")).getOrElse("changeme")
   lazy val keysExpiresInSec = Try(config.getInt("redis.keyExpiry")).getOrElse(14 * 86400) // 14 days
   lazy val red5DeskShareIP = Try(config.getString("red5.deskshareip")).getOrElse("127.0.0.1")
   lazy val red5DeskShareApp = Try(config.getString("red5.deskshareapp")).getOrElse("")

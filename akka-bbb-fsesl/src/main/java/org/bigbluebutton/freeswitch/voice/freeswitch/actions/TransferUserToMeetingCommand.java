@@ -19,21 +19,23 @@
 
 package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
-public class TransferUsetToMeetingCommand extends FreeswitchCommand {
+public class TransferUserToMeetingCommand extends FreeswitchCommand {
 
-	private final String targetRoom;
-	private final String participant;
+    private final String targetRoom;
+    private final String participant;
+    private final String audioProfile;
 
-	public TransferUsetToMeetingCommand(String room, String targetRoom,
-			String participant, String requesterId) {
-		super(room, requesterId);
-		this.targetRoom = targetRoom;
-		this.participant = participant;
-	}
+    public TransferUserToMeetingCommand(String room, String targetRoom,
+            String participant, String profile, String requesterId) {
+        super(room, requesterId);
+        this.targetRoom = targetRoom;
+        this.participant = participant;
+        this.audioProfile = profile;
+    }
 
-	@Override
-	public String getCommandArgs() {
-		return room + SPACE + "transfer" + SPACE + targetRoom + SPACE
-				+ participant;
-	}
+    @Override
+    public String getCommandArgs() {
+        return room + SPACE + "transfer" + SPACE + targetRoom + "@"
+                + this.audioProfile + SPACE + participant;
+    }
 }

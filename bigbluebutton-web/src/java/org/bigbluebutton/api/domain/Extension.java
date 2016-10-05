@@ -19,42 +19,26 @@
 
 package org.bigbluebutton.api.domain;
 
-import java.util.List;
+import java.util.Map;
 
-public class Playback {
-	private String format;
-	private String url;
-	private int length;
-	private List<Extension> extensions;
+public class Extension {
+	private String type;
+	private Map<String,Object> properties;
 	
-	public Playback(String format, String url, int length, List<Extension> extensions) {
-		this.format = format;
-		this.url = url;
-		this.length = length;
-		this.extensions = extensions;
+	public Extension(String type, Map<String,Object> properties) {
+		this.type = type;
+		this.properties = properties;
 	}
-	public String getFormat() {
-		return format;
+	public String getType() {
+		return type;
 	}
-	public void setFormat(String format) {
-		this.format = format;
+	public void setType(String type) {
+		this.type = type;
 	}
-	public String getUrl() {
-		return url;
+	public Map<String,Object> getProperties() {
+		return properties;
 	}
-	public void setUrl(String url) {
-		this.url = url;
-	}
-	public int getLength() {
-		return length;
-	}
-	public void setLength(int length) {
-		this.length = length;
-	}
-	public List<Extension> getExtensions() {
-		return extensions;
-	}
-	public void setExtensions(List<Extension> extensions) {
-		this.extensions = extensions;
+	public void setProperties(Map<String,Object> properties) {
+		this.properties = properties;
 	}
 }

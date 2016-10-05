@@ -19,6 +19,7 @@
 # Author(s):
 #       Fred Dixon <ffdixon@bigbluebutton.org>
 #       Gustavo Salazar <guga.salazar.loor@gmail.com>
+#       Ghazi Triki <ghazi.nocturne@gmail.com>
 #
 # Changelog:
 #   2011-08-18 FFD  Inital Version
@@ -32,6 +33,7 @@
 #   2013-04-05 GUG  Description is optional in bbb-record --watch
 #   2013-04-05 GUG  Map internal meeting id with external meeting id
 #   2016-07-02 FFD  Updates for 1.1
+#   2016-09-27 GTR  Stricter recording directories names detection to cover breakout rooms recordings
 
 #set -e
 #set -x
@@ -406,7 +408,7 @@ if [ $DELETEALL ]; then
   rm -f /var/bigbluebutton/screenshare/*.flv
   rm -f /var/freeswitch/meetings/*.wav
 
-  for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
+  for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}-\?[[:digit:]]\{1\}\?$"); do
     echo "deleting: $meeting"
     rm -rf /var/bigbluebutton/$meeting
   done
@@ -446,10 +448,10 @@ if [ -z $HEAD ]; then
 fi
 
 tmp_file=$(mktemp)
-ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD > $tmp_file
-ls -t /var/bigbluebutton/recording/raw | grep "[0-9]\{13\}$" | head -n $HEAD >> $tmp_file
+ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}-\?[[:digit:]]\{1\}\?$" | head -n $HEAD > $tmp_file
+ls -t /var/bigbluebutton/recording/raw | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}-\?[[:digit:]]\{1\}\?$" | head -n $HEAD >> $tmp_file
                                                  
-#for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
+#for meeting in $(ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}-\?[[:digit:]]\{1\}\?$" | head -n $HEAD); do
 for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	echo -n "$meeting"
 	timestamp=$(echo $meeting | sed s/.*-//g)
@@ -471,7 +473,7 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	fi
 
 	#
-	# Check if there area uploaded presentations 
+	# Check if there is any uploaded presentations 
 	if [ -d $RAW_PRESENTATION_SRC/$meeting/$meeting ]; then
 		if [ "$(ls -A $RAW_PRESENTATION_SRC/$meeting/$meeting)" ]; then 
 			echo -n "X"
@@ -548,7 +550,7 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	done
 
 	#
-	# Numbe rof slides
+	# Number of slides
 	if [ -d /var/bigbluebutton/$meeting/$meeting ]; then
 		printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
         else
@@ -562,7 +564,7 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 		recording=$meeting
 
 	#
-	# Checka processed 
+	# Check processed 
 	processed=""
 	for type in $TYPES; do
 		if [ -f $STATUS/processed/$recording-$type.done ]; then
