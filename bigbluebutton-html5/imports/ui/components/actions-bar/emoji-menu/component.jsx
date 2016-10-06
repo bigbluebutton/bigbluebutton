@@ -33,7 +33,7 @@ class EmojiMenu extends Component {
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
-            icon="hand"
+            icon="raiseHand"
             ghost={false}
             circle={true}
             hideLabel={false}
@@ -48,22 +48,22 @@ class EmojiMenu extends Component {
         <DropdownContent placement="top left">
           <DropdownList>
             <DropdownListItem
-              icon="time"
+              icon="away"
               label={intl.formatMessage(intlMessages.awayLabel)}
               description={intl.formatMessage(intlMessages.awayDesc)}
-              onClick={() => actions.setEmojiHandler('time')}
+              onClick={() => actions.setEmojiHandler('away')}
             />
             <DropdownListItem
-              icon="hand"
+              icon="raiseHand"
               label={intl.formatMessage(intlMessages.raiseLabel)}
               description={intl.formatMessage(intlMessages.raiseDesc)}
-              onClick={() => actions.setEmojiHandler('hand')}
+              onClick={() => actions.setEmojiHandler('raiseHand')}
             />
             <DropdownListItem
-              icon="undecided"
+              icon="neutral"
               label={intl.formatMessage(intlMessages.undecidedLabel)}
               description={intl.formatMessage(intlMessages.undecidedDesc)}
-              onClick={() => actions.setEmojiHandler('undecided')}
+              onClick={() => actions.setEmojiHandler('neutral')}
 
             />
             <DropdownListItem
@@ -86,10 +86,10 @@ class EmojiMenu extends Component {
             />
             <DropdownListSeparator/>
             <DropdownListItem
-              icon="clear-status"
+              icon="none"
               label={intl.formatMessage(intlMessages.clearLabel)}
               description={intl.formatMessage(intlMessages.clearDesc)}
-              onClick={() => actions.setEmojiHandler('clear-status')}
+              onClick={() => actions.setEmojiHandler('none')}
             />
           </DropdownList>
         </DropdownContent>

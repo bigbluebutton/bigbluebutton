@@ -72,7 +72,7 @@ const sortUsersByEmoji = (a, b) => {
 
 const sortUsersByModerator = (a, b) => {
   if (a.isModerator && b.isModerator) {
-    return sortUsersByName(a, b);
+    return sortUsersByEmoji(a, b);
   } else if (a.isModerator) {
     return -1;
   } else if (b.isModerator) {
@@ -95,10 +95,10 @@ const sortUsersByPhoneUser = (a, b) => {
 };
 
 const sortUsers = (a, b) => {
-  let sort = sortUsersByEmoji(a, b);
+  let sort = sortUsersByModerator(a, b);
 
   if (sort === 0) {
-    sort = sortUsersByModerator(a, b);
+    sort = sortUsersByEmoji(a, b);
   }
 
   if (sort === 0) {
