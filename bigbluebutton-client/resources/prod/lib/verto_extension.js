@@ -11,11 +11,9 @@ Verto = function (
   this.share_call = null;
   this.vertoHandle;
 
-  this.vid_width = 640; // 1920;
-  this.vid_height = 480; // 1080;
+  this.vid_width = window.screen.width;
+  this.vid_height = window.screen.height;
 
-  this.local_vid_width = 320;
-  this.local_vid_height = 180;
   this.outgoingBandwidth = "default";
   this.incomingBandwidth = "default";
   this.sessid = $.verto.genUUID();
@@ -27,16 +25,11 @@ Verto = function (
   // this.caller_id_number = conferenceIdNumber;
   this.caller_id_number = conferenceUsername;
 
-
   this.vertoPort = "8082";
   this.hostName = window.location.hostname;
   this.socketUrl = 'wss://' + this.hostName + ':' + this.vertoPort;
   this.login = "bbbuser";
   this.password = "secret";
-  this.minWidth = '640';
-  this.minHeight = '480';
-  this.maxWidth = '640'; // '1920';
-  this.maxHeight = '480'; // '1080';
 
   this.useVideo = false;
   this.useCamera = false;
@@ -303,8 +296,8 @@ Verto.prototype.doShare = function (screenConstraints) {
     videoParams: {
       chromeMediaSource: "desktop",
       chromeMediaSourceId: screenConstraints,
-      maxWidth: 640,
-      maxHeight: 480
+      maxWidth: this.vid_width,
+      maxHeight: this.vid_height
     },
     useVideo: true,
     screenShare: true,
@@ -347,10 +340,6 @@ Verto.prototype.init = function () {
       ringFile: 'sounds/bell_ring2.wav',
       sessid: this.sessid,
       videoParams: {
-        minWidth: this.vid_width,
-        minHeight: this.vid_height,
-        maxWidth: this.vid_width,
-        maxHeight: this.vid_height,
         minFrameRate: 15,
         vertoBestFrameRate: 30,
       },
