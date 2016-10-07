@@ -86,6 +86,7 @@ class RecorderActor(val recorder: RecorderApplication)
       ev.setTimestamp(TimestampGenerator.generateTimestamp);
       ev.setMeetingId(msg.meetingID);
       ev.setSender(message.get("fromUsername"));
+      ev.setSenderId(message.get("fromUserID"));
       ev.setMessage(message.get("message"));
       ev.setColor(message.get("fromColor"));
       recorder.record(msg.meetingID, ev);
