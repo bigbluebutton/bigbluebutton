@@ -8,21 +8,21 @@ let defaultLocale = 'en';
 let browserLanguage = navigator.language;
 let messages;
 
-function LoadMessages(browserLanguage) {
+function loadMessages(browserLanguage) {
   $.ajax({
     type: 'GET',
     async: false,
     url: `http://192.168.32.128/html5client/locale?locale=${browserLanguage}`,
     dataType: 'json',
-    success: SetMessages,
-    error: Err,
+    success: setMessages,
+    error: err,
   });
 
-  function SetMessages(data) {
+  function setMessages(data) {
     messages = data;
   }
 
-  function Err(data) {
+  function err(data) {
     console.log('Error : Locale Not Found,  Using Default');
   }
 }
@@ -58,7 +58,7 @@ Meteor.startup(() => {
   loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
 
-  LoadMessages(browserLanguage);
+  loadMessages(browserLanguage);
 
   render((
     <IntlProvider  locale={defaultLocale} messages={messages}>
