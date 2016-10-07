@@ -3,7 +3,29 @@ import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import { renderRoutes } from '../imports/startup/client/routes.js';
 import { IntlProvider } from 'react-intl';
-import LangProvider from './langprovider';
+
+let defaultLocale = 'en';
+let browserLanguage = navigator.language;
+let messages;
+
+function LoadMessages(browserLanguage) {
+  $.ajax({
+    type: 'GET',
+    async: false,
+    url: `http://192.168.32.128/html5client/locale?locale=${browserLanguage}`,
+    dataType: 'json',
+    success: SetMessages,
+    error: Err,
+  });
+
+  function SetMessages(data) {
+    messages = data;
+  }
+
+  function Err(data) {
+    console.log('Error : Locale Not Found,  Using Default');
+  }
+}
 
 // Helper to load javascript libraries from the BBB server
 function loadLib(libname, success, fail) {
@@ -36,7 +58,11 @@ Meteor.startup(() => {
   loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
 
+  LoadMessages(browserLanguage);
+
   render((
-    <LangProvider />
+    <IntlProvider  locale={defaultLocale} messages={messages}>
+      {renderRoutes()}
+    </IntlProvider>
   ), document.getElementById('app'));
 });
