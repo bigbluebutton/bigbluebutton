@@ -107,20 +107,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				if(videoHolder != null) {
 					/* Reposition video within window */
-					videoHolder.x = internalOffsetX;
-					videoHolder.y = internalOffsetY;
+					videoWithWarnings.x = internalOffsetX;
+					videoWithWarnings.y = internalOffsetY;
 
-					videoHolder.width = video.width = internalWidth;
-					videoHolder.height = video.height = internalHeight;
-
-					if(_actualSize) {
-						videoWithWarnings.width = videoHolder.width;
-						videoWithWarnings.height = videoHolder.height;
-					}
-					else {
-						videoWithWarnings.width = this.width;
-						videoWithWarnings.height = this.height;
-					}
+					videoWithWarnings.width = video.width = internalWidth;
+					videoWithWarnings.height = video.height = internalHeight;
 
 					// update the whiteboard canvas holder and overlay with new video dimensions
 					updateWhiteboardCanvasHolder();
@@ -195,10 +186,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function updateWhiteboardCanvasHolder():void{
 				if (video != null && videoHolder != null) {
-					whiteboardCanvasHolder.x = videoHolder.x;
-					whiteboardCanvasHolder.y = videoHolder.y;
-					whiteboardCanvasHolder.width = videoHolder.width;
-					whiteboardCanvasHolder.height = videoHolder.height;
+					whiteboardCanvasHolder.x = videoWithWarnings.x;
+					whiteboardCanvasHolder.y = videoWithWarnings.y;
+					whiteboardCanvasHolder.width = videoWithWarnings.width;
+					whiteboardCanvasHolder.height = videoWithWarnings.height;
 					LOGGER.debug("Whiteboard canvas holder dimensions updated");
 				}
 			}
@@ -216,11 +207,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function updateWhiteboardCanvasOverlay():void{
 				if (video != null && whiteboardCanvas != null && videoHolder != null) {
-					whiteboardCanvas.moveCanvas(videoHolder.x, videoHolder.y);
+					whiteboardCanvas.moveCanvas(videoWithWarnings.x, videoWithWarnings.y);
 
-					var zoomPercentage:Number = (videoHolder.width / videoWidth)*100;
+					var zoomPercentage:Number = (videoWithWarnings.width / videoWidth)*100;
 					if(zoomPercentage > 0)
-						whiteboardCanvas.zoomCanvas(videoHolder.width, videoHolder.height, zoomPercentage);
+						whiteboardCanvas.zoomCanvas(videoWithWarnings.width, videoWithWarnings.height, zoomPercentage);
 
 					LOGGER.debug("Whiteboard canvas overlay dimensions updated");
 				}
