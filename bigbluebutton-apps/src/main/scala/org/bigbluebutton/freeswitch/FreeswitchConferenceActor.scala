@@ -218,7 +218,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
     fsconf foreach (fc => {
       logger.debug("Meeting [" + fc.meetingId + "] has [" + fc.numUsers + "]")
-	    fc.getWebUserUsingExtId(msg.webUserId) match {
+	    fc.getWebUser(msg.webUserId) match {
 	      case Some(user) => {
           logger.info("The user is also in the web client. [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	     

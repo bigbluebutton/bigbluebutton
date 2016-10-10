@@ -578,3 +578,10 @@ case class GetStreamPath(
     streamName: String,
     defaultPath: String
 ) extends InMessage
+
+// same attributes as UserLeaving
+case class ReconnectionTimeout(
+    meetingID: String, 
+    userID: String,
+    sessionId: String
+) extends InMessage

@@ -221,7 +221,7 @@ package org.bigbluebutton.main.api
       trace(LOG + " handleUserJoinedVoiceEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_JOINED_VOICE;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
       
       trace(LOG + "Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has joined the voice conference.");
       

@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.api
 
 import java.lang.Boolean
+import scala.actors.Actor
 
 object Role extends Enumeration {
 	type Role = Value
@@ -85,7 +86,10 @@ case class UserVO(
   webcamStreams: Set[String], 
   phoneUser: Boolean,
   voiceUser: VoiceUser,
-  listenOnly: Boolean)
+  listenOnly: Boolean,
+  reconnecting: Boolean,
+  reconnectionTimer: Actor
+)
 
 case class VoiceUser(userId: String, 
   webUserId: String, 

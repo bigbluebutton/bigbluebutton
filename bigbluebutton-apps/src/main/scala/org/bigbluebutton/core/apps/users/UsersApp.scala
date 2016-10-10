@@ -276,27 +276,35 @@ trait UsersApp {
   def handleUserJoin(msg: UserJoining):Unit = {
     val regUser = regUsers.get(msg.authToken)
     regUser foreach { ru =>
-      // if there was a phoneUser with the same userID, reuse the VoiceUser value object
-      val vu = users.getUser(msg.userID) match {
+      var vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,
+          false, false, false, false)
+      val waitingForAcceptance = ru.guest && guestPolicy == GuestPolicy.ASK_MODERATOR && ru.waitingForAcceptance
+
+      val uvo = users.getUser(msg.userID) match {
         case Some(u) => {
           if (u.voiceUser.joined) {
-            u.voiceUser.copy()
-          } else {
-            new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
-                false, false, false, false)
+            if (u.reconnecting) {
+              logger.info("User reconnected: mid=[" + meetingID + "] uid=[" + msg.userID + "]")
+              // user was reconnecting, now it's going to be replaced by the new user, while keeping the same VoiceUser
+              u.reconnectionTimer ! StopTimerActor
+            }
+            vu = u.voiceUser.copy()
           }
+          // didn't find a better way to clone the ListSet
+          var webcamStreams = new ListSet[String]()
+          u.webcamStreams.foreach((s: String) => webcamStreams += s)
+          new UserVO(msg.userID, ru.externId, ru.name,
+                      ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, mood=u.mood, presenter=u.presenter,
+                      hasStream=u.hasStream, locked=u.locked,
+                      webcamStreams=webcamStreams, phoneUser=u.phoneUser, vu, listenOnly=u.listenOnly, reconnecting=false, reconnectionTimer=null)
         }
         case None => {
-          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
-              false, false, false, false)
+          new UserVO(msg.userID, ru.externId, ru.name,
+                      ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, mood="", presenter=false,
+                      hasStream=false, locked=getInitialLockStatus(ru.role),
+                      webcamStreams=new ListSet[String](), phoneUser=false, vu, listenOnly=false, reconnecting=false, reconnectionTimer=null)
         }
       }
-      val waitingForAcceptance = ru.guest && guestPolicy == GuestPolicy.ASK_MODERATOR && ru.waitingForAcceptance
-      val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
-                  ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, mood="", presenter=false, 
-                  hasStream=false, locked=getInitialLockStatus(ru.role), 
-                  webcamStreams=new ListSet[String](), phoneUser=false, vu, listenOnly=false)
-  	
       users.addUser(uvo)
 
       logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] role=[" + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + permissions.lockOnJoin + "] permissions.lockOnJoinConfigurable=[" + permissions.lockOnJoinConfigurable + "]")
@@ -322,33 +330,59 @@ trait UsersApp {
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
-	if (users.hasUser(msg.userID)) {
-	  val user = users.removeUser(msg.userID)
-	  user foreach { u => 
-	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
-	    outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
+    if (users.hasUser(msg.userID)) {
+      val user = users.removeUser(msg.userID)
+      user foreach { u => 
+        if (u.voiceUser.joined && !u.reconnecting) {
+          logger.info("User left meeting, but that might mean that the user is reconnecting. Marking the user as potential reconnection, and remove him in a few seconds if he doesn't reconnect: mid=[" + meetingID + "] uid=[" + u.userID + "]")
+          val timerActor = new TimerActor(30000, this, new ReconnectionTimeout(msg.meetingID, msg.userID, msg.sessionId))
 
-	    if (u.presenter) {
-	      /* The current presenter has left the meeting. Find a moderator and make
-	       * him presenter. This way, if there is a moderator in the meeting, there
-	       * will always be a presenter.
-	       */
-	      val moderator = users.findAModerator()
-	      moderator.foreach { mod =>
-	        logger.info("Presenter left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]. Making user=[" + mod.userID + "] presenter.")
-	        assignNewPresenter(mod.userID, mod.name, mod.userID)
-	      }
-	    }
-      
-      // add VoiceUser again to the list as a phone user since we still didn't get the event from FreeSWITCH
-      if (u.voiceUser.joined) {
-        this ! (new VoiceUserJoined(msg.meetingID, u.voiceUser));
+          val uvo = u.copy(reconnecting=true, reconnectionTimer=timerActor, hasStream=false, webcamStreams=new ListSet[String]())
+          users.addUser(uvo)
+
+          u.webcamStreams.foreach((s: String) => {
+            outGW.send(new UserUnsharedWebcam(meetingID, recorded, u.userID, s))
+          })
+
+          timerActor.start
+        } else {
+          logger.info("User left meeting: mid=[" + meetingID + "] uid=[" + u.userID + "]")
+          if (u.voiceUser.joined) {
+            logger.info("Sending eject to FreeSWITCH: mid=[" + meetingID + "] uid=[" + u.userID + "]")
+            outGW.send(new EjectVoiceUser(msg.meetingID, recorded, null, msg.userID))
+          }
+          outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
+          
+          if (u.presenter) {
+            /* The current presenter has left the meeting. Find a moderator and make
+            * him presenter. This way, if there is a moderator in the meeting, there
+            * will always be a presenter.
+            */
+            val moderator = users.findAModerator()
+            moderator.foreach { mod =>
+              logger.info("Presenter left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]. Making user=[" + mod.userID + "] presenter.")
+              assignNewPresenter(mod.userID, mod.name, mod.userID)
+            }
+          }
+        
+          startCheckingIfWeNeedToEndVoiceConf()
+          stopAutoStartedRecording()
+        }
       }
-	  }
-	  
-      startCheckingIfWeNeedToEndVoiceConf()
-      stopAutoStartedRecording()
-	}
+    }
+  }
+  
+  def handleReconnectionTimeout(msg: ReconnectionTimeout):Unit = {
+    logger.info("Reconnection timeout: mid=[" + msg.meetingID + "] uid=[" + msg.userID + "]")
+    users.getUser(msg.userID) match {
+      case Some(u) => {
+        if (u.reconnecting) {
+          logger.info("User didn't reconnect in a few seconds: mid=[" + msg.meetingID + "] uid=[" + msg.userID + "]")
+          this ! new UserLeaving(msg.meetingID, msg.userID, msg.sessionId)
+        }
+      }
+      case None => // do nothing
+    }
   }
   
   def getInitialLockStatus(role: Role.Role):Boolean = {
@@ -376,7 +410,7 @@ trait UsersApp {
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, guest=false, waitingForAcceptance=false, mood="", presenter=false, 
 		                  hasStream=false, locked=getInitialLockStatus(Role.VIEWER), webcamStreams=new ListSet[String](),
-		                  phoneUser=true, vu, listenOnly=false)
+		                  phoneUser=true, vu, listenOnly=false, reconnecting=false, reconnectionTimer=null)
 		  	
 		      users.addUser(uvo)
 		      logger.info("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")

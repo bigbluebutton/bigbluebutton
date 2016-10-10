@@ -60,10 +60,17 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   var hasLastWebUserLeft = false
   var lastWebUserLeftOn:Long = 0
 
-  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
-    def act {
+  case object StopTimerActor
+  class TimerActor(val timeout: Long, val who: Actor, val reply: Object) extends Actor {
+    var shouldStop = false
+    def act = loop {
         reactWithin(timeout) {
-          case TIMEOUT => who ! reply
+          case StopTimerActor => shouldStop = true
+          case TIMEOUT => 
+            if (!shouldStop) {
+              who ! reply
+            }
+            exit
         }
     }
   }
@@ -82,6 +89,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: VoiceUserTalking                       => handleVoiceUserTalking(msg)
     	case msg: UserJoining                            => handleUserJoin(msg)
 	    case msg: UserLeaving                            => handleUserLeft(msg)
+	    case msg: ReconnectionTimeout                    => handleReconnectionTimeout(msg)
 	    case msg: AssignPresenter                        => handleAssignPresenter(msg)
 	    case msg: GetUsers                               => handleGetUsers(msg)
 	    case msg: ChangeUserStatus                       => handleChangeUserStatus(msg)

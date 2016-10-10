@@ -178,7 +178,7 @@ package org.bigbluebutton.main.api
     private function handleGetMyUserInfoSynch():Object {
       trace(LOG + " handleGetMyUserInfoSynch");
       var obj:Object = new Object();
-      obj.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      obj.myUserID = UsersUtil.getMyUserID();
       obj.myUsername = UsersUtil.getMyUsername();
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();

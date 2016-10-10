@@ -368,10 +368,8 @@ package org.bigbluebutton.modules.users.services
       
       UsersService.getInstance().userJoinedVoice(voiceUser);
       
-      var externUserID:String = webUser.externUserID;
-      var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
-      
-      if (UsersUtil.getMyExternalUserID() == externUserID) {
+      var internUserID:String = webUser.userId;
+      if (UsersUtil.isMe(internUserID)) {
         _conference.muteMyVoice(voiceUser.muted);
         _conference.setMyVoiceJoined(true);
       }
@@ -471,10 +469,8 @@ package org.bigbluebutton.modules.users.services
 
       UsersService.getInstance().userJoinedVoice(voiceUser);
       
-      var externUserID:String = webUser.externUserID;
-      var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
-      
-      if (UsersUtil.getMyExternalUserID() == externUserID) {
+      var internUserID:String = webUser.userID;
+      if (UsersUtil.isMe(internUserID)) {
         _conference.muteMyVoice(voiceUser.muted);
         _conference.setMyVoiceJoined(voiceUser.joined);
       }
