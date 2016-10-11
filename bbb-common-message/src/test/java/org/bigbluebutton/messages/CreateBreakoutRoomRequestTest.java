@@ -31,7 +31,7 @@ public class CreateBreakoutRoomRequestTest {
     CreateBreakoutRoomRequest rxMsg = gson.fromJson(json, CreateBreakoutRoomRequest.class);
     
     Assert.assertEquals(rxMsg.header.name, CreateBreakoutRoomRequest.NAME);
-    Assert.assertEquals(rxMsg.payload.breakoutId, breakoutId);
+    Assert.assertEquals(rxMsg.payload.breakoutMeetingId, breakoutId);
     Assert.assertEquals(rxMsg.payload.name, name);
     Assert.assertEquals(rxMsg.payload.voiceConfId, voiceConfId);
     Assert.assertEquals(rxMsg.payload.viewerPassword, viewerPassword);

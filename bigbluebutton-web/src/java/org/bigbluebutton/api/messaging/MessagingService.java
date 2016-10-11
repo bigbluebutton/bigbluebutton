@@ -29,10 +29,12 @@ import java.util.Set;
 public interface MessagingService {	
 	void recordMeetingInfo(String meetingId, Map<String, String> info);
 	void destroyMeeting(String meetingID);
-	void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
-			      String voiceBridge, Integer duration, Boolean autoStartRecording,
-			      Boolean allowStartStopRecording, String moderatorPass, String viewerPass,
-			      Long createTime, String createDate, Boolean isBreakout);
+    void createMeeting(String meetingID, String externalMeetingID,
+            String parentMeetingID, String meetingName, Boolean recorded,
+            String voiceBridge, Integer duration, Boolean autoStartRecording,
+            Boolean allowStartStopRecording, String moderatorPass,
+            String viewerPass, Long createTime, String createDate,
+            Boolean isBreakout);
 	void endMeeting(String meetingId);
 	void send(String channel, String message);
 	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);

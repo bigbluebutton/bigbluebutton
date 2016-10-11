@@ -12,6 +12,7 @@ public class CreateMeetingRequestTest {
   public void testCreateMeetingRequest() {
     String meetingId = "abc123";
     String externalId = "extabc123";
+    String parentId = "";
     Boolean record = false;
     Integer durationInMinutes = 20;
     String name = "Breakout room 1";
@@ -24,11 +25,11 @@ public class CreateMeetingRequestTest {
     long createTime = System.currentTimeMillis();
     String createDate = new Date(createTime).toString();
     
-    CreateMeetingRequestPayload payload = 
-        new CreateMeetingRequestPayload(meetingId, externalId, name, record, voiceConfId, 
-            durationInMinutes, autoStartRecording, 
-            allowStartStopRecording, moderatorPassword,
-            viewerPassword, createTime, createDate, isBreakout);
+        CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(
+                meetingId, externalId, parentId, name, record, voiceConfId,
+                durationInMinutes, autoStartRecording, allowStartStopRecording,
+                moderatorPassword, viewerPassword, createTime, createDate,
+                isBreakout);
     CreateMeetingRequest msg = new CreateMeetingRequest(payload);    
     Gson gson = new Gson();
     String json = gson.toJson(msg);
@@ -38,6 +39,8 @@ public class CreateMeetingRequestTest {
     
     Assert.assertEquals(rxMsg.header.name, CreateMeetingRequest.NAME);
     Assert.assertEquals(rxMsg.payload.id, meetingId);
+    Assert.assertEquals(rxMsg.payload.externalId, externalId);
+    Assert.assertEquals(rxMsg.payload.parentId, parentId);
     Assert.assertEquals(rxMsg.payload.name, name);
     Assert.assertEquals(rxMsg.payload.voiceConfId, voiceConfId);
     Assert.assertEquals(rxMsg.payload.viewerPassword, viewerPassword);

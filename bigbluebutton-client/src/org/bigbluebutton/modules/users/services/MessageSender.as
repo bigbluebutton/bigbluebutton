@@ -107,10 +107,10 @@ package org.bigbluebutton.modules.users.services
 			);
 		}
 		
-		public function requestBreakoutJoinUrl(meetingId:String, breakoutId:String, userId:String):void {
+		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
 			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["breakoutId"] = breakoutId;
+			message["meetingId"] = parentMeetingId;
+			message["breakoutMeetingId"] = breakoutMeetingId;
 			message["userId"] = userId;
 			
 			var jsonMsg:String = JSON.stringify(message);

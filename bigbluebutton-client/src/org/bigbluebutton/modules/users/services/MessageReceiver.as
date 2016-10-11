@@ -46,16 +46,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-  import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-  
-  import org.bigbluebutton.modules.present.events.CursorEvent;
-  import org.bigbluebutton.modules.present.events.NavigationEvent;
-  import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-  import org.bigbluebutton.modules.present.events.UploadEvent;
-  import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-  import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
   import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
-  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 
   public class MessageReceiver implements IMessageListener
@@ -156,8 +147,8 @@ package org.bigbluebutton.modules.users.services
 	      handleTimeRemainingUpdate(message);
 		  break;
 		case "breakoutRoomsTimeRemainingUpdate":
-			handleBreakoutRoomsTimeRemainingUpdate(message);
-			break;
+		  handleBreakoutRoomsTimeRemainingUpdate(message);
+		  break;
 		case "breakoutRoomStarted":
 		  handleBreakoutRoomStarted(message);
 		  break;
@@ -639,7 +630,7 @@ package org.bigbluebutton.modules.users.services
 		for each(var room : Object in map.rooms)
 		{
 			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
-			breakoutRoom.breakoutId = room.breakoutId;
+			breakoutRoom.meetingId = room.meetingId;
 			breakoutRoom.name = room.name;
 			UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
 		}
@@ -650,13 +641,13 @@ package org.bigbluebutton.modules.users.services
 		var map:Object = JSON.parse(msg.msg);
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
 		event.joinURL = map.joinURL;
-		event.breakoutId = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
+		event.breakoutMeetingId = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
 		dispatcher.dispatchEvent(event);
 	}
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
-		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.users);
+		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutMeetingId, map.users);
 	}
 
 	private function handleTimeRemainingUpdate(msg:Object):void {
@@ -676,14 +667,14 @@ package org.bigbluebutton.modules.users.services
 	private function handleBreakoutRoomStarted(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);	
 		var breakoutRoom : BreakoutRoom = new BreakoutRoom();
-		breakoutRoom.breakoutId = map.breakoutId;
+		breakoutRoom.meetingId = map.breakoutMeetingId;
 		breakoutRoom.name = map.name;
 		UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
 	}
 	
 	private function handleBreakoutRoomClosed(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);	
-		UserManager.getInstance().getConference().removeBreakoutRoom(map.breakoutId);
+		UserManager.getInstance().getConference().removeBreakoutRoom(map.breakoutMeetingId);
 	}
 
   }

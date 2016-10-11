@@ -39,7 +39,7 @@ package org.bigbluebutton.main.events {
 
 		public var meetingId:String;
 
-		public var breakoutId:String;
+		public var breakoutMeetingId:String;
 
 		public var rooms:Array;
 

@@ -1,8 +1,8 @@
 package org.bigbluebutton.messages.payload;
 
 public class CreateBreakoutRoomRequestPayload {
-    public final String breakoutId;
-    public final String parentId; // The main meeting internal id
+    public final String breakoutMeetingId;
+    public final String parentMeetingId; // The main meeting internal id
     public final String name; // The name of the breakout room
     public final String voiceConfId; // The voice conference id
     public final String viewerPassword;
@@ -12,13 +12,13 @@ public class CreateBreakoutRoomRequestPayload {
     public final Integer sourcePresentationSlide;
     public final Boolean record;
 
-    public CreateBreakoutRoomRequestPayload(String breakoutId, String parentId,
+    public CreateBreakoutRoomRequestPayload(String meetingMeetingId, String parentMeetingId,
             String name, String voiceConfId, String viewerPassword,
             String moderatorPassword, Integer duration,
             String sourcePresentationId, Integer sourcePresentationSlide,
             Boolean record) {
-        this.breakoutId = breakoutId;
-        this.parentId = parentId;
+        this.breakoutMeetingId = meetingMeetingId;
+        this.parentMeetingId = parentMeetingId;
         this.name = name;
         this.voiceConfId = voiceConfId;
         this.viewerPassword = viewerPassword;

@@ -21,11 +21,11 @@ package org.bigbluebutton.api.domain;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,8 @@ public class Meeting {
 	
 	private String name;
 	private String extMeetingId;
-	private String intMeetingId;	
+	private String intMeetingId;
+	private String parentMeetingId;
 	private Integer duration = 0;	 
 	private long createdTime = 0;
 	private long startTime = 0;
@@ -72,6 +73,7 @@ public class Meeting {
         name = builder.name;
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;
+        parentMeetingId = builder.parentMeetingId;
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
         maxUsers = builder.maxUsers;
@@ -199,6 +201,10 @@ public class Meeting {
 	
 	public String getInternalId() {
 		return intMeetingId;
+	}
+	
+	public String getParentMeetingId() {
+	    return parentMeetingId;
 	}
 
 	public String getWebVoice() {
@@ -375,7 +381,8 @@ public class Meeting {
 	public static class Builder {
     	private String name;
     	private String externalId;
-    	private String internalId;   	
+    	private String internalId;
+    	private String parentMeetingId;
     	private int maxUsers;
     	private boolean record;
     	private boolean autoStartRecording;
@@ -399,12 +406,17 @@ public class Meeting {
     		this.internalId = internalId;
     		this.createdTime = createTime;
     	}
-    	
+ 
+        public Builder withParentMeetingId(String parentMeetingId) {
+            this.parentMeetingId = parentMeetingId;
+            return this;
+        }
+
     	public Builder withName(String name) {
     		this.name = name;
     		return this;
     	}
-    	    	
+
     	public Builder withDuration(int minutes) {
     		duration = minutes;
     		return this;

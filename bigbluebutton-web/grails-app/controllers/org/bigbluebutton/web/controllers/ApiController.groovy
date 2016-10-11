@@ -869,6 +869,7 @@ class ApiController {
                   meeting {
                     meetingID() { mkp.yield(m.getExternalId()) }
                     internalMeetingID() { mkp.yield(m.getInternalId()) }
+                    parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
                     isBreakout() { mkp.yield(m.isBreakout()) }
                     meetingName() { mkp.yield(m.getName()) }
                     createTime(m.getCreateTime())
@@ -2136,6 +2137,7 @@ class ApiController {
             isBreakout() { mkp.yield(meeting.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
+            parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
             voiceBridge() { mkp.yield(meeting.getTelVoice()) }
@@ -2196,6 +2198,7 @@ class ApiController {
             returncode(RESP_CODE_SUCCESS)
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID() { mkp.yield(meeting.getInternalId()) }
+            parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
             attendeePW() { mkp.yield(meeting.getViewerPassword()) }
             moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
             createTime(meeting.getCreateTime())

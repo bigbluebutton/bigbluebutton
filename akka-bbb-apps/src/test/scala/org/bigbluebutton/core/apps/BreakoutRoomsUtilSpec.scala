@@ -6,13 +6,6 @@ import org.bigbluebutton.core.UnitSpec
 
 class BreakoutRoomsUtilSpec extends UnitSpec {
 
-  it should "return a pdfURL" in {
-    val baseURL = "http://localhost/pre1/page1."
-    val swfURL = baseURL + "swf"
-    val pdfURL = BreakoutRoomsUtil.fromSWFtoPDF(swfURL)
-    assert(pdfURL == baseURL + "pdf")
-  }
-
   it should "return a meetingId" in {
     val mainMeetingId = "abc-123"
     val index = 1

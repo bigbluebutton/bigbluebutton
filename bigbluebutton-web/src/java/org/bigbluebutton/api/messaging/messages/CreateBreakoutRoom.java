@@ -2,8 +2,8 @@ package org.bigbluebutton.api.messaging.messages;
 
 public class CreateBreakoutRoom implements IMessage {
 
-    public final String breakoutId;
-    public final String parentId; // The main meeting internal id
+    public final String meetingId;
+    public final String parentMeetingId; // The main meeting internal id
     public final String name; // The name of the breakout room
     public final String voiceConfId; // The voice conference id
     public final String viewerPassword;
@@ -13,13 +13,13 @@ public class CreateBreakoutRoom implements IMessage {
     public final Integer sourcePresentationSlide;
     public final Boolean record;
 
-    public CreateBreakoutRoom(String breakoutId, String parentId, String name,
+    public CreateBreakoutRoom(String meetingId, String parentMeetingId, String name,
             String voiceConfId, String viewerPassword,
             String moderatorPassword, Integer duration,
             String sourcePresentationId, Integer sourcePresentationSlide,
             Boolean record) {
-        this.breakoutId = breakoutId;
-        this.parentId = parentId;
+        this.meetingId = meetingId;
+        this.parentMeetingId = parentMeetingId;
         this.name = name;
         this.voiceConfId = voiceConfId;
         this.viewerPassword = viewerPassword;

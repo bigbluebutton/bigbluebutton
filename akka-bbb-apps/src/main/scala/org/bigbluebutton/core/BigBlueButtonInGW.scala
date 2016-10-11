@@ -57,6 +57,7 @@ class BigBlueButtonInGW(
         val mProps = new MeetingProperties(
           msg.payload.id,
           msg.payload.externalId,
+          msg.payload.parentId,
           msg.payload.name,
           msg.payload.record,
           msg.payload.voiceConfId,

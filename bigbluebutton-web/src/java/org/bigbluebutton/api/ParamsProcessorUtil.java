@@ -361,11 +361,13 @@ public class ParamsProcessorUtil {
 	    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString();
 
         // If this create meeting request is for a breakout room, we just used
-        // the passed in breakoutId as the internal meetingId so we can
-        // correlate
-        // the breakout meeting with it's parent meeting.
+        // we need to generate a unique internal and external id and keep
+	    // tracks of the parent meeting id
+	    String parentMeetingId = new String();
         if (isBreakout) {
-            internalMeetingId = params.get("breakoutId");
+            externalMeetingId = internalMeetingId;
+            internalMeetingId = params.get("meetingID");
+            parentMeetingId = params.get("parentMeetingID");
         }
 
         // Create the meeting with all passed in parameters.
@@ -382,6 +384,7 @@ public class ParamsProcessorUtil {
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
+                .withParentMeetingId(parentMeetingId)
                 .build();
 
         String configXML = getDefaultConfigXML();
