@@ -2,13 +2,13 @@ import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
 import { callServer } from '/imports/ui/services/api';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
-const EMOJI_STATUSES = ['raiseHand', 'happy', 'smile', 'neutral', 'sad', 'confused', 'away'];
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 
 /* TODO: Same map is done in the chat/service we should share this someway */
@@ -72,7 +72,7 @@ const sortUsersByEmoji = (a, b) => {
 
 const sortUsersByModerator = (a, b) => {
   if (a.isModerator && b.isModerator) {
-    return sortUsersByName(a, b);
+    return sortUsersByEmoji(a, b);
   } else if (a.isModerator) {
     return -1;
   } else if (b.isModerator) {
@@ -95,10 +95,10 @@ const sortUsersByPhoneUser = (a, b) => {
 };
 
 const sortUsers = (a, b) => {
-  let sort = sortUsersByEmoji(a, b);
+  let sort = sortUsersByModerator(a, b);
 
   if (sort === 0) {
-    sort = sortUsersByModerator(a, b);
+    sort = sortUsersByEmoji(a, b);
   }
 
   if (sort === 0) {
