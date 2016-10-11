@@ -3,7 +3,6 @@ import styles from './styles.scss';
 import Button from '../button/component';
 import RecordButton from './recordbutton/component';
 import SettingsDropdown from './settings-dropdown/component';
-import DisplayUnreadMessage from './display-unreadmessage/component';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -45,7 +44,7 @@ class NavBar extends Component {
           className={styles.btn}
         />
         </div>
-        <DisplayUnreadMessage hasUnreadMessages={hasUnreadMessages}/>
+        {hasUnreadMessages ? <span className={styles.withdot}></span> : null}
         <div className={styles.center}>
           <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
           <span className={styles.divideBar}> | </span>

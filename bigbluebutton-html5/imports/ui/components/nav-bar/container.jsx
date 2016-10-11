@@ -41,22 +41,23 @@ export default withRouter(createContainer(({ location, router }) => {
     meetingRecorded = meetingObject.currentlyBeingRecorded;
   }
 
-  const users = Service.getUsers();
-  let unreadMessagesFromUsers;
-  let unreadMessagesFromPublic = ChatService.hasUnreadMessages(PUBLIC_CHAT_KEY);
-  let hasUnreadMessages;
+  const checkUnreadMessages = () => {
+    let users = Service.getUsers();
 
-  for (let i = 0; i < users.length; i++) {
-    if (users[i].id !== Auth.userID) {
-      unreadMessagesFromUsers = ChatService.hasUnreadMessages(users[i].id);
-    }
-  }
-
-  hasUnreadMessages = unreadMessagesFromPublic || unreadMessagesFromUsers;
+    // 1.map every user id
+    // 2.filter the user except the current user from the user array
+    // 3.add the public chat to the array
+    // 4.check current user has unread messages or not.
+    return users
+      .map(user => user.id)
+      .filter(userID => userID !== Auth.userID)
+      .concat(PUBLIC_CHAT_KEY)
+      .some(receiverID => ChatService.hasUnreadMessages(receiverID));
+  };
 
   return {
     presentationTitle: meetingTitle,
-    hasUnreadMessages: hasUnreadMessages,
+    hasUnreadMessages: checkUnreadMessages(),
     beingRecorded: meetingRecorded,
     toggleUserList: () => {
       if (location.pathname.indexOf('/users') !== -1) {
