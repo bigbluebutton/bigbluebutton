@@ -52,13 +52,13 @@ class JsonMessageSenderActor(val service: MessageSender)
 
   // Breakout
   private def handleBreakoutRoomStarted(msg: BreakoutRoomStartedOutMessage) {
-    val payload = new BreakoutRoomPayload(msg.parentMeetingId, msg.breakout.meetingId, msg.breakout.name)
+    val payload = new BreakoutRoomPayload(msg.parentMeetingId, msg.breakout.meetingId, msg.breakout.name, msg.breakout.sequence)
     val request = new BreakoutRoomStarted(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson)
   }
 
   private def handleBreakoutRoomEnded(msg: BreakoutRoomEndedOutMessage) {
-    val payload = new BreakoutRoomPayload(msg.parentMeetingId, msg.meetingId, "")
+    val payload = new BreakoutRoomPayload(msg.parentMeetingId, msg.meetingId, "", 0)
     val request = new BreakoutRoomClosed(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson)
   }
@@ -85,7 +85,7 @@ class JsonMessageSenderActor(val service: MessageSender)
 
   private def handleBreakoutRoomsList(msg: BreakoutRoomsListOutMessage) {
     val rooms = new java.util.ArrayList[BreakoutRoomPayload]()
-    msg.rooms.foreach(r => rooms.add(new BreakoutRoomPayload(msg.meetingId, r.meetingId, r.name)))
+    msg.rooms.foreach(r => rooms.add(new BreakoutRoomPayload(msg.meetingId, r.meetingId, r.name, r.sequence)))
     val payload = new BreakoutRoomsListPayload(msg.meetingId, rooms, msg.roomsReady)
     val request = new BreakoutRoomsList(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())

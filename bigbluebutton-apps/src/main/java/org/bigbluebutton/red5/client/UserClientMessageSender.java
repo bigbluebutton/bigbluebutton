@@ -599,6 +599,7 @@ public class UserClientMessageSender {
 	  Map<String, Object> args = new HashMap<String, Object>();	
 	  args.put("breakoutMeetingId", msg.payload.meetingId);
 	  args.put("parentMeetingId", msg.payload.parentMeetingId);
+	  args.put("sequence", msg.payload.sequence);
 	  args.put("name", msg.payload.name);
 	  
 	  Map<String, Object> message = new HashMap<String, Object>();

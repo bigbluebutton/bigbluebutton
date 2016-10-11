@@ -21,7 +21,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   val eventBus: IncomingEventBus
 
   def handleBreakoutRoomsList(msg: BreakoutRoomsListMessage) {
-    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id) }
+    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id, r.sequence) }
     val roomsReady = breakoutModel.pendingRoomsNumber == 0 && breakoutRooms.length > 0
     log.info("Sending breakout rooms list to {} with containing {} room(s)", mProps.meetingID, breakoutRooms.length)
     outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms, roomsReady ))
@@ -74,7 +74,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     breakoutModel.pendingRoomsNumber -= 1
     val room = breakoutModel.getBreakoutRoom(msg.breakoutRoomId)
     room foreach { room =>
-      sendBreakoutRoomStarted(room.parentRoomId, room.name, room.id, room.voiceConfId)
+      sendBreakoutRoomStarted(room.parentRoomId, room.name, room.id, room.sequence, room.voiceConfId)
     }
 
     // We avoid sending invitation
@@ -92,9 +92,9 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
   }
 
-  def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutMeetingId: String, voiceConfId: String) {
+  def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutMeetingId: String, sequence: Int,voiceConfId: String) {
     log.info("Sending breakout room started for parent meeting {} and breakout meeting", meetingId, breakoutMeetingId);
-    outGW.send(new BreakoutRoomStartedOutMessage(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, breakoutMeetingId)))
+    outGW.send(new BreakoutRoomStartedOutMessage(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, breakoutMeetingId, sequence)))
   }
 
   def handleBreakoutRoomEnded(msg: BreakoutRoomEnded) {

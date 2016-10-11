@@ -632,6 +632,7 @@ package org.bigbluebutton.modules.users.services
 			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
 			breakoutRoom.meetingId = room.meetingId;
 			breakoutRoom.name = room.name;
+			breakoutRoom.sequence = room.sequence;
 			UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
 		}
 		UserManager.getInstance().getConference().breakoutRoomsReady = map.roomsReady;
@@ -641,7 +642,9 @@ package org.bigbluebutton.modules.users.services
 		var map:Object = JSON.parse(msg.msg);
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
 		event.joinURL = map.joinURL;
-		event.breakoutMeetingId = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
+		var meetingId : String = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
+		// @todo: extract the sequence number from the models
+		event.breakoutMeetingSequence = 1; //meetingId;
 		dispatcher.dispatchEvent(event);
 	}
 	
@@ -669,6 +672,7 @@ package org.bigbluebutton.modules.users.services
 		var breakoutRoom : BreakoutRoom = new BreakoutRoom();
 		breakoutRoom.meetingId = map.breakoutMeetingId;
 		breakoutRoom.name = map.name;
+		breakoutRoom.sequence = map.sequence;
 		UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
 	}
 	

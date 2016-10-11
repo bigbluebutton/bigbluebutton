@@ -149,6 +149,7 @@ object MeetingMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put("parentMeetingId", msg.parentMeetingId)
     payload.put("meetingId", msg.breakout.meetingId)
+    payload.put("sequence", msg.breakout.sequence)
     payload.put("name", msg.breakout.name)
 
     val header = Util.buildHeader(BreakoutRoomStarted.NAME, None)
