@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.phone.managers {
 		private var outgoingNetStream:NetStream = null;
 		private var username:String;
 		private var uri:String;
-    private var externUserId:String;
+		private var userId:String;
 		private var uid:String;
 		private var meetingId:String;
 		
@@ -78,13 +78,13 @@ package org.bigbluebutton.modules.phone.managers {
 			return netConnection;
 		}
 		
-    public function setup(uid:String, externUserId:String, username:String, meetingId:String, uri:String):void {	
-      trace(LOG + "Setup uid=[" + uid + "] extuid=[" + externUserId + "] name=[" + username + "] uri=[" + uri + "]");
+    public function setup(uid:String, userId:String, username:String, meetingId:String, uri:String):void {
+      trace(LOG + "Setup uid=[" + uid + "] extuid=[" + userId + "] name=[" + username + "] uri=[" + uri + "]");
       this.uid = uid;	
       this.username  = username;
       this.meetingId = meetingId;
       this.uri   = uri;
-      this.externUserId = externUserId;
+      this.userId = userId;
     }
     
 		public function connect():void {				
@@ -101,7 +101,7 @@ package org.bigbluebutton.modules.phone.managers {
 					netConnection.client = this;
 					netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 					netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-					netConnection.connect(uri, meetingId, externUserId, username);
+					netConnection.connect(uri, meetingId, userId, username);
 			}
 			if(reconnecting && !amIListenOnly){
 			  handleConnectionSuccess();
