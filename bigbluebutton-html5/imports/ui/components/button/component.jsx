@@ -6,7 +6,7 @@ import cx from 'classnames';
 import Icon from '../icon/component';
 
 const SIZES = [
-  'lg', 'md', 'sm',
+  'jumbo', 'lg', 'md', 'sm',
 ];
 
 const COLORS = [

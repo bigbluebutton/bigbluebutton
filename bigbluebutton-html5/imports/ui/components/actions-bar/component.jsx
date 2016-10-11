@@ -1,7 +1,12 @@
 import React, { Component, PropTypes } from 'react';
+import { showModal } from '/imports/ui/components/app/service';
+import Audio from '/imports/ui/components/audio-modal/component';
+import Button from '../button/component';
 import styles from './styles.scss';
 
-import Button from '../button/component';
+// import Settings from '/imports/ui/components/settings/component';
+
+const openJoinAudio = () => {showModal(<Audio />)};
 
 export default class ActionsBar extends Component {
   constructor(props) {
@@ -28,6 +33,14 @@ export default class ActionsBar extends Component {
           <Button
             onClick={this.handleClick}
             label={'Mute'}
+            color={'primary'}
+            icon={'audio'}
+            size={'lg'}
+            circle={true}
+          />
+          <Button
+            onClick={openJoinAudio.bind(this)}
+            label={'Join Audio'}
             color={'primary'}
             icon={'audio'}
             size={'lg'}
