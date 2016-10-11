@@ -296,7 +296,7 @@ trait UsersApp {
             vu = u.voiceUser.copy()
           }
           new UserVO(msg.userID, ru.externId, ru.name,
-                      ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, mood=u.mood, presenter=u.presenter,
+                      ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, mood=u.mood, presenter=false,
                       hasStream=u.hasStream, locked=u.locked,
                       webcamStreams=new ListSet[String](), phoneUser=u.phoneUser, vu, listenOnly=u.listenOnly, reconnecting=false, reconnectionTimer=null)
         }
