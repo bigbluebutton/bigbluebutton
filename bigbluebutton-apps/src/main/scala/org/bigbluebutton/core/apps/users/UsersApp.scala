@@ -282,6 +282,7 @@ trait UsersApp {
 
       val uvo = users.getUser(msg.userID) match {
         case Some(u) => {
+          unshareAllWebcamsForUser(u.userID)
           if (u.voiceUser.joined) {
             if (u.reconnecting) {
               logger.info("User reconnected: mid=[" + meetingID + "] uid=[" + msg.userID + "]")
@@ -290,13 +291,10 @@ trait UsersApp {
             }
             vu = u.voiceUser.copy()
           }
-          // didn't find a better way to clone the ListSet
-          var webcamStreams = new ListSet[String]()
-          u.webcamStreams.foreach((s: String) => webcamStreams += s)
           new UserVO(msg.userID, ru.externId, ru.name,
                       ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, mood=u.mood, presenter=u.presenter,
                       hasStream=u.hasStream, locked=u.locked,
-                      webcamStreams=webcamStreams, phoneUser=u.phoneUser, vu, listenOnly=u.listenOnly, reconnecting=false, reconnectionTimer=null)
+                      webcamStreams=new ListSet[String](), phoneUser=u.phoneUser, vu, listenOnly=u.listenOnly, reconnecting=false, reconnectionTimer=null)
         }
         case None => {
           new UserVO(msg.userID, ru.externId, ru.name,
@@ -339,10 +337,6 @@ trait UsersApp {
 
           val uvo = u.copy(reconnecting=true, reconnectionTimer=timerActor, hasStream=false, webcamStreams=new ListSet[String]())
           users.addUser(uvo)
-
-          u.webcamStreams.foreach((s: String) => {
-            outGW.send(new UserUnsharedWebcam(meetingID, recorded, u.userID, s))
-          })
 
           timerActor.start
         } else {
@@ -560,6 +554,14 @@ trait UsersApp {
     getRegisteredUser(userID) match {
       case Some(ru) => regUsers -= ru.authToken
       case None =>
+    }
+  }
+
+  def unshareAllWebcamsForUser(userID: String) {
+    users.getUser(userID) foreach { user =>
+      user.webcamStreams.foreach { stream =>
+        this ! new UserUnshareWebcam(meetingID, user.userID, stream)
+      }
     }
   }
 }
