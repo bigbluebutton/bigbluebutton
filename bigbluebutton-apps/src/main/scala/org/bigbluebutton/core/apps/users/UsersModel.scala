@@ -10,6 +10,7 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 class UsersModel {
   private var uservos = new collection.immutable.HashMap[String, UserVO]
+  private var globalAudioConnectionCounter = new collection.immutable.HashMap[String, Int]
   
   def generateWebUserId:String = {
     val webUserId = RandomStringGenerator.randomAlphanumericString(6)
@@ -101,5 +102,35 @@ class UsersModel {
 
   def noPresenter(): Boolean = {
     !getCurrentPresenter().isDefined
+  }
+
+  def addGlobalAudioConnection(userID: String): Boolean = {
+    globalAudioConnectionCounter.get(userID) match {
+      case Some(vc) => {
+        globalAudioConnectionCounter += userID -> (vc + 1)
+        false
+      }
+      case None => {
+        globalAudioConnectionCounter += userID -> 1
+        true
+      }
+    }
+  }
+
+  def removeGlobalAudioConnection(userID: String): Boolean = {
+    globalAudioConnectionCounter.get(userID) match {
+      case Some(vc) => {
+        if (vc == 1) {
+          globalAudioConnectionCounter -= userID
+          true
+        } else {
+          globalAudioConnectionCounter += userID -> (vc - 1)
+          false
+        }
+      }
+      case None => {
+        false
+      }
+    }
   }
 }

@@ -36,21 +36,25 @@ trait UsersApp {
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
     val user = users.getUser(msg.userid)
     user foreach {u =>
-      val vu = u.voiceUser.copy(talking=false)
-      val uvo = u.copy(listenOnly=true, voiceUser=vu)
-      users.addUser(uvo)
-      logger.info("UserConnectedToGlobalAudio: mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
-      outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))        
+      if (users.addGlobalAudioConnection(msg.userid)) {
+        val vu = u.voiceUser.copy(talking=false)
+        val uvo = u.copy(listenOnly=true, voiceUser=vu)
+        users.addUser(uvo)
+        logger.info("UserConnectedToGlobalAudio: mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
+        outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))
+      }
     }
   }
   
   def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
     val user = users.getUser(msg.userid)
     user foreach {u =>
-      val uvo = u.copy(listenOnly=false)
-      users.addUser(uvo)
-      logger.info("UserDisconnectedToGlobalAudio: mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
-      outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))        
+      if (users.removeGlobalAudioConnection(msg.userid)) {
+        val uvo = u.copy(listenOnly=false)
+        users.addUser(uvo)
+        logger.info("UserDisconnectedToGlobalAudio: mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
+        outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))
+      }
     }
   }
   
