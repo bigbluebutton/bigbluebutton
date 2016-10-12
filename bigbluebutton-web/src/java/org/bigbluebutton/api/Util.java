@@ -7,7 +7,7 @@ public final class Util {
 	
 	public static String generatePresentationId(String name) {
 		long timestamp = System.currentTimeMillis();		
-		return DigestUtils.sha1Hex(name) + "-" + timestamp;
+		return DigestUtils.shaHex(name) + "-" + timestamp;
 	}
 	
     public static String createNewFilename(String presId, String fileExt) {

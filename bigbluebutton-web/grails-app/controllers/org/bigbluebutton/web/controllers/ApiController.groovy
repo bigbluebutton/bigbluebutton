@@ -286,19 +286,9 @@ class ApiController {
       return
     }
 
-    Boolean isBreakoutRoom = false
-    if(!StringUtils.isEmpty(params.isBreakout)) {
-      isBreakoutRoom = new Boolean(StringUtils.strip(params.isBreakout))
-    }
-
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-    if (isBreakoutRoom) {
-      // This is a join request for a breakout room. Use the passed meetingId to find the meeting.
-      internalMeetingId = externalMeetingId
-      log.info("Join request for breakout room " + internalMeetingId)
-    }
 
     log.info("Retrieving meeting ${internalMeetingId}")
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
@@ -869,7 +859,9 @@ class ApiController {
                   meeting {
                     meetingID() { mkp.yield(m.getExternalId()) }
                     internalMeetingID() { mkp.yield(m.getInternalId()) }
-                    parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
+                    if (m.isBreakout()) {
+                        parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
+                    }
                     isBreakout() { mkp.yield(m.isBreakout()) }
                     meetingName() { mkp.yield(m.getName()) }
                     createTime(m.getCreateTime())
@@ -2137,7 +2129,9 @@ class ApiController {
             isBreakout() { mkp.yield(meeting.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
-            parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+            if (m.isBreakout()) {
+                parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+            }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
             voiceBridge() { mkp.yield(meeting.getTelVoice()) }
