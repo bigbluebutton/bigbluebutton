@@ -74,11 +74,12 @@ public class MeetingMessageHandler implements MessageHandler {
               listener.handle(new CreateBreakoutRoom(
                   msg.payload.breakoutMeetingId,
                   msg.payload.parentMeetingId,
-                  msg.payload.name, 
-                  msg.payload.voiceConfId, 
-                  msg.payload.viewerPassword, 
-                  msg.payload.moderatorPassword, 
-                  msg.payload.durationInMinutes, 
+                  msg.payload.name,
+                  msg.payload.sequence,
+                  msg.payload.voiceConfId,
+                  msg.payload.viewerPassword,
+                  msg.payload.moderatorPassword,
+                  msg.payload.durationInMinutes,
                   msg.payload.sourcePresentationId,
                   msg.payload.sourcePresentationSlide,
                   msg.payload.record

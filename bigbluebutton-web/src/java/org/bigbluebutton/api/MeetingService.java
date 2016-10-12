@@ -531,6 +531,7 @@ public class MeetingService implements MessageListener {
             params.put("meetingID", message.meetingId);
             params.put("parentMeetingID", message.parentMeetingId);
             params.put("isBreakout", "true");
+            params.put("sequence", message.sequence.toString());
             params.put("attendeePW", message.viewerPassword);
             params.put("moderatorPW", message.moderatorPassword);
             params.put("voiceBridge", message.voiceConfId);

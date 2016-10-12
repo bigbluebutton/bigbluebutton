@@ -152,7 +152,10 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
 object BreakoutRoomsUtil {
   def createMeetingId(id: String, index: Int): String = {
-    return DigestUtils.sha1Hex(id.concat("-").concat(index.toString())) + '-' + System.currentTimeMillis();
+    val timeStamp = System.currentTimeMillis()
+    val externalHash = DigestUtils.sha1Hex(id.concat("-").concat(timeStamp.toString()).concat("-").concat(index.toString()))
+    val externalId = externalHash.concat("-").concat(timeStamp.toString())
+    DigestUtils.sha1Hex(externalId).concat("-").concat(timeStamp.toString())
   }
 
   def createVoiceConfId(id: String, index: Int): String = {

@@ -358,16 +358,20 @@ public class ParamsProcessorUtil {
 	    // Create a unique internal id by appending the current time. This way, the 3rd-party
 	    // app can reuse the external meeting id.
 	    long createTime = System.currentTimeMillis();
-	    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString();
+	    internalMeetingId = internalMeetingId.concat("-").concat(new Long(createTime).toString());
 
         // If this create meeting request is for a breakout room, we just used
         // we need to generate a unique internal and external id and keep
 	    // tracks of the parent meeting id
 	    String parentMeetingId = new String();
         if (isBreakout) {
-            externalMeetingId = internalMeetingId;
             internalMeetingId = params.get("meetingID");
             parentMeetingId = params.get("parentMeetingID");
+            // We rebuild the the external meeting using the has of the parent
+            // meeting, the shared timestamp and the sequence number
+            String timeStamp = StringUtils.substringAfter(internalMeetingId, "-");
+            String externalHash = DigestUtils.shaHex(parentMeetingId.concat("-").concat(timeStamp.toString()).concat("-").concat(params.get("sequence")));
+            externalMeetingId = externalHash.concat("-").concat(timeStamp);
         }
 
         // Create the meeting with all passed in parameters.
