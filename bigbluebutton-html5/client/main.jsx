@@ -6,13 +6,14 @@ import { IntlProvider } from 'react-intl';
 
 let defaultLocale = 'en';
 let browserLanguage = navigator.language;
-let messages;
+var messages;
 
 function loadMessages(browserLanguage) {
+
   $.ajax({
     type: 'GET',
     async: false,
-    url: `http://192.168.32.128/html5client/locale?locale=${browserLanguage}`,
+    url: `${window.location.origin}/html5client/locale?locale=${browserLanguage}`,
     dataType: 'json',
     success: setMessages,
     error: err,
@@ -25,6 +26,7 @@ function loadMessages(browserLanguage) {
   function err(data) {
     console.log('Error : Locale Not Found,  Using Default');
   }
+  
 }
 
 // Helper to load javascript libraries from the BBB server

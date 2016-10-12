@@ -3,7 +3,6 @@ import '/server/server';
 import { RedisPubSub } from '/imports/startup/server/RedisPubSub';
 import { EventQueue } from '/imports/startup/server/EventQueue';
 import { clearCollections } from '/imports/api/common/server/helpers';
-import { Meteor } from 'meteor/meteor';
 import  Locales  from '/imports/locales';
 
 Meteor.startup(function () {
@@ -36,50 +35,23 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
 });
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
+
   let defaultLocale = 'en';
-  let availableTranslations = ['en', 'en-US', 'pt-BR'];
-  let defaultMessages = {};
-  let newMessages = {};
-  let languageRegion = null;
-  let language = null;
-  let foundl = false;
-  let foundlr = false;
+  let [locale, region] = req.query.locale.split('-');
 
-  let browserLang = req.query.locale.split('-');
+  const defaultMessages = Locales[defaultLocale];
 
-  if (browserLang[1]) {
-    languageRegion = browserLang[0] + '-' + browserLang[1].toUpperCase();
-    language = browserLang[0];
-  } else {
-    language = browserLang[0];
-  }
-
-  defaultMessages = Locales[defaultLocale];
-
-  for (i = 0; i < availableTranslations.length; i++) {
-    if (languageRegion == availableTranslations[i]) {
-      foundlr = true;
-    } else if (language == availableTranslations[i]) {
-      foundl = true;
-    }
-  }
-
-  if (foundlr) {
-    newMessages = Locales[languageRegion];
-    foundlr = false;
-  }else if (foundl) {
-    newMessages = Locales[language];
-    foundl = false;
-  } else {
-    newMessages = defaultMessages;
-  }
-
-  let merged = {};
-  Object.assign(merged, defaultMessages, newMessages);
+  let messages = Object.assign(
+    {},
+    defaultMessages,
+    Locales[locale],
+    Locales[`${locale}-${region}`],
+  );
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(merged));
+  res.end(JSON.stringify(messages));
+
 });
 
 export const myQueue = new EventQueue();
