@@ -643,8 +643,7 @@ package org.bigbluebutton.modules.users.services
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
 		event.joinURL = map.joinURL;
 		var meetingId : String = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
-		// @todo: extract the sequence number from the models
-		event.breakoutMeetingSequence = 1; //meetingId;
+		event.breakoutMeetingSequence = UserManager.getInstance().getConference().getBreakoutRoom(meetingId).sequence;
 		dispatcher.dispatchEvent(event);
 	}
 	

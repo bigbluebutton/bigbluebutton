@@ -67,7 +67,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURLInMessage) {
-    sendJoinURL(msg.userId, msg.meetingId)
+    sendJoinURL(msg.userId, msg.breakoutMeetingId)
   }
 
   def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {

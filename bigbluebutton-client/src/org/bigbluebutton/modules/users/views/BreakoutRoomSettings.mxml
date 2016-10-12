@@ -102,11 +102,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					for (var u:int = 0; u < list.users.length; u++) {
 						user = list.users.getItemAt(u) as BBBUser;
 						if (user.breakoutRooms.length == 0) {
-							//@todo: refactor
 							usersInvited ||= true;
 							var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
 							event.userId = user.userID;
-							event.breakoutMeetingId = UserManager.getInstance().getConference().internalMeetingID + "-" + (i + 1);
+							event.breakoutMeetingId = UserManager.getInstance().getConference().getBreakoutRoomBySequence(i + 1).meetingId;
 							dispatcher.dispatchEvent(event);
 						}
 					}

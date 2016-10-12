@@ -334,12 +334,11 @@ package org.bigbluebutton.main.model.users
 		private var _breakoutRooms : Array = [];
 		
 		[Bindable("displayNameChange")]
-		public function get displayName() : String {
-			if (ArrayUtils.isEmpty(_breakoutRooms)){
+		public function get displayName():String {
+			if (ArrayUtils.isEmpty(_breakoutRooms)) {
 				return name;
-			}
-			else {
-				return "[" + _breakoutRooms.join(",") + "] " +name;
+			} else {
+				return "[" + _breakoutRooms.join(",") + "] " + name;
 			}
 		}
 
@@ -352,14 +351,14 @@ package org.bigbluebutton.main.model.users
 			dispatchEvent(new Event("displayNameChange"));
 		}
 
-		public function addBreakoutRoom(roomNumber:String):void {
+		public function addBreakoutRoom(roomNumber:int):void {
 			if (!ArrayUtils.contains(_breakoutRooms, roomNumber)) {
 				_breakoutRooms.push(roomNumber);
 				dispatchEvent(new Event("displayNameChange"));
 			}
 		}
 
-		public function removeBreakoutRoom(roomNumber:String):void {
+		public function removeBreakoutRoom(roomNumber:int):void {
 			_breakoutRooms.splice(_breakoutRooms.indexOf(roomNumber), 1);
 			dispatchEvent(new Event("displayNameChange"));
 		}

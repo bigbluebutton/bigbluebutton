@@ -342,7 +342,6 @@
 				// We display only one alert
 				removeJoinAlert();
 				joinAlert = Alert.show(
-					//@todo: refactor
 					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL', [event.breakoutMeetingSequence]),
 					ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
 					Alert.YES | Alert.NO,
