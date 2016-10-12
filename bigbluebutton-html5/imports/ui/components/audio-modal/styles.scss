@@ -47,3 +47,22 @@ Button.audioBtn:first-of-type {
   min-height: 350px;
   min-width: 500px;
 }
+
+// Audio settings menu
+.half {
+  width: 50%;
+  float: left;
+  padding-top: 30px;
+}
+
+.backBtn {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
+.enterBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}

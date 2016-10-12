@@ -6,20 +6,47 @@ import { clearModal } from '/imports/ui/components/app/service';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from './styles.scss';
+import JoinAudio from './join-audio/component';
+import ListenOnly from './listen-only/component';
+import AudioSettings from './audio-settings/component';
 
 export default class Audio extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleClose = this.handleClose.bind(this);
+    this.CHOOSE_MENU = 0;
+    this.JOIN_AUDIO = 1;
+    this.ECHO_TEST = 2;
+
+    this.submenus = [];
   }
 
-  handleClose() {
-    this.setState({ isOpen: false });
-    clearModal();
+  componentWillMount() {
+    /* activeSubmenu represents the submenu in the submenus array to be displayed to the user,
+     * initialized to 0
+     */
+    this.setState({ activeSubmenu: 0 });
+    this.submenus.push({ componentName: JoinAudio, });
+    this.submenus.push({ componentName: AudioSettings, });
+    this.submenus.push({ componentName: ListenOnly, });
   }
 
-  handleClick() {
+  changeMenu(i) {
+    this.setState({ activeSubmenu: i });
+  }
+
+  createMenu() {
+    const curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
+
+    let props = {
+      changeMenu: this.changeMenu.bind(this),
+      CHOOSE_MENU: this.CHOOSE_MENU,
+      JOIN_AUDIO: this.JOIN_AUDIO,
+      ECHO_TEST: this.ECHO_TEST,
+    }
+
+    const Submenu = this.submenus[curr].componentName;
+    return <Submenu {...props}/>;
   }
 
   render() {
@@ -29,35 +56,9 @@ export default class Audio extends React.Component {
         onHide={null}
         onShow={null}
         className={styles.inner}>
-          <div className={styles.center}>
-            <Button className={styles.closeBtn}
-              label={'Close'}
-              icon={'close'}
-              size={'lg'}
-              circle={true}
-              hideLabel={true}
-              onClick={this.handleClose}
-            />
-            <div>
-              How would you like to join the audio?
-            </div>
-          </div>
-          <div className={styles.center}>
-            <Button className={styles.audioBtn}
-              label={'Audio'}
-              icon={'audio'}
-              circle={true}
-              size={'jumbo'}
-              onClick={this.handleClick}
-            />
-            <Button className={styles.audioBtn}
-              label={'Listen Only'}
-              icon={'listen'}
-              circle={true}
-              size={'jumbo'}
-              onClick={this.handleClick}
-            />
-          </div>
+        <div>
+          {this.createMenu()}
+        </div>
       </ModalBase>
     );
   }
