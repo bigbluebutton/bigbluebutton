@@ -105,7 +105,7 @@ public class PresentationUrlDownloadService {
 
     public String generatePresentationId(String name) {
         long timestamp = System.currentTimeMillis();
-        return DigestUtils.shaHex(name) + "-" + timestamp;
+        return DigestUtils.sha1Hex(name) + "-" + timestamp;
     }
 
     public File createPresentationDirectory(String meetingId,

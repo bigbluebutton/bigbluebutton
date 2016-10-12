@@ -370,7 +370,7 @@ public class ParamsProcessorUtil {
             // We rebuild the the external meeting using the has of the parent
             // meeting, the shared timestamp and the sequence number
             String timeStamp = StringUtils.substringAfter(internalMeetingId, "-");
-            String externalHash = DigestUtils.shaHex(parentMeetingId.concat("-").concat(timeStamp.toString()).concat("-").concat(params.get("sequence")));
+            String externalHash = DigestUtils.sha1Hex(parentMeetingId.concat("-").concat(timeStamp.toString()).concat("-").concat(params.get("sequence")));
             externalMeetingId = externalHash.concat("-").concat(timeStamp);
         }
 
@@ -466,7 +466,7 @@ public class ParamsProcessorUtil {
     }
 
 	public String convertToInternalMeetingId(String extMeetingId) {
-		return DigestUtils.shaHex(extMeetingId);
+		return DigestUtils.sha1Hex(extMeetingId);
 	}
 	
 	public String processPassword(String pass) {
@@ -561,7 +561,7 @@ public class ParamsProcessorUtil {
 			return true;
 		}
         
-		String cs = DigestUtils.shaHex(meetingID + configXML + securitySalt);
+		String cs = DigestUtils.sha1Hex(meetingID + configXML + securitySalt);
 
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("checksumError: configXML checksum. our: [{}], client: [{}]", cs, checksum);
@@ -586,7 +586,7 @@ public class ParamsProcessorUtil {
 		    queryString = queryString.replace("checksum=" + checksum, "");
 		}
 
-		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
+		String cs = DigestUtils.sha1Hex(apiCall + queryString + securitySalt);
 
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("query string after checksum removed: [{}]", queryString);
@@ -646,7 +646,7 @@ public class ParamsProcessorUtil {
 		csbuf.append(securitySalt);
 
 		String baseString = csbuf.toString();				
-		String cs = DigestUtils.shaHex(baseString);
+		String cs = DigestUtils.sha1Hex(baseString);
 		
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("POST basestring = [" + baseString + "]");
