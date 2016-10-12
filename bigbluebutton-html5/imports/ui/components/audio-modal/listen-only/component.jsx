@@ -13,7 +13,7 @@ export default class ListenOnly extends React.Component {
   }
 
   chooseAudio() {
-    this.props.changeMenu(this.props.CHOOSE_MENU);
+    this.props.changeMenu(this.props.JOIN_AUDIO);
   }
 
 

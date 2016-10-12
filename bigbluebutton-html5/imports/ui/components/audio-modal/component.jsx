@@ -14,9 +14,9 @@ export default class Audio extends React.Component {
   constructor(props) {
     super(props);
 
-    this.CHOOSE_MENU = 0;
-    this.JOIN_AUDIO = 1;
-    this.ECHO_TEST = 2;
+    this.JOIN_AUDIO = 0;
+    this.AUDIO_SETTINGS = 1;
+    this.LISTEN_ONLY = 2;
 
     this.submenus = [];
   }
@@ -40,9 +40,9 @@ export default class Audio extends React.Component {
 
     let props = {
       changeMenu: this.changeMenu.bind(this),
-      CHOOSE_MENU: this.CHOOSE_MENU,
       JOIN_AUDIO: this.JOIN_AUDIO,
-      ECHO_TEST: this.ECHO_TEST,
+      AUDIO_SETTINGS: this.AUDIO_SETTINGS,
+      LISTEN_ONLY: this.LISTEN_ONLY,
     }
 
     const Submenu = this.submenus[curr].componentName;

@@ -20,11 +20,11 @@ export default class JoinAudio extends React.Component {
   }
 
   openAudio() {
-    this.props.changeMenu(this.props.JOIN_AUDIO);
+    this.props.changeMenu(this.props.AUDIO_SETTINGS);
   }
 
   openListen() {
-    this.props.changeMenu(this.props.ECHO_TEST);
+    this.props.changeMenu(this.props.LISTEN_ONLY);
   }
 
 

@@ -17,7 +17,7 @@ export default class AudioSettings extends React.Component {
   }
 
   chooseAudio() {
-    this.props.changeMenu(this.props.CHOOSE_MENU);
+    this.props.changeMenu(this.props.JOIN_AUDIO);
   }
 
 
