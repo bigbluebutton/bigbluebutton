@@ -54,11 +54,11 @@ Meteor.startup(() => {
     .then(function (response) {
       return response.json();
     })
-    .done(function (data) {
+    .then(function (data) {
       setMessages(data);
     })
-    .catch(function (err) {
-      console.log('Error: Locale not found :(');
+    .catch(function error(err) {
+      console.log('request failed', err);
     });
 
 });
