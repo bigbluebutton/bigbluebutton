@@ -241,8 +241,8 @@
 			private function openEmojiStatusMenu() : void
 			{
 				var moodMenu:MoodMenu = PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
-				var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - moodMenu.height));
-				moodMenu.show(menuXY);
+				moodMenu.btn = emojiStatusBtn;
+				moodMenu.show();
 			}
 			
 			private function openSettings():void {
