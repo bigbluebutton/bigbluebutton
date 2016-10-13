@@ -4,29 +4,15 @@ import { render } from 'react-dom';
 import { renderRoutes } from '../imports/startup/client/routes.js';
 import { IntlProvider } from 'react-intl';
 
-let defaultLocale = 'en';
-let browserLanguage = navigator.language;
-var messages;
+function setMessages(data) {
+  let messages = data;
+  let defaultLocale = 'en';
 
-function loadMessages(browserLanguage) {
-
-  $.ajax({
-    type: 'GET',
-    async: false,
-    url: `${window.location.origin}/html5client/locale?locale=${browserLanguage}`,
-    dataType: 'json',
-    success: setMessages,
-    error: err,
-  });
-
-  function setMessages(data) {
-    messages = data;
-  }
-
-  function err(data) {
-    console.log('Error : Locale Not Found,  Using Default');
-  }
-  
+  render((
+    <IntlProvider  locale={defaultLocale} messages={messages}>
+      {renderRoutes()}
+    </IntlProvider>
+  ), document.getElementById('app'));
 }
 
 // Helper to load javascript libraries from the BBB server
@@ -60,11 +46,19 @@ Meteor.startup(() => {
   loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
 
-  loadMessages(browserLanguage);
+  let browserLanguage = navigator.language;
+  let request = new Request
+    (`${window.location.origin}/html5client/locale?locale=${browserLanguage}`);
 
-  render((
-    <IntlProvider  locale={defaultLocale} messages={messages}>
-      {renderRoutes()}
-    </IntlProvider>
-  ), document.getElementById('app'));
+  fetch(request, { method: 'GET' })
+    .then(function (response) {
+      return response.json();
+    })
+    .done(function (data) {
+      setMessages(data);
+    })
+    .catch(function (err) {
+      console.log('Error: Locale not found :(');
+    });
+
 });
