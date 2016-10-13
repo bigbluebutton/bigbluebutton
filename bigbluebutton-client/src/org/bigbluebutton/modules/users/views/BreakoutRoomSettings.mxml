@@ -294,8 +294,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		
 		<mx:HBox id="recordBox" width="100%" paddingTop="12">
-		    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}" visible="false" />
-			<mx:CheckBox id="recordCheckbox" visible="false" 
+		    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}"/>
+			<mx:CheckBox id="recordCheckbox"
 						 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
 		</mx:HBox>
 		<mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>
