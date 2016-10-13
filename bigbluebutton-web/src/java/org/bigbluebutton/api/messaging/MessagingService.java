@@ -34,7 +34,7 @@ public interface MessagingService {
             String voiceBridge, Integer duration, Boolean autoStartRecording,
             Boolean allowStartStopRecording, String moderatorPass,
             String viewerPass, Long createTime, String createDate,
-            Boolean isBreakout);
+            Boolean isBreakout, Integer sequence);
 	void endMeeting(String meetingId);
 	void send(String channel, String message);
 	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);

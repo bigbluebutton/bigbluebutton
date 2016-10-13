@@ -24,13 +24,17 @@ trait BreakoutRoomApp extends SystemConfiguration {
     val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id, r.sequence) }
     val roomsReady = breakoutModel.pendingRoomsNumber == 0 && breakoutRooms.length > 0
     log.info("Sending breakout rooms list to {} with containing {} room(s)", mProps.meetingID, breakoutRooms.length)
-    outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms, roomsReady ))
+    outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms, roomsReady))
   }
 
   def handleCreateBreakoutRooms(msg: CreateBreakoutRooms) {
     // If breakout rooms are being created we ignore the coming message
     if (breakoutModel.pendingRoomsNumber > 0) {
       log.warning("CreateBreakoutRooms event received while {} are pending to be created for meeting {}", breakoutModel.pendingRoomsNumber, mProps.meetingID)
+      return
+    }
+    if (breakoutModel.getNumberOfRooms() > 0) {
+      log.warning("CreateBreakoutRooms event received while {} breakout rooms running for meeting {}", breakoutModel.getNumberOfRooms(), mProps.meetingID)
       return
     }
 
@@ -56,6 +60,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def sendJoinURL(userId: String, breakoutMeetingId: String) {
+    log.debug("Sending breakout meeting {} Join URL for user: {}", breakoutMeetingId, userId);
     for {
       user <- usersModel.getUser(userId)
       apiCall = "join"
@@ -77,13 +82,13 @@ trait BreakoutRoomApp extends SystemConfiguration {
       sendBreakoutRoomStarted(room.parentRoomId, room.name, room.id, room.sequence, room.voiceConfId)
     }
 
-    // We avoid sending invitation
+    // We postpone sending invitation until all breakout rooms have been created
     if (breakoutModel.pendingRoomsNumber == 0) {
       log.info("All breakout rooms created for meetingId={}", mProps.meetingID)
       breakoutModel.getRooms().foreach { room =>
         breakoutModel.getAssignedUsers(room.id) foreach { users =>
           users.foreach { u =>
-            log.debug("Sending Join URL for users: {}", u);
+            log.debug("Sending Join URL for users");
             sendJoinURL(u, room.id)
           }
         }
@@ -92,7 +97,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
   }
 
-  def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutMeetingId: String, sequence: Int,voiceConfId: String) {
+  def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutMeetingId: String, sequence: Int, voiceConfId: String) {
     log.info("Sending breakout room started for parent meeting {} and breakout meeting", meetingId, breakoutMeetingId);
     outGW.send(new BreakoutRoomStartedOutMessage(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, breakoutMeetingId, sequence)))
   }

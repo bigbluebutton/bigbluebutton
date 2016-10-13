@@ -8,7 +8,7 @@ case class MeetingProperties(meetingID: String, externalMeetingID: String, paren
                              recorded: Boolean, voiceBridge: String, deskshareBridge: String, duration: Int,
                              autoStartRecording: Boolean, allowStartStopRecording: Boolean, moderatorPass: String,
                              viewerPass: String, createTime: Long, createDate: String,
-                             red5DeskShareIP: String, red5DeskShareApp: String, isBreakout: Boolean)
+                             red5DeskShareIP: String, red5DeskShareApp: String, isBreakout: Boolean, sequence: Int)
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
                                 sendNotice: Boolean = true, sent15MinNotice: Boolean = false,

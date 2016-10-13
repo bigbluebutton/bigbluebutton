@@ -303,7 +303,8 @@ public class MeetingService implements MessageListener {
             metadata.put("meetingName", m.getName());
             metadata.put("isBreakout", m.isBreakout().toString());
             if (m.isBreakout() != null){
-                metadata.put("parentMeetingId", m.getParentMeetingId());    
+                metadata.put("sequence", m.getSequence().toString());
+                metadata.put("parentMeetingId", m.getParentMeetingId());
             }
 
             messagingService.recordMeetingInfo(m.getInternalId(), metadata);
@@ -313,7 +314,8 @@ public class MeetingService implements MessageListener {
         logData.put("meetingId", m.getInternalId());
         logData.put("externalMeetingId", m.getExternalId());
         if (m.isBreakout() != null){
-            logData.put("parentMeetingId", m.getParentMeetingId());    
+            logData.put("sequence", m.getSequence());
+            logData.put("parentMeetingId", m.getParentMeetingId());
         }
         logData.put("name", m.getName());
         logData.put("duration", m.getDuration());
@@ -332,7 +334,7 @@ public class MeetingService implements MessageListener {
                 m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(),
                 m.getAllowStartStopRecording(), m.getModeratorPassword(),
                 m.getViewerPassword(), m.getCreateTime(),
-                formatPrettyDate(m.getCreateTime()), m.isBreakout());
+                formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence());
     }
 
     private String formatPrettyDate(Long timestamp) {
@@ -552,8 +554,9 @@ public class MeetingService implements MessageListener {
                     message.sourcePresentationId,
                     message.sourcePresentationSlide, breakout.getInternalId());
         } else {
-            log.error("Failed to create breakout room " + message.meetingId
-                    + ".Reason: Parent meeting not found.");
+            log.error(
+                    "Failed to create breakout room {}.Reason: Parent meeting {} not found.",
+                    message.meetingId, message.parentMeetingId);
         }
     }
 

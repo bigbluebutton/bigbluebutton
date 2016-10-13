@@ -861,6 +861,7 @@ class ApiController {
                     internalMeetingID() { mkp.yield(m.getInternalId()) }
                     if (m.isBreakout()) {
                         parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
+                        sequence(m.getSequence())
                     }
                     isBreakout() { mkp.yield(m.isBreakout()) }
                     meetingName() { mkp.yield(m.getName()) }
@@ -2131,6 +2132,7 @@ class ApiController {
             internalMeetingID(meeting.getInternalId())
             if (m.isBreakout()) {
                 parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+                sequence(meeting.getSequence())
             }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))

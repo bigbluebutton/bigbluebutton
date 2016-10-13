@@ -28,13 +28,14 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
         public final Long createTime;
         public final String createDate;
         public final Boolean isBreakout;
+        public final Integer sequence;
 
         public CreateMeetingRequestPayload(String id, String externalId,
                 String parentId, String name, Boolean record,
                 String voiceConfId, Integer duration,
                 Boolean autoStartRecording, Boolean allowStartStopRecording,
                 String moderatorPass, String viewerPass, Long createTime,
-                String createDate, Boolean isBreakout) {
+                String createDate, Boolean isBreakout, Integer sequence) {
             this.id = id;
             this.externalId = externalId;
             this.parentId = parentId;
@@ -49,6 +50,7 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
             this.createTime = createTime;
             this.createDate = createDate;
             this.isBreakout = isBreakout;
+            this.sequence = sequence;
         }
     }
 }

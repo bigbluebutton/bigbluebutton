@@ -33,6 +33,10 @@ class BreakoutRoomModel {
   def getRooms(): Array[BreakoutRoom] = {
     rooms.values.toArray
   }
+  
+  def getNumberOfRooms(): Int = {
+    rooms.size
+  }
 
   def getAssignedUsers(breakoutMeetingId: String): Option[Vector[String]] = {
     for {

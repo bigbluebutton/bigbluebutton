@@ -20,6 +20,7 @@ public class CreateMeetingRequestTest {
     Boolean autoStartRecording = false;
     Boolean allowStartStopRecording = false;
     Boolean isBreakout = true;
+    Integer sequence = 4;
     String viewerPassword = "vp";
     String moderatorPassword = "mp";
     long createTime = System.currentTimeMillis();
@@ -29,7 +30,7 @@ public class CreateMeetingRequestTest {
                 meetingId, externalId, parentId, name, record, voiceConfId,
                 durationInMinutes, autoStartRecording, allowStartStopRecording,
                 moderatorPassword, viewerPassword, createTime, createDate,
-                isBreakout);
+                isBreakout, sequence);
     CreateMeetingRequest msg = new CreateMeetingRequest(payload);    
     Gson gson = new Gson();
     String json = gson.toJson(msg);
@@ -47,5 +48,6 @@ public class CreateMeetingRequestTest {
     Assert.assertEquals(rxMsg.payload.moderatorPassword, moderatorPassword);
     Assert.assertEquals(rxMsg.payload.durationInMinutes, durationInMinutes);
     Assert.assertEquals(rxMsg.payload.isBreakout, isBreakout);
+    Assert.assertEquals(rxMsg.payload.sequence, sequence);
   }
 }

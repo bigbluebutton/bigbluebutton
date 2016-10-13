@@ -5,6 +5,7 @@ trait AppsTestFixtures {
   val meetingId = "testMeetingId"
   val externalMeetingId = "testExternalMeetingId"
   val parentMeetingId = "testParentMeetingId"
+  val sequence = 4
   val meetingName = "test meeting"
   val record = false
   val voiceConfId = "85115"
@@ -27,5 +28,5 @@ trait AppsTestFixtures {
     autoStartRecording, allowStartStopRecording,
     moderatorPassword, viewerPassword,
     createTime, createDate, red5DeskShareIP, red5DeskShareApp,
-    isBreakout)
+    isBreakout, sequence)
 }
