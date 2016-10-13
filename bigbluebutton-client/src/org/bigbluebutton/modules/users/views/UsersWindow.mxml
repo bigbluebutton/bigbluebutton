@@ -69,6 +69,7 @@
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.main.views.WellPositionedMenu;
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
@@ -264,14 +265,11 @@
 				// but it would require an extra listener for the MenuCloseEvent.
 				if (paramsMenu) {
 					paramsMenu.removeEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-					paramsMenu.removeEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
 					paramsMenu.hide();
 				}
 				
-				paramsMenu = Menu.createMenu(null, paramsMenuData, true);
-				paramsMenu.variableRowHeight = false;
+				paramsMenu = WellPositionedMenu.createMenu(null, paramsMenuData, settingsBtn, true);
 				paramsMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-				paramsMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
 				paramsMenu.show();
 			}
 			
@@ -279,13 +277,6 @@
 				if(paramsMenuData[e.index] != undefined && paramsMenuData[e.index].handler != undefined) {
 					paramsMenuData[e.index].handler();
 				}
-			}
-			
-			private function menuShowHandler(e:MenuEvent):void {
-				paramsMenu.setFocus();
-				var menuXY:Point = settingsBtn.localToGlobal(new Point(settingsBtn.width + 2, settingsBtn.height - paramsMenu.height));
-				paramsMenu.x = menuXY.x;
-				paramsMenu.y = menuXY.y;
 			}
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
