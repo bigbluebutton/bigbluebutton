@@ -147,8 +147,9 @@ object MeetingMessageToJsonConverter {
 
   def breakoutRoomStartedOutMessageToJson(msg: BreakoutRoomStartedOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
-    payload.put("parentMeetingId", msg.parentMeetingId)
     payload.put("meetingId", msg.breakout.meetingId)
+    payload.put("externalMeetingId", msg.breakout.externalMeetingId)
+    payload.put("parentMeetingId", msg.parentMeetingId)
     payload.put("sequence", msg.breakout.sequence)
     payload.put("name", msg.breakout.name)
 

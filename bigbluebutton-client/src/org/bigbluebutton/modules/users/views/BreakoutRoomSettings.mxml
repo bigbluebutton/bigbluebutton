@@ -105,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							usersInvited ||= true;
 							var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
 							event.userId = user.userID;
-							event.breakoutMeetingId = UserManager.getInstance().getConference().getBreakoutRoomBySequence(i + 1).meetingId;
+							event.breakoutMeetingId = UserManager.getInstance().getConference().getBreakoutRoomBySequence(i + 1).externalMeetingId;
 							dispatcher.dispatchEvent(event);
 						}
 					}

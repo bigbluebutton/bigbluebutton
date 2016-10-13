@@ -44,7 +44,7 @@
 
 			protected function requestBreakoutJoinUrl(event:MouseEvent):void {
 				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
-				e.breakoutMeetingId = data.meetingId as String;
+				e.breakoutMeetingId = data.externalMeetingId as String;
 				e.userId = UserManager.getInstance().getConference().getMyUserId();
 				globalDispatch.dispatchEvent(e);
 			}

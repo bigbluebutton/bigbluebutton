@@ -21,7 +21,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   val eventBus: IncomingEventBus
 
   def handleBreakoutRoomsList(msg: BreakoutRoomsListMessage) {
-    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id, r.sequence) }
+    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.externalMeetingId, r.id, r.sequence) }
     val roomsReady = breakoutModel.pendingRoomsNumber == 0 && breakoutRooms.length > 0
     log.info("Sending breakout rooms list to {} with containing {} room(s)", mProps.meetingID, breakoutRooms.length)
     outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms, roomsReady))
@@ -47,9 +47,10 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
     for (room <- msg.rooms) {
       i += 1
-      val breakoutMeetingId = BreakoutRoomsUtil.createMeetingId(mProps.meetingID, i)
+      val breakoutMeetingId = BreakoutRoomsUtil.createMeetingIds(mProps.meetingID, i)
       val voiceConfId = BreakoutRoomsUtil.createVoiceConfId(mProps.voiceBridge, i)
-      val r = breakoutModel.createBreakoutRoom(breakoutMeetingId, room.name, mProps.meetingID, room.sequence, voiceConfId, room.users)
+      val r = breakoutModel.createBreakoutRoom(mProps.meetingID, breakoutMeetingId._1, breakoutMeetingId._2, room.name,
+        room.sequence, voiceConfId, room.users)
       val p = new BreakoutRoomOutPayload(r.id, r.name, mProps.meetingID, r.sequence,
         r.voiceConfId, msg.durationInMinutes, mProps.moderatorPass, mProps.viewerPass,
         sourcePresentationId, sourcePresentationSlide, msg.record)
@@ -59,16 +60,16 @@ trait BreakoutRoomApp extends SystemConfiguration {
     meetingModel.breakoutRoomsStartedOn = timeNowInSeconds;
   }
 
-  def sendJoinURL(userId: String, breakoutMeetingId: String) {
-    log.debug("Sending breakout meeting {} Join URL for user: {}", breakoutMeetingId, userId);
+  def sendJoinURL(userId: String, externalMeetingId: String) {
+    log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId);
     for {
       user <- usersModel.getUser(userId)
       apiCall = "join"
-      params = BreakoutRoomsUtil.joinParams(user.name, userId, true, breakoutMeetingId, mProps.moderatorPass, true)
+      params = BreakoutRoomsUtil.joinParams(user.name, userId, true, externalMeetingId, mProps.moderatorPass, true)
       baseString = BreakoutRoomsUtil.createBaseString(params)
       checksum = BreakoutRoomsUtil.calculateChecksum(apiCall, baseString, bbbWebSharedSecret)
       joinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, baseString, checksum)
-    } yield outGW.send(new BreakoutRoomJoinURLOutMessage(mProps.meetingID, mProps.recorded, breakoutMeetingId, userId, joinURL))
+    } yield outGW.send(new BreakoutRoomJoinURLOutMessage(mProps.meetingID, mProps.recorded, externalMeetingId, userId, joinURL))
   }
 
   def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURLInMessage) {
@@ -79,7 +80,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     breakoutModel.pendingRoomsNumber -= 1
     val room = breakoutModel.getBreakoutRoom(msg.breakoutRoomId)
     room foreach { room =>
-      sendBreakoutRoomStarted(room.parentRoomId, room.name, room.id, room.sequence, room.voiceConfId)
+      sendBreakoutRoomStarted(room.parentRoomId, room.name, room.externalMeetingId, room.id, room.sequence, room.voiceConfId)
     }
 
     // We postpone sending invitation until all breakout rooms have been created
@@ -89,7 +90,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
         breakoutModel.getAssignedUsers(room.id) foreach { users =>
           users.foreach { u =>
             log.debug("Sending Join URL for users");
-            sendJoinURL(u, room.id)
+            sendJoinURL(u, room.externalMeetingId)
           }
         }
       }
@@ -97,9 +98,9 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
   }
 
-  def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutMeetingId: String, sequence: Int, voiceConfId: String) {
-    log.info("Sending breakout room started for parent meeting {} and breakout meeting", meetingId, breakoutMeetingId);
-    outGW.send(new BreakoutRoomStartedOutMessage(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, breakoutMeetingId, sequence)))
+  def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, externalMeetingId: String, breakoutMeetingId: String, sequence: Int, voiceConfId: String) {
+    log.info("Sending breakout room started {} for parent meeting {} ", breakoutMeetingId, meetingId);
+    outGW.send(new BreakoutRoomStartedOutMessage(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, externalMeetingId, breakoutMeetingId, sequence)))
   }
 
   def handleBreakoutRoomEnded(msg: BreakoutRoomEnded) {
@@ -156,11 +157,12 @@ trait BreakoutRoomApp extends SystemConfiguration {
 }
 
 object BreakoutRoomsUtil {
-  def createMeetingId(id: String, index: Int): String = {
+  def createMeetingIds(id: String, index: Int): (String, String) = {
     val timeStamp = System.currentTimeMillis()
     val externalHash = DigestUtils.sha1Hex(id.concat("-").concat(timeStamp.toString()).concat("-").concat(index.toString()))
     val externalId = externalHash.concat("-").concat(timeStamp.toString())
-    DigestUtils.sha1Hex(externalId).concat("-").concat(timeStamp.toString())
+    val internalId = DigestUtils.sha1Hex(externalId).concat("-").concat(timeStamp.toString())
+    (internalId, externalId)
   }
 
   def createVoiceConfId(id: String, index: Int): String = {

@@ -10,7 +10,7 @@ class BreakoutRoomsUtilSpec extends UnitSpec {
     val mainMeetingId = "abc-123"
     val index = 1
     val result = mainMeetingId.concat("-").concat(index.toString())
-    val breakoutMeetingId = BreakoutRoomsUtil.createMeetingId(mainMeetingId, index)
+    val breakoutMeetingId = BreakoutRoomsUtil.createMeetingIds(mainMeetingId, index)
     assert(breakoutMeetingId == result)
   }
 

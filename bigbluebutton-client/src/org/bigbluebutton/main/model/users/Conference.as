@@ -586,6 +586,17 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
 		
+		public function getBreakoutRoomByExternalId(externalId:String):BreakoutRoom {
+			var aRoom:BreakoutRoom;
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				aRoom = breakoutRooms.getItemAt(i) as BreakoutRoom;
+				if (aRoom.externalMeetingId == externalId) {
+					return aRoom;
+				}
+			}
+			return null;
+		}
+		
 		public function getBreakoutRoomBySequence(sequence:int):BreakoutRoom {
 			var aRoom:BreakoutRoom;
 			for (var i:int = 0; i < breakoutRooms.length; i++) {

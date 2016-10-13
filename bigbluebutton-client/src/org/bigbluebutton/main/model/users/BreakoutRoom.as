@@ -28,6 +28,8 @@ package org.bigbluebutton.main.model.users {
 		
 		public static const OTHER:String = "other";
 		
+		public var externalMeetingId:String;
+		
 		public var meetingId:String;
 		
 		public var sequence:int;

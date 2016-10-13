@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps
 import scala.Vector
 
 case class BreakoutUser(id: String, name: String)
-case class BreakoutRoom(id: String, name: String, parentRoomId: String, sequence: Integer, voiceConfId: String,
+case class BreakoutRoom(id: String, externalMeetingId: String, name: String, parentRoomId: String, sequence: Integer, voiceConfId: String,
                         assignedUsers: Vector[String], users: Vector[BreakoutUser])
 
 class BreakoutRoomModel {
@@ -20,9 +20,9 @@ class BreakoutRoomModel {
     rooms -= id
   }
 
-  def createBreakoutRoom(id: String, name: String, parentRoomId: String, sequence: Integer, voiceConfId: String,
+  def createBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, voiceConfId: String,
                          assignedUsers: Vector[String]): BreakoutRoom = {
-    val room = new BreakoutRoom(id, name, parentRoomId, sequence, voiceConfId, assignedUsers, Vector())
+    val room = new BreakoutRoom(id, externalMeetingId, name, parentRoomId, sequence, voiceConfId, assignedUsers, Vector())
     add(room)
   }
 
@@ -33,7 +33,7 @@ class BreakoutRoomModel {
   def getRooms(): Array[BreakoutRoom] = {
     rooms.values.toArray
   }
-  
+
   def getNumberOfRooms(): Int = {
     rooms.size
   }

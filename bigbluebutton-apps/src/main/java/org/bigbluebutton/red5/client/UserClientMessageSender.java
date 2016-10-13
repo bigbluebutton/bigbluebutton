@@ -598,7 +598,8 @@ public class UserClientMessageSender {
   private void processBreakoutRoomStarted(BreakoutRoomStarted msg) {
 	  Map<String, Object> args = new HashMap<String, Object>();	
 	  args.put("breakoutMeetingId", msg.payload.meetingId);
-	  args.put("parentMeetingId", msg.payload.parentMeetingId);
+      args.put("parentMeetingId", msg.payload.parentMeetingId);
+      args.put("externalMeetingId", msg.payload.externalMeetingId);
 	  args.put("sequence", msg.payload.sequence);
 	  args.put("name", msg.payload.name);
 	  
