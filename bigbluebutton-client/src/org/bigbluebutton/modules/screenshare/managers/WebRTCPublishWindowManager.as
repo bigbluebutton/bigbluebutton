@@ -85,14 +85,10 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
-			if (shareWindow != null) {
-				shareWindow.startVideo(rtmp, videoWidth, videoHeight);
-			} else {
-				shareWindow = new WebRTCDesktopPublishWindow();
-				shareWindow.visible = true;
-				openWindow(shareWindow);
-				shareWindow.startVideo(rtmp, videoWidth, videoHeight);
-			}
+			shareWindow = new WebRTCDesktopPublishWindow();
+			shareWindow.visible = true;
+			openWindow(shareWindow);
+			shareWindow.startVideo(rtmp, videoWidth, videoHeight);
 		}
 	}
 }
