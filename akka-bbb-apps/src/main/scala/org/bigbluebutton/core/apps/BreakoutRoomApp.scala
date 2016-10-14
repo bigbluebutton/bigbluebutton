@@ -44,6 +44,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     val sourcePresentationId = if (!presModel.getCurrentPresentation().isEmpty) presModel.getCurrentPresentation().get.id else "blank"
     val sourcePresentationSlide = if (!presModel.getCurrentPage().isEmpty) presModel.getCurrentPage().get.num else 0
     breakoutModel.pendingRoomsNumber = msg.rooms.length;
+    breakoutModel.redirectOnJoin = msg.redirectOnJoin;
 
     for (room <- msg.rooms) {
       i += 1
@@ -90,8 +91,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
         breakoutModel.getAssignedUsers(room.id) foreach { users =>
           users.foreach { u =>
             log.debug("Sending Join URL for users");
-            // @fixme: to refactor with CreateBreakoutRooms
-            sendJoinURL(u, room.externalMeetingId, true)
+            sendJoinURL(u, room.externalMeetingId, breakoutModel.redirectOnJoin)
           }
         }
       }

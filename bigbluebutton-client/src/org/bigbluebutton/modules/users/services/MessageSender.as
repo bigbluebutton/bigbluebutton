@@ -87,12 +87,13 @@ package org.bigbluebutton.modules.users.services
 			);
 		}
 		
-		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
+		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean, redirectOnJoin:Boolean):void {
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;
 			message["rooms"] = rooms;
 			message["durationInMinutes"] = durationInMinutes;
 			message["record"] = record;
+			message["redirectOnJoin"] = redirectOnJoin;
 			var jsonMsg:String = JSON.stringify(message);
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();

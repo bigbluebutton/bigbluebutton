@@ -199,7 +199,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
-			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes, e.record);
+			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes, e.record, true);
 		}
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{

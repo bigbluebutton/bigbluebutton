@@ -15,6 +15,7 @@ public class CreateBreakoutRoomsRequestTest {
     String meetingId = "abc123";
     Integer durationInMinutes = 20;
     Boolean record = true;
+    Boolean redirectOnJoin = false;
     
     ArrayList<String> room1Users = new ArrayList<String>();
     room1Users.add("Tidora"); room1Users.add("Nidora"); room1Users.add("Tinidora");
@@ -31,7 +32,7 @@ public class CreateBreakoutRoomsRequestTest {
     ArrayList<BreakoutRoomRequestPayload> rooms = new ArrayList<BreakoutRoomRequestPayload>();
     rooms.add(room1); rooms.add(room2); rooms.add(room3);
     
-    CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(meetingId, rooms, durationInMinutes, record);
+    CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(meetingId, rooms, durationInMinutes, record, redirectOnJoin);
     CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(payload);    
     Gson gson = new Gson();
     String json = gson.toJson(msg);

@@ -10,6 +10,7 @@ class BreakoutRoomModel {
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoom]
 
   var pendingRoomsNumber: Integer = 0
+  var redirectOnJoin: Boolean = false
 
   def add(room: BreakoutRoom): BreakoutRoom = {
     rooms += room.id -> room
