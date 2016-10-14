@@ -302,12 +302,14 @@ public class MeetingService implements MessageListener {
             metadata.put("meetingId", m.getExternalId());
             metadata.put("meetingName", m.getName());
             metadata.put("isBreakout", m.isBreakout().toString());
+
+            Map<String, String> breakoutMetadata = new TreeMap<String, String>();
             if (m.isBreakout() != null){
-                metadata.put("sequence", m.getSequence().toString());
-                metadata.put("parentMeetingId", m.getParentMeetingId());
+                breakoutMetadata.put("sequence", m.getSequence().toString());
+                breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
             }
 
-            messagingService.recordMeetingInfo(m.getInternalId(), metadata);
+            messagingService.recordMeetingInfo(m.getInternalId(), metadata, breakoutMetadata);
         }
 
         Map<String, Object> logData = new HashMap<String, Object>();
