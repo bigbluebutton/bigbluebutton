@@ -60,12 +60,12 @@ trait BreakoutRoomApp extends SystemConfiguration {
     meetingModel.breakoutRoomsStartedOn = timeNowInSeconds;
   }
 
-  def sendJoinURL(userId: String, externalMeetingId: String) {
+  def sendJoinURL(userId: String, externalMeetingId: String, redirect: Boolean) {
     log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId);
     for {
       user <- usersModel.getUser(userId)
       apiCall = "join"
-      params = BreakoutRoomsUtil.joinParams(user.name, userId, true, externalMeetingId, mProps.moderatorPass, true)
+      params = BreakoutRoomsUtil.joinParams(user.name, userId, true, externalMeetingId, mProps.moderatorPass, redirect)
       baseString = BreakoutRoomsUtil.createBaseString(params)
       checksum = BreakoutRoomsUtil.calculateChecksum(apiCall, baseString, bbbWebSharedSecret)
       joinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, baseString, checksum)
@@ -73,7 +73,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURLInMessage) {
-    sendJoinURL(msg.userId, msg.breakoutMeetingId)
+    sendJoinURL(msg.userId, msg.breakoutMeetingId, msg.redirect)
   }
 
   def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {
@@ -90,7 +90,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
         breakoutModel.getAssignedUsers(room.id) foreach { users =>
           users.foreach { u =>
             log.debug("Sending Join URL for users");
-            sendJoinURL(u, room.externalMeetingId)
+            // @fixme: to refactor with CreateBreakoutRooms
+            sendJoinURL(u, room.externalMeetingId, true)
           }
         }
       }
