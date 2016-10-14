@@ -41,8 +41,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
     var i = 0
     // in very rare cases the presentation conversion generates an error, what should we do?
     // those cases where default.pdf is deleted from the whiteboard
-    val sourcePresentationId = presModel.getCurrentPresentation().get.id
-    val sourcePresentationSlide = presModel.getCurrentPage().get.num
+    val sourcePresentationId = if (!presModel.getCurrentPresentation().isEmpty) presModel.getCurrentPresentation().get.id else "blank"
+    val sourcePresentationSlide = if (!presModel.getCurrentPage().isEmpty) presModel.getCurrentPage().get.num else 0
     breakoutModel.pendingRoomsNumber = msg.rooms.length;
 
     for (room <- msg.rooms) {

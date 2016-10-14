@@ -61,6 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="presentationBaseURL" value="${presentationBaseURL}"/>
    	<property name="pageExtractor" ref="pageExtractor"/>  
     <property name="documentConversionService" ref="documentConversionService"/>
+  	<property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
   </bean>
   
   <bean id="recordingService" class="org.bigbluebutton.api.RecordingService" >
