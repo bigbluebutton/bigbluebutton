@@ -95,6 +95,14 @@
 		<MethodInvoker generator="{SharedNotesManager}" method="requestAdditionalNotesSet" arguments="{event}"/>
 	</EventHandlers>
 
+	<EventHandlers type="{SharedNotesEvent.UNDO_EVENT}">
+		<MethodInvoker generator="{SharedNotesManager}" method="handleUndoEvent" arguments="{event}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{SharedNotesEvent.REDO_EVENT}">
+		<MethodInvoker generator="{SharedNotesManager}" method="handleRedoEvent" arguments="{event}"/>
+	</EventHandlers>
+
 	<EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
 		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAllAdditionalNotes" arguments="{event}"/>
 	</EventHandlers>

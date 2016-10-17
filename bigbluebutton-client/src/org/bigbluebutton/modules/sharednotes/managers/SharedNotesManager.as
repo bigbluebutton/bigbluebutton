@@ -65,5 +65,15 @@ package org.bigbluebutton.modules.sharednotes.managers {
 			LOGGER.debug("SharedNotesManager: set size: " + notesSet);
 			sender.requestAdditionalNotesSet(notesSet);
 		}
+
+		public function handleUndoEvent(e:SharedNotesEvent):void {
+			var noteId:String = e.noteId;
+			sender.undo(noteId);
+		}
+
+		public function handleRedoEvent(e:SharedNotesEvent):void {
+			var noteId:String = e.noteId;
+			sender.redo(noteId);
+		}
 	}
 }
