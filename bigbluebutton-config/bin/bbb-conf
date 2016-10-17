@@ -888,7 +888,7 @@ check_configuration() {
                 echo "# is not owned by red5"
         fi
 		
-		if [ "$(ls -ld /usr/share/red5/webapps/video/stream | cut -d' ' -f3)" != "red5" ]; then
+        if [ "$(ls -ld /usr/share/red5/webapps/video/stream | cut -d' ' -f3)" != "red5" ]; then
                 echo "# Warning: Detected the directory"
                 echo "#    /usr/share/red5/webapps/video/stream"
                 echo "# is not owned by red5"
