@@ -89,6 +89,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		/*viewer being told there is no more stream*/
 		public function handleStreamStopEvent(args:Object):void {
 			LOGGER.debug("WebRTCDeskshareManager::handleStreamStopEvent");
+			sharing = false;
 			JSLog.warn("WebRTCDeskshareManager::handleStreamStopEvent", {});
 			viewWindowManager.handleViewWindowCloseEvent();
 		}
