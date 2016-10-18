@@ -3,6 +3,7 @@ import '/server/server';
 import { RedisPubSub } from '/imports/startup/server/RedisPubSub';
 import { EventQueue } from '/imports/startup/server/EventQueue';
 import { clearCollections } from '/imports/api/common/server/helpers';
+import  Locales  from '/imports/locales';
 
 Meteor.startup(function () {
   redisPubSub = new RedisPubSub();
@@ -31,6 +32,26 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
   res.end(JSON.stringify(payload));
+});
+
+WebApp.connectHandlers.use('/locale', (req, res) => {
+
+  let defaultLocale = 'en';
+  let [locale, region] = req.query.locale.split('-');
+
+  const defaultMessages = Locales[defaultLocale];
+
+  let messages = Object.assign(
+    {},
+    defaultMessages,
+    Locales[locale],
+    Locales[`${locale}-${region}`],
+  );
+
+  res.setHeader('Content-Type', 'application/json');
+  res.writeHead(200);
+  res.end(JSON.stringify(messages));
+
 });
 
 export const myQueue = new EventQueue();

@@ -346,7 +346,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
   
-  <mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/deskshare/assets/images/cursor4.png')"/>
+  <mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/screenshare/assets/images/cursor4.png')"/>
   
   <mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
   <mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>

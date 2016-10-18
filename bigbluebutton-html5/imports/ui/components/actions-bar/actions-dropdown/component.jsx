@@ -11,7 +11,6 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 const intlMessages = defineMessages({
   actionsLabel: {
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
-    defaultMessage: 'Actions',
   },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
