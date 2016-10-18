@@ -71,21 +71,7 @@ export const indexOf = [].indexOf || function (item) {
   };
 
 export function publish(channel, message) {
-  logger.info(`redis outgoing message  ${message.header.name}`, {
-    channel: channel,
-    message: message,
-  });
-  if (redisPubSub != null) {
-    return redisPubSub.pubClient.publish(channel, JSON.stringify(message), (err, res) => {
-      if (err) {
-        return logger.info('error', {
-          error: err,
-        });
-      }
-    });
-  } else {
-    return logger.info('ERROR!! redisPubSub was undefined');
-  }
+  return redisPubSub.publish(channel, message.header.name, message.payload, message.header);
 };
 
 // translate '\n' newline character and '\r' carriage
