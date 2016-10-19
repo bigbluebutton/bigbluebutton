@@ -1,10 +1,5 @@
 import '/imports/startup/server';
-
-import '/imports/api/chat/server/publications';
-import '/imports/api/chat/server/methods/sendChatMessagetoServer';
-import '/imports/api/chat/server/modifiers/addChatToCollection';
-import '/imports/api/chat/server/modifiers/clearChatCollection';
-import '/imports/api/chat/server/modifiers/eventHandlers';
+import '/imports/api/chat/server';
 
 import '/imports/api/cursor/server/publications';
 import '/imports/api/cursor/server/modifiers/clearCursorCollection';
@@ -75,8 +70,6 @@ import '/imports/api/users/server/modifiers/updateVoiceUser';
 import '/imports/api/users/server/modifiers/userJoined';
 import '/imports/api/users/server/modifiers/eventHandlers';
 
-import '/imports/startup/server/EventQueue';
 import '/imports/api/common/server/helpers';
 import '/imports/startup/server/logger';
-import '/imports/startup/server/RedisPubSub';
 import '/imports/startup/server/userPermissions';

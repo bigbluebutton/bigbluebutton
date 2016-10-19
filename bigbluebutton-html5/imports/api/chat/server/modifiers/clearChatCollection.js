@@ -1,14 +1,11 @@
 import Chat from '/imports/api/chat';
-import { logger } from '/imports/startup/server/logger';
+import Logger from '/imports/startup/server/logger';
 
 // called on server start and meeting end
-export function clearChatCollection() {
-  const meetingId = arguments[0];
-  if (meetingId != null) {
-    return Chat.remove({
-      meetingId: meetingId,
-    }, logger.info(`cleared Chat Collection (meetingId: ${meetingId}!`));
+export default function clearChatCollection(meetingId) {
+  if (meetingId) {
+    return Chat.remove({ meetingId: meetingId, }, Logger.info(`Cleared Chats (${meetingId})`));
   } else {
-    return Chat.remove({}, logger.info('cleared Chat Collection (all meetings)!'));
+    return Chat.remove({}, Logger.info('Cleared Chats (all)'));
   }
 };

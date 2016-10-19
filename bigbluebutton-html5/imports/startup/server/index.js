@@ -1,8 +1,6 @@
-import '/server/server';
 import Locales from '/imports/locales';
 import Logger from './logger';
 import Redis from './redis';
-import { EventQueue } from '/imports/startup/server/EventQueue';
 import { clearCollections } from '/imports/api/common/server/helpers';
 
 Meteor.startup(() => {
@@ -50,8 +48,6 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   res.end(JSON.stringify(messages));
 
 });
-
-export const myQueue = new EventQueue();
 
 export const eventEmitter = Redis.emitter;
 

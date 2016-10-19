@@ -82,8 +82,9 @@ class RedisPubSub {
   }
 
   handleTask(data, next, failures) {
+    const { eventName, message } = data;
+
     try {
-      const { eventName, message } = data;
       message.callback = () => {}; // legacy noop function
 
       this._debug(`${eventName} emitted`);
@@ -95,11 +96,11 @@ class RedisPubSub {
         })
         .catch(reason => {
           Logger.error(`${eventName}: ${reason}`);
-          return next(reason);
+          return next();
         });
     } catch (reason) {
       Logger.error(`${eventName}: ${reason}`);
-      next(reason);
+      return next();
     }
   }
 

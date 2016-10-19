@@ -1,5 +1,6 @@
 import Chat from '/imports/api/chat';
-import { logger } from '/imports/startup/server/logger';
+import Logger from '/imports/startup/server/logger';
+import { check } from 'meteor/check';
 import { BREAK_LINE } from '/imports/utils/lineEndings.js';
 
 const parseMessage = (message) => {
@@ -15,46 +16,55 @@ const parseMessage = (message) => {
   return message;
 };
 
-export function addChatToCollection(meetingId, messageObject) {
-  let id;
-
+export default function addChatToCollection(meetingId, message) {
   // manually convert time from 1.408645053653E12 to 1408645053653 if necessary
   // (this is the time_from that the Flash client outputs)
-  messageObject.from_time = +(messageObject.from_time.toString().split('.').join('').split('E')[0]);
+  message.from_time = +(message.from_time.toString().split('.').join('').split('E')[0]);
+  message.message = parseMessage(message.message);
 
-  messageObject.message = parseMessage(messageObject.message);
+  const fromUserId = message.from_userid;
+  const toUserId = message.to_userid;
 
-  if ((messageObject.from_userid != null) && (messageObject.to_userid != null)) {
-    return id = Chat.upsert({
-      meetingId: meetingId,
-      'message.message': messageObject.message,
-      'message.from_time': messageObject.from_time,
-      'message.from_userid': messageObject.from_userid,
-    }, {
-      meetingId: meetingId,
-      message: {
-        chat_type: messageObject.chat_type,
-        message: messageObject.message,
-        to_username: messageObject.to_username,
-        from_tz_offset: messageObject.from_tz_offset,
-        from_color: messageObject.from_color,
-        to_userid: messageObject.to_userid,
-        from_userid: messageObject.from_userid,
-        from_time: messageObject.from_time,
-        from_username: messageObject.from_username,
-        from_lang: messageObject.from_lang,
-      },
-    }, (err, numChanged) => {
-      if (err != null) {
-        logger.error(`_error ${err} when adding chat to collection`);
-      }
+  check(fromUserId, String);
+  check(toUserId, String);
 
-      if (numChanged.insertedId != null) {
-        let to = messageObject.to_username != null ? 'PUBLIC' : void 0;
-        let msg = messageObject.message;
-        let cId = numChanged.insertedId;
-        return logger.info(`added chat id=[${cId}] ${messageObject.from_username} to ${to}:${msg}`);
-      }
-    });
-  }
+  const selector = {
+    meetingId: meetingId,
+    message: {
+      from_time: message.from_time,
+      from_userid: message.from_userid,
+      to_userid: message.to_userid,
+    },
+  };
+
+  const modifier = {
+    meetingId: meetingId,
+    message: {
+      chat_type: message.chat_type,
+      message: message.message,
+      to_username: message.to_username,
+      from_tz_offset: message.from_tz_offset,
+      from_color: message.from_color,
+      to_userid: message.to_userid,
+      from_userid: message.from_userid,
+      from_time: message.from_time,
+      from_username: message.from_username,
+      from_lang: message.from_lang,
+    },
+  };
+
+  const cb = (err, numChanged) => {
+    if (err != null) {
+      Logger.error(`Adding chat to collection: ${err}`);
+    }
+
+    const { insertedId } = numChanged;
+
+    if (insertedId) {
+      const to = message.to_username || 'PUBLIC';
+      return Logger.info(`Added chat id=${insertedId} from ${message.from_username} to ${to}`);
+    }
+  };
+
+  return Chat.upsert(selector, modifier, cb);
 };
