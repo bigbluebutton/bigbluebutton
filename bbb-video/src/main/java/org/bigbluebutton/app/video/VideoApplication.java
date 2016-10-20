@@ -98,7 +98,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				String logStr =  gson.toJson(logData);
 
 				log.info("Removing defunct connection: data={}", logStr);
-
 			  }
 		  }
 
@@ -205,11 +204,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	String userId = getUserId();
     	String meetingId = conn.getScope().getName();
     	String streamId = stream.getPublishedName();
-    	
-    	//publisher.userSharedWebcamMessage(meetingId, userId, streamId);
-    	log.info("^^^^^^^^^^^publisher.userSharedWebcamMessage(meetingId, userId, streamId);");
-
-
 
     	VideoStreamListener listener = new VideoStreamListener(conn.getScope(), stream, recordVideoStream, userId, packetTimeout);
         listener.setEventRecordingService(recordingService);
@@ -242,11 +236,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   		String userId = getUserId();
   		String meetingId = conn.getScope().getName();
   		String streamId = stream.getPublishedName();
-  	
-  		//publisher.userUnshareWebcamRequestMessage(meetingId, userId, streamId);
-		log.info("^^^^^^^^^^^publisher.userUnshareWebcamRequestMessage(meetingId, userId, streamId);");
-
-
 
         IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
         if (listener != null) {
