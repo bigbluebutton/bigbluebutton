@@ -44,7 +44,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.accessibility.AlertAccImpl;
 			import mx.controls.Alert;
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
@@ -88,10 +87,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var xml:XML;
 			
 			private function init():void{
-				if (Capabilities.hasAccessibility) {
-					AlertAccImpl.enableAccessibility();
-				}
-				
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
@@ -212,7 +207,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onHelpButtonClicked():void {
-        DEFAULT_HELP_URL = BBB.initConfigManager().config.help.url;        
+        DEFAULT_HELP_URL = BBB.getConfigManager().config.help.url;        
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL))
 			}
 			
@@ -243,7 +238,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function alertLogout(e:CloseEvent):void {
 				// Check to see if the YES button was pressed.
 				if (e.detail==Alert.YES) {
-					 doLogout();
+					/* 
+					 * If doLogout() is called immediately there is a null exception in AlertAccImpl
+					 * line 185, but if we delay calling doLogout() until the next frame the Alert 
+					 * will close correctly and the logout succeeds as normal. It looks like the 
+					 * stage is unset at some point in the core class and there's not much we can do
+					 * to correct it other than avoid it. - Chad Aug 8, 2016 
+					 */
+					callLater(doLogout);
 				}
 			}
 			

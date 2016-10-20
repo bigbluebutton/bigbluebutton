@@ -49,24 +49,24 @@ package org.bigbluebutton.util.logging
 
 		private var _timer:Timer;
 
+		private var _logPattern:String;
+
 		/** A flag to check whether */
 		private var _sending:Boolean;
 
 		// URL Variables
 		private const CLIENT:String="flex3";
 
-		private var _variables:URLVariables;
-
 		private var _request:URLRequest;
 
 		/** Not sent message will be queued in this array until all conditions making their sending possible are met */
 		private var _queue:Array;
 
-		public function ServerLogTarget(uri:String)
+		public function ServerLogTarget(uri:String, logPattern:String)
 		{
 			_serverUri=uri;
 			_queue=[];
-			_variables=new URLVariables();
+			_logPattern=logPattern;
 		}
 
 		public function set format(format:String):void
@@ -77,30 +77,38 @@ package org.bigbluebutton.util.logging
 
 		public function log(name:String, shortName:String, level:int, timeStamp:Number, message:*, parameters:Array, person:String):void
 		{
+			var userId:String = UsersUtil.getMyUserID();
+			var meetingId:String = UsersUtil.getInternalMeetingID();
+			name = userId + " " + meetingId + " " + name;
 			var formattedMessage:String=_formatter.format(name, shortName, level, timeStamp, message, parameters, person);
 
-			if (UsersUtil.getInternalMeetingID() != null && UsersUtil.getMyUserID() != "UNKNOWN USER")
-			{
-				_variables.message=formattedMessage;
+			// check if contains info from config field
+			var reg1:RegExp = new RegExp(_logPattern, "g");
+			if(reg1.test(formattedMessage)) { // only log messages of the specified pattern
+				if (meetingId != null && userId != "UNKNOWN USER") {
 
-				// We will alwasy recycle the URLRequest instance and use it to send logging HTTP requests
-				if (!_request)
-				{
-					_request=new URLRequest(_serverUri + "/" + CLIENT + "/" + UsersUtil.getInternalMeetingID() + "/" + UsersUtil.getMyUserID());
-					_request.method=URLRequestMethod.POST;
+					// We will always recycle the URLRequest instance and use it to send logging HTTP requests
+					if (!_request)
+					{
+						_request=new URLRequest(_serverUri + "/" + CLIENT + "/" + meetingId + "/" + userId);
+						_request.method=URLRequestMethod.POST;
+					}
+					var JsonObj:String = JSON.stringify(formattedMessage);
+					_request.contentType = "application/json";
+
+					_request.data=JsonObj;
+
+					var loader:URLLoader=new URLLoader();
+					loader.addEventListener(IOErrorEvent.IO_ERROR, function(event:IOErrorEvent):void
+					{
+						addToQueue(formattedMessage)
+					});
+					loader.load(_request);
 				}
-				_request.data=_variables;
-
-				var loader:URLLoader=new URLLoader();
-				loader.addEventListener(IOErrorEvent.IO_ERROR, function(event:IOErrorEvent):void
+				else
 				{
-					addToQueue(formattedMessage)
-				});
-				loader.load(_request);
-			}
-			else
-			{
-				addToQueue(formattedMessage);
+					addToQueue(formattedMessage);
+				}
 			}
 		}
 
@@ -134,7 +142,6 @@ package org.bigbluebutton.util.logging
 			if (!_sending)
 			{
 				_sending=true;
-				_variables.message=_queue[0];
 
 				// We will alwasy recycle the URLRequest instance and use it to send logging HTTP requests
 				if (!_request)
@@ -142,7 +149,10 @@ package org.bigbluebutton.util.logging
 					_request=new URLRequest(_serverUri + "/" + CLIENT + "/" + UsersUtil.getInternalMeetingID() + "/" + UsersUtil.getMyUserID());
 					_request.method=URLRequestMethod.POST;
 				}
-				_request.data=_variables;
+
+				_request.contentType = "application/json";
+				var logMessage:String = _queue[0];
+				_request.data = logMessage;
 
 				var loader:URLLoader=new URLLoader();
 				loader.addEventListener(IOErrorEvent.IO_ERROR, function(event:Event):void
@@ -152,7 +162,7 @@ package org.bigbluebutton.util.logging
 				});
 				loader.addEventListener(Event.COMPLETE, function(event:Event):void
 				{
-					removeFromQueue(_variables.message);
+					removeFromQueue(logMessage);
 					_sending=false;
 				});
 				loader.load(_request);

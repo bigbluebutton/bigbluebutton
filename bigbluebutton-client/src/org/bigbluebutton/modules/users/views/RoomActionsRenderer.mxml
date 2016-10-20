@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 verticalScrollPolicy="off"
+		 horizontalScrollPolicy="off"
+		 verticalAlign="middle"
+		 creationComplete="onCreationCompleteHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
+			import org.bigbluebutton.main.model.users.BreakoutRoom;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var globalDispatch:Dispatcher = new Dispatcher();
+
+			[Bindable]
+			private var images:Images = new Images();
+
+			protected function onCreationCompleteHandler(event:FlexEvent):void {
+				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+			}
+
+			private function dataChangeHandler(event:FlexEvent):void {
+				if (BreakoutRoom(data).listenStatus == BreakoutRoom.SELF) {
+					listenBtn.setStyle("icon", images.transferred);
+					listenBtn.selected = true;
+				} else {
+					listenBtn.setStyle("icon", images.transfer);
+					listenBtn.selected = false;
+				}
+			}
+
+			protected function listenToBreakoutRoom(event:MouseEvent):void {
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+				e.breakoutId = data.breakoutId as String;
+				e.listen = listenBtn.selected;
+				globalDispatch.dispatchEvent(e);
+			}
+
+			protected function requestBreakoutJoinUrl(event:MouseEvent):void {
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
+				e.breakoutId = data.breakoutId as String;
+				e.userId = UserManager.getInstance().getConference().getMyUserId();
+				globalDispatch.dispatchEvent(e);
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Button id="joinImg" width="20" height="20"
+			   includeInLayout="{UserManager.getInstance().getConference().breakoutRoomsReady}" visible="{joinImg.includeInLayout}"
+			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
+			   click="requestBreakoutJoinUrl(event)"/>
+	<mx:Button id="listenBtn" toggle="true"
+			   width="20" height="20"
+			   visible="{data.listenStatus != BreakoutRoom.OTHER &amp;&amp; UserManager.getInstance().getConference().voiceJoined || data.listenStatus == BreakoutRoom.SELF}" includeInLayout="{listenBtn.visible}"
+			   icon="{images.transfer}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.transfer')}"
+			   click="listenToBreakoutRoom(event)"/>
+</mx:HBox>

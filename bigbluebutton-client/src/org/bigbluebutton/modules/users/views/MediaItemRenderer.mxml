@@ -31,11 +31,13 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flash.filters.BitmapFilterQuality;
+			import flash.filters.GlowFilter;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -67,12 +69,12 @@
 				
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
 				
-        BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
+        		BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
 				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
 				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
 				BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
 				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
-        BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
+        		BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
                 
 				options = new UsersOptions();
 			}

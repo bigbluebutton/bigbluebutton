@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+        <head>
+                <title></title>
+                <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+                <style type="text/css" media="screen">
+                        html, body, #content    { height:100%; }
+                        body                                    { margin:0; padding:0; overflow:hidden; }
+                        #altContent                             { /* style alt content */ }
+                </style>
+                <script type="text/javascript" src="swfobject/swfobject.js"></script>
+                <script type="text/javascript">
+                        swfobject.registerObject("BigBlueButton", "10.3.0", "expressInstall.swf");
+                </script>
+                <script src="lib/jquery-2.1.1.min.js" language="javascript"></script>
+                <!--<script src="lib/jquery-1.5.1.min.js" language="javascript"></script>-->
+                <script src="lib/bigbluebutton.js" language="javascript"></script>
+                <script src="lib/bbb_localization.js" language="javascript"></script>
+                <script src="lib/bbb_blinker.js" language="javascript"></script>
+
+                <script src="lib/jquery.mobile.min.js" language="javascript"></script>
+                <script src="lib/jquery.json-2.4.min.js" language="javascript"></script>
+                <script src="lib/jquery.cookie.js" language="javascript"></script>
+                <script src="lib/jquery.dataTables.min.js" language="javascript"></script>
+
+                <script src="lib/getScreenId.js" language="javascript"></script>
+                <script src="lib/jquery.FSRTC.js" language="javascript"></script>
+                <script src="lib/jquery.jsonrpcclient.js" language="javascript"></script>
+                <script src="lib/jquery.verto.js" language="javascript"></script>
+                <script src="lib/Screen-Capturing.js" language="javascript"></script>
+                <script src="lib/verto_extension.js" language="javascript"></script>
+                <script src="lib/verto_extension_share.js" language="javascript"></script>
+
+                <script src="lib/bbb_deskshare.js" language="javascript"></script>
+        </head>
+        <body>
+                <div id="content">
+                        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%" id="BigBlueButton" name="BigBlueButton" align="middle">
+                                <param name="movie" value="DeskshareStandalone.swf?v=VERSION" />
+                                <param name="quality" value="high" />
+                                <param name="allowfullscreen" value="true" />
+                                <param name="bgcolor" value="#869ca7" />
+                                <!--[if !IE]>-->
+                                <object type="application/x-shockwave-flash" data="DeskshareStandalone.swf?v=VERSION" width="100%" height="100%" align="middle">
+                                        <param name="quality" value="high" />
+                                        <param name="bgcolor" value="#869ca7" />
+                                <!--<![endif]-->
+                                        <a href="http://www.adobe.com/go/getflashplayer">
+                                                <img src="//www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+                                        </a>
+                                <!--[if !IE]>-->
+                                </object>
+                                <!--<![endif]-->
+                        </object>
+                </div>
+        </body>
+</html>

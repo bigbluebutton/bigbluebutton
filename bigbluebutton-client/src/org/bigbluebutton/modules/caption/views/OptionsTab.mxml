@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 xmlns:common="org.bigbluebutton.common.*"
+		 height="100%"
+		 width="100%"
+		 minWidth="0">	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
+			import org.bigbluebutton.modules.caption.model.Transcript;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Bindable]
+			private var transcriptsCollection:ArrayCollection;
+			
+			private var currentTranscript:Transcript;
+			
+			private var changeCallback:Function;
+			
+			public function setTranscriptCollection(tc:ArrayCollection):void {
+				transcriptsCollection = tc;
+				localeList.selectedIndex = -1;
+			}
+			
+			public function setChangeCallback(f:Function):void {
+				changeCallback = f;
+			}
+			
+			public function setCurrentTranscript(t:Transcript):void {
+				currentTranscript = t;
+			}
+			
+			private function onLocaleItemClick():void {
+				if (transcriptsCollection && localeList.selectedIndex != -1) {
+					if (changeCallback != null) changeCallback(OptionENUM.LOCALE, localeList.selectedItem);
+				}
+			}
+			
+			private function onLocaleListKeyUp(e:KeyboardEvent):void {
+				if (e.keyCode == 32){
+					onLocaleItemClick();
+				}
+			}
+			
+			private function onFontSizeComboChange():void {
+				if (changeCallback != null) changeCallback(OptionENUM.SIZE, fontSizeCombo.selectedItem);
+			}
+			
+			private function onFontFamilyComboChange():void {
+				if (changeCallback != null) changeCallback(OptionENUM.FAMILY, fontFamilyCombo.selectedItem);
+			}
+			
+			private function onBackColorChange():void {
+				if (changeCallback != null) changeCallback(OptionENUM.BACKCOLOR, backgroundColorPicker.selectedColor);
+			}
+			
+			private function onTextColorChange():void {
+				if (changeCallback != null) changeCallback(OptionENUM.TEXTCOLOR, textColorPicker.selectedColor);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<common:TabIndexer id="tabIndexer" tabIndices="{[localeList, fontFamilyCombo, fontSizeCombo, backgroundColorPicker, textColorPicker]}"/>
+	
+	<mx:VBox height="100%">
+		<mx:HBox height="100%">
+			<mx:Label id="localeLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.language')}" />
+			<mx:List id="localeList"
+					 height="90%"
+					 width="150"
+					 dataProvider="{transcriptsCollection}"
+					 labelField="locale"
+					 enabled="{transcriptsCollection.length > 0}" 
+					 itemClick="onLocaleItemClick()"
+					 keyUp="onLocaleListKeyUp(event)"
+					 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.language.tooltip')}"/>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:VBox height="100%">
+		<mx:HBox>
+			<mx:Label id="fontFamilyLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.fontfamily')}" />
+			<mx:ComboBox id="fontFamilyCombo" 
+						 dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" 
+						 change="onFontFamilyComboChange()"
+						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.fontfamily.tooltip')}" />
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label id="fontSizeLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.fontsize')}" />
+			<mx:ComboBox id="fontSizeCombo" 
+						 dataProvider="[10, 12, 14, 18, 24, 36]" 
+						 selectedIndex="1" 
+						 change="onFontSizeComboChange()"
+						 toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.fontsize.tooltip')}" />
+		</mx:HBox>
+	</mx:VBox>
+	<mx:VBox height="100%">
+		<mx:HBox>
+			<mx:Label id="backgroundColorLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.backcolor')}" />
+			<mx:ColorPicker id="backgroundColorPicker"
+							selectedColor="0xFFFFFF" 
+							change="onBackColorChange()"
+							toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.backcolor.tooltip')}" />
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label id="textColorLabel" text="{ResourceUtil.getInstance().getString('bbb.caption.option.textcolor')}" />
+			<mx:ColorPicker id="textColorPicker"
+							selectedColor="0x000000"
+							change="onTextColorChange()"
+							toolTip="{ResourceUtil.getInstance().getString('bbb.caption.option.textcolor.tooltip')}"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:HBox>

@@ -31,12 +31,12 @@ require 'recordandplayback/deskshare_archiver'
 require 'recordandplayback/generators/events'
 require 'recordandplayback/generators/audio'
 require 'recordandplayback/generators/video'
-require 'recordandplayback/generators/matterhorn_processor'
 require 'recordandplayback/generators/audio_processor'
 require 'recordandplayback/generators/presentation'
 require 'open4'
 require 'pp'
 require 'absolute_time'
+require 'logger'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -125,7 +125,7 @@ module BigBlueButton
   def self.exec_ret(*command)
     BigBlueButton.logger.info "Executing: #{command.join(' ')}"
     IO.popen([*command, :err => [:child, :out]]) do |io|
-      io.lines.each do |line|
+      io.each_line do |line|
         BigBlueButton.logger.info line.chomp
       end
     end
@@ -139,7 +139,7 @@ module BigBlueButton
     IO.pipe do |r, w|
       pid = spawn(*command, :out => outio, :err => w)
       w.close
-      r.lines.each do |line|
+      r.each_line do |line|
         BigBlueButton.logger.info line.chomp
       end
       Process.waitpid(pid)

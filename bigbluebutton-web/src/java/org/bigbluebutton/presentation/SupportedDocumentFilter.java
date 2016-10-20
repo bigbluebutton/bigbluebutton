@@ -21,11 +21,13 @@ package org.bigbluebutton.presentation;
 
 import java.io.File;
 
+import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 
 public class SupportedDocumentFilter {
@@ -41,13 +43,15 @@ public class SupportedDocumentFilter {
 		File presentationFile = pres.getUploadedFile();
 		
 		/* Get file extension - Perhaps try to rely on a more accurate method than an extension type ? */
-		int fileExtIndex = presentationFile.getName().lastIndexOf('.') + 1;
-		String ext = presentationFile.getName().toLowerCase().substring(fileExtIndex);
-		boolean supported = SupportedFileTypes.isFileSupported(ext);
+		String extension = FilenameUtils.getExtension(presentationFile.getName());
+		boolean supported = SupportedFileTypes.isFileSupported(extension);
 		notifyProgressListener(supported, pres);
 		if (supported) {
-			log.info("Received supported file " + pres.getUploadedFile().getAbsolutePath());
-			pres.setFileType(ext);
+			log.info("Received supported file {}", pres.getUploadedFile().getAbsolutePath());
+			pres.setFileType(extension);
+		}
+		else {
+		    log.warn("Received not supported file {}", pres.getUploadedFile().getAbsolutePath());
 		}
 		return supported;
 	}

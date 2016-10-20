@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<dspub:CustomMdiWindow
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	xmlns:mate="http://mate.asfusion.com/"
+	xmlns:dspub="org.bigbluebutton.common.*"
+	backgroundColor="#C0C0C0"
+	initialize="init()"
+	creationComplete="onCreationComplete()"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	width="365" height="350"
+	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
+	resizable="false">
+
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />
+	<mate:Listener type="{WebRTCViewStreamEvent.STOP}" method="closePublishWindow" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
+	<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
+
+
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+
+			import mx.core.UIComponent;
+
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.screenshare.events.WebRTCShareWindowEvent;
+			import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
+			import org.bigbluebutton.modules.screenshare.events.WebRTCStreamEvent;
+			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
+			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.main.api.JSLog;
+
+			private static const LOGGER:ILogger = getClassLogger(WebRTCDesktopPublishWindow);
+
+			public static const SCALE:Number = 5;
+			private static const VID_HEIGHT_PAD:Number = 73;
+			private static const VID_WIDTH_PAD:Number = 6;
+
+			private var images:Images = new Images();
+			[Bindable] public var bbbLogo:Class = images.bbb_logo;
+
+			private var connection:NetConnection;
+			private var uri:String;
+			private var useTLS:Boolean;
+			private var room:String;
+			private var streaming:Boolean = false;
+
+			private var video:Video;
+			private var ns:NetStream;
+			[Bindable] private var videoHolder:UIComponent;
+			private var stream:String;
+			private var videoHeight:Number;
+			private var videoWidth:Number;
+			private var captureHeight:Number = Capabilities.screenResolutionY;
+			private var captureWidth:Number = Capabilities.screenResolutionX;
+			private var globalDispatcher:Dispatcher = new Dispatcher();
+
+			[Bindable] private var dsOptions:ScreenshareOptions;
+
+			private function init():void {
+				dsOptions = new ScreenshareOptions();
+			}
+
+			private function onCreationComplete():void {
+				windowControls.maximizeRestoreBtn.enabled = false;
+
+				setCurrentState("dispFullRegionControlBar"); //TODO ANTON
+				resourcesChanged();
+
+				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
+				titleBarOverlay.focusEnabled = true;
+			}
+
+			private function remoteFocus(e:ShortcutEvent):void{
+				focusManager.setFocus(minimizeBtn);
+			}
+
+			public function get defaultWidth():int{
+				return this.width;
+			}
+
+			public function get defaultHeight():int{
+				return this.height;
+			}
+
+			public function set defaultHeight(height:int):void{
+				this.height = height;
+			}
+
+			public function set defaultWidth(width:int):void{
+				this.width = width;
+			}
+
+			public function getPrefferedPosition():String{
+				return MainCanvas.DESKTOP_SHARING_PUBLISH;
+			}
+
+			/*
+			 * Implement resizeable interface.
+			 */
+			public function resetWidthAndHeight():void{/* do nothing */}
+
+			public function initWindow(connection:NetConnection, uri:String, useTLS:Boolean , room:String):void {
+				this.connection = connection;
+				this.uri = uri;
+				this.useTLS = useTLS;
+				this.room = room;
+			}
+
+			public function shareScreen(fullScreen:Boolean):void {
+				LOGGER.debug("Calling shareScreen");
+				startSharing(connection, uri, useTLS , room, fullScreen);
+			}
+
+			private function startSharing(connection:NetConnection, uri:String , useTLS:Boolean , room:String, fullScreen:Boolean):void {
+				var captureX:Number = 0;
+				var captureY:Number = 0;
+				
+			}
+
+			public function stopSharing():void{
+				if (streaming) {
+					stopStream();
+					var streamEvent:WebRTCStreamEvent = new WebRTCStreamEvent(WebRTCStreamEvent.STOP);
+					dispatchEvent(streamEvent);
+				}
+				streaming = false;
+				closeWindow();
+			}
+
+			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
+				JSLog.warn("stopSharingEvent WebRTCDesktopPublishWindow.mxml", {});
+				stopSharing();
+			}
+
+			// TODO make this function private and trigger it via message
+			public function startVideo(rtmp:String, videoWidth:Number, videoHeight:Number):void {
+				var myArray :Array = rtmp.split('/');
+				var meetingUrl:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
+				stream = rtmp.substring(rtmp.lastIndexOf('/')+1, rtmp.length);
+				LOGGER.debug("WebRTCDesktopPublishWindow::startVideo meetingurl=[{0}] and stream=[{1}]",[meetingUrl, stream]);
+				
+				JSLog.warn("WebRTCDesktopPublishWindow::startVideo meetingurl= ",meetingUrl);
+				JSLog.warn("WebRTCDesktopPublishWindow::startVideo stream=", stream);
+
+
+				connection = new NetConnection();
+				connection.proxyType = "best";
+				connection.objectEncoding = ObjectEncoding.AMF0;
+				connection.client = this;
+
+				connection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+				connection.connect(meetingUrl);
+			}
+
+			private function netStatusHandler(event:NetStatusEvent):void {
+				var ce:WebRTCConnectionEvent = new WebRTCConnectionEvent();
+				LOGGER.debug("netStatusHandler   [{0}]",[event.info.code]);
+				switch(event.info.code){
+					case "NetConnection.Connect.Failed":
+						ce.status = WebRTCConnectionEvent.FAILED;
+
+						break;
+
+					case "NetConnection.Connect.Success":
+						ce.status = WebRTCConnectionEvent.SUCCESS;
+						startPreviewStream(stream, videoWidth, videoHeight);
+						break;
+
+					case "NetConnection.Connect.Rejected":
+						ce.status = WebRTCConnectionEvent.REJECTED;
+						break;
+
+					case "NetConnection.Connect.Closed":
+						trace("Deskshare connection closed.");
+						ce.status = WebRTCConnectionEvent.CLOSED;
+						break;
+
+					case "NetConnection.Connect.InvalidApp":
+						ce.status = WebRTCConnectionEvent.INVALIDAPP;
+						break;
+
+					case "NetConnection.Connect.AppShutdown":
+						ce.status = WebRTCConnectionEvent.APPSHUTDOWN;
+						break;
+
+					case "NetConnection.Connect.NetworkChange":
+						trace("Detected network change. User might be on a wireless and " +
+							"temporarily dropped connection. Doing nothing. Just making a note.");
+						break;
+				}
+			}
+
+			private function securityErrorHandler(event:SecurityErrorEvent):void {
+				LOGGER.debug("ERROR WebRTCDesktopPublishWindow::securityErrorHandler ");
+			}
+
+			private function startPreviewStream(streamName:String, capWidth:Number, capHeight:Number):void{
+				streaming = true;
+
+				videoHolder = new UIComponent();
+
+				var vidW:Number = captureWidth;
+				var vidH:Number = captureHeight;
+
+				// Don't scale if capture dimension is smaller than window.
+				if((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight < this.height - VID_HEIGHT_PAD)){
+					vidW = this.width - VID_WIDTH_PAD;
+					vidH = (captureHeight / captureWidth) * vidW;
+				}
+				else if( ((captureWidth < this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD))
+				|| ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) ){
+					vidH = this.height - VID_HEIGHT_PAD;
+					vidW = (captureWidth / captureHeight) * vidH;
+				}
+				else{
+					vidW = captureWidth;
+					vidH = captureHeight;
+				}
+
+				LOGGER.debug("webrtcDeskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
+				video = new Video(vidW, vidH);
+				video.width = vidW;
+				video.height = vidH;
+				videoHolder.width = vidW;
+				videoHolder.height = vidH;
+				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
+				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
+
+				videoHolder.addChild(video);
+				this.addChild(videoHolder);
+
+				ns = new NetStream(connection);
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
+				ns.client = this;
+				ns.bufferTime = 0;
+				ns.receiveVideo(true);
+				ns.receiveAudio(false);
+				video.attachNetStream(ns);
+
+				ns.play(stream);
+
+				btnClosePublish.enabled = true;
+			}
+
+			private function stopStream():void{
+				streaming = false;
+				captureHeight = Capabilities.screenResolutionY;
+				captureWidth = Capabilities.screenResolutionX;
+				ns.close();
+			}
+
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				LOGGER.debug("VIdeoWindow::asyncerror {0}", [e.toString()]);
+			}
+
+			private function onNetStatus(e:NetStatusEvent):void{
+				switch(e.info.code){
+				case "NetStream.Publish.Start":
+					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);
+					break;
+				case "NetStream.Play.UnpublishNotify":
+					LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);
+					stopSharing();
+					break;
+				case "NetStream.Play.Start":
+					LOGGER.debug("Netstatus: {0}", [e.info.code]);
+					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
+				}
+			}
+
+			private function onChangedPresenter(e:Event):void{
+				stopSharing();
+				closeWindow();
+			}
+
+			private function closeWindow():void {
+				// LOGGER.debug("Calling stopApplet in closeWindow()");
+				dispatchEvent(new WebRTCShareWindowEvent(WebRTCShareWindowEvent.CLOSE));
+			}
+
+			/*
+			 * Override the close handler. We want the Event Map to send a message to
+			 * the MDIManager to close this window;
+			 */
+			override public function close(event:MouseEvent = null):void {
+				stopSharing();
+				closeWindow();
+			}
+
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+				}
+
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.minimizeBtn.toolTip');
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.minimizeBtn.accessibilityName");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.maximizeRestoreBtn.toolTip');
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.maximizeRestoreBtn.accessibilityName");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn.toolTip');
+					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.closeBtn.accessibilityName");
+				}
+			}
+
+			private function localeChanged(e:Event):void{
+				resourcesChanged();
+			}
+
+			private function closePublishWindow(event:WebRTCViewStreamEvent):void{
+				stopStream();
+				closeWindow();
+			}
+		]]>
+	</mx:Script>
+
+	<dspub:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}"
+					  tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnClosePublish]}"/>
+	<dspub:states>
+		<mx:State name="dispFullRegionControlBar">
+			<mx:AddChild>
+			  <mx:ControlBar id="fullRegionBottomBar">
+				<mx:VBox width="100%" height="100%" horizontalAlign="center">
+				  <mx:HBox horizontalAlign="center">
+					<mx:Button id="btnClosePublish"
+							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}"
+							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}"
+							   visible="true"
+							   enabled="false"
+							   click="stopSharing()" />
+				  </mx:HBox>
+				</mx:VBox>
+			  </mx:ControlBar>
+			</mx:AddChild>
+		</mx:State>
+	</dspub:states>
+
+</dspub:CustomMdiWindow>

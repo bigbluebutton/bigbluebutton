@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false"
+				styleName="statusItemStyle">
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="selected" />
+	</s:states>
+
+	<fx:Script>
+		<![CDATA[
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				if (obj) {
+					statusButton.styleName = "bottomPresentationBtnStyle " + obj.style;
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Group id="content"
+			 width="100%"
+			 height="{getStyle('itemHeight')}">
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle"
+								horizontalAlign="right"
+								paddingLeft="{getStyle('itemPaddingLeft')}"
+								paddingRight="{getStyle('itemPaddingRight')}" />
+		</s:layout>
+
+		<s:Label id="labelDisplay"
+				 textAlign="right"
+				 width="100%"
+				 height="100%"
+				 styleName="contentFontSize" />
+
+		<s:Group id="icon">
+			<s:Button id="statusButton"
+					  height="100%" />
+		</s:Group>
+	</s:Group>
+
+	<s:Group visible.normal="false"
+			 width="100%"
+			 x="{icon.x + icon.width - selectionCircle.width/1.5}"
+			 y="{icon.y + icon.height/4}"
+			 height="100%">
+		<s:Ellipse id="selectionCircle"
+				   height="30%"
+				   width="{selectionCircle.height}">
+			<s:fill>
+				<s:SolidColor color="{getStyle('selectedColor')}" />
+			</s:fill>
+		</s:Ellipse>
+
+		<s:Ellipse id="innerSelectionCircle"
+				   height="{selectionCircle.height * 0.7}"
+				   width="{innerSelectionCircle.height}"
+				   x="{selectionCircle.x + (selectionCircle.width - innerSelectionCircle.width)/2}"
+				   y="{selectionCircle.y + (selectionCircle.height - innerSelectionCircle.height)/2}">
+			<s:stroke>
+				<s:SolidColorStroke color="{getStyle('strokeColor')}" />
+			</s:stroke>
+		</s:Ellipse>
+
+		<s:Line id="selectedLine1"
+				xFrom="{innerSelectionCircle.x + innerSelectionCircle.width / 3.2}"
+				xTo="{innerSelectionCircle.x + innerSelectionCircle.width / 2.3}"
+				yFrom="{innerSelectionCircle.y + innerSelectionCircle.height / 2}"
+				yTo="{innerSelectionCircle.y + innerSelectionCircle.height / 1.5}">
+			<s:stroke>
+				<s:SolidColorStroke color="{getStyle('strokeColor')}" />
+			</s:stroke>
+		</s:Line>
+
+		<s:Line id="selectedLine2"
+				xFrom="{innerSelectionCircle.x + innerSelectionCircle.width / 1.4}"
+				xTo="{innerSelectionCircle.x + innerSelectionCircle.width / 2.3}"
+				yFrom="{innerSelectionCircle.y + innerSelectionCircle.height / 2.5}"
+				yTo="{innerSelectionCircle.y + innerSelectionCircle.height / 1.5}">
+			<s:stroke>
+				<s:SolidColorStroke color="{getStyle('strokeColor')}" />
+			</s:stroke>
+		</s:Line>
+
+	</s:Group>
+
+</s:ItemRenderer>

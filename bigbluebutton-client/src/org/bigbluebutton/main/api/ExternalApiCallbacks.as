@@ -21,7 +21,7 @@ package org.bigbluebutton.main.api
   import com.asfusion.mate.events.Dispatcher;
   
   import flash.external.ExternalInterface;
-  
+  import org.bigbluebutton.core.BBB;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.EventConstants;
@@ -38,7 +38,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-  import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
@@ -49,6 +48,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+  import org.bigbluebutton.util.SessionTokenUtil;
 
   public class ExternalApiCallbacks {
 	private static const LOGGER:ILogger = getClassLogger(ExternalApiCallbacks);
@@ -103,7 +103,8 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
         ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
-        ExternalInterface.addCallback("javaAppletLaunched", handleJavaAppletLaunched);
+        ExternalInterface.addCallback("getSessionToken", handleGetSessionToken);
+        
       }
       
       // Tell out JS counterpart that we are ready.
@@ -245,6 +246,11 @@ package org.bigbluebutton.main.api
     private function handleGetInternalMeetingID():String {
       return UserManager.getInstance().getConference().internalMeetingID;
     }
+    
+    private function handleGetSessionToken():String {
+      return BBB.getSessionTokenUtil().getSessionToken();
+    }
+    
     
     private function handleSendLockLayoutRequest(lock:Boolean):void {
       if (lock) {
@@ -428,10 +434,5 @@ package org.bigbluebutton.main.api
     private function handleWebRTCMediaFail():void {
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
-	
-	private function handleJavaAppletLaunched():void
-	{
-		_dispatcher.dispatchEvent(new DeskshareAppletLaunchedEvent(DeskshareAppletLaunchedEvent.APPLET_LAUNCHED));
-	}
   }
 }

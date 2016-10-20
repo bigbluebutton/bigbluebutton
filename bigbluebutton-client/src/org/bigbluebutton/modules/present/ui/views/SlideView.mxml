@@ -521,14 +521,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" 
-                         x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="false"
-		                     creationComplete="listenForSlideLoadedCompleteEvent()" 
-                         styleName="presentationSlideViewStyle" 
-                         scaleContent="false" 
-                         showBusyCursor="true" 
-                         completeEffect="Fade" />
+                           x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="false"
+		                   creationComplete="listenForSlideLoadedCompleteEvent()" 
+                           styleName="presentationSlideViewStyle" 
+                           scaleContent="false" 
+                           showBusyCursor="true" 
+                           completeEffect="Fade" />
    <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" 
-    	                 visible="false" width="100%" height="100" 
-                       y="{this.height - 100}" change="changeSlide()" />
-		      		 
+    	              visible="false" width="100%" height="100" 
+                      y="{this.height - 100}" change="changeSlide()" />
+
 </mx:Canvas>

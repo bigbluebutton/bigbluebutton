@@ -1,0 +1,94 @@
+@import "../../stylesheets/variables/_all";
+
+.navbar {
+  padding: $line-height-computed / 2;
+  display: flex;
+  flex-direction: row;
+}
+
+.left,
+.right,
+.center,
+.record {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  > * {
+    margin: 0 $line-height-computed;
+  }
+}
+
+.left,
+.right,
+.record {
+  flex: 0;
+}
+
+.center {
+  width:70%;
+  flex: 1;
+}
+
+.presentationTitle {
+  font-weight: 200;
+  color: $color-white;
+  font-size: $font-size-base * 1.2;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.divideBar {
+  color: $color-white;
+  font-size: $font-size-base * 1.2;
+  margin-left: 15px;
+}
+
+.recordImage {
+  margin-left: -5px;
+}
+
+.msgFlag{
+  margin-left: -34px;
+  margin-top: 6px;
+}
+
+.withdot {
+  content: '';
+  position: relative;
+  left: 20px;
+  top: 20px;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+}
+
+.hidden {
+  position:absolute;
+  left:-10000px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+
+.btn{
+  position: absolute;
+  span {
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.settingBtn {
+  transform: rotate(90deg);
+  span {
+    border: none;
+    box-shadow: none;
+  }
+}

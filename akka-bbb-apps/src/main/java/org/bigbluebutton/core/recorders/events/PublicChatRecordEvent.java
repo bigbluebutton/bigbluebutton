@@ -21,6 +21,7 @@ package org.bigbluebutton.core.recorders.events;
 
 public class PublicChatRecordEvent extends AbstractChatRecordEvent {
 	private static final String SENDER = "sender";
+	private static final String SENDERID = "senderId";
 	private static final String MESSAGE = "message";
 	private static final String COLOR = "color";
 	
@@ -31,6 +32,10 @@ public class PublicChatRecordEvent extends AbstractChatRecordEvent {
 		
 	public void setSender(String sender) {
 		eventMap.put(SENDER, sender);
+	}
+
+	public void setSenderId(String senderId) {
+		eventMap.put(SENDERID, senderId);
 	}
 	
 	public void setMessage(String message) {

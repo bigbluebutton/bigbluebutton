@@ -2,3 +2,15 @@ app/packages
 app/build/
 npm-debug.log
 node_modules/
+.meteor/dev_bundle
+
+private/config/server/*
+!private/config/server/redis.yaml
+!private/config/server/shell.yaml
+
+private/config/development/server/*
+!private/config/development/server/log.yaml
+
+private/config/production/server/*
+!private/config/production/server/log.yaml
+!private/config/production/server/shell.yaml

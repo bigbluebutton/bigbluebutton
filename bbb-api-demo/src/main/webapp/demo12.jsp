@@ -210,7 +210,7 @@ Author: Jesus Federico <jesus@123it.ca>
 		String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
 		String joinURL = getJoinURLwithDynamicConfigXML(username, confname, configXML);
 
-		if (joinURL.startsWith("https://") || joinURL.startsWith("https://")) { 
+		if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) { 
 %>
             <h2>Customized sessions using a dynamic config.xml, submit</h2>
 

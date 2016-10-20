@@ -8,8 +8,8 @@ import org.bigbluebutton.core.api._
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
+import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, CaptionApp }
+import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, CaptionModel }
 import org.bigbluebutton.core.apps.PresentationModel
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 
@@ -21,8 +21,8 @@ object OutMessageGatewayActor {
 class OutMessageGatewayActor(val meetingId: String, val recorder: RecorderApplication, val msgSender: MessageSender)
     extends Actor with ActorLogging {
 
-  private val recorderActor = context.actorOf(RecorderActor.props(meetingId, recorder), "recorderActor-" + meetingId)
-  private val msgSenderActor = context.actorOf(MessageSenderActor.props(meetingId, msgSender), "senderActor-" + meetingId)
+  private val recorderActor = context.actorOf(RecorderActor.props(recorder), "recorderActor-" + meetingId)
+  private val msgSenderActor = context.actorOf(MessageSenderActor.props(msgSender), "senderActor-" + meetingId)
 
   def receive = {
     case msg: IOutMessage => {

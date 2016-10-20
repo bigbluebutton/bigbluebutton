@@ -1,6 +1,7 @@
 package org.bigbluebutton.red5.pubsub;
 
 import java.util.Map;
+
 import org.bigbluebutton.common.messages.*;
 import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
@@ -141,7 +142,6 @@ public class MessagePublisher {
 	public void ejectUserFromVoice(String meetingID, String userId, String ejectedBy) {
 		EjectUserFromVoiceRequestMessage msg = new EjectUserFromVoiceRequestMessage(meetingID, ejectedBy, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-
 	}
 
 	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
@@ -223,7 +223,6 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
-
 	public void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message) {
 		SendPublicChatMessage msg = new SendPublicChatMessage(meetingID, requesterID, message);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
@@ -234,6 +233,10 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
+	public void requestDeskShareInfo(String meetingID, String requesterID, String replyTo) {
+		DeskShareGetInfoRequestMessage msg = new DeskShareGetInfoRequestMessage(meetingID, requesterID, replyTo);
+		sender.send(MessagingConstants.FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson());
+	}
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID, Map<String, Object> annotation) {
 		SendWhiteboardAnnotationRequestMessage msg = new SendWhiteboardAnnotationRequestMessage(meetingID, requesterID, annotation);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
@@ -263,11 +266,46 @@ public class MessagePublisher {
 	public void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo) {
 		IsWhiteboardEnabledRequestMessage msg = new IsWhiteboardEnabledRequestMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-
 	}
 
 	public void lockLayout(String meetingID, String setById, boolean lock, boolean viewersOnly, String layout) {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
+	}
+
+	// could be improved by doing some factorization
+	public void getBreakoutRoomsList(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
+	}
+
+	public void createBreakoutRooms(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
+	}
+
+	public void requestBreakoutJoinURL(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
+	}
+
+	public void listenInOnBreakout(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
+	}
+
+	public void endAllBreakoutRooms(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
+	}
+	
+	public void sendCaptionHistory(String meetingID, String requesterID) {
+		SendCaptionHistoryRequestMessage msg = new SendCaptionHistoryRequestMessage(meetingID, requesterID);
+		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
+	}
+	
+	public void updateCaptionOwner(String meetingID, String locale, String localeCode, String ownerID) {
+		UpdateCaptionOwnerMessage msg = new UpdateCaptionOwnerMessage(meetingID, locale, localeCode, ownerID);
+		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
+	}
+	
+	public void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String localeCode, String text) {
+		EditCaptionHistoryMessage msg = new EditCaptionHistoryMessage(meetingID, userID, startIndex, endIndex, locale, localeCode, text);
+		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
 	}
 }

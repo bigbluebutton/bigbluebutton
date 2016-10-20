@@ -271,11 +271,6 @@
 						acorn.$seek.slider('value', currenttime);
 					}
 				}
-				
-				// If captions are active, update them
-				if(captionsActive) { 
-					updateCaption(); 
-				}
 			};
 			
 			/*
@@ -675,99 +670,8 @@
 			 * Uses css to move it 
 			 */
 
-			var swapped = false;
-
 			var goSwap = function() {
-				if (swapped === false) {
-					$('#slide').css("width", "400px");
-					$('#slide').css("height", "300px");
-					$('#slide > object').attr("width", "400px");
-					$('#slide > object').attr("height", "300px");
-					var svgfile = $('#slide > object')[0].contentDocument.getElementById("svgfile");
-					svgfile.style.width = "400px";
-					svgfile.style.height = "300px";
-					
-					var slide = document.getElementById("slide");
-					var cursor = document.getElementById("cursor");
-					var slideT = document.getElementById("slideText");
-					var video = document.getElementById("video");
-					
-					video.style.width = "800px";
-					video.style.height = "600px";
-					
-					$('#videoRecordingWrapper').position({
-						"my": "left top",
-						"at": "right top",
-						"of": '#thumbnails',
-						"collision": "none none",
-						"offset": "10 0"
-					});
-					$('#videoRecordingWrapper').width("800px");
-					$('#videoRecordingWrapper').height("600px");
-	  
-					$('#presentation').position({
-						"my": "left top",
-						"at": "left bottom",
-						"of": '#chat',
-						"collision": "none none"
-					});
-					$('#presentation').width("400px");
-					$('#presentation').height("300px");
-	  
-					$('.acorn-controls').position({
-						"my": "left top",
-						"at": "left bottom",
-						"of": '#videoRecordingWrapper',
-						"collision": "none none",
-						"offset": "10 7"
-					});
-	  
-					draw(0,0);
-
-					swapped = true;
-				} else {
-					$('#slide').css("width", "800px");
-					$('#slide').css("height", "600px");
-					$('#slide > object').attr("width", "800px");
-					$('#slide > object').attr("height", "600px");
-					var svgfile = $('#slide > object')[0].contentDocument.getElementById("svgfile");
-					svgfile.style.width = "800px";
-					svgfile.style.height = "600px";
-					
-					var video = document.getElementById("video");
-					
-					video.style.width = "400px";
-					video.style.height = "300px";
-					
-					$('#presentation').position({
-						"my": "left top",
-						"at": "right top",
-						"of": '#thumbnails',
-						"collision": "none none",
-						"offset": "10 0"
-					});
-					$('#presentation').width("800px");
-					$('#presentation').height("600px");
-					
-					$('#videoRecordingWrapper').position({
-						"my": "left top",
-						"at": "left bottom",
-						"of": '#chat',
-						"collision": "none none"
-					});
-					$('#videoRecordingWrapper').width("400px");
-					$('#videoRecordingWrapper').height("300px");
-	  
-					$('.acorn-controls').position({
-						"my": "left top",
-						"at": "left bottom",
-						"of": '#presentation',
-						"collision": "none none",
-						"offset": "10 7"
-					});
-					
-					swapped = false;   
-				}
+                                acorn.$self.trigger('swap');
 			}
 
 			/* 
@@ -783,31 +687,12 @@
 			var captionRadioName = 'acornCaptions' + uniqueID();
 			 
 			var captionOff = function() {
-				captions = '';
-				acorn.$caption.hide();
-				activeCaptions = false;
-
-				acorn.$transcriptBtn.removeClass(transcriptBtnActiveClass).hide();
-				acorn.$transcript.hide();
+				for (var i = 0; i < acorn.$track.length; i++) {
+					var track = acorn.$track[i];
+					track.track.mode = "disabled";
+				}
 				
 				acorn.$captionBtn.removeClass(captionBtnActiveClass);
-			};
-			
-			/*
-			 * Update caption based on "currentTime"
-			 * Borrowed and adapted from Bruce Lawson's “Accessible HTML5 Video with JavaScripted captions”
-			 * http://dev.opera.com/articles/view/accessible-html5-video-with-javascripted-captions/
-			 */
-			var updateCaption = function() {			
-				var now = acorn.$self[0].currentTime; // how soon is now?
-				var text = "";
-				for (var i = 0; i < captions.length; i++) {
-					if (now >= captions[i].start && now <= captions[i].end) {
-						text = captions[i].content; // yes? then load it into a variable called text
-						break;
-					}
-				}
-				acorn.$caption.html(text); // and put contents of text into caption div
 			};
 			
 			/*
@@ -883,54 +768,33 @@
 			 * Takes the url as a parameter
 			 */
 			var loadCaption = function(url) {
-				// add a loading class to the Caption Button when starting to load the caption
-				acorn.$captionBtn.addClass(captionBtnLoadingClass);
-				// make an AJAX request to load the file
-				$.ajax({
-					url: url,
-					success: function(data) {
-						/*
-						 * On success use a SRT parser on the loaded data
-						 * Using JavaScript SRT parser by Silvia Pfeiffer <silvia@siliva-pfeiffer.de>
-						 * parseSrt included at the end of this file
-						 */
-						captions = parseSrt(data);
-						
+				// Iterate through the available captions, and disable all but the selected one
+				for (var i = 0; i < acorn.$track.length; i++) {
+					var track = acorn.$track[i];
+					if (track.getAttribute('src') == url) {
+						track.track.mode = "showing";
+
+						// TODO transcript markup?
 						// show the Transcript Button						
-						acorn.$transcriptBtn.show();
+						//acorn.$transcriptBtn.show();
 						
 						/* 
 						 * Generate the markup for the transcript
 						 * Markup based on Bruce Lawson's “Accessible HTML5 Video with JavaScripted captions”
 						 * http://dev.opera.com/articles/view/accessible-html5-video-with-javascripted-captions/
 						 */
-						var transcriptText = '';
-						$(captions).each(function() {
-							transcriptText += '<span data-begin="' + parseInt(this.start, 10) + '" data-end=' + parseInt(this.end, 10) + '>' + this.content.replace("'","") + '</span>';
-						});
+						//var transcriptText = '';
+						//$(captions).each(function() {
+						//	transcriptText += '<span data-begin="' + parseInt(this.start, 10) + '" data-end=' + parseInt(this.end, 10) + '>' + this.content.replace("'","") + '</span>';
+						//});
 						// append the generated markup
-						acorn.$transcript.html(transcriptText);
-						
-						// show caption
-						acorn.$caption.show();
-						captionsActive = true;
-						
-						// in case the media is paused and timeUpdate is not triggered, trigger it
-						if(acorn.$self.prop('paused')) {
-							updateCaption();
-						}
-						
-						acorn.$captionBtn.addClass(captionBtnActiveClass).removeClass(captionBtnLoadingClass);
-					},
-					error: function() {
-						// if an error occurs while loading the caption, turn captions off
-						captionOff();
-						// if a console is available, log error
-						if(console) {
-							console.log('Error loading captions');
-						}
+						//acorn.$transcript.html(transcriptText);
+					} else {
+						track.track.mode = "disabled";
 					}
-				});
+				}
+				captionsActive = true;
+				acorn.$captionBtn.addClass(captionBtnActiveClass);
 			};
 			
 			/*			 
@@ -949,6 +813,11 @@
 			 * Caption loading and initialization
 			 */
 			var initCaption = function() {
+				// Check if we have browser support for captions
+				if (typeof(TextTrack) === "undefined") {
+					return;
+				}
+
 				// get all <track> elements
 				acorn.$track = $('track', acorn.$self);
 				
@@ -1010,7 +879,6 @@
 						} else {
 							loadCaption(tracksrc);
 						}
-						$(this).toggleClass(captionBtnActiveClass);
 					});
 
 					// load default caption if captionsOn is true
@@ -1093,66 +961,3 @@
 	};
 
 })(jQuery);
-
-/* 
- * parseSrt function
- * JavaScript SRT parser by Silvia Pfeiffer <silvia@siliva-pfeiffer.de>
- * http://silvia-pfeiffer.de/ 
- * 
- * Tri-licensed under MPL 1.1/GPL 2.0/LGPL 2.1
- *  http://www.gnu.org/licenses/gpl.html  
- *  http://www.gnu.org/licenses/lgpl.html
- *  http://www.mozilla.org/MPL/
- *
- * The Initial Developer of the Original Code is Mozilla Corporation.
- * Portions created by the Initial Developer are Copyright (C) 2009
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *  Silvia Pfeiffer <silvia@siliva-pfeiffer.de>
- *
- *
- */
-function parseSrt(data) {
-    var srt = data.replace(/\r+/g, ''); // remove dos newlines
-    srt = srt.replace(/^\s+|\s+$/g, ''); // trim white space start and end
-    srt = srt.replace(/<[a-zA-Z\/][^>]*>/g, ''); // remove all html tags for security reasons
-
-    // get captions
-    var captions = [];
-    var caplist = srt.split('\n\n');
-    for (var i = 0; i < caplist.length; i=i+1) {
-        var caption = "";
-        var content, start, end, s;
-        caption = caplist[i];
-        s = caption.split(/\n/);
-        if (s[0].match(/^\d+$/) && s[1].match(/\d+:\d+:\d+/)) {
-            // ignore caption number in s[0]
-            // parse time string
-            var m = s[1].match(/(\d+):(\d+):(\d+)(?:,(\d+))?\s*--?>\s*(\d+):(\d+):(\d+)(?:,(\d+))?/);
-            if (m) {
-                start =
-                  (parseInt(m[1], 10) * 60 * 60) +
-                  (parseInt(m[2], 10) * 60) +
-                  (parseInt(m[3], 10)) +
-                  (parseInt(m[4], 10) / 1000);
-                end =
-                  (parseInt(m[5], 10) * 60 * 60) +
-                  (parseInt(m[6], 10) * 60) +
-                  (parseInt(m[7], 10)) +
-                  (parseInt(m[8], 10) / 1000);
-            } else {
-                // Unrecognized timestring
-                continue;
-            }
-            // concatenate text lines to html text
-            content = s.slice(2).join("<br>");
-        } else {
-            // file format error or comment lines
-            continue;
-        }
-        captions.push({start: start, end: end, content: content});
-    }
-
-    return captions;
-}

@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.present.model
     public function getCurrentPage():Page {
       for (var i: int = 0; i < _pages.length; i++) {
         var p: Page = _pages.getItemAt(i) as Page;
-        LOGGER.debug("Is page [{0}] current [{1}]?", [p.num, p.current]);
+        //LOGGER.debug("Is page [{0}] current [{1}]?", [p.num, p.current]);
         if (p.current) {
           return p;
         }

@@ -29,6 +29,8 @@ public class MessagingConstants {
 	public static final String FROM_USERS_CHANNEL = FROM_BBB_APPS_CHANNEL + ":users";
 	public static final String FROM_CHAT_CHANNEL = FROM_BBB_APPS_CHANNEL + ":chat"; 
 	public static final String FROM_WHITEBOARD_CHANNEL = FROM_BBB_APPS_CHANNEL + ":whiteboard";
+	public static final String FROM_CAPTION_CHANNEL = FROM_BBB_APPS_CHANNEL + ":caption";
+	public static final String FROM_DESK_SHARE_CHANNEL = FROM_BBB_APPS_CHANNEL + ":deskshare";
 
 	public static final String TO_BBB_APPS_CHANNEL = "bigbluebutton:to-bbb-apps";	
 	public static final String TO_BBB_APPS_PATTERN = TO_BBB_APPS_CHANNEL + ":*";
@@ -40,9 +42,12 @@ public class MessagingConstants {
 	public static final String TO_CHAT_CHANNEL = TO_BBB_APPS_CHANNEL + ":chat";
 	public static final String TO_VOICE_CHANNEL = TO_BBB_APPS_CHANNEL + ":voice";
 	public static final String TO_WHITEBOARD_CHANNEL = TO_BBB_APPS_CHANNEL + ":whiteboard";
+	public static final String TO_CAPTION_CHANNEL = TO_BBB_APPS_CHANNEL + ":caption";
 
 	public static final String BBB_APPS_KEEP_ALIVE_CHANNEL = "bigbluebutton:from-bbb-apps:keepalive";
-	
+
+	public static final String TO_BBB_HTML5_CHANNEL = "bigbluebutton:to-bbb-html5";
+
 	public static final String TO_VOICE_CONF_CHANNEL = "bigbluebutton:to-voice-conf";	
 	public static final String TO_VOICE_CONF_PATTERN = TO_VOICE_CONF_CHANNEL + ":*";
 	public static final String TO_VOICE_CONF_SYSTEM_CHAN = TO_VOICE_CONF_CHANNEL + ":system";

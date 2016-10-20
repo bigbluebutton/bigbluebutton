@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="screenshare" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>log/screenshare-slf.log</File>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>log/screenshare-slf.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <!-- keep 30 days worth of history -->
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{ISO8601} [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root>
+        <level value="DEBUG" />
+        <appender-ref ref="screenshare" />
+    </root>
+
+    <!-- LEVEL CAN NOT BE DEBUG -->
+    <logger name="org.apache" level="INFO"></logger>
+</configuration>

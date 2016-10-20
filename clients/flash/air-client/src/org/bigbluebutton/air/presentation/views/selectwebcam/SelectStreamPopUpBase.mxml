@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnablePopUpContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+						   xmlns:s="library://ns.adobe.com/flex/spark"
+						   xmlns:mx="library://ns.adobe.com/flex/mx"
+						   width="100%"
+						   styleName="selectStreamPopUp">
+	<s:Group width="100%"
+			 height="100%">
+
+		<!-- titlebar background -->
+		<s:Rect width="100%"
+				height="{title.height * 2}">
+			<s:fill>
+				<s:LinearGradient rotation="90">
+					<s:GradientEntry color="#F1F3F7" />
+					<s:GradientEntry color="#F2F2F5" />
+				</s:LinearGradient>
+			</s:fill>
+		</s:Rect>
+
+		<s:VGroup width="100%"
+				  horizontalAlign="center"
+				  paddingTop="{title.height/2}">
+
+			<s:HGroup width="90%"
+					  id="titleGroup"
+					  horizontalAlign="right"
+					  verticalAlign="middle">
+
+				<s:Label text="{resourceManager.getString('resources', 'selectStream.title')}"
+						 id="title"
+						 styleName="selectStreamTitle" />
+
+				<s:Spacer width="{(titleGroup.width - closeButton.width - title.width)/2}" />
+
+				<!-- close button -->
+				<s:Group mouseDown="close(false)"
+						 id="closeButton"
+						 height="100%">
+					<s:Line xFrom="0"
+							xTo="{title.height * 3/4}"
+							yFrom="0"
+							yTo="{title.height * 3/4}">
+						<s:stroke>
+							<s:SolidColorStroke color="{getStyle('closeButtonColor')}" />
+						</s:stroke>
+					</s:Line>
+					<s:Line xFrom="{title.height * 3/4}"
+							xTo="0"
+							yFrom="0"
+							yTo="{title.height * 3/4}">
+						<s:stroke>
+							<s:SolidColorStroke color="{getStyle('closeButtonColor')}" />
+						</s:stroke>
+					</s:Line>
+				</s:Group>
+
+			</s:HGroup>
+
+			<!-- content -->
+		</s:VGroup>
+	</s:Group>
+
+	<s:VGroup width="100%"
+			  horizontalAlign="center"
+			  verticalAlign="middle"
+			  y="{title.y + (title.height) * 2 }">
+		<s:List id="streamList0"
+				width="90%"
+				height="100%"
+				itemRenderer="org.bigbluebutton.air.presentation.views.selectwebcam.StreamItemRenderer" />
+		<s:Button label="Stop viewing webcams"
+				  id="actionButton0"
+				  width="90%"
+				  styleName="userSettingsButtonStyle" />
+		<s:Spacer height="10%">
+
+		</s:Spacer>
+	</s:VGroup>
+
+</s:SkinnablePopUpContainer>

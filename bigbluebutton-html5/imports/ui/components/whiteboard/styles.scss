@@ -1,0 +1,49 @@
+@import "../../stylesheets/variables/_all";
+
+.enter {
+  opacity: 0.01;
+}
+
+.enterActive {
+  opacity: 1;
+  transition: opacity 400ms ease-in;
+}
+
+.appear {
+  opacity: 0.01;
+}
+
+.appearActive {
+  opacity: 1;
+  transition: opacity 400ms ease-in;
+}
+
+.whiteboardPaper {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.svgStyles {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.whiteboardContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.whiteboardWrapper {
+  order: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
+}

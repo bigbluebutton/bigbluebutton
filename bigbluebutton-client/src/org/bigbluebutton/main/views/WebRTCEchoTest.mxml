@@ -99,13 +99,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function yesButtonClicked():void {
 				userClosed = true;
-				LOGGER.debug("Echo test passed.");
+				
         
         var logData:Object = new Object();       
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
+        logData.message = "WebRtc Echo test passed.";
+        
         JSLog.info("WebRtc Echo test passed.", logData);
-
+        
+        LOGGER.info(JSON.stringify(logData));
+        
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endingecho');
 				
@@ -115,7 +119,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function noButtonClicked():void {
 				userClosed = true;
-				LOGGER.warn("Echo test failed.");
+                
+                var logData:Object = new Object();       
+                logData.reason = "User requested.";
+                logData.user = UsersUtil.getUserData();
+                logData.message = "WebRtc Echo test failed.";
+                
+                LOGGER.info(JSON.stringify(logData));
                 
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO));
@@ -123,7 +133,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleWebRTCEchoTestStartedEvent(e:WebRTCEchoTestStartedEvent):void {
-        webRTCEchoTestStarted();
+                webRTCEchoTestStarted();
 			}
 			
       private function webRTCEchoTestStarted():void {
@@ -183,7 +193,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = new Object();       
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
-        JSLog.info("WebRtc call started.", logData);
+        logData.message = "WebRtc call started.";
+                
+        LOGGER.info(JSON.stringify(logData));
         
         onCancelClicked();
       }
@@ -193,7 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onHelpButtonClicked():void {
-				DEFAULT_HELP_URL =  BBB.initConfigManager().config.help.url;
+				DEFAULT_HELP_URL =  BBB.getConfigManager().config.help.url;
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
 			}
 			

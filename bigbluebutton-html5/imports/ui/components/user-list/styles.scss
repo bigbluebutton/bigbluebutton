@@ -1,0 +1,157 @@
+@import '../../stylesheets/variables/palette';
+@import "../../stylesheets/mixins/_scrollable";
+
+/* Variables
+ * ==========
+ */
+$unread-messages-bg: $color-danger;
+
+$user-list-bg: $color-white;
+$user-list-text: $color-gray-dark;
+
+$list-item-bg-hover: darken($user-list-bg, 7%);
+
+$user-thumbnail-border: $color-gray-light;
+$user-thumbnail-text: $user-thumbnail-border;
+
+$voice-user-bg: $color-success;
+$voice-user-text: $color-white;
+
+$moderator-text: $color-white;
+$moderator-bg: $color-primary;
+
+$sub-name-color: $color-gray-light;
+
+$user-icons-color: $color-gray-light;
+$user-icons-color-hover: $color-gray;
+
+
+/* classes for extending
+ * ==========
+ */
+%flex-column {
+  display: flex;
+  flex-flow: column;
+}
+
+%no-margin {
+  margin: 0;
+}
+
+%list-item {
+  padding: 0.3rem;
+  padding-left: 0.5rem;
+  padding-right: 0rem;
+  margin-left: 0.7rem;
+  margin-top: 0.3rem;
+  display: flex;
+  flex-flow: row;
+  transition: all 0.3s;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background-color: $list-item-bg-hover;
+    outline: none;
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+/* Styling
+ * ==========
+ */
+
+.userList {
+  @extend %flex-column;
+  justify-content: flex-start;
+  background-color: $user-list-bg;
+  color: $user-list-text;
+  height: 100vh;
+}
+
+.header {
+  @extend %flex-column;
+  justify-content: center;
+  min-height: 3.9rem;
+  flex-grow: 0;
+}
+
+.headerTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-left: 1.3rem;
+}
+
+.content {
+  @extend %flex-column;
+  flex-grow: 9;
+}
+
+.lists {
+  @extend %flex-column;
+  @extend %no-margin;
+  padding: 0;
+  outline: none;
+}
+
+.participantsList,
+.chatsList {
+  @extend .lists;
+  overflow-x: hidden;
+  flex-shrink: 1;
+}
+
+.smallTitle {
+  color: $color-text;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0.6rem 1.3rem;
+}
+
+.scrollableList {
+  @include scrollbox-vertical($user-list-bg);
+}
+
+.participants, .messages {
+  flex-grow: 0;
+  display: flex;
+  flex-flow: column;
+  flex-shrink: 0;
+}
+
+.participants {
+  flex-basis: 31rem;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+.separator {
+  margin: 1rem auto;
+  width: 2.2rem;
+  border: 0;
+  border-top: 1px solid $color-gray-lighter;
+}
+
+.enter, .appear {
+  opacity: 0.01;
+}
+
+.enterActive, .appearActive {
+  opacity: 1;
+  transition: all 600ms;
+}
+
+.leave {
+  opacity: 1;
+}
+
+.leaveActive {
+  opacity: 0;
+  transition: all 600ms;
+}

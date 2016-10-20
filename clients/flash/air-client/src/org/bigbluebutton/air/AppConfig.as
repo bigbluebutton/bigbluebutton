@@ -10,6 +10,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.ChatMessageService;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
+	import org.bigbluebutton.lib.common.models.ISaveData;
+	import org.bigbluebutton.lib.common.models.SaveData;
 	import org.bigbluebutton.lib.common.services.BaseConnection;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
@@ -19,6 +21,10 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.lib.main.commands.LockUserCommand;
+	import org.bigbluebutton.lib.main.commands.LockUserSignal;
+	import org.bigbluebutton.lib.main.commands.PresenterCommand;
+	import org.bigbluebutton.lib.main.commands.PresenterSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -42,6 +48,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
+	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
+	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
@@ -63,8 +71,10 @@ package org.bigbluebutton.air {
 			injector.map(IUsersService).toSingleton(UsersService);
 			injector.map(IChatMessageService).toSingleton(ChatMessageService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
+			injector.map(IWhiteboardService).toSingleton(WhiteboardService);
 			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
+			injector.map(ISaveData).toSingleton(SaveData);
 			// Type mapping
 			injector.map(IBaseConnection).toType(BaseConnection);
 			injector.map(IVoiceConnection).toType(VoiceConnection);
@@ -73,12 +83,15 @@ package org.bigbluebutton.air {
 			injector.map(IVideoConnection).toType(VideoConnection);
 			// Signal to Command mapping
 			signalCommandMap.map(ConnectSignal).toCommand(ConnectCommand);
-			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
 			signalCommandMap.map(AuthenticationSignal).toCommand(AuthenticationCommandAIR);
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
 			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
 			signalCommandMap.map(LoadSlideSignal).toCommand(LoadSlideCommand);
 			signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
+			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
+			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
+			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
+			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
 		}
 	}

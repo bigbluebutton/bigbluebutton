@@ -99,7 +99,7 @@ public class GetAllUsersCommand extends FreeswitchCommand {
         		} 
         		
                 pj = new VoiceUserJoinedEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
-                		callerId, callerIdName, member.getMuted(), member.getSpeaking());
+                		callerId, callerIdName, member.getMuted(), member.getSpeaking(), null);
                 eventListener.handleConferenceEvent(pj);
             }
 

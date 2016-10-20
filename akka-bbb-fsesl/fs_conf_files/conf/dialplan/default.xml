@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    NOTICE:
+
+    This context is usually accessed via authenticated callers on the sip profile on port 5060
+    or transfered callers from the public context which arrived via the sip profile on port 5080.
+
+    Authenticated users will use the user_context variable on the user to determine what context
+    they can access.  You can also add a user in the directory with the cidr= attribute acl.conf.xml
+    will build the domains ACL using this value.
+-->
+<!-- http://wiki.freeswitch.org/wiki/Dialplan_XML -->
+<include>
+    <context name="default">
+    <extension name="public_extensions">
+        <condition field="destination_number" expression="^\d{5}-DESKSHARE$">
+            <action application="log" data="INFO AAAAAA transferring to $1 XML public!!"/>
+            <action application="transfer" data="${destination_number} XML public"/>
+        </condition>
+    </extension>
+
+    <!-- other extensions -->
+
+  </context>
+</include>
+

@@ -5,9 +5,9 @@ package org.bigbluebutton.air.deskshare.views {
 	import flash.events.Event;
 	import flash.net.URLRequest;
 	
-	import org.bigbluebutton.air.common.views.VideoView;
+	import org.bigbluebutton.air.common.views.VideoViewAir;
 	
-	public class DeskshareVideoView extends VideoView {
+	public class DeskshareVideoView extends VideoViewAir {
 		private var _mouse:Bitmap;
 		
 		public function DeskshareVideoView() {
@@ -128,6 +128,8 @@ package org.bigbluebutton.air.deskshare.views {
 						} else {
 							_mouse.x = video.x - originalX / reducedScreenPercentage;
 						}
+						break;
+					default:
 						break;
 				}
 				_mouse.rotation = video.rotation;

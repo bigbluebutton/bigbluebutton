@@ -1,0 +1,299 @@
+@import "../../stylesheets/variables/_all";
+
+$btn-default-color: $color-gray;
+$btn-default-bg: $color-white;
+$btn-default-border: $color-white;
+
+$btn-primary-color: $color-white;
+$btn-primary-bg: $color-primary;
+$btn-primary-border: $color-primary;
+
+$btn-success-color: $color-white;
+$btn-success-bg: $color-success;
+$btn-success-border: $color-success;
+
+$btn-danger-color: $color-white;
+$btn-danger-bg: $color-danger;
+$btn-danger-border: $color-danger;
+
+$btn-border-size: $border-size;
+$btn-border-radius: $border-radius;
+$btn-font-weight: 600;
+$btn-spacing: .35rem;
+
+$btn-sm-font-size: $font-size-small * .85;
+$btn-sm-padding: $sm-padding-y $sm-padding-x;
+
+$btn-md-font-size: $font-size-base * .85;
+$btn-md-padding: $md-padding-y $md-padding-x;
+
+$btn-lg-font-size: $font-size-large * .85;
+$btn-lg-padding: $lg-padding-y $lg-padding-x;
+
+/* Base
+ * ==========
+ */
+.button {
+  border: $btn-border-size solid transparent;
+  border-radius: $btn-border-radius;
+  font-weight: $btn-font-weight;
+  display: inline-block;
+  border-style: solid;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  transition: all .2s ease-in-out;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
+
+  &,
+  &:active {
+    &:focus {
+      outline: thin dotted;
+      outline: 5px auto -webkit-focus-ring-color;
+      outline-offset: -2px;
+    }
+  }
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+
+  &:active {
+    background-image: none;
+    outline: 0;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+  }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: .65;
+    box-shadow: none;
+    pointer-events: none;
+  }
+}
+
+.buttonWrapper {
+  display: inline-block;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  background: none;
+  border: 0;
+  padding: 0 !important;
+
+  &:active {
+    &:focus {
+      outline: thin dotted;
+      outline: 5px auto -webkit-focus-ring-color;
+      outline-offset: -2px;
+    }
+  }
+}
+
+.label {
+  .buttonWrapper & {
+    opacity: .85;
+    display: block;
+    margin-top: $btn-spacing;
+    font-size: 90%;
+    color: $color-white;
+    font-weight: $btn-font-weight;
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .buttonWrapper.sm & {
+    display: inline-block;
+    margin-top: 0;
+    margin-left: $btn-spacing;
+  }
+
+  & + .icon,
+  & + .button  {
+    margin-left: $btn-spacing;
+  }
+}
+
+.hideLabel {
+  font-size: 0;
+  height: 0;
+  width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  display: block;
+}
+
+.icon {
+  width: 1.28571429em;
+  text-align: center;
+
+  .buttonWrapper & {
+    font-size: 155%;
+  }
+
+  & + .label {
+    margin-left: $btn-spacing;
+  }
+}
+
+/* Colors
+ * ==========
+ */
+
+@mixin button-variant($color, $background, $border) {
+  $active-background: darken($background, 10%);
+  $active-border: darken($border, 12%);
+
+  color: $color;
+  background-color: $background;
+  border-color: $border;
+
+  &:hover,
+  &:focus,
+  .buttonWrapper:hover &,
+  .buttonWrapper:focus & {
+    color: $color;
+    background-color: $active-background;
+    border-color: $active-border;
+  }
+
+  &:active,
+  .buttonWrapper:active & {
+    color: $color;
+    background-color: $active-background;
+    border-color: $active-border;
+    background-image: none;
+
+    &:hover,
+    &:focus {
+      color: $color;
+      background-color: darken($background, 17%);
+      border-color: darken($border, 25%);
+    }
+  }
+}
+
+@mixin button-ghost-variant($color, $variant) {
+  color: $color;
+  background-image: none;
+  background-color: transparent;
+  border-color: $color;
+
+  &:focus,
+  &:hover,
+  .buttonWrapper:hover &,
+  .buttonWrapper:focus & {
+    color: $variant;
+    background-color: $color;
+    border-color: $color;
+  }
+
+  &:active,
+  .buttonWrapper:active & {
+    color: $variant;
+    background-color: $color;
+    border-color: $color;
+
+    &:hover,
+    &:focus {
+      color: $variant;
+      background-color: darken($color, 17%);
+      border-color: darken($color, 25%);
+    }
+  }
+}
+
+.default {
+  @include button-variant($btn-default-color, $btn-default-bg, $btn-default-border);
+}
+
+.primary {
+  @include button-variant($btn-primary-color, $btn-primary-bg, $btn-primary-border);
+}
+
+.success {
+  @include button-variant($btn-success-color, $btn-success-bg, $btn-success-border);
+}
+
+.danger {
+  @include button-variant($btn-danger-color, $btn-danger-bg, $btn-danger-border);
+}
+
+
+/* Styles
+ * ==========
+ */
+
+.block {
+  display: block;
+  width: 100%;
+}
+
+.ghost {
+  &.default {
+    @include button-ghost-variant($btn-default-bg, $btn-default-color);
+  }
+
+  &.primary {
+    @include button-ghost-variant($btn-primary-bg, $btn-primary-color);
+  }
+
+  &.success {
+    @include button-ghost-variant($btn-success-bg, $btn-success-color);
+  }
+
+  &.danger {
+    @include button-ghost-variant($btn-danger-bg, $btn-danger-color);
+  }
+}
+
+
+.circle {
+  $btn-sm-padding-x: nth($btn-sm-padding, 1) / 2;
+  $btn-md-padding-x: nth($btn-md-padding, 1) / 2;
+  $btn-lg-padding-x: nth($btn-lg-padding, 1) / 2;
+
+  border-radius: 50%;
+
+  &.sm {
+    padding-right: $btn-sm-padding-x;
+    padding-left: $btn-sm-padding-x;
+  }
+
+  &.md {
+    padding-right: $btn-md-padding-x;
+    padding-left: $btn-md-padding-x;
+  }
+
+  &.lg {
+    padding-right: $btn-lg-padding-x;
+    padding-left: $btn-lg-padding-x;
+  }
+}
+
+/* Sizes
+ * ==========
+ */
+
+.sm {
+  font-size: $btn-sm-font-size;
+  padding: $btn-sm-padding;
+}
+
+.md {
+  font-size: $btn-md-font-size;
+  padding: $btn-md-padding;
+}
+
+.lg {
+  font-size: $btn-lg-font-size;
+  padding: $btn-lg-padding;
+}

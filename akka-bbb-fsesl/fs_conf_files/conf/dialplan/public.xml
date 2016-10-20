@@ -1,0 +1,32 @@
+<!--
+    NOTICE:
+
+    This context is usually accessed via the external sip profile listening on port 5080.
+
+    It is recommended to have separate inbound and outbound contexts.  Not only for security
+    but clearing up why you would need to do such a thing.  You don't want outside un-authenticated
+    callers hitting your default context which allows dialing calls thru your providers and results
+    in Toll Fraud.
+-->
+
+<!-- http://wiki.freeswitch.org/wiki/Dialplan_XML -->
+<include>
+    <context name="public">
+
+        <!-- other extensions -->
+
+        <extension name="public_extensions">
+            <condition field="destination_number" expression="^\d{5}-DESKSHARE$">
+                <action application="log" data="INFO ************WEBRTC DESKSHARE EXT***********" />
+                <action application="answer"/>
+                <action application="conference" data="${destination_number}@video-mcu-stereo"/>
+            </condition>
+        </extension>
+
+        <!--
+        You can place files in the public directory to get included.
+        -->
+        <X-PRE-PROCESS cmd="include" data="public/*.xml"/>
+
+    </context>
+</include>

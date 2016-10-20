@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
+			xmlns:mx="http://www.adobe.com/2006/mxml"
+			xmlns:containers="flexlib.containers.*"
+			xmlns:mate="http://mate.asfusion.com/"
+			implements="org.bigbluebutton.common.IBbbModuleWindow"
+			width="400" height="300"
+			showCloseButton="false"
+			creationComplete="onCreationComplete()">
+	
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flexlib.controls.tabBarClasses.SuperTab;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
+			import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
+			import org.bigbluebutton.modules.caption.model.CaptionOptions;
+			import org.bigbluebutton.modules.caption.model.Transcript;
+			import org.bigbluebutton.modules.caption.model.Transcripts;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Bindable]
+			private var transcriptsCollection:ArrayCollection;
+			
+			[Bindable]
+			private var currentTranscript:Transcript;
+			
+			private var transcriptsObject:Transcripts;
+			
+			private var transcriptOwnerChangeWatcher:ChangeWatcher;
+			
+			private var optionsTab:OptionsTab;
+			private var textTab:TextTab;
+			
+			private var captionOptions:CaptionOptions = new CaptionOptions();
+			
+			override protected function createChildren():void {
+				super.createChildren();
+				
+				optionsTab = new OptionsTab();
+				optionsTab.setChangeCallback(optionChange);
+				captionTabs.addChild(optionsTab);
+				
+				textTab = new TextTab(captionOptions.baseTabIndex+5, captionOptions);
+			}
+			
+			private function onCreationComplete():void {
+				var requestTranscripts:RequestTranscriptsEvent = new RequestTranscriptsEvent(RequestTranscriptsEvent.REQUEST_TRANSCRIPTS_EVENT);
+				requestTranscripts.callback = setTranscripts;
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(requestTranscripts);
+				
+				captionTabs.closePolicy = SuperTab.CLOSE_NEVER;
+				
+				titleBarOverlay.tabIndex = captionOptions.baseTabIndex;
+				
+				minimizeBtn.tabIndex = captionOptions.baseTabIndex+1;
+				maximizeRestoreBtn.tabIndex = captionOptions.baseTabIndex+2;
+				closeBtn.tabIndex = captionOptions.baseTabIndex+3;
+				
+				captionTabs.tabIndex = captionOptions.baseTabIndex+4;
+				
+				optionsTab.tabIndexer.startIndex = captionOptions.baseTabIndex+5;
+				
+				resourcesChanged();
+			}
+			
+			private function setTranscripts(t:Transcripts):void {
+				transcriptsObject = t;
+				
+				if (UserManager.getInstance().getConference().amIModerator()) {
+					transcriptsCollection = new ArrayCollection();
+					
+					var names:Array = ResourceUtil.getInstance().localeNames;
+					var codes:Array = ResourceUtil.getInstance().localeCodes;
+					
+					for (var i:int=0; i<names.length; i++) {
+						transcriptsCollection.addItem({locale: names[i], localeCode: codes[i]});
+					}
+				} else {
+					transcriptsCollection = t.transcriptCollection;
+				}
+				
+				optionsTab.setTranscriptCollection(transcriptsCollection);
+			}
+			
+			public function getPrefferedPosition():String {
+				return MainCanvas.POPUP;
+			}
+			
+			private function optionChange(type:int, val:Object):void {
+				switch (type) {
+					case OptionENUM.LOCALE:
+						onLocaleChange(val);
+						break;
+					case OptionENUM.SIZE:
+						textTab.setFontSize(int(val));
+						break;
+					case OptionENUM.FAMILY:
+						textTab.setFontFamily(String(val));
+						break;
+					case OptionENUM.TEXTCOLOR:
+						textTab.setTextColor(uint(val));
+						break;
+					case OptionENUM.BACKCOLOR:
+						textTab.setBackgroundColor(uint(val));
+						break;
+				}
+			}
+			
+			private function onLocaleChange(item:Object):void {
+				currentTranscript = transcriptsObject.findLocale(item.locale, item.localeCode);
+				
+				optionsTab.setCurrentTranscript(currentTranscript);
+				textTab.setCurrentTranscript(currentTranscript);
+				
+				if (transcriptOwnerChangeWatcher) {
+					transcriptOwnerChangeWatcher.unwatch();
+				}
+				
+				if (currentTranscript) {
+					transcriptOwnerChangeWatcher = BindingUtils.bindSetter(onTranscriptOwnerIDChange, currentTranscript, "ownerID");
+					onTranscriptOwnerIDChange(currentTranscript.ownerID);
+				}
+				
+				if (!captionTabs.contains(textTab)) {
+					addTextTab();
+				}
+				
+				var tab:Button = captionTabs.getTabAt(0);
+				if (tab != null) {
+					tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
+				}
+			}
+			
+			private function onTranscriptOwnerIDChange(o:Object):void {
+				var ownerId:String = o as String;
+				
+				textTab.transcriptOwnerIDChange(ownerId);
+				
+				setTextTabLabel(ownerId);
+			}
+			
+			private function setTextTabLabel(ownerId:String):void {
+				textTab.label = currentTranscript.locale + " - ";
+				if (ownerId == "") {
+					//unclaimed text
+					//ownerNameOutputLabel.text = "Owner - " + "None";
+					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.noowner');
+				} else if (ownerId == UserManager.getInstance().getConference().getMyUserId()) {
+					//release text
+					textTab.label += ResourceUtil.getInstance().getString('bbb.caption.transcript.youowner');
+				} else {
+					//claimed by other
+					textTab.label += UserManager.getInstance().getConference().getUser(ownerId).name;
+				}
+			}
+			
+			private function addTextTab():void {
+				textTab.setCurrentTranscript(currentTranscript);
+				textTab.setFontFamily(String(optionsTab.fontFamilyCombo.selectedItem));
+				textTab.setFontSize(int(optionsTab.fontSizeCombo.selectedItem));
+				
+				captionTabs.addChildAt(textTab, 0);
+			}
+			
+			private function onTabChange():void {
+				var tab:Button = captionTabs.getTabAt(captionTabs.selectedIndex);
+				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+			}
+			
+			private function localeChanged(e:Event):void{
+				resourcesChanged();
+			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString("bbb.caption.window.title");
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.caption.window.titleBar');
+				}
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.caption.window.minimizeBtn.accessibilityName");
+					
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.caption.window.maximizeRestoreBtn.accessibilityName");
+				}
+				
+				if (optionsTab != null) {
+					optionsTab.label = ResourceUtil.getInstance().getString('bbb.caption.option.label');
+				}
+				
+				if (currentTranscript != null) {
+					setTextTabLabel(currentTranscript.ownerID);
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Box width="100%" height="100%" horizontalAlign="left">
+		<containers:SuperTabNavigator id="captionTabs"
+									  width="100%" height="100%" minTabWidth="20"
+									  dragEnabled="false" popUpButtonPolicy="off" 
+									  change="onTabChange()"/>
+	</mx:Box>
+</CustomMdiWindow>

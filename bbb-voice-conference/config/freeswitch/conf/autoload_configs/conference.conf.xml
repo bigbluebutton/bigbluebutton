@@ -41,7 +41,7 @@
       <!--Can be | delim of waste|mute|deaf|dist-dtmf waste will always transmit data to each channel
           even during silence.  dist-dtmf propagates dtmfs to all other members, but channel controls
 	  via dtmf will be disabled. -->
-      <param name="member-flags" value="mute"/>
+      <param name="member-flags" value="nomoh"/>
 
       <!-- Name of the caller control group to use for this profile -->
       <!-- <param name="caller-controls" value="some name"/> -->

@@ -33,23 +33,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <mx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;
-		
-		import flash.events.Event;
-		
+		import com.asfusion.mate.events.Dispatcher;		
+		import flash.events.Event;		
 		import mx.managers.HistoryManager;
 		import mx.managers.IDragManager;
 		import mx.managers.ToolTipManager;
-		import mx.utils.URLUtil;
-		
+		import mx.utils.URLUtil;	
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.BBB;
-		import org.bigbluebutton.core.EventBroadcaster;
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.ShortcutOptions;
+		import org.bigbluebutton.util.QueryStringParameters;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		private static const LOGGER:ILogger = getClassLogger(BigBlueButtonMainContainer);      
@@ -69,22 +65,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
+      private var _timer:Timer;
+		
 	  protected function init():void {
         setupTooltips();
         setupAPI();
-        EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-        BBB.initConfigManager();
         BBB.initVideoProfileManager();
         globalModifier = ExternalInterface.call("determineGlobalModifier");
       }
       
-      private function configLoadedEventHandler(e:Event):void {
-	  	LogUtil.initLogging();
-        LOGGER.debug("***** Config Loaded ****");
-        mainShell.initOptions(null);
-        ShortcutOptions.initialize();
+      private function queryForSessionToken():void {
+		  /** We attempt to query several times to try to get the sessionToken from the browser url.
+		  * (ralam oct 6, 2015)
+		  */
+		  _timer = new Timer(500, 6);
+		  _timer.addEventListener(TimerEvent.TIMER, timerHandler);
+		  _timer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
+		  _timer.start();
+	  }
+	
+	  private function getSessionToken():String {
+		  return BBB.getSessionTokenUtil().getSessionToken();
+	  }
+
+      private function timerHandler(e:TimerEvent):void{
+		  if (getSessionToken() != "") {
+			  _timer.stop();
+			  BBB.getConfigManager().loadConfig();
+		  }		  
       }
-      
+		
+      private function completeHandler(e:TimerEvent):void {
+		  trace("Failed to get session token.");
+      }
+		      
       private var api:ExternalApiCallbacks;
       
       private function setupAPI():void {
@@ -126,6 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 		private function onAddedToStage():void {
 			hotkeyCapture();
+			queryForSessionToken();
 		}
 		
       private function localeChanged(e:Event):void{

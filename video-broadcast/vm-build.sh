@@ -1,0 +1,1 @@
+gradle clean war deploy

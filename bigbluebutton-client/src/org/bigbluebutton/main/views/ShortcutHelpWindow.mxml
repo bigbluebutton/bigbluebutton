@@ -85,6 +85,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
+				
+				ShortcutOptions.initialize();
+				
 				populateModules();
 			}
 			

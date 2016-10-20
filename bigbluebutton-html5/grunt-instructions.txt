@@ -4,7 +4,8 @@ Install all the dependencies (including grunt):
 $ npm install
 
 Running Grunt:
--for the default:
+- for the defaults (run linter, then start Meteor):
 $ grunt
 
-
+- for the code style autofixing (run linter, autofix the warnings, then start Meteor):
+$ grunt autofix

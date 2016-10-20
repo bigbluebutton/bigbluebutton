@@ -1,0 +1,85 @@
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse'
+
+version = '1.0' //TODO
+jar.enabled = true
+archivesBaseName = 'video-broadcast'
+
+task resolveDeps(type: Copy) {
+	into('lib')
+	from configurations.default
+	from configurations.default.allArtifacts.file
+}
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
+dependencies {
+	// Servlet
+	providedCompile 'javax.servlet:servlet-api:2.5@jar'
+
+	// Mina
+	providedCompile 'org.apache.mina:mina-core:2.0.8@jar'
+	providedCompile 'org.apache.mina:mina-integration-beans:2.0.8@jar'
+	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.8@jar'
+
+	// Spring
+	providedCompile 'org.springframework:spring-web:4.0.8.RELEASE@jar'
+	providedCompile  'org.springframework:spring-beans:4.0.7.RELEASE@jar'
+	providedCompile 'org.springframework:spring-context:4.0.7.RELEASE@jar'
+	providedCompile 'org.springframework:spring-core:4.0.7.RELEASE@jar'
+
+	// Red5
+	providedCompile 'org.red5:red5-server:1.0.7-M10@jar'
+	providedCompile 'org.red5:red5-server-common:1.0.7-M10@jar'
+	providedCompile 'org.red5:red5-io:1.0.7-M8@jar'
+
+	// Logging
+	providedCompile 'ch.qos.logback:logback-core:1.1.2@jar'
+	providedCompile 'ch.qos.logback:logback-classic:1.1.2@jar'
+	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:jul-to-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:slf4j-api:1.7.9@jar'
+
+	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
+	// Otherwise we get exception on aop utils class not found.
+	providedCompile 'org.springframework:spring-aop:4.0.8.RELEASE@jar'
+	compile 'aopalliance:aopalliance:1.0@jar'
+
+	// Java Concurrency In Practice
+	providedCompile 'net.jcip:jcip-annotations:1.0@jar'
+
+	// Testing
+	// compile 'org.testng:testng:5.8@jar'
+	compile 'org.easymock:easymock:2.4@jar'
+
+	//redis
+	compile 'redis.clients:jedis:2.0.0'
+	compile 'commons-pool:commons-pool:1.5.6'
+	compile 'com.google.code.gson:gson:1.7.1'
+
+	compile 'org.bigbluebutton:bbb-common-message:0.0.18-SNAPSHOT'
+}
+
+test {
+	useTestNG()
+}
+
+war.doLast {
+	ant.unzip(src: war.archivePath, dest: "$buildDir/video-broadcast")
+}
+
+
+task deploy() << {
+	def red5AppsDir = '/usr/share/red5/webapps'
+	def videoDir = new File("${red5AppsDir}/video-broadcast")
+	if (videoDir.exists()) ant.delete(dir: videoDir)
+	ant.mkdir(dir: videoDir)
+	ant.copy(todir: videoDir) {
+		fileset(dir: "$buildDir/video-broadcast")
+	}
+}

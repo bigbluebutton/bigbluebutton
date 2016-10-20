@@ -2,7 +2,7 @@ class UrlMappings {
 
 	static mappings = {
 		"/presentation/upload"(controller:"presentation") {
-			action = [GET:'show', POST:'upload', DELETE:'delete']
+			action = [POST:'upload']
 		}
 
 		"/presentation/test-convert"(controller:"presentation") {
@@ -52,16 +52,19 @@ class UrlMappings {
 		"/api/getMeetings"(controller:"api") {
 			action = [GET:'getMeetingsHandler', POST:'getMeetingsHandler']
 		}
-	
-	
-        "/api/getSessions"(controller:"api") {
-            action = [GET:'getSessionsHandler', POST:'getSessionsHandler']
-        }
-        	
+
+		"/api/getSessions"(controller:"api") {
+			action = [GET:'getSessionsHandler', POST:'getSessionsHandler']
+		}
+
 		"/api/getRecordings"(controller:"api") {
 			action = [GET:'getRecordingsHandler', POST:'getRecordingsHandler']
 		}
-		
+
+		"/api/updateRecordings"(controller:"api") {
+			action = [GET:'updateRecordingsHandler', POST:'updateRecordingsHandler']
+		}
+
 		"/$controller/$action?/$id?(.${format})?"{
 			constraints {
 				// apply constraints here

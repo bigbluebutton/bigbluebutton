@@ -20,6 +20,9 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.events.Event;
+	
+	import org.as3commons.lang.ArrayUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
@@ -55,6 +58,7 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var disableMyPrivateChat:Boolean = false;
 		[Bindable] public var disableMyPublicChat:Boolean = false;
     	[Bindable] public var lockedLayout:Boolean = false;
+		[Bindable] public var avatarURL:String="";
     
 		[Bindable]
 		public function get hasStream():Boolean {
@@ -326,7 +330,40 @@ package org.bigbluebutton.main.model.users
 		public function getStatus(name:String):Status {
 			return _status.getStatus(name);
 		}
-	
+
+		private var _breakoutRooms : Array = [];
+		
+		[Bindable("displayNameChange")]
+		public function get displayName() : String {
+			if (ArrayUtils.isEmpty(_breakoutRooms)){
+				return name;
+			}
+			else {
+				return "[" + _breakoutRooms.join(",") + "] " +name;
+			}
+		}
+
+		public function get breakoutRooms():Array {
+			return _breakoutRooms;
+		}
+
+		public function set breakoutRooms(rooms:Array):void {
+			_breakoutRooms = rooms;
+			dispatchEvent(new Event("displayNameChange"));
+		}
+
+		public function addBreakoutRoom(roomNumber:String):void {
+			if (!ArrayUtils.contains(_breakoutRooms, roomNumber)) {
+				_breakoutRooms.push(roomNumber);
+				dispatchEvent(new Event("displayNameChange"));
+			}
+		}
+
+		public function removeBreakoutRoom(roomNumber:String):void {
+			_breakoutRooms.splice(_breakoutRooms.indexOf(roomNumber), 1);
+			dispatchEvent(new Event("displayNameChange"));
+		}
+
 		public static function copy(user:BBBUser):BBBUser {
 			var n:BBBUser = new BBBUser();
 			n.authToken = user.authToken;
@@ -352,6 +389,7 @@ package org.bigbluebutton.main.model.users
 			n.disableMyMic = user.disableMyMic;
 			n.disableMyPrivateChat = user.disableMyPrivateChat;
 			n.disableMyPublicChat = user.disableMyPublicChat;
+			n.breakoutRooms = user.breakoutRooms.concat(); // concatenate an array with nothing to deliver a new array.
 			return n;		
 		}
 		

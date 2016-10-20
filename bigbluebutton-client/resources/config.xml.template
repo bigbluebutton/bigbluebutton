@@ -8,7 +8,7 @@
     <bwMon server="HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" />
-    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
+    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf?v=VERSION" />
     <shortcutKeys showButton="true" />
     <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
@@ -16,7 +16,7 @@
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true"
             showRecordingNotification="true"/>
     <meeting muteOnStart="false" />
-    <logging enabled="true" target="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST"/>
+    <logging enabled="true" target="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST" logPattern=".*"/>
     <lock disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
           disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
             
@@ -28,7 +28,7 @@
 			privateEnabled="true"  
 			fontSize="12"
 			position="top-right"
-			baseTabIndex="701"
+			baseTabIndex="801"
 			colorPickerIsVisible="false"
 			maxMessageLength="1024"
 		/>
@@ -38,21 +38,20 @@
 			allowKickUser="true"
 			enableEmojiStatus="true"
 			enableSettingsButton="true"
+			enableBreakoutRooms="true"
 			baseTabIndex="301"
 		/>
 
-		
-		<module name="DeskShareModule" 
-			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
-			uri="rtmp://HOST/deskShare"
-			publishURI="HOST"
-			useTLS="false"
+		<module name="ScreenshareModule"
+			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
+			uri="rtmp://HOST/screenshare"
 			showButton="true"
-			autoStart="false"
-			autoFullScreen="false"
 			baseTabIndex="201"
+			tryWebRTCFirst="false"
+			chromeExtensionKey=""
+			help="http://HOST/client/help/screenshare-help.html"
 		/>
-		
+    
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
@@ -114,6 +113,13 @@
 			dependsOn="UsersModule"
 			baseTabIndex="501"
 			maxFileSize="30"
+		/>
+		
+		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="UsersModule"
+			maxPasteLength="1024"
+			baseTabIndex="701"
 		/>
 
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"

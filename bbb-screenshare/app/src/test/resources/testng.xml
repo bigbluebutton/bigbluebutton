@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<suite name="BigBlueButton Desktop Sharing Test Suite">
+  <test name="Conference tests">
+	  <!--groups>
+	    <run> 
+	      <exclude name="broken"/>
+	    </run>
+	  </groups-->
+  
+    <packages>
+    	<package name="org.bigbluebutton.deskshare.server.recorder"/>
+    </packages>
+  </test>
+</suite>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/">
+
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.screenshare.events.ModuleEvent;
+			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
+      import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
+			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+            import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
+			import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
+            import org.bigbluebutton.modules.screenshare.events.ShareEvent;
+            import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
+			import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
+            import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
+			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
+			import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
+			import org.bigbluebutton.modules.screenshare.events.StreamEvent;
+			import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
+			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.screenshare.managers.ScreenshareManager;
+			import org.bigbluebutton.modules.screenshare.services.red5.ConnectionEvent;
+			import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
+			import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
+		]]>
+	</mx:Script>
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+		<ObjectBuilder generator="{ScreenshareManager}"/>
+	</EventHandlers>
+		
+	<EventHandlers type="{ShareEvent.START_SHARING}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleStartSharingEvent"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleStartSharingEvent"/>
+	</EventHandlers>
+	
+  <EventHandlers type="{RequestToStartSharing.REQUEST_SHARE_START}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleRequestStartSharingEvent"/>
+  </EventHandlers>
+    
+  <EventHandlers type="{RequestToPauseSharing.REQUEST_SHARE_PAUSE}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleRequestPauseSharingEvent"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{RequestToRestartSharing.REQUEST_SHARE_RESTART}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleRequestRestartSharingEvent"/>
+  </EventHandlers>
+    
+  <EventHandlers type="{ShareStartEvent.SHARE_START}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleShareStartEvent"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{RequestToStopSharing.REQUEST_SHARE_STOP}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleRequestStopSharingEvent"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{ShareStartRequestResponseEvent.SHARE_START_REQUEST_RESPONSE}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleShareStartRequestResponseEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{ScreenShareClientPingMessage.CLIENT_PING}">
+    <MethodInvoker generator="{ScreenshareManager}" method="handleScreenShareClientPingMessage" arguments="{event}"/>
+  </EventHandlers>
+  
+    
+	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleMadePresenterEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleMadeViewerEvent" arguments="{event}"/>
+	</EventHandlers>
+			
+	<EventHandlers type="{ShareStartedEvent.SHARE_STATED}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleScreenShareStartedEvent" arguments="{event}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{IsSharingScreenEvent.IS_SCREENSHARING}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleIsSharingScreenEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+		
+	<EventHandlers type="{ShareWindowEvent.CLOSE}">	
+		<MethodInvoker generator="{ScreenshareManager}" method="handleShareWindowCloseEvent"/>
+	</EventHandlers>
+
+  <EventHandlers type="{ConnectionEvent.SUCCESS}">		
+    <MethodInvoker generator="{ScreenshareManager}" method="handleConnectionSuccessEvent"/>
+  </EventHandlers>
+  
+		
+	<EventHandlers type="{ViewWindowEvent.CLOSE}">
+		<MethodInvoker generator="{ScreenshareManager}" 	method="handleViewWindowCloseEvent"/>
+	</EventHandlers>
+			
+	<EventHandlers type="{ModuleEvent.STOP}">		
+		<MethodInvoker generator="{ScreenshareManager}" method="handleStopModuleEvent"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ModuleEvent.START}">		
+		<MethodInvoker generator="{ScreenshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleUseJavaModeCommand"/>
+	</EventHandlers>
+
+	<EventHandlers type="{DeskshareToolbarEvent.STOP}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleDeskshareToolbarStopEvent"/>
+	</EventHandlers>
+
+</EventMap>

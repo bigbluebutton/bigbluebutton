@@ -14,14 +14,16 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 	public final String role;
 	public final String externUserID;
 	public final String authToken;
+	public final String avatarURL;
 
-	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
+	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
 		this.role = role;
 		this.externUserID = externUserID;
 		this.authToken = authToken;
+		this.avatarURL = avatarURL;
 	}
 
 	public String toJson() {
@@ -33,6 +35,7 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 		payload.put(Constants.ROLE, role);
 		payload.put(Constants.EXT_USER_ID, externUserID);
 		payload.put(Constants.AUTH_TOKEN, authToken);
+		payload.put(Constants.AVATAR_URL, avatarURL);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(REGISTER_USER, VERSION, null);
 
@@ -60,9 +63,10 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 						String role = payload.get(Constants.ROLE).getAsString();
 						String externUserID = payload.get(Constants.EXT_USER_ID).getAsString();
 						String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
+						String avatarURL = payload.get(Constants.AVATAR_URL).getAsString();
 
 						//use externalUserId twice - once for external, once for internal
-						return new RegisterUserMessage(meetingID, externUserID, fullname, role, externUserID, authToken);
+						return new RegisterUserMessage(meetingID, externUserID, fullname, role, externUserID, authToken, avatarURL);
 					}
 				}
 			}

@@ -1,0 +1,46 @@
+@import "../../../stylesheets/variables/_all";
+
+.contentRatio {
+  position: relative;
+  display: block;
+  height: 0;
+  padding: 0;
+  padding-bottom: calc(100% * 9 / 16);
+}
+
+.contentWrapper {
+  flex-basis: 90%;
+
+  @include mq($large-up) {
+    flex-basis: 90%;
+  }
+}
+
+.content {
+  height: 100%;
+  width: 100%;
+}
+
+.defaultContent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  padding: $line-height-computed;
+  border: 0.25rem dashed;
+  border-radius: 1.5rem;
+  color: rgba(255, 255, 255, .5);
+  text-align: center;
+  overflow: auto;
+}
+
+.appear {
+  opacity: 0.01;
+}
+
+.appearActive {
+  opacity: 1;
+  transition: opacity 700ms ease-in;
+}

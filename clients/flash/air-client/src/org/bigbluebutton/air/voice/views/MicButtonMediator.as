@@ -24,7 +24,7 @@ package org.bigbluebutton.air.voice.views {
 		 * Initialize listeners and Mediator initial state
 		 */
 		override public function initialize():void {
-			(view as MicButton).addEventListener(MouseEvent.CLICK, mouseEventClickHandler);
+			view.addEventListener(MouseEvent.CLICK, mouseEventClickHandler);
 			userSession.userList.userChangeSignal.add(userChangeHandler);
 			view.setVisibility(userSession.userList.me.voiceJoined);
 			view.muted = userSession.userList.me.muted;
@@ -34,7 +34,7 @@ package org.bigbluebutton.air.voice.views {
 		 * Destroy view and listeners
 		 */
 		override public function destroy():void {
-			(view as MicButton).removeEventListener(MouseEvent.CLICK, mouseEventClickHandler);
+			view.removeEventListener(MouseEvent.CLICK, mouseEventClickHandler);
 			userSession.userList.userChangeSignal.remove(userChangeHandler);
 			super.destroy();
 			view.dispose();

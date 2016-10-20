@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Button")]
+	</fx:Metadata>
+
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+
+	<s:Ellipse id="backgroundEllipse"
+			   height="{image.height * 3/2}"
+			   width="{backgroundEllipse.height}"
+			   x="{(this.width - backgroundEllipse.width)/2}"
+			   y="{(this.height - backgroundEllipse.height)/2}">
+		<s:fill>
+			<s:SolidColor color="{hostComponent.getStyle('backgroundColor')}"
+						  color.down="{hostComponent.getStyle('selectedBackgroundColor')}" />
+		</s:fill>
+	</s:Ellipse>
+	<s:BitmapImage id="image"
+				   source="{getStyle('backgroundImage')}"
+				   horizontalCenter="0"
+				   verticalCenter="0" />
+
+	<s:Label id="iconLabel"
+			 text="{hostComponent.label}"
+			 x="{(this.width - iconLabel.width)/2}"
+			 y="{backgroundEllipse.y + backgroundEllipse.height * 9/8}" />
+
+</s:Skin>

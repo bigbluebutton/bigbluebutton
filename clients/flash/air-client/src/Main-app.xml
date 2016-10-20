@@ -15,7 +15,7 @@
 
 	<!-- A universally unique application identifier. Must be unique across all AIR applications.
 	Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
-	<id>org.bigbluebutton.bbb-air-client</id>
+	<id>org.bigbluebutton.mobile</id>
 
 	<!-- Used as the filename for the application. Required. -->
 	<filename>BigBlueButton</filename>
@@ -23,7 +23,6 @@
 	<!-- The name that is displayed in the AIR application installer.
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
 	<name>BigBlueButton</name>
-
 	<!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade.
 	Values can also be 1-part or 2-part. It is not necessary to have a 3-part value.
 	An updated version of application must have a versionNumber value higher than the previous version. Required for namespace >= 2.5 . -->
@@ -130,8 +129,30 @@
 	<!-- The icon the system uses for the application. For at least one resolution,
 	specify the path to a PNG file included in the AIR package. Optional. -->
 	<icon>
-		<image48x48>assets/res/drawable-mdpi/ic_launcher.png</image48x48>
-		<image72x72>assets/res/drawable-hdpi/ic_launcher.png</image72x72>
+		<!-- http://help.adobe.com/en_US/air/build/WSfffb011ac560372f2fea1812938a6e463-8000.html#WSfffb011ac560372f-6fd06f0f1293d3b33ea-7ffc -->
+		<image29x29>assets/icons/sizes/icon-29.png</image29x29>
+		<image32x32>assets/icons/sizes/icon-32.png</image32x32>
+		<image40x40>assets/icons/sizes/icon-40.png</image40x40>
+		<image48x48>assets/icons/sizes/icon-48.png</image48x48>
+		<image50x50>assets/icons/sizes/icon-50.png</image50x50>
+		<image57x57>assets/icons/sizes/icon-57.png</image57x57>
+		<image58x58>assets/icons/sizes/icon-58.png</image58x58>
+		<image60x60>assets/icons/sizes/icon-60.png</image60x60>
+		<image72x72>assets/icons/sizes/icon-72.png</image72x72>
+		<image75x75>assets/icons/sizes/icon-75.png</image75x75>
+		<image76x76>assets/icons/sizes/icon-76.png</image76x76>
+		<image80x80>assets/icons/sizes/icon-80.png</image80x80>
+		<image87x87>assets/icons/sizes/icon-87.png</image87x87>
+		<image96x96>assets/icons/sizes/icon-96.png</image96x96>
+		<image114x114>assets/icons/sizes/icon-114.png</image114x114>
+		<image100x100>assets/icons/sizes/icon-100.png</image100x100>
+		<image120x120>assets/icons/sizes/icon-120.png</image120x120>
+		<image144x144>assets/icons/sizes/icon-144.png</image144x144>
+		<image152x152>assets/icons/sizes/icon-152.png</image152x152>
+		<image167x167>assets/icons/sizes/icon-167.png</image167x167>
+		<image180x180>assets/icons/sizes/icon-180.png</image180x180>
+		<image512x512>assets/icons/sizes/icon-512.png</image512x512>
+		<image1024x1024>assets/icons/sizes/icon-1024.png</image1024x1024>
 	</icon>
 
 	<!-- Whether the application handles the update when a user double-clicks an update version
@@ -250,6 +271,9 @@
 			    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 			    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 			    
+			    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+			    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>			    
+			    
 			    <application android:enabled="true">
 					<activity android:exported="true">
 					    <intent-filter>
@@ -262,11 +286,18 @@
 					        <action android:name="android.intent.action.VIEW" />
 					        <category android:name="android.intent.category.DEFAULT" />
 					        <category android:name="android.intent.category.BROWSABLE" />
-					        <!-- <data android:scheme="http" android:host="mconf.mobi" android:pathPattern=".*" />-->
+					        <!-- <data android:scheme="http" android:host="bbb.mobi" android:pathPattern=".*" />-->
 					        <data android:scheme="bigbluebutton" />
 					    </intent-filter>
 					    <!-- End Test for URL scheme -->
 					</activity>
+					<service android:name="com.juankpro.ane.localnotif.LocalNotificationIntentService"/>
+                    <receiver android:name="com.juankpro.ane.localnotif.AlarmIntentService" />
+                    <receiver android:name="com.juankpro.ane.localnotif.AlarmRestoreOnBoot" >
+                        <intent-filter>
+                            <action android:name="android.intent.action.BOOT_COMPLETED" />
+                        </intent-filter>
+                    </receiver>
 				</application>
 			</manifest>
 			
@@ -293,9 +324,16 @@
 					<string>org.bigbluebutton</string>
 				</dict>
 			</array>
-	 
+			
+			<key>UIPrerenderedIcon</key> 
+            <true/>
 		]]>
 		</InfoAdditions>
 		<requestedDisplayResolution>high</requestedDisplayResolution>
 	</iPhone>
+	
+<extensions>
+        <extensionID>com.freshplanet.AirCapabilities</extensionID>
+        <extensionID>com.juankpro.ane.LocalNotification</extensionID>
+    </extensions>
 </application>

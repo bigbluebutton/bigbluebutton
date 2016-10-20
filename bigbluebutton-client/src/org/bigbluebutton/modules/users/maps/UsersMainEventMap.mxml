@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.UserServicesEvent;
 			import org.bigbluebutton.main.model.users.UserService;
@@ -60,7 +61,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
     <MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
   </EventHandlers>
-  
+	
+  <!-- Breakout Room Stuff -->
+
+  <EventHandlers type="{BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS}" >
+    <MethodInvoker generator="{UserService}" method="createBreakoutRooms" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL}" >
+    <MethodInvoker generator="{UserService}" method="requestBreakoutJoinUrl" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BreakoutRoomEvent.LISTEN_IN}" >
+    <MethodInvoker generator="{UserService}" method="listenInOnBreakout" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS}" >
+    <MethodInvoker generator="{UserService}" method="endAllBreakoutRooms" arguments="{event}" />
+  </EventHandlers>
+
   <!-- Viewers Stuff -->
   <EventHandlers type="{EmojiStatusEvent.EMOJI_STATUS}" >
     <MethodInvoker generator="{UserService}" method="emojiStatus" arguments="{event}" />

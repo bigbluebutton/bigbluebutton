@@ -1,0 +1,17 @@
+{
+  "app.home.greeting": "Bem-vindo {name}! Sua aprensentação começará em breve...",
+  "app.userlist.participantsTitle": "Participantes",
+  "app.userlist.messagesTitle": "Mensagens",
+  "app.userlist.presenter": "Apresentador",
+  "app.userlist.you": "Você",
+  "app.chat.submitLabel": "Enviar Mensagem",
+  "app.chat.inputLabel": "Campo de mensagem para conversa {name}",
+  "app.chat.titlePublic": "Conversa Publíca",
+  "app.chat.titlePrivate": "Conversa Privada com {name}",
+  "app.chat.partnerDisconnected": "{name} saiu da sala",
+  "app.chat.moreMessages": "Mais mensagens abaixo",
+  "app.kickMessage": "Você foi expulso da apresentação",
+  "app.failedMessage": "Desculpas, estamos com problemas para se conectar ao servidor.",
+  "app.connectingMessage": "Conectando...",
+  "app.waitingMessage": "Desconectado. Tentando reconectar em {seconds} segundos..."
+}

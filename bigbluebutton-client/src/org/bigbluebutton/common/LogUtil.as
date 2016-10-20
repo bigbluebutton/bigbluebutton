@@ -31,7 +31,7 @@ package org.bigbluebutton.common {
 	/**
 	 * The logging can be configured in config.xml. The <logging> tag can be configured like the following
 	 *
-	 * <logging enabled="true" target="trace" level="info" uri="http://HOST"/>
+	 * <logging enabled="true" target="trace" level="info" uri="http://HOST" logPattern=".*" />
 	 * - enabled : true or false
 	 * - target  : + trace     : write logs using trace function
 	 *             + logwindow : write logs in LogWindow view
@@ -55,6 +55,8 @@ package org.bigbluebutton.common {
 	 *             + {person}     : The Person that wrote this statement
 	 *             + {atPerson}   : he Person that wrote this statement with the 'at' prefix
 	 * - uri     : HOST will contain the URL of the logging server
+	 * - logPattern : RegExp pattern for which to enable logging. Non matching patterns are
+	 *             not logged. Only pass the first part of the RegExp, the flag is 'g' by default
 	 */
 	public class LogUtil {
 		public static const TRACE:String = "trace";
@@ -73,6 +75,8 @@ package org.bigbluebutton.common {
 		
 		private static var loggingTargetName:String = "trace";
 		
+		private static var logPattern:String = ".*";
+
 		/**
 		 * Initialises logging from the application configuration.
 		 */
@@ -82,7 +86,7 @@ package org.bigbluebutton.common {
 			if (force) {
 				logTarget = new TraceTarget();
 			} else {
-				var lxml:XML = BBB.initConfigManager().config.logging;
+				var lxml:XML = BBB.getConfigManager().config.logging;
 				if (lxml.@enabled != undefined) {
 					loggingEnabled = (lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -95,6 +99,9 @@ package org.bigbluebutton.common {
 				if (lxml.@format != undefined) {
 					logFormat = lxml.@format.toString();
 				}
+				if (lxml.@logPattern != undefined) {
+					logPattern = lxml.@logPattern.toString();
+				}
 				if (loggingEnabled) {
 					switch (loggingTargetName) {
 						case TRACE:
@@ -104,7 +111,7 @@ package org.bigbluebutton.common {
 							logTarget = new LogWindowTarget();
 							break;
 						case SERVER:
-							logTarget = new ServerLogTarget(String(lxml.@uri));
+							logTarget = new ServerLogTarget(String(lxml.@uri), logPattern);
 							break;
 						case JSNLOG:
 							logTarget = new JSNLogTarget();

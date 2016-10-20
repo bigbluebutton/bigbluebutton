@@ -70,24 +70,88 @@ package org.bigbluebutton.modules.users.services
         },
         message
       );
-    }
-
-	public function emojiStatus(userID:String, emoji:String):void
-	{
-		var message:Object = new Object();
-		message["emojiStatus"] = emoji;
-		message["userId"] = userID;
+		}
 		
-		var _nc:ConnectionManager=BBB.initConnectionManager();
-		_nc.sendMessage("participants.userEmojiStatus", function(result:String):void
-		{ // On successful result
-		}, function(status:String):void
-		{ // status - On error occurred
-			LOGGER.error(status);
-		},
-		message
-		);
-	}
+		public function emojiStatus(userID:String, emoji:String):void {
+			var message:Object = new Object();
+			message["emojiStatus"] = emoji;
+			message["userId"] = userID;
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("participants.userEmojiStatus", function(result:String):void
+			{ // On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			message
+			);
+		}
+		
+		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
+			var message:Object = new Object();
+			message["meetingId"] = meetingId;
+			message["rooms"] = rooms;
+			message["durationInMinutes"] = durationInMinutes;
+			message["record"] = record;
+			var jsonMsg:String = JSON.stringify(message);
+			
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("breakoutroom.createBreakoutRooms", function(result:String):void
+			{
+				// On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			jsonMsg
+			);
+		}
+		
+		public function requestBreakoutJoinUrl(meetingId:String, breakoutId:String, userId:String):void {
+			var message:Object = new Object();
+			message["meetingId"] = meetingId;
+			message["breakoutId"] = breakoutId;
+			message["userId"] = userId;
+			
+			var jsonMsg:String = JSON.stringify(message);
+			
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("breakoutroom.requestBreakoutJoinUrl", function(result:String):void
+			{
+				// On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			jsonMsg
+			);
+		}
+		
+		public function listenInOnBreakout(meetingId:String, targetMeetingId:String, userId:String):void {
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("breakoutroom.listenInOnBreakout", function(result:String):void
+			{
+				// On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			JSON.stringify({meetingId: meetingId, targetMeetingId: targetMeetingId, userId: userId})
+			);
+		}
+		
+		public function endAllBreakoutRooms(meetingId:String):void {
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("breakoutroom.endAllBreakoutRooms", function(result:String):void
+			{
+				// On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			JSON.stringify({meetingId: meetingId})
+			);
+		}
     
     public function addStream(userID:String, streamName:String):void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -134,6 +198,23 @@ package org.bigbluebutton.modules.users.services
         }
       ); //_netConnection.call
     }
+	
+	public function queryForBreakoutRooms(meetingId:String):void {
+		var message:Object = new Object();
+		message["meetingId"] = meetingId;
+		var jsonMsg:String = JSON.stringify(message);
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage("breakoutroom.getBreakoutRoomsList", function(result:String):void
+		{
+			// On successful result
+		}, function(status:String):void
+		{ // status - On error occurred
+			LOGGER.error(status);
+		},
+			jsonMsg
+		);
+	}
     
     public function changeRecordingStatus(userID:String, recording:Boolean):void {
       var message:Object = new Object();
@@ -199,8 +280,8 @@ package org.bigbluebutton.modules.users.services
         },
         message
       );          
-     } 
-    
+     }
+
     public function ejectUser(userid:String):void {
       var message:Object = new Object();
       message["userId"] = userid;

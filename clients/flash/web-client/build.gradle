@@ -1,0 +1,17 @@
+type = 'swf'
+
+additionalCompilerOptions = [
+    "-target-player=11.2"
+]
+
+output = 'bbb-web-client'
+
+dependencies {
+	merged project(':common-library')
+	merged files("libs/as3-signals-utilities-async-v0.9-BETA.swc")
+	merged files("libs/as3-signals-v0.9-BETA.swc")
+	merged files("libs/flexlib-2.6-M3.swc")
+	merged files("libs/localelib.swc")
+	merged files("libs/robotlegs-extensions-SignalCommandMap-v1.0.0b1.swc")
+	merged files("libs/robotlegs-framework-v2.0.0.swc")
+}

@@ -1,0 +1,17 @@
+@import "../../stylesheets/variables/_all";
+
+.chat {
+  background-color: #fff;
+  padding: $line-height-computed;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+.closeChat {
+  text-decoration: none;
+}
+
+.header {
+  margin-bottom: $line-height-computed;
+}

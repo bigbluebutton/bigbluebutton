@@ -241,7 +241,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function displayAlert(error:String, message:String = null):void {
-        var okLabel:String = ResourceUtil.getInstance().getString('bbb.presentation.ok');        	
+        var okLabel:String = ResourceUtil.getInstance().getString('bbb.presentation.ok');
         progressBar.setStyle("color", 0xFF0000);
         progressBar.label = error + message;
         okCancelBtn.label = "Ok";
