@@ -108,28 +108,28 @@ package org.bigbluebutton.modules.sharednotes.services
       );
     }
 
-    public function undo(noteId:String):void {
-      LOGGER.debug("Sending [sharednotes.undo] to server.");
+    public function sharedNotesUndo(noteId:String):void {
+      LOGGER.debug("Sending [sharednotes.sharedNotesUndo] to server.");
       var message:Object = new Object();
       message["noteID"] = noteId;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
-        "sharednotes.undo",
+        "sharednotes.sharedNotesUndo",
         onSuccessDebugger,
         onErrorDebugger,
         message
       );
     }
 
-    public function redo(noteId:String):void {
-      LOGGER.debug("Sending [sharednotes.redo] to server.");
+    public function sharedNoteRedo(noteId:String):void {
+      LOGGER.debug("Sending [sharednotes.sharedNoteRedo] to server.");
       var message:Object = new Object();
       message["noteID"] = noteId;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
-        "sharednotes.redo",
+        "sharednotes.sharedNoteRedo",
         onSuccessDebugger,
         onErrorDebugger,
         message

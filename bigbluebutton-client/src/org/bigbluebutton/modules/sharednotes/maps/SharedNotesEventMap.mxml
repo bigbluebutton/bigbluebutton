@@ -96,11 +96,11 @@
 	</EventHandlers>
 
 	<EventHandlers type="{SharedNotesEvent.UNDO_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="handleUndoEvent" arguments="{event}"/>
+		<MethodInvoker generator="{SharedNotesManager}" method="handleSharedNotesUndoEvent" arguments="{event}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{SharedNotesEvent.REDO_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="handleRedoEvent" arguments="{event}"/>
+		<MethodInvoker generator="{SharedNotesManager}" method="handleSharedNoteRedoEvent" arguments="{event}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">

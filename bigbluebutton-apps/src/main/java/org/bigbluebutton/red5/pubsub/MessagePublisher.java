@@ -320,6 +320,11 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
 	}
 
+	public void sharedNotesUndo(String meetingID, String requesterID, String noteID) {
+		SharedNotesUndoRequestMessage msg = new SharedNotesUndoRequestMessage(meetingID, requesterID, noteID);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+
 	public void logoutEndMeeting(String meetingId, String userId) {
 		LogoutEndMeetingRequestMessage msg = new LogoutEndMeetingRequestMessage(meetingId, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());

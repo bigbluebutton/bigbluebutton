@@ -66,14 +66,14 @@ package org.bigbluebutton.modules.sharednotes.managers {
 			sender.requestAdditionalNotesSet(notesSet);
 		}
 
-		public function handleUndoEvent(e:SharedNotesEvent):void {
+		public function handleSharedNotesUndoEvent(e:SharedNotesEvent):void {
 			var noteId:String = e.noteId;
-			sender.undo(noteId);
+			sender.sharedNotesUndo(noteId);
 		}
 
-		public function handleRedoEvent(e:SharedNotesEvent):void {
+		public function handleSharedNoteRedoEvent(e:SharedNotesEvent):void {
 			var noteId:String = e.noteId;
-			sender.redo(noteId);
+			sender.sharedNoteRedo(noteId);
 		}
 	}
 }

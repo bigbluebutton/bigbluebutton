@@ -220,6 +220,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
         handleDestroyAdditionalNotesRequest(msg)
       case msg: RequestAdditionalNotesSetRequest =>
         handleRequestAdditionalNotesSetRequest(msg)
+      case msg: SharedNotesUndoRequest =>
+        handleSharedNotesUndoRequest(msg)
 
       case msg: EndMeeting => handleEndMeeting(msg)
       case StopMeetingActor => //exit

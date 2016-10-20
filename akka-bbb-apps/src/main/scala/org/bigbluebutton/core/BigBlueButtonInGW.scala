@@ -531,4 +531,8 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
     bbbActor ! new RequestAdditionalNotesSetRequest(meetingId, userId, additionalNotesSetSize)
   }
+
+  def sharedNotesUndo(meetingId: String, userId: String, noteId: String) {
+    bbbActor ! new SharedNotesUndoRequest(meetingId, userId, noteId)
+  }
 }

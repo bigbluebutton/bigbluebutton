@@ -86,6 +86,16 @@ public class SharedNotesService {
 		sharedNotesApplication.requestAdditionalNotesSet(meetingID, requesterID, additionalNotesSetSize);
 	}
 
+	public void sharedNotesUndo(Map<String, Object> msg) {
+		log.debug("SharedNotesService.sharedNotesUndo");
+		String noteID = msg.get("noteID").toString();
+
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();
+
+		sharedNotesApplication.sharedNotesUndo(meetingID, requesterID, noteID);
+	}
+
 	public void setSharedNotesApplication(SharedNotesApplication a) {
 		log.debug("Setting sharedNotes sharedNotesApplication");
 		sharedNotesApplication = a;

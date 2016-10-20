@@ -2,6 +2,8 @@ package org.bigbluebutton.core.api
 
 import java.lang.Boolean
 
+import scala.collection.mutable.Stack
+
 object Role extends Enumeration {
   type Role = Value
   val MODERATOR = Value("MODERATOR")
@@ -146,4 +148,5 @@ case class MeetingInfo(meetingID: String, meetingName: String, recorded: Boolean
 case class Note(
   name: String,
   document: String,
-  patchCounter: Int)
+  patchCounter: Int,
+  undoPatches: Stack[String])

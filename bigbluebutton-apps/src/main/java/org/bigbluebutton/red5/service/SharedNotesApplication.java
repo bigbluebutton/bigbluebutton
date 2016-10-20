@@ -54,4 +54,8 @@ public class SharedNotesApplication {
 	public void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize) {
 		red5BBBInGW.requestAdditionalNotesSet(meetingID, requesterID, additionalNotesSetSize);
 	}
+
+	public void sharedNotesUndo(String meetingID, String requesterID, String noteID) {
+		red5BBBInGW.sharedNotesUndo(meetingID, requesterID, noteID);
+	}
 }
