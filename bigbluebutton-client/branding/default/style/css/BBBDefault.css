@@ -322,7 +322,7 @@ DataGrid {
 
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle, .presentationDownloadButtonDisabledStyle,
-.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesUndoButtonStyle, .sharedNotesRedoButtonStyle, .sharedNotesFormatButtonStyle, .chatCopyButtonStyle, .chatSaveButtonStyle
+.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesEnabledUndoButtonStyle, .sharedNotesDisabledUndoButtonStyle, .sharedNotesRedoButtonStyle, .sharedNotesFormatButtonStyle, .chatCopyButtonStyle, .chatSaveButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -349,8 +349,12 @@ DataGrid {
   icon: Embed('assets/images/ic_note_add_16px.png');
 }
 
-.sharedNotesUndoButtonStyle {
+.sharedNotesEnabledUndoButtonStyle {
   icon: Embed('assets/images/arrows_undo_icon.png');
+}
+
+.sharedNotesDisabledUndoButtonStyle {
+  icon: Embed('assets/images/arrows_undo_icon_grey.png');
 }
 
 .sharedNotesRedoButtonStyle {

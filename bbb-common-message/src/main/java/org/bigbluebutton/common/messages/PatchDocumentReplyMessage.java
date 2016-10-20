@@ -17,13 +17,15 @@ public class PatchDocumentReplyMessage implements ISubscribedMessage {
 	public final String noteID;
 	public final String patch;
 	public final Integer patchID;
+	public final Boolean undoable;
 
-	public PatchDocumentReplyMessage(String meetingID, String requesterID, String noteID, String patch, Integer patchID) {
+	public PatchDocumentReplyMessage(String meetingID, String requesterID, String noteID, String patch, Integer patchID, Boolean undoable) {
 		this.meetingID = meetingID;
 		this.requesterID = requesterID;
 		this.noteID = noteID;
 		this.patch = patch;
 		this.patchID = patchID;
+		this.undoable = undoable;
 	}
 
 	public String toJson() {
@@ -54,14 +56,16 @@ public class PatchDocumentReplyMessage implements ISubscribedMessage {
 							&& payload.has(Constants.REQUESTER_ID)
 							&& payload.has(Constants.NOTE_ID)
 							&& payload.has(Constants.PATCH)
-							&& payload.has(Constants.PATCH_ID)) {
+							&& payload.has(Constants.PATCH_ID)
+							&& payload.has(Constants.UNDOABLE)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterID = payload.get(Constants.REQUESTER_ID).getAsString();
 						String noteID = payload.get(Constants.NOTE_ID).getAsString();
 						String patch = payload.get(Constants.PATCH).getAsString();
 						Integer patchID = payload.get(Constants.PATCH_ID).getAsInt();
+						Boolean undoable = payload.get(Constants.UNDOABLE).getAsBoolean();
 
-						return new PatchDocumentReplyMessage(meetingID, requesterID, noteID, patch, patchID);
+						return new PatchDocumentReplyMessage(meetingID, requesterID, noteID, patch, patchID, undoable);
 					}
 				}
 			}

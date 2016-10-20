@@ -187,6 +187,12 @@
 							richTextEditor.patch(e.patch);
 						}
 						_lastPatch = e.patchId;
+						if (e.undoable) {
+							btnUndo.styleName = "sharedNotesEnabledUndoButtonStyle";
+						} else {
+							btnUndo.styleName = "sharedNotesDisabledUndoButtonStyle";
+						}
+						btnUndo.enabled = e.undoable;
 					} else {
 						LOGGER.error("Patch missmatch");
 					}
@@ -382,7 +388,7 @@
 
 		<mx:HBox width="100%" paddingTop="0">
 			<mx:HBox width="100%" horizontalAlign="left" paddingTop="0">
-				<mx:Button id="btnUndo" styleName="sharedNotesUndoButtonStyle" width="26" height="26" click="btnUndo_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.undo.toolTip')}" visible="true"/>
+				<mx:Button id="btnUndo" styleName="sharedNotesDisabledUndoButtonStyle" width="26" height="26" click="btnUndo_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.undo.toolTip')}" enabled="false" visible="true"/>
 				<mx:Button id="btnRedo" styleName="sharedNotesRedoButtonStyle" width="26" height="26" click="btnRedo_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}" visible="false" includeInLayout="false"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">

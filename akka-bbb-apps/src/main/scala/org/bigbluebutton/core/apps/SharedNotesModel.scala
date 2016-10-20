@@ -15,7 +15,7 @@ class SharedNotesModel {
   private var notesCounter = 0;
   private var removedNotes: Set[Int] = Set()
 
-  def patchDocument(noteID: String, patch: String, undo: Boolean = false): (Integer, String) = {
+  def patchDocument(noteID: String, patch: String, undo: Boolean = false): (Integer, String, Boolean) = {
     notes.synchronized {
       val note = notes(noteID)
       val document = note.document
@@ -25,7 +25,7 @@ class SharedNotesModel {
       if (undo) {
         // If there is no undo patch to apply, return
         if (undoPatches.isEmpty) {
-          return (-1, "")
+          return (-1, "", false)
         } else {
           patchToApply = undoPatches.pop()
         }
@@ -41,7 +41,7 @@ class SharedNotesModel {
 
       val patchCounter = note.patchCounter + 1
       notes(noteID) = new Note(note.name, result(0).toString(), patchCounter, undoPatches)
-      (patchCounter, patchToApply)
+      (patchCounter, patchToApply, !undoPatches.isEmpty)
     }
   }
 
