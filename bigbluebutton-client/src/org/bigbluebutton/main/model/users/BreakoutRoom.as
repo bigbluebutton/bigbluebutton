@@ -28,7 +28,11 @@ package org.bigbluebutton.main.model.users {
 		
 		public static const OTHER:String = "other";
 		
-		public var breakoutId:String;
+		public var externalMeetingId:String;
+		
+		public var meetingId:String;
+		
+		public var sequence:int;
 		
 		public var name:String;
 		
@@ -44,6 +48,5 @@ package org.bigbluebutton.main.model.users {
 		public function get numberOfUsers():int {
 			return users.length;
 		}
-
 	}
 }

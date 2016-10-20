@@ -55,7 +55,7 @@ libraryDependencies ++= {
     "org.pegdown"              %   "pegdown"                              % "1.4.0",
     "junit"                    %   "junit"                                % "4.11",
     "com.etaty.rediscala"      %%  "rediscala"                            % "1.4.0",
-    "commons-codec"             %  "commons-codec"                        % "1.8",
+    "commons-codec"             %  "commons-codec"                        % "1.10",
     "joda-time"                 %  "joda-time"                            % "2.3",
     "com.google.code.gson"      %  "gson"                                 % "2.5",
     "redis.clients"             %  "jedis"                                % "2.7.2",
