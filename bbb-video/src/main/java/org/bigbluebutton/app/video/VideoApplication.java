@@ -20,6 +20,7 @@ package org.bigbluebutton.app.video;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
@@ -64,31 +65,57 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	}
 
   @Override
-	public boolean roomConnect(IConnection conn, Object[] params) {
-		log.info("BBB Video roomConnect"); 
-  	String meetingId = ((String) params[0]).toString();
-  	String userId = ((String) params[1]).toString();
-  	
-  	Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
-  	Red5.getConnectionLocal().setAttribute("USERID", userId);
-  	
+	public boolean roomConnect(IConnection connection, Object[] params) {
+		log.info("BBB Video roomConnect");
+		String meetingId = ((String) params[0]).toString();
+		String userId = ((String) params[1]).toString();
+
+		Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
+		Red5.getConnectionLocal().setAttribute("USERID", userId);
+
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
-		String connId = Red5.getConnectionLocal().getSessionId();
-		
+		String sessionId = Red5.getConnectionLocal().getSessionId();
+		/**
+		* Find if there are any other connections owned by this user. If we find one,
+		* that means that the connection is old and the user reconnected. Clear the
+		* userId attribute so that messages would not be sent in the defunct connection.
+		*/
+		Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
+		for (IConnection conn : conns) {
+			String connUserId = (String) conn.getAttribute("USERID");
+			String connSessionId = conn.getSessionId();
+			if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
+				conn.removeAttribute("USERID");
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", meetingId);
+				logData.put("userId", userId);
+				logData.put("oldConnId", connSessionId);
+				logData.put("newConnId", sessionId);
+				logData.put("event", "removing_defunct_connection");
+				logData.put("description", "Removing defunct connection BBB Video.");
+
+				Gson gson = new Gson();
+				String logStr =  gson.toJson(logData);
+
+				log.info("Removing defunct connection: data={}", logStr);
+
+			  }
+		  }
+
 		Map<String, Object> logData = new HashMap<String, Object>();
 		logData.put("meetingId", meetingId);
 		logData.put("userId", userId);
 		logData.put("connType", connType);
-		logData.put("connId", connId);
+		logData.put("connId", sessionId);
 		logData.put("event", "user_joining_bbb_video");
 		logData.put("description", "User joining BBB Video.");
-		
+
 		Gson gson = new Gson();
-    String logStr =  gson.toJson(logData);
-		
+		String logStr =  gson.toJson(logData);
+
 		log.info("User joining bbb-video: data={}", logStr);
-		
-		return super.roomConnect(conn, params);
+
+		return super.roomConnect(connection, params);
 	}
     
   private String getConnectionType(String connType) {

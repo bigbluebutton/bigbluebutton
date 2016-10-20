@@ -175,7 +175,7 @@ object BreakoutRoomsUtil {
   }
 
   def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutId: String,
-                 password: String, redirect: Boolean): mutable.Map[String, String] = {
+    password: String, redirect: Boolean): mutable.Map[String, String] = {
     val params = new collection.mutable.HashMap[String, String]
     params += "fullName" -> urlEncode(username)
     params += "userID" -> urlEncode(userId + "-" + breakoutId.substring(breakoutId.lastIndexOf("-") + 1));
