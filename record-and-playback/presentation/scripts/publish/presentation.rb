@@ -997,6 +997,17 @@ begin
           BigBlueButton.logger.info("Copied audio.ogg file")
         end
 
+        if File.exist?("#{$process_dir}/deskshare.webm")
+          BigBlueButton.logger.info("Making deskshare dir")
+          deskshare_dir = "#{package_dir}/deskshare"
+          FileUtils.mkdir_p deskshare_dir
+          BigBlueButton.logger.info("Made deskshare dir - copying: #{$process_dir}/deskshare.webm to -> #{deskshare_dir}")
+          FileUtils.cp("#{$process_dir}/deskshare.webm", deskshare_dir)
+          BigBlueButton.logger.info("Copied deskshare.webm file")
+        else
+          BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
+        end
+
 
         processing_time = File.read("#{$process_dir}/processing_time")
 

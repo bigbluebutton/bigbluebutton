@@ -122,34 +122,46 @@ function removeSlideChangeAttribute() {
 	Popcorn('#video').unlisten(Popcorn.play, 'removeSlideChangeAttribute');
 }
 
-function hideWhiteboardIfDeskshare(time) {
-  var num_current = current_image.substr(5);
-  var wbcanvas;
+function mustShowDesktopVideo(time) {
+  var canShow = false;
+  for (var m = 0; m < deskshareTimes.length; m++) {
+    var start_timestamp = deskshareTimes[m][0];
+    var stop_timestamp = deskshareTimes[m][1];
 
-  if(svgobj.contentDocument)
-    wbcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
-  else
-    wbcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
-
-  if(wbcanvas !== null) {
-    var sharing = false;
-
-    for (var m = 0; m < deskshareTimes.length; m++) {
-      var start_timestamp = deskshareTimes[m][0];
-      var stop_timestamp = deskshareTimes[m][1];
-
-      if(time >= start_timestamp && time <= stop_timestamp)
-        sharing = true;
-    }
-
-    if(sharing) {
-      wbcanvas.setAttribute("display", "none");
-      document.getElementById("cursor").style.display = 'none';
-    } else {
-      wbcanvas.setAttribute("display", "");
-      document.getElementById("cursor").style.display = '';
-    }
+    if(time >= start_timestamp && time <= stop_timestamp)
+      canShow = true;
   }
+
+  return canShow;
+}
+
+function isThereDeskshareVideo() {
+  return deskshareTimes.length > 0;
+}
+
+function resyncVideos() {
+  var currentTime = Popcorn('#video').currentTime();
+  var currentDeskshareVideoTime = Popcorn("#deskshare-video").currentTime();
+  if (Math.abs(currentTime - currentDeskshareVideoTime) >= 0.1)
+    Popcorn("#deskshare-video").currentTime(currentTime);
+}
+
+function handlePresentationAreaContent(time) {
+  var mustShow = mustShowDesktopVideo(time);
+  if(!sharingDesktop && mustShow) {
+    document.getElementById("deskshare-video-area").style.visibility = "visible";
+    document.getElementById("slide").style.visibility = "hidden";
+    document.getElementById("slideText").style.visibility = "hidden";
+    sharingDesktop = true;
+  } else if(sharingDesktop && !mustShow) {
+    document.getElementById("deskshare-video-area").style.visibility = "hidden";
+    document.getElementById("slide").style.visibility = "visible";
+    document.getElementById("slideText").style.visibility = "visible";
+    sharingDesktop = false;
+  }
+
+  if(isThereDeskshareVideo())
+    resyncVideos();
 }
 
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
@@ -287,7 +299,6 @@ function runPopcorn() {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
 
-
   // PROCESS DESKSHARE.XML
   console.log("** Getting deskshare.xml");
   xmlhttp.open("GET", deskshare_xml, false);
@@ -304,6 +315,8 @@ function runPopcorn() {
       deskshareTimes[m] = deskTimes;
     }
   }
+
+
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
   svgobj.style.top = "0px";
@@ -475,7 +488,8 @@ function runPopcorn() {
             currentImage = thisimg;
             resizeSlides();
           }
-          hideWhiteboardIfDeskshare(t);
+
+          handlePresentationAreaContent(t);
        }
     }
   });
@@ -551,6 +565,7 @@ var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;
 var cursorShownAt = 0;
 var deskshareTimes = [];
+var sharingDesktop = false;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
