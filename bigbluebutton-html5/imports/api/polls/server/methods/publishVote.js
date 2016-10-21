@@ -30,15 +30,20 @@ export default function publishVote(credentials, pollId, pollAnswerId) { //TODO 
           answer_id: pollAnswerId,
         },
       };
-      Polls.update({
+
+      const selector = {
         users: requesterUserId,
         meetingId: meetingId,
         'poll.answers.id': pollAnswerId,
-      }, {
+      };
+
+      const modifier = {
         $pull: {
           users: requesterUserId,
         },
-      });
+      };
+
+      Polls.update(selector, modifier);
       message = appendMessageHeader(eventName, message);
       logger.info('publishing Poll response to redis');
       return publish(REDIS_CONFIG.channels.toBBBApps.polling, message);

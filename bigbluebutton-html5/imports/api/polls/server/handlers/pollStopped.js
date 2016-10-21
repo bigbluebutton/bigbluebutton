@@ -1,15 +1,22 @@
 import { check } from 'meteor/check';
+import removePoll from '../modifiers/removePoll';
 import clearPolls from '../modifiers/clearPolls';
 
 export default function pollStopped({ payload }) {
   check(payload, Object);
 
-  console.log(payload);
   const meetingId = payload.meeting_id;
-  const pollId = payload.poll.id;
+  const poll = payload.poll;
 
   check(meetingId, String);
-  check(pollId, String);
 
-  clearPolls(meetingId, pollId);
+  if (poll) {
+    const pollId = poll.id;
+
+    check(pollId, String);
+
+    removePoll(meetingId, pollId);
+  } else {
+    clearPolls(meetingId);
+  }
 }

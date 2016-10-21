@@ -19,14 +19,18 @@ export default function pollStarted({ payload }) {
   });
 
   if (documentExists) {
-    const users = Users.find({
+    const selector = {
       meetingId: meetingId,
-    }, {
+    };
+
+    const options = {
       fields: {
         'user.userid': 1,
         _id: 0,
       },
-    }).fetch();
+    };
+
+    const users = Users.find(selector, options).fetch();
 
     addPoll(poll, requesterId, users, meetingId);
   }
