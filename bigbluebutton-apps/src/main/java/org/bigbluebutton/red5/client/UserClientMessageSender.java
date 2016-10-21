@@ -44,7 +44,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-
 public class UserClientMessageSender {
   private static Logger log = Red5LoggerFactory.getLogger(UserClientMessageSender.class, "bigbluebutton");
 
@@ -543,8 +542,8 @@ public class UserClientMessageSender {
   
   private void processBreakoutRoomJoinURL(BreakoutRoomJoinURL msg) {
 	  Map<String, Object> args = new HashMap<String, Object>();	
-	  args.put("meetingId", msg.payload.meetingId);
-	  args.put("breakoutId", msg.payload.breakoutId);
+	  args.put("parentMeetingId", msg.payload.parentMeetingId);
+	  args.put("breakoutMeetingId", msg.payload.breakoutMeetingId);
 	  args.put("userId", msg.payload.userId);
 	  args.put("joinURL", msg.payload.joinURL);
 	  
@@ -552,7 +551,7 @@ public class UserClientMessageSender {
       Gson gson = new Gson();
       message.put("msg", gson.toJson(args));
       
-      DirectClientMessage m = new DirectClientMessage(msg.payload.meetingId, msg.payload.userId, "breakoutRoomJoinURL", message);
+      DirectClientMessage m = new DirectClientMessage(msg.payload.parentMeetingId, msg.payload.userId, "breakoutRoomJoinURL", message);
       service.sendMessage(m);
   }
   
@@ -584,42 +583,44 @@ public class UserClientMessageSender {
   
   private void processUpdateBreakoutUsers(UpdateBreakoutUsers msg) {
 	  Map<String, Object> args = new HashMap<String, Object>();	
-	  args.put("meetingId", msg.payload.meetingId);
-	  args.put("breakoutId", msg.payload.breakoutId);
+	  args.put("parentMeetingId", msg.payload.parentMeetingId);
+	  args.put("breakoutMeetingId", msg.payload.breakoutMeetingId);
 	  args.put("users", msg.payload.users);
 	  
 	  Map<String, Object> message = new HashMap<String, Object>();
 	  Gson gson = new Gson();
 	  message.put("msg", gson.toJson(args));
       
-	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "updateBreakoutUsers", message);
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.parentMeetingId, "updateBreakoutUsers", message);
       service.sendMessage(m);
   }
   
   private void processBreakoutRoomStarted(BreakoutRoomStarted msg) {
 	  Map<String, Object> args = new HashMap<String, Object>();	
-	  args.put("breakoutId", msg.payload.breakoutId);
-	  args.put("meetingId", msg.payload.meetingId);
+	  args.put("breakoutMeetingId", msg.payload.meetingId);
+      args.put("parentMeetingId", msg.payload.parentMeetingId);
+      args.put("externalMeetingId", msg.payload.externalMeetingId);
+	  args.put("sequence", msg.payload.sequence);
 	  args.put("name", msg.payload.name);
 	  
 	  Map<String, Object> message = new HashMap<String, Object>();
 	  Gson gson = new Gson();
 	  message.put("msg", gson.toJson(args));
 	  
-	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomStarted", message);
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.parentMeetingId, "breakoutRoomStarted", message);
       service.sendMessage(m);
   }
   
   private void processBreakoutRoomClosed(BreakoutRoomClosed msg) {
 	  Map<String, Object> args = new HashMap<String, Object>();	
-	  args.put("breakoutId", msg.payload.breakoutId);
-	  args.put("meetingId", msg.payload.meetingId);
+	  args.put("breakoutMeetingId", msg.payload.meetingId);
+	  args.put("parentMeetingId", msg.payload.parentMeetingId);
 	  
 	  Map<String, Object> message = new HashMap<String, Object>();
 	  Gson gson = new Gson();
 	  message.put("msg", gson.toJson(args));
 	  
-	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomClosed", message);
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.parentMeetingId, "breakoutRoomClosed", message);
       service.sendMessage(m);
   }
 }

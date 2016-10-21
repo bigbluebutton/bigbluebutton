@@ -87,12 +87,13 @@ package org.bigbluebutton.modules.users.services
 			);
 		}
 		
-		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
+		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean, redirectOnJoin:Boolean):void {
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;
 			message["rooms"] = rooms;
 			message["durationInMinutes"] = durationInMinutes;
 			message["record"] = record;
+			message["redirectOnJoin"] = redirectOnJoin;
 			var jsonMsg:String = JSON.stringify(message);
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -107,24 +108,21 @@ package org.bigbluebutton.modules.users.services
 			);
 		}
 		
-		public function requestBreakoutJoinUrl(meetingId:String, breakoutId:String, userId:String):void {
+		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String, redirect:Boolean):void {
 			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			message["breakoutId"] = breakoutId;
+			message["meetingId"] = parentMeetingId;
+			message["breakoutMeetingId"] = breakoutMeetingId;
 			message["userId"] = userId;
+			message["redirect"] = redirect;
 			
 			var jsonMsg:String = JSON.stringify(message);
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("breakoutroom.requestBreakoutJoinUrl", function(result:String):void
-			{
+			_nc.sendMessage("breakoutroom.requestBreakoutJoinUrl", function(result:String):void {
 				// On successful result
-			}, function(status:String):void
-			{ // status - On error occurred
+			}, function(status:String):void { // status - On error occurred
 				LOGGER.error(status);
-			},
-			jsonMsg
-			);
+			}, jsonMsg);
 		}
 		
 		public function listenInOnBreakout(meetingId:String, targetMeetingId:String, userId:String):void {
