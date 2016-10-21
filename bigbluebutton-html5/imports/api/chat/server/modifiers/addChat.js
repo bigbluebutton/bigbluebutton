@@ -29,17 +29,15 @@ export default function addChat(meetingId, message) {
   check(toUserId, String);
 
   const selector = {
-    meetingId: meetingId,
-    message: {
-      from_time: message.from_time,
-      from_userid: message.from_userid,
-      to_userid: message.to_userid,
-    },
+    meetingId,
+    'message.from_time': message.from_time,
+    'message.from_userid': message.from_userid,
+    'message.to_userid': message.to_userid,
   };
 
   const modifier = {
     $set: {
-      meetingId: meetingId,
+      meetingId,
       message: {
         chat_type: message.chat_type,
         message: message.message,
