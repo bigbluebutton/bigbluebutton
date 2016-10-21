@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import addChat from '../modifiers/addChat';
 
-export default function handleChatMessage({ payload }) {
+export default function handleChatMessage({ payload, header }) {
   const message = payload.message;
   const meetingId = payload.meeting_id;
 
