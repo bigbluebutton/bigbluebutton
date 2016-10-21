@@ -95,10 +95,12 @@ class RedisPubSub {
           return next();
         })
         .catch(reason => {
+          this._debug(`${eventName} completed with error`);
           Logger.error(`${eventName}: ${reason}`);
           return next();
         });
     } catch (reason) {
+      this._debug(`${eventName} completed with error`);
       Logger.error(`${eventName}: ${reason}`);
       return next();
     }
