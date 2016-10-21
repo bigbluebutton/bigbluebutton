@@ -179,7 +179,7 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
-  callServer('sendChatMessagetoServer', messagePayload);
+  callServer('sendChat', messagePayload);
 
   return messagePayload;
 };

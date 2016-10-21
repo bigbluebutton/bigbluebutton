@@ -2,6 +2,7 @@ redis:
   host: '127.0.0.1'
   post: '6379'
   timeout: 5000
+  debug: false
   channels:
     fromBBBApps: 'bigbluebutton:from-bbb-apps:*'
     toBBBApps:
@@ -14,3 +15,7 @@ redis:
       voice: 'bigbluebutton:to-bbb-apps:voice'
       whiteboard: 'bigbluebutton:to-bbb-apps:whiteboard'
       polling: 'bigbluebutton:to-bbb-apps:polling'
+  ignoredMessages:
+    - 'BbbPubSubPongMessage'
+    - 'bbb_apps_is_alive_message'
+    - 'broadcast_layout_message'
