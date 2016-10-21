@@ -37,14 +37,14 @@
 
 			protected function listenToBreakoutRoom(event:MouseEvent):void {
 				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
-				e.breakoutId = data.breakoutId as String;
+				e.breakoutMeetingId = data.meetingId as String;
 				e.listen = listenBtn.selected;
 				globalDispatch.dispatchEvent(e);
 			}
 
 			protected function requestBreakoutJoinUrl(event:MouseEvent):void {
 				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
-				e.breakoutId = data.breakoutId as String;
+				e.breakoutMeetingId = data.externalMeetingId as String;
 				e.userId = UserManager.getInstance().getConference().getMyUserId();
 				globalDispatch.dispatchEvent(e);
 			}
