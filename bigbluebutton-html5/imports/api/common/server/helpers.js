@@ -1,7 +1,7 @@
 import { clearUsersCollection } from '/imports/api/users/server/modifiers/clearUsersCollection';
-import { clearChatCollection} from '/imports/api/chat/server/modifiers/clearChatCollection';
+import clearChatCollection from '/imports/api/chat/server/modifiers/clearChatCollection';
 import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
-import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
+import clearSlidesCollection from '/imports/api/slides/server/modifiers/clearSlidesCollection';
 import { clearPresentationsCollection }
   from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
 import { clearMeetingsCollection }
@@ -32,9 +32,9 @@ export function clearCollections() {
     refreshes. Related to: https://github.com/meteor/meteor/issues/6576
   */
 
-  if (process.env.NODE_ENV === 'development') {
-    return;
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   return;
+  // }
 
   const meetingId = arguments[0];
   if (meetingId != null) {

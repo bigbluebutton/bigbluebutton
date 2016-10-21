@@ -1,71 +1,77 @@
-import sizeOf from 'image-size';
+import probe from 'probe-image-size';
+import { check } from 'meteor/check';
 import Slides from '/imports/api/slides';
+import Logger from '/imports/startup/server/logger';
+import { SVG, PNG } from '/imports/utils/mimeTypes';
 
-export function addSlideToCollection(meetingId, presentationId, slideObject) {
-  const APP_CONFIG = Meteor.settings.public.app;
-  const url = Npm.require('url');
+const SUPPORTED_TYPES = [SVG, PNG];
 
-  const imageUri = slideObject.svg_uri != null ? slideObject.svg_uri : slideObject.png_uri;
-  if (Slides.findOne({
-    meetingId: meetingId,
-    'slide.id': slideObject.id,
-  }) == null) {
-    const options = url.parse(imageUri);
+export default function addSlideToCollection(meetingId, presentationId, slide) {
+  check(meetingId, String);
+  check(presentationId, String);
+  check(slide, Object);
 
-    let addSlideHelper = function (response) {
-      let contentType = response.headers['content-type'];
+  const selector = {
+    meetingId,
+    presentationId,
+    'slide.id': slide.id,
+  };
 
-      if (contentType.match(/svg/gi) || contentType.match(/png/gi)) {
-        let chunks = [];
-        response.on('data', Meteor.bindEnvironment(function (chunk) {
-          chunks.push(chunk);
-        })).on('end', Meteor.bindEnvironment(function () {
-          let buffer = Buffer.concat(chunks);
-          const dimensions = sizeOf(buffer);
-          const entry = {
-            meetingId: meetingId,
-            presentationId: presentationId,
-            slide: {
-              height_ratio: slideObject.height_ratio,
-              y_offset: slideObject.y_offset,
-              num: slideObject.num,
-              x_offset: slideObject.x_offset,
-              current: slideObject.current,
-              img_uri: slideObject.svg_uri != null ? slideObject.svg_uri : slideObject.png_uri,
-              txt_uri: slideObject.txt_uri,
-              id: slideObject.id,
-              width_ratio: slideObject.width_ratio,
-              swf_uri: slideObject.swf_uri,
-              thumb_uri: slideObject.thumb_uri,
-              width: dimensions.width,
-              height: dimensions.height,
-            },
-          };
-          Slides.insert(entry);
-        }));
-      } else {
-        console.log(`Slide file is not accessible or not ready yet`);
-        console.log(`response content-type`, response.headers['content-type']);
-      }
-    };
+  const imageUri = slide.svg_uri || slide.png_uri;
 
-    // HTTPS connection
-    if (APP_CONFIG.httpsConnection) {
-      const https = Npm.require('https');
+  const modifier = {
+    $set: {
+      meetingId: meetingId,
+      presentationId: presentationId,
+      slide: {
+        height_ratio: slide.height_ratio,
+        y_offset: slide.y_offset,
+        num: slide.num,
+        x_offset: slide.x_offset,
+        current: slide.current,
+        img_uri: imageUri,
+        txt_uri: slide.txt_uri,
+        id: slide.id,
+        width_ratio: slide.width_ratio,
+        swf_uri: slide.swf_uri,
+        thumb_uri: slide.thumb_uri,
+        width: slide.width,
+        height: slide.height,
+      },
+    },
+  };
 
-      https.get(options, Meteor.bindEnvironment(function (response) {
-        addSlideHelper(response);
-      }));
-    } else {
-      // HTTP connection
-      const http = Npm.require('http');
-
-      http.get(options, Meteor.bindEnvironment(function (response) {
-        addSlideHelper(response);
-      }));
+  const cb = (err, numChanged) => {
+    if (err) {
+      return Logger.error(`Adding slide to collection: ${err}`);
     }
 
-    //logger.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there
-    // are #{Slides.find({meetingId: meetingId}).count()} slides in the meeting"
-  }
+    const { insertedId } = numChanged;
+
+    if (insertedId) {
+      fetchImageSizes(insertedId, imageUri);
+      return Logger.info(`Added slide id=${insertedId} to presentation=${presentationId}`);
+    }
+  };
+
+  return Slides.upsert(selector, modifier, cb);
 };
+
+const fetchImageSizes = (slideId, imageUri) =>
+  probe(imageUri)
+  .then(result => {
+    if (!SUPPORTED_TYPES.includes(result.mime)) {
+      throw `Invalid image type, received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`;
+    }
+
+    return Slides.update(slideId, {
+      $set: {
+        width: result.width,
+        height: result.height,
+      },
+    });
+  })
+  .catch(reason => {
+    Logger.error(`Error parsing image size. ${reason}. slide=${slide.id} uri=${imageUri}`);
+    return reason;
+  });

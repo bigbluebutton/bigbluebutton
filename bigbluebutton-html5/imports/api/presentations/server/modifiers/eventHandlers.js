@@ -1,65 +1,12 @@
 import { eventEmitter } from '/imports/startup/server';
 import { removePresentationFromCollection } from './removePresentationFromCollection';
 import { addPresentationToCollection } from './addPresentationToCollection';
-import { displayThisSlide } from '/imports/api/slides/server/modifiers/displayThisSlide';
 import { appendMessageHeader, publish, inReplyToHTML5Client }
   from '/imports/api/common/server/helpers';
-import { addSlideToCollection } from '/imports/api/slides/server/modifiers/addSlideToCollection';
+import addSlideToCollection from '/imports/api/slides/server/modifiers/addSlideToCollection';
 import Slides from '/imports/api/slides';
 import Presentations from '/imports/api/presentations';
 import { logger } from '/imports/startup/server/logger';
-
-eventEmitter.on('presentation_page_resized_message', function (arg) {
-  const payload = arg.payload;
-  const page = payload.page;
-  if (page != null && page.id != null && page.height_ratio != null
-    && page.width_ratio != null && page.x_offset != null && page.y_offset != null) {
-    const slideId = page.id;
-    const heightRatio = page.height_ratio;
-    const widthRatio = page.width_ratio;
-    const xOffset = page.x_offset;
-    const yOffset = page.y_offset;
-    const presentationId = slideId.split('/')[0];
-
-    // In the case when we don't resize, but switch a slide, this message
-    // follows a 'presentation_page_changed' and all these properties are already set.
-    let currentSlide = Slides.findOne(
-      { presentationId: presentationId,
-        'slide.current': true, });
-    if (currentSlide) {
-      currentSlide = currentSlide.slide;
-    }
-
-    if (currentSlide != null && (currentSlide.height_ratio != heightRatio ||
-      currentSlide.width_ratio != widthRatio ||
-      currentSlide.x_offset != xOffset ||
-      currentSlide.y_offset != yOffset)) {
-      Slides.update({
-        presentationId: presentationId,
-        'slide.current': true,
-      }, {
-        $set: {
-          'slide.height_ratio': heightRatio,
-          'slide.width_ratio': widthRatio,
-          'slide.x_offset': xOffset,
-          'slide.y_offset': yOffset,
-        },
-      });
-    }
-  }
-
-  return arg.callback();
-});
-
-eventEmitter.on('presentation_page_changed_message', function (arg) {
-  const newSlide = arg.payload.page;
-  const meetingId = arg.payload.meeting_id;
-  if (newSlide != null && newSlide.id != null && meetingId != null) {
-    displayThisSlide(meetingId, newSlide.id, newSlide);
-  }
-
-  return arg.callback();
-});
 
 eventEmitter.on('presentation_removed_message', function (arg) {
   const meetingId = arg.payload.meeting_id;
