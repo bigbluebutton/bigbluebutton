@@ -11,7 +11,6 @@ const HTML_SAFE_MAP = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#39;',
-  teste: 1,
 };
 
 const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
