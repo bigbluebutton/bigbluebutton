@@ -295,8 +295,8 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
-	public void patchDocument(String meetingID, String requesterID, String noteID, String patch) {
-		PatchDocumentRequestMessage msg = new PatchDocumentRequestMessage(meetingID, requesterID, noteID, patch);
+	public void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation) {
+		PatchDocumentRequestMessage msg = new PatchDocumentRequestMessage(meetingID, requesterID, noteID, patch, operation);
 		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
 	}
 	
@@ -317,11 +317,6 @@ public class MessagePublisher {
 	
 	public void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize) {
 		RequestAdditionalNotesSetRequestMessage msg = new RequestAdditionalNotesSetRequestMessage(meetingID, requesterID, additionalNotesSetSize);
-		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
-	}
-
-	public void sharedNotesUndo(String meetingID, String requesterID, String noteID) {
-		SharedNotesUndoRequestMessage msg = new SharedNotesUndoRequestMessage(meetingID, requesterID, noteID);
 		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
 	}
 

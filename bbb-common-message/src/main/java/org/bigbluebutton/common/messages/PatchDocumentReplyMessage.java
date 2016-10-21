@@ -17,15 +17,17 @@ public class PatchDocumentReplyMessage implements ISubscribedMessage {
 	public final String noteID;
 	public final String patch;
 	public final Integer patchID;
-	public final Boolean undoable;
+	public final Boolean undo;
+	public final Boolean redo;
 
-	public PatchDocumentReplyMessage(String meetingID, String requesterID, String noteID, String patch, Integer patchID, Boolean undoable) {
+	public PatchDocumentReplyMessage(String meetingID, String requesterID, String noteID, String patch, Integer patchID, Boolean undo, Boolean redo) {
 		this.meetingID = meetingID;
 		this.requesterID = requesterID;
 		this.noteID = noteID;
 		this.patch = patch;
 		this.patchID = patchID;
-		this.undoable = undoable;
+		this.undo = undo;
+		this.redo = redo;
 	}
 
 	public String toJson() {
@@ -35,6 +37,8 @@ public class PatchDocumentReplyMessage implements ISubscribedMessage {
 		payload.put(Constants.NOTE_ID, noteID);
 		payload.put(Constants.PATCH, patch);
 		payload.put(Constants.PATCH_ID, patchID);
+		payload.put(Constants.UNDO, undo);
+		payload.put(Constants.REDO, redo);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(PATCH_DOCUMENT_REPLY, VERSION, null);
 
@@ -57,15 +61,17 @@ public class PatchDocumentReplyMessage implements ISubscribedMessage {
 							&& payload.has(Constants.NOTE_ID)
 							&& payload.has(Constants.PATCH)
 							&& payload.has(Constants.PATCH_ID)
-							&& payload.has(Constants.UNDOABLE)) {
+							&& payload.has(Constants.UNDO)
+							&& payload.has(Constants.REDO)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterID = payload.get(Constants.REQUESTER_ID).getAsString();
 						String noteID = payload.get(Constants.NOTE_ID).getAsString();
 						String patch = payload.get(Constants.PATCH).getAsString();
 						Integer patchID = payload.get(Constants.PATCH_ID).getAsInt();
-						Boolean undoable = payload.get(Constants.UNDOABLE).getAsBoolean();
+						Boolean undo = payload.get(Constants.UNDO).getAsBoolean();
+						Boolean redo = payload.get(Constants.REDO).getAsBoolean();
 
-						return new PatchDocumentReplyMessage(meetingID, requesterID, noteID, patch, patchID, undoable);
+						return new PatchDocumentReplyMessage(meetingID, requesterID, noteID, patch, patchID, undo, redo);
 					}
 				}
 			}

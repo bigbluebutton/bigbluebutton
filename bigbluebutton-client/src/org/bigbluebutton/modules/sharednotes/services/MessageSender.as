@@ -79,11 +79,12 @@ package org.bigbluebutton.modules.sharednotes.services
       );
     }
 
-    public function patchDocument(noteId:String, userid:String, patch:String):void {
+    public function patchDocument(noteId:String, userid:String, patch:String, operation:String):void {
       LOGGER.debug("Sending [sharednotes.patchDocument] to server.");
       var message:Object = new Object();
       message["noteID"] = noteId;
       message["patch"] = patch;
+      message["operation"] = operation;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
@@ -102,34 +103,6 @@ package org.bigbluebutton.modules.sharednotes.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
         "sharednotes.requestAdditionalNotesSet",
-        onSuccessDebugger,
-        onErrorDebugger,
-        message
-      );
-    }
-
-    public function sharedNotesUndo(noteId:String):void {
-      LOGGER.debug("Sending [sharednotes.sharedNotesUndo] to server.");
-      var message:Object = new Object();
-      message["noteID"] = noteId;
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "sharednotes.sharedNotesUndo",
-        onSuccessDebugger,
-        onErrorDebugger,
-        message
-      );
-    }
-
-    public function sharedNoteRedo(noteId:String):void {
-      LOGGER.debug("Sending [sharednotes.sharedNoteRedo] to server.");
-      var message:Object = new Object();
-      message["noteID"] = noteId;
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "sharednotes.sharedNoteRedo",
         onSuccessDebugger,
         onErrorDebugger,
         message

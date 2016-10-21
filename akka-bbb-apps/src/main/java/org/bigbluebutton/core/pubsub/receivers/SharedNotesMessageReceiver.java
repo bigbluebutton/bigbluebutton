@@ -7,7 +7,6 @@ import org.bigbluebutton.common.messages.GetCurrentDocumentRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.PatchDocumentRequestMessage;
 import org.bigbluebutton.common.messages.RequestAdditionalNotesSetRequestMessage;
-import org.bigbluebutton.common.messages.SharedNotesUndoRequestMessage;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
@@ -48,9 +47,6 @@ public class SharedNotesMessageReceiver implements MessageHandler {
 						case RequestAdditionalNotesSetRequestMessage.REQUEST_ADDITIONAL_NOTES_SET_REQUEST:
 							processRequestAdditionalNotesSetRequestMessage(message);
 							break;
-						case SharedNotesUndoRequestMessage.SHARED_NOTES_UNDO_REQUEST:
-							processSharedNotesUndoRequestMessage(message);
-							break;
 					}
 				}
 			}
@@ -60,7 +56,7 @@ public class SharedNotesMessageReceiver implements MessageHandler {
 	private void processPatchDocumentRequestMessage(String json) {
 		PatchDocumentRequestMessage msg = PatchDocumentRequestMessage.fromJson(json);
 		if (msg != null) {
-			bbbInGW.patchDocument(msg.meetingID, msg.requesterID, msg.noteID, msg.patch);
+			bbbInGW.patchDocument(msg.meetingID, msg.requesterID, msg.noteID, msg.patch, msg.operation);
 		}
 	}
 
@@ -89,13 +85,6 @@ public class SharedNotesMessageReceiver implements MessageHandler {
 		RequestAdditionalNotesSetRequestMessage msg = RequestAdditionalNotesSetRequestMessage.fromJson(json);
 		if (msg != null) {
 			bbbInGW.requestAdditionalNotesSet(msg.meetingID, msg.requesterID, msg.additionalNotesSetSize);
-		}
-	}
-
-	private void processSharedNotesUndoRequestMessage(String json) {
-		SharedNotesUndoRequestMessage msg = SharedNotesUndoRequestMessage.fromJson(json);
-		if (msg != null) {
-			bbbInGW.sharedNotesUndo(msg.meetingID, msg.requesterID, msg.noteID);
 		}
 	}
 }

@@ -27,7 +27,8 @@ package org.bigbluebutton.modules.sharednotes.events
 		public var patch:String;
 		public var noteId:String;
 		public var patchId:Number;
-		public var undoable:Boolean;
+		public var undo:Boolean;
+		public var redo:Boolean;
 
 		public function ReceivePatchEvent(type:String = RECEIVE_PATCH_EVENT, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

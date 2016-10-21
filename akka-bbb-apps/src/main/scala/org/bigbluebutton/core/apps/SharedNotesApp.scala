@@ -10,17 +10,16 @@ trait SharedNotesApp {
   val outGW: OutMessageGateway
 
   def handlePatchDocumentRequest(msg: PatchDocumentRequest) {
-    val (patchID, patch, undoable) = notesModel.patchDocument(msg.noteID, msg.patch)
-
-    outGW.send(new PatchDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.noteID, patch, patchID, undoable))
-  }
-
-  def handleSharedNotesUndoRequest(msg: SharedNotesUndoRequest) {
-    val (patchID, patch, undoable) = notesModel.patchDocument(msg.noteID, "", true)
-
-    if (patch != "") {
-      outGW.send(new PatchDocumentReply(mProps.meetingID, mProps.recorded, "SYSTEM", msg.noteID, patch, patchID, undoable))
+    val requesterID = msg.operation match {
+      case SharedNotesOperation.PATCH => msg.requesterID
+      case SharedNotesOperation.UNDO => "SYSTEM"
+      case SharedNotesOperation.REDO => "SYSTEM"
+      case _ => return
     }
+
+    val (patchID, patch, undo, redo) = notesModel.patchDocument(msg.noteID, msg.patch, msg.operation)
+
+    if (patch != "") outGW.send(new PatchDocumentReply(mProps.meetingID, mProps.recorded, requesterID, msg.noteID, patch, patchID, undo, redo))
   }
 
   def handleGetCurrentDocumentRequest(msg: GetCurrentDocumentRequest) {

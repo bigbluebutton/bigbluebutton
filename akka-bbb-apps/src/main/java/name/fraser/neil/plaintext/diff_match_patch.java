@@ -1769,6 +1769,20 @@ public class diff_match_patch {
 
   /**
    * Compute a list of patches to turn text1 into text2.
+   * A set of diffs will be computed.
+   * @param text1 Old text
+   * @param text2 Ignored.
+   * @param diffs Array of diff tuples for text1 to text2.
+   * @return String representation of LinkedList of Patch objects.
+   * @deprecated Prefer patch_make(String text1, LinkedList<Diff> diffs).
+   */
+  public String custom_patch_make(String text1, String text2) {
+    return patch_toText(patch_make(text1, text2));
+  }
+
+
+  /**
+   * Compute a list of patches to turn text1 into text2.
    * text2 is not provided, diffs are the delta between text1 and text2.
    * @param text1 Old text.
    * @param diffs Array of diff tuples for text1 to text2.

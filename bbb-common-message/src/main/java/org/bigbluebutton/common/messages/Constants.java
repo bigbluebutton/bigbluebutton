@@ -136,5 +136,7 @@ public class Constants {
   public static final String NOTES                           = "notes";
   public static final String ADDITIONAL_NOTES_SET_SIZE       = "additional_notes_set_size";
   public static final String SET_BY                          = "set_by";
-  public static final String UNDOABLE                        = "undoable";
+  public static final String UNDO                            = "undo";
+  public static final String REDO                            = "redo";
+  public static final String OPERATION                       = "operation";
 }

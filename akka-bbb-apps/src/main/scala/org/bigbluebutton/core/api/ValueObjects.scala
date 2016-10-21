@@ -17,6 +17,14 @@ object GuestPolicy extends Enumeration {
   val ASK_MODERATOR = Value("ASK_MODERATOR")
 }
 
+object SharedNotesOperation extends Enumeration {
+  type SharedNotesOperation = Value
+  val PATCH = Value("PATCH")
+  val UNDO = Value("UNDO")
+  val REDO = Value("REDO")
+  val UNDEFINED = Value("UNDEFINED")
+}
+
 case class StatusCode(val code: Int, val text: String)
 object StatusCodes {
   // Borrowed from https://dev.twitter.com/overview/api/response-codes (ralam June 18, 2015)
@@ -149,4 +157,5 @@ case class Note(
   name: String,
   document: String,
   patchCounter: Int,
-  undoPatches: Stack[String])
+  undoPatches: Stack[(String, String)],
+  redoPatches: Stack[(String, String)])

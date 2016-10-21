@@ -512,8 +512,14 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
    * *****************************************************************
    */
 
-  def patchDocument(meetingId: String, userId: String, noteId: String, patch: String) {
-    bbbActor ! new PatchDocumentRequest(meetingId, userId, noteId, patch)
+  def patchDocument(meetingId: String, userId: String, noteId: String, patch: String, operation: String) {
+    val sharedNotesOperation = operation.toUpperCase() match {
+      case "PATCH" => SharedNotesOperation.PATCH
+      case "UNDO" => SharedNotesOperation.UNDO
+      case "REDO" => SharedNotesOperation.REDO
+      case _ => SharedNotesOperation.UNDEFINED
+    }
+    bbbActor ! new PatchDocumentRequest(meetingId, userId, noteId, patch, sharedNotesOperation)
   }
 
   def getCurrentDocument(meetingId: String, userId: String) {
@@ -530,9 +536,5 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
 
   def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
     bbbActor ! new RequestAdditionalNotesSetRequest(meetingId, userId, additionalNotesSetSize)
-  }
-
-  def sharedNotesUndo(meetingId: String, userId: String, noteId: String) {
-    bbbActor ! new SharedNotesUndoRequest(meetingId, userId, noteId)
   }
 }

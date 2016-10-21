@@ -2,6 +2,7 @@ package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.api.Role._
 import org.bigbluebutton.core.api.GuestPolicy._
+import org.bigbluebutton.core.api.SharedNotesOperation._
 import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.MeetingProperties
@@ -127,9 +128,8 @@ case class IsWhiteboardEnabledRequest(meetingID: String, requesterID: String, re
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
 
 // Shared notes
-case class PatchDocumentRequest(meetingID: String, requesterID: String, noteID: String, patch: String) extends InMessage
+case class PatchDocumentRequest(meetingID: String, requesterID: String, noteID: String, patch: String, operation: SharedNotesOperation) extends InMessage
 case class GetCurrentDocumentRequest(meetingID: String, requesterID: String) extends InMessage
 case class CreateAdditionalNotesRequest(meetingID: String, requesterID: String, noteName: String) extends InMessage
 case class DestroyAdditionalNotesRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage
 case class RequestAdditionalNotesSetRequest(meetingID: String, requesterID: String, additionalNotesSetSize: Int) extends InMessage
-case class SharedNotesUndoRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage

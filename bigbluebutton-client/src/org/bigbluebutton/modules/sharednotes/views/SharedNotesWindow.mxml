@@ -72,7 +72,7 @@
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
 			private var _lastPatch:Number = 0;
-			protected var _notesId:String="MAIN_WINDOW";
+			protected var _noteId:String="MAIN_WINDOW";
 			protected var _noteName:String = "";
 
 			[Bindable] private var options:SharedNotesOptions = new SharedNotesOptions();
@@ -146,7 +146,7 @@
 			}
 
 			public function get noteId():String{
-				return _notesId;
+				return _noteId;
 			}
 
 			public function addRemoteDocument(notes:Object):void{
@@ -167,6 +167,7 @@
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.noteId = noteId;
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
+					sendPatchEvent.operation = "PATCH";
 					_dispatcher.dispatchEvent(sendPatchEvent);
 					_document = clientText;
 					richTextEditor.textArea.editable = true;
@@ -187,16 +188,18 @@
 							richTextEditor.patch(e.patch);
 						}
 						_lastPatch = e.patchId;
-						if (e.undoable) {
-							btnUndo.styleName = "sharedNotesEnabledUndoButtonStyle";
-						} else {
-							btnUndo.styleName = "sharedNotesDisabledUndoButtonStyle";
-						}
-						btnUndo.enabled = e.undoable;
+						updateUndoRedoButtons(e.undo, e.redo);
 					} else {
 						LOGGER.error("Patch missmatch");
 					}
 				}
+			}
+
+			private function updateUndoRedoButtons(undo:Boolean, redo:Boolean):void {
+				btnUndo.styleName = undo ? "sharedNotesEnabledUndoButtonStyle" : "sharedNotesDisabledUndoButtonStyle";
+				btnRedo.styleName = redo ? "sharedNotesEnabledRedoButtonStyle" : "sharedNotesDisabledRedoButtonStyle";
+				btnUndo.enabled = undo;
+				btnRedo.enabled = redo;
 			}
 
 			protected function saveNotes(title:String, text:String, extension:String):void
@@ -342,16 +345,18 @@
 
 			protected function btnUndo_clickHandler(event:MouseEvent):void
 			{
-				var sharedNotesEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.UNDO_EVENT);
-				sharedNotesEvent.noteId = noteId;
-				_dispatcher.dispatchEvent(sharedNotesEvent);
+				var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+				sendPatchEvent.noteId = noteId;
+				sendPatchEvent.operation = "UNDO";
+				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
 			protected function btnRedo_clickHandler(event:MouseEvent):void
 			{
-				var sharedNotesEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.REDO_EVENT);
-				sharedNotesEvent.noteId = noteId;
-				_dispatcher.dispatchEvent(sharedNotesEvent);
+				var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+				sendPatchEvent.noteId = noteId;
+				sendPatchEvent.operation = "REDO";
+				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
@@ -389,7 +394,7 @@
 		<mx:HBox width="100%" paddingTop="0">
 			<mx:HBox width="100%" horizontalAlign="left" paddingTop="0">
 				<mx:Button id="btnUndo" styleName="sharedNotesDisabledUndoButtonStyle" width="26" height="26" click="btnUndo_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.undo.toolTip')}" enabled="false" visible="true"/>
-				<mx:Button id="btnRedo" styleName="sharedNotesRedoButtonStyle" width="26" height="26" click="btnRedo_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}" visible="false" includeInLayout="false"/>
+				<mx:Button id="btnRedo" styleName="sharedNotesDisabledRedoButtonStyle" width="26" height="26" click="btnRedo_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}" enabled="false" visible="true"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
 				<mx:Button id="btnNew" styleName="sharedNotesNewButtonStyle" width="26" height="26" click="btnNew_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>

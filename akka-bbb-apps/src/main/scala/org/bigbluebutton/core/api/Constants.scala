@@ -106,5 +106,7 @@ object Constants {
   val NOTE_NAME = "note_name"
   val PATCH = "patch"
   val PATCH_ID = "patch_id"
-  val UNDOABLE = "undoable"
+  val UNDO = "undo"
+  val REDO = "redo"
+  val OPERATION = "operation"
 }
