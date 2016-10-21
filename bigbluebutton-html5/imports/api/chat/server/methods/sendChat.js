@@ -17,7 +17,6 @@ const PUBLIC_CHAT_TYPE = 'PUBLIC_CHAT';
 
 const parseMessage = (message) => {
   message = message || '';
-
   message = message.trim();
 
   // Replace <br/> with \n\r
@@ -60,7 +59,7 @@ export default function sendChat(credentials, message) {
   }
 
   let payload = {
-    message: message,
+    message,
     meeting_id: meetingId,
     requester_id: message.from_userid,
   };
