@@ -39,9 +39,7 @@ import com.google.gson.Gson;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
-	
-	private IScope appScope;
-	private IServerStream serverStream;
+
 	private MessagePublisher publisher;
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
@@ -53,14 +51,11 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
 		log.info("BBB Video appStart");
-		System.out.println("BBB Video appStart");    	
-		appScope = app;
 		return true;
 	}
 
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.info("BBB Video appConnect"); 		
 		return super.appConnect(conn, params);
 	}
 
@@ -141,27 +136,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	
   @Override
 	public void appDisconnect(IConnection conn) {
-		log.info("BBB Video appDisconnect");
-		if (appScope == conn.getScope() && serverStream != null) {
-			serverStream.close();
-		}
-		
-		String connType = getConnectionType(Red5.getConnectionLocal().getType());
-		String connId = Red5.getConnectionLocal().getSessionId();
-		
-		Map<String, Object> logData = new HashMap<String, Object>();
-		logData.put("meetingId", getMeetingId());
-		logData.put("userId", getUserId());
-		logData.put("connType", connType);
-		logData.put("connId", connId);
-		logData.put("event", "user_leaving_bbb_video");
-		logData.put("description", "User leaving BBB Video.");
-		
-		Gson gson = new Gson();
-    String logStr =  gson.toJson(logData);
-		
-		log.info("User leaving bbb-video: data={}", logStr);
-		
 		super.appDisconnect(conn);
 	}
 
@@ -291,73 +265,5 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public void setMessagePublisher(MessagePublisher publisher) {
 		this.publisher = publisher;
 	}
-	
-	/**
-	 * Start transmission notification from Flash Player 11.1+. This command asks the server to transmit more data because the buffer is running low.
-	 * 
-	 * http://help.adobe.com/en_US/flashmediaserver/devguide/WSd391de4d9c7bd609-569139412a3743e78e-8000.html
-	 * 
-	 * @param bool boolean
-	 * @param num number
-	 */
-	public void startTransmit(Boolean bool, int num) {	
 
-	}
-
-	/**
-	 * Stop transmission notification from Flash Player 11.1+. This command asks the server to suspend transmission until the client sends a 
-	 * startTransmit event because there is enough data in the buffer.
-	 */
-	public void stopTransmit() {		
-	}
-
-	/**
-	 * Stop transmission notification from Flash Player 11.1+. This command asks the server to suspend transmission until the client sends a 
-	 * startTransmit event because there is enough data in the buffer.
-	 * 
-	 * @param bool boolean
-	 * @param num number
-	 */
-	public void stopTransmit(Boolean bool, int num) {		
-	}	
-	
-	/**
-	 * Notification method that is sent by FME just before publishing starts.
-	 * 
-	 * @param streamName Name of stream that is about to be published.
-	 */
-	@Override
-	public void FCPublish(String streamName) {
-    	IConnection conn = Red5.getConnectionLocal();  
-    	log.info("FCPublish " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-	}
-
-	/**
-	 * Notification method that is sent by FME when publishing of a stream ends.
-	 */
-	@Override
-	public void FCUnpublish() {
-	}
-
-	/**
-	 * Notification method that is sent by FME when publishing of a stream ends.
-	 * 
-	 * @param streamName Name of stream that is about to be un-published.
-	 */
-	@Override
-	public void FCUnpublish(String streamName) {
-    	IConnection conn = Red5.getConnectionLocal();  
-    	log.info("FCUnpublish " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-	}
-
-	/**
-	 * Notification method that is sent by some clients just before playback starts.
-	 * 
-	 * @param streamName Name of stream that is about to be played.
-	 */
-	@Override
-	public void FCSubscribe(String streamName) {
-    	IConnection conn = Red5.getConnectionLocal();  
-    	log.info("FCSubscribe " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-	}
 }
