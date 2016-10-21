@@ -21,12 +21,7 @@ import '/imports/api/meetings/server/modifiers/eventHandlers';
 
 import '/imports/api/phone/server/modifiers/eventHandlers';
 
-import '/imports/api/polls/server/publications';
-import '/imports/api/polls/server/methods/publishVoteMessage';
-import '/imports/api/polls/server/modifiers/addPollToCollection';
-import '/imports/api/polls/server/modifiers/clearPollCollection';
-import '/imports/api/polls/server/modifiers/updatePollCollection';
-import '/imports/api/polls/server/modifiers/eventHandlers';
+import '/imports/api/polls/server';
 
 import '/imports/api/presentations/server/publications';
 import '/imports/api/presentations/server/methods/switchSlideMessage';

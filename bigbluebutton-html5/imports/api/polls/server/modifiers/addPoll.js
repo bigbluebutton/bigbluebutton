@@ -1,14 +1,14 @@
 import Polls from '/imports/api/polls';
 import { logger } from '/imports/startup/server/logger';
+import { check } from 'meteor/check';
 
-export function addPollToCollection(poll, requesterId, users, meetingId) {
-  // copying all the userids into an array
-  let newUsers = [];
-  newUsersLength = users.length;
-  for (let i = 0; i < newUsersLength; i++) {
-    const user = users[i];
-    newUsers.push(user.user.userid);
-  }
+export default function addPoll(poll, requesterId, users, meetingId) {
+  check(poll, Object);
+  check(requesterId, String);
+  check(users, Array);
+  check(meetingId, String);
+
+  const userIds = users.map(user => user.user.userid);
 
   // adding the initial number of votes for each answer
   // _answers = poll.answers;
@@ -24,14 +24,14 @@ export function addPollToCollection(poll, requesterId, users, meetingId) {
   numRespondents = -1;
 
   // adding all together and inserting into the Polls collection
-  const entry = {
+  const newPoll = {
     meetingId: meetingId,
     poll: poll,
     requester: requesterId,
-    users: newUsers,
+    users: userIds,
     num_responders: -1,
     num_respondents: -1,
   };
   logger.info(`added poll _id=[${poll.id}]:meetingId=[${meetingId}].`);
-  return Polls.insert(entry);
+  return Polls.insert(newPoll);
 };

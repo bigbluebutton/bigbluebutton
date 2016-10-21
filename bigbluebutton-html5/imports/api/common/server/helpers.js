@@ -6,7 +6,7 @@ import { clearPresentationsCollection }
   from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
 import { clearMeetingsCollection }
   from '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
-import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
+import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
 import { clearCaptionsCollection }
   from '/imports/api/captions/server/modifiers/clearCaptionsCollection';
@@ -44,7 +44,7 @@ export function clearCollections() {
     clearShapesCollection(meetingId);
     clearSlidesCollection(meetingId);
     clearPresentationsCollection(meetingId);
-    clearPollCollection(meetingId);
+    clearPolls(meetingId);
     clearCursorCollection(meetingId);
     clearCaptionsCollection(meetingId);
   } else {
@@ -54,7 +54,7 @@ export function clearCollections() {
     clearShapesCollection();
     clearSlidesCollection();
     clearPresentationsCollection();
-    clearPollCollection();
+    clearPolls();
     clearCursorCollection();
     clearCaptionsCollection();
   }
