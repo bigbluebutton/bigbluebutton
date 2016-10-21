@@ -4,7 +4,7 @@ import spray.json.{ DefaultJsonProtocol, JsValue, JsString, DeserializationExcep
 import org.bigbluebutton.core.api._
 
 object UserMessagesProtocol extends DefaultJsonProtocol {
-  /*  
+  /*
   implicit object RoleJsonFormat extends JsonFormat[Role.RoleType] {
   	def write(obj: Role.RoleType): JsValue = JsString(obj.toString)
   	
@@ -20,21 +20,20 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
 
     def read(json: JsValue): MessageType.MessageType = json match {
       case JsString(str) => MessageType.withName(str)
-      case _ => throw new DeserializationException("Enum string expected")
+      case _             => throw new DeserializationException("Enum string expected")
     }
   }
 
-  implicit val breakoutRoomInPayloadFormat = jsonFormat2(BreakoutRoomInPayload)
-  implicit val createBreakoutRoomsFormat = jsonFormat4(CreateBreakoutRooms)
+  implicit val breakoutRoomInPayloadFormat = jsonFormat3(BreakoutRoomInPayload)
+  implicit val createBreakoutRoomsFormat = jsonFormat5(CreateBreakoutRooms)
   implicit val breakoutRoomsListMessageFormat = jsonFormat1(BreakoutRoomsListMessage)
-  implicit val requestBreakoutJoinURLInMessageFormat = jsonFormat3(RequestBreakoutJoinURLInMessage)
+  implicit val requestBreakoutJoinURLInMessageFormat = jsonFormat4(RequestBreakoutJoinURLInMessage)
   implicit val transferUserToMeetingRequestFormat = jsonFormat3(TransferUserToMeetingRequest)
   implicit val endBreakoutRoomsFormat = jsonFormat1(EndAllBreakoutRooms)
   implicit val inMsgHeaderFormat = jsonFormat1(InMessageHeader)
   implicit val outMsgHeaderFormat = jsonFormat1(OutMsgHeader)
   implicit val outMsgEnvelopeHeaderFormat = jsonFormat2(OutMsgEnvelopeHeader)
-  implicit val createBreakoutRoomOutMsgPayloadFormat = jsonFormat10(CreateBreakoutRoomOutMsgPayload)
+  implicit val createBreakoutRoomOutMsgPayloadFormat = jsonFormat11(CreateBreakoutRoomOutMsgPayload)
   implicit val createBreakoutRoomOutMsgEnvelopePayloadFormat = jsonFormat2(CreateBreakoutRoomOutMsgEnvelopePayload)
   implicit val createBreakoutRoomOutMsgEnvelopeFormat = jsonFormat2(CreateBreakoutRoomOutMsgEnvelope)
-
 }

@@ -44,7 +44,7 @@ libraryDependencies ++= {
     //    "org.pegdown"               %  "pegdown"           % "1.4.0",
     //    "junit"                     %  "junit"             % "4.11",
     //    "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
-    "commons-codec"             %  "commons-codec"     % "1.8",
+    "commons-codec"             %  "commons-codec"     % "1.10",
         "redis.clients"             %  "jedis"             % "2.7.2",
     //    "org.apache.commons"        %  "commons-lang3"     % "3.2",
     "org.apache.commons"        %  "commons-pool2"     % "2.3",

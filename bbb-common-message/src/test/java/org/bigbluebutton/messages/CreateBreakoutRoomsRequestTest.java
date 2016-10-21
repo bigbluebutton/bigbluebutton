@@ -15,23 +15,24 @@ public class CreateBreakoutRoomsRequestTest {
     String meetingId = "abc123";
     Integer durationInMinutes = 20;
     Boolean record = true;
+    Boolean redirectOnJoin = false;
     
     ArrayList<String> room1Users = new ArrayList<String>();
     room1Users.add("Tidora"); room1Users.add("Nidora"); room1Users.add("Tinidora");
-    BreakoutRoomRequestPayload room1 = new BreakoutRoomRequestPayload("room1", room1Users);
+    BreakoutRoomRequestPayload room1 = new BreakoutRoomRequestPayload("room1", 1, room1Users);
     
     ArrayList<String> room2Users = new ArrayList<String>();
     room2Users.add("Jose"); room2Users.add("Wally"); room2Users.add("Paolo");
-    BreakoutRoomRequestPayload room2= new BreakoutRoomRequestPayload("room2", room2Users);
+    BreakoutRoomRequestPayload room2= new BreakoutRoomRequestPayload("room2", 2, room2Users);
     
     ArrayList<String> room3Users = new ArrayList<String>();
     room3Users.add("Alden"); room3Users.add("Yaya Dub");
-    BreakoutRoomRequestPayload room3= new BreakoutRoomRequestPayload("room3", room3Users);
+    BreakoutRoomRequestPayload room3= new BreakoutRoomRequestPayload("room3", 3, room3Users);
     
     ArrayList<BreakoutRoomRequestPayload> rooms = new ArrayList<BreakoutRoomRequestPayload>();
     rooms.add(room1); rooms.add(room2); rooms.add(room3);
     
-    CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(meetingId, rooms, durationInMinutes, record);
+    CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(meetingId, rooms, durationInMinutes, record, redirectOnJoin);
     CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(payload);    
     Gson gson = new Gson();
     String json = gson.toJson(msg);

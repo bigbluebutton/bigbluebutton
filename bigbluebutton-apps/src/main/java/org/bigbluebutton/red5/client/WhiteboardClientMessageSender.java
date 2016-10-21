@@ -1,6 +1,5 @@
 package org.bigbluebutton.red5.client;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
