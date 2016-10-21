@@ -16,22 +16,20 @@ Meteor.publish('polls', (credentials) => {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  //checking if it is allowed to see a number of votes (presenter only)
-  if (isAllowedTo('subscribeAnswers', credentials)) {
-    logger.info(`publishing Poll for presenter: ${meetingId} ${requesterUserId} ${requesterToken}`);
-    return Polls.find({
-      meetingId: meetingId,
-      users: requesterUserId,
-    });
-  } else {
-    logger.info(`publishing Poll for viewer: ${meetingId} ${requesterUserId} ${requesterToken}`);
-    return Polls.find({
-      meetingId: meetingId,
-      users: requesterUserId,
-    }, {
+  const selector = {
+    meetingId: meetingId,
+    users: requesterUserId,
+  };
+
+  let options = null;
+
+  if (!isAllowedTo('subscribeAnswers', credentials)) {
+    options = {
       fields: {
         'poll.answers.num_votes': 0,
       },
-    });
+    };
   }
+
+  return Polls.find(selector, options);
 });

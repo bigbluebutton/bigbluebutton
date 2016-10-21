@@ -1,16 +1,38 @@
+import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function addPoll(poll, requesterId, users, meetingId) {
+export default function addPoll(meetingId, requesterId, poll) {
   check(poll, Object);
   check(requesterId, String);
-  check(users, Array);
   check(meetingId, String);
 
-  const userIds = users.map(user => user.user.userid);
+  const documentExists = Meetings.findOne({
+    meetingId: meetingId,
+  });
 
-  const selector = {
+  if (!documentExists) {
+    throw new Meteor.error('meeting-not-found', `Meeting id=${meetingId} was not found`);
+  }
+
+  let selector = {
+    meetingId: meetingId,
+  };
+
+  const options = {
+    fields: {
+      'user.userid': 1,
+      _id: 0,
+    },
+  };
+
+  const userIds = Users.find(selector, options)
+                       .fetch()
+                       .map(user => user.user.userid);
+
+  selector = {
     meetingId,
     requester: requesterId,
     'poll.id': poll.id,
@@ -24,16 +46,16 @@ export default function addPoll(poll, requesterId, users, meetingId) {
   };
 
   const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding poll to collection: ${err}`);
+    if (err != null) {
+      return Logger.error(`Adding Poll to collection: ${poll.id}`);
     }
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added poll id=${poll.id}`);
+      return Logger.info(`Added Poll id=${poll.id}`);
     }
 
-    return Logger.info(`Added poll id=${poll.id}`);
+    return Logger.info(`Upserted Poll id=${poll.id}`);
   };
 
   return Polls.upsert(selector, modifier, cb);

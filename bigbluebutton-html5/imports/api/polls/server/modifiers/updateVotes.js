@@ -39,10 +39,10 @@ export default function updateVotes(poll, meetingId, requesterId) {
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`updating Polls collection: ${err}`);
+      return Logger.error(`Updating Polls collection: ${err}`);
     }
 
-    Logger.info(`updating Polls collection (meetingId: ${meetingId}, pollId: ${id}!)`);
+    Logger.info(`Updating Polls collection (meetingId: ${meetingId}, pollId: ${id}!)`);
   };
 
   return Polls.update(selector, modifier, cb);
