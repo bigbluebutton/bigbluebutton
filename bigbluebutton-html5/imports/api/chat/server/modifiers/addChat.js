@@ -16,7 +16,7 @@ const parseMessage = (message) => {
   return message;
 };
 
-export default function addChatToCollection(meetingId, message) {
+export default function addChat(meetingId, message) {
   // manually convert time from 1.408645053653E12 to 1408645053653 if necessary
   // (this is the time_from that the Flash client outputs)
   message.from_time = +(message.from_time.toString().split('.').join('').split('E')[0]);
@@ -38,18 +38,20 @@ export default function addChatToCollection(meetingId, message) {
   };
 
   const modifier = {
-    meetingId: meetingId,
-    message: {
-      chat_type: message.chat_type,
-      message: message.message,
-      to_username: message.to_username,
-      from_tz_offset: message.from_tz_offset,
-      from_color: message.from_color,
-      to_userid: message.to_userid,
-      from_userid: message.from_userid,
-      from_time: message.from_time,
-      from_username: message.from_username,
-      from_lang: message.from_lang,
+    $set: {
+      meetingId: meetingId,
+      message: {
+        chat_type: message.chat_type,
+        message: message.message,
+        to_username: message.to_username,
+        from_tz_offset: message.from_tz_offset,
+        from_color: message.from_color,
+        to_userid: message.to_userid,
+        from_userid: message.from_userid,
+        from_time: message.from_time,
+        from_username: message.from_username,
+        from_lang: message.from_lang,
+      },
     },
   };
 
@@ -62,7 +64,7 @@ export default function addChatToCollection(meetingId, message) {
 
     if (insertedId) {
       const to = message.to_username || 'PUBLIC';
-      return Logger.info(`Added chat id=${insertedId} from ${message.from_username} to ${to}`);
+      return Logger.info(`Added chat id=${insertedId} from=${message.from_username} to=${to}`);
     }
   };
 

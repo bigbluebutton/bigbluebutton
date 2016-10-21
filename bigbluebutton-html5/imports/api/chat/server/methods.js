@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
-import sendChatMessage from './methods/sendChatMessage';
+import sendChat from './methods/sendChat';
 
 Meteor.methods({
-  sendChatMessage,
-  sendChatMessagetoServer: sendChatMessage, // legacy
+  sendChat,
+  sendChatMessagetoServer: sendChat, // legacy
 });

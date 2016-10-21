@@ -1,5 +1,5 @@
 import { clearUsersCollection } from '/imports/api/users/server/modifiers/clearUsersCollection';
-import { clearChatCollection} from '/imports/api/chat/server/modifiers/clearChatCollection';
+import clearChats from '/imports/api/chat/server/modifiers/clearChats';
 import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
 import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
 import { clearPresentationsCollection }
@@ -39,7 +39,7 @@ export function clearCollections() {
   const meetingId = arguments[0];
   if (meetingId != null) {
     clearUsersCollection(meetingId);
-    clearChatCollection(meetingId);
+    clearChats(meetingId);
     clearMeetingsCollection(meetingId);
     clearShapesCollection(meetingId);
     clearSlidesCollection(meetingId);
@@ -49,7 +49,7 @@ export function clearCollections() {
     clearCaptionsCollection(meetingId);
   } else {
     clearUsersCollection();
-    clearChatCollection();
+    clearChats();
     clearMeetingsCollection();
     clearShapesCollection();
     clearSlidesCollection();

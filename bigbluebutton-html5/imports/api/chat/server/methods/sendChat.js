@@ -32,7 +32,7 @@ const parseMessage = (message) => {
   return message;
 };
 
-export default function sendChatMessage(credentials, message) {
+export default function sendChat(credentials, message) {
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toBBBApps.chat;
 
@@ -56,7 +56,7 @@ export default function sendChatMessage(credentials, message) {
 
   if (!isAllowedTo(actionName, credentials)
       && message.from_userid !== requesterUserId) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to sendChatMessage`);
+    throw new Meteor.Error('not-allowed', `You are not allowed to sendChat`);
   }
 
   let payload = {
