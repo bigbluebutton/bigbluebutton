@@ -11,7 +11,15 @@ export default function removePoll(meetingId, pollId) {
     'poll.id': pollId,
   };
 
-  const cb = () => { Logger.info(`Removed Poll: (meetingId: ${meetingId}) (pollId: ${pollId})`); };
+  const cb = (err, numChanged) => {
+    if (err) {
+      return Logger.error(`Removing Poll from collection: ${err}`);
+    }
+
+    if (numChanged) {
+      return Logger.info(`Removed Poll id=${pollId}`);
+    }
+  };
 
   return Polls.remove(selector, cb);
 };

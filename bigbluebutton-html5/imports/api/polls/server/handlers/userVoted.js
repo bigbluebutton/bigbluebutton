@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import updatePoll from '../modifiers/updatePoll';
+import updateVotes from '../modifiers/updateVotes';
 
 export default function userVoted({ payload }) {
   check(payload, Object);
@@ -12,5 +12,5 @@ export default function userVoted({ payload }) {
   check(poll, Object);
   check(requesterId, String);
 
-  updatePoll(poll, meetingId, requesterId);
+  return updateVotes(poll, meetingId, requesterId);
 };

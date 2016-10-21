@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 export default function clearPolls(meetingId) {
   if (meetingId) {
     return Polls.remove({ meetingId, }, Logger.info(`Cleared Polls (${meetingId})`));
-  } else {
-    return Polls.remove({}, Logger.info('Cleared Polls (all)'));
   }
+
+  return Polls.remove({}, Logger.info('Cleared Polls (all)'));
 };

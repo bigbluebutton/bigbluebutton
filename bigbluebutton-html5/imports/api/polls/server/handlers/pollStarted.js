@@ -32,6 +32,6 @@ export default function pollStarted({ payload }) {
 
     const users = Users.find(selector, options).fetch();
 
-    addPoll(poll, requesterId, users, meetingId);
+    return addPoll(poll, requesterId, users, meetingId);
   }
 }

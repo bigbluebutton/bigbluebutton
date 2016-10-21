@@ -2,7 +2,7 @@ import Polls from '/imports/api/polls';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default function updatePoll(poll, meetingId, requesterId) {
+export default function updateVotes(poll, meetingId, requesterId) {
   check(meetingId, String);
   check(requesterId, String);
   check(poll, Object);
@@ -29,14 +29,16 @@ export default function updatePoll(poll, meetingId, requesterId) {
 
   const modifier = {
     $set: {
-      poll: { answers: answers },
-      poll: { num_responders: numResponders },
-      poll: { num_respondents: numRespondents },
+      poll: {
+        answers: answers,
+        num_responders: numResponders,
+        num_respondents: numRespondents,
+      },
     },
   };
 
   const cb = (err, numChanged) => {
-    if (err != null) {
+    if (err) {
       return Logger.error(`updating Polls collection: ${err}`);
     }
 

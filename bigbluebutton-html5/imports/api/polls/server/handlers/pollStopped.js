@@ -15,8 +15,8 @@ export default function pollStopped({ payload }) {
 
     check(pollId, String);
 
-    removePoll(meetingId, pollId);
+    return removePoll(meetingId, pollId);
   } else {
-    clearPolls(meetingId);
+    return clearPolls(meetingId);
   }
 }

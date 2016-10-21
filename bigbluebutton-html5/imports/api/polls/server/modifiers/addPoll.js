@@ -6,12 +6,15 @@ export default function addPoll(poll, requesterId, users, meetingId) {
   check(poll, Object);
   check(requesterId, String);
   check(users, Array);
-
-  if (meetingId) {
-    check(meetingId, String);
-  }
+  check(meetingId, String);
 
   const userIds = users.map(user => user.user.userid);
+
+  const selector = {
+    meetingId,
+    requester: requesterId,
+    'poll.id': poll.id,
+  };
 
   const modifier = {
     meetingId,
@@ -21,7 +24,7 @@ export default function addPoll(poll, requesterId, users, meetingId) {
   };
 
   const cb = (err, numChanged) => {
-    if (err != null) {
+    if (err) {
       return Logger.error(`Adding poll to collection: ${err}`);
     }
 
@@ -33,5 +36,5 @@ export default function addPoll(poll, requesterId, users, meetingId) {
     return Logger.info(`Added poll id=${poll.id}`);
   };
 
-  return Polls.insert(modifier, cb);
+  return Polls.upsert(selector, modifier, cb);
 };
