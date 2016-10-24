@@ -12,13 +12,13 @@ export default function handleRecordingStatusChange({ payload }) {
   check(currentlyBeingRecorded, Boolean);
 
   const selector = {
-    meetingId: meetingId,
-    intendedForRecording: intendedForRecording,
+    meetingId,
+    intendedForRecording,
   };
 
   const modifier = {
     $set: {
-      currentlyBeingRecorded: currentlyBeingRecorded,
+      currentlyBeingRecorded,
     },
   };
 
@@ -27,7 +27,9 @@ export default function handleRecordingStatusChange({ payload }) {
       return Logger.error(`Updating meeting recording status: ${err}`);
     }
 
-    return Logger.info(`Updated meeting recording status id=${meetingId}`);
+    if (numChanged) {
+      return Logger.info(`Updated meeting recording status id=${meetingId}`);
+    }
   };
 
   return Meetings.update(selector, modifier, cb);

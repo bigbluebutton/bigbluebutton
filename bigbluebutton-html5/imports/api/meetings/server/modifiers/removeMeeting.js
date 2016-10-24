@@ -17,7 +17,7 @@ export default function removeMeeting(meetingId) {
   check(meetingId, String);
 
   const selector = {
-    meetingId: meetingId,
+    meetingId,
   };
 
   const cb = (err, numChanged) => {

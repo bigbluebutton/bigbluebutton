@@ -5,7 +5,6 @@ import handlePermissionSettingsChange from './handlers/permissionSettingsChange'
 import handleMeetingCreation from './handlers/meetingCreation';
 import handleGetAllMettings from './handlers/getAllMeetings';
 
-// do we really need to destroy in both events?
 RedisPubSub.on('meeting_destroyed_event', handleMeetingDestruction);
 RedisPubSub.on('meeting_ended_message', handleMeetingDestruction);
 RedisPubSub.on('end_and_kick_all_message', handleMeetingDestruction);

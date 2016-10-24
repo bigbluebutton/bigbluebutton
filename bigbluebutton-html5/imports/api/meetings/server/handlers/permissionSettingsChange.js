@@ -10,15 +10,15 @@ export default function handlePermissionSettingsChange({ payload }) {
   check(meetingId, String);
   check(permissions, Object);
 
-  const Meeting = Meetings.findOne({ meetingId: meetingId });
+  const selector = {
+    meetingId,
+  };
+
+  const Meeting = Meetings.findOne(selector);
 
   if (!Meeting) {
     throw new Meteor.error('meeting-not-found', `Meeting id=${meetingId} was not found`);
   }
-
-  const selector = {
-    meetingId: meetingId,
-  };
 
   const modifier = {
     $set: {
@@ -43,7 +43,9 @@ export default function handlePermissionSettingsChange({ payload }) {
       handleLockingMic(meetingId, permissions);
     }
 
-    return Logger.info(`Updated meeting permissions id=${meetingId}`);
+    if (numChanged) {
+      return Logger.info(`Updated meeting permissions id=${meetingId}`);
+    }
   };
 
   return Meetings.update(selector, modifier, cb);

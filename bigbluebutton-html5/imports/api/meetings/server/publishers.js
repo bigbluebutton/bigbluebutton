@@ -13,6 +13,6 @@ Meteor.publish('meetings', (credentials) => {
   Logger.info(`Publishing meeting=${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Meetings.find({
-    meetingId: meetingId,
+    meetingId,
   });
 });

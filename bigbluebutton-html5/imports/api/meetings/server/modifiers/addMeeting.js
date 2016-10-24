@@ -11,12 +11,12 @@ export default function addMeeting(meeting) {
   check(meetingId, String);
 
   const selector = {
-    meetingId: meetingId,
+    meetingId,
   };
 
   const modifier = {
     $set: {
-      meetingId: meetingId,
+      meetingId,
       meetingName: meeting.name,
       intendedForRecording: meeting.recorded,
       currentlyBeingRecorded: false,
