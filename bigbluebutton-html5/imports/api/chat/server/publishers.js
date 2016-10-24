@@ -9,6 +9,9 @@ Meteor.publish('chat', (credentials) => {
     this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'chats'"));
   }
 
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+  const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -20,14 +23,14 @@ Meteor.publish('chat', (credentials) => {
   return Chat.find({
     $or: [
       {
-        'message.chat_type': 'PUBLIC_CHAT',
-        meetingId: meetingId,
+        'message.chat_type': PUBLIC_CHAT_TYPE,
+        meetingId,
       }, {
         'message.from_userid': requesterUserId,
-        meetingId: meetingId,
+        meetingId,
       }, {
         'message.to_userid': requesterUserId,
-        meetingId: meetingId,
+        meetingId,
       },
     ],
   });

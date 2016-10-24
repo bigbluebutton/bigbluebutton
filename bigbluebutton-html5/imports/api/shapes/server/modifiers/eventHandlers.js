@@ -14,9 +14,9 @@ eventEmitter.on('get_whiteboard_shapes_reply', function (arg) {
       let whiteboardId = shape.wb_id;
       addShapeToCollection(meetingId, whiteboardId, shape);
     }
-
-    return arg.callback();
   }
+
+  return arg.callback();
 });
 
 eventEmitter.on('send_whiteboard_shape_message', function (arg) {

@@ -1,6 +1,6 @@
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import addChatToCollection from '../modifiers/addChatToCollection';
+import addChat from '../modifiers/addChat';
 
 export default function handleChatMessage({ payload, header }) {
   const message = payload.message;
@@ -13,5 +13,5 @@ export default function handleChatMessage({ payload, header }) {
   // chats from Flash and HTML5 have uniform times
   message.from_time = +(header.current_time);
 
-  return addChatToCollection(meetingId, message);
+  return addChat(meetingId, message);
 };

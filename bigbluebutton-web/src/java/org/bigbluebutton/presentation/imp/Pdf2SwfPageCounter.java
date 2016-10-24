@@ -21,7 +21,6 @@ package org.bigbluebutton.presentation.imp;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,7 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bigbluebutton.presentation.PageCounter;
-import org.bigbluebutton.presentation.imp.ExternalProcessExecutor.InterruptTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

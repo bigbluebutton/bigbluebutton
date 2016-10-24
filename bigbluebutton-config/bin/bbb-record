@@ -33,7 +33,7 @@
 #   2013-04-05 GUG  Description is optional in bbb-record --watch
 #   2013-04-05 GUG  Map internal meeting id with external meeting id
 #   2016-07-02 FFD  Updates for 1.1
-#   2016-09-27 GTR  Stricter recording directories names detection to cover breakout rooms recordings
+#   2016-10-17 GTR  Stricter rule for detection of recording directories names
 
 #set -e
 #set -x
@@ -408,7 +408,7 @@ if [ $DELETEALL ]; then
   rm -f /var/bigbluebutton/screenshare/*.flv
   rm -f /var/freeswitch/meetings/*.wav
 
-  for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}-\?[[:digit:]]\{1\}\?$"); do
+  for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
     echo "deleting: $meeting"
     rm -rf /var/bigbluebutton/$meeting
   done
@@ -448,10 +448,10 @@ if [ -z $HEAD ]; then
 fi
 
 tmp_file=$(mktemp)
-ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}-\?[[:digit:]]\{1\}\?$" | head -n $HEAD > $tmp_file
-ls -t /var/bigbluebutton/recording/raw | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}-\?[[:digit:]]\{1\}\?$" | head -n $HEAD >> $tmp_file
+ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD > $tmp_file
+ls -t /var/bigbluebutton/recording/raw | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD >> $tmp_file
                                                  
-#for meeting in $(ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}-\?[[:digit:]]\{1\}\?$" | head -n $HEAD); do
+#for meeting in $(ls -t /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD); do
 for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	echo -n "$meeting"
 	timestamp=$(echo $meeting | sed s/.*-//g)

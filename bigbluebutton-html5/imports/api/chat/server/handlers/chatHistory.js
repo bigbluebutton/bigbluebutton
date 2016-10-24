@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
-import addChatToCollection from '../modifiers/addChatToCollection';
+import addChat from '../modifiers/addChat';
 
 export default function handleChatHistory({ payload }) {
   if (!inReplyToHTML5Client({ payload })) {
@@ -17,7 +17,7 @@ export default function handleChatHistory({ payload }) {
   let chatsAdded = [];
 
   chatHistory.forEach(message => {
-    chatsAdded.push(addChatToCollection(meetingId, message));
+    chatsAdded.push(addChat(meetingId, message));
   });
 
   return chatsAdded;
