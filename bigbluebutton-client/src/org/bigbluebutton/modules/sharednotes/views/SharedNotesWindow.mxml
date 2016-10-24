@@ -38,7 +38,9 @@
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import com.asfusion.mate.events.Dispatcher;
-			
+
+			import flash.events.KeyboardEvent;
+			import flash.ui.Keyboard;
 			import flash.utils.getTimer;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -343,20 +345,31 @@
 				PopUpManager.centerPopUp(noteNameWindow);
 			}
 
-			protected function btnUndo_clickHandler(event:MouseEvent):void
-			{
+			protected function btnUndo_clickHandler(event:MouseEvent = null):void {
 				var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 				sendPatchEvent.noteId = noteId;
 				sendPatchEvent.operation = "UNDO";
 				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
-			protected function btnRedo_clickHandler(event:MouseEvent):void
-			{
+			protected function btnRedo_clickHandler(event:MouseEvent = null):void {
 				var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 				sendPatchEvent.noteId = noteId;
 				sendPatchEvent.operation = "REDO";
 				_dispatcher.dispatchEvent(sendPatchEvent);
+			}
+
+			public function handleCtrlCmd(event:KeyboardEvent):void {
+				switch (event.keyCode) {
+					case Keyboard.Z:
+						if (btnUndo.enabled) btnUndo_clickHandler();
+						break;
+					case Keyboard.Y:
+						if (btnRedo.enabled) btnRedo_clickHandler();
+						break;
+					default:
+						break;
+				}
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
