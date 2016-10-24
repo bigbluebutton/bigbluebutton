@@ -5,11 +5,12 @@ import org.bigbluebutton.core.api.SharedNotesOperation._
 import name.fraser.neil.plaintext.diff_match_patch
 import name.fraser.neil.plaintext.diff_match_patch._
 import scala.collection.mutable.Stack
+import scala.collection.mutable.HashMap
 import scala.collection._
 import java.util.Collections
 
 class SharedNotesModel {
-  val notes = new scala.collection.mutable.HashMap[String, Note]()
+  val notes = new HashMap[String, Note]()
   notes += ("MAIN_WINDOW" -> new Note("", "", 0, new Stack(), new Stack()))
   private val patcher = new diff_match_patch()
   private var notesCounter = 0;
@@ -82,5 +83,16 @@ class SharedNotesModel {
 
   def notesSize(): Int = {
     notes.size
+  }
+
+  def notesReport: HashMap[String, NoteReport] = {
+    notes.synchronized {
+      var report = new HashMap[String, NoteReport]()
+      notes foreach {
+        case (id, note) =>
+          report += (id -> new NoteReport(note.name, note.document, note.patchCounter, !note.undoPatches.isEmpty, !note.redoPatches.isEmpty))
+      }
+      report
+    }
   }
 }

@@ -159,6 +159,7 @@
 				richTextEditor.htmlText = _document;
 				if (!this.enabled) this.enabled = true;
 				updateTitle();
+				updateUndoRedoButtons(note["undo"], note["redo"]);
 			}
 
 			private function sendPatch():void {

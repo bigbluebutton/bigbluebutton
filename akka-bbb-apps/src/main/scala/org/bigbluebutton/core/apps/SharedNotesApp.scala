@@ -23,9 +23,9 @@ trait SharedNotesApp {
   }
 
   def handleGetCurrentDocumentRequest(msg: GetCurrentDocumentRequest) {
-    val copyNotes = notesModel.notes.toMap
+    val notesReport = notesModel.notesReport.toMap
 
-    outGW.send(new GetCurrentDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, copyNotes))
+    outGW.send(new GetCurrentDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, notesReport))
   }
 
   private def createAdditionalNotes(requesterID: String, noteName: String = "") {

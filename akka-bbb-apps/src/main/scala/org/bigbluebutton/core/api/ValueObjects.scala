@@ -153,9 +153,22 @@ case class MeetingDuration(duration: Int = 0, createdTime: Long = 0,
 
 case class MeetingInfo(meetingID: String, meetingName: String, recorded: Boolean, voiceBridge: String, duration: Long)
 
+trait BaseNote {
+  def name: String
+  def document: String
+  def patchCounter: Int
+}
+
 case class Note(
   name: String,
   document: String,
   patchCounter: Int,
   undoPatches: Stack[(String, String)],
-  redoPatches: Stack[(String, String)])
+  redoPatches: Stack[(String, String)]) extends BaseNote
+
+case class NoteReport(
+  name: String,
+  document: String,
+  patchCounter: Int,
+  undo: Boolean,
+  redo: Boolean) extends BaseNote
