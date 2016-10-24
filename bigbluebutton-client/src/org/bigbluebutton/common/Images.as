@@ -52,10 +52,10 @@ package org.bigbluebutton.common
 	[Embed(source="assets/images/sound_new.png")]
 	public var sound_new:Class;
 	
-	[Embed(source="assets/images/moderator.png")]
+	[Embed(source="assets/images/moderator_20db.png")]
 	public var moderator:Class;
 	
-	[Embed(source="assets/images/presenter_new.png")]
+	[Embed(source="assets/images/presenter_new_20db.png")]
 	public var presenter_new:Class;
 	
     [Embed(source="assets/images/webcam_kickuser.png")]
@@ -148,7 +148,7 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/mic_unmuted.png")]
         public var sound_none:Class;
         
-        [Embed(source="assets/images/sound.png")]
+        [Embed(source="assets/images/ic_hearing_grey_20dp.png")]
         public var sound:Class;                
 
         [Embed(source="assets/images/cancel.png")]
@@ -337,40 +337,43 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/user_delete.png")]
 		public var user_delete:Class;
 	
-		[Embed(source="assets/images/status/ic_mood_black_18dp.png")]
+		[Embed(source="assets/images/status/ic_mood_grey_20dp.png")]
 		public var mood:Class;
 
-		[Embed(source="assets/images/status/ic_clear_black_18dp.png")]
+		[Embed(source="assets/images/status/ic_clear_grey_20dp.png")]
 		public var mood_clear:Class;
 
-		[Embed(source="assets/images/status/icon-3-high-five.png")]
+		[Embed(source="assets/images/status/icon-3-grey-high-five.png")]
 		public var mood_raiseHand:Class;
 
-		[Embed(source="assets/images/status/icon-6-thumb-up.png")]
+		[Embed(source="assets/images/status/icon-6-grey-thumb-up.png")]
 		public var mood_agree:Class;
 
-		[Embed(source="assets/images/status/icon-7-thumb-down.png")]
+		[Embed(source="assets/images/status/icon-7-grey-thumb-down.png")]
 		public var mood_disagree:Class;
 
-		[Embed(source="assets/images/status/ic_fast_forward_black_18dp.png")]
+		[Embed(source="assets/images/status/ic_fast_forward_grey_20dp.png")]
 		public var mood_speakFaster:Class;
 
-		[Embed(source="assets/images/status/ic_fast_rewind_black_18dp.png")]
+		[Embed(source="assets/images/status/ic_fast_rewind_grey_20dp.png")]
 		public var mood_speakSlower:Class;
 
-		[Embed(source="assets/images/status/ic_volume_up_black_18dp.png")]
+		[Embed(source="assets/images/status/ic_volume_up_grey_20dp.png")]
 		public var mood_speakLouder:Class;
 
-		[Embed(source="assets/images/status/ic_volume_down_black_18dp.png")]
+		[Embed(source="assets/images/status/ic_volume_down_grey_20dp.png")]
 		public var mood_speakSofter:Class;
 
-		[Embed(source="assets/images/status/ic_access_time_black_18dp.png")]
+		[Embed(source="assets/images/status/ic_access_time_grey_20dp.png")]
 		public var mood_beRightBack:Class;
 
-		[Embed(source="assets/images/status/icon-6-smiling-face.png")]
+		[Embed(source="assets/images/status/icon-6-grey-smiling-face.png")]
 		public var mood_happy:Class;
 
-		[Embed(source="assets/images/status/icon-7-sad-face.png")]
+		[Embed(source="assets/images/status/icon-7-grey-sad-face.png")]
 		public var mood_sad:Class;
+
+		[Embed(source="assets/images/status/applause-20.png")]
+		public var mood_applause:Class;
 	}
 }
