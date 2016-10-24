@@ -152,4 +152,5 @@ const handledMessageTypes = [
   'send_caption_history_reply_message',
   'edit_caption_history_message',
   'update_caption_owner_message',
+  'send_stun_turn_info_request_message',
 ];

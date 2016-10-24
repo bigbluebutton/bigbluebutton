@@ -59,10 +59,19 @@ Button.audioBtn:first-of-type {
   position: absolute;
   left: 10px;
   top: 10px;
+  border: none;
+  box-shadow: none;
+}
+
+.playSound {
+  border: none;
+  box-shadow: none;
 }
 
 .enterBtn {
   position: absolute;
   bottom: 10px;
   right: 10px;
+  border: none;
+  box-shadow: none;
 }

@@ -1,6 +1,11 @@
 import { eventEmitter } from '/imports/startup/server';
 import { updateVoiceUser } from '/imports/api/users/server/modifiers/updateVoiceUser';
 
+eventEmitter.on('send_stun_turn_info_reply_message', function (arg) {
+  // handleVoiceEvent(arg);
+  console.log('\n\n\n handling stun reply \n\n\n');
+});
+
 eventEmitter.on('user_left_voice_message', function (arg) {
   handleVoiceEvent(arg);
 });

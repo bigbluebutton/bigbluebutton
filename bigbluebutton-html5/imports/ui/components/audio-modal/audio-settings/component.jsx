@@ -1,8 +1,10 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
+import { joinListenOnly, joinMicrophone, exitAudio } from '/imports/api/phone';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
+import { callServer } from '/imports/ui/services/api';
 import styles from '../styles.scss';
 
 export default class AudioSettings extends React.Component {
@@ -10,6 +12,7 @@ export default class AudioSettings extends React.Component {
     super(props);
 
     this.chooseAudio = this.chooseAudio.bind(this);
+    this.joinAudio = this.joinAudio.bind(this);
   }
 
   handleClick() {
@@ -20,6 +23,11 @@ export default class AudioSettings extends React.Component {
     this.props.changeMenu(this.props.JOIN_AUDIO);
   }
 
+  joinAudio() {
+    // joinMicrophone();
+    callServer('getStun');
+  }
+
 
   render() {
     return (
@@ -28,8 +36,9 @@ export default class AudioSettings extends React.Component {
           <Button className={styles.backBtn}
             label={'Back'}
             icon={'left-arrow'}
-            size={'sm'}
-            hideLabel={false}
+            size={'md'}
+            color={'primary'}
+            ghost={true}
             onClick={this.chooseAudio}
           />
           <div>
@@ -51,12 +60,14 @@ export default class AudioSettings extends React.Component {
             <option value='2' disabled>2</option>
             <option value='3' disabled>3</option>
           </select><br />
-          <Button
+          <Button className={styles.playSound}
             label={'Play sound'}
             icon={'audio'}
             size={'md'}
+            color={'primary'}
+            ghost={true}
             onClick={this.handleClick}
-          />
+          /><br />
         </div>
         <div className={styles.half}>
           Please note, a dialog will appear in your browser,
@@ -67,7 +78,8 @@ export default class AudioSettings extends React.Component {
           <Button className={styles.enterBtn}
             label={'Enter Session'}
             size={'md'}
-            onClick={this.handleClick}
+            color={'primary'}
+            onClick={this.joinAudio}
           />
         </div>
       </div>
