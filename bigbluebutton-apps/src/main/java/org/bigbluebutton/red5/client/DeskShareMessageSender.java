@@ -3,12 +3,11 @@ package org.bigbluebutton.red5.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bigbluebutton.common.messages.ChatKeyUtil;
-import org.bigbluebutton.common.messages.DeskShareNotifyViewersRTMPEventMessage;
 import org.bigbluebutton.common.messages.DeskShareNotifyASingleViewerEventMessage;
+import org.bigbluebutton.common.messages.DeskShareNotifyViewersRTMPEventMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
-import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
+import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

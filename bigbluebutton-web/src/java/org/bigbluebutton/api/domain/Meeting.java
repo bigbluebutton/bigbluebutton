@@ -21,11 +21,11 @@ package org.bigbluebutton.api.domain;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,9 @@ public class Meeting {
 	
 	private String name;
 	private String extMeetingId;
-	private String intMeetingId;	
+	private String intMeetingId;
+	private String parentMeetingId;
+	private Integer sequence = 0;
 	private Integer duration = 0;	 
 	private long createdTime = 0;
 	private long startTime = 0;
@@ -152,7 +154,15 @@ public class Meeting {
 	public long getCreateTime() {
 		return createdTime;
 	}
-	
+
+	public Integer setSequence(Integer s) {
+        return sequence = s;
+    }
+
+	public Integer getSequence() {
+        return sequence;
+    }
+
 	public Integer getDuration() {
 		return duration;
 	}
@@ -199,6 +209,14 @@ public class Meeting {
 	
 	public String getInternalId() {
 		return intMeetingId;
+	}
+
+	public String setParentMeetingId(String p) {
+        return parentMeetingId = p;
+    }
+
+	public String getParentMeetingId() {
+	    return parentMeetingId;
 	}
 
 	public String getWebVoice() {
@@ -375,7 +393,7 @@ public class Meeting {
 	public static class Builder {
     	private String name;
     	private String externalId;
-    	private String internalId;   	
+    	private String internalId;
     	private int maxUsers;
     	private boolean record;
     	private boolean autoStartRecording;
@@ -393,18 +411,18 @@ public class Meeting {
     	private String defaultAvatarURL;
     	private long createdTime;
     	private boolean isBreakout;
-    	
+
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
     		this.internalId = internalId;
     		this.createdTime = createTime;
     	}
-    	
+ 
     	public Builder withName(String name) {
     		this.name = name;
     		return this;
     	}
-    	    	
+
     	public Builder withDuration(int minutes) {
     		duration = minutes;
     		return this;
@@ -474,7 +492,7 @@ public class Meeting {
     	  isBreakout = b;
     	  return this;
     	}
-    	   	
+
     	public Builder withLogoutUrl(String l) {
     		logoutUrl = l;
     		return this;

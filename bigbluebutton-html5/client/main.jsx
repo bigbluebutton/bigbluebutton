@@ -2,26 +2,18 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import { renderRoutes } from '../imports/startup/client/routes.js';
-import { IntlProvider, addLocaleData } from 'react-intl';
+import { IntlProvider } from 'react-intl';
 
-import Locales from '../imports/locales';
+function setMessages(data) {
+  let messages = data;
+  let defaultLocale = 'en';
 
-import en from 'react-intl/locale-data/en';
-import es from 'react-intl/locale-data/es';
-import pt from 'react-intl/locale-data/pt';
-
-/* TODO: Add this dynamically */
-addLocaleData([...en, ...es, ...pt]);
-
-// Safari sends us en-us instead of en-US
-let locale = navigator.language.split('-');
-locale = locale[1] ? `${locale[0]}-${locale[1].toUpperCase()}` : navigator.language;
-
-// locale = 'pt-BR'; // Set a locale for testing
-
-/* TODO: We should load the en first then merge with the en-US
-   (eg: load country translation then region) */
-let messages = Locales[locale] || Locales.en || {};
+  render((
+    <IntlProvider  locale={defaultLocale} messages={messages}>
+      {renderRoutes()}
+    </IntlProvider>
+  ), document.getElementById('app'));
+}
 
 // Helper to load javascript libraries from the BBB server
 function loadLib(libname, success, fail) {
@@ -54,9 +46,19 @@ Meteor.startup(() => {
   loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
 
-  render((
-    <IntlProvider locale={locale} messages={messages}>
-      {renderRoutes()}
-    </IntlProvider>
-  ), document.getElementById('app'));
+  let browserLanguage = navigator.language;
+  let request = new Request
+    (`${window.location.origin}/html5client/locale?locale=${browserLanguage}`);
+
+  fetch(request, { method: 'GET' })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      setMessages(data);
+    })
+    .catch(function error(err) {
+      console.log('request failed', err);
+    });
+
 });

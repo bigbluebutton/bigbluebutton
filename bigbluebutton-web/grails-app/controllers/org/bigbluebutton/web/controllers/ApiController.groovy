@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import javax.servlet.ServletRequest;
+
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,7 +29,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.api.domain.Config;
@@ -283,19 +286,9 @@ class ApiController {
       return
     }
 
-    Boolean isBreakoutRoom = false
-    if(!StringUtils.isEmpty(params.isBreakout)) {
-      isBreakoutRoom = new Boolean(StringUtils.strip(params.isBreakout))
-    }
-
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-    if (isBreakoutRoom) {
-      // This is a join request for a breakout room. Use the passed meetingId to find the meeting.
-      internalMeetingId = externalMeetingId
-      log.info("Join request for breakout room " + internalMeetingId)
-    }
 
     log.info("Retrieving meeting ${internalMeetingId}")
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
@@ -865,6 +858,11 @@ class ApiController {
                 for (m in mtgs) {
                   meeting {
                     meetingID() { mkp.yield(m.getExternalId()) }
+                    internalMeetingID() { mkp.yield(m.getInternalId()) }
+                    if (m.isBreakout()) {
+                        parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
+                        sequence(m.getSequence())
+                    }
                     isBreakout() { mkp.yield(m.isBreakout()) }
                     meetingName() { mkp.yield(m.getName()) }
                     createTime(m.getCreateTime())
@@ -2057,9 +2055,8 @@ class ApiController {
     }
   }
 
-
   def processDocumentFromRawBytes(bytes, presFilename, meetingId) {
-    def filenameExt = Util.getFilenameExt(presFilename);
+    def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
     def presId = Util.generatePresentationId(presFilename)
     File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId)
@@ -2080,13 +2077,13 @@ class ApiController {
   def downloadAndProcessDocument(address, meetingId) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
     String presFilename = address.tokenize("/")[-1];
-    def filenameExt = presDownloadService.getFilenameExt(presFilename);
+    def filenameExt = FilenameUtils.getExtension(presFilename);
     String presentationDir = presentationService.getPresentationDir()
 
     def presId = presDownloadService.generatePresentationId(presFilename)
     File uploadDir = presDownloadService.createPresentationDirectory(meetingId, presentationDir, presId)
     if (uploadDir != null) {
-      def newFilename = presDownloadService.createNewFilename(presId, filenameExt)
+      def newFilename = Util.createNewFilename(presId, filenameExt)
       def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
 
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
@@ -2133,6 +2130,10 @@ class ApiController {
             isBreakout() { mkp.yield(meeting.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
+            if (m.isBreakout()) {
+                parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+                sequence(meeting.getSequence())
+            }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
             voiceBridge() { mkp.yield(meeting.getTelVoice()) }
@@ -2192,6 +2193,8 @@ class ApiController {
           response() {
             returncode(RESP_CODE_SUCCESS)
             meetingID() { mkp.yield(meeting.getExternalId()) }
+            internalMeetingID() { mkp.yield(meeting.getInternalId()) }
+            parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
             attendeePW() { mkp.yield(meeting.getViewerPassword()) }
             moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
             createTime(meeting.getCreateTime())

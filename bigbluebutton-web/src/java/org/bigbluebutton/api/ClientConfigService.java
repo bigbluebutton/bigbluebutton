@@ -19,9 +19,6 @@
 
 package org.bigbluebutton.api;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -28,7 +28,7 @@ class NavBar extends Component {
   }
 
   render() {
-    const { presentationTitle, beingRecorded } = this.props;
+    const { presentationTitle, hasUnreadMessages, beingRecorded } = this.props;
     document.title = presentationTitle;
 
     return (
@@ -44,6 +44,7 @@ class NavBar extends Component {
           className={styles.btn}
         />
         </div>
+        {hasUnreadMessages ? <span className={styles.withdot}></span> : null}
         <div className={styles.center}>
           <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
           <span className={styles.divideBar}> | </span>

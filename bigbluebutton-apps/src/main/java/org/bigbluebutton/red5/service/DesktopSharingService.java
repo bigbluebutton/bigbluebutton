@@ -18,9 +18,6 @@
 */
 package org.bigbluebutton.red5.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;

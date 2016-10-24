@@ -19,28 +19,27 @@
 
 package org.bigbluebutton.api.messaging;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import javax.imageio.ImageIO;
+import java.util.Set;
+
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.bigbluebutton.common.converters.ToJsonEncoder;
+import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
-import org.bigbluebutton.common.messages.Constants;
-import org.bigbluebutton.common.messages.PubSubPingMessage;
-import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
-import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 
 public class RedisMessagingService implements MessagingService {
@@ -50,8 +49,8 @@ public class RedisMessagingService implements MessagingService {
 	private MessageSender sender;
 	private ToJsonEncoder encoder = new ToJsonEncoder();
 	
-	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-		storeService.recordMeetingInfo(meetingId, info);
+	public void recordMeetingInfo(String meetingId, Map<String, String> info, Map<String, String> breakoutInfo) {
+		storeService.recordMeetingInfo(meetingId, info, breakoutInfo);
 	}
 
 	public void destroyMeeting(String meetingID) {
@@ -68,22 +67,24 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
 	}
 	
-	public void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
-			                      String voiceBridge, Integer duration, 
-			                      Boolean autoStartRecording, Boolean allowStartStopRecording,
-			                      String moderatorPass, String viewerPass, Long createTime,
-			                      String createDate, Boolean isBreakout) {
-	  CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(meetingID, externalMeetingID, meetingName, 
-				                                  recorded, voiceBridge, duration, 
-				                                  autoStartRecording, allowStartStopRecording,
-				                                  moderatorPass, viewerPass, createTime, createDate, isBreakout);
-	  CreateMeetingRequest msg = new CreateMeetingRequest(payload);
-	  
-	  Gson gson = new Gson();
-		String json = gson.toJson(msg);
-		log.info("Sending create meeting message to bbb-apps:[{}]", json);
-		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);			
-	}
+    public void createMeeting(String meetingID, String externalMeetingID,
+            String parentMeetingID, String meetingName, Boolean recorded,
+            String voiceBridge, Integer duration, Boolean autoStartRecording,
+            Boolean allowStartStopRecording, String moderatorPass,
+            String viewerPass, Long createTime, String createDate,
+            Boolean isBreakout, Integer sequence) {
+        CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(
+                meetingID, externalMeetingID, parentMeetingID, meetingName,
+                recorded, voiceBridge, duration, autoStartRecording,
+                allowStartStopRecording, moderatorPass, viewerPass, createTime,
+                createDate, isBreakout, sequence);
+        CreateMeetingRequest msg = new CreateMeetingRequest(payload);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(msg);
+        log.info("Sending create meeting message to bbb-apps:[{}]", json);
+        sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);
+    }
 	
 	public void endMeeting(String meetingId) {
 		EndMeetingMessage msg = new EndMeetingMessage(meetingId);

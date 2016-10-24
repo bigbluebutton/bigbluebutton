@@ -29,6 +29,8 @@ object MeetingMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.EXTERNAL_MEETING_ID, msg.externalMeetingID)
+    payload.put(Constants.PARENT_MEETING_ID, msg.parentMeetingID)
+    payload.put(Constants.IS_BREAKOUT, msg.isBreakout)
     payload.put(Constants.NAME, msg.name)
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.VOICE_CONF, msg.voiceBridge)
@@ -145,8 +147,10 @@ object MeetingMessageToJsonConverter {
 
   def breakoutRoomStartedOutMessageToJson(msg: BreakoutRoomStartedOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingId", msg.meetingId)
-    payload.put("breakoutId", msg.breakout.breakoutId)
+    payload.put("meetingId", msg.breakout.meetingId)
+    payload.put("externalMeetingId", msg.breakout.externalMeetingId)
+    payload.put("parentMeetingId", msg.parentMeetingId)
+    payload.put("sequence", msg.breakout.sequence)
     payload.put("name", msg.breakout.name)
 
     val header = Util.buildHeader(BreakoutRoomStarted.NAME, None)
@@ -155,8 +159,8 @@ object MeetingMessageToJsonConverter {
 
   def breakoutRoomEndedOutMessageToJson(msg: BreakoutRoomEndedOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
+    payload.put("parentMeetingId", msg.parentMeetingId)
     payload.put("meetingId", msg.meetingId)
-    payload.put("breakoutId", msg.breakoutId)
 
     val header = Util.buildHeader(BreakoutRoomClosed.NAME, None)
     Util.buildJson(header, payload)
@@ -164,8 +168,8 @@ object MeetingMessageToJsonConverter {
 
   def breakoutRoomJoinURLOutMessageToJson(msg: BreakoutRoomJoinURLOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingId", msg.meetingId)
-    payload.put("breakoutId", msg.breakoutId)
+    payload.put("parentMeetingId", msg.parentMeetingId)
+    payload.put("breakoutMeetingId", msg.breakoutMeetingId)
     payload.put("userId", msg.userId)
     payload.put("joinURL", msg.joinURL)
 
@@ -175,8 +179,8 @@ object MeetingMessageToJsonConverter {
 
   def updateBreakoutUsersOutMessageToJson(msg: UpdateBreakoutUsersOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingId", msg.meetingId)
-    payload.put("breakoutId", msg.breakoutId)
+    payload.put("parentMeetingId", msg.parentMeetingId)
+    payload.put("breakoutMeetingId", msg.breakoutMeetingId)
     payload.put("recorded", msg.recorded)
     payload.put("users", msg.users.toArray)
 

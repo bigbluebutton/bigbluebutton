@@ -94,6 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				messages.push(obj);
 				showNotification();
+				LOGGER.warn("ClientNotification:" + e.title + " " + e.message);
 			}
 			
 			private function showNotification():void {

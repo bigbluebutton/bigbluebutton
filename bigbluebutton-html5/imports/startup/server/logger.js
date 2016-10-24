@@ -5,9 +5,10 @@ let Logger = new Winston.Logger();
 
 // Write logs to console
 Logger.add(Winston.transports.Console, {
-    prettyPrint: true,
-    humanReadableUnhandledException: true,
-    colorize: true,
+  prettyPrint: false,
+  humanReadableUnhandledException: true,
+  colorize: true,
+  handleExceptions: true,
 });
 
 Meteor.startup(() => {
@@ -22,8 +23,8 @@ Meteor.startup(() => {
     }
 
     Logger.add(Winston.transports.File, {
-        filename: filename,
-        prettyPrint: true,
+      filename: filename,
+      prettyPrint: true,
     });
   }
 });

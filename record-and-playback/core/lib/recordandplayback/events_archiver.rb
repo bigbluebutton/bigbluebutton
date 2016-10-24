@@ -50,6 +50,10 @@ module BigBlueButton
       @redis.hgetall("meeting:info:#{meeting_id}")
     end
     
+    def breakout_metadata_for(meeting_id)
+      @redis.hgetall("meeting:breakout:#{meeting_id}")
+    end
+    
     def num_events_for(meeting_id)
       @redis.llen("meeting:#{meeting_id}:recordings")
     end
@@ -72,6 +76,10 @@ module BigBlueButton
 
     def delete_metadata_for(meeting_id)
       @redis.del("meeting:info:#{meeting_id}")
+    end
+
+    def delete_breakout_metadata_for(meeting_id)
+      @redis.del("meeting:breakout:#{meeting_id}")
     end
 
     def build_header(message_type)
@@ -178,11 +186,13 @@ module BigBlueButton
       result = xml.instruct! :xml, :version => "1.0", :encoding=>"UTF-8"
       
       meeting_metadata = @redis.metadata_for(meeting_id)
+      breakout_metadata = @redis.breakout_metadata_for(meeting_id)
       version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
 
       if (meeting_metadata != nil)
           xml.recording(:meeting_id => meeting_id, :bbb_version => version) {
             xml.metadata(meeting_metadata)
+            xml.breakout(breakout_metadata)
             msgs = @redis.events_for(meeting_id)                      
             msgs.each do |msg|
               res = @redis.event_info_for(meeting_id, msg)
@@ -220,6 +230,7 @@ module BigBlueButton
         @redis.delete_events_for(meeting_id)
       end
       @redis.delete_metadata_for(meeting_id) 
+      @redis.delete_breakout_metadata_for(meeting_id) 
     end
     
     def save_events_to_file(directory, result)

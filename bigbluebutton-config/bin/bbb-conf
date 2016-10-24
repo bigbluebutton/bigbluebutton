@@ -1435,7 +1435,7 @@ if [ $CHECK ]; then
 	echo
 	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
-	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
+	WEBRTC_ENABLED=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
 
 	echo

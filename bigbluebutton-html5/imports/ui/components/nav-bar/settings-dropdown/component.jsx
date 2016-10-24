@@ -1,14 +1,11 @@
-import React, { Component, PropTyes } from 'react';
-import { FormattedMessage } from 'react-intl';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
+import React, { Component, PropTypes } from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import styles from '../styles';
 
 import { showModal } from '/imports/ui/components/app/service';
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
 import Settings from '/imports/ui/components/settings/component';
 
-import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -17,28 +14,69 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 
+const intlMessages = defineMessages({
+  optionsLabel: {
+    id: 'app.navBar.settingsDropdown.optionsLabel',
+    defaultMessage: 'Options',
+  },
+  fullscreenLabel: {
+    id: 'app.navBar.settingsDropdown.fullscreenLabel',
+    defaultMessage: 'Make fullscreen',
+  },
+  settingsLabel: {
+    id: 'app.navBar.settingsDropdown.settingsLabel',
+    defaultMessage: 'Open settings',
+  },
+  leaveSessionLabel: {
+    id: 'app.navBar.settingsDropdown.leaveSessionLabel',
+    defaultMessage: 'Logout',
+  },
+  fullscreenDesc: {
+    id: 'app.navBar.settingsDropdown.fullscreenDesc',
+    defaultMessage: 'Make the settings menu fullscreen',
+  },
+  settingsDesc: {
+    id: 'app.navBar.settingsDropdown.settingsDesc',
+    defaultMessage: 'Change the general settings',
+  },
+  leaveSessionDesc: {
+    id: 'app.navBar.settingsDropdown.leaveSessionDesc',
+    defaultMessage: 'Leave the meeting',
+  },
+});
+
 const toggleFullScreen = () => {
   let element = document.documentElement;
 
   if (document.fullscreenEnabled
     || document.mozFullScreenEnabled
     || document.webkitFullscreenEnabled) {
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if (element.mozRequestFullScreen) {
-      element.mozRequestFullScreen();
-    } else if (element.webkitRequestFullscreen) {
-      element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) {
-      element.msRequestFullscreen();
-    }
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-      document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
+
+    // If the page is already fullscreen, exit fullscreen
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
+
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+
+    // If the page is not currently fullscreen, make fullscreen
+    } else {
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+      } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+      }
     }
   }
 };
@@ -47,18 +85,18 @@ const openSettings = () => showModal(<Settings />);
 
 const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
 
-export default class SettingsDropdown extends Component {
+class SettingsDropdown extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
+    const { intl } = this.props;
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
           <Button
-            role="button"
-            label="Settings"
+            label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             ghost={true}
             circle={true}
@@ -73,22 +111,22 @@ export default class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <DropdownListItem
-              icon="full-screen"
-              label="Fullscreen"
-              defaultMessage="Make the application fullscreen"
+              icon="fullscreen"
+              label={intl.formatMessage(intlMessages.fullscreenLabel)}
+              description={intl.formatMessage(intlMessages.fullscreenDesc)}
               onClick={toggleFullScreen.bind(this)}
             />
             <DropdownListItem
               icon="more"
-              label="Settings"
-              description="Change the general settings"
+              label={intl.formatMessage(intlMessages.settingsLabel)}
+              description={intl.formatMessage(intlMessages.settingsDesc)}
               onClick={openSettings.bind(this)}
             />
             <DropdownListSeparator />
             <DropdownListItem
               icon="logout"
-              label="Leave Session"
-              description="Leave the meeting"
+              label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+              description={intl.formatMessage(intlMessages.leaveSessionDesc)}
               onClick={openLogoutConfirmation.bind(this)}
             />
           </DropdownList>
@@ -97,3 +135,5 @@ export default class SettingsDropdown extends Component {
     );
   }
 }
+
+export default injectIntl(SettingsDropdown);
