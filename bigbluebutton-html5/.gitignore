@@ -14,3 +14,5 @@ private/config/development/server/*
 private/config/production/server/*
 !private/config/production/server/log.yaml
 !private/config/production/server/shell.yaml
+
+imports/locales/*.json
