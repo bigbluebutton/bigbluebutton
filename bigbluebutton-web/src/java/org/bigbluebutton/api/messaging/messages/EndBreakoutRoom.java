@@ -1,9 +1,9 @@
 package org.bigbluebutton.api.messaging.messages;
 
 public class EndBreakoutRoom implements IMessage {
-  public final String breakoutId;
+  public final String breakoutMeetingId;
 
-  public EndBreakoutRoom(String breakoutId) {
-    this.breakoutId = breakoutId;
+  public EndBreakoutRoom(String breakoutMeetingId) {
+    this.breakoutMeetingId = breakoutMeetingId;
   }
 }

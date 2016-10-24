@@ -288,84 +288,108 @@ public class ParamsProcessorUtil {
     return metas;
 	}
 	
-	public Meeting processCreateParams(Map<String, String> params) {
-	    String meetingName = params.get("name");
-	    if(meetingName == null){
-	    	meetingName = "";
-	    }
-	    String externalMeetingId = params.get("meetingID");
-	    
-	    String viewerPass = processPassword(params.get("attendeePW"));
-	    String modPass = processPassword(params.get("moderatorPW")); 
-	    
-	    // Get the digits for voice conference for users joining through the phone.
-	    // If none is provided, generate one.
-	    String telVoice = processTelVoice(params.get("voiceBridge"));
-	    
-	    // Get the voice conference digits/chars for users joing through VOIP on the client.
-	    // If none is provided, make it the same as the telVoice. If one has been provided,
-	    // we expect that the users will be joined in the same voice conference.
-	    String webVoice = params.get("webVoice");
-	    if (StringUtils.isEmpty(webVoice)) {
-	      webVoice = telVoice;
-	    }
-	    
-	    // Get all the other relevant parameters and generate defaults if none has been provided.
-	    String dialNumber = processDialNumber(params.get("dialNumber"));
-	    String logoutUrl = processLogoutUrl(params.get("logoutURL")); 
-	    boolean record = processRecordMeeting(params.get("record"));
-	    int maxUsers = processMaxUser(params.get("maxParticipants"));
-	    int meetingDuration = processMeetingDuration(params.get("duration"));
-	    
+    public Meeting processCreateParams(Map<String, String> params) {
+        String meetingName = params.get("name");
+        if (meetingName == null) {
+            meetingName = "";
+        }
+        String externalMeetingId = params.get("meetingID");
+
+        String viewerPass = processPassword(params.get("attendeePW"));
+        String modPass = processPassword(params.get("moderatorPW"));
+
+        // Get the digits for voice conference for users joining through the
+        // phone.
+        // If none is provided, generate one.
+        String telVoice = processTelVoice(params.get("voiceBridge"));
+
+        // Get the voice conference digits/chars for users joing through VOIP on
+        // the client.
+        // If none is provided, make it the same as the telVoice. If one has
+        // been provided,
+        // we expect that the users will be joined in the same voice conference.
+        String webVoice = params.get("webVoice");
+        if (StringUtils.isEmpty(webVoice)) {
+            webVoice = telVoice;
+        }
+
+        // Get all the other relevant parameters and generate defaults if none
+        // has been provided.
+        String dialNumber = processDialNumber(params.get("dialNumber"));
+        String logoutUrl = processLogoutUrl(params.get("logoutURL"));
+        boolean record = processRecordMeeting(params.get("record"));
+        int maxUsers = processMaxUser(params.get("maxParticipants"));
+        int meetingDuration = processMeetingDuration(params.get("duration"));
+
         // set is breakout room property
         boolean isBreakout = false;
         if (!StringUtils.isEmpty(params.get("isBreakout"))) {
             isBreakout = new Boolean(params.get("isBreakout"));
         }
 
-        String welcomeMessageTemplate = processWelcomeMessage(params.get("welcome"), isBreakout);
-        String welcomeMessage = substituteKeywords(welcomeMessageTemplate, dialNumber, telVoice, meetingName);
-	      
-	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
-	    
-	    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
-	    if (isTestMeeting(telVoice)) {
-	      internalMeetingId = getIntMeetingIdForTestMeeting(telVoice);
-	    }
-	   
-	    boolean autoStartRec = autoStartRecording;
-	    if (!StringUtils.isEmpty(params.get("autoStartRecording"))) {
-				try {
-					autoStartRec = Boolean.parseBoolean(params.get("autoStartRecording"));
-				} catch(Exception ex){ 
-					log.warn("Invalid param [autoStartRecording] for meeting=[" + internalMeetingId + "]");
-				}
-	    }
+        String welcomeMessageTemplate = processWelcomeMessage(
+                params.get("welcome"), isBreakout);
+        String welcomeMessage = substituteKeywords(welcomeMessageTemplate,
+                dialNumber, telVoice, meetingName);
 
-	    boolean allowStartStoptRec = allowStartStopRecording;
-	    if (!StringUtils.isEmpty(params.get("allowStartStopRecording"))) {
-				try {
-					allowStartStoptRec = Boolean.parseBoolean(params.get("allowStartStopRecording"));
-				} catch(Exception ex){ 
-					log.warn("Invalid param [allowStartStopRecording] for meeting=[" + internalMeetingId + "]");
-				}
-	    }
-	    
-	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
-	    Map<String, String> meetingInfo = new HashMap<String, String>();
-	    meetingInfo = processMetaParam(params);
-	    	    
-	    // Create a unique internal id by appending the current time. This way, the 3rd-party
-	    // app can reuse the external meeting id.
-	    long createTime = System.currentTimeMillis();
-	    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString();
+        String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
+
+        // Check if this is a test meeting. NOTE: This should not belong here.
+        // Extract this out.
+        if (isTestMeeting(telVoice)) {
+            internalMeetingId = getIntMeetingIdForTestMeeting(telVoice);
+        }
+
+        boolean autoStartRec = autoStartRecording;
+        if (!StringUtils.isEmpty(params.get("autoStartRecording"))) {
+            try {
+                autoStartRec = Boolean.parseBoolean(params
+                        .get("autoStartRecording"));
+            } catch (Exception ex) {
+                log.warn("Invalid param [autoStartRecording] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
+        boolean allowStartStoptRec = allowStartStopRecording;
+        if (!StringUtils.isEmpty(params.get("allowStartStopRecording"))) {
+            try {
+                allowStartStoptRec = Boolean.parseBoolean(params
+                        .get("allowStartStopRecording"));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [allowStartStopRecording] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
+        // Collect metadata for this meeting that the third-party app wants to
+        // store if meeting is recorded.
+        Map<String, String> meetingInfo = new HashMap<String, String>();
+        meetingInfo = processMetaParam(params);
+
+        // Create a unique internal id by appending the current time. This way,
+        // the 3rd-party
+        // app can reuse the external meeting id.
+        long createTime = System.currentTimeMillis();
+        internalMeetingId = internalMeetingId.concat("-").concat(
+                new Long(createTime).toString());
 
         // If this create meeting request is for a breakout room, we just used
-        // the passed in breakoutId as the internal meetingId so we can
-        // correlate
-        // the breakout meeting with it's parent meeting.
+        // we need to generate a unique internal and external id and keep
+        // tracks of the parent meeting id
+        String parentMeetingId = new String();
         if (isBreakout) {
-            internalMeetingId = params.get("breakoutId");
+            internalMeetingId = params.get("meetingID");
+            parentMeetingId = params.get("parentMeetingID");
+            // We rebuild the the external meeting using the has of the parent
+            // meeting, the shared timestamp and the sequence number
+            String timeStamp = StringUtils.substringAfter(internalMeetingId,
+                    "-");
+            String externalHash = DigestUtils.shaHex(parentMeetingId
+                    .concat("-").concat(timeStamp.toString()).concat("-")
+                    .concat(params.get("sequence")));
+            externalMeetingId = externalHash.concat("-").concat(timeStamp);
         }
 
         // Create the meeting with all passed in parameters.
@@ -392,8 +416,14 @@ public class ParamsProcessorUtil {
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
+        // Add extra parameters for breakout room
+        if (isBreakout) {
+            meeting.setSequence(Integer.parseInt(params.get("sequence")));
+            meeting.setParentMeetingId(parentMeetingId);
+        }
+
         return meeting;
-	}
+    }
 	
 	public String getApiVersion() {
 		return apiVersion;

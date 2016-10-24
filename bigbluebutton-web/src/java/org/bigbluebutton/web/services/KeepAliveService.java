@@ -19,20 +19,6 @@
 
 package org.bigbluebutton.web.services;
 
-import org.bigbluebutton.api.messaging.MessageListener;
-import org.bigbluebutton.api.messaging.MessagingService;
-import org.bigbluebutton.api.messaging.MessagingConstants;
-import org.bigbluebutton.api.messaging.RedisMessagingService;
-import org.bigbluebutton.api.messaging.messages.IMessage;
-import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
-import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -40,7 +26,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.google.gson.Gson;
+import org.bigbluebutton.api.messaging.MessageListener;
+import org.bigbluebutton.api.messaging.MessagingService;
+import org.bigbluebutton.api.messaging.messages.IMessage;
+import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KeepAliveService implements MessageListener {
 	private static Logger log = LoggerFactory.getLogger(KeepAliveService.class);

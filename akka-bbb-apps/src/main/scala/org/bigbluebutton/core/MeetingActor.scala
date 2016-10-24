@@ -37,8 +37,8 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   if (mProps.isBreakout) {
     // This is a breakout room. Inform our parent meeting that we have been successfully created.
     eventBus.publish(BigBlueButtonEvent(
-      mProps.externalMeetingID,
-      BreakoutRoomCreated(mProps.externalMeetingID, mProps.meetingID)))
+      mProps.parentMeetingID,
+      BreakoutRoomCreated(mProps.parentMeetingID, mProps.meetingID)))
   }
 
   def receive = {

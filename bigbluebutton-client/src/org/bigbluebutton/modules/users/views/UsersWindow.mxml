@@ -55,7 +55,6 @@
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
 			
-			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -343,7 +342,7 @@
 				// We display only one alert
 				removeJoinAlert();
 				joinAlert = Alert.show(
-					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL', [StringUtils.substringAfterLast(event.breakoutId, "-")]),
+					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL', [event.breakoutMeetingSequence]),
 					ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
 					Alert.YES | Alert.NO,
 					null,
@@ -514,7 +513,7 @@
 				var br:BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomInListen();
 				if (br != null) {
 					var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
-					e.breakoutId = br.breakoutId;
+					e.breakoutMeetingId = br.meetingId;
 					e.listen = false;
 					dispatcher.dispatchEvent(e);
 				}
@@ -595,7 +594,7 @@
 			}
 			
 			private function breakoutRoomNameLabelFunction(item:Object, column:DataGridColumn) : String {
-				return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room') + " " + StringUtils.substringAfterLast(item.breakoutId, "-");
+				return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room') + " " + item.sequence;
 			}
 		]]>
 	</mx:Script>
@@ -633,7 +632,7 @@
 			<mx:columns>
 				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
 				<mx:DataGridColumn dataField="numberOfUsers" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
-				<mx:DataGridColumn dataField="breakoutId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
+				<mx:DataGridColumn dataField="meetingId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
 								   visible="{amIModerator}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</mx:columns>

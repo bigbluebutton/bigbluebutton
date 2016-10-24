@@ -4,14 +4,15 @@ import org.bigbluebutton.core.api.Permissions
 import java.util.concurrent.TimeUnit
 
 case object StopMeetingActor
-case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
-  voiceBridge: String, deskshareBridge: String, duration: Int, autoStartRecording: Boolean,
-  allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String, createTime: Long,
-  createDate: String, red5DeskShareIP: String, red5DeskShareApp: String, isBreakout: Boolean)
+case class MeetingProperties(meetingID: String, externalMeetingID: String, parentMeetingID: String, meetingName: String,
+                             recorded: Boolean, voiceBridge: String, deskshareBridge: String, duration: Int,
+                             autoStartRecording: Boolean, allowStartStopRecording: Boolean, moderatorPass: String,
+                             viewerPass: String, createTime: Long, createDate: String,
+                             red5DeskShareIP: String, red5DeskShareApp: String, isBreakout: Boolean, sequence: Int)
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
-  sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
-  sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
+                                sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
+                                sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
 
 class MeetingModel {
   private var audioSettingsInited = false

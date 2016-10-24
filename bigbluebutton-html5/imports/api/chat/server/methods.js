@@ -3,5 +3,4 @@ import sendChat from './methods/sendChat';
 
 Meteor.methods({
   sendChat,
-  sendChatMessagetoServer: sendChat, // legacy
 });
