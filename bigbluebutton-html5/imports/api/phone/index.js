@@ -74,7 +74,7 @@ function exitAudio(afterExitCall) {
 }
 
 // join the conference. If listen only send the request to the server
-function joinVoiceCallSIP(options) {
+function joinVoiceCallSIP(options, st) {
   const extension = getVoiceBridge();
   console.log(options);
   if (MEDIA_CONFIG.useSIPAudio) {
@@ -100,7 +100,7 @@ function joinVoiceCallSIP(options) {
       return callback(result);
     };
 
-    callIntoConference(extension, function () {}, options.isListenOnly);
+    callIntoConference(extension, function () {}, options.isListenOnly, st);
     return;
   }
 }
@@ -114,9 +114,9 @@ function joinListenOnly() {
   }
 }
 
-function joinMicrophone() {
+function joinMicrophone(st) {
   if (MEDIA_CONFIG.useSIPAudio) {
-    joinVoiceCallSIP({ isListenOnly: false });
+    joinVoiceCallSIP({ isListenOnly: false }, st);
   } else {
     vertoJoinMicrophone();
   }

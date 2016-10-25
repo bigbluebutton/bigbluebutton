@@ -70,8 +70,6 @@ import '/imports/api/users/server/modifiers/updateVoiceUser';
 import '/imports/api/users/server/modifiers/userJoined';
 import '/imports/api/users/server/modifiers/eventHandlers';
 
-import '/imports/api/phone/server/methods/getStun';
-
 import '/imports/api/common/server/helpers';
 import '/imports/startup/server/logger';
 import '/imports/startup/server/userPermissions';

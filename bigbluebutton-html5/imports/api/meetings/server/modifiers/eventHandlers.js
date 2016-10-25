@@ -9,6 +9,22 @@ eventEmitter.on('meeting_ended_message', function (arg) {
   handleEndOfMeeting(arg);
 });
 
+eventEmitter.on('send_stun_turn_info_reply_message', function (arg) {
+  const stuns = arg.payload.stuns;
+  const turns = arg.payload.turns;
+  const meetingId = arg.payload.meeting_id;
+
+  Meetings.update({
+    meetingId: meetingId,
+  }, {
+    $set: {
+      stuns: stuns,
+      turns: turns,
+    },
+  });
+  return arg.callback();
+});
+
 eventEmitter.on('meeting_destroyed_event', function (arg) {
   handleEndOfMeeting(arg);
 });
