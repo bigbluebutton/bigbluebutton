@@ -45,8 +45,7 @@ function callIntoConference(voiceBridge, callback, isListenOnly, stunTurn = null
 		isListenOnly = false;
 	}
 
-	// do stun turn stuff
-	console.log(stunTurn);
+	// if additional stun configuration is passed, store the information
 	if (stunTurn != null) {
 		html5StunTurn['stunServers'] = stunTurn.stun;
 		html5StunTurn['turnServers'] = stunTurn.turn;
