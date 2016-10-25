@@ -2130,7 +2130,7 @@ class ApiController {
             isBreakout() { mkp.yield(meeting.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
-            if (m.isBreakout()) {
+            if (meeting.isBreakout()) {
                 parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
                 sequence(meeting.getSequence())
             }
