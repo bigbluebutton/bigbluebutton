@@ -1,5 +1,5 @@
 import { clearUsersCollection } from '/imports/api/users/server/modifiers/clearUsersCollection';
-import { clearChatCollection} from '/imports/api/chat/server/modifiers/clearChatCollection';
+import clearChats from '/imports/api/chat/server/modifiers/clearChats';
 import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
 import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
 import { clearPresentationsCollection }
@@ -39,7 +39,7 @@ export function clearCollections() {
   const meetingId = arguments[0];
   if (meetingId != null) {
     clearUsersCollection(meetingId);
-    clearChatCollection(meetingId);
+    clearChats(meetingId);
     clearMeetingsCollection(meetingId);
     clearShapesCollection(meetingId);
     clearSlidesCollection(meetingId);
@@ -49,7 +49,7 @@ export function clearCollections() {
     clearCaptionsCollection(meetingId);
   } else {
     clearUsersCollection();
-    clearChatCollection();
+    clearChats();
     clearMeetingsCollection();
     clearShapesCollection();
     clearSlidesCollection();
@@ -71,21 +71,7 @@ export const indexOf = [].indexOf || function (item) {
   };
 
 export function publish(channel, message) {
-  logger.info(`redis outgoing message  ${message.header.name}`, {
-    channel: channel,
-    message: message,
-  });
-  if (redisPubSub != null) {
-    return redisPubSub.pubClient.publish(channel, JSON.stringify(message), (err, res) => {
-      if (err) {
-        return logger.info('error', {
-          error: err,
-        });
-      }
-    });
-  } else {
-    return logger.info('ERROR!! redisPubSub was undefined');
-  }
+  return redisPubSub.publish(channel, message.header.name, message.payload, message.header);
 };
 
 // translate '\n' newline character and '\r' carriage

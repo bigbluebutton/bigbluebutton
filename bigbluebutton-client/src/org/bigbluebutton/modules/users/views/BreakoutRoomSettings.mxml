@@ -65,15 +65,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS);
 				// event.meetingId is filled in the event handler for BreakoutRoomEvent in UserService class
 				event.rooms = new Array();
+				var parentMeetingName:String = UserManager.getInstance().getConference().meetingName;
+				var roomResource:String = ResourceUtil.getInstance().getString('bbb.users.breakout.room');
 				for (var i:int = 0; i < (roomsCombo.selectedIndex + 2); i++) {
 					var users:Array = BreakoutList(roomsContainer.getChildAt(i)).users.source;
 					totalUsers += users.length;
 					var room:Object = new Object();
 					room.users = new Array();
-					room.name =
-						UserManager.getInstance().getConference().meetingName + " (" +
-						ResourceUtil.getInstance().getString('bbb.users.breakout.room')
-						+ " - " + (i + 1).toString() + ")";
+					room.sequence = i + 1;
+					room.name = parentMeetingName + " (" + roomResource + " - " + room.sequence.toString() + ")";
 					for (var j:int = 0; j < users.length; j++) {
 						room.users.push(users[j].userID);
 					}
@@ -105,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							usersInvited ||= true;
 							var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
 							event.userId = user.userID;
-							event.breakoutId = UserManager.getInstance().getConference().internalMeetingID + "-" + (i + 1);
+							event.breakoutMeetingId = UserManager.getInstance().getConference().getBreakoutRoomBySequence(i + 1).externalMeetingId;
 							dispatcher.dispatchEvent(event);
 						}
 					}
@@ -294,8 +294,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		
 		<mx:HBox id="recordBox" width="100%" paddingTop="12">
-		    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}" visible="false" />
-			<mx:CheckBox id="recordCheckbox" visible="false" 
+		    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}"/>
+			<mx:CheckBox id="recordCheckbox"
 						 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>
 		</mx:HBox>
 		<mx:Tile id="roomsContainer" styleName="roomsContainer" width="100%" height="100%"/>

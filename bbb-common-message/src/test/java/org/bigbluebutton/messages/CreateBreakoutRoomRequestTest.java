@@ -13,6 +13,7 @@ public class CreateBreakoutRoomRequestTest {
     String parentId = "abc-123";
     Integer durationInMinutes = 20;
     String name = "Breakout room 1";
+    Integer sequence = 3;
     String voiceConfId = "851153";
     String viewerPassword = "vp";
     String moderatorPassword = "mp";
@@ -20,9 +21,10 @@ public class CreateBreakoutRoomRequestTest {
     Integer sourePresentationSlide = 5;
     Boolean record = false;
     
-    CreateBreakoutRoomRequestPayload payload = 
-        new CreateBreakoutRoomRequestPayload(breakoutId, parentId, name, voiceConfId, 
-            viewerPassword, moderatorPassword, durationInMinutes, sourcePresentationId, sourePresentationSlide, record);
+        CreateBreakoutRoomRequestPayload payload = new CreateBreakoutRoomRequestPayload(
+                breakoutId, parentId, name, sequence, voiceConfId,
+                viewerPassword, moderatorPassword, durationInMinutes,
+                sourcePresentationId, sourePresentationSlide, record);
     CreateBreakoutRoomRequest msg = new CreateBreakoutRoomRequest(payload);    
     Gson gson = new Gson();
     String json = gson.toJson(msg);
@@ -31,8 +33,9 @@ public class CreateBreakoutRoomRequestTest {
     CreateBreakoutRoomRequest rxMsg = gson.fromJson(json, CreateBreakoutRoomRequest.class);
     
     Assert.assertEquals(rxMsg.header.name, CreateBreakoutRoomRequest.NAME);
-    Assert.assertEquals(rxMsg.payload.breakoutId, breakoutId);
+    Assert.assertEquals(rxMsg.payload.breakoutMeetingId, breakoutId);
     Assert.assertEquals(rxMsg.payload.name, name);
+    Assert.assertEquals(rxMsg.payload.sequence, sequence);
     Assert.assertEquals(rxMsg.payload.voiceConfId, voiceConfId);
     Assert.assertEquals(rxMsg.payload.viewerPassword, viewerPassword);
     Assert.assertEquals(rxMsg.payload.moderatorPassword, moderatorPassword);

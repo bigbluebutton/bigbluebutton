@@ -1,13 +1,9 @@
-import { logger } from '/imports/startup/server/logger';
-import '/server/server';
-import { RedisPubSub } from '/imports/startup/server/RedisPubSub';
-import { EventQueue } from '/imports/startup/server/EventQueue';
+import Locales from '/imports/locales';
+import Logger from './logger';
+import Redis from './redis';
 import { clearCollections } from '/imports/api/common/server/helpers';
-import  Locales  from '/imports/locales';
 
-Meteor.startup(function () {
-  redisPubSub = new RedisPubSub();
-
+Meteor.startup(() => {
   clearCollections();
   const APP_CONFIG = Meteor.settings.public.app;
 
@@ -20,10 +16,10 @@ Meteor.startup(function () {
     return baseConnection;
   };
 
-  logger.info(`server start. Connection type:${determineConnectionType()}`);
-  logger.info('APP_CONFIG=');
-  logger.info(APP_CONFIG);
-  logger.info('Running in environment type:' + Meteor.settings.runtime.env);
+  Logger.info(`server start. Connection type:${determineConnectionType()}`);
+  Logger.info('APP_CONFIG=');
+  Logger.info(APP_CONFIG);
+  Logger.info('Running in environment type:' + Meteor.settings.runtime.env);
 });
 
 WebApp.connectHandlers.use('/check', (req, res, next) => {
@@ -35,7 +31,6 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
 });
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
-
   let defaultLocale = 'en';
   let [locale, region] = req.query.locale.split('-');
 
@@ -54,8 +49,6 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
 });
 
-export const myQueue = new EventQueue();
+export const eventEmitter = Redis.emitter;
 
-export const eventEmitter = new (Npm.require('events').EventEmitter);
-
-export let redisPubSub = {};
+export let redisPubSub = Redis;
