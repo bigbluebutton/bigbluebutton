@@ -16,3 +16,4 @@ private/config/production/server/*
 !private/config/production/server/shell.yaml
 
 imports/locales/*.json
+!imports/locales/en.json
