@@ -140,6 +140,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: GetCurrentDocumentReply => handleGetCurrentDocumentReply(msg)
     case msg: CreateAdditionalNotesReply => handleCreateAdditionalNotesReply(msg)
     case msg: DestroyAdditionalNotesReply => handleDestroyAdditionalNotesReply(msg)
+    case msg: SharedNotesSyncNoteReply => handleSharedNotesSyncNoteReply(msg)
     case _ => // do nothing
   }
 
@@ -730,6 +731,11 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
 
   private def handleDestroyAdditionalNotesReply(msg: DestroyAdditionalNotesReply) {
     val json = SharedNotesMessageToJsonConverter.destroyAdditionalNotesReplyToJson(msg)
+    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
+  }
+
+  private def handleSharedNotesSyncNoteReply(msg: SharedNotesSyncNoteReply) {
+    val json = SharedNotesMessageToJsonConverter.sharedNotesSyncNoteReplyToJson(msg)
     service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
   }
 }

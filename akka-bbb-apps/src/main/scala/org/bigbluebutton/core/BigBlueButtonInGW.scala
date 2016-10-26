@@ -537,4 +537,8 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
     bbbActor ! new RequestAdditionalNotesSetRequest(meetingId, userId, additionalNotesSetSize)
   }
+
+  def sharedNotesSyncNoteRequest(meetingId: String, userId: String, noteId: String) {
+    bbbActor ! new SharedNotesSyncNoteRequest(meetingId, userId, noteId)
+  }
 }

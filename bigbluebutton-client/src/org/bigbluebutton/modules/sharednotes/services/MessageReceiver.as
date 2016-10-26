@@ -72,6 +72,9 @@ package org.bigbluebutton.modules.sharednotes.services
         case "DestroyAdditionalNotesCommand":
           handleDestroyAdditionalNotesCommand(message);
           break;	
+        case "SharedNotesSyncNoteCommand":
+          handleSharedNotesSyncNoteCommand(message);
+          break;
         default:
           //   LOGGER.warn("Cannot handle message [" + messageName + "]");
       }
@@ -130,6 +133,16 @@ package org.bigbluebutton.modules.sharednotes.services
       
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = map.noteID;
+      dispatcher.dispatchEvent(e);
+    }
+
+    private function handleSharedNotesSyncNoteCommand(msg: Object):void {
+      LOGGER.debug("Handling sharednotes sync note message [" + msg.msg + "]");
+      var map:Object = JSON.parse(msg.msg);
+
+      var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.SYNC_NOTE_REPLY_EVENT);
+      e.payload.noteId = map.noteID;
+      e.payload.note = map.note;
       dispatcher.dispatchEvent(e);
     }
   }

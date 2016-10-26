@@ -50,7 +50,7 @@ class SharedNotesModel {
       val patchObjects = patcher.patch_fromText(patchToApply)
       val result = patcher.patch_apply(patchObjects, document)
 
-      // If it is a patch operation, save an undo patch
+      // If it is a patch operation, save an undo patch and clear redo stack
       if (operation == SharedNotesOperation.PATCH) {
         undoPatches.push((patcher.custom_patch_make(result(0).toString(), document), patchToApply))
         redoPatches.clear
@@ -90,9 +90,22 @@ class SharedNotesModel {
       var report = new HashMap[String, NoteReport]()
       notes foreach {
         case (id, note) =>
-          report += (id -> new NoteReport(note.name, note.document, note.patchCounter, !note.undoPatches.isEmpty, !note.redoPatches.isEmpty))
+          report += (id -> noteToReport(note))
       }
       report
     }
+  }
+
+  def getNoteReport(noteID: String): Option[NoteReport] = {
+    notes.synchronized {
+      notes.get(noteID) match {
+        case Some(note) => Some(noteToReport(note))
+        case None => None
+      }
+    }
+  }
+
+  private def noteToReport(note: Note): NoteReport = {
+    new NoteReport(note.name, note.document, note.patchCounter, !note.undoPatches.isEmpty, !note.redoPatches.isEmpty)
   }
 }

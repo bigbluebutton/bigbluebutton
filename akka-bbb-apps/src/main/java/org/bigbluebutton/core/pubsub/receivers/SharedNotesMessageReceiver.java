@@ -7,6 +7,7 @@ import org.bigbluebutton.common.messages.GetCurrentDocumentRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.PatchDocumentRequestMessage;
 import org.bigbluebutton.common.messages.RequestAdditionalNotesSetRequestMessage;
+import org.bigbluebutton.common.messages.SharedNotesSyncNoteRequestMessage;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
@@ -47,6 +48,9 @@ public class SharedNotesMessageReceiver implements MessageHandler {
 						case RequestAdditionalNotesSetRequestMessage.REQUEST_ADDITIONAL_NOTES_SET_REQUEST:
 							processRequestAdditionalNotesSetRequestMessage(message);
 							break;
+						case SharedNotesSyncNoteRequestMessage.SHAREDNOTES_SYNC_NOTE_REQUEST:
+							processSharedNotesSyncNoteRequestMessage(message);
+							break;
 					}
 				}
 			}
@@ -85,6 +89,13 @@ public class SharedNotesMessageReceiver implements MessageHandler {
 		RequestAdditionalNotesSetRequestMessage msg = RequestAdditionalNotesSetRequestMessage.fromJson(json);
 		if (msg != null) {
 			bbbInGW.requestAdditionalNotesSet(msg.meetingID, msg.requesterID, msg.additionalNotesSetSize);
+		}
+	}
+
+	private void processSharedNotesSyncNoteRequestMessage(String json) {
+		SharedNotesSyncNoteRequestMessage msg = SharedNotesSyncNoteRequestMessage.fromJson(json);
+		if (msg != null) {
+			bbbInGW.sharedNotesSyncNoteRequest(msg.meetingID, msg.requesterID, msg.noteID);
 		}
 	}
 }

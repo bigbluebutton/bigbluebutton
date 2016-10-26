@@ -109,4 +109,5 @@ object Constants {
   val UNDO = "undo"
   val REDO = "redo"
   val OPERATION = "operation"
+  val NOTE = "note"
 }

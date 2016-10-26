@@ -133,3 +133,4 @@ case class GetCurrentDocumentRequest(meetingID: String, requesterID: String) ext
 case class CreateAdditionalNotesRequest(meetingID: String, requesterID: String, noteName: String) extends InMessage
 case class DestroyAdditionalNotesRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage
 case class RequestAdditionalNotesSetRequest(meetingID: String, requesterID: String, additionalNotesSetSize: Int) extends InMessage
+case class SharedNotesSyncNoteRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage

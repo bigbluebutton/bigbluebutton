@@ -139,4 +139,5 @@ public class Constants {
   public static final String UNDO                            = "undo";
   public static final String REDO                            = "redo";
   public static final String OPERATION                       = "operation";
+  public static final String NOTE                            = "note";
 }
