@@ -1,5 +1,6 @@
 import '/imports/startup/server';
 import '/imports/api/chat/server';
+import '/imports/api/breakouts/server';
 
 import '/imports/api/cursor/server/publications';
 import '/imports/api/cursor/server/modifiers/clearCursorCollection';
