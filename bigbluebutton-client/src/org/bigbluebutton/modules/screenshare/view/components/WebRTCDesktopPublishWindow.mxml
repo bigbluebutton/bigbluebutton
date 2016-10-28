@@ -30,7 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	width="365" height="350"
-	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
+	title="{ResourceUtil.getInstance().getString('bbb.screensharePublish.title')}"
 	resizable="false">
 
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
@@ -383,21 +383,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+				this.title = ResourceUtil.getInstance().getString('bbb.screensharePublish.title');
 
 				if (titleBarOverlay != null) {
-					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.screensharePublish.title');
 				}
 
 				if (windowControls != null) {
-					minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.minimizeBtn.toolTip');
-					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.minimizeBtn.accessibilityName");
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.minimizeBtn.toolTip');
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screensharePublish.minimizeBtn.accessibilityName");
 
-					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.maximizeRestoreBtn.toolTip');
-					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.maximizeRestoreBtn.accessibilityName");
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.maximizeRestoreBtn.toolTip');
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screensharePublish.maximizeRestoreBtn.accessibilityName");
 
-					closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn.toolTip');
-					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopPublish.closeBtn.accessibilityName");
+					closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.screensharePublish.closeBtn.toolTip');
+					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screensharePublish.closeBtn.accessibilityName");
 				}
 			}
 
@@ -422,8 +422,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:VBox width="100%" height="100%" horizontalAlign="center">
         <mx:HBox horizontalAlign="center">
           <mx:Button id="btnClosePublish"
-                     toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}"
-                     label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}"
+                     toolTip="Stop publishing"
+                     label="Stop"
                      visible="true"
                      enabled="false"
                      click="stopSharing()" />
