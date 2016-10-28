@@ -5,7 +5,7 @@ package org.bigbluebutton.air.settings.views.lock {
 	import mx.core.FlexGlobals;
 	import mx.resources.ResourceManager;
 	
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.commands.SaveLockSettingsSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
@@ -23,7 +23,7 @@ package org.bigbluebutton.air.settings.views.lock {
 		public var saveLockSettingsSignal:SaveLockSettingsSignal;
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		override public function initialize():void {
 			loadLockSettings();
