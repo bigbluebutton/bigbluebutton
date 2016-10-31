@@ -109,7 +109,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
-			import org.bigbluebutton.main.model.ShortcutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -627,7 +626,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function openBreakoutRoomsWindow(e:BreakoutRoomEvent):void  {
 				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, BreakoutRoomSettings, true);
 				PopUpManager.centerPopUp(popUp);
-				BreakoutRoomSettings(popUp).initCreateBreakoutRooms(e.joinMode);
+				BreakoutRoomSettings(popUp).initCreateBreakoutRooms(e.joinMode, e.record);
 			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void{
