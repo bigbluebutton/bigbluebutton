@@ -35,11 +35,11 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   val presModel = new PresentationModel()
   val notesModel = new SharedNotesModel()
 
-  private val InactivityDeadline = FiniteDuration(inactivityDeadline, "seconds")
-  private val InactivityTimeLeft = FiniteDuration(inactivityTimeLeft, "seconds")
+  private val InactivityDeadline = FiniteDuration(getInactivityDeadline(), "seconds")
+  private val InactivityTimeLeft = FiniteDuration(getInactivityTimeLeft(), "seconds")
   private val MonitorFrequency = 30 seconds
   private var deadline = InactivityDeadline.fromNow
-  private var inactivityWarning = InactivityTimeLeft.fromNow
+  private var inactivityWarning: Deadline = null
 
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, MonitorFrequency, self, "Monitor")
@@ -288,12 +288,12 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   private def activity() {
-    if (deadline.isOverdue() && inactivityWarning.isOverdue()) {
+    if (deadline.isOverdue() && inactivityWarning != null && inactivityWarning.isOverdue()) {
       log.debug("Closing meeting {} due to inactivity for {} seconds", mProps.meetingID, InactivityDeadline.toSeconds)
-      updateDeadline()
+      updateInactivityMonitors()
       self ! EndMeeting(mProps.meetingID)
       // Or else make sure to send only one warning message
-    } else if (deadline.timeLeft <= InactivityTimeLeft && deadline.timeLeft > InactivityTimeLeft - MonitorFrequency) {
+    } else if (deadline.isOverdue() && inactivityWarning == null) {
       log.debug("Sending inactivity warning to meeting {}", mProps.meetingID)
       outGW.send(new InactivityWarning(mProps.meetingID, InactivityTimeLeft.toSeconds))
       // We add 5 seconds so clients will have enough time to process the message
@@ -301,17 +301,18 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     }
   }
 
-  private def updateDeadline() {
+  private def updateInactivityMonitors() {
     deadline = InactivityDeadline.fromNow
+    inactivityWarning = null
   }
 
   private def notifyActivity() {
-    if (deadline.timeLeft > InactivityTimeLeft) updateDeadline()
+    if (inactivityWarning == null) updateInactivityMonitors()
   }
 
   private def handleActivityResponse(msg: ActivityResponse) {
     log.debug("User endorsed that meeting {} is active", mProps.meetingID)
-    updateDeadline()
+    updateInactivityMonitors()
     outGW.send(new MeetingIsActive(mProps.meetingID))
   }
 
@@ -383,5 +384,23 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     if (usersModel.isModerator(msg.userID)) {
       self ! EndMeeting(mProps.meetingID)
     }
+  }
+
+  private def getInactivityDeadline(): Int = {
+    val time = meetingModel.getMetadata(Metadata.INACTIVITY_DEADLINE, mProps.metadata) match {
+      case Some(result) => result.asInstanceOf[Int]
+      case None => inactivityDeadline
+    }
+    log.debug("InactivityDeadline: {} seconds", time)
+    time
+  }
+
+  private def getInactivityTimeLeft(): Int = {
+    val time = meetingModel.getMetadata(Metadata.INACTIVITY_TIMELEFT, mProps.metadata) match {
+      case Some(result) => result.asInstanceOf[Int]
+      case None => inactivityTimeLeft
+    }
+    log.debug("InactivityTimeLeft: {} seconds", time)
+    time
   }
 }

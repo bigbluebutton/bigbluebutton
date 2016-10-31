@@ -8,6 +8,12 @@ object Role extends Enumeration {
   val VIEWER = Value("VIEWER")
 }
 
+object Metadata extends Enumeration {
+  type Metadata = String
+  val INACTIVITY_DEADLINE = "inactivity-deadline"
+  val INACTIVITY_TIMELEFT = "inactivity-timeleft"
+}
+
 object GuestPolicy extends Enumeration {
   type GuestPolicy = Value
   val ALWAYS_ACCEPT = Value("ALWAYS_ACCEPT")

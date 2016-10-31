@@ -1,5 +1,6 @@
 package org.bigbluebutton.api.messaging.converters.messages;
 
+import java.util.Map;
 
 public class CreateMeetingMessage {
 	public static final String CREATE_MEETING_REQUEST_EVENT  = "create_meeting_request";
@@ -17,12 +18,13 @@ public class CreateMeetingMessage {
 	public final String viewerPass;
 	public final Long createTime;
 	public final String createDate;
+	public final Map<String, String> metadata;
 	
 	public CreateMeetingMessage(String id, String externalId, String name, Boolean record, 
 						String voiceBridge, Long duration, 
 						Boolean autoStartRecording, Boolean allowStartStopRecording,
 						String moderatorPass, String viewerPass, Long createTime,
-						String createDate) {
+						String createDate, Map<String, String> metadata) {
 		this.id = id;
 		this.externalId = externalId;
 		this.name = name;
@@ -35,5 +37,6 @@ public class CreateMeetingMessage {
 		this.viewerPass = viewerPass;
 		this.createTime = createTime;
 		this.createDate = createDate;
+		this.metadata = metadata;
 	}
 }

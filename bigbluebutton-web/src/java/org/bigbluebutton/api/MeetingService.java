@@ -284,7 +284,7 @@ public class MeetingService implements MessageListener {
                 m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration(),
                 m.getAutoStartRecording(), m.getAllowStartStopRecording(),
                 m.getModeratorPassword(), m.getViewerPassword(),
-                m.getCreateTime(), formatPrettyDate(m.getCreateTime()));
+                m.getCreateTime(), formatPrettyDate(m.getCreateTime()), m.getMetadata());
     }
 
     private String formatPrettyDate(Long timestamp) {

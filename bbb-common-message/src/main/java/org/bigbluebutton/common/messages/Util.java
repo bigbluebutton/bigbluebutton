@@ -705,4 +705,16 @@ public class Util {
 
 		return notesMap;
 	}
+
+	public Map<String, String> extractMetadata(JsonObject metadata) {
+		Map<String, String> metadataMap = new HashMap<String, String>();
+
+		for (Map.Entry<String, JsonElement> entry : metadata.entrySet()) {
+			String key = entry.getKey();
+			String value = entry.getValue().getAsString();
+			metadataMap.put(key, value);
+		}
+
+		return metadataMap;
+	}
 }
