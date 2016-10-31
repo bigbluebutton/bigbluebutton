@@ -39,22 +39,16 @@ const mapUser = (user) => ({
   isLocked: user.locked,
 });
 
-// ====>>> implemented part
-const nullUser = (userID, userName) => ({
+const logoutUser = (userID, userName) => ({
   id: userID,
   name: userName,
   emoji: {
-    status: '',
-    changedAt: 0,
+     status: '',
   },
   isPresenter: false,
   isModerator: false,
   isCurrent: false,
   isVoiceUser: false,
-  isMuted: false,
-  isListenOnly: false,
-  isSharingWebcam: false,
-  isLocked: false,
 });
 
 const mapMessage = (messagePayload) => {
@@ -66,9 +60,8 @@ const mapMessage = (messagePayload) => {
     time: message.from_time, //+ message.from_tz_offset,
     sender: null,
   };
-  //console.log(SYSTEM_CHAT_TYPE);
+
   if (message.chat_type !== SYSTEM_CHAT_TYPE) {
-    // ====>>> implemented part
     mappedMessage.sender = getUser(message.from_userid, message.from_username);
   }
 
@@ -105,13 +98,12 @@ const reduceMessages = (previous, current, index, array) => {
   }
 };
 
-// ====>>> implemented part
 const getUser = (userID, userName) => {
   const user = Users.findOne({ userId: userID });
   if (user) {
     return mapUser(user.user);
   } else {
-    return nullUser(userID, userName);
+    return logoutUser(userID, userName);
   }
 };
 
