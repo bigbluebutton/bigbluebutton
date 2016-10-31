@@ -27,7 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	initialize="init()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	title="{ResourceUtil.getInstance().getString('bbb.desktopView.title')}"
+	title="{ResourceUtil.getInstance().getString('bbb.screenshareView.title')}"
 	showCloseButton="false"
 	resize="fitToWindow()" >
 
@@ -338,12 +338,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function determineHowToDisplayVideo():void {
 				if (btnActualSize.selected) {
 					fitToActualSize();
-					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');
-					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');
+					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow');
+					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow');
 				} else {
 					fitToWindow();
-					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
-					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
+					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize');
+					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize');
 				}
 			}
 
@@ -353,17 +353,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString('bbb.desktopView.title');
+				this.title = ResourceUtil.getInstance().getString('bbb.screenshareView.title');
 
 				if (windowControls != null) {
 					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
-					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.minimizeBtn.accessibilityName");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screenshareView.minimizeBtn.accessibilityName");
 
 					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
-					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.maximizeRestoreBtn.accessibilityName");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screenshareView.maximizeRestoreBtn.accessibilityName");
 
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
-					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.closeBtn.accessibilityName");
+					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screenshareView.closeBtn.accessibilityName");
 				}
 			}
 
@@ -382,7 +382,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   click="determineHowToDisplayVideo()"
 				   selected="false"
 				   height="90%"
-				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
-				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"/>
+				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')}"
+				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')}"/>
 	</mx:HBox>
 </CustomMdiWindow>
