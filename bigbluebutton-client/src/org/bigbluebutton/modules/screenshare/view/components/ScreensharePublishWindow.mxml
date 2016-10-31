@@ -291,7 +291,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var restartSharingEvent:RequestToRestartSharing = new RequestToRestartSharing();
           dispatchEvent(restartSharingEvent);
         }
-
       }
       
       public function stopSharingEvent(evt:StopSharingButtonEvent):void{

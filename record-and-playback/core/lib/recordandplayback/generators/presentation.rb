@@ -80,7 +80,7 @@ module BigBlueButton
       if File.file?("#{textfiles_dir}/slide-#{slide_num}.txt")
         text_from_slide = File.open("#{textfiles_dir}/slide-#{slide_num}.txt") {|f| f.readline}
         unless text_from_slide == nil
-          text_from_slide = text_from_slide.strip
+          text_from_slide = text_from_slide.strip.encode(:xml => :text)
         end
       end
       text_from_slide

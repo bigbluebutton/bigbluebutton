@@ -3,6 +3,7 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { logger } from '/imports/startup/server/logger';
 import { BREAK_LINE } from '/imports/utils/lineEndings.js';
+import getStun from '/imports/api/phone/server/getStun';
 
 const parseMessage = (message) => {
   message = message || '';
@@ -31,6 +32,11 @@ export function userJoined(meetingId, user, callback) {
   // in the case of an html5 client user we added a dummy user on
   // register_user_message (to save authToken)
   if (userObject != null && userObject.authToken != null) {
+    getStun({
+      meetingId: meetingId,
+      requesterUserId: userId
+    });
+
     Users.update({
       userId: user.userid,
       meetingId: meetingId,
@@ -123,6 +129,11 @@ export function userJoined(meetingId, user, callback) {
     });
   } else {
     // logger.info "NOTE: got user_joined_message #{user.name} #{user.userid}"
+    getStun({
+      meetingId: meetingId,
+      requesterUserId: userId
+    });
+
     return Users.upsert({
       meetingId: meetingId,
       userId: userId,
