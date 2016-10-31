@@ -307,7 +307,11 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   private def notifyActivity() {
-    if (inactivityWarning == null) updateInactivityMonitors()
+    if (inactivityWarning != null) {
+      outGW.send(new MeetingIsActive(mProps.meetingID))
+    }
+
+    updateInactivityMonitors()
   }
 
   private def handleActivityResponse(msg: ActivityResponse) {
