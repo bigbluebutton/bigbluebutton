@@ -149,12 +149,12 @@ function resyncVideos() {
 function handlePresentationAreaContent(time) {
   var mustShow = mustShowDesktopVideo(time);
   if(!sharingDesktop && mustShow) {
-    document.getElementById("deskshare-video-area").style.visibility = "visible";
+    document.getElementById("deskshare-video").style.visibility = "visible";
     document.getElementById("slide").style.visibility = "hidden";
     document.getElementById("slideText").style.visibility = "hidden";
     sharingDesktop = true;
   } else if(sharingDesktop && !mustShow) {
-    document.getElementById("deskshare-video-area").style.visibility = "hidden";
+    document.getElementById("deskshare-video").style.visibility = "hidden";
     document.getElementById("slide").style.visibility = "visible";
     document.getElementById("slideText").style.visibility = "visible";
     sharingDesktop = false;
@@ -643,6 +643,7 @@ var currentImage;
 window.onresize = function(event) {
 	showCursor(false);
   resizeSlides();
+  resizeDeshareVideo();
 };
 
 // Resize the container that has the slides (and whiteboard) to be the maximum
@@ -668,5 +669,21 @@ var resizeSlides = function() {
 
     var height = $slide.parent().width() / aspectRatio;
     $slide.css("max-height", height);
+  }
+};
+
+var resizeDeshareVideo = function() {
+  if (isThereDeskshareVideo()) {
+    var $deskhareVideo = $("#deskshare-video");
+
+    var videoWidth = parseInt(document.getElementById("deskshare-video").videoWidth, 10);
+    var videoHeight = parseInt(document.getElementById("deskshare-video").videoHeight, 10);
+
+    var aspectRatio = videoWidth/videoHeight;
+    var max = aspectRatio * $deskhareVideo.parent().outerHeight();
+    $deskhareVideo.css("max-width", max);
+
+    var height = $deskhareVideo.parent().width() / aspectRatio;
+    $deskhareVideo.css("max-height", height);
   }
 };

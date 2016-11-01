@@ -361,7 +361,6 @@ load_deskshare_video = function () {
    console.log("==Loading deskshare video");
    var deskshare_video = document.createElement("video");
    deskshare_video.setAttribute('id','deskshare-video');
-   deskshare_video.setAttribute('class','deskshare');
 
    var webmsource = document.createElement("source");
    webmsource.setAttribute('src', RECORDINGS + '/deskshare/deskshare.webm');
@@ -369,7 +368,8 @@ load_deskshare_video = function () {
    deskshare_video.appendChild(webmsource);
 
    deskshare_video.setAttribute('data-timeline-sources', SLIDES_XML);
-   document.getElementById("deskshare-video-area").appendChild(deskshare_video);
+   var presentationArea = document.getElementById("presentation-area");
+   presentationArea.insertBefore(deskshare_video,presentationArea.childNodes[0]);
 
    $('#video').on("play", function() {
        Popcorn('#deskshare-video').play();
