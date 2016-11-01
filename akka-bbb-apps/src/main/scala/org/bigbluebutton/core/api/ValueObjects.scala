@@ -10,8 +10,8 @@ object Role extends Enumeration {
 
 object Metadata extends Enumeration {
   type Metadata = String
-  val INACTIVITY_DEADLINE = "inactivity-deadline"
-  val INACTIVITY_TIMELEFT = "inactivity-timeleft"
+  val INACTIVITY_DEADLINE = "mconf-live-inactivity-deadline"
+  val INACTIVITY_TIMELEFT = "mconf-live-inactivity-timeleft"
 }
 
 object GuestPolicy extends Enumeration {
