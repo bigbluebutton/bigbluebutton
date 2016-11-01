@@ -192,7 +192,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
           showGuestSettingsButton = userLoaded && UsersUtil.amIModerator();
 
-          showRecordButton = userLoaded && UserManager.getInstance().getConference().record;
+          showRecordButton = userLoaded;
       }
 
       private function getFlashPlayerCapabilities():Object {
