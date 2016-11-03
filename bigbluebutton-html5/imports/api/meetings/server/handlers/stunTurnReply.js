@@ -1,8 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import addMeeting from '../modifiers/addMeeting';
 
-export default function handleMeetingCreation({ payload }) {
+export default function handleStunTurnReply({ payload }) {
   const meetingId = payload.meeting_id;
   const { stuns, turns } = payload;
 
