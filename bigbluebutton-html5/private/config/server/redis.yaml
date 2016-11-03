@@ -5,8 +5,10 @@ redis:
   debug: false
   channels:
     fromBBBApps: 'bigbluebutton:from-bbb-apps:*'
+    fromBBBUsers: 'bigbluebutton:from-bbb-apps:users'
     toBBBApps:
       pattern: 'bigbluebutton:to-bbb-apps:*'
+      html5: 'bigbluebutton:to-bbb-html5'
       chat: 'bigbluebutton:to-bbb-apps:chat'
       captions: 'bigbluebutton:to-bbb-apps:caption'
       meeting: 'bigbluebutton:to-bbb-apps:meeting'

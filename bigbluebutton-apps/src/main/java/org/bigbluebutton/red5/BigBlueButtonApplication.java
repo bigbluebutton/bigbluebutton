@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
@@ -41,9 +40,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 	private ConnectionInvokerService connInvokerService;
 	private MessagePublisher red5InGW;
-	
+
 	private final UserConnectionMapper userConnections = new UserConnectionMapper();
-	
+
 	private final String APP = "BBB";
 	private final String CONN = "RED5-";
 	
@@ -127,7 +126,36 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		}
 		   	    	
 		String userId = internalUserID;
-		String sessionId =  CONN + userId;
+		String sessionId = Red5.getConnectionLocal().getSessionId();
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+
+		/**
+		 * Find if there are any other connections owned by this user. If we find one,
+		 * that means that the connection is old and the user reconnected. Clear the
+		 * userId attribute so that messages would not be sent in the defunct connection.
+		 */
+		Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
+		for (IConnection conn : conns) {
+			String connUserId = (String) conn.getAttribute("INTERNAL_USER_ID");
+			String connSessionId = conn.getSessionId();
+			if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
+				conn.removeAttribute("INTERNAL_USER_ID");
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", room);
+				logData.put("userId", userId);
+				logData.put("oldConnId", connSessionId);
+				logData.put("newConnId", sessionId);
+				logData.put("event", "removing_defunct_connection");
+				logData.put("description", "Removing defunct connection BBB Apps.");
+
+				Gson gson = new Gson();
+				String logStr =  gson.toJson(logData);
+
+				log.info("Removing defunct connection: data={}", logStr);
+			}
+		}
+
+
 		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
     			voiceBridge, record, externalUserID, muted, sessionId);
 		connection.setAttribute(Constants.SESSION, bbbSession);        
@@ -140,8 +168,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		red5InGW.initAudioSettings(room, internalUserID, muted);
 
 	    String meetingId = bbbSession.getRoom();
-	    
-	    String connType = getConnectionType(Red5.getConnectionLocal().getType());
+
 	    String userFullname = bbbSession.getUsername();
 	    String connId = Red5.getConnectionLocal().getSessionId();	        
 		
@@ -165,9 +192,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String logStr =  gson.toJson(logData);
 		
 		log.info("User joining bbb-apps: data={}", logStr);
-		
+
 		userConnections.addUserConnection(userId, connId);
-		
+
 		return super.roomConnect(connection, params);
         
 	}
@@ -186,8 +213,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	public void roomDisconnect(IConnection conn) {
 
 		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
-		int remotePort = Red5.getConnectionLocal().getRemotePort();    	
-		String clientId = Red5.getConnectionLocal().getClient().getId();
+		int remotePort = Red5.getConnectionLocal().getRemotePort();
 
 	    BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	          
@@ -212,16 +238,15 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    
 	    Gson gson = new Gson();
 	    String logStr =  gson.toJson(logData);
-	        
-	    boolean removeUser = userConnections.userDisconnected(userId, connId);
-	    
-	    if (removeUser) {
-	    	log.info("User leaving bbb-apps: data={}", logStr);
-	    	red5InGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
-	    } else {
-	    	log.info("User not leaving bbb-apps but just disconnected: data={}", logStr);
-	    }
-	    
+
+		boolean removeUser = userConnections.userDisconnected(userId, connId);
+		if (removeUser) {
+			log.info("User leaving bbb-apps: data={}", logStr);
+			red5InGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
+		} else {
+			log.info("User not leaving bbb-apps but just disconnected: data={}", logStr);
+		}
+
 		super.roomDisconnect(conn);
 	}
 	

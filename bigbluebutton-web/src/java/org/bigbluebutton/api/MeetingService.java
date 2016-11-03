@@ -304,6 +304,7 @@ public class MeetingService implements MessageListener {
             metadata.put("isBreakout", m.isBreakout().toString());
 
             Map<String, String> breakoutMetadata = new TreeMap<String, String>();
+            breakoutMetadata.put("meetingId", m.getExternalId());
             if (m.isBreakout()){
                 breakoutMetadata.put("sequence", m.getSequence().toString());
                 breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
