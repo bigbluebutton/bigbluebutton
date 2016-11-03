@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
+import Meetings from '/imports/api/meetings';
 
 export default function handleStunTurnReply({ payload }) {
   const meetingId = payload.meeting_id;
