@@ -99,11 +99,11 @@ module BigBlueButton
         # Set textfile directory
         textfiles_dir = "#{process_dir}/presentation/#{presentation_id}/textfiles"
         # Set presentation hashmap to be returned
-        presentation[:id] = presentation_id
-        presentation[:filename] = presentation_filename
-        presentation[:slides] = {}
-        presentation[:slides][1] = { :alt => self.get_text_from_slide(textfiles_dir, 1) }
         unless presentation_filename == "default.pdf"
+          presentation[:id] = presentation_id
+          presentation[:filename] = presentation_filename
+          presentation[:slides] = {}
+          presentation[:slides][1] = { :alt => self.get_text_from_slide(textfiles_dir, 1) } if File.file?("#{textfiles_dir}/slide-1.txt")
           presentation[:slides][2] = { :alt => self.get_text_from_slide(textfiles_dir, 2) } if File.file?("#{textfiles_dir}/slide-2.txt")
           presentation[:slides][3] = { :alt => self.get_text_from_slide(textfiles_dir, 3) } if File.file?("#{textfiles_dir}/slide-3.txt")
           # Break because something else than default.pdf was found
