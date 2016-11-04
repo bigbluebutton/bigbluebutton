@@ -38,7 +38,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-  import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
@@ -104,7 +103,6 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
         ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
-        ExternalInterface.addCallback("javaAppletLaunched", handleJavaAppletLaunched);
         ExternalInterface.addCallback("getSessionToken", handleGetSessionToken);
         
       }
@@ -436,10 +434,5 @@ package org.bigbluebutton.main.api
     private function handleWebRTCMediaFail():void {
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
-	
-	private function handleJavaAppletLaunched():void
-	{
-		_dispatcher.dispatchEvent(new DeskshareAppletLaunchedEvent(DeskshareAppletLaunchedEvent.APPLET_LAUNCHED));
-	}
   }
 }

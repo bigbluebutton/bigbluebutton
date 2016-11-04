@@ -57,6 +57,7 @@ class BigBlueButtonInGW(
         val mProps = new MeetingProperties(
           msg.payload.id,
           msg.payload.externalId,
+          msg.payload.parentId,
           msg.payload.name,
           msg.payload.record,
           msg.payload.voiceConfId,
@@ -69,7 +70,8 @@ class BigBlueButtonInGW(
           msg.payload.createTime,
           msg.payload.createDate,
           red5DeskShareIP, red5DeskShareApp,
-          msg.payload.isBreakout)
+          msg.payload.isBreakout,
+          msg.payload.sequence)
 
         eventBus.publish(BigBlueButtonEvent("meeting-manager", new CreateMeeting(msg.payload.id, mProps)))
       }

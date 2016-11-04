@@ -72,7 +72,8 @@ public class UserJoinedVoiceConfMessage {
 							&& payload.has(CALLER_ID_NAME)
 							&& payload.has(CALLER_ID_NUM)
 							&& payload.has(MUTED)
-							&& payload.has(TALKING)) {
+							&& payload.has(TALKING) 
+							&& payload.has(AVATAR_URL)) {
 						String voiceConfId = payload.get(VOICE_CONF_ID).getAsString();
 						String voiceUserId = payload.get(VOICE_USER_ID).getAsString();
 						String userId = payload.get(USER_ID).getAsString();

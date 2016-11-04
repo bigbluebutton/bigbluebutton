@@ -57,8 +57,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   @Override
   public boolean appStart(IScope app) {
     super.appStart(app);
-    log.info("BBB Screenshare appStart\n\n\n\n\n\n");
-    System.out.println("BBB Screenshare appStart system println\n\n\n\n\n\n");
+    log.info("BBB Screenshare appStart");
     sender.setAppScope(app);
     return true;
   }
@@ -99,24 +98,6 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 
   @Override
   public void appDisconnect(IConnection conn) {
-    log.info("BBB Screenshare appDisconnect");
-
-    String connType = getConnectionType(Red5.getConnectionLocal().getType());
-    String connId = Red5.getConnectionLocal().getSessionId();
-
-    Map<String, Object> logData = new HashMap<String, Object>();
-    logData.put("meetingId", getMeetingId());
-    logData.put("userId", getUserId());
-    logData.put("connType", connType);
-    logData.put("connId", connId);
-    logData.put("event", "user_leaving_bbb_screenshare");
-    logData.put("description", "User leaving BBB Screenshare.");
-
-    Gson gson = new Gson();
-    String logStr =  gson.toJson(logData);
-
-    log.info("User leaving bbb-screenshare: data={}", logStr);
-
     super.appDisconnect(conn);
   }
 
