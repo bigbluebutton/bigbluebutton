@@ -1,6 +1,5 @@
 import '/imports/startup/server';
 import '/imports/api/chat/server';
-import '/imports/api/breakouts/server';
 
 import '/imports/api/cursor/server/publications';
 import '/imports/api/cursor/server/modifiers/clearCursorCollection';
@@ -28,6 +27,8 @@ import '/imports/api/polls/server/modifiers/addPollToCollection';
 import '/imports/api/polls/server/modifiers/clearPollCollection';
 import '/imports/api/polls/server/modifiers/updatePollCollection';
 import '/imports/api/polls/server/modifiers/eventHandlers';
+
+import '/imports/api/breakouts/server';
 
 import '/imports/api/presentations/server/publications';
 import '/imports/api/presentations/server/methods/switchSlideMessage';

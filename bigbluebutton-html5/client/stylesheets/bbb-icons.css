@@ -74,6 +74,12 @@
 .icon-bbb-left-arrow:before {
     content: "\e90e";
 }
+.icon-bbb-down-arrow {
+  transform: rotate(90deg);
+}
+.icon-bbb-down-arrow:before {
+    content: "\e90b";
+}
 .icon-bbb-happy:before {
     content: "\e90f";
 }

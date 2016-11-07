@@ -7,7 +7,7 @@ import Cursor from '/imports/api/cursor';
 import Captions from '/imports/api/captions';
 import Polls from '/imports/api/polls';
 
-import Breakouts from '/imports/api/breakouts';
+import { callServer } from '/imports/ui/services/api';
 
 function setCredentials(nextState, replace) {
   if (nextState && nextState.params.authToken) {
@@ -27,7 +27,7 @@ function subscribeForData() {
 
   const subNames = [
     'users', 'chat', 'cursor', 'deskshare', 'meetings',
-    'polls', 'presentations', 'shapes', 'slides', 'captions',
+    'polls', 'presentations', 'shapes', 'slides', 'captions', 'breakouts',
   ];
 
   let subs = [];
@@ -38,8 +38,6 @@ function subscribeForData() {
 };
 
 function subscribeFor(collectionName) {
-  window.Breakouts = Breakouts;
-  console.log('Subscribe 4Head');
   const credentials = Auth.getCredentials();
   return new Promise((resolve, reject) => {
     Meteor.subscribe(collectionName, credentials, {
@@ -116,6 +114,7 @@ export {
   subscribeToCollections,
   wasUserKicked,
   redirectToLogoutUrl,
+  getBreakouts,
   getModal,
   showModal,
   clearModal,
