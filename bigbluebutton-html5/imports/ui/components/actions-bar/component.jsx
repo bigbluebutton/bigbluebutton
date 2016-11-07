@@ -20,7 +20,7 @@ export default class ActionsBar extends Component {
   handleClick() {
   }
 
-  render() {
+  renderForPresenter() {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
@@ -46,5 +46,46 @@ export default class ActionsBar extends Component {
         </div>
       </div>
     );
+  }
+
+  renderForUser() {
+    return (
+      <div className={styles.actionsbar}>
+        <div className={styles.center}>
+          <JoinAudioContainer
+            open={openJoinAudio.bind(this)}
+            close={exitAudio}
+          />
+
+          <Button
+            onClick={this.handleClick}
+            label={'Cam Off'}
+            color={'primary'}
+            icon={'video-off'}
+            size={'lg'}
+            circle={true}
+          />
+          <EmojiContainer />
+        </div>
+        <div className={styles.right}>
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    if (this.props.userIsPresenter) {
+      return (
+        <div>
+          {this.renderForPresenter()}
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          {this.renderForUser()}
+        </div>
+      );
+    }
   }
 }
