@@ -13,11 +13,7 @@ import '/imports/api/deskshare/server/modifiers/handleDeskShareChange';
 import '/imports/api/deskshare/server/modifiers/handleIncomingDeskshareMessage';
 import '/imports/api/deskshare/server/modifiers/eventHandlers';
 
-import '/imports/api/meetings/server/publications';
-import '/imports/api/meetings/server/modifiers/addMeetingToCollection';
-import '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
-import '/imports/api/meetings/server/modifiers/removeMeetingFromCollection';
-import '/imports/api/meetings/server/modifiers/eventHandlers';
+import '/imports/api/meetings/server';
 
 import '/imports/api/phone/server/modifiers/eventHandlers';
 

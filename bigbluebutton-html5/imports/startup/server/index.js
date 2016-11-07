@@ -1,25 +1,11 @@
+import { Meteor } from 'meteor/meteor';
 import Locales from '/imports/locales';
 import Logger from './logger';
 import Redis from './redis';
-import { clearCollections } from '/imports/api/common/server/helpers';
 
 Meteor.startup(() => {
-  clearCollections();
   const APP_CONFIG = Meteor.settings.public.app;
-
-  let determineConnectionType = function () {
-    let baseConnection = 'HTTP';
-    if (APP_CONFIG.httpsConnection) {
-      baseConnection += ('S');
-    }
-
-    return baseConnection;
-  };
-
-  Logger.info(`server start. Connection type:${determineConnectionType()}`);
-  Logger.info('APP_CONFIG=');
-  Logger.info(APP_CONFIG);
-  Logger.info('Running in environment type:' + Meteor.settings.runtime.env);
+  Logger.info(`SERVER STARTED. ENV=${Meteor.settings.runtime.env}`, APP_CONFIG);
 });
 
 WebApp.connectHandlers.use('/check', (req, res, next) => {
