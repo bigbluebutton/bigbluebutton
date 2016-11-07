@@ -266,6 +266,7 @@ package org.bigbluebutton.main.model.users {
 		
 		public function set amIPresenter(presenter:Boolean):void {
 			me.presenter = presenter;
+			me.applyLockSettings();
 		}
 		
         [Bindable]
@@ -375,6 +376,7 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setMyRole(role:String):void {
 			me.role = role;
+			me.applyLockSettings();
 		}
 
 		public function amIGuest():Boolean {
@@ -567,6 +569,7 @@ package org.bigbluebutton.main.model.users {
 			var myUser:BBBUser = getMyUser();
 			if(myUser != null)
 				myUser.applyLockSettings();
+			users.refresh(); // we need to refresh after updating the lock settings to trigger the user item renderers to redraw
 		}
 	}
 }

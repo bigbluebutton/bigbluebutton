@@ -66,10 +66,10 @@ package org.bigbluebutton.modules.layout.services
 	  if(message.layout == "" || UsersUtil.amIModerator())
 		  _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
 	  else {
-      	lockLayout(message.locked, message.setById);
       	handleSyncLayout(message);
 	  }
 	  
+      handleLayoutLocked(message);
       _dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
     }
  

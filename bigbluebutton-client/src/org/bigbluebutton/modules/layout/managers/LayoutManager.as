@@ -44,6 +44,7 @@ package org.bigbluebutton.modules.layout.managers
 
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.common.CustomMdiWindow;
   import org.bigbluebutton.core.EventBroadcaster;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
@@ -51,6 +52,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.core.model.Config;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.model.LayoutOptions;
+  import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
@@ -363,6 +365,12 @@ package org.bigbluebutton.modules.layout.managers
       _locked = e.locked;
       checkWindowsPermissions();
     }
+
+    public function lockSettingsChanged():void {
+      var myUser:BBBUser = UserManager.getInstance().getConference().getMyUser();
+      _locked = myUser.lockedLayout;
+      checkWindowsPermissions();
+    }
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
@@ -390,12 +398,8 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function checkSingleWindowPermissions(window:MDIWindow):void {
-			if (!UserManager.getInstance().getConference().amIModerator()
-					&& !LayoutDefinition.ignoreWindow(window)) {
-				window.draggable 
-						= window.resizable
-						= window.showControls
-						= !_locked;
+			if (!LayoutDefinition.ignoreWindow(window)) {
+				(window as CustomMdiWindow).unlocked = !_locked || UsersUtil.amIModerator() || UsersUtil.amIPresenter();
 			}
 		}
 		
