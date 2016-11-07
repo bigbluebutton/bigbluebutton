@@ -1,13 +1,13 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- * 
+ *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- * 
+ *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -16,12 +16,12 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.users.model
-{
+package org.bigbluebutton.modules.users.model {
+
 	import org.bigbluebutton.core.BBB;
 
-	public class UsersOptions
-	{
+	public class UsersOptions {
+		
 		[Bindable]
 		public var windowVisible:Boolean = true;
 		
@@ -36,9 +36,6 @@ package org.bigbluebutton.modules.users.model
 		
 		[Bindable]
 		public var enableEmojiStatus:Boolean = true;
-
-		[Bindable]
-		public var enableBreakoutRooms:Boolean = true;
 
 		[Bindable]
 		public var enableSettingsButton:Boolean = true;
@@ -59,9 +56,6 @@ package org.bigbluebutton.modules.users.model
 			}
 			if (vxml.@enableEmojiStatus != undefined) {
 				enableEmojiStatus = (vxml.@enableEmojiStatus.toString().toUpperCase() == "TRUE") ? true : false;
-			}
-			if (vxml.@enableBreakoutRooms != undefined) {
-				enableBreakoutRooms = (vxml.@enableBreakoutRooms.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 			if (vxml.@enableSettingsButton != undefined) {
 				enableSettingsButton = (vxml.@enableSettingsButton.toString().toUpperCase() == "TRUE") ? true : false;

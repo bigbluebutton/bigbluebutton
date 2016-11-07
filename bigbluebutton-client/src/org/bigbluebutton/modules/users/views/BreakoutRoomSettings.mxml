@@ -49,6 +49,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable]
 			private var mode:String;
+			
+			[Bindable]
+			private var recordingEnabled:Boolean;
 
 			private static var assignement : Dictionary;
 
@@ -238,10 +241,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			public function initCreateBreakoutRooms(mode:String):void {
+			public function initCreateBreakoutRooms(mode:String, record:Boolean):void {
 				dispatcher = new Dispatcher();
 				roomsProvider = new Array();
 				this.mode = mode;
+				this.recordingEnabled = record;
 				for (var i:int = 2; i <= 5; i++) {
 					roomsProvider.push(i.toString() + " " + ResourceUtil.getInstance().getString('bbb.users.breakout.rooms'));
 				}
@@ -293,7 +297,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
 		</mx:HBox>
 		
-		<mx:HBox id="recordBox" width="100%" paddingTop="12">
+		<mx:HBox id="recordBox" width="100%" paddingTop="12" visible="{recordingEnabled}">
 		    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.record')}"/>
 			<mx:CheckBox id="recordCheckbox"
 						 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.recordCheckbox.accessibilityName')}"/>

@@ -430,8 +430,6 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleParticipantJoined(msg:Object):void {
-	  LOGGER.info("handleParticipantJoined = " + msg.msg);
-		
       var map:Object = JSON.parse(msg.msg);
       
       var user:Object = map.user as Object;

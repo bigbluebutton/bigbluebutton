@@ -602,6 +602,9 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 fi
 	echo
 done
+	if [ -f $tmp_file ]; then
+		rm $tmp_file
+	fi
 	echo
 	echo "--"
 	systemctl --all --no-pager list-timers bbb-record-core.timer
