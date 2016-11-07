@@ -4,13 +4,14 @@ import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import BaseMenu from '../base/component';
 import styles from '../styles.scss';
+import Service from './service';
 
 export default class UsersMenu extends BaseMenu {
   constructor(props) {
     super(props);
   }
 
-  getContent() {
+  renderAdmin() {
     return (
       <div className={styles.full} role='presentation'>
         <div className={styles.row} role='presentation'>
@@ -58,5 +59,37 @@ export default class UsersMenu extends BaseMenu {
         <div id='privChatDesc' hidden>Disables private chat for all locked participants.</div>
       </div>
     );
+  }
+
+  renderUser() {
+    return (
+      <div className={styles.full} role='presentation'>
+        <div className={styles.row} role='presentation'>
+          <label><input className={styles.checkboxOffset} type='checkbox' tabIndex='7'
+          aria-labelledby='muteALlLabel' aria-describedby='muteAllDesc' />
+          Mute all except the presenter</label>
+        </div>
+        <div id='muteAllLabel' hidden>Mute all</div>
+        <div id='muteAllDesc' hidden>Mutes all participants except the presenter.</div>
+      </div>
+    );
+  }
+
+  getContent() {
+    let currentUser = Service.getCurrentUser();
+
+    if (currentUser.isPresenter || currentUser.isModerator) {
+      return (
+        <div>
+          {this.renderAdmin()}
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          {this.renderUser()}
+        </div>
+      );
+    }
   }
 };
