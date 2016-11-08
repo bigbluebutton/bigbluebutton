@@ -314,7 +314,8 @@ package org.bigbluebutton.main.model.users
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					numNetworkChangeCount = 0;
-          JSLog.debug("Successfully connected to BBB App.", logData);
+                    logData.message = "Successfully connected to BBB App.";
+                    LOGGER.info(JSON.stringify(logData));
           validateToken();
 					break;
 			
