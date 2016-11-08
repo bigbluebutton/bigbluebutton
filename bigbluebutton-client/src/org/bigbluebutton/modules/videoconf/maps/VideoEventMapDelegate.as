@@ -318,7 +318,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
       _dispatcher.dispatchEvent(broadcastEvent);
 	  if (proxy.videoOptions.showButton) {
-		  button.publishingStatus(button.START_PUBLISHING);
+		  button.callLater(button.publishingStatus, [button.START_PUBLISHING]);
 	  }
     }
 
