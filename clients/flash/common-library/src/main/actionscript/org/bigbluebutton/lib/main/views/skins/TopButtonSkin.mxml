@@ -5,7 +5,20 @@
 	<fx:Metadata>
 		[HostComponent("spark.components.Button")]
 	</fx:Metadata>
-
+	
+	<fx:Script>
+		<![CDATA[
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				//label.setStyle("color", getStyle("color"));
+				//label.setStyle("fontSize", getStyle("fontSize"));
+				//label.setStyle("fontFamily", getStyle("fontFamily"));
+				icon.text = getStyle("icon");
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+		]]>
+	</fx:Script>
+	
 	<!-- states -->
 	<s:states>
 		<s:State name="disabled" />
@@ -13,7 +26,10 @@
 		<s:State name="over" />
 		<s:State name="up" />
 	</s:states>
-	<s:BitmapImage source="{getStyle('backgroundImage')}"
-				   verticalCenter="0"
-				   horizontalCenter="0" />
+	<s:Label 	id="icon"
+				fontSize="{getStyle('iconSize')}"
+				fontFamily="{getStyle('iconFont')}"
+				color="{getStyle('iconColor')}"
+				horizontalCenter="0"
+				verticalCenter="0" />
 </s:Skin>

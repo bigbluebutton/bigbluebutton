@@ -44,10 +44,18 @@
 }
 
 @font-face {
-	src: 		url("assets/fonts/BBBIcons/bbb-icons.ttf"); 
+	src: 		url("assets/fonts/BBBIcons/bbb-icons-11-3-2016.ttf"); 
 	fontFamily:	BBBIcons; 
 	fontStyle:	normal; 
 	fontWeight:	normal; 
+	embedAsCFF:	true;
+}
+
+@font-face {
+	src: 		url("assets/fonts/BBBIcons/bbb-icons.ttf"); 
+	fontFamily:	BBBIcons; 
+	fontStyle:	normal; 
+	fontWeight:	bold; 
 	embedAsCFF:	true;
 }
 
@@ -59,11 +67,6 @@ global
 s|Application
 {
 	backgroundColor: PropertyReference("bbbBlack");	
-}
-
-mx|MenuItemRenderer
-{
-	font-Family:	SourceSansProMX;
 }
 
 libChat|NewMessagesIndicator
@@ -95,34 +98,30 @@ libChat|NewMessagesIndicator
 
 .topButtonStyle
 {
-	paddingLeft:		24;
-	paddingRight:		24;
-	width:				48;
-	height:				48;
-	verticalAlign:		middle;
-	horizontalAlign:	middle;
+	iconSize				: 30;
+	iconColor				: PropertyReference("bbbWhite");
+	iconFont				: BBBIcons;
 	skinClass:			ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
-
 }
 
 .participantsButtonStyle
 {
-	backgroundImage:	Embed(source="assets/res/drawable-mdpi/participants.png");
+	icon: "\ue906";
 }
 
 .settingsButtonStyle
 {
-	backgroundImage:	Embed(source="assets/res/drawable-mdpi/settings.png");
+	icon: "\ue902";
 }
 
 .presentationButtonStyle
 {
-	backgroundImage:	Embed(source="assets/res/drawable-mdpi/presentation.png");
+	icon: "\ue90c";
 }
 
 .backButtonStyle
 {
-	backgroundImage:	Embed(source="assets/res/drawable-mdpi/backButton.png");	
+	icon: "\ue90e";
 }
 
 .menuButtonStyle
@@ -131,32 +130,35 @@ libChat|NewMessagesIndicator
 	selectedBackgroundColor : PropertyReference("bbbGrey");
 	color                   : PropertyReference("bbbWhite");
 	fontSize				: 14;
+	iconSize				: 30;
+	iconColor				: PropertyReference("bbbWhite");
+	iconFont				: BBBIcons;
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
 }
 
 .micOnButtonStyle
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/mic.png");
+	icon : "\ue91b";
 }
 
 .micOffButtonStyle
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/mic_off.png");
+	icon : "\ue91c";
 }
 
 .camOnButtonStyle
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/cam.png");
+	icon : "\ue921";
 }
 
 .camOffButtonStyle
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/cam_off.png");
+	icon : "\ue905";
 }
 
 .handStatusButtonStyle
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/hand.png");
+	icon : "\ue910";
 }
 
 .participantIconStyle
@@ -200,37 +202,7 @@ libChat|NewMessagesIndicator
 
 .iconStyle
 {
-	width:		32;
-	height:		32;
-	skinClass:	ClassReference("org.bigbluebutton.lib.common.skins.IconSkin")
-}
-
-.cameraIconStyle
-{
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/video.png");
-}
-
-.micIconStyle
-{
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/microphone.png");
-}
-
-.micOffIconStyle
-{
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/micOffIcon_dark.png");
-}
-
-.speakingMicIconStyle
-{
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/microphone_talk.png");
-}
-
-.listenOnlyIconStyle
-{
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/ic_headset.png");
-}
-
-.lockIconStyle
-{
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/lock.png");
+	fontSize:	20;
+	fontFamily:	BBBIcons;
+	color:		PropertyReference("bbbGrey");
 }
