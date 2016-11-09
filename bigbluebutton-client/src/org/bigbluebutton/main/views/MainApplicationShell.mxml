@@ -11,6 +11,7 @@ terms of the GNU Lesser General Public License as published by the Free Software
 Foundation; either version 3.0 of the License, or (at your option) any later
 version.
 
+
 BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -318,7 +319,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// this is a terrible place for these checks because this function runs 4 times on startup
 				if (BBB.initConnectionManager().isTunnelling) {
 					isTunneling = true;
-					globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.tunneling.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.tunneling.message")));
+					globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT,
+						ResourceUtil.getInstance().getString("bbb.clientstatus.tunneling.title"),
+						ResourceUtil.getInstance().getString("bbb.clientstatus.tunneling.message"),
+						'bbb.clientstatus.tunneling'));
 				}
 				versionCheck();
 				
@@ -340,7 +344,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if ((browserVersion[0].toString().toLowerCase() == "chrome" && browserVersion[1] < xml.@chrome) || browserVersion[0].toString().toLowerCase() == "firefox" && browserVersion[1] < xml.@firefox) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.title"), 
-							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [browserVersion[0]+" "+browserVersion[1]])));
+							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [browserVersion[0]+" "+browserVersion[1]]),
+							'bbb.clientstatus.browser.message'));
 					}
 					
 					//find flash version
@@ -350,7 +355,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						((flashVersion.os != 'LNX' || browserVersion[0].toString().toLowerCase() == "chrome") && flashVersion.major < xml.@flash)) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.title"), 
-							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.message", [flashVersion.major+"."+flashVersion.minor+"."+flashVersion.build])));
+							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.message", [flashVersion.major+"."+flashVersion.minor+"."+flashVersion.build]),
+							'bbb.clientstatus.flash.message'));
 					}
 				}
 

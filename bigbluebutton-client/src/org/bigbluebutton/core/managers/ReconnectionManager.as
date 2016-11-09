@@ -149,7 +149,6 @@ package org.bigbluebutton.core.managers
 	  LOGGER.info(JSON.stringify(logData));
 	  
       dispatchReconnectionSucceededEvent(type);
-
       delete _connections[type];
       if (type == BIGBLUEBUTTON_CONNECTION) {
         reconnect();
@@ -161,7 +160,7 @@ package org.bigbluebutton.core.managers
 
         _dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT, 
           ResourceUtil.getInstance().getString('bbb.connection.reestablished'), 
-          msg));
+          msg, 'bbb.connection.reestablished'));
 
         _reconnectTimeout.reset();
         removePopUp();
