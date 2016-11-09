@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.phone.managers
 
   public class WebRTCCallManager
   {
-	private static const LOGGER:ILogger = getClassLogger(WebRTCCallManager);      
+    private static const LOGGER:ILogger = getClassLogger(WebRTCCallManager);
     private const MAX_RETRIES:Number = 3;
     
     private var browserType:String = "unknown";
@@ -60,7 +60,8 @@ package org.bigbluebutton.modules.phone.managers
       if (options.useWebRTCIfAvailable && !isWebRTCSupported()) {
         dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
           ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.title"), 
-          ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.message")));
+          ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.message"),
+          'bbb.clientstatus.webrtc.title'));
       }
       
       usingWebRTC = checkIfToUseWebRTC();
@@ -135,7 +136,8 @@ package org.bigbluebutton.modules.phone.managers
       if(reconnecting) {
         dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT,
           ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reestablished"),
-          ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reestablished")));
+          ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reestablished"),
+          'bbb.webrtcWarning.connection.reestablished'));
         reconnecting = false;
       }
     }
@@ -233,7 +235,8 @@ package org.bigbluebutton.modules.phone.managers
         reconnecting = true;
         dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT,
           ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.dropped"),
-          ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reconnecting")));
+          ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reconnecting"),
+          'bbb.webrtcWarning.connection.dropped,reconnecting'));
         reconnect.onDisconnect(joinVoiceConference, []);
       }
       else {
@@ -308,7 +311,7 @@ package org.bigbluebutton.modules.phone.managers
         Alert.show(message, title, Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
       });
       popUpDelayTimer.start();
-      dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, title, error));
+      dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, title, error, ''));
 
       LOGGER.warn("WebRTCAlert:" + title + " " + error + " " + message);
     }
