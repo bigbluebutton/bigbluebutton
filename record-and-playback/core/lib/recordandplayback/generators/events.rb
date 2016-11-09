@@ -31,14 +31,19 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting meeting metadata")
       doc = Nokogiri::XML(File.open(events_xml))
       metadata = {}
-      doc.xpath("//metadata").each do |e| 
+      doc.xpath("//metadata").each do |e|
         e.keys.each do |k| 
           metadata[k] = e.attribute(k)
         end
-      end  
+      end
+      doc.xpath("//breakout").each do |e|
+        e.keys.each do |k|
+          metadata[k] = e.attribute(k)
+        end
+      end
       metadata
     end
-    
+
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events_xml)
       BigBlueButton.logger.info("Task: Getting the timestamp of the first event.")
