@@ -426,9 +426,11 @@ public class MeetingService implements MessageListener {
                 Map<String, String> meta = r.getMetadata();
                 String mid = meta.remove("meetingId");
                 String name = meta.remove("meetingName");
+                String isBreakout = meta.remove("isBreakout");
 
                 r.setMeetingID(mid);
                 r.setName(name);
+                r.setIsBreakout(isBreakout == "true");
 
                 List<Playback> plays = new ArrayList<Playback>();
 

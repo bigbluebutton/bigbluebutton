@@ -32,12 +32,11 @@ public class Recording {
 	private String meetingID;
 	private String name;
 	private boolean published;
+	private boolean breakout;
 	private String startTime;
 	private String endTime;
 	private Map<String, String> metadata = new TreeMap<String, String>();
 	private List<Playback> playbacks=new ArrayList<Playback>();
-	
-	//TODO: 
 	private String state;
 	private String playbackLink;
 	private String playbackFormat;
@@ -79,6 +78,14 @@ public class Recording {
 	
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+
+	public boolean isBreakout() {
+		return breakout;
+	}
+
+	public void setIsBreakout(boolean breakout) {
+		this.breakout = breakout;
 	}
 	
 	public String getStartTime() {

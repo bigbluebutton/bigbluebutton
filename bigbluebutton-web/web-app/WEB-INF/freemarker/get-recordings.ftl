@@ -12,6 +12,7 @@
       <name><#if r.getName()?? && r.getName() != ""><![CDATA[${r.getName()}]]></#if></name>
       <published>${r.isPublished()?string}</published>
       <state>${r.getState()?string}</state>
+      <isBreakout>${r.isBreakout()?string}</isBreakout>
       <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
       <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
       <#assign m = r.getMetadata()>
