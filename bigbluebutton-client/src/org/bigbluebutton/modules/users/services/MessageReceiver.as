@@ -578,13 +578,7 @@ package org.bigbluebutton.modules.users.services
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
       user.avatarURL = joinedUser.avatarURL;
-	  
-      var logData:Object = UsersUtil.initLogData();
-      logData.tags = ["apps"];
-	  logData.user = user;
-      logData.message = "User joined.";
-	  LOGGER.info(JSON.stringify(logData));
-	  
+	   
       UserManager.getInstance().getConference().addUser(user);
       
       if (joinedUser.hasStream) {
