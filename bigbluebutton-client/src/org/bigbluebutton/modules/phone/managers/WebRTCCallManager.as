@@ -14,7 +14,6 @@ package org.bigbluebutton.modules.phone.managers
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSAPI;
-  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.modules.phone.PhoneModel;
@@ -152,8 +151,13 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
-	  LOGGER.debug("handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
-      
+      var logData:Object = {};
+      logData.user = UsersUtil.getUserData();
+      logData.usingWebRTC = usingWebRTC;
+      logData.eventMic = event.mic;
+      logData.message = "handleJoinVoiceConferenceCommand - usingWebRTC:";
+      LOGGER.info(JSON.stringify(logData));
+
       if (!usingWebRTC || !event.mic) return;
       
       if (options.skipCheck || echoTestDone) {
@@ -202,28 +206,34 @@ package org.bigbluebutton.modules.phone.managers
         errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
       }
       
-	  var logData:Object = new Object();       
-	  logData.user = UsersUtil.getUserData();
-	  logData.user.reason = errorString;
+      var logData:Object = {};
+      logData.user = UsersUtil.getUserData();
+      logData.user.reason = errorString;
       logData.message = "WebRtc Echo test failed.";
-	  JSLog.warn("WebRtc Echo test failed.", logData);
-	  
-	  LOGGER.info(jsonXify(logData));
-	  
-      sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
+      logData.errorEvent = event;
+      LOGGER.info(jsonXify(logData));
+
+      sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
+              ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
+              errorString,
+              'bbb.webrtcWarning webRTCEchoTestFailedEvent');
     }
     
     public function handleWebRTCEchoTestEndedUnexpectedly():void {
       model.state = Constants.INITED;
-      var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.endedunexpectedly");
-	  
-	  var logData:Object = new Object();       
-	  logData.user = UsersUtil.getUserData();
-	  logData.user.reason = errorString;
+      var logCode:String = "bbb.webrtcWarning.failedError.endedunexpectedly";
+      var errorString:String = ResourceUtil.getInstance().getString(logCode);
+
+      var logData:Object = {};
+      logData.user = UsersUtil.getUserData();
+      logData.user.reason = errorString;
       logData.message = "WebRtc Echo test ended unexpectedly.";
-	  LOGGER.info(jsonXify(logData));
-	  
-      sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
+      LOGGER.info(jsonXify(logData));
+
+      sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
+              ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
+              errorString,
+              logCode);
     }
     
     public function handleWebRTCCallFailedEvent(event:WebRTCCallEvent):void {
@@ -259,26 +269,34 @@ package org.bigbluebutton.modules.phone.managers
             errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
           }
           
-          var logData:Object = new Object();       
+          var logData:Object = {};
           logData.user = UsersUtil.getUserData();
           logData.user.reason = errorString;
+          logData.errorEvent = event;
           LOGGER.info(jsonXify(logData));
           
-          sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
+          sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
+                  ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
+                  errorString,
+                  'bbb.webrtcWarning.failedError');
         }
       }
     }
     
     public function handleWebRTCMediaFailedEvent():void {
       model.state = Constants.INITED;
-      var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.mediamissing");
-	  
-	  var logData:Object = new Object();       
-	  logData.user = UsersUtil.getUserData();
-	  logData.user.reason = errorString;
-	  LOGGER.info(jsonXify(logData));
-	  
-      sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
+      var logCode:String = "bbb.webrtcWarning.failedError.mediamissing";
+      var errorString:String = ResourceUtil.getInstance().getString(logCode);
+
+      var logData:Object = {};
+      logData.user = UsersUtil.getUserData();
+      logData.user.reason = errorString;
+      LOGGER.info(jsonXify(logData));
+
+      sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
+              ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]),
+              errorString,
+              logCode);
     }
     
     private var popUpDelayTimer:Timer = new Timer(100, 1);
@@ -300,7 +318,7 @@ package org.bigbluebutton.modules.phone.managers
       }
     }
     
-    private function sendWebRTCAlert(title:String, message:String, error:String):void {
+    private function sendWebRTCAlert(title:String, message:String, error:String, logCode:String):void {
       /**
        * There is a bug in Flex SDK 4.14 where the screen stays blurry if a 
        * pop-up is opened from another pop-up. I delayed the second open to 
@@ -311,9 +329,15 @@ package org.bigbluebutton.modules.phone.managers
         Alert.show(message, title, Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
       });
       popUpDelayTimer.start();
-      dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, title, error, ''));
+      dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, title, error, logCode));
 
-      LOGGER.warn("WebRTCAlert:" + title + " " + error + " " + message);
+      var logData:Object = {};
+      logData.type = "WebRTCAlert";
+      logData.title = title;
+      logData.error = error;
+      logData.message = message;
+      logData.logCode = logCode;
+      LOGGER.warn(JSON.stringify(logData));
     }
   }
 }
