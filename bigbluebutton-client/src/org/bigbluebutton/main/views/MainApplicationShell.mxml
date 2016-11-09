@@ -232,17 +232,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                                         
                     logData.localeVersion = localeVersion;
                     logData.tags = ["locale"];
-                    logData.message = "Received locale version fron config.xml";
+                    logData.message = "Received locale version from config.xml";
                     LOGGER.info(JSON.stringify(logData));
       
 					LOGGER.debug("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-                    localeVersion = event.localeVersion;
-                    
-                    logData.localeVersion = localeVersion;
+
                     logData.tags = ["locale"];
-                    logData.message = "Received locale version fronm locale file";
+                    logData.message = "Received locale version from locale file";
                     LOGGER.info(JSON.stringify(logData));
 				}
 				
@@ -386,8 +384,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
 				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-				LOGGER.debug("Locale from config={0}, from locale file={1}", [localeVersion, version]);
-
+                
+                var logData:Object = UsersUtil.initLogData();
+                logData.configVersion = localeVersion;
+                logData.localeVersion = version;
+                logData.locale = ResourceUtil.getInstance().getCurrentLanguageCode();
+                logData.tags = ["locale"];
+                logData.message = "Loaded locale.";
+                LOGGER.info(JSON.stringify(logData));
+                    
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();
 				} else {
