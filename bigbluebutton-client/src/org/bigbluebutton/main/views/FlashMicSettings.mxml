@@ -39,7 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.ui.Keyboard;
-			
+			import org.bigbluebutton.core.UsersUtil;
 			import mx.controls.sliderClasses.Slider;
 			import mx.events.CloseEvent;
 			import mx.events.SliderEvent;
@@ -127,14 +127,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         audioMicLevelDetected = 0;     
 			}
       
-      private function micStatusEventHandler(event:StatusEvent):void {					
+      private function micStatusEventHandler(event:StatusEvent):void {
+        var logData:Object = UsersUtil.initLogData();
+            
         switch(event.code) {
-          case "Microphone.Muted":						
-			LOGGER.debug("Access to microphone has been denied.");
+          case "Microphone.Muted":
+            logData.tags = ["voice", "flash"];
+            logData.message = "Access to microphone has been denied.";
+            LOGGER.info(JSON.stringify(logData));
             statusText.text = "You did not allow Flash to access your mic.";
             break;
           case "Microphone.Unmuted":         
-			LOGGER.debug("Access to the microphone has been allowed.");
+            logData.tags = ["voice", "flash"];
+            logData.message = "Access to the microphone has been allowed.";
+            LOGGER.info(JSON.stringify(logData));
+            
             // Comment these next 2-lines. We don't want the user hearing audio
             // while testing mic levels. (richard mar 26, 2014)
             // mic.setLoopBack(true);
@@ -155,7 +162,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         micActivityTimer.start();          
       }
       
-			private function onCreationComplete():void {
+      private function onCreationComplete():void {
         LOGGER.debug("onCreationComplete. Seeting state to [flashMicSettingsTest]");
         microphoneList = Media.getMicrophoneNames();
         setupForMicLoopbackTest();
@@ -252,7 +259,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onCancelClicked():void {
-		LOGGER.debug("onCancelClicked closing popup");
         cleanUp();
         stopEchoTest();
         var dispatcher:Dispatcher = new Dispatcher();
@@ -292,7 +298,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
      
       private function yesButtonClicked():void {
-        LOGGER.debug("Echo test passed.");    
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["voice"];
+        logData.message = "Echo test passed.";
+        LOGGER.info(JSON.stringify(logData));
+
         cleanUp();
         dispatchEvent(new FlashEchoTestHasAudioEvent());
         var dispatcher:Dispatcher = new Dispatcher();
@@ -301,7 +311,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function noButtonClicked():void {
-		LOGGER.debug("Echo test failed.");
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["voice"];
+        logData.message = "Echo test failed.";
+        LOGGER.info(JSON.stringify(logData));
+        
         dispatchEvent(new FlashEchoTestNoAudioEvent());
         testMicrophoneLoopback();
         setupForMicLoopbackTest();

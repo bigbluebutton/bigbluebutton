@@ -200,12 +200,10 @@ package org.bigbluebutton.modules.phone.managers
         errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
       }
       
-	  var logData:Object = new Object();       
-	  logData.user = UsersUtil.getUserData();
+	  var logData:Object = UsersUtil.initLogData();
 	  logData.user.reason = errorString;
-      logData.message = "WebRtc Echo test failed.";
-	  JSLog.warn("WebRtc Echo test failed.", logData);
-	  
+      logData.tags = ["voice", "webrtc"];
+      logData.message = "WebRtc Echo test failed.";	  
 	  LOGGER.info(jsonXify(logData));
 	  
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
@@ -215,9 +213,9 @@ package org.bigbluebutton.modules.phone.managers
       model.state = Constants.INITED;
       var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.endedunexpectedly");
 	  
-	  var logData:Object = new Object();       
-	  logData.user = UsersUtil.getUserData();
+	  var logData:Object = UsersUtil.initLogData();
 	  logData.user.reason = errorString;
+      logData.tags = ["voice", "webrtc"];
       logData.message = "WebRtc Echo test ended unexpectedly.";
 	  LOGGER.info(jsonXify(logData));
 	  
@@ -256,8 +254,8 @@ package org.bigbluebutton.modules.phone.managers
             errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
           }
           
-          var logData:Object = new Object();       
-          logData.user = UsersUtil.getUserData();
+          var logData:Object = UsersUtil.initLogData();
+          logData.tags = ["voice", "webrtc"];
           logData.user.reason = errorString;
           LOGGER.info(jsonXify(logData));
           
@@ -270,8 +268,7 @@ package org.bigbluebutton.modules.phone.managers
       model.state = Constants.INITED;
       var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.mediamissing");
 	  
-	  var logData:Object = new Object();       
-	  logData.user = UsersUtil.getUserData();
+	  var logData:Object = UsersUtil.initLogData();
 	  logData.user.reason = errorString;
 	  LOGGER.info(jsonXify(logData));
 	  

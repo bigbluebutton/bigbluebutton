@@ -105,9 +105,8 @@ package org.bigbluebutton.main.model.users
     }
 	
 	private function validataTokenTimerHandler(event:TimerEvent):void {
-		var logData:Object = new Object();
-		logData.user = UsersUtil.getUserData();
-		JSLog.critical("No response for validate token request.", logData);
+		var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["apps"];
 		logData.message = "No response for validate token request.";
 		LOGGER.info(JSON.stringify(logData));
 	}
@@ -154,10 +153,8 @@ package org.bigbluebutton.main.model.users
       var tokenValid: Boolean = map.valid as Boolean;
       var userId: String = map.userId as String;
 
-      var logData:Object = new Object();
-      logData.user = UsersUtil.getUserData();
-      JSLog.critical("Validate auth token timed out.", logData);
-      
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["apps"];
 	  logData.message = "Validate auth token timed out.";
 	  LOGGER.info(JSON.stringify(logData));
 	  
@@ -308,35 +305,37 @@ package org.bigbluebutton.main.model.users
 			var info : Object = event.info;
 			var statusCode : String = info.code;
 
-      var logData:Object = new Object();
-      logData.user = UsersUtil.getUserData();
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps"];
       
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					numNetworkChangeCount = 0;
                     logData.message = "Successfully connected to BBB App.";
                     LOGGER.info(JSON.stringify(logData));
-          validateToken();
+                    validateToken();
 					break;
 			
 				case "NetConnection.Connect.Failed":					
-            LOGGER.error(":Connection to viewers application failed...even when tunneling");
-						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);								
+                    logData.message = "Connection to bbb-apps failed, even when tunneling.";
+                    LOGGER.info(JSON.stringify(logData));
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);								
 					break;
 					
 				case "NetConnection.Connect.Closed":	
 					logData.message = "NetConnection.Connect.Closed on bbb-apps";
 					LOGGER.info(JSON.stringify(logData));
-          sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
+                    sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
 					break;
 					
-				case "NetConnection.Connect.InvalidApp":	
-          LOGGER.debug(":viewers application not found on server");			
+				case "NetConnection.Connect.InvalidApp":
+                    logData.message = "bbb-app not found.";
+                    LOGGER.info(JSON.stringify(logData));
 					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);				
 					break;
 					
 				case "NetConnection.Connect.AppShutDown":
-          LOGGER.debug(":viewers application has been shutdown");
+                    LOGGER.debug(":viewers application has been shutdown");
 					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);	
 					break;
 					
@@ -363,12 +362,19 @@ package org.bigbluebutton.main.model.users
 		}
 			
 		protected function netSecurityError(event: SecurityErrorEvent):void {
-      LOGGER.error("Security error - {0}", [event.text]);
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps"];
+            logData.message = "Security error - " + event.text;
+            LOGGER.info(JSON.stringify(logData));
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		protected function netIOError(event: IOErrorEvent):void {
-      LOGGER.error("Input/output error - {0}", [event.text]);
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps"];
+            logData.message = "Input/output error - " + event.text;
+            LOGGER.info(JSON.stringify(logData));
+
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 			
@@ -378,11 +384,11 @@ package org.bigbluebutton.main.model.users
 		}	
 			
         private function sendConnectionFailedEvent(reason:String):void{
-            var logData:Object = new Object();
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps"];
 
             if (this.logoutOnUserCommand) {
                 logData.reason = "User requested.";
-                logData.user = UsersUtil.getUserData();
                 logData.message = "User logged out from BBB App.";
                 LOGGER.info(JSON.stringify(logData));
                 
@@ -390,7 +396,6 @@ package org.bigbluebutton.main.model.users
             } else if (reason == ConnectionFailedEvent.CONNECTION_CLOSED && !UsersUtil.isUserEjected()) {
                 // do not try to reconnect if the connection failed is different than CONNECTION_CLOSED  
                 logData.reason = reason;
-                logData.user = UsersUtil.getUserData();
                 logData.message = "User disconnected from BBB App.";
                 LOGGER.info(JSON.stringify(logData));
 
@@ -411,14 +416,16 @@ package org.bigbluebutton.main.model.users
 
             } else {
                 if (UsersUtil.isUserEjected()) {
-                    logData.user = UsersUtil.getUserData();
                     logData.message = "User has been ejected from meeting.";
                     LOGGER.info(JSON.stringify(logData));
                     reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
+                } else {
+                    logData.message = "Connection failed event - " + reason;
+                    LOGGER.info(JSON.stringify(logData));
+                    var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+                    dispatcher.dispatchEvent(e);
                 }
-                LOGGER.debug("Connection failed event - " + reason);
-                var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-                dispatcher.dispatchEvent(e);
+
             }
         }
 		

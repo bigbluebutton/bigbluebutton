@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.layout.model {
 	
 	import flexlib.mdi.containers.MDICanvas;
 	import flexlib.mdi.containers.MDIWindow;
-	
+	import org.bigbluebutton.core.UsersUtil;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
@@ -92,8 +92,11 @@ package org.bigbluebutton.modules.layout.model {
 			} else if (hasPresenterLayout) {
 				return _layoutsPerRole[Role.PRESENTER];
 			} else {
-				LOGGER.error("There's no layout that fits the participants profile");
-        //trace(LOG + "getMyLayout There's no layout that fits the participants profile");
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["layout"];
+                logData.message = "There's no layout that fits the participants profile."; 
+                LOGGER.error(JSON.stringify(logData));
+
 				return null;
 			}
 		}
