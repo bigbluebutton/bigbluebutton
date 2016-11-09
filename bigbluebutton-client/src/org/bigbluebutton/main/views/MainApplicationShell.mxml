@@ -120,6 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+            import org.bigbluebutton.core.UsersUtil;
 	
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
@@ -223,14 +224,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
+                var logData:Object = UsersUtil.initLogData();
+                
 				if (event.configLocaleVersion == true) {
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
+                                        
+                    logData.localeVersion = localeVersion;
+                    logData.tags = ["locale"];
+                    logData.message = "Received locale version fron config.xml";
+                    LOGGER.info(JSON.stringify(logData));
+      
 					LOGGER.debug("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					LOGGER.debug("Received locale version fron locale file.");
+                    localeVersion = event.localeVersion;
+                    
+                    logData.localeVersion = localeVersion;
+                    logData.tags = ["locale"];
+                    logData.message = "Received locale version fronm locale file";
+                    LOGGER.info(JSON.stringify(logData));
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
@@ -253,11 +267,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function fullScreenHandler(evt:FullScreenEvent):void {
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
-					LOGGER.debug("Switching to full screen");
 					/* Do something specific here if we switched to full screen mode. */
 				
 				} else {
-					LOGGER.debug("Switching to normal screen");
 					/* Do something specific here if we switched to normal mode. */
 				}
 			}			
@@ -287,16 +299,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function toggleFullScreen():void{
-				LOGGER.debug("Toggling fullscreen");
 	   			try {
 					switch (stage.displayState) {
 						case StageDisplayState.FULL_SCREEN:
-							LOGGER.debug("full screen mode");
 							// If already in full screen mode, switch to normal mode.
 							stage.displayState = StageDisplayState.NORMAL;
 							break;
 						default:
-							LOGGER.debug("Normal screen mode");
 							// If not in full screen mode, switch to full screen mode.
 							stage.displayState = StageDisplayState.FULL_SCREEN;
 							break;
@@ -636,7 +645,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void{
-				LOGGER.debug("Clicked on link[{0}] from footer", [e.text]);
 				if (ExternalInterface.available) {
 					ExternalInterface.call("chatLinkClicked", e.text);
 				}
