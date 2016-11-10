@@ -107,6 +107,10 @@ package org.bigbluebutton.core.model
 			return new XML(config.logging.toXMLString());
 		}
 		
+		public function get breakoutRooms():XML {
+			return new XML(config.breakoutRooms.toXMLString());
+		}
+		
 		public function get lock():XML {
 			if(config.lock == null) return null;
 			return new XML(config.lock.toXMLString());

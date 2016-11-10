@@ -26,6 +26,7 @@ class RedisPubSub {
 
     this.queue.reset();
     this.sub.psubscribe(this.config.channels.fromBBBApps);
+    this.sub.psubscribe(this.config.channels.toBBBApps.html5);
 
     Logger.info(`Subscribed to '${this.config.channels.fromBBBApps}'`);
   }
@@ -95,10 +96,12 @@ class RedisPubSub {
           return next();
         })
         .catch(reason => {
+          this._debug(`${eventName} completed with error`);
           Logger.error(`${eventName}: ${reason}`);
           return next();
         });
     } catch (reason) {
+      this._debug(`${eventName} completed with error`);
       Logger.error(`${eventName}: ${reason}`);
       return next();
     }

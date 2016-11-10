@@ -175,13 +175,13 @@ public class ConnectionInvokerService {
       log.trace("Handle direct message: " + msg.getMessageName() + " msg=" + json);
     }
 
-    final String sessionId = CONN + msg.getUserID();
+    final String userId = msg.getUserID();
     Runnable sender = new Runnable() {
       public void run() {
         IScope meetingScope = getScope(msg.getMeetingID());
         if (meetingScope != null) {
 
-          IConnection conn = getConnection(meetingScope, sessionId);
+          IConnection conn = getConnection(meetingScope, userId);
           if (conn != null) {
             if (conn.isConnected()) {
               List<Object> params = new ArrayList<Object>();
@@ -197,7 +197,7 @@ public class ConnectionInvokerService {
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
             }
           } else {
-            log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + sessionId 
+            log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + userId
                 + "] as no such session on meeting=[" + msg.getMeetingID() + "]");
           }
         }	
@@ -217,12 +217,12 @@ public class ConnectionInvokerService {
       long timeLeft = endNanos - System.nanoTime();         
       f.get(timeLeft, TimeUnit.NANOSECONDS);   
     } catch (ExecutionException e) {       
-      log.warn("ExecutionException while sending direct message on connection[" + sessionId + "]");
+      log.warn("ExecutionException while sending direct message on connection[" + userId + "]");
     } catch (InterruptedException e) {        
-      log.warn("Interrupted exception while sending direct message on connection[" + sessionId + "]");
+      log.warn("Interrupted exception while sending direct message on connection[" + userId + "]");
       Thread.currentThread().interrupt();         
     } catch (TimeoutException e) {               
-      log.warn("Timeout exception while sending direct message on connection[" + sessionId + "]");
+      log.warn("Timeout exception while sending direct message on connection[" + userId + "]");
       f.cancel(true);     
     } 
   }
@@ -275,31 +275,15 @@ public class ConnectionInvokerService {
   }
 
   private IConnection getConnection(IScope scope, String userID) {
-    Set<IConnection> conns = new HashSet<IConnection>();
     for (IConnection conn : scope.getClientConnections()) {
-      String connID = (String) conn.getAttribute("USER_SESSION_ID");
+      String connID = (String) conn.getAttribute("INTERNAL_USER_ID");
       if (connID != null && connID.equals(userID)) {
-        conns.add(conn);
+        return conn;
       }
     }
-    if (!conns.isEmpty()) {
-      return getLastConnection(conns);
-    } else {
-      log.warn("Failed to get connection for userId = " + userID);
-      return null;
-    }
-  }
 
-  private IConnection getLastConnection(Set<IConnection> conns) {
-    IConnection conn = null;
-    for (IConnection c : conns) {
-      if (conn == null) {
-        conn = c;
-      } else if ((long) conn.getAttribute("TIMESTAMP") < (long) c.getAttribute("TIMESTAMP")) {
-        conn = c;
-      }
-    }
-    return conn;
+    log.warn("Failed to get connection for userId = " + userID);
+    return null;
   }
 
   public IScope getScope(String meetingID) {

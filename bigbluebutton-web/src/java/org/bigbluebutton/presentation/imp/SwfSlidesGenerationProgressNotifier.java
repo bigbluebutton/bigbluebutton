@@ -21,14 +21,13 @@ package org.bigbluebutton.presentation.imp;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
+import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.bigbluebutton.presentation.GeneratedSlidesInfoHelper;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

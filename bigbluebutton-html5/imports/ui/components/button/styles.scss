@@ -30,6 +30,9 @@ $btn-md-padding: $md-padding-y $md-padding-x;
 $btn-lg-font-size: $font-size-large * .85;
 $btn-lg-padding: $lg-padding-y $lg-padding-x;
 
+$btn-jumbo-font-size: 3rem;
+$btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
+
 /* Base
  * ==========
  */
@@ -260,6 +263,7 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
   $btn-sm-padding-x: nth($btn-sm-padding, 1) / 2;
   $btn-md-padding-x: nth($btn-md-padding, 1) / 2;
   $btn-lg-padding-x: nth($btn-lg-padding, 1) / 2;
+  $btn-jumbo-padding-x: nth($btn-jumbo-padding, 1) / 2;
 
   border-radius: 50%;
 
@@ -276,6 +280,11 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
   &.lg {
     padding-right: $btn-lg-padding-x;
     padding-left: $btn-lg-padding-x;
+  }
+
+  &.jumbo {
+    padding-right: $btn-jumbo-padding-x;
+    padding-left: $btn-jumbo-padding-x;
   }
 }
 
@@ -296,4 +305,9 @@ $btn-lg-padding: $lg-padding-y $lg-padding-x;
 .lg {
   font-size: $btn-lg-font-size;
   padding: $btn-lg-padding;
+}
+
+.jumbo {
+  font-size: $btn-jumbo-font-size;
+  padding: $btn-jumbo-padding;
 }

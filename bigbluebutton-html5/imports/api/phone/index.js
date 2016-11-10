@@ -100,7 +100,13 @@ function joinVoiceCallSIP(options) {
       return callback(result);
     };
 
-    callIntoConference(extension, function () {}, options.isListenOnly);
+    const m = Meetings.findOne();
+    const st = {
+      stun: m.stuns,
+      turn: m.turns,
+    };
+
+    callIntoConference(extension, function () {}, options.isListenOnly, st);
     return;
   }
 }

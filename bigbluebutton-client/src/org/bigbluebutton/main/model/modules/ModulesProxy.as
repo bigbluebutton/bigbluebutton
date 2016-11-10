@@ -22,6 +22,7 @@ package org.bigbluebutton.main.model.modules
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.PortTestProxy;
+    import org.bigbluebutton.core.UsersUtil;
 	
 	public class ModulesProxy {
 		private static const LOGGER:ILogger = getClassLogger(ModulesProxy);      
@@ -43,7 +44,12 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		public function portTestSuccess(tunnel:Boolean):void {
-      LOGGER.debug("Successfully tested connection to server. isTunnelling=" + tunnel);
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["initialization"];
+            logData.tunnel = tunnel;
+            logData.message = "Successfully tested connection to server.";
+            LOGGER.info(JSON.stringify(logData));
+                
 			modulesManager.useProtocol(tunnel);
 			modulesManager.startUserServices();
 		}

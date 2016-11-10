@@ -35,7 +35,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 	
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
-			System.out.println("Meeting message: " + channel + " " + message);
+		    System.out.println("Meeting message: " + channel + " " + message);
 
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
@@ -45,8 +45,8 @@ public class MeetingMessageReceiver implements MessageHandler {
 					String messageName = header.get("name").getAsString();
 					if (CreateMeetingRequest.NAME.equals(messageName)) {
 						Gson gson = new Gson();
-						CreateMeetingRequest msg = gson.fromJson(message,
-								CreateMeetingRequest.class);
+                        CreateMeetingRequest msg = gson.fromJson(message,
+                                CreateMeetingRequest.class);
 						bbbGW.handleBigBlueButtonMessage(msg);
 					}
 				}
@@ -59,49 +59,50 @@ public class MeetingMessageReceiver implements MessageHandler {
 					EndMeetingMessage emm = (EndMeetingMessage) msg;
 					bbbGW.endMeeting(emm.meetingId);
 				} else if (msg instanceof RegisterUserMessage) {
-					RegisterUserMessage emm = (RegisterUserMessage) msg;
-					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken, emm.avatarURL);
+					RegisterUserMessage rum = (RegisterUserMessage) msg;
+					bbbGW.registerUser(rum.meetingID, rum.internalUserId, rum.fullname, rum.role, rum.externUserID, rum.authToken, rum.avatarURL);
 				} else if (msg instanceof DestroyMeetingMessage) {
-					DestroyMeetingMessage emm = (DestroyMeetingMessage) msg;
-					bbbGW.destroyMeeting(emm.meetingId);
+					DestroyMeetingMessage dmm = (DestroyMeetingMessage) msg;
+					bbbGW.destroyMeeting(dmm.meetingId);
 				} else if (msg instanceof ValidateAuthTokenMessage) {
-					ValidateAuthTokenMessage emm = (ValidateAuthTokenMessage) msg;
+					ValidateAuthTokenMessage vam = (ValidateAuthTokenMessage) msg;
 					String sessionId = "tobeimplemented";
-					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo, sessionId);
+					bbbGW.validateAuthToken(vam.meetingId, vam.userId, vam.token, vam.replyTo, sessionId);
 				} else if (msg instanceof UserConnectedToGlobalAudio) {
-					UserConnectedToGlobalAudio emm = (UserConnectedToGlobalAudio) msg;
+					UserConnectedToGlobalAudio ustga = (UserConnectedToGlobalAudio) msg;
 					
 					Map<String, Object> logData = new HashMap<String, Object>();
-					logData.put("voiceConf", emm.voiceConf);
-					logData.put("userId", emm.userid);
-					logData.put("username", emm.name);
+					logData.put("voiceConf", ustga.voiceConf);
+					logData.put("userId", ustga.userid);
+					logData.put("username", ustga.name);
 					logData.put("event", "user_connected_to_global_audio");
 					logData.put("description", "User connected to global audio.");
 					
+					/*
 					Gson gson = new Gson();
 					String logStr =  gson.toJson(logData);
-					
-					//System.out.println("User connected to global audio: data={}", logStr);
-					
-					bbbGW.userConnectedToGlobalAudio(emm.voiceConf, emm.userid, emm.name);
+					System.out.println("User connected to global audio: data={}", logStr);
+					 */
+					bbbGW.userConnectedToGlobalAudio(ustga.voiceConf, ustga.userid, ustga.name);
 				} else if (msg instanceof UserDisconnectedFromGlobalAudio) {
-					UserDisconnectedFromGlobalAudio emm = (UserDisconnectedFromGlobalAudio) msg;
+					UserDisconnectedFromGlobalAudio udfga = (UserDisconnectedFromGlobalAudio) msg;
 					
 					Map<String, Object> logData = new HashMap<String, Object>();
-					logData.put("voiceConf", emm.voiceConf);
-					logData.put("userId", emm.userid);
-					logData.put("username", emm.name);
+					logData.put("voiceConf", udfga.voiceConf);
+					logData.put("userId", udfga.userid);
+					logData.put("username", udfga.name);
 					logData.put("event", "user_disconnected_from_global_audio");
 					logData.put("description", "User disconnected from global audio.");
 					
+					/*
 					Gson gson = new Gson();
 					String logStr =  gson.toJson(logData);
-					
-					//System.out.println("User disconnected from global audio: data={}", logStr);
-					bbbGW.userDisconnectedFromGlobalAudio(emm.voiceConf, emm.userid, emm.name);
+					System.out.println("User disconnected from global audio: data={}", logStr);
+					*/
+					bbbGW.userDisconnectedFromGlobalAudio(udfga.voiceConf, udfga.userid, udfga.name);
 				}
 				else if (msg instanceof GetAllMeetingsRequest) {
-					GetAllMeetingsRequest emm = (GetAllMeetingsRequest) msg;
+					GetAllMeetingsRequest gamr = (GetAllMeetingsRequest) msg;
 					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
 				} else {
 					System.out.println("Unknown message: [" + message + "]");
@@ -126,8 +127,8 @@ public class MeetingMessageReceiver implements MessageHandler {
 						
 						if (msg != null) {
 							if (msg instanceof KeepAliveMessage) {
-								KeepAliveMessage emm = (KeepAliveMessage) msg;
-								bbbGW.isAliveAudit(emm.keepAliveId);					
+								KeepAliveMessage kam = (KeepAliveMessage) msg;
+								bbbGW.isAliveAudit(kam.keepAliveId);					
 							}
 						} else {
 							System.out.println("Unknown message: [" + message + "]");
