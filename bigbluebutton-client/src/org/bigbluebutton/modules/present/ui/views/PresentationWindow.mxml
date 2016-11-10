@@ -115,6 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
@@ -551,12 +552,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         LOGGER.debug("addOverlayCanvas: Adding whiteboard canvas to SlideView");
         e.canvas.acceptOverlayCanvas(slideView);
         slideView.acceptOverlayCanvas(e.canvas);
-
-        if (currentTabIndex == DESKSHARE_VIEW_TAB_INDEX && deskshareViewCanvas != null) {
-           LOGGER.debug("addOverlayCanvas: Adding whiteboard canvas to DesktopViewWindow");
-           deskshareViewCanvas.acceptOverlayCanvas(whiteboardOverlay);
-           whiteboardOverlay.acceptOverlayCanvas(deskshareViewCanvas);
-        }
       }
 					
 			override protected function resourcesChanged():void{
@@ -955,6 +950,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (whiteboardOverlay != null) {
 					slideView.acceptOverlayCanvas(whiteboardOverlay);
 					whiteboardOverlay.acceptOverlayCanvas(slideView);
+					changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
 				}
 
 				btnActualSize.visible = false;
@@ -989,6 +985,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					LOGGER.debug("Adding whiteboard layer to Deskshare View Canvas");
 					deskshareViewCanvas.acceptOverlayCanvas(whiteboardOverlay);
 					whiteboardOverlay.acceptOverlayCanvas(deskshareViewCanvas);
+					changeWhiteboardPageOnly("deskshare");
 					if(UsersUtil.amIPresenter()) {
 						annotationsPermissionChanged(true);
 					}
@@ -1003,6 +1000,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					pollStartBtn.visible = true;
 					btnClosePublish.visible = true;
 				}
+			}
+
+			private function changeWhiteboardPageOnly(whiteboardId:String):void {
+				LOGGER.debug("Dispatching whiteboard page changed event. Id: " + whiteboardId);
+				var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.CHANGE_PAGE);
+				e.pageID = whiteboardId;
+				dispatchEvent(e);
 			}
 
 			private function stopSharing():void {

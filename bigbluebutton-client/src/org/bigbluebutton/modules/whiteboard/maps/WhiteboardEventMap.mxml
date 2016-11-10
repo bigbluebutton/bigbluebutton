@@ -122,6 +122,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{PageLoadedEvent.PAGE_LOADED_EVENT}" >
     <MethodInvoker generator="{WhiteboardManager}" method="handlePageChangedEvent" arguments="{event}" />
   </EventHandlers>
+
+  <EventHandlers type="{WhiteboardUpdate.CHANGE_PAGE}" >
+    <MethodInvoker generator="{WhiteboardManager}" method="handleChangeWhiteboardPageEvent" arguments="{event}" />
+  </EventHandlers>
   
   <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
     <MethodInvoker generator="{WhiteboardManager}" method="removeAnnotationsHistory" />

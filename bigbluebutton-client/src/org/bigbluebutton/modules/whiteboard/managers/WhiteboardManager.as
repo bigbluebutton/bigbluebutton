@@ -53,6 +53,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 
 		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
 		private var displayModel:WhiteboardCanvasDisplayModel = new WhiteboardCanvasDisplayModel();
+
+		private var previousWhiteboardPageId:String;
         
 		public function WhiteboardManager() {
 			globalDispatcher = new Dispatcher();
@@ -139,6 +141,10 @@ package org.bigbluebutton.modules.whiteboard.managers
     
     public function handlePageChangedEvent(e:PageLoadedEvent):void {
       displayModel.changePage(e.pageId);
+    }
+
+    public function handleChangeWhiteboardPageEvent(e:WhiteboardUpdate):void {
+      displayModel.changePage(e.pageID);
     }
 
     public function removeAnnotationsHistory():void {
