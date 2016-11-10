@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.web.controllers
 
+import com.google.gson.Gson
+
 import javax.servlet.ServletRequest;
 
 import java.net.URI;
@@ -1455,7 +1457,7 @@ class ApiController {
       reject = true
     } else {
       sessionToken = StringUtils.strip(params.sessionToken)
-      log.info("SessionToken = " + sessionToken)
+      log.info("Getting ConfigXml for SessionToken = " + sessionToken)
       if (!session[sessionToken]) {
           reject = true
       } else {
@@ -1478,6 +1480,20 @@ class ApiController {
         }
       }
     } else {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", us.meetingID);
+      logData.put("externalMeetingId", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userId", us.internalUserId);
+      logData.put("sessionToken", sessionToken);
+      logData.put("message", "handle_configxml_api");
+      logData.put("description", "Handling ConfigXml API.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(logStr);
+
       response.addHeader("Cache-Control", "no-cache")
       render text: us.configXML, contentType: 'text/xml'
     }
@@ -1544,7 +1560,20 @@ class ApiController {
       // how many times a user reconnects or refresh the browser.
       String newInternalUserID = us.internalUserId + "_" + us.incrementConnectionNum()
 
-      log.info("Found conference for " + us.fullname)
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", us.meetingID);
+      logData.put("externalMeetingId", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userId", newInternalUserID);
+      logData.put("sessionToken", sessionToken);
+      logData.put("message", "handle_enter_api");
+      logData.put("description", "Handling ENTER API.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(logStr);
+
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
