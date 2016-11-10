@@ -144,7 +144,7 @@ package org.bigbluebutton.main.model
 			try {
                 var logData:Object = UsersUtil.initLogData();
                 logData.connection = this.baseURI;
-                logData.tags = ["connection"];
+                logData.tags = ["initialization", "port-test", "connection"];
                 logData.message = "Port testing connection.";
                 LOGGER.info(JSON.stringify(logData));
         
@@ -168,7 +168,7 @@ package org.bigbluebutton.main.model
 		public function connectionTimeout (e:TimerEvent) : void {
             var logData:Object = UsersUtil.initLogData();
             logData.connection = this.baseURI;
-            logData.tags = ["connection"];
+            logData.tags = ["initialization", "port-test", "connection"];
             logData.message = "Port testing connection timedout.";
             LOGGER.info(JSON.stringify(logData));
 
@@ -200,7 +200,7 @@ package org.bigbluebutton.main.model
     private function closeConnectionTimerHandler (e:TimerEvent) : void {
         var logData:Object = UsersUtil.initLogData();
         logData.connection = this.baseURI;
-        logData.tags = ["connection"];
+        logData.tags = ["initialization", "port-test", "connection"];
         logData.message = "Closing port testing connection.";
         LOGGER.info(JSON.stringify(logData));
 
@@ -222,7 +222,7 @@ package org.bigbluebutton.main.model
             
         var logData:Object = UsersUtil.initLogData();
         logData.connection = this.baseURI;
-        logData.tags = ["connection"];
+        logData.tags = ["initialization", "port-test", "connection"];
 
         
         if ( statusCode == "NetConnection.Connect.Success" ) {

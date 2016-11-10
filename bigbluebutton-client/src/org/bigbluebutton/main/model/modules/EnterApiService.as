@@ -70,15 +70,18 @@ package org.bigbluebutton.main.model.modules
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
       } else if (returncode == 'SUCCESS') {
-        logData.tags = ["initialization"];
-        logData.message = "Enter API call succeeded.";
-        LOGGER.info(JSON.stringify(logData));
+
           
         var response:Object = new Object();
         response.username = result.response.fullname;
         response.userId = result.response.internalUserID;
         response.meetingName = result.response.confname;
         response.meetingId = result.response.meetingID;
+        
+        logData.response = response;
+        logData.tags = ["initialization"];
+        logData.message = "Enter API call succeeded.";
+        LOGGER.info(JSON.stringify(logData));
          
         if (_resultListener != null) _resultListener(true, response);
       }
