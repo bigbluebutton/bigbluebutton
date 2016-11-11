@@ -35,6 +35,7 @@ public class Recording {
 	private boolean breakout;
 	private String parentMeetingID;
 	private String sequence;
+	private List<String> childrenMeetingID;
 	private String startTime;
 	private String endTime;
 	private Map<String, String> metadata = new TreeMap<String, String>();
@@ -184,6 +185,28 @@ public class Recording {
 
 	public void setParentMeetingID(String meetingID) {
 		this.parentMeetingID = meetingID;
+	}
+
+	public void setChildrenMeetingID(List<String> childrenMeetingID) {
+		this.childrenMeetingID = childrenMeetingID;
+	}
+
+	public List<String> getChildrenMeetingID() {
+		return childrenMeetingID;
+	}
+
+	public String getChildrenMeetingIDSerialized() {
+		String childrenMeetingIDSerialized = "";
+		if ( childrenMeetingID != null ) {
+			for (String s : childrenMeetingID) {
+				childrenMeetingIDSerialized += (childrenMeetingIDSerialized == "")? s: "," + s;
+			}
+		}
+		return childrenMeetingIDSerialized;
+	}
+
+	public boolean hasChildrenMeetingID() {
+		return (childrenMeetingID != null && childrenMeetingID.size() > 0);
 	}
 
 	public String getSequence() {

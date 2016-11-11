@@ -15,6 +15,7 @@
       <isBreakout>${r.isBreakout()?string}</isBreakout>
       <#if r.getParentMeetingID()?? && r.getParentMeetingID() != ""><parentMeetingID>${r.getParentMeetingID()}</parentMeetingID></#if>
       <#if r.getSequence()?? && r.getSequence() != ""><sequence>${r.getSequence()}</sequence></#if>
+      <#if r.hasChildrenMeetingID()?? && r.getChildrenMeetingIDSerialized() != ""><childrenMeetingID>${r.getChildrenMeetingIDSerialized()}</childrenMeetingID></#if>
       <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
       <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
       <#assign m = r.getMetadata()>

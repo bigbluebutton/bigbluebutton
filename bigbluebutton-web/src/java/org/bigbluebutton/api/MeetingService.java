@@ -20,6 +20,7 @@
 package org.bigbluebutton.api;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -301,10 +302,10 @@ public class MeetingService implements MessageListener {
             // TODO: Need a better way to store these values for recordings
             metadata.put("meetingId", m.getExternalId());
             metadata.put("meetingName", m.getName());
-            metadata.put("isBreakout", m.isBreakout().toString());
+            //metadata.put("isBreakout", m.isBreakout().toString());
 
             Map<String, String> breakoutMetadata = new TreeMap<String, String>();
-            breakoutMetadata.put("meetingId", m.getExternalId());
+            //breakoutMetadata.put("meetingId", m.getExternalId());
             breakoutMetadata.put("isBreakout", m.isBreakout().toString());
             String childrenMeetingIdString;
             if (m.isBreakout()){
@@ -457,14 +458,24 @@ public class MeetingService implements MessageListener {
                 String mid = meta.remove("meetingId");
                 String name = meta.remove("meetingName");
                 String breakout = meta.remove("isBreakout");
-                String seq = meta.remove("sequence");
-                String pmid = meta.remove("parentMeetingId");
 
                 r.setMeetingID(mid);
                 r.setName(name);
                 r.setIsBreakout(breakout == "true");
-                r.setSequence(seq);
-                r.setParentMeetingID(pmid);
+
+                if ( meta.containsKey("sequence")) {
+                    String seq = meta.remove("sequence");
+                    r.setSequence(seq);
+                }
+                if ( meta.containsKey("parentMeetingId")) {
+                    String pmid = meta.remove("parentMeetingId");
+                    r.setParentMeetingID(pmid);
+                }
+                if ( meta.containsKey("childrenMeetingId")) {
+                    String chmid = meta.remove("childrenMeetingId");
+                    List<String> chmids = new ArrayList<String>(Arrays.asList(chmid.split("\\s*,\\s*")));
+                    r.setChildrenMeetingID(chmids);
+                }
 
                 List<Playback> plays = new ArrayList<Playback>();
 
