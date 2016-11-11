@@ -66,6 +66,13 @@ package org.bigbluebutton.main.model.users
         
         public function NetConnectionDelegate():void {
             dispatcher = new Dispatcher();
+            _netConnection = new NetConnection();
+            _netConnection.proxyType = "best";
+            _netConnection.client = this;
+            _netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
+            _netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
+            _netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
+            _netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
         }
 
         
@@ -250,13 +257,6 @@ package org.bigbluebutton.main.model.users
         public function connect():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
 
-            _netConnection = new NetConnection();
-            _netConnection.proxyType = "best";
-            _netConnection.client = this;
-            _netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
-            _netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
-            _netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
-            _netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
                 
             try {
                 var appURL:String = BBB.getConfigManager().config.application.uri;
