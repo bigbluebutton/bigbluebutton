@@ -180,7 +180,14 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleUserEjectedFromMeeting(msg: Object):void {
-      UsersUtil.setUserEjected();
+        UsersUtil.setUserEjected();
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["users"];
+        logData.status = "user_ejected";
+        logData.message = "User ejected from meeting.";
+
+        LOGGER.info(JSON.stringify(logData));
+      
     }
 
 	private function handleUserLocked(msg:Object):void {
