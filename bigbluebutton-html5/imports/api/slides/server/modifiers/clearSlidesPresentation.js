@@ -2,10 +2,12 @@ import Slides from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function clearSlidesPresentation(presentationId) {
+export default function clearSlidesPresentation(meetingId, presentationId) {
+  check(meetingId, String);
   check(presentationId, String);
 
   const selector = {
+    meetingId,
     presentationId,
   };
 

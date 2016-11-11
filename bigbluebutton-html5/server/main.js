@@ -24,11 +24,7 @@ import '/imports/api/polls/server/modifiers/clearPollCollection';
 import '/imports/api/polls/server/modifiers/updatePollCollection';
 import '/imports/api/polls/server/modifiers/eventHandlers';
 
-import '/imports/api/presentations/server/publications';
-import '/imports/api/presentations/server/modifiers/addPresentationToCollection';
-import '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
-import '/imports/api/presentations/server/modifiers/removePresentationFromCollection';
-import '/imports/api/presentations/server/modifiers/eventHandlers';
+import '/imports/api/presentations/server';
 
 import '/imports/api/shapes/server/publications';
 import '/imports/api/shapes/server/modifiers/addShapeToCollection';

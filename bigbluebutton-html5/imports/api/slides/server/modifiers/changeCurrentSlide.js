@@ -21,7 +21,7 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
         return Logger.error(`Unsetting the current slide: ${err}`);
       }
 
-      return Logger.info(`Unsetted as current slide`);
+      return Logger.info(`Unsetted the current slide`);
     },
   };
 
@@ -47,10 +47,10 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
   const newSlide = Slides.findOne(newCurrent.selector);
 
   if (newSlide) {
-    Slides.update(newSlide.id, newCurrent.modifier, newCurrent.callback);
+    Slides.update(newSlide._id, newCurrent.modifier, newCurrent.callback);
   }
 
   if (oldSlide) {
-    Slides.update(oldSlide.id, oldCurrent.modifier, oldCurrent.callback);
+    Slides.update(oldSlide._id, oldCurrent.modifier, oldCurrent.callback);
   }
 };

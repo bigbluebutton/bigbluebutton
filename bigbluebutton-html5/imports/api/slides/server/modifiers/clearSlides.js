@@ -1,7 +1,7 @@
 import Slides from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearSlidesCollection(meetingId) {
+export default function clearSlides(meetingId) {
   if (meetingId) {
     return Slides.remove({ meetingId: meetingId }, Logger.info(`Cleared Slides (${meetingId})`));
   } else {

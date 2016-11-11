@@ -17,21 +17,21 @@ export default function resizeSlide(meetingId, presentationId, slideId, slide) {
 
   const modifier = {
     $set: {
-      slide: {
-        width_ratio: slide.width_ratio,
-        height_ratio: slide.height_ratio,
-        x_offset: slide.x_offset,
-        y_offset: slide.y_offset,
-      },
+      'slide.width_ratio': slide.width_ratio,
+      'slide.height_ratio': slide.height_ratio,
+      'slide.x_offset': slide.x_offset,
+      'slide.y_offset': slide.y_offset,
     },
   };
 
-  const cb = (err) => {
+  const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Resizing slide id=${slideId}: ${err}`);
     }
 
-    return Logger.info(`Resized slide id=${slideId}`);
+    if (numChanged) {
+      return Logger.info(`Resized slide id=${slideId}`);
+    }
   };
 
   return Slides.update(selector, modifier, cb);
