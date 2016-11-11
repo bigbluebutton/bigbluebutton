@@ -953,6 +953,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
 				}
 
+				if(!presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible) {
+					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = true;
+					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = true;
+				}
+
 				btnActualSize.visible = false;
 				btnClosePublish.visible = false;
 				if (UsersUtil.amIPresenter()) {
@@ -1057,6 +1062,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						sharing = true;
 						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
 						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+					}
+					else {
+						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = false;
+						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = false;
 					}
 				} else {
 					LOGGER.debug("viewTabContent is NULL.");
