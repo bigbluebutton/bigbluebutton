@@ -20,7 +20,7 @@ Meteor.methods({
       }
     };
 
-    if (isAllowedTo(action(), meetingId, requesterUserId, requesterToken)) {
+    if (isAllowedTo(action(), credentials)) {
       let message = {
         payload: {
           user_id: toMuteUserId,
