@@ -19,9 +19,11 @@
 
 package org.bigbluebutton.api.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -39,6 +41,7 @@ public class Meeting {
 	private String extMeetingId;
 	private String intMeetingId;
 	private String parentMeetingId;
+	private final List<String> childrenMeetingId;
 	private Integer sequence = 0;
 	private Integer duration = 0;	 
 	private long createdTime = 0;
@@ -91,6 +94,8 @@ public class Meeting {
         metadata = builder.metadata;
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
+
+        childrenMeetingId = new ArrayList<String>();
 
         userCustomData = new HashMap<String, Object>();
 
@@ -212,11 +217,26 @@ public class Meeting {
 	}
 
 	public String setParentMeetingId(String p) {
-        return parentMeetingId = p;
-    }
+		return parentMeetingId = p;
+	}
 
 	public String getParentMeetingId() {
-	    return parentMeetingId;
+		return parentMeetingId;
+	}
+
+	public boolean addChildMeetingId(String id) {
+		if ( !childrenMeetingId.contains(id) ) {
+			return childrenMeetingId.add(id);
+		}
+		return true;
+	}
+
+	public List<String> getChildrenMeetingId() {
+		return childrenMeetingId;
+	}
+
+	public boolean hasChildrenMeetingId() {
+		return childrenMeetingId.size() > 0;
 	}
 
 	public String getWebVoice() {

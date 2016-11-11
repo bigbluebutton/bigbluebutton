@@ -28,8 +28,10 @@ import java.util.Set;
 
 public interface MessagingService {	
 	void recordMeetingInfo(String meetingId, Map<String, String> info, Map<String, String> breakoutInfo);
+	Map<String, String> fetchMeetingInfo(String meetingId);
+	Map<String, String> fetchMeetingInfo(String meetingId, boolean breakout);
 	void destroyMeeting(String meetingID);
-    void createMeeting(String meetingID, String externalMeetingID,
+	void createMeeting(String meetingID, String externalMeetingID,
             String parentMeetingID, String meetingName, Boolean recorded,
             String voiceBridge, Integer duration, Boolean autoStartRecording,
             Boolean allowStartStopRecording, String moderatorPass,

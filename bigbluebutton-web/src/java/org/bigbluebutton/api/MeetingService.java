@@ -305,9 +305,39 @@ public class MeetingService implements MessageListener {
 
             Map<String, String> breakoutMetadata = new TreeMap<String, String>();
             breakoutMetadata.put("meetingId", m.getExternalId());
+            breakoutMetadata.put("isBreakout", m.isBreakout().toString());
+            String childrenMeetingIdString;
             if (m.isBreakout()){
                 breakoutMetadata.put("sequence", m.getSequence().toString());
                 breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
+                // Lookup the parent
+                Meeting parent = getMeeting(m.getParentMeetingId());
+                // Add the current meeting as a child
+                parent.addChildMeetingId(m.getInternalId());
+                // Fetch stored values
+                Map<String, String> parentMetadata = messagingService.fetchMeetingInfo(parent.getInternalId());
+                Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingInfo(parent.getInternalId(), true);
+                // Serialize new childrenMeetingId
+                childrenMeetingIdString = "";
+                for (String s : parent.getChildrenMeetingId()) {
+                    childrenMeetingIdString += (childrenMeetingIdString.length() > 0? ",": "") + s;
+                }
+                parentBreakoutMetadata.put("childrenMeetingId", childrenMeetingIdString);
+
+                //childrenMeetingIdString = parentBreakoutMetadata.get("childrenMeetingId");
+                //List<String> childrenMeetingId = Arrays.asList(childrenMeetingIdString.split("\\s*,\\s*"));
+                //if ( !childrenMeetingId.contains(m.getInternalId()) ) {
+                //    childrenMeetingId.add(m.getInternalId());
+                //}
+
+                // Save updated parent into redis
+                messagingService.recordMeetingInfo(parent.getInternalId(), parentMetadata, parentBreakoutMetadata);
+            } else if (m.hasChildrenMeetingId()) {
+                childrenMeetingIdString = "";
+                for (String s : m.getChildrenMeetingId()) {
+                    childrenMeetingIdString += (childrenMeetingIdString.length() > 0? ",": "") + s;
+                }
+                breakoutMetadata.put("childrenMeetingId", childrenMeetingIdString);
             }
             messagingService.recordMeetingInfo(m.getInternalId(), metadata, breakoutMetadata);
         }
@@ -426,11 +456,15 @@ public class MeetingService implements MessageListener {
                 Map<String, String> meta = r.getMetadata();
                 String mid = meta.remove("meetingId");
                 String name = meta.remove("meetingName");
-                String isBreakout = meta.remove("isBreakout");
+                String breakout = meta.remove("isBreakout");
+                String seq = meta.remove("sequence");
+                String pmid = meta.remove("parentMeetingId");
 
                 r.setMeetingID(mid);
                 r.setName(name);
-                r.setIsBreakout(isBreakout == "true");
+                r.setIsBreakout(breakout == "true");
+                r.setSequence(seq);
+                r.setParentMeetingID(pmid);
 
                 List<Playback> plays = new ArrayList<Playback>();
 

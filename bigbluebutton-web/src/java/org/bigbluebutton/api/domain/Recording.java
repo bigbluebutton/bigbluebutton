@@ -33,6 +33,8 @@ public class Recording {
 	private String name;
 	private boolean published;
 	private boolean breakout;
+	private String parentMeetingID;
+	private String sequence;
 	private String startTime;
 	private String endTime;
 	private Map<String, String> metadata = new TreeMap<String, String>();
@@ -174,6 +176,22 @@ public class Recording {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getParentMeetingID() {
+		return this.parentMeetingID;
+	}
+
+	public void setParentMeetingID(String meetingID) {
+		this.parentMeetingID = meetingID;
+	}
+
+	public String getSequence() {
+		return this.sequence;
+	}
+
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
 	}
 
 	public List<Playback> getPlaybacks() {

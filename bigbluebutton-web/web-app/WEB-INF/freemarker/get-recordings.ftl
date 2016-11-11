@@ -13,6 +13,8 @@
       <published>${r.isPublished()?string}</published>
       <state>${r.getState()?string}</state>
       <isBreakout>${r.isBreakout()?string}</isBreakout>
+      <#if r.getParentMeetingID()?? && r.getParentMeetingID() != ""><parentMeetingID>${r.getParentMeetingID()}</parentMeetingID></#if>
+      <#if r.getSequence()?? && r.getSequence() != ""><sequence>${r.getSequence()}</sequence></#if>
       <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
       <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
       <#assign m = r.getMetadata()>

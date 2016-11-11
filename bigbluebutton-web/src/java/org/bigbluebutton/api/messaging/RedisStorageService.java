@@ -54,7 +54,26 @@ public class RedisStorageService {
             jedis.close();
         }
     }
-	
+
+	public Map<String, String> fetchMeetingInfo(String meetingId) {
+		return fetchMeetingInfo(meetingId, false);
+	}
+
+	public Map<String, String> fetchMeetingInfo(String meetingId, boolean breakout) {
+		Map<String, String> info;
+		Jedis jedis = redisPool.getResource();
+		try {
+			if ( breakout ) {
+				info = jedis.hgetAll("meeting:breakout:" + meetingId);
+			} else {
+				info = jedis.hgetAll("meeting:info:" + meetingId);
+			}
+		} finally {
+			jedis.close();
+		}
+			return info;
+	}
+
 	public void removeMeeting(String meetingId){
 		Jedis jedis = redisPool.getResource();
 		try {
