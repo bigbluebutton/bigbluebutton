@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.videoconf.views
             return result;
         }
 
-        private function calculateCellDimensions(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, priority:Boolean = false):Object {
+        private function calculateCellDimensions(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, priority:Boolean):Object {
             var obj:Object = {
                 width: Math.floor(canvasWidth / numColumns)-5,
                 height: Math.floor(canvasHeight / numRows)-5
@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.videoconf.views
             return obj;
         }
 
-        private function calculateOccupiedArea(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, priority:Boolean = false):Object {
+        private function calculateOccupiedArea(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, priority:Boolean):Object {
             var obj:Object = calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows, priority);
             obj.occupiedArea = obj.width * obj.height * numChildren;
             obj.numColumns = numColumns;
