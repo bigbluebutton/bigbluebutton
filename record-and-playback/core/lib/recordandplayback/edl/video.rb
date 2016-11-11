@@ -269,33 +269,35 @@ module BigBlueButton
 
       def self.video_info(filename)
         IO.popen([*FFPROBE, filename]) do |probe|
-          info = JSON.parse(probe.read, :symbolize_names => true)
+          info = nil
+          begin
+            info = JSON.parse(probe.read, :symbolize_names => true)
+          rescue StandardError => e
+            BigBlueButton.logger.warn("Couldn't parse video info: #{e}")
+          end
           return {} if !info
+          return {} if !info[:streams]
+          return {} if !info[:format]
 
-          if info[:streams]
-            info[:video] = info[:streams].find { |stream| stream[:codec_type] == 'video' }
-            info[:audio] = info[:streams].find { |stream| stream[:codec_type] == 'audio' }
+          info[:video] = info[:streams].find do |stream|
+            stream[:codec_type] == 'audio'
           end
 
-          if info[:video]
-            info[:width] = info[:video][:width].to_i
-            info[:height] = info[:video][:height].to_i
+          return {} if !info[:video]
 
-            return {} if info[:width] == 0 or info[:height] == 0
-            return {} if info[:video][:display_aspect_ratio] == '0:0'
+          info[:width] = info[:video][:width].to_i
+          info[:height] = info[:video][:height].to_i
 
-            info[:aspect_ratio] = info[:video][:display_aspect_ratio].to_r
-            if info[:aspect_ratio] == 0
-              info[:aspect_ratio] = Rational(info[:width], info[:height])
-            end
+          return {} if info[:width] == 0 or info[:height] == 0
+          return {} if info[:video][:display_aspect_ratio] == '0:0'
+
+          info[:aspect_ratio] = Rational(*(info[:video][:display_aspect_ratio].split(':')))
+          if info[:aspect_ratio] == 0
+            info[:aspect_ratio] = Rational(info[:width], info[:height])
           end
 
           # Convert the duration to milliseconds
-          if info[:format]
-            info[:duration] = (info[:format][:duration].to_r * 1000).to_i
-          else
-            info[:duration] = 0
-          end
+          info[:duration] = (info[:format][:duration].to_r * 1000).to_i
 
           return info
         end
