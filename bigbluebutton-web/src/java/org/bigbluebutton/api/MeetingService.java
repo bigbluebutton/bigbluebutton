@@ -454,29 +454,6 @@ public class MeetingService implements MessageListener {
         Map<String, Recording> map = new HashMap<String, Recording>();
         for (Recording r : olds) {
             if (!map.containsKey(r.getId())) {
-                Map<String, String> meta = r.getMetadata();
-                String mid = meta.remove("meetingId");
-                String name = meta.remove("meetingName");
-                String breakout = meta.remove("isBreakout");
-
-                r.setMeetingID(mid);
-                r.setName(name);
-                r.setIsBreakout(breakout == "true");
-
-                if ( meta.containsKey("sequence")) {
-                    String seq = meta.remove("sequence");
-                    r.setSequence(seq);
-                }
-                if ( meta.containsKey("parentMeetingId")) {
-                    String pmid = meta.remove("parentMeetingId");
-                    r.setParentMeetingID(pmid);
-                }
-                if ( meta.containsKey("childrenMeetingId")) {
-                    String chmid = meta.remove("childrenMeetingId");
-                    List<String> chmids = new ArrayList<String>(Arrays.asList(chmid.split("\\s*,\\s*")));
-                    r.setChildrenMeetingID(chmids);
-                }
-
                 List<Playback> plays = new ArrayList<Playback>();
 
                 if (r.getPlaybackFormat() != null) {
