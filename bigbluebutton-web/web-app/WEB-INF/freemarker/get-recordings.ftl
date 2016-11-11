@@ -12,7 +12,6 @@
       <name><#if r.getName()?? && r.getName() != ""><![CDATA[${r.getName()}]]></#if></name>
       <published>${r.isPublished()?string}</published>
       <state>${r.getState()?string}</state>
-      <isBreakout>${r.isBreakout()?string}</isBreakout>
       <#if r.getParentMeetingID()?? && r.getParentMeetingID() != ""><parentMeetingID>${r.getParentMeetingID()}</parentMeetingID></#if>
       <#if r.getSequence()?? && r.getSequence() != ""><sequence>${r.getSequence()}</sequence></#if>
       <#if r.hasChildrenMeetingID()?? && r.getChildrenMeetingIDSerialized() != ""><childrenMeetingID>${r.getChildrenMeetingIDSerialized()}</childrenMeetingID></#if>
