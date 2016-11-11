@@ -122,11 +122,7 @@ package org.bigbluebutton.main.model.users
             var message:Object = new Object();
             message["userId"] = confParams.internalUserID;
             message["authToken"] = confParams.authToken;
-          
-            _validateTokenTimer = new Timer(7000, 1);
-            _validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
-            _validateTokenTimer.start();
-          
+                    
             sendMessage(
                 "validateToken",// Remote function name
                 // result - On successful result
@@ -142,6 +138,10 @@ package org.bigbluebutton.main.model.users
                 },
                 message
             ); //_netConnection.call      
+            
+            _validateTokenTimer = new Timer(10000, 1);
+            _validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
+            _validateTokenTimer.start();
         }
         
         private function stopValidateTokenTimer():void {
@@ -187,7 +187,7 @@ package org.bigbluebutton.main.model.users
             var logData:Object = UsersUtil.initLogData();
             logData.tags = ["apps", "connected"];
             logData.tokenValid = tokenValid;
-            logData.key = "validate_token_response_received";
+            logData.status = "validate_token_response_received";
             logData.message = "Received validate token response from server.";
             LOGGER.info(JSON.stringify(logData));
             
@@ -284,7 +284,7 @@ package org.bigbluebutton.main.model.users
                 connectionTimer.addEventListener(TimerEvent.TIMER, connectionTimeout);
                 connectionTimer.start();
 
-                _netConnection.connect(uri, confParams.username, confParams.role,
+                _netConnection.connect(bbbAppsUrl, confParams.username, confParams.role,
                                         confParams.room, confParams.voicebridge, 
                                         confParams.record, confParams.externUserID,
                                         confParams.internalUserID, confParams.muteOnStart, confParams.lockSettings);
