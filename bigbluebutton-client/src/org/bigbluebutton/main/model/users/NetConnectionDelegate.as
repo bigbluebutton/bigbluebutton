@@ -457,6 +457,8 @@ package org.bigbluebutton.main.model.users
                     logData.message = "User has been ejected from meeting.";
                     LOGGER.info(JSON.stringify(logData));
                     reason = ConnectionFailedEvent.USER_EJECTED_FROM_MEETING;
+                    var cfe:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+                    dispatcher.dispatchEvent(cfe);
                 } else {
                     logData.message = "Connection failed event - " + reason;
                     LOGGER.info(JSON.stringify(logData));
