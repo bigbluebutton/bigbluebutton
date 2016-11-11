@@ -29,7 +29,7 @@ export default class ActionsBar extends Component {
         <div className={styles.center}>
           <JoinAudioContainer
             open={openJoinAudio.bind(this)}
-            close={exitAudio}
+            close={function () {exitAudio(function() {})}}
           />
 
           <Button

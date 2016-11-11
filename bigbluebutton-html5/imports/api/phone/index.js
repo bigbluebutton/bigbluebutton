@@ -21,7 +21,7 @@ function amIListenOnly() {
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
 
-function exitAudio(afterExitCall) {
+function exitAudio(afterExitCall = (function () {})) {
   if (!MEDIA_CONFIG.useSIPAudio) {
     vertoExitAudio();
     return;
