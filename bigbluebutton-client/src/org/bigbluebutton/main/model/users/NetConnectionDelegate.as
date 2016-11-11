@@ -349,6 +349,7 @@ package org.bigbluebutton.main.model.users
             switch (statusCode) {
                 case "NetConnection.Connect.Success":
                     numNetworkChangeCount = 0;
+                    connectAttemptCount = 0;
                     logData.message = "Successfully connected to bbb-apps.";
                     LOGGER.info(JSON.stringify(logData));
                     validateToken();
