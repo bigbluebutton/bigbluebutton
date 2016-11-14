@@ -65,7 +65,6 @@ public class RecordingService {
     }
 
     public List<Recording> getRecordings(List<String> recordIDs, List<String> states) {
-        List<String> breakoutRecordIDs = new ArrayList<String>();
         List<Recording> recs = new ArrayList<Recording>();
 
         Map<String, List<File>> allDirectories = getAllDirectories(states);
@@ -75,6 +74,9 @@ public class RecordingService {
             }
         }
 
+        List<String> breakoutRecordIDs = new ArrayList<String>();
+
+        // Process the recordings
         for (String recordID : recordIDs) {
             for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
                 List<File> _recs = getRecordingsForPath(recordID, entry.getValue());
@@ -94,6 +96,7 @@ public class RecordingService {
             }
         }
 
+        // Process the breakout recordings
         for (String recordID : breakoutRecordIDs) {
             for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
                 List<File> _recs = getRecordingsForPath(recordID, entry.getValue());

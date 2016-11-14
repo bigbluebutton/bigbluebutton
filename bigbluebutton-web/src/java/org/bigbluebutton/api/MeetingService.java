@@ -324,13 +324,6 @@ public class MeetingService implements MessageListener {
                     childrenMeetingIdString += (childrenMeetingIdString.length() > 0? ",": "") + s;
                 }
                 parentBreakoutMetadata.put("childrenMeetingId", childrenMeetingIdString);
-
-                //childrenMeetingIdString = parentBreakoutMetadata.get("childrenMeetingId");
-                //List<String> childrenMeetingId = Arrays.asList(childrenMeetingIdString.split("\\s*,\\s*"));
-                //if ( !childrenMeetingId.contains(m.getInternalId()) ) {
-                //    childrenMeetingId.add(m.getInternalId());
-                //}
-
                 // Save updated parent into redis
                 messagingService.recordMeetingInfo(parent.getInternalId(), parentMetadata, parentBreakoutMetadata);
             } else if (m.hasChildrenMeetingId()) {

@@ -170,8 +170,10 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                   r.setParentMeetingID(metaValue)
                   break
               case "childrenMeetingId":
-                  List<String> chmids = new ArrayList<String>(Arrays.asList(metaValue.split("\\s*,\\s*")))
-                  r.setChildrenMeetingID(chmids)
+                  if ( metaValue != null && metaValue != "" ) {
+                      List<String> chmids = new ArrayList<String>(Arrays.asList(metaValue.split("\\s*,\\s*")))
+                      r.setChildrenMeetingID(chmids)
+                  }
                   break
               default:
                   meta.put(anode.name().toString(), anode.text().toString())

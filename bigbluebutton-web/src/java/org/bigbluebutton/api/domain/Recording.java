@@ -206,7 +206,7 @@ public class Recording {
 	}
 
 	public boolean hasChildrenMeetingID() {
-		return (childrenMeetingID != null && childrenMeetingID.size() > 0);
+		return !(childrenMeetingID == null || childrenMeetingID.isEmpty());
 	}
 
 	public String getSequence() {
