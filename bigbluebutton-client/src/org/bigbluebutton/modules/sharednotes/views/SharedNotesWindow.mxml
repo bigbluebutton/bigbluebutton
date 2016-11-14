@@ -105,6 +105,12 @@
 				BindingUtils.bindSetter(updateRoleDependentProperties, UsersUtil.getMyself(), "role");
 
 				updateTitle();
+
+				if (noteId == "MAIN_WINDOW") {
+					this.enabled = false;
+					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
+					getDocumentTimer.start();
+				}
 			}
 
 			private function gotCurrentDocument():void {
@@ -137,9 +143,6 @@
 			private function updateRoleDependentProperties(role:String):void {
 				if(noteId == "MAIN_WINDOW"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
-					this.enabled = false;
-					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
-					getDocumentTimer.start();
 				} else {
 					showCloseButton = role == Role.MODERATOR;
 				}
