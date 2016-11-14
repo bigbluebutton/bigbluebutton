@@ -71,6 +71,6 @@
   "app.breakoutJoinConfirmation.dismissLabel": "Cancel",
   "app.breakoutJoinConfirmation.dismissDesc": "Closes and rejects Joining the Breakout Room",
   "app.breakoutTimeRemainingMessage": "Breakout Room time remaining: {time}",
-  "app.breakoutWillCloseMessage": "Message that tells time has ended and breakout will close",
+  "app.breakoutWillCloseMessage": "Time ended. Breakout Room will close soon",
   "app.calculatingBreakoutTimeRemaining": "Calculating remaining time..."
 }
