@@ -1167,10 +1167,14 @@
             shiftPressed = true;
             parentDocument.handleDraggableStatus(false);
         }
-        if (e.ctrlKey && !ctrlPressed)
+        if (e.ctrlKey)
         {
-            ctrlPressed = true;
-            parentDocument.handleResizableStatus(false);
+            parentDocument.handleCtrlCmd(e);
+            if (!ctrlPressed)
+            {
+                ctrlPressed = true;
+                parentDocument.handleResizableStatus(false);
+            }
         }
     }
 
@@ -1213,11 +1217,11 @@
         }
     }
 
-    private function onTextInput( e:TextEvent ):void
+    private function onTextInput(e:TextEvent):void
     {
-        if( e.text.length > 0 )
-           refreshSelection = true;
-//         LOGGER.debug("text-input");
+        if (e.text.length > 0) refreshSelection = true;
+
+        if (ctrlPressed) e.preventDefault();
     }
 
     private function onKeyUp(event:KeyboardEvent):void

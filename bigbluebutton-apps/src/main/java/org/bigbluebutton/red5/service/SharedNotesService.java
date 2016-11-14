@@ -50,11 +50,12 @@ public class SharedNotesService {
 		log.debug("SharedNotesService.patchDocument");
 		String noteID = msg.get("noteID").toString();
 		String patch = msg.get("patch").toString();
+		String operation = msg.get("operation").toString();
 
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
 
-		sharedNotesApplication.patchDocument(meetingID, requesterID, noteID, patch);
+		sharedNotesApplication.patchDocument(meetingID, requesterID, noteID, patch, operation);
 	}
 
 	public void createAdditionalNotes(Map<String, Object> msg) {

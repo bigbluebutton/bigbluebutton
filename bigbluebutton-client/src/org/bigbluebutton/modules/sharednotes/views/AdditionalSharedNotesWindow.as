@@ -23,8 +23,8 @@ package org.bigbluebutton.modules.sharednotes.views
 			super();
 
 			LOGGER.debug("AdditionalSharedNotesWindow: in-constructor additional notes " + n);
-			_notesId = n;
-			_windowName = "AdditionalSharedNotesWindow_" + _notesId;
+			_noteId = n;
+			_windowName = "AdditionalSharedNotesWindow_" + noteId;
 
 			showCloseButton = UsersUtil.amIModerator();
 			width = 240;
@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.sharednotes.views
 
 				LOGGER.debug("AdditionalSharedNotesWindow: requesting to destroy notes " + noteId);
 				var destroyNotesEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REQUEST_EVENT);
-				destroyNotesEvent.payload.notesId = _notesId;
+				destroyNotesEvent.payload.notesId = noteId;
 				_dispatcher.dispatchEvent(destroyNotesEvent);
 			}
 		}

@@ -10,15 +10,22 @@ trait SharedNotesApp {
   val outGW: OutMessageGateway
 
   def handlePatchDocumentRequest(msg: PatchDocumentRequest) {
-    val patchID = notesModel.patchDocument(msg.noteID, msg.patch)
+    val requesterID = msg.operation match {
+      case SharedNotesOperation.PATCH => msg.requesterID
+      case SharedNotesOperation.UNDO => "SYSTEM"
+      case SharedNotesOperation.REDO => "SYSTEM"
+      case _ => return
+    }
 
-    outGW.send(new PatchDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.noteID, msg.patch, patchID))
+    val (patchID, patch, undo, redo) = notesModel.patchDocument(msg.noteID, msg.patch, msg.operation)
+
+    if (patch != "") outGW.send(new PatchDocumentReply(mProps.meetingID, mProps.recorded, requesterID, msg.noteID, patch, patchID, undo, redo))
   }
 
   def handleGetCurrentDocumentRequest(msg: GetCurrentDocumentRequest) {
-    val copyNotes = notesModel.notes.toMap
+    val notesReport = notesModel.notesReport.toMap
 
-    outGW.send(new GetCurrentDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, copyNotes))
+    outGW.send(new GetCurrentDocumentReply(mProps.meetingID, mProps.recorded, msg.requesterID, notesReport))
   }
 
   private def createAdditionalNotes(requesterID: String, noteName: String = "") {

@@ -14,6 +14,8 @@ object SharedNotesMessageToJsonConverter {
     payload.put(Constants.NOTE_ID, msg.noteID)
     payload.put(Constants.PATCH, msg.patch)
     payload.put(Constants.PATCH_ID, msg.patchID)
+    payload.put(Constants.UNDO, msg.undo)
+    payload.put(Constants.REDO, msg.redo)
 
     val header = Util.buildHeader(MessageNames.PATCH_DOCUMENT_REPLY, None)
     Util.buildJson(header, payload)

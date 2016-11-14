@@ -295,8 +295,8 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
-	public void patchDocument(String meetingID, String requesterID, String noteID, String patch) {
-		PatchDocumentRequestMessage msg = new PatchDocumentRequestMessage(meetingID, requesterID, noteID, patch);
+	public void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation) {
+		PatchDocumentRequestMessage msg = new PatchDocumentRequestMessage(meetingID, requesterID, noteID, patch, operation);
 		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
 	}
 	

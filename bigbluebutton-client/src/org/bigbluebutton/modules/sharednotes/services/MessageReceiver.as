@@ -99,6 +99,8 @@ package org.bigbluebutton.modules.sharednotes.services
       }
       receivePatchEvent.noteId = map.noteID;
       receivePatchEvent.patchId = map.patchID;
+      receivePatchEvent.undo = map.undo;
+      receivePatchEvent.redo = map.redo;
 
       dispatcher.dispatchEvent(receivePatchEvent);
     }

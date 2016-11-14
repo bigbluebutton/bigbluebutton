@@ -56,7 +56,7 @@ public class SharedNotesMessageReceiver implements MessageHandler {
 	private void processPatchDocumentRequestMessage(String json) {
 		PatchDocumentRequestMessage msg = PatchDocumentRequestMessage.fromJson(json);
 		if (msg != null) {
-			bbbInGW.patchDocument(msg.meetingID, msg.requesterID, msg.noteID, msg.patch);
+			bbbInGW.patchDocument(msg.meetingID, msg.requesterID, msg.noteID, msg.patch, msg.operation);
 		}
 	}
 

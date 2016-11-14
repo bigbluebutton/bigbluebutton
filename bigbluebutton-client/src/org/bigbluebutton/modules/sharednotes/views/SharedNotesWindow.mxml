@@ -38,12 +38,15 @@
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import com.asfusion.mate.events.Dispatcher;
-			
+
+			import flash.events.KeyboardEvent;
+			import flash.ui.Keyboard;
 			import flash.utils.getTimer;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 
 			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
@@ -58,21 +61,20 @@
 			import org.bigbluebutton.modules.sharednotes.views.components.SharedNotesRichTextEditor;
 			import org.bigbluebutton.modules.sharednotes.views.SharedNotesNameWindow;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
-			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
 			import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import flash.utils.getQualifiedClassName;
-			import mx.collections.ArrayCollection;
+
 			private static const LOGGER:ILogger = getClassLogger(SharedNotesWindow);
 
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
 			private var _lastPatch:Number = 0;
-			protected var _notesId:String="MAIN_WINDOW";
+			protected var _noteId:String="MAIN_WINDOW";
 			protected var _noteName:String = "";
 
 			[Bindable] private var options:SharedNotesOptions = new SharedNotesOptions();
@@ -149,7 +151,7 @@
 			}
 
 			public function get noteId():String{
-				return _notesId;
+				return _noteId;
 			}
 
 			public function addRemoteDocument(notes:Object):void{
@@ -160,6 +162,7 @@
 				richTextEditor.htmlText = _document;
 				if (!this.enabled) this.enabled = true;
 				updateTitle();
+				updateUndoRedoButtons(note["undo"], note["redo"]);
 			}
 
 			private function sendPatch():void {
@@ -170,6 +173,7 @@
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.noteId = noteId;
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
+					sendPatchEvent.operation = "PATCH";
 					_dispatcher.dispatchEvent(sendPatchEvent);
 					_document = clientText;
 					richTextEditor.textArea.editable = true;
@@ -190,10 +194,18 @@
 							richTextEditor.patch(e.patch);
 						}
 						_lastPatch = e.patchId;
+						updateUndoRedoButtons(e.undo, e.redo);
 					} else {
 						LOGGER.error("Patch missmatch");
 					}
 				}
+			}
+
+			private function updateUndoRedoButtons(undo:Boolean, redo:Boolean):void {
+				btnUndo.styleName = undo ? "sharedNotesEnabledUndoButtonStyle" : "sharedNotesDisabledUndoButtonStyle";
+				btnRedo.styleName = redo ? "sharedNotesEnabledRedoButtonStyle" : "sharedNotesDisabledRedoButtonStyle";
+				btnUndo.enabled = undo;
+				btnRedo.enabled = redo;
 			}
 
 			protected function saveNotes(title:String, text:String, extension:String):void
@@ -337,6 +349,33 @@
 				PopUpManager.centerPopUp(noteNameWindow);
 			}
 
+			protected function btnUndo_clickHandler(event:MouseEvent = null):void {
+				var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+				sendPatchEvent.noteId = noteId;
+				sendPatchEvent.operation = "UNDO";
+				_dispatcher.dispatchEvent(sendPatchEvent);
+			}
+
+			protected function btnRedo_clickHandler(event:MouseEvent = null):void {
+				var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+				sendPatchEvent.noteId = noteId;
+				sendPatchEvent.operation = "REDO";
+				_dispatcher.dispatchEvent(sendPatchEvent);
+			}
+
+			public function handleCtrlCmd(event:KeyboardEvent):void {
+				switch (event.keyCode) {
+					case Keyboard.Z:
+						if (btnUndo.enabled) btnUndo_clickHandler();
+						break;
+					case Keyboard.Y:
+						if (btnRedo.enabled) btnRedo_clickHandler();
+						break;
+					default:
+						break;
+				}
+			}
+
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
 				richTextEditor.showControlBar = !richTextEditor.showControlBar;
 			}
@@ -369,10 +408,16 @@
 	<mx:VBox width="100%" height="100%">
 		<components:SharedNotesRichTextEditor width="100%" height="100%" id="richTextEditor" showControlBar="{options.toolbarVisibleByDefault}" dropShadowEnabled="false" headerHeight="0" borderThicknessLeft="0" borderThicknessRight="0" borderThicknessTop="0" borderThicknessBottom="0" minWidth="120" minHeight="100" initialize="initSharedNotesRichTextEditor()"/>
 
-		<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
-			<mx:Button id="btnNew" styleName="sharedNotesNewButtonStyle" width="26" height="26" click="btnNew_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
-			<mx:Button styleName="sharedNotesFormatButtonStyle" width="26" height="26" click="btnToolbar_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}" visible="{options.showToolbarButton}" includeInLayout="{options.showToolbarButton}"/>
-			<mx:Button id="btnSave" styleName="sharedNotesSaveButtonStyle" width="26" height="26" click="btnSave_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+		<mx:HBox width="100%" paddingTop="0">
+			<mx:HBox width="100%" horizontalAlign="left" paddingTop="0">
+				<mx:Button id="btnUndo" styleName="sharedNotesDisabledUndoButtonStyle" width="26" height="26" click="btnUndo_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.undo.toolTip')}" enabled="false" visible="true"/>
+				<mx:Button id="btnRedo" styleName="sharedNotesDisabledRedoButtonStyle" width="26" height="26" click="btnRedo_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}" enabled="false" visible="true"/>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
+				<mx:Button id="btnNew" styleName="sharedNotesNewButtonStyle" width="26" height="26" click="btnNew_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+				<mx:Button styleName="sharedNotesFormatButtonStyle" width="26" height="26" click="btnToolbar_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}" visible="{options.showToolbarButton}" includeInLayout="{options.showToolbarButton}"/>
+				<mx:Button id="btnSave" styleName="sharedNotesSaveButtonStyle" width="26" height="26" click="btnSave_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+			</mx:HBox>
 		</mx:HBox>
 	</mx:VBox>
 </containers:CustomMdiWindow>

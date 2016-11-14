@@ -2,6 +2,8 @@ package org.bigbluebutton.core.api
 
 import java.lang.Boolean
 
+import scala.collection.mutable.Stack
+
 object Role extends Enumeration {
   type Role = Value
   val MODERATOR = Value("MODERATOR")
@@ -13,6 +15,14 @@ object GuestPolicy extends Enumeration {
   val ALWAYS_ACCEPT = Value("ALWAYS_ACCEPT")
   val ALWAYS_DENY = Value("ALWAYS_DENY")
   val ASK_MODERATOR = Value("ASK_MODERATOR")
+}
+
+object SharedNotesOperation extends Enumeration {
+  type SharedNotesOperation = Value
+  val PATCH = Value("PATCH")
+  val UNDO = Value("UNDO")
+  val REDO = Value("REDO")
+  val UNDEFINED = Value("UNDEFINED")
 }
 
 case class StatusCode(val code: Int, val text: String)
@@ -143,7 +153,22 @@ case class MeetingDuration(duration: Int = 0, createdTime: Long = 0,
 
 case class MeetingInfo(meetingID: String, meetingName: String, recorded: Boolean, voiceBridge: String, duration: Long)
 
+trait BaseNote {
+  def name: String
+  def document: String
+  def patchCounter: Int
+}
+
 case class Note(
   name: String,
   document: String,
-  patchCounter: Int)
+  patchCounter: Int,
+  undoPatches: Stack[(String, String)],
+  redoPatches: Stack[(String, String)]) extends BaseNote
+
+case class NoteReport(
+  name: String,
+  document: String,
+  patchCounter: Int,
+  undo: Boolean,
+  redo: Boolean) extends BaseNote

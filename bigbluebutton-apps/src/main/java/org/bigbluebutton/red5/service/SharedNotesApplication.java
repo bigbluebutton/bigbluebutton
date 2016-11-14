@@ -35,8 +35,8 @@ public class SharedNotesApplication {
 	public void clear(String meetingID) {
 	}
 
-	public void patchDocument(String meetingID, String requesterID, String noteID, String patch) {
-		red5BBBInGW.patchDocument(meetingID, requesterID, noteID, patch);
+	public void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation) {
+		red5BBBInGW.patchDocument(meetingID, requesterID, noteID, patch, operation);
 	}
 
 	public void currentDocument(String meetingID, String requesterID) {

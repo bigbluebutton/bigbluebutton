@@ -683,11 +683,15 @@ public class Util {
 		String name = "";
 		String document = "";
 		Integer patchCounter = 0;
+		Boolean undo = false;
+		Boolean redo = false;
 
-		public Note(String name, String document, Integer patchCounter) {
+		public Note(String name, String document, Integer patchCounter, Boolean undo, Boolean redo) {
 			this.name = name;
 			this.document = document;
 			this.patchCounter = patchCounter;
+			this.undo = undo;
+			this.redo = redo;
 		}
 	}
 
@@ -699,7 +703,9 @@ public class Util {
 			String name = obj.get("name").getAsString();
 			String document = obj.get("document").getAsString();
 			Integer patchCounter = obj.get("patchCounter").getAsInt();
-			Note note = new Note(name, document, patchCounter);
+			Boolean undo = obj.get("undo").getAsBoolean();
+			Boolean redo = obj.get("redo").getAsBoolean();
+			Note note = new Note(name, document, patchCounter, undo, redo);
 			notesMap.put(entry.getKey(), (Object) note);
 		}
 
