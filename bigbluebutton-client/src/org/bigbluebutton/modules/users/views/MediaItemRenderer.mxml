@@ -24,6 +24,8 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	verticalAlign="middle"
+	horizontalGap="2"
+	horizontalAlign="center"
 	creationComplete="onCreationComplete()" > 
 	
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
@@ -212,7 +214,7 @@
 					
 					if ( data.role == BBBUser.MODERATOR ){
 						lockImg.visible = false;
-						lockImg.includeInLayout = false;
+						lockImg.includeInLayout = true;
 						lockBtn.visible = false;
 						lockBtn.includeInLayout = false;
 					} else if( moderator && ls.isAnythingLocked() ) {
