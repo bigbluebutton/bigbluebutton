@@ -864,7 +864,6 @@ class ApiController {
                         parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
                         sequence(m.getSequence())
                     }
-                    //isBreakout() { mkp.yield(m.isBreakout()) }
                     meetingName() { mkp.yield(m.getName()) }
                     createTime(m.getCreateTime())
                     createDate(formatPrettyDate(m.getCreateTime()))
@@ -2138,7 +2137,6 @@ class ApiController {
                 parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
                 sequence(meeting.getSequence())
             }
-            //isBreakout() { mkp.yield(meeting.isBreakout()) }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
             voiceBridge() { mkp.yield(meeting.getTelVoice()) }
@@ -2203,7 +2201,6 @@ class ApiController {
                 parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
                 sequence(meeting.getSequence())
             }
-            //isBreakout() { mkp.yield(meeting.isBreakout()) }
             attendeePW() { mkp.yield(meeting.getViewerPassword()) }
             moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
             createTime(meeting.getCreateTime())
