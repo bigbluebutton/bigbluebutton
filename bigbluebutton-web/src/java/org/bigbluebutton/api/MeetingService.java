@@ -86,11 +86,10 @@ public class MeetingService implements MessageListener {
     private final Executor runExec = Executors.newSingleThreadExecutor();
 
     /**
-     * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-
-     * misuse/
+     * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
      */
-    private final ConcurrentMap<String, Meeting> meetings;
-    private final ConcurrentMap<String, UserSession> sessions;
+    private ConcurrentMap<String, Meeting> meetings;
+    private ConcurrentMap<String, UserSession> sessions;
 
     private int defaultMeetingExpireDuration = 1;
     private int defaultMeetingCreateJoinDuration = 5;
@@ -296,42 +295,34 @@ public class MeetingService implements MessageListener {
 
     private void handleCreateMeeting(Meeting m) {
         meetings.put(m.getInternalId(), m);
+        if (m.isBreakout()) {
+            // Lookup the parent
+            Meeting parent = getMeeting(m.getParentMeetingId());
+            // Add the current meeting as a child
+            parent.addChildMeetingId(m.getInternalId());
+            // Fetch stored values
+            Map<String, String> parentMetadata = messagingService.fetchMeetingInfo(parent.getInternalId());
+            Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingInfo(parent.getInternalId(), true);
+            // Serialize new childrenMeetingId
+            parentBreakoutMetadata.put("childrenMeetingId", parent.getChildrenMeetingIdSerialized());
+            // Save updated parent into redis
+            messagingService.recordMeetingInfo(parent.getInternalId(), parentMetadata, parentBreakoutMetadata);
+        }
+
         if (m.isRecord()) {
             Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
             // TODO: Need a better way to store these values for recordings
             metadata.put("meetingId", m.getExternalId());
             metadata.put("meetingName", m.getName());
-            //metadata.put("isBreakout", m.isBreakout().toString());
 
             Map<String, String> breakoutMetadata = new TreeMap<String, String>();
-            //breakoutMetadata.put("meetingId", m.getExternalId());
             breakoutMetadata.put("isBreakout", m.isBreakout().toString());
-            String childrenMeetingIdString;
             if (m.isBreakout()){
                 breakoutMetadata.put("sequence", m.getSequence().toString());
                 breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
-                // Lookup the parent
-                Meeting parent = getMeeting(m.getParentMeetingId());
-                // Add the current meeting as a child
-                parent.addChildMeetingId(m.getInternalId());
-                // Fetch stored values
-                Map<String, String> parentMetadata = messagingService.fetchMeetingInfo(parent.getInternalId());
-                Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingInfo(parent.getInternalId(), true);
-                // Serialize new childrenMeetingId
-                childrenMeetingIdString = "";
-                for (String s : parent.getChildrenMeetingId()) {
-                    childrenMeetingIdString += (childrenMeetingIdString.length() > 0? ",": "") + s;
-                }
-                parentBreakoutMetadata.put("childrenMeetingId", childrenMeetingIdString);
-                // Save updated parent into redis
-                messagingService.recordMeetingInfo(parent.getInternalId(), parentMetadata, parentBreakoutMetadata);
             } else if (m.hasChildrenMeetingId()) {
-                childrenMeetingIdString = "";
-                for (String s : m.getChildrenMeetingId()) {
-                    childrenMeetingIdString += (childrenMeetingIdString.length() > 0? ",": "") + s;
-                }
-                breakoutMetadata.put("childrenMeetingId", childrenMeetingIdString);
+                breakoutMetadata.put("childrenMeetingId", m.getChildrenMeetingIdSerialized());
             }
             messagingService.recordMeetingInfo(m.getInternalId(), metadata, breakoutMetadata);
         }

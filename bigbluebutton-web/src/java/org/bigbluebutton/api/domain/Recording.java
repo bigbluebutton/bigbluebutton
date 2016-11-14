@@ -199,7 +199,7 @@ public class Recording {
 		String childrenMeetingIDSerialized = "";
 		if ( childrenMeetingID != null ) {
 			for (String s : childrenMeetingID) {
-				childrenMeetingIDSerialized += (childrenMeetingIDSerialized == "")? s: "," + s;
+				childrenMeetingIDSerialized += (childrenMeetingIDSerialized == ""? "": ",") + s;
 			}
 		}
 		return childrenMeetingIDSerialized;

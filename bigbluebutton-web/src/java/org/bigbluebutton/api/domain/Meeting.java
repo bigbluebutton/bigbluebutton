@@ -41,8 +41,8 @@ public class Meeting {
 	private String extMeetingId;
 	private String intMeetingId;
 	private String parentMeetingId;
-	private final List<String> childrenMeetingId;
 	private Integer sequence = 0;
+	private List<String> childrenMeetingId;
 	private Integer duration = 0;	 
 	private long createdTime = 0;
 	private long startTime = 0;
@@ -235,8 +235,18 @@ public class Meeting {
 		return childrenMeetingId;
 	}
 
+	public String getChildrenMeetingIdSerialized() {
+		String childrenMeetingIdSerialized = "";
+		if ( childrenMeetingId != null ) {
+			for (String s : childrenMeetingId) {
+				childrenMeetingIdSerialized += (childrenMeetingIdSerialized == ""? "": ",") + s;
+			}
+		}
+		return childrenMeetingIdSerialized;
+	}
+
 	public boolean hasChildrenMeetingId() {
-		return childrenMeetingId.size() > 0;
+		return !(childrenMeetingId == null || childrenMeetingId.isEmpty());
 	}
 
 	public String getWebVoice() {
