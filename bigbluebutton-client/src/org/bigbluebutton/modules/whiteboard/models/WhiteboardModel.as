@@ -162,11 +162,6 @@ package org.bigbluebutton.modules.whiteboard.models
       if(currentWhiteboardId)
         return currentWhiteboardId;
 
-      var page:Page = PresentationModel.getInstance().getCurrentPage();
-      if (page != null) {
-        return page.id;
-      }
-      
       return null;
     }
     
@@ -174,6 +169,10 @@ package org.bigbluebutton.modules.whiteboard.models
       currentWhiteboardId = whiteboardId;
       LOGGER.debug("currentWhiteboardId set to: " + currentWhiteboardId);
       LOGGER.debug("(current page id: " + PresentationModel.getInstance().getCurrentPage().id + ")");
+    }
+
+    public function isOverlayingDeskshare():Boolean {
+      return (currentWhiteboardId && currentWhiteboardId == "deskshare");
     }
 
 	}

@@ -69,6 +69,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShareEvent.CLEAN_DESKTOP_PUBLISH_TAB}" method="cleanDesktopPublishTab" />
 	<mate:Listener type="{ShareEvent.OPEN_DESKTOP_VIEW_TAB}" method="openDesktopViewTab" />
 	<mate:Listener type="{ShareEvent.CLOSE_DESKTOP_VIEW_TAB}" method="closeDesktopViewTab" />
+	<mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="addWhiteboardCanvasToSlideView" />
+
 
 	<mx:Script>
 		<![CDATA[
@@ -116,6 +118,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
@@ -176,6 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var whiteboardOverlay:IBbbCanvas = null;
 			private var deskshareViewCanvas:DesktopViewWindow = null;
+			private var whiteboardAdded:Boolean = false;
 			
 			private function init():void{
 				presentOptions = new PresentOptions();
@@ -548,10 +552,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
         LOGGER.debug("OVERLAYING WHITEBOARD CANVAS");
         whiteboardOverlay = e.canvas;
+      }
 
-        LOGGER.debug("addOverlayCanvas: Adding whiteboard canvas to SlideView");
-        e.canvas.acceptOverlayCanvas(slideView);
-        slideView.acceptOverlayCanvas(e.canvas);
+      private function addWhiteboardCanvasToSlideView(e:PageLoadedEvent):void{
+        if(!whiteboardAdded && whiteboardOverlay != null) {
+           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
+           changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
+           whiteboardOverlay.acceptOverlayCanvas(slideView);
+           slideView.acceptOverlayCanvas(whiteboardOverlay);
+           whiteboardAdded = true;
+        } else LOGGER.debug("addWhiteboardCanvasToSlideView: NOT adding whiteboard canvas to Slide View.");
       }
 					
 			override protected function resourcesChanged():void{
@@ -948,9 +958,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (whiteboardOverlay != null) {
+					changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
 					slideView.acceptOverlayCanvas(whiteboardOverlay);
 					whiteboardOverlay.acceptOverlayCanvas(slideView);
-					changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
 				}
 
 				if(!presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible) {
@@ -988,12 +998,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				if (whiteboardOverlay != null && deskshareViewCanvas != null) {
 					LOGGER.debug("Adding whiteboard layer to Deskshare View Canvas");
+					changeWhiteboardPageOnly("deskshare");
 					deskshareViewCanvas.acceptOverlayCanvas(whiteboardOverlay);
 					whiteboardOverlay.acceptOverlayCanvas(deskshareViewCanvas);
-					changeWhiteboardPageOnly("deskshare");
 					if(UsersUtil.amIPresenter()) {
 						annotationsPermissionChanged(true);
 					}
+					if(!whiteboardAdded)
+						whiteboardAdded = true;
 				} else {
 					LOGGER.debug("openDesktopViewTab: whiteboard overlay or desktop view canvas is null!");
 				}

@@ -371,8 +371,6 @@ package org.bigbluebutton.modules.whiteboard
                     redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
                 }
             }
-
-            whiteboardModel.setCurrentWhiteboardId(wbId);
         }
     
     public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
