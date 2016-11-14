@@ -65,7 +65,7 @@ class ApiController {
   private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
   private static final String API_VERSION = '0.81'
   private static final String REDIRECT_RESPONSE = true
-  private static final String INCLUDE_BREAKOUTS = true
+  private static final boolean INCLUDE_BREAKOUTS = true
 
   MeetingService meetingService;
   PresentationService presentationService
@@ -1749,7 +1749,7 @@ class ApiController {
     if ( internalRecordIds.size() == 0 && externalMeetingIds.size() > 0 ) {
       // No recordIDs, process the request based on meetingID(s) and include breakouts
       // Translate the external meeting ids to internal meeting ids (which is the seed for the recordIDs).
-      internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds)
+      List<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds)
       recs = meetingService.getRecordings(internalMeetingIds, states, INCLUDE_BREAKOUTS)
     } else {
       // As recordIDs was included, process the request based on recordID(s), and don't include breakouts
