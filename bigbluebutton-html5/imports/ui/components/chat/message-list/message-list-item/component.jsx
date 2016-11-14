@@ -41,8 +41,9 @@ export default class MessageListItem extends Component {
         </div>
         <div className={styles.content}>
           <div className={styles.meta}>
-            <div className={styles.name}>
+            <div className={user.isLogin ? styles.name : styles.logout}>
               <span>{user.name}</span>
+              {!user.isLogin ? <span className={styles.offline}> (offline)</span> : null}
             </div>
             <time className={styles.time} dateTime={dateTime}>
               <FormattedTime value={dateTime}/>

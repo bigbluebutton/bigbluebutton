@@ -37,18 +37,20 @@ const mapUser = (user) => ({
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isLocked: user.locked,
+  isLogin: true,
 });
 
 const logoutUser = (userID, userName) => ({
   id: userID,
   name: userName,
   emoji: {
-     status: '',
+    status: 'none',
   },
   isPresenter: false,
   isModerator: false,
   isCurrent: false,
   isVoiceUser: false,
+  isLogin: false,
 });
 
 const mapMessage = (messagePayload) => {
