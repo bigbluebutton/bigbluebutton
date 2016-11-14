@@ -26,6 +26,7 @@ class RedisPubSub {
 
     this.queue.reset();
     this.sub.psubscribe(this.config.channels.fromBBBApps);
+    this.sub.psubscribe(this.config.channels.toBBBApps.html5);
 
     Logger.info(`Subscribed to '${this.config.channels.fromBBBApps}'`);
   }

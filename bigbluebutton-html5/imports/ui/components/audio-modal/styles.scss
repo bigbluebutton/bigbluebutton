@@ -1,0 +1,77 @@
+@import "../../stylesheets/variables/_all";
+
+.center {
+  text-align: center;
+  font-size: $font-size-large;
+  padding-top: 40px;
+}
+
+.closeBtn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+// Modifies the close button style
+Button.closeBtn span:first-child {
+  color: $color-gray-light;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+// Modifies the audio button icon colour
+Button.audioBtn span:first-child {
+  color: #25385D;
+  border: 5px solid #FFF;
+  box-shadow: none;
+}
+
+// When hovering over a button of class audioBtn, change the border colour of first span-child
+Button.audioBtn:hover span:first-child {
+  border: 5px solid $color-primary;
+}
+
+// Modifies the button label text
+Button.audioBtn span:last-child {
+  color: $color-gray-dark;
+  font-size: 30%;
+}
+
+Button.audioBtn:first-of-type {
+  margin-right: 70px;
+}
+
+.inner {
+  padding: 10px;
+  min-height: 350px;
+  min-width: 500px;
+}
+
+// Audio settings menu
+.half {
+  width: 50%;
+  float: left;
+  padding-top: 30px;
+}
+
+.backBtn {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  border: none;
+  box-shadow: none;
+}
+
+.playSound {
+  border: none;
+  box-shadow: none;
+}
+
+.enterBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  border: none;
+  box-shadow: none;
+}

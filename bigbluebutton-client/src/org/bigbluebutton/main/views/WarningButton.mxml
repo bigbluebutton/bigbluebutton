@@ -94,7 +94,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				messages.push(obj);
 				showNotification();
-				LOGGER.warn("ClientNotification:" + e.title + " " + e.message);
+
+				var logData:Object = {};
+				logData.type = "ClientNotification";
+				logData.logCode = e.logCode;
+				logData.message = e.message;
+				logData.title = e.title;
+				LOGGER.warn(JSON.stringify(logData));
 			}
 			
 			private function showNotification():void {
@@ -102,7 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					visible = includeInLayout = true;
 					
 					if (hideTimer.running) hideTimer.reset();
-					hideTimer.start()
+					hideTimer.start();
 					
 					if (!notification) {
 						notification = ToolTipManager.createToolTip(ResourceUtil.getInstance().getString("bbb.clientstatus.notification"), 100, 100, "errorTipAbove", this) as ToolTip;

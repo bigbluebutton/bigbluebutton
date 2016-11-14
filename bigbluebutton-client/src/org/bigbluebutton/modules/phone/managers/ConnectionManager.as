@@ -148,18 +148,18 @@ package org.bigbluebutton.modules.phone.managers {
       var info : Object = event.info;
       var statusCode : String = info.code;
       
-      var logData:Object = new Object();       
-      logData.user = UsersUtil.getUserData();
+      var logData:Object = UsersUtil.initLogData();
       
       switch (statusCode) {
         case "NetConnection.Connect.Success":
           numNetworkChangeCount = 0;
-          LOGGER.debug("Connection success");
-          JSLog.debug("Successfully connected to BBB Voice", logData);
+          logData.tags = ["voice", "flash"];
+          logData.message = "Connection success.";
+          LOGGER.info(JSON.stringify(logData));
           handleConnectionSuccess();
           break;
         case "NetConnection.Connect.Failed":
-          JSLog.error("Failed to connect to BBB Voice", logData);
+          logData.tags = ["voice", "flash"];
 		  logData.message = "NetConnection.Connect.Failed from bbb-voice";
 		  LOGGER.info(JSON.stringify(logData));
           handleConnectionFailed();
@@ -167,13 +167,14 @@ package org.bigbluebutton.modules.phone.managers {
         case "NetConnection.Connect.NetworkChange":
           numNetworkChangeCount++;
           if (numNetworkChangeCount % 20 == 0) {
+              logData.tags = ["voice", "flash"];
              logData.message = "Detected network change on bbb-voice";
              logData.numNetworkChangeCount = numNetworkChangeCount;
              LOGGER.info(JSON.stringify(logData));
           }
           break;
         case "NetConnection.Connect.Closed":
-          JSLog.debug("Disconnected from BBB Voice", logData);
+          logData.tags = ["voice", "flash"];
 		  logData.message = "Disconnected from BBB Voice";
 		  LOGGER.info(JSON.stringify(logData));
           handleConnectionClosed();

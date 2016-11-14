@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.common.LogUtil;
+    import org.bigbluebutton.core.BBB;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.modules.screenshare.events.AppletStartedEvent;
     import org.bigbluebutton.modules.screenshare.events.CursorEvent;
@@ -41,13 +42,8 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
     public class Connection {
         private static const LOGGER:ILogger = getClassLogger(Connection);
         
-        private var netConn:NetConnection;
+        private var netConnection:NetConnection;
         private var uri:String;
-        private const connectionTimeout:int = 5000;
-        private var retryTimer:Timer = null;
-        private var retryCount:int = 0;
-        private const MAX_RETRIES:int = 5;
-        private var deskSO:SharedObject;
         private var responder:Responder;
         private var width:Number;
         private var height:Number;
@@ -62,36 +58,23 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             this.meetingId = meetingId;
         }
         
-        public function connect(retry:Boolean = false):void {
-            netConn = new NetConnection();
-            netConn.proxyType = "best";
-            netConn.objectEncoding = ObjectEncoding.AMF0;
-            netConn.client = this;
-            
-            netConn.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
-            netConn.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-            
-            if (getURI().length == 0) {
-                LOGGER.debug("please provide a valid URI connection string. URI Connection String missing");
-                return;
-            } else if (netConn.connected) {
-                LOGGER.debug("You are already connected to " + getURI());
-                return;
+        public function connect():void {
+            var isTunnelling:Boolean = BBB.initConnectionManager().isTunnelling;
+            if (isTunnelling) {
+              uri = uri.replace(/rtmp:/gi, "rtmpt:");
             }
+
+            NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;
+            netConnection = new NetConnection();
+            netConnection.proxyType = "best";
+            netConnection.client = this;
+            netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatusHandler);
+            netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+            uri = uri + "/" + UsersUtil.getInternalMeetingID();
+
+            LOGGER.debug("Connecting to uri=[{0}]", [uri]);
+            netConnection.connect(uri);
             
-            LOGGER.debug("Trying to connect to [" + getURI() + "] retry=[" + retry + "]");
-            if (!(retryCount > 0)) {
-                var ce:ConnectionEvent = new ConnectionEvent(ConnectionEvent.CONNECTING);
-                dispatcher.dispatchEvent(ce);
-            }
-            
-            netConn.connect(getURI());
-            
-            if (!retry) {
-                retryTimer = new Timer(connectionTimeout, 1);
-                retryTimer.addEventListener(TimerEvent.TIMER_COMPLETE, connectTimeoutHandler);
-                retryTimer.start();
-            }
         }
         
         public function addMessageListener(listener:IMessageListener):void {
@@ -122,32 +105,8 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             notifyListeners(messageName, msg);
         }
         
-        private function connectTimeoutHandler(e:TimerEvent):void {
-            LOGGER.debug("Connection attempt to [" + getURI() + "] timedout. Retrying.");
-            retryTimer.stop();
-            retryTimer = null;
-            
-            netConn.close();
-            netConn = null;
-            
-            var ce:ConnectionEvent;
-            
-            retryCount++;
-            if (retryCount < MAX_RETRIES) {
-                ce = new ConnectionEvent(ConnectionEvent.CONNECTING_RETRY);
-                ce.retryAttempts = retryCount;
-                dispatcher.dispatchEvent(ce);
-                
-                connect(false);
-            } else {
-                ce = new ConnectionEvent(ConnectionEvent.CONNECTING_MAX_RETRY);
-                dispatcher.dispatchEvent(ce);
-            }
-        
-        }
-        
         public function close():void {
-            netConn.close();
+            netConnection.close();
         }
         
         public function isScreenSharing(meetingId:String):void {
@@ -173,9 +132,9 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             });
             
             if (message == null) {
-                netConn.call(service, responder);
+                netConnection.call(service, responder);
             } else {
-                netConn.call(service, responder, message);
+                netConnection.call(service, responder, message);
             }
         }
 
@@ -259,10 +218,6 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             uri = p_URI;
         }
         
-        public function getURI():String {
-            return uri + "/" + UsersUtil.getInternalMeetingID();
-        }
-        
         public function onBWCheck(... rest):Number {
             return 0;
         }
@@ -287,15 +242,13 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             }, message);
         }
         
+        public function stopViewing():void {
+            LOGGER.debug("Received dekskshareStreamStopped");
+            dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.STOP));
+        }
+        
         private function netStatusHandler(event:NetStatusEvent):void {
-            LOGGER.debug("Connected to [" + getURI() + "]. [" + event.info.code + "]");
-            
-            if (retryTimer) {
-                retryCount = 0;
-                LOGGER.debug("Cancelling retry timer.");
-                retryTimer.stop();
-                retryTimer = null;
-            }
+            LOGGER.debug("Connected to [" + uri + "]. [" + event.info.code + "]");
             
             var ce:ConnectionEvent;
             switch (event.info.code) {
@@ -334,14 +287,6 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             
             case "NetConnection.Connect.Closed":
                 LOGGER.debug("Screenshare connection closed.");
-                if (UsersUtil.amIPresenter()) {
-                    // Let's keep our presenter status before disconnected. We can't
-                    // tell the other user's to stop desktop sharing as our connection is broken. (ralam july 24, 2015)
-                    
-                } else {
-                    stopViewing();
-                }
-                
                 if (!logoutOnUserCommand) {
                     reconnecting = true;
                     
@@ -367,13 +312,6 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             case "NetConnection.Connect.NetworkChange":
                 LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
                 break;
-            
-            default:
-                // I dispatch DISCONNECTED incase someone just simply wants to know if we're not connected'
-                // rather than having to subscribe to the events individually
-                ce = new ConnectionEvent(ConnectionEvent.DISCONNECTED);
-                dispatcher.dispatchEvent(ce);
-                break;
             }
         }
         
@@ -381,21 +319,14 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             var ce:ConnectionEvent = new ConnectionEvent(ConnectionEvent.SECURITYERROR);
             dispatcher.dispatchEvent(ce);
         }
-        
-        public function mouseLocationCallback(x:Number, y:Number):void {
-            var event:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR_LOC_EVENT);
-            event.x = x;
-            event.y = y;
-            dispatcher.dispatchEvent(event);
-        }
-        
+               
         public function disconnect():void {
             logoutOnUserCommand = true;
-            if (netConn != null) netConn.close();
+            if (netConnection != null) netConnection.close();
         }
         
         public function getConnection():NetConnection {
-            return netConn;
+            return netConnection;
         }
         
         public function connectionFailedHandler(e:ConnectionEvent):void {
@@ -406,72 +337,5 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             LOGGER.error("connection rejected " + uri + " with message " + e.toString());
         }
         
-        /**
-         * Invoked on the server once the clients' applet has started sharing and the server has started a video stream
-         *
-         */
-        public function appletStarted(videoWidth:Number, videoHeight:Number):void {
-            LOGGER.debug("Got applet started");
-            var event:AppletStartedEvent = new AppletStartedEvent();
-            event.videoWidth = videoWidth;
-            event.videoHeight = videoHeight;
-            dispatcher.dispatchEvent(event);
-        }
-        
-        /**
-         * Call this method to send out a room-wide notification to start viewing the stream
-         *
-         */
-        public function sendStartViewingNotification(captureWidth:Number, captureHeight:Number):void {
-            try {
-                deskSO.send("startViewing", captureWidth, captureHeight);
-            } catch (e:Error) {
-                LOGGER.error("error while trying to send start viewing notification");
-            }
-        }
-        
-        
-        /**
-         * Called by the server when a notification is received to start viewing the broadcast stream .
-         * This method is called on successful execution of sendStartViewingNotification()
-         *
-         */
-        public function startViewing(videoWidth:Number, videoHeight:Number):void {
-            LOGGER.debug("startViewing invoked by server");
-            
-            var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
-            dispatcher.dispatchEvent(event);
-        }
-        
-        /**
-         * Sends a notification through the server to all the participants in the room to stop viewing the stream
-         *
-         */
-        public function sendStopViewingNotification():void {
-            LOGGER.debug("Sending stop viewing notification to other clients.");
-            try {
-                deskSO.send("stopViewing");
-            } catch (e:Error) {
-                LOGGER.debug("could not send stop viewing notification");
-            }
-        }
-        
-        /**
-         * Called by the server to notify clients that the deskshare stream has stooped.
-         */
-        public function deskshareStreamStopped():void {
-            stopViewing();
-        }
-        
-        /**
-         * Sends a notification to the module to stop viewing the stream
-         * This method is called on successful execution of sendStopViewingNotification()
-         *
-         */
-        public function stopViewing():void {
-            LOGGER.debug("Received dekskshareStreamStopped");
-            dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.STOP));
-        }
-    
     }
 }

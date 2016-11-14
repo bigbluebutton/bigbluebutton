@@ -25,7 +25,8 @@ package org.bigbluebutton.core
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.model.users.BBBUser;
-
+  import org.bigbluebutton.util.SessionTokenUtil;
+  
   public class UsersUtil
   {
     
@@ -194,7 +195,7 @@ package org.bigbluebutton.core
       return null;
     }
     
-    public static function getUserData():Object {
+    private static function getUserData():Object {
       var userData:Object = new Object();
       userData.meetingId = getInternalMeetingID();
       userData.externalMeetingId = getExternalMeetingID();
@@ -214,6 +215,21 @@ package org.bigbluebutton.core
 		}
 		return false;
 	}
+    
+    
+    public static function initLogData():Object {
+        var logData:Object = new Object();
+        if (getInternalMeetingID() != null) {
+            logData.user = UsersUtil.getUserData();
+        }
+        logData.sessionToken = getUserSession();
+        return logData;
+    }
+    
+    public static function getUserSession():String {
+        var sessionUtil:SessionTokenUtil = new SessionTokenUtil()
+        return sessionUtil.getSessionToken();
+    }
     
   }
 }

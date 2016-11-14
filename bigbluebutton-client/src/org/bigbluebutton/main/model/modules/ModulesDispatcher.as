@@ -111,31 +111,11 @@ package org.bigbluebutton.main.model.modules
       dispatcher.dispatchEvent(evt);
     }
     
-    public function sendTunnelingFailedEvent(server: String, app: String):void{
-      var logData:Object = new Object();
-      logData.server = server;
-      logData.app = app;
-      logData.userId = meetingInfo.userId;
-      logData.username = meetingInfo.username;
-      logData.meetingName = meetingInfo.meetingName;
-      logData.meetingId = meetingInfo.meetingId;
-	  LOGGER.fatal("Cannot connect to Red5 using RTMP and RTMPT {0}", [jsonXify(logData)]);
-      JSLog.critical("Cannot connect to Red5 using RTMP and RTMPT", logData);
-      
+    public function sendTunnelingFailedEvent(server: String, app: String):void{     
       dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
     }
     
     public function sendPortTestSuccessEvent(port:String, host:String, tunnel:Boolean, app:String):void{
-      var logData:Object = new Object();
-      logData.port = port;
-      logData.server = host;
-      logData.tunnel = tunnel;
-      logData.app = app;      
-      logData.userId = meetingInfo.userId;
-      logData.username = meetingInfo.username;
-      logData.meetingName = meetingInfo.meetingName;
-      logData.meetingId = meetingInfo.meetingId;
-      JSLog.debug("Successfully connected on test connection.", logData);
       
       var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
       portEvent.port = port;

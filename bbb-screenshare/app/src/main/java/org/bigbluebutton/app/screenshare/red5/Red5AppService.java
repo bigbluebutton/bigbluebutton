@@ -4,18 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import org.bigbluebutton.app.screenshare.messaging.redis.MessageSender;
-//import org.bigbluebutton.app.screenshare.messaging.redis.MessagingConstants;
-import org.bigbluebutton.common.messages.AllowUserToShareDesktopRequest;
-import org.bigbluebutton.common.messages.MessagingConstants;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
-
 import com.google.gson.Gson;
-
 
 public class Red5AppService {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppService.class, "screenshare");
@@ -45,8 +39,22 @@ public class Red5AppService {
     Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
     for (IConnection conn : conns) {
       String connUserId = (String) conn.getAttribute("USERID");
-      if (connUserId != null && connUserId.equals(userId) && !conn.getSessionId().equals(sessionId)) {
+      String connSessionId = conn.getSessionId();
+      if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
         conn.removeAttribute("USERID");
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingId", meetingId);
+        logData.put("userId", userId);
+        logData.put("oldConnId", connSessionId);
+        logData.put("newConnId", sessionId);
+        logData.put("event", "removing_defunct_connection");
+        logData.put("description", "Removing defunct connection BBB Screenshare.");
+
+        Gson gson = new Gson();
+        String logStr =  gson.toJson(logData);
+
+        log.info("Removing defunct connection: data={}", logStr);
+
       }
     }
 
