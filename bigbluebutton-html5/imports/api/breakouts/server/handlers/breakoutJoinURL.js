@@ -1,5 +1,6 @@
 import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
+import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import { XMLHttpRequest } from 'xmlhttprequest';
 import xml2js from 'xml2js';
@@ -19,9 +20,10 @@ export default function breakoutJoinURL({ payload }) {
   const REDIS_CONFIG = Meteor.settings.redis;
 
   const {
-    meetingId,
     joinURL,
   } = payload;
+
+  check(joinURL, String);
 
   const urlParams = getUrlParams(joinURL);
 

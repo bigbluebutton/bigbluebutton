@@ -1,7 +1,12 @@
 import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
+import { check } from 'meteor/check';
 
 export default function ({ payload }) {
+  const meetingId = payload.meetingId;
+
+  check(meetingId, String);
+
   const selector = {
     breakoutMeetingId: payload.meetingId,
   };

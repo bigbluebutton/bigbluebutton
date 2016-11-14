@@ -48,6 +48,21 @@ const intlMessages = defineMessages({
     defaultMessage: 'Disconnected. Trying to reconnect in {seconds} seconds...',
     description: 'Message when the client is trying to reconnect to the server',
   },
+  breakoutTimeRemaining: {
+    id: 'app.breakoutTimeRemainingMessage',
+    defaultMessage: 'Breakout Room time remaining: {time}',
+    description: 'Message that tells how much time is remaining for the breakout room',
+  },
+  breakoutWillClose: {
+    id: 'app.breakoutWillCloseMessage',
+    defaultMessage: 'Time ended. Breakout Room will close soon',
+    description: 'Message that tells time has ended and breakout will close',
+  },
+  calculatingBreakoutTimeRemaining: {
+    id: 'app.calculatingBreakoutTimeRemaining',
+    defaultMessage: 'Calculating remaining time...',
+    description: 'Message that tells that the remaining time is being calculated',
+  },
 });
 
 class NotificationsBarContainer extends Component {
@@ -70,6 +85,7 @@ class NotificationsBarContainer extends Component {
   }
 }
 
+//reconnect
 let retrySeconds = 0;
 const retrySecondsDep = new Tracker.Dependency;
 
@@ -86,12 +102,21 @@ const setRetrySeconds = (sec = 0) => {
 };
 
 let retryInterval = null;
-const startCounter = (sec) => {
-  clearInterval(retryInterval);
+let timeRemainingInterval = null;
 
+const startCounterRetry = (sec) => {
+  clearInterval(retryInterval);
   setRetrySeconds(sec);
   retryInterval = setInterval(() => {
     setRetrySeconds(getRetrySeconds() - 1);
+  }, 1000);
+};
+
+const startCounterTimeRemaining = (sec) => {
+  clearInterval(timeRemainingInterval);
+  setTimeRemaining(sec);
+  timeRemainingInterval = setInterval(() => {
+    setTimeRemaining(getTimeRemaining() - 1);
   }, 1000);
 };
 
@@ -111,15 +136,6 @@ const setTimeRemaining = (sec = 0) => {
   }
 };
 
-let timeRemainingInterval = null;
-const startTimeRemainingCounter = (sec) => {
-  clearInterval(timeRemainingInterval);
-  setTimeRemaining(sec);
-  timeRemainingInterval = setInterval(() => {
-    setTimeRemaining(getTimeRemaining() - 1);
-  }, 1000);
-};
-
 export default injectIntl(createContainer(({ intl }) => {
   const { status, connected, retryCount, retryTime } = Meteor.status();
   let data = {};
@@ -136,7 +152,8 @@ export default injectIntl(createContainer(({ intl }) => {
         data.message = intl.formatMessage(intlMessages.connectingMessage);
         break;
       case STATUS_WAITING:
-        startCounter(Math.round((retryTime - (new Date()).getTime()) / 1000));
+        const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
+        startCounterRetry(sec);
         data.message = intl.formatMessage(
           intlMessages.waitingMessage,
           { seconds: getRetrySeconds() }
@@ -147,20 +164,31 @@ export default injectIntl(createContainer(({ intl }) => {
 
   const meetingId = Auth.meetingID;
   const breakouts = NavBarService.getBreakouts();
+  let currentBreakout;
+
   if (breakouts) {
-    const currentBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
+    currentBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
     if (currentBreakout) {
       roomRemainingTime = currentBreakout.timeRemaining;
       if (!timeRemainingInterval && roomRemainingTime) {
-        startTimeRemainingCounter(roomRemainingTime);
+        startCounterTimeRemaining(roomRemainingTime);
       }
     }
   }
 
   if (getTimeRemaining()) {
-    data.color = 'primary';
-    data.message = `Breakout Room Time Remaining: ${humanizeSeconds(getTimeRemaining())}`;
+    if (getTimeRemaining() > 0) {
+      data.message = intl.formatMessage(
+        intlMessages.breakoutTimeRemaining,
+        { time: humanizeSeconds(getTimeRemaining()) }
+      );
+    } else {
+      data.message = intl.formatMessage(intlMessages.breakoutWillClose);
+    }
+  } else if (!getTimeRemaining() && currentBreakout) {
+    data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
   }
 
+  data.color = 'primary';
   return data;
 }, NotificationsBarContainer));
