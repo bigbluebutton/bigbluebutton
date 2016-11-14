@@ -432,7 +432,11 @@ public class MeetingService implements MessageListener {
     }
 
     public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
-        List<Recording> recsList = recordingService.getRecordings(idList, states);
+        return getRecordings(idList, states, false);
+    }
+
+    public Map<String, Recording> getRecordings(List<String> idList, List<String> states, boolean includeBreakouts) {
+        List<Recording> recsList = recordingService.getRecordings(idList, states, includeBreakouts);
         Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }

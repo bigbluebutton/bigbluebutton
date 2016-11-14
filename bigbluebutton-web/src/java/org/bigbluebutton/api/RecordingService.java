@@ -64,7 +64,7 @@ public class RecordingService {
         }
     }
 
-    public List<Recording> getRecordings(List<String> recordIDs, List<String> states) {
+    public List<Recording> getRecordings(List<String> recordIDs, List<String> states, boolean includeBreakouts) {
         List<Recording> recs = new ArrayList<Recording>();
 
         Map<String, List<File>> allDirectories = getAllDirectories(states);
@@ -85,7 +85,7 @@ public class RecordingService {
                     Recording r = getRecordingInfo(iterator.next());
                     if (r != null) {
                         recs.add(r);
-                        if ( r.hasChildrenMeetingID() ) {
+                        if ( includeBreakouts && r.hasChildrenMeetingID() ) {
                             //Add all the childs to the list of recordIDs to be processed
                             for (String childMeetingID : r.getChildrenMeetingID()) {
                                 breakoutRecordIDs.add(childMeetingID);
@@ -97,14 +97,16 @@ public class RecordingService {
         }
 
         // Process the breakout recordings
-        for (String recordID : breakoutRecordIDs) {
-            for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
-                List<File> _recs = getRecordingsForPath(recordID, entry.getValue());
-                Iterator<File> iterator = _recs.iterator();
-                while (iterator.hasNext()) {
-                    Recording r = getRecordingInfo(iterator.next());
-                    if (r != null) {
-                        recs.add(r);
+        if ( includeBreakouts ) {
+            for (String recordID : breakoutRecordIDs) {
+                for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
+                    List<File> _recs = getRecordingsForPath(recordID, entry.getValue());
+                    Iterator<File> iterator = _recs.iterator();
+                    while (iterator.hasNext()) {
+                        Recording r = getRecordingInfo(iterator.next());
+                        if (r != null) {
+                            recs.add(r);
+                        }
                     }
                 }
             }
