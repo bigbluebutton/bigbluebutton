@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.users.views {
 	import flash.geom.Point;
 	import mx.collections.ArrayCollection;
 	import mx.containers.VBox;
+	import mx.controls.Button;
 	import mx.controls.Menu;
 	import mx.core.ScrollPolicy;
 	import mx.events.FlexMouseEvent;
@@ -30,6 +31,7 @@ package org.bigbluebutton.modules.users.views {
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
+	import org.bigbluebutton.main.views.WellPositionedMenu;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class MoodMenu extends VBox {
@@ -42,19 +44,25 @@ package org.bigbluebutton.modules.users.views {
 
 		private var menu:Menu;
 		
+		private var _btn:Button;
+
+		public function set btn(btn:Button):void {
+			_btn = btn;
+			drawMoodMenu();
+		}
+
 		public function MoodMenu() {
 			dispatcher = new Dispatcher();
 			images = new Images();
 			addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler, false, 0, true);
 			this.horizontalScrollPolicy = ScrollPolicy.OFF;
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
-			drawMoodMenu();
 		}
 
-		public function show(position:Point):void {
-			menu.x = position.x;
-			menu.y = position.y;
-			menu.show();
+		public function show():void {
+			if (menu != null) {
+				menu.show();
+			}
 		}
 		
 		private function drawMoodMenu():void {
@@ -71,7 +79,7 @@ package org.bigbluebutton.modules.users.views {
 
 				moods.addItem(item);
 			}
-			menu = Menu.createMenu(null, moods.toArray(), true);
+			menu = WellPositionedMenu.createMenu(null, moods.toArray(), _btn, true);
 			menu.addEventListener(MenuEvent.ITEM_CLICK, buttonMouseEventHandler, false, 0, true);
 		}
 		
