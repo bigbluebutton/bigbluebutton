@@ -180,7 +180,14 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleUserEjectedFromMeeting(msg: Object):void {
-      UsersUtil.setUserEjected();
+        UsersUtil.setUserEjected();
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["users"];
+        logData.status = "user_ejected";
+        logData.message = "User ejected from meeting.";
+
+        LOGGER.info(JSON.stringify(logData));
+      
     }
 
 	private function handleUserLocked(msg:Object):void {
@@ -430,8 +437,6 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleParticipantJoined(msg:Object):void {
-	  LOGGER.info("handleParticipantJoined = " + msg.msg);
-		
       var map:Object = JSON.parse(msg.msg);
       
       var user:Object = map.user as Object;
@@ -542,13 +547,12 @@ package org.bigbluebutton.modules.users.services
     private function handleUserUnsharedWebcam(msg: Object):void {  
 	  var map:Object = JSON.parse(msg.msg);
 	  
-	  var logData:Object = new Object();
-	  logData.user = UsersUtil.getUserData();
-	  logData.user.webcamStream = map.webcamStream;
-	  logData.user.serverTimestamp = map.serverTimestamp;
-	  JSLog.warn("UserUnsharedWebcam server message", logData);
-      
-	  logData.message = "UserUnsharedWebcam server message";
+       var logData:Object = UsersUtil.initLogData();
+       logData.tags = ["webcam"];
+       logData.message = "UserUnsharedWebcam server message";
+       logData.user.webcamStream = map.webcamStream;
+       logData.user.serverTimestamp = map.serverTimestamp;
+
 	  LOGGER.info(JSON.stringify(logData));
 	  
       UserManager.getInstance().getConference().unsharedWebcam(map.userId, map.webcamStream);
@@ -572,8 +576,6 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function participantJoined(joinedUser:Object):void {    
-      LOGGER.info(JSON.stringify(joinedUser));
-	  
       var user:BBBUser = new BBBUser();
       user.userID = joinedUser.userId;
       user.name = joinedUser.name;
@@ -583,12 +585,7 @@ package org.bigbluebutton.modules.users.services
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
       user.avatarURL = joinedUser.avatarURL;
-	  
-      var logData:Object = new Object();
-	  logData.user = user;
-      logData.message = "User joined.";
-	  LOGGER.info(JSON.stringify(logData));
-	  
+	   
       UserManager.getInstance().getConference().addUser(user);
       
       if (joinedUser.hasStream) {

@@ -19,7 +19,7 @@
 package org.bigbluebutton.core.model
 {
     import flash.utils.Dictionary;
-    
+    import org.bigbluebutton.core.UsersUtil;
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -89,8 +89,11 @@ package org.bigbluebutton.core.model
                 _h264Profile = vxml.h264Profile.toString();
             }
 
-			LOGGER.debug("This is a new video profile");
-			LOGGER.debug(this.toString());
+            var logData:Object = UsersUtil.initLogData();
+            logData.videoProfile = this.toString();
+            logData.tags = ["video"];
+            logData.message = "Loaded new video profile.";
+            LOGGER.info(JSON.stringify(logData));
         }
 
         public function toString():String {

@@ -27,7 +27,7 @@ package org.bigbluebutton.main.model.users
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
-	
+	import org.bigbluebutton.core.UsersUtil;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.as3commons.logging.util.jsonXify;
@@ -80,62 +80,74 @@ package org.bigbluebutton.main.model.users
 		}
 
 		private function ioErrorHandler(event:IOErrorEvent):void {
-			LOGGER.error("ioErrorHandler: {0}", [event]);
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["initialization"];
+			logData.message = "IOError calling ENTER api."; 
+			LOGGER.error(JSON.stringify(logData));
+            
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(e);
 		}
 		
 		private function handleComplete(e:Event):void {			
-      var result:Object = JSON.parse(e.target.data);
-      LOGGER.debug("Enter response = {0}" + [jsonXify(result)]);
+            var result:Object = JSON.parse(e.target.data);
             
-			var returncode:String = result.response.returncode;
-			if (returncode == 'FAILED') {
-				LOGGER.error("Join FAILED = {0}", [jsonXify(result)]);						
-        var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
-			} else if (returncode == 'SUCCESS') {
-				LOGGER.debug("Join SUCESS = {0}", [jsonXify(result)]);
-        var response:Object = new Object();
-        response.username = result.response.fullname;
-        response.conference = result.response.conference; 
-        response.conferenceName = result.response.confname;
-        response.externMeetingID = result.response.externMeetingID;
-        response.meetingID = result.response.meetingID;
-        response.isBreakout = result.response.isBreakout;
-        response.externUserID = result.response.externUserID;
-        response.internalUserId = result.response.internalUserID;
-        response.role = result.response.role;
-        response.room = result.response.room;
-        response.authToken = result.response.authToken;
-        response.record = result.response.record;
-        response.allowStartStopRecording = result.response.allowStartStopRecording;
-        response.webvoiceconf = result.response.webvoiceconf;
-        response.dialnumber = result.response.dialnumber;
-        response.voicebridge = result.response.voicebridge;
-        response.mode = result.response.mode;
-        response.welcome = result.response.welcome;
-        response.logoutUrl = result.response.logoutUrl;
-        response.defaultLayout = result.response.defaultLayout;
-        response.avatarURL = result.response.avatarURL
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["initialization"];
+
+            
+            var returncode:String = result.response.returncode;
+            if (returncode == 'FAILED') {
+                logData.message = "Calling ENTER api failed."; 
+                LOGGER.info(JSON.stringify(logData));
+
+                var dispatcher:Dispatcher = new Dispatcher();
+                dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
+            } else if (returncode == 'SUCCESS') {
+                logData.message = "Calling ENTER api succeeded."; 
+                LOGGER.info(JSON.stringify(logData));
+                
+                var response:Object = new Object();
+                response.username = result.response.fullname;
+                response.conference = result.response.conference; 
+                response.conferenceName = result.response.confname;
+                response.externMeetingID = result.response.externMeetingID;
+                response.meetingID = result.response.meetingID;
+                response.isBreakout = result.response.isBreakout;
+                response.externUserID = result.response.externUserID;
+                response.internalUserId = result.response.internalUserID;
+                response.role = result.response.role;
+                response.room = result.response.room;
+                response.authToken = result.response.authToken;
+                response.record = result.response.record;
+                response.allowStartStopRecording = result.response.allowStartStopRecording;
+                response.webvoiceconf = result.response.webvoiceconf;
+                response.dialnumber = result.response.dialnumber;
+                response.voicebridge = result.response.voicebridge;
+                response.mode = result.response.mode;
+                response.welcome = result.response.welcome;
+                response.logoutUrl = result.response.logoutUrl;
+                response.defaultLayout = result.response.defaultLayout;
+                response.avatarURL = result.response.avatarURL
         
-        if (result.response.hasOwnProperty("modOnlyMessage")) {
-          response.modOnlyMessage = result.response.modOnlyMessage;
-          MeetingModel.getInstance().modOnlyMessage = response.modOnlyMessage;
-        }
+                if (result.response.hasOwnProperty("modOnlyMessage")) {
+                  response.modOnlyMessage = result.response.modOnlyMessage;
+                  MeetingModel.getInstance().modOnlyMessage = response.modOnlyMessage;
+                }
           
-        response.customdata = new Object();
+                response.customdata = new Object();
        
-				if (result.response.customdata) {
-          var cdata:Array = result.response.customdata as Array;
-          for each (var item:Object in cdata) {
-            for (var id:String in item) {
-              var value:String = item[id] as String;
-              response.customdata[id] = value;
-            }                        
-          }
-				}
+                if (result.response.customdata) {
+                    var cdata:Array = result.response.customdata as Array;
+                    for each (var item:Object in cdata) {
+                        for (var id:String in item) {
+                        var value:String = item[id] as String;
+                        response.customdata[id] = value;
+                    }                        
+                }
+                
+            }
 				        
         UsersModel.getInstance().me = new MeBuilder(response.internalUserId, response.username).withAvatar(response.avatarURL)
                                              .withExternalId(response.externUserID).withToken(response.authToken)

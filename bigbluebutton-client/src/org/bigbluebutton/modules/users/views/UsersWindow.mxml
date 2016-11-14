@@ -78,6 +78,7 @@
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
+			import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -100,6 +101,9 @@
 
 			[Bindable]
 			public var partOptions:UsersOptions;
+			
+			[Bindable]
+			public var breakoutOptions:BreakoutRoomsOptions;
 			
 			[Bindable]
 			private var images:Images = new Images();
@@ -268,7 +272,7 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler: muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				if (partOptions.enableBreakoutRooms && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
+				if (breakoutOptions.enabled && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
 					if (breakoutRoomsList.length == 0) {
 						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
 					} else {
@@ -316,12 +320,14 @@
 			private function breakoutRooms():void {
 				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL);
 				event.joinMode = "create";
+				event.record = breakoutOptions.record;
 				dispatcher.dispatchEvent(event);
 			}
 
 			private function sendBreakoutRoomsInvitations():void {
 				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL);
 				event.joinMode = "invite";
+				event.record = breakoutOptions.record;
 				dispatcher.dispatchEvent(event);
 			}
 

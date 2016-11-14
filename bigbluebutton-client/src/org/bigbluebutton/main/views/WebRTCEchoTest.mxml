@@ -101,13 +101,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				userClosed = true;
 				
         
-        var logData:Object = new Object();       
+        var logData:Object = UsersUtil.initLogData();       
         logData.reason = "User requested.";
-        logData.user = UsersUtil.getUserData();
+        logData.tags = ["voice", "webrtc"];
         logData.message = "WebRtc Echo test passed.";
-        
-        JSLog.info("WebRtc Echo test passed.", logData);
-        
         LOGGER.info(JSON.stringify(logData));
         
 				setCurrentState("connecting");
@@ -120,11 +117,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function noButtonClicked():void {
 				userClosed = true;
                 
-                var logData:Object = new Object();       
+                var logData:Object = UsersUtil.initLogData();       
                 logData.reason = "User requested.";
-                logData.user = UsersUtil.getUserData();
-                logData.message = "WebRtc Echo test failed.";
-                
+                logData.tags = ["voice", "webrtc"];
+                logData.message = "WebRtc Echo test failed.";                
                 LOGGER.info(JSON.stringify(logData));
                 
 				var dispatcher:Dispatcher = new Dispatcher();
@@ -190,9 +186,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function webRTCCallStarted():void {
-        var logData:Object = new Object();       
+        var logData:Object = UsersUtil.initLogData();       
         logData.reason = "User requested.";
-        logData.user = UsersUtil.getUserData();
+        logData.tags = ["voice", "webrtc"];
         logData.message = "WebRtc call started.";
                 
         LOGGER.info(JSON.stringify(logData));

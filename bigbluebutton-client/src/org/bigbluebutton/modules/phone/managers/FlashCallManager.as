@@ -277,12 +277,11 @@
     
     public function handleFlashCallConnectedEvent(event:FlashCallConnectedEvent):void {      
       LOGGER.debug("handling FlashCallConnectedEvent, current state: {0}", [state]);
-      var logData:Object = new Object();       
-      logData.user = UsersUtil.getUserData();
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["voice", "flash"];
       
       switch (state) {
         case CALLING_INTO_CONFERENCE:
-          JSLog.info("Successfully joined the voice conference.", logData);
 		  logData.message = "Successfully joined the voice conference";
           LOGGER.info(jsonXify(logData));
           state = IN_CONFERENCE;
@@ -290,7 +289,6 @@
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
           break;
         case CONNECTING_TO_LISTEN_ONLY_STREAM:
-          JSLog.info("Successfully connected to the listen only stream.", logData);
 		  logData.message = "Successfully connected to the listen only stream.";
           LOGGER.info(jsonXify(logData));
           state = ON_LISTEN_ONLY_STREAM;
@@ -299,7 +297,6 @@
           break;
         case CALLING_INTO_ECHO_TEST:
           state = IN_ECHO_TEST;
-          JSLog.info("Successfully called into the echo test application.", logData);
 		  logData.message = "Successfully called into the echo test application.";
 		  logData.publishStreamName = event.publishStreamName;
 		  logData.playStreamName = event.playStreamName;
@@ -317,8 +314,8 @@
     }
 
     public function handleFlashCallDisconnectedEvent(event:FlashCallDisconnectedEvent):void {
-      var logData:Object = new Object();       
-      logData.user = UsersUtil.getUserData();
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["voice", "flash"];
       
       LOGGER.debug("Flash call disconnected, current state: {0}", [state]);
       switch (state) {
@@ -328,14 +325,12 @@
           break;
         case ON_LISTEN_ONLY_STREAM:
           state = INITED;
-          JSLog.info("Flash user left the listen only stream.", logData);
 		  logData.message = "Flash user left the listen only stream.";
           LOGGER.info(jsonXify(logData));
 		  dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
           break;
         case IN_ECHO_TEST:
           state = INITED;
-          JSLog.info("Flash echo test stopped.", logData);
 		  logData.message = "Flash echo test stopped.";
 		  LOGGER.info(jsonXify(logData));
 
@@ -347,8 +342,6 @@
           break;
         case CALLING_INTO_ECHO_TEST:
           state = INITED;
-          JSLog.error("Unsuccessfully called into the echo test application.", logData);
-
 		  logData.message = "Unsuccessfully called into the echo test application.";
 		  LOGGER.info(jsonXify(logData));
           dispatcher.dispatchEvent(new FlashEchoTestFailedEvent());

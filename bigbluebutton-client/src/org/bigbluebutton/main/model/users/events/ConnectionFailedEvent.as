@@ -18,23 +18,22 @@
 */
 package org.bigbluebutton.main.model.users.events
 {
-	import flash.events.Event;
+    import flash.events.Event;
 
-	public class ConnectionFailedEvent extends Event
-	{
-		public static const UNKNOWN_REASON:String = "unknownReason";
-		public static const CONNECTION_FAILED:String = "connectionFailed";
-		public static const CONNECTION_CLOSED:String = "connectionClosed";
-		public static const INVALID_APP:String = "invalidApp";
-		public static const APP_SHUTDOWN:String = "appShutdown";
-		public static const CONNECTION_REJECTED:String = "connectionRejected";
-		public static const ASYNC_ERROR:String = "asyncError";
-		public static const USER_LOGGED_OUT:String = "userHasLoggedOut";
-		public static const USER_EJECTED_FROM_MEETING:String = "userHasBeenEjectFromMeeting";
-		
-		public function ConnectionFailedEvent(type:String)
-		{
-			super(type, true, false);
-		}
-	}
+    public class ConnectionFailedEvent extends Event {
+        public static const UNKNOWN_REASON:String = "unknownReason";
+        public static const CONNECTION_FAILED:String = "connectionFailed";
+        public static const CONNECTION_CLOSED:String = "connectionClosed";
+        public static const CONNECTION_ATTEMPT_TIMEDOUT:String = "connectionAttemptTimedout";
+        public static const INVALID_APP:String = "invalidApp";
+        public static const APP_SHUTDOWN:String = "appShutdown";
+        public static const CONNECTION_REJECTED:String = "connectionRejected";
+        public static const ASYNC_ERROR:String = "asyncError";
+        public static const USER_LOGGED_OUT:String = "userHasLoggedOut";
+        public static const USER_EJECTED_FROM_MEETING:String = "userHasBeenEjectFromMeeting";
+
+        public function ConnectionFailedEvent(type:String) {
+            super(type, true, false);
+        }
+    }
 }
