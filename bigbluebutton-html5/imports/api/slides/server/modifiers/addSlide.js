@@ -99,6 +99,6 @@ const fetchImageSizes = (imageUri) =>
     };
   })
   .catch(reason => {
-    Logger.error(`Error parsing image size. ${reason}. slide=${slide.id} uri=${imageUri}`);
+    Logger.error(`Error parsing image size. ${reason}. uri=${imageUri}`);
     return reason;
   });
