@@ -27,7 +27,8 @@
     "react-router": "~2.7.0",
     "redis": "^2.6.2",
     "underscore": "~1.8.3",
-    "winston": "^2.2.0"
+    "winston": "^2.2.0",
+    "probe-image-size": "~2.1.1"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",

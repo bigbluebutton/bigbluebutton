@@ -5,13 +5,12 @@ import Logger from '/imports/startup/server/logger';
 import { clearUsersCollection } from '/imports/api/users/server/modifiers/clearUsersCollection';
 import clearChats from '/imports/api/chat/server/modifiers/clearChats';
 import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
-import { clearSlidesCollection } from '/imports/api/slides/server/modifiers/clearSlidesCollection';
+import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
 import { clearPollCollection } from '/imports/api/polls/server/modifiers/clearPollCollection';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
 import { clearCaptionsCollection }
   from '/imports/api/captions/server/modifiers/clearCaptionsCollection';
-import { clearPresentationsCollection }
-  from '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
+import clearPresentations from '/imports/api/presentations/server/modifiers/clearPresentations';
 
 export default function removeMeeting(meetingId) {
   check(meetingId, String);
@@ -30,9 +29,9 @@ export default function removeMeeting(meetingId) {
       clearChats(meetingId);
       clearCursorCollection(meetingId);
       clearPollCollection(meetingId);
-      clearPresentationsCollection(meetingId);
+      clearPresentations(meetingId);
       clearShapesCollection(meetingId);
-      clearSlidesCollection(meetingId);
+      clearSlides(meetingId);
       clearUsersCollection(meetingId);
 
       return Logger.info(`Removed meeting id=${meetingId}`);
