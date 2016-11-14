@@ -603,11 +603,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			override protected function hideAllChildren():void {
-				slideView.includeInLayout=false;
+				presentationTab.includeInLayout = false;
 			}
 			
 			override protected function showAllChildren():void {
-				slideView.includeInLayout=true;
+				presentationTab.includeInLayout = true;
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
