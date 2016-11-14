@@ -24,7 +24,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	verticalAlign="middle"
-	horizontalGap="2"
+	horizontalGap="8"
 	horizontalAlign="center"
 	creationComplete="onCreationComplete()" > 
 	
