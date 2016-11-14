@@ -28,8 +28,10 @@ const defaultProps = {
   beingRecorded: false,
 };
 
-const openBreakoutJoinConfirmation = breakoutURL =>
-          showModal(<BreakoutJoinConfirmation breakoutURL={breakoutURL}/>);
+const openBreakoutJoinConfirmation = (breakoutURL, breakoutName) =>
+          showModal(<BreakoutJoinConfirmation
+                        breakoutURL={breakoutURL}
+                        breakoutName={breakoutName}/>);
 
 class NavBar extends Component {
   constructor(props) {
@@ -37,6 +39,8 @@ class NavBar extends Component {
 
     this.state = {
       isActionsOpen: false,
+      didSendBreakoutInvite: false,
+      timeRemaining: null,
     };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
@@ -44,6 +48,12 @@ class NavBar extends Component {
 
   handleToggleUserList() {
     this.props.toggleUserList();
+  }
+
+  inviteUserToBreakout(breakout, breakoutURL) {
+    this.setState({ didSendBreakoutInvite: true }, () => {
+      openBreakoutJoinConfirmation.call(this, breakoutURL, breakout.name);
+    });
   }
 
   render() {
@@ -78,11 +88,13 @@ class NavBar extends Component {
   }
 
   renderPresentationTitle() {
-    const { presentationTitle } = this.props;
-    let { breakouts } = this.props;
+    const remainingTime = this.props.timeRemaining;
+    const presentationTitle = this.props.presentationTitle;
+    let breakouts = this.props.breakouts;
+    const meetingId = Auth.getCredentials().meetingId;
+    const currentUserId = Auth.getCredentials().requesterUserId;
     document.title = presentationTitle;
 
-    const currentUserId = Auth.getCredentials().requesterUserId;
     breakouts = breakouts.filter(breakout => {
       if (!breakout.users) {
         return false;
@@ -116,32 +128,57 @@ class NavBar extends Component {
     );
   }
 
+  componentDidUpdate() {
+    const { breakouts } = this.props;
+    const currentUserId = Auth.getCredentials().requesterUserId;
+
+    breakouts.map(breakout => {
+      if (!breakout.users) {
+        return;
+      } else if (!breakout.users.find(user => user.userId === currentUserId)) {
+        return;
+      }
+
+      const breakoutURL = this.getBreakoutJoinUrl(breakout);
+      if (!this.state.didSendBreakoutInvite) {
+        this.inviteUserToBreakout(breakout, breakoutURL);
+      }
+    });
+
+    if (!breakouts.length && this.state.didSendBreakoutInvite) {
+      this.setState({ didSendBreakoutInvite: false });
+    }
+  }
+
   renderBreakoutItem(breakout) {
     const breakoutName = breakout.name;
+    const breakoutURL = this.getBreakoutJoinUrl(breakout);
 
-    openBreakoutJoinConfirmation(this.getBreakoutJoinUrl(breakout));
     return (
       <DropdownListItem
         className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, this.getBreakoutJoinUrl(breakout))}
+        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakout.name)}
         defaultMessage={'batata'}/>
     );
   }
 
   getBreakoutJoinUrl(breakout) {
     const currentUserId = Auth.getCredentials().requesterUserId;
-    const users = breakout.users.find(user => user.userId === currentUserId);
-    if (users) {
-      const urlParams = users.urlParams;
-      return [
-        window.origin,
-        'html5client/join',
-        urlParams.meetingId,
-        urlParams.userId,
-        urlParams.authToken,
-      ].join('/');
+
+    if (breakout.users) {
+      const users = breakout.users.find(user => user.userId === currentUserId);
+      if (users) {
+        const urlParams = users.urlParams;
+        return [
+          window.origin,
+          'html5client/join',
+          urlParams.meetingId,
+          urlParams.userId,
+          urlParams.authToken,
+        ].join('/');
+      }
     }
   }
 }

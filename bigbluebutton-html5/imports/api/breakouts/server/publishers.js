@@ -5,8 +5,11 @@ import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 Meteor.publish('breakouts', (credentials) => {
-  Logger.info(`PUBLISHIIIIIIING breakouts for ${credentials}`);
+  Logger.info(`PUBLISHIIIIIIING breakouts for ${credentials.meetingId}`);
   return Breakouts.find({
-    parentMeetingId: credentials.meetingId,
+    $or: [
+      { parentMeetingId: credentials.meetingId },
+      { breakoutMeetingId: credentials.meetingId },
+    ],
   });
 });

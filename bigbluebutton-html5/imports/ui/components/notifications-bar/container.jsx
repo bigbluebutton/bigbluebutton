@@ -3,8 +3,19 @@ import { createContainer } from 'meteor/react-meteor-data';
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'underscore';
+import NavBarService from '../nav-bar/service';
+import Auth from '/imports/ui/services/auth';
 
 import NotificationsBar from './component';
+
+const humanizeSeconds = time => {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  return [
+    minutes,
+    seconds,
+  ].map(x => (x < 10) ? `0${x}` : x).join(':');
+};
 
 // the connection is up and running
 const STATUS_CONNECTED = 'connected';
@@ -84,6 +95,31 @@ const startCounter = (sec) => {
   }, 1000);
 };
 
+// breakout
+let timeRemaining = 0;
+const timeRemainingDep = new Tracker.Dependency;
+
+const getTimeRemaining = () => {
+  timeRemainingDep.depend();
+  return timeRemaining;
+};
+
+const setTimeRemaining = (sec = 0) => {
+  if (sec !== timeRemaining) {
+    timeRemaining = sec;
+    timeRemainingDep.changed();
+  }
+};
+
+let timeRemainingInterval = null;
+const startTimeRemainingCounter = (sec) => {
+  clearInterval(timeRemainingInterval);
+  setTimeRemaining(sec);
+  timeRemainingInterval = setInterval(() => {
+    setTimeRemaining(getTimeRemaining() - 1);
+  }, 1000);
+};
+
 export default injectIntl(createContainer(({ intl }) => {
   const { status, connected, retryCount, retryTime } = Meteor.status();
   let data = {};
@@ -107,6 +143,23 @@ export default injectIntl(createContainer(({ intl }) => {
         );
         break;
     }
+  }
+
+  const meetingId = Auth.meetingID;
+  const breakouts = NavBarService.getBreakouts();
+  if (breakouts) {
+    const currentBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
+    if (currentBreakout) {
+      roomRemainingTime = currentBreakout.timeRemaining;
+      if (!timeRemainingInterval && roomRemainingTime) {
+        startTimeRemainingCounter(roomRemainingTime);
+      }
+    }
+  }
+
+  if (getTimeRemaining()) {
+    data.color = 'primary';
+    data.message = `Breakout Room Time Remaining: ${humanizeSeconds(getTimeRemaining())}`;
   }
 
   return data;

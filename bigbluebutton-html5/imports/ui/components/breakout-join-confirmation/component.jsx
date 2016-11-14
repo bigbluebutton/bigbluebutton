@@ -6,12 +6,12 @@ import Modal from '/imports/ui/components/modal/component';
 
 const intlMessages = defineMessages({
   title: {
-    id: 'app.breakoutJoinConfirmation.leaveConfirmation.title',
+    id: 'app.breakoutJoinConfirmation.title',
     defaultMessage: 'Join Breakout Room',
   },
   message: {
     id: 'app.breakoutJoinConfirmation.message',
-    defaultMessage: 'Do you want to join this Breakout Room??',
+    defaultMessage: 'Do you want to join',
   },
   confirmLabel: {
     id: 'app.breakoutJoinConfirmation.confirmLabel',
@@ -46,7 +46,7 @@ class LeaveConfirmation extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, breakoutName } = this.props;
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
@@ -59,7 +59,7 @@ class LeaveConfirmation extends Component {
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}>
-        {intl.formatMessage(intlMessages.message)}
+        {`${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}
       </Modal>
     );
   }
