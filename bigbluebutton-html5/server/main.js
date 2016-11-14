@@ -24,12 +24,7 @@ import '/imports/api/polls/server/modifiers/clearPollCollection';
 import '/imports/api/polls/server/modifiers/updatePollCollection';
 import '/imports/api/polls/server/modifiers/eventHandlers';
 
-import '/imports/api/presentations/server/publications';
-import '/imports/api/presentations/server/methods/switchSlideMessage';
-import '/imports/api/presentations/server/modifiers/addPresentationToCollection';
-import '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
-import '/imports/api/presentations/server/modifiers/removePresentationFromCollection';
-import '/imports/api/presentations/server/modifiers/eventHandlers';
+import '/imports/api/presentations/server';
 
 import '/imports/api/shapes/server/publications';
 import '/imports/api/shapes/server/modifiers/addShapeToCollection';
@@ -38,10 +33,7 @@ import '/imports/api/shapes/server/modifiers/removeAllShapesFromSlide';
 import '/imports/api/shapes/server/modifiers/removeShapeFromSlide';
 import '/imports/api/shapes/server/modifiers/eventHandlers';
 
-import '/imports/api/slides/server/publications';
-import '/imports/api/slides/server/modifiers/addSlideToCollection';
-import '/imports/api/slides/server/modifiers/clearSlidesCollection';
-import '/imports/api/slides/server/modifiers/displayThisSlide';
+import '/imports/api/slides/server';
 
 import '/imports/api/captions/server/publications';
 import '/imports/api/captions/server/modifiers/clearCaptionsCollection';

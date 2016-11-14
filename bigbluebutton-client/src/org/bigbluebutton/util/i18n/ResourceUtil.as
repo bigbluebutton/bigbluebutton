@@ -32,7 +32,7 @@ package org.bigbluebutton.util.i18n
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
 	import mx.utils.URLUtil;
-	
+    import org.bigbluebutton.core.UsersUtil;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -180,7 +180,10 @@ package org.bigbluebutton.util.i18n
 				localeIndex = getIndexForLocale(preferredLocale);
 			} else {
 				if (preferredLocale != MASTER_LOCALE) {
-					LOGGER.debug("Failed to load locale [{0}].", [preferredLocale]);
+                    var logData:Object = UsersUtil.initLogData();
+                    logData.tags = ["locale"];
+                    logData.message = "Failed to load locale = " + preferredLocale;
+                    LOGGER.info(JSON.stringify(logData));
 				}
 	
 				resourceManager.localeChain = [MASTER_LOCALE];
