@@ -9,14 +9,6 @@ export default function addPoll(meetingId, requesterId, poll) {
   check(requesterId, String);
   check(meetingId, String);
 
-  const documentExists = Meetings.findOne({
-    meetingId: meetingId,
-  });
-
-  if (!documentExists) {
-    throw new Meteor.error('meeting-not-found', `Meeting id=${meetingId} was not found`);
-  }
-
   let selector = {
     meetingId: meetingId,
   };
