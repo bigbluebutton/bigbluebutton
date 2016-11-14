@@ -58,6 +58,7 @@
       import org.bigbluebutton.core.managers.ReconnectionManager;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+      import org.bigbluebutton.core.UsersUtil;
       
       private static const LOG:String = "SC::ScreenshareViewWIndow - ";
       private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
@@ -116,12 +117,13 @@
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
                
-        var logData:Object = new Object();
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["screenshare"];
         logData.width = videoWidth;
         logData.height = videoHeight;
         logData.streamId = streamId;
         
-        JSLog.debug(LOG + "onCreationComplete", logData);
+        LOGGER.info(JSON.stringify(logData));
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -146,12 +148,13 @@
         videoHeight = ScreenshareModel.getInstance().height;
         streamId = ScreenshareModel.getInstance().streamId;
         
-        var logData:Object = new Object();
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["screenshare"];
         logData.width = videoWidth;
         logData.height = videoHeight;
         logData.streamId = streamId;
         
-        JSLog.debug(LOG + "viewScreenshareStream Chrome", logData);
+        LOGGER.info(JSON.stringify(logData));
         
         ns = new NetStream(connection.getConnection());
         ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
@@ -176,11 +179,12 @@
       public function onMetaData(info:Object):void{
         trace("metadata: width=" + info.width + " height=" + info.height);
         
-        var logData:Object = new Object();
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["screenshare"];
         logData.width = info.width;
         logData.height = info.height;
         
-        JSLog.debug(LOG + "onMetaData", logData);
+        LOGGER.info(JSON.stringify(logData));
       }
       
       protected function updateButtonsPosition():void {
@@ -207,23 +211,25 @@
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{
         LOGGER.debug("asyncerror " + e.toString());
-        var logData:Object = new Object();
-        logData.error = e.toString();
-        JSLog.debug(LOG + "asyncerror ", logData);
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["screenshare"];
+        logData.message = "asyncerror";
+        LOGGER.info(JSON.stringify(logData));
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
-        var logData:Object = new Object();
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["screenshare"];
         logData.stream = streamId;
         
 				switch(e.info.code){
   				case "NetStream.Play.Start":
-            LOGGER.debug("NetStream.Publish.Start for broadcast stream " + streamId);
-            JSLog.debug(LOG + "NetStream.Publish.Start for broadcast stream ", logData);
+            logData.message = "NetStream.Publish.Start for broadcast stream " + streamId;
+            LOGGER.info(JSON.stringify(logData));
   					break;
   				case "NetStream.Play.UnpublishNotify":
-            LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream " + streamId);
-            JSLog.debug(LOG + "NetStream.Play.UnpublishNotify for broadcast stream ", logData);
+            logData.message = "NetStream.Play.UnpublishNotify for broadcast stream " + streamId;
+            LOGGER.info(JSON.stringify(logData));
   					stopViewing();
   					break;
 				}

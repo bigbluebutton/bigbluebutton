@@ -145,8 +145,8 @@ public class ConnectionInvokerService {
   private void handlDisconnectClientMessage(DisconnectClientMessage msg) {
     IScope meetingScope = getScope(msg.getMeetingId());
     if (meetingScope != null) {
-      String sessionId = CONN + msg.getUserId();
-      IConnection conn = getConnection(meetingScope, sessionId);
+      String userId = msg.getUserId();
+      IConnection conn = getConnection(meetingScope, userId);
       if (conn != null) {
         if (conn.isConnected()) {
           log.info("Disconnecting user=[{}] from meeting=[{}]", msg.getUserId(), msg.getMeetingId());

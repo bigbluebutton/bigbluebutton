@@ -79,6 +79,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		for (IConnection conn : conns) {
 			String connUserId = (String) conn.getAttribute("USERID");
 			String connSessionId = conn.getSessionId();
+			String clientId = conn.getClient().getId();
+			String remoteHost = conn.getRemoteAddress();
+			int remotePort = conn.getRemotePort();
 			if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
 				conn.removeAttribute("USERID");
 				Map<String, Object> logData = new HashMap<String, Object>();
@@ -86,6 +89,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				logData.put("userId", userId);
 				logData.put("oldConnId", connSessionId);
 				logData.put("newConnId", sessionId);
+				logData.put("clientId", clientId);
+				logData.put("remoteAddress", remoteHost + ":" + remotePort);
 				logData.put("event", "removing_defunct_connection");
 				logData.put("description", "Removing defunct connection BBB Video.");
 
@@ -96,11 +101,17 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			  }
 		  }
 
+	  String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+	  int remotePort = Red5.getConnectionLocal().getRemotePort();
+	  String clientId = Red5.getConnectionLocal().getClient().getId();
+
 		Map<String, Object> logData = new HashMap<String, Object>();
 		logData.put("meetingId", meetingId);
 		logData.put("userId", userId);
 		logData.put("connType", connType);
 		logData.put("connId", sessionId);
+	  logData.put("clientId", clientId);
+	  logData.put("remoteAddress", remoteHost + ":" + remotePort);
 		logData.put("event", "user_joining_bbb_video");
 		logData.put("description", "User joining BBB Video.");
 
