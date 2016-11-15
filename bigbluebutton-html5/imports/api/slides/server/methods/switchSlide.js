@@ -1,8 +1,7 @@
-import Presetations from '/imports/api/presentations';
+import Presentations from '/imports/api/presentations';
 import Slides from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Logger from '/imports/startup/server/logger';
 import RedisPubSub from '/imports/startup/server/redis';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
