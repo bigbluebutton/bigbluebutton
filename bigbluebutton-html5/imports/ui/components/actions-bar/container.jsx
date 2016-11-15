@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import ActionsBar from './component';
+import Service from './service';
 
 class ActionsBarContainer extends Component {
   constructor(props) {
@@ -18,6 +19,6 @@ class ActionsBarContainer extends Component {
 }
 
 export default createContainer(() => {
-  let data = {};
+  let data = Service.isUserPresenter();
   return data;
 }, ActionsBarContainer);
