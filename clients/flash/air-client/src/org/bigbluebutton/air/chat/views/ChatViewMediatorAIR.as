@@ -9,6 +9,8 @@ package org.bigbluebutton.air.chat.views {
 		public var uiSession:IUISession;
 		
 		override public function initialize():void {
+			super.initialize();
+			
 			var data:Object = uiSession.currentPageDetails;
 			
 			if (data.publicChat) {

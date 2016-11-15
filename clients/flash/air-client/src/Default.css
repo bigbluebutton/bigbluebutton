@@ -44,7 +44,7 @@
 }
 
 @font-face {
-	src: 		url("assets/fonts/BBBIcons/bbb-icons-11-3-2016.ttf"); 
+	src: 		url("assets/fonts/BBBIcons/bbb-icons.ttf"); 
 	fontFamily:	BBBIcons; 
 	fontStyle:	normal; 
 	fontWeight:	normal; 
@@ -67,6 +67,11 @@ global
 s|Application
 {
 	backgroundColor: PropertyReference("bbbBlack");	
+}
+
+s|TextInput
+{
+	fontFamily:		SourceSansPro;
 }
 
 libChat|NewMessagesIndicator
@@ -173,6 +178,24 @@ libChat|NewMessagesIndicator
 {
 	nameFontSize: 		16;
 	timeFontSize:		16;
+}
+
+.sendButtonStyle
+{
+	color:		PropertyReference("bbbGrey");
+	fontFamily:	BBBIcons;
+	fontSize:	20;
+	borderColor:	PropertyReference("bbbGrey");
+	borderWeight:	2;
+	cornerRadius:	4;
+	skinClass:	ClassReference("org.bigbluebutton.lib.chat.views.skins.SendButtonSkin");
+}
+
+.messageInputStyle
+{
+	fontFamily: SourceSansProMX;
+	contentBackgroundAlpha: 0;
+	skinClass:	ClassReference("org.bigbluebutton.air.chat.views.skins.MessageInputSkin");
 }
 
 .contentStyle
