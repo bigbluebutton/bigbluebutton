@@ -231,6 +231,13 @@ public class Meeting {
 		return true;
 	}
 
+	public boolean removeChildMeetingId(String id) {
+		if ( childrenMeetingId.contains(id) ) {
+			return childrenMeetingId.remove(id);
+		}
+		return true;
+	}
+
 	public List<String> getChildrenMeetingId() {
 		return childrenMeetingId;
 	}

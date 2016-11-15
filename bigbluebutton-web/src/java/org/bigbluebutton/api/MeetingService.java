@@ -583,6 +583,22 @@ public class MeetingService implements MessageListener {
 
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
+            if (m.isBreakout()) {
+                // Remove child from parent
+                Meeting p = getMeeting(m.getParentMeetingId());
+                if (p != null) {
+                    // Update the parent in memory
+                    p.removeChildMeetingId(m.getInternalId());
+                    // Update the parent in redis
+                    /// Fetch stored values
+                    Map<String, String> parentMetadata = messagingService.fetchMeetingInfo(p.getInternalId());
+                    Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingInfo(p.getInternalId(), true);
+                    /// Serialize new childrenMeetingId
+                    parentBreakoutMetadata.put("childrenMeetingId", p.getChildrenMeetingIdSerialized());
+                    /// Save updated parent into redis
+                    messagingService.recordMeetingInfo(p.getInternalId(), parentMetadata, parentBreakoutMetadata);
+                }
+            }
             m.setForciblyEnded(true);
             if (removeMeetingWhenEnded) {
                 processRecording(m.getInternalId());
