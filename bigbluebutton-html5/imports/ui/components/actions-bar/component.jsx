@@ -74,18 +74,11 @@ export default class ActionsBar extends Component {
   }
 
   render() {
-    if (this.props.userIsPresenter) {
-      return (
-        <div>
-          {this.renderForPresenter()}
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          {this.renderForUser()}
-        </div>
-      );
-    }
+    const { isUserPresenter } = this.props;
+    return(
+      <div>
+        {isUserPresenter ? this.renderForPresenter() : this.renderForUser()}
+      </div>
+    );
   }
 }
