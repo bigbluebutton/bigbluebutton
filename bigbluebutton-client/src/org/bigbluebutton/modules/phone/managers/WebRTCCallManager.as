@@ -209,7 +209,7 @@ package org.bigbluebutton.modules.phone.managers
       logData.user.reason = errorString;
       logData.tags = ["voice", "webrtc"];
       logData.message = "WebRtc Echo test failed.";
-      logData.errorEvent = event;
+      logData.errorEvent = {code: event.errorCode, cause: event.cause};
       LOGGER.info(jsonXify(logData));
 
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
@@ -270,7 +270,7 @@ package org.bigbluebutton.modules.phone.managers
           
           var logData:Object = UsersUtil.initLogData();
           logData.tags = ["voice", "webrtc"];
-          logData.errorEvent = event;
+          logData.errorEvent = {code: event.errorCode, cause: event.cause};
           LOGGER.info(jsonXify(logData));
           
           sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"),
