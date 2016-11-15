@@ -27,8 +27,6 @@ export default class JoinAudio extends React.Component {
     this.props.changeMenu(this.props.LISTEN_ONLY);
   }
 
-
-
   render() {
     return (
       <div>
