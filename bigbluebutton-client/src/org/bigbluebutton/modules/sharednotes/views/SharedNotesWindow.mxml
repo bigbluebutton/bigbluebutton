@@ -178,39 +178,47 @@
 				}
 			}
 
+			private function possiblePatchError():Boolean {
+				if (richTextEditor.htmlText != _document) {
+					// When losing sync between UI and server
+					return true;
+				}
+
+				return false;
+			}
+
 			private function receivePatch(e:ReceivePatchEvent):void {
 //				LOGGER.debug("SharedNotesWindow: patch received");
 //				LOGGER.debug("=====\n" + e.patch + "\n=====");
 				if (e.noteId == noteId) {
 					if (_lastPatch == (e.patchId - 1)) {
 						if (e.patch != "") {
-							var oldDocument:String = _document;
 							var result:String = DiffPatch.patch(e.patch, _document);
 //							LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
 //							LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
 							_document = result;
 //							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
-							if (_document == oldDocument) {
-								LOGGER.debug("No changes when patching");
+							if (possiblePatchError()) {
 								syncNote();
+								return;
 							}
 						}
 						_lastPatch = e.patchId;
 						updateUndoRedoButtons(e.undo, e.redo);
 					} else {
 						LOGGER.error("Patch missmatch");
-						// Only resync if we missed a patch
+						// Resync if we missed a patch
 						if (e.patchId > (_lastPatch + 1)) {
 							syncNote();
+							return;
 						}
 					}
 				}
 			}
 
 			private function syncNote():void {
-				LOGGER.debug("Syncing note: {0}", [noteId]);
-				this.enabled = false;
+				richTextEditor.textArea.editable = false;
 				var sharedNotesSyncNoteRequestEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.SYNC_NOTE_REQUEST_EVENT);
 				sharedNotesSyncNoteRequestEvent.payload["noteId"] = noteId;
 				_dispatcher.dispatchEvent(sharedNotesSyncNoteRequestEvent);
@@ -218,10 +226,11 @@
 
 			private function handleSyncNote(e:SharedNotesEvent):void {
 				if (e.payload.noteId == noteId) {
+					LOGGER.debug("Syncing note: {0}", [noteId]);
 					_document = e.payload.note["document"];
 					_lastPatch = e.payload.note["patchCounter"];
 					richTextEditor.htmlText = _document;
-					if (!this.enabled) this.enabled = true;
+					if (!richTextEditor.textArea.editable) richTextEditor.textArea.editable = true;
 					updateUndoRedoButtons(e.payload.note["undo"], e.payload.note["redo"]);
 				}
 			}

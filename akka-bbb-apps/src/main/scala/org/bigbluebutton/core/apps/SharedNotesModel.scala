@@ -15,6 +15,7 @@ class SharedNotesModel {
   private val patcher = new diff_match_patch()
   private var notesCounter = 0;
   private var removedNotes: Set[Int] = Set()
+  private val maxUndoStackSize = 30
 
   def patchDocument(noteID: String, patch: String, operation: SharedNotesOperation): (Integer, String, Boolean, Boolean) = {
     notes.synchronized {
@@ -54,6 +55,10 @@ class SharedNotesModel {
       if (operation == SharedNotesOperation.PATCH) {
         undoPatches.push((patcher.custom_patch_make(result(0).toString(), document), patchToApply))
         redoPatches.clear
+
+        if (undoPatches.size > maxUndoStackSize) {
+          undoPatches = undoPatches.dropRight(1)
+        }
       }
 
       val patchCounter = note.patchCounter + 1
