@@ -21,5 +21,5 @@ export default function updateTimeRemaining({ payload }) {
     },
   };
 
-  Breakouts.update(selector, modifier, (err, numChanged) => console.log(err, numChanged));
+  return Breakouts.update(selector, modifier);
 }

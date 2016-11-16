@@ -11,7 +11,6 @@ const getBreakouts = () => {
 
     return breakout.users.some(user => user.userId === Auth.getCredentials().requesterUserId);
   });
-
   return breakouts;
 };
 
