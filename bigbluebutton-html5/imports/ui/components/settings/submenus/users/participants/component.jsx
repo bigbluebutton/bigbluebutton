@@ -2,13 +2,12 @@ import React from 'react';
 import Modal from 'react-modal';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
-import BaseMenu from '../../base/component';
 import styles from '../../styles.scss';
 import Users from '/imports/api/users';
 import AuthSingleton from '/imports/ui/services/auth/index.js';
 
 
-export default class ParticipantsMenu extends BaseMenu {
+export default class ParticipantsMenu extends React.Component {
   constructor(props) {
     super(props);
   }
