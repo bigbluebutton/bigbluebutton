@@ -170,7 +170,6 @@ export default injectIntl(createContainer(({ intl }) => {
     currentBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
     if (currentBreakout) {
       roomRemainingTime = currentBreakout.timeRemaining;
-      console.log(roomRemainingTime, timeRemainingInterval);
       if (!timeRemainingInterval && roomRemainingTime) {
         startCounterTimeRemaining(roomRemainingTime);
       }
