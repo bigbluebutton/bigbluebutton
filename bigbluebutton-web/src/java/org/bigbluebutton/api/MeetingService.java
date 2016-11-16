@@ -296,12 +296,12 @@ public class MeetingService implements MessageListener {
     private void handleCreateMeeting(Meeting m) {
         meetings.put(m.getInternalId(), m);
         if (m.isBreakout()) {
-            // Lookup the parent
+            // Lookup for the parent
             Meeting parent = getMeeting(m.getParentMeetingId());
-            // Add the current meeting as a child
+            // Add the current meeting as a child in memory
             parent.addChildMeetingId(m.getInternalId());
-            // Update the parent in redis
-            updateParentMeetingInfo(parent);
+            // Add the current meeting as a child in redis
+            parentAddChildMeetingId(parent, m.getInternalId());
         }
 
         if (m.isRecord()) {
@@ -582,10 +582,8 @@ public class MeetingService implements MessageListener {
                 // Remove child from parent
                 Meeting p = getMeeting(m.getParentMeetingId());
                 if (p != null) {
-                    // Update the parent in memory
+                    // Remove the current meeting from parent children list
                     p.removeChildMeetingId(m.getInternalId());
-                    // Update the parent in redis
-                    updateParentMeetingInfo(p);
                 }
             }
             m.setForciblyEnded(true);
@@ -598,14 +596,27 @@ public class MeetingService implements MessageListener {
         }
     }
 
-    private void updateParentMeetingInfo(Meeting p) {
-        // Fetch stored values
-        Map<String, String> parentMetadata = messagingService.fetchMeetingInfo(p.getInternalId());
-        Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingInfo(p.getInternalId(), true);
+    private void parentAddChildMeetingId(Meeting parent, String childMeetingId) {
+        // Fetch stored values from the parent
+        Map<String, String> parentMetadata = messagingService.fetchMeetingInfo(parent.getInternalId());
+        Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingInfo(parent.getInternalId(), true);
+        // Initialize parentChildrenMeetingId array
+        List<String> childrenMeetingId = new ArrayList<String>();
+        childrenMeetingId.add(childMeetingId);
+        // Merge children meeting ids with the stored ones
+        String storedChildrenMeetingId = parentBreakoutMetadata.get("childrenMeetingId");
+        if ( storedChildrenMeetingId != null && storedChildrenMeetingId != "" ) {
+            childrenMeetingId.addAll(Arrays.asList(storedChildrenMeetingId.split("\\s*,\\s*")));
+        }
         // Serialize new childrenMeetingId
-        parentBreakoutMetadata.put("childrenMeetingId", p.getChildrenMeetingIdSerialized());
-        // Save updated parent into redis
-        messagingService.recordMeetingInfo(p.getInternalId(), parentMetadata, parentBreakoutMetadata);
+        String childrenMeetingIdSerialized = "";
+        for (String s : childrenMeetingId) {
+            childrenMeetingIdSerialized += (childrenMeetingIdSerialized == ""? "": ",") + s;
+        }
+        // Update the parent metadata
+        parentBreakoutMetadata.put("childrenMeetingId", childrenMeetingIdSerialized);
+        // Save updated parent info in redis
+        messagingService.recordMeetingInfo(parent.getInternalId(), parentMetadata, parentBreakoutMetadata);
     }
 
     public void addUserCustomData(String meetingId, String userID,
