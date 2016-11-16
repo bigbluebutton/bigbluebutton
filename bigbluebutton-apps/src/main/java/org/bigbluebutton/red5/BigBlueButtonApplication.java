@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
@@ -80,9 +84,41 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
   public boolean appStart(IScope app) {
 		super.appStart(app);        
 		connInvokerService.setAppScope(app);
+
+		getHeapStats();
+
 		return true;
 	}
-    
+
+	private void getHeapStats() {
+		Runnable getHeapTask = () -> getHeapStatsHelper();
+
+		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+		executor.scheduleAtFixedRate(getHeapTask, 0, 60, TimeUnit.SECONDS);
+	}
+
+	private void getHeapStatsHelper() {
+		int mb = 1024*1024;
+
+		// Getting the runtime reference from system
+		Runtime runtime = Runtime.getRuntime();
+
+		long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / mb;
+		long freeMemory = runtime.freeMemory() / mb;
+		long totalMemory = runtime.totalMemory() / mb;
+		long maxMemory = runtime.maxMemory() / mb;
+
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("used", usedMemory);
+		logData.put("free", freeMemory);
+		logData.put("total", totalMemory);
+		logData.put("max", maxMemory);
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+		log.info("JVM Heap [MB] data={}", logStr);
+	}
+
 	@Override
 	public void appStop(IScope app) {
 		super.appStop(app);

@@ -39,7 +39,6 @@ export default class PollingComponent extends React.Component {
               color="primary"
               key={index}
               onClick={() => this.props.handleVote(poll.pollId, pollAnswer)}
-              componentClass="span"
               aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
               aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
             />
