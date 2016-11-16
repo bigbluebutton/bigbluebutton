@@ -38,7 +38,7 @@ module BigBlueButton
       end
       doc.xpath("//breakout").each do |e|
         e.keys.each do |k|
-          metadata[k] = e.attribute(k)
+          metadata[k] = e.attribute(k) unless k == 'meetingId'
         end
       end
       metadata
