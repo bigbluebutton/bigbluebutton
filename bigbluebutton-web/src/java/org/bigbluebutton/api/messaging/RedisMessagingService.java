@@ -54,11 +54,11 @@ public class RedisMessagingService implements MessagingService {
 	}
 
 	public Map<String, String> fetchMeetingInfo(String meetingId) {
-		return storeService.fetchMeetingInfo(meetingId, false);
+		return storeService.fetchMeetingKey(meetingId, "info");
 	}
 
-	public Map<String, String> fetchMeetingInfo(String meetingId, boolean breakout) {
-		return storeService.fetchMeetingInfo(meetingId, breakout);
+	public Map<String, String> fetchMeetingBreakoutInfo(String meetingId) {
+		return storeService.fetchMeetingKey(meetingId, "breakout");
 	}
 
 	public void destroyMeeting(String meetingID) {

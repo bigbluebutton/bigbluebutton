@@ -601,7 +601,7 @@ public class MeetingService implements MessageListener {
     private void parentAddChildMeetingId(Meeting parent, String childMeetingId) {
         // Fetch stored values from the parent
         Map<String, String> parentMetadata = messagingService.fetchMeetingInfo(parent.getInternalId());
-        Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingInfo(parent.getInternalId(), true);
+        Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingBreakoutInfo(parent.getInternalId());
         // Initialize parentChildrenMeetingId array
         List<String> childrenMeetingId = new ArrayList<String>();
         childrenMeetingId.add(childMeetingId);
