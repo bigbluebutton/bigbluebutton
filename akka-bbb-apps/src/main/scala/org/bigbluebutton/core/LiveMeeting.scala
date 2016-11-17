@@ -2,7 +2,6 @@ package org.bigbluebutton.core
 
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 import org.bigbluebutton.core.api._
@@ -124,6 +123,7 @@ class LiveMeeting(val mProps: MeetingProperties,
 
     outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
     // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client  
+    import context.dispatcher
     context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
       log.info("Sending delayed DisconnectUser. meetingId={}", mProps.meetingID)
       outGW.send(new DisconnectAllUsers(msg.meetingId))
