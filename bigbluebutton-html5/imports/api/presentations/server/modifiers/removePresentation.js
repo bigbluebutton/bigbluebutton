@@ -10,7 +10,7 @@ export default function removePresentation(meetingId, presentationId) {
 
   const selector = {
     meetingId,
-    presentationId,
+    'presentation.id': presentationId,
   };
 
   const cb = (err, numChanged) => {
