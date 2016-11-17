@@ -3,100 +3,106 @@ import Modal from 'react-modal';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import styles from '../../styles.scss';
-import Users from '/imports/api/users';
-import AuthSingleton from '/imports/ui/services/auth/index.js';
+import Service from './service';
 
+const lockItems = [
+  {
+    label: 'Mute all except the presenter',
+    ariaLabelledBy: 'muteALlLabel',
+    ariaDescribedBy: 'muteAllDesc',
+    ariaLabel: 'Mute all',
+    ariaDesc: 'Mutes all participants except the presenter.',
+    tabIndex: 7,
+  },
+  {
+    label: 'Lock all participants',
+    ariaLabelledBy: 'lockAllLabel',
+    ariaDescribedBy: 'lockAllDesc',
+    ariaLabel: 'Lock all',
+    ariaDesc: 'Toggles locked status for all participants.',
+    tabIndex: 8,
+  },
+  {
+    label: 'Webcam',
+    ariaLabelledBy: 'webcamLabel',
+    ariaDescribedBy: 'webcamDesc',
+    ariaLabel: 'Webcam lock',
+    ariaDesc: 'Disables the webcam for all locked participants.',
+    tabIndex: 9,
+  },
+  {
+    label: 'Microphone',
+    ariaLabelledBy: 'micLabel',
+    ariaDescribedBy: 'micDesc',
+    ariaLabel: 'Microphone lock',
+    ariaDesc: 'Disables the microphone for all locked participants.',
+    tabIndex: 10,
+  },
+  {
+    label: 'Public chat',
+    ariaLabelledBy: 'pubChatLabel',
+    ariaDescribedBy: 'pubChatDesc',
+    ariaLabel: 'Public chat lock',
+    ariaDesc: 'Disables public chat for all locked participants.',
+    tabIndex: 11,
+  },
+  {
+    label: 'Private chat',
+    ariaLabelledBy: 'privChatLabel',
+    ariaDescribedBy: 'privChatDesc',
+    ariaLabel: 'Private chat lock',
+    ariaDesc: 'Disables private chat for all locked participants.',
+    tabIndex: 12,
+  },
+];
 
 export default class ParticipantsMenu extends React.Component {
   constructor(props) {
     super(props);
   }
 
-  checkUserRoles(){
-    let user = Users.findOne({
-       userId: AuthSingleton.getCredentials().requesterUserId,
-     }).user;
-
-    return {
-     isPresenter: user.presenter,
-     role: user.role,
-    };
-  };
-
-  renderAdmin() {
+  renderLockItem(lockItem) {
     return (
-      <div className={styles.full} role='presentation'>
-        <div className={styles.row} role='presentation'>
-          <label><input className={styles.checkboxOffset} type='checkbox' tabIndex='7'
-          aria-labelledby='muteALlLabel' aria-describedby='muteAllDesc' />
-          Mute all except the presenter</label>
-        </div>
-        <div id='muteAllLabel' hidden>Mute all</div>
-        <div id='muteAllDesc' hidden>Mutes all participants except the presenter.</div>
-
-        <div className={styles.row} role='presentation'>
-          <label><input className={styles.checkboxOffset} type="checkbox" tabIndex='8'
-          aria-labelledby='lockAllLabel' aria-describedby='lockAllDesc' />
-          Lock all participants</label>
-        </div>
-        <div id='lockAllLabel' hidden>Lock all</div>
-        <div id='lockAllDesc' hidden>Toggles locked status for all participants.</div>
-
-        <div className={styles.indentedRow} role='presentation'>
-          <label><input className={styles.checkboxOffset} type='checkbox' tabIndex='9'
-          aria-labelledby='webcamLabel' aria-describedby='webcamDesc' />Webcam</label>
-        </div>
-        <div id='webcamLabel' hidden>Webcam lock</div>
-        <div id='webcamDesc' hidden>Disables the webcam for all locked participants.</div>
-
-        <div className={styles.indentedRow} role='presentation'>
-          <label><input className={styles.checkboxOffset} type='checkbox' tabIndex='10'
-          aria-labelledby='micLabel' aria-describedby='micDesc' />Microphone</label>
-        </div>
-        <div id='micLabel' hidden>Microphone lock</div>
-        <div id='micDesc' hidden>Disables the microphone for all locked participants.</div>
-
-        <div className={styles.indentedRow} role='presentation'>
-          <label><input className={styles.checkboxOffset} type='checkbox' tabIndex='11'
-          aria-labelledby='pubChatLabel' aria-describedby='pubChatDesc' />Public chat</label>
-        </div>
-        <div id='pubChatLabel' hidden>Public chat lock</div>
-        <div id='pubChatDesc' hidden>Disables public chat for all locked participants.</div>
-
-        <div className={styles.indentedRow} role='presentation'>
-          <label><input className={styles.checkboxOffset} type='checkbox' tabIndex='12'
-          aria-labelledby='privChatLabel' aria-describedby='privChatDesc' />Private chat</label>
-        </div>
-        <div id='privChatLabel' hidden>Private chat lock</div>
-        <div id='privChatDesc' hidden>Disables private chat for all locked participants.</div>
+      <div className={styles.row} role='presentation'>
+        <label>
+          <input
+            className={styles.checkboxOffset}
+            type="checkbox"
+            tabIndex={lockItem.tabIndex}
+            aria-labelledby={lockItem.ariaLabelledBy}
+            aria-describedby={lockItem.ariaDescribedBy} />
+          {lockItem.label}
+        </label>
+        <div id={lockItem.ariaLabelledBy} hidden>{lockItem.ariaLabel}</div>
+        <div id={lockItem.ariaDescribedBy} hidden>{lockItem.ariaDesc}</div>
       </div>
     );
   }
 
-  renderUser() {
-    return (
-      <div className={styles.full} role='presentation'>
-        <div className={styles.row} role='presentation'>
-          <label><input className={styles.checkboxOffset} type='checkbox' tabIndex='7'
-          aria-labelledby='muteALlLabel' aria-describedby='muteAllDesc' />
-          Mute all except the presenter</label>
-        </div>
-        <div id='muteAllLabel' hidden>Mute all</div>
-        <div id='muteAllDesc' hidden>Mutes all participants except the presenter.</div>
-      </div>
-    );
+  getLockOptions () {
+    let index = 0;
+    return _.compact([
+      (this.renderLockItem(lockItems[index++])),
+      (this.props.isPresenter || this.props.role === 'MODERATOR'
+        ? this.renderLockItem(lockItems[index++]) : null),
+      (this.props.isPresenter || this.props.role === 'MODERATOR'
+        ? this.renderLockItem(lockItems[index++]) : null),
+      (this.props.isPresenter || this.props.role === 'MODERATOR'
+        ? this.renderLockItem(lockItems[index++]) : null),
+      (this.props.isPresenter || this.props.role === 'MODERATOR'
+        ? this.renderLockItem(lockItems[index++]) : null),
+      (this.props.isPresenter || this.props.role === 'MODERATOR'
+        ? this.renderLockItem(lockItems[index++]) : null),
+    ]);
   }
 
+  render () {
 
-  render(){
-    const userPermissions = this.checkUserRoles();
-
-    return(
+    return (
       <div>
-        {userPermissions.isPresenter || userPermissions.role === "MODERATOR"
-          ? this.renderAdmin() : this.renderUser()}
+        {this.getLockOptions()}
       </div>
     );
-
   }
+
 };

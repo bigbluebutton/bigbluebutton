@@ -1,6 +1,6 @@
 import React from 'react';
 import BaseMenu from '../base/component';
-import ParticipantsMenu from './participants/component';
+import ParticipantsMenuContainer from './participants/container';
 
 export default class UsersMenu extends BaseMenu {
   constructor(props) {
@@ -8,8 +8,8 @@ export default class UsersMenu extends BaseMenu {
   }
 
   render() {
-    return(
-      <ParticipantsMenu />
+    return (
+      <ParticipantsMenuContainer />
     );
   }
 };
