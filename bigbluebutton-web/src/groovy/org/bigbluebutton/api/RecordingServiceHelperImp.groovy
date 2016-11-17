@@ -100,7 +100,18 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                 }
             }
             Map<String,String> metainfo = info.getMetadata();
-            builder.meta{
+            builder.meta {
+                // Insert breakout info
+                builder.meetingId(info.getMeetingID())
+                builder.meetingName(info.getName())
+                builder.isBreakout(info.isBreakout())
+                if ( info.hasChildrenMeetingID() ) {
+                    builder.childrenMeetingId(info.getChildrenMeetingIDSerialized())
+                } else {
+                    builder.sequence(info.getSequence())
+                    builder.parentMeetingId(info.getParentMeetingID())
+                }
+                // Insert meta info
                 metainfo.keySet().each { key ->
                     builder."$key"(metainfo.get(key))
                 }
