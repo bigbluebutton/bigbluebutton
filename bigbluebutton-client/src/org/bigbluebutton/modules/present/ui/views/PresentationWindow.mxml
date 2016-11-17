@@ -1032,6 +1032,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				presenterTabs.getTabAt(DESKSHARE_VIEW_TAB_INDEX).includeInLayout = false;
 				dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
 				sharing = false;
+				PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = false;
 			}
 
 			private function createDesktopPublishTab(e:ShareEvent):void {
@@ -1072,6 +1073,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 					if (UsersUtil.amIPresenter()) {
 						sharing = true;
+						PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = true;
 						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
 						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
 					}

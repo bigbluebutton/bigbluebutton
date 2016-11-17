@@ -25,7 +25,7 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
     message match {
       case msg: StartCustomPollRequestMessage => {
-        bbbActor ! new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId, msg.payload.pollType, msg.payload.answers)
+        bbbActor ! new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId, msg.payload.pollId, msg.payload.pollType, msg.payload.answers)
       }
       case msg: PubSubPingMessage => {
         bbbActor ! new PubSubPing(msg.payload.system, msg.payload.timestamp)
@@ -491,7 +491,7 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   }
 
   def startPoll(meetingId: String, requesterId: String, pollId: String, pollType: String) {
-    bbbActor ! new StartPollRequest(meetingId, requesterId, pollType)
+    bbbActor ! new StartPollRequest(meetingId, requesterId, pollId, pollType)
   }
 
   def stopPoll(meetingId: String, userId: String, pollId: String) {
