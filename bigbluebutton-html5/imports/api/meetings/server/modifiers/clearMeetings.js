@@ -5,6 +5,7 @@ import removeMeeting from './removeMeeting';
 import { clearUsersCollection } from '/imports/api/users/server/modifiers/clearUsersCollection';
 import clearChats from '/imports/api/chat/server/modifiers/clearChats';
 import { clearShapesCollection } from '/imports/api/shapes/server/modifiers/clearShapesCollection';
+import clearBreakouts from '/imports/api/breakouts/server/modifiers/clearBreakouts';
 import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
 import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
 import { clearCursorCollection } from '/imports/api/cursor/server/modifiers/clearCursorCollection';
@@ -18,6 +19,7 @@ export default function clearMeetings() {
     clearChats();
     clearCursorCollection();
     clearPresentations();
+    clearBreakouts();
     clearPolls();
     clearShapesCollection();
     clearSlides();
