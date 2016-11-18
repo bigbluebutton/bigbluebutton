@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import { initializeCursor } from '/imports/api/cursor/server/modifiers/initializeCursor';
+import initializeCursor from '/imports/api/cursor/server/modifiers/initializeCursor';
 
 export default function addMeeting(meeting) {
   const APP_CONFIG = Meteor.settings.public.app;
