@@ -1,4 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
+import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
@@ -18,6 +19,7 @@ const getUrlParams = url => {
 
 export default function breakoutJoinURL({ payload }) {
   const REDIS_CONFIG = Meteor.settings.redis;
+  const CLIENT_HTML = 'HTML5';
 
   const {
     joinURL,
@@ -44,7 +46,11 @@ export default function breakoutJoinURL({ payload }) {
     const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
     const eventName = 'RequestBreakoutJoinURL';
 
-    return RedisPubSub.publish(CHANNEL, eventName, MessageContent);
+    const clientType = Users.findOne({ userId: payload.userId }).clientType;
+
+    if (clientType === CLIENT_HTML) {
+      return RedisPubSub.publish(CHANNEL, eventName, MessageContent);
+    }
   } else {
     const res = Meteor.http.call('get', joinURL);
     xmlParser.parseString(res.content, (err, parsedXML) => {
