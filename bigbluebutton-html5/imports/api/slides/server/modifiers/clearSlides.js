@@ -3,8 +3,8 @@ import Logger from '/imports/startup/server/logger';
 
 export default function clearSlides(meetingId) {
   if (meetingId) {
-    return Slides.remove({ meetingId: meetingId }, Logger.info(`Cleared Slides (${meetingId})`));
-  } else {
-    return Slides.remove({}, Logger.info('Cleared Slides (all)'));
+    return Slides.remove({ meetingId }, Logger.info(`Cleared Slides (${meetingId})`));
   }
+
+  return Slides.remove({}, Logger.info('Cleared Slides (all)'));
 };
