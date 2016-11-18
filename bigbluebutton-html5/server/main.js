@@ -21,12 +21,7 @@ import '/imports/api/polls/server';
 
 import '/imports/api/presentations/server';
 
-import '/imports/api/shapes/server/publications';
-import '/imports/api/shapes/server/modifiers/addShapeToCollection';
-import '/imports/api/shapes/server/modifiers/clearShapesCollection';
-import '/imports/api/shapes/server/modifiers/removeAllShapesFromSlide';
-import '/imports/api/shapes/server/modifiers/removeShapeFromSlide';
-import '/imports/api/shapes/server/modifiers/eventHandlers';
+import '/imports/api/shapes/server';
 
 import '/imports/api/slides/server';
 
