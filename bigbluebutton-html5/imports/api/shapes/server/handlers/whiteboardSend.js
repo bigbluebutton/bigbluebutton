@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-import removePresentation from '../modifiers/removePresentation';
+import addShape from '../modifiers/addShape';
 
 export default function handleWhiteboardSend({ payload }) {
   const meetingId = payload.meeting_id;

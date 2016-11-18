@@ -5,9 +5,6 @@ import Logger from '/imports/startup/server/logger';
 const SHAPE_TYPE_TEXT = 'text';
 const SHAPE_TYPE_POLL_RESULT = 'poll_result';
 
-const SHAPE_STATUS_START = 'status';
-const SHAPE_STATUS_START = 'status';
-
 export default function addShape(meetingId, whiteboardId, shape) {
   check(meetingId, String);
   check(whiteboardId, String);
@@ -73,8 +70,6 @@ export default function addShape(meetingId, whiteboardId, shape) {
     if (err) {
       return Logger.error(`Adding shape to collection: ${err}`);
     }
-
-    addSlides(meetingId, shape.id, shape.pages);
 
     const { insertedId } = numChanged;
     if (insertedId) {

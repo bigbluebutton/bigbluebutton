@@ -16,7 +16,7 @@ export default function clearShapesWhiteboard(meetingId, whiteboardId) {
       return Logger.error(`Removing Shapes from collection: ${err}`);
     }
 
-    return Logger.info(`Removed Shapes where whiteboardId=${presentationId}`);
+    return Logger.info(`Removed Shapes where whiteboard=${whiteboardId}`);
   };
 
   return Shapes.remove(selector, cb);
