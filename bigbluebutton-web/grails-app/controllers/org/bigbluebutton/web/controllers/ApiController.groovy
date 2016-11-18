@@ -861,10 +861,10 @@ class ApiController {
                     meetingID() { mkp.yield(m.getExternalId()) }
                     internalMeetingID() { mkp.yield(m.getInternalId()) }
                     if (m.isBreakout()) {
-                        parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
+                        parentInternalMeetingID() { mkp.yield(m.getParentMeetingId()) }
                         sequence(m.getSequence())
                     } else if ( m.hasChildrenMeetingId() ) {
-                        childrenMeetingID() { mkp.yield(m.getChildrenMeetingIdSerialized()) }
+                        childrenInternalMeetingID() { mkp.yield(m.getChildrenMeetingIdSerialized()) }
                     }
                     meetingName() { mkp.yield(m.getName()) }
                     createTime(m.getCreateTime())
@@ -2136,10 +2136,10 @@ class ApiController {
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
             if (meeting.isBreakout()) {
-                parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+                parentInternalMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
                 sequence(meeting.getSequence())
             } else if ( meeting.hasChildrenMeetingId() ) {
-                childrenMeetingID() { mkp.yield(meeting.getChildrenMeetingIdSerialized()) }
+                childrenInternalMeetingID() { mkp.yield(meeting.getChildrenMeetingIdSerialized()) }
             }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
@@ -2202,10 +2202,10 @@ class ApiController {
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID() { mkp.yield(meeting.getInternalId()) }
             if (meeting.isBreakout()) {
-                parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+                parentInternalMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
                 sequence(meeting.getSequence())
             } else if ( meeting.hasChildrenMeetingId() ) {
-                childrenMeetingID() { mkp.yield(meeting.getChildrenMeetingIdSerialized()) }
+                childrenInternalMeetingID() { mkp.yield(meeting.getChildrenMeetingIdSerialized()) }
             }
             attendeePW() { mkp.yield(meeting.getViewerPassword()) }
             moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }

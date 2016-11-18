@@ -12,9 +12,9 @@
       <name><#if r.getName()?? && r.getName() != ""><![CDATA[${r.getName()}]]></#if></name>
       <published>${r.isPublished()?string}</published>
       <state>${r.getState()?string}</state>
-      <#if r.getParentMeetingID()?? && r.getParentMeetingID() != ""><parentMeetingID>${r.getParentMeetingID()}</parentMeetingID></#if>
+      <#if r.getParentMeetingID()?? && r.getParentMeetingID() != ""><parentRecordID>${r.getParentMeetingID()}</parentRecordID></#if>
       <#if r.getSequence()?? && r.getSequence() != ""><sequence>${r.getSequence()}</sequence></#if>
-      <#if r.hasChildrenMeetingID()?? && r.getChildrenMeetingIDSerialized() != ""><childrenMeetingID>${r.getChildrenMeetingIDSerialized()}</childrenMeetingID></#if>
+      <#if r.hasChildrenMeetingID()?? && r.getChildrenMeetingIDSerialized() != ""><childrenRecordID>${r.getChildrenMeetingIDSerialized()}</childrenRecordID></#if>
       <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
       <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
       <#assign m = r.getMetadata()>
