@@ -11,6 +11,8 @@ class MuteAudioContainer extends React.Component {
     return (
       <MuteAudioComponent
         isMuted = {this.props.isMuted}
+        muteUser = {this.props.muteUser}
+        unmuteUser = {this.props.unmuteUser}
       />
     );
   }
@@ -19,6 +21,8 @@ class MuteAudioContainer extends React.Component {
 export default createContainer((params) => {
   const data = {
     isMuted: Users.findOne({ userId: Auth.userID }).user.voiceUser.muted,
+    muteUser: () => callServer('muteUser', Auth.userID),
+    unmuteUser: () => callServer('unmuteUser', Auth.userID),
   };
   return data;
 }, MuteAudioContainer);

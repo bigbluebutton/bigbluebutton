@@ -5,7 +5,7 @@ import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
 import MuteAudioContainer from '../mute-button/container';
 
-export default class JoinAudioComponent extends React.Component {
+export default class JoinAudio extends React.Component {
 
   renderLeaveButton() {
     return (
@@ -13,7 +13,7 @@ export default class JoinAudioComponent extends React.Component {
       <Button
         onClick={this.props.close}
         label={'Leave Audio'}
-        color={'primary'}
+        color={'danger'}
         icon={'audio'}
         size={'lg'}
         circle={true}
@@ -32,17 +32,17 @@ export default class JoinAudioComponent extends React.Component {
       );
     } else if (this.props.isInListenOnly) {
       return this.renderLeaveButton();
-    } else {
-      return (
-        <Button
-          onClick={this.props.open}
-          label={'Join Audio'}
-          color={'primary'}
-          icon={'audio'}
-          size={'lg'}
-          circle={true}
-        />
-      );
     }
+
+    return (
+      <Button
+        onClick={this.props.open}
+        label={'Join Audio'}
+        color={'primary'}
+        icon={'audio'}
+        size={'lg'}
+        circle={true}
+      />
+    );
   }
 }

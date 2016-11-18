@@ -6,21 +6,14 @@ import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
 
 export default class MuteAudioComponent extends React.Component {
-  muteUser() {
-    callServer('muteUser', Auth.userID);
-  }
-
-  unmuteUser() {
-    callServer('unmuteUser', Auth.userID);
-  }
 
   render() {
-    const { isMuted } = this.props;
-    let onClick = this.muteUser;
+    const { isMuted, muteUser, unmuteUser } = this.props;
+    let onClick = muteUser;
     let label = 'Mute';
 
     if (isMuted) {
-      onClick = this.unmuteUser;
+      onClick = unmuteUser;
       label = 'Unmute';
     }
 
