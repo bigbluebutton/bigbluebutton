@@ -140,8 +140,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
     
     public function handlePageChangedEvent(e:PageLoadedEvent):void {
-      if(!whiteboardModel.isOverlayingDeskshare())
+      if(!whiteboardModel.isOverlayingDeskshare()) {
+         whiteboardModel.setCurrentWhiteboardId(e.pageId);
          displayModel.changePage(e.pageId);
+      }
       else LOGGER.debug("Got new slide page loaded, but current whiteboard page is deskshare: doing nothing.");
     }
 
