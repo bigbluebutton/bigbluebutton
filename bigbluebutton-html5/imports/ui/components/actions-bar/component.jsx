@@ -10,7 +10,7 @@ import Users from '/imports/api/users/index';
 import JoinAudioContainer from './audio-menu/container';
 import { exitAudio } from '/imports/api/phone';
 
-const openJoinAudio = () => {showModal(<Audio />)};
+const openJoinAudio = () => showModal(<Audio />);
 
 export default class ActionsBar extends Component {
   constructor(props) {
@@ -29,7 +29,8 @@ export default class ActionsBar extends Component {
         <div className={styles.center}>
           <JoinAudioContainer
             open={openJoinAudio.bind(this)}
-            close={exitAudio}
+            close={() => {exitAudio();}}
+
           />
 
           <Button
