@@ -5,7 +5,7 @@ import Button from '/imports/ui/components/button/component';
 import styles from '../../styles.scss';
 import Service from './service';
 
-const lockItems = [
+const lockOptions = [
   {
     label: 'Mute all except the presenter',
     ariaLabelledBy: 'muteALlLabel',
@@ -61,38 +61,38 @@ export default class ParticipantsMenu extends React.Component {
     super(props);
   }
 
-  renderLockItem(lockItem) {
+  renderLockItem(lockOption) {
     return (
-      <div className={styles.row} role='presentation'>
+      <div className={styles.row} role='presentation' key={lockOption.ariaLabel}>
         <label>
           <input
             className={styles.checkboxOffset}
             type="checkbox"
-            tabIndex={lockItem.tabIndex}
-            aria-labelledby={lockItem.ariaLabelledBy}
-            aria-describedby={lockItem.ariaDescribedBy} />
-          {lockItem.label}
+            tabIndex={lockOption.tabIndex}
+            aria-labelledby={lockOption.ariaLabelledBy}
+            aria-describedby={lockOption.ariaDescribedBy} />
+          {lockOption.label}
         </label>
-        <div id={lockItem.ariaLabelledBy} hidden>{lockItem.ariaLabel}</div>
-        <div id={lockItem.ariaDescribedBy} hidden>{lockItem.ariaDesc}</div>
+        <div id={lockOption.ariaLabelledBy} hidden>{lockOption.ariaLabel}</div>
+        <div id={lockOption.ariaDescribedBy} hidden>{lockOption.ariaDesc}</div>
       </div>
     );
   }
 
   getLockOptions () {
-    let index = 0;
+    let i = 0;
     return _.compact([
-      (this.renderLockItem(lockItems[index++])),
+      (this.renderLockItem(lockOptions[i++])),
       (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockItems[index++]) : null),
+        ? this.renderLockItem(lockOptions[i++]) : null),
       (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockItems[index++]) : null),
+        ? this.renderLockItem(lockOptions[i++]) : null),
       (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockItems[index++]) : null),
+        ? this.renderLockItem(lockOptions[i++]) : null),
       (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockItems[index++]) : null),
+        ? this.renderLockItem(lockOptions[i++]) : null),
       (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockItems[index++]) : null),
+        ? this.renderLockItem(lockOptions[i++]) : null),
     ]);
   }
 
