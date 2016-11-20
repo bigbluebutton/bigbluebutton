@@ -289,12 +289,12 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
   private def activity() {
     if (deadline.isOverdue() && inactivityWarning != null && inactivityWarning.isOverdue()) {
-      log.debug("Closing meeting {} due to inactivity for {} seconds", mProps.meetingID, InactivityDeadline.toSeconds)
+      log.info("Closing meeting {} due to inactivity for {} seconds", mProps.meetingID, InactivityDeadline.toSeconds)
       updateInactivityMonitors()
       self ! EndMeeting(mProps.meetingID)
       // Or else make sure to send only one warning message
     } else if (deadline.isOverdue() && inactivityWarning == null) {
-      log.debug("Sending inactivity warning to meeting {}", mProps.meetingID)
+      log.info("Sending inactivity warning to meeting {}", mProps.meetingID)
       outGW.send(new InactivityWarning(mProps.meetingID, InactivityTimeLeft.toSeconds))
       // We add 5 seconds so clients will have enough time to process the message
       inactivityWarning = (InactivityTimeLeft + (5 seconds)).fromNow
@@ -315,7 +315,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   private def handleActivityResponse(msg: ActivityResponse) {
-    log.debug("User endorsed that meeting {} is active", mProps.meetingID)
+    log.info("User endorsed that meeting {} is active", mProps.meetingID)
     updateInactivityMonitors()
     outGW.send(new MeetingIsActive(mProps.meetingID))
   }

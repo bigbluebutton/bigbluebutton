@@ -143,15 +143,15 @@ class MeetingModel {
       case Some(v) => {
         key match {
           case Metadata.INACTIVITY_DEADLINE => {
-            // Can be defined between 5 minutes to 2 hours
-            metadataIntegerValueOf(v, 300, 7200) match {
+            // Can be defined between 1 minute to 6 hours
+            metadataIntegerValueOf(v, 60, 21600) match {
               case Some(r) => Some(r.asInstanceOf[Object])
               case None => None
             }
           }
           case Metadata.INACTIVITY_TIMELEFT => {
-            // Can be defined between 30 seconds to 5 minutes
-            metadataIntegerValueOf(v, 30, 300) match {
+            // Can be defined between 30 seconds to 30 minutes
+            metadataIntegerValueOf(v, 30, 1800) match {
               case Some(r) => Some(r.asInstanceOf[Object])
               case None => None
             }
