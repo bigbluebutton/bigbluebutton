@@ -77,6 +77,20 @@ package org.bigbluebutton.main.model.users
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(e);
 		}
+
+		private function extractMetadata(metadata:Object):Object {
+			var response:Object = new Object();
+			if (metadata) {
+				var data:Array = metadata as Array;
+				for each (var item:Object in data) {
+					for (var id:String in item) {
+						var value:String = item[id] as String;
+						response[id] = value;
+					}
+				}
+			}
+			return response;
+		}
 		
 		private function handleComplete(e:Event):void {			
       var result:Object = JSON.parse(e.target.data);
@@ -129,6 +143,9 @@ package org.bigbluebutton.main.model.users
           }
 				}
 				        
+
+        response.metadata = extractMetadata(result.response.metadata);
+
         UsersModel.getInstance().me = new MeBuilder(response.internalUserId, response.username).withAvatar(response.avatarURL)
                                              .withExternalId(response.externUserID).withToken(response.authToken)
                                              .withLayout(response.defaultLayout).withWelcome(response.welcome)
@@ -141,7 +158,7 @@ package org.bigbluebutton.main.model.users
                                              .withExternalId(response.externMeetingID).withRecorded(response.record.toUpperCase() == "TRUE")
                                              .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
                                              .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
-                                             .withAllowStartStopRecording(response.allowStartStopRecording)
+                                             .withAllowStartStopRecording(response.allowStartStopRecording).withMetadata(response.metadata)
                                              .build();
         
 				if (_resultListener != null) _resultListener(true, response);
