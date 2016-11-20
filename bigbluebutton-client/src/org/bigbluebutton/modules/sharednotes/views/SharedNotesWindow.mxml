@@ -18,12 +18,9 @@
 	
 	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
 -->
-<containers:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:containers="org.bigbluebutton.common.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*"
+	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
-	layout="absolute" 
-	minWidth="160" 
-	minHeight="160" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	creationComplete="onCreationComplete()" 
 	xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
@@ -420,4 +417,4 @@
 			</mx:HBox>
 		</mx:HBox>
 	</mx:VBox>
-</containers:CustomMdiWindow>
+</CustomMdiWindow>
