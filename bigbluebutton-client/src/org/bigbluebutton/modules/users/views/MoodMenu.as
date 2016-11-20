@@ -35,7 +35,7 @@ package org.bigbluebutton.modules.users.views {
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class MoodMenu extends VBox {
-		private const MOODS:Array = ["raiseHand", "agree", "disagree", "applause", "speakFaster", "speakSlower",
+		private const MOODS:Array = ["raiseHand", "applause", "agree", "disagree", "speakFaster", "speakSlower",
 									"speakLouder", "speakSofter", "beRightBack", "happy", "sad", "clear"];
 		
 		private var dispatcher:Dispatcher;

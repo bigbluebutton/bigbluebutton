@@ -274,9 +274,9 @@
 							muteBtn.setStyle("icon", images.audio_muted);
 						
 						if (data.userLocked == rolledOverLock)
-							lockBtn.setStyle("icon", images.unlocked);
+							lockBtn.setStyle("icon", images.unlocked_20);
 						else
-							lockBtn.setStyle("icon", images.locked);
+							lockBtn.setStyle("icon", images.locked_20);
 					}
 				}
 			}
