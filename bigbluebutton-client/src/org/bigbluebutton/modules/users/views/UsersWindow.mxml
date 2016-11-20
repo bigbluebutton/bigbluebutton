@@ -45,6 +45,7 @@
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
 			import mx.core.FlexGlobals;
+			import mx.core.ScrollPolicy;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
@@ -110,8 +111,8 @@
 			
 			private var muteMeRolled:Boolean = false;
 			
-			[Bindable] private var statusColumnWidth:Number = (20 + 8)*2 + 8;
-			[Bindable] private var mediaColumnWidth:Number = (20 + 8)*4 + 8;
+			[Bindable] private var statusColumnWidth:Number = 28 * 2;
+			[Bindable] private var mediaColumnWidth:Number = 28 * 4;
 			
 			private function onChangeMyRole(e:ChangeMyRole):void {
 				refreshRole(e.role == Role.MODERATOR);
@@ -519,11 +520,12 @@
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)" 
 		tabIndex="{partOptions.baseTabIndex+5}"
+		horizontalScrollPolicy="{ScrollPolicy.AUTO}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
     		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" sortable="false" editable="false" resizable="false" width="{statusColumnWidth}" minWidth="{statusColumnWidth}"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer"/>
-    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" sortable="false" editable="false" resizable="false" minWidth="0"
+    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" sortable="false" editable="false" resizable="false" width="{usersGrid.width - statusColumnWidth - mediaColumnWidth - 4}" minWidth="{statusColumnWidth}"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
     		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" editable="false" resizable="false" width="{mediaColumnWidth}" minWidth="{mediaColumnWidth}"
     			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
