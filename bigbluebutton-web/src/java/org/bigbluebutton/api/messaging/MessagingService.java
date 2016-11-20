@@ -28,7 +28,7 @@ public interface MessagingService {
 	void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
 			      String voiceBridge, Long duration, Boolean autoStartRecording,
 			      Boolean allowStartStopRecording, String moderatorPass, String viewerPass,
-			      Long createTime, String createDate);
+			      Long createTime, String createDate, Map<String, String> metadata);
 	void endMeeting(String meetingId);
 	void send(String channel, String message);
 	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);

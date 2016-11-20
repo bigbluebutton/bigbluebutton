@@ -82,11 +82,11 @@ public class RedisMessagingService implements MessagingService {
 			                      String voiceBridge, Long duration, 
 			                      Boolean autoStartRecording, Boolean allowStartStopRecording,
 			                      String moderatorPass, String viewerPass, Long createTime,
-			                      String createDate) {
+			                      String createDate, Map<String, String> metadata) {
 		CreateMeetingMessage msg = new CreateMeetingMessage(meetingID, externalMeetingID, meetingName, 
 				                                  recorded, voiceBridge, duration, 
 				                                  autoStartRecording, allowStartStopRecording,
-				                                  moderatorPass, viewerPass, createTime, createDate);
+				                                  moderatorPass, viewerPass, createTime, createDate, metadata);
 		String json = MessageToJson.createMeetingMessageToJson(msg);
 		log.info("Sending create meeting message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);			

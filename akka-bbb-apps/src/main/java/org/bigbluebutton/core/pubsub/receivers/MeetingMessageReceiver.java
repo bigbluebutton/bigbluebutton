@@ -48,7 +48,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 					CreateMeetingMessage emm = (CreateMeetingMessage) msg;
 					bbbGW.createMeeting2(emm.id, emm.externalId, emm.name, emm.record, emm.voiceBridge, 
 							  emm.duration, emm.autoStartRecording, emm.allowStartStopRecording,
-							  emm.moderatorPass, emm.viewerPass, emm.createTime, emm.createDate);
+							  emm.moderatorPass, emm.viewerPass, emm.createTime, emm.createDate, emm.metadata);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage emm = (RegisterUserMessage) msg;
 					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken, emm.guest);

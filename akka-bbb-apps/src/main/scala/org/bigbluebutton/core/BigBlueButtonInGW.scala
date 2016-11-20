@@ -37,11 +37,11 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,
     voiceBridge: String, duration: Long, autoStartRecording: Boolean,
     allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String,
-    createTime: Long, createDate: String) {
+    createTime: Long, createDate: String, metadata: java.util.Map[String, String]) {
 
     val mProps = new MeetingProperties(meetingID, externalMeetingID, meetingName, record,
       voiceBridge, duration, autoStartRecording, allowStartStopRecording,
-      moderatorPass, viewerPass, createTime, createDate)
+      moderatorPass, viewerPass, createTime, createDate, metadata)
     bbbActor ! new CreateMeeting(meetingID, mProps)
   }
 
