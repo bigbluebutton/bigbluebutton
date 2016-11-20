@@ -124,4 +124,5 @@ public interface IBigBlueButtonInGW {
 	void createAdditionalNotes(String meetingID, String requesterID, String noteName);
 	void destroyAdditionalNotes(String meetingID, String requesterID, String noteID);
 	void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize);
+	void sharedNotesSyncNoteRequest(String meetingID, String requesterID, String noteID);
 }

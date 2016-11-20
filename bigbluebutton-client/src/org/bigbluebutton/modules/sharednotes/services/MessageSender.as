@@ -108,5 +108,19 @@ package org.bigbluebutton.modules.sharednotes.services
         message
       );
     }
+
+    public function sharedNotesSyncNoteRequest(noteId:String):void {
+      LOGGER.debug("Sending [sharednotes.sharedNotesSyncNoteRequest] to server.");
+      var message:Object = new Object();
+      message["noteID"] = noteId;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "sharednotes.sharedNotesSyncNoteRequest",
+        onSuccessDebugger,
+        onErrorDebugger,
+        message
+      );
+    }
   }
 }

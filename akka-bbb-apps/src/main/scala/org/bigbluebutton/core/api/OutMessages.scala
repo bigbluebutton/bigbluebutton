@@ -144,6 +144,7 @@ case class PatchDocumentReply(meetingID: String, recorded: Boolean, requesterID:
 case class GetCurrentDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, notes: Map[String, NoteReport]) extends IOutMessage
 case class CreateAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, noteName: String) extends IOutMessage
 case class DestroyAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String) extends IOutMessage
+case class SharedNotesSyncNoteReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, note: NoteReport) extends IOutMessage
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

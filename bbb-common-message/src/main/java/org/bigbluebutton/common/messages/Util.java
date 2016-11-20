@@ -695,18 +695,25 @@ public class Util {
 		}
 	}
 
+	public Object extractNote(JsonObject noteObject) {
+		String name = noteObject.get("name").getAsString();
+		String document = noteObject.get("document").getAsString();
+		Integer patchCounter = noteObject.get("patchCounter").getAsInt();
+		Boolean undo = noteObject.get("undo").getAsBoolean();
+		Boolean redo = noteObject.get("redo").getAsBoolean();
+
+		Note note = new Note(name, document, patchCounter, undo, redo);
+
+		return (Object) note;
+	}
+
 	public Map<String, Object> extractNotes(JsonObject notes) {
 		Map<String, Object> notesMap = new HashMap<String, Object>();
 
 		for (Map.Entry<String, JsonElement> entry : notes.entrySet()) {
 			JsonObject obj = entry.getValue().getAsJsonObject();
-			String name = obj.get("name").getAsString();
-			String document = obj.get("document").getAsString();
-			Integer patchCounter = obj.get("patchCounter").getAsInt();
-			Boolean undo = obj.get("undo").getAsBoolean();
-			Boolean redo = obj.get("redo").getAsBoolean();
-			Note note = new Note(name, document, patchCounter, undo, redo);
-			notesMap.put(entry.getKey(), (Object) note);
+			Object note = extractNote(obj);
+			notesMap.put(entry.getKey(), note);
 		}
 
 		return notesMap;

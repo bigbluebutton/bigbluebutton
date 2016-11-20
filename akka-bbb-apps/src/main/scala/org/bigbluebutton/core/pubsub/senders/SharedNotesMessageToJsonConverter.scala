@@ -54,4 +54,16 @@ object SharedNotesMessageToJsonConverter {
     val header = Util.buildHeader(MessageNames.DESTROY_ADDITIONAL_NOTES_REPLY, None)
     Util.buildJson(header, payload)
   }
+
+  def sharedNotesSyncNoteReplyToJson(msg: SharedNotesSyncNoteReply): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.NOTE_ID, msg.noteID)
+    payload.put(Constants.NOTE, msg.note)
+
+    val header = Util.buildHeader(MessageNames.SHAREDNOTES_SYNC_NOTE_REPLY, None)
+    Util.buildJson(header, payload)
+  }
 }

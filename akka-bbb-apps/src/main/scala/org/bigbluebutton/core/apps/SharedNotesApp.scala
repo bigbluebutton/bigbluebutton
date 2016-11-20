@@ -53,4 +53,11 @@ trait SharedNotesApp {
       createAdditionalNotes(msg.requesterID)
     }
   }
+
+  def handleSharedNotesSyncNoteRequest(msg: SharedNotesSyncNoteRequest) {
+    notesModel.getNoteReport(msg.noteID) match {
+      case Some(note) => outGW.send(new SharedNotesSyncNoteReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.noteID, note))
+      case None =>
+    }
+  }
 }

@@ -8,6 +8,7 @@ import org.bigbluebutton.common.messages.PatchDocumentReplyMessage;
 import org.bigbluebutton.common.messages.GetCurrentDocumentReplyMessage;
 import org.bigbluebutton.common.messages.CreateAdditionalNotesReplyMessage;
 import org.bigbluebutton.common.messages.DestroyAdditionalNotesReplyMessage;
+import org.bigbluebutton.common.messages.SharedNotesSyncNoteReplyMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
@@ -44,6 +45,9 @@ public class SharedNotesClientMessageSender {
 						break;
 					case DestroyAdditionalNotesReplyMessage.DESTROY_ADDITIONAL_NOTES_REPLY:
 						processDestroyAdditionalNotesReplyMessage(message);
+						break;
+					case SharedNotesSyncNoteReplyMessage.SHAREDNOTES_SYNC_NOTE_REPLY:
+						processSharedNotesSyncNoteReplyMessage(message);
 						break;
 				}
 			}
@@ -112,6 +116,22 @@ public class SharedNotesClientMessageSender {
 			message.put("msg", gson.toJson(args));
 
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "DestroyAdditionalNotesCommand", message);
+			service.sendMessage(m);
+		}
+	}
+
+	private void processSharedNotesSyncNoteReplyMessage(String json) {
+		SharedNotesSyncNoteReplyMessage msg = SharedNotesSyncNoteReplyMessage.fromJson(json);
+		if (msg != null) {
+			Map<String, Object> args = new HashMap<String, Object>();
+			args.put("noteID", msg.noteID);
+			args.put("note", msg.note);
+
+			Map<String, Object> message = new HashMap<String, Object>();
+			Gson gson = new Gson();
+			message.put("msg", gson.toJson(args));
+
+			DirectClientMessage m = new DirectClientMessage(msg.meetingID, msg.requesterID, "SharedNotesSyncNoteCommand", message);
 			service.sendMessage(m);
 		}
 	}

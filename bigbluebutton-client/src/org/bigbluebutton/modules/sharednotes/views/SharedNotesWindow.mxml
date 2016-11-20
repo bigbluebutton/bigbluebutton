@@ -29,6 +29,7 @@
 	
 	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch" />
 	<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
+	<mate:Listener type="{SharedNotesEvent.SYNC_NOTE_REPLY_EVENT}" method="handleSyncNote"/>
 
 	<mx:Script>
 		<![CDATA[
@@ -177,6 +178,15 @@
 				}
 			}
 
+			private function possiblePatchError():Boolean {
+				if (richTextEditor.htmlText != _document) {
+					// When losing sync between UI and server
+					return true;
+				}
+
+				return false;
+			}
+
 			private function receivePatch(e:ReceivePatchEvent):void {
 //				LOGGER.debug("SharedNotesWindow: patch received");
 //				LOGGER.debug("=====\n" + e.patch + "\n=====");
@@ -189,12 +199,39 @@
 							_document = result;
 //							LOGGER.debug("SharedNotes: patching local with server modifications");
 							richTextEditor.patch(e.patch);
+							if (possiblePatchError()) {
+								syncNote();
+								return;
+							}
 						}
 						_lastPatch = e.patchId;
 						updateUndoRedoButtons(e.undo, e.redo);
 					} else {
 						LOGGER.error("Patch missmatch");
+						// Resync if we missed a patch
+						if (e.patchId > (_lastPatch + 1)) {
+							syncNote();
+							return;
+						}
 					}
+				}
+			}
+
+			private function syncNote():void {
+				richTextEditor.textArea.editable = false;
+				var sharedNotesSyncNoteRequestEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.SYNC_NOTE_REQUEST_EVENT);
+				sharedNotesSyncNoteRequestEvent.payload["noteId"] = noteId;
+				_dispatcher.dispatchEvent(sharedNotesSyncNoteRequestEvent);
+			}
+
+			private function handleSyncNote(e:SharedNotesEvent):void {
+				if (e.payload.noteId == noteId) {
+					LOGGER.debug("Syncing note: {0}", [noteId]);
+					_document = e.payload.note["document"];
+					_lastPatch = e.payload.note["patchCounter"];
+					richTextEditor.htmlText = _document;
+					if (!richTextEditor.textArea.editable) richTextEditor.textArea.editable = true;
+					updateUndoRedoButtons(e.payload.note["undo"], e.payload.note["redo"]);
 				}
 			}
 
