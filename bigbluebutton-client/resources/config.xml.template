@@ -126,7 +126,7 @@
 			enableEdit="true"
 		/>
 
-		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
+		<module name="SharedNotesModule" url="http://HOST/client/SharedNotesModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton"
 			refreshDelay="500"
 			enableMultipleNotes="true"
