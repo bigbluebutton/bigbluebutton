@@ -114,6 +114,52 @@ def sanity_archived_meeting(recording_dir)
   end
 end
 
+def pre_process_archived_meeting(recording_dir)
+  recorded_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
+
+  recorded_done_files.each do |recorded_done|
+    match = /([^\/]*).done$/.match(recorded_done)
+    meeting_id = match[1]
+
+    archived_done = "#{recording_dir}/status/processed/#{meeting_id}.done"
+    next if File.exists?(archived_done)
+
+    archived_fail = "#{recording_dir}/status/processed/#{meeting_id}.fail"
+    next if File.exists?(archived_fail)
+
+    @doc = Nokogiri::XML(File.open("#{recording_dir}/raw/#{meeting_id}/events.xml"))
+    breakout = @doc.xpath("//breakout")
+    if breakout[0]["isBreakout"] == 'true'
+      # build new_meeting_id
+      parent_meeting_id = breakout[0]["parentMeetingId"]
+      new_meeting_id = "#{parent_meeting_id.split('-')[0]}-#{meeting_id.split("-")[1]}"
+
+      # pre-process only if the new_meeting_id is not found
+      if !File.directory?("#{recording_dir}/raw/#{new_meeting_id}")
+        BigBlueButton.logger.info("Pre-processing archived meeting [#{meeting_id}]")
+        # update events.xml
+        ## Update meetingId  in events.xml
+        @doc.search('//recording').each do |recording|
+          recording["meeting_id"] = new_meeting_id
+        end
+        ## Write the new events.xml
+        events_file = File.new("#{recording_dir}/raw/#{meeting_id}/events.xml","w")
+        events = Nokogiri::XML(@doc.to_xml) { |x| x.noblanks }
+        events_file.write(@doc.root)
+        events_file.close
+        BigBlueButton.logger.info("Created an updated events.xml")
+
+        # rename directory
+        BigBlueButton.logger.info("Moving #{recording_dir}/raw/#{meeting_id} to #{recording_dir}/raw/#{new_meeting_id}")
+        FileUtils.mv("#{recording_dir}/raw/#{meeting_id}", "#{recording_dir}/raw/#{new_meeting_id}")
+
+        # rename sanity file
+        BigBlueButton.logger.info("Moving #{recording_dir}/status/sanity/#{meeting_id}.done to #{recording_dir}/status/sanity/#{new_meeting_id}.done")
+        FileUtils.mv("#{recording_dir}/status/sanity/#{meeting_id}.done", "#{recording_dir}/status/sanity/#{new_meeting_id}.done")
+      end
+    end
+  end
+end
 
 def process_archived_meeting(recording_dir)
   sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
@@ -349,6 +395,7 @@ begin
 
   archive_recorded_meeting(recording_dir)
   sanity_archived_meeting(recording_dir)
+  pre_process_archived_meeting(recording_dir)
   process_archived_meeting(recording_dir)
   publish_processed_meeting(recording_dir)
 
