@@ -171,7 +171,8 @@ object MeetingMessageToJsonConverter {
     payload.put("parentMeetingId", msg.parentMeetingId)
     payload.put("breakoutMeetingId", msg.breakoutMeetingId)
     payload.put("userId", msg.userId)
-    payload.put("joinURL", msg.joinURL)
+    payload.put("redirectJoinURL", msg.redirectJoinURL)
+    payload.put("noRedirectJoinURL", msg.noRedirectJoinURL)
 
     val header = Util.buildHeader(BreakoutRoomJoinURL.NAME, None)
     Util.buildJson(header, payload)

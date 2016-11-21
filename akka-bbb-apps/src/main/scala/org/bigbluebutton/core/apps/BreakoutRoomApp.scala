@@ -1,18 +1,17 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.api._
-import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.SystemConfiguration
-import org.apache.commons.codec.digest.DigestUtils
-import scala.collection._
-import scala.collection.SortedSet
-import org.apache.commons.lang3.StringUtils
 import java.net.URLEncoder
-import scala.collection.immutable.StringOps
+
+import scala.collection.SortedSet
+import scala.collection.mutable
+
+import org.apache.commons.codec.digest.DigestUtils
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.LiveMeeting
-import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
+import org.bigbluebutton.core.bus.IncomingEventBus
 
 trait BreakoutRoomApp extends SystemConfiguration {
   this: LiveMeeting =>
@@ -44,7 +43,6 @@ trait BreakoutRoomApp extends SystemConfiguration {
     val sourcePresentationId = if (!presModel.getCurrentPresentation().isEmpty) presModel.getCurrentPresentation().get.id else "blank"
     val sourcePresentationSlide = if (!presModel.getCurrentPage().isEmpty) presModel.getCurrentPage().get.num else 0
     breakoutModel.pendingRoomsNumber = msg.rooms.length;
-    breakoutModel.redirectOnJoin = msg.redirectOnJoin;
 
     for (room <- msg.rooms) {
       i += 1
@@ -61,20 +59,25 @@ trait BreakoutRoomApp extends SystemConfiguration {
     meetingModel.breakoutRoomsStartedOn = timeNowInSeconds;
   }
 
-  def sendJoinURL(userId: String, externalMeetingId: String, redirect: Boolean) {
-    log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId);
+  def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {
+    log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId)
     for {
       user <- usersModel.getUser(userId)
       apiCall = "join"
-      params = BreakoutRoomsUtil.joinParams(user.name, userId, true, externalMeetingId, mProps.moderatorPass, redirect)
-      baseString = BreakoutRoomsUtil.createBaseString(params)
-      checksum = BreakoutRoomsUtil.calculateChecksum(apiCall, baseString, bbbWebSharedSecret)
-      joinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, baseString, checksum)
-    } yield outGW.send(new BreakoutRoomJoinURLOutMessage(mProps.meetingID, mProps.recorded, externalMeetingId, userId, joinURL))
+      params = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true, externalMeetingId, mProps.moderatorPass)
+      // We generate a first url with redirect -> true
+      redirectBaseString = BreakoutRoomsUtil.createBaseString(params._1)
+      redirectJoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, redirectBaseString, BreakoutRoomsUtil.calculateChecksum(apiCall, redirectBaseString, bbbWebSharedSecret))
+      // We generate a second url with redirect -> false
+      noRedirectBaseString = BreakoutRoomsUtil.createBaseString(params._2)
+      noRedirectJoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, noRedirectBaseString, BreakoutRoomsUtil.calculateChecksum(apiCall, noRedirectBaseString, bbbWebSharedSecret))
+    } yield outGW.send(new BreakoutRoomJoinURLOutMessage(mProps.meetingID, mProps.recorded, externalMeetingId, userId, redirectJoinURL, noRedirectJoinURL))
   }
 
   def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURLInMessage) {
-    sendJoinURL(msg.userId, msg.breakoutMeetingId, msg.redirect)
+    for {
+      breakoutRoom <- breakoutModel.getRoomWithExternalId(msg.breakoutMeetingId)
+    } yield sendJoinURL(msg.userId, msg.breakoutMeetingId, breakoutRoom.sequence.toString())
   }
 
   def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {
@@ -91,7 +94,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
         breakoutModel.getAssignedUsers(room.id) foreach { users =>
           users.foreach { u =>
             log.debug("Sending Join URL for users");
-            sendJoinURL(u, room.externalMeetingId, breakoutModel.redirectOnJoin)
+            sendJoinURL(u, room.externalMeetingId, room.sequence.toString())
           }
         }
       }
@@ -187,16 +190,15 @@ object BreakoutRoomsUtil {
   }
 
   def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutMeetingId: String,
-                 password: String, redirect: Boolean): mutable.Map[String, String] = {
-    val params = new collection.mutable.HashMap[String, String]
-    params += "fullName" -> urlEncode(username)
-    params += "userID" -> urlEncode(userId + "-" + breakoutMeetingId.substring(breakoutMeetingId.lastIndexOf("-") + 1));
-    params += "isBreakout" -> urlEncode(isBreakout.toString())
-    params += "meetingID" -> urlEncode(breakoutMeetingId)
-    params += "password" -> urlEncode(password)
-    params += "redirect" -> urlEncode(redirect.toString())
+                 password: String): (mutable.Map[String, String], mutable.Map[String, String]) = {
+    val params = collection.mutable.HashMap(
+      "fullName" -> urlEncode(username),
+      "userID" -> urlEncode(userId),
+      "isBreakout" -> urlEncode(isBreakout.toString()),
+      "meetingID" -> urlEncode(breakoutMeetingId),
+      "password" -> urlEncode(password))
 
-    params
+    (params += "redirect" -> urlEncode("true"), mutable.Map[String, String]() ++= params += "redirect" -> urlEncode("false"))
   }
 
   def sortParams(params: mutable.Map[String, String]): SortedSet[String] = {

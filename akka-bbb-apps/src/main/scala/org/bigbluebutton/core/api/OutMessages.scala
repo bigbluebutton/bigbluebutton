@@ -34,7 +34,7 @@ case class EndBreakoutRoom(breakoutMeetingId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutMeetingId: String, name: String, parentId: String, sequence: Integer,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
   sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
-case class BreakoutRoomJoinURLOutMessage(parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, userId: String, joinURL: String) extends IOutMessage
+case class BreakoutRoomJoinURLOutMessage(parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, userId: String, redirectJoinURL: String, noRedirectJoinURL: String) extends IOutMessage
 case class BreakoutRoomStartedOutMessage(parentMeetingId: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
 case class BreakoutRoomBody(name: String, externalMeetingId: String, meetingId: String, sequence: Int)
 case class UpdateBreakoutUsersOutMessage(parentMeetingId: String, recorded: Boolean, breakoutMeetingId: String, users: Vector[BreakoutUser]) extends IOutMessage
