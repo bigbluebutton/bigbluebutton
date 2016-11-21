@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom';
 import { callServer } from '/imports/ui/services/api';
 import styles from '../styles.scss';
 
+
 export default class AudioSettings extends React.Component {
   constructor(props) {
     super(props);
@@ -16,6 +17,11 @@ export default class AudioSettings extends React.Component {
   }
 
   handleClick() {
+  }
+
+  playAudioSample() {
+    const snd = new Audio('resources/sounds/audioSample.mp3');
+    snd.play();
   }
 
   chooseAudio() {
@@ -64,7 +70,7 @@ export default class AudioSettings extends React.Component {
             size={'md'}
             color={'primary'}
             ghost={true}
-            onClick={this.handleClick}
+            onClick={this.playAudioSample}
           /><br />
         </div>
         <div className={styles.half}>
