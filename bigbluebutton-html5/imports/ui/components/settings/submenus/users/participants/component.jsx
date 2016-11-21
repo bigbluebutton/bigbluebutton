@@ -5,8 +5,10 @@ import Button from '/imports/ui/components/button/component';
 import styles from '../../styles.scss';
 import Service from './service';
 
-const lockOptions = [
-  {
+const ROLE_MODERATOR = 'moderator';
+
+const LOCK_OPTIONS = {
+  MUTE_ALL: {
     label: 'Mute all except the presenter',
     ariaLabelledBy: 'muteALlLabel',
     ariaDescribedBy: 'muteAllDesc',
@@ -14,7 +16,7 @@ const lockOptions = [
     ariaDesc: 'Mutes all participants except the presenter.',
     tabIndex: 7,
   },
-  {
+  LOCK_ALL: {
     label: 'Lock all participants',
     ariaLabelledBy: 'lockAllLabel',
     ariaDescribedBy: 'lockAllDesc',
@@ -22,7 +24,7 @@ const lockOptions = [
     ariaDesc: 'Toggles locked status for all participants.',
     tabIndex: 8,
   },
-  {
+  WEBCAM_LOCK: {
     label: 'Webcam',
     ariaLabelledBy: 'webcamLabel',
     ariaDescribedBy: 'webcamDesc',
@@ -30,7 +32,7 @@ const lockOptions = [
     ariaDesc: 'Disables the webcam for all locked participants.',
     tabIndex: 9,
   },
-  {
+  MIC_LOCK: {
     label: 'Microphone',
     ariaLabelledBy: 'micLabel',
     ariaDescribedBy: 'micDesc',
@@ -38,7 +40,7 @@ const lockOptions = [
     ariaDesc: 'Disables the microphone for all locked participants.',
     tabIndex: 10,
   },
-  {
+  PUBLIC_CHAT_LOCK: {
     label: 'Public chat',
     ariaLabelledBy: 'pubChatLabel',
     ariaDescribedBy: 'pubChatDesc',
@@ -46,7 +48,7 @@ const lockOptions = [
     ariaDesc: 'Disables public chat for all locked participants.',
     tabIndex: 11,
   },
-  {
+  PRIVATE_CHAT_LOCK: {
     label: 'Private chat',
     ariaLabelledBy: 'privChatLabel',
     ariaDescribedBy: 'privChatDesc',
@@ -54,7 +56,7 @@ const lockOptions = [
     ariaDesc: 'Disables private chat for all locked participants.',
     tabIndex: 12,
   },
-];
+};
 
 export default class ParticipantsMenu extends React.Component {
   constructor(props) {
@@ -63,7 +65,7 @@ export default class ParticipantsMenu extends React.Component {
 
   renderLockItem(lockOption) {
     return (
-      <div className={styles.row} role='presentation' key={lockOption.ariaLabel}>
+      <div className={styles.row} role='presentation' key={lockOption.label} >
         <label>
           <input
             className={styles.checkboxOffset}
@@ -79,20 +81,25 @@ export default class ParticipantsMenu extends React.Component {
     );
   }
 
-  getLockOptions () {
-    let i = 0;
+  renderLockOptions () {
+    
+    const { isPresenter, role } = this.props;
+
+    let roleBasedOptions = [];
+
+    if (isPresenter || role === ROLE_MODERATOR) {
+      roleBasedOptions.push(
+         this.renderLockItem(LOCK_OPTIONS.LOCK_ALL),
+         this.renderLockItem(LOCK_OPTIONS.WEBCAM_LOCK),
+         this.renderLockItem(LOCK_OPTIONS.MIC_LOCK),
+         this.renderLockItem(LOCK_OPTIONS.PUBLIC_CHAT_LOCK),
+         this.renderLockItem(LOCK_OPTIONS.PRIVATE_CHAT_LOCK),
+       );
+    }
+
     return _.compact([
-      (this.renderLockItem(lockOptions[i++])),
-      (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockOptions[i++]) : null),
-      (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockOptions[i++]) : null),
-      (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockOptions[i++]) : null),
-      (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockOptions[i++]) : null),
-      (this.props.isPresenter || this.props.role === 'MODERATOR'
-        ? this.renderLockItem(lockOptions[i++]) : null),
+      this.renderLockItem(LOCK_OPTIONS.MUTE_ALL),
+      ...roleBasedOptions,
     ]);
   }
 
@@ -100,7 +107,7 @@ export default class ParticipantsMenu extends React.Component {
 
     return (
       <div>
-        {this.getLockOptions()}
+        {this.renderLockOptions()}
       </div>
     );
   }
