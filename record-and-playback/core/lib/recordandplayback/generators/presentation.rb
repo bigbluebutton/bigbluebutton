@@ -99,7 +99,7 @@ module BigBlueButton
         # Set textfile directory
         textfiles_dir = "#{process_dir}/presentation/#{presentation_id}/textfiles"
         # Set presentation hashmap to be returned
-        unless presentation_filename == "default.pdf"
+        unless presentation_filename == "default.pdf" || presentation_filename == "#{presentation_id}.pdf"
           presentation[:id] = presentation_id
           presentation[:filename] = presentation_filename
           presentation[:slides] = {}
