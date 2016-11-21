@@ -10,7 +10,7 @@ import Users from '/imports/api/users/index';
 import JoinAudioContainer from './audio-menu/container';
 import { exitAudio } from '/imports/api/phone';
 
-const openJoinAudio = () => {showModal(<Audio />)};
+const openJoinAudio = () => showModal(<Audio />);
 
 export default class ActionsBar extends Component {
   constructor(props) {
@@ -20,12 +20,38 @@ export default class ActionsBar extends Component {
   handleClick() {
   }
 
-  render() {
+  renderForPresenter() {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
           <ActionsDropdown />
         </div>
+        <div className={styles.center}>
+          <JoinAudioContainer
+            open={openJoinAudio.bind(this)}
+            close={() => {exitAudio();}}
+
+          />
+
+          <Button
+            onClick={this.handleClick}
+            label={'Cam Off'}
+            color={'primary'}
+            icon={'video-off'}
+            size={'lg'}
+            circle={true}
+          />
+          <EmojiContainer />
+        </div>
+        <div className={styles.right}>
+        </div>
+      </div>
+    );
+  }
+
+  renderForUser() {
+    return (
+      <div className={styles.actionsbar}>
         <div className={styles.center}>
           <JoinAudioContainer
             open={openJoinAudio.bind(this)}
@@ -44,6 +70,15 @@ export default class ActionsBar extends Component {
         </div>
         <div className={styles.right}>
         </div>
+      </div>
+    );
+  }
+
+  render() {
+    const { isUserPresenter } = this.props;
+    return(
+      <div>
+        {isUserPresenter ? this.renderForPresenter() : this.renderForUser()}
       </div>
     );
   }

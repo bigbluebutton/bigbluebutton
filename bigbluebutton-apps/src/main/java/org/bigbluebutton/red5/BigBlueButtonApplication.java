@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
@@ -80,9 +84,41 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
   public boolean appStart(IScope app) {
 		super.appStart(app);        
 		connInvokerService.setAppScope(app);
+
+		getHeapStats();
+
 		return true;
 	}
-    
+
+	private void getHeapStats() {
+		Runnable getHeapTask = () -> getHeapStatsHelper();
+
+		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+		executor.scheduleAtFixedRate(getHeapTask, 0, 60, TimeUnit.SECONDS);
+	}
+
+	private void getHeapStatsHelper() {
+		int mb = 1024*1024;
+
+		// Getting the runtime reference from system
+		Runtime runtime = Runtime.getRuntime();
+
+		long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / mb;
+		long freeMemory = runtime.freeMemory() / mb;
+		long totalMemory = runtime.totalMemory() / mb;
+		long maxMemory = runtime.maxMemory() / mb;
+
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("used", usedMemory);
+		logData.put("free", freeMemory);
+		logData.put("total", totalMemory);
+		logData.put("max", maxMemory);
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+		log.info("JVM Heap [MB] data={}", logStr);
+	}
+
 	@Override
 	public void appStop(IScope app) {
 		super.appStop(app);
@@ -138,6 +174,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		for (IConnection conn : conns) {
 			String connUserId = (String) conn.getAttribute("INTERNAL_USER_ID");
 			String connSessionId = conn.getSessionId();
+			String clientId = conn.getClient().getId();
+			String remoteHost = connection.getRemoteAddress();
+			int remotePort = connection.getRemotePort();
 			if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
 				conn.removeAttribute("INTERNAL_USER_ID");
 				Map<String, Object> logData = new HashMap<String, Object>();
@@ -145,6 +184,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 				logData.put("userId", userId);
 				logData.put("oldConnId", connSessionId);
 				logData.put("newConnId", sessionId);
+				logData.put("clientId", clientId);
+				logData.put("remoteAddress", remoteHost + ":" + remotePort);
 				logData.put("event", "removing_defunct_connection");
 				logData.put("description", "Removing defunct connection BBB Apps.");
 
@@ -173,14 +214,15 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String connId = Red5.getConnectionLocal().getSessionId();	        
 		
 		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
-		int remotePort = Red5.getConnectionLocal().getRemotePort();   
-
+		int remotePort = Red5.getConnectionLocal().getRemotePort();
+		String clientId = Red5.getConnectionLocal().getClient().getId();
 
 		Map<String, Object> logData = new HashMap<String, Object>();
 		logData.put("meetingId", meetingId);
 		logData.put("connType", connType);
 		logData.put("connId", connId);
-		logData.put("conn", remoteHost + ":" + remotePort);
+		logData.put("clientId", clientId);
+		logData.put("remoteAddress", remoteHost + ":" + remotePort);
 		logData.put("userId", userId);
 		logData.put("externalUserId", externalUserID);
 		logData.put("sessionId", sessionId);
@@ -222,14 +264,15 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String connType = getConnectionType(Red5.getConnectionLocal().getType());
 	    String userFullname = bbbSession.getUsername();
 	    String connId = Red5.getConnectionLocal().getSessionId();
-	    
+		String clientId = Red5.getConnectionLocal().getClient().getId();
         String sessionId =  CONN + userId;
 	    	    
 	    Map<String, Object> logData = new HashMap<String, Object>();
 	    logData.put("meetingId", meetingId);
 	    logData.put("connType", connType);
 	    logData.put("connId", connId);
-	    logData.put("conn", remoteHost + ":" + remotePort);
+		logData.put("clientId", clientId);
+		logData.put("remoteAddress", remoteHost + ":" + remotePort);
 	    logData.put("sessionId", sessionId);
 	    logData.put("userId", userId);
 	    logData.put("username", userFullname);

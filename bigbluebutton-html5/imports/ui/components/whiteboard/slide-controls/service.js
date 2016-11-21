@@ -42,7 +42,7 @@ const nextSlide = (currentSlideNum, numberOfSlides) => {
 };
 
 const skipToSlide = (event) => {
-  const requestedSlideNum = event.target.value;
+  const requestedSlideNum = parseInt(event.target.value);
   callServer('switchSlideMessage', requestedSlideNum);
 };
 

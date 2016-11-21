@@ -19,11 +19,7 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import org.bigbluebutton.voiceconf.red5.media.FlashToSipAudioStream.TranscodedAudioListener;
 import org.red5.app.sip.codecs.Codec;
@@ -42,15 +38,15 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	private long timestamp = 0;
 	private final static int TS_INCREMENT = 320; // Determined from PCAP traces.
 	
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable audioDataProcessor;
-	private volatile boolean processAudioData = false;
-	private BlockingQueue<SpeexRtpAudioData> audioDataQ;
+	//private final Executor exec = Executors.newSingleThreadExecutor();
+	//private Runnable audioDataProcessor;
+	//private volatile boolean processAudioData = false;
+	//private BlockingQueue<SpeexRtpAudioData> audioDataQ;
 	
 	private TranscodedAudioListener transcodedAudioListener;
 	
 	public SpeexFlashToSipTranscoderImp(Codec audioCodec) {
-		audioDataQ = new LinkedBlockingQueue<SpeexRtpAudioData>();
+		//audioDataQ = new LinkedBlockingQueue<SpeexRtpAudioData>();
 		this.audioCodec = audioCodec;
         Random rgen = new Random();
         timestamp = rgen.nextInt(1000);
@@ -63,11 +59,13 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 		System.arraycopy(audioData, startOffset, transcodedAudio, 0, length);
 		
 		SpeexRtpAudioData srad = new SpeexRtpAudioData(transcodedAudio, timestamp += TS_INCREMENT);
-		try {
-			audioDataQ.offer(srad, 100, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			log.warn("Failed to add speex audio data into queue.");
-		}
+		transcodedAudioListener.handleTranscodedAudioData(srad.audioData, srad.timestamp);
+
+		//try {
+		//	audioDataQ.offer(srad, 100, TimeUnit.MILLISECONDS);
+		//} catch (InterruptedException e) {
+		//	log.warn("Failed to add speex audio data into queue.");
+		//}
 	}
 	
 	public int getCodecId() {
@@ -93,31 +91,31 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	}
 	
 	private void processAudioData() {
-		while (processAudioData) {		
-			SpeexRtpAudioData srad;
-			try {
-				srad = audioDataQ.take();
-				transcodedAudioListener.handleTranscodedAudioData(srad.audioData, srad.timestamp);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}  
-		}
+		//while (processAudioData) {
+		//	SpeexRtpAudioData srad;
+		//	try {
+		//		srad = audioDataQ.take();
+		//		transcodedAudioListener.handleTranscodedAudioData(srad.audioData, srad.timestamp);
+		//	} catch (InterruptedException e) {
+		//		// TODO Auto-generated catch block
+		//		e.printStackTrace();
+		//	}
+		//}
 	}
 
     @Override
     public void start() {
-    	processAudioData = true;	 
-	    audioDataProcessor = new Runnable() {
-    		public void run() {
-    			processAudioData();   			
-    		}
-    	};
-    	exec.execute(audioDataProcessor);
+    	//processAudioData = true;
+	    //audioDataProcessor = new Runnable() {
+    	//	public void run() {
+    	//		processAudioData();
+    	//	}
+    	//};
+    	//exec.execute(audioDataProcessor);
     }
 	
 	@Override
     public void stop() {
-    	processAudioData = false;
+    	//processAudioData = false;
     }
 }

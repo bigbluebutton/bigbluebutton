@@ -34,7 +34,7 @@ export function userJoined(meetingId, user, callback) {
   if (userObject != null && userObject.authToken != null) {
     getStun({
       meetingId: meetingId,
-      requesterUserId: userId
+      requesterUserId: userId,
     });
 
     Users.update({
@@ -131,7 +131,7 @@ export function userJoined(meetingId, user, callback) {
     // logger.info "NOTE: got user_joined_message #{user.name} #{user.userid}"
     getStun({
       meetingId: meetingId,
-      requesterUserId: userId
+      requesterUserId: userId,
     });
 
     return Users.upsert({

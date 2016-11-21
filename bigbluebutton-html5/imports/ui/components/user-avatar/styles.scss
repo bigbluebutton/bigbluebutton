@@ -29,6 +29,24 @@ $moderator-bg: $color-primary;
   text-transform: capitalize;
 }
 
+.userLogout {
+  flex-basis: 2.2rem;
+  height: 2.2rem;
+  flex-shrink: 0;
+  line-height: 2.2rem;
+  justify-content: center;
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  font-size: 1.1rem;
+  text-align: center;
+  border-radius: 50%;
+  border: 1px solid $color-gray-lighter;
+  color: $color-gray-light;
+  font-style: italic;
+  text-transform: capitalize;
+}
+
 .userStatus {
   position: absolute;
   background-color: $color-white;

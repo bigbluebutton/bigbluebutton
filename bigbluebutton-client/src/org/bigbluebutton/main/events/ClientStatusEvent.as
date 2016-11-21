@@ -29,12 +29,14 @@ package org.bigbluebutton.main.events
 		
 		public var title:String;
 		public var message:String;
-		
-		public function ClientStatusEvent(type:String, title:String, message:String)
+		public var logCode:String;
+
+		public function ClientStatusEvent(type:String, title:String, message:String, logCode:String)
 		{
 			super(type);
 			this.title = title;
 			this.message = message;
+			this.logCode = logCode;
 		}
 	}
 }

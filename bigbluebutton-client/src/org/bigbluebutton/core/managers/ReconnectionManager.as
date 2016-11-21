@@ -85,12 +85,9 @@ package org.bigbluebutton.core.managers
 
     public function onDisconnected(type:String, callback:Function, parameters:Array):void {
       if (!_canceled) {
-		var logData:Object = new Object();
-		logData.user = UsersUtil.getUserData();
+		var logData:Object = UsersUtil.initLogData();
 		logData.user.connection = type;
-		
-		JSLog.warn("Connection disconnected", logData);
-		
+        logData.tags = ["connection"];
 		logData.message = "Connection disconnected";
 		LOGGER.info(JSON.stringify(logData));
 		
@@ -110,14 +107,9 @@ package org.bigbluebutton.core.managers
     }
 
     public function onConnectionAttemptFailed(type:String):void {
-      LOGGER.warn("onConnectionAttemptFailed, type={0}", [type]);
-	  
-	  var logData:Object = new Object();
-	  logData.user = UsersUtil.getUserData();
-	  logData.user.connection = type;
-	  
-	  JSLog.warn("Reconnect attempt on connection failed.", logData);
-	  
+	  var logData:Object = UsersUtil.initLogData();
+	  logData.user.connection = type; 
+      logData.tags = ["connection"];
 	  logData.message = "Reconnect attempt on connection failed.";
 	  LOGGER.info(JSON.stringify(logData));
 	  
@@ -150,18 +142,13 @@ package org.bigbluebutton.core.managers
     }
 
     public function onConnectionAttemptSucceeded(type:String):void {
-	  LOGGER.debug("onConnectionAttemptSucceeded, type={0}", [type]);
-	  var logData:Object = new Object();
-	  logData.user = UsersUtil.getUserData();
+	  var logData:Object = UsersUtil.initLogData();
 	  logData.user.connection = type;
-	  
-	  JSLog.warn("Reconnect succeeded.", logData);
-	  
+      logData.tags = ["connection"];
 	  logData.message = "Reconnect succeeded.";
 	  LOGGER.info(JSON.stringify(logData));
 	  
       dispatchReconnectionSucceededEvent(type);
-
       delete _connections[type];
       if (type == BIGBLUEBUTTON_CONNECTION) {
         reconnect();
@@ -173,7 +160,7 @@ package org.bigbluebutton.core.managers
 
         _dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT, 
           ResourceUtil.getInstance().getString('bbb.connection.reestablished'), 
-          msg));
+          msg, 'bbb.connection.reestablished'));
 
         _reconnectTimeout.reset();
         removePopUp();
