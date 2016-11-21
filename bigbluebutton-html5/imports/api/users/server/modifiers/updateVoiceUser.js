@@ -2,7 +2,7 @@ import Users from '/imports/api/users';
 import { logger } from '/imports/startup/server/logger';
 
 //update a voiceUser - a helper method
-export function updateVoiceUser(meetingId, voiceUserObject, callback) {
+export function updateVoiceUser(meetingId, voiceUserObject, callback = () => {}) {
   let userObject;
   userObject = Users.findOne({
     userId: voiceUserObject.web_userid,

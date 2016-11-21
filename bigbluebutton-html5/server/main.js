@@ -1,11 +1,7 @@
 import '/imports/startup/server';
 import '/imports/api/chat/server';
 
-import '/imports/api/cursor/server/publications';
-import '/imports/api/cursor/server/modifiers/clearCursorCollection';
-import '/imports/api/cursor/server/modifiers/initializeCursor';
-import '/imports/api/cursor/server/modifiers/updateCursorLocation';
-import '/imports/api/cursor/server/modifiers/eventHandlers';
+import '/imports/api/cursor/server';
 
 import '/imports/api/deskshare/server/publications';
 import '/imports/api/deskshare/server/modifiers/clearDeskshareCollection';

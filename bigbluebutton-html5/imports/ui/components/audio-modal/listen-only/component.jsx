@@ -21,7 +21,6 @@ export default class ListenOnly extends React.Component {
     joinListenOnly();
   }
 
-
   render() {
     return (
       <div>
