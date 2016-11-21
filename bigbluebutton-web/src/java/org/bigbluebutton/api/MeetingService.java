@@ -294,32 +294,36 @@ public class MeetingService implements MessageListener {
     }
 
     private void handleCreateMeeting(Meeting m) {
-        meetings.put(m.getInternalId(), m);
-        Meeting parent = null;
+        String externalId;
         if (m.isBreakout()) {
             // Lookup for the parent
-            parent = getMeeting(m.getParentMeetingId());
+            Meeting parent = getMeeting(m.getParentMeetingId());
             // Add the current meeting as a child in memory
             parent.addChildMeetingId(m.getInternalId());
             // Add the current meeting as a child in redis
             parentAddChildMeetingId(parent, m.getInternalId());
+            // Assigns externalId
+            externalId = parent.getExternalId();
+        } else {
+            // Uses internalId and externalId as they where defined
+            externalId = m.getExternalId();
         }
+
+        meetings.put(m.getInternalId(), m);
 
         if (m.isRecord()) {
             Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
             // TODO: Need a better way to store these values for recordings
+            metadata.put("meetingId", externalId);
             metadata.put("meetingName", m.getName());
 
             Map<String, String> breakoutMetadata = new TreeMap<String, String>();
             breakoutMetadata.put("isBreakout", m.isBreakout().toString());
             if (m.isBreakout()){
-                metadata.put("meetingId", parent.getExternalId());
                 breakoutMetadata.put("meetingId", m.getExternalId());
                 breakoutMetadata.put("sequence", m.getSequence().toString());
                 breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
-            } else {
-                metadata.put("meetingId", m.getExternalId());
             }
             messagingService.recordMeetingInfo(m.getInternalId(), metadata, breakoutMetadata);
         }

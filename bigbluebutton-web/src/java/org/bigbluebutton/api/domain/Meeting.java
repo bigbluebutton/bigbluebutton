@@ -216,8 +216,8 @@ public class Meeting {
 		return intMeetingId;
 	}
 
-	public String setParentMeetingId(String p) {
-		return parentMeetingId = p;
+	public String setParentMeetingId(String id) {
+		return parentMeetingId = id;
 	}
 
 	public String getParentMeetingId() {
