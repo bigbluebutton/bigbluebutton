@@ -115,10 +115,10 @@ def sanity_archived_meeting(recording_dir)
 end
 
 def pre_process_archived_meeting(recording_dir)
-  recorded_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
+  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
 
-  recorded_done_files.each do |recorded_done|
-    match = /([^\/]*).done$/.match(recorded_done)
+  sanity_done_files.each do |sanity_done|
+    match = /([^\/]*).done$/.match(sanity_done)
     meeting_id = match[1]
 
     archived_done = "#{recording_dir}/status/processed/#{meeting_id}.done"
@@ -136,29 +136,17 @@ def pre_process_archived_meeting(recording_dir)
 
       # pre-process only if the new_meeting_id is not found
       if !File.directory?("#{recording_dir}/raw/#{new_meeting_id}")
-        BigBlueButton.logger.info("Pre-processing archived meeting [#{meeting_id}]")
+        BigBlueButton.logger.info("Recording [#{meeting_id}] is being pre-processed")
         # update events.xml
         ## Update meetingId in events.xml
         meeting_events.search('//recording').each do |recording|
           recording["meeting_id"] = new_meeting_id
         end
         ## Write the new events.xml
+        BigBlueButton.logger.info("Creating an updated events.xml")
         events_file = File.new("#{recording_dir}/raw/#{meeting_id}/events.xml","w")
         events = Nokogiri::XML(meeting_events.to_xml) { |x| x.noblanks }
         events_file.write(meeting_events.root)
-        events_file.close
-        BigBlueButton.logger.info("Created an updated events.xml")
-        ## Update childrenMeetingId in parent events.xml
-        parent_meeting_events = Nokogiri::XML(File.open("#{recording_dir}/raw/#{parent_meeting_id}/events.xml"))
-        parent_meeting_events.search('//recording/breakout').each do |recording_breakout|
-          children_meeting_id = recording_breakout["childrenMeetingId"]
-          new_children_meeting_id = children_meeting_id.sub!(meeting_id, new_meeting_id)
-          recording_breakout["childrenMeetingId"] = new_children_meeting_id
-        end
-        ## Write the new events.xml
-        events_file = File.new("#{recording_dir}/raw/#{parent_meeting_id}/events.xml","w")
-        events = Nokogiri::XML(parent_meeting_events.to_xml) { |x| x.noblanks }
-        events_file.write(parent_meeting_events.root)
         events_file.close
 
         # rename directory
@@ -168,6 +156,8 @@ def pre_process_archived_meeting(recording_dir)
         # rename sanity file
         BigBlueButton.logger.info("Moving #{recording_dir}/status/sanity/#{meeting_id}.done to #{recording_dir}/status/sanity/#{new_meeting_id}.done")
         FileUtils.mv("#{recording_dir}/status/sanity/#{meeting_id}.done", "#{recording_dir}/status/sanity/#{new_meeting_id}.done")
+      else
+        BigBlueButton.logger.info("Recording [#{meeting_id}] was already pre-processed")
       end
     end
   end
