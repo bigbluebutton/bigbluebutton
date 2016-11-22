@@ -132,6 +132,14 @@ const getTimeRemaining = () => {
 const setTimeRemaining = (sec = 0) => {
   if (sec !== timeRemaining) {
     timeRemaining = sec;
+
+    if (sec >= 0) {
+      const affix = `(${humanizeSeconds(sec)}`;
+      const splitTitle = document.title.split(') ');
+      const title = splitTitle[1] || splitTitle[0];
+      document.title = [affix, title].join(') ');
+    }
+
     timeRemainingDep.changed();
   }
 };
@@ -173,6 +181,8 @@ export default injectIntl(createContainer(({ intl }) => {
       if (!timeRemainingInterval && roomRemainingTime) {
         startCounterTimeRemaining(roomRemainingTime);
       }
+    } else if (timeRemainingInterval) {
+      clearInterval(timeRemainingInterval);
     }
   }
 
@@ -183,6 +193,7 @@ export default injectIntl(createContainer(({ intl }) => {
         { time: humanizeSeconds(getTimeRemaining()) }
       );
     } else {
+      clearInterval(timeRemainingInterval);
       data.message = intl.formatMessage(intlMessages.breakoutWillClose);
     }
   } else if (!getTimeRemaining() && currentBreakout) {
