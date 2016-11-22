@@ -1,34 +1,51 @@
 import Users from '/imports/api/users';
 import { logger } from '/imports/startup/server/logger';
+import Logger from '/imports/startup/server/logger';
 
 //update a voiceUser - a helper method
 export function updateVoiceUser(meetingId, voiceUserObject, callback = () => {}) {
+  check(meetingId, String);
+  check(voiceUserObject, Object);
+
   let userObject;
   userObject = Users.findOne({
     userId: voiceUserObject.web_userid,
   });
-  if (userObject != null) {
-    if (voiceUserObject.talking != null) {
-      Users.update({
-        meetingId: meetingId,
+
+  if (userObject) {
+    const isTalking = voiceUserObject.talking;
+
+    check(isTalking, Boolean);
+
+    // talking
+    //if (isTalking) {
+      const selector = {
+        meetingId,
         userId: voiceUserObject.web_userid,
-      }, {
+      };
+
+      const modifier = {
         $set: {
-          'user.voiceUser.talking': voiceUserObject.talking,
+          'user.voiceUser.talking': isTalking,
         },
-      }, (err, numChanged) => {
-        if (err != null) {
+      };
+
+      const cb = (err, numChanged) => {
+        if (err) {
           logger.error(
-            `_unsucc update of voiceUser ${voiceUserObject.web_userid} ` +
-            `[talking] err=${JSON.stringify(err)}`
+              `_unsucc update of voiceUser ${voiceUserObject.web_userid} ` +
+              `[talking] err=${JSON.stringify(err)}`
           );
         }
 
         return callback();
-      });
-    }
+      };
 
-    // talking
+      Logger.info(`user ${userObject.userId} talking ${isTalking}`);
+      Users.update(selector, modifier, cb);
+    //}
+
+    // joined
     if (voiceUserObject.joined != null) {
       Users.update({
         meetingId: meetingId,
@@ -49,7 +66,7 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback = () => {})
       });
     }
 
-    // joined
+    // locked
     if (voiceUserObject.locked != null) {
       Users.update({
         meetingId: meetingId,
@@ -70,7 +87,7 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback = () => {})
       });
     }
 
-    // locked
+    // muted
     if (voiceUserObject.muted != null) {
       Users.update({
         meetingId: meetingId,
@@ -91,7 +108,7 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback = () => {})
       });
     }
 
-    // muted
+    // listenOnly
     if (voiceUserObject.listen_only != null) {
       return Users.update({
         meetingId: meetingId,
@@ -112,7 +129,6 @@ export function updateVoiceUser(meetingId, voiceUserObject, callback = () => {})
       });
     }
 
-    // listenOnly
   } else {
     logger.error('ERROR! did not find such voiceUser!');
     return callback();

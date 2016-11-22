@@ -25,6 +25,7 @@ const mapUser = user => ({
   isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
   isMuted: user.voiceUser.muted,
+  isTalking: user.voiceUser.talking,
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isPhoneUser: user.phone_user,

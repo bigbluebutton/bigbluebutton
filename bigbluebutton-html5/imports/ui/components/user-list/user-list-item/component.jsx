@@ -258,15 +258,24 @@ class UserListItem extends Component {
     }
 
     let audioChatIcon = null;
-    if (user.isVoiceUser || user.isListenOnly) {
+    let talking = false;
+
+    if (user.isListenOnly) {
+      audioChatIcon = 'listen';
+    }
+
+    if (user.isVoiceUser) {
       if (user.isMuted) {
         audioChatIcon = 'audio-off';
+      } else if (user.isTalking) {
+        audioChatIcon = 'lock';
+        talking = true;
       } else {
-        audioChatIcon = user.isListenOnly ? 'listen' : 'audio';
+        audioChatIcon = 'audio';
       }
     }
 
-    return (
+      return (
       <div className={styles.userIcons}>
         <span className={styles.userIconsContainer}>
           {user.isSharingWebcam ? <Icon iconName='video'/> : null}

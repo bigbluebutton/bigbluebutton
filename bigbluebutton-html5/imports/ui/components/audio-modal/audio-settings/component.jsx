@@ -71,7 +71,7 @@ export default class AudioSettings extends React.Component {
         </div>
         <div className={styles.half}>
           Please note, a dialog will appear in your browser,
-          requiring you to accept your microphone.
+          requiring you to accept sharing your microphone.
           <br />
           <img src='resources/images/allow-mic.png' alt='allow microphone image' width='100%'/>
           <br />
