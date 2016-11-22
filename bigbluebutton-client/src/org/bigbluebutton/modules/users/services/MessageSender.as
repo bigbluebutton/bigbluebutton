@@ -23,8 +23,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
-  import org.bigbluebutton.main.api.JSLog;
-  
+
   public class MessageSender {
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
 
@@ -102,13 +101,12 @@ package org.bigbluebutton.modules.users.services
         );
     }
 		
-		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean, redirectOnJoin:Boolean):void {
+		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;
 			message["rooms"] = rooms;
 			message["durationInMinutes"] = durationInMinutes;
 			message["record"] = record;
-			message["redirectOnJoin"] = redirectOnJoin;
 			var jsonMsg:String = JSON.stringify(message);
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -126,12 +124,11 @@ package org.bigbluebutton.modules.users.services
 			);
 		}
 		
-		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String, redirect:Boolean):void {
+		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
 			var message:Object = new Object();
 			message["meetingId"] = parentMeetingId;
 			message["breakoutMeetingId"] = breakoutMeetingId;
 			message["userId"] = userId;
-			message["redirect"] = redirect;
 			
 			var jsonMsg:String = JSON.stringify(message);
 			

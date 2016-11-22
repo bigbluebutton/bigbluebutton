@@ -42,10 +42,10 @@ case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String,
 // Sent by user to request the breakout rooms list of a room
 case class BreakoutRoomsListMessage(meetingId: String) extends InMessage
 // Sent by user to request creation of breakout rooms
-case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, record: Boolean, redirectOnJoin: Boolean, rooms: Vector[BreakoutRoomInPayload]) extends InMessage
+case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, record: Boolean, rooms: Vector[BreakoutRoomInPayload]) extends InMessage
 case class BreakoutRoomInPayload(name: String, sequence: Int, users: Vector[String])
 // Sent by user to request for a join URL in order to be able to join a breakout room
-case class RequestBreakoutJoinURLInMessage(meetingId: String, breakoutMeetingId: String, userId: String, redirect: Boolean) extends InMessage
+case class RequestBreakoutJoinURLInMessage(meetingId: String, breakoutMeetingId: String, userId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor that breakout room has been created.
 case class BreakoutRoomCreated(meetingId: String, breakoutRoomId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor the list of users in the breakout room.    
