@@ -127,8 +127,8 @@ def pre_process_archived_meeting(recording_dir)
     archived_fail = "#{recording_dir}/status/processed/#{meeting_id}.fail"
     next if File.exists?(archived_fail)
 
-    @doc = Nokogiri::XML(File.open("#{recording_dir}/raw/#{meeting_id}/events.xml"))
-    breakout = @doc.xpath("//breakout")
+    meeting_events = Nokogiri::XML(File.open("#{recording_dir}/raw/#{meeting_id}/events.xml"))
+    breakout = meeting_events.xpath("//breakout")
     if breakout[0]["isBreakout"] == 'true'
       # build new_meeting_id
       parent_meeting_id = breakout[0]["parentMeetingId"]
@@ -138,16 +138,28 @@ def pre_process_archived_meeting(recording_dir)
       if !File.directory?("#{recording_dir}/raw/#{new_meeting_id}")
         BigBlueButton.logger.info("Pre-processing archived meeting [#{meeting_id}]")
         # update events.xml
-        ## Update meetingId  in events.xml
-        @doc.search('//recording').each do |recording|
+        ## Update meetingId in events.xml
+        meeting_events.search('//recording').each do |recording|
           recording["meeting_id"] = new_meeting_id
         end
         ## Write the new events.xml
         events_file = File.new("#{recording_dir}/raw/#{meeting_id}/events.xml","w")
-        events = Nokogiri::XML(@doc.to_xml) { |x| x.noblanks }
-        events_file.write(@doc.root)
+        events = Nokogiri::XML(meeting_events.to_xml) { |x| x.noblanks }
+        events_file.write(meeting_events.root)
         events_file.close
         BigBlueButton.logger.info("Created an updated events.xml")
+        ## Update childrenMeetingId in parent events.xml
+        parent_meeting_events = Nokogiri::XML(File.open("#{recording_dir}/raw/#{parent_meeting_id}/events.xml"))
+        parent_meeting_events.search('//recording/breakout').each do |recording_breakout|
+          children_meeting_id = recording_breakout["childrenMeetingId"]
+          new_children_meeting_id = children_meeting_id.sub!(meeting_id, new_meeting_id)
+          recording_breakout["childrenMeetingId"] = new_children_meeting_id
+        end
+        ## Write the new events.xml
+        events_file = File.new("#{recording_dir}/raw/#{parent_meeting_id}/events.xml","w")
+        events = Nokogiri::XML(parent_meeting_events.to_xml) { |x| x.noblanks }
+        events_file.write(parent_meeting_events.root)
+        events_file.close
 
         # rename directory
         BigBlueButton.logger.info("Moving #{recording_dir}/raw/#{meeting_id} to #{recording_dir}/raw/#{new_meeting_id}")
