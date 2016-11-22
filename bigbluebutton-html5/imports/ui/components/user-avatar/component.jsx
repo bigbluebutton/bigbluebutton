@@ -24,11 +24,12 @@ export default class UserAvatar extends Component {
     } = this.props;
 
     let avatarStyles = {
-      backgroundColor: getColor(user.name),
+      backgroundColor: getColor(user.name, user.isLogin),
     };
 
     return (
-      <div className={styles.userAvatar} style={avatarStyles}>
+      <div className={user.isLogin ? styles.userAvatar : styles.userLogout}
+           style={avatarStyles}>
         <span>
           {this.renderAvatarContent()}
         </span>

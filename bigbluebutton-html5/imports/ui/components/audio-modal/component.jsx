@@ -43,7 +43,7 @@ export default class Audio extends React.Component {
       JOIN_AUDIO: this.JOIN_AUDIO,
       AUDIO_SETTINGS: this.AUDIO_SETTINGS,
       LISTEN_ONLY: this.LISTEN_ONLY,
-    }
+    };
 
     const Submenu = this.submenus[curr].componentName;
     return <Submenu {...props}/>;

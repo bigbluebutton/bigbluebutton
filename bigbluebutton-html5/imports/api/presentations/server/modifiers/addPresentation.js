@@ -26,11 +26,9 @@ export default function addPresentation(meetingId, presentation) {
   const modifier = {
     $set: {
       meetingId,
-      presentation: {
-        id: presentation.id,
-        name: presentation.name,
-        current: presentation.current,
-      },
+      'presentation.id': presentation.id,
+      'presentation.name': presentation.name,
+      'presentation.current': presentation.current,
     },
   };
 

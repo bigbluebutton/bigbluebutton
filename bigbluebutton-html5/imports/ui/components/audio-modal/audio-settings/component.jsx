@@ -27,7 +27,6 @@ export default class AudioSettings extends React.Component {
     joinMicrophone();
   }
 
-
   render() {
     return (
       <div>
