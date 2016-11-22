@@ -264,21 +264,20 @@ class UserListItem extends Component {
     }
 
     if (user.isVoiceUser) {
-      if (user.isMuted) {
-        audioChatIcon = 'audio-off';
-      } else if (user.isTalking) {
-        audioChatIcon = 'audio'; // TODO make this icon glow
-      } else {
-        audioChatIcon = 'audio';
-      }
+      audioChatIcon = !user.isMuted ? 'audio' : 'audio-off';
     }
 
-      return (
+    let audioIconClassnames = {};
+
+    audioIconClassnames[styles.userIconsContainer] = true;
+    audioIconClassnames[styles.userIconGlowing] = user.isTalking;
+
+    return (
       <div className={styles.userIcons}>
         <span className={styles.userIconsContainer}>
           {user.isSharingWebcam ? <Icon iconName='video'/> : null}
         </span>
-        <span className={styles.userIconsContainer}>
+        <span className={cx(audioIconClassnames)}>
           {audioChatIcon ? <Icon iconName={audioChatIcon}/> : null}
         </span>
       </div>
