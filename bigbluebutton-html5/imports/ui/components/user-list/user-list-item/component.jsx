@@ -258,7 +258,6 @@ class UserListItem extends Component {
     }
 
     let audioChatIcon = null;
-    let talking = false;
 
     if (user.isListenOnly) {
       audioChatIcon = 'listen';
@@ -268,8 +267,7 @@ class UserListItem extends Component {
       if (user.isMuted) {
         audioChatIcon = 'audio-off';
       } else if (user.isTalking) {
-        audioChatIcon = 'lock';
-        talking = true;
+        audioChatIcon = 'audio'; // TODO make this icon glow
       } else {
         audioChatIcon = 'audio';
       }
