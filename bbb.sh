@@ -5,6 +5,8 @@ set -x
 RED5_DIR=/usr/share/red5
 BBB_DIR=$(pwd)
 
+sudo chmod -R 777 $RED5_DIR/webapps/
+
 cd $BBB_DIR
 
 DESKSHARE=$BBB_DIR/bbb-screenshare

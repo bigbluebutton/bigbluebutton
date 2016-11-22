@@ -12,17 +12,17 @@ import org.bigbluebutton.core.apps.CaptionApp
 import org.bigbluebutton.core.apps.CaptionModel
 
 class LiveMeeting(val mProps: MeetingProperties,
-                  val eventBus: IncomingEventBus,
-                  val outGW: OutMessageGateway,
-                  val chatModel: ChatModel,
-                  val layoutModel: LayoutModel,
-                  val meetingModel: MeetingModel,
-                  val usersModel: UsersModel,
-                  val pollModel: PollModel,
-                  val wbModel: WhiteboardModel,
-                  val presModel: PresentationModel,
-                  val breakoutModel: BreakoutRoomModel,
-                  val captionModel: CaptionModel)(implicit val context: ActorContext)
+  val eventBus: IncomingEventBus,
+  val outGW: OutMessageGateway,
+  val chatModel: ChatModel,
+  val layoutModel: LayoutModel,
+  val meetingModel: MeetingModel,
+  val usersModel: UsersModel,
+  val pollModel: PollModel,
+  val wbModel: WhiteboardModel,
+  val presModel: PresentationModel,
+  val breakoutModel: BreakoutRoomModel,
+  val captionModel: CaptionModel)(implicit val context: ActorContext)
     extends UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with BreakoutRoomApp with CaptionApp {
