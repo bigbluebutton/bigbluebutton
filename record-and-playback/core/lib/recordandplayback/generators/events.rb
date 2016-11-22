@@ -30,6 +30,7 @@ module BigBlueButton
     def self.get_meeting_metadata(events_xml)
       BigBlueButton.logger.info("Task: Getting meeting metadata")
       doc = Nokogiri::XML(File.open(events_xml))
+      meeting_id = doc.xpath("//recording/meeting_id")
       metadata = {}
       doc.xpath("//metadata").each do |e|
         e.keys.each do |k| 
@@ -38,7 +39,17 @@ module BigBlueButton
       end
       doc.xpath("//breakout").each do |e|
         e.keys.each do |k|
-          metadata[k] = e.attribute(k) unless k == 'meetingId'
+          if k == 'childrenMeetingId'
+            # Overrides childrenMeetingId with their corresponding overriden meetingIds
+            childrenMeetingId = ""
+            e.attribute(k).split(',').each do |id|
+              childrenMeetingId += (childrenMeetingId == "" ? "" : ",") + "#{meeting_id.split('-')[0]}-#{id.split("-")[1]}"
+            end
+            metadata[k] = childrenMeetingId
+          else
+            # Includes breakout elements as metadata but ignores meetingId 
+            metadata[k] = e.attribute(k) unless k == 'meetingId'
+          end
         end
       end
       metadata
