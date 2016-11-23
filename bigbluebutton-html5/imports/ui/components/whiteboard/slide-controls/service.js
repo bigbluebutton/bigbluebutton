@@ -12,10 +12,15 @@ let getSlideData = (params) => {
   const meetingId = AuthSingleton.getCredentials().meetingId;
 
   // Find the user object of this specific meeting and userid
-  const userIsPresenter = Users.findOne({
+  const currentUser = Users.findOne({
     meetingId: meetingId,
     userId: userId,
-  }).user.presenter;
+  });
+
+  let userIsPresenter;
+  if (currentUser && currentUser.user) {
+    userIsPresenter = currentUser.user.presenter;
+  }
 
   // Get total number of slides in this presentation
   const numberOfSlides = Slides.find({

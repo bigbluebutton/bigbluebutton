@@ -22,12 +22,12 @@ export default function breakoutJoinURL({ payload }) {
   const CLIENT_HTML = 'HTML5';
 
   const {
-    joinURL,
+    noRedirectJoinURL,
   } = payload;
 
-  check(joinURL, String);
+  check(noRedirectJoinURL, String);
 
-  const urlParams = getUrlParams(joinURL);
+  const urlParams = getUrlParams(noRedirectJoinURL);
 
   const selector = {
     externalMeetingId: urlParams.meetingID,
@@ -35,67 +35,49 @@ export default function breakoutJoinURL({ payload }) {
 
   let breakout = Breakouts.findOne(selector);
 
-  if (urlParams.redirect !== 'false') {
-    const MessageContent = {
-      breakoutMeetingId: breakout.externalMeetingId,
-      meetingId: breakout.parentMeetingId,
-      redirect: false,
+  const res = Meteor.http.call('get', noRedirectJoinURL);
+  xmlParser.parseString(res.content, (err, parsedXML) => {
+    breakout = Breakouts.findOne(selector);
+
+    const { response } = parsedXML;
+    let users = breakout.users;
+
+    let user = {
       userId: payload.userId,
+      urlParams: {
+        meetingId: response.meeting_id[0],
+        userId: response.user_id[0],
+        authToken: response.auth_token[0],
+      },
     };
 
-    const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
-    const eventName = 'RequestBreakoutJoinURL';
+    const userExists = users.find(u => user.userId === u.userId);
 
-    const clientType = Users.findOne({ userId: payload.userId }).clientType;
-
-    if (clientType === CLIENT_HTML) {
-      return RedisPubSub.publish(CHANNEL, eventName, MessageContent);
+    if (userExists) {
+      return;
     }
-  } else {
-    const res = Meteor.http.call('get', joinURL);
-    xmlParser.parseString(res.content, (err, parsedXML) => {
-      breakout = Breakouts.findOne(selector);
 
-      const { response } = parsedXML;
-      let users = breakout.users;
+    const modifier = {
+      $push: {
+        users: user,
+      },
+    };
 
-      let user = {
-        userId: payload.userId,
-        urlParams: {
-          meetingId: response.meeting_id[0],
-          userId: response.user_id[0],
-          authToken: response.auth_token[0],
-        },
-      };
-
-      const userExists = users.find(u => user.userId === u.userId);
-
-      if (userExists) {
-        return;
+    const cb = (err, numChanged) => {
+      if (err) {
+        return Logger.error(`Adding breakout to collection: ${err}`);
       }
 
-      const modifier = {
-        $push: {
-          users: user,
-        },
-      };
+      const {
+        insertedId,
+      } = numChanged;
+      if (insertedId) {
+        return Logger.info(`Added breakout id=${urlParams.meetingID}`);
+      }
 
-      const cb = (err, numChanged) => {
-        if (err) {
-          return Logger.error(`Adding breakout to collection: ${err}`);
-        }
+      return Logger.info(`Upserted breakout id=${urlParams.meetingID}`);
+    };
 
-        const {
-          insertedId,
-        } = numChanged;
-        if (insertedId) {
-          return Logger.info(`Added breakout id=${urlParams.meetingID}`);
-        }
-
-        return Logger.info(`Upserted breakout id=${urlParams.meetingID}`);
-      };
-
-      return Breakouts.upsert(selector, modifier, cb);
-    });
-  }
+    return Breakouts.upsert(selector, modifier, cb);
+  });
 }

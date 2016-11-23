@@ -6,6 +6,8 @@ import _ from 'underscore';
 import NavBarService from '../nav-bar/service';
 import Auth from '/imports/ui/services/auth';
 
+import Breakouts from '/imports/api/breakouts';
+
 import NotificationsBar from './component';
 
 const humanizeSeconds = time => {
@@ -85,13 +87,21 @@ class NotificationsBarContainer extends Component {
   }
 }
 
-//reconnect
 let retrySeconds = 0;
+let timeRemaining = 0;
 const retrySecondsDep = new Tracker.Dependency;
+const timeRemainingDep = new Tracker.Dependency;
+let retryInterval = null;
+let timeRemainingInterval = null;
 
 const getRetrySeconds = () => {
   retrySecondsDep.depend();
   return retrySeconds;
+};
+
+const getTimeRemaining = () => {
+  timeRemainingDep.depend();
+  return timeRemaining;
 };
 
 const setRetrySeconds = (sec = 0) => {
@@ -101,52 +111,36 @@ const setRetrySeconds = (sec = 0) => {
   }
 };
 
-let retryInterval = null;
-let timeRemainingInterval = null;
-
-const startCounterRetry = (sec) => {
-  clearInterval(retryInterval);
-  setRetrySeconds(sec);
-  retryInterval = setInterval(() => {
-    setRetrySeconds(getRetrySeconds() - 1);
-  }, 1000);
-};
-
-const startCounterTimeRemaining = (sec) => {
-  clearInterval(timeRemainingInterval);
-  setTimeRemaining(sec);
-  timeRemainingInterval = setInterval(() => {
-    setTimeRemaining(getTimeRemaining() - 1);
-  }, 1000);
-};
-
-// breakout
-let timeRemaining = 0;
-const timeRemainingDep = new Tracker.Dependency;
-
-const getTimeRemaining = () => {
-  timeRemainingDep.depend();
-  return timeRemaining;
-};
-
 const setTimeRemaining = (sec = 0) => {
   if (sec !== timeRemaining) {
     timeRemaining = sec;
-
-    if (sec >= 0) {
-      const affix = `(${humanizeSeconds(sec)}`;
-      const splitTitle = document.title.split(') ');
-      const title = splitTitle[1] || splitTitle[0];
-      document.title = [affix, title].join(') ');
-    }
-
+    changeDocumentTitle(sec);
     timeRemainingDep.changed();
+  }
+};
+
+const startCounter = (sec, set, get, interval) => {
+  clearInterval(interval);
+  set(sec);
+  return setInterval(() => {
+    set(get() - 1);
+  }, 1000);
+};
+
+const changeDocumentTitle = (sec) => {
+  if (sec >= 0) {
+    const affix = `(${humanizeSeconds(sec)}`;
+    const splitTitle = document.title.split(') ');
+    const title = splitTitle[1] || splitTitle[0];
+    document.title = [affix, title].join(') ');
   }
 };
 
 export default injectIntl(createContainer(({ intl }) => {
   const { status, connected, retryCount, retryTime } = Meteor.status();
   let data = {};
+
+  window.Breakouts = Breakouts;
 
   if (!connected) {
     data.color = 'primary';
@@ -161,13 +155,15 @@ export default injectIntl(createContainer(({ intl }) => {
         break;
       case STATUS_WAITING:
         const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
-        startCounterRetry(sec);
+        retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = intl.formatMessage(
           intlMessages.waitingMessage,
           { seconds: getRetrySeconds() }
         );
         break;
     }
+
+    return data;
   }
 
   const meetingId = Auth.meetingID;
@@ -179,7 +175,10 @@ export default injectIntl(createContainer(({ intl }) => {
     if (currentBreakout) {
       roomRemainingTime = currentBreakout.timeRemaining;
       if (!timeRemainingInterval && roomRemainingTime) {
-        startCounterTimeRemaining(roomRemainingTime);
+        timeRemainingInterval = startCounter(roomRemainingTime,
+                                             setTimeRemaining,
+                                             getTimeRemaining,
+                                             timeRemainingInterval);
       }
     } else if (timeRemainingInterval) {
       clearInterval(timeRemainingInterval);

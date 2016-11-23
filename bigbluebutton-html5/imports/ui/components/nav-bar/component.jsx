@@ -46,6 +46,11 @@ class NavBar extends Component {
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
+  componendDidMount() {
+    const presentationTitle = this.props.presentationTitle;
+    document.title = presentationTitle;
+  }
+
   handleToggleUserList() {
     this.props.toggleUserList();
   }
@@ -93,7 +98,6 @@ class NavBar extends Component {
     let breakouts = this.props.breakouts;
     const meetingId = Auth.getCredentials().meetingId;
     const currentUserId = Auth.getCredentials().requesterUserId;
-    document.title = presentationTitle;
 
     breakouts = breakouts.filter(breakout => {
       if (!breakout.users) {
