@@ -300,8 +300,6 @@ public class MeetingService implements MessageListener {
             Meeting parent = getMeeting(m.getParentMeetingId());
             // Add the current meeting as a child in memory
             parent.addChildMeetingId(m.getInternalId());
-            // Add the current meeting as a child in redis
-            parentAddChildMeetingId(parent, m.getInternalId());
             // Assigns externalId
             externalId = parent.getExternalId();
         } else {
@@ -600,29 +598,6 @@ public class MeetingService implements MessageListener {
                 removeUserSessions(m.getInternalId());
             }
         }
-    }
-
-    private void parentAddChildMeetingId(Meeting parent, String childMeetingId) {
-        // Fetch stored values from the parent
-        Map<String, String> parentMetadata = messagingService.fetchMeetingInfo(parent.getInternalId());
-        Map<String, String> parentBreakoutMetadata = messagingService.fetchMeetingBreakoutInfo(parent.getInternalId());
-        // Initialize parentChildrenMeetingId array
-        List<String> childrenMeetingId = new ArrayList<String>();
-        childrenMeetingId.add(childMeetingId);
-        // Merge children meeting ids with the stored ones
-        String storedChildrenMeetingId = parentBreakoutMetadata.get("childrenMeetingId");
-        if ( storedChildrenMeetingId != null && storedChildrenMeetingId != "" ) {
-            childrenMeetingId.addAll(Arrays.asList(storedChildrenMeetingId.split("\\s*,\\s*")));
-        }
-        // Serialize new childrenMeetingId
-        String childrenMeetingIdSerialized = "";
-        for (String s : childrenMeetingId) {
-            childrenMeetingIdSerialized += (childrenMeetingIdSerialized == ""? "": ",") + s;
-        }
-        // Update the parent metadata
-        parentBreakoutMetadata.put("childrenMeetingId", childrenMeetingIdSerialized);
-        // Save updated parent info in redis
-        messagingService.recordMeetingInfo(parent.getInternalId(), parentMetadata, parentBreakoutMetadata);
     }
 
     public void addUserCustomData(String meetingId, String userID,
