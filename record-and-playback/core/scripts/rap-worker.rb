@@ -121,31 +121,42 @@ def pre_process_archived_meeting(recording_dir)
     match = /([^\/]*).done$/.match(sanity_done)
     meeting_id = match[1]
 
+    step_succeeded = true
+
     archived_done = "#{recording_dir}/status/processed/#{meeting_id}.done"
     next if File.exists?(archived_done)
 
     archived_fail = "#{recording_dir}/status/processed/#{meeting_id}.fail"
     next if File.exists?(archived_fail)
 
-    events = Nokogiri::XML(File.open("#{recording_dir}/raw/#{meeting_id}/events.xml"))
-    breakout = events.xpath("//breakout")
+    events_doc = Nokogiri::XML(File.open("#{recording_dir}/raw/#{meeting_id}/events.xml"))
+    breakout = events_doc.xpath("//breakout")
+    breakout_meeting_id = breakout[0]["meetingId"]
     if breakout[0]["isBreakout"] == 'true'
       # build new_meeting_id
       timestamp = meeting_id.split("-")[1].to_i
       parent_meeting_id = breakout[0]["parentMeetingId"]
       new_meeting_id = "#{parent_meeting_id.split('-')[0]}-#{timestamp}"
+
+      # make sure the new_meeting_id is unique
       new_meeting_id_unique = false
       begin
         if File.directory?("#{recording_dir}/raw/#{new_meeting_id}")
-          new_events = Nokogiri::XML(File.open("#{recording_dir}/raw/#{new_meeting_id}/events.xml"))
-          new_breakout = new_events.xpath("//breakout")
+          new_events_doc = Nokogiri::XML(File.open("#{recording_dir}/raw/#{new_meeting_id}/events.xml"))
+          new_breakout = new_events_doc.xpath("//breakout")
           new_breakout_meeting_id = new_breakout[0]["meetingId"]
-          if ( meeting_id == new_breakout_meeting_id )
+          if ( breakout_meeting_id == new_breakout_meeting_id )
+            # It was already processed
+            # considere it unique even though it won't be processed again
             new_meeting_id_unique = true
           else
-            new_meeting_id = "#{parent_meeting_id.split('-')[0]}-#{++timestamp}"
+            # It is not unique.
+            # akka-apps generated concurrent timestamps for more than one breakout room
+            timestamp += 1
+            new_meeting_id = "#{parent_meeting_id.split('-')[0]}-#{timestamp}"
           end
         else
+          # It is not unique.
           new_meeting_id_unique = true
         end 
       end until new_meeting_id_unique
@@ -155,12 +166,12 @@ def pre_process_archived_meeting(recording_dir)
         BigBlueButton.logger.info("Recording [#{meeting_id}] is being pre-processed")
         # update events.xml
         ## Update meetingId in events.xml
-        events.xpath("//recording")[0]["meeting_id"] = new_meeting_id
+        events_doc.xpath("//recording")[0]["meeting_id"] = new_meeting_id
         ## Write the new events.xml
         BigBlueButton.logger.info("Creating an updated events.xml")
         events_file = File.new("#{recording_dir}/raw/#{meeting_id}/events.xml","w")
-        events = Nokogiri::XML(meeting_events.to_xml) { |x| x.noblanks }
-        events_file.write(meeting_events.root)
+        events = Nokogiri::XML(events_doc.to_xml) { |x| x.noblanks }
+        events_file.write(events_doc.root)
         events_file.close
 
         # rename directory
