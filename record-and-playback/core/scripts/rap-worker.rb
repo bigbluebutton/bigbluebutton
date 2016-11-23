@@ -65,6 +65,8 @@ def archive_recorded_meeting(recording_dir)
       "step_time" => step_time
     }
 
+    step_succeeded = override_archived_breakout(meeting_id)
+  
     if step_succeeded
       BigBlueButton.logger.info("Successfully archived #{meeting_id}")
       FileUtils.rm(recorded_done)
@@ -110,80 +112,6 @@ def sanity_archived_meeting(recording_dir)
     else
       BigBlueButton.logger.error("Sanity check failed on #{meeting_id}")
       FileUtils.touch(sanity_fail)
-    end
-  end
-end
-
-def pre_process_archived_meeting(recording_dir)
-  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
-
-  sanity_done_files.each do |sanity_done|
-    match = /([^\/]*).done$/.match(sanity_done)
-    meeting_id = match[1]
-
-    step_succeeded = true
-
-    archived_done = "#{recording_dir}/status/processed/#{meeting_id}.done"
-    next if File.exists?(archived_done)
-
-    archived_fail = "#{recording_dir}/status/processed/#{meeting_id}.fail"
-    next if File.exists?(archived_fail)
-
-    events_doc = Nokogiri::XML(File.open("#{recording_dir}/raw/#{meeting_id}/events.xml"))
-    breakout = events_doc.xpath("//breakout")
-    breakout_meeting_id = breakout[0]["meetingId"]
-    if breakout[0]["isBreakout"] == 'true'
-      # build new_meeting_id
-      timestamp = meeting_id.split("-")[1].to_i
-      parent_meeting_id = breakout[0]["parentMeetingId"]
-      new_meeting_id = "#{parent_meeting_id.split('-')[0]}-#{timestamp}"
-
-      # make sure the new_meeting_id is unique
-      new_meeting_id_unique = false
-      begin
-        if File.directory?("#{recording_dir}/raw/#{new_meeting_id}")
-          new_events_doc = Nokogiri::XML(File.open("#{recording_dir}/raw/#{new_meeting_id}/events.xml"))
-          new_breakout = new_events_doc.xpath("//breakout")
-          new_breakout_meeting_id = new_breakout[0]["meetingId"]
-          if ( breakout_meeting_id == new_breakout_meeting_id )
-            # It was already processed
-            # considere it unique even though it won't be processed again
-            new_meeting_id_unique = true
-          else
-            # It is not unique.
-            # akka-apps generated concurrent timestamps for more than one breakout room
-            timestamp += 1
-            new_meeting_id = "#{parent_meeting_id.split('-')[0]}-#{timestamp}"
-          end
-        else
-          # It is not unique.
-          new_meeting_id_unique = true
-        end 
-      end until new_meeting_id_unique
-
-      # pre-process only if the new_meeting_id is not found
-      if !File.directory?("#{recording_dir}/raw/#{new_meeting_id}")
-        BigBlueButton.logger.info("Recording [#{meeting_id}] is being pre-processed")
-        # update events.xml
-        ## Update meetingId in events.xml
-        events_doc.xpath("//recording")[0]["meeting_id"] = new_meeting_id
-        ## Write the new events.xml
-        BigBlueButton.logger.info("Creating an updated events.xml")
-        events_file = File.new("#{recording_dir}/raw/#{meeting_id}/events.xml","w")
-        events = Nokogiri::XML(events_doc.to_xml) { |x| x.noblanks }
-        events_file.write(events_doc.root)
-        events_file.close
-
-        # rename directory
-        BigBlueButton.logger.info("Moving #{recording_dir}/raw/#{meeting_id} to #{recording_dir}/raw/#{new_meeting_id}")
-        FileUtils.mv("#{recording_dir}/raw/#{meeting_id}", "#{recording_dir}/raw/#{new_meeting_id}")
-
-        # rename sanity file
-        BigBlueButton.logger.info("Moving #{recording_dir}/status/sanity/#{meeting_id}.done to #{recording_dir}/status/sanity/#{new_meeting_id}.done")
-        FileUtils.mv("#{recording_dir}/status/sanity/#{meeting_id}.done", "#{recording_dir}/status/sanity/#{new_meeting_id}.done")
-      else
-        BigBlueButton.logger.info("Recording [#{meeting_id}] was already pre-processed")
-      end
     end
   end
 end
@@ -405,6 +333,69 @@ def post_publish(meeting_id)
   end
 end
 
+def override_archived_breakout(meeting_id)
+  step_succeeded = true
+
+  # Process breakout override if required
+  events_doc = Nokogiri::XML(File.open("#{recording_dir}/raw/#{meeting_id}/events.xml"))
+  breakout = events_doc.xpath("//breakout")
+  if breakout[0]["isBreakout"] == 'true'
+    # build new_meetiparent_meeting_idng_id
+    parent_meeting_id_base = breakout[0]["parentMeetingId"].split('-')[0]
+    timestamp = meeting_id.split("-")[1].to_i
+    new_meeting_id = "#{parent_mid_base}-#{timestamp}"
+
+    # make sure the new_meeting_id is unique
+    new_meeting_id_unique = false
+    begin
+      if File.directory?("#{recording_dir}/raw/#{new_meeting_id}")
+        new_events_doc = Nokogiri::XML(File.open("#{recording_dir}/raw/#{new_meeting_id}/events.xml"))
+        if ( breakout[0]["meetingId"] == new_events_doc.xpath("//breakout")[0]["meetingId"] )
+          # It was already processed
+          # considere it unique even though it won't be processed again
+          new_meeting_id_unique = true
+        else
+          # It is not unique.
+          # akka-apps generated concurrent timestamps for more than one breakout room
+          timestamp += 1
+          new_meeting_id = "#{parent_meeting_id_base}-#{timestamp}"
+        end
+      else
+        # It is not unique.
+        new_meeting_id_unique = true
+      end 
+    end until new_meeting_id_unique
+
+    # execute override
+    begin
+      BigBlueButton.logger.info("Recording [#{meeting_id}] is being overriden")
+      ## update events.xml
+      ### Update meetingId in events.xml
+      events_doc.xpath("//recording")[0]["meeting_id"] = new_meeting_id
+      ### Write the new events.xml
+      BigBlueButton.logger.info("Creating an updated events.xml")
+      events_file = File.new("#{recording_dir}/raw/#{meeting_id}/events.xml","w")
+      events = Nokogiri::XML(events_doc.to_xml) { |x| x.noblanks }
+      events_file.write(events_doc.root)
+      events_file.close
+
+      ## rename directory
+      BigBlueButton.logger.info("Moving #{recording_dir}/raw/#{meeting_id} to #{recording_dir}/raw/#{new_meeting_id}")
+      FileUtils.mv("#{recording_dir}/raw/#{meeting_id}", "#{recording_dir}/raw/#{new_meeting_id}")
+
+      ## rename sanity file
+      BigBlueButton.logger.info("Moving #{recording_dir}/status/sanity/#{meeting_id}.done to #{recording_dir}/status/sanity/#{new_meeting_id}.done")
+      FileUtils.mv("#{recording_dir}/status/sanity/#{meeting_id}.done", "#{recording_dir}/status/sanity/#{new_meeting_id}.done")
+    rescue Exception => e
+      # Return with error
+      BigBlueButton.logger.debug(e.message)
+      step_succeeded = false
+    end
+  end
+
+  step_succeeded
+end
+
 begin
   props = YAML::load(File.open('bigbluebutton.yml'))
   redis_host = props['redis_host']
@@ -422,7 +413,6 @@ begin
 
   archive_recorded_meeting(recording_dir)
   sanity_archived_meeting(recording_dir)
-  pre_process_archived_meeting(recording_dir)
   process_archived_meeting(recording_dir)
   publish_processed_meeting(recording_dir)
 
