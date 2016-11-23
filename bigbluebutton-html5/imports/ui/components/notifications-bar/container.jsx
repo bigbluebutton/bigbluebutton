@@ -6,8 +6,6 @@ import _ from 'underscore';
 import NavBarService from '../nav-bar/service';
 import Auth from '/imports/ui/services/auth';
 
-import Breakouts from '/imports/api/breakouts';
-
 import NotificationsBar from './component';
 
 const humanizeSeconds = time => {
@@ -139,8 +137,6 @@ const changeDocumentTitle = (sec) => {
 export default injectIntl(createContainer(({ intl }) => {
   const { status, connected, retryCount, retryTime } = Meteor.status();
   let data = {};
-
-  window.Breakouts = Breakouts;
 
   if (!connected) {
     data.color = 'primary';

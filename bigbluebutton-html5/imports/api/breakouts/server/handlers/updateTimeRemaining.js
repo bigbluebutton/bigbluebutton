@@ -21,5 +21,10 @@ export default function updateTimeRemaining({ payload }) {
     },
   };
 
-  return Breakouts.update(selector, modifier);
+  const options = {
+    multi: true,
+  };
+
+  console.log('found', Breakouts.find(selector).fetch().length);
+  return Breakouts.update(selector, modifier, options, (err, num) => console.log('updated', err, num));
 }
