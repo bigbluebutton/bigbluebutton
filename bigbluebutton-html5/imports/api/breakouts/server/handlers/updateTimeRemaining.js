@@ -25,6 +25,15 @@ export default function updateTimeRemaining({ payload }) {
     multi: true,
   };
 
-  console.log('found', Breakouts.find(selector).fetch().length);
-  return Breakouts.update(selector, modifier, options, (err, num) => console.log('updated', err, num));
+  const cb = (err, numChanged) => {
+    if (err) {
+      return Logger.error(`Updating breakouts: ${err}`);
+    }
+
+    if (numChanged) {
+      return Logger.info(`Updated breakouts with parentMeetingId=${payload.meetingId}`);
+    }
+  };
+
+  return Breakouts.update(selector, modifier, options, cb);
 }
