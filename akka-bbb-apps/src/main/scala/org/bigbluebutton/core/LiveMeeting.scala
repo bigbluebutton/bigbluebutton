@@ -2,14 +2,14 @@ package org.bigbluebutton.core
 
 import java.util.concurrent.TimeUnit
 
+import scala.concurrent.duration.Duration
+
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus.IncomingEventBus
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.core.apps.CaptionApp
-import org.bigbluebutton.core.apps.CaptionModel
 
 class LiveMeeting(val mProps: MeetingProperties,
                   val eventBus: IncomingEventBus,
@@ -122,7 +122,12 @@ class LiveMeeting(val mProps: MeetingProperties,
     handleEndAllBreakoutRooms(new EndAllBreakoutRooms(msg.meetingId))
 
     outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
-    outGW.send(new DisconnectAllUsers(msg.meetingId))
+    // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client  
+    import context.dispatcher
+    context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
+      log.info("Sending delayed DisconnectUser. meetingId={}", mProps.meetingID)
+      outGW.send(new DisconnectAllUsers(msg.meetingId))
+    }
   }
 
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {

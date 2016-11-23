@@ -280,7 +280,7 @@ module BigBlueButton
           return {} if !info[:format]
 
           info[:video] = info[:streams].find do |stream|
-            stream[:codec_type] == 'audio'
+            stream[:codec_type] == 'video'
           end
 
           return {} if !info[:video]

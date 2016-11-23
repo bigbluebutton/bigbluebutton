@@ -639,7 +639,7 @@ package org.bigbluebutton.modules.users.services
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
-		event.joinURL = map.joinURL;
+		event.joinURL = map.redirectJoinURL;
 		var externalMeetingId : String = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
 		event.breakoutMeetingSequence = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId).sequence;
 		dispatcher.dispatchEvent(event);
