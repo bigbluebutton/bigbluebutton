@@ -39,17 +39,8 @@ module BigBlueButton
       end
       doc.xpath("//breakout").each do |e|
         e.keys.each do |k|
-          if k == 'childrenMeetingId'
-            # Overrides childrenMeetingId with their corresponding overriden meetingIds
-            childrenMeetingId = ""
-            e.attribute(k).text.split(',').each do |id|
-              childrenMeetingId += (childrenMeetingId == "" ? "" : ",") + "#{meeting_id.split('-')[0]}-#{id.split("-")[1]}"
-            end
-            metadata[k] = childrenMeetingId
-          else
-            # Includes breakout elements as metadata but ignores meetingId 
-            metadata[k] = e.attribute(k) unless k == 'meetingId'
-          end
+           # Includes breakout elements as metadata but ignores meetingId 
+           metadata[k] = e.attribute(k) unless k == 'meetingId'
         end
       end
       metadata
