@@ -2,9 +2,6 @@ import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
 import { joinMicrophone } from '/imports/api/phone';
-import classNames from 'classnames';
-import ReactDOM from 'react-dom';
-import { callServer } from '/imports/ui/services/api';
 import styles from '../styles.scss';
 
 export default class AudioSettings extends React.Component {
@@ -16,6 +13,11 @@ export default class AudioSettings extends React.Component {
   }
 
   handleClick() {
+  }
+
+  playAudioSample() {
+    const snd = new Audio('resources/sounds/audioSample.mp3');
+    snd.play();
   }
 
   chooseAudio() {
@@ -64,12 +66,12 @@ export default class AudioSettings extends React.Component {
             size={'md'}
             color={'primary'}
             ghost={true}
-            onClick={this.handleClick}
+            onClick={this.playAudioSample}
           /><br />
         </div>
         <div className={styles.half}>
           Please note, a dialog will appear in your browser,
-          requiring you to accept your microphone.
+          requiring you to accept sharing your microphone.
           <br />
           <img src='resources/images/allow-mic.png' alt='allow microphone image' width='100%'/>
           <br />

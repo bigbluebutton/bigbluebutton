@@ -64,6 +64,10 @@
   color: $sub-name-color;
 }
 
+.userIconGlowing {
+  text-shadow: 0 0 .25rem;
+}
+
 .userIconsContainer {
   @extend %flex-column;
   text-align: center;
