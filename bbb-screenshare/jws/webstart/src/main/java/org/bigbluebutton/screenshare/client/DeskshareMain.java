@@ -106,7 +106,8 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     Boolean captureFullScreen = false;
     String session = null;
     String codecOptions = null;
-    
+    boolean useH264 = true;
+
     if(args != null && args.length == 8) {
       System.out.println("Using passed args: length=[" + args.length + "]");
       url = args[0];
@@ -114,6 +115,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
       meetingId = args[2];
       streamId = args[3];
       captureFullScreen = Boolean.parseBoolean(args[4]);
+      useH264 = false;
       
       System.out.println("Using passed args: [" + url + "] meetingId=[" + meetingId + "] streamId=[" + streamId + "] captureFullScreen=" + captureFullScreen);
       codecOptions = args[5];
@@ -147,7 +149,8 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
             .captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
             .quality(true).autoScale(0).codecOptions(codecOptions)
             .x(xValue).y(yValue).fullScreen(captureFullScreen).withURL(url)
-            .httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
+            .httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true)
+                .useH264(useH264).build();
 
         client.addClientListener(dsMain);
         client.start();

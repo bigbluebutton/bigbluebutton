@@ -143,6 +143,9 @@ class Screenshare(val sessionManager: ScreenshareManager,
   private val PRESENTER_AUTO_RECONNECTED_REASON = "PRESENTER_AUTO_RECONNECTED_REASON"
   private val JWS_START_FAILED_REASON = "JWS_START_FAILED_REASON"
 
+  // RTMP or RTMPT
+  private var tunnel: Boolean = false;
+
   val sessionAudit = context.actorOf(ScreenShareAuditInternal.props(meetingId))
 
   def receive = {
@@ -283,7 +286,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
       sss <- screenShareSession
     } yield {
       if (as.token == msg.token) {
-        sender ! new ScreenShareInfoRequestReply(msg.meetingId, as.streamId, sss)
+        sender ! new ScreenShareInfoRequestReply(msg.meetingId, as.streamId, sss, as.tunnel)
       }
 
     }
@@ -446,7 +449,7 @@ class Screenshare(val sessionManager: ScreenshareManager,
         val token = streamId
 
         val userId = trimUserId(msg.userId).getOrElse(msg.userId)
-        val session = ActiveSession(this, bus, meetingId, streamId, token, record, userId)
+        val session = ActiveSession(this, bus, meetingId, streamId, token, record, userId, tunnel)
         activeSession = Some(session)
         sessionStartedTimestamp = TimeUtil.currentMonoTimeInSeconds()
         status = START
@@ -474,7 +477,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
 
     val userId = trimUserId(msg.userId).getOrElse(msg.userId)
 
-    val session = ActiveSession(this, bus, meetingId, streamId, token, msg.record, userId)
+    tunnel = msg.tunnel
+    val session = ActiveSession(this, bus, meetingId, streamId, token, msg.record, userId, tunnel)
     activeSession = Some(session)
 
     currentPresenterId = Some(msg.userId)

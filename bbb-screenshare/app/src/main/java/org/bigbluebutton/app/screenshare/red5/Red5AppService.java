@@ -133,12 +133,13 @@ public class Red5AppService {
     Boolean record = (Boolean) msg.get("record");
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
+    Boolean tunnel = (Boolean) msg.get("tunnel");
 
     if (log.isDebugEnabled()) {
       log.debug("Received startShareRequest for meetingId=" + meetingId + " from user=" + userId);
     }
 
-    handler.requestShareToken(meetingId, userId, record);
+    handler.requestShareToken(meetingId, userId, record, tunnel);
   }
 
   public void stopShareRequest(Map<String, Object> msg) {

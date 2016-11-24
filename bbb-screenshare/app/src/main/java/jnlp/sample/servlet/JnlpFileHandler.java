@@ -314,11 +314,21 @@ public class JnlpFileHandler {
     if (sInfo == null) {
       errorMessage = "ERROR_GETTING_INFO_USING_TOKEN";
     } else {
-      publishUrl = sInfo.publishUrl;
+
+      System.out.println("********* URL=" + sInfo.publishUrl);
+      if (sInfo.tunnel) {
+        publishUrl = sInfo.publishUrl.replaceFirst("rtmp","rtmpt");
+      } else {
+        publishUrl = sInfo.publishUrl;
+      }
+
       streamId = sInfo.streamId;
       session = sInfo.session;
     }
-    
+
+
+    System.out.println("********* URL=" + publishUrl);
+
     String jnlpUrl = configurator.getJnlpUrl();
     
     String codecOptions = configurator.getCodecOptions();
