@@ -19,8 +19,6 @@ export default class Settings extends React.Component {
 
   renderSettingOptions() {
     const { isPresenter, role } = this.props;
-    console.log(this.props);
-    console.log(role);
     this.submenus = [];
 
     this.submenus.push({ componentName: AudioMenu, tabIndex: 3,
