@@ -4,7 +4,7 @@ import scala.Vector
 
 case class BreakoutUser(id: String, name: String)
 case class BreakoutRoom(id: String, externalMeetingId: String, name: String, parentRoomId: String, sequence: Integer, voiceConfId: String,
-                        assignedUsers: Vector[String], users: Vector[BreakoutUser])
+  assignedUsers: Vector[String], users: Vector[BreakoutUser])
 
 class BreakoutRoomModel {
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoom]
@@ -21,7 +21,7 @@ class BreakoutRoomModel {
   }
 
   def createBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, voiceConfId: String,
-                         assignedUsers: Vector[String]): BreakoutRoom = {
+    assignedUsers: Vector[String]): BreakoutRoom = {
     val room = new BreakoutRoom(id, externalMeetingId, name, parentRoomId, sequence, voiceConfId, assignedUsers, Vector())
     add(room)
   }
