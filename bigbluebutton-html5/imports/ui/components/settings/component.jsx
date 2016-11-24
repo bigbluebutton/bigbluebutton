@@ -17,7 +17,7 @@ export default class Settings extends React.Component {
     this.state = { activeSubmenu: 0, focusSubmenu: 0 };
   }
 
-  renderSettingOptions(){
+  renderSettingOptions() {
     const { isPresenter, role } = this.props;
     console.log(this.props);
     console.log(role);
@@ -30,12 +30,12 @@ export default class Settings extends React.Component {
     this.submenus.push({ componentName: ApplicationMenu, tabIndex: 5,
       props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
 
-    if(isPresenter || role === 'MODERATOR'){
-        this.submenus.push({ componentName: UsersMenu, tabIndex: 6,
-          props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
+    if (isPresenter || role === 'MODERATOR') {
+      this.submenus.push({ componentName: UsersMenu, tabIndex: 6,
+        props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
     }
 
-    return(
+    return (
       <div className={styles.full} role='presentation'>
         <div className={styles.settingsMenuLeft}>
           <ul className={styles.settingsSubmenu} role='menu'>
@@ -60,11 +60,10 @@ export default class Settings extends React.Component {
     );
   }
 
-
   createMenu() {
     let curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
 
-    if(!this.submenus[curr]){
+    if (!this.submenus[curr]) {
       curr = (this.state.activeSubmenu - 1);
     }
 
