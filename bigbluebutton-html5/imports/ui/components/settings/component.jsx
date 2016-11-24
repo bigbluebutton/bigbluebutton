@@ -17,8 +17,10 @@ export default class Settings extends React.Component {
     this.state = { activeSubmenu: 0, focusSubmenu: 0 };
   }
 
-  renderSettings(){
+  renderSettingOptions(){
     const { isPresenter, role } = this.props;
+    console.log(this.props);
+    console.log(role);
     this.submenus = [];
 
     this.submenus.push({ componentName: AudioMenu, tabIndex: 3,
@@ -28,7 +30,7 @@ export default class Settings extends React.Component {
     this.submenus.push({ componentName: ApplicationMenu, tabIndex: 5,
       props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
 
-    if(isPresenter){
+    if(isPresenter || role === 'MODERATOR'){
         this.submenus.push({ componentName: UsersMenu, tabIndex: 6,
           props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
     }
@@ -202,7 +204,7 @@ export default class Settings extends React.Component {
           label: 'Cancel',
           description: 'Discart the changes and close the settings menu',
         }}>
-          {this.renderSettings()}
+          {this.renderSettingOptions()}
       </Modal>
     );
   }
