@@ -1,15 +1,30 @@
 import { Meteor } from 'meteor/meteor';
 import Winston from 'winston';
 
-let Logger = new Winston.Logger();
+let Logger = new (Winston.Logger)({
+    transports: [
 
-// Write logs to console
-Logger.add(Winston.transports.Console, {
-  prettyPrint: false,
-  humanReadableUnhandledException: true,
-  colorize: true,
-  handleExceptions: true,
-});
+      // Write logs to console
+      new Winston.transports.Console({
+            prettyPrint: false,
+            humanReadableUnhandledException: true,
+            colorize: true,
+            handleExceptions: true,
+          }),
+      ],
+    levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5, },
+    colors: {
+      error: 'red',
+      warn: 'yellow',
+      info: 'green',
+      verbose: 'cyan',
+      debug: 'magenta',
+      silly: 'gray',
+    },
+  });
+
+// Set Logger message level priority for the console
+Logger.transports.console.level = 'silly';
 
 Meteor.startup(() => {
   const LOG_CONFIG = Meteor.settings.log || {};
