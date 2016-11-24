@@ -1,11 +1,20 @@
 import Breakouts from '/imports/api/breakouts';
 import { Meteor } from 'meteor/meteor';
 
-Meteor.publish('breakouts', credentials =>
-  Breakouts.find({
+Meteor.publish('breakouts', credentials => {
+  const {
+    meetingId,
+    requesterUserId,
+  } = credentials;
+
+  return Breakouts.find({
     $or: [
-      { parentMeetingId: credentials.meetingId },
-      { breakoutMeetingId: credentials.meetingId },
+      { breakoutMeetingId: meetingId },
+      {
+        users: {
+          $elemMatch: { userId: requesterUserId },
+        },
+      },
     ],
-  })
-);
+  });
+});

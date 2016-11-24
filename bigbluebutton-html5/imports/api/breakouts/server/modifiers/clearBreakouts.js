@@ -3,14 +3,22 @@ import Logger from '/imports/startup/server/logger';
 import removeMeeting from '/imports/api/meetings/server/modifiers/removeMeeting';
 
 export default function clearBreakouts(meetingId) {
+  let cb = () => {
+    Logger.info(`Cleared Breakouts (all)`);
+  };
+
   if (meetingId) {
-    return Breakouts.remove({
+    const selector = {
       breakoutMeetingId: meetingId,
-    }, () => {
+    };
+
+    cb = () => {
       Logger.info(`Cleared Breakouts (${meetingId})`);
       removeMeeting(meetingId);
-    });
+    };
+
+    return Breakouts.remove(selector, cb);
   }
 
-  return Breakouts.remove({}, Logger.info(`Cleared Breakouts (all)`));
+  return Breakouts.remove({}, cb);
 }

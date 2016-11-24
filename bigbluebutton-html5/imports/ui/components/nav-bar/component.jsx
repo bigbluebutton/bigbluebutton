@@ -47,8 +47,7 @@ class NavBar extends Component {
   }
 
   componendDidMount() {
-    const presentationTitle = this.props.presentationTitle;
-    document.title = presentationTitle;
+    document.title = this.props.presentationTitle;
   }
 
   handleToggleUserList() {
@@ -95,19 +94,12 @@ class NavBar extends Component {
   renderPresentationTitle() {
     const remainingTime = this.props.timeRemaining;
     const presentationTitle = this.props.presentationTitle;
-    let breakouts = this.props.breakouts;
     const meetingId = Auth.getCredentials().meetingId;
     const currentUserId = Auth.getCredentials().requesterUserId;
+    const breakouts = this.props.breakouts;
+    const isMeetingBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
 
-    breakouts = breakouts.filter(breakout => {
-      if (!breakout.users) {
-        return false;
-      }
-
-      return breakout.users.some(user => user.userId === currentUserId);
-    });
-
-    if (!breakouts.length) {
+    if (!breakouts.length || isMeetingBreakout) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
@@ -172,9 +164,9 @@ class NavBar extends Component {
     const currentUserId = Auth.getCredentials().requesterUserId;
 
     if (breakout.users) {
-      const users = breakout.users.find(user => user.userId === currentUserId);
-      if (users) {
-        const urlParams = users.urlParams;
+      const user = breakout.users.find(user => user.userId === currentUserId);
+      if (user) {
+        const urlParams = user.urlParams;
         return [
           window.origin,
           'html5client/join',
