@@ -25,7 +25,7 @@ export default function updateCursor(meetingId, x = 0, y = 0) {
 
     const { insertedId } = numChanged;
     if (insertedId) {
-      return Logger.verbose(`Initialized cursor meeting=${meetingId}`);
+      return Logger.debug(`Initialized cursor meeting=${meetingId}`);
     }
 
     if (numChanged) {
