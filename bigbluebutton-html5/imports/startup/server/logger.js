@@ -1,27 +1,26 @@
 import { Meteor } from 'meteor/meteor';
 import Winston from 'winston';
 
-let Logger = new (Winston.Logger)({
-    transports: [
+let Logger = new Winston.Logger();
 
-      // Write logs to console
-      new Winston.transports.Console({
-            prettyPrint: false,
-            humanReadableUnhandledException: true,
-            colorize: true,
-            handleExceptions: true,
-          }),
-      ],
-    levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5, },
-    colors: {
-      error: 'red',
-      warn: 'yellow',
-      info: 'green',
-      verbose: 'cyan',
-      debug: 'magenta',
-      silly: 'gray',
-    },
-  });
+Logger.configure({
+  levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5, },
+  colors: {
+    error: 'red',
+    warn: 'yellow',
+    info: 'green',
+    verbose: 'cyan',
+    debug: 'magenta',
+    silly: 'gray',
+  },
+});
+
+Logger.add(Winston.transports.Console, {
+  prettyPrint: false,
+  humanReadableUnhandledException: true,
+  colorize: true,
+  handleExceptions: true,
+});
 
 // Set Logger message level priority for the console
 Logger.transports.console.level = 'silly';
