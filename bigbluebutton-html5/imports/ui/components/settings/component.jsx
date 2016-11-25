@@ -60,7 +60,7 @@ export default class Settings extends React.Component {
     );
   }
 
-componentWillReceiveProps(nextProps){
+componentWillReceiveProps(nextProps) {
   this.submenus = [];
 
   this.submenus.push(
@@ -77,7 +77,6 @@ componentWillReceiveProps(nextProps){
         props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
   }
 }
-
 
   renderMenu() {
     let curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
