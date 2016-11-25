@@ -4,7 +4,6 @@ import Button from '../button/component';
 import RecordButton from './recordbutton/component';
 import SettingsDropdown from './settings-dropdown/component';
 import Icon from '/imports/ui/components/icon/component';
-import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import { showModal } from '/imports/ui/components/app/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
@@ -40,7 +39,6 @@ class NavBar extends Component {
     this.state = {
       isActionsOpen: false,
       didSendBreakoutInvite: false,
-      timeRemaining: null,
     };
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
@@ -92,7 +90,6 @@ class NavBar extends Component {
   }
 
   renderPresentationTitle() {
-    const remainingTime = this.props.timeRemaining;
     const presentationTitle = this.props.presentationTitle;
     const meetingId = Auth.getCredentials().meetingId;
     const currentUserId = Auth.getCredentials().requesterUserId;

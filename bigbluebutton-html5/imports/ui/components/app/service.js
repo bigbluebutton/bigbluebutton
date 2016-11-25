@@ -7,8 +7,6 @@ import Cursor from '/imports/api/cursor';
 import Captions from '/imports/api/captions';
 import Polls from '/imports/api/polls';
 
-import { callServer } from '/imports/ui/services/api';
-
 function setCredentials(nextState, replace) {
   if (nextState && nextState.params.authToken) {
     const { meetingID, userID, authToken } = nextState.params;
