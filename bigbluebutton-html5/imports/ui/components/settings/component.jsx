@@ -15,9 +15,12 @@ export default class Settings extends React.Component {
     super(props);
     this.submenus = [];
     this.state = { activeSubmenu: 0, focusSubmenu: 0 };
+  }
 
+  renderSettingOptions() {
     const { isPresenter, role } = this.props;
-
+    
+    this.submenus = [];
     this.submenus.push(
       { componentName: AudioMenu, tabIndex: 3,
         props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, },
@@ -31,9 +34,6 @@ export default class Settings extends React.Component {
         { componentName: UsersMenu, tabIndex: 6,
           props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
     }
-  }
-
-  renderSettingOptions() {
 
     return (
       <div className={styles.full} role='presentation'>
@@ -59,24 +59,6 @@ export default class Settings extends React.Component {
       </div>
     );
   }
-
-componentWillReceiveProps(nextProps) {
-  this.submenus = [];
-
-  this.submenus.push(
-    { componentName: AudioMenu, tabIndex: 3,
-      props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, },
-    { componentName: VideoMenu, tabIndex: 4,
-      props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, },
-    { componentName: ApplicationMenu, tabIndex: 5,
-      props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
-
-  if (nextProps.isPresenter || nextProps.role === 'MODERATOR') {
-    this.submenus.push(
-      { componentName: UsersMenu, tabIndex: 6,
-        props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
-  }
-}
 
   renderMenu() {
     let curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
