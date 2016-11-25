@@ -94,7 +94,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		Runnable getHeapTask = () -> getHeapStatsHelper();
 
 		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-		executor.scheduleAtFixedRate(getHeapTask, 0, 60, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(getHeapTask, 0, 5, TimeUnit.SECONDS);
 	}
 
 	private void getHeapStatsHelper() {

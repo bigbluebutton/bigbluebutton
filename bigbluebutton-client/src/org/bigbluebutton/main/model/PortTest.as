@@ -174,7 +174,7 @@ package org.bigbluebutton.main.model
 
 			status = "FAILED";
 			_connectionListener(status, tunnel, hostname, port, application);
-      closeConnection();
+            closeConnection();
 		}
 		
 		/**
@@ -215,7 +215,11 @@ package org.bigbluebutton.main.model
     protected function netStatus(event : NetStatusEvent):void {
       
         //Stop timeout timer when connected/rejected
-        connectionTimer.stop();
+        if (connectionTimer != null && connectionTimer.running) {
+            connectionTimer.stop();
+            connectionTimer = null;
+        }
+            
       
         var info : Object = event.info;
         var statusCode : String = info.code;
@@ -224,7 +228,6 @@ package org.bigbluebutton.main.model
         logData.connection = this.baseURI;
         logData.tags = ["initialization", "port-test", "connection"];
 
-        
         if ( statusCode == "NetConnection.Connect.Success" ) {
             status = "SUCCESS";
             logData.message = "Port test successfully connected.";
@@ -234,7 +237,7 @@ package org.bigbluebutton.main.model
         } else if ( statusCode == "NetConnection.Connect.Rejected" ||
                     statusCode == "NetConnection.Connect.Failed" || 
                     statusCode == "NetConnection.Connect.Closed" ) {
-                        
+            logData.statusCode = statusCode;            
             logData.message = "Port test failed to connect.";
             LOGGER.info(JSON.stringify(logData));
             
@@ -242,8 +245,8 @@ package org.bigbluebutton.main.model
             _connectionListener(status, tunnel, hostname, port, application);
             
         }
-      
-      //closeConnection();
+        
+        closeConnection();
     }
 		
 		public function onBWCheck(... rest):Number { 
