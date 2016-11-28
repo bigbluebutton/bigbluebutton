@@ -4,14 +4,13 @@ import Winston from 'winston';
 let Logger = new Winston.Logger();
 
 Logger.configure({
-  levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5, },
+  levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, },
   colors: {
     error: 'red',
     warn: 'yellow',
     info: 'green',
     verbose: 'cyan',
     debug: 'magenta',
-    silly: 'gray',
   },
 });
 
@@ -23,7 +22,7 @@ Logger.add(Winston.transports.Console, {
 });
 
 // Set Logger message level priority for the console
-Logger.transports.console.level = 'silly';
+Logger.transports.console.level = 'info';
 
 Meteor.startup(() => {
   const LOG_CONFIG = Meteor.settings.log || {};

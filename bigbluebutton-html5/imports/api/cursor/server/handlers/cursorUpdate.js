@@ -11,7 +11,5 @@ export default function handleCursorUpdate({ payload }) {
   check(x, Number);
   check(y, Number);
 
-  Logger.silly(`new cursor location : X=${x} - Y=${y}  meetingId=${meetingId}`);
-
   return updateCursor(meetingId, x, y);
 };
