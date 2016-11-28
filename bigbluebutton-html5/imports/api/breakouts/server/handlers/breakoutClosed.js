@@ -6,5 +6,5 @@ export default function breakoutClosed({ payload }) {
 
   check(meetingId, String);
 
-  return clearBreakouts(payload.meetingId);
+  return clearBreakouts(meetingId);
 }

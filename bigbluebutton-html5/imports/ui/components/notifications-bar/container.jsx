@@ -5,17 +5,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'underscore';
 import NavBarService from '../nav-bar/service';
 import Auth from '/imports/ui/services/auth';
+import { humanizeSeconds } from '/imports/utils/humanizeSeconds';
 
 import NotificationsBar from './component';
-
-const humanizeSeconds = time => {
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
-  return [
-    minutes,
-    seconds,
-  ].map(x => (x < 10) ? `0${x}` : x).join(':');
-};
 
 // the connection is up and running
 const STATUS_CONNECTED = 'connected';
@@ -164,10 +156,9 @@ export default injectIntl(createContainer(({ intl }) => {
 
   const meetingId = Auth.meetingID;
   const breakouts = NavBarService.getBreakouts();
-  let currentBreakout;
 
   if (breakouts) {
-    currentBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
+    const currentBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
     if (currentBreakout) {
       roomRemainingTime = currentBreakout.timeRemaining;
       if (!timeRemainingInterval && roomRemainingTime) {
@@ -179,20 +170,20 @@ export default injectIntl(createContainer(({ intl }) => {
     } else if (timeRemainingInterval) {
       clearInterval(timeRemainingInterval);
     }
-  }
 
-  if (getTimeRemaining()) {
-    if (getTimeRemaining() > 0) {
-      data.message = intl.formatMessage(
-        intlMessages.breakoutTimeRemaining,
-        { time: humanizeSeconds(getTimeRemaining()) }
-      );
-    } else {
-      clearInterval(timeRemainingInterval);
-      data.message = intl.formatMessage(intlMessages.breakoutWillClose);
+    if (getTimeRemaining()) {
+      if (getTimeRemaining() > 0) {
+        data.message = intl.formatMessage(
+          intlMessages.breakoutTimeRemaining,
+          { time: humanizeSeconds(getTimeRemaining()) }
+        );
+      } else {
+        clearInterval(timeRemainingInterval);
+        data.message = intl.formatMessage(intlMessages.breakoutWillClose);
+      }
+    } else if (!getTimeRemaining() && currentBreakout) {
+      data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
     }
-  } else if (!getTimeRemaining() && currentBreakout) {
-    data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
   }
 
   data.color = 'primary';

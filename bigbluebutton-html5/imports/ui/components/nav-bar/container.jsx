@@ -55,8 +55,14 @@ export default withRouter(createContainer(({ location, router }) => {
       .some(receiverID => ChatService.hasUnreadMessages(receiverID));
   };
 
+  const breakouts = Service.getBreakouts();
+  const currentUserId = Auth.getCredentials().requesterUserId;
+
   return {
-    breakouts: Service.getBreakouts(),
+    breakouts,
+    currentUserId,
+    meetingId,
+    getBreakoutJoinURL: Service.getBreakoutJoinURL,
     presentationTitle: meetingTitle,
     hasUnreadMessages: checkUnreadMessages(),
     beingRecorded: meetingRecorded,

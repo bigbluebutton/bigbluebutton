@@ -6,15 +6,12 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { XMLHttpRequest } from 'xmlhttprequest';
 import xml2js from 'xml2js';
 const xmlParser = new xml2js.Parser();
+import url from 'url';
 
-const getUrlParams = url => {
-  let urlParams = {};
-  url.split('?')[1].split('&').map(s => {
-    const p = s.split('=');
-    urlParams[p[0]] = p[1];
-  });
-
-  return urlParams;
+const getUrlParams = urlToParse => {
+  const options = { parseQueryString: true };
+  const parsedUrl = url.parse(urlToParse, options);
+  return parsedUrl.query;
 };
 
 export default function breakoutJoinURL({ payload }) {
@@ -37,6 +34,10 @@ export default function breakoutJoinURL({ payload }) {
 
   const res = Meteor.http.call('get', noRedirectJoinURL);
   xmlParser.parseString(res.content, (err, parsedXML) => {
+    if (err) {
+      Logger.error(`An Error occured when parsing xml response for: ${noRedirectJoinURL}`);
+    }
+
     breakout = Breakouts.findOne(selector);
 
     const { response } = parsedXML;

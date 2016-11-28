@@ -2,37 +2,37 @@ import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function ({ payload }) {
-  const meetingId = payload.meetingId;
+export default function breakoutRoomStarted({ payload }) {
+  const {
+    meetingId,
+    timeRemaining,
+    externalMeetingId,
+  } = payload;
 
   check(meetingId, String);
 
   const selector = {
-    breakoutMeetingId: payload.meetingId,
+    breakoutMeetingId: meetingId,
   };
 
   modifier = {
     $set: {
       users: [],
-      timeRemaining: Number(payload.timeRemaining),
-      externalMeetingId: payload.externalMeetingId,
+      timeRemaining: Number(timeRemaining),
+      externalMeetingId: externalMeetingId,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding breakout to collection: ${err}`);
+      return Logger.error(`updating breakout: ${err}`);
     }
 
-    const {
-      insertedId,
-    } = numChanged;
-    if (insertedId) {
-      return Logger.info(`Added breakout id=${payload.meetingId}`);
+    if (numChanged) {
+      return Logger.info(`Updated timeRemaining and externalMeetingId ` +
+                         `for breakout id=${meetingId}`);
     }
-
-    return Logger.info(`Upserted breakout id=${payload.meetingId}`);
   };
 
-  Breakouts.upsert(selector, modifier, cb);
+  Breakouts.update(selector, modifier, cb);
 }

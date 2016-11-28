@@ -12,12 +12,12 @@ export default function updateTimeRemaining({ payload }) {
   check(timeRemaining, Number);
 
   const selector = {
-    parentMeetingId: payload.meetingId,
+    parentMeetingId: meetingId,
   };
 
   const modifier = {
     $set: {
-      timeRemaining: payload.timeRemaining,
+      timeRemaining: timeRemaining,
     },
   };
 
@@ -31,7 +31,8 @@ export default function updateTimeRemaining({ payload }) {
     }
 
     if (numChanged) {
-      return Logger.info(`Updated breakouts with parentMeetingId=${payload.meetingId}`);
+      return Logger.info(`Updated breakout time remaining for breakouts ` +
+                         `where parentMeetingId=${meetingId}`);
     }
   };
 
