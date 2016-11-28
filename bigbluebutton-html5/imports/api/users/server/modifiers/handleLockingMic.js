@@ -2,7 +2,7 @@ import Users from '/imports/api/users';
 
 // when new lock settings including disableMic are set,
 // all viewers that are in the audio bridge with a mic should be muted and locked
-export function handleLockingMic(meetingId, newSettings) {
+export default function handleLockingMic(meetingId, newSettings) {
   // send mute requests for the viewer users joined with mic
   let userObject;
   let results = [];
