@@ -63,5 +63,14 @@
   "app.actionsBar.emojiMenu.happyLabel": "Happy",
   "app.actionsBar.emojiMenu.happyDesc": "Change your status to happy",
   "app.actionsBar.emojiMenu.clearLabel": "Clear",
-  "app.actionsBar.emojiMenu.clearDesc": "Clear your status"
+  "app.actionsBar.emojiMenu.clearDesc": "Clear your status",
+  "app.breakoutJoinConfirmation.title": "Join Breakout Room",
+  "app.breakoutJoinConfirmation.message": "Do you want to join",
+  "app.breakoutJoinConfirmation.confirmLabel": "Join",
+  "app.breakoutJoinConfirmation.confirmDesc": "Join you to the Breakout Room",
+  "app.breakoutJoinConfirmation.dismissLabel": "Cancel",
+  "app.breakoutJoinConfirmation.dismissDesc": "Closes and rejects Joining the Breakout Room",
+  "app.breakoutTimeRemainingMessage": "Breakout Room time remaining: {time}",
+  "app.breakoutWillCloseMessage": "Time ended. Breakout Room will close soon",
+  "app.calculatingBreakoutTimeRemaining": "Calculating remaining time..."
 }

@@ -15,6 +15,8 @@ import '/imports/api/phone/server/modifiers/eventHandlers';
 
 import '/imports/api/polls/server';
 
+import '/imports/api/breakouts/server';
+
 import '/imports/api/presentations/server';
 
 import '/imports/api/shapes/server';

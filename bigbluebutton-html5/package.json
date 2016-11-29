@@ -28,6 +28,8 @@
     "redis": "^2.6.2",
     "underscore": "~1.8.3",
     "winston": "^2.2.0",
+    "xml2js": "^0.4.17",
+    "xmlhttprequest": "^1.8.0",
     "probe-image-size": "~2.1.1"
   },
   "devDependencies": {

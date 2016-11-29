@@ -22,3 +22,4 @@ standard-minifier-css@1.2.0
 standard-minifier-js@1.2.0
 nathantreid:css-modules
 shell-server@0.2.1
+http

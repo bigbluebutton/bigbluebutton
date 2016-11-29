@@ -3,10 +3,10 @@ import { createContainer } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 
 import Meetings from '/imports/api/meetings';
-
 import Auth from '/imports/ui/services/auth';
-import Service from '../user-list/service';
+import userListService from '../user-list/service';
 import ChatService from '../chat/service';
+import Service from './service';
 
 import NavBar from './component';
 
@@ -42,7 +42,7 @@ export default withRouter(createContainer(({ location, router }) => {
   }
 
   const checkUnreadMessages = () => {
-    let users = Service.getUsers();
+    let users = userListService.getUsers();
 
     // 1.map every user id
     // 2.filter the user except the current user from the user array
@@ -55,7 +55,14 @@ export default withRouter(createContainer(({ location, router }) => {
       .some(receiverID => ChatService.hasUnreadMessages(receiverID));
   };
 
+  const breakouts = Service.getBreakouts();
+  const currentUserId = Auth.getCredentials().requesterUserId;
+
   return {
+    breakouts,
+    currentUserId,
+    meetingId,
+    getBreakoutJoinURL: Service.getBreakoutJoinURL,
     presentationTitle: meetingTitle,
     hasUnreadMessages: checkUnreadMessages(),
     beingRecorded: meetingRecorded,
