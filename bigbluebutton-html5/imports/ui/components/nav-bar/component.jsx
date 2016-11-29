@@ -6,6 +6,7 @@ import SettingsDropdown from './settings-dropdown/component';
 import Icon from '/imports/ui/components/icon/component';
 import { showModal } from '/imports/ui/components/app/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
+import _ from 'underscore';
 
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';

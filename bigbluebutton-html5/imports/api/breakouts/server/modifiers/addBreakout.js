@@ -13,9 +13,7 @@ export default function addBreakout(payload) {
   check(parentMeetingId, String);
   check(name, String);
 
-  const selector = {
-    breakoutMeetingId: payload.breakoutMeetingId,
-  };
+  const selector = { breakoutMeetingId };
 
   const modifier = {
     $set: {
@@ -34,10 +32,10 @@ export default function addBreakout(payload) {
       insertedId,
     } = numChanged;
     if (insertedId) {
-      return Logger.info(`Added breakout id=${payload.breakoutMeetingId}`);
+      return Logger.info(`Added breakout id=${breakoutMeetingId}`);
     }
 
-    return Logger.info(`Upserted breakout id=${payload.breakoutMeetingId}`);
+    return Logger.info(`Upserted breakout id=${breakoutMeetingId}`);
   };
 
   Breakouts.upsert(selector, modifier, cb);
