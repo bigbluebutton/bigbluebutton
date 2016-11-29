@@ -207,7 +207,6 @@ function runPopcorn() {
 
   var times_length = times.length; //get the length of the times array.
 
-  console.log("** Getting text files");
   getPresentationText();
 
   // PROCESS PANZOOMS.XML
@@ -663,19 +662,21 @@ function processPresentationText(response) {
 }
 
 function getPresentationText() {
+  console.log("** Getting text files");
   loadJSON(processPresentationText, presentation_text_json);
 }
 
-// Must define arguments[1] as the URL of the JSON object to be GETTED
-function loadJSON(callback) {
+function loadJSON(callback, url) {
   var xobj;
-  if (window.XMLHttpRequest) {// code for IE7, Firefox, Chrome, Opera, Safari
+  if (window.XMLHttpRequest) {
+    // Code for IE7+, Firefox, Chrome, Opera, Safari
     xobj = new XMLHttpRequest();
-  } else {// code for IE6, IE5
+  } else {
+    // Code for IE6, IE5
     xobj = new ActiveXObject("Microsoft.XMLHTTP");
   }
   xobj.overrideMimeType("application/json");
-  xobj.open('GET', arguments[1], true);
+  xobj.open('GET', url, true);
   xobj.onreadystatechange = function () {
       if (xobj.readyState == 4) {
         // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
