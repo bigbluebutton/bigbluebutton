@@ -38,5 +38,5 @@ export default function addBreakout(payload) {
     return Logger.info(`Upserted breakout id=${breakoutMeetingId}`);
   };
 
-  Breakouts.upsert(selector, modifier, cb);
+  return Breakouts.upsert(selector, modifier, cb);
 };

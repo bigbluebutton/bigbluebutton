@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import addBreakout from '../modifiers/addBreakout';
 
-export default function createBreakout({ payload }) {
+export default function handleCreateBreakout({ payload }) {
   const { breakoutMeetingId } = payload;
 
   check(breakoutMeetingId, String);

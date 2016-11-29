@@ -1,13 +1,13 @@
 import RedisPubSub from '/imports/startup/server/redis';
 
-import createBreakout from './handlers/createBreakout';
-import breakoutStarted from './handlers/breakoutStarted';
-import breakoutJoinURL from './handlers/breakoutJoinURL';
-import updateTimeRemaining from './handlers/updateTimeRemaining';
-import breakoutClosed from './handlers/breakoutClosed';
+import handleCreateBreakout from './handlers/createBreakout';
+import handleBreakoutStarted from './handlers/breakoutStarted';
+import handleBreakoutJoinURL from './handlers/breakoutJoinURL';
+import handleUpdateTimeRemaining from './handlers/updateTimeRemaining';
+import handleBreakoutClosed from './handlers/breakoutClosed';
 
-RedisPubSub.on('CreateBreakoutRoomRequest', createBreakout);
-RedisPubSub.on('BreakoutRoomStarted', breakoutStarted);
-RedisPubSub.on('BreakoutRoomJoinURL', breakoutJoinURL);
-RedisPubSub.on('BreakoutRoomsTimeRemainingUpdate', updateTimeRemaining);
-RedisPubSub.on('BreakoutRoomClosed', breakoutClosed);
+RedisPubSub.on('CreateBreakoutRoomRequest', handleCreateBreakout);
+RedisPubSub.on('BreakoutRoomStarted', handleBreakoutStarted);
+RedisPubSub.on('BreakoutRoomJoinURL', handleBreakoutJoinURL);
+RedisPubSub.on('BreakoutRoomsTimeRemainingUpdate', handleUpdateTimeRemaining);
+RedisPubSub.on('BreakoutRoomClosed', handleBreakoutClosed);

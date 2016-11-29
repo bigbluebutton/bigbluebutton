@@ -2,7 +2,7 @@ import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function breakoutRoomStarted({ payload }) {
+export default function handleBreakoutRoomStarted({ payload }) {
   const {
     meetingId,
     timeRemaining,
@@ -34,5 +34,5 @@ export default function breakoutRoomStarted({ payload }) {
     }
   };
 
-  Breakouts.update(selector, modifier, cb);
+  return Breakouts.update(selector, modifier, cb);
 }

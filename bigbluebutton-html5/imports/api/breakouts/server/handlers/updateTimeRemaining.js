@@ -2,7 +2,7 @@ import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function updateTimeRemaining({ payload }) {
+export default function handleUpdateTimeRemaining({ payload }) {
   const {
     meetingId,
     timeRemaining,
