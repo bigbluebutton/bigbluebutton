@@ -997,6 +997,9 @@ begin
           BigBlueButton.logger.info("Copied audio.ogg file")
         end
 
+        if File.exist?("#{$process_dir}/presentation_text.json")
+          FileUtils.cp("#{$process_dir}/presentation_text.json", package_dir)
+        end
 
         processing_time = File.read("#{$process_dir}/processing_time")
 

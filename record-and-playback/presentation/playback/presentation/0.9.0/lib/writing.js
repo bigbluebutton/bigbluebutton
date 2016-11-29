@@ -188,14 +188,6 @@ function runPopcorn() {
     return $(this).attr('class') == 'shape';
   });
 
-  // Newer recordings have slide images identified by class="slide"
-  // because they might include images in shapes
-  var images = shapeelements[0].getElementsByClassName("slide");
-  // To handle old recordings, fetch a list of all images instead
-  if (images.length == 0) {
-    images = shapeelements[0].getElementsByTagName("image");
-  }
-
   //create a map from timestamp to id list
   var timestampToId = {};
   for (var j = 0; j < array.length; j++) {
@@ -216,35 +208,7 @@ function runPopcorn() {
   var times_length = times.length; //get the length of the times array.
 
   console.log("** Getting text files");
-  for(var m = 0; m < images.length; m++) {
-  	len = images[m].getAttribute("in").split(" ").length;
-  	for(var n = 0; n < len; n++) {
-  		imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
-  	}
-
-        // the logo at the start has no text attribute
-        if (images[m].getAttribute("text")) {
-          var txtFile = false;
-          if (window.XMLHttpRequest) {
-  	    // code for IE7+, Firefox, Chrome, Opera, Safari
-  	    txtFile = new XMLHttpRequest();
-          } else {
-  	    // code for IE6, IE5
-  	    txtFile = new ActiveXObject("Microsoft.XMLHTTP");
-          }
-          var imgid = images[m].getAttribute("id"); //have to save the value because images array might go out of scope
-          txtFile.open("GET", url + "/" + images[m].getAttribute("text"), false);
-          txtFile.onreadystatechange = function() {
-              if (txtFile.readyState === 4) {
-                if (txtFile.status === 200) {
-                  slidePlainText[imgid] = $('<div/>').text(txtFile.responseText).html();
-                  //console.log("**Text file read " + imgid);
-                }
-              }
-          };
-          txtFile.send(null);
-        }
-  }
+  getPresentationText();
 
   // PROCESS PANZOOMS.XML
   console.log("** Getting panzooms.xml");
@@ -562,6 +526,7 @@ var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
 var metadata_xml = url + '/metadata.xml';
 var deskshare_xml = url + '/deskshare.xml';
+var presentation_text_json = url + '/presentation_text.json';
 
 var firstLoad = true;
 var svjobjLoaded = false;
@@ -618,6 +583,112 @@ var getMetadata = function() {
     }
   }
 };
+
+function setPresentationTextFromJSON(images, presentationText) {
+  for (var m = 0; m < images.length; m++) {
+    len = images[m].getAttribute("in").split(" ").length;
+    for (var n = 0; n < len; n++) {
+      imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
+    }
+    // The logo at the start has no text attribute
+    if (images[m].getAttribute("text")) {
+      var imgId = images[m].getAttribute("id"); // Have to save the value because images array might go out of scope
+      var imgTxt = images[m].getAttribute("text").split("/"); // Text format: presentation/PRESENTATION_ID/textfiles/SLIDE_ID.txt
+      var presentationId = imgTxt[1];
+      var slideId = imgTxt[3].split(".")[0];
+      slidePlainText[imgId] = $('<div/>').text(presentationText[presentationId][slideId]).html();
+    }
+  }
+}
+
+function setPresentationTextFromTxt(images) {
+  for (var m = 0; m < images.length; m++) {
+    len = images[m].getAttribute("in").split(" ").length;
+    for (var n = 0; n < len; n++) {
+      imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
+    }
+    // The logo at the start has no text attribute
+    if (images[m].getAttribute("text")) {
+      var txtFile = false;
+      if (window.XMLHttpRequest) {
+        // Code for IE7+, Firefox, Chrome, Opera, Safari
+        txtFile = new XMLHttpRequest();
+      } else {
+        // Code for IE6, IE5
+        txtFile = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      var imgId = images[m].getAttribute("id"); // Have to save the value because images array might go out of scope
+      txtFile.open("GET", url + "/" + images[m].getAttribute("text"), false);
+      txtFile.onreadystatechange = function() {
+          if (txtFile.readyState === 4) {
+            if (txtFile.status === 200) {
+              slidePlainText[imgId] = $('<div/>').text(txtFile.responseText).html();
+            }
+          }
+      };
+      txtFile.send(null);
+    }
+  }
+}
+
+function processPresentationText(response) {
+  // Making the object for requesting the read of the XML files.
+  if (window.XMLHttpRequest) {
+    // Code for IE7+, Firefox, Chrome, Opera, Safari
+    var xmlhttp = new XMLHttpRequest();
+  } else {
+    // Code for IE6, IE5
+    var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.open("GET", shapes_svg, false);
+  xmlhttp.send();
+  var xmlDoc = xmlhttp.responseXML;
+
+  // Getting all the event tags
+  var shapeelements = xmlDoc.getElementsByTagName("svg");
+
+  // Newer recordings have slide images identified by class="slide"
+  // because they might include images in shapes
+  var images = shapeelements[0].getElementsByClassName("slide");
+  // To handle old recordings, fetch a list of all images instead
+  if (images.length == 0) {
+    images = shapeelements[0].getElementsByTagName("image");
+  }
+
+  if (response !== undefined) {
+    setPresentationTextFromJSON(images, response);
+  } else {
+    setPresentationTextFromTxt(images);
+  }
+}
+
+function getPresentationText() {
+  loadJSON(processPresentationText, presentation_text_json);
+}
+
+// Must define arguments[1] as the URL of the JSON object to be GETTED
+function loadJSON(callback) {
+  var xobj;
+  if (window.XMLHttpRequest) {// code for IE7, Firefox, Chrome, Opera, Safari
+    xobj = new XMLHttpRequest();
+  } else {// code for IE6, IE5
+    xobj = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xobj.overrideMimeType("application/json");
+  xobj.open('GET', arguments[1], true);
+  xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4) {
+        // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+        if (xobj.status == "200") {
+          callback(JSON.parse(xobj.responseText));
+        } else {
+          console.log("Could not get JSON file");
+          callback(undefined);
+        }
+      }
+  };
+  xobj.send(null);
+}
 
 document.getElementById('slide').appendChild(svgobj);
 
