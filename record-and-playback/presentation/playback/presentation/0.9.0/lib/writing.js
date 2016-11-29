@@ -149,14 +149,14 @@ function resyncVideos() {
 function handlePresentationAreaContent(time) {
   var mustShow = mustShowDesktopVideo(time);
   if(!sharingDesktop && mustShow) {
+    console.log("Showing deskshare video...");
     document.getElementById("deskshare-video").style.visibility = "visible";
-    document.getElementById("slide").style.visibility = "hidden";
-    document.getElementById("slideText").style.visibility = "hidden";
+    $('#slide').addClass('no-background');
     sharingDesktop = true;
   } else if(sharingDesktop && !mustShow) {
+    console.log("Hiding deskshare video...");
     document.getElementById("deskshare-video").style.visibility = "hidden";
-    document.getElementById("slide").style.visibility = "visible";
-    document.getElementById("slideText").style.visibility = "visible";
+    $('#slide').removeClass('no-background');
     sharingDesktop = false;
   }
 

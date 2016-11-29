@@ -192,6 +192,9 @@ body {
   background-repeat: no-repeat;
   background-position: center center;
 }
+#slide.no-background {
+  background-image:none;
+}
 #cursor {
   visibility: hidden;
   width: 12px;
