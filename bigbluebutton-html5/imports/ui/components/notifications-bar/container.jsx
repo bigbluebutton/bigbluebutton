@@ -171,17 +171,18 @@ export default injectIntl(createContainer(({ intl }) => {
       clearInterval(timeRemainingInterval);
     }
 
-    if (getTimeRemaining()) {
-      if (getTimeRemaining() > 0) {
+    const timeRemaining = getTimeRemaining();
+    if (timeRemaining) {
+      if (timeRemaining > 0) {
         data.message = intl.formatMessage(
           intlMessages.breakoutTimeRemaining,
-          { time: humanizeSeconds(getTimeRemaining()) }
+          { time: humanizeSeconds(timeRemaining) }
         );
       } else {
         clearInterval(timeRemainingInterval);
         data.message = intl.formatMessage(intlMessages.breakoutWillClose);
       }
-    } else if (!getTimeRemaining() && currentBreakout) {
+    } else if (!timeRemaining && currentBreakout) {
       data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
     }
   }
