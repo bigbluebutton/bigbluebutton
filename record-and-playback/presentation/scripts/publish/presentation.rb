@@ -143,14 +143,30 @@ def processDesksharePanAndZooms
 
   deskshare_matched_evts.each do |start_evt|
     start_timestamp_orig = start_evt[:start_timestamp].to_f
-
     start_timestamp = ( translateTimestamp(start_timestamp_orig) / 1000 ).round(1)
-    insertDesksharePanAndZoom(start_timestamp,start_timestamp_orig)
+
+    stop_timestamp_orig = start_evt[:stop_timestamp].to_f
+    stop_timestamp = ( translateTimestamp(stop_timestamp_orig) / 1000 ).round(1)
+
+    if(stop_timestamp != 0.0)
+       deskshare_stream_name = start_evt[:stream]
+       deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
+       BigBlueButton.logger.info("processDesksharePanAndZooms - trying to open: #{deskshare_video_filename} to get its dimensions")
+
+       if File.exist?(deskshare_video_filename)
+         video_width = BigBlueButton.get_video_width(deskshare_video_filename)
+         video_height = BigBlueButton.get_video_height(deskshare_video_filename)
+         insertDesksharePanAndZoom(start_timestamp,start_timestamp_orig,video_width,video_height)
+       else
+         BigBlueButton.logger.info("processDesksharePanAndZooms - deskshare video file DOES NOT exist: #{deskshare_video_filename}")
+       end
+    end
+
   end
 end
 
-def insertDesksharePanAndZoom(timestamp,timestamp_orig)
-  BigBlueButton.logger.info("insertDesksharePanAndZoom | timestamp = #{timestamp}, timestamp_orig = #{timestamp_orig}")
+def insertDesksharePanAndZoom(timestamp, timestamp_orig, video_width, video_height)
+  BigBlueButton.logger.info("insertDesksharePanAndZoom | timestamp = #{timestamp}, timestamp_orig = #{timestamp_orig} | #{video_width}x#{video_height}")
   all_events = $panzooms_xml.doc.xpath("//event")
   previous_timestamp = 0.0
 
@@ -161,7 +177,7 @@ def insertDesksharePanAndZoom(timestamp,timestamp_orig)
         new_event[:orig] = timestamp_orig
 
         new_viewbox = Nokogiri::XML::Node.new "viewBox", $panzooms_xml.doc
-        new_viewbox.content = "0.0 0.0 1280.0 720.0"
+        new_viewbox.content = "0.0 0.0 #{video_width}.0 #{video_height}.0"
 
         #set new_event content
         Nokogiri::XML::Builder.with(new_event) do |xml|
@@ -708,6 +724,7 @@ def processSlideEvents
       split_slide = false
       deskshare_start = deskshare_stop = 0.0
       orig_deskshare_start = orig_deskshare_stop = 0.0
+      deskshare_video_filename = ""
       # checking if there's a deskshare event inside the slide interval of time
       deskshare_matched_evts.each do |start_evt|
         start_timestamp_orig = start_evt[:start_timestamp].to_f
@@ -722,6 +739,7 @@ def processSlideEvents
           deskshare_stop = stop_timestamp
           orig_deskshare_start = ( start_timestamp_orig / 1000 ).round(1)
           orig_deskshare_stop = ( stop_timestamp_orig / 1000 ).round(1)
+          deskshare_video_filename = "#{$deskshare_dir}/#{start_evt[:stream]}"
         end
       end
 
@@ -731,20 +749,28 @@ def processSlideEvents
          deskshare_slide_src = "presentation/deskshare/slide-#{$deskshare_page_count}.png"
          deskshare_text = nil;
          deskshare_image_url = "#{$process_dir}/#{deskshare_slide_src}"
-
          FileUtils.mkdir_p("#{$process_dir}/presentation/deskshare")
-         command = "convert -size 1280x720 xc:transparent -background transparent #{deskshare_image_url}"
-         BigBlueButton.execute(command)
 
-         deskshare_slide_size = FastImage.size(deskshare_image_url)
+         BigBlueButton.logger.info("processSlideEvents - trying to open: #{deskshare_video_filename} to get its dimensions")
+         if File.exist?(deskshare_video_filename)
+            video_width = BigBlueButton.get_video_width(deskshare_video_filename)
+            video_height = BigBlueButton.get_video_height(deskshare_video_filename)
+            BigBlueButton.logger.info("processSlideEvents - video is #{video_width}x#{video_height}")
+            command = "convert -size #{video_width}x#{video_height} xc:transparent -background transparent #{deskshare_image_url}"
+            BigBlueButton.execute(command)
 
-         #Insert 3 slides:
-         # 1. current slide with IN=slide_start and OUT=(deskshare_start-0.1)
-         # 2. deskshare "slide" with IN=deskshare_start and OUT=deskshare_stop
-         # 3. current slide (again) with IN=(deskshare_stop+0.1) and OUT=slide_end
-         processSlideImage(slide_src, slide_size, slide_start, (deskshare_start-0.1), slide_text, orig_slide_start, (orig_deskshare_start-0.1))
-         processSlideImage(deskshare_slide_src, deskshare_slide_size, deskshare_start, deskshare_stop, deskshare_text, orig_deskshare_start, orig_deskshare_stop)
-         processSlideImage(slide_src, slide_size, (deskshare_stop+0.1), slide_end, slide_text, (orig_deskshare_stop+0.1), orig_slide_end)
+            deskshare_slide_size = FastImage.size(deskshare_image_url)
+
+            #Insert 3 slides:
+            # 1. current slide with IN=slide_start and OUT=(deskshare_start-0.1)
+            # 2. deskshare "slide" with IN=deskshare_start and OUT=deskshare_stop
+            # 3. current slide (again) with IN=(deskshare_stop+0.1) and OUT=slide_end
+            processSlideImage(slide_src, slide_size, slide_start, (deskshare_start-0.1), slide_text, orig_slide_start, (orig_deskshare_start-0.1))
+            processSlideImage(deskshare_slide_src, deskshare_slide_size, deskshare_start, deskshare_stop, deskshare_text, orig_deskshare_start, orig_deskshare_stop)
+            processSlideImage(slide_src, slide_size, (deskshare_stop+0.1), slide_end, slide_text, (orig_deskshare_stop+0.1), orig_slide_end)
+         else
+            BigBlueButton.logger.info("processSlideEvents - deskshare video file DOES NOT exist: #{deskshare_video_filename}")
+         end
       else
         processSlideImage(slide_src, slide_size, slide_start, slide_end, slide_text, orig_slide_start, orig_slide_end)
       end
@@ -1077,6 +1103,8 @@ begin
     playback_host = bbb_props['playback_host']
     BigBlueButton.logger.info("setting target dir")
     target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
+    $deskshare_dir = "#{recording_dir}/raw/#{$meeting_id}/deskshare"
+
     if not FileTest.directory?(target_dir)
       BigBlueButton.logger.info("Making dir target_dir")
       FileUtils.mkdir_p target_dir
