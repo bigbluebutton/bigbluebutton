@@ -100,7 +100,26 @@ Verto.prototype.onWSLogin = function (v, success) {
 
 Verto.prototype.registerCallbacks = function () {
   var callbacks = {
-    onMessage: function () {},
+    onMessage: function (verto, dialog, msg, data) {
+
+      switch (msg) {
+        case $.verto.enum.message.pvtEvent:
+          if (data.pvtData) {
+            switch (data.pvtData.action) {
+              // This client has joined the live array for the conference.
+              case "conference-liveArray-join":
+                initLiveArray(verto, dialog, data);
+                break;
+              // This client has left the live array for the conference.
+              case "conference-liveArray-part":
+                // Some kind of client-side wrapup...
+              break;
+            }
+          }
+          break;
+      }
+
+    },
 
     onDialogState: function (d) {},
 
@@ -127,6 +146,62 @@ Verto.prototype.registerCallbacks = function () {
     }.bind(this),
   };
   this.callbacks = callbacks;
+};
+
+var initLiveArray = function(verto, dialog, data) {
+    // Set up addtional configuration specific to the call.
+    window.vertoConf = new $.verto.conf(verto, {
+      dialog: dialog,
+      hasVid: true,
+      laData: data.pvtData,
+      // For subscribing to published chat messages.
+      chatCallback: function(verto, eventObj) {
+        var from = eventObj.data.fromDisplay || eventObj.data.from || 'Unknown';
+        var message = eventObj.data.message || '';
+      },
+    });
+    var config = {
+      subParams: {
+        callID: dialog ? dialog.callID : null
+      },
+    };
+    // Set up the live array, using the live array data received from FreeSWITCH.
+    window.liveArray = new $.verto.liveArray(window.vertoHandle, data.pvtData.laChannel, data.pvtData.laName, config);
+    // Subscribe to live array changes.
+    window.liveArray.onChange = function(liveArrayObj, args) {
+      console.log("Call UUID is: " + args.key);
+      console.log("Call data is: ", args.data);
+
+      console.log(liveArrayObj);
+      console.log(args);
+
+      try {
+        switch (args.action) {
+
+          // Initial list of existing conference users.
+          case "bootObj":
+            break;
+
+          // New user joined conference.
+          case "add":
+            break;
+
+          // User left conference.
+          case "del":
+            break;
+
+          // Existing user's state changed (mute/unmute, talking, floor, etc)
+          case "modify":
+            break;
+        }
+      } catch (err) {
+        console.error("ERROR: " + err);
+      }
+    };
+    // Called if the live array throws an error.
+    window.liveArray.onErr = function (obj, args) {
+      console.error("Error: ", obj, args);
+    };
 };
 
 Verto.prototype.hold = function () {
@@ -188,7 +263,7 @@ Verto.prototype.vmute = function () {
 Verto.prototype.setWatchVideo = function (tag) {
   this.mediaCallback = this.docall;
   this.useVideo = true;
-  this.useCamera = 'none'; // temp
+  this.useCamera = 'any'; // temp
   this.useMic = 'any'; // temp
   this.create(tag);
 };
@@ -302,8 +377,8 @@ Verto.prototype.doShare = function (screenConstraints) {
     useVideo: true,
     screenShare: true,
 
-    useCamera: 'any',
-    useMic: 'any',
+    useCamera: this.useCamera,
+    useMic: this.useMic,
     useSpeak: 'any',
 
     dedEnc: true,

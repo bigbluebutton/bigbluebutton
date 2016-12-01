@@ -242,6 +242,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		public function handleViewWindowCloseEvent():void {
 			LOGGER.debug("Received stop viewing command");
 			JSLog.warn("WebRTCDeskshareManager::handleViewWindowCloseEvent", {});
+			sharing = false;
 			viewWindowManager.handleViewWindowCloseEvent();
 		}
 
