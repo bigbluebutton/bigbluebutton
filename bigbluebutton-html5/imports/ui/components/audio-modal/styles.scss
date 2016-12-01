@@ -55,6 +55,13 @@ Button.audioBtn:first-of-type {
   padding-top: 30px;
 }
 
+div.half label {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: $color-primary;
+  margin-bottom: 5px;
+}
+
 .backBtn {
   position: absolute;
   left: 10px;

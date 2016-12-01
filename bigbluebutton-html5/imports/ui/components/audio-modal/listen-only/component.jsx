@@ -6,6 +6,10 @@ import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
 
+import StreamVolume from '/imports/ui/components/stream-volume/component';
+import EnterAudio from '/imports/ui/components/enter-audio/component';
+import SpeakerSource from '/imports/ui/components/speaker-source/component';
+
 export default class ListenOnly extends React.Component {
   constructor(props) {
     super(props);
@@ -38,14 +42,13 @@ export default class ListenOnly extends React.Component {
           </div>
         </div>
         <div>
-          Content goes here<br /><br />
-          Volume Slider Here
-          <Button className={styles.enterBtn}
-            label={'Enter Session'}
-            size={'md'}
-            color={'primary'}
-            onClick={this.joinListen}
-          />
+          <div className={styles.half}>
+            <StreamVolume />
+            <SpeakerSource />
+          </div>
+          <div className={styles.half}>
+          <EnterAudio />
+          </div>
         </div>
       </div>
     );

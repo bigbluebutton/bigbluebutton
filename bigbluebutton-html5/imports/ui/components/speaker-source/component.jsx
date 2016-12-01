@@ -23,7 +23,7 @@ export default class SpeakerSource extends React.Component {
         </select>
       </div>
       <div className={styles.containerRightHalf}>
-      <Button className={styles.playSound}
+      <Button className={styles.testAudioBtn}
         label={'Play sound'}
         icon={'audio'}
         size={'md'}

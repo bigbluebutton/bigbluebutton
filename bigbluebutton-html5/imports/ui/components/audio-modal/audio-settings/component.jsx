@@ -7,6 +7,7 @@ import styles from '../styles.scss';
 import MicSource from '/imports/ui/components/mic-source/component';
 import SpeakerSource from '/imports/ui/components/speaker-source/component';
 import EnterAudio from '/imports/ui/components/enter-audio/component';
+import StreamVolume from '/imports/ui/components/stream-volume/component';
 
 export default class AudioSettings extends React.Component {
   constructor(props) {
@@ -51,6 +52,7 @@ export default class AudioSettings extends React.Component {
         </div>
         <div className={styles.half}>
           <MicSource />
+          <StreamVolume />
           <SpeakerSource />
         </div>
         <div className={styles.half}>
