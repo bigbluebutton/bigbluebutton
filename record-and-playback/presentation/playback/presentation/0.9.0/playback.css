@@ -286,6 +286,7 @@ ul.off-canvas-list li label {
   width: 100%;
   height: 100%;
   background-image: url('logo.png');
+  background-size: 160px 160px;
   background-position: center center;
   background-repeat: no-repeat;
 }
