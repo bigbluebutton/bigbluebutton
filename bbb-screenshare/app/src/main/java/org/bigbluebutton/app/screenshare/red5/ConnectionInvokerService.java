@@ -106,7 +106,7 @@ public class ConnectionInvokerService {
 
       for (IConnection conn : conns) {
         if (conn.isConnected()) {
-          String connId = (String) conn.getAttribute("INTERNAL_USER_ID");
+          String connId = (String) conn.getAttribute("USERID");
           log.info("Disconnecting client=[{}] from meeting=[{}]", connId, msg.getMeetingId());
           conn.close();
         }
@@ -200,7 +200,7 @@ public class ConnectionInvokerService {
       }
     }
 
-    return null;		
+    return null;
   }
 
   public IScope getScope(String meetingID) {

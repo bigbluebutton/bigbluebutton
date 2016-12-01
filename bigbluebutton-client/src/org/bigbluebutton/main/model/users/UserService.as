@@ -203,16 +203,16 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
-			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutId, e.userId);
+			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutMeetingId, e.userId);
 		}
 		
 		public function listenInOnBreakout(e:BreakoutRoomEvent):void {
 			if (e.listen) {
-				sender.listenInOnBreakout(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid);
+				sender.listenInOnBreakout(_conferenceParameters.meetingID, e.breakoutMeetingId, _conferenceParameters.userid);
 			} else {
-				sender.listenInOnBreakout(e.breakoutId, _conferenceParameters.meetingID, _conferenceParameters.userid);
+				sender.listenInOnBreakout(e.breakoutMeetingId, _conferenceParameters.meetingID, _conferenceParameters.userid);
 			}
-			UserManager.getInstance().getConference().setBreakoutRoomInListen(e.listen, e.breakoutId);
+			UserManager.getInstance().getConference().setBreakoutRoomInListen(e.listen, e.breakoutMeetingId);
 		}
 
 		public function endAllBreakoutRooms(e:BreakoutRoomEvent):void {

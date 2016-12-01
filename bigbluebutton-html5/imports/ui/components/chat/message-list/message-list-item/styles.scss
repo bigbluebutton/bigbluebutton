@@ -57,6 +57,30 @@
   }
 }
 
+.logout {
+  display: flex;
+  min-width: 0;
+  font-weight: 600;
+  color: $color-gray-light;
+  text-transform: capitalize;
+  font-style: italic;
+
+  > span {
+    @extend %text-elipsis;
+  }
+}
+
+.offline {
+  color: $color-gray-light;
+  font-weight: 100;
+  text-transform: lowercase;
+  font-style: italic;
+  margin-left: .25rem;
+  font-size: 90%;
+  line-height: 1;
+  align-self: center;
+}
+
 .time {
   flex-shrink: 0;
   flex-grow: 0;

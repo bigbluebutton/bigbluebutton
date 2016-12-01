@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
 import cx from 'classnames';
-import getColor from './color-generator';
+import generateColor from './color-generator';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -23,12 +23,16 @@ export default class UserAvatar extends Component {
       user,
     } = this.props;
 
+    const avatarColor = !user.isLoggedOut ? generateColor(user.name) : '#fff';
+
     let avatarStyles = {
-      backgroundColor: getColor(user.name),
+      backgroundColor: avatarColor,
+      boxShadow: user.isTalking ? `0 0 .5rem ${avatarColor}` : 'none',
     };
 
     return (
-      <div className={styles.userAvatar} style={avatarStyles}>
+      <div className={!user.isLoggedOut ? styles.userAvatar : styles.userLogout}
+           style={avatarStyles}>
         <span>
           {this.renderAvatarContent()}
         </span>

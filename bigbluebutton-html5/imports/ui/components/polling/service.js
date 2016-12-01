@@ -17,7 +17,7 @@ let mapPolls = function () {
     pollExists: true,
     amIRequester: amIRequester,
     handleVote: function (pollId, answerId) {
-      callServer('publishVoteMessage', pollId, answerId.id);
+      callServer('publishVote', pollId, answerId.id);
     },
   };
 };

@@ -117,9 +117,9 @@ class BigBlueButtonActor(val system: ActorSystem,
         meetings -= msg.meetingID
         log.info("Kick everyone out on meetingId={}", msg.meetingID)
         if (m.mProps.isBreakout) {
-          log.info("Informing parent meeting {} that a breakout room has been ended {}", m.mProps.externalMeetingID, m.mProps.meetingID)
-          eventBus.publish(BigBlueButtonEvent(m.mProps.externalMeetingID,
-            BreakoutRoomEnded(m.mProps.externalMeetingID, m.mProps.meetingID)))
+          log.info("Informing parent meeting {} that a breakout room has been ended {}", m.mProps.parentMeetingID, m.mProps.meetingID)
+          eventBus.publish(BigBlueButtonEvent(m.mProps.parentMeetingID,
+            BreakoutRoomEnded(m.mProps.parentMeetingID, m.mProps.meetingID)))
         }
         outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
         outGW.send(new DisconnectAllUsers(msg.meetingID))
@@ -149,9 +149,9 @@ class BigBlueButtonActor(val system: ActorSystem,
         eventBus.subscribe(m.actorRef, m.mProps.deskshareBridge)
 
         meetings += m.mProps.meetingID -> m
-        outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.recorded, m.mProps.meetingName,
-          m.mProps.voiceBridge, msg.mProps.duration, msg.mProps.moderatorPass,
-          msg.mProps.viewerPass, msg.mProps.createTime, msg.mProps.createDate))
+        outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.parentMeetingID,
+          m.mProps.recorded, m.mProps.meetingName, m.mProps.voiceBridge, msg.mProps.duration, msg.mProps.moderatorPass,
+          msg.mProps.viewerPass, msg.mProps.createTime, msg.mProps.createDate, msg.mProps.isBreakout))
 
         m.actorRef ! new InitializeMeeting(m.mProps.meetingID, m.mProps.recorded)
       }

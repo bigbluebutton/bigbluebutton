@@ -53,10 +53,10 @@
 .icon-bbb-up-arrow:before {
     content: "\e907";
 }
-.icon-bbb-undecided:before {
+.icon-bbb-neutral:before {
     content: "\e908";
 }
-.icon-bbb-time:before {
+.icon-bbb-away:before {
     content: "\e909";
 }
 .icon-bbb-sad:before {
@@ -74,10 +74,16 @@
 .icon-bbb-left-arrow:before {
     content: "\e90e";
 }
+.icon-bbb-down-arrow {
+  transform: rotate(90deg);
+}
+.icon-bbb-down-arrow:before {
+    content: "\e90b";
+}
 .icon-bbb-happy:before {
     content: "\e90f";
 }
-.icon-bbb-hand:before {
+.icon-bbb-raiseHand:before {
     content: "\e910";
 }
 .icon-bbb-group-chat:before {
@@ -89,7 +95,7 @@
 .icon-bbb-close:before {
     content: "\e913";
 }
-.icon-bbb-clear-status:before {
+.icon-bbb-none:before {
     content: "\e914";
 }
 .icon-bbb-circle:before {

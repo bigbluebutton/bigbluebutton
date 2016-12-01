@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.web.controllers
 
+import com.google.gson.Gson
+
 import javax.servlet.ServletRequest;
 
 import java.net.URI;
@@ -286,19 +288,9 @@ class ApiController {
       return
     }
 
-    Boolean isBreakoutRoom = false
-    if(!StringUtils.isEmpty(params.isBreakout)) {
-      isBreakoutRoom = new Boolean(StringUtils.strip(params.isBreakout))
-    }
-
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-    if (isBreakoutRoom) {
-      // This is a join request for a breakout room. Use the passed meetingId to find the meeting.
-      internalMeetingId = externalMeetingId
-      log.info("Join request for breakout room " + internalMeetingId)
-    }
 
     log.info("Retrieving meeting ${internalMeetingId}")
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
@@ -869,6 +861,10 @@ class ApiController {
                   meeting {
                     meetingID() { mkp.yield(m.getExternalId()) }
                     internalMeetingID() { mkp.yield(m.getInternalId()) }
+                    if (m.isBreakout()) {
+                        parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
+                        sequence(m.getSequence())
+                    }
                     isBreakout() { mkp.yield(m.isBreakout()) }
                     meetingName() { mkp.yield(m.getName()) }
                     createTime(m.getCreateTime())
@@ -1461,7 +1457,7 @@ class ApiController {
       reject = true
     } else {
       sessionToken = StringUtils.strip(params.sessionToken)
-      log.info("SessionToken = " + sessionToken)
+      log.info("Getting ConfigXml for SessionToken = " + sessionToken)
       if (!session[sessionToken]) {
           reject = true
       } else {
@@ -1484,6 +1480,20 @@ class ApiController {
         }
       }
     } else {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", us.meetingID);
+      logData.put("externalMeetingId", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userId", us.internalUserId);
+      logData.put("sessionToken", sessionToken);
+      logData.put("message", "handle_configxml_api");
+      logData.put("description", "Handling ConfigXml API.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(logStr);
+
       response.addHeader("Cache-Control", "no-cache")
       render text: us.configXML, contentType: 'text/xml'
     }
@@ -1550,7 +1560,20 @@ class ApiController {
       // how many times a user reconnects or refresh the browser.
       String newInternalUserID = us.internalUserId + "_" + us.incrementConnectionNum()
 
-      log.info("Found conference for " + us.fullname)
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", us.meetingID);
+      logData.put("externalMeetingId", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userId", newInternalUserID);
+      logData.put("sessionToken", sessionToken);
+      logData.put("message", "handle_enter_api");
+      logData.put("description", "Handling ENTER API.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(logStr);
+
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
@@ -2136,6 +2159,10 @@ class ApiController {
             isBreakout() { mkp.yield(meeting.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
+            if (meeting.isBreakout()) {
+                parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+                sequence(meeting.getSequence())
+            }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
             voiceBridge() { mkp.yield(meeting.getTelVoice()) }
@@ -2196,6 +2223,7 @@ class ApiController {
             returncode(RESP_CODE_SUCCESS)
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID() { mkp.yield(meeting.getInternalId()) }
+            parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
             attendeePW() { mkp.yield(meeting.getViewerPassword()) }
             moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
             createTime(meeting.getCreateTime())

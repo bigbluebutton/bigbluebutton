@@ -89,7 +89,7 @@ public class ESLEventListener implements IEslEventListener {
             System.out.println("User joined voice conference, user=[" + callerIdName + "], conf=[" +
                     confName + "] callerId=[" + callerId + "]");
 
-            VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, "");
+            VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, "none");
             conferenceEventListener.handleConferenceEvent(pj);
         }
     }

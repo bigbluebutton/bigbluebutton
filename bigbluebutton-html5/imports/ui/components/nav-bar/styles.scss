@@ -52,6 +52,22 @@
   margin-left: -5px;
 }
 
+.msgFlag{
+  margin-left: -34px;
+  margin-top: 6px;
+}
+
+.withdot {
+  content: '';
+  position: relative;
+  left: 20px;
+  top: 20px;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+}
+
 .hidden {
   position:absolute;
   left:-10000px;
@@ -61,10 +77,22 @@
   overflow:hidden;
 }
 
+.btn{
+  position: absolute;
+  span {
+    border: none;
+    box-shadow: none;
+  }
+}
+
 .settingBtn {
   transform: rotate(90deg);
   span {
     border: none;
     box-shadow: none;
   }
+}
+
+.dropdownTrigger {
+  cursor: pointer;
 }

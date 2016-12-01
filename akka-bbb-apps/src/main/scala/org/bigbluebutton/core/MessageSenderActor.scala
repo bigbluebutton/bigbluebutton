@@ -44,7 +44,6 @@ class MessageSenderActor(val service: MessageSender)
     extends Actor with ActorLogging {
 
   val encoder = new ToJsonEncoder()
-
   def receive = {
     case msg: UserEjectedFromMeeting => handleUserEjectedFromMeeting(msg)
     case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)

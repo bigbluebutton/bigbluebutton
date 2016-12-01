@@ -29,7 +29,7 @@ class MeetingActorInternal(val mProps: MeetingProperties,
     extends Actor with ActorLogging {
 
   import context.dispatcher
-  context.system.scheduler.schedule(2 seconds, 30 seconds, self, "MonitorNumberOfWebUsers")
+  context.system.scheduler.schedule(5 seconds, 10 seconds, self, "MonitorNumberOfWebUsers")
 
   // Query to get voice conference users
   outGW.send(new GetUsersInVoiceConference(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
@@ -37,8 +37,8 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   if (mProps.isBreakout) {
     // This is a breakout room. Inform our parent meeting that we have been successfully created.
     eventBus.publish(BigBlueButtonEvent(
-      mProps.externalMeetingID,
-      BreakoutRoomCreated(mProps.externalMeetingID, mProps.meetingID)))
+      mProps.parentMeetingID,
+      BreakoutRoomCreated(mProps.parentMeetingID, mProps.meetingID)))
   }
 
   def receive = {

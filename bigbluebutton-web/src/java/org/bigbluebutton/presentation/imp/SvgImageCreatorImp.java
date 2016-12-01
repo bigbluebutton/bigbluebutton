@@ -1,13 +1,9 @@
 package org.bigbluebutton.presentation.imp;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 
-import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.SupportedFileTypes;
+import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

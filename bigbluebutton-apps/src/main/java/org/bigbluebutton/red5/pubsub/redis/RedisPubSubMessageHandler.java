@@ -54,7 +54,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_MEETING_CHANNEL)) {
 			meetingMessageSender.handleMeetingMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_USERS_CHANNEL)) {
-			log.info("trace 0 : " + message);
 			userMessageSender.handleUsersMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_WHITEBOARD_CHANNEL)) {
 			whiteboardMessageSender.handleWhiteboardMessage(message);

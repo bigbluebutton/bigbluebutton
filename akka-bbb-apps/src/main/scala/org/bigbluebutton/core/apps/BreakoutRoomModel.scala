@@ -1,10 +1,9 @@
 package org.bigbluebutton.core.apps
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.immutable.HashMap
+import scala.Vector
 
 case class BreakoutUser(id: String, name: String)
-case class BreakoutRoom(id: String, name: String, voiceConfId: String,
+case class BreakoutRoom(id: String, externalMeetingId: String, name: String, parentRoomId: String, sequence: Integer, voiceConfId: String,
   assignedUsers: Vector[String], users: Vector[BreakoutUser])
 
 class BreakoutRoomModel {
@@ -21,9 +20,9 @@ class BreakoutRoomModel {
     rooms -= id
   }
 
-  def createBreakoutRoom(id: String, name: String, voiceConfId: String,
+  def createBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, voiceConfId: String,
     assignedUsers: Vector[String]): BreakoutRoom = {
-    val room = new BreakoutRoom(id, name, voiceConfId, assignedUsers, Vector())
+    val room = new BreakoutRoom(id, externalMeetingId, name, parentRoomId, sequence, voiceConfId, assignedUsers, Vector())
     add(room)
   }
 
@@ -31,22 +30,29 @@ class BreakoutRoomModel {
     rooms.get(id)
   }
 
+  def getRoomWithExternalId(externalId: String): Option[BreakoutRoom] = {
+    rooms.values find (r => r.externalMeetingId == externalId)
+  }
+
   def getRooms(): Array[BreakoutRoom] = {
     rooms.values.toArray
   }
 
-  def getAssignedUsers(breakoutId: String): Option[Vector[String]] = {
+  def getNumberOfRooms(): Int = {
+    rooms.size
+  }
+
+  def getAssignedUsers(breakoutMeetingId: String): Option[Vector[String]] = {
     for {
-      room <- rooms.get(breakoutId)
+      room <- rooms.get(breakoutMeetingId)
     } yield room.assignedUsers
   }
 
-  def updateBreakoutUsers(breakoutId: String, users: Vector[BreakoutUser]): Option[BreakoutRoom] = {
+  def updateBreakoutUsers(breakoutMeetingId: String, users: Vector[BreakoutUser]): Option[BreakoutRoom] = {
     for {
-      room <- rooms.get(breakoutId)
+      room <- rooms.get(breakoutMeetingId)
       newroom = room.copy(users = users)
       room2 = add(newroom)
     } yield room2
   }
 }
-
