@@ -16,7 +16,7 @@ Meteor.publish('cursor', (credentials) => {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Cursor for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Cursor for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Cursor.find({ meetingId });
 });
