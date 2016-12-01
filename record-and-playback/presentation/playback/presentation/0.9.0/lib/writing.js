@@ -155,6 +155,17 @@ function hideWhiteboardIfDeskshare(time) {
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 
+function startLoadingBar() {
+  console.log("==Hide playback content");
+  $("#playback-content").css('visibility', 'hidden');
+  console.log("Starting loading bar");
+  Pace.on('done', function() {
+    console.log("Stoping loading bar");
+    $("#loading-error").css('height','0');
+    $("#playback-content").css('visibility', 'visible');
+  });
+  Pace.start;
+}
 
 function runPopcorn() {
   console.log("** Running popcorn");
@@ -444,14 +455,6 @@ function runPopcorn() {
   });
 };
 
-function removeLoadingScreen() {
-  spinner.stop();
-  $("#playback-content").css('visibility','visible');
-  $("#loading-recording").css('visibility','hidden');
-  $("#loading-recording").css('height','0');
-  $("#load-recording-msg").css('display','none');
-}
-
 function defineStartTime() {
   console.log("** Defining start time");
 
@@ -548,9 +551,18 @@ svgobj.addEventListener('load', function() {
 
   var p = Popcorn("#video");
   p.currentTime(defineStartTime());
-
-  removeLoadingScreen();
 }, false);
+
+svgobj.addEventListener('error', function() {
+  console.log("got svgobj 'error' event");
+  onSVGLoadingError();
+}, false);
+
+function onSVGLoadingError() {
+  Pace.off('done');
+  Pace.stop();
+  $("#loading-error").css('visibility', 'visible');
+}
 
 // Fetches the metadata associated with the recording and uses it to configure
 // the playback page
