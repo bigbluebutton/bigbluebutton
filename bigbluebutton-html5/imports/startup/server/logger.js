@@ -22,12 +22,12 @@ Logger.add(Winston.transports.Console, {
   handleExceptions: true,
 });
 
-// Set Logger message level priority for the console
-Logger.transports.console.level = 'info';
-
 Meteor.startup(() => {
   const LOG_CONFIG = Meteor.settings.log || {};
   let filename = LOG_CONFIG.filename;
+
+  // Set Logger message level priority for the console
+  Logger.transports.console.level = LOG_CONFIG.level;
 
   // Determine file to write logs to
   if (filename) {
