@@ -670,6 +670,10 @@ def processSlideEvents
   deskshare_stop_evts = BigBlueButton::Events.get_stop_deskshare_events("#{$process_dir}/events.xml")
   deskshare_matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(deskshare_start_evts, deskshare_stop_evts)
 
+  deskshare_image_created = false
+  deskshare_slide_src = ""
+  deskshare_slide_size = nil
+
   # For each slide (there is only one image per slide)
   $slides_events.each do |node|
     # Ignore slide events that happened after the last recording period.
@@ -724,7 +728,6 @@ def processSlideEvents
       deskshare_stops = []
       orig_deskshare_starts = []
       orig_deskshare_stops = []
-      deskshare_video_filenames = []
       # checking if there's a deskshare event inside the slide interval of time
       deskshare_matched_evts.each do |start_evt|
         start_timestamp_orig = start_evt[:start_timestamp].to_f
@@ -738,45 +741,37 @@ def processSlideEvents
           deskshare_stops << stop_timestamp
           orig_deskshare_starts << ( start_timestamp_orig / 1000 ).round(1)
           orig_deskshare_stops << ( stop_timestamp_orig / 1000 ).round(1)
-          deskshare_video_filenames << "#{$deskshare_dir}/#{start_evt[:stream]}"
         end
       end
 
       if (deskshare_starts.length > 0)
-          FileUtils.mkdir_p("#{$process_dir}/presentation/deskshare")
+
+          if (!deskshare_image_created)
+              #Creating deskshare image
+              deskshare_slide_src = "presentation/deskshare/slide-1.png"
+
+              FileUtils.mkdir_p("#{$process_dir}/presentation/deskshare")
+              deskshare_image_url = "#{$process_dir}/#{deskshare_slide_src}"
+              command = "convert -size 1280x720 xc:transparent -background transparent #{deskshare_image_url}"
+              BigBlueButton.execute(command)
+              deskshare_image_created = true
+
+              deskshare_slide_size = FastImage.size(deskshare_image_url)
+          end
+
           for i in 0..deskshare_starts.length-1
-             #Creating deskshare image (a transparent image with DS video resolution)
-             $deskshare_page_count = $deskshare_page_count + 1
-             deskshare_slide_src = "presentation/deskshare/slide-#{$deskshare_page_count}.png"
-             deskshare_text = nil;
-             deskshare_image_url = "#{$process_dir}/#{deskshare_slide_src}"
+            if (i == 0)
+               processSlideImage(slide_src, slide_size, slide_start, (deskshare_starts[0]-0.1), slide_text, orig_slide_start, (orig_deskshare_starts[0]-0.1))
+            else
+               processSlideImage(slide_src, slide_size, (deskshare_stops[i-1]+0.1), (deskshare_starts[i]-0.1), slide_text, (orig_deskshare_stops[i-1]+0.1), (orig_deskshare_starts[i]-0.1))
+            end
 
-             BigBlueButton.logger.info("processSlideEvents - trying to open: #{deskshare_video_filenames[i]} to get its dimensions")
-             if File.exist?(deskshare_video_filenames[i])
-                video_width = BigBlueButton.get_video_width(deskshare_video_filenames[i])
-                video_height = BigBlueButton.get_video_height(deskshare_video_filenames[i])
-                BigBlueButton.logger.info("processSlideEvents - video is #{video_width}x#{video_height}")
-                command = "convert -size #{video_width}x#{video_height} xc:transparent -background transparent #{deskshare_image_url}"
-                BigBlueButton.execute(command)
+            #insert deskshare image
+            processSlideImage(deskshare_slide_src, deskshare_slide_size, deskshare_starts[i], deskshare_stops[i], nil, orig_deskshare_starts[i], orig_deskshare_stops[i])
 
-                deskshare_slide_size = FastImage.size(deskshare_image_url)
-
-                if (i == 0)
-                   processSlideImage(slide_src, slide_size, slide_start, (deskshare_starts[0]-0.1), slide_text, orig_slide_start, (orig_deskshare_starts[0]-0.1))
-                else
-                   processSlideImage(slide_src, slide_size, (deskshare_stops[i-1]+0.1), (deskshare_starts[i]-0.1), slide_text, (orig_deskshare_stops[i-1]+0.1), (orig_deskshare_starts[i]-0.1))
-                end
-
-                #insert deskshare image
-                processSlideImage(deskshare_slide_src, deskshare_slide_size, deskshare_starts[i], deskshare_stops[i], deskshare_text, orig_deskshare_starts[i], orig_deskshare_stops[i])
-
-                if (i == deskshare_starts.length-1)
-                    processSlideImage(slide_src, slide_size, (deskshare_stops[i]+0.1), slide_end, slide_text, (orig_deskshare_stops[i]+0.1), orig_slide_end)
-                end
-
-             else
-                BigBlueButton.logger.info("processSlideEvents - deskshare video file DOES NOT exist: #{deskshare_video_filename[i]}")
-             end
+            if (i == deskshare_starts.length-1)
+                processSlideImage(slide_src, slide_size, (deskshare_stops[i]+0.1), slide_end, slide_text, (orig_deskshare_stops[i]+0.1), orig_slide_end)
+            end
           end
       else
         processSlideImage(slide_src, slide_size, slide_start, slide_end, slide_text, orig_slide_start, orig_slide_end)
@@ -1058,7 +1053,6 @@ $poll_result_count = 0
 $global_shape_count = -1
 $global_slide_count = 1
 $global_page_count = 0
-$deskshare_page_count = 0
 $canvas_number = 0
 $prev_clear_time = 0
 $pageCleared = "0"
