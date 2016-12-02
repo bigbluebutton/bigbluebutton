@@ -146,8 +146,26 @@ class MessageList extends Component {
             />
           ))}
         </div>
+        {this.renderUnreadNotification()}
       </div>
     );
+  }
+
+  renderUnreadNotification() {
+    const { intl, hasUnreadMessages, scrollPosition } = this.props;
+
+    if (hasUnreadMessages && scrollPosition !== null) {
+      return (
+        <Button
+          className={styles.unreadButton}
+          size={'sm'}
+          label={intl.formatMessage(intlMessages.moreMessages)}
+          onClick={() => this.scrollTo()}
+        />
+      );
+    }
+
+    return null;
   }
 }
 
