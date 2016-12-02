@@ -11,16 +11,13 @@ public class CreateBreakoutRoomsRequestPayload {
     public final Integer durationInMinutes;
     // Breakout rooms recording option
     public final Boolean record;
-    // Creates join URL with redirect value true or false
-    public final Boolean redirectOnJoin;
 
     public CreateBreakoutRoomsRequestPayload(String meetingId,
             ArrayList<BreakoutRoomRequestPayload> breakoutRooms,
-            Integer duration, Boolean record, Boolean redirectOnJoin) {
+            Integer duration, Boolean record) {
         this.meetingId = meetingId;
         this.rooms = breakoutRooms;
         this.durationInMinutes = duration;
         this.record = record;
-        this.redirectOnJoin = redirectOnJoin;
     }
 }

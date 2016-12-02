@@ -3,6 +3,9 @@ import { createContainer } from 'meteor/react-meteor-data';
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'underscore';
+import NavBarService from '../nav-bar/service';
+import Auth from '/imports/ui/services/auth';
+import { humanizeSeconds } from '/imports/utils/humanizeSeconds';
 
 import NotificationsBar from './component';
 
@@ -37,6 +40,21 @@ const intlMessages = defineMessages({
     defaultMessage: 'Disconnected. Trying to reconnect in {seconds} seconds...',
     description: 'Message when the client is trying to reconnect to the server',
   },
+  breakoutTimeRemaining: {
+    id: 'app.breakoutTimeRemainingMessage',
+    defaultMessage: 'Breakout Room time remaining: {time}',
+    description: 'Message that tells how much time is remaining for the breakout room',
+  },
+  breakoutWillClose: {
+    id: 'app.breakoutWillCloseMessage',
+    defaultMessage: 'Time ended. Breakout Room will close soon',
+    description: 'Message that tells time has ended and breakout will close',
+  },
+  calculatingBreakoutTimeRemaining: {
+    id: 'app.calculatingBreakoutTimeRemaining',
+    defaultMessage: 'Calculating remaining time...',
+    description: 'Message that tells that the remaining time is being calculated',
+  },
 });
 
 class NotificationsBarContainer extends Component {
@@ -60,11 +78,20 @@ class NotificationsBarContainer extends Component {
 }
 
 let retrySeconds = 0;
+let timeRemaining = 0;
 const retrySecondsDep = new Tracker.Dependency;
+const timeRemainingDep = new Tracker.Dependency;
+let retryInterval = null;
+let timeRemainingInterval = null;
 
 const getRetrySeconds = () => {
   retrySecondsDep.depend();
   return retrySeconds;
+};
+
+const getTimeRemaining = () => {
+  timeRemainingDep.depend();
+  return timeRemaining;
 };
 
 const setRetrySeconds = (sec = 0) => {
@@ -74,14 +101,29 @@ const setRetrySeconds = (sec = 0) => {
   }
 };
 
-let retryInterval = null;
-const startCounter = (sec) => {
-  clearInterval(retryInterval);
+const setTimeRemaining = (sec = 0) => {
+  if (sec !== timeRemaining) {
+    timeRemaining = sec;
+    changeDocumentTitle(sec);
+    timeRemainingDep.changed();
+  }
+};
 
-  setRetrySeconds(sec);
-  retryInterval = setInterval(() => {
-    setRetrySeconds(getRetrySeconds() - 1);
+const startCounter = (sec, set, get, interval) => {
+  clearInterval(interval);
+  set(sec);
+  return setInterval(() => {
+    set(get() - 1);
   }, 1000);
+};
+
+const changeDocumentTitle = (sec) => {
+  if (sec >= 0) {
+    const affix = `(${humanizeSeconds(sec)}`;
+    const splitTitle = document.title.split(') ');
+    const title = splitTitle[1] || splitTitle[0];
+    document.title = [affix, title].join(') ');
+  }
 };
 
 export default injectIntl(createContainer(({ intl }) => {
@@ -100,14 +142,51 @@ export default injectIntl(createContainer(({ intl }) => {
         data.message = intl.formatMessage(intlMessages.connectingMessage);
         break;
       case STATUS_WAITING:
-        startCounter(Math.round((retryTime - (new Date()).getTime()) / 1000));
+        const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
+        retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = intl.formatMessage(
           intlMessages.waitingMessage,
           { seconds: getRetrySeconds() }
         );
         break;
     }
+
+    return data;
   }
 
+  const meetingId = Auth.meetingID;
+  const breakouts = NavBarService.getBreakouts();
+
+  if (breakouts) {
+    const currentBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
+    if (currentBreakout) {
+      roomRemainingTime = currentBreakout.timeRemaining;
+      if (!timeRemainingInterval && roomRemainingTime) {
+        timeRemainingInterval = startCounter(roomRemainingTime,
+                                             setTimeRemaining,
+                                             getTimeRemaining,
+                                             timeRemainingInterval);
+      }
+    } else if (timeRemainingInterval) {
+      clearInterval(timeRemainingInterval);
+    }
+
+    const timeRemaining = getTimeRemaining();
+    if (timeRemaining) {
+      if (timeRemaining > 0) {
+        data.message = intl.formatMessage(
+          intlMessages.breakoutTimeRemaining,
+          { time: humanizeSeconds(timeRemaining) }
+        );
+      } else {
+        clearInterval(timeRemainingInterval);
+        data.message = intl.formatMessage(intlMessages.breakoutWillClose);
+      }
+    } else if (!timeRemaining && currentBreakout) {
+      data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
+    }
+  }
+
+  data.color = 'primary';
   return data;
 }, NotificationsBarContainer));

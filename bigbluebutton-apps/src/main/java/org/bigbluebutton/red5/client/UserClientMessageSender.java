@@ -545,7 +545,8 @@ public class UserClientMessageSender {
 	  args.put("parentMeetingId", msg.payload.parentMeetingId);
 	  args.put("breakoutMeetingId", msg.payload.breakoutMeetingId);
 	  args.put("userId", msg.payload.userId);
-	  args.put("joinURL", msg.payload.joinURL);
+	  args.put("redirectJoinURL", msg.payload.redirectJoinURL);
+	  args.put("noRedirectJoinURL", msg.payload.noRedirectJoinURL);
 	  
 	  Map<String, Object> message = new HashMap<String, Object>();
       Gson gson = new Gson();

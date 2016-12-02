@@ -29,7 +29,7 @@ class MeetingActorInternal(val mProps: MeetingProperties,
     extends Actor with ActorLogging {
 
   import context.dispatcher
-  context.system.scheduler.schedule(2 seconds, 30 seconds, self, "MonitorNumberOfWebUsers")
+  context.system.scheduler.schedule(5 seconds, 10 seconds, self, "MonitorNumberOfWebUsers")
 
   // Query to get voice conference users
   outGW.send(new GetUsersInVoiceConference(mProps.meetingID, mProps.recorded, mProps.voiceBridge))

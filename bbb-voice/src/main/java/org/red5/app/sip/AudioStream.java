@@ -119,33 +119,20 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 
 	public void onPipeConnectionEvent(PipeConnectionEvent event) {
 		log.trace("onPipeConnectionEvent(event:{})", event);
-		switch (event.getType())
-		{
-	    	case PipeConnectionEvent.PROVIDER_CONNECT_PUSH:
-	    		log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
-	    		System.out.println("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
-	    		if (event.getProvider() == this && (event.getParamMap() == null || !event.getParamMap().containsKey("record"))) {
-	    			log.trace("Creating a live pipe");
-	    			System.out.println("Creating a live pipe");
-	    			this.livePipe = (IPipe) event.getSource();
-	    		}
-	    		break;
-	    	case PipeConnectionEvent.PROVIDER_DISCONNECT:
-	    		log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
-	    		if (this.livePipe == event.getSource()) {
-	    			log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
-	    			this.livePipe = null;
-	    		}
-	    		break;
-	    	case PipeConnectionEvent.CONSUMER_CONNECT_PUSH:
-	    		log.trace("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
-	    		break;
-	    	case PipeConnectionEvent.CONSUMER_DISCONNECT:
-	    		log.trace("PipeConnectionEvent.CONSUMER_DISCONNECT");
-	    		break;
-	    	default:
-	    		log.trace("PipeConnectionEvent default");
-	    		break;
+		if (event.getType() == PipeConnectionEvent.EventType.PROVIDER_CONNECT_PUSH) {
+			log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
+			System.out.println("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
+			if (event.getProvider() == this && (event.getParamMap() == null || !event.getParamMap().containsKey("record"))) {
+				log.trace("Creating a live pipe");
+				System.out.println("Creating a live pipe");
+				this.livePipe = (IPipe) event.getSource();
+			}
+		} else if(event.getType() == PipeConnectionEvent.EventType.PROVIDER_DISCONNECT) {
+			log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
+			if (this.livePipe == event.getSource()) {
+				log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
+				this.livePipe = null;
+			}
 		}
 	}
 

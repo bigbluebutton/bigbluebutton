@@ -21,7 +21,7 @@ Meteor.publish('polls', (credentials) => {
     users: requesterUserId,
   };
 
-  let options = null;
+  let options = {};
 
   if (!isAllowedTo('subscribeAnswers', credentials)) {
     options = {
