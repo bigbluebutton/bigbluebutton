@@ -122,6 +122,10 @@ class LiveMeeting(val mProps: MeetingProperties,
     handleEndAllBreakoutRooms(new EndAllBreakoutRooms(msg.meetingId))
 
     outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
+
+    // Eject users from the voice conference.
+    outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+
     // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client  
     import context.dispatcher
     context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
