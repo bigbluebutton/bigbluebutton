@@ -158,13 +158,12 @@ function hideWhiteboardIfDeskshare(time) {
 function startLoadingBar() {
   console.log("==Hide playback content");
   $("#playback-content").css('visibility', 'hidden');
-  console.log("Starting loading bar");
-  Pace.on('done', function() {
-    console.log("Stoping loading bar");
+  Pace.once('done', function() {
     $("#loading-error").css('height','0');
+    console.log("==Show playback content");
     $("#playback-content").css('visibility', 'visible');
   });
-  Pace.start;
+  Pace.start();
 }
 
 function runPopcorn() {
