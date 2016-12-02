@@ -121,7 +121,12 @@ class BigBlueButtonActor(val system: ActorSystem,
           eventBus.publish(BigBlueButtonEvent(m.mProps.parentMeetingID,
             BreakoutRoomEnded(m.mProps.parentMeetingID, m.mProps.meetingID)))
         }
+
+        // Eject all users using the client.
         outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
+        // Eject all users from the voice conference
+        outGW.send(new EjectAllVoiceUsers(msg.meetingID, m.mProps.recorded, m.mProps.voiceBridge))
+        // Disconnect all clients
         outGW.send(new DisconnectAllUsers(msg.meetingID))
         log.info("Destroyed meetingId={}", msg.meetingID)
         outGW.send(new MeetingDestroyed(msg.meetingID))
