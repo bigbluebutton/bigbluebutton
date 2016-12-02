@@ -322,36 +322,36 @@ def parse_events(directory="."):
     have_record_events = False
     events = deque()
 
-    with open("{}/events.xml".format(directory), "rb") as f:
-        for _, element in etree.iterparse(f, tag="event"):
-            try:
-                event = {}
+    root = etree.parse("{}/events.xml".format(directory))
+    for element in root.iter("event"):
+        try:
+            event = {}
 
-                # Convert timestamps to be in seconds from recording start
-                timestamp = int(element.attrib['timestamp'])
-                if not start_time:
-                    start_time = timestamp
-                timestamp = timestamp - start_time
+            # Convert timestamps to be in seconds from recording start
+            timestamp = int(element.attrib['timestamp'])
+            if not start_time:
+                start_time = timestamp
+            timestamp = timestamp - start_time
 
-                # Only need events from these modules
-                if not element.attrib['module'] in ['CAPTION','PARTICIPANT']:
-                    continue
+            # Only need events from these modules
+            if not element.attrib['module'] in ['CAPTION','PARTICIPANT']:
+                continue
 
-                event['name'] = name = element.attrib['eventname']
-                event['timestamp'] = timestamp
+            event['name'] = name = element.attrib['eventname']
+            event['timestamp'] = timestamp
 
-                if name == 'RecordStatusEvent':
-                    parse_record_status(event, element)
-                    have_record_events = True
-                elif name == 'EditCaptionHistoryEvent':
-                    parse_caption_edit(event, element)
-                else:
-                    logger.debug("Unhandled event: %s", name)
-                    continue
+            if name == 'RecordStatusEvent':
+                parse_record_status(event, element)
+                have_record_events = True
+            elif name == 'EditCaptionHistoryEvent':
+                parse_caption_edit(event, element)
+            else:
+                logger.debug("Unhandled event: %s", name)
+                continue
 
-                events.append(event)
-            finally:
-                element.clear()
+            events.append(event)
+        finally:
+            element.clear()
 
     if not have_record_events:
         # Add a fake record start event to the events list
