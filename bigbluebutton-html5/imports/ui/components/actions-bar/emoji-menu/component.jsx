@@ -48,7 +48,7 @@ class EmojiMenu extends Component {
         <DropdownContent placement="top left">
           <DropdownList>
             <DropdownListItem
-              icon="away"
+              icon="time"
               label={intl.formatMessage(intlMessages.awayLabel)}
               description={intl.formatMessage(intlMessages.awayDesc)}
               onClick={() => actions.setEmojiHandler('away')}
@@ -60,7 +60,7 @@ class EmojiMenu extends Component {
               onClick={() => actions.setEmojiHandler('raiseHand')}
             />
             <DropdownListItem
-              icon="neutral"
+              icon="undecided"
               label={intl.formatMessage(intlMessages.undecidedLabel)}
               description={intl.formatMessage(intlMessages.undecidedDesc)}
               onClick={() => actions.setEmojiHandler('neutral')}
