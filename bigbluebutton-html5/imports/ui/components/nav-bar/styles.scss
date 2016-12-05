@@ -35,21 +35,16 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  > [class^="icon-bbb-"] {
+    font-size: 75%;
+  }
 }
 
 .divideBar {
   color: $color-white;
   font-size: $font-size-base * 1.2;
-  margin-left: 15px;
-}
-
-.recordImage {
-  margin-left: -5px;
-}
-
-.msgFlag{
-  margin-left: -34px;
-  margin-top: 6px;
+  margin: 0 $line-height-computed / 2;
 }
 
 .btnWithNotificationDot {
@@ -78,4 +73,8 @@
 
 .btnSettings {
   transform: rotate(90deg);
+}
+
+.dropdownBreakout {
+  cursor: pointer;
 }

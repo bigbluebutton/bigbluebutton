@@ -11,7 +11,7 @@ export default class RecordButton extends Component{
     let fillColor = beingRecorded ? '#F0615F' : '#ffffff';
 
     return (
-      <svg width="30" height="30" className={styles.recordImage}>
+      <svg width="30" height="30">
         <circle cx="13" cy="17" r="10" stroke="#ffffff" strokeWidth="1" fill="#2A2D36" />
         <circle cx="13" cy="17.5" r="5" stroke="#2A2D36" strokeWidth="1" fill= {fillColor} />
       </svg>
