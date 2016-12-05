@@ -7,8 +7,7 @@
 
 .left,
 .right,
-.center,
-.record {
+.center {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -16,8 +15,7 @@
 }
 
 .left,
-.right,
-.record {
+.right {
   flex: 0;
 }
 
@@ -41,9 +39,10 @@
   }
 }
 
-.divideBar {
-  color: $color-white;
-  font-size: $font-size-base * 1.2;
+.divider {
+  background: $color-white;
+  height: 70%;
+  width: 1px;
   margin: 0 $line-height-computed / 2;
 }
 
