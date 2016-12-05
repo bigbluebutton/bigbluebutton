@@ -57,15 +57,19 @@
   margin-top: 6px;
 }
 
-.withdot {
-  content: '';
+.btnWithNotificationDot {
   position: relative;
-  left: 20px;
-  top: 20px;
-  border-radius: 50%;
-  width: 10px;
-  height: 10px;
-  background-color: red;
+
+  &:after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    bottom: 0;
+    right: 0;
+    background-color: $color-danger;
+  }
 }
 
 .hidden {

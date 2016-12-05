@@ -7,6 +7,7 @@ import Icon from '/imports/ui/components/icon/component';
 import { showModal } from '/imports/ui/components/app/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import _ from 'underscore';
+import cx from 'classnames';
 
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -61,20 +62,23 @@ class NavBar extends Component {
   render() {
     const { hasUnreadMessages, beingRecorded } = this.props;
 
+    let toggleBtnClasses = {};
+    toggleBtnClasses[styles.btn] = true;
+    toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
+
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
-        <Button
-          onClick={this.handleToggleUserList}
-          ghost={true}
-          circle={true}
-          hideLabel={true}
-          label={'Toggle User-List'}
-          icon={'user'}
-          className={styles.btn}
-        />
+          <Button
+            onClick={this.handleToggleUserList}
+            ghost={true}
+            circle={true}
+            hideLabel={true}
+            label={'Toggle User-List'}
+            icon={'user'}
+            className={cx(toggleBtnClasses)}
+          />
         </div>
-        {hasUnreadMessages ? <span className={styles.withdot}></span> : null}
         <div className={styles.center}>
           {this.renderPresentationTitle()}
           <span className={styles.divideBar}> | </span>
