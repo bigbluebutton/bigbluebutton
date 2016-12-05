@@ -1,0 +1,29 @@
+@import "../../../stylesheets/variables/_all";
+
+.indicator {
+  display: inline-block;
+  position: relative;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid $color-white;
+
+  &:after {
+    content: '';
+    width: .75rem;
+    height: .75rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -.375rem;
+    margin-left: -.375rem;
+    border-radius: 50%;
+    background-color: $color-white;
+  }
+}
+
+.beingRecorded {
+  &:after {
+    background-color: $color-danger !important;
+  }
+}

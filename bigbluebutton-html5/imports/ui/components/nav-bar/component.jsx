@@ -1,14 +1,15 @@
 import React, { Component, PropTypes } from 'react';
-import styles from './styles.scss';
-import Button from '../button/component';
-import RecordButton from './recordbutton/component';
-import SettingsDropdown from './settings-dropdown/component';
-import Icon from '/imports/ui/components/icon/component';
-import { showModal } from '/imports/ui/components/app/service';
-import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import _ from 'underscore';
 import cx from 'classnames';
+import styles from './styles.scss';
 
+import { showModal } from '/imports/ui/components/app/service';
+
+import Button from '../button/component';
+import RecordingIndicator from './recording-indicator/component';
+import SettingsDropdown from './settings-dropdown/component';
+import Icon from '/imports/ui/components/icon/component';
+import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -83,7 +84,7 @@ class NavBar extends Component {
           {this.renderPresentationTitle()}
           <span className={styles.divideBar}> | </span>
           <div className={styles.record}>
-            <RecordButton beingRecorded={beingRecorded}/>
+            <RecordingIndicator beingRecorded={beingRecorded}/>
           </div>
         </div>
         <div className={styles.right}>
