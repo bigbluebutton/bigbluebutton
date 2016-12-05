@@ -13,10 +13,6 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-
-  > * {
-    margin: 0 $line-height-computed;
-  }
 }
 
 .left,
@@ -72,7 +68,7 @@
 }
 
 .btn {
-  position: absolute;
+  margin: 0;
 
   span {
     border: none;
@@ -80,14 +76,6 @@
   }
 }
 
-.settingBtn {
+.btnSettings {
   transform: rotate(90deg);
-  span {
-    border: none;
-    box-shadow: none;
-  }
-}
-
-.dropdownTrigger {
-  cursor: pointer;
 }

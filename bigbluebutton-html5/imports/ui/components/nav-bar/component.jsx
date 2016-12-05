@@ -113,7 +113,7 @@ class NavBar extends Component {
       <Dropdown
         isOpen={this.state.isActionsOpen}
         ref="dropdown">
-        <DropdownTrigger className={styles.dropdownTrigger}>
+        <DropdownTrigger>
           <h1 className={styles.presentationTitle}>
             {presentationTitle} <Icon iconName='down-arrow'/>
           </h1>
