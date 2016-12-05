@@ -1,7 +1,5 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
-import { clearModal } from '/imports/ui/components/app/service';
-import { joinListenOnly } from '/imports/api/phone';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
@@ -9,6 +7,7 @@ import styles from '../styles.scss';
 import StreamVolume from '/imports/ui/components/stream-volume/component';
 import EnterAudio from '/imports/ui/components/enter-audio/component';
 import SpeakerSource from '/imports/ui/components/speaker-source/component';
+import AudioTest from '/imports/ui/components/audio-test/component';
 
 export default class ListenOnly extends React.Component {
   constructor(props) {
@@ -19,10 +18,6 @@ export default class ListenOnly extends React.Component {
 
   chooseAudio() {
     this.props.changeMenu(this.props.JOIN_AUDIO);
-  }
-
-  joinListen() {
-    joinListenOnly();
   }
 
   render() {
@@ -42,12 +37,13 @@ export default class ListenOnly extends React.Component {
           </div>
         </div>
         <div>
-          <div className={styles.half}>
+          <div className={styles.containerLeftHalfContent}>
             <StreamVolume />
             <SpeakerSource />
+            <AudioTest />
           </div>
-          <div className={styles.half}>
-          <EnterAudio />
+          <div className={styles.containerRightHalfContent}>
+            <EnterAudio />
           </div>
         </div>
       </div>
