@@ -56,6 +56,7 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   @extend %full-page;
 
   background-color: $color-background;
+  padding: 0 .25%;
   // position: relative;
 
   &:before,
