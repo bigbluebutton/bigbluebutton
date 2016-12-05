@@ -27,7 +27,7 @@
 .presentationTitle {
   font-weight: 200;
   color: $color-white;
-  font-size: $font-size-base * 1.2;
+  font-size: $font-size-base;
   margin: 0;
   padding: 0;
   white-space: nowrap;
@@ -41,9 +41,10 @@
 
 .divider {
   background: $color-white;
-  height: 70%;
+  height: $font-size-base * 1.25;
   width: 1px;
   margin: 0 $line-height-computed / 2;
+  opacity: .75;
 }
 
 .btnWithNotificationDot {
