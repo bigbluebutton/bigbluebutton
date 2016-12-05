@@ -33,7 +33,7 @@ class EmojiMenu extends Component {
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
-            icon="raiseHand"
+            icon="hand"
             ghost={false}
             circle={true}
             hideLabel={false}
@@ -54,7 +54,7 @@ class EmojiMenu extends Component {
               onClick={() => actions.setEmojiHandler('away')}
             />
             <DropdownListItem
-              icon="raiseHand"
+              icon="hand"
               label={intl.formatMessage(intlMessages.raiseLabel)}
               description={intl.formatMessage(intlMessages.raiseDesc)}
               onClick={() => actions.setEmojiHandler('raiseHand')}
@@ -86,7 +86,7 @@ class EmojiMenu extends Component {
             />
             <DropdownListSeparator/>
             <DropdownListItem
-              icon="none"
+              icon="clear-status"
               label={intl.formatMessage(intlMessages.clearLabel)}
               description={intl.formatMessage(intlMessages.clearDesc)}
               onClick={() => actions.setEmojiHandler('none')}
