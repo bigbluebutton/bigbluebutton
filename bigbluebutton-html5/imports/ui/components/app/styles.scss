@@ -16,7 +16,7 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   z-index: 10;
 
   font-size: 1.5rem;
-  padding: .8rem 1rem;
+  padding: .75rem .5rem;
 }
 
 .wrapper {
@@ -161,6 +161,7 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
 }
 
 .actionsbar {
+  padding: .75rem .5rem;
   position: relative;
   order: 3;
 
