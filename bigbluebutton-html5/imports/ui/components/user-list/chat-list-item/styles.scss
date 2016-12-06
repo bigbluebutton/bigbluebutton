@@ -25,7 +25,7 @@
   @extend %no-margin;
   justify-content: center;
   color: $color-white;
-  height: 1rem;
+  line-height: calc(1rem + 1px);
   padding: 0 0.5rem;
   text-align: center;
   border-radius: 0.5rem/50%;
