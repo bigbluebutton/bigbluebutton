@@ -35,10 +35,9 @@
   @extend %flex-column;
   min-width: 0;
   flex-grow: 1;
-  margin-left: 0.7rem;
+  margin-left: $sm-padding-x;
   justify-content: center;
   font-size: 0.95rem;
-  font-weight: 600;
 }
 
 .userNameMain {
@@ -49,6 +48,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   transition: all 0.3s;
+  font-weight: 400;
 }
 
 .hasSub {
@@ -80,7 +80,7 @@
   display: flex;
   flex-flow: row;
   justify-content: space-between;
-  padding: 0 0.3rem;
+  margin-left: $sm-padding-x / 2;
   text-align: right;
   font-size: 1rem;
   flex-basis: 4rem;
