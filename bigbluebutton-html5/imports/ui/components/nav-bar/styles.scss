@@ -69,6 +69,15 @@
     border: none;
     box-shadow: none;
   }
+
+  &:hover,
+  &:focus {
+    span {
+      background-color: transparent !important;
+      color: $color-white !important;
+      opacity: .75;
+    }
+  }
 }
 
 .btnSettings {
