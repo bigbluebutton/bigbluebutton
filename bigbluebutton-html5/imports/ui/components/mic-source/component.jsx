@@ -6,7 +6,7 @@ export default class MicSource extends React.Component {
   }
 
   render() {
-    return(
+    return (
       <div>
         <label htmlFor='microphone'>Microphone source</label><br />
         <select id='microphone' defaultValue='0'>

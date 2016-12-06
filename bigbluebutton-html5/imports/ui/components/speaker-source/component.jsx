@@ -6,9 +6,9 @@ export default class SpeakerSource extends React.Component {
   }
 
   render() {
-    return(
+    return (
       <div>
-      <label htmlFor='speaker'>Speaker source</label><br />
+        <label htmlFor='speaker'>Speaker source</label><br />
         <select id='speaker' defaultValue='0'>
           <option value='0' disabled>Default</option>
           <option value='1' disabled>1</option>

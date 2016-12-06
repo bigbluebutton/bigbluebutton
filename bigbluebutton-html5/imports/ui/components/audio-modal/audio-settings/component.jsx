@@ -5,10 +5,9 @@ import styles from '../styles.scss';
 
 import MicSource from '/imports/ui/components/mic-source/component';
 import SpeakerSource from '/imports/ui/components/speaker-source/component';
-import EnterAudio from '/imports/ui/components/enter-audio/component';
+import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 import StreamVolume from '/imports/ui/components/stream-volume/component';
-import AudioTest from '/imports/ui/components/audio-test/component';
-
+import AudioTestContainer from '/imports/ui/components/audio-test/container';
 
 export default class AudioSettings extends React.Component {
   constructor(props) {
@@ -41,10 +40,10 @@ export default class AudioSettings extends React.Component {
           <MicSource />
           <StreamVolume />
           <SpeakerSource />
-          <AudioTest />
+          <AudioTestContainer />
         </div>
         <div className={styles.containerRightHalfContent}>
-          <EnterAudio />
+          <EnterAudioContainer isFullAudio={true}/>
         </div>
       </div>
     );

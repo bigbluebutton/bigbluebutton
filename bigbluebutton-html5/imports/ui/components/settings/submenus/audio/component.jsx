@@ -5,7 +5,7 @@ import styles from '../styles.scss';
 import MicSource from '../../../mic-source/component';
 import SpeakerSource from '../../../speaker-source/component';
 import StreamVolume from '../../../stream-volume/component';
-import AudioTest from '../../../audio-test/component';
+import AudioTestContainer from '../../../audio-test/container';
 
 export default class AudioMenu extends BaseMenu {
   constructor(props) {
@@ -21,7 +21,7 @@ export default class AudioMenu extends BaseMenu {
         </div>
         <div className={styles.containerRightHalf}>
           <StreamVolume />
-          <AudioTest />
+          <AudioTestContainer  />
         </div>
       </div>
     );

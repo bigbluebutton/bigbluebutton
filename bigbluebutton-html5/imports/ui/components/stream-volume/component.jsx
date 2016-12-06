@@ -6,7 +6,7 @@ export default class StreamVolume extends React.Component {
   }
 
   render() {
-    return(
+    return (
       <div>
         <label htmlFor='audioVolume'>Your audio stream volume</label><br />
         <input style={{ width: '90%' }} type='text' placeholder='volume bar placeholder'

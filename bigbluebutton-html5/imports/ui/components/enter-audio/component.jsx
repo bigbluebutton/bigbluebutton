@@ -1,19 +1,17 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import styles from '../settings/styles.scss';
-import {joinListenOnly, joinMicrophone} from '/imports/api/phone';
 
 export default class EnterAudio extends React.Component {
   constructor(props) {
     super(props);
   }
 
-  joinAudio() {
-    joinListenOnly();
-  }
-
   render() {
-    return(
+    let handleAudioType = (this.props.isFullAudio)
+      ? this.props.handleJoinAudio : this.props.handleJoinListenOnly;
+
+    return (
       <div className={styles.half}>
         Please note, a dialog will appear in your browser,
         requiring you to accept sharing your microphone.
@@ -24,7 +22,7 @@ export default class EnterAudio extends React.Component {
           label={'Enter Session'}
           size={'md'}
           color={'primary'}
-          onClick={this.joinAudio}
+          onClick={handleAudioType}
         />
       </div>
     );

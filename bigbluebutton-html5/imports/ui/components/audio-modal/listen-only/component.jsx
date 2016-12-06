@@ -5,9 +5,9 @@ import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
 
 import StreamVolume from '/imports/ui/components/stream-volume/component';
-import EnterAudio from '/imports/ui/components/enter-audio/component';
 import SpeakerSource from '/imports/ui/components/speaker-source/component';
-import AudioTest from '/imports/ui/components/audio-test/component';
+import AudioTestContainer from '/imports/ui/components/audio-test/container';
+import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 
 export default class ListenOnly extends React.Component {
   constructor(props) {
@@ -40,10 +40,10 @@ export default class ListenOnly extends React.Component {
           <div className={styles.containerLeftHalfContent}>
             <StreamVolume />
             <SpeakerSource />
-            <AudioTest />
+            <AudioTestContainer />
           </div>
           <div className={styles.containerRightHalfContent}>
-            <EnterAudio />
+            <EnterAudioContainer isFullAudio={false}/>
           </div>
         </div>
       </div>

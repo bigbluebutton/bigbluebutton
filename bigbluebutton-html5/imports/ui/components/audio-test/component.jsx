@@ -7,23 +7,16 @@ export default class AudioTest extends React.Component {
     super(props);
   }
 
-  playAudioSample() {
-    const snd = new Audio('resources/sounds/audioSample.mp3');
-    snd.play();
-  }
-
   render() {
-    return(
-      <div >
+    return (
         <Button className={styles.testAudioBtn}
           label={'Play sound'}
           icon={'audio'}
           size={'md'}
           color={'primary'}
           ghost={true}
-          onClick={this.playAudioSample}
+          onClick={this.props.handlePlayAudioSample}
         />
-      </div>
     );
   }
 };
