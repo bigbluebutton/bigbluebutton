@@ -8,9 +8,6 @@ export default class EnterAudio extends React.Component {
   }
 
   render() {
-    let handleAudioType = (this.props.isFullAudio)
-      ? this.props.handleJoinAudio : this.props.handleJoinListenOnly;
-
     return (
       <div className={styles.half}>
         Please note, a dialog will appear in your browser,
@@ -22,7 +19,7 @@ export default class EnterAudio extends React.Component {
           label={'Enter Session'}
           size={'md'}
           color={'primary'}
-          onClick={handleAudioType}
+          onClick={this.props.handleJoin}
         />
       </div>
     );

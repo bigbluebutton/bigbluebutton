@@ -3,30 +3,20 @@ import { createContainer } from 'meteor/react-meteor-data';
 import {joinListenOnly, joinMicrophone} from '/imports/api/phone';
 import EnterAudio from './component';
 
-class EnterAudioContainer extends Component {
+export default class EnterAudioContainer extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
+    const {
+      isFullAudio,
+    } = this.props;
+
+    let handleJoin = () => isFullAudio ? joinMicrophone() : joinListenOnly();
+
     return (
-      <EnterAudio {...this.props}>
-        {this.props.children}
-      </EnterAudio>
+      <EnterAudio handleJoin={handleJoin} />
     );
   }
 }
-
-export default createContainer(() => {
-
-  const data = {
-    handleJoinAudio: () => {
-      joinMicrophone();
-    },
-    
-    handleJoinListenOnly: () => {
-      joinListenOnly();
-    },
-  };
-  return data;
-}, EnterAudioContainer);
