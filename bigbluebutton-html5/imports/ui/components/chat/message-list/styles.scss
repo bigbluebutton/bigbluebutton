@@ -14,10 +14,10 @@
   flex-flow: column;
   flex-grow: 1;
   flex-shrink: 1;
-  margin-right: -$sm-padding-x;;
-  padding-right: $sm-padding-x;;
-  padding-top: $sm-padding-x;;
-  padding-bottom: $sm-padding-x;;
+  margin-right: -$sm-padding-x;
+  padding-right: $sm-padding-x;
+  padding-top: 0;
+  padding-bottom: $sm-padding-x;
 }
 
 .unreadButton {
