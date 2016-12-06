@@ -49,7 +49,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   cursor: pointer;
   user-select: none;
   transition: all .2s ease-in-out;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
+  //box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
 
   &,
   &:active {
@@ -68,7 +68,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   &:active {
     background-image: none;
     outline: 0;
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    //box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
   }
 
   &[aria-disabled="true"] {
