@@ -6,7 +6,7 @@ package org.bigbluebutton.air.users.views.userdetails {
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
 	import org.bigbluebutton.lib.main.commands.LockUserSignal;
 	import org.bigbluebutton.lib.main.commands.PresenterSignal;
@@ -24,7 +24,7 @@ package org.bigbluebutton.air.users.views.userdetails {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		[Inject]
 		public var clearUserStatusSignal:ClearUserStatusSignal;

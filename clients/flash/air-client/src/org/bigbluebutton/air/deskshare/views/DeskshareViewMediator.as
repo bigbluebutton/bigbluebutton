@@ -6,13 +6,13 @@ package org.bigbluebutton.air.deskshare.views {
 	import mx.events.ResizeEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.deskshare.views.DeskshareMediator;
 	
 	public class DeskshareViewMediator extends DeskshareMediator {
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		public override function initialize():void {
 			showDeskshare(userSession.deskshareConnection.streamWidth, userSession.deskshareConnection.streamHeight);

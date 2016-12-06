@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.main.commands {
 	
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import robotlegs.bender.bundles.mvcs.Command;
 	
 	public class AuthenticationCommandAIR extends Command {
@@ -9,18 +9,20 @@ package org.bigbluebutton.air.main.commands {
 		public var command:String;
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var uiSession:IUISession;
 		
 		override public function execute():void {
 			switch (command) {
 				case "timeOut":
-					userUISession.loading = false;
-					userUISession.joinFailureSignal.dispatch("authTokenTimedOut");
+					uiSession.setLoading(false, "Auth token timed out");
+					//userUISession.loading = false;
+					//userUISession.joinFailureSignal.dispatch("authTokenTimedOut");
 					break;
 				case "invalid":
 				default:
-					userUISession.loading = false;
-					userUISession.joinFailureSignal.dispatch("authTokenInvalid");
+					uiSession.setLoading(false, "Auth token invalid");
+					//userUISession.loading = false;
+					//userUISession.joinFailureSignal.dispatch("authTokenInvalid");
 					break;
 			}
 		}
