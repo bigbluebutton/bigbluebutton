@@ -24,6 +24,11 @@ const messages = defineMessages({
     defaultMessage: 'Message input for chat {name}',
     description: 'Chat message input label',
   },
+  inputPlaceholder: {
+    id: 'app.chat.inputPlaceholder',
+    defaultMessage: 'Message {name}',
+    description: 'Chat message input placeholder',
+  },
 });
 
 class MessageForm extends Component {
@@ -88,15 +93,18 @@ class MessageForm extends Component {
         ref="form"
         className={cx(this.props.className, styles.form)}
         onSubmit={this.handleSubmit}>
-        <MessageFormActions
-          onClick={() => alert('Not supported yet...')}
-          className={styles.actions}
-          disabled={disabled}
-          label={'More actions'}
-        />
+        {
+          // <MessageFormActions
+          //   onClick={() => alert('Not supported yet...')}
+          //   className={styles.actions}
+          //   disabled={disabled}
+          //   label={'More actions'}
+          // />
+        }
         <TextareaAutosize
           className={styles.input}
           id="message-input"
+          placeholder={ intl.formatMessage(messages.inputPlaceholder, { name: chatTitle }) }
           aria-controls={this.props.chatAreaId}
           aria-label={ intl.formatMessage(messages.inputLabel, { name: chatTitle }) }
           autoCorrect="off"
