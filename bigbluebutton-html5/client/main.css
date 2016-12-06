@@ -32,9 +32,9 @@ a {
   border: 0;
 }
 
-[hidden]:not([hidden="false"]), 
+[hidden]:not([hidden="false"]),
 [aria-hidden]:not([aria-hidden="false"]) {
-  display: none;
+  display: none !important;
 }
 
 /* DEBUG ONLY
