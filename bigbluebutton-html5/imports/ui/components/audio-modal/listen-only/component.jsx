@@ -18,6 +18,7 @@ export default class ListenOnly extends React.Component {
   }
 
   joinListen() {
+    clearModal();
     joinListenOnly();
   }
 
@@ -34,11 +35,11 @@ export default class ListenOnly extends React.Component {
             onClick={this.chooseAudio}
           />
           <div>
-            Listen only message
+            Choose your listen only settings
           </div>
         </div>
         <div>
-          Content goes here<br /><br />
+          Speaker Test/Play Sound<br /><br />
           Volume Slider Here
           <Button className={styles.enterBtn}
             label={'Enter Session'}
