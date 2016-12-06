@@ -29,107 +29,38 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-bbb-logout:before {
-    content: "\e900";
+.icon-bbb-mute:before {
+  content: "\e931";
 }
-.icon-bbb-video:before {
-    content: "\1f554";
+.icon-bbb-unmute:before {
+  content: "\e932";
 }
-.icon-bbb-more:before {
-    content: "\e902";
+.icon-bbb_file:before {
+  content: "\e92f";
 }
-.icon-bbb-promote:before {
-    content: "\e903";
+.icon-bbb_upload:before {
+  content: "\e930";
 }
-.icon-bbb-application:before {
-    content: "\e904";
+.icon-bbb_audio_close:before {
+  content: "\e901";
 }
-.icon-bbb-video-off:before {
-    content: "\e905";
+.icon-bbb_applause:before {
+  content: "\e924";
 }
-.icon-bbb-user:before {
-    content: "\e906";
+.icon-bbb_thumbs_down:before {
+  content: "\e92d";
 }
-.icon-bbb-up-arrow:before {
-    content: "\e907";
+.icon-bbb_thumbs_up:before {
+  content: "\e92e";
 }
-.icon-bbb-neutral:before {
-    content: "\e908";
+.icon-bbb-fullscreen:before {
+  content: "\e92b";
 }
-.icon-bbb-away:before {
-    content: "\e909";
-}
-.icon-bbb-sad:before {
-    content: "\e90a";
-}
-.icon-bbb-right-arrow:before {
-    content: "\e90b";
-}
-.icon-bbb-presentation:before {
-    content: "\e90c";
-}
-.icon-bbb-listen:before {
-    content: "\e90d";
-}
-.icon-bbb-left-arrow:before {
-    content: "\e90e";
-}
-.icon-bbb-down-arrow {
-  transform: rotate(90deg);
-}
-.icon-bbb-down-arrow:before {
-    content: "\e90b";
-}
-.icon-bbb-happy:before {
-    content: "\e90f";
-}
-.icon-bbb-raiseHand:before {
-    content: "\e910";
-}
-.icon-bbb-group-chat:before {
-    content: "\e911";
-}
-.icon-bbb-confused:before {
-    content: "\e912";
-}
-.icon-bbb-close:before {
-    content: "\e913";
-}
-.icon-bbb-none:before {
-    content: "\e914";
-}
-.icon-bbb-circle:before {
-    content: "\e915";
-}
-.icon-bbb-circle-minus:before {
-    content: "\e916";
-}
-.icon-bbb-circle-close:before {
-    content: "\e917";
-}
-.icon-bbb-circle-add:before {
-    content: "\e918";
-}
-.icon-bbb-check:before {
-    content: "\e919";
-}
-.icon-bbb-chat:before {
-    content: "\e91a";
-}
-.icon-bbb-audio:before {
-    content: "\e91b";
-}
-.icon-bbb-audio-off:before {
-    content: "\e91c";
+.icon-bbb-settings:before {
+  content: "\e92c";
 }
 .icon-bbb-fit-to-screen:before {
-    content: "\e92a";
-}
-.icon-bbb-full-screen:before {
-    content: "\e924";
-}
-.icon-bbb-logout2:before {
-  content: "\e901";
+  content: "\e92a";
 }
 .icon-bbb-line-tool:before {
   content: "\e91d";
@@ -167,6 +98,104 @@
 .icon-bbb-desktop:before {
   content: "\e929";
 }
+.icon-bbb-logout:before {
+  content: "\e900";
+}
+.icon-bbb-video:before {
+  content: "\1f554";
+}
+.icon-bbb-more:before {
+  content: "\e902";
+}
+.icon-bbb-promote:before {
+  content: "\e903";
+}
+.icon-bbb-application:before {
+  content: "\e904";
+}
+.icon-bbb-video-off:before {
+  content: "\e905";
+}
+.icon-bbb-user:before {
+  content: "\e906";
+}
+.icon-bbb-up-arrow:before {
+  content: "\e907";
+}
+.icon-bbb-undecided:before {
+  content: "\e908";
+}
+.icon-bbb-time:before {
+  content: "\e909";
+}
+.icon-bbb-sad:before {
+  content: "\e90a";
+}
+.icon-bbb-right-arrow:before {
+  content: "\e90b";
+}
+.icon-bbb-presentation:before {
+  content: "\e90c";
+}
+.icon-bbb-listen:before {
+  content: "\e90d";
+}
+.icon-bbb-left-arrow:before {
+  content: "\e90e";
+}
+.icon-bbb-happy:before {
+  content: "\e90f";
+}
+.icon-bbb-hand:before {
+  content: "\e910";
+}
+.icon-bbb-group-chat:before {
+  content: "\e911";
+}
+.icon-bbb-confused:before {
+  content: "\e912";
+}
+.icon-bbb-close:before {
+  content: "\e913";
+}
+.icon-bbb-clear-status:before {
+  content: "\e914";
+}
+.icon-bbb-circle:before {
+  content: "\e915";
+}
+.icon-bbb-circle-minus:before {
+  content: "\e916";
+}
+.icon-bbb-circle-close:before {
+  content: "\e917";
+}
+.icon-bbb-circle-add:before {
+  content: "\e918";
+}
+.icon-bbb-check:before {
+  content: "\e919";
+}
+.icon-bbb-chat:before {
+  content: "\e91a";
+}
+.icon-bbb-audio:before {
+  content: "\e91b";
+}
+.icon-bbb-audio-off:before {
+  content: "\e91c";
+}
 .rotate-quarter {
   transform: rotate(-90deg);
+}
+
+/* Aliases for emoji status */
+.icon-bbb-away:before {
+  content: "\e909";
+}
+.icon-bbb-raiseHand:before {
+  content: "\e910";
+}
+.icon-bbb-neutral:before {
+  content: "\e908";
 }

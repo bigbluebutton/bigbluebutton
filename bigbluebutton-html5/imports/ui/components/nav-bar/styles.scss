@@ -1,28 +1,21 @@
 @import "../../stylesheets/variables/_all";
 
 .navbar {
-  padding: $line-height-computed / 2;
   display: flex;
   flex-direction: row;
 }
 
 .left,
 .right,
-.center,
-.record {
+.center {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-
-  > * {
-    margin: 0 $line-height-computed;
-  }
 }
 
 .left,
-.right,
-.record {
+.right {
   flex: 0;
 }
 
@@ -34,65 +27,63 @@
 .presentationTitle {
   font-weight: 200;
   color: $color-white;
-  font-size: $font-size-base * 1.2;
+  font-size: $font-size-base;
   margin: 0;
   padding: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  > [class^="icon-bbb-"] {
+    font-size: 75%;
+  }
 }
 
-.divideBar {
-  color: $color-white;
-  font-size: $font-size-base * 1.2;
-  margin-left: 15px;
+.divider {
+  background: $color-white;
+  height: $font-size-base * 1.25;
+  width: 1px;
+  margin: 0 $line-height-computed / 2;
+  opacity: .75;
 }
 
-.recordImage {
-  margin-left: -5px;
-}
-
-.msgFlag{
-  margin-left: -34px;
-  margin-top: 6px;
-}
-
-.withdot {
-  content: '';
+.btnWithNotificationDot {
   position: relative;
-  left: 20px;
-  top: 20px;
-  border-radius: 50%;
-  width: 10px;
-  height: 10px;
-  background-color: red;
+
+  &:after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    bottom: 0;
+    right: 0;
+    background-color: $color-danger;
+  }
 }
 
-.hidden {
-  position:absolute;
-  left:-10000px;
-  top:auto;
-  width:1px;
-  height:1px;
-  overflow:hidden;
-}
+.btn {
+  margin: 0;
 
-.btn{
-  position: absolute;
   span {
     border: none;
     box-shadow: none;
   }
+
+  &:hover,
+  &:focus {
+    span {
+      background-color: transparent !important;
+      color: $color-white !important;
+      opacity: .75;
+    }
+  }
 }
 
-.settingBtn {
+.btnSettings {
   transform: rotate(90deg);
-  span {
-    border: none;
-    box-shadow: none;
-  }
 }
 
-.dropdownTrigger {
+.dropdownBreakout {
   cursor: pointer;
 }

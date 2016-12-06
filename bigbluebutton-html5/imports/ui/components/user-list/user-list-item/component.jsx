@@ -203,6 +203,7 @@ class UserListItem extends Component {
                   className={styles.actionsHeader}
                   key={_.uniqueId('action-header')}
                   label={user.name}
+                  style={{ fontWeight: 600 }}
                   defaultMessage={user.name}/>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)

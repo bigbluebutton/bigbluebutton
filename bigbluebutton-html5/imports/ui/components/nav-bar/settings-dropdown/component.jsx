@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
 import styles from '../styles';
 
 import { showModal } from '/imports/ui/components/app/service';
@@ -101,7 +102,7 @@ class SettingsDropdown extends Component {
             ghost={true}
             circle={true}
             hideLabel={true}
-            className={styles.settingBtn}
+            className={cx(styles.btn, styles.btnSettings)}
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
