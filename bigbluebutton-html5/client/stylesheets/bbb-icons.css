@@ -188,3 +188,14 @@
 .rotate-quarter {
   transform: rotate(-90deg);
 }
+
+/* Aliases for emoji status */
+.icon-bbb-away:before {
+  content: "\e909";
+}
+.icon-bbb-raiseHand:before {
+  content: "\e910";
+}
+.icon-bbb-neutral:before {
+  content: "\e908";
+}
