@@ -86,7 +86,7 @@ class MessageForm extends Component {
   }
 
   render() {
-    const { intl, chatTitle, disabled } = this.props;
+    const { intl, chatTitle, chatName, disabled } = this.props;
 
     return (
       <form
@@ -104,7 +104,7 @@ class MessageForm extends Component {
         <TextareaAutosize
           className={styles.input}
           id="message-input"
-          placeholder={ intl.formatMessage(messages.inputPlaceholder, { name: chatTitle }) }
+          placeholder={ intl.formatMessage(messages.inputPlaceholder, { name: chatName }) }
           aria-controls={this.props.chatAreaId}
           aria-label={ intl.formatMessage(messages.inputLabel, { name: chatTitle }) }
           autoCorrect="off"

@@ -16,6 +16,7 @@ export default class Chat extends Component {
   render() {
     const {
       chatID,
+      chatName,
       title,
       messages,
       scrollPosition,
@@ -46,6 +47,7 @@ export default class Chat extends Component {
           disabled={isChatLocked}
           chatAreaId={ELEMENT_ID}
           chatTitle={title}
+          chatName={chatName}
           handleSendMessage={actions.handleSendMessage}
         />
       </section>

@@ -273,14 +273,27 @@ class UserListItem extends Component {
     audioIconClassnames[styles.userIconsContainer] = true;
     audioIconClassnames[styles.userIconGlowing] = user.isTalking;
 
+    if (!audioChatIcon && !user.isSharingWebcam) {
+      // Prevent rendering the markup when there is no icon to show
+      return;
+    }
+
     return (
       <div className={styles.userIcons}>
-        <span className={styles.userIconsContainer}>
-          {user.isSharingWebcam ? <Icon iconName='video'/> : null}
-        </span>
-        <span className={cx(audioIconClassnames)}>
-          {audioChatIcon ? <Icon iconName={audioChatIcon}/> : null}
-        </span>
+        {
+          user.isSharingWebcam ?
+            <span className={styles.userIconsContainer}>
+              <Icon iconName='video'/>
+            </span>
+            : null
+        }
+        {
+          audioChatIcon ?
+          <span className={cx(audioIconClassnames)}>
+            <Icon iconName={audioChatIcon}/> 
+          </span>
+          : null
+        }
       </div>
     );
   }
