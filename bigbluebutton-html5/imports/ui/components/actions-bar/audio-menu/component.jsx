@@ -5,7 +5,7 @@ import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
 import MuteAudioContainer from '../mute-button/container';
 
-export default class JoinAudio extends React.Component {
+export default class JoinAudioOptions extends React.Component {
 
   renderLeaveButton() {
     return (
