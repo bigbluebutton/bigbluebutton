@@ -169,9 +169,9 @@ libChat|NewMessagesIndicator
 
 .iconStyle
 {
-	width:		32;
-	height:		32;
-	skinClass:	ClassReference("org.bigbluebutton.lib.common.skins.IconSkin")
+	fontSize   :    20;
+	fontFamily :    BBBIcons;
+	color      :    PropertyReference("bbbGrey");
 }
 
 .cameraIconStyle
