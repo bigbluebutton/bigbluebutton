@@ -61,7 +61,7 @@ class NavBar extends Component {
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded } = this.props;
+    const { hasUnreadMessages, beingRecorded, clientBuildInfo } = this.props;
 
     let toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -86,7 +86,7 @@ class NavBar extends Component {
           <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>
         <div className={styles.right}>
-          <SettingsDropdown />
+          <SettingsDropdown clientBuildInfo={clientBuildInfo}/>
         </div>
       </div>
     );
@@ -166,7 +166,7 @@ class NavBar extends Component {
         className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakout.name)}
+        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName)}
         defaultMessage={'batata'}/>
     );
   }

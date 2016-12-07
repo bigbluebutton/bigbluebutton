@@ -21,7 +21,15 @@ const getBreakoutJoinURL = (breakout) => {
   }
 };
 
+const getClientBuildInfo = () => {
+  return {
+    clientBuild: Meteor.settings.public.app.html5ClientBuild,
+    copyright: Meteor.settings.public.app.copyright,
+  };
+};
+
 export default {
   getBreakouts,
   getBreakoutJoinURL,
+  getClientBuildInfo,
 };

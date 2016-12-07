@@ -66,6 +66,7 @@ export default withRouter(createContainer(({ location, router }) => {
     presentationTitle: meetingTitle,
     hasUnreadMessages: checkUnreadMessages(),
     beingRecorded: meetingRecorded,
+    clientBuildInfo: Service.getClientBuildInfo(),
     toggleUserList: () => {
       if (location.pathname.indexOf('/users') !== -1) {
         router.push('/');

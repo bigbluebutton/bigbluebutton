@@ -5,6 +5,7 @@ import styles from '../styles';
 
 import { showModal } from '/imports/ui/components/app/service';
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
+import AboutDialogContainer from '/imports/ui/components/about-dialog/component';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 
 import Button from '/imports/ui/components/button/component';
@@ -27,6 +28,14 @@ const intlMessages = defineMessages({
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
     defaultMessage: 'Open settings',
+  },
+  aboutLabel: {
+    id: 'app.navBar.settingsDropdown.aboutLabel',
+    defaultMessage: 'About',
+  },
+  aboutDesc: {
+    id: 'app.navBar.settingsDropdown.aboutDesc',
+    defaultMessage: 'About',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
@@ -84,6 +93,8 @@ const toggleFullScreen = () => {
 
 const openSettings = () => showModal(<SettingsMenuContainer  />);
 
+const openAboutDialog = (clientBuildInfo) => showModal(<AboutDialogContainer clientBuildInfo={clientBuildInfo}/> );
+
 const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
 
 class SettingsDropdown extends Component {
@@ -92,7 +103,7 @@ class SettingsDropdown extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, clientBuildInfo } = this.props;
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
@@ -122,6 +133,12 @@ class SettingsDropdown extends Component {
               label={intl.formatMessage(intlMessages.settingsLabel)}
               description={intl.formatMessage(intlMessages.settingsDesc)}
               onClick={openSettings.bind(this)}
+            />
+            <DropdownListItem
+                icon="fullscreen"
+                label={intl.formatMessage(intlMessages.aboutLabel)}
+                description={intl.formatMessage(intlMessages.aboutDesc)}
+                onClick={openAboutDialog.bind(this, clientBuildInfo)}
             />
             <DropdownListSeparator />
             <DropdownListItem
