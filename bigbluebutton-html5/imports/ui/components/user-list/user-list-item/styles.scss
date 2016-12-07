@@ -62,6 +62,9 @@
   font-weight: 200;
   font-style: italic;;
   color: $sub-name-color;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .userIconGlowing {
@@ -74,6 +77,7 @@
   flex-basis: 1rem;
   justify-content: center;
   transition: 0.3s all;
+  margin-left: $sm-padding-x / 2;
 }
 
 .userIcons {
@@ -83,7 +87,6 @@
   margin-left: $sm-padding-x / 2;
   text-align: right;
   font-size: 1rem;
-  flex-basis: 4rem;
   flex-shrink: 1;
   color: $user-icons-color;
 }
@@ -151,6 +154,7 @@
 
 .dropdownContent {
   cursor: default;
+  min-width: 10vw;
 }
 
 .actionsHeader {
