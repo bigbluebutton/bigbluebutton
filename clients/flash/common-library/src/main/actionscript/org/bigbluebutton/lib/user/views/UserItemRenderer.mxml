@@ -5,7 +5,7 @@
 				width="100%"
 				click="onClick()"
 				keyUp="onKeyUp()"
-				styleName="participantItemStyle">
+				styleName="participantItem">
 	<s:states>
 		<s:State name="normal" />
 		<s:State name="hovered" />
@@ -83,17 +83,17 @@
 				<s:VerticalLayout gap="0" />
 			</s:layout>
 			<s:Label id="labelDisplay"
-					 styleName="participantNameStyle" />
+					 styleName="participantName" />
 			<s:Label id="subLabelDisplay"
-					 styleName="participantStatusStyle" />
+					 styleName="participantStatus" />
 		</s:Group>
 		<s:Label id="cameraIcon"
 				 text="&#xe921;"
-				 styleName="iconStyle" />
+				 styleName="icon" />
 		<s:Label id="audioIcon"
-				 styleName="iconStyle" />
+				 styleName="icon" />
 		<s:Label id="lockIcon"
 				 text="&#xe927;"
-				 styleName="iconStyle" />
+				 styleName="icon" />
 	</s:Group>
 </s:ItemRenderer>

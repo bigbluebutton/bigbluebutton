@@ -54,7 +54,7 @@ package org.bigbluebutton.web.video.views {
 			closeBtn.height = OVERLAY_HEIGHT;
 			closeBtn.width = OVERLAY_HEIGHT;
 			closeBtn.buttonMode = true;
-			closeBtn.styleName = "webcamCloseButtonStyle";
+			closeBtn.styleName = "webcamCloseButton";
 			closeBtn.addEventListener(MouseEvent.CLICK, onCloseClick);
 			addChild(closeBtn);
 		}

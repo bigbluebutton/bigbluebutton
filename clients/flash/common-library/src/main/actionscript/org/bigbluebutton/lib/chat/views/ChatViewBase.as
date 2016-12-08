@@ -65,14 +65,14 @@ package org.bigbluebutton.lib.chat.views {
 			_textInput.percentWidth = 100;
 			_textInput.percentHeight = 100;
 			//_textInput.showPromptWhenFocused = false;
-			_textInput.styleName = "messageInputStyle";
+			_textInput.styleName = "messageInput";
 			_inputGroup.addElement(_textInput);
 			
 			_sendButton = new Button();
 			_sendButton.percentHeight = 100;
 			_sendButton.label = "\ue90b";
 			//enabled="{inputMessage0.text!=''}"
-			_sendButton.styleName = "sendButtonStyle";
+			_sendButton.styleName = "sendButton";
 			_inputGroup.addElement(_sendButton);
 			
 			addElement(_inputGroup);

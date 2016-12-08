@@ -1,0 +1,8 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace views "org.bigbluebutton.lib.main.views.*";
+
+views|TopToolbarBase {
+	verticalCenter: 0;
+	textAlign: center;
+}

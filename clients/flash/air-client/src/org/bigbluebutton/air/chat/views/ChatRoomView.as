@@ -8,7 +8,7 @@ package org.bigbluebutton.air.chat.views {
 	public class ChatRoomView extends NoTabView {
 		public function ChatRoomView() {
 			super();
-			styleName = "mainViewStyle";
+			styleName = "mainView";
 			
 			var l:VerticalLayout = new VerticalLayout();
 			l.gap = 0;
@@ -21,7 +21,7 @@ package org.bigbluebutton.air.chat.views {
 			addElement(topToolbar);
 			
 			var skinnableWrapper:SkinnableContainer = new SkinnableContainer();
-			skinnableWrapper.styleName = "subViewContentStyle";
+			skinnableWrapper.styleName = "subViewContent";
 			skinnableWrapper.percentWidth = 100;
 			skinnableWrapper.percentHeight = 100;
 			

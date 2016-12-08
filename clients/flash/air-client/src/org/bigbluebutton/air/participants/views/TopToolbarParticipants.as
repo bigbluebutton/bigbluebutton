@@ -5,8 +5,8 @@ package org.bigbluebutton.air.participants.views {
 		public function TopToolbarParticipants() {
 			super();
 			
-			leftButton.styleName = "topButtonStyle";
-			rightButton.styleName = "presentationButtonStyle topButtonStyle";
+			leftButton.styleName = "topButton";
+			rightButton.styleName = "presentationButton topButton";
 		}
 	}
 }

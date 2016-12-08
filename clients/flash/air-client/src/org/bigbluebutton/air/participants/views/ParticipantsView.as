@@ -1,15 +1,14 @@
 package org.bigbluebutton.air.participants.views {
-	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.lib.participants.views.ParticipantsViewBase;
-	
-	import spark.components.Label;
 	import spark.components.SkinnableContainer;
 	import spark.layouts.VerticalLayout;
+	
+	import org.bigbluebutton.air.common.views.NoTabView;
+	import org.bigbluebutton.lib.participants.views.ParticipantsViewBase;
 	
 	public class ParticipantsView extends NoTabView {
 		public function ParticipantsView() {
 			super();
-			styleName = "mainViewStyle";
+			styleName = "mainView";
 			
 			var l:VerticalLayout = new VerticalLayout();
 			l.gap = 0;
@@ -18,11 +17,11 @@ package org.bigbluebutton.air.participants.views {
 			
 			var topToolbar:TopToolbarParticipants = new TopToolbarParticipants();
 			topToolbar.percentWidth = 100;
-			topToolbar.height = 60;
+			topToolbar.height = 80;
 			addElement(topToolbar);
 			
 			var skinnableWrapper:SkinnableContainer = new SkinnableContainer();
-			skinnableWrapper.styleName = "subViewContentStyle";
+			skinnableWrapper.styleName = "subViewContent";
 			skinnableWrapper.percentWidth = 100;
 			skinnableWrapper.percentHeight = 100;
 			

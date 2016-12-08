@@ -4,7 +4,7 @@
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:view="org.bigbluebutton.air.common.views.*">
 	<s:Label id="noVideoMessage0"
-			 styleName="noVideoMsgStyle contentFontSize"
+			 styleName="noVideoMsg contentFontSize"
 			 textAlign="center"
 			 width="100%"
 			 height="100%"
@@ -19,7 +19,7 @@
 					 width="100%">
 				<s:VideoDisplay id="videostream"
 								width="100%"
-								styleName="videoTextFieldStyle" />
+								styleName="videoTextField" />
 			</s:Group>
 
 			<s:List id="videoStreamsList"

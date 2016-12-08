@@ -1,5 +1,5 @@
 package org.bigbluebutton.lib.main.commands {
-	
+
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
@@ -13,60 +13,60 @@ package org.bigbluebutton.lib.main.commands {
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
-	
+
 	import robotlegs.bender.bundles.mvcs.Command;
-	
+
 	public class ConnectCommand extends Command {
 		private const LOG:String = "ConnectCommand::";
-		
+
 		[Inject]
 		public var userSession:IUserSession;
-		
+
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
-		
+
 		[Inject]
 		public var connection:IBigBlueButtonConnection;
-		
+
 		[Inject]
 		public var videoConnection:IVideoConnection;
-		
+
 		[Inject]
 		public var voiceConnection:IVoiceConnection;
-		
+
 		[Inject]
 		public var deskshareConnection:IDeskshareConnection;
-		
+
 		[Inject]
 		public var uri:String;
-		
+
 		[Inject]
 		public var whiteboardService:IWhiteboardService;
-		
+
 		[Inject]
 		public var usersService:IUsersService;
-		
+
 		[Inject]
 		public var chatService:IChatMessageService;
-		
+
 		[Inject]
 		public var presentationService:IPresentationService;
-		
+
 		[Inject]
 		public var connectingFinishedSignal:ConnectingFinishedSignal;
-		
+
 		[Inject]
 		public var connectingFailedSignal:ConnectingFailedSignal;
-		
+
 		[Inject]
 		public var disconnectUserSignal:DisconnectUserSignal;
-		
+
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
-		
+
 		[Inject]
 		public var shareCameraSignal:ShareCameraSignal;
-		
+
 		override public function execute():void {
 			loadConfigOptions();
 			connection.uri = uri;
@@ -74,15 +74,15 @@ package org.bigbluebutton.lib.main.commands {
 			connection.connectionFailureSignal.add(connectionFailure);
 			connection.connect(conferenceParameters);
 		}
-		
+
 		private function loadConfigOptions():void {
 			userSession.phoneOptions = new PhoneOptions(userSession.config.getConfigFor("PhoneModule"));
 			userSession.videoAutoStart = (userSession.config.getConfigFor("VideoconfModule").@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
 			userSession.skipCamSettingsCheck = (userSession.config.getConfigFor("VideoconfModule").@skipCamSettingsCheck.toString().toUpperCase() == "TRUE") ? true : false;
 		}
-		
-		
-		
+
+
+
 		private function connectionSuccess():void {
 			trace(LOG + "successConnected()");
 			userSession.mainConnection = connection;
@@ -98,7 +98,7 @@ package org.bigbluebutton.lib.main.commands {
 			connection.connectionSuccessSignal.remove(connectionSuccess);
 			connection.connectionFailureSignal.remove(connectionFailure);
 		}
-		
+
 		private function onAuthTokenReply(tokenValid:Boolean):void {
 			userSession.authTokenSignal.remove(onAuthTokenReply);
 			if (tokenValid) {
@@ -107,7 +107,7 @@ package org.bigbluebutton.lib.main.commands {
 				// TODO disconnect
 			}
 		}
-		
+
 		private function joiningMeetingSuccess():void {
 			// Set up remaining message sender and receivers:
 			presentationService.setupMessageSenderReceiver();
@@ -120,7 +120,7 @@ package org.bigbluebutton.lib.main.commands {
 			userSession.videoConnection = videoConnection;
 			voiceConnection.uri = userSession.config.getConfigFor("PhoneModule").@uri;
 			userSession.voiceConnection = voiceConnection;
-			
+
 			var audioOptions:Object = new Object();
 			if (userSession.phoneOptions.autoJoin && userSession.phoneOptions.skipCheck) {
 				var forceListenOnly:Boolean = (userSession.config.getConfigFor("PhoneModule").@forceListenOnly.toString().toUpperCase() == "TRUE") ? true : false;
@@ -132,8 +132,8 @@ package org.bigbluebutton.lib.main.commands {
 				audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
 				shareMicrophoneSignal.dispatch(audioOptions);
 			}
-      
-      trace("Configuring deskshare");
+
+			trace("Configuring deskshare");
 			//deskshareConnection.applicationURI = userSession.config.getConfigFor("DeskShareModule").@uri;
 			//deskshareConnection.room = conferenceParameters.room;
 			//deskshareConnection.connect();
@@ -149,25 +149,25 @@ package org.bigbluebutton.lib.main.commands {
 			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
 			//usersService.getRoomLockState();
 		}
-		
+
 		private function joiningMeetingFailure():void {
 			trace(LOG + "joiningMeetingFailure() -- Failed to join the meeting!!!");
 			userSession.successJoiningMeetingSignal.remove(joiningMeetingSuccess);
 			userSession.failureJoiningMeetingSignal.remove(joiningMeetingFailure);
 		}
-		
+
 		protected function successUsersAdded():void {
 			userSession.userList.allUsersAddedSignal.remove(successUsersAdded);
 			connectingFinishedSignal.dispatch();
 		}
-		
+
 		private function connectionFailure(reason:String):void {
 			trace(LOG + "connectionFailure()");
 			connectingFailedSignal.dispatch("connectionFailed");
 			connection.connectionSuccessSignal.remove(connectionSuccess);
 			connection.connectionFailureSignal.remove(connectionFailure);
 		}
-		
+
 		private function videoConnectedSuccess():void {
 			trace(LOG + "successVideoConnected()");
 			if (userSession.videoAutoStart && userSession.skipCamSettingsCheck) {
@@ -176,7 +176,7 @@ package org.bigbluebutton.lib.main.commands {
 			videoConnection.connectionSuccessSignal.remove(videoConnectedSuccess);
 			videoConnection.connectionFailureSignal.remove(videoConnectionFailure);
 		}
-		
+
 		private function videoConnectionFailure(reason:String):void {
 			trace(LOG + "videoConnectionFailure()");
 			videoConnection.connectionFailureSignal.remove(videoConnectionFailure);
