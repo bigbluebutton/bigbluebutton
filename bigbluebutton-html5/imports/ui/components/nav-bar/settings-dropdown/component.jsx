@@ -103,7 +103,7 @@ class SettingsDropdown extends Component {
   }
 
   render() {
-    const { intl, clientBuildInfo } = this.props;
+    const { intl } = this.props;
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
@@ -138,7 +138,7 @@ class SettingsDropdown extends Component {
               icon="fullscreen"
               label={intl.formatMessage(intlMessages.aboutLabel)}
               description={intl.formatMessage(intlMessages.aboutDesc)}
-              onClick={openAbout.bind(this, clientBuildInfo)}
+              onClick={openAbout.bind(this)}
             />
             <DropdownListSeparator />
             <DropdownListItem
