@@ -93,7 +93,7 @@ const toggleFullScreen = () => {
 
 const openSettings = () => showModal(<SettingsMenuContainer  />);
 
-const openAboutDialog = (clientBuildInfo) => showModal(<AboutDialogContainer clientBuildInfo={clientBuildInfo}/> );
+const openAbout = () => showModal(<AboutContainer /> );
 
 const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
 
@@ -135,10 +135,10 @@ class SettingsDropdown extends Component {
               onClick={openSettings.bind(this)}
             />
             <DropdownListItem
-                icon="fullscreen"
-                label={intl.formatMessage(intlMessages.aboutLabel)}
-                description={intl.formatMessage(intlMessages.aboutDesc)}
-                onClick={openAboutDialog.bind(this, clientBuildInfo)}
+              icon="fullscreen"
+              label={intl.formatMessage(intlMessages.aboutLabel)}
+              description={intl.formatMessage(intlMessages.aboutDesc)}
+              onClick={openAbout.bind(this, clientBuildInfo)}
             />
             <DropdownListSeparator />
             <DropdownListItem
