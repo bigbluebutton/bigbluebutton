@@ -4,7 +4,7 @@
 @namespace libChat "org.bigbluebutton.lib.chat.views.*";
 
 @font-face { 
-	src: 		url("assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
+	src: 		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
 	fontFamily:	SourceSansPro; 
 	fontStyle:	normal; 
 	fontWeight:	normal; 
@@ -12,7 +12,7 @@
 }
 
 @font-face { 
-	src:		url("assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf"); 
+	src:		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf"); 
 	fontFamily:	SourceSansPro; 
 	fontStyle:	normal; 
 	fontWeight:	bold; 
@@ -20,7 +20,7 @@
 }
 
 @font-face { 
-	src:		url("assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf"); 
+	src:		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf"); 
 	fontFamily:	SourceSansPro; 
 	fontStyle:	italic; 
 	fontWeight:	normal; 
@@ -28,7 +28,7 @@
 }
 
 @font-face { 
-	src:		url("assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf"); 
+	src:		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf"); 
 	fontFamily:	SourceSansPro; 
 	fontStyle:	normal; 
 	fontWeight:	heavy; 
@@ -36,7 +36,7 @@
 }
 
 @font-face { 
-	src: 		url("assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
+	src: 		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
 	fontFamily:	SourceSansProMX; 
 	fontStyle:	normal; 
 	fontWeight:	normal; 
@@ -44,7 +44,7 @@
 }
 
 @font-face {
-	src: 		url("assets/fonts/BBBIcons/bbb-icons.ttf"); 
+	src: 		url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf"); 
 	fontFamily:	BBBIcons; 
 	fontStyle:	normal; 
 	fontWeight:	normal; 
@@ -52,7 +52,7 @@
 }
 
 @font-face {
-	src: 		url("assets/fonts/BBBIcons/bbb-icons.ttf"); 
+	src: 		url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf"); 
 	fontFamily:	BBBIcons; 
 	fontStyle:	normal; 
 	fontWeight:	bold; 

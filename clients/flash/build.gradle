@@ -10,6 +10,7 @@ buildscript {
 
 subprojects {
 	apply plugin: 'gradlefx'
+	apply plugin: 'flashbuilder'
 
 	version = '0.1-SNAPSHOT'
 }

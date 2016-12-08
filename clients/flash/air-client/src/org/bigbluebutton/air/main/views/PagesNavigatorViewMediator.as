@@ -16,7 +16,6 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.air.main.models.IUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	import org.bigbluebutton.air.main.viewsold.pagesnavigator.IPagesNavigatorView;
 	
 	public class PagesNavigatorViewMediator extends Mediator {
 		

@@ -14,7 +14,7 @@
 
 	<fx:Script>
 		<![CDATA[
-			include "ColorPalette.as"
+			include "../../shared/ColorPalette.as"
 			
 			import com.adobe.utils.LocaleUtil;
 			
