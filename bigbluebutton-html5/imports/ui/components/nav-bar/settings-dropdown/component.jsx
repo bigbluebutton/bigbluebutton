@@ -135,7 +135,6 @@ class SettingsDropdown extends Component {
               onClick={openSettings.bind(this)}
             />
             <DropdownListItem
-              icon="fullscreen"
               label={intl.formatMessage(intlMessages.aboutLabel)}
               description={intl.formatMessage(intlMessages.aboutDesc)}
               onClick={openAbout.bind(this)}
