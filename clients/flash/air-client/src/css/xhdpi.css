@@ -17,9 +17,6 @@
 	.topButton
 	{
 		iconSize  : 30;
-		iconColor : PropertyReference("bbbWhite");
-		iconFont  : BBBIcons;
-		skinClass : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
 		top       : 25;
 	}
 	
