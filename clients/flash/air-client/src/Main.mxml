@@ -3,11 +3,16 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   applicationComplete="applicationCompleteHandler(event)"
 			   preinitialize="preinitializeHandler(event)"
-			   runtimeDPIProvider="CustomRuntimeDPIProvider"
 			   styleName="mainshell"
 			   xmlns:main="org.bigbluebutton.air.main.views.*">
 	<fx:Style source="../../shared/assets/css/common.css" />
 	<fx:Style source="Default.css" />
+	<fx:Style source="css/ldpi.css" />
+	<fx:Style source="css/mdpi.css" />
+	<fx:Style source="css/hdpi.css" />
+	<fx:Style source="css/xhdpi.css" />
+	<fx:Style source="css/xxhdpi.css" />
+	<fx:Style source="css/xxxhdpi.css" />
 
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->

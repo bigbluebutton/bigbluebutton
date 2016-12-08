@@ -25,6 +25,8 @@ package org.bigbluebutton.lib.main.views {
 
 		public function TopToolbarBase() {
 			super();
+			
+			verticalCenter = 0;
 
 			_leftButton = new Button();
 			_leftButton.styleName = "participantsButton topButton topLeftButton";

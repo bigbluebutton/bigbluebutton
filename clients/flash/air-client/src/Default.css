@@ -78,7 +78,6 @@ s|Application
 main|LoadingScreen {
 	color           : PropertyReference("bbbWhite");	
 	backgroundColor : PropertyReference("bbbBlack");
-	fontSize        : 34;
 	textAlign       : center;
 }
 
@@ -111,26 +110,14 @@ libChat|NewMessagesIndicator
 
 .titleLabel
 {
-	color: 		PropertyReference("bbbWhite");
-	fontSize:	24;
-	left: 90;
-	right: 90;
+	color    : PropertyReference("bbbWhite");
 }
 
 .topButton
 {
-	iconSize  : 30;
 	iconColor : PropertyReference("bbbWhite");
 	iconFont  : BBBIcons;
 	skinClass : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
-}
-
-.topLeftButton {
-	left: 30;
-}
-
-.topRightButton {
-	right: 30;
 }
 
 .participantsButton
@@ -158,8 +145,6 @@ libChat|NewMessagesIndicator
 	backgroundColor         : PropertyReference("bbbBlue");
 	selectedBackgroundColor : PropertyReference("bbbGrey");
 	color                   : PropertyReference("bbbWhite");
-	fontSize				: 14;
-	iconSize				: 30;
 	iconColor				: PropertyReference("bbbWhite");
 	iconFont				: BBBIcons;
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
@@ -193,25 +178,13 @@ libChat|NewMessagesIndicator
 .participantIcon
 {
 	circleColor : PropertyReference("bbbBlack");
-	width  : 32;
-	height : 32;
-	fontSize : 12;
-}
-
-.chatMessage
-{
-	nameFontSize: 		16;
-	timeFontSize:		16;
 }
 
 .sendButton
 {
 	color:		PropertyReference("bbbGrey");
 	fontFamily:	BBBIcons;
-	fontSize:	20;
 	borderColor:	PropertyReference("bbbGrey");
-	borderWeight:	2;
-	cornerRadius:	4;
 	skinClass:	ClassReference("org.bigbluebutton.lib.chat.views.skins.SendButtonSkin");
 }
 
@@ -224,7 +197,6 @@ libChat|NewMessagesIndicator
 
 .content
 {
-	fontSize:	14;
 	color:		PropertyReference("bbbBlack");
 }
 
@@ -249,7 +221,6 @@ libChat|NewMessagesIndicator
 
 .icon
 {
-	fontSize:	20;
-	fontFamily:	BBBIcons;
+	fontFamily :	BBBIcons;
 	color:		PropertyReference("bbbGrey");
 }

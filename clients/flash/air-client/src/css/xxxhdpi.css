@@ -1,0 +1,8 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace main "org.bigbluebutton.air.main.views.*";
+
+@media (application-dpi: 640) {
+	main|LoadingScreen {
+		fontSize        : 64;
+	}
+}
