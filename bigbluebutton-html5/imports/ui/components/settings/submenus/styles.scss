@@ -37,6 +37,11 @@ div.submenuContent select {
   float: right;
 }
 
+.containerFull{
+  width: 100%;
+  float: right;
+}
+
 .containerLeftHalfContent {
   @extend .containerLeftHalf;
   @extend .row;

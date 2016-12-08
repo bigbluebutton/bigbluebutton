@@ -7,7 +7,7 @@ import EmojiContainer from './emoji-menu/container';
 import ActionsDropdown from './actions-dropdown/component';
 import Auth from '/imports/ui/services/auth/index';
 import Users from '/imports/api/users/index';
-import JoinAudioContainer from './audio-menu/container';
+import JoinAudioOptionsContainer from './audio-menu/container';
 import { exitAudio } from '/imports/api/phone';
 
 const openJoinAudio = () => showModal(<Audio />);
@@ -27,7 +27,7 @@ export default class ActionsBar extends Component {
           <ActionsDropdown />
         </div>
         <div className={styles.center}>
-          <JoinAudioContainer
+          <JoinAudioOptionsContainer
             open={openJoinAudio.bind(this)}
             close={() => {exitAudio();}}
 
@@ -53,7 +53,7 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.center}>
-          <JoinAudioContainer
+          <JoinAudioOptionsContainer
             open={openJoinAudio.bind(this)}
             close={exitAudio}
           />
