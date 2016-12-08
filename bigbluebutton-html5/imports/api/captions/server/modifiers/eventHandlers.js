@@ -4,6 +4,7 @@ import { addCaptionsToCollection } from './addCaptionsToCollection';
 import { updateCaptionsCollection } from './updateCaptionsCollection';
 import Meetings from '/imports/api/meetings';
 import Captions from '/imports/api/captions';
+import Logger from '/imports/startup/server/logger';
 
 eventEmitter.on('send_caption_history_reply_message', function (arg) {
   Logger.debug('message', JSON.stringify(arg));

@@ -23,8 +23,8 @@
 .overlay {
   z-index: 1000;
   // background: transparentize($color-white, .35);
-  // background: #fff;
-  background: transparentize($color-gray-dark, .40);
+  background: #fff;
+  // background: transparentize($color-gray-dark, .40);
   display: flex;
   align-items: center;
   justify-content: center;

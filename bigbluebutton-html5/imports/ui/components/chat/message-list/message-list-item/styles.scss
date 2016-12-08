@@ -50,7 +50,6 @@
   min-width: 0;
   font-weight: 600;
   color: $color-gray;
-  text-transform: capitalize;
 
   > span {
     @extend %text-elipsis;
