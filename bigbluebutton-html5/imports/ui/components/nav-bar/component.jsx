@@ -61,7 +61,7 @@ class NavBar extends Component {
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded, clientBuildInfo } = this.props;
+    const { hasUnreadMessages, beingRecorded } = this.props;
 
     let toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -86,7 +86,7 @@ class NavBar extends Component {
           <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>
         <div className={styles.right}>
-          <SettingsDropdown clientBuildInfo={clientBuildInfo}/>
+          <SettingsDropdown />
         </div>
       </div>
     );

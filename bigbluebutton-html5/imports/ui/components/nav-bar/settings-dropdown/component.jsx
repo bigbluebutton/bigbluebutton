@@ -5,7 +5,7 @@ import styles from '../styles';
 
 import { showModal } from '/imports/ui/components/app/service';
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
-import AboutDialogContainer from '/imports/ui/components/about-dialog/component';
+import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 
 import Button from '/imports/ui/components/button/component';
