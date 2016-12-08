@@ -166,8 +166,8 @@ class NavBar extends Component {
         className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakout.name)}
-        defaultMessage={'batata'}/>
+        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName)}
+      />
     );
   }
 }

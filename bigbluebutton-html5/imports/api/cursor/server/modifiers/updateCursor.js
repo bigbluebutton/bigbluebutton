@@ -1,5 +1,6 @@
 import Logger from '/imports/startup/server/logger';
 import Cursor from '/imports/api/cursor';
+import { check } from 'meteor/check';
 
 export default function updateCursor(meetingId, x = 0, y = 0) {
   check(meetingId, String);
@@ -29,7 +30,7 @@ export default function updateCursor(meetingId, x = 0, y = 0) {
     }
 
     if (numChanged) {
-      return Logger.info(`Updated cursor meeting=${meetingId}`);
+      return Logger.debug(`Updated cursor meeting=${meetingId}`);
     }
   };
 
