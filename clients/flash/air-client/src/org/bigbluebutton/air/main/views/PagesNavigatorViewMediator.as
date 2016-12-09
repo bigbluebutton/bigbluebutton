@@ -40,6 +40,7 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationEnum.APPEAR, transition:ViewTransitionBase = null):void {
+			trace("PagesNavigatorViewMediator request change page to: " + pageName);
 			switch (animation) {
 				case TransitionAnimationEnum.APPEAR:  {
 					var appear:CrossFadeViewTransition = new CrossFadeViewTransition;
