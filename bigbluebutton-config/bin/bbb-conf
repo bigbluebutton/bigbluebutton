@@ -280,11 +280,10 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
-       for s in bbb-html5 red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer bbb-webhooks libreoffice; do
-         if systemctl status $s | grep running > /dev/null 2>&1; then
-           systemctl stop $s
-         fi
-       done
+       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+          HTML5=bbb-html5
+       fi
+       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer $HTML5
     else
 	/etc/init.d/monit stop
 
@@ -403,6 +402,50 @@ start_bigbluebutton () {
         #        exit 1
 	#fi
     fi
+
+        #
+        # Look for Starting up context to be recently added to the log files
+        #
+        COUNT=0
+        while [ $COUNT -lt 20 ]; do
+          let COUNT=COUNT+1
+          if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
+            let COUNT=20
+          else
+            echo -n "."
+            sleep 1
+          fi
+        done
+
+
+	#
+	# All the log files exist, now check for the text "Starting up context"
+	#
+	COUNT=0
+	while [ $COUNT -lt 20 ]; do
+	  let COUNT=COUNT+1
+	  if [ -f $RED5_DIR/log/video.log ]; then
+	    if ! cat $RED5_DIR/log/video.log | tail -n100 | grep -q "Starting up context"; then
+	      echo -n "."
+	      sleep 1
+	    else
+	      let COUNT=20
+            fi
+	  fi
+	done
+
+	echo
+	BBB_APPS="sip video bigbluebutton screenshare-slf"
+	for bbb_app in $BBB_APPS ; do
+	        if [ -a $RED5_DIR/log/$bbb_app.log ]; then
+	                if ! grep -q "Starting up context" $RED5_DIR/log/$bbb_app.log; then
+	                        echo "#    $bbb_app may not have started properly"
+	                fi
+	        else
+	                echo "#    $RED5_DIR/log/$bbb_app.log not found"
+	        fi
+	done
+
 }
 
 display_bigbluebutton_status () {
@@ -1039,21 +1082,18 @@ check_state() {
 	#
 	# Checking red5 apps log
 	#
-	COUNT=0
-	while [ $COUNT -lt 20 ]; do
-    	  let COUNT=COUNT+1
+
+        # Give the files a chance to be created (in case we got started with a clean)
+        COUNT=0
+        while [ $COUNT -lt 20 ]; do
+          let COUNT=COUNT+1
           if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
-            if [ $COUNT -gt 1 ]; then
-              sleep 5		# Looks like a clean restart -- give red5 a bit more time to startup 
-            fi
-	    let COUNT=20
+            let COUNT=20
           else
             echo -n "."
             sleep 1
           fi
-	done
-
-        echo -n " "
+        done
 
 	RED5_LOG_FILES="bigbluebutton red5 sip video screenshare-slf"
 	AVAIL_RED5_LOG=""
@@ -1067,35 +1107,11 @@ check_state() {
 	done
 
 	if [ "$UNAVAIL_RED5_LOG" != "" ]; then
+		echo "# Error: Red5 log files not found"
+		echo
 		echo "# Unavailable red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
+		echo
 	fi
-
-
-	#
-	# Check if any of the red5 BigBlueButton applications did not start properly
-	#
-	COUNT=0
-	while [ $COUNT -lt 20 ]; do
-    	  let COUNT=COUNT+1
-          if ! cat $RED5_DIR/log/bigbluebutton.log | grep -q "Starting up context"; then
-            echo -n "."
-            sleep 1
-	  else
-	    let COUNT=20
-          fi
-	done
-        echo
-
-	BBB_APPS="sip video bigbluebutton screenshare-slf"
-	for bbb_app in $BBB_APPS ; do
-		if [ -a $RED5_DIR/log/$bbb_app.log ]; then
-			if cat $RED5_DIR/log/$bbb_app.log | grep -q "Starting up context"; then
-				echo "#    $bbb_app may not have started properly"
-			fi
-		else
-			echo "#    $RED5_DIR/log/$bbb_app.log not found"
-		fi
-	done
 
 	#
 	# Check FreeSWITCH
@@ -1792,7 +1808,7 @@ if [ -n "$HOST" ]; then
 		sed -i "s/rtmpt:\/\/\([^\"\/]*\)\//rtmpt:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
 	fi
 
-	echo "Restarting the bigbluebutton server ..."
+	echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 	stop_bigbluebutton
 	echo
 	start_bigbluebutton
@@ -1805,7 +1821,7 @@ if [ $RESTART ]; then
 	need_root
 	check_configuration
 	
-	echo "Restarting BigBlueButton ..."
+	echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
 	stop_bigbluebutton
 	start_bigbluebutton
@@ -1816,7 +1832,7 @@ if [ $CLEAN ]; then
 	need_root
 	check_configuration
 	
-	echo "Doing a restart of BigBlueButton and cleaning out all log files..."
+	echo "Restaring BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
 	stop_bigbluebutton
 
@@ -1824,8 +1840,7 @@ if [ $CLEAN ]; then
 	# Clean log files
 	#
 
-	echo 
-	echo "Cleaning Log Files"
+	echo " ... cleaning log files"
 	rm -f /var/log/bigbluebutton/bbb-web.log*
 	rm -f /var/log/bigbluebutton/*.log
 
