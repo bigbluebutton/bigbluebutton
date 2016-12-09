@@ -1,12 +1,12 @@
 package org.bigbluebutton.lib.main.views {
 	
-	import org.bigbluebutton.lib.main.views.skins.MenuButtonSkin;
-	
 	import spark.components.Button;
-	import spark.components.Group;
-	import spark.layouts.HorizontalLayout;
+	import spark.components.HGroup;
 	
-	public class MenuButtonsBase extends Group {
+	[Style(name = "bottom", inherit = "no", type = "Number")]
+	[Style(name = "gap", inherit = "no", type = "Number")]
+	[Style(name = "top", inherit = "no", type = "Number")]
+	public class MenuButtonsBase extends HGroup {
 		private var _micButton:Button;
 		
 		public function get micButton():Button {
@@ -28,9 +28,6 @@ package org.bigbluebutton.lib.main.views {
 		public function MenuButtonsBase() {
 			super();
 			
-			var l:HorizontalLayout = new HorizontalLayout();
-			l.gap = 10;
-			layout = l;
 			
 			_micButton = new Button();
 			_micButton.percentWidth = 100;
@@ -52,6 +49,14 @@ package org.bigbluebutton.lib.main.views {
 			_statusButton.label = "Status";
 			_statusButton.styleName = "handStatusButton menuButton";
 			addElement(_statusButton);
+		}
+		
+		override protected function updateDisplayList(w:Number, h:Number):void {
+			super.updateDisplayList(w, h);
+			
+			bottom = getStyle("bottom");
+			gap = getStyle("gap");
+			top = getStyle("top");
 		}
 	}
 }

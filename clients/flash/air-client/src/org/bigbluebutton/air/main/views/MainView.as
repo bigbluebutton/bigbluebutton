@@ -6,6 +6,8 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.lib.presentation.views.PresentationViewBase;
 	import org.osmf.layout.HorizontalAlign;
 	
+	[Style(name = "menuHeight", inherit = "no", type = "Number")]
+	[Style(name = "toolbarHeight", inherit = "no", type = "Number")]
 	public class MainView extends NoTabView {
 		private var _topToolbar:TopToolbarAIR;
 		
@@ -23,7 +25,6 @@ package org.bigbluebutton.air.main.views {
 			
 			_topToolbar = new TopToolbarAIR();
 			_topToolbar.percentWidth = 100;
-			_topToolbar.height = getStyle("height");
 			addElement(_topToolbar);
 			
 			_presentationView = new PresentationViewBase();
@@ -40,6 +41,9 @@ package org.bigbluebutton.air.main.views {
 			
 			_presentationView.width = w;
 			_presentationView.height = h - _topToolbar.height - _menuButtons.height;
+			
+			_menuButtons.height = getStyle("menuHeight");
+			_topToolbar.height = getStyle("toolbarHeight");
 		}
 	}
 }

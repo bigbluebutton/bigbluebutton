@@ -1,5 +1,7 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace main "org.bigbluebutton.air.main.views.*";
+@namespace mainviews "org.bigbluebutton.lib.main.views.*";
+@namespace skins "org.bigbluebutton.lib.main.views.skins.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -8,6 +10,23 @@
 	
 	main|TopToolbarAIR {
 		height : 80;
+	}
+	
+	main|MainView {
+		menuHeight    : 160;
+		toolbarHeight : 80;
+	}
+	
+	mainviews|MenuButtonsBase {
+		bottom   : 35;
+		top      : 14;
+		gap      : 45;
+	}
+	
+	skins|MenuButtonSkin {
+		fontSize     : 24;
+		iconSize     : 36;
+		labelPadding : 12;
 	}
 	
 	.titleLabel
@@ -30,12 +49,6 @@
 	
 	.topRightButton {
 		right : 30;
-	}
-	
-	.menuButton
-	{
-		fontSize : 14;
-		iconSize : 30;
 	}
 	
 	.participantIcon
