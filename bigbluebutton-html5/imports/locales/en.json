@@ -43,7 +43,7 @@
   "app.leaveConfirmation.dismissLabel": "Cancel",
   "app.leaveConfirmation.dismissDesc": "Closes and rejects the leave confirmation",
   "app.about.title": "About",
-  "app.about.version": "Version:",
+  "app.about.version": "Client Build:",
   "app.about.copyright": "Copyright:",
   "app.about.confirmLabel": "OK",
   "app.about.confirmDesc": "OK",
