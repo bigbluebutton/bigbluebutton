@@ -59,14 +59,14 @@
 	embedAsCFF : true;
 }
 
-/* Shared s */
+/* Shared styles */
 
 global
 {
 	font-family : SourceSansPro;
 }
 
-/* Classes s */
+/* Classes */
 
 s|Application
 {
@@ -88,12 +88,6 @@ main|MainView
 	backgroundColor : PropertyReference("bbbBlack");	
 }
 
-
-s|TextInput
-{
-	fontFamily : SourceSansPro;
-}
-
 libChat|NewMessagesIndicator
 {
 	backgroundColor : PropertyReference("bbbRed");
@@ -104,8 +98,6 @@ libChat|NewMessagesIndicator
 	cornerRadius    : 6;
 	skinClass       : ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
 }
-
-
 
 .subViewContent
 {

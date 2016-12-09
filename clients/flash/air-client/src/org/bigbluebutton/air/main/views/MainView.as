@@ -15,16 +15,15 @@ package org.bigbluebutton.air.main.views {
 		
 		public function MainView() {
 			super();
-			styleName = "mainView";
 			
-			var l:VerticalLayout = new VerticalLayout();
-			l.gap = 0;
-			l.horizontalAlign = HorizontalAlign.CENTER;
-			layout = l;
+			var vLayout:VerticalLayout = new VerticalLayout();
+			vLayout.gap = 0;
+			vLayout.horizontalAlign = HorizontalAlign.CENTER;
+			layout = vLayout;
 			
 			_topToolbar = new TopToolbarAIR();
 			_topToolbar.percentWidth = 100;
-			_topToolbar.height = 80;
+			_topToolbar.height = getStyle("height");
 			addElement(_topToolbar);
 			
 			_presentationView = new PresentationViewBase();

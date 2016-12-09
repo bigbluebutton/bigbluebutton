@@ -1,9 +1,13 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace main "org.bigbluebutton.air.main.views.*";
 
-@media (application-dpi: 340) {
+@media (application-dpi: 320) {
 	main|LoadingScreen {
 		fontSize : 34;
+	}
+	
+	main|TopToolbarAIR {
+		height : 80;
 	}
 	
 	.titleLabel
