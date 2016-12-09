@@ -78,6 +78,8 @@ FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 
+SYSTEMD_UNITS=(redis-server nginx libreoffice freeswitch red5 tomcat7 bbb-apps-akka bbb-fsesl-akka bbb-html5 bbb-webhooks bbb-record-core.service bbb-record-core.timer)
+
 if lsb_release -d | grep -q CentOS; then
   DISTRIB_ID=centos
   SERVLET_LOGS=/usr/share/$SERVLET_CONTAINER/logs
@@ -280,7 +282,7 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
-       for s in bbb-html5 red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer bbb-webhooks libreoffice; do
+       for s in ${SYSTEMD_UNITS[*]}; do
          if systemctl status $s | grep running > /dev/null 2>&1; then
            systemctl stop $s
          fi
@@ -323,10 +325,11 @@ stop_bigbluebutton () {
 start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
-       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5=bbb-html5
-       fi
-       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5
+       for s in ${SYSTEMD_UNITS[*]}; do
+         if systemctl status $s | grep loaded > /dev/null 2>&1; then
+           systemctl start $s
+         fi
+       done
     else
 	$FREESWITCH_INIT_D start
 	
@@ -407,10 +410,9 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="start red5 tomcat7 nginx freeswitch redis-server libreoffice bbb-apps-akka bbb-fsesl-akka"
-	for unit in $units; do
-		echo "$unit: $(systemctl is-active $unit)"
-	done 
+        for unit in ${SYSTEMD_UNITS[*]}; do
+            echo "$unit: $(systemctl is-active $unit)"
+        done
     else
 	/etc/init.d/nginx status
 	/etc/init.d/$RED5 status
