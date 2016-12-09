@@ -20,8 +20,6 @@ package org.bigbluebutton.air.main.views {
 			layout.verticalAlign = VerticalAlign.MIDDLE;
 			this.layout = layout;
 			
-			percentHeight = percentWidth = 100;
-			
 			_stateLabel = new Label();
 			_stateLabel.text = "Loading";
 			_stateLabel.percentWidth = 80;

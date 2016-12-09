@@ -4,73 +4,73 @@
 @namespace main "org.bigbluebutton.air.main.views.*";
 
 @font-face { 
-	src: 		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
-	fontFamily:	SourceSansPro;
-	fontStyle:	normal;
-	fontWeight:	normal;
-	embedAsCFF:	true;
+	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+	fontFamily : SourceSansPro;
+	fontStyle  : normal;
+	fontWeight : normal;
+	embedAsCFF : true;
 }
 
 @font-face { 
-	src:		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf");
-	fontFamily:	SourceSansPro;
-	fontStyle:	normal;
-	fontWeight:	bold;
-	embedAsCFF:	true;
+	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf");
+	fontFamily : SourceSansPro;
+	fontStyle  : normal;
+	fontWeight : bold;
+	embedAsCFF : true;
 }
 
 @font-face { 
-	src:		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
-	fontFamily:	SourceSansPro;
-	fontStyle:	italic;
-	fontWeight:	normal;
-	embedAsCFF:	true;
+	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
+	fontFamily : SourceSansPro;
+	fontStyle  : italic;
+	fontWeight : normal;
+	embedAsCFF : true;
 }
 
 @font-face { 
-	src:		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
-	fontFamily:	SourceSansPro;
-	fontStyle:	normal;
-	fontWeight:	heavy;
-	embedAsCFF:	true;
+	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+	fontFamily : SourceSansPro;
+	fontStyle  : normal;
+	fontWeight : heavy;
+	embedAsCFF : true;
 }
 
 @font-face { 
-	src: 		url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
-	fontFamily:	SourceSansProMX;
-	fontStyle:	normal;
-	fontWeight:	normal;
-	embedAsCFF:	false;
+	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+	fontFamily : SourceSansProMX;
+	fontStyle  : normal;
+	fontWeight : normal;
+	embedAsCFF : false;
 }
 
 @font-face {
-	src: 		url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf");
-	fontFamily:	BBBIcons;
-	fontStyle:	normal;
-	fontWeight:	normal;
-	embedAsCFF:	true;
+	src        : url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf");
+	fontFamily : BBBIcons;
+	fontStyle  : normal;
+	fontWeight : normal;
+	embedAsCFF : true;
 }
 
 @font-face {
-	src: 		url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf");
-	fontFamily:	BBBIcons;
-	fontStyle:	normal;
-	fontWeight:	bold;
-	embedAsCFF:	true;
+	src        : url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf");
+	fontFamily : BBBIcons;
+	fontStyle  : normal;
+	fontWeight : bold;
+	embedAsCFF : true;
 }
 
 /* Shared s */
 
 global
 {
-	font-family:	SourceSansPro;
+	font-family : SourceSansPro;
 }
 
 /* Classes s */
 
 s|Application
 {
-	backgroundColor: PropertyReference("bbbBlack");	
+	backgroundColor : PropertyReference("bbbBlack");	
 }
 
 /* Loading screen */
@@ -81,36 +81,40 @@ main|LoadingScreen {
 	textAlign       : center;
 }
 
+/* Main view */
+
+main|MainView
+{
+	backgroundColor : PropertyReference("bbbBlack");	
+}
+
 
 s|TextInput
 {
-	fontFamily:		SourceSansPro;
+	fontFamily : SourceSansPro;
 }
 
 libChat|NewMessagesIndicator
 {
-	backgroundColor: 	PropertyReference("bbbRed");
-	backgroundAlpha:	1;
-	borderColor: 		PropertyReference("bbbRed");
-	borderAlpha: 		0;
-	color:				PropertyReference("bbbWhite");
-	cornerRadius:		6;
-	skinClass:			ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
+	backgroundColor : PropertyReference("bbbRed");
+	backgroundAlpha : 1;
+	borderColor     : PropertyReference("bbbRed");
+	borderAlpha     : 0;
+	color           : PropertyReference("bbbWhite");
+	cornerRadius    : 6;
+	skinClass       : ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
 }
 
-.mainView
-{
-	backgroundColor:	PropertyReference("bbbBlack");	
-}
+
 
 .subViewContent
 {
-	backgroundColor:	PropertyReference("bbbWhite");
+	backgroundColor : PropertyReference("bbbWhite");
 }
 
 .titleLabel
 {
-	color    : PropertyReference("bbbWhite");
+	color : PropertyReference("bbbWhite");
 }
 
 .topButton
@@ -122,22 +126,22 @@ libChat|NewMessagesIndicator
 
 .participantsButton
 {
-	icon: "\ue906";
+	icon : "\ue906";
 }
 
 .settingsButton
 {
-	icon: "\ue902";
+	icon : "\ue902";
 }
 
 .presentationButton
 {
-	icon: "\ue90c";
+	icon : "\ue90c";
 }
 
 .backButton
 {
-	icon: "\ue90e";
+	icon : "\ue90e";
 }
 
 .menuButton
@@ -182,22 +186,22 @@ libChat|NewMessagesIndicator
 
 .sendButton
 {
-	color:		PropertyReference("bbbGrey");
-	fontFamily:	BBBIcons;
-	borderColor:	PropertyReference("bbbGrey");
-	skinClass:	ClassReference("org.bigbluebutton.lib.chat.views.skins.SendButtonSkin");
+	color       : PropertyReference("bbbGrey");
+	fontFamily  : BBBIcons;
+	borderColor : PropertyReference("bbbGrey");
+	skinClass   : ClassReference("org.bigbluebutton.lib.chat.views.skins.SendButtonSkin");
 }
 
 .messageInput
 {
-	fontFamily: SourceSansProMX;
-	contentBackgroundAlpha: 0;
-	skinClass:	ClassReference("org.bigbluebutton.air.chat.views.skins.MessageInputSkin");
+	fontFamily             : SourceSansProMX;
+	contentBackgroundAlpha : 0;
+	skinClass              : ClassReference("org.bigbluebutton.air.chat.views.skins.MessageInputSkin");
 }
 
 .content
 {
-	color:		PropertyReference("bbbBlack");
+	color : PropertyReference("bbbBlack");
 }
 
 /*
@@ -221,6 +225,6 @@ libChat|NewMessagesIndicator
 
 .icon
 {
-	fontFamily :	BBBIcons;
-	color:		PropertyReference("bbbGrey");
+	fontFamily : BBBIcons;
+	color      : PropertyReference("bbbGrey");
 }
