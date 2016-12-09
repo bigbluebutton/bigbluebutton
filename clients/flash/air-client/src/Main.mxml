@@ -3,10 +3,16 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   applicationComplete="applicationCompleteHandler(event)"
 			   preinitialize="preinitializeHandler(event)"
-			   runtimeDPIProvider="CustomRuntimeDPIProvider"
-			   styleName="mainshellStyle"
+			   styleName="mainshell"
 			   xmlns:main="org.bigbluebutton.air.main.views.*">
+	<fx:Style source="../../shared/assets/css/common.css" />
 	<fx:Style source="Default.css" />
+	<fx:Style source="css/ldpi.css" />
+	<fx:Style source="css/mdpi.css" />
+	<fx:Style source="css/hdpi.css" />
+	<fx:Style source="css/xhdpi.css" />
+	<fx:Style source="css/xxhdpi.css" />
+	<fx:Style source="css/xxxhdpi.css" />
 
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
@@ -92,17 +98,14 @@
 	<main:LoadingScreen width="100%"
 						height="100%" />
 
-	<s:Group width="100%"
-			 height="100%"
-			 id="mainshell"
-			 visible="false">
-		<s:layout>
-			<s:VerticalLayout gap="0"
-							  horizontalAlign="center" />
-		</s:layout>
-
+	<s:VGroup width="100%"
+			  height="100%"
+			  id="mainshell"
+			  visible="false"
+			  gap="0"
+			  horizontalAlign="center">
 		<main:PagesNavigatorView id="pagesNavigatorView"
 								 width="100%"
 								 height="100%" />
-	</s:Group>
+	</s:VGroup>
 </s:Application>
