@@ -28,7 +28,7 @@ export default class ActionsBar extends Component {
           <ActionsDropdown />
         </div>
         <div className={styles.center}>
-          <MuteAudioContainer/>
+          <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={openJoinAudio.bind(this)}
             close={() => {exitAudio();}}
@@ -55,9 +55,11 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.center}>
+          <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={openJoinAudio.bind(this)}
-            close={exitAudio}
+            close={() => {exitAudio();}}
+
           />
 
           <Button

@@ -7,6 +7,7 @@ export default class MuteAudio extends React.Component {
   render() {
     const { isInAudio, isMuted, callback } = this.props;
     let label = !isMuted ? 'Mute' : 'Unmute';
+    let icon = !isMuted ? 'mute' : 'unmute';
     let className = !isInAudio ? styles.invisible : null;
     let tabIndex = !isInAudio ? -1 : 0;
 
@@ -15,7 +16,7 @@ export default class MuteAudio extends React.Component {
         onClick={callback}
         label={label}
         color={'primary'}
-        icon={'audio'}
+        icon={icon}
         size={'lg'}
         circle={true}
         className={className}
