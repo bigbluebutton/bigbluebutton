@@ -280,10 +280,11 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
-       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5=bbb-html5
-       fi
-       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer $HTML5
+       for s in bbb-html5 red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer bbb-webhooks libreoffice; do
+         if systemctl status $s | grep running > /dev/null 2>&1; then
+           systemctl stop $s
+         fi
+       done
     else
 	/etc/init.d/monit stop
 
