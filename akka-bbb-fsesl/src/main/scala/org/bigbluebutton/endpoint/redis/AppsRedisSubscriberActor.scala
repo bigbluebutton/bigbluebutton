@@ -54,7 +54,7 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
   }
 
   def onPMessage(pmessage: PMessage) {
-    log.debug(s"pattern message received: $pmessage")
+    //    log.debug(s"pattern message received: $pmessage")
 
     val msg = decoder.decodeMessage(pmessage.data)
 

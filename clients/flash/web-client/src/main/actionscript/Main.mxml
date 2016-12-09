@@ -10,6 +10,8 @@
 	
 	<fx:Script>
 		<![CDATA[
+			include "../../../../shared/ColorPalette.as"
+
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.lib.whiteboard.views.WhiteboardConfig;

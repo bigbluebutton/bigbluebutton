@@ -3,13 +3,13 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Button from '/imports/ui/components/button/component';
 import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
-import JoinAudio from './component';
+import JoinAudioOptions from './component';
 
-class JoinAudioContainer extends React.Component {
+class JoinAudioOptionsContainer extends React.Component {
 
   render() {
     return (
-      <JoinAudio {...this.props} />
+      <JoinAudioOptions {...this.props} />
     );
   }
 }
@@ -23,4 +23,4 @@ export default createContainer((params) => {
     open: params.open,
     close: params.close,
   };
-}, JoinAudioContainer);
+}, JoinAudioOptionsContainer);

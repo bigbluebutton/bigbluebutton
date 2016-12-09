@@ -23,8 +23,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
-  import org.bigbluebutton.main.api.JSLog;
-  
+
   public class MessageSender {
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
 
@@ -38,7 +37,11 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps"];
+            logData.userId = userID;
+            logData.message = "Error occured ejecting user.";
+            LOGGER.info(JSON.stringify(logData));
         },
         message
       );
@@ -50,7 +53,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps"];
+            logData.message = "Error occured querying users.";
+            LOGGER.info(JSON.stringify(logData));
         }
       );
     }
@@ -66,34 +72,41 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["apps"];
+            logData.message = "Error occured assigning presenter.";
+            LOGGER.info(JSON.stringify(logData));
         },
         message
       );
-		}
+      
+    }
+
+    public function emojiStatus(userID:String, emoji:String):void {
+        var message:Object = new Object();
+        message["emojiStatus"] = emoji;
+        message["userId"] = userID;
+        
+        var _nc:ConnectionManager = BBB.initConnectionManager();
+        _nc.sendMessage("participants.userEmojiStatus", 
+            function(result:String):void { // On successful result   
+                
+            }, function(status:String):void { // status - On error occurred
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured setting emoji status.";
+                LOGGER.info(JSON.stringify(logData));
+            },
+            message
+        );
+    }
 		
-		public function emojiStatus(userID:String, emoji:String):void {
-			var message:Object = new Object();
-			message["emojiStatus"] = emoji;
-			message["userId"] = userID;
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("participants.userEmojiStatus", function(result:String):void
-			{ // On successful result
-			}, function(status:String):void
-			{ // status - On error occurred
-				LOGGER.error(status);
-			},
-			message
-			);
-		}
-		
-		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean, redirectOnJoin:Boolean):void {
+		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int, record:Boolean):void {
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;
 			message["rooms"] = rooms;
 			message["durationInMinutes"] = durationInMinutes;
 			message["record"] = record;
-			message["redirectOnJoin"] = redirectOnJoin;
 			var jsonMsg:String = JSON.stringify(message);
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -102,18 +115,20 @@ package org.bigbluebutton.modules.users.services
 				// On successful result
 			}, function(status:String):void
 			{ // status - On error occurred
-				LOGGER.error(status);
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured creating breakout rooms.";
+                LOGGER.info(JSON.stringify(logData));
 			},
 			jsonMsg
 			);
 		}
 		
-		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String, redirect:Boolean):void {
+		public function requestBreakoutJoinUrl(parentMeetingId:String, breakoutMeetingId:String, userId:String):void {
 			var message:Object = new Object();
 			message["meetingId"] = parentMeetingId;
 			message["breakoutMeetingId"] = breakoutMeetingId;
 			message["userId"] = userId;
-			message["redirect"] = redirect;
 			
 			var jsonMsg:String = JSON.stringify(message);
 			
@@ -121,7 +136,10 @@ package org.bigbluebutton.modules.users.services
 			_nc.sendMessage("breakoutroom.requestBreakoutJoinUrl", function(result:String):void {
 				// On successful result
 			}, function(status:String):void { // status - On error occurred
-				LOGGER.error(status);
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured requesting breakout room join url.";
+                LOGGER.info(JSON.stringify(logData));
 			}, jsonMsg);
 		}
 		
@@ -132,7 +150,10 @@ package org.bigbluebutton.modules.users.services
 				// On successful result
 			}, function(status:String):void
 			{ // status - On error occurred
-				LOGGER.error(status);
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured listen on breakout room.";
+                LOGGER.info(JSON.stringify(logData));
 			},
 			JSON.stringify({meetingId: meetingId, targetMeetingId: targetMeetingId, userId: userId})
 			);
@@ -145,7 +166,10 @@ package org.bigbluebutton.modules.users.services
 				// On successful result
 			}, function(status:String):void
 			{ // status - On error occurred
-				LOGGER.error(status);
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured ending breakout rooms.";
+                LOGGER.info(JSON.stringify(logData));
 			},
 			JSON.stringify({meetingId: meetingId})
 			);
@@ -157,29 +181,33 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured sharing webcam.";
+                LOGGER.info(JSON.stringify(logData));
         },
         streamName
       );
     }
     
     public function removeStream(userID:String, streamName:String):void {
-	  
-	  var logData:Object = new Object();
-	  logData.user = UsersUtil.getUserData();
-	  
-	  JSLog.warn("User stopped sharing webcam event.", logData);
-	  
-	  logData.streamId = streamName;
-	  logData.message = "User stopped sharing webcam";
-	  LOGGER.info(JSON.stringify(logData));
-	  
+  
+        var logData:Object = UsersUtil.initLogData();
+        logData.tags = ["webcam"];
+        logData.streamId = streamName;
+        logData.message = "User stopped sharing webcam";
+        LOGGER.info(JSON.stringify(logData));
+
+  
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.unshareWebcam", 
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status);  
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured unsharing webcam.";
+                LOGGER.info(JSON.stringify(logData));
         },
         streamName
       );
@@ -192,7 +220,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured getting recording status.";
+                LOGGER.info(JSON.stringify(logData));
         }
       ); //_netConnection.call
     }
@@ -208,7 +239,10 @@ package org.bigbluebutton.modules.users.services
 			// On successful result
 		}, function(status:String):void
 		{ // status - On error occurred
-			LOGGER.error(status);
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured querying breakout rooms.";
+                LOGGER.info(JSON.stringify(logData));
 		},
 			jsonMsg
 		);
@@ -225,7 +259,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured change recording status.";
+                LOGGER.info(JSON.stringify(logData));
         },
         message
       ); //_netConnection.call
@@ -241,7 +278,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured muting all users.";
+                LOGGER.info(JSON.stringify(logData));
         },
         message
       ); 
@@ -257,7 +297,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured muting all users except presenter.";
+                LOGGER.info(JSON.stringify(logData));
         },
         message
       ); 
@@ -274,7 +317,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured muting user.";
+                LOGGER.info(JSON.stringify(logData));
         },
         message
       );          
@@ -290,7 +336,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured ejecting user.";
+                LOGGER.info(JSON.stringify(logData));
         },
         message
       );    
@@ -305,7 +354,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occuredget room mute state.";
+                LOGGER.info(JSON.stringify(logData));
         }
       ); 
     }
@@ -319,7 +371,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured getting lock state.";
+                LOGGER.info(JSON.stringify(logData));
         }
       );    
     }    
@@ -367,7 +422,10 @@ package org.bigbluebutton.modules.users.services
 			function(result:String):void { // On successful result
 			},	                   
 			function(status:String):void { // status - On error occurred
-			  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured setting user lock status.";
+                LOGGER.info(JSON.stringify(logData));
 			},
 			message
 		);
@@ -421,7 +479,10 @@ package org.bigbluebutton.modules.users.services
         function(result:String):void { // On successful result
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+                var logData:Object = UsersUtil.initLogData();
+                logData.tags = ["apps"];
+                logData.message = "Error occured saving lock settings.";
+                LOGGER.info(JSON.stringify(logData));
         },
         newLockSettings
       );      

@@ -20,14 +20,14 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
 
     def read(json: JsValue): MessageType.MessageType = json match {
       case JsString(str) => MessageType.withName(str)
-      case _             => throw new DeserializationException("Enum string expected")
+      case _ => throw new DeserializationException("Enum string expected")
     }
   }
 
   implicit val breakoutRoomInPayloadFormat = jsonFormat3(BreakoutRoomInPayload)
-  implicit val createBreakoutRoomsFormat = jsonFormat5(CreateBreakoutRooms)
+  implicit val createBreakoutRoomsFormat = jsonFormat4(CreateBreakoutRooms)
   implicit val breakoutRoomsListMessageFormat = jsonFormat1(BreakoutRoomsListMessage)
-  implicit val requestBreakoutJoinURLInMessageFormat = jsonFormat4(RequestBreakoutJoinURLInMessage)
+  implicit val requestBreakoutJoinURLInMessageFormat = jsonFormat3(RequestBreakoutJoinURLInMessage)
   implicit val transferUserToMeetingRequestFormat = jsonFormat3(TransferUserToMeetingRequest)
   implicit val endBreakoutRoomsFormat = jsonFormat1(EndAllBreakoutRooms)
   implicit val inMsgHeaderFormat = jsonFormat1(InMessageHeader)

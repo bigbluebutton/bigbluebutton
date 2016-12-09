@@ -1,2 +1,3 @@
 log:
   filename: '/var/log/bigbluebutton/html5/html5client.log'
+  level: 'warn'

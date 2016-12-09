@@ -7,7 +7,7 @@ import EmojiContainer from './emoji-menu/container';
 import ActionsDropdown from './actions-dropdown/component';
 import Auth from '/imports/ui/services/auth/index';
 import Users from '/imports/api/users/index';
-import JoinAudioContainer from './audio-menu/container';
+import JoinAudioOptionsContainer from './audio-menu/container';
 import MuteAudioContainer from './mute-button/container';
 import { exitAudio } from '/imports/api/phone';
 
@@ -21,7 +21,7 @@ export default class ActionsBar extends Component {
   handleClick() {
   }
 
-  render() {
+  renderForPresenter() {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
@@ -29,7 +29,7 @@ export default class ActionsBar extends Component {
         </div>
         <div className={styles.center}>
           <MuteAudioContainer/>
-          <JoinAudioContainer
+          <JoinAudioOptionsContainer
             open={openJoinAudio.bind(this)}
             close={() => {exitAudio();}}
 
@@ -49,5 +49,38 @@ export default class ActionsBar extends Component {
         </div>
       </div>
     );
+  }
+
+  renderForUser() {
+    return (
+      <div className={styles.actionsbar}>
+        <div className={styles.center}>
+          <JoinAudioOptionsContainer
+            open={openJoinAudio.bind(this)}
+            close={exitAudio}
+          />
+
+          <Button
+            onClick={this.handleClick}
+            label={'Cam Off'}
+            color={'primary'}
+            icon={'video-off'}
+            size={'lg'}
+            circle={true}
+          />
+          <EmojiContainer />
+        </div>
+        <div className={styles.right}>
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    const { isUserPresenter } = this.props;
+
+    return isUserPresenter ?
+      this.renderForPresenter() :
+      this.renderForUser();
   }
 }

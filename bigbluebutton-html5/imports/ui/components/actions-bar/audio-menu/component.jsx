@@ -4,7 +4,7 @@ import Button from '/imports/ui/components/button/component';
 import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
 
-export default class JoinAudio extends React.Component {
+export default class JoinAudioOptions extends React.Component {
 
   renderLeaveButton() {
     return (

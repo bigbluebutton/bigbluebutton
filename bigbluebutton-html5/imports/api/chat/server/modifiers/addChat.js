@@ -54,8 +54,8 @@ export default function addChat(meetingId, message) {
   };
 
   const cb = (err, numChanged) => {
-    if (err != null) {
-      Logger.error(`Adding chat to collection: ${err}`);
+    if (err) {
+      return Logger.error(`Adding chat to collection: ${err}`);
     }
 
     const { insertedId } = numChanged;

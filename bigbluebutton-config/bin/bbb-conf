@@ -18,7 +18,8 @@
 #
 # Author(s):
 #       Fred Dixon <ffdixon@bigbluebutton.org>
-#	Sebastian Schneider <seb.sschneider@gmail.com>
+#	    Sebastian Schneider <seb.sschneider@gmail.com>
+#	    Ghazi Triki <ghazi.nocturne@gmail.com>
 #
 # Changelog:
 #   2009-10-18 FFD  Inital Version   
@@ -53,6 +54,7 @@
 #   2016-02-28 FFD  Updates to support HTTPS configuration
 #   2016-05-28 FFD  Initial updates for 1.1-dev
 #   2016-08-15 GTR  Archive more logs with zip option and show more applications with status
+#   2016-10-17 GTR  Added redis to checked server components & added ownership check for video and freeswitch recording directories
 
 #set -x
 #set -e
@@ -143,12 +145,10 @@ VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 # Determine IP so it works on multilingual installations
 #
 
-if [[ `sudo ifconfig` == *venet0:0* ]]; then
-	# IP detection for OpenVZ environment
-	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+if ifconfig eth0 > /dev/null 2>&1; then
+	IP=$(LANG=c ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
 else
-	# IP detection for regular environment
-	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
+	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 fi
 
 MEM=`free -m | grep Mem | awk '{ print $2}'`
@@ -283,7 +283,7 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5=bbb-html5
        fi
-       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer $HTML5
+       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer $HTML5
     else
 	/etc/init.d/monit stop
 
@@ -325,7 +325,7 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5=bbb-html5
        fi
-       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5
+       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5
     else
 	$FREESWITCH_INIT_D start
 	
@@ -885,6 +885,18 @@ check_configuration() {
                 echo "#    /var/bigbluebutton/screenshare"
                 echo "# is not owned by red5"
         fi
+		
+        if [ "$(ls -ld /usr/share/red5/webapps/video/streams | cut -d' ' -f3)" != "red5" ]; then
+                echo "# Warning: Detected the directory"
+                echo "#    /usr/share/red5/webapps/video/streams"
+                echo "# is not owned by red5"
+        fi
+		
+        if [ "$(ls -ld /var/freeswitch/meetings | cut -d' ' -f3)" != "freeswitch" ]; then
+                echo "# Warning: Detected the directory"
+                echo "#    /var/freeswitch/meetings"
+                echo "# is not owned by freeswitch"
+        fi
 
         if [ "$(ls -ld /var/bigbluebutton | cut -d' ' -f3)" != $TOMCAT_USER ]; then
                 echo "# Warning: Detected the directory"
@@ -1064,7 +1076,7 @@ check_state() {
 	COUNT=0
 	while [ $COUNT -lt 20 ]; do
     	  let COUNT=COUNT+1
-          if ! cat $RED5_DIR/log/bigbluebutton.log | tail -n10 | grep -q "Starting up context"; then
+          if ! cat $RED5_DIR/log/bigbluebutton.log | grep -q "Starting up context"; then
             echo -n "."
             sleep 1
 	  else
@@ -1076,13 +1088,40 @@ check_state() {
 	BBB_APPS="sip video bigbluebutton screenshare-slf"
 	for bbb_app in $BBB_APPS ; do
 		if [ -a $RED5_DIR/log/$bbb_app.log ]; then
-			if cat $RED5_DIR/log/$bbb_app.log | tail -n1 | grep -q "Starting up context"; then
-				echo "#    $bbb_app did not start properly"
+			if cat $RED5_DIR/log/$bbb_app.log | grep -q "Starting up context"; then
+				echo "#    $bbb_app may not have started properly"
 			fi
 		else
 			echo "#    $RED5_DIR/log/$bbb_app.log not found"
 		fi
 	done
+
+	#
+	# Check FreeSWITCH
+	#
+
+	if grep -q "Thread ended for mod_event_socket" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
+		echo
+		echo "# Error: Found text in freeswitch.log:"
+		echo "#"
+		echo "#    Thread ended for mod_event_socket"
+		echo "#"
+		echo "# FreeSWITCH may not be responding to requests on port 8021 (event socket layer)"
+		echo "# and users may have errors joining audio."
+		echo "#"
+	fi
+
+	#
+	# Check FreeSWITCH
+	#
+
+	if ! echo "/quit" | /opt/freeswitch/bin/fs_cli - > /dev/null 2>&1; then
+		echo
+                echo "#"
+                echo "# Error: Unable to connect to the FreeSWITCH Event Socket Layer on port 8021"
+                echo "#"
+	fi
+
 
 	#
 	# Check for required external commands
@@ -1120,7 +1159,7 @@ check_state() {
 		# Checking if voice app registered successfully
 		#
         	if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
-                	echo "# Error: The voice application failed to register with the sip server."
+                	echo "# Warning: The voice application may not have registered with the sip server."
                 	echo "#   Try running: "
                 	echo "#"
                 	echo "#      sudo bbb-conf --clean"
@@ -1137,7 +1176,8 @@ check_state() {
         		echo 
 		fi
 	else
-		echo "# Error: /usr/share/red5/log/sip.log"
+		echo "# Error: The following log file was not found"
+		echo "#   /usr/share/red5/log/sip.log "
         	echo 
         fi
 
@@ -1155,7 +1195,7 @@ check_state() {
 	if [ -f $RED5_DIR/log/bigbluebutton.log ]; then
 		BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
 		if [ $BBB_RED5_LOG -lt 100 ]; then
-        		echo "#       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
+        		echo "#       Log file too short (less than 100 lines): $RED5_DIR/log/bigbluebutton.log (red5)"
 		fi
 	else
 		echo "#      No $RED5_DIR/log/bigbluebutton.log"
@@ -1304,7 +1344,6 @@ check_state() {
                 echo
 	fi
 
-	
 	if [ -f ${SERVLET_DIR}/demo/demo1.jsp ]; then
                 BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 		echo "# Warning: The API demos are installed and accessible from:"

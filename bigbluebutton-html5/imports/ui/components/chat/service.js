@@ -37,6 +37,20 @@ const mapUser = (user) => ({
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isLocked: user.locked,
+  isLoggedOut: false,
+});
+
+const loggedOutUser = (userID, userName) => ({
+  id: userID,
+  name: userName,
+  emoji: {
+    status: 'none',
+  },
+  isPresenter: false,
+  isModerator: false,
+  isCurrent: false,
+  isVoiceUser: false,
+  isLoggedOut: true,
 });
 
 const mapMessage = (messagePayload) => {
@@ -50,7 +64,7 @@ const mapMessage = (messagePayload) => {
   };
 
   if (message.chat_type !== SYSTEM_CHAT_TYPE) {
-    mappedMessage.sender = getUser(message.from_userid);
+    mappedMessage.sender = getUser(message.from_userid, message.from_username);
   }
 
   return mappedMessage;
@@ -86,12 +100,12 @@ const reduceMessages = (previous, current, index, array) => {
   }
 };
 
-const getUser = (userID) => {
+const getUser = (userID, userName) => {
   const user = Users.findOne({ userId: userID });
   if (user) {
     return mapUser(user.user);
   } else {
-    return null;
+    return loggedOutUser(userID, userName);
   }
 };
 

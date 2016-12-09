@@ -8,7 +8,7 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 	
 	import spark.components.SkinnablePopUpContainer;
 	
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
@@ -25,7 +25,7 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		protected var dataProvider:ArrayCollection;
 		

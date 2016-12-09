@@ -1,7 +1,13 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
-import { subscribeForData, wasUserKicked, redirectToLogoutUrl, getModal } from './service';
+import {
+  subscribeForData,
+  wasUserKicked,
+  redirectToLogoutUrl,
+  getModal,
+} from './service';
+
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';

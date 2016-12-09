@@ -1,11 +1,7 @@
 import '/imports/startup/server';
 import '/imports/api/chat/server';
 
-import '/imports/api/cursor/server/publications';
-import '/imports/api/cursor/server/modifiers/clearCursorCollection';
-import '/imports/api/cursor/server/modifiers/initializeCursor';
-import '/imports/api/cursor/server/modifiers/updateCursorLocation';
-import '/imports/api/cursor/server/modifiers/eventHandlers';
+import '/imports/api/cursor/server';
 
 import '/imports/api/deskshare/server/publications';
 import '/imports/api/deskshare/server/modifiers/clearDeskshareCollection';
@@ -13,39 +9,19 @@ import '/imports/api/deskshare/server/modifiers/handleDeskShareChange';
 import '/imports/api/deskshare/server/modifiers/handleIncomingDeskshareMessage';
 import '/imports/api/deskshare/server/modifiers/eventHandlers';
 
-import '/imports/api/meetings/server/publications';
-import '/imports/api/meetings/server/modifiers/addMeetingToCollection';
-import '/imports/api/meetings/server/modifiers/clearMeetingsCollection';
-import '/imports/api/meetings/server/modifiers/removeMeetingFromCollection';
-import '/imports/api/meetings/server/modifiers/eventHandlers';
+import '/imports/api/meetings/server';
 
 import '/imports/api/phone/server/modifiers/eventHandlers';
 
-import '/imports/api/polls/server/publications';
-import '/imports/api/polls/server/methods/publishVoteMessage';
-import '/imports/api/polls/server/modifiers/addPollToCollection';
-import '/imports/api/polls/server/modifiers/clearPollCollection';
-import '/imports/api/polls/server/modifiers/updatePollCollection';
-import '/imports/api/polls/server/modifiers/eventHandlers';
+import '/imports/api/polls/server';
 
-import '/imports/api/presentations/server/publications';
-import '/imports/api/presentations/server/methods/switchSlideMessage';
-import '/imports/api/presentations/server/modifiers/addPresentationToCollection';
-import '/imports/api/presentations/server/modifiers/clearPresentationsCollection';
-import '/imports/api/presentations/server/modifiers/removePresentationFromCollection';
-import '/imports/api/presentations/server/modifiers/eventHandlers';
+import '/imports/api/breakouts/server';
 
-import '/imports/api/shapes/server/publications';
-import '/imports/api/shapes/server/modifiers/addShapeToCollection';
-import '/imports/api/shapes/server/modifiers/clearShapesCollection';
-import '/imports/api/shapes/server/modifiers/removeAllShapesFromSlide';
-import '/imports/api/shapes/server/modifiers/removeShapeFromSlide';
-import '/imports/api/shapes/server/modifiers/eventHandlers';
+import '/imports/api/presentations/server';
 
-import '/imports/api/slides/server/publications';
-import '/imports/api/slides/server/modifiers/addSlideToCollection';
-import '/imports/api/slides/server/modifiers/clearSlidesCollection';
-import '/imports/api/slides/server/modifiers/displayThisSlide';
+import '/imports/api/shapes/server';
+
+import '/imports/api/slides/server';
 
 import '/imports/api/captions/server/publications';
 import '/imports/api/captions/server/modifiers/clearCaptionsCollection';

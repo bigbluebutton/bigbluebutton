@@ -10,12 +10,12 @@ package org.bigbluebutton.web.user.views {
 	import org.bigbluebutton.lib.main.commands.PresenterSignal;
 	import org.bigbluebutton.lib.user.events.UserItemSelectedEvent;
 	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.views.UserViewMediatorBase;
+	import org.bigbluebutton.lib.user.views.UsersViewMediatorBase;
 	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.web.chat.models.ChatRoomVO;
 	import org.bigbluebutton.web.main.models.IUISession;
 	
-	public class UserViewMediatorWeb extends UserViewMediatorBase {
+	public class UserViewMediatorWeb extends UsersViewMediatorBase {
 		
 		[Inject]
 		public var clearUserStatusSignal:ClearUserStatusSignal;

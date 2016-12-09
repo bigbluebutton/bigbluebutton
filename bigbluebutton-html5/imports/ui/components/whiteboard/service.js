@@ -3,48 +3,53 @@ import Shapes from '/imports/api/shapes';
 import Slides from '/imports/api/slides';
 import Cursor from '/imports/api/cursor';
 import Users from '/imports/api/users';
-import AuthSingleton from '/imports/ui/services/auth/index.js';
+import Auth from '/imports/ui/services/auth';
 
-let getWhiteboardData = () => {
-  let currentSlide;
-  let shapes;
-  let cursor;
-  let userIsPresenter;
-  let currentPresentation = Presentations.findOne({
-      'presentation.current': true,
-    });
+const getCurrentPresentation = () => Presentations.findOne({
+  'presentation.current': true,
+});
 
-  if (currentPresentation != null) {
-    currentSlide = Slides.findOne({
-      presentationId: currentPresentation.presentation.id,
-      'slide.current': true,
-    });
+const getCurrentSlide = () => {
+  const currentPresentation = getCurrentPresentation();
+
+  if (!currentPresentation) {
+    return null;
   }
 
-  if (currentSlide != null) {
-    shapes = Shapes.find({
-        whiteboardId: currentSlide.slide.id,
-      }).fetch();
+  return Slides.findOne({
+    presentationId: currentPresentation.presentation.id,
+    'slide.current': true,
+  });
+};
 
-    cursor = Cursor.findOne({
-      meetingId: currentSlide.meetingId,
-    });
+const getCurrentShapes = () => {
+  const currentSlide = getCurrentSlide();
 
-    // Get user to check if they are the presenter
-    userIsPresenter = Users.findOne({
-      meetingId: currentSlide.meetingId,
-      userId: AuthSingleton.getCredentials().requesterUserId,
-    }).user.presenter;
+  if (!currentSlide) {
+    return null;
   }
 
-  return {
-    currentSlide: currentSlide,
-    shapes: shapes,
-    cursor: cursor,
-    userIsPresenter: userIsPresenter,
-  };
+  return Shapes.find({
+    whiteboardId: currentSlide.slide.id,
+  }).fetch();
+};
+
+const getCurrentCursor = () => Cursor.findOne({});
+
+const isPresenter = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID, });
+
+  if (currentUser && currentUser.user) {
+    return currentUser.user.presenter;
+  }
+
+  return false;
 };
 
 export default {
-  getWhiteboardData,
+  getCurrentPresentation,
+  getCurrentSlide,
+  getCurrentShapes,
+  getCurrentCursor,
+  isPresenter,
 };

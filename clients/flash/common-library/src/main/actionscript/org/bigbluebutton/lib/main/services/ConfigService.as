@@ -27,12 +27,15 @@ package org.bigbluebutton.lib.main.services {
       return _failureSignal;
     }
     
-    public function getConfig(serverUrl:String, urlRequest:URLRequest):void {
+    public function getConfig(serverUrl:String, urlRequest:URLRequest, sessionToken:String):void {
+		/*
       var p:QueryStringParameters = new QueryStringParameters();
       p.collectParameters();
       var sessionToken:String = p.getParameter("sessionToken");
+		*/
       trace("sessionToken=" + sessionToken);
       reqVars.sessionToken = sessionToken;
+		
       
       urlLoader = new URLLoader();
       

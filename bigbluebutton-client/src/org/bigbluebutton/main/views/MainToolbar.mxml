@@ -187,8 +187,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
      }
 
      private function logFlashPlayerCapabilities():void {
-         var logData:Object = new Object();
-         logData.user = UsersUtil.getUserData();
+         var logData:Object = UsersUtil.initLogData();
+         logData.tags = ["initialization"];
          logData.capabilities = getFlashPlayerCapabilities();
          logData.message = "Flash Player Capabilities.";
          LOGGER.info(JSON.stringify(logData));

@@ -1,4 +1,4 @@
-/**
+ /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
  *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
@@ -276,6 +276,7 @@ package org.bigbluebutton.main.model.users {
 		
 		public function set amIPresenter(presenter:Boolean):void {
 			me.presenter = presenter;
+			applyLockSettings();
 		}
 		
 		[Bindable]
