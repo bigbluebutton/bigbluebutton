@@ -156,7 +156,13 @@ def processDesksharePanAndZooms
        if File.exist?(deskshare_video_filename)
          video_width = BigBlueButton.get_video_width(deskshare_video_filename)
          video_height = BigBlueButton.get_video_height(deskshare_video_filename)
-         insertDesksharePanAndZoom(start_timestamp,start_timestamp_orig,video_width,video_height)
+         if (video_width > 1280)
+           video_width = 1280
+         end
+         if (video_height > 720)
+           video_height = 720
+         end
+         insertDesksharePanAndZoom(start_timestamp,start_timestamp_orig,video_width,video_height,stop_timestamp,stop_timestamp_orig)
        else
          BigBlueButton.logger.info("processDesksharePanAndZooms - deskshare video file DOES NOT exist: #{deskshare_video_filename}")
        end
@@ -165,16 +171,20 @@ def processDesksharePanAndZooms
   end
 end
 
-def insertDesksharePanAndZoom(timestamp, timestamp_orig, video_width, video_height)
-  BigBlueButton.logger.info("insertDesksharePanAndZoom | timestamp = #{timestamp}, timestamp_orig = #{timestamp_orig} | #{video_width}x#{video_height}")
+def insertDesksharePanAndZoom(start_timestamp, start_timestamp_orig, video_width, video_height, stop_timestamp, stop_timestamp_orig)
+  BigBlueButton.logger.info("insertDesksharePanAndZoom | start_timestamp = #{start_timestamp}, start_timestamp_orig = #{start_timestamp_orig}")
+  BigBlueButton.logger.info("insertDesksharePanAndZoom | stop_timestamp = #{stop_timestamp}, stop_timestamp_orig = #{start_timestamp_orig}")
+  BigBlueButton.logger.info("insertDesksharePanAndZoom |  #{video_width}x#{video_height}")
+
+
   all_events = $panzooms_xml.doc.xpath("//event")
   previous_timestamp = 0.0
 
   for i in 0..all_events.length-1
-    if (previous_timestamp < timestamp && all_events[i].attribute("timestamp").value.to_f > timestamp)
+    if (start_timestamp > previous_timestamp && start_timestamp < all_events[i].attribute("timestamp").value.to_f)
         new_event = Nokogiri::XML::Node.new "event", $panzooms_xml.doc
-        new_event[:timestamp] = timestamp
-        new_event[:orig] = timestamp_orig
+        new_event[:timestamp] = start_timestamp
+        new_event[:orig] = start_timestamp_orig
 
         new_viewbox = Nokogiri::XML::Node.new "viewBox", $panzooms_xml.doc
         new_viewbox.content = "0.0 0.0 #{video_width}.0 #{video_height}.0"
@@ -184,14 +194,50 @@ def insertDesksharePanAndZoom(timestamp, timestamp_orig, video_width, video_heig
           xml << new_viewbox.to_s
         end
 
-        if (i-1 >= 0)
-           all_events[i-1].add_next_sibling(new_event)
-           break
+        #insert new panzoom event with deskshare start timestamp and dimensions
+        all_events[i-1].add_next_sibling(new_event)
+
+        #remove all panzooms events before stop timestamp
+        j = i
+        while (all_events[j] && all_events[j].attribute("timestamp").value.to_f <= stop_timestamp) do
+           removedEvent = all_events.delete(all_events[j])
+           removedEvent.remove
         end
+        break
     else
         previous_timestamp = all_events[i].attribute("timestamp").value.to_f
     end
   end
+
+  #insert new panzoom event with deskshare stop timestamp, but using previous event dimensions
+  start_event = $panzooms_xml.doc.xpath("//event[@timestamp='#{start_timestamp}']")
+  if(start_event)
+     if (start_timestamp == 0.0)
+        start_event[0].xpath("viewBox")[0].content = "0.0 0.0 #{video_width}.0 #{video_height}.0"
+     end
+
+     new_event = Nokogiri::XML::Node.new "event", $panzooms_xml.doc
+     new_event[:timestamp] = stop_timestamp
+     new_event[:orig] = stop_timestamp_orig
+
+     new_viewbox = Nokogiri::XML::Node.new "viewBox", $panzooms_xml.doc
+     if (start_event[0].previous)
+         new_viewbox.content = start_event[0].previous.content
+     elsif (start_event[0].next)
+         new_viewbox.content = start_event[0].next.content
+     end
+
+     #set new_event content
+     Nokogiri::XML::Builder.with(new_event) do |xml|
+       xml << new_viewbox.to_s
+     end
+
+     start_event[0].add_next_sibling(new_event)
+
+  else
+    BigBlueButton.logger.info("There's no panzoom event for timestamp = #{start_timestamp}")
+  end
+
 end
 
 def processCursorEvents
@@ -736,7 +782,7 @@ def processSlideEvents
         start_timestamp = ( translateTimestamp(start_timestamp_orig) / 1000 ).round(1)
         stop_timestamp = ( translateTimestamp(stop_timestamp_orig) / 1000 ).round(1)
 
-        if(slide_start < start_timestamp && slide_end > stop_timestamp)
+        if( (slide_start < start_timestamp || start_timestamp == 0.0) && (slide_end > stop_timestamp && stop_timestamp != 0.0) )
           deskshare_starts << start_timestamp
           deskshare_stops << stop_timestamp
           orig_deskshare_starts << ( start_timestamp_orig / 1000 ).round(1)
@@ -783,7 +829,7 @@ end
 
 def processSlideImage(slide_src, slide_size, slide_start, slide_end, slide_text, orig_slide_start, orig_slide_end)
 
-  BigBlueButton.logger.info("Processing slide image")
+  BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
   # Is this a new image or one previously viewed?
   if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
     # If it is, add it to the list with all the data.
@@ -805,7 +851,7 @@ def processSlideImage(slide_src, slide_size, slide_start, slide_end, slide_text,
   end
 
   $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
-  BigBlueButton.logger.info("#{slide_src} : #{slide_start} -> #{slide_end}")
+  BigBlueButton.logger.info("End of slide image process => #{slide_src} : #{slide_start} -> #{slide_end}")
 
 end
 
