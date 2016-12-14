@@ -296,9 +296,15 @@ def processClearEvents
     #clearTime = ( clearEvent[:timestamp].to_f / 1000 ).round(1)
     $pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
     slideFolder = clearEvent.xpath(".//presentation")[0].text()
+    whiteboardId = clearEvent.xpath(".//whiteboardId")[0].text()
     if $version_atleast_0_9_0
-      $clearPageTimes[($prev_clear_time..clearTime)] =
-        [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i + 1}.png", nil]
+        if (whiteboardId == "deskshare")
+           $clearPageTimes[($prev_clear_time..clearTime)] =
+             [$pageCleared, $canvas_number, "presentation/deskshare/slide-1.png", nil]
+        else
+           $clearPageTimes[($prev_clear_time..clearTime)] =
+             [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i + 1}.png", nil]
+        end
     else
       $clearPageTimes[($prev_clear_time..clearTime)] =
         [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared}.png", nil]
