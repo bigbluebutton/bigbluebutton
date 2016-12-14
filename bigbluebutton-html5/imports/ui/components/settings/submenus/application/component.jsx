@@ -16,12 +16,12 @@ export default class ApplicationMenu extends BaseMenu {
   }
 
   componentWillMount () {
-    if ( localStorage.bbbSavedFontSize ) {
-      this.setState({currentFontSize: localStorage.bbbSavedFontSize});
-    }else if ( localStorage.bbbFontSize ){
-      this.setState({currentFontSize: localStorage.bbbFontSize});
-    }else{
-      this.setState({currentFontSize: 3});
+    if (localStorage.bbbSavedFontSize) {
+      this.setState({ currentFontSize: localStorage.bbbSavedFontSize });
+    }else if (localStorage.bbbFontSize) {
+      this.setState({ currentFontSize: localStorage.bbbFontSize });
+    }else {
+      this.setState({ currentFontSize: 3 });
     };
   }
 

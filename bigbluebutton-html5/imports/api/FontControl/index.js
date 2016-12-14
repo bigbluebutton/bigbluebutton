@@ -20,11 +20,11 @@ class FontControl {
 
 export function handleRevertFontState(fs){
   localStorage.getItem('bbbSavedFontSize', fs);
-  if(fs){
+  if (fs) {
     this.setState({ currentFontSize: fs }, function () {
       applyFontSize.call(this);
     });
-  }else{
+  }else {
     this.setState({ currentFontSize: 3 }, function () {
       applyFontSize.call(this);
     });
