@@ -12,6 +12,19 @@
   text-decoration: none;
 }
 
+.closeBtn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+// Modifies the close button style
+Button.closeBtn span:first-child {
+  color: $color-gray-light;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
 .header {
   margin-top: $lg-padding-x - $sm-padding-x;
   margin-bottom: $lg-padding-x;
