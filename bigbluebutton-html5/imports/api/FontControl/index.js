@@ -39,6 +39,7 @@ export function handleSaveFontState(fs) {
 };
 
 export function handleGetFontSizeName() {
+  applyFontSize.call(this);
   return FontControl.fontSizeEnum.properties[this.state.currentFontSize].name;
 };
 
