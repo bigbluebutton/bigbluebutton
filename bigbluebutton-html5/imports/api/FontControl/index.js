@@ -18,7 +18,7 @@ class FontControl {
   }
 };
 
-export function revertFontState(fs){
+export function handleRevertFontState(fs){
   localStorage.getItem('bbbSavedFontSize', fs);
   if(fs){
     this.setState({ currentFontSize: fs }, function () {
@@ -31,14 +31,14 @@ export function revertFontState(fs){
   }
 }
 
-export function saveFontState(fs) {
+export function handleSaveFontState(fs) {
   localStorage.setItem('bbbSavedFontSize', fs);
   this.setState({ currentFontSize: fs }, function () {
     applyFontSize.call(this);
   });
 };
 
-export function getFontSizeName() {
+export function handleGetFontSizeName() {
   return FontControl.fontSizeEnum.properties[this.state.currentFontSize].name;
 };
 
@@ -54,12 +54,12 @@ function storeFontSize(fs) {
   });
 }
 
-export function increaseFontSize() {
+export function handleIncreaseFontSize() {
   let fs = ( this.state.currentFontSize < 5) ? ++this.state.currentFontSize : 5;
   storeFontSize.call(this, fs);
 };
 
-export function decreaseFontSize() {
+export function handleDecreaseFontSize() {
   let fs = ( this.state.currentFontSize > 1) ? --this.state.currentFontSize : 1;
   storeFontSize.call(this, fs);
 };

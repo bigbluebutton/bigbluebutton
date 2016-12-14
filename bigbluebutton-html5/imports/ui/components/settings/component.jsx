@@ -9,7 +9,7 @@ import UsersMenu from './submenus/users/component';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from './styles.scss';
-import { saveFontState, revertFontState  } from '/imports/api/FontControl';
+import { handleSaveFontState, handleRevertFontState  } from '/imports/api/FontControl';
 
 export default class Settings extends React.Component {
   constructor(props) {
@@ -192,7 +192,7 @@ export default class Settings extends React.Component {
           callback: (() => {
             this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
             console.log('SHOULD APPLY SETTINGS CHANGES');
-            saveFontState.call(this, localStorage.bbbFontSize);
+            handleSaveFontState.call(this, localStorage.bbbFontSize);
           }),
           label: 'Save',
           description: 'Saves the changes and close the settings menu',
@@ -201,7 +201,7 @@ export default class Settings extends React.Component {
           callback: (() => {
             this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
             console.log('SHOULD DISCART SETTINGS CHANGES');
-            revertFontState.call(this, localStorage.bbbSavedFontSize);
+            handleRevertFontState.call(this, localStorage.bbbSavedFontSize);
           }),
           label: 'Cancel',
           description: 'Discart the changes and close the settings menu',
