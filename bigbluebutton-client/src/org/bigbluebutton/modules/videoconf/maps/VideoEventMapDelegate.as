@@ -293,7 +293,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     private function openViewWindowFor(userID:String):void {
-      if (!proxy.connection.connected) {
+      if (!proxy.connection.connected || hasWindow(userID)) {
         return;
       }
       
