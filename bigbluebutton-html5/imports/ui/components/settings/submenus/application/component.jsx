@@ -26,7 +26,6 @@ export default class ApplicationMenu extends BaseMenu {
   }
 
   getContent() {
-    const size = (localStorage.bbbFontSize) ? localStorage.bbbFontSize : 3;
     return (
       <div className={styles.full} role='presentation'>
           <div className={styles.row} role='presentation'>
