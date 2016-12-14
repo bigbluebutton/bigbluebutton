@@ -8,6 +8,7 @@ import ActionsDropdown from './actions-dropdown/component';
 import Auth from '/imports/ui/services/auth/index';
 import Users from '/imports/api/users/index';
 import JoinAudioOptionsContainer from './audio-menu/container';
+import MuteAudioContainer from './mute-button/container';
 import { exitAudio } from '/imports/api/phone';
 
 const openJoinAudio = () => showModal(<Audio />);
@@ -27,6 +28,7 @@ export default class ActionsBar extends Component {
           <ActionsDropdown />
         </div>
         <div className={styles.center}>
+          <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={openJoinAudio.bind(this)}
             close={() => {exitAudio();}}
@@ -53,9 +55,11 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.center}>
+          <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={openJoinAudio.bind(this)}
-            close={exitAudio}
+            close={() => {exitAudio();}}
+
           />
 
           <Button
@@ -76,7 +80,7 @@ export default class ActionsBar extends Component {
 
   render() {
     const { isUserPresenter } = this.props;
-    
+
     return isUserPresenter ?
       this.renderForPresenter() :
       this.renderForUser();

@@ -3,7 +3,6 @@ import Button from '/imports/ui/components/button/component';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
-
 import StreamVolume from '/imports/ui/components/stream-volume/component';
 import SpeakerSource from '/imports/ui/components/speaker-source/component';
 import AudioTestContainer from '/imports/ui/components/audio-test/container';
@@ -33,7 +32,7 @@ export default class ListenOnly extends React.Component {
             onClick={this.chooseAudio}
           />
           <div>
-            Listen only message
+            Choose your listen only settings
           </div>
         </div>
         <div>
