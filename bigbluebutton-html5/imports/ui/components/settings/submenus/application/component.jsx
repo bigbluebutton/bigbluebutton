@@ -7,15 +7,36 @@ import ReactDOM from 'react-dom';
 import FontControl from '/imports/api/FontControl';
 import styles from '../styles.scss';
 
+import { getFontSizeName, increaseFontSize, decreaseFontSize } from '/imports/api/FontControl';
+
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
-    this.state = {
-      currentFontSize: FontControl.fontSizeEnum.MEDIUM,
+    //this.state = {
+    //  currentFontSize: FontControl.fontSizeEnum.MEDIUM,
+    //};
+  }
+
+
+  componentWillMount () {
+    console.log('####### Application Component Will Mount ########');
+    if ( localStorage.bbbSavedFontSize ) {
+      this.setState({currentFontSize: localStorage.bbbSavedFontSize});
+    }else if ( localStorage.bbbFontSize ){
+      this.setState({currentFontSize: localStorage.bbbFontSize});
+    }else{
+      this.setState({currentFontSize: 3});
     };
   }
 
-  getContent() {
+  componentWillUnmount() {
+    console.log('####### Application Component Unmounting ########');
+  }
+
+
+  render() {
+    console.log('#########  local Storage values  ##########');
+    console.log(localStorage);
     return (
       <div className={styles.full} role='presentation'>
           <div className={styles.row} role='presentation'>
@@ -37,11 +58,11 @@ export default class ApplicationMenu extends BaseMenu {
             <p>Font size</p>
           </div>
           <div className={styles.fontBarMid}>
-            <p>{FontControl.getFontSizeName.call(this)}</p>
+            <p>{getFontSizeName.call(this, this.state.currentFontSize)/*getFontSizeName.call(this)*/}</p>
           </div>
           <div className={styles.fontBarRight} role='presentation'>
             <Button
-              onClick={FontControl.increaseFontSize.bind(this)}
+              onClick={increaseFontSize.bind(this)}
               icon={'circle-add'}
               circle={true}
               tabIndex={9}
@@ -54,7 +75,7 @@ export default class ApplicationMenu extends BaseMenu {
             <div id='sizeUpDesc' hidden>
               Increases the font size of the application.</div>
             <Button
-              onClick={FontControl.decreaseFontSize.bind(this)}
+              onClick={decreaseFontSize.bind(this)}
               icon={'circle-minus'}
               circle={true}
               tabIndex={10}

@@ -58,4 +58,83 @@ class FontControl {
   };
 };
 
+
+
+export function getFontSizeName (s) {
+  let fontName = '';
+  console.log("the state of current FS for getting the name : ->>>>");
+
+  switch (s){
+    case 1:
+      fontName = 'Extra Small';
+      break;
+    case 2:
+      fontName = 'Small';
+      break;
+    case 3:
+      fontName = 'Medium';
+      break;
+    case 4:
+      fontName = 'Large';
+      break;
+    case 5:
+      fontName = 'Extra Large';
+      break;
+  }
+  return fontName;
+};
+
+export function getFontSizePixels () {
+  let size = '';
+  switch (this.state.currentFontSize){
+    case 1:
+      size = '12px';
+      break;
+    case 2:
+      size = '14px';
+      break;
+    case 3:
+      size = '16px';
+      break;
+    case 4:
+      size = '18px';
+      break;
+    case 5:
+      size = '20px';
+      break;
+    default:
+      break;
+  }
+  return size;
+};
+
+function applyFontSize() {
+  const size = FontControl.fontSizeEnum.properties[this.state.currentFontSize].size;
+  console.log('applying fontsize = {' + size + '} to the app');
+  document.getElementsByTagName('html')[0].style.fontSize = size;
+}
+
+function storeFontSize(fs) {
+  console.log('saving bbbFontSize = {' + fs + '}');
+  localStorage.setItem('bbbFontSize', fs);
+  this.setState({ currentFontSize: fs }, function () {
+    applyFontSize.call(this);
+  });
+}
+
+export function increaseFontSize() {
+  console.log('value to increase: ' + this.state.currentFontSize);
+  let fs = ( this.state.currentFontSize < 5) ? ++this.state.currentFontSize : 5;
+  console.log('increased to     : ' + fs);
+  storeFontSize.call(this, fs);
+};
+
+export function decreaseFontSize() {
+  console.log('value to decrease: ' + this.state.currentFontSize);
+  let fs = ( this.state.currentFontSize > 1) ? --this.state.currentFontSize : 1;
+  console.log('decreased to     : ' + fs);
+  storeFontSize.call(this, fs);
+};
+
+
 export default FontControl;

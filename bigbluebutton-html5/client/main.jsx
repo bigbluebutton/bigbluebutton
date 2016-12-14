@@ -37,6 +37,9 @@ function loadLib(libname, success, fail) {
 };
 
 Meteor.startup(() => {
+
+  localStorage.clear();
+
   loadLib('sip.js');
   loadLib('bbb_webrtc_bridge_sip.js');
   loadLib('bbblogger.js');

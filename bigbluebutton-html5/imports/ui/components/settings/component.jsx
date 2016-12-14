@@ -10,6 +10,9 @@ import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from './styles.scss';
 
+
+import { tester } from '/imports/api/FontControl';
+
 export default class Settings extends React.Component {
   constructor(props) {
     super(props);
@@ -17,9 +20,17 @@ export default class Settings extends React.Component {
     this.state = { activeSubmenu: 0, focusSubmenu: 0 };
   }
 
+  componentWillMount () {
+    console.log('####### Settings Component Will Mount ########');
+  }
+
+  componentWillUnmount() {
+    console.log('####### Settings Component Unmounting ########');
+  }
+
   renderSettingOptions() {
     const { isPresenter, role } = this.props;
-    
+
     this.submenus = [];
     this.submenus.push(
       { componentName: AudioMenu, tabIndex: 3,
