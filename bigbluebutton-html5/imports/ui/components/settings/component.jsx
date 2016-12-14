@@ -63,7 +63,6 @@ export default class Settings extends React.Component {
 
   renderMenu() {
     let curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
-    let fontSize = localStorage.bbbFontSize;
 
     if (!this.submenus[curr]) {
       curr = (this.state.activeSubmenu - 1);
