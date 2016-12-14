@@ -37,6 +37,8 @@ export default class ApplicationMenu extends BaseMenu {
   render() {
     console.log('#########  local Storage values  ##########');
     console.log(localStorage);
+    let size = (localStorage.bbbFontSize) ? localStorage.bbbFontSize : 3;
+    console.log('SSSSSSSSIIIIIIIIIIZZZZZZZZEEEEEEEEE ==== ' + size);
     return (
       <div className={styles.full} role='presentation'>
           <div className={styles.row} role='presentation'>
@@ -58,7 +60,7 @@ export default class ApplicationMenu extends BaseMenu {
             <p>Font size</p>
           </div>
           <div className={styles.fontBarMid}>
-            <p>{getFontSizeName.call(this, this.state.currentFontSize)/*getFontSizeName.call(this)*/}</p>
+            <p>{getFontSizeName.call(this)}</p>
           </div>
           <div className={styles.fontBarRight} role='presentation'>
             <Button
