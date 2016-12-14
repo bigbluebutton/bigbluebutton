@@ -12,18 +12,9 @@ class SettingsMenuContainer extends Component {
     super(props);
   }
 
-  componentWillMount () {
-    console.log('####### Settings Container Will Mount ########');
-  }
-
-  componentWillUnmount() {
-    console.log('####### Settings Container Unmounting ########');
-  }
-
   render() {
     return (
       <Settings
-
         {...this.props}>
         {this.props.children}
       </Settings>

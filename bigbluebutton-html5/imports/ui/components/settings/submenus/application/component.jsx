@@ -12,14 +12,9 @@ import { getFontSizeName, increaseFontSize, decreaseFontSize } from '/imports/ap
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
-    //this.state = {
-    //  currentFontSize: FontControl.fontSizeEnum.MEDIUM,
-    //};
   }
 
-
   componentWillMount () {
-    console.log('####### Application Component Will Mount ########');
     if ( localStorage.bbbSavedFontSize ) {
       this.setState({currentFontSize: localStorage.bbbSavedFontSize});
     }else if ( localStorage.bbbFontSize ){
@@ -29,16 +24,8 @@ export default class ApplicationMenu extends BaseMenu {
     };
   }
 
-  componentWillUnmount() {
-    console.log('####### Application Component Unmounting ########');
-  }
-
-
-  render() {
-    console.log('#########  local Storage values  ##########');
-    console.log(localStorage);
-    let size = (localStorage.bbbFontSize) ? localStorage.bbbFontSize : 3;
-    console.log('SSSSSSSSIIIIIIIIIIZZZZZZZZEEEEEEEEE ==== ' + size);
+  getContent() {
+    const size = (localStorage.bbbFontSize) ? localStorage.bbbFontSize : 3;
     return (
       <div className={styles.full} role='presentation'>
           <div className={styles.row} role='presentation'>

@@ -9,23 +9,13 @@ import UsersMenu from './submenus/users/component';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from './styles.scss';
-
-
-import { tester } from '/imports/api/FontControl';
+import { saveFontState, revertFontState  } from '/imports/api/FontControl';
 
 export default class Settings extends React.Component {
   constructor(props) {
     super(props);
     this.submenus = [];
     this.state = { activeSubmenu: 0, focusSubmenu: 0 };
-  }
-
-  componentWillMount () {
-    console.log('####### Settings Component Will Mount ########');
-  }
-
-  componentWillUnmount() {
-    console.log('####### Settings Component Unmounting ########');
   }
 
   renderSettingOptions() {
@@ -202,14 +192,16 @@ export default class Settings extends React.Component {
           callback: (() => {
             this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
             console.log('SHOULD APPLY SETTINGS CHANGES');
+            saveFontState.call(this, localStorage.bbbFontSize);
           }),
-          label: 'Done',
+          label: 'Save',
           description: 'Saves the changes and close the settings menu',
         }}
         dismiss={{
           callback: (() => {
             this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
             console.log('SHOULD DISCART SETTINGS CHANGES');
+            revertFontState.call(this, localStorage.bbbSavedFontSize);
           }),
           label: 'Cancel',
           description: 'Discart the changes and close the settings menu',
