@@ -13,7 +13,7 @@
 }
 
 // Modifies the close button style
-Icon.closeBtn span:first-child {
+Button.closeBtn span:first-child {
   color: $color-gray-light;
   background: none;
   border: none;
