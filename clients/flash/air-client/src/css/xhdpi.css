@@ -60,6 +60,11 @@
 		right : 30;
 	}
 	
+	.participantItem {
+		fontSize : 34;
+		padding  : 30;
+	}
+	
 	.participantIcon
 	{
 		width        : 44;
@@ -73,6 +78,10 @@
 		paddingBottom : 12;
 		paddingLeft   : 30;
 		fontSize      : 28;
+	}
+	
+	.participantStatus {
+		fontSize : 30;
 	}
 	
 	.chatMessage

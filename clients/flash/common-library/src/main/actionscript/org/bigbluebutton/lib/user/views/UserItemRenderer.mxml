@@ -71,23 +71,19 @@
 			}
 		]]>
 	</fx:Script>
-	<s:Group width="100%"
-			 height="{getStyle('itemHeight')}">
-		<s:layout>
-			<s:HorizontalLayout verticalAlign="middle" />
-		</s:layout>
+	<s:HGroup width="100%"
+			  verticalAlign="middle"
+			  padding="{getStyle('padding')}">
 
 		<common:ParticipantIcon id="participantIcon" />
 
-		<s:Group width="100%">
-			<s:layout>
-				<s:VerticalLayout gap="0" />
-			</s:layout>
-			<s:Label id="labelDisplay"
-					 styleName="participantName" />
+		<s:VGroup width="100%"
+				  paddingLeft="{getStyle('padding')}"
+				  paddingRight="{getStyle('padding')}">
+			<s:Label id="labelDisplay" />
 			<s:Label id="subLabelDisplay"
 					 styleName="participantStatus" />
-		</s:Group>
+		</s:VGroup>
 		<s:Label id="cameraIcon"
 				 text="&#xe921;"
 				 styleName="icon" />
@@ -96,5 +92,5 @@
 		<s:Label id="lockIcon"
 				 text="&#xe927;"
 				 styleName="icon" />
-	</s:Group>
+	</s:HGroup>
 </s:ItemRenderer>

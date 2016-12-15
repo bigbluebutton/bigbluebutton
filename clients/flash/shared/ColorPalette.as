@@ -17,3 +17,5 @@ private const bbbWhite:uint = 0xF3F6F9;
 private const regentGrey:uint = 0x8A9AA7;
 
 private const athensGrey:uint = 0xF1F3F7;
+
+private const tuna:uint = 0x353A42;

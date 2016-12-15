@@ -80,10 +80,15 @@ main|TopToolbarAIR {
 }
 
 participants|ParticipantsViewBase, users|UsersViewBase {
+	color : PropertyReference("tuna");
 	backgroundColor : PropertyReference("athensGrey");
 }
 
 .participantsTitle {
+	color : PropertyReference("regentGrey");
+}
+
+.participantStatus {
 	color : PropertyReference("regentGrey");
 }
 
