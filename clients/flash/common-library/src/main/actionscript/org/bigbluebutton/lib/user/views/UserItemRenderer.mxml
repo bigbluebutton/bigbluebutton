@@ -39,16 +39,16 @@
 					
 					if (obj.voiceJoined) {
 						if (obj.muted) {
-							audioIcon.text = "\ue91c";
+							audioIcon.styleName = "icon icon-audio-off";
 						} else if (obj.talking) {
-							audioIcon.text = "\ue901";
+							audioIcon.styleName = "icon icon-audio-close";
 						} else {
-							audioIcon.text = "\ue91b";
+							audioIcon.styleName = "icon icon-audio";
 						}
 					} else if (obj.listenOnly) {
-						audioIcon.text = "\ue90d";
+						audioIcon.styleName = "icon icon-listen";
 					} else {
-						audioIcon.text = " ";
+						audioIcon.styleName = "";
 					}
 					
 					lockIcon.visible = obj.locked;
@@ -84,13 +84,18 @@
 			<s:Label id="subLabelDisplay"
 					 styleName="participantStatus" />
 		</s:VGroup>
+		
 		<s:Label id="cameraIcon"
-				 text="&#xe921;"
-				 styleName="icon" />
+				 text="{cameraIcon.getStyle('icon')}"
+				 fontSize="{getStyle('iconSize')}"
+				 styleName="icon icon-video" />
 		<s:Label id="audioIcon"
-				 styleName="icon" />
+				 text="{audioIcon.getStyle('icon')}"
+				 fontSize="{getStyle('iconSize')}"
+				 styleName="icon icon-audio" />
 		<s:Label id="lockIcon"
-				 text="&#xe927;"
-				 styleName="icon" />
+				 text="{lockIcon.getStyle('icon')}"
+				 fontSize="{getStyle('iconSize')}"
+				 styleName="icon icon-lock" />
 	</s:HGroup>
 </s:ItemRenderer>

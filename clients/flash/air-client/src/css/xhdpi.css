@@ -4,6 +4,7 @@
 @namespace skins "org.bigbluebutton.lib.main.views.skins.*";
 @namespace views "org.bigbluebutton.air.common.views.*";
 @namespace libChat "org.bigbluebutton.lib.chat.views.*";
+@namespace users "org.bigbluebutton.lib.user.views.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -37,6 +38,11 @@
 	libChat|NewMessagesIndicator {
 		cornerRadius : 26;
 		labelPadding : 30;
+	}
+	
+	users|UserItemRenderer {
+		color : PropertyReference("regentGrey");
+		iconSize : 44;
 	}
 	
 	.titleLabel {
