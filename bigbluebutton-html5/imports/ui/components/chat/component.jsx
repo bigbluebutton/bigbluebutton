@@ -5,7 +5,6 @@ import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import Icon from '../icon/component';
-import Button from '../button/component';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -36,14 +35,6 @@ export default class Chat extends Component {
         <header className={styles.header}>
           <Link className={styles.closeChat} to="/users">
             <Icon iconName="left-arrow" /> {title}
-            <Button className={styles.closeBtn}
-              label={'X'}
-              icon={'close'}
-              size={'lg'}
-              circle={true}
-              hideLabel={true}
-              onClick={this.handleDismiss}
-            />
           </Link>
 
         </header>
