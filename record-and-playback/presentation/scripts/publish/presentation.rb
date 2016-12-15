@@ -135,6 +135,17 @@ def processPanAndZooms
   BigBlueButton.logger.info("Finished creating panzooms.xml")
 end
 
+def scaleToDeskshareVideo(width, height)
+  deskshare_video_height = 720.to_f
+  deskshare_video_width = 1280.to_f
+
+  scale = [deskshare_video_width/width, deskshare_video_height/height]
+  video_width = width * scale.min
+  video_height = height * scale.min
+
+  return video_width.floor, video_height.floor
+end
+
 def processDesksharePanAndZooms
   BigBlueButton.logger.info("processDesksharePanAndZooms")
   deskshare_start_evts = BigBlueButton::Events.get_start_deskshare_events("#{$process_dir}/events.xml")
@@ -149,23 +160,18 @@ def processDesksharePanAndZooms
     stop_timestamp = ( translateTimestamp(stop_timestamp_orig) / 1000 ).round(1)
 
     if(stop_timestamp != 0.0)
-       deskshare_stream_name = start_evt[:stream]
-       deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
-       BigBlueButton.logger.info("processDesksharePanAndZooms - trying to open: #{deskshare_video_filename} to get its dimensions")
+      deskshare_stream_name = start_evt[:stream]
+      deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
+      BigBlueButton.logger.info("processDesksharePanAndZooms - trying to open: #{deskshare_video_filename} to get its dimensions")
 
-       if File.exist?(deskshare_video_filename)
-         video_width = BigBlueButton.get_video_width(deskshare_video_filename)
-         video_height = BigBlueButton.get_video_height(deskshare_video_filename)
-         if (video_width > 1280)
-           video_width = 1280
-         end
-         if (video_height > 720)
-           video_height = 720
-         end
-         insertDesksharePanAndZoom(start_timestamp,start_timestamp_orig,video_width,video_height,stop_timestamp,stop_timestamp_orig)
-       else
-         BigBlueButton.logger.info("processDesksharePanAndZooms - deskshare video file DOES NOT exist: #{deskshare_video_filename}")
-       end
+      if File.exist?(deskshare_video_filename)
+        video_width = BigBlueButton.get_video_width(deskshare_video_filename)
+        video_height = BigBlueButton.get_video_height(deskshare_video_filename)
+        video_width, video_height = scaleToDeskshareVideo(video_width, video_height)
+        insertDesksharePanAndZoom(start_timestamp,start_timestamp_orig,video_width,video_height,stop_timestamp,stop_timestamp_orig)
+      else
+        BigBlueButton.logger.info("processDesksharePanAndZooms - deskshare video file DOES NOT exist: #{deskshare_video_filename}")
+      end
     end
 
   end
