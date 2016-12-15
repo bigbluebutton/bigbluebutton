@@ -5,8 +5,8 @@ package org.bigbluebutton.air.chat.views {
 		public function TopToolbarChat() {
 			super();
 			
-			leftButton.styleName = "backButton topButton";
-			rightButton.styleName = "presentationButton topButton";
+			leftButton.styleName = "icon-left-arrow topButton";
+			rightButton.styleName = "icon-presentation topButton";
 		}
 	}
 }

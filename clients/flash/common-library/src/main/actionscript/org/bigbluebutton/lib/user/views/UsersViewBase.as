@@ -1,14 +1,13 @@
-package org.bigbluebutton.lib.user.views
-{
+package org.bigbluebutton.lib.user.views {
 	import mx.core.ClassFactory;
 	
 	import spark.components.Label;
 	import spark.components.List;
 	import spark.components.VGroup;
-	import spark.components.supportClasses.ItemRenderer;
 	import spark.layouts.VerticalLayout;
 	
 	public class UsersViewBase extends VGroup {
+		
 		private var _userLabel:Label;
 		
 		public function get userLabel():Label {
@@ -26,8 +25,8 @@ package org.bigbluebutton.lib.user.views
 			
 			_userLabel = new Label();
 			_userLabel.percentWidth = 100;
-			_userLabel.styleName = "content";
-			_userLabel.text = "Users";
+			_userLabel.styleName = "participantsTitle";
+			_userLabel.text = "Online";
 			addElement(_userLabel);
 			
 			_userList = new List();

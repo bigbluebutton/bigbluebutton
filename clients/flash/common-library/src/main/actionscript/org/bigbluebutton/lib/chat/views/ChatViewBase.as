@@ -1,9 +1,7 @@
 package org.bigbluebutton.lib.chat.views {
 	import mx.core.ClassFactory;
-	import mx.core.ScrollPolicy;
 	
 	import spark.components.Button;
-	import spark.components.Group;
 	import spark.components.HGroup;
 	import spark.components.List;
 	import spark.components.Scroller;

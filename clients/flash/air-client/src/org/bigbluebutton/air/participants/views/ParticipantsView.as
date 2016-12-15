@@ -1,24 +1,25 @@
 package org.bigbluebutton.air.participants.views {
 	import spark.components.SkinnableContainer;
+	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalLayout;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.lib.participants.views.ParticipantsViewBase;
 	
 	public class ParticipantsView extends NoTabView {
+		private var _topToolbar:TopToolbarParticipants;
+		
 		public function ParticipantsView() {
 			super();
-			styleName = "mainView";
 			
-			var l:VerticalLayout = new VerticalLayout();
-			l.gap = 0;
-			l.horizontalAlign = "center";
-			layout = l;
+			var vLayout:VerticalLayout = new VerticalLayout();
+			vLayout.gap = 0;
+			vLayout.horizontalAlign = HorizontalAlign.CENTER;
+			layout = vLayout;
 			
-			var topToolbar:TopToolbarParticipants = new TopToolbarParticipants();
-			topToolbar.percentWidth = 100;
-			topToolbar.height = 80;
-			addElement(topToolbar);
+			_topToolbar = new TopToolbarParticipants();
+			_topToolbar.percentWidth = 100;
+			addElement(_topToolbar);
 			
 			var skinnableWrapper:SkinnableContainer = new SkinnableContainer();
 			skinnableWrapper.styleName = "subViewContent";
@@ -31,6 +32,12 @@ package org.bigbluebutton.air.participants.views {
 			skinnableWrapper.addElement(participantsView);
 			
 			addElement(skinnableWrapper);
+		}
+		
+		override protected function updateDisplayList(w:Number, h:Number):void {
+			super.updateDisplayList(w, h);
+			
+			_topToolbar.height = getStyle("toolbarHeight");
 		}
 	}
 }

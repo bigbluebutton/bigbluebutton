@@ -2,6 +2,7 @@ package org.bigbluebutton.air.common.views {
 	
 	import spark.components.View;
 	
+	[Style(name = "toolbarHeight", inherit = "yes", type = "Number")]
 	public class NoTabView extends View {
 		public function NoTabView() {
 			super();

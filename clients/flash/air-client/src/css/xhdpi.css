@@ -2,6 +2,8 @@
 @namespace main "org.bigbluebutton.air.main.views.*";
 @namespace mainviews "org.bigbluebutton.lib.main.views.*";
 @namespace skins "org.bigbluebutton.lib.main.views.skins.*";
+@namespace views "org.bigbluebutton.air.common.views.*";
+@namespace libChat "org.bigbluebutton.lib.chat.views.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -12,9 +14,12 @@
 		height : 80;
 	}
 	
-	main|MainView {
-		menuHeight    : 160;
+	views|NoTabView {
 		toolbarHeight : 80;
+	}
+	
+	main|MainView {
+		menuHeight : 160;
 	}
 	
 	mainviews|MenuButtonsBase {
@@ -29,8 +34,12 @@
 		labelPadding : 12;
 	}
 	
-	.titleLabel
-	{
+	libChat|NewMessagesIndicator {
+		cornerRadius : 26;
+		labelPadding : 30;
+	}
+	
+	.titleLabel {
 		fontSize : 34;
 		left     : 90;
 		right    : 90;
@@ -58,10 +67,26 @@
 		fontSize : 12;
 	}
 	
+	.participantsTitle {
+		paddingTop    : 12;
+		paddingBottom : 12;
+		paddingLeft   : 30;
+		fontSize      : 28;
+	}
+	
 	.chatMessage
 	{
 		nameFontSize : 16;
 		timeFontSize : 16;
+	}
+	
+	.chatIcon {
+		iconSize : 44;
+	}
+	
+	.chatRoomItem {
+		fontSize : 34;
+		padding  : 30;
 	}
 	
 	.sendButton
@@ -69,11 +94,6 @@
 		fontSize     : 20;
 		borderWeight : 2;
 		cornerRadius : 4;
-	}
-	
-	.content
-	{
-		fontSize : 14;
 	}
 	
 	.icon

@@ -2,6 +2,8 @@
 @namespace mx "library://ns.adobe.com/flex/mx";
 @namespace libChat "org.bigbluebutton.lib.chat.views.*";
 @namespace main "org.bigbluebutton.air.main.views.*";
+@namespace participants "org.bigbluebutton.lib.participants.views.*";
+@namespace users "org.bigbluebutton.lib.user.views.*";
 
 @font-face { 
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
@@ -43,21 +45,6 @@
 	embedAsCFF : false;
 }
 
-@font-face {
-	src        : url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf");
-	fontFamily : BBBIcons;
-	fontStyle  : normal;
-	fontWeight : normal;
-	embedAsCFF : true;
-}
-
-@font-face {
-	src        : url("../../shared/assets/fonts/BBBIcons/bbb-icons.ttf");
-	fontFamily : BBBIcons;
-	fontStyle  : normal;
-	fontWeight : bold;
-	embedAsCFF : true;
-}
 
 /* Shared styles */
 
@@ -74,7 +61,6 @@ s|Application
 }
 
 /* Loading screen */
-
 main|LoadingScreen {
 	color           : PropertyReference("bbbWhite");	
 	backgroundColor : PropertyReference("bbbBlack");
@@ -88,14 +74,24 @@ main|MainView
 	backgroundColor : PropertyReference("bbbBlack");	
 }
 
+
+main|TopToolbarAIR {
+	backgroundColor : PropertyReference("bbbBlack");
+}
+
+participants|ParticipantsViewBase, users|UsersViewBase {
+	backgroundColor : PropertyReference("athensGrey");
+}
+
+.participantsTitle {
+	color : PropertyReference("regentGrey");
+}
+
 libChat|NewMessagesIndicator
 {
 	backgroundColor : PropertyReference("bbbRed");
 	backgroundAlpha : 1;
-	borderColor     : PropertyReference("bbbRed");
-	borderAlpha     : 0;
 	color           : PropertyReference("bbbWhite");
-	cornerRadius    : 6;
 	skinClass       : ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
 }
 
@@ -109,31 +105,15 @@ libChat|NewMessagesIndicator
 	color : PropertyReference("bbbWhite");
 }
 
-.topButton
+.topButton, .chatIcon
 {
 	iconColor : PropertyReference("bbbWhite");
 	iconFont  : BBBIcons;
 	skinClass : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
 }
 
-.participantsButton
-{
-	icon : "\ue906";
-}
-
-.settingsButton
-{
-	icon : "\ue902";
-}
-
-.presentationButton
-{
-	icon : "\ue90c";
-}
-
-.backButton
-{
-	icon : "\ue90e";
+.chatIcon {
+	iconColor : PropertyReference("regentGrey");
 }
 
 .menuButton
@@ -144,31 +124,6 @@ libChat|NewMessagesIndicator
 	iconColor				: PropertyReference("bbbWhite");
 	iconFont				: BBBIcons;
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
-}
-
-.micOnButton
-{
-	icon : "\ue91b";
-}
-
-.micOffButton
-{
-	icon : "\ue91c";
-}
-
-.camOnButton
-{
-	icon : "\ue921";
-}
-
-.camOffButton
-{
-	icon : "\ue905";
-}
-
-.handStatusButton
-{
-	icon : "\ue910";
 }
 
 .participantIcon
@@ -194,29 +149,4 @@ libChat|NewMessagesIndicator
 .content
 {
 	color : PropertyReference("bbbBlack");
-}
-
-/*
-.panel
-{
-	backgroundColor:	PropertyReference("bbbWhite");
-	backgroundAlpha:	1;
-	padding:			6;
-	skinClass:			ClassReference("org.bigbluebutton.web.common.skins.PanelSkin");
-}
-
-.panelTitle
-{
-	fontSize:		18;
-	fontWeight:		bold;
-	color:			PropertyReference("bbbWhite");
-	paddingBottom:	10;
-}
-
-*/
-
-.icon
-{
-	fontFamily : BBBIcons;
-	color      : PropertyReference("bbbGrey");
 }

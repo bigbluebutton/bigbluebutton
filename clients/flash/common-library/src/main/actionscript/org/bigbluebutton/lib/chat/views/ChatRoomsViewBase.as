@@ -1,10 +1,10 @@
 package org.bigbluebutton.lib.chat.views {
 	import mx.core.ClassFactory;
 	
+	import spark.components.Button;
 	import spark.components.Label;
 	import spark.components.List;
 	import spark.components.VGroup;
-	import spark.components.supportClasses.ItemRenderer;
 	import spark.layouts.VerticalLayout;
 	
 	public class ChatRoomsViewBase extends VGroup {
@@ -25,8 +25,8 @@ package org.bigbluebutton.lib.chat.views {
 			
 			_chatLabel = new Label();
 			_chatLabel.percentWidth = 100;
-			_chatLabel.styleName = "content";
-			_chatLabel.text = "Messages";
+			_chatLabel.styleName = "participantsTitle";
+			_chatLabel.text = "Conversations";
 			addElement(_chatLabel);
 			
 			_chatRoomList = new List();

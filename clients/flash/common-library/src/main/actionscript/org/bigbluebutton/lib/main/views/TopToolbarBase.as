@@ -29,7 +29,7 @@ package org.bigbluebutton.lib.main.views {
 			verticalCenter = 0;
 
 			_leftButton = new Button();
-			_leftButton.styleName = "participantsButton topButton topLeftButton";
+			_leftButton.styleName = "icon-user topButton topLeftButton";
 			addElement(_leftButton);
 
 			_titleLabel = new Label();
@@ -37,7 +37,7 @@ package org.bigbluebutton.lib.main.views {
 			addElement(_titleLabel);
 
 			_rightButton = new Button();
-			_rightButton.styleName = "settingsButton topButton topRightButton";
+			_rightButton.styleName = "icon-more topButton topRightButton";
 			addElement(_rightButton);
 		}
 	}

@@ -65,14 +65,14 @@ package org.bigbluebutton.lib.main.views {
 					view.camButton.styleName = "camOffButton menuButton"
 				} else {
 					view.camButton.label = "Cam on";// ResourceManager.getInstance().getString('resources', 'menuButtons.camOn');
-					view.camButton.styleName = "camOnButton menuButton"
+					view.camButton.styleName = "icon-video menuButton"
 				}
 				if (userSession.userList.me.voiceJoined) {
 					view.micButton.label = "Mic off";// ResourceManager.getInstance().getString('resources', 'menuButtons.micOff');
-					view.micButton.styleName = "micOffButton menuButton"
+					view.micButton.styleName = "icon-audio-off menuButton"
 				} else {
 					view.micButton.label = "Mic on";// ResourceManager.getInstance().getString('resources', 'menuButtons.micOn');
-					view.micButton.styleName = "micOnButton menuButton"
+					view.micButton.styleName = "icon-audio menuButton"
 				}
 			}
 		}
