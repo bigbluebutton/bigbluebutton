@@ -77,10 +77,14 @@ function showCursor(show) {
   }
 };
 
-function setViewBox(val) {
-  if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
-  else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
-	svgfile.setAttribute('viewBox', val);
+function setViewBox(time) {
+  var vboxVal = getViewboxAtTime(time);
+  if(vboxVal !== undefined) {
+    setScale(time);
+    if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
+    else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
+    svgfile.setAttribute('viewBox', vboxVal);
+  }
 }
 
 function getImageAtTime(time) {
@@ -99,14 +103,15 @@ function getImageAtTime(time) {
 function getViewboxAtTime(time) {
 	var curr_t = parseFloat(time);
 	var key;
+	var isDeskshare = mustShowDesktopVideo(time);
 	for (key in vboxValues) {
 		if(vboxValues.hasOwnProperty(key)) {
 			var arry = key.split(",");
 			if(arry[1] == "end") {
-				return vboxValues[key];
+				return isDeskshare ? adaptViewBoxToDeskshare(vboxValues[key]) : vboxValues[key];
 			}
 			else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
-				return vboxValues[key];
+				return isDeskshare ? adaptViewBoxToDeskshare(vboxValues[key]) : vboxValues[key];
 			}
 		}
 	}
@@ -466,10 +471,7 @@ function runPopcorn() {
             var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
             var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
 
-            var vboxVal = getViewboxAtTime(t);
-            if(vboxVal !== undefined) {
-              setViewBox(vboxVal);
-            }
+            setViewBox(t);
 
             var cursorVal = getCursorAtTime(t);
             if (cursorVal != null) {
@@ -494,6 +496,58 @@ function runPopcorn() {
     }
   });
 };
+
+// Deskshare's whiteboard variables
+var deskshareWidth = 1280.0;
+var deskshareHeight = 720.0;
+var widthScale = 1;
+var heightScale = 1;
+var widthOffset = 0;
+var heightOffset = 0;
+
+function clearScaleAndOffset() {
+  widthScale = 1;
+  heightScale = 1;
+  widthOffset = 0;
+  heightOffset = 0;
+}
+
+function setDeskshareScale(viewBox) {
+  widthScale = viewBox[2] / deskshareWidth;
+  heightScale = viewBox[3] / deskshareHeight;
+}
+
+function setDeskshareOffset(viewBox) {
+  widthOffset = ((viewBox[2] - deskshareWidth) / widthScale) / 2;
+  heightOffset = ((viewBox[3] - deskshareHeight) / heightScale) / 2;
+}
+
+// Deskshare viewBox must be moved to be placed above the video
+function adaptViewBoxToDeskshare(viewBox) {
+  var vb = viewBox.split(" ");
+  setDeskshareScale(vb);
+  setDeskshareOffset(vb);
+  vb[0] = widthOffset;
+  vb[1] = heightOffset;
+  vb[2] = deskshareWidth;
+  vb[3] = deskshareHeight;
+  return vb.join(" ");
+}
+
+// Scale to fit the different deskshare video sizes
+function setScale(time) {
+  svgfile = svgobj.contentDocument ? svgobj.contentDocument.getElementById("svgfile") : svgobj.getSVGDocument('svgfile');
+  var viewBox = getViewboxAtTime(time);
+  if (mustShowDesktopVideo(time) && viewBox !== undefined) {
+    viewBox = viewBox.split(" ");
+    // Create SVG's transform scale function
+    var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
+    svgfile.setAttribute('transform', scale);
+  } else if (svgfile.hasAttribute('transform')) {
+    clearScaleAndOffset();
+    svgfile.removeAttribute('transform');
+  }
+}
 
 function removeLoadingScreen() {
   spinner.stop();
