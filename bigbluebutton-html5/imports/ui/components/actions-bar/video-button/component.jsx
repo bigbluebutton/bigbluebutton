@@ -8,7 +8,6 @@ export default class JoinVideo extends React.Component {
   }
 
   render() {
-    let hideButton = styles.invisible;
     return (
       <Button
         onClick={this.handleClick}
@@ -17,7 +16,7 @@ export default class JoinVideo extends React.Component {
         icon={'video-off'}
         size={'lg'}
         circle={true}
-        className={hideButton}
+        style={{visibility: 'hidden'}}
       />
     );
   }
