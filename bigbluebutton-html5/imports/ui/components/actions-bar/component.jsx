@@ -10,9 +10,7 @@ import Users from '/imports/api/users/index';
 import JoinAudioOptionsContainer from './audio-menu/container';
 import MuteAudioContainer from './mute-button/container';
 import { exitAudio } from '/imports/api/phone';
-
 import JoinVideo from './video-button/component';
-
 
 const openJoinAudio = () => showModal(<Audio />);
 
@@ -20,7 +18,6 @@ export default class ActionsBar extends Component {
   constructor(props) {
     super(props);
   }
-
 
   renderForPresenter() {
     return (
@@ -35,7 +32,7 @@ export default class ActionsBar extends Component {
             close={() => {exitAudio();}}
 
           />
-
+          <JoinVideo />
           <EmojiContainer />
         </div>
         <div className={styles.right}>
@@ -54,7 +51,6 @@ export default class ActionsBar extends Component {
             close={() => {exitAudio();}}
 
           />
-
           <JoinVideo />
           <EmojiContainer />
         </div>

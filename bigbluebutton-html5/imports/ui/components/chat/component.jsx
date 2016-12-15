@@ -5,15 +5,9 @@ import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import Icon from '../icon/component';
-
 import Button from '../button/component';
-import cx from 'classnames';
 
 const ELEMENT_ID = 'chat-messages';
-
-
-
-
 
 export default class Chat extends Component {
   constructor(props) {
@@ -21,7 +15,7 @@ export default class Chat extends Component {
     this.handleDismiss = this.handleDismiss.bind(this);
   }
 
-  handleDismiss(){
+  handleDismiss() {
   }
 
   render() {
