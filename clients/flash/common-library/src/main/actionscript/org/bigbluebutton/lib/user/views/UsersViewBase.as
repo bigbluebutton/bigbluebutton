@@ -25,17 +25,18 @@ package org.bigbluebutton.lib.user.views {
 			
 			_userLabel = new Label();
 			_userLabel.percentWidth = 100;
-			_userLabel.styleName = "participantsTitle";
+			_userLabel.styleName = "sectionTitle";
 			_userLabel.text = "Online";
 			addElement(_userLabel);
 			
 			_userList = new List();
 			_userList.percentWidth = 100;
-			var itemRendererClass:ClassFactory = new ClassFactory(getItemRendererClass());
-			_userList.itemRenderer = itemRendererClass;
+			_userList.percentHeight = 100;
+			_userList.itemRenderer = new ClassFactory(getItemRendererClass());
 			
 			var listLayout:VerticalLayout = new VerticalLayout();
 			listLayout.requestedRowCount = -1;
+			listLayout.gap = 1;
 			_userList.layout = listLayout;
 			
 			addElement(_userList);

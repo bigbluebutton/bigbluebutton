@@ -24,14 +24,13 @@ package org.bigbluebutton.lib.chat.views {
 			
 			_chatLabel = new Label();
 			_chatLabel.percentWidth = 100;
-			_chatLabel.styleName = "participantsTitle";
+			_chatLabel.styleName = "sectionTitle";
 			_chatLabel.text = "Conversations";
 			addElement(_chatLabel);
 			
 			_chatRoomList = new List();
 			_chatRoomList.percentWidth = 100;
-			var itemRendererClass:ClassFactory = new ClassFactory(getItemRendererClass());
-			_chatRoomList.itemRenderer = itemRendererClass;
+			_chatRoomList.itemRenderer = new ClassFactory(getItemRendererClass());
 			
 			var listLayout:VerticalLayout = new VerticalLayout();
 			listLayout.requestedRowCount = -1;

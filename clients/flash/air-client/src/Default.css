@@ -80,12 +80,20 @@ main|TopToolbarAIR {
 }
 
 participants|ParticipantsViewBase, users|UsersViewBase {
-	color : PropertyReference("tuna");
 	backgroundColor : PropertyReference("athensGrey");
+	color : PropertyReference("tuna");
 }
 
-.participantsTitle {
+participants|ParticipantsViewBase s|List{
+	contentBackgroundColor : white;
+}
+
+.sectionTitle {
 	color : PropertyReference("regentGrey");
+}
+
+.participantTitle {
+	color : PropertyReference("tuna");
 }
 
 .participantStatus {

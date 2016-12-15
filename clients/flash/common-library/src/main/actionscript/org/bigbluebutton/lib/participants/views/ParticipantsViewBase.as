@@ -37,6 +37,7 @@ package org.bigbluebutton.lib.participants.views {
 			
 			var usersView:UsersViewBase = createUsersView();
 			usersView.percentWidth = 100;
+			usersView.percentHeight = 100;
 			group.addElement(usersView);
 			
 			addElement(scroller);

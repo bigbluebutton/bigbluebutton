@@ -79,9 +79,9 @@
 		circleStroke : 2;
 	}
 	
-	.participantsTitle {
-		paddingTop    : 12;
-		paddingBottom : 12;
+	.sectionTitle {
+		paddingTop    : 16;
+		paddingBottom : 16;
 		paddingLeft   : 30;
 		fontSize      : 28;
 	}
