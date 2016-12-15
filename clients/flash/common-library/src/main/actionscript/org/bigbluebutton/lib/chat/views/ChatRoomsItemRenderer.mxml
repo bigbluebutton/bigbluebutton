@@ -9,6 +9,8 @@
 
 	<fx:Script>
 		<![CDATA[
+			import org.bigbluebutton.lib.user.utils.UserUtils;
+			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
@@ -17,15 +19,10 @@
 						publicChatIcon.visible = publicChatIcon.includeInLayout = true;
 						participantIcon.visible = participantIcon.includeInLayout = false;
 					} else {
-						participantIcon.setFirstLetters(obj.userName);
+						participantIcon.displayInitials = UserUtils.getInitials(obj.userName);
 						participantIcon.visible = participantIcon.includeInLayout = true;
 						publicChatIcon.visible = publicChatIcon.includeInLayout = false;
 					}
-					/*
-					   if (obj.online == false) {
-					   //title.text += resourceManager.getString('resources', 'userDetail.userOffline');
-					   }
-					 */
 					newMessages.label = String(obj.newMessages);
 					newMessages.visible = obj.newMessages > 0;
 				}

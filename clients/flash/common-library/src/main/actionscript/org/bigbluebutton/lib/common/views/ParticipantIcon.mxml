@@ -3,38 +3,33 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 styleName="participantIcon">
 
+
+
 	<fx:Script>
 		<![CDATA[
-			public function setFirstLetters(name:String):void {
-				if (name == null) name = "";
-				
-				var names:Array = name.split(" ");
-				var firstLettersText:String = names[0].charAt(0);
-				if (names[1]) {
-					firstLettersText += names[1].charAt(0);
-				}
-				firstLetters.text = firstLettersText.toUpperCase();
-			}
+			[Bindable]
+			public var displayInitials:String;
 		]]>
 	</fx:Script>
 
 	<s:Label id="firstLetters"
-			 fontSize="{getStyle('fontSize')}"
+			 text="{displayInitials}"
+			 paddingTop="0"
+			 paddingLeft="0"
+			 paddingBottom="0"
+			 paddingRight="0"
 			 verticalCenter="0"
 			 horizontalCenter="0" />
 
 	<s:Ellipse id="circle"
-			   height="25"
-			   width="25"
+			   height="{getStyle('height')}"
+			   width="{getStyle('width')}"
 			   verticalCenter="0"
 			   horizontalCenter="0">
 		<s:stroke>
 			<s:SolidColorStroke id="circleColor"
 								color="{getStyle('circleColor')}"
-								weight="1" />
+								weight="{getStyle('circleStroke')}" />
 		</s:stroke>
 	</s:Ellipse>
-
-
 </s:Group>
-

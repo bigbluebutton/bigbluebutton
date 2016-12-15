@@ -11,6 +11,7 @@
 			import flashx.textLayout.conversion.TextConverter;
 			
 			import org.bigbluebutton.lib.chat.models.ChatMessage;
+			import org.bigbluebutton.lib.user.utils.UserUtils;
 			
 			override public function set data(obj:Object):void {
 				super.data = obj;
@@ -37,7 +38,7 @@
 							username.includeInLayout = false;
 						} else {
 							username.text = m.name;
-							participantIcon.setFirstLetters(m.name);
+							participantIcon.displayInitials = UserUtils.getInitials(m.name);
 							participantIcon.visible = true;
 							username.visible = true;
 							username.includeInLayout = true;

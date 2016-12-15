@@ -62,9 +62,10 @@
 	
 	.participantIcon
 	{
-		width    : 32;
-		height   : 32;
-		fontSize : 12;
+		width        : 44;
+		height       : 44;
+		fontSize     : 18;
+		circleStroke : 2;
 	}
 	
 	.participantsTitle {

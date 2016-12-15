@@ -16,6 +16,7 @@
 		<![CDATA[
 			import org.bigbluebutton.lib.user.events.UserItemSelectedEvent;
 			import org.bigbluebutton.lib.user.models.User;
+			import org.bigbluebutton.lib.user.utils.UserUtils;
 			
 			private function onClick():void {
 				sendSelectedEvent();
@@ -58,7 +59,7 @@
 						labelDisplay.text = obj.name;
 					}
 					
-					participantIcon.setFirstLetters(obj.name);
+					participantIcon.displayInitials = UserUtils.getInitials(obj.name);
 					
 					if (obj.presenter) {
 						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;

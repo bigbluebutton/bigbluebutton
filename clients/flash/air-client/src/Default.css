@@ -128,7 +128,8 @@ libChat|NewMessagesIndicator
 
 .participantIcon
 {
-	circleColor : PropertyReference("bbbBlack");
+	color       : PropertyReference("regentGrey");
+	circleColor : PropertyReference("regentGrey");
 }
 
 .sendButton

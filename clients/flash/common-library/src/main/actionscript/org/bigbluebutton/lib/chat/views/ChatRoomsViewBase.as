@@ -1,7 +1,6 @@
 package org.bigbluebutton.lib.chat.views {
 	import mx.core.ClassFactory;
 	
-	import spark.components.Button;
 	import spark.components.Label;
 	import spark.components.List;
 	import spark.components.VGroup;
@@ -36,6 +35,7 @@ package org.bigbluebutton.lib.chat.views {
 			
 			var listLayout:VerticalLayout = new VerticalLayout();
 			listLayout.requestedRowCount = -1;
+			listLayout.gap = 1;
 			_chatRoomList.layout = listLayout;
 			
 			addElement(_chatRoomList);
