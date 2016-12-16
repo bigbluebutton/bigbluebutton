@@ -11,10 +11,6 @@ const ELEMENT_ID = 'chat-messages';
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.handleDismiss = this.handleDismiss.bind(this);
-  }
-
-  handleDismiss() {
   }
 
   render() {
@@ -36,7 +32,6 @@ export default class Chat extends Component {
           <Link className={styles.closeChat} to="/users">
             <Icon iconName="left-arrow" /> {title}
           </Link>
-
         </header>
         <MessageList
           chatId={chatID}
