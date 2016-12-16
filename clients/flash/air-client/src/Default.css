@@ -4,7 +4,7 @@
 @namespace main "org.bigbluebutton.air.main.views.*";
 @namespace participants "org.bigbluebutton.lib.participants.views.*";
 @namespace users "org.bigbluebutton.lib.user.views.*";
-@namespace views "org.bigbluebutton.lib.settings.views.*";
+@namespace settings "org.bigbluebutton.lib.settings.views.*";
 
 @font-face { 
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
@@ -84,7 +84,7 @@ participants|ParticipantsViewBase, users|UsersViewBase {
 	color : PropertyReference("tuna");
 }
 
-views|SettingsViewBase {
+settings|SettingsViewBase {
 	participantBackground : PropertyReference("shakespeare");
 }
 
@@ -124,6 +124,11 @@ libChat|ChatItemRenderer {
 
 users|UserItemRenderer {
 	color    : PropertyReference("regentGrey");
+}
+
+settings|SettingsItemRenderer {
+	color     : PropertyReference("tuna");
+	iconColor : PropertyReference("regentGrey");
 }
 
 .subViewContent

@@ -12,11 +12,28 @@
 				icon.text = icon.getStyle("icon");
 				settingName.text = obj.label;
 			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				
+				container.padding = getStyle('padding');
+				settingName.setStyle("paddingLeft", getStyle('padding'));
+				icon.setStyle("color", getStyle("iconColor"));
+				icon.setStyle("fontSize", getStyle("iconSize"));
+				
+				arrowIcon.setStyle("color", getStyle("iconColor"));
+				arrowIcon.setStyle("fontSize", getStyle("iconSize"));
+			}
 		]]>
 	</fx:Script>
 
-	<s:HGroup width="100%">
+	<s:HGroup width="100%"
+			  id="container">
 		<s:Label id="icon" />
-		<s:Label id="settingName" />
+		<s:Label id="settingName"
+				 width="100%" />
+		<s:Label id="arrowIcon"
+				 styleName="icon icon-right-arrow"
+				 text="{arrowIcon.getStyle('icon')}" />
 	</s:HGroup>
 </s:ItemRenderer>

@@ -52,6 +52,12 @@
 		paritcipantPadding : 40;
 	}
 	
+	settings|SettingsItemRenderer {
+		fontSize : 34;
+		iconSize : 44;
+		padding  : 32;
+	}
+	
 	libChat|ChatViewBase {
 		inputPadding : 26;
 	}
