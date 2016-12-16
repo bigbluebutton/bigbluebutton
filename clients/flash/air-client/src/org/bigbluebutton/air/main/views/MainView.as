@@ -8,8 +8,6 @@ package org.bigbluebutton.air.main.views {
 	
 	[Style(name = "menuHeight", inherit = "no", type = "Number")]
 	public class MainView extends NoTabView {
-		private var _topToolbar:TopToolbarAIR;
-		
 		private var _presentationView:PresentationViewBase;
 		
 		private var _menuButtons:MenuButtonsBase;
@@ -21,10 +19,6 @@ package org.bigbluebutton.air.main.views {
 			vLayout.gap = 0;
 			vLayout.horizontalAlign = HorizontalAlign.CENTER;
 			layout = vLayout;
-			
-			_topToolbar = new TopToolbarAIR();
-			_topToolbar.percentWidth = 100;
-			addElement(_topToolbar);
 			
 			_presentationView = new PresentationViewBase();
 			_presentationView.percentWidth = 100;
@@ -39,7 +33,6 @@ package org.bigbluebutton.air.main.views {
 			super.updateDisplayList(w, h);
 			
 			_menuButtons.height = getStyle("menuHeight");
-			_topToolbar.height = getStyle("toolbarHeight");
 			
 			_presentationView.width = w;
 			_presentationView.height = h - _topToolbar.height - _menuButtons.height;

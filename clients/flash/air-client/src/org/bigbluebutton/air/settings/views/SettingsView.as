@@ -9,8 +9,6 @@ package org.bigbluebutton.air.settings.views {
 	public class SettingsView extends NoTabView {
 		private var _settingsView:SettingsViewBase;
 		
-		private var _topToolbar:TopToolbarAIR;
-		
 		public function SettingsView() {
 			super();
 			
@@ -19,20 +17,14 @@ package org.bigbluebutton.air.settings.views {
 			vLayout.horizontalAlign = HorizontalAlign.CENTER;
 			layout = vLayout;
 			
-			_topToolbar = new TopToolbarSettings();
-			_topToolbar.percentWidth = 100;
-			addElement(_topToolbar);
-			
 			_settingsView = new SettingsViewBase();
 			_settingsView.percentHeight = 100;
 			_settingsView.percentWidth = 100;
 			addElement(_settingsView);
 		}
 		
-		override protected function updateDisplayList(w:Number, h:Number):void {
-			super.updateDisplayList(w, h);
-			
-			_topToolbar.height = getStyle("toolbarHeight");
+		override protected function createToolbar():TopToolbarAIR {
+			return new TopToolbarSettings();
 		}
 	}
 }

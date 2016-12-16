@@ -4,11 +4,10 @@ package org.bigbluebutton.air.participants.views {
 	import spark.layouts.VerticalLayout;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
+	import org.bigbluebutton.air.main.views.TopToolbarAIR;
 	import org.bigbluebutton.lib.participants.views.ParticipantsViewBase;
 	
 	public class ParticipantsView extends NoTabView {
-		private var _topToolbar:TopToolbarParticipants;
-		
 		public function ParticipantsView() {
 			super();
 			
@@ -16,10 +15,6 @@ package org.bigbluebutton.air.participants.views {
 			vLayout.gap = 0;
 			vLayout.horizontalAlign = HorizontalAlign.CENTER;
 			layout = vLayout;
-			
-			_topToolbar = new TopToolbarParticipants();
-			_topToolbar.percentWidth = 100;
-			addElement(_topToolbar);
 			
 			var skinnableWrapper:SkinnableContainer = new SkinnableContainer();
 			skinnableWrapper.styleName = "subViewContent";
@@ -34,10 +29,8 @@ package org.bigbluebutton.air.participants.views {
 			addElement(skinnableWrapper);
 		}
 		
-		override protected function updateDisplayList(w:Number, h:Number):void {
-			super.updateDisplayList(w, h);
-			
-			_topToolbar.height = getStyle("toolbarHeight");
+		override protected function createToolbar():TopToolbarAIR {
+			return new TopToolbarParticipants();
 		}
 	}
 }

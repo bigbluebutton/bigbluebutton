@@ -2,14 +2,10 @@ package org.bigbluebutton.air.chat.views {
 	import flash.events.MouseEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.views.TopToolbarMediatorBase;
+	import org.bigbluebutton.air.main.views.TopToolbarMediatorAIR;
 	import org.bigbluebutton.lib.user.models.User;
 	
-	public class TopToolbarMediatorChat extends TopToolbarMediatorBase {
-		
-		[Inject]
-		public var uiSession:IUISession;
+	public class TopToolbarMediatorChat extends TopToolbarMediatorAIR {
 		
 		override protected function setTitle():void {
 			var data:Object = uiSession.currentPageDetails;
