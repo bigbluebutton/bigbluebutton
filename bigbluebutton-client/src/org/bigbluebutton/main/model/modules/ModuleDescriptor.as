@@ -30,6 +30,7 @@ package org.bigbluebutton.main.model.modules
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	
 	public class ModuleDescriptor
@@ -132,7 +133,11 @@ package org.bigbluebutton.main.model.modules
 		}	
 		
 		private function onErrorLoading(e:ModuleEvent):void{
-			LOGGER.error("Error loading {0}", [getName() + e.errorText]);
+			var logData:Object = UsersUtil.initLogData();
+			logData.module = getName();
+			logData.tags = ["loading"];
+			logData.message = "Error loading module ".concat(e.errorText);
+			LOGGER.error(JSON.stringify(logData));
 		}
 		
 		private function onLoading(e:Event):void{
