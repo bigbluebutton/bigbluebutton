@@ -40,9 +40,25 @@
 		labelPadding : 30;
 	}
 	
+	libChat|ChatItemRenderer {
+		padding      : 30;
+		fontSize     : 34;
+		nameFontSize : 34;
+		timeFontSize : 24;
+	}
+	
+	libChat|ChatViewBase {
+		inputPadding : 26;
+	}
+	
 	users|UserItemRenderer {
 		color : PropertyReference("regentGrey");
 		iconSize : 44;
+	}
+	
+	.sendButton {
+		borderWeight : 2;
+		radius 		 : 40;
 	}
 	
 	.titleLabel {
@@ -88,12 +104,6 @@
 	
 	.participantStatus {
 		fontSize : 30;
-	}
-	
-	.chatMessage
-	{
-		nameFontSize : 16;
-		timeFontSize : 16;
 	}
 	
 	.chatIcon {

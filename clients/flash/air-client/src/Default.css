@@ -74,7 +74,6 @@ main|MainView
 	backgroundColor : PropertyReference("bbbBlack");	
 }
 
-
 main|TopToolbarAIR {
 	backgroundColor : PropertyReference("bbbBlack");
 }
@@ -86,6 +85,11 @@ participants|ParticipantsViewBase, users|UsersViewBase {
 
 participants|ParticipantsViewBase s|List{
 	contentBackgroundColor : white;
+}
+
+libChat|ChatViewBase {
+	inputBackgroundColor : PropertyReference("athensGrey");
+	inputBorderColor     : PropertyReference("athensGreyDark");
 }
 
 .sectionTitle {
@@ -106,6 +110,11 @@ libChat|NewMessagesIndicator
 	backgroundAlpha : 1;
 	color           : PropertyReference("bbbWhite");
 	skinClass       : ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
+}
+
+libChat|ChatItemRenderer {
+	color     : PropertyReference("regentGrey");
+	nameColor : PropertyReference("tuna");
 }
 
 .subViewContent
@@ -147,9 +156,9 @@ libChat|NewMessagesIndicator
 
 .sendButton
 {
-	color       : PropertyReference("bbbGrey");
+	color       : PropertyReference("shakespeare");
 	fontFamily  : BBBIcons;
-	borderColor : PropertyReference("bbbGrey");
+	borderColor : PropertyReference("shakespeare");
 	skinClass   : ClassReference("org.bigbluebutton.lib.chat.views.skins.SendButtonSkin");
 }
 

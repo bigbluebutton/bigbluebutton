@@ -84,10 +84,10 @@
 			<common:ParticipantIcon id="participantIcon" />
 
 			<s:Label id="labelDisplay"
+					 width="100%"
 					 styleName="participantTitle"
 					 paddingLeft="{getStyle('padding')}"
 					 paddingRight="{getStyle('padding')}" />
-
 			<s:Label id="cameraIcon"
 					 text="{cameraIcon.getStyle('icon')}"
 					 fontSize="{getStyle('iconSize')}"

@@ -7,6 +7,7 @@ package org.bigbluebutton.air.chat.views {
 	import org.bigbluebutton.lib.user.models.User;
 	
 	public class TopToolbarMediatorChat extends TopToolbarMediatorBase {
+		
 		[Inject]
 		public var uiSession:IUISession;
 		
@@ -21,10 +22,6 @@ package org.bigbluebutton.air.chat.views {
 					view.titleLabel.text = user.name;
 				}
 			}
-		}
-		
-		override protected function leftButtonClickHandler(e:MouseEvent):void {
-			uiSession.popPage();
 		}
 		
 		override protected function rightButtonClickHandler(e:MouseEvent):void {
