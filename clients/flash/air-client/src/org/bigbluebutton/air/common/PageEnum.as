@@ -5,6 +5,7 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.chat.views.ChatRoomView;
 	import org.bigbluebutton.air.main.views.MainView;
 	import org.bigbluebutton.air.participants.views.ParticipantsView;
+	import org.bigbluebutton.air.settings.views.SettingsView;
 	
 	public class PageEnum {
 		public static const MAIN:String = "main";
@@ -29,6 +30,8 @@ package org.bigbluebutton.air.common {
 		
 		public static const LOCKSETTINGS:String = "LockSettings";
 		
+		public static const SETTINGS:String = "Settings";
+		
 		public static const SPLITSETTINGS:String = "SplitSettings";
 		
 		public static const SPLITPARTICIPANTS:String = "SplitParticipants";
@@ -45,18 +48,19 @@ package org.bigbluebutton.air.common {
 				dic[MAIN] = MainView;
 				dic[PARTICIPANTS] = ParticipantsView;
 				dic[CHAT] = ChatRoomView;
-		//		dic[PROFILE] = ProfileView;
-		//		dic[USER_DETAILS] = UserDetailsView;
-		//		dic[VIDEO_CHAT] = VideoChatView;
-		//		dic[CHATROOMS] = ChatRoomsView;
-		//		dic[PARTICIPANTS] = ParticipantsView;
-		//		dic[SELECT_PARTICIPANT] = SelectParticipantView;
-		//		dic[DISCONNECT] = DisconnectPageView;
-		//		dic[DESKSHARE] = DeskshareView;
-		//		dic[CAMERASETTINGS] = CameraSettingsView;
-		//		dic[AUDIOSETTINGS] = AudioSettingsView;
-		//		dic[EXIT] = ExitPageView;
-		//		dic[LOCKSETTINGS] = LockSettingsView;
+				dic[SETTINGS] = SettingsView;
+				//		dic[PROFILE] = ProfileView;
+				//		dic[USER_DETAILS] = UserDetailsView;
+				//		dic[VIDEO_CHAT] = VideoChatView;
+				//		dic[CHATROOMS] = ChatRoomsView;
+				//		dic[PARTICIPANTS] = ParticipantsView;
+				//		dic[SELECT_PARTICIPANT] = SelectParticipantView;
+				//		dic[DISCONNECT] = DisconnectPageView;
+				//		dic[DESKSHARE] = DeskshareView;
+				//		dic[CAMERASETTINGS] = CameraSettingsView;
+				//		dic[AUDIOSETTINGS] = AudioSettingsView;
+				//		dic[EXIT] = ExitPageView;
+				//		dic[LOCKSETTINGS] = LockSettingsView;
 				dicInitiated = true;
 			}
 		}

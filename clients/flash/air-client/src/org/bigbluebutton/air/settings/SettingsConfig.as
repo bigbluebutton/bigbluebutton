@@ -1,11 +1,7 @@
 package org.bigbluebutton.air.settings {
 	
-	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewMediator;
-	import org.bigbluebutton.air.settings.views.audio.IAudioSettingsView;
-	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewMediator;
-	import org.bigbluebutton.air.settings.views.camera.ICameraSettingsView;
-	import org.bigbluebutton.air.settings.views.lock.ILockSettingsView;
-	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewMediator;
+	import org.bigbluebutton.air.settings.views.SettingsView;
+	import org.bigbluebutton.air.settings.views.SettingsViewMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -28,9 +24,7 @@ package org.bigbluebutton.air.settings {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(IAudioSettingsView).toMediator(AudioSettingsViewMediator);
-			mediatorMap.map(ICameraSettingsView).toMediator(CameraSettingsViewMediator);
-			mediatorMap.map(ILockSettingsView).toMediator(LockSettingsViewMediator);
+			mediatorMap.map(SettingsView).toMediator(SettingsViewMediator);
 		}
 	
 	}

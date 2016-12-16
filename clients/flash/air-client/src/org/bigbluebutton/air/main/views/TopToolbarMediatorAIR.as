@@ -15,7 +15,7 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		override protected function rightButtonClickHandler(e:MouseEvent):void {
-			
+			uiSession.pushPage(PageEnum.SETTINGS);
 		}
 	}
 }
