@@ -12,6 +12,7 @@ package org.bigbluebutton.modules.videoconf.views
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.model.VideoProfile;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
   import org.bigbluebutton.main.views.VideoWithWarnings;
@@ -40,7 +41,11 @@ package org.bigbluebutton.modules.videoconf.views
 
     public function publish(camIndex:int, videoProfile:VideoProfile, streamName:String):void {
       if (_shuttingDown) {
-        LOGGER.warn("Method publish called while shutting down the video window, ignoring...");
+        var logData:Object = UsersUtil.initLogData();
+        logData.streamName = streamName;
+        logData.tags = ["video"];
+        logData.message = "Method publish called while shutting down the video window, ignoring...";
+        LOGGER.warn(JSON.stringify(logData));
         return;
       }
 
@@ -129,7 +134,11 @@ package org.bigbluebutton.modules.videoconf.views
 
     public function view(connection:NetConnection, streamName:String):void {
       if (_shuttingDown) {
-        LOGGER.warn("Method view called while shutting down the video window, ignoring...");
+        var logData:Object = UsersUtil.initLogData();
+        logData.streamName = streamName;
+        logData.tags = ["video"];
+        logData.message = "Method view called while shutting down the video window, ignoring...";
+        LOGGER.warn(JSON.stringify(logData));
         return;
       }
 

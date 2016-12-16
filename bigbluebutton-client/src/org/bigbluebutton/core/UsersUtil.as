@@ -174,7 +174,10 @@ package org.bigbluebutton.core
       if (user != null) {
         return user.externUserID;
       }
-      LOGGER.warn("Could not find externUserID for userID [{0}]", [userID]);
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["user-util"];
+      logData.message = "Could not find externUserID for userID:".concat(userID);
+      LOGGER.warn(JSON.stringify(logData));
       return "";
     }
     
@@ -183,7 +186,10 @@ package org.bigbluebutton.core
       if (user != null) {
         return user.userID;
       }
-      LOGGER.warn("Could not find userID for externUserID [{0}]", [externUserID]);
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["user-util"];
+      logData.message = "Could not find userID for externUserID:".concat(externUserID);
+      LOGGER.warn(JSON.stringify(logData));
       return null;
     }    
     

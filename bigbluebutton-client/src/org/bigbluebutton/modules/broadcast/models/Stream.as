@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.broadcast.models
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.broadcast.views.BroadcastWindow;
 
 	public class Stream {
@@ -76,36 +77,41 @@ package org.bigbluebutton.modules.broadcast.models
 			ns.addEventListener(NetStatusEvent.NET_STATUS, netstreamStatus);
 			ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, nsAsyncErrorHandler);
 			video.attachNetStream(ns);
-      video.x = videoHolder.x;
-      video.y = videoHolder.y;
-      video.width = videoHolder.width;
-      video.height = videoHolder.height;
+			video.x = videoHolder.x;
+			video.y = videoHolder.y;
+			video.width = videoHolder.width;
+			video.height = videoHolder.height;
 
-      
-			ns.play(streamId);				
-		}		
-				
+			ns.play(streamId);
+		}
+
 		private function netstreamStatus(evt:NetStatusEvent):void {
-			switch(evt.info.code) {			
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["video"];
+			logData.streamStatus = evt.info.code;
+			logData.message = "NetStreamStatus";
+			var stringLog:String = JSON.stringify(logData);
+
+			switch(evt.info.code) {
 				case "NetStream.Play.StreamNotFound":
-					LOGGER.warn("NetStream.Play.StreamNotFound");
-					break;			
+					LOGGER.warn(stringLog);
+					break;
 				case "NetStream.Play.Failed":
-					LOGGER.error("NetStream.Play.Failed");
+					LOGGER.error(stringLog);
 					break;
-				case "NetStream.Play.Start":	
-					LOGGER.debug("NetStream.Play.Start");
+				case "NetStream.Play.Start":
+					LOGGER.debug(stringLog);
 					break;
-				case "NetStream.Play.Stop":			
-					LOGGER.debug("NetStream.Play.Stop");
+				case "NetStream.Play.Stop":
+					LOGGER.debug(stringLog);
 					break;
 				case "NetStream.Buffer.Full":
-					LOGGER.warn("NetStream.Buffer.Full");
+					LOGGER.warn(stringLog);
 					break;
 				default:
-			}			 
+			}
 		} 
-		
+
 		private function nsAsyncErrorHandler(event:AsyncErrorEvent):void {
 			LOGGER.debug("nsAsyncErrorHandler: {0}", [event]);
 		}
@@ -119,27 +125,36 @@ package org.bigbluebutton.modules.broadcast.models
 			nc.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 		}
-		
-		private function netStatus(evt:NetStatusEvent ):void {		 			
-			switch(evt.info.code) {				
+
+		private function netStatus(evt:NetStatusEvent ):void {
+			var logData:Object = UsersUtil.initLogData();
+			logData.tags = ["video"];
+			logData.streamStatus = evt.info.code;
+
+			switch(evt.info.code) {
 				case "NetConnection.Connect.Success":
-					LOGGER.debug("Successfully connected to broadcast application.");
+					logData.message = "Successfully connected to broadcast application.";
+					LOGGER.debug(JSON.stringify(logData));
 					displayVideo();
-					break;				
+					break;
 				case "NetConnection.Connect.Failed":
-					LOGGER.error("Failed to connect to broadcast application.");
-					break;				
+					logData.message = "Failed to connect to broadcast application.";
+					LOGGER.error(JSON.stringify(logData));
+					break;
 				case "NetConnection.Connect.Closed":
-					LOGGER.debug("Connection to broadcast application has closed.");
-					break;				
+					logData.message = "Connection to broadcast application has closed.";
+					LOGGER.debug(JSON.stringify(logData));
+					break;
 				case "NetConnection.Connect.Rejected":
-					LOGGER.warn("Connection to broadcast application was rejected.");
-					break;					
-				default:	
-					LOGGER.error("Connection to broadcast application failed. {0}", [evt.info.code]);
-			}			
+					logData.message = "Connection to broadcast application was rejected.";
+					LOGGER.warn(JSON.stringify(logData));
+					break;
+				default:
+					logData.message = "Connection to broadcast application failed";
+					LOGGER.error(JSON.stringify(logData));
+			}
 		}
-		
+
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
 			LOGGER.debug("securityErrorHandler: {0}", [event]);
 		}
