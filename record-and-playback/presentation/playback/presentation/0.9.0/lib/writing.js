@@ -43,17 +43,22 @@ function drawCursor(scaledX, scaledY, img) {
   var imageX = 0; //imgRect.x;
   var imageY = 0; //imgRect.y;
 
+  // Important to place the cursor over the deskshare
+  // It should not affect the regular slides
+  var scaledWidthOffset = widthOffset * (containerObj.width() / deskshareWidth);
+  var scaledHeightOffset = heightOffset * (containerObj.height() / deskshareHeight);
+
   // the offsets of the container that has the image inside it
-  var containerX = containerObj.offset().left;
-  var containerY = containerObj.offset().top;
+  var containerX = containerObj.offset().left - scaledWidthOffset;
+  var containerY = containerObj.offset().top - scaledHeightOffset;
 
   // calculates the overall offsets of the image in the page
   var imageOffsetX = containerX + imageX;
   var imageOffsetY = containerY + imageY;
 
   // position of the cursor relative to the container
-  var cursorXInImage = scaledX * containerObj.width();
-  var cursorYInImage = scaledY * containerObj.height();
+  var cursorXInImage = scaledX * (containerObj.width() * widthScale);
+  var cursorYInImage = scaledY * (containerObj.height() * heightScale);
 
   // absolute position of the cursor in the page
   var cursorLeft = parseInt(imageOffsetX + cursorXInImage, 10);
@@ -518,8 +523,8 @@ function setDeskshareScale(viewBox) {
 }
 
 function setDeskshareOffset(viewBox) {
-  widthOffset = ((viewBox[2] - deskshareWidth) / widthScale) / 2;
-  heightOffset = ((viewBox[3] - deskshareHeight) / heightScale) / 2;
+  widthOffset = (viewBox[2] - deskshareWidth) / 2;
+  heightOffset = (viewBox[3] - deskshareHeight) / 2;
 }
 
 // Deskshare viewBox must be moved to be placed above the video
@@ -527,8 +532,8 @@ function adaptViewBoxToDeskshare(viewBox) {
   var vb = viewBox.split(" ");
   setDeskshareScale(vb);
   setDeskshareOffset(vb);
-  vb[0] = widthOffset;
-  vb[1] = heightOffset;
+  vb[0] = widthOffset / widthScale;
+  vb[1] = heightOffset / heightScale;
   vb[2] = deskshareWidth;
   vb[3] = deskshareHeight;
   return vb.join(" ");
