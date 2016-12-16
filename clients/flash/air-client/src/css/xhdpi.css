@@ -5,6 +5,7 @@
 @namespace views "org.bigbluebutton.air.common.views.*";
 @namespace libChat "org.bigbluebutton.lib.chat.views.*";
 @namespace users "org.bigbluebutton.lib.user.views.*";
+@namespace settings "org.bigbluebutton.lib.settings.views.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -47,12 +48,15 @@
 		timeFontSize : 24;
 	}
 	
+	settings|SettingsViewBase {
+		paritcipantPadding : 40;
+	}
+	
 	libChat|ChatViewBase {
 		inputPadding : 26;
 	}
 	
 	users|UserItemRenderer {
-		color : PropertyReference("regentGrey");
 		iconSize : 44;
 	}
 	
@@ -89,9 +93,14 @@
 	
 	.participantIcon
 	{
-		width        : 44;
-		height       : 44;
+		radius       : 44;
 		fontSize     : 18;
+		circleStroke : 2;
+	}
+	
+	.participantIconSettings {
+		radius       : 124;
+		fontSize     : 52;
 		circleStroke : 2;
 	}
 	

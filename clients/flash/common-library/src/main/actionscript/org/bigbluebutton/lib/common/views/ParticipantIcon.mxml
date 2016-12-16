@@ -3,8 +3,6 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 styleName="participantIcon">
 
-
-
 	<fx:Script>
 		<![CDATA[
 			[Bindable]
@@ -22,10 +20,10 @@
 			 horizontalCenter="0" />
 
 	<s:Ellipse id="circle"
-			   height="{getStyle('height')}"
-			   width="{getStyle('width')}"
 			   verticalCenter="0"
-			   horizontalCenter="0">
+			   horizontalCenter="0"
+			   height="{getStyle('radius')}"
+			   width="{getStyle('radius')}">
 		<s:stroke>
 			<s:SolidColorStroke id="circleColor"
 								color="{getStyle('circleColor')}"
