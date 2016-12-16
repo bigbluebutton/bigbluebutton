@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import FontControl from '/imports/api/FontControl';
 
 import Settings from './component';
 import Service from './service';
