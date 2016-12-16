@@ -68,7 +68,7 @@ package org.bigbluebutton.lib.settings.views {
 		}
 		
 		protected function getItemRendererClass():Class {
-			return SettingItemRenderer;
+			return SettingsItemRenderer;
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {

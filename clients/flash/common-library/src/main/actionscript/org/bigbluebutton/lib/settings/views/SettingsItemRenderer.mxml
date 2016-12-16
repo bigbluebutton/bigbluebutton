@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%">
+
+	<fx:Script>
+		<![CDATA[
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				icon.styleName = "icon " + obj.icon;
+				icon.text = icon.getStyle("icon");
+				settingName.text = obj.label;
+			}
+		]]>
+	</fx:Script>
+
+	<s:HGroup width="100%">
+		<s:Label id="icon" />
+		<s:Label id="settingName" />
+	</s:HGroup>
+</s:ItemRenderer>

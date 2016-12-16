@@ -6,6 +6,9 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.main.views.MainView;
 	import org.bigbluebutton.air.participants.views.ParticipantsView;
 	import org.bigbluebutton.air.settings.views.SettingsView;
+	import org.bigbluebutton.air.settings.views.audio.AudioSettingsView;
+	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
+	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
 	
 	public class PageEnum {
 		public static const MAIN:String = "main";
@@ -26,17 +29,15 @@ package org.bigbluebutton.air.common {
 		
 		public static const AUDIOSETTINGS:String = "AudioSettings";
 		
-		public static const EXIT:String = "Exit";
+		public static const CHATSETTINGS:String = "ChatSettings";
 		
 		public static const LOCKSETTINGS:String = "LockSettings";
 		
+		public static const EXIT:String = "Exit";
+		
 		public static const SETTINGS:String = "Settings";
 		
-		public static const SPLITSETTINGS:String = "SplitSettings";
-		
-		public static const SPLITPARTICIPANTS:String = "SplitParticipants";
-		
-		public static const SPLITCHAT:String = "SplitChat";
+		public static const APPLICATION_SETTINGS:String = "ApplicationSettings";
 		
 		/**
 		 * Especials
@@ -49,6 +50,10 @@ package org.bigbluebutton.air.common {
 				dic[PARTICIPANTS] = ParticipantsView;
 				dic[CHAT] = ChatRoomView;
 				dic[SETTINGS] = SettingsView;
+				dic[AUDIOSETTINGS] = AudioSettingsView;
+				dic[CAMERASETTINGS] = CameraSettingsView;
+				dic[CHATSETTINGS] = SettingsView; // @todo ChatSettingsView
+				dic[LOCKSETTINGS] = LockSettingsView;
 				//		dic[PROFILE] = ProfileView;
 				//		dic[USER_DETAILS] = UserDetailsView;
 				//		dic[VIDEO_CHAT] = VideoChatView;
@@ -57,10 +62,7 @@ package org.bigbluebutton.air.common {
 				//		dic[SELECT_PARTICIPANT] = SelectParticipantView;
 				//		dic[DISCONNECT] = DisconnectPageView;
 				//		dic[DESKSHARE] = DeskshareView;
-				//		dic[CAMERASETTINGS] = CameraSettingsView;
-				//		dic[AUDIOSETTINGS] = AudioSettingsView;
 				//		dic[EXIT] = ExitPageView;
-				//		dic[LOCKSETTINGS] = LockSettingsView;
 				dicInitiated = true;
 			}
 		}
