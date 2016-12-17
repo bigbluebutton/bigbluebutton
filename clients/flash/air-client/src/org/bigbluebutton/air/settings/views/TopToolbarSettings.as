@@ -3,6 +3,7 @@ package org.bigbluebutton.air.settings.views {
 	
 	public class TopToolbarSettings extends TopToolbarAIR {
 		public function TopToolbarSettings() {
+			titleLabel.text = "Settings";
 			leftButton.styleName = "icon-presentation topButton topLeftButton";
 			rightButton.setVisible(false);
 		}
