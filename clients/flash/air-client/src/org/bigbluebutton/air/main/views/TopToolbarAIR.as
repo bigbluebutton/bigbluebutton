@@ -10,6 +10,8 @@ package org.bigbluebutton.air.main.views {
 		private var _background:Rect;
 		
 		public function TopToolbarAIR() {
+			super();
+			
 			_background = new Rect();
 			_background.percentHeight = 100;
 			_background.percentWidth = 100;

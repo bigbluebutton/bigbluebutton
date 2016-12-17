@@ -1,41 +1,32 @@
 package org.bigbluebutton.air.settings.views.audio {
 	
-	import spark.components.Button;
-	import spark.components.HSlider;
-	import spark.components.ToggleSwitch;
-	import spark.primitives.Rect;
+	import spark.layouts.HorizontalAlign;
+	import spark.layouts.VerticalLayout;
 	
-	public class AudioSettingsView extends AudioSettingsViewBase implements IAudioSettingsView {
+	import org.bigbluebutton.air.common.views.NoTabView;
+	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
+	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewBase;
+	
+	public class AudioSettingsView extends NoTabView {
+		private var _settingsView:AudioSettingsViewBase;
 		
-		public function dispose():void {
+		public function AudioSettingsView() {
+			super();
+			
+			var vLayout:VerticalLayout = new VerticalLayout();
+			vLayout.gap = 0;
+			vLayout.horizontalAlign = HorizontalAlign.CENTER;
+			layout = vLayout;
+			
+			_settingsView = new AudioSettingsViewBase();
+			_settingsView.percentHeight = 100;
+			_settingsView.percentWidth = 100;
+			addElement(_settingsView);
 		}
 		
-		public function get enableMic():ToggleSwitch {
-			return enableMic0;
-		}
-		
-		public function get enableAudio():ToggleSwitch {
-			return enableAudio0;
-		}
-		
-		public function get enablePushToTalk():ToggleSwitch {
-			return enablePushToTalk0;
-		}
-		
-		public function get continueBtn():Button {
-			return continueToMeeting;
-		}
-		
-		public function get gainSlider():HSlider {
-			return gainSlider0;
-		}
-		
-		public function get micActivity():Rect {
-			return micActivity0;
-		}
-		
-		public function get micActivityMask():Rect {
-			return micActivityMask0;
+		override protected function createToolbar():TopToolbarAIR {
+			return new TopToolbarSubSettings();
 		}
 	}
 }
