@@ -8,13 +8,14 @@
 		<![CDATA[
 			override public function set data(obj:Object):void {
 				super.data = obj;
-				icon.styleName = "icon " + obj.icon;
-				icon.text = icon.getStyle("icon");
-				settingName.text = obj.label;
+				settingName.text = data.label;
 			}
 			
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				
+				icon.styleName = "icon " + data.icon;
+				icon.text = icon.getStyle("icon");
 				
 				container.padding = getStyle('padding');
 				settingName.setStyle("paddingLeft", getStyle('padding'));
@@ -23,11 +24,18 @@
 				
 				arrowIcon.setStyle("color", getStyle("iconColor"));
 				arrowIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				if (data.page == "exit") {
+					container.styleName = "leaveLabel";
+					icon.setStyle("color", container.getStyle("color"));
+					arrowIcon.setVisible(false);
+				}
 			}
 		]]>
 	</fx:Script>
 
 	<s:HGroup width="100%"
+			  verticalAlign="middle"
 			  id="container">
 		<s:Label id="icon" />
 		<s:Label id="settingName"

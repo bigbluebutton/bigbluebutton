@@ -85,6 +85,7 @@ participants|ParticipantsViewBase, users|UsersViewBase {
 }
 
 settings|SettingsViewBase {
+	backgroundColor       : PropertyReference("athensGrey");
 	participantBackground : PropertyReference("shakespeare");
 }
 
@@ -191,4 +192,8 @@ settings|SettingsItemRenderer {
 .content
 {
 	color : PropertyReference("bbbBlack");
+}
+
+.leaveLabel {
+	color : PropertyReference("shakespeare");
 }

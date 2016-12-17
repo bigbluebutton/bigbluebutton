@@ -5,20 +5,27 @@ package org.bigbluebutton.lib.settings.views {
 	import spark.components.Group;
 	import spark.components.Label;
 	import spark.components.List;
+	import spark.components.Scroller;
 	import spark.components.VGroup;
 	import spark.layouts.VerticalLayout;
 	import spark.primitives.Rect;
 	
 	import org.bigbluebutton.lib.common.views.ParticipantIcon;
 	
-	public class SettingsViewBase extends VGroup {
+	public class SettingsViewBase extends Group {
 		private var _settingsList:List;
+		
+		private var _background:Rect;
 		
 		private var _participantBackground:Rect;
 		
 		private var _participantIcon:ParticipantIcon;
 		
 		private var _participantLabel:Label;
+		
+		private var _title:Label;
+		
+		private var _leaveLabel:Label;
 		
 		public function get settingsList():List {
 			return _settingsList;
@@ -35,9 +42,25 @@ package org.bigbluebutton.lib.settings.views {
 		public function SettingsViewBase() {
 			super();
 			
+			_background = new Rect();
+			_background.percentHeight = 100;
+			_background.percentWidth = 100;
+			_background.fill = new SolidColor();
+			addElement(_background);
+			
+			var scroller:Scroller = new Scroller();
+			scroller.percentHeight = 100;
+			scroller.percentWidth = 100;
+			addElement(scroller);
+			
+			var elementsHolder:VGroup = new VGroup();
+			elementsHolder.percentHeight = 100
+			elementsHolder.percentWidth = 100
+			scroller.viewport = elementsHolder;
+			
 			var participantHolder:Group = new Group();
 			participantHolder.percentWidth = 100;
-			addElement(participantHolder);
+			elementsHolder.addElement(participantHolder);
 			
 			_participantBackground = new Rect();
 			_participantBackground.percentHeight = 100;
@@ -54,6 +77,11 @@ package org.bigbluebutton.lib.settings.views {
 			_participantLabel.horizontalCenter = 0;
 			participantHolder.addElement(_participantLabel);
 			
+			_title = new Label();
+			_title.text = "Session Settings";
+			_title.styleName = "sectionTitle";
+			elementsHolder.addElement(_title);
+			
 			_settingsList = new List();
 			_settingsList.percentWidth = 100;
 			_settingsList.percentHeight = 100;
@@ -63,8 +91,7 @@ package org.bigbluebutton.lib.settings.views {
 			listLayout.requestedRowCount = -1;
 			listLayout.gap = 1;
 			_settingsList.layout = listLayout;
-			
-			addElement(_settingsList);
+			elementsHolder.addElement(_settingsList);
 		}
 		
 		protected function getItemRendererClass():Class {
@@ -74,6 +101,7 @@ package org.bigbluebutton.lib.settings.views {
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
 			
+			SolidColor(_background.fill).color = getStyle("backgroundColor");
 			SolidColor(_participantBackground.fill).color = getStyle("participantBackground");
 			_participantIcon.top = getStyle("paritcipantPadding") * 1.75;
 			_participantLabel.setStyle("color", _participantIcon.getStyle("color"));
