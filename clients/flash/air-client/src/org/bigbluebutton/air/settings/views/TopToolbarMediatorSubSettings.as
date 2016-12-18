@@ -6,6 +6,14 @@ package org.bigbluebutton.air.settings.views {
 	
 	public class TopToolbarMediatorSubSettings extends TopToolbarMediatorAIR {
 		
+		override public function initialize():void {
+			super.initialize();
+		}
+		
+		override protected function setTitle():void {
+			view.titleLabel.text = uiSession.currentPage.replace(/([A-Z])/g, ' $1');
+		}
+		
 		override protected function leftButtonClickHandler(e:MouseEvent):void {
 			uiSession.pushPage(PageEnum.SETTINGS);
 		}

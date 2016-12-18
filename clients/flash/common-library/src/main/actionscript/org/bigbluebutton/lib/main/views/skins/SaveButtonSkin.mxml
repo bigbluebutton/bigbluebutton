@@ -13,9 +13,7 @@
 		<s:State name="over" />
 		<s:State name="up" />
 	</s:states>
-	<s:Label id="icon"
-			 color="{getStyle('iconColor')}"
-			 text="{getStyle('icon')}"
+	<s:Label id="labelDisplay"
 			 horizontalCenter="0"
 			 verticalCenter="0" />
 </s:Skin>

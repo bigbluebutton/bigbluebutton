@@ -49,29 +49,26 @@
 
 /* Shared styles */
 
-global
-{
+global {
 	font-family : SourceSansPro;
 }
 
 /* Classes */
 
-s|Application
-{
+s|Application {
 	backgroundColor : PropertyReference("bbbBlack");	
 }
 
 /* Loading screen */
 main|LoadingScreen {
-	color           : PropertyReference("bbbWhite");	
+	color           : PropertyReference("white");	
 	backgroundColor : PropertyReference("bbbBlack");
 	textAlign       : center;
 }
 
 /* Main view */
 
-main|MainView
-{
+main|MainView {
 	backgroundColor : PropertyReference("bbbBlack");	
 }
 
@@ -90,7 +87,7 @@ settings|SettingsViewBase {
 }
 
 participants|ParticipantsViewBase s|List{
-	contentBackgroundColor : white;
+	contentBackgroundColor : PropertyReference("white");
 }
 
 libChat|ChatViewBase {
@@ -110,11 +107,10 @@ libChat|ChatViewBase {
 	color : PropertyReference("regentGrey");
 }
 
-libChat|NewMessagesIndicator
-{
+libChat|NewMessagesIndicator {
 	backgroundColor : PropertyReference("bbbRed");
 	backgroundAlpha : 1;
-	color           : PropertyReference("bbbWhite");
+	color           : PropertyReference("white");
 	skinClass       : ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
 }
 
@@ -132,65 +128,63 @@ settings|SettingsItemRenderer {
 	iconColor : PropertyReference("regentGrey");
 }
 
-.subViewContent
-{
-	backgroundColor : PropertyReference("bbbWhite");
+.subViewContent {
+	backgroundColor : PropertyReference("white");
 }
 
-.titleLabel
-{
-	color : PropertyReference("bbbWhite");
+.titleLabel {
+	color : PropertyReference("white");
 }
 
-.topButton, .chatIcon
-{
-	iconColor : PropertyReference("bbbWhite");
-	iconFont  : BBBIcons;
-	skinClass : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
+.topButton, .chatIcon {
+	iconColor  : PropertyReference("white");
+	fontFamily : BBBIcons;
+	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
+}
+
+.saveButton {
+	color      : PropertyReference("white");
+	fontWeight : normal;
+	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.SaveButtonSkin");
 }
 
 .chatIcon {
 	iconColor : PropertyReference("regentGrey");
 }
 
-.menuButton
-{
+.menuButton {
 	backgroundColor         : PropertyReference("bbbBlue");
 	selectedBackgroundColor : PropertyReference("bbbGrey");
-	color                   : PropertyReference("bbbWhite");
-	iconColor				: PropertyReference("bbbWhite");
+	color                   : PropertyReference("white");
 	iconFont				: BBBIcons;
+	iconColor    	    	: PropertyReference("white");
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
 }
 
-.participantIcon
-{
+.participantIcon {
 	color       : PropertyReference("regentGrey");
 	circleColor : PropertyReference("regentGrey");
 }
 
 .participantIconSettings {
-	color       : white;
-	circleColor : white;
+	color       : PropertyReference("white");
+	circleColor : PropertyReference("white");
 }
 
-.sendButton
-{
+.sendButton {
 	color       : PropertyReference("shakespeare");
 	fontFamily  : BBBIcons;
 	borderColor : PropertyReference("shakespeare");
 	skinClass   : ClassReference("org.bigbluebutton.lib.chat.views.skins.SendButtonSkin");
 }
 
-.messageInput
-{
+.messageInput {
 	fontFamily             : SourceSansProMX;
 	contentBackgroundAlpha : 0;
 	skinClass              : ClassReference("org.bigbluebutton.air.chat.views.skins.MessageInputSkin");
 }
 
-.content
-{
+.content {
 	color : PropertyReference("bbbBlack");
 }
 

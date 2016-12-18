@@ -23,3 +23,5 @@ private const athensGreyDark:uint = 0xE4E8EC;
 private const tuna:uint = 0x353A42;
 
 private const shakespeare:uint = 0x4998D0;
+
+private const white:uint = 0xFFFFFF;

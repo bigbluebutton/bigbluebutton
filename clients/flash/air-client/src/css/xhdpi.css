@@ -66,6 +66,10 @@
 		iconSize : 44;
 	}
 	
+	.icon {
+		fontSize : 20;
+	}
+	
 	.sendButton {
 		borderWeight : 2;
 		radius 		 : 40;
@@ -75,13 +79,14 @@
 		fontSize : 34;
 		left     : 90;
 		right    : 90;
-		top      : 25;
 	}
 	
-	.topButton
-	{
-		iconSize : 30;
-		top      : 25;
+	.topButton {
+		fontSize : 44;
+	}
+	
+	.saveButton {
+		fontSize : 24;
 	}
 	
 	.topLeftButton {
@@ -97,8 +102,7 @@
 		padding  : 30;
 	}
 	
-	.participantIcon
-	{
+	.participantIcon {
 		radius       : 44;
 		fontSize     : 18;
 		circleStroke : 2;
@@ -130,15 +134,9 @@
 		padding  : 30;
 	}
 	
-	.sendButton
-	{
+	.sendButton {
 		fontSize     : 20;
 		borderWeight : 2;
 		cornerRadius : 4;
-	}
-	
-	.icon
-	{
-		fontSize : 20;
 	}
 }
