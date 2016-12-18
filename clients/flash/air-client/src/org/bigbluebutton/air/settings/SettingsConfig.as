@@ -5,6 +5,7 @@ package org.bigbluebutton.air.settings {
 	import org.bigbluebutton.air.settings.views.TopToolbarMediatorSubSettings;
 	import org.bigbluebutton.air.settings.views.TopToolbarSettings;
 	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
+	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewMediatorAIR;
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
 	import org.bigbluebutton.lib.settings.views.SettingsViewBase;
@@ -32,7 +33,7 @@ package org.bigbluebutton.air.settings {
 		 */
 		private function mediators():void {
 			mediatorMap.map(SettingsViewBase).toMediator(SettingsViewMediatorAIR);
-			mediatorMap.map(AudioSettingsViewBase).toMediator(AudioSettingsViewMediatorAIR);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(AudioSettingsViewBase, AudioSettingsViewBaseAIR)).toMediator(AudioSettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarSettings)).toMediator(TopToolbarMediatorSettings);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarSubSettings)).toMediator(TopToolbarMediatorSubSettings);
 		}

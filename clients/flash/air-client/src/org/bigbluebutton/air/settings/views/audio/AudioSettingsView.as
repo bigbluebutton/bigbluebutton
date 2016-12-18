@@ -1,6 +1,5 @@
 package org.bigbluebutton.air.settings.views.audio {
 	
-	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalLayout;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
@@ -9,6 +8,7 @@ package org.bigbluebutton.air.settings.views.audio {
 	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewBase;
 	
 	public class AudioSettingsView extends NoTabView {
+		
 		private var _settingsView:AudioSettingsViewBase;
 		
 		public function AudioSettingsView() {
@@ -16,10 +16,9 @@ package org.bigbluebutton.air.settings.views.audio {
 			
 			var vLayout:VerticalLayout = new VerticalLayout();
 			vLayout.gap = 0;
-			vLayout.horizontalAlign = HorizontalAlign.CENTER;
 			layout = vLayout;
 			
-			_settingsView = new AudioSettingsViewBase();
+			_settingsView = new AudioSettingsViewBaseAIR();
 			_settingsView.percentHeight = 100;
 			_settingsView.percentWidth = 100;
 			addElement(_settingsView);
