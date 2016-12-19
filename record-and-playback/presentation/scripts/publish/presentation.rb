@@ -202,35 +202,36 @@ def insertDesksharePanAndZoom(start_timestamp, start_timestamp_orig, video_width
 
         #insert new panzoom event with deskshare start timestamp and dimensions
         all_events[i-1].add_next_sibling(new_event)
-
-        #remove all panzooms events before stop timestamp
-        j = i
-        while (all_events[j] && all_events[j].attribute("timestamp").value.to_f <= stop_timestamp) do
-           removedEvent = all_events.delete(all_events[j])
-           removedEvent.remove
-        end
         break
     else
         previous_timestamp = all_events[i].attribute("timestamp").value.to_f
     end
   end
 
-  #insert new panzoom event with deskshare stop timestamp, but using previous event dimensions
-  start_event = $panzooms_xml.doc.xpath("//event[@timestamp='#{start_timestamp}']")
+  #insert new panzoom event with deskshare stop timestamp, using next slide dimensions
+  start_event = $panzooms_xml.doc.xpath("//event[@timestamp='#{start_timestamp}']")[0]
   if(start_event)
-     if (start_timestamp == 0.0)
-        start_event[0].xpath("viewBox")[0].content = "0.0 0.0 #{video_width}.0 #{video_height}.0"
-     end
 
+     #remove all panzooms events before stop timestamp
+     #Sometimes there's a panzoom event with the deskshare image dimension at time=stop_timestamp+0.1. We remove it as well.
+     threshold = (stop_timestamp + 0.1).round(1)
+     $panzooms_xml.doc.xpath("//event[@timestamp > '#{start_timestamp}'and @timestamp <= '#{threshold}']").remove
+
+     #set and insert the new panzoom event
      new_event = Nokogiri::XML::Node.new "event", $panzooms_xml.doc
      new_event[:timestamp] = stop_timestamp
      new_event[:orig] = stop_timestamp_orig
 
      new_viewbox = Nokogiri::XML::Node.new "viewBox", $panzooms_xml.doc
-     if (start_event[0].previous)
-         new_viewbox.content = start_event[0].previous.content
-     elsif (start_event[0].next)
-         new_viewbox.content = start_event[0].next.content
+
+     #get slide at stop_timestamp+0.1 and its dimensions
+     $ss.each do |key,val|
+       if(key === stop_timestamp+0.1)
+          slide_width = val[0].to_f
+          slide_height = val[1].to_f
+          new_viewbox.content = "0.0 0.0 #{slide_width} #{slide_height}"
+          break
+       end
      end
 
      #set new_event content
@@ -238,7 +239,12 @@ def insertDesksharePanAndZoom(start_timestamp, start_timestamp_orig, video_width
        xml << new_viewbox.to_s
      end
 
-     start_event[0].add_next_sibling(new_event)
+     start_event.add_next_sibling(new_event)
+
+     #If deskshare begins at 0, the first panzoom must have deskshare dimensions
+     if (start_timestamp == 0.0)
+        start_event.xpath("viewBox")[0].content = "0.0 0.0 #{video_width}.0 #{video_height}.0"
+     end
 
   else
     BigBlueButton.logger.info("There's no panzoom event for timestamp = #{start_timestamp}")
