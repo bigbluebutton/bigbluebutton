@@ -9,7 +9,6 @@ import UsersMenu from './submenus/users/component';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from './styles.scss';
-import { handleSaveFontState, handleRevertFontState  } from '/imports/api/FontControl';
 
 export default class Settings extends React.Component {
   constructor(props) {
@@ -72,6 +71,9 @@ export default class Settings extends React.Component {
       title: this.submenus[curr].props.title,
       prependIconName: this.submenus[curr].props.prependIconName,
       icon: this.submenus[curr].props.icon,
+      handleIncreaseFontSize: this.props.handleIncreaseFontSize,
+      handleDecreaseFontSize: this.props.handleDecreaseFontSize,
+      handleGetFontSizeName: this.props.handleGetFontSizeName,
     };
 
     const Submenu = this.submenus[curr].componentName;
@@ -185,6 +187,7 @@ export default class Settings extends React.Component {
   }
 
   render() {
+
     return (
       <Modal
         title="Settings"
@@ -192,7 +195,7 @@ export default class Settings extends React.Component {
           callback: (() => {
             this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
             console.log('SHOULD APPLY SETTINGS CHANGES');
-            handleSaveFontState.call(this, localStorage.bbbFontSize);
+            this.props.handleSaveFontState();
           }),
           label: 'Save',
           description: 'Saves the changes and close the settings menu',
@@ -201,7 +204,7 @@ export default class Settings extends React.Component {
           callback: (() => {
             this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
             console.log('SHOULD DISCART SETTINGS CHANGES');
-            handleRevertFontState.call(this, localStorage.bbbSavedFontSize);
+            this.props.handleRevertFontState();
           }),
           label: 'Cancel',
           description: 'Discart the changes and close the settings menu',

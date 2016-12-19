@@ -6,16 +6,10 @@ import BaseMenu from '../base/component';
 import ReactDOM from 'react-dom';
 import FontControl from '/imports/api/FontControl';
 import styles from '../styles.scss';
-import { handleGetFontSizeName } from '/imports/api/FontControl';
-import { handleIncreaseFontSize } from '/imports/api/FontControl';
-import { handleDecreaseFontSize } from '/imports/api/FontControl';
 
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
-    this.state = {
-      currentFontSize: localStorage.bbbSavedFontSize || localStorage.bbbFontSize || 3,
-    }
   }
 
   getContent() {
@@ -40,11 +34,11 @@ export default class ApplicationMenu extends BaseMenu {
             <p>Font size</p>
           </div>
           <div className={styles.fontBarMid}>
-            <p>{handleGetFontSizeName.call(this)}</p>
+            <p>{this.props.handleGetFontSizeName()}</p>
           </div>
           <div className={styles.fontBarRight} role='presentation'>
             <Button
-              onClick={handleIncreaseFontSize.bind(this)}
+              onClick={this.props.handleIncreaseFontSize}
               icon={'circle-add'}
               circle={true}
               tabIndex={9}
@@ -57,7 +51,7 @@ export default class ApplicationMenu extends BaseMenu {
             <div id='sizeUpDesc' hidden>
               Increases the font size of the application.</div>
             <Button
-              onClick={handleDecreaseFontSize.bind(this)}
+              onClick={this.props.handleDecreaseFontSize}
               icon={'circle-minus'}
               circle={true}
               tabIndex={10}
