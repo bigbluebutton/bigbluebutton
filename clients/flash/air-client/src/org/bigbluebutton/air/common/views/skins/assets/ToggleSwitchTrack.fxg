@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graphic version="2.0" xmlns="http://ns.adobe.com/fxg/2008" viewHeight="54" viewWidth="122">
+  <Group scaleGridLeft="25.5" scaleGridRight="96.5" scaleGridTop="10" scaleGridBottom="44">
+    <Path winding="nonZero" data=" M 114.1 7.9 Q 106.2 0 95.05 0 L 26.9 0 Q 15.75 0 7.9 7.9 0 15.8 0 27 0 38.2 7.9 46.1 15.75 54 26.9 54 L 95.05 54 Q 106.2 54 114.1 46.1 122 38.15 122 27 122 15.8 114.1 7.9 Z">
+      <fill>
+        <SolidColor color="#36CC84"/>
+      </fill>
+    </Path>
+  </Group>
+</Graphic>

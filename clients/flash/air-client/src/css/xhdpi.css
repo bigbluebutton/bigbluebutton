@@ -66,6 +66,10 @@
 		iconSize : 44;
 	}
 	
+	s|ToggleSwitch {
+		fontSize : 24;
+	}
+	
 	.icon {
 		fontSize : 20;
 	}

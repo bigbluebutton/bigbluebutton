@@ -96,6 +96,11 @@ libChat|ChatViewBase {
 	inputBorderColor     : PropertyReference("athensGreyDark");
 }
 
+s|ToggleSwitch {
+	accentColor : PropertyReference("shamrock");
+	skinClass : ClassReference("org.bigbluebutton.air.common.views.skins.MobileToggleSwitchSkin");
+}
+
 .sectionTitle {
 	color : PropertyReference("regentGrey");
 }

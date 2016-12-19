@@ -25,3 +25,5 @@ private const tuna:uint = 0x353A42;
 private const shakespeare:uint = 0x4998D0;
 
 private const white:uint = 0xFFFFFF;
+
+private const shamrock:uint = 0x36CC84;
