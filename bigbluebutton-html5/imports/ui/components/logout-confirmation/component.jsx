@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Modal from '/imports/ui/components/modal/component';
 import Singleton from '/imports/ui/services/storage/local.js';
+import { clearModal } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   title: {
@@ -36,11 +37,16 @@ class LeaveConfirmation extends Component {
     super(props);
 
     this.handleLeaveConfirmation = this.handleLeaveConfirmation.bind(this);
+    this.handleCancleLogout = this.handleCancleLogout.bind(this);
   }
 
   handleLeaveConfirmation() {
     Singleton.clear();
     Auth.completeLogout();
+  }
+
+  handleCancleLogout() {
+    clearModal();
   }
 
   render() {
@@ -54,6 +60,7 @@ class LeaveConfirmation extends Component {
           description: intl.formatMessage(intlMessages.confirmDesc),
         }}
         dismiss={{
+          callback: this.handleCancleLogout,
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}>
