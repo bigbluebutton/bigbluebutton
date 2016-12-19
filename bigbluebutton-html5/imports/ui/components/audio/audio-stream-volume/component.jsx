@@ -11,7 +11,7 @@ const defaultProps = {
   low: 0,
   optimum: .05,
   high: .3,
-  deviceId: 'default',
+  deviceId: undefined,
 };
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -58,11 +58,17 @@ class AudioStreamVolume extends Component {
     this.scriptProcessor.onaudioprocess = this.handleAudioProcess;
     this.source = null;
 
-    const constraints = {
-      audio: {
-        deviceId: { exact: this.props.deviceId },
-      },
+    let constraints = {
+      audio: true,
     };
+
+    const { deviceId } = this.props;
+
+    if (deviceId) {
+      constraints.audio = {
+        deviceId,
+      };
+    }
 
     return navigator.mediaDevices
       .getUserMedia(constraints)
