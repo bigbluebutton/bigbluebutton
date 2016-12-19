@@ -2,7 +2,7 @@ package org.bigbluebutton.air.main.commands {
 	import mx.core.FlexGlobals;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
@@ -11,7 +11,7 @@ package org.bigbluebutton.air.main.commands {
 	public class ConnectingFinishedCommandAIR extends Command {
 		
 		[Inject]
-		public var userUISession:IUserUISession
+		public var uiSession:IUISession
 		
 		[Inject]
 		public var userSession:IUserSession;
@@ -20,24 +20,20 @@ package org.bigbluebutton.air.main.commands {
 		public var conferenceParameters:IConferenceParameters;
 		
 		override public function execute():void {
-			userUISession.popPage();
-			if (FlexGlobals.topLevelApplication.hasOwnProperty("topActionBar") && FlexGlobals.topLevelApplication.hasOwnProperty("bottomMenu")) {
-				FlexGlobals.topLevelApplication.topActionBar.visible = true;
-				FlexGlobals.topLevelApplication.bottomMenu.visible = true;
-				FlexGlobals.topLevelApplication.bottomMenu.includeInLayout = true;
-			}
-			userUISession.loading = false;
-			userUISession.pushPage(PageEnum.PRESENTATION);
-			displayAudioSettings();
-			if (userSession.videoAutoStart && !userSession.skipCamSettingsCheck) {
-				userUISession.pushPage(PageEnum.CAMERASETTINGS);
-			}
+			uiSession.popPage();
+			
+			uiSession.setLoading(false, "Loading Finished");
+			uiSession.pushPage(PageEnum.MAIN);
+	//		displayAudioSettings();
+	//		if (userSession.videoAutoStart && !userSession.skipCamSettingsCheck) {
+	//			uiSession.pushPage(PageEnum.CAMERASETTINGS);
+	//		}
 		}
 		
 		private function displayAudioSettings(micLocked:Boolean = false):void {
 			userSession.lockSettings.disableMicSignal.remove(displayAudioSettings);
 			if (userSession.phoneOptions.autoJoin && !userSession.phoneOptions.skipCheck && (userSession.userList.me.isModerator() || !userSession.lockSettings.disableMic)) {
-				userUISession.pushPage(PageEnum.AUDIOSETTINGS);
+				uiSession.pushPage(PageEnum.AUDIOSETTINGS);
 			} else {
 				userSession.phoneOptions.autoJoin = false;
 			}

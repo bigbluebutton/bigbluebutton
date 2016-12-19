@@ -25,19 +25,6 @@ const stringToPastelColour = (str) => {
   };
 };
 
-const whiteColour = (str) => {
-
-  let baseRed = 255;
-  let baseGreen = 255;
-  let baseBlue = 255;
-
-  return {
-    r: baseRed,
-    g: baseGreen,
-    b: baseBlue,
-  };
-};
-
 // https://www.w3.org/TR/WCAG20/#relativeluminancedef
 // http://entropymine.com/imageworsener/srgbformula/
 const relativeLuminance = (rgb) => {
@@ -112,15 +99,10 @@ const addShadeIfNoContrast = (rgb) => {
   return addShadeIfNoContrast(shadeColor(rgb, -25));
 };
 
-const getColor = (username, chkLogin) => {
-  if (chkLogin) {
-    let rgb = stringToPastelColour(username);
-    rgb = addShadeIfNoContrast(rgb);
-    return 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
-  } else {
-    let rgb = whiteColour();
-    return 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
-  }
+const getColor = (str) => {
+  let rgb = stringToPastelColour(str);
+  rgb = addShadeIfNoContrast(rgb);
+  return 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
 };
 
 export default getColor;

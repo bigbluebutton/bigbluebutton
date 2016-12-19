@@ -1,10 +1,12 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
-import { clearModal } from '/imports/ui/components/app/service';
-import { joinListenOnly } from '/imports/api/phone';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
+import StreamVolume from '/imports/ui/components/stream-volume/component';
+import SpeakerSource from '/imports/ui/components/speaker-source/component';
+import AudioTestContainer from '/imports/ui/components/audio-test/container';
+import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 
 export default class ListenOnly extends React.Component {
   constructor(props) {
@@ -15,10 +17,6 @@ export default class ListenOnly extends React.Component {
 
   chooseAudio() {
     this.props.changeMenu(this.props.JOIN_AUDIO);
-  }
-
-  joinListen() {
-    joinListenOnly();
   }
 
   render() {
@@ -34,18 +32,18 @@ export default class ListenOnly extends React.Component {
             onClick={this.chooseAudio}
           />
           <div>
-            Listen only message
+            Choose your listen only settings
           </div>
         </div>
         <div>
-          Content goes here<br /><br />
-          Volume Slider Here
-          <Button className={styles.enterBtn}
-            label={'Enter Session'}
-            size={'md'}
-            color={'primary'}
-            onClick={this.joinListen}
-          />
+          <div className={styles.containerLeftHalfContent}>
+            <StreamVolume />
+            <SpeakerSource />
+            <AudioTestContainer />
+          </div>
+          <div className={styles.containerRightHalfContent}>
+            <EnterAudioContainer isFullAudio={false}/>
+          </div>
         </div>
       </div>
     );

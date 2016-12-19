@@ -103,11 +103,6 @@
 	</target>
 	<target name="Resolve-Dependency"
 			description="Generate HTML wrapper">
-		<copy todir="resources/lib/" >
-			<fileset file="../bigbluebutton-client/resources/prod/lib/bbb_webrtc_bridge_sip.js" />
-			<fileset file="../bigbluebutton-client/resources/prod/lib/sip.js" />
-		</copy>
-
 		<get src="${TEST_IMAGE_URL}" dest="${html.output}/test_image.jpg" skipexisting="true" />
 		<copy file="html-template/index.html"
 			  tofile="${html.output}/index.html"/>

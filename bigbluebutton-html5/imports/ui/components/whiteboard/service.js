@@ -36,9 +36,15 @@ const getCurrentShapes = () => {
 
 const getCurrentCursor = () => Cursor.findOne({});
 
-const isPresenter = () => Users.findOne({
-  userId: Auth.userID,
-}).user.presenter;
+const isPresenter = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID, });
+
+  if (currentUser && currentUser.user) {
+    return currentUser.user.presenter;
+  }
+
+  return false;
+};
 
 export default {
   getCurrentPresentation,

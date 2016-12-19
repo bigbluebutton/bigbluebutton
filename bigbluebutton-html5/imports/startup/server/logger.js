@@ -3,6 +3,17 @@ import Winston from 'winston';
 
 let Logger = new Winston.Logger();
 
+Logger.configure({
+  levels: { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, },
+  colors: {
+    error: 'red',
+    warn: 'yellow',
+    info: 'green',
+    verbose: 'cyan',
+    debug: 'magenta',
+  },
+});
+
 // Write logs to console
 Logger.add(Winston.transports.Console, {
   prettyPrint: false,
@@ -14,6 +25,9 @@ Logger.add(Winston.transports.Console, {
 Meteor.startup(() => {
   const LOG_CONFIG = Meteor.settings.log || {};
   let filename = LOG_CONFIG.filename;
+
+  // Set Logger message level priority for the console
+  Logger.transports.console.level = LOG_CONFIG.level;
 
   // Determine file to write logs to
   if (filename) {

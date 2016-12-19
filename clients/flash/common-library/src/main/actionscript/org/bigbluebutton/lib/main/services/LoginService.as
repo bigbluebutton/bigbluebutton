@@ -24,6 +24,8 @@ package org.bigbluebutton.lib.main.services {
 		
 		protected var _config:Config;
 		
+		private var sessionToken:String;
+		
 		public function get loginSuccessSignal():ISignal {
 			return _loginSuccessSignal;
 		}
@@ -46,12 +48,13 @@ package org.bigbluebutton.lib.main.services {
 			//TODO: show message to user saying that the meeting identifier is invalid 
 		}
 		
-		public function login(urlRequest:URLRequest, url:String):void {
+		public function login(urlRequest:URLRequest, url:String, sessionToken:String):void {
 			_urlRequest = urlRequest;
+			this.sessionToken = sessionToken;
 			var configSubservice:ConfigService = new ConfigService();
 			configSubservice.successSignal.add(afterConfig);
 			configSubservice.failureSignal.add(fail);
-			configSubservice.getConfig(getServerUrl(url), _urlRequest);
+			configSubservice.getConfig(getServerUrl(url), _urlRequest, sessionToken);
 		}
 		
 		protected function dispatchVideoProfileManager(manager:VideoProfileManager):void {
@@ -59,7 +62,7 @@ package org.bigbluebutton.lib.main.services {
 			var enterSubservice:EnterService = new EnterService();
 			enterSubservice.successSignal.add(afterEnter);
 			enterSubservice.failureSignal.add(fail);
-			enterSubservice.enter(_config.application.host, _urlRequest);
+			enterSubservice.enter(_config.application.host, _urlRequest, sessionToken);
 		}
 		
 		

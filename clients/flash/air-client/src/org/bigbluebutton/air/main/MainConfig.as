@@ -4,35 +4,19 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.commands.JoinMeetingCommandAIR;
 	import org.bigbluebutton.air.main.commands.NavigateToCommand;
 	import org.bigbluebutton.air.main.commands.NavigateToSignal;
-	import org.bigbluebutton.air.main.views.disconnectpage.DisconnectPageViewMediator;
-	import org.bigbluebutton.air.main.views.disconnectpage.IDisconnectPageView;
-	import org.bigbluebutton.air.main.views.exit.ExitPageViewMediator;
-	import org.bigbluebutton.air.main.views.exit.IExitPageView;
-	import org.bigbluebutton.air.main.views.loginpage.ILoginPageView;
-	import org.bigbluebutton.air.main.views.loginpage.LoginPageViewMediator;
-	import org.bigbluebutton.air.main.views.menubuttons.IMenuButtonsView;
-	import org.bigbluebutton.air.main.views.menubuttons.MenuButtonsViewMediator;
-	import org.bigbluebutton.air.main.views.menubuttons.changestatus.ChangeStatusPopUpMediator;
-	import org.bigbluebutton.air.main.views.menubuttons.changestatus.IChangeStatusPopUp;
-	import org.bigbluebutton.air.main.views.pagesnavigator.IPagesNavigatorView;
-	import org.bigbluebutton.air.main.views.pagesnavigator.PagesNavigatorViewMediator;
-	import org.bigbluebutton.air.main.views.profile.IProfileView;
-	import org.bigbluebutton.air.main.views.profile.ProfileViewMediator;
-	import org.bigbluebutton.air.main.views.topbar.ITopBarView;
-	import org.bigbluebutton.air.main.views.topbar.TopBarViewMediator;
-	import org.bigbluebutton.air.main.views.ui.loadingscreen.ILoadingScreen;
-	import org.bigbluebutton.air.main.views.ui.loadingscreen.LoadingScreenMediator;
-	import org.bigbluebutton.air.main.views.ui.navigationbutton.INavigationButton;
-	import org.bigbluebutton.air.main.views.ui.navigationbutton.NavigationButtonMediator;
-	import org.bigbluebutton.air.main.views.ui.recordingstatus.IRecordingStatus;
-	import org.bigbluebutton.air.main.views.ui.recordingstatus.RecordingStatusMediator;
-	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
+	import org.bigbluebutton.air.main.views.LoadingScreen;
+	import org.bigbluebutton.air.main.views.LoadingScreenMediator;
+	import org.bigbluebutton.air.main.views.PagesNavigatorView;
+	import org.bigbluebutton.air.main.views.PagesNavigatorViewMediator;
+	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarMediatorAIR;
 	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
-	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.lib.main.views.MenuButtonsBase;
+	import org.bigbluebutton.lib.main.views.MenuButtonsMediatorBase;
+	import org.bigbluebutton.lib.main.views.TopToolbarBase;
 	
+	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
@@ -54,17 +38,23 @@ package org.bigbluebutton.air.main {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
-			mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
-			mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
-			mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
-			mediatorMap.map(ILoginPageView).toMediator(LoginPageViewMediator);
-			mediatorMap.map(ILoadingScreen).toMediator(LoadingScreenMediator);
-			mediatorMap.map(IDisconnectPageView).toMediator(DisconnectPageViewMediator);
-			mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
-			mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
-			mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
-			mediatorMap.map(ITopBarView).toMediator(TopBarViewMediator);
+			/*
+			   mediatorMap.map(INavigationButton).toMediator(NavigationButtonMediator);
+			   mediatorMap.map(IRecordingStatus).toMediator(RecordingStatusMediator);
+			   mediatorMap.map(IPagesNavigatorView).toMediator(PagesNavigatorViewMediator);
+			   mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
+			   mediatorMap.map(ILoginPageView).toMediator(LoginPageViewMediator);
+			   mediatorMap.map(ILoadingScreen).toMediator(LoadingScreenMediator);
+			   mediatorMap.map(IDisconnectPageView).toMediator(DisconnectPageViewMediator);
+			   mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
+			   mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
+			   mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
+			 */
+			
+			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
+			mediatorMap.map(PagesNavigatorView).toMediator(PagesNavigatorViewMediator);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarAIR)).toMediator(TopToolbarMediatorAIR);
+			mediatorMap.map(MenuButtonsBase).toMediator(MenuButtonsMediatorBase);
 		}
 		
 		/**
@@ -74,8 +64,6 @@ package org.bigbluebutton.air.main {
 			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommandAIR);
 			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommandAIR);
 			signalCommandMap.map(NavigateToSignal).toCommand(NavigateToCommand);
-			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
-			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
 		}
 	}
 }

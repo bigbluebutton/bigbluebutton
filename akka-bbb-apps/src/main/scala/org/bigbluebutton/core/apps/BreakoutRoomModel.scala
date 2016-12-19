@@ -10,7 +10,6 @@ class BreakoutRoomModel {
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoom]
 
   var pendingRoomsNumber: Integer = 0
-  var redirectOnJoin: Boolean = false
 
   def add(room: BreakoutRoom): BreakoutRoom = {
     rooms += room.id -> room
@@ -29,6 +28,10 @@ class BreakoutRoomModel {
 
   def getBreakoutRoom(id: String): Option[BreakoutRoom] = {
     rooms.get(id)
+  }
+
+  def getRoomWithExternalId(externalId: String): Option[BreakoutRoom] = {
+    rooms.values find (r => r.externalMeetingId == externalId)
   }
 
   def getRooms(): Array[BreakoutRoom] = {

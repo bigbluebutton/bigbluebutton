@@ -4,7 +4,7 @@
 @namespace libChat "org.bigbluebutton.lib.chat.views.*";
 
 @font-face { 
-	src: 		url("assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
+	src: 		url("../../../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
 	fontFamily:	SourceSansPro; 
 	fontStyle:	normal; 
 	fontWeight:	normal; 
@@ -12,7 +12,7 @@
 }
 
 @font-face { 
-	src:		url("assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf"); 
+	src:		url("../../../../shared/assets/fonts/SourceSansPro/SourceSansPro-Semibold.ttf"); 
 	fontFamily:	SourceSansPro; 
 	fontStyle:	normal; 
 	fontWeight:	bold; 
@@ -20,7 +20,7 @@
 }
 
 @font-face { 
-	src:		url("assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf"); 
+	src:		url("../../../../shared/assets/fonts/SourceSansPro/SourceSansPro-Italic.ttf"); 
 	fontFamily:	SourceSansPro; 
 	fontStyle:	italic; 
 	fontWeight:	normal; 
@@ -28,7 +28,7 @@
 }
 
 @font-face { 
-	src:		url("assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf"); 
+	src:		url("../../../../shared/assets/fonts/SourceSansPro/SourceSansPro-Bold.ttf"); 
 	fontFamily:	SourceSansPro; 
 	fontStyle:	normal; 
 	fontWeight:	heavy; 
@@ -36,7 +36,7 @@
 }
 
 @font-face { 
-	src: 		url("assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
+	src: 		url("../../../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf"); 
 	fontFamily:	SourceSansProMX; 
 	fontStyle:	normal; 
 	fontWeight:	normal; 
@@ -69,13 +69,13 @@ libChat|NewMessagesIndicator
 	skinClass:			ClassReference("org.bigbluebutton.lib.chat.views.skins.NewMessagesIndicatorSkin");
 }
 
-.titleLabelStyle
+.titleLabel
 {
 	color: 		#F3F6F9;
 	fontSize:	24;
 }
 
-.topButtonStyle
+.topButton
 {
 	paddingLeft:		24;
 	paddingRight:		24;
@@ -87,17 +87,17 @@ libChat|NewMessagesIndicator
 
 }
 
-.participantsButtonStyle
+.participantsButton
 {
-	backgroundImage:	Embed(source="assets/res/drawable-mdpi/participants.png");
+	backgroundImage:	Embed(source="../../../../shared/assets/res/drawable-mdpi/participants.png");
 }
 
-.settingsButtonStyle
+.settingsButton
 {
-	backgroundImage:	Embed(source="assets/res/drawable-mdpi/settings.png");
+	backgroundImage:	Embed(source="../../../../shared/assets/res/drawable-mdpi/settings.png");
 }
 
-.menuButtonStyle
+.menuButton
 {
 	backgroundColor         : #299AD5;
 	selectedBackgroundColor : #8A9AA7;
@@ -106,32 +106,32 @@ libChat|NewMessagesIndicator
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.MenuButtonSkin");
 }
 
-.micOnButtonStyle
+.micOnButton
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/mic.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/mic.png");
 }
 
-.micOffButtonStyle
+.micOffButton
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/mic_off.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/mic_off.png");
 }
 
-.camOnButtonStyle
+.camOnButton
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/cam.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/cam.png");
 }
 
-.camOffButtonStyle
+.camOffButton
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/cam_off.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/cam_off.png");
 }
 
-.handStatusButtonStyle
+.handStatusButton
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/hand.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/hand.png");
 }
 
-.participantIconStyle
+.participantIcon
 {
 	circleColor : #8898A5;
 	width  : 32;
@@ -139,19 +139,19 @@ libChat|NewMessagesIndicator
 	fontSize : 12;
 }
 
-.chatMessageStyle
+.chatMessage
 {
 	nameFontSize: 		16;
 	timeFontSize:		16;
 }
 
-.contentStyle
+.content
 {
 	fontSize:	14;
 	color:		#8B9AA8;
 }
 
-.panelStyle
+.panel
 {
 	backgroundColor:	#F3F6F9;
 	backgroundAlpha:	1;
@@ -159,7 +159,7 @@ libChat|NewMessagesIndicator
 	skinClass:			ClassReference("org.bigbluebutton.web.common.skins.PanelSkin");
 }
 
-.panelTitleStyle
+.panelTitle
 {
 	fontSize:		18;
 	fontWeight:		bold;
@@ -167,39 +167,39 @@ libChat|NewMessagesIndicator
 	paddingBottom:	10;
 }
 
-.iconStyle
+.icon
 {
-	width:		32;
-	height:		32;
-	skinClass:	ClassReference("org.bigbluebutton.lib.common.skins.IconSkin")
+	fontSize   :    20;
+	fontFamily :    BBBIcons;
+	color      :    PropertyReference("bbbGrey");
 }
 
-.cameraIconStyle
+.cameraIcon
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/video.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/video.png");
 }
 
-.micIconStyle
+.micIcon
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/microphone.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/microphone.png");
 }
 
-.micOffIconStyle
+.micOffIcon
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/micOffIcon_dark.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/micOffIcon_dark.png");
 }
 
-.speakingMicIconStyle
+.speakingMicIcon
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/microphone_talk.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/microphone_talk.png");
 }
 
-.listenOnlyIconStyle
+.listenOnlyIcon
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/ic_headset.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/ic_headset.png");
 }
 
-.lockIconStyle
+.lockIcon
 {
-	backgroundImage : Embed(source="assets/res/drawable-mdpi/lock.png");
+	backgroundImage : Embed(source="../../../../shared/assets/res/drawable-mdpi/lock.png");
 }

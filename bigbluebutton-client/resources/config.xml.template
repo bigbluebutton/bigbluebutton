@@ -14,7 +14,7 @@
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true"
-            showRecordingNotification="true"/>
+            showRecordingNotification="true" logoutOnStopRecording="false"/>
     <meeting muteOnStart="false" />
     <breakoutRooms enabled="true" record="false" />
     <logging enabled="true" target="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST" logPattern=".*"/>

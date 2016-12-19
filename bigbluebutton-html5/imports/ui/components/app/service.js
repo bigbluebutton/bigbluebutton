@@ -25,7 +25,7 @@ function subscribeForData() {
 
   const subNames = [
     'users', 'chat', 'cursor', 'deskshare', 'meetings',
-    'polls', 'presentations', 'shapes', 'slides', 'captions',
+    'polls', 'presentations', 'shapes', 'slides', 'captions', 'breakouts',
   ];
 
   let subs = [];
@@ -112,6 +112,7 @@ export {
   subscribeToCollections,
   wasUserKicked,
   redirectToLogoutUrl,
+  getBreakouts,
   getModal,
   showModal,
   clearModal,

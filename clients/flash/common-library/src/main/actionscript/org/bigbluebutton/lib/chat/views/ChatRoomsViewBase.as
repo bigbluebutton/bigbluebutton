@@ -25,7 +25,7 @@ package org.bigbluebutton.lib.chat.views {
 			
 			_chatLabel = new Label();
 			_chatLabel.percentWidth = 100;
-			_chatLabel.styleName = "contentStyle";
+			_chatLabel.styleName = "content";
 			_chatLabel.text = "Messages";
 			addElement(_chatLabel);
 			

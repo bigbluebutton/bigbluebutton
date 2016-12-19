@@ -7,6 +7,7 @@ import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.DisconnectAllUsersMessage;
 import org.bigbluebutton.common.messages.DisconnectUserMessage;
 import org.bigbluebutton.common.messages.MeetingEndedMessage;
+import org.bigbluebutton.common.messages.MeetingEndingMessage;
 import org.bigbluebutton.common.messages.MeetingHasEndedMessage;
 import org.bigbluebutton.common.messages.MeetingMutedMessage;
 import org.bigbluebutton.common.messages.MeetingStateMessage;
@@ -58,6 +59,12 @@ public class MeetingClientMessageSender {
 						  processMeetingEndedMessage(mem);
 					  }
 					  break; 
+				  case MeetingEndingMessage.MEETING_ENDING:
+					  MeetingEndingMessage me = MeetingEndingMessage.fromJson(message);
+					  if (me != null) {
+						  processMeetingEndingMessage(me);
+					  }
+					  break;
 				  case MeetingHasEndedMessage.MEETING_HAS_ENDED:
 					  MeetingHasEndedMessage mhem = MeetingHasEndedMessage.fromJson(message);
 					  if (mhem != null) {
@@ -162,6 +169,18 @@ public class MeetingClientMessageSender {
 	  	service.sendMessage(m); 
 	}
 	
+	private void processMeetingEndingMessage(MeetingEndingMessage msg) {
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("status", "Meeting is ending.");
+
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingEnding", message);
+		service.sendMessage(m);
+	}
+
 	private void processDisconnectAllUsersMessage(DisconnectAllUsersMessage msg) {
 		DisconnectAllClientsMessage dm = new DisconnectAllClientsMessage(msg.meetingId);
 		service.sendMessage(dm);	  	 

@@ -6,16 +6,11 @@
 package org.bigbluebutton.air.main.utils {
 	
 	import flash.display.DisplayObject;
-	import flash.display.Stage;
 	import flash.display.StageOrientation;
 	import flash.events.AccelerometerEvent;
-	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.sensors.Accelerometer;
 	import flash.utils.Timer;
-	import flash.utils.clearInterval;
-	import flash.utils.setInterval;
 	
 	public class OrientationCalculator {
 		private static var _checkFrequency:int = 500;

@@ -50,7 +50,6 @@
   min-width: 0;
   font-weight: 600;
   color: $color-gray;
-  text-transform: capitalize;
 
   > span {
     @extend %text-elipsis;
@@ -71,10 +70,14 @@
 }
 
 .offline {
-  font-weight: 100;
   color: $color-gray-light;
-  text-transform: capitalize;
+  font-weight: 100;
+  text-transform: lowercase;
   font-style: italic;
+  margin-left: .25rem;
+  font-size: 90%;
+  line-height: 1;
+  align-self: center;
 }
 
 .time {

@@ -52,6 +52,14 @@ object MeetingMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
+  def meetingEndingToJson(msg: MeetingEnding): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+
+    val header = Util.buildHeader(MessageNames.MEETING_ENDING, None)
+    Util.buildJson(header, payload)
+  }
+
   def voiceRecordingStartedToJson(msg: VoiceRecordingStarted): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -171,7 +179,8 @@ object MeetingMessageToJsonConverter {
     payload.put("parentMeetingId", msg.parentMeetingId)
     payload.put("breakoutMeetingId", msg.breakoutMeetingId)
     payload.put("userId", msg.userId)
-    payload.put("joinURL", msg.joinURL)
+    payload.put("redirectJoinURL", msg.redirectJoinURL)
+    payload.put("noRedirectJoinURL", msg.noRedirectJoinURL)
 
     val header = Util.buildHeader(BreakoutRoomJoinURL.NAME, None)
     Util.buildJson(header, payload)

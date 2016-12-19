@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
+import { Meteor } from 'meteor/meteor';
 import handleLockingMic from '/imports/api/users/server/modifiers/handleLockingMic';
 
 export default function handlePermissionSettingsChange({ payload }) {
@@ -17,7 +18,7 @@ export default function handlePermissionSettingsChange({ payload }) {
   const Meeting = Meetings.findOne(selector);
 
   if (!Meeting) {
-    throw new Meteor.error('meeting-not-found', `Meeting id=${meetingId} was not found`);
+    throw new Meteor.Error('meeting-not-found', `Meeting id=${meetingId} was not found`);
   }
 
   const modifier = {

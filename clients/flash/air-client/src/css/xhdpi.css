@@ -1,0 +1,83 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace main "org.bigbluebutton.air.main.views.*";
+@namespace mainviews "org.bigbluebutton.lib.main.views.*";
+@namespace skins "org.bigbluebutton.lib.main.views.skins.*";
+
+@media (application-dpi: 320) {
+	main|LoadingScreen {
+		fontSize : 34;
+	}
+	
+	main|TopToolbarAIR {
+		height : 80;
+	}
+	
+	main|MainView {
+		menuHeight    : 160;
+		toolbarHeight : 80;
+	}
+	
+	mainviews|MenuButtonsBase {
+		bottom   : 35;
+		top      : 14;
+		gap      : 45;
+	}
+	
+	skins|MenuButtonSkin {
+		fontSize     : 24;
+		iconSize     : 36;
+		labelPadding : 12;
+	}
+	
+	.titleLabel
+	{
+		fontSize : 34;
+		left     : 90;
+		right    : 90;
+		top      : 25;
+	}
+	
+	.topButton
+	{
+		iconSize : 30;
+		top      : 25;
+	}
+	
+	.topLeftButton {
+		left : 30;
+	}
+	
+	.topRightButton {
+		right : 30;
+	}
+	
+	.participantIcon
+	{
+		width    : 32;
+		height   : 32;
+		fontSize : 12;
+	}
+	
+	.chatMessage
+	{
+		nameFontSize : 16;
+		timeFontSize : 16;
+	}
+	
+	.sendButton
+	{
+		fontSize     : 20;
+		borderWeight : 2;
+		cornerRadius : 4;
+	}
+	
+	.content
+	{
+		fontSize : 14;
+	}
+	
+	.icon
+	{
+		fontSize : 20;
+	}
+}

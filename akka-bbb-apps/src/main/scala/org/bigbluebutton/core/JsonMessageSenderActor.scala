@@ -107,7 +107,7 @@ class JsonMessageSenderActor(val service: MessageSender)
 
   def handleBreakoutRoomJoinURL(msg: BreakoutRoomJoinURLOutMessage) {
     val payload = new BreakoutRoomJoinURLPayload(msg.parentMeetingId,
-      msg.breakoutMeetingId, msg.userId, msg.joinURL)
+      msg.breakoutMeetingId, msg.userId, msg.redirectJoinURL, msg.noRedirectJoinURL)
     val request = new BreakoutRoomJoinURL(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson)
   }

@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -74,7 +75,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function handleRedirectError(e:IOErrorEvent):void {
-				LOGGER.error("Log out redirection returned with error.");
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["logout"];
+				logData.message = "Log out redirection returned with error.";
+				LOGGER.error(JSON.stringify(logData));
 				PopUpManager.removePopUp(this);
 				exitApplication();
 			}

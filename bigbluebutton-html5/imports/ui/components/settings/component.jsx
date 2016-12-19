@@ -14,29 +14,58 @@ export default class Settings extends React.Component {
   constructor(props) {
     super(props);
     this.submenus = [];
+    this.state = { activeSubmenu: 0, focusSubmenu: 0 };
   }
 
-  componentWillMount() {
-    /* activeSubmenu represents the submenu in the submenus array to be displayed to the user,
-     * initialized to 0
-     */
-    this.setState({ activeSubmenu: 0 });
-    /* focusSubmenu represents the submenu in the submenus array which currently has focus,
-     * initialized to 0
-     */
-    this.setState({ focusSubmenu: 0 });
-    this.submenus.push({ componentName: AudioMenu, tabIndex: 3,
-      props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, });
-    this.submenus.push({ componentName: VideoMenu, tabIndex: 4,
-      props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, });
-    this.submenus.push({ componentName: ApplicationMenu, tabIndex: 5,
-      props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
-    this.submenus.push({ componentName: UsersMenu, tabIndex: 6,
-      props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
+  renderSettingOptions() {
+    const { isPresenter, role } = this.props;
+    
+    this.submenus = [];
+    this.submenus.push(
+      { componentName: AudioMenu, tabIndex: 3,
+        props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, },
+      { componentName: VideoMenu, tabIndex: 4,
+        props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, },
+      { componentName: ApplicationMenu, tabIndex: 5,
+        props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, });
+
+    if (isPresenter || role === 'MODERATOR') {
+      this.submenus.push(
+        { componentName: UsersMenu, tabIndex: 6,
+          props: { title: 'Participants', prependIconName: 'icon-', icon: 'bbb-user', }, });
+    }
+
+    return (
+      <div className={styles.full} role='presentation'>
+        <div className={styles.settingsMenuLeft}>
+          <ul className={styles.settingsSubmenu} role='menu'>
+            {this.submenus.map((value, index) => (
+              <li key={index} ref={'submenu' + index} role='menuitem' tabIndex={value.tabIndex}
+                onClick={this.handleClickSubmenu.bind(this, index)}
+                onKeyDown={this.handleKeyDown.bind(this)}
+                onFocus={this.handleFocus.bind(this, index)}
+                className={classNames(styles.settingsSubmenuItem,
+                  index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
+                <Icon key={index} prependIconName={value.props.prependIconName}
+                  iconName={value.props.icon} title={value.props.title}/>
+                <span className={styles.settingsSubmenuItemText}>{value.props.title}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className={styles.settingsMenuRight} role='presentation'>
+          {this.renderMenu()}
+        </div>
+      </div>
+    );
   }
 
-  createMenu() {
-    const curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
+  renderMenu() {
+    let curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
+
+    if (!this.submenus[curr]) {
+      curr = (this.state.activeSubmenu - 1);
+    }
 
     let props = {
       title: this.submenus[curr].props.title,
@@ -54,7 +83,7 @@ export default class Settings extends React.Component {
    * activeSubmenu: the submenu to be displayed to the user
    * focusSubmenu: the submenu to set focus to
    */
-  clickSubmenu(i) {
+  handleClickSubmenu(i) {
     if (i <= 0) {
       this.setState({ activeSubmenu: 0, focusSubmenu: 0, });
       return;
@@ -174,27 +203,7 @@ export default class Settings extends React.Component {
           label: 'Cancel',
           description: 'Discart the changes and close the settings menu',
         }}>
-        <div className={styles.full} role='presentation'>
-          <div className={styles.settingsMenuLeft}>
-            <ul className={styles.settingsSubmenu} role='menu'>
-              {this.submenus.map((value, index) => (
-                <li key={index} ref={'submenu' + index} role='menuitem' tabIndex={value.tabIndex}
-                  onClick={this.clickSubmenu.bind(this, index)}
-                  onKeyDown={this.handleKeyDown.bind(this)}
-                  onFocus={this.handleFocus.bind(this, index)}
-                  className={classNames(styles.settingsSubmenuItem,
-                    index == this.state.activeSubmenu ? styles.settingsSubmenuItemActive : null)}>
-                  <Icon key={index} prependIconName={value.props.prependIconName}
-                    iconName={value.props.icon} title={value.props.title}/>
-                  <span className={styles.settingsSubmenuItemText}>{value.props.title}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className={styles.settingsMenuRight} role='presentation'>
-            {this.createMenu()}
-          </div>
-        </div>
+          {this.renderSettingOptions()}
       </Modal>
     );
   }

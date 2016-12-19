@@ -71,6 +71,7 @@ class MessageList extends Component {
   }
 
   componentWillUpdate(nextProps) {
+
     if (this.props.chatId !== nextProps.chatId) {
       this.shouldScrollBottom = false;
       return;
@@ -81,12 +82,6 @@ class MessageList extends Component {
                               scrollArea.offsetHeight ===
                               scrollArea.scrollHeight;
 
-    const d = document;
-    const isDocumentHidden = d.hidden || d.mozHidden || d.msHidden || d.webkitHidden;
-    if (isDocumentHidden) {
-      this.shouldScrollBottom = false;
-      return;
-    }
   }
 
   componentDidUpdate(prevProps) {
