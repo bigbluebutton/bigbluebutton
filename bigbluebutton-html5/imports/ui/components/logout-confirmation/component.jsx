@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Modal from '/imports/ui/components/modal/component';
+import Singleton from '/imports/ui/services/storage/local.js';
 
 const intlMessages = defineMessages({
   title: {
@@ -38,6 +39,7 @@ class LeaveConfirmation extends Component {
   }
 
   handleLeaveConfirmation() {
+    Singleton.clear();
     Auth.completeLogout();
   }
 

@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Settings from './component';
 import Service from './service';
-import FontControl from '/imports/api/FontControl';
+import Singleton from '/imports/ui/services/storage/local.js';
 
 const DEFAULT_FONTSIZE = 3;
 const MAX_FONTSIZE = 5;
@@ -11,63 +11,84 @@ const MIN_FONTSIZE = 1;
 class SettingsMenuContainer extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      currentFontSize: localStorage.bbbSavedFontSize || DEFAULT_FONTSIZE,
+      currentFontSize: Singleton.getItem('bbbSavedFontSize') || DEFAULT_FONTSIZE,
     }
+
+    this.fontControl = {
+      properties: {
+        1: { size: '12px', name: 'Extra Small' },
+        2: { size: '14px', name: 'Small' },
+        3: { size: '16px', name: 'Medium' },
+        4: { size: '18px', name: 'Large' },
+        5: { size: '20px', name: 'Extra Large' },
+      },
+    };
+
+    this.handleGetFontSizeName = this.handleGetFontSizeName.bind(this);
+    this.handleApplyFontSize = this.handleApplyFontSize.bind(this);
+    this.handleIncreaseFontSize = this.handleIncreaseFontSize.bind(this);
+    this.handleDecreaseFontSize = this.handleDecreaseFontSize.bind(this);
+    this.handleSaveFontState = this.handleSaveFontState.bind(this);
+    this.handleRevertFontState = this.handleRevertFontState.bind(this);
   }
 
-  applyFontSize() {
-    const size = FontControl.fontSizeEnum.properties[this.state.currentFontSize].size;
+  handleGetFontSizeName() {
+    return this.fontControl.properties[this.state.currentFontSize].name;
+  };
+
+  handleApplyFontSize() {
+    const size = this.fontControl.properties[this.state.currentFontSize].size;
     document.getElementsByTagName('html')[0].style.fontSize = size;
   };
 
-  increaseFontSize() {
+  handleIncreaseFontSize() {
     let fs = ( this.state.currentFontSize < MAX_FONTSIZE) ? ++this.state.currentFontSize : MAX_FONTSIZE;
-    localStorage.setItem('bbbFontSize', fs);
+    Singleton.setItem('bbbFontSize', fs);
     this.setState({ currentFontSize: fs }, function () {
-      this.applyFontSize();
+      this.handleApplyFontSize();
     });
   };
 
-  decreaseFontSize() {
+  handleDecreaseFontSize() {
     let fs = ( this.state.currentFontSize > MIN_FONTSIZE) ? --this.state.currentFontSize : MIN_FONTSIZE;
-    localStorage.setItem('bbbFontSize', fs);
+    Singleton.setItem('bbbFontSize', fs);
     this.setState({ currentFontSize: fs }, function () {
-      this.applyFontSize();
+      this.handleApplyFontSize();
     });
   };
 
-  getFontSizeName() {
-    return FontControl.fontSizeEnum.properties[this.state.currentFontSize].name;
-  };
-
-  saveFontState() {
-    localStorage.bbbSavedFontSize = localStorage.bbbFontSize || DEFAULT_FONTSIZE;
-    this.setState({ currentFontSize: localStorage.bbbSavedFontSize }, function () {
-      this.applyFontSize();
+  handleSaveFontState() {
+    let fs = Singleton.getItem('bbbFontSize') || DEFAULT_FONTSIZE;
+    Singleton.setItem('bbbSavedFontSize', fs);
+    Singleton.setItem('bbbSavedFontSizePixels', this.fontControl.properties[fs].size);
+    this.setState({ currentFontSize: fs }, function () {
+      this.handleApplyFontSize();
     });
   };
 
-  revertFontState(){
-    let revertFontSize = localStorage.bbbSavedFontSize || DEFAULT_FONTSIZE;
-    this.setState({ currentFontSize: revertFontSize }, function () {
-      this.applyFontSize();
+  handleRevertFontState(){
+    let fs = Singleton.getItem('bbbSavedFontSize') || DEFAULT_FONTSIZE;
+    this.setState({ currentFontSize: fs }, function () {
+      this.handleApplyFontSize();
     });
   };
+
 
   render() {
 
-    const handleGetFontSizeName = () => this.getFontSizeName();
-    const handleIncreaseFontSize = () => this.increaseFontSize();
-    const handleDecreaseFontSize = () => this.decreaseFontSize();
-    const handleSaveFontState = () => this.saveFontState();
-    const handleRevertFontState = () => this.revertFontState();
+    const handleGetFontSizeName = () => this.handleGetFontSizeName();
+    const handleIncreaseFontSize = () => this.handleIncreaseFontSize();
+    const handleDecreaseFontSize = () => this.handleDecreaseFontSize();
+    const handleSaveFontState = () => this.handleSaveFontState();
+    const handleRevertFontState = () => this.handleRevertFontState();
 
     return (
       <Settings
+        handleGetFontSizeName={handleGetFontSizeName}
         handleIncreaseFontSize={handleIncreaseFontSize}
         handleDecreaseFontSize={handleDecreaseFontSize}
-        handleGetFontSizeName={handleGetFontSizeName}
         handleSaveFontState={handleSaveFontState}
         handleRevertFontState={handleRevertFontState}
         {...this.props}>
