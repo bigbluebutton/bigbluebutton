@@ -1,4 +1,6 @@
 package org.bigbluebutton.lib.settings.views.audio {
+	import mx.graphics.SolidColorStroke;
+	
 	import spark.components.Button;
 	import spark.components.HGroup;
 	import spark.components.HSlider;
@@ -7,6 +9,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 	import spark.components.supportClasses.ToggleButtonBase;
 	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalAlign;
+	import spark.primitives.Line;
 	
 	public class AudioSettingsViewBase extends VGroup {
 		
@@ -49,6 +52,11 @@ package org.bigbluebutton.lib.settings.views.audio {
 			_audioToggle = new toggleButtonClass();
 			audioGroup.addElement(_audioToggle);
 			
+			var audioSeparator:Line = new Line();
+			audioSeparator.percentWidth = 100;
+			audioSeparator.stroke = new SolidColorStroke(0xF2F2F2);
+			addElement(audioSeparator);
+			
 			// Mirohpone group
 			var microphoneGroup:HGroup = new HGroup();
 			microphoneGroup.percentWidth = 100;
@@ -62,6 +70,11 @@ package org.bigbluebutton.lib.settings.views.audio {
 			
 			_microhponeToggle = new toggleButtonClass();
 			microphoneGroup.addElement(_microhponeToggle);
+			
+			var microphoneSeparator:Line = new Line();
+			microphoneSeparator.percentWidth = 100;
+			microphoneSeparator.stroke = new SolidColorStroke(0xF2F2F2);
+			addElement(microphoneSeparator);
 			
 			// Gain group
 			var gainGroup:VGroup = new VGroup();
