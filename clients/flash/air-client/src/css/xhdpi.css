@@ -6,6 +6,7 @@
 @namespace libChat "org.bigbluebutton.lib.chat.views.*";
 @namespace users "org.bigbluebutton.lib.user.views.*";
 @namespace settings "org.bigbluebutton.lib.settings.views.*";
+@namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -50,6 +51,10 @@
 	
 	settings|SettingsViewBase {
 		paritcipantPadding : 40;
+	}
+	
+	audio|AudioSettingsViewBase {
+		padding: 30;
 	}
 	
 	settings|SettingsItemRenderer {
@@ -130,7 +135,7 @@
 	}
 	
 	.chatIcon, .settingsIcon {
-		iconSize : 44;
+		fontSize : 44;
 	}
 	
 	.chatRoomItem {

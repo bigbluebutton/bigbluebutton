@@ -96,6 +96,10 @@ libChat|ChatViewBase {
 	inputBorderColor     : PropertyReference("athensGreyDark");
 }
 
+audio|AudioSettingsViewBase {
+	color       : PropertyReference("regentGrey");
+}
+
 s|ToggleSwitch {
 	accentColor : PropertyReference("shamrock");
 	color       : PropertyReference("white");
@@ -139,10 +143,6 @@ settings|SettingsItemRenderer {
 	iconColor : PropertyReference("regentGrey");
 }
 
-audio|AudioSettingsViewBase {
-	padding: 30;
-}
-
 .subViewContent {
 	backgroundColor : PropertyReference("white");
 }
@@ -151,7 +151,7 @@ audio|AudioSettingsViewBase {
 	color : PropertyReference("white");
 }
 
-.topButton, .chatIcon {
+.topButton, .chatIcon, .settingsIcon {
 	iconColor  : PropertyReference("white");
 	fontFamily : BBBIcons;
 	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
@@ -165,8 +165,6 @@ audio|AudioSettingsViewBase {
 
 .settingsIcon {
 	iconColor  : PropertyReference("regentGrey");
-	fontFamily : BBBIcons;
-	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
 }
 
 .chatIcon {

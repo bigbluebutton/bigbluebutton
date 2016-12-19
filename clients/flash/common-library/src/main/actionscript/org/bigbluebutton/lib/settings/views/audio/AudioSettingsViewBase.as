@@ -1,9 +1,11 @@
 package org.bigbluebutton.lib.settings.views.audio {
+	import spark.components.Button;
 	import spark.components.HGroup;
 	import spark.components.HSlider;
 	import spark.components.Label;
 	import spark.components.VGroup;
 	import spark.components.supportClasses.ToggleButtonBase;
+	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalAlign;
 	
 	public class AudioSettingsViewBase extends VGroup {
@@ -76,17 +78,33 @@ package org.bigbluebutton.lib.settings.views.audio {
 			gainSliderGroup.percentWidth = 100;
 			gainGroup.addElement(gainSliderGroup);
 			
-			var micEmptyLabel:Label = new Label();
-			micEmptyLabel.styleName = "settingsIcon icon-audio";
-			gainSliderGroup.addElement(micEmptyLabel);
+			var emptyMicGroup:VGroup = new VGroup();
+			emptyMicGroup.horizontalAlign = HorizontalAlign.CENTER;
+			gainSliderGroup.addElement(emptyMicGroup);
+			
+			var micEmptyLabel:Button = new Button();
+			micEmptyLabel.styleName = "icon-audio settingsIcon";
+			emptyMicGroup.addElement(micEmptyLabel);
+			
+			var emptyMicLabel:Label = new Label();
+			emptyMicLabel.text = "Low";
+			emptyMicGroup.addElement(emptyMicLabel);
 			
 			_gainSlider = new HSlider();
 			_gainSlider.percentWidth = 100;
 			gainSliderGroup.addElement(_gainSlider);
 			
-			var micFullLabel:Label = new Label();
-			micFullLabel.styleName = "settingsIcon icon-audio";
-			gainSliderGroup.addElement(micFullLabel);
+			var fullMicGroup:VGroup = new VGroup();
+			fullMicGroup.horizontalAlign = HorizontalAlign.CENTER;
+			gainSliderGroup.addElement(fullMicGroup);
+			
+			var micFullLabel:Button = new Button();
+			micFullLabel.styleName = "icon-audio settingsIcon";
+			fullMicGroup.addElement(micFullLabel);
+			
+			var fullMicLabel:Label = new Label();
+			fullMicLabel.text = "High";
+			fullMicGroup.addElement(fullMicLabel);
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
