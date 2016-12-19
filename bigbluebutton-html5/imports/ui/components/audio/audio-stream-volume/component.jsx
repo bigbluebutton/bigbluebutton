@@ -43,7 +43,7 @@ class AudioStreamVolume extends Component {
           instant: 0,
           slow: 0,
         });
-        this.createAudioContext()
+        this.createAudioContext();
       });
     }
   }
