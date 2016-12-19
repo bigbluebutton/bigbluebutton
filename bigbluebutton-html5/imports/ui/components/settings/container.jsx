@@ -14,7 +14,6 @@ class SettingsMenuContainer extends Component {
     this.state = {
       currentFontSize: localStorage.bbbSavedFontSize || DEFAULT_FONTSIZE,
     }
-    this.applyFontSize = this.applyFontSize.bind(this);
   }
 
   applyFontSize() {
