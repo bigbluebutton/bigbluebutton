@@ -39,7 +39,7 @@ class DeviceSelector extends Component {
       options: devices.map((d, i) => ({
         label: d.label || `${this.props.kind} - ${i}`,
         value: d.deviceId,
-      }))
+      })),
     });
   }
 
@@ -64,14 +64,19 @@ class DeviceSelector extends Component {
       <select
         {...props}
         value={value}
-        onChange={this.handleSelectChange}>
-        {options.map((option, i) => (
-          <option
-            key={i}
-            value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        onChange={this.handleSelectChange}
+        disabled={!options.length}>
+        {
+          options.length ?
+            options.map((option, i) => (
+              <option
+                key={i}
+                value={option.value}>
+                {option.label}
+              </option>
+            )) :
+            <option value="not-found">{`no ${kind} found`}</option>
+        }
       </select>
     );
   }
