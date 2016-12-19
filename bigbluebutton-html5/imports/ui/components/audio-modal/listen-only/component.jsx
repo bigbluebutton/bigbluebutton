@@ -3,8 +3,8 @@ import Button from '/imports/ui/components/button/component';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
-import StreamVolume from '/imports/ui/components/stream-volume/component';
-import SpeakerSource from '/imports/ui/components/speaker-source/component';
+
+import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import AudioTestContainer from '/imports/ui/components/audio-test/container';
 import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 
@@ -13,10 +13,19 @@ export default class ListenOnly extends React.Component {
     super(props);
 
     this.chooseAudio = this.chooseAudio.bind(this);
+    this.handleOutputChange = this.handleOutputChange.bind(this);
+
+    this.state = {
+      inputDeviceId: undefined,
+    };
   }
 
   chooseAudio() {
     this.props.changeMenu(this.props.JOIN_AUDIO);
+  }
+
+  handleOutputChange(deviceId) {
+    console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
   }
 
   render() {
@@ -37,8 +46,10 @@ export default class ListenOnly extends React.Component {
         </div>
         <div>
           <div className={styles.containerLeftHalfContent}>
-            <StreamVolume />
-            <SpeakerSource />
+            <DeviceSelector
+              className={styles.item}
+              kind="audiooutput"
+              onChange={this.handleOutputChange} />
             <AudioTestContainer />
           </div>
           <div className={styles.containerRightHalfContent}>
