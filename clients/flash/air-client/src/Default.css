@@ -102,6 +102,10 @@ s|ToggleSwitch {
 	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileToggleSwitchSkin");
 }
 
+s|HSlider {
+	skinClass   : ClassReference("spark.skins.ios7.HSliderSkin");
+}
+
 .sectionTitle {
 	color : PropertyReference("regentGrey");
 }
