@@ -55,6 +55,8 @@ package org.bigbluebutton.air.common.views.skins {
 		
 		private var _hostComponent:ToggleSwitch;
 		
+		public var selectedLabelDisplay:LabelDisplayComponent;
+		
 		/**
 		 * @copy spark.skins.spark.ApplicationSkin#hostComponent
 		 */
@@ -68,6 +70,50 @@ package org.bigbluebutton.air.common.views.skins {
 			_hostComponent = value;
 			if (_hostComponent)
 				_hostComponent.addEventListener("thumbPositionChanged", thumbPositionChanged_handler);
+		}
+		
+		//----------------------------------
+		//  selectedLabel
+		//----------------------------------
+		
+		private var _selectedLabel:String;
+		
+		/**
+		 *  The text of the label showing when the component is selected.
+		 *  Subclasses can set or override this property to customize the selected label.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion AIR 3
+		 *  @productversion Flex 4.6
+		 */
+		protected function get selectedLabel():String {
+			return _selectedLabel;
+		}
+		
+		protected function set selectedLabel(value:String):void {
+			_selectedLabel = value;
+		}
+		
+		//----------------------------------
+		//  unselectedLabel
+		//----------------------------------
+		
+		private var _unselectedLabel:String;
+		
+		/**
+		 *  The text of the label showing when the component is not selected.
+		 *  Subclasses can set or override this property to customize the unselected label.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion AIR 3
+		 *  @productversion Flex 4.6
+		 */
+		protected function get unselectedLabel():String {
+			return _unselectedLabel;
+		}
+		
+		protected function set unselectedLabel(value:String):void {
+			_unselectedLabel = value;
 		}
 		
 		/**
@@ -138,6 +184,9 @@ package org.bigbluebutton.air.common.views.skins {
 					break;
 				}
 			}
+			
+			selectedLabel = resourceManager.getString("components", "toggleSwitchSelectedLabel");
+			unselectedLabel = resourceManager.getString("components", "toggleSwitchUnselectedLabel");
 		}
 		
 		override protected function createChildren():void {
@@ -146,6 +195,7 @@ package org.bigbluebutton.air.common.views.skins {
 			addChild(contents);
 			drawTrack();
 			drawThumb();
+			drawLabel();
 		}
 		
 		override protected function measure():void {
@@ -153,14 +203,26 @@ package org.bigbluebutton.air.common.views.skins {
 			measuredMinWidth = trackWidth;
 			measuredMinHeight = trackHeight;
 			
-			measuredWidth = trackWidth;
+			var labelWidth:Number = getElementPreferredWidth(selectedLabelDisplay);
+			measuredWidth = trackWidth + labelWidth;
 			measuredHeight = trackHeight;
 		}
 		
 		override protected function commitCurrentState():void {
 			toggleSelectionState();
 			layoutThumbs();
+			layoutLabel()
 		}
+		
+		//The label is called selectedLabelDisplay because the hostComponent expects it
+		protected function drawLabel():void {
+			selectedLabelDisplay = new LabelDisplayComponent();
+			selectedLabelDisplay.id = "selectedLabelDisplay";
+			selectedLabelDisplay.text = selectedLabel;
+			setElementSize(selectedLabelDisplay, thumb.width, thumb.height);
+			contents.addChild(selectedLabelDisplay);
+		}
+		
 		
 		protected function drawTrack():void {
 			track = new switchTrackSkin();
@@ -178,12 +240,25 @@ package org.bigbluebutton.air.common.views.skins {
 			}
 		}
 		
+		//Label display sould be at the same location as the thumb
+		protected function layoutLabel():void {
+			if (selectedLabelDisplay != null) {
+				if (currentState.indexOf("AndSelected") != -1) {
+					setElementPosition(selectedLabelDisplay, 0, 0);
+				} else {
+					setElementPosition(selectedLabelDisplay, trackWidth / 2, 0);
+				}
+			}
+		}
+		
 		//Depending on current state, update skinpart thumb accordingly
 		protected function toggleSelectionState():void {
 			if (currentState.indexOf("AndSelected") != -1) {
+				selectedLabelDisplay.text = selectedLabel;
 				track.alpha = 1;
 			} else {
 				track.alpha = 0.4;
+				selectedLabelDisplay.text = unselectedLabel;
 			}
 		}
 		
@@ -206,6 +281,102 @@ package org.bigbluebutton.air.common.views.skins {
 			var x:Number = (track.getLayoutBoundsWidth() - thumb.getLayoutBoundsWidth()) * hostComponent.thumbPosition + track.getLayoutBoundsX();
 			var y:Number = thumb.getLayoutBoundsY();
 			setElementPosition(thumb, x, y);
+			setElementPosition(selectedLabelDisplay, x, y);
 		}
+	}
+}
+import mx.core.UIComponent;
+
+import spark.components.supportClasses.StyleableTextField;
+import spark.core.IDisplayText;
+
+/**
+ *  @private
+ *  Component combining two labels to create the effect of text and its drop
+ *  shadow. The component can be used with advanced style selectors and the
+ *  styles "color", "textShadowColor", and "textShadowAlpha". Based off of
+ *  ActionBar.TitleDisplayComponent. These two should eventually be factored.
+ */
+class LabelDisplayComponent extends UIComponent implements IDisplayText {
+	public var shadowYOffset:Number = 0;
+	
+	private var labelChanged:Boolean = false;
+	
+	private var labelDisplay:StyleableTextField;
+	
+	private var labelDisplayShadow:StyleableTextField;
+	
+	private var _text:String;
+	
+	public function LabelDisplayComponent() {
+		super();
+		_text = "";
+	}
+	
+	override public function get baselinePosition():Number {
+		return labelDisplay.baselinePosition;
+	}
+	
+	override protected function createChildren():void {
+		super.createChildren();
+		
+		labelDisplay = StyleableTextField(createInFontContext(StyleableTextField));
+		labelDisplay.styleName = this;
+		labelDisplay.editable = false;
+		labelDisplay.selectable = false;
+		labelDisplay.multiline = false;
+		labelDisplay.wordWrap = false;
+		
+		addChild(labelDisplay);
+	}
+	
+	override protected function commitProperties():void {
+		super.commitProperties();
+		
+		if (labelChanged) {
+			labelDisplay.text = text;
+			invalidateSize();
+			invalidateDisplayList();
+			labelChanged = false;
+		}
+	}
+	
+	override protected function measure():void {
+		if (labelDisplay.isTruncated)
+			labelDisplay.text = text;
+		labelDisplay.commitStyles();
+		measuredWidth = labelDisplay.getPreferredBoundsWidth();
+		measuredHeight = labelDisplay.getPreferredBoundsHeight();
+	}
+	
+	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+		if (labelDisplay.isTruncated)
+			labelDisplay.text = text;
+		labelDisplay.commitStyles();
+		
+		var labelHeight:Number = labelDisplay.getPreferredBoundsHeight();
+		var labelY:Number = (unscaledHeight - labelHeight) / 2;
+		
+		var labelWidth:Number = Math.min(unscaledWidth, labelDisplay.getPreferredBoundsWidth());
+		var labelX:Number = (unscaledWidth - labelWidth) / 2;
+		
+		labelDisplay.setLayoutBoundsSize(labelWidth, labelHeight);
+		labelDisplay.setLayoutBoundsPosition(labelX, labelY);
+		
+		labelDisplay.truncateToFit();
+	}
+	
+	public function get text():String {
+		return _text;
+	}
+	
+	public function set text(value:String):void {
+		_text = value;
+		labelChanged = true;
+		invalidateProperties();
+	}
+	
+	public function get isTruncated():Boolean {
+		return labelDisplay.isTruncated;
 	}
 }
