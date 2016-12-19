@@ -76,6 +76,9 @@ package org.bigbluebutton.modules.users.services
         case "meetingEnded":
           handleLogout(message);
           break;
+        case "meetingEnding":
+          handleMeetingEnding(message);
+          break;
         case "meetingHasEnded":
           handleMeetingHasEnded(message);
           break;
@@ -453,6 +456,15 @@ package org.bigbluebutton.modules.users.services
       dispatcher.dispatchEvent(endMeetingEvent);
     }
     
+    /**
+     * This meeting is in the process of ending by the server
+     */
+    public function handleMeetingEnding(msg:Object):void {
+      // Avoid trying to reconnect
+      var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT);
+      dispatcher.dispatchEvent(endMeetingEvent);
+    }
+
     private function handleGetUsersReply(msg:Object):void {    
       var map:Object = JSON.parse(msg.msg);
       var users:Object = map.users as Array;

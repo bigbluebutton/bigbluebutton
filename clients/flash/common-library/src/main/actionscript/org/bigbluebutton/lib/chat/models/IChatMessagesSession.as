@@ -2,8 +2,6 @@ package org.bigbluebutton.lib.chat.models {
 	
 	import mx.collections.ArrayCollection;
 	
-	import org.osflash.signals.ISignal;
-	
 	public interface IChatMessagesSession {
 		function get chats():ArrayCollection;
 		function set chats(val:ArrayCollection):void;

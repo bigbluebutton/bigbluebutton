@@ -16,7 +16,6 @@ package org.bigbluebutton.air.main.views {
 	import org.bigbluebutton.air.main.models.IUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	import org.bigbluebutton.air.main.viewsold.pagesnavigator.IPagesNavigatorView;
 	
 	public class PagesNavigatorViewMediator extends Mediator {
 		
@@ -41,6 +40,7 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationEnum.APPEAR, transition:ViewTransitionBase = null):void {
+			trace("PagesNavigatorViewMediator request change page to: " + pageName);
 			switch (animation) {
 				case TransitionAnimationEnum.APPEAR:  {
 					var appear:CrossFadeViewTransition = new CrossFadeViewTransition;

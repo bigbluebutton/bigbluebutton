@@ -34,7 +34,7 @@ package org.bigbluebutton.air.video.views.videochat {
 		}
 		
 		private function identifyVideoStream(x:Number, y:Number, name:String):void {
-			this.styleName = "videoTextFieldStyle";
+			this.styleName = "videoTextField";
 			var nameFormat:TextFormat = new TextFormat();
 			nameFormat.size = this.getStyle("fontSize");
 			nameFormat.font = this.getStyle("font-family");

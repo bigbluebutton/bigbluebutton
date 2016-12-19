@@ -3,7 +3,7 @@
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:view="org.bigbluebutton.air.common.views.*"
-				styleName="lockSettingsStyle">
+				styleName="lockSettings">
 
 	<s:Scroller width="100%"
 				height="100%">
@@ -91,7 +91,7 @@
 			<s:Button id="apply"
 					  width="90%"
 					  label="{resourceManager.getString('resources', 'lockSettings.apply')}"
-					  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+					  styleName="userSettingsButton logoutButton contentFontSize" />
 
 
 		</s:VGroup>

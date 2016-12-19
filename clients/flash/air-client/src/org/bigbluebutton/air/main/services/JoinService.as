@@ -82,10 +82,10 @@ package org.bigbluebutton.air.main.services {
 		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 200):void {
 			if (httpStatusCode == 200) {
 				try {
-					/* If redirect is set to false on the join url the response will be XML and there will be 
-					 * an auth_token in the response that can be used to join. If redirect is set to true or 
-					 * left off there will be a sessionToken attached to the responseURL that can be used to 
-					 * join. And if there is an issue with the join request there is a redirect and error 
+					/* If redirect is set to false on the join url the response will be XML and there will be
+					 * an auth_token in the response that can be used to join. If redirect is set to true or
+					 * left off there will be a sessionToken attached to the responseURL that can be used to
+					 * join. And if there is an issue with the join request there is a redirect and error
 					 *  message is in the responseURL as error.
 					 */
 					var xml:XML = new XML(data);
@@ -107,14 +107,14 @@ package org.bigbluebutton.air.main.services {
 					// Need to grab either the error or the sessionToken from the response URL
 					var infoIndex:int = responseUrl.indexOf(ERROR_QUERY_PARAM);
 					if (infoIndex != -1) {
-						var errors:String = unescape(responseUrl.substring(infoIndex+ERROR_QUERY_PARAM.length));
+						var errors:String = unescape(responseUrl.substring(infoIndex + ERROR_QUERY_PARAM.length));
 						trace(errors);
 						onFailure(errors);
 						return
 					}
 					infoIndex = responseUrl.indexOf(TOKEN_QUERY_PARAM);
 					if (infoIndex != -1) {
-						var sessionToken:String = responseUrl.substring(infoIndex+TOKEN_QUERY_PARAM.length);
+						var sessionToken:String = responseUrl.substring(infoIndex + TOKEN_QUERY_PARAM.length);
 						successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 						return;
 					}

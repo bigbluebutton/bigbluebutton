@@ -17,6 +17,7 @@ case class GetRecordingStatusReply(meetingID: String, recorded: Boolean, userId:
 case class MeetingCreated(meetingID: String, externalMeetingID: String, parentMeetingID: String, recorded: Boolean, name: String,
   voiceBridge: String, duration: Int, moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, isBreakout: Boolean) extends IOutMessage
 case class MeetingMuted(meetingID: String, recorded: Boolean, meetingMuted: Boolean) extends IOutMessage
+case class MeetingEnding(meetingID: String) extends IOutMessage
 case class MeetingEnded(meetingID: String, recorded: Boolean, voiceBridge: String) extends IOutMessage
 case class MeetingState(meetingID: String, recorded: Boolean, userId: String, permissions: Permissions, meetingMuted: Boolean) extends IOutMessage
 case class MeetingHasEnded(meetingID: String, userId: String) extends IOutMessage

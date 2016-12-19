@@ -290,12 +290,6 @@ package org.bigbluebutton.main.model.users
     }
 
 		public function changeStatus(status:Status):void {
-			if (status.name == "presenter") {
-				presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;
-
-				//As the lock settings are now not applied to presenters, when the presenter flag is changed, we need to apply the lock settings
-				applyLockSettings();
-			}
 			switch (status.name) {
 				case "presenter":
 					presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;

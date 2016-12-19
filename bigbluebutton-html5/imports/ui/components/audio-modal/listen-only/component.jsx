@@ -17,7 +17,7 @@ export default class ListenOnly extends React.Component {
 
     this.state = {
       inputDeviceId: undefined,
-    }
+    };
   }
 
   chooseAudio() {
@@ -41,7 +41,7 @@ export default class ListenOnly extends React.Component {
             onClick={this.chooseAudio}
           />
           <div>
-            Listen only message
+            Choose your listen only settings
           </div>
         </div>
         <div>

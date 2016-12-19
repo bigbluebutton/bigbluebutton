@@ -40,10 +40,20 @@ package org.bigbluebutton.common
         MDIManager.CONTEXT_MENU_LABEL_CASCADE,
         MDIManager.CONTEXT_MENU_LABEL_SHOW_ALL );
         
+    private static const LOCKABLE_MENU_ITEMS:Array = new Array(
+      MDIWindow.CONTEXT_MENU_LABEL_MINIMIZE,
+      MDIWindow.CONTEXT_MENU_LABEL_MAXIMIZE,
+      MDIWindow.CONTEXT_MENU_LABEL_RESTORE);
+
     private var _customContextMenuItems:Array = null;
+
+    private var _unlocked:Boolean = true;
     
     private function filterContextMenu(item:*, index:int, array:Array):Boolean {
-      return IGNORED_MENU_ITEMS.indexOf(item.caption) < 0;
+      var filter:Boolean = this._unlocked ?
+          IGNORED_MENU_ITEMS.indexOf(item.caption) < 0 :
+          IGNORED_MENU_ITEMS.indexOf(item.caption) < 0 && LOCKABLE_MENU_ITEMS.indexOf(item.caption) < 0;
+      return filter;
     }
     
     override public function updateContextMenu():void {
@@ -85,6 +95,26 @@ package org.bigbluebutton.common
     public function set customContextMenuItems(value:Array):void {
       _customContextMenuItems = value;
       
+      updateContextMenu();
+    }
+
+    public function get unlocked():Boolean {
+      return this._unlocked;
+    }
+
+    public function set unlocked(value:Boolean):void {
+      this._unlocked
+          = this.draggable
+          = this.resizable
+          = this.titleBarOverlay.includeInLayout
+          = this.titleBarOverlay.enabled
+          = this.titleBarOverlay.visible
+          = value;
+
+      if (!this.minimized) {
+        this.showControls = this._unlocked;
+      }
+
       updateContextMenu();
     }
   }

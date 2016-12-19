@@ -3,7 +3,7 @@
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:views="org.bigbluebutton.air.common.views.*"
-				styleName="streamItemStyle"
+				styleName="streamItem"
 				dataChange="onDataChange(event)"
 				height="100%">
 	<s:states>
@@ -69,8 +69,8 @@
 		</s:VGroup>
 
 
-		<s:Image styleName.selected="iconStyle selectedIconStyle"
-				 styleName.normal="iconStyle unselectedIconStyle" />
+		<s:Image styleName.selected="icon selectedIcon"
+				 styleName.normal="icon unselectedIcon" />
 	</s:Group>
 
 	<s:Line width="100%">
