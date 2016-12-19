@@ -70,18 +70,15 @@ class NavBar extends Component {
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
-          <div className={styles.tooltip}>
-            <Button
-              onClick={this.handleToggleUserList}
-              ghost={true}
-              circle={true}
-              hideLabel={true}
-              label={'Toggle User-List'}
-              icon={'user'}
-              className={cx(toggleBtnClasses)}
-            />
-            <span className={styles.tooltiptext}>text here</span>
-          </div>
+          <Button
+            onClick={this.handleToggleUserList}
+            ghost={true}
+            circle={true}
+            hideLabel={true}
+            label={'Toggle User-List'}
+            icon={'user'}
+            className={cx(toggleBtnClasses)}
+          />
         </div>
         <div className={styles.center}>
           {this.renderPresentationTitle()}
