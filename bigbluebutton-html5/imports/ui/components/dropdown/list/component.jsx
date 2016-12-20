@@ -80,8 +80,6 @@ export default class DropdownList extends Component {
     if (typeof callback === 'function') {
       callback(event);
     }
-    console.log("active: " + activeItemIndex);
-    console.log("next: " + nextActiveItemIndex);
   }
 
   handleItemClick(event, callback) {
