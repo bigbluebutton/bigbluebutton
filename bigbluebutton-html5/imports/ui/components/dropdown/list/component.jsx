@@ -71,6 +71,7 @@ export default class DropdownList extends Component {
     }
 
     if ([KEY_CODES.TAB, KEY_CODES.ESCAPE].includes(event.which)) {
+      nextActiveItemIndex = 0;
       dropdownHide();
     }
 
@@ -79,6 +80,8 @@ export default class DropdownList extends Component {
     if (typeof callback === 'function') {
       callback(event);
     }
+    console.log("active: " + activeItemIndex);
+    console.log("next: " + nextActiveItemIndex);
   }
 
   handleItemClick(event, callback) {
