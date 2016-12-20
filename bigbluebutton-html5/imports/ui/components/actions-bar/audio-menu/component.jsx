@@ -12,7 +12,7 @@ export default class JoinAudioOptions extends React.Component {
           onClick={this.props.close}
           label={'Leave Audio'}
           color={'danger'}
-          icon={'audio'}
+          icon={'mute'}
           size={'lg'}
           circle={true}
         />
@@ -29,7 +29,7 @@ export default class JoinAudioOptions extends React.Component {
         onClick={this.props.open}
         label={'Join Audio'}
         color={'primary'}
-        icon={'audio'}
+        icon={'unmute'}
         size={'lg'}
         circle={true}
       />
