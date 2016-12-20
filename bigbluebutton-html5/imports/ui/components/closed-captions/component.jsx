@@ -10,7 +10,7 @@ export default class ClosedCaptions extends React.Component {
     let text = caption.captions;
     return (
       <span
-        style={{ whiteSpace: 'pre-wrap' }}
+        style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
         dangerouslySetInnerHTML={{ __html: text }}
         key={caption.index}
       />
@@ -20,9 +20,14 @@ export default class ClosedCaptions extends React.Component {
   render() {
     return (
       <div disabled className={styles.ccbox}>
-      {this.props.captions.English ? this.props.captions.English.captions.map((caption) => (
-        this.renderCaptions(caption)
-      )) : null }
+        <div className={styles.title}>
+          <p> French (You) </p>
+        </div>
+        <div className={styles.frame}>
+          {this.props.captions.English ? this.props.captions.English.captions.map((caption) => (
+            this.renderCaptions(caption)
+          )) : null }
+        </div>
       </div>
     );
   }
