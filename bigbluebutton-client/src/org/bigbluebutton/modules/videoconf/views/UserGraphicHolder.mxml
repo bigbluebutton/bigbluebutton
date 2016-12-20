@@ -282,15 +282,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 muteBtnWrapper.visible = true;
             }
 
+            // Fullscreen video isn't a child of this module's wrapper so it must listen to it's close event
             private function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
-                if (isFullscreen()) {
-                    handleCloseFullscreenStream(event.webcamUserID, event.streamName);
+                if (user) {
+                    if (user.userID == event.userID && video.streamName == event.streamName) {
+                        handleCloseFullscreenStream();
+                    }
                 }
             }
 
-            private function handleCloseFullscreenStream(userID:String, streamName:String):void {
-                if (user) {
-                    if (user.userID == userID && video.streamName == streamName) shutdown();
+            private function handleCloseFullscreenStream():void {
+                if (isFullscreen()) {
+                    shutdown();
                 }
             }
 
