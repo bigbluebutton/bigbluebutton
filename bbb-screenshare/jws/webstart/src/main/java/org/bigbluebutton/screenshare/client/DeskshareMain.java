@@ -221,7 +221,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     try {
       System.out.println("Trigger stop client. " + exitReasonQ.remainingCapacity());
       exitReasonQ.put(reason);
-      System.out.println("Triggered stop client.");
+      System.out.println("Triggered stop client. reason=" + reason.getExitCode());
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

@@ -101,6 +101,7 @@ public class FfmpegScreenshare {
       ignoreDisconnect = false;
       grabber.start();
     } catch (Exception e) {
+      System.out.println("Exception starting grabber.");
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
@@ -111,6 +112,7 @@ public class FfmpegScreenshare {
     try {
       mainRecorder.start();
     } catch (Exception e) {
+      System.out.println("Exception starting recorder. \n" + e.toString());
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
@@ -155,13 +157,14 @@ public class FfmpegScreenshare {
           //System.out.println("frame timestamp=[" + frame.timestamp + "] ");
           mainRecorder.record(frame);
         } catch (Exception e) {
-          //System.out.println("CaptureScreen Exception 1");
+          System.out.println("CaptureScreen Exception 1");
           if (!ignoreDisconnect) {
             listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
           }
         }
       }
     } catch (Exception e1) {
+      System.out.println("Exception grabbing image");
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
@@ -170,7 +173,7 @@ public class FfmpegScreenshare {
     //System.out.println("timestamp=[" + timestamp + "]");
     mainRecorder.setFrameNumber(frameNumber);
 
-//    System.out.println("[ENCODER] encoded image " + frameNumber + " in " + (System.currentTimeMillis() - now));
+    //System.out.println("[ENCODER] encoded image " + frameNumber + " in " + (System.currentTimeMillis() - now));
     frameNumber++;
 
     long execDuration = (System.currentTimeMillis() - now);
@@ -183,6 +186,7 @@ public class FfmpegScreenshare {
     try{
       Thread.sleep(dur);
     } catch (Exception e){
+      System.out.println("Exception pausing screen share.");
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
@@ -194,28 +198,29 @@ public class FfmpegScreenshare {
         while (startBroadcast){
           captureScreen();
         }
-        //System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
+        System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
       }
     };
     startBroadcastExec.execute(startBroadcastRunner);    
   }
 
   public void stop() {
-    //System.out.println("Stopping screen capture.");
+    System.out.println("Stopping screen capture.");
     startBroadcast = false;
     if (mainRecorder != null) {
       try {
         ignoreDisconnect = true;
-        //System.out.println("mainRecorder.stop.");
+        System.out.println("mainRecorder.stop.");
         mainRecorder.stop();
-        //System.out.println("mainRecorder.release.");
+        System.out.println("mainRecorder.release.");
         mainRecorder.release();
-        //System.out.println("grabber.stop.");
+        System.out.println("grabber.stop.");
         // Do not invoke grabber.stop as it exits the JWS app.
         // Not sure why. (ralam - aug 10, 2016)
         //grabber.stop();
         //System.out.println("End stop sequence.");
       } catch (Exception e) {
+        System.out.println("Exception stopping screen share.");
         listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
       }
     }
@@ -291,6 +296,7 @@ private  FFmpegFrameRecorder setupWindowsRecorder(String url, int width, int hei
   winRecorder.setFormat("flv");
 
   if (useH264) {
+    System.out.println("Using H264 codec");
     // H264
     winRecorder.setVideoCodec(AV_CODEC_ID_H264);
     winRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
@@ -299,6 +305,7 @@ private  FFmpegFrameRecorder setupWindowsRecorder(String url, int width, int hei
     winRecorder.setVideoOption("tune", "zerolatency");
     winRecorder.setVideoOption("intra-refresh", "1");
   } else {
+    System.out.println("Using SVC2 codec");
     // Flash SVC2
     winRecorder.setVideoCodec(AV_CODEC_ID_FLASHSV2);
     winRecorder.setPixelFormat(AV_PIX_FMT_BGR24);
