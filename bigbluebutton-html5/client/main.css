@@ -32,6 +32,10 @@ a {
   border: 0;
 }
 
+[hidden]:not([hidden="false"]) {
+  display: none !important;
+}
+
 /* DEBUG ONLY
 * {
   background-color: rgba(0, 0, 0, .025) !important;

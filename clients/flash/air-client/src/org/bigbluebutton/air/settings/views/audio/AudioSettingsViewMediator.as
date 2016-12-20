@@ -8,7 +8,7 @@ package org.bigbluebutton.air.settings.views.audio {
 	import mx.core.FlexGlobals;
 	import mx.resources.ResourceManager;
 	
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
@@ -26,7 +26,7 @@ package org.bigbluebutton.air.settings.views.audio {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		[Inject]
 		public var saveData:ISaveData;

@@ -21,7 +21,7 @@ function amIListenOnly() {
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
 
-function exitAudio(afterExitCall) {
+function exitAudio(afterExitCall = () => {}) {
   if (!MEDIA_CONFIG.useSIPAudio) {
     vertoExitAudio();
     return;
@@ -36,7 +36,7 @@ function exitAudio(afterExitCall) {
     triedHangup = false;
 
     // function to initiate call
-    const checkToHangupCall = (function (context, afterExitCall) {
+    const checkToHangupCall = ((context, afterExitCall = () => {}) => {
 
       // if an attempt to hang up the call is made when the current session is not yet finished,
       // the request has no effect
@@ -100,7 +100,13 @@ function joinVoiceCallSIP(options) {
       return callback(result);
     };
 
-    callIntoConference(extension, function () {}, options.isListenOnly);
+    const m = Meetings.findOne();
+    const st = {
+      stun: m.stuns,
+      turn: m.turns,
+    };
+
+    callIntoConference(extension, function () {}, options.isListenOnly, st);
     return;
   }
 }

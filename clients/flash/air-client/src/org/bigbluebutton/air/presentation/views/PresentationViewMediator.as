@@ -15,7 +15,7 @@ package org.bigbluebutton.air.presentation.views {
 	
 	import spark.events.PopUpEvent;
 	
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.presentation.views.selectwebcam.SelectStreamPopUp;
 	import org.bigbluebutton.lib.main.commands.GoToSlideSignal;
 	import org.bigbluebutton.lib.presentation.views.PresentationMediatorBase;
@@ -29,7 +29,7 @@ package org.bigbluebutton.air.presentation.views {
 	public class PresentationViewMediator extends PresentationMediatorBase {
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		[Inject]
 		public var goToSlideSignal:GoToSlideSignal;

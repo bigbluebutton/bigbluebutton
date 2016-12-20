@@ -9,7 +9,7 @@ package org.bigbluebutton.main.model.modules
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
-  
+  import org.bigbluebutton.core.UsersUtil;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
@@ -59,18 +59,29 @@ package org.bigbluebutton.main.model.modules
       var result:Object = JSON.parse(e.target.data);
       LOGGER.debug("Enter response = {0}", [jsonXify(result)]);
       
+        var logData:Object = UsersUtil.initLogData
+        
       var returncode:String = result.response.returncode;
       if (returncode == 'FAILED') {
-        LOGGER.error("Enter API call FAILED = {0}", [jsonXify(result)]);						
+        logData.tags = ["initialization"];
+        logData.message = "Enter API call failed.";
+        LOGGER.info(JSON.stringify(logData));
+
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
       } else if (returncode == 'SUCCESS') {
-        LOGGER.debug("Enter API call SUCESS = {0}", [jsonXify(result)]);
+
+          
         var response:Object = new Object();
         response.username = result.response.fullname;
         response.userId = result.response.internalUserID;
         response.meetingName = result.response.confname;
         response.meetingId = result.response.meetingID;
+        
+        logData.response = response;
+        logData.tags = ["initialization"];
+        logData.message = "Enter API call succeeded.";
+        LOGGER.info(JSON.stringify(logData));
          
         if (_resultListener != null) _resultListener(true, response);
       }

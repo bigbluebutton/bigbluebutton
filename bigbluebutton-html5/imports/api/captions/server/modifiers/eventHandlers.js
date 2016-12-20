@@ -4,9 +4,10 @@ import { addCaptionsToCollection } from './addCaptionsToCollection';
 import { updateCaptionsCollection } from './updateCaptionsCollection';
 import Meetings from '/imports/api/meetings';
 import Captions from '/imports/api/captions';
+import Logger from '/imports/startup/server/logger';
 
 eventEmitter.on('send_caption_history_reply_message', function (arg) {
-  console.error('message', JSON.stringify(arg));
+  Logger.debug('message', JSON.stringify(arg));
   if (inReplyToHTML5Client(arg)) {
     const meetingId = arg.payload.meeting_id;
     if (Captions.findOne({
@@ -23,7 +24,7 @@ eventEmitter.on('send_caption_history_reply_message', function (arg) {
 });
 
 eventEmitter.on('update_caption_owner_message', function (arg) {
-  console.error(JSON.stringify(arg));
+  Logger.debug(JSON.stringify(arg));
   const meetingId = arg.payload.meeting_id;
   let payload = arg.payload;
 
@@ -65,7 +66,7 @@ eventEmitter.on('update_caption_owner_message', function (arg) {
 });
 
 eventEmitter.on('edit_caption_history_message', function (arg) {
-  console.error(JSON.stringify(arg));
+  Logger.debug('edit_caption_history_message ' + JSON.stringify(arg));
   let payload = arg.payload;
   let meetingId = payload.meeting_id;
   let locale = payload.locale;

@@ -44,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
 		import mx.collections.ArrayCollection;
 		import mx.utils.StringUtil;
-		
+		import org.bigbluebutton.core.UsersUtil;
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
@@ -158,12 +158,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (fileSize > maxFileSizeBytes) {     
           // Hardcode for now to 30M limit. 
           // This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
-          LOGGER.debug("File exceeds max limit:({0}>{1})", [fileSize, maxFileSizeBytes]);  			
+            var logData:Object = UsersUtil.initLogData();
+            logData.tags = ["presentation"];
+            logData.message = "File exceeds max limit."; 
+            logData.fileSizeBytes = fileSize;
+            logData.maxFileSizeBytes = maxFileSizeBytes;
+            LOGGER.error(JSON.stringify(logData));
+                
           enableControls();
           displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
         } else {
           var presentationName:String = StringUtil.trim(fileToUpload.name);
-          LOGGER.debug("Uploading file : {0}", [presentationName]);
 
           progBarLbl.visible = true;          
           lblFileName.enabled = false;

@@ -5,7 +5,7 @@
 				width="100%"
 				click="onClick()"
 				keyUp="onKeyUp()"
-				styleName="participantItemStyle">
+				styleName="participantItem">
 	<s:states>
 		<s:State name="normal" />
 		<s:State name="hovered" />
@@ -38,16 +38,16 @@
 					
 					if (obj.voiceJoined) {
 						if (obj.muted) {
-							audioIcon.styleName = "iconStyle micOffIconStyle";
+							audioIcon.text = "\ue91c";
 						} else if (obj.talking) {
-							audioIcon.styleName = "iconStyle speakingMicIconStyle";
+							audioIcon.text = "\ue901";
 						} else {
-							audioIcon.styleName = "iconStyle micIconStyle";
+							audioIcon.text = "\ue91b";
 						}
 					} else if (obj.listenOnly) {
-						audioIcon.styleName = "iconStyle listenOnlyIconStyle";
+						audioIcon.text = "\ue90d";
 					} else {
-						audioIcon.styleName = "iconStyle";
+						audioIcon.text = " ";
 					}
 					
 					lockIcon.visible = obj.locked;
@@ -83,15 +83,17 @@
 				<s:VerticalLayout gap="0" />
 			</s:layout>
 			<s:Label id="labelDisplay"
-					 styleName="participantNameStyle" />
+					 styleName="participantName" />
 			<s:Label id="subLabelDisplay"
-					 styleName="participantStatusStyle" />
+					 styleName="participantStatus" />
 		</s:Group>
-		<s:Image id="cameraIcon"
-				 styleName="iconStyle cameraIconStyle" />
-		<s:Image id="audioIcon"
-				 styleName="iconStyle micIconStyle" />
-		<s:Image id="lockIcon"
-				 styleName="iconStyle lockIconStyle" />
+		<s:Label id="cameraIcon"
+				 text="&#xe921;"
+				 styleName="icon" />
+		<s:Label id="audioIcon"
+				 styleName="icon" />
+		<s:Label id="lockIcon"
+				 text="&#xe927;"
+				 styleName="icon" />
 	</s:Group>
 </s:ItemRenderer>

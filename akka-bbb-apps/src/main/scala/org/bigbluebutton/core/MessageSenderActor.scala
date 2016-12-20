@@ -44,7 +44,6 @@ class MessageSenderActor(val service: MessageSender)
     extends Actor with ActorLogging {
 
   val encoder = new ToJsonEncoder()
-
   def receive = {
     case msg: UserEjectedFromMeeting => handleUserEjectedFromMeeting(msg)
     case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)
@@ -55,6 +54,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
     case msg: RecordingStatusChanged => handleRecordingStatusChanged(msg)
     case msg: GetRecordingStatusReply => handleGetRecordingStatusReply(msg)
+    case msg: MeetingEnding => handleMeetingEnding(msg)
     case msg: MeetingEnded => handleMeetingEnded(msg)
     case msg: MeetingHasEnded => handleMeetingHasEnded(msg)
     case msg: MeetingDestroyed => handleMeetingDestroyed(msg)
@@ -222,7 +222,12 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
 
     val json2 = UsersMessageToJsonConverter.meetingEnded(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json2)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json2)
+  }
+
+  private def handleMeetingEnding(msg: MeetingEnding) {
+    val json = MeetingMessageToJsonConverter.meetingEndingToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 
   private def handleStartRecording(msg: StartRecording) {
@@ -266,7 +271,7 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
 
     val json2 = UsersMessageToJsonConverter.meetingHasEnded(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json2)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json2)
   }
 
   private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {

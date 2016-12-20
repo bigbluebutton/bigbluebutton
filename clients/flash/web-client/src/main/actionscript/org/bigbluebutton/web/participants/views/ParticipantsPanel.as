@@ -33,11 +33,11 @@ package org.bigbluebutton.web.participants.views {
 			var l:VerticalLayout = new VerticalLayout();
 			this.layout = l;
 			this.minWidth = 50;
-			this.styleName = "panelStyle";
+			this.styleName = "panel";
 			
 			var title:Label = new Label();
 			title.text = "Participants";
-			title.styleName = "panelTitleStyle";
+			title.styleName = "panelTitle";
 			addElement(title);
 			
 			var participantsView:ParticipantsViewBase = new ParticipantsViewBase();

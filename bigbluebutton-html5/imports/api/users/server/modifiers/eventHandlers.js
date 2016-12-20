@@ -1,6 +1,5 @@
 import { logger } from '/imports/startup/server/logger';
 import { eventEmitter } from '/imports/startup/server';
-import { handleEndOfMeeting } from '/imports/api/meetings/server/modifiers/eventHandlers';
 import { userJoined } from './userJoined';
 import { setUserLockedStatus } from './setUserLockedStatus';
 import { markUserOffline } from './markUserOffline';
@@ -13,14 +12,6 @@ eventEmitter.on('user_eject_from_meeting', function (arg) {
 
 eventEmitter.on('disconnect_user_message', function (arg) {
   handleRemoveUserEvent(arg);
-});
-
-eventEmitter.on('end_and_kick_all_message', function (arg) {
-  handleEndOfMeeting(arg);
-});
-
-eventEmitter.on('disconnect_all_users_message', function (arg) {
-  handleEndOfMeeting(arg);
 });
 
 eventEmitter.on('user_left_message', function (arg) {

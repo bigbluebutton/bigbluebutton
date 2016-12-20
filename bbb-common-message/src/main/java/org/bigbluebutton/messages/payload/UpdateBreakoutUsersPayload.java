@@ -5,12 +5,12 @@ import java.util.ArrayList;
 public class UpdateBreakoutUsersPayload {
 
 	public final ArrayList<BreakoutUserPayload> users;
-	public final String breakoutId;
-	public final String meetingId;
+	public final String breakoutMeetingId;
+	public final String parentMeetingId;
 
-	public UpdateBreakoutUsersPayload(String meetingId, String breakoutId, ArrayList<BreakoutUserPayload> users) {
-		this.meetingId = meetingId;
-		this.breakoutId = breakoutId;
+	public UpdateBreakoutUsersPayload(String meetingParentId, String breakoutMeetingId, ArrayList<BreakoutUserPayload> users) {
+		this.parentMeetingId = meetingParentId;
+		this.breakoutMeetingId = breakoutMeetingId;
 	this.users = users;
 	}
 }

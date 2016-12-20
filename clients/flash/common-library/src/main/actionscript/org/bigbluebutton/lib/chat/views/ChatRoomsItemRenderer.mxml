@@ -4,7 +4,7 @@
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:common="org.bigbluebutton.lib.common.views.*"
 				width="100%"
-				styleName="chatRoomItemStyle"
+				styleName="chatRoomItem"
 				xmlns:views="org.bigbluebutton.lib.chat.views.*">
 
 	<fx:Script>
@@ -41,7 +41,7 @@
 		<s:Image id="publicChatIcon"
 				 visible="false"
 				 includeInLayout="false"
-				 styleName="iconStyle publicChatIconStyle" />
+				 styleName="icon publicChatIcon" />
 		<common:ParticipantIcon id="participantIcon"
 								visible="false"
 								includeInLayout="false" />
@@ -49,6 +49,6 @@
 				 width="100%"
 				 styleName="contentFontSize" />
 		<views:NewMessagesIndicator id="newMessages"
-									styleName="newMessagesIndicatorStyle" />
+									styleName="newMessagesIndicator" />
 	</s:Group>
 </s:ItemRenderer>

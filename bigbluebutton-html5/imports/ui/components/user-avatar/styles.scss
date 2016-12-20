@@ -27,6 +27,25 @@ $moderator-bg: $color-primary;
   border-radius: 50%;
   color: $color-white;
   text-transform: capitalize;
+  transition: box-shadow 0.3s;
+}
+
+.userLogout {
+  flex-basis: 2.2rem;
+  height: 2.2rem;
+  flex-shrink: 0;
+  line-height: 2.2rem;
+  justify-content: center;
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  font-size: 1.1rem;
+  text-align: center;
+  border-radius: 50%;
+  border: 1px solid $color-gray-lighter;
+  color: $color-gray-light;
+  font-style: italic;
+  text-transform: capitalize;
 }
 
 .userStatus {
@@ -74,9 +93,6 @@ $moderator-bg: $color-primary;
   background-color: $color-white;
 }
 
-.microphone {
-}
-
 .microphoneMuted {
   margin-top: 0.05rem;
   width: 2px;
@@ -84,6 +100,3 @@ $moderator-bg: $color-primary;
   height: 0.5rem;
   background-color: $color-white;
 }
-
-// 10px x
-// 16px 1

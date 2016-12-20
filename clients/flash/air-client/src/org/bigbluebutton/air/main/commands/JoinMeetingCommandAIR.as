@@ -41,12 +41,12 @@ package org.bigbluebutton.air.main.commands {
 			joinSubservice.join(url);
 		}
 		
-		protected function joinSuccess(urlRequest:URLRequest, responseUrl:String):void {
+		protected function joinSuccess(urlRequest:URLRequest, responseUrl:String, sessionToken:String):void {
 			loginService.loginSuccessSignal.add(loginSuccess);
 			loginService.getConfigSuccessSignal.add(configSuccess);
 			loginService.getProfilesSuccessSignal.add(profilesSuccess);
 			loginService.loginFailureSignal.add(joinFailure);
-			loginService.login(urlRequest, responseUrl);
+			loginService.login(urlRequest, responseUrl, sessionToken);
 		}
 		
 		protected function loginSuccess(userObject:Object):void {

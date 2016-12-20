@@ -203,6 +203,7 @@ class UserListItem extends Component {
                   className={styles.actionsHeader}
                   key={_.uniqueId('action-header')}
                   label={user.name}
+                  style={{ fontWeight: 600 }}
                   defaultMessage={user.name}/>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
@@ -258,22 +259,41 @@ class UserListItem extends Component {
     }
 
     let audioChatIcon = null;
-    if (user.isVoiceUser || user.isListenOnly) {
-      if (user.isMuted) {
-        audioChatIcon = 'audio-off';
-      } else {
-        audioChatIcon = user.isListenOnly ? 'listen' : 'audio';
-      }
+
+    if (user.isListenOnly) {
+      audioChatIcon = 'listen';
+    }
+
+    if (user.isVoiceUser) {
+      audioChatIcon = !user.isMuted ? 'audio' : 'audio-off';
+    }
+
+    let audioIconClassnames = {};
+
+    audioIconClassnames[styles.userIconsContainer] = true;
+    audioIconClassnames[styles.userIconGlowing] = user.isTalking;
+
+    if (!audioChatIcon && !user.isSharingWebcam) {
+      // Prevent rendering the markup when there is no icon to show
+      return;
     }
 
     return (
       <div className={styles.userIcons}>
-        <span className={styles.userIconsContainer}>
-          {user.isSharingWebcam ? <Icon iconName='video'/> : null}
-        </span>
-        <span className={styles.userIconsContainer}>
-          {audioChatIcon ? <Icon iconName={audioChatIcon}/> : null}
-        </span>
+        {
+          user.isSharingWebcam ?
+            <span className={styles.userIconsContainer}>
+              <Icon iconName='video'/>
+            </span>
+            : null
+        }
+        {
+          audioChatIcon ?
+          <span className={cx(audioIconClassnames)}>
+            <Icon iconName={audioChatIcon}/> 
+          </span>
+          : null
+        }
       </div>
     );
   }

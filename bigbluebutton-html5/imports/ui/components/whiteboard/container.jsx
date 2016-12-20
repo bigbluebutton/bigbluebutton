@@ -17,7 +17,9 @@ class WhiteboardContainer extends Component {
   }
 }
 
-export default createContainer(() => {
-  const data = WhiteboardService.getWhiteboardData();
-  return data;
-}, WhiteboardContainer);
+export default createContainer(() => ({
+  currentSlide: WhiteboardService.getCurrentSlide(),
+  shapes: WhiteboardService.getCurrentShapes(),
+  cursor: WhiteboardService.getCurrentCursor(),
+  userIsPresenter: WhiteboardService.isPresenter(),
+}), WhiteboardContainer);

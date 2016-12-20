@@ -5,9 +5,11 @@ set -x
 RED5_DIR=/usr/share/red5
 BBB_DIR=$(pwd)
 
+sudo chmod -R 777 $RED5_DIR/webapps/
+
 cd $BBB_DIR
 
-DESKSHARE=$BBB_DIR/deskshare
+DESKSHARE=$BBB_DIR/bbb-screenshare
 VOICE=$BBB_DIR/bbb-voice
 VIDEO=$BBB_DIR/bbb-video
 APPS=$BBB_DIR/bigbluebutton-apps
@@ -28,10 +30,8 @@ gradle resolveDeps
 gradle clean war deploy
 
 echo "Building deskshare"
-cd $DESKSHARE
-gradle resolveDeps
 cd $DESKSHARE/app
-gradle clean war deploy
+./deploy.sh
 
 cd $BBB_DIR
 

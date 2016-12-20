@@ -27,58 +27,32 @@ package org.bigbluebutton.main.model {
 	public class PortTestProxy {
 		private static const LOGGER:ILogger = getClassLogger(PortTestProxy);      
     
-		private var nc:NetConnection;
 		private var tunnel:Boolean;
 		private var port:String;
 		private var hostname:String;
 		private var application:String;
 		private var modulesDispatcher:ModulesDispatcher;
-		
+		private var portTest:PortTest;
+    
 		public function PortTestProxy(modulesDispatcher: ModulesDispatcher) {
 			this.modulesDispatcher = modulesDispatcher;
 		}
 		
 		public function connect(tunnel:Boolean, hostname:String = "", port:String = "", application:String = "", testTimeout:Number = 10000):void {
       this.tunnel = tunnel;
-			var portTest:PortTest = new PortTest(tunnel, hostname, port, application, testTimeout);
+			portTest = new PortTest(tunnel, hostname, port, application, testTimeout);
 			portTest.addConnectionSuccessListener(connectionListener);
 
 			portTest.connect();
 		}
 		
 		private function connectionListener(status:String, tunnel:Boolean, hostname:String, port:String, application:String):void {
+      
 			if (status == "SUCCESS") {				
 				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, tunnel, application);			
 			} else {
 				modulesDispatcher.sendPortTestFailedEvent(port, hostname, tunnel, application);
 			}				 		
 		}
-					
-		public function close():void {	
-			nc.removeEventListener(NetStatusEvent.NET_STATUS, netStatusEventHandler);
-			nc.close();
-		}
-	
-		protected function netStatusEventHandler(event:NetStatusEvent):void  {
-			var info:Object = event.info;
-			var statusCode : String = info.code;
-			
-			if (statusCode == "NetConnection.Connect.Success") {
-				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, tunnel, application);
-			} else if (statusCode == "NetConnection.Connect.Rejected" ||
-				 	  statusCode == "NetConnection.Connect.Failed" || 
-				 	  statusCode == "NetConnection.Connect.Closed" ) {
-				modulesDispatcher.sendPortTestFailedEvent(port, hostname, tunnel, application);
-			} else {
-        modulesDispatcher.sendPortTestFailedEvent(port, hostname, tunnel, application);
-			}
-			// Close NetConnection.
-			close();
-		}
-		
-		/**
-		 * The Red5 oflaDemo returns bandwidth stats.
-		 */		
-		public function onBWDone() : void {	}
 	}
 }

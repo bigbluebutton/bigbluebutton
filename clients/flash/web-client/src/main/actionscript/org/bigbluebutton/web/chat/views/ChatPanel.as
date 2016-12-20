@@ -37,7 +37,7 @@ package org.bigbluebutton.web.chat.views {
 			var l:VerticalLayout = new VerticalLayout();
 			this.layout = l;
 			this.minWidth = 50;
-			this.styleName = "panelStyle";
+			this.styleName = "panel";
 			
 			var g:HGroup = new HGroup();
 			g.percentWidth = 100;
@@ -45,7 +45,7 @@ package org.bigbluebutton.web.chat.views {
 			_title = new Label();
 			_title.percentWidth = 100;
 			_title.text = "Public Chat";
-			_title.styleName = "panelTitleStyle";
+			_title.styleName = "panelTitle";
 			g.addElement(title);
 			
 			_closeButton = new Button();

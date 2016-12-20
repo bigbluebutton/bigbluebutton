@@ -26,6 +26,10 @@ package org.bigbluebutton.air.main.services {
 		
 		private static const JOIN_URL_EMPTY:String = "emptyJoinUrl";
 		
+		private static const ERROR_QUERY_PARAM:String = "errors=";
+		
+		private static const TOKEN_QUERY_PARAM:String = "sessionToken=";
+		
 		public function get successSignal():ISignal {
 			return _successSignal;
 		}
@@ -42,7 +46,7 @@ package org.bigbluebutton.air.main.services {
 			var fetcher:URLFetcher = new URLFetcher(getUserAgent());
 			fetcher.successSignal.add(onSuccess);
 			fetcher.failureSignal.add(onFailure);
-			fetcher.fetch(joinUrl);
+			fetcher.fetch(joinUrl, null, null);
 		}
 		
 		private function getUserAgent():String {
@@ -78,13 +82,21 @@ package org.bigbluebutton.air.main.services {
 		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 200):void {
 			if (httpStatusCode == 200) {
 				try {
+					/* If redirect is set to false on the join url the response will be XML and there will be
+					 * an auth_token in the response that can be used to join. If redirect is set to true or
+					 * left off there will be a sessionToken attached to the responseURL that can be used to
+					 * join. And if there is an issue with the join request there is a redirect and error
+					 *  message is in the responseURL as error.
+					 */
 					var xml:XML = new XML(data);
-					switch (xml.returncode.toString()) {
+					var code:String = xml.returncode.toString();
+					switch (code) {
 						case XML_RETURN_CODE_FAILED:
 							onFailure(xml.messageKey);
 							break;
 						case XML_RETURN_CODE_SUCCESS:
-							successSignal.dispatch(urlRequest, responseUrl);
+							var sessionToken:String = xml.auth_token.toString();
+							successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 							break;
 						default:
 							onFailure(URL_REQUEST_GENERIC_ERROR);
@@ -92,8 +104,21 @@ package org.bigbluebutton.air.main.services {
 					}
 				} catch (e:Error) {
 					trace("The response is probably not a XML. " + e.message);
-					successSignal.dispatch(urlRequest, responseUrl);
-					return;
+					// Need to grab either the error or the sessionToken from the response URL
+					var infoIndex:int = responseUrl.indexOf(ERROR_QUERY_PARAM);
+					if (infoIndex != -1) {
+						var errors:String = unescape(responseUrl.substring(infoIndex + ERROR_QUERY_PARAM.length));
+						trace(errors);
+						onFailure(errors);
+						return
+					}
+					infoIndex = responseUrl.indexOf(TOKEN_QUERY_PARAM);
+					if (infoIndex != -1) {
+						var sessionToken:String = responseUrl.substring(infoIndex + TOKEN_QUERY_PARAM.length);
+						successSignal.dispatch(urlRequest, responseUrl, sessionToken);
+						return;
+					}
+					onFailure(URL_REQUEST_GENERIC_ERROR);
 				}
 			} else {
 				onFailure(URL_REQUEST_GENERIC_ERROR);

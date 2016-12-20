@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.whiteboard.models
 	import flash.events.IEventDispatcher;
 	
 	import mx.collections.ArrayCollection;
-	
+	import org.bigbluebutton.core.UsersUtil;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.present.model.Page;
@@ -51,7 +51,7 @@ package org.bigbluebutton.modules.whiteboard.models
     }
     
 		public function addAnnotation(annotation:Annotation):void {
-      LOGGER.debug("*** Adding annotation [{0},{1},{2}] ****", [annotation.id, annotation.type, annotation.status]);
+     // LOGGER.debug("*** Adding annotation [{0},{1},{2}] ****", [annotation.id, annotation.type, annotation.status]);
       var wb:Whiteboard;
       if (annotation.status == DrawObject.DRAW_START || annotation.type == DrawObject.POLL
 		  || annotation.status == TextObject.TEXT_CREATED) {
@@ -70,7 +70,7 @@ package org.bigbluebutton.modules.whiteboard.models
          }
        }
 			 
-       LOGGER.debug("*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
+      // LOGGER.debug("*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
        var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
        event.annotation = annotation;
        _dispatcher.dispatchEvent(event);
@@ -86,13 +86,13 @@ package org.bigbluebutton.modules.whiteboard.models
     
     
     public function addAnnotationFromHistory(whiteboardId:String, annotation:Array):void {                
-      LOGGER.debug("addAnnotationFromHistory: wb id=[{0}]", [whiteboardId]);
+      //LOGGER.debug("addAnnotationFromHistory: wb id=[{0}]", [whiteboardId]);
       var wb:Whiteboard = getWhiteboard(whiteboardId);
       if (wb != null) {
-        LOGGER.debug("Whiteboard is already present. Adding shapes.");
+       // LOGGER.debug("Whiteboard is already present. Adding shapes.");
         addShapes(wb, annotation);
       } else {
-        LOGGER.debug("Whiteboard is NOT present. Creating WB and adding shapes.");
+       // LOGGER.debug("Whiteboard is NOT present. Creating WB and adding shapes.");
         wb = new Whiteboard(whiteboardId);
         addShapes(wb, annotation);
         _whiteboards.addItem(wb);

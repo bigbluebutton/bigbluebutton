@@ -20,15 +20,19 @@ package org.bigbluebutton.messages.payload;
 
 public class BreakoutRoomJoinURLPayload {
 
-  public final String meetingId;
-  public final String breakoutId;
-  public final String userId;
-  public final String joinURL;
-  
-  public BreakoutRoomJoinURLPayload(String meetingId, String breakoutId, String userId, String joinURL) {
-    this.meetingId = meetingId;
-    this.breakoutId = breakoutId;
-    this.userId = userId;
-    this.joinURL = joinURL;
-  }
+    public final String parentMeetingId;
+    public final String breakoutMeetingId;
+    public final String userId;
+    public final String redirectJoinURL;
+    public final String noRedirectJoinURL;
+
+    public BreakoutRoomJoinURLPayload(String parentMeetingId,
+            String breakoutMeetingId, String userId, String redirectJoinURL,
+            String noRedirectJoinURL) {
+        this.parentMeetingId = parentMeetingId;
+        this.breakoutMeetingId = breakoutMeetingId;
+        this.userId = userId;
+        this.redirectJoinURL = redirectJoinURL;
+        this.noRedirectJoinURL = noRedirectJoinURL;
+    }
 }

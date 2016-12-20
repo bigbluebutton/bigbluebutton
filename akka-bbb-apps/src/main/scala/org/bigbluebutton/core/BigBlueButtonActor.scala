@@ -9,6 +9,8 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 
+import java.util.concurrent.TimeUnit
+
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
     eventBus: IncomingEventBus,
@@ -117,21 +119,30 @@ class BigBlueButtonActor(val system: ActorSystem,
         meetings -= msg.meetingID
         log.info("Kick everyone out on meetingId={}", msg.meetingID)
         if (m.mProps.isBreakout) {
-          log.info("Informing parent meeting {} that a breakout room has been ended {}", m.mProps.externalMeetingID, m.mProps.meetingID)
-          eventBus.publish(BigBlueButtonEvent(m.mProps.externalMeetingID,
-            BreakoutRoomEnded(m.mProps.externalMeetingID, m.mProps.meetingID)))
+          log.info("Informing parent meeting {} that a breakout room has been ended {}", m.mProps.parentMeetingID, m.mProps.meetingID)
+          eventBus.publish(BigBlueButtonEvent(m.mProps.parentMeetingID,
+            BreakoutRoomEnded(m.mProps.parentMeetingID, m.mProps.meetingID)))
         }
+
+        // Eject all users using the client.
         outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
-        outGW.send(new DisconnectAllUsers(msg.meetingID))
-        log.info("Destroyed meetingId={}", msg.meetingID)
-        outGW.send(new MeetingDestroyed(msg.meetingID))
+        // Eject all users from the voice conference
+        outGW.send(new EjectAllVoiceUsers(msg.meetingID, m.mProps.recorded, m.mProps.voiceBridge))
 
-        /** Unsubscribe to meeting and voice events. **/
-        eventBus.unsubscribe(m.actorRef, m.mProps.meetingID)
-        eventBus.unsubscribe(m.actorRef, m.mProps.voiceBridge)
+        // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client  
+        context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
+          // Disconnect all clients
+          outGW.send(new DisconnectAllUsers(msg.meetingID))
+          log.info("Destroyed meetingId={}", msg.meetingID)
+          outGW.send(new MeetingDestroyed(msg.meetingID))
 
-        // Stop the meeting actor.
-        context.stop(m.actorRef)
+          /** Unsubscribe to meeting and voice events. **/
+          eventBus.unsubscribe(m.actorRef, m.mProps.meetingID)
+          eventBus.unsubscribe(m.actorRef, m.mProps.voiceBridge)
+
+          // Stop the meeting actor.
+          context.stop(m.actorRef)
+        }
       }
     }
   }
@@ -149,9 +160,9 @@ class BigBlueButtonActor(val system: ActorSystem,
         eventBus.subscribe(m.actorRef, m.mProps.deskshareBridge)
 
         meetings += m.mProps.meetingID -> m
-        outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.recorded, m.mProps.meetingName,
-          m.mProps.voiceBridge, msg.mProps.duration, msg.mProps.moderatorPass,
-          msg.mProps.viewerPass, msg.mProps.createTime, msg.mProps.createDate))
+        outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.parentMeetingID,
+          m.mProps.recorded, m.mProps.meetingName, m.mProps.voiceBridge, msg.mProps.duration, msg.mProps.moderatorPass,
+          msg.mProps.viewerPass, msg.mProps.createTime, msg.mProps.createDate, msg.mProps.isBreakout))
 
         m.actorRef ! new InitializeMeeting(m.mProps.meetingID, m.mProps.recorded)
       }
