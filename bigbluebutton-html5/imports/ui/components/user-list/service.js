@@ -237,6 +237,16 @@ const userActions = {
     handler: user => callServer('kickUser', user.userid),
     icon: 'kick-user',
   },
+  mute: {
+    label: 'Mute Audio',
+    handler: user=> callServer('muteUser', Auth.userID),
+    icon: 'mute',
+  },
+  unmute: {
+    label: 'Unmute Audio',
+    handler: user=> callServer('unmuteUser', Auth.userID),
+    icon: 'unmute',
+  },
 };
 
 export default {
