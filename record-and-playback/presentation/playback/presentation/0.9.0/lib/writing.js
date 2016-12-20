@@ -170,8 +170,10 @@ function handlePresentationAreaContent(time) {
     sharingDesktop = false;
   }
 
-  if(isThereDeskshareVideo())
+  if(isThereDeskshareVideo()) {
     resyncVideos();
+    resizeDeshareVideo();
+  }
 }
 
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //

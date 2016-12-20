@@ -447,7 +447,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   if (checkUrl(RECORDINGS + '/deskshare/deskshare.webm') == true)
-    load_deskshare_video()
+    load_deskshare_video();
 
   resizeComponents();
 }, false);
