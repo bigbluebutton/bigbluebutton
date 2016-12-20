@@ -32,7 +32,7 @@ export default class ActionsBar extends Component {
             close={() => {exitAudio();}}
 
           />
-          <JoinVideo />
+          {/*<JoinVideo />*/}
           <EmojiContainer />
         </div>
         <div className={styles.right}>
@@ -51,7 +51,7 @@ export default class ActionsBar extends Component {
             close={() => {exitAudio();}}
 
           />
-          <JoinVideo />
+          {/*<JoinVideo />*/}
           <EmojiContainer />
         </div>
         <div className={styles.right}>
