@@ -290,7 +290,7 @@ class UserListItem extends Component {
         {
           audioChatIcon ?
           <span className={cx(audioIconClassnames)}>
-            <Icon iconName={audioChatIcon}/> 
+            <Icon iconName={audioChatIcon}/>
           </span>
           : null
         }

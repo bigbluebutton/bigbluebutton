@@ -82,7 +82,7 @@ export default class ParticipantsMenu extends React.Component {
   }
 
   renderLockOptions () {
-    
+
     const { isPresenter, role } = this.props;
 
     let roleBasedOptions = [];

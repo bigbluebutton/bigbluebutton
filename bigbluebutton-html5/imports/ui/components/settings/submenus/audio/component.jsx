@@ -14,7 +14,7 @@ export default class AudioMenu extends BaseMenu {
 
     this.state = {
       inputDeviceId: undefined,
-    }
+    };
   }
 
   chooseAudio() {
@@ -24,7 +24,7 @@ export default class AudioMenu extends BaseMenu {
   handleInputChange(deviceId) {
     console.log(`INPUT DEVICE CHANGED: ${deviceId}`);
     this.setState({
-      inputDeviceId: deviceId
+      inputDeviceId: deviceId,
     });
   }
 
