@@ -1,8 +1,6 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
-import classNames from 'classnames';
-import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
 
 export default class JoinAudio extends React.Component {

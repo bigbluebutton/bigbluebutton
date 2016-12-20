@@ -1,8 +1,8 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
-import classNames from 'classnames';
-import ReactDOM from 'react-dom';
+import { clearModal } from '/imports/ui/components/app/service';
 import styles from '../styles.scss';
+
 import StreamVolume from '/imports/ui/components/stream-volume/component';
 import SpeakerSource from '/imports/ui/components/speaker-source/component';
 import AudioTestContainer from '/imports/ui/components/audio-test/container';
@@ -13,10 +13,16 @@ export default class ListenOnly extends React.Component {
     super(props);
 
     this.chooseAudio = this.chooseAudio.bind(this);
+    this.handleClose = this.handleClose.bind(this);
   }
 
   chooseAudio() {
     this.props.changeMenu(this.props.JOIN_AUDIO);
+  }
+
+  handleClose() {
+    this.setState({ isOpen: false });
+    clearModal();
   }
 
   render() {
@@ -30,6 +36,14 @@ export default class ListenOnly extends React.Component {
             color={'primary'}
             ghost={true}
             onClick={this.chooseAudio}
+          />
+          <Button className={styles.closeBtn}
+            label={'Close'}
+            icon={'close'}
+            size={'lg'}
+            circle={true}
+            hideLabel={true}
+            onClick={this.handleClose}
           />
           <div>
             Choose your listen only settings

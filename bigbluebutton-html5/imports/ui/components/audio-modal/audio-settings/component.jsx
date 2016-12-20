@@ -14,10 +14,16 @@ export default class AudioSettings extends React.Component {
     super(props);
 
     this.chooseAudio = this.chooseAudio.bind(this);
+    this.handleClose = this.handleClose.bind(this);
   }
 
   chooseAudio() {
     this.props.changeMenu(this.props.JOIN_AUDIO);
+  }
+
+  handleClose() {
+    this.setState({ isOpen: false });
+    clearModal();
   }
 
   render() {
@@ -31,6 +37,14 @@ export default class AudioSettings extends React.Component {
             color={'primary'}
             ghost={true}
             onClick={this.chooseAudio}
+          />
+          <Button className={styles.closeBtn}
+            label={'Close'}
+            icon={'close'}
+            size={'lg'}
+            circle={true}
+            hideLabel={true}
+            onClick={this.handleClose}
           />
           <div>
             Choose your audio settings
