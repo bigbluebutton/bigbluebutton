@@ -10,8 +10,7 @@ export default class RecordingIndicator extends Component {
   render() {
     const { beingRecorded } = this.props;
     let classNames = {};
-    classNames[styles.indicator] = true;
-    classNames[styles.beingRecorded] = beingRecorded;
+    classNames[styles.indicator] = beingRecorded;
 
     return (
       <span className={cx(classNames)}></span>
