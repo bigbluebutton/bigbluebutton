@@ -8,11 +8,14 @@ package org.bigbluebutton.air.settings {
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewMediatorAIR;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsViewBaseAIR;
+	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewBaseAIR;
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
 	import org.bigbluebutton.lib.settings.views.SettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewMediatorBase;
+	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewBase;
+	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewMediatorBase;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -38,6 +41,7 @@ package org.bigbluebutton.air.settings {
 			mediatorMap.map(SettingsViewBase).toMediator(SettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(AudioSettingsViewBase, AudioSettingsViewBaseAIR)).toMediator(AudioSettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(ChatSettingsViewBase, ChatSettingsViewBaseAIR)).toMediator(ChatSettingsViewMediatorBase);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(LockSettingsViewBase, LockSettingsViewBaseAIR)).toMediator(LockSettingsViewMediatorBase);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarSettings)).toMediator(TopToolbarMediatorSettings);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarSubSettings)).toMediator(TopToolbarMediatorSubSettings);
 		}

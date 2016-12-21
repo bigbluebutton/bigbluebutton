@@ -7,6 +7,7 @@
 @namespace settings "org.bigbluebutton.lib.settings.views.*";
 @namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
 @namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
+@namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
 
 @font-face { 
 	src        : url("../../shared/assets/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
@@ -83,7 +84,7 @@ participants|ParticipantsViewBase, users|UsersViewBase {
 	color : PropertyReference("tuna");
 }
 
-settings|SettingsViewBase, chat|ChatSettingsViewBase {
+settings|SettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
 	color                 : PropertyReference("regentGrey");
 	participantBackground : PropertyReference("shakespeare");
 }

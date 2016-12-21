@@ -11,7 +11,7 @@ package org.bigbluebutton.air.settings.views.lock {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	public class LockSettingsViewMediator extends Mediator {
+	public class LockSettingsViewMediatorAIR extends Mediator {
 		
 		[Inject]
 		public var view:ILockSettingsView;
