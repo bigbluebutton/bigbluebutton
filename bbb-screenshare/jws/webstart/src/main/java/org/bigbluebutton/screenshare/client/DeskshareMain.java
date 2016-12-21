@@ -108,7 +108,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     String codecOptions = null;
     boolean useH264 = true;
 
-    if(args != null && args.length == 8) {
+    if(args != null && args.length == 9) {
       System.out.println("Using passed args: length=[" + args.length + "]");
       url = args[0];
       serverUrl = args[1];
@@ -122,7 +122,9 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 
       session = args[6];
 
-      String errorMessage = args[7];
+      useH264 = Boolean.parseBoolean(args[7]);
+
+      String errorMessage = args[8];
       
       if (! errorMessage.equalsIgnoreCase("NO_ERRORS")) {
         dsMain.displayJavaWarning(errorMessage);

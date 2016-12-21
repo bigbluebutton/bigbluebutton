@@ -93,6 +93,7 @@ public class FfmpegScreenshare {
       mainRecorder = setupLinuxRecorder(URL, width, height, codecOptions, ssi.useH264);
     } else if (platform.startsWith("macosx-x86_64")) {
       grabber = setupMacOsXGrabber(width, height, x, y);
+
       mainRecorder = setupMacOsXRecorder(URL, width, height, codecOptions, ssi.useH264);
     }
     

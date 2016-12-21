@@ -46,6 +46,7 @@
         <argument>$$fullScreen</argument>
         <argument>$$codecOptions</argument>
         <argument>$$session</argument>
+        <argument>$$useH264</argument>
         <argument>$$errorMessage</argument>
      </application-desc>
      <security><all-permissions/></security>
