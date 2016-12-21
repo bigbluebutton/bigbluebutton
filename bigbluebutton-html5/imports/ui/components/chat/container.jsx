@@ -71,7 +71,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
           id: id,
           text: intl.formatMessage(intlMessages.partnerDisconnected, { name: user.name }),
           time: time,
-        }],
+        },],
         time: time,
         sender: null,
       };

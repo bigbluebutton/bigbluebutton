@@ -140,7 +140,7 @@ eventEmitter.on('user_emoji_status_message', function (arg) {
         'user.set_emoji_time': setEmojiTime,
         'user.emoji_status': emojiStatus,
       },
-    }, (err, numUpdated) => logger.info(` Updating emoji numUpdated=${numUpdated}, err=${err}`));
+    }, (err, numUpdated) => logger.info(`Updating emoji numUpdated=${numUpdated}, err=${err}`));
   }
 
   return arg.callback();
