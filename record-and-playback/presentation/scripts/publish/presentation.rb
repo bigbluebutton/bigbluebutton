@@ -744,7 +744,6 @@ def processSlideEvents
     if(node[:timestamp].to_f > $rec_events.last[:stop_timestamp].to_f)
       next
     end
-
     eventname = node['eventname']
     if eventname == "SharePresentationEvent"
       $presentation_name = node.xpath(".//presentationName")[0].text()
@@ -752,7 +751,6 @@ def processSlideEvents
 
       #set slide times
       slide_timestamp =  node[:timestamp]
-
       slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
       orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
 

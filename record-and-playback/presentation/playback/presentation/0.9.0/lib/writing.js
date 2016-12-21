@@ -311,6 +311,7 @@ function runPopcorn() {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
 
+
   // PROCESS DESKSHARE.XML
   console.log("** Getting deskshare.xml");
   xmlhttp.open("GET", deskshare_xml, false);
@@ -327,8 +328,6 @@ function runPopcorn() {
       deskshareTimes[m] = deskTimes;
     }
   }
-
-
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
   svgobj.style.top = "0px";

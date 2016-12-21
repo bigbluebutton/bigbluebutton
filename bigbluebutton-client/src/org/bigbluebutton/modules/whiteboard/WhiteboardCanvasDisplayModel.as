@@ -74,7 +74,7 @@ package org.bigbluebutton.modules.whiteboard
         sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
       }
     }
-
+    
     public function drawGraphic(event:WhiteboardUpdate):void{
       var o:Annotation = event.annotation;
       //  LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
@@ -571,7 +571,7 @@ package org.bigbluebutton.modules.whiteboard
     public function isPageEmpty():Boolean {
       return _annotationsList.length == 0;
     }
-
+    
         /** Helper method to test whether this user is the presenter */
         private function get isPresenter():Boolean {
             return UserManager.getInstance().getConference().amIPresenter;
