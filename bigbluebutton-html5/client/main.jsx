@@ -3,6 +3,15 @@ import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import { renderRoutes } from '../imports/startup/client/routes.js';
 import { IntlProvider } from 'react-intl';
+import Singleton from '/imports/ui/services/storage/local.js';
+
+function loadUserSettings() {
+    const userSavedFontSize = Singleton.getItem('bbbSavedFontSizePixels');
+
+    if (userSavedFontSize) {
+      document.getElementsByTagName('html')[0].style.fontSize = userSavedFontSize;
+    }
+}
 
 function setMessages(data) {
   let messages = data;
@@ -37,6 +46,7 @@ function loadLib(libname, success, fail) {
 };
 
 Meteor.startup(() => {
+
   loadLib('sip.js');
   loadLib('bbb_webrtc_bridge_sip.js');
   loadLib('bbblogger.js');
@@ -45,6 +55,8 @@ Meteor.startup(() => {
   loadLib('jquery.verto.js');
   loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
+
+  loadUserSettings();
 
   let browserLanguage = navigator.language;
   let request = new Request
