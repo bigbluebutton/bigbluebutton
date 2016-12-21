@@ -41,8 +41,6 @@ class LeaveConfirmation extends Component {
   }
 
   handleLeaveConfirmation() {
-    LocalStorage.removeItem('bbbSavedFontSize');
-    LocalStorage.removeItem('bbbSavedFontSizePixels');
     Auth.completeLogout();
   }
 
