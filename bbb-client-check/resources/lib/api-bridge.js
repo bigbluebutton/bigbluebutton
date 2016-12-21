@@ -224,7 +224,7 @@
 			myRole: "undefined",
 			amIPresenter: "undefined",
 			dialNumber: "undefined",
-			voiceBridge: "undefined",
+			voiceBridge: "",
 			customdata: "undefined"
 		}
 
@@ -306,4 +306,60 @@
 	BBB.webRTCMediaFail = function() {
 		console.log("[BBBClientCheck] Handling webRTCMediaFail");
 	}
+
+    BBB.webRTCCallStarted = function(inEchoTest) {
+        // var swfObj = swfobject.getObjectById("BigBlueButton");
+        // if (swfObj) {
+        //     swfObj.webRTCCallStarted(inEchoTest);
+        // }
+        console.log("[BBBClientCheck] Handling webRTCCallStarted");
+    }
+
+    BBB.webRTCCallConnecting = function(inEchoTest) {
+        // var swfObj = swfobject.getObjectById("BigBlueButton");
+        // if (swfObj) {
+        //     swfObj.webRTCCallConnecting(inEchoTest);
+        // }
+        console.log("[BBBClientCheck] Handling webRTCCallConnecting");
+    }
+
+    BBB.webRTCCallEnded = function(inEchoTest) {
+        // var swfObj = swfobject.getObjectById("BigBlueButton");
+        // if (swfObj) {
+        //     swfObj.webRTCCallEnded(inEchoTest);
+        // }
+        console.log("[BBBClientCheck] Handling webRTCCallEnded");
+    }
+
+    BBB.webRTCCallFailed = function(inEchoTest, errorcode, cause) {
+        // var swfObj = swfobject.getObjectById("BigBlueButton");
+        // if (swfObj) {
+        //     swfObj.webRTCCallFailed(inEchoTest, errorcode, cause);
+        // }
+        console.log("[BBBClientCheck] Handling webRTCCallFailed");
+    }
+
+    BBB.webRTCCallWaitingForICE = function(inEchoTest) {
+        // var swfObj = swfobject.getObjectById("BigBlueButton");
+        // if (swfObj) {
+        //     swfObj.webRTCCallWaitingForICE(inEchoTest);
+        // }
+        console.log("[BBBClientCheck] Handling webRTCCallWaitingForICE");
+    }
+
+    BBB.webRTCCallTransferring = function(inEchoTest) {
+        // var swfObj = swfobject.getObjectById("BigBlueButton");
+        // if (swfObj) {
+        //     swfObj.webRTCCallTransferring(inEchoTest);
+        // }
+        console.log("[BBBClientCheck] Handling webRTCCallTransferring");
+    }
+
+    BBB.webRTCCallProgressCallback = function(progress) {
+        // var swfObj = swfobject.getObjectById("BigBlueButton");
+        // if (swfObj) {
+        //     swfObj.webRTCCallProgressCallback(progress);
+        // }
+        console.log("[BBBClientCheck] Handling webRTCCallProgressCallback");
+    }
 }
