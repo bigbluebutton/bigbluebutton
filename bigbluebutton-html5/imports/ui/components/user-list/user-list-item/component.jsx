@@ -110,10 +110,25 @@ class UserListItem extends Component {
       setPresenter,
       promote,
       kick,
+      mute,
+      unmute,
     } = userActions;
+
+    let muteAudio, unmuteAudio;
+
+    // Check the state of joining the audio currently for current user
+    if (user.isCurrent && user.isVoiceUser) {
+      if (user.isMuted) {
+        muteAudio = true;
+      } else {
+        unmuteAudio = true;
+      }
+    }
 
     return _.compact([
       (!user.isCurrent ? this.renderUserAction(openChat, router, user) : null),
+      (muteAudio ? this.renderUserAction(unmute, user) : null),
+      (unmuteAudio ? this.renderUserAction(mute, user) : null),
       (currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null),
       (currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null),
       (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
