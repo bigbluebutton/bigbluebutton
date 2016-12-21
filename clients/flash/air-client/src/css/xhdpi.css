@@ -7,6 +7,7 @@
 @namespace users "org.bigbluebutton.lib.user.views.*";
 @namespace settings "org.bigbluebutton.lib.settings.views.*";
 @namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
+@namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -53,7 +54,7 @@
 		paritcipantPadding : 40;
 	}
 	
-	audio|AudioSettingsViewBase {
+	audio|AudioSettingsViewBase, chat|ChatSettingsViewBase {
 		padding: 30;
 	}
 	

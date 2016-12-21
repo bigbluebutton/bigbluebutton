@@ -8,6 +8,7 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.settings.views.SettingsView;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsView;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
+	import org.bigbluebutton.air.settings.views.chat.ChatSettingsView;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
 	
 	public class PageEnum {
@@ -52,7 +53,7 @@ package org.bigbluebutton.air.common {
 				dic[SETTINGS] = SettingsView;
 				dic[AUDIOSETTINGS] = AudioSettingsView;
 				dic[CAMERASETTINGS] = CameraSettingsView;
-				dic[CHATSETTINGS] = SettingsView; // @todo ChatSettingsView
+				dic[CHATSETTINGS] = ChatSettingsView;
 				dic[LOCKSETTINGS] = LockSettingsView;
 				//		dic[PROFILE] = ProfileView;
 				//		dic[USER_DETAILS] = UserDetailsView;

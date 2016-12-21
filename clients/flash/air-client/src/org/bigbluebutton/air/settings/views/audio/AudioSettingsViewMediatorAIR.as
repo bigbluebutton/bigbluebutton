@@ -4,10 +4,10 @@ package org.bigbluebutton.air.settings.views.audio {
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewMediator;
+	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewMediatorBase;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	
-	public class AudioSettingsViewMediatorAIR extends AudioSettingsViewMediator {
+	public class AudioSettingsViewMediatorAIR extends AudioSettingsViewMediatorBase {
 		
 		[Inject]
 		public var userSession:IUserSession;

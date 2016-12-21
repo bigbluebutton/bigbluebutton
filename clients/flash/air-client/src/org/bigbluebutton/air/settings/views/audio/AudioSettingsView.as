@@ -1,5 +1,4 @@
 package org.bigbluebutton.air.settings.views.audio {
-	
 	import spark.layouts.VerticalLayout;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
