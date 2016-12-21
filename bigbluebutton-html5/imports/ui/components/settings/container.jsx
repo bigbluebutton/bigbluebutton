@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Settings from './component';
 import Service from './service';
-import Singleton from '/imports/ui/services/storage/local.js';
+import LocalStorage from '/imports/ui/services/storage/local.js';
 
 const DEFAULT_FONTSIZE = 3;
 const MAX_FONTSIZE = 5;
@@ -13,7 +13,7 @@ class SettingsMenuContainer extends Component {
     super(props);
 
     this.state = {
-      currentFontSize: Singleton.getItem('bbbSavedFontSize') || DEFAULT_FONTSIZE,
+      currentFontSize: LocalStorage.getItem('bbbSavedFontSize') || DEFAULT_FONTSIZE,
     }
 
     this.fontControl = {
@@ -45,7 +45,7 @@ class SettingsMenuContainer extends Component {
 
   handleIncreaseFontSize() {
     let fs = ( this.state.currentFontSize < MAX_FONTSIZE) ? ++this.state.currentFontSize : MAX_FONTSIZE;
-    Singleton.setItem('bbbFontSize', fs);
+    LocalStorage.setItem('bbbFontSize', fs);
     this.setState({ currentFontSize: fs }, function () {
       this.handleApplyFontSize();
     });
@@ -53,23 +53,23 @@ class SettingsMenuContainer extends Component {
 
   handleDecreaseFontSize() {
     let fs = ( this.state.currentFontSize > MIN_FONTSIZE) ? --this.state.currentFontSize : MIN_FONTSIZE;
-    Singleton.setItem('bbbFontSize', fs);
+    LocalStorage.setItem('bbbFontSize', fs);
     this.setState({ currentFontSize: fs }, function () {
       this.handleApplyFontSize();
     });
   };
 
   handleSaveFontState() {
-    let fs = Singleton.getItem('bbbFontSize') || DEFAULT_FONTSIZE;
-    Singleton.setItem('bbbSavedFontSize', fs);
-    Singleton.setItem('bbbSavedFontSizePixels', this.fontControl.properties[fs].size);
+    let fs = LocalStorage.getItem('bbbFontSize') || DEFAULT_FONTSIZE;
+    LocalStorage.setItem('bbbSavedFontSize', fs);
+    LocalStorage.setItem('bbbSavedFontSizePixels', this.fontControl.properties[fs].size);
     this.setState({ currentFontSize: fs }, function () {
       this.handleApplyFontSize();
     });
   };
 
   handleRevertFontState(){
-    let fs = Singleton.getItem('bbbSavedFontSize') || DEFAULT_FONTSIZE;
+    let fs = LocalStorage.getItem('bbbSavedFontSize') || DEFAULT_FONTSIZE;
     this.setState({ currentFontSize: fs }, function () {
       this.handleApplyFontSize();
     });

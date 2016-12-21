@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Modal from '/imports/ui/components/modal/component';
-import Singleton from '/imports/ui/services/storage/local.js';
+import LocalStorage from '/imports/ui/services/storage/local.js';
 import { clearModal } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
@@ -41,7 +41,8 @@ class LeaveConfirmation extends Component {
   }
 
   handleLeaveConfirmation() {
-    Singleton.clear();
+    LocalStorage.removeItem('bbbSavedFontSize');
+    LocalStorage.removeItem('bbbSavedFontSizePixels');
     Auth.completeLogout();
   }
 
