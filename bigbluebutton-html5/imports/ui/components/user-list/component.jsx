@@ -124,9 +124,9 @@ class UserList extends Component {
           !this.state.compact ?
           <h3 className={styles.smallTitle}>
             <FormattedMessage
-              id="app.userlist.participantsTitle"
-              description="Title for the Participants list"
-              defaultMessage="Participants"
+              id="app.userlist.usersTitle"
+              description="Title for the Users list"
+              defaultMessage="Users"
             />
             &nbsp;({users.length})
           </h3> : <hr className={styles.separator}></hr>
