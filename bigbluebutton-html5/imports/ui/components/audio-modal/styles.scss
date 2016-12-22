@@ -114,8 +114,46 @@ div.half label {
   height: 42px;
 }
 
-.item {
+.itemRight {
   display: block;
   margin-bottom: $md-padding-y;
-  width: 100%;
+  width: 85%;
+  margin-bottom: 30px;
+
+}
+
+.itemLeft {
+  display: block;
+  margin-bottom: $md-padding-y;
+  width: 85%;
+  margin-bottom: 30px;
+
+}
+
+
+.title {
+  color: $color-gray-dark;
+  font-weight: 700;
+  font-size: $font-size-large;
+      margin-top: -30px;
+}
+
+.audioNote {
+  color: $color-text;
+  display: inline-block;
+  margin-top: 25px;
+  margin-bottom: 30px;
+}
+
+.heading {
+  font-weight: 700;
+  font-size: $font-size-small;
+  display: inline-block;
+      margin-bottom: 10px;
+}
+
+.joinButton {
+  position: relative;
+left: 11em;
+top: 3em;
 }
