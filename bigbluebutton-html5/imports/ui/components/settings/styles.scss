@@ -94,6 +94,12 @@ div.containerLeftHalf label, div.containerRightHalf label {
   box-shadow: none;
 }
 
+.enterBtn {
+  position: relative;
+  margin-left: 10em;
+  margin-top: 2.5em;
+}
+
 .testAudioBtn {
   @extend .defaultBtn;
   width: 140px;
