@@ -59,7 +59,7 @@ class NavBar extends Component {
       openBreakoutJoinConfirmation.call(this, breakoutURL, breakout.name);
     });
   }
-  
+
   render() {
     const { hasUnreadMessages, beingRecorded } = this.props;
 
