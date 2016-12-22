@@ -112,6 +112,11 @@ s|HSlider {
 	skinClass   : ClassReference("spark.skins.ios7.HSliderSkin");
 }
 
+s|CheckBox {
+	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileCheckBoxSkin");
+	chromeColor : PropertyReference("white");
+}
+
 .sectionTitle {
 	backgroundColor : PropertyReference("athensGrey");
 	color           : PropertyReference("regentGrey");

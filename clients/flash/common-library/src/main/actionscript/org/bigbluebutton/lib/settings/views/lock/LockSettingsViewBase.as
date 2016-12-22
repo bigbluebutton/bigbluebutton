@@ -1,4 +1,5 @@
 package org.bigbluebutton.lib.settings.views.lock {
+	import spark.components.CheckBox;
 	import spark.components.HGroup;
 	import spark.components.Label;
 	import spark.components.VGroup;
@@ -10,6 +11,16 @@ package org.bigbluebutton.lib.settings.views.lock {
 		private var _muteToggle:ToggleButtonBase;
 		
 		private var _lockToggle:ToggleButtonBase;
+		
+		private var _webcamCheckbox:CheckBox;
+		
+		private var _microphoneCheckbox:CheckBox;
+		
+		private var _publicChatCheckbox:CheckBox;
+		
+		private var _privateChatCheckbox:CheckBox;
+		
+		private var _layoutCheckbox:CheckBox;
 		
 		protected function get toggleButtonClass():Class {
 			return ToggleButtonBase;
@@ -59,6 +70,76 @@ package org.bigbluebutton.lib.settings.views.lock {
 			
 			_lockToggle = new toggleButtonClass();
 			lockGroup.addElement(_lockToggle);
+			
+			// Webcam group
+			var webcamGroup:HGroup = new HGroup();
+			webcamGroup.percentWidth = 100;
+			webcamGroup.verticalAlign = VerticalAlign.MIDDLE;
+			addElement(webcamGroup);
+			
+			var webcamLabel:Label = new Label();
+			webcamLabel.text = "Webcam";
+			webcamLabel.percentWidth = 100;
+			webcamGroup.addElement(webcamLabel);
+			
+			_webcamCheckbox = new CheckBox();
+			webcamGroup.addElement(_webcamCheckbox);
+			
+			// Microphone group
+			var microphoneGroup:HGroup = new HGroup();
+			microphoneGroup.percentWidth = 100;
+			microphoneGroup.verticalAlign = VerticalAlign.MIDDLE;
+			addElement(microphoneGroup);
+			
+			var microphoneLabel:Label = new Label();
+			microphoneLabel.text = "Microphone";
+			microphoneLabel.percentWidth = 100;
+			microphoneGroup.addElement(microphoneLabel);
+			
+			_microphoneCheckbox = new CheckBox();
+			microphoneGroup.addElement(_microphoneCheckbox);
+			
+			// Public chat group
+			var publicChatGroup:HGroup = new HGroup();
+			publicChatGroup.percentWidth = 100;
+			publicChatGroup.verticalAlign = VerticalAlign.MIDDLE;
+			addElement(publicChatGroup);
+			
+			var publicChatLabel:Label = new Label();
+			publicChatLabel.text = "Public chat";
+			publicChatLabel.percentWidth = 100;
+			publicChatGroup.addElement(publicChatLabel);
+			
+			_publicChatCheckbox = new CheckBox();
+			publicChatGroup.addElement(_publicChatCheckbox);
+			
+			// Private chat group
+			var privateChatGroup:HGroup = new HGroup();
+			privateChatGroup.percentWidth = 100;
+			privateChatGroup.verticalAlign = VerticalAlign.MIDDLE;
+			addElement(privateChatGroup);
+			
+			var privateChatLabel:Label = new Label();
+			privateChatLabel.text = "Private chat";
+			privateChatLabel.percentWidth = 100;
+			privateChatGroup.addElement(privateChatLabel);
+			
+			_privateChatCheckbox = new CheckBox();
+			privateChatGroup.addElement(_privateChatCheckbox);
+			
+			// Layout group
+			var layoutGroup:HGroup = new HGroup();
+			layoutGroup.percentWidth = 100;
+			layoutGroup.verticalAlign = VerticalAlign.MIDDLE;
+			addElement(layoutGroup);
+			
+			var layoutLabel:Label = new Label();
+			layoutLabel.text = "Layout";
+			layoutLabel.percentWidth = 100;
+			layoutGroup.addElement(layoutLabel);
+			
+			_layoutCheckbox = new CheckBox();
+			layoutGroup.addElement(_layoutCheckbox);
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
@@ -66,6 +147,11 @@ package org.bigbluebutton.lib.settings.views.lock {
 			
 			_muteToggle.parent["padding"] = getStyle("padding");
 			_lockToggle.parent["padding"] = getStyle("padding");
+			_webcamCheckbox.parent["padding"] = getStyle("padding");
+			_microphoneCheckbox.parent["padding"] = getStyle("padding");
+			_publicChatCheckbox.parent["padding"] = getStyle("padding");
+			_privateChatCheckbox.parent["padding"] = getStyle("padding");
+			_layoutCheckbox.parent["padding"] = getStyle("padding");
 		}
 	}
 }
