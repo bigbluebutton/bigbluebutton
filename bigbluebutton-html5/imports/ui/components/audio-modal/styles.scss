@@ -114,20 +114,18 @@ div.half label {
   height: 42px;
 }
 
-.itemRight {
+.item {
   display: block;
   margin-bottom: $md-padding-y;
   width: 85%;
   margin-bottom: 30px;
-
-}
-
-.itemLeft {
-  display: block;
-  margin-bottom: $md-padding-y;
-  width: 85%;
-  margin-bottom: 30px;
-
+  border-bottom: 3px solid;
+  border-top:0px;
+  border-left: 0px;
+  border-right: 0px;
+  outline:0px;
+  border-color:  $color-gray-dark;
+  text-decoration-color: $color-gray-dark;
 }
 
 

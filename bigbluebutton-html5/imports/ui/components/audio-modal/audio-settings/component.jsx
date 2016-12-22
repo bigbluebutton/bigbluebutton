@@ -58,18 +58,18 @@ export default class AudioSettings extends React.Component {
         <div className={styles.containerLeftHalfContent}>
           <span className={styles.heading}>Microphone source</span>
           <DeviceSelector
-            className={styles.itemRight}
+            className={styles.item}
             kind="audioinput"
             onChange={this.handleInputChange} />
             <span className={styles.heading}>Your audio stream volume</span>
           <AudioStreamVolume
-            className={styles.itemRight}
+            className={styles.item}
             deviceId={this.state.inputDeviceId} />
         </div>
         <div className={styles.containerRightHalfContent}>
         <span className={styles.heading}>Speaker source</span>
       <DeviceSelector
-        className={styles.itemLeft}
+        className={styles.item}
         kind="audiooutput"
         onChange={this.handleOutputChange} />
       <AudioTestContainer />
