@@ -19,6 +19,7 @@ const propTypes = {
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   modal: PropTypes.element,
+  hasUnreadMessages: PropTypes.bool,
 };
 
 export default class App extends Component {
@@ -149,7 +150,17 @@ export default class App extends Component {
     return false;
   }
 
+  renderSoundUnreadeMessages() {
+    const snd = new Audio('resources/sounds/notify.mp3');
+    if(this.props.hasUnreadMessages) {
+      snd.play();
+    }
+  }
+
   render() {
+
+    const { hasUnreadMessages } = this.props;
+
     if (this.props.wasKicked) {
       return (
         <KickedScreen>
@@ -176,6 +187,7 @@ export default class App extends Component {
         <section className={styles.wrapper}>
           {this.renderUserList()}
           {this.renderChat()}
+          {this.renderSoundUnreadeMessages()}
           <div className={styles.content}>
             {this.renderNavBar()}
             {this.renderMedia()}

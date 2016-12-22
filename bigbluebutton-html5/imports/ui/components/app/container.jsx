@@ -12,6 +12,12 @@ import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 import ClosedCaptionsContainer from '../closed-captions/container';
+import userListService from '../user-list/service';
+import Auth from '/imports/ui/services/auth';
+import ChatService from '../chat/service';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 const defaultProps = {
   navbar: <NavBarContainer />,
@@ -50,6 +56,15 @@ const setLoading = (val) => {
   }
 };
 
+const checkUnreadMessages = () => {
+  let users = userListService.getUsers();
+  return users
+     .map(user => user.id)
+     .filter(userID => userID !== Auth.userID)
+     .concat(PUBLIC_CHAT_KEY)
+     .some(receiverID => ChatService.hasUnreadMessages(receiverID));
+};
+
 export default createContainer(() => {
   Promise.all(subscribeForData())
   .then(() => {
@@ -60,6 +75,7 @@ export default createContainer(() => {
     wasKicked: wasUserKicked(),
     isLoading: getLoading(),
     modal: getModal(),
+    hasUnreadMessages: checkUnreadMessages(),
     redirectToLogoutUrl,
   };
 }, AppContainer);
