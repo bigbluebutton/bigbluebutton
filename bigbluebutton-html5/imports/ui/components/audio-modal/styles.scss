@@ -118,7 +118,7 @@ div.half label {
   display: block;
   margin-bottom: $md-padding-y;
   width: 85%;
-  margin-bottom: 30px;
+  margin-bottom: 2em;
   border-bottom: 3px solid;
   border-top:0px;
   border-left: 0px;
@@ -133,25 +133,25 @@ div.half label {
   color: $color-gray-dark;
   font-weight: 700;
   font-size: $font-size-large;
-      margin-top: -30px;
+  margin-top: -1em;
 }
 
 .audioNote {
   color: $color-text;
   display: inline-block;
-  margin-top: 25px;
-  margin-bottom: 30px;
+  margin-top: 1.75em;
+  margin-bottom: 2em;
 }
 
 .heading {
   font-weight: 700;
   font-size: $font-size-small;
   display: inline-block;
-      margin-bottom: 10px;
+  margin-bottom: .5em;
 }
 
 .joinButton {
   position: relative;
-left: 11em;
-top: 3em;
+  left: 11em;
+  top: 3em;
 }
