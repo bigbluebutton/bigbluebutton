@@ -60,6 +60,11 @@ class NavBar extends Component {
     });
   }
 
+  soundForUnreadeMessages() {
+    const snd = new Audio('resources/sounds/notify.mp3');
+    snd.play();
+  }
+
   render() {
     const { hasUnreadMessages, beingRecorded } = this.props;
 
@@ -88,6 +93,7 @@ class NavBar extends Component {
         <div className={styles.right}>
           <SettingsDropdown />
         </div>
+        {hasUnreadMessages ? this.soundForUnreadeMessages() : null}
       </div>
     );
   }
