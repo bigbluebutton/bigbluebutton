@@ -4,6 +4,7 @@ import { clearModal } from '/imports/ui/components/app/service';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
+import { joinListenOnly } from '/imports/api/phone';
 
 export default class JoinAudio extends React.Component {
   constructor(props) {
@@ -24,7 +25,8 @@ export default class JoinAudio extends React.Component {
   }
 
   openListen() {
-    this.props.changeMenu(this.props.LISTEN_ONLY);
+    this.handleClose();
+    joinListenOnly();
   }
 
   render() {
