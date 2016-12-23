@@ -6,7 +6,7 @@ import AudioMenu from './submenus/audio/component';
 import VideoMenu from './submenus/video/component';
 import ApplicationMenu from './submenus/application/component';
 import UsersMenu from './submenus/users/component';
-import ClosedCaptionsMenu from './submenus/closed-captions/component';
+import ClosedCaptionsMenuContainer from './submenus/closed-captions/container';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import styles from './styles.scss';
@@ -29,7 +29,7 @@ export default class Settings extends React.Component {
         props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, },
       { componentName: ApplicationMenu, tabIndex: 5,
         props: { title: 'Application', prependIconName: 'icon-', icon: 'bbb-application', }, },
-      { componentName: ClosedCaptionsMenu, tabIndex: 7,
+      { componentName: ClosedCaptionsMenuContainer, tabIndex: 7,
         props: { title: 'Closed Captions', prependIconName: 'icon-', icon: 'bbb-user', }, });
 
     if (isPresenter || role === 'MODERATOR') {

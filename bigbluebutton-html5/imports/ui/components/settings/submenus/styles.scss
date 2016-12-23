@@ -143,3 +143,17 @@ ul li {
   @extend .row;
   padding-left: 10%;
 }
+
+.ccPreviewBox {
+  height: 100px;
+  margin-left: 10%;
+  margin-right: 5%;
+  padding: 5px;
+  border: 1px solid #f1f1f1;
+  overflow: auto;
+}
+
+.swatch {
+  float: right;
+  margin-right: 10%;
+}
