@@ -7,7 +7,8 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 Meteor.publish('presentations', (credentials) => {
   // TODO: Some publishers have ACL and others dont
   // if (!isAllowedTo('@@@', credentials)) {
-  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'presentations'"));
+  //   this.error(new Meteor.Error(402,
+  //              "The user was not authorized to subscribe for 'presentations'"));
   // }
 
   const { meetingId, requesterUserId, requesterToken } = credentials;

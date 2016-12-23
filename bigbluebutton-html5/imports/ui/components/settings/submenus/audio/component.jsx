@@ -2,25 +2,49 @@ import React from 'react';
 import BaseMenu from '../base/component';
 import styles from '../styles.scss';
 
-import MicSource from '../../../mic-source/component';
-import SpeakerSource from '../../../speaker-source/component';
-import StreamVolume from '../../../stream-volume/component';
-import AudioTestContainer from '../../../audio-test/container';
+import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
+import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
+import AudioTestContainer from '/imports/ui/components/audio-test/container';
 
 export default class AudioMenu extends BaseMenu {
   constructor(props) {
     super(props);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleOutputChange = this.handleOutputChange.bind(this);
+
+    this.state = {
+      inputDeviceId: undefined,
+    };
+  }
+
+  chooseAudio() {
+    this.props.changeMenu(this.props.JOIN_AUDIO);
+  }
+
+  handleInputChange(deviceId) {
+    console.log(`INPUT DEVICE CHANGED: ${deviceId}`);
+    this.setState({
+      inputDeviceId: deviceId,
+    });
+  }
+
+  handleOutputChange(deviceId) {
+    console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
   }
 
   getContent() {
     return (
       <div className={styles.full} role='presentation'>
         <div className={styles.containerLeftHalf}>
-          <MicSource />
-          <SpeakerSource />
+          <DeviceSelector
+            kind="audioinput"
+            onChange={this.handleInputChange} />
+          <DeviceSelector
+            kind="audiooutput"
+            onChange={this.handleOutputChange} />
         </div>
         <div className={styles.containerRightHalf}>
-          <StreamVolume />
+          <AudioStreamVolume deviceId={this.state.inputDeviceId}/>
           <AudioTestContainer  />
         </div>
       </div>

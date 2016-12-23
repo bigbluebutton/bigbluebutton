@@ -93,7 +93,7 @@ const toggleFullScreen = () => {
 
 const openSettings = () => showModal(<SettingsMenuContainer  />);
 
-const openAbout = () => showModal(<AboutContainer /> );
+const openAbout = () => showModal(<AboutContainer />);
 
 const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
 
