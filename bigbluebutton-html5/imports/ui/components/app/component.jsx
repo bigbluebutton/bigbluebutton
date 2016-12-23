@@ -24,7 +24,6 @@ const propTypes = {
 export default class App extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
@@ -109,13 +108,14 @@ export default class App extends Component {
 
   renderClosedCaptions() {
     const { captions } = this.props;
-
-    if (captions) {
-      return (
-        <section className={styles.closedCaptions}>
-          {captions}
-        </section>
-      );
+    if(this.props.getCaptionsStatus()) {
+      if (captions) {
+        return (
+          <section className={styles.closedCaptions}>
+            {captions}
+          </section>
+        );
+      }
     }
   }
 

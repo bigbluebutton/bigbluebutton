@@ -6,6 +6,7 @@ import Meetings from '/imports/api/meetings';
 import Cursor from '/imports/api/cursor';
 import Captions from '/imports/api/captions';
 import Polls from '/imports/api/polls';
+import Storage from '/imports/ui/services/storage/session';
 
 function setCredentials(nextState, replace) {
   if (nextState && nextState.params.authToken) {
@@ -105,6 +106,15 @@ const clearModal = () => {
   showModal(null);
 };
 
+function getCaptionsStatus() {
+  var CCEnabled = Storage.getItem('closedCaptions');
+  if(CCEnabled == true) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 export {
   subscribeForData,
   setCredentials,
@@ -116,4 +126,5 @@ export {
   getModal,
   showModal,
   clearModal,
+  getCaptionsStatus,
 };
