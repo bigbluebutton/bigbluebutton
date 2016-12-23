@@ -168,27 +168,15 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div
               tabIndex='12'
               className={ styles.swatch }
-              style={{
-                'padding': '5px',
-                'background': '#fff',
-                'borderRadius': '1px',
-                'boxShadow': '0 0 0 1px rgba(0,0,0,.1)',
-                'display': 'inline-block',
-                'cursor': 'pointer',
-              }}
               onClick={ this.handleColorPickerClick.bind(this, "displayBackgroundColorPicker") }>
               <div
-                style={{
-                  'background': this.state.ccBackgroundColor,
-                  'width': '36px',
-                  'height': '14px',
-                  'borderRadius': '2px',
-                }}/>
+                className={styles.swatchInner}
+                style={{'background': this.state.ccBackgroundColor}}/>
             </div>
             { this.state.displayBackgroundColorPicker ?
-              <div style={{'zIndex': '1001'}}>
+              <div className={styles.colorPickerPopover}>
               <div
-                style={{'position': 'fixed', 'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'}}
+                className={styles.colorPickerOverlay}
                 onClick={ this.handleCloseColorPicker.bind(this) }
               />
                 <GithubPicker
@@ -209,27 +197,15 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div
               tabIndex='12'
               className={ styles.swatch }
-              style={{
-                'padding': '5px',
-                'background': '#fff',
-                'borderRadius': '1px',
-                'boxShadow': '0 0 0 1px rgba(0,0,0,.1)',
-                'display': 'inline-block',
-                'cursor': 'pointer',
-              }}
               onClick={ this.handleColorPickerClick.bind(this, "displayFontColorPicker") }>
               <div
-                style={{
-                  'background': this.state.ccFontColor,
-                  'width': '36px',
-                  'height': '14px',
-                  'borderRadius': '2px',
-                }}/>
+                className={styles.swatchInner}
+                style={{'background': this.state.ccFontColor}}/>
             </div>
             { this.state.displayFontColorPicker ?
-              <div style={{'zIndex': '1001'}}>
+              <div className={styles.colorPickerPopover}>
               <div
-                style={{'position': 'fixed', 'top': '0px', 'right': '0px', 'bottom': '0px', 'left': '0px'}}
+                className={styles.colorPickerOverlay}
                 onClick={ this.handleCloseColorPicker.bind(this) }
               />
                 <GithubPicker
