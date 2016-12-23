@@ -20,7 +20,7 @@ let getCCData = () => {
       return obj.locale;
     }), true);
 
-    locales.forEach(function (locale) {
+    locales.forEach((locale) => {
       let captionObjects = Captions.find({
         meetingId: meetingID,
         locale: locale,

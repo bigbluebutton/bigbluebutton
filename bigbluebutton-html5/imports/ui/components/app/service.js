@@ -108,11 +108,7 @@ const clearModal = () => {
 
 function getCaptionsStatus() {
   var CCEnabled = Storage.getItem('closedCaptions');
-  if(CCEnabled == true) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!CCEnabled;
 };
 
 export {

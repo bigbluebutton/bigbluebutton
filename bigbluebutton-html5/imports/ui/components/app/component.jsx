@@ -108,14 +108,12 @@ export default class App extends Component {
 
   renderClosedCaptions() {
     const { captions } = this.props;
-    if(this.props.getCaptionsStatus()) {
-      if (captions) {
+    if(captions && this.props.getCaptionsStatus()) {
         return (
           <section className={styles.closedCaptions}>
             {captions}
           </section>
         );
-      }
     }
   }
 

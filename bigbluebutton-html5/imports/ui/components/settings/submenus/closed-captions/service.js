@@ -4,11 +4,7 @@ import Captions from '/imports/api/captions';
 getClosedCaptionSettings = () => {
   let ccSettings = {};
   let ccEnabled = Storage.getItem('closedCaptions');
-  if(ccEnabled ==  true) {
-    ccSettings["ccEnabled"] = true;
-  } else {
-    ccSettings["ccEnabled"] = false;
-  }
+  ccSettings.ccEnabled = !!ccEnabled;
 
   //list of unique locales in the Captions Collection
   let locales = _.uniq(Captions.find({}, {
@@ -19,7 +15,7 @@ getClosedCaptionSettings = () => {
   }), true);
 
   //adding the list of active locales to the closed-captions settings object
-  ccSettings["locales"] = locales;
+  ccSettings.locales = locales;
 
   return ccSettings;
 }
