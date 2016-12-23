@@ -13,8 +13,12 @@
   width: calc(100% - 40px);
   height: calc(100% - 80px);
   margin: 20px;
-  border: 2px solid #bbbfcd;
   overflow: auto;
+
+  //if you change the thickness of the border
+  //you should also change a corresponding value in the componentWillUpdate
+  //otherwise auto-scrolling for closed-captions will break
+  border: 2px solid #bbbfcd;
 }
 
 .title {
