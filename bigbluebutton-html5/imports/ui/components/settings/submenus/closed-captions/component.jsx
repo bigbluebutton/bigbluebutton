@@ -117,7 +117,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
               <select defaultValue={this.state.ccLocale} tabIndex='9'
                 aria-labelledby='ccLanguageLabel' aria-describedby='ccLanguageDesc'
                 onChange={this.selectHandler.bind(this, "ccLocale", "locales")}>
-                <option value='-1' disabled>Choose language</option>
+                <option value='-1' disabled>{this.props.locales && this.props.locales.length > 0 ? "Choose language" : "No active locales" }</option>
                 {this.props.locales ? this.props.locales.map((locale, index) =>
                   <option key={index} value={index}>{locale}</option>
                 )
@@ -243,7 +243,6 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             : null }
           </div>
         </div>
-
 
         <div className={styles.ccPreviewBox} role='presentation' style={{background: this.state.ccBackgroundColor}}>
           <span style={{fontFamily: this.state.ccFontFamilyValue, fontSize: this.state.ccFontSizeValue+'px', color: this.state.ccFontColor}}>Etiam porta sem malesuada magna mollis euis-mod. Donec ullamcorper nulla non metus auctor fringilla.</span>
