@@ -33,7 +33,7 @@ package org.bigbluebutton.lib.main.views {
 			_micButton.percentWidth = 100;
 			_micButton.percentHeight = 100;
 			_micButton.label = "Mic on";
-			_micButton.styleName = "icon-audio menuButton";
+			_micButton.styleName = "icon-unmute menuButton";
 			addElement(_micButton);
 			
 			_camButton = new Button();

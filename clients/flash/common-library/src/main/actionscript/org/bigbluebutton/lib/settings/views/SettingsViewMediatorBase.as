@@ -21,7 +21,7 @@ package org.bigbluebutton.lib.settings.views {
 		override public function initialize():void {
 			view.participantIcon.displayInitials = UserUtils.getInitials(userSession.userList.me.name);
 			view.participantLabel.text = userSession.userList.me.name;
-			view.settingsList.dataProvider = dataProvider = new ArrayCollection([{label: "Audio", icon: "icon-audio", page: "audio"}, {label: "Video", icon: "icon-video", page: "video"}, {label: "Application", icon: "icon-application", page: "chat"}, {label: "Participants", icon: "icon-user", page: "lock"}, {label: "Leave Session", icon: "icon-logout", page: "exit"}]);
+			view.settingsList.dataProvider = dataProvider = new ArrayCollection([{label: "Audio", icon: "icon-unmute", page: "audio"}, {label: "Video", icon: "icon-video", page: "video"}, {label: "Application", icon: "icon-application", page: "chat"}, {label: "Participants", icon: "icon-user", page: "lock"}, {label: "Leave Session", icon: "icon-logout", page: "exit"}]);
 			
 			view.settingsList.addEventListener(IndexChangeEvent.CHANGE, onListIndexChangeEvent);
 		}

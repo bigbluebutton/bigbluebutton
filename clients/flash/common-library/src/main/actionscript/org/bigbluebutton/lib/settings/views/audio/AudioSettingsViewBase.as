@@ -96,7 +96,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 			gainSliderGroup.addElement(emptyMicGroup);
 			
 			var micEmptyLabel:Button = new Button();
-			micEmptyLabel.styleName = "icon-audio settingsIcon";
+			micEmptyLabel.styleName = "icon-unmute settingsIcon";
 			emptyMicGroup.addElement(micEmptyLabel);
 			
 			var emptyMicLabel:Label = new Label();
@@ -112,7 +112,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 			gainSliderGroup.addElement(fullMicGroup);
 			
 			var micFullLabel:Button = new Button();
-			micFullLabel.styleName = "icon-audio settingsIcon";
+			micFullLabel.styleName = "icon-unmute settingsIcon";
 			fullMicGroup.addElement(micFullLabel);
 			
 			var fullMicLabel:Label = new Label();

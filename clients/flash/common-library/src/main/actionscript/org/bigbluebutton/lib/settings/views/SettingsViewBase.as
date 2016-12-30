@@ -1,5 +1,6 @@
 package org.bigbluebutton.lib.settings.views {
 	import mx.core.ClassFactory;
+	import mx.core.ScrollPolicy;
 	import mx.graphics.SolidColor;
 	
 	import spark.components.Group;
@@ -68,7 +69,8 @@ package org.bigbluebutton.lib.settings.views {
 			
 			_settingsList = new List();
 			_settingsList.percentWidth = 100;
-			_settingsList.percentHeight = 100;
+			// @fixme height must be dynamic depending on the resolùution
+			_settingsList.height = 560;
 			_settingsList.itemRenderer = new ClassFactory(getItemRendererClass());
 			
 			var listLayout:VerticalLayout = new VerticalLayout();
@@ -86,6 +88,7 @@ package org.bigbluebutton.lib.settings.views {
 			super.updateDisplayList(w, h);
 			
 			setParticipantStyle();
+			_settingsList.scroller.setStyle('verticalScrollPolicy', ScrollPolicy.OFF);
 		}
 		
 		private function setParticipantStyle():void {

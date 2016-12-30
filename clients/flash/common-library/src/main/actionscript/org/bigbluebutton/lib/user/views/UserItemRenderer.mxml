@@ -47,7 +47,7 @@
 						} else if (obj.talking) {
 							audioIcon.styleName = "icon icon-audio-close";
 						} else {
-							audioIcon.styleName = "icon icon-audio";
+							audioIcon.styleName = "icon icon-audio-on";
 						}
 					} else if (obj.listenOnly) {
 						audioIcon.styleName = "icon icon-listen";
@@ -95,7 +95,7 @@
 			<s:Label id="audioIcon"
 					 text="{audioIcon.getStyle('icon')}"
 					 fontSize="{getStyle('iconSize')}"
-					 styleName="icon icon-audio" />
+					 styleName="icon icon-audio-on" />
 			<s:Label id="lockIcon"
 					 text="{lockIcon.getStyle('icon')}"
 					 fontSize="{getStyle('iconSize')}"

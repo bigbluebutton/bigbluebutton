@@ -22,224 +22,156 @@
   fontFamily: BBBIcons;
 }
 
-.icon-mute {
-  icon: "\ue931";
-}
-
-.icon-unmute {
-  icon: "\ue932";
-}
-
-.icon-file {
-  icon: "\ue92f";
-}
-
-.icon-upload {
-  icon: "\ue930";
-}
-
-.icon-audio-close {
-  icon: "\ue901";
-}
-
-.icon-applause {
-  icon: "\ue924";
-}
-
-.icon-thumbs-down {
-  icon: "\ue92d";
-}
-
-.icon-thumbs-up {
-  icon: "\ue92e";
-}
-
-.icon-fullscreen {
-  icon: "\ue92b";
-}
-
-.icon-settings {
-  icon: "\ue92c";
-}
-
-.icon-fit-to-screen {
-  icon: "\ue92a";
-}
-
-.icon-line-tool {
-  icon: "\ue91d";
-}
-
-.icon-circle-tool {
-  icon: "\ue91e";
-}
-
-.icon-triangle-tool {
-  icon: "\ue91f";
-}
-
-.icon-square-tool {
-  icon: "\ue920";
-}
-
-.icon-text-tool {
-  icon: "\ue921";
-}
-
-.icon-plus {
-  icon: "\ue922";
-}
-
-.icon-fit-to-width {
-  icon: "\ue923";
-}
-
-.icon-undo {
-  icon: "\ue925";
-}
-
-.icon-pen-tool {
-  icon: "\ue926";
-}
-
-.icon-lock {
-  icon: "\ue927";
-}
-
-.icon-polling {
-  icon: "\ue928";
-}
-
-.icon-desktop {
-  icon: "\ue929";
-}
-
 .icon-logout {
   icon: "\ue900";
 }
-
-.icon-video {
-  icon: "\u1f55";
+.icon-application {
+	icon: "\ue901";
 }
-
 .icon-more {
   icon: "\ue902";
 }
-
 .icon-promote {
   icon: "\ue903";
 }
-
-.icon-application {
+.icon-video-off {
   icon: "\ue904";
 }
-
-.icon-video-off {
+.icon-user {
   icon: "\ue905";
 }
-
-.icon-user {
+.icon-up-arrow {
   icon: "\ue906";
 }
-
-.icon-up-arrow {
+.icon-undecided {
   icon: "\ue907";
 }
-
-.icon-undecided {
+.icon-time {
   icon: "\ue908";
 }
-
-.icon-time {
+.icon-sad {
   icon: "\ue909";
 }
-
-.icon-sad {
+.icon-right-arrow {
   icon: "\ue90a";
 }
-
-.icon-right-arrow {
+.icon-presentation {
   icon: "\ue90b";
 }
-
-.icon-presentation {
+.icon-listen {
   icon: "\ue90c";
 }
-
-.icon-listen {
+.icon-left-arrow {
   icon: "\ue90d";
 }
-
-.icon-left-arrow {
+.icon-happy {
   icon: "\ue90e";
 }
-
-.icon-happy {
+.icon-hand {
   icon: "\ue90f";
 }
-
-.icon-hand {
+.icon-group-chat {
   icon: "\ue910";
 }
-
-.icon-group-chat {
+.icon-confused {
   icon: "\ue911";
 }
-
-.icon-confused {
+.icon-close {
   icon: "\ue912";
 }
-
-.icon-close {
+.icon-clear-status {
   icon: "\ue913";
 }
-
-.icon-clear-status {
+.icon-circle {
   icon: "\ue914";
 }
-
-.icon-circle {
+.icon-substract {
   icon: "\ue915";
 }
-
-.icon-circle-minus {
+.icon-circle-close {
   icon: "\ue916";
 }
-
-.icon-circle-close {
+.icon-add {
   icon: "\ue917";
 }
-
-.icon-circle-add {
+.icon-check {
   icon: "\ue918";
 }
-
-.icon-check {
+.icon-chat {
   icon: "\ue919";
 }
-
-.icon-chat {
+.icon-audio-on {
   icon: "\ue91a";
 }
-
-.icon-audio {
+.icon-audio-off {
   icon: "\ue91b";
 }
-
-.icon-audio-off {
+.icon-line-tool {
   icon: "\ue91c";
 }
-
-/* Aliases for emoji status */
-
-.icon-away {
-  icon: "\ue909";
+.icon-circle-tool {
+  icon: "\ue91d";
 }
-
-.icon-raiseHand {
-  icon: "\ue910";
+.icon-triangle-tool {
+  icon: "\ue91e";
 }
-
-.icon-neutral {
-  icon: "\ue908";
+.icon-rectangle-tool {
+  icon: "\ue91f";
+}
+.icon-text-tool {
+  icon: "\ue920";
+}
+.icon-plus {
+  icon: "\ue921";
+}
+.icon-fit-to-width {
+  icon: "\ue922";
+}
+.icon-applause {
+  icon: "\ue923";
+}
+.icon-undo {
+  icon: "\ue924";
+}
+.icon-pen-tool {
+  icon: "\ue925";
+}
+.icon-lock {
+  icon: "\ue926";
+}
+.icon-polling {
+  icon: "\ue927";
+}
+.icon-desktop {
+  icon: "\ue928";
+}
+.icon-fit-to-screen {
+  icon: "\ue929";
+}
+.icon-fullscreen {
+  icon: "\ue92a";
+}
+.icon-settings {
+  icon: "\ue92b";
+}
+.icon-thumbs-down {
+  icon: "\ue92c";
+}
+.icon-thumbs-up {
+  icon: "\ue92d";
+}
+.icon-file {
+  icon: "\ue92e";
+}
+.icon-upload {
+  icon: "\ue92f";
+}
+.icon-video {
+  icon: "\ue930";
+}
+.icon-unmute {
+  icon: "\ue931";
+}
+.icon-mute {
+  icon: "\ue932";
 }

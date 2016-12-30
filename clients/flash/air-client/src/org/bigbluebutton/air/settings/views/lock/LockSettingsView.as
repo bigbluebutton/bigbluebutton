@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.settings.views.lock {
 	
+	import spark.components.Scroller;
 	import spark.layouts.VerticalLayout;
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
@@ -18,9 +19,14 @@ package org.bigbluebutton.air.settings.views.lock {
 			layout = vLayout;
 			
 			_lockSettingsView = new LockSettingsViewBaseAIR();
-			_lockSettingsView.percentHeight = 100;
 			_lockSettingsView.percentWidth = 100;
-			addElement(_lockSettingsView);
+			
+			var scroller:Scroller = new Scroller();
+			scroller.viewport = _lockSettingsView;
+			scroller.percentWidth = 100;
+			scroller.percentHeight = 100;
+			
+			addElement(scroller);
 		}
 		
 		override protected function createToolbar():TopToolbarAIR {

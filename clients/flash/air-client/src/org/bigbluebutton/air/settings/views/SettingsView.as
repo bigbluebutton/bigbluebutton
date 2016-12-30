@@ -1,4 +1,5 @@
 package org.bigbluebutton.air.settings.views {
+	import spark.components.Scroller;
 	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalLayout;
 	
@@ -18,9 +19,14 @@ package org.bigbluebutton.air.settings.views {
 			layout = vLayout;
 			
 			_settingsView = new SettingsViewBase();
-			_settingsView.percentHeight = 100;
 			_settingsView.percentWidth = 100;
-			addElement(_settingsView);
+			
+			var scroller:Scroller = new Scroller();
+			scroller.percentWidth = 100;
+			scroller.percentHeight = 100;
+			scroller.viewport = _settingsView;
+			
+			addElement(scroller);
 		}
 		
 		override protected function createToolbar():TopToolbarAIR {
