@@ -9,6 +9,7 @@
 @namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
 @namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
 @namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
+@namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -51,8 +52,8 @@
 		timeFontSize : 24;
 	}
 	
-	settings|SettingsViewBase {
-		paritcipantPadding : 40;
+	settings|SettingsViewBase, camera|CameraSettingsViewBase {
+		groupsPadding : 40;
 	}
 	
 	audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {

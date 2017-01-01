@@ -5,7 +5,7 @@ package org.bigbluebutton.air.settings.views.lock {
 	
 	import org.bigbluebutton.air.common.views.NoTabView;
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.air.settings.views.TopToolbarSettings;
+	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
 	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewBase;
 	
 	public class LockSettingsView extends NoTabView {
@@ -30,7 +30,7 @@ package org.bigbluebutton.air.settings.views.lock {
 		}
 		
 		override protected function createToolbar():TopToolbarAIR {
-			return new TopToolbarSettings();
+			return new TopToolbarSubSettings();
 		}
 	}
 }

@@ -7,15 +7,20 @@ package org.bigbluebutton.air.settings {
 	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewMediatorAIR;
+	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewBaseAIR;
+	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewMediatorAIR;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewBaseAIR;
+	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewMediatorAIR;
+	import org.bigbluebutton.lib.main.commands.SaveLockSettingsCommand;
+	import org.bigbluebutton.lib.main.commands.SaveLockSettingsSignal;
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
 	import org.bigbluebutton.lib.settings.views.SettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewBase;
+	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewMediatorBase;
 	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewBase;
-	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewMediatorBase;
 	
 	import robotlegs.bender.extensions.matching.TypeMatcher;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
@@ -32,6 +37,7 @@ package org.bigbluebutton.air.settings {
 		
 		public function configure():void {
 			mediators();
+			signals();
 		}
 		
 		/**
@@ -40,10 +46,18 @@ package org.bigbluebutton.air.settings {
 		private function mediators():void {
 			mediatorMap.map(SettingsViewBase).toMediator(SettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(AudioSettingsViewBase, AudioSettingsViewBaseAIR)).toMediator(AudioSettingsViewMediatorAIR);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(CameraSettingsViewBase, CameraSettingsViewBaseAIR)).toMediator(CameraSettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(ChatSettingsViewBase, ChatSettingsViewBaseAIR)).toMediator(ChatSettingsViewMediatorBase);
-			mediatorMap.mapMatcher(new TypeMatcher().allOf(LockSettingsViewBase, LockSettingsViewBaseAIR)).toMediator(LockSettingsViewMediatorBase);
+			mediatorMap.mapMatcher(new TypeMatcher().allOf(LockSettingsViewBase, LockSettingsViewBaseAIR)).toMediator(LockSettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarSettings)).toMediator(TopToolbarMediatorSettings);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarSubSettings)).toMediator(TopToolbarMediatorSubSettings);
+		}
+		
+		/**
+		 * Maps signals to commands using the signalCommandMap.
+		 */
+		private function signals():void {
+			signalCommandMap.map(SaveLockSettingsSignal).toCommand(SaveLockSettingsCommand);
 		}
 	}
 }

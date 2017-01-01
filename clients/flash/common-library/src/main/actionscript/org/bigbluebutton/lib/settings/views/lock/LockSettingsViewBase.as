@@ -22,6 +22,26 @@ package org.bigbluebutton.lib.settings.views.lock {
 		
 		private var _layoutCheckbox:CheckBox;
 		
+		public function get webcamCheckbox():CheckBox {
+			return _webcamCheckbox;
+		}
+		
+		public function get microphoneCheckbox():CheckBox {
+			return _microphoneCheckbox;
+		}
+		
+		public function get publicChatCheckbox():CheckBox {
+			return _publicChatCheckbox;
+		}
+		
+		public function get privateChatCheckbox():CheckBox {
+			return _privateChatCheckbox;
+		}
+		
+		public function get layoutCheckbox():CheckBox {
+			return _layoutCheckbox;
+		}
+		
 		protected function get toggleButtonClass():Class {
 			return ToggleButtonBase;
 		}

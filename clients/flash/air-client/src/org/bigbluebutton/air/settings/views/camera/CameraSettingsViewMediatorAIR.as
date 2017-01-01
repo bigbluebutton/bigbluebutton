@@ -9,10 +9,7 @@ package org.bigbluebutton.air.settings.views.camera {
 	import flash.media.Video;
 	
 	import mx.collections.ArrayCollection;
-	import mx.core.FlexGlobals;
 	import mx.events.ItemClickEvent;
-	import mx.events.ResizeEvent;
-	import mx.resources.ResourceManager;
 	
 	import spark.events.IndexChangeEvent;
 	
@@ -21,18 +18,14 @@ package org.bigbluebutton.air.settings.views.camera {
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewMediatorBase;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
 	import org.bigbluebutton.lib.video.commands.CameraQualitySignal;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.models.VideoProfile;
 	
-	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	public class CameraSettingsViewMediator extends Mediator {
-		
-		[Inject]
-		public var view:ICameraSettingsView;
+	public class CameraSettingsViewMediatorAIR extends CameraSettingsViewMediatorBase {
 		
 		[Inject]
 		public var userSession:IUserSession;
@@ -61,11 +54,11 @@ package org.bigbluebutton.air.settings.views.camera {
 			userSession.userList.userChangeSignal.add(userChangeHandler);
 			var userMe:User = userSession.userList.me;
 			if (Camera.getCamera() == null) {
-				view.startCameraButton.label = ResourceManager.getInstance().getString('resources', 'profile.settings.camera.unavailable');
-				view.startCameraButton.enabled = false;
+				// view.startCameraButton.label = ResourceManager.getInstance().getString('resources', 'profile.settings.camera.unavailable');
+				// view.startCameraButton.enabled = false;
 			} else {
-				view.startCameraButton.label = ResourceManager.getInstance().getString('resources', userMe.hasStream ? 'profile.settings.camera.on' : 'profile.settings.camera.off');
-				view.startCameraButton.enabled = true;
+				// view.startCameraButton.label = ResourceManager.getInstance().getString('resources', userMe.hasStream ? 'profile.settings.camera.on' : 'profile.settings.camera.off');
+				// view.startCameraButton.enabled = true;
 			}
 			if (Camera.names.length <= 1) {
 				setSwapCameraButtonEnable(false);
@@ -76,11 +69,11 @@ package org.bigbluebutton.air.settings.views.camera {
 			userSession.lockSettings.disableCamSignal.add(disableCam);
 			setQualityListEnable(!userSession.userList.me.hasStream);
 			setRotateCameraButtonEnable(!userMe.hasStream);
-			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
-			view.startCameraButton.addEventListener(MouseEvent.CLICK, onShareCameraClick);
+			// FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
+			// view.startCameraButton.addEventListener(MouseEvent.CLICK, onShareCameraClick);
 			view.rotateCameraButton.addEventListener(MouseEvent.CLICK, onRotateCameraClick);
 			view.cameraProfilesList.addEventListener(IndexChangeEvent.CHANGE, onCameraQualitySelected);
-			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'cameraSettings.title');
+			// FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'cameraSettings.title');
 			displayPreviewCamera();
 		}
 		
@@ -91,9 +84,9 @@ package org.bigbluebutton.air.settings.views.camera {
 		
 		private function disableCam(disable:Boolean):void {
 			if (disable) {
-				view.startCameraButton.enabled = false;
+				// view.startCameraButton.enabled = false;
 			} else {
-				view.startCameraButton.enabled = true;
+				// view.startCameraButton.enabled = true;
 			}
 		}
 		
@@ -109,7 +102,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		private function userChangeHandler(user:User, type:int):void {
 			if (user.me) {
 				if (type == UserList.HAS_STREAM) {
-					view.startCameraButton.label = ResourceManager.getInstance().getString('resources', user.hasStream ? 'profile.settings.camera.on' : 'profile.settings.camera.off');
+					// view.startCameraButton.label = ResourceManager.getInstance().getString('resources', user.hasStream ? 'profile.settings.camera.on' : 'profile.settings.camera.off');
 					view.rotateCameraButton.enabled = !user.hasStream;
 					if (Camera.names.length > 1) {
 						setSwapCameraButtonEnable(true)
@@ -173,14 +166,14 @@ package org.bigbluebutton.air.settings.views.camera {
 			var camera:Camera = getCamera(userSession.videoConnection.cameraPosition);
 			if (camera) {
 				var myCam:Video = new Video();
-				var screenAspectRatio:Number = (view.cameraSettingsScroller.width / profile.width) / (view.cameraSettingsScroller.height / profile.height);
-				if (screenAspectRatio > 1) { //landscape
-					myCam.height = view.cameraSettingsScroller.height;
-					myCam.width = profile.width * view.cameraSettingsScroller.height / profile.height;
-				} else { //portrait
-					myCam.width = view.cameraSettingsScroller.width;
-					myCam.height = profile.height * view.cameraSettingsScroller.width / profile.width;
-				}
+				// var screenAspectRatio:Number = (view.cameraSettingsScroller.width / profile.width) / (view.cameraSettingsScroller.height / profile.height);
+				// if (screenAspectRatio > 1) { //landscape
+				// myCam.height = view.cameraSettingsScroller.height;
+				// myCam.width = profile.width * view.cameraSettingsScroller.height / profile.height;
+				// } else { //portrait
+				// myCam.width = view.cameraSettingsScroller.width;
+				// myCam.height = profile.height * view.cameraSettingsScroller.width / profile.width;
+				// }
 				if (isCamRotatedSideways()) {
 					camera.setMode(profile.height, profile.width, profile.modeFps);
 					var temp:Number = myCam.width;
@@ -190,20 +183,20 @@ package org.bigbluebutton.air.settings.views.camera {
 					camera.setMode(profile.width, profile.height, profile.modeFps);
 				}
 				rotateObjectAroundInternalPoint(myCam, myCam.x + myCam.width / 2, myCam.y + myCam.height / 2, userSession.videoConnection.selectedCameraRotation);
-				myCam.x = (view.cameraSettingsScroller.width - myCam.width) / 2;
+				// myCam.x = (view.cameraSettingsScroller.width - myCam.width) / 2;
 				if (userSession.videoConnection.selectedCameraRotation == 90) {
 					myCam.y = 0;
-					myCam.x = (view.cameraSettingsScroller.width + myCam.width) / 2;
+						// myCam.x = (view.cameraSettingsScroller.width + myCam.width) / 2;
 				} else if (userSession.videoConnection.selectedCameraRotation == 270) {
 					myCam.y = myCam.height;
 				} else if (userSession.videoConnection.selectedCameraRotation == 180) {
-					myCam.x = (view.cameraSettingsScroller.width + myCam.width) / 2;
+					// myCam.x = (view.cameraSettingsScroller.width + myCam.width) / 2;
 					myCam.y = myCam.height;
 				}
 				myCam.attachCamera(camera);
 				view.previewVideo.removeChildren();
 				view.previewVideo.addChild(myCam);
-				view.settingsGroup.y = myCam.height;
+					// view.settingsGroup.y = myCam.height;
 			} else {
 				view.noVideoMessage.visible = true;
 			}
@@ -232,7 +225,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		
 		/**
 		 * Raised on button click, will send signal to swap camera source
-		 **/
+		 */
 		//close old stream on swap
 		private function mouseClickHandler(e:MouseEvent):void {
 			if (!userSession.userList.me.hasStream) {
@@ -262,10 +255,10 @@ package org.bigbluebutton.air.settings.views.camera {
 				view.swapCameraButton.removeEventListener(MouseEvent.CLICK, mouseClickHandler);
 			}
 			view.cameraProfilesList.removeEventListener(ItemClickEvent.ITEM_CLICK, onCameraQualitySelected);
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
-			view.startCameraButton.removeEventListener(MouseEvent.CLICK, onShareCameraClick);
+			// FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
+			// view.startCameraButton.removeEventListener(MouseEvent.CLICK, onShareCameraClick);
 			view.rotateCameraButton.removeEventListener(MouseEvent.CLICK, onRotateCameraClick);
-			view.dispose();
+			// view.dispose();
 			view = null;
 			userSession.videoAutoStart = false;
 		}

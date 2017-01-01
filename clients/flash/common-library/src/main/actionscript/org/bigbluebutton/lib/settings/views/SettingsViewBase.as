@@ -92,12 +92,12 @@ package org.bigbluebutton.lib.settings.views {
 		}
 		
 		private function setParticipantStyle():void {
-			SolidColor(_participantBackground.fill).color = getStyle("participantBackground");
-			_participantIcon.top = getStyle("paritcipantPadding") * 1.75;
+			SolidColor(_participantBackground.fill).color = getStyle("headerBackground");
+			_participantIcon.top = getStyle("groupsPadding") * 1.75;
 			_participantLabel.setStyle("color", _participantIcon.getStyle("color"));
 			_participantLabel.setStyle("fontSize", _participantIcon.getStyle("fontSize") * 0.65);
-			_participantLabel.setStyle("paddingBottom", getStyle("paritcipantPadding"));
-			_participantLabel.y = _participantIcon.y + _participantIcon.height + getStyle("paritcipantPadding");
+			_participantLabel.setStyle("paddingBottom", getStyle("groupsPadding"));
+			_participantLabel.y = _participantIcon.y + _participantIcon.height + getStyle("groupsPadding");
 		}
 	}
 }
