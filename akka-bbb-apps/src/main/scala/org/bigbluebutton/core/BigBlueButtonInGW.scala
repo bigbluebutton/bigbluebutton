@@ -65,6 +65,7 @@ class BigBlueButtonInGW(
           msg.payload.durationInMinutes,
           msg.payload.autoStartRecording,
           msg.payload.allowStartStopRecording,
+          msg.payload.webcamsOnlyForModerator,
           msg.payload.moderatorPassword,
           msg.payload.viewerPassword,
           msg.payload.createTime,

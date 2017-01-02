@@ -122,6 +122,7 @@ package org.bigbluebutton.main.model.users
                 response.authToken = result.response.authToken;
                 response.record = result.response.record;
                 response.allowStartStopRecording = result.response.allowStartStopRecording;
+				response.webcmasOnlyForModerator = result.response.webcmasOnlyForModerator;
                 response.webvoiceconf = result.response.webvoiceconf;
                 response.dialnumber = result.response.dialnumber;
                 response.voicebridge = result.response.voicebridge;
@@ -160,7 +161,9 @@ package org.bigbluebutton.main.model.users
                                              .withExternalId(response.externMeetingID).withRecorded(response.record.toUpperCase() == "TRUE")
                                              .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
                                              .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
-                                             .withAllowStartStopRecording(response.allowStartStopRecording).withBreakout(response.isBreakout)
+                                             .withAllowStartStopRecording(response.allowStartStopRecording)
+											 .withWebcmasOnlyForModerator(response.webcmasOnlyForModerator)
+											 .withBreakout(response.isBreakout)
                                              .build();
 
 				if (_resultListener != null) _resultListener(true, response);
