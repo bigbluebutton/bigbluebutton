@@ -122,7 +122,7 @@ package org.bigbluebutton.main.model.users
                 response.authToken = result.response.authToken;
                 response.record = result.response.record;
                 response.allowStartStopRecording = result.response.allowStartStopRecording;
-				response.webcmasOnlyForModerator = result.response.webcmasOnlyForModerator;
+				response.webcamsOnlyForModerator = result.response.webcamsOnlyForModerator;
                 response.webvoiceconf = result.response.webvoiceconf;
                 response.dialnumber = result.response.dialnumber;
                 response.voicebridge = result.response.voicebridge;
@@ -162,7 +162,7 @@ package org.bigbluebutton.main.model.users
                                              .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
                                              .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
                                              .withAllowStartStopRecording(response.allowStartStopRecording)
-											 .withWebcmasOnlyForModerator(response.webcmasOnlyForModerator)
+											 .withwebcamsOnlyForModerator(response.webcamsOnlyForModerator)
 											 .withBreakout(response.isBreakout)
                                              .build();
 
