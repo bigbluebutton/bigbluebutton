@@ -326,6 +326,7 @@ load_video = function(){
    //video.setAttribute('autoplay','autoplay');
 
    document.getElementById("video-area").appendChild(video);
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'video'}));
 }
 
 load_audio = function() {
@@ -359,6 +360,31 @@ load_audio = function() {
    //leave auto play turned off for accessiblity support
    //audio.setAttribute('autoplay','autoplay');
    document.getElementById("audio-area").appendChild(audio);
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'audio'}));
+}
+
+load_deskshare_video = function () {
+   console.log("==Loading deskshare video");
+   var deskshare_video = document.createElement("video");
+   deskshare_video.setAttribute('id','deskshare-video');
+
+   var webmsource = document.createElement("source");
+   webmsource.setAttribute('src', RECORDINGS + '/deskshare/deskshare.webm');
+   webmsource.setAttribute('type','video/webm; codecs="vp8.0, vorbis"');
+   deskshare_video.appendChild(webmsource);
+
+   deskshare_video.setAttribute('data-timeline-sources', SLIDES_XML);
+   var presentationArea = document.getElementById("presentation-area");
+   presentationArea.insertBefore(deskshare_video,presentationArea.childNodes[0]);
+
+   $('#video').on("play", function() {
+       Popcorn('#deskshare-video').play();
+   });
+   $('#video').on("pause", function() {
+       Popcorn('#deskshare-video').pause();
+   });
+
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'deskshare'}));
 }
 
 load_script = function(file){
@@ -427,6 +453,12 @@ document.addEventListener("DOMContentLoaded", function() {
   $('#video').on("swap", function() {
     swapVideoPresentation();
   });
+
+  if (checkUrl(RECORDINGS + '/deskshare/deskshare.webm') == true) {
+    load_deskshare_video();
+  } else {
+    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'no-deskshare'}));
+  }
 
   resizeComponents();
 }, false);

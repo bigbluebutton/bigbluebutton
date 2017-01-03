@@ -45,12 +45,12 @@ function drawCursor(scaledX, scaledY, img) {
 
   // Important to place the cursor over the deskshare
   // It should not affect the regular slides
-  var scaledWidthOffset = widthOffset * (containerObj.width() / deskshareWidth);
-  var scaledHeightOffset = heightOffset * (containerObj.height() / deskshareHeight);
+  var scaledWidthTranslate = widthTranslate * (containerObj.width() / deskshareWidth);
+  var scaledHeightTranslate = heightTranslate * (containerObj.height() / deskshareHeight);
 
   // the offsets of the container that has the image inside it
-  var containerX = containerObj.offset().left - scaledWidthOffset;
-  var containerY = containerObj.offset().top - scaledHeightOffset;
+  var containerX = containerObj.offset().left + scaledWidthTranslate;
+  var containerY = containerObj.offset().top + scaledHeightTranslate;
 
   // calculates the overall offsets of the image in the page
   var imageOffsetX = containerX + imageX;
@@ -85,7 +85,7 @@ function showCursor(show) {
 function setViewBox(time) {
   var vboxVal = getViewboxAtTime(time);
   if(vboxVal !== undefined) {
-    setScale(time);
+    setTransform(time);
     if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
     else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
     svgfile.setAttribute('viewBox', vboxVal);
@@ -311,6 +311,7 @@ function runPopcorn() {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
 
+
   // PROCESS DESKSHARE.XML
   console.log("** Getting deskshare.xml");
   xmlhttp.open("GET", deskshare_xml, false);
@@ -327,8 +328,6 @@ function runPopcorn() {
       deskshareTimes[m] = deskTimes;
     }
   }
-
-
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
   svgobj.style.top = "0px";
@@ -509,14 +508,14 @@ var deskshareWidth = 1280.0;
 var deskshareHeight = 720.0;
 var widthScale = 1;
 var heightScale = 1;
-var widthOffset = 0;
-var heightOffset = 0;
+var widthTranslate = 0;
+var heightTranslate = 0;
 
-function clearScaleAndOffset() {
+function clearTransform() {
   widthScale = 1;
   heightScale = 1;
-  widthOffset = 0;
-  heightOffset = 0;
+  widthTranslate = 0;
+  heightTranslate = 0;
 }
 
 function setDeskshareScale(viewBox) {
@@ -524,35 +523,36 @@ function setDeskshareScale(viewBox) {
   heightScale = viewBox[3] / deskshareHeight;
 }
 
-function setDeskshareOffset(viewBox) {
-  widthOffset = (viewBox[2] - deskshareWidth) / 2;
-  heightOffset = (viewBox[3] - deskshareHeight) / 2;
+function setDeskshareTranslate(viewBox) {
+  widthTranslate = (deskshareWidth - viewBox[2]) / 2;
+  heightTranslate = (deskshareHeight - viewBox[3]) / 2;
 }
 
-// Deskshare viewBox must be moved to be placed above the video
+// Deskshare viewBox has the information to transform the canvas to place it above the video
 function adaptViewBoxToDeskshare(viewBox) {
   var vb = viewBox.split(" ");
   setDeskshareScale(vb);
-  setDeskshareOffset(vb);
-  vb[0] = widthOffset / widthScale;
-  vb[1] = heightOffset / heightScale;
+  setDeskshareTranslate(vb);
+  vb[0] = 0;
+  vb[1] = 0;
   vb[2] = deskshareWidth;
   vb[3] = deskshareHeight;
   return vb.join(" ");
 }
 
-// Scale to fit the different deskshare video sizes
-function setScale(time) {
-  svgfile = svgobj.contentDocument ? svgobj.contentDocument.getElementById("svgfile") : svgobj.getSVGDocument('svgfile');
-  var viewBox = getViewboxAtTime(time);
-  if (mustShowDesktopVideo(time) && viewBox !== undefined) {
-    viewBox = viewBox.split(" ");
-    // Create SVG's transform scale function
-    var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
-    svgfile.setAttribute('transform', scale);
-  } else if (svgfile.hasAttribute('transform')) {
-    clearScaleAndOffset();
-    svgfile.removeAttribute('transform');
+// Transform canvas to fit the different deskshare video sizes
+function setTransform(time) {
+  if (mustShowDesktopVideo(time)) {
+    var canvasId = "canvas" + current_image.substr(5);
+    var canvas = svgobj.contentDocument ? svgobj.contentDocument.getElementById(canvasId) : svgobj.getSVGDocument('svgfile').getElementById(canvasId);
+    if (canvas !== undefined) {
+      var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
+      var translate = "translate(" + widthTranslate.toString() + ", " + heightTranslate.toString() + ")";
+      var transform = translate + " " + scale;
+      canvas.setAttribute('transform', transform);
+    }
+  } else {
+    clearTransform();
   }
 }
 
@@ -641,27 +641,46 @@ var deskshare_xml = url + '/deskshare.xml';
 
 var firstLoad = true;
 var svjobjLoaded = false;
+var videoLoaded = false;
+var deskshareLoaded = false;
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
 svgobj.setAttribute('width', '100%');
 
+document.addEventListener('media-ready', function(event) {
+  switch(event.detail) {
+    case 'video':
+    case 'audio':
+      videoLoaded = true;
+      break;
+    case 'deskshare':
+    case 'no-deskshare':
+      deskshareLoaded = true;
+      break;
+    case 'svg':
+      svjobjLoaded = true;
+      break;
+    default:
+      console.log('unhandled media-ready event: ' + event.detail);
+  }
+
+  if (videoLoaded && deskshareLoaded && svjobjLoaded) {
+    runPopcorn();
+
+    generateThumbnails();
+
+    var p = Popcorn("#video");
+    p.currentTime(defineStartTime());
+
+    removeLoadingScreen();
+  }
+}, false);
+
 svgobj.addEventListener('load', function() {
   console.log("got svgobj 'load' event");
-  runPopcorn();
-
-  if (svjobjLoaded) {
-    return;
-  }
-  svjobjLoaded = true;
-
-  generateThumbnails();
-
-  var p = Popcorn("#video");
-  p.currentTime(defineStartTime());
-
-  removeLoadingScreen();
+  document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'svg'}));
 }, false);
 
 // Fetches the metadata associated with the recording and uses it to configure
