@@ -28,7 +28,7 @@ package org.bigbluebutton.air.video {
 			//mediatorMap.map(IVideoChatView).toMediator(VideoChatViewMediator);
 			//mediatorMap.map(ISwapCameraButton).toMediator(SwapCameraMediator);
 		}
-	
+		
 		private function signals():void {
 			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
 			//signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);

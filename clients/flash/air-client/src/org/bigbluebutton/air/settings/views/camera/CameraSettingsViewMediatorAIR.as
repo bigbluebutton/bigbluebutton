@@ -16,7 +16,6 @@ package org.bigbluebutton.air.settings.views.camera {
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.common.models.ISaveData;
-	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewMediatorBase;
 	import org.bigbluebutton.lib.user.models.User;
@@ -41,9 +40,6 @@ package org.bigbluebutton.air.settings.views.camera {
 		
 		[Inject]
 		public var saveData:ISaveData;
-		
-		[Inject]
-		public var conferenceParameters:IConferenceParameters;
 		
 		protected var dataProvider:ArrayCollection;
 		
@@ -166,14 +162,14 @@ package org.bigbluebutton.air.settings.views.camera {
 			var camera:Camera = getCamera(userSession.videoConnection.cameraPosition);
 			if (camera) {
 				var myCam:Video = new Video();
-				// var screenAspectRatio:Number = (view.cameraSettingsScroller.width / profile.width) / (view.cameraSettingsScroller.height / profile.height);
-				// if (screenAspectRatio > 1) { //landscape
-				// myCam.height = view.cameraSettingsScroller.height;
-				// myCam.width = profile.width * view.cameraSettingsScroller.height / profile.height;
-				// } else { //portrait
-				// myCam.width = view.cameraSettingsScroller.width;
-				// myCam.height = profile.height * view.cameraSettingsScroller.width / profile.width;
-				// }
+				var screenAspectRatio:Number = (view.cameraHolder.width / profile.width) / (view.cameraHolder.height / profile.height);
+				if (screenAspectRatio > 1) { //landscape
+					myCam.height = view.cameraHolder.height;
+					myCam.width = profile.width * view.cameraHolder.height / profile.height;
+				} else { //portrait
+					myCam.width = view.cameraHolder.width;
+					myCam.height = profile.height * view.cameraHolder.width / profile.width;
+				}
 				if (isCamRotatedSideways()) {
 					camera.setMode(profile.height, profile.width, profile.modeFps);
 					var temp:Number = myCam.width;
@@ -183,14 +179,14 @@ package org.bigbluebutton.air.settings.views.camera {
 					camera.setMode(profile.width, profile.height, profile.modeFps);
 				}
 				rotateObjectAroundInternalPoint(myCam, myCam.x + myCam.width / 2, myCam.y + myCam.height / 2, userSession.videoConnection.selectedCameraRotation);
-				// myCam.x = (view.cameraSettingsScroller.width - myCam.width) / 2;
+				myCam.x = (view.cameraHolder.width - myCam.width) / 2;
 				if (userSession.videoConnection.selectedCameraRotation == 90) {
 					myCam.y = 0;
-						// myCam.x = (view.cameraSettingsScroller.width + myCam.width) / 2;
+					//myCam.x = (view.cameraHolder.width + myCam.width) / 2;
 				} else if (userSession.videoConnection.selectedCameraRotation == 270) {
 					myCam.y = myCam.height;
 				} else if (userSession.videoConnection.selectedCameraRotation == 180) {
-					// myCam.x = (view.cameraSettingsScroller.width + myCam.width) / 2;
+					myCam.x = (view.cameraHolder.width + myCam.width) / 2;
 					myCam.y = myCam.height;
 				}
 				myCam.attachCamera(camera);
@@ -200,6 +196,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			} else {
 				view.noVideoMessage.visible = true;
 			}
+			view.positionActionButtons();
 		}
 		
 		public static function rotateObjectAroundInternalPoint(ob:Object, x:Number, y:Number, angleDegrees:Number):void {

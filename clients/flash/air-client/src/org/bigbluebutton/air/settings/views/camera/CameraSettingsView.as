@@ -8,6 +8,7 @@ package org.bigbluebutton.air.settings.views.camera {
 	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewBase;
 	
 	public class CameraSettingsView extends NoTabView {
+		
 		private var _settingsView:CameraSettingsViewBase;
 		
 		public function CameraSettingsView() {
@@ -17,7 +18,7 @@ package org.bigbluebutton.air.settings.views.camera {
 			vLayout.gap = 0;
 			layout = vLayout;
 			
-			_settingsView = new CameraSettingsViewBase();
+			_settingsView = new CameraSettingsViewBaseAIR();
 			_settingsView.percentHeight = 100;
 			_settingsView.percentWidth = 100;
 			addElement(_settingsView);

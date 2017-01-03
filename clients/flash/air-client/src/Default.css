@@ -162,6 +162,15 @@ settings|SettingsItemRenderer {
 	skinClass  : ClassReference("org.bigbluebutton.lib.main.views.skins.TopButtonSkin");
 }
 
+.actionButton {
+	color                   : PropertyReference("white");
+	cornerRadius            : 5;
+	backgroundColor         : PropertyReference("shakespeare");
+	borderColor             : PropertyReference("white");
+	selectedBackgroundColor : PropertyReference("tuna");
+	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.ActionButtonSkin");
+}
+
 .saveButton {
 	color      : PropertyReference("white");
 	fontWeight : normal;

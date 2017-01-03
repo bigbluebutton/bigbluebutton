@@ -10,11 +10,14 @@ package org.bigbluebutton.lib.settings.views.camera {
 	import spark.components.VideoDisplay;
 	import spark.components.supportClasses.ToggleButtonBase;
 	import spark.layouts.HorizontalAlign;
+	import spark.layouts.VerticalLayout;
 	import spark.primitives.Rect;
 	
 	public class CameraSettingsViewBase extends VGroup {
 		
 		private var _cameraBackground:Rect;
+		
+		private var _cameraHolder:Group;
 		
 		private var _previewVideo:VideoDisplay;
 		
@@ -30,6 +33,10 @@ package org.bigbluebutton.lib.settings.views.camera {
 		
 		protected function get toggleButtonClass():Class {
 			return ToggleButtonBase;
+		}
+		
+		public function get cameraHolder():Group {
+			return _cameraHolder;
 		}
 		
 		public function get previewVideo():VideoDisplay {
@@ -57,36 +64,52 @@ package org.bigbluebutton.lib.settings.views.camera {
 			
 			gap = 0;
 			
-			var cameraHolder:Group = new Group();
-			cameraHolder.percentWidth = 100;
-			addElement(cameraHolder);
+			_cameraHolder = new Group();
+			_cameraHolder.percentWidth = 100;
+			addElement(_cameraHolder);
 			
 			_cameraBackground = new Rect();
 			_cameraBackground.percentHeight = 100;
 			_cameraBackground.percentWidth = 100;
 			_cameraBackground.fill = new SolidColor();
-			cameraHolder.addElement(_cameraBackground);
+			_cameraHolder.addElement(_cameraBackground);
 			
 			_previewVideo = new VideoDisplay();
-			_previewVideo.horizontalCenter = 0;
-			cameraHolder.addElement(_previewVideo);
+			//_previewVideo.horizontalCenter = 0;
+			_previewVideo.height = 320;
+			_cameraHolder.addElement(_previewVideo);
 			
 			_noVideoMessage = new Label();
-			cameraHolder.addElement(_noVideoMessage);
+			_cameraHolder.addElement(_noVideoMessage);
 			
 			_actionsGroup = new HGroup();
 			_actionsGroup.percentHeight = 100;
 			_actionsGroup.percentWidth = 100;
 			_actionsGroup.horizontalAlign = HorizontalAlign.CENTER;
-			cameraHolder.addElement(_actionsGroup);
+			_cameraHolder.addElement(_actionsGroup);
 			
 			_swapCameraButton = new Button();
+			_swapCameraButton.label = "SWAP CAMERA";
+			_swapCameraButton.styleName = "actionButton";
 			_actionsGroup.addElement(_swapCameraButton);
 			
 			_rotateCameraButton = new Button();
+			_rotateCameraButton.label = "ROTATE CAMERA";
+			_rotateCameraButton.styleName = "actionButton";
 			_actionsGroup.addElement(_rotateCameraButton);
 			
+			var qualityTitle:Label = new Label();
+			qualityTitle.text = "Video Quality";
+			qualityTitle.percentWidth = 100;
+			qualityTitle.styleName = "sectionTitle";
+			addElement(qualityTitle);
+			
 			_cameraProfilesList = new List();
+			_cameraProfilesList.percentWidth = 100;
+			var listLayout:VerticalLayout = new VerticalLayout();
+			listLayout.requestedRowCount = -1;
+			listLayout.gap = 0;
+			_cameraProfilesList.layout = listLayout;
 			addElement(_cameraProfilesList);
 		}
 		
@@ -95,6 +118,12 @@ package org.bigbluebutton.lib.settings.views.camera {
 			
 			SolidColor(_cameraBackground.fill).color = getStyle("headerBackground");
 			// @todo: use _previewVideo or _noVideoMessage depending on the state
+			_previewVideo.top = getStyle("groupsPadding");
+			positionActionButtons();
+		}
+		
+		public function positionActionButtons() : void {
+			_actionsGroup.paddingBottom = getStyle("groupsPadding");
 			_actionsGroup.y = _previewVideo.y + _previewVideo.height + getStyle("groupsPadding");
 		}
 	}

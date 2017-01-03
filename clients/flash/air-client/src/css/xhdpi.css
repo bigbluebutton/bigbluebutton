@@ -109,6 +109,10 @@
 		right : 30;
 	}
 	
+	.actionButton {
+		fontSize : 21;
+	}
+	
 	.participantItem {
 		fontSize : 34;
 		padding  : 30;
