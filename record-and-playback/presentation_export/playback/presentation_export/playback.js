@@ -326,6 +326,7 @@ load_video = function(){
    //video.setAttribute('autoplay','autoplay');
 
    document.getElementById("video-area").appendChild(video);
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'video'}));
 }
 
 load_audio = function() {
@@ -359,6 +360,7 @@ load_audio = function() {
    //leave auto play turned off for accessiblity support
    //audio.setAttribute('autoplay','autoplay');
    document.getElementById("audio-area").appendChild(audio);
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'audio'}));
 }
 
 load_deskshare_video = function () {
@@ -381,6 +383,8 @@ load_deskshare_video = function () {
    $('#video').on("pause", function() {
        Popcorn('#deskshare-video').pause();
    });
+
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'deskshare'}));
 }
 
 load_script = function(file){
@@ -450,8 +454,11 @@ document.addEventListener("DOMContentLoaded", function() {
     swapVideoPresentation();
   });
 
-  if (checkUrl(RECORDINGS + '/deskshare/deskshare.webm') == true)
+  if (checkUrl(RECORDINGS + '/deskshare/deskshare.webm') == true) {
     load_deskshare_video();
+  } else {
+    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'no-deskshare'}));
+  }
 
   resizeComponents();
 }, false);

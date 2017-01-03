@@ -311,6 +311,7 @@ function runPopcorn() {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
 
+
   // PROCESS DESKSHARE.XML
   console.log("** Getting deskshare.xml");
   xmlhttp.open("GET", deskshare_xml, false);
@@ -327,8 +328,6 @@ function runPopcorn() {
       deskshareTimes[m] = deskTimes;
     }
   }
-
-
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
   svgobj.style.top = "0px";
@@ -642,27 +641,46 @@ var deskshare_xml = url + '/deskshare.xml';
 
 var firstLoad = true;
 var svjobjLoaded = false;
+var videoLoaded = false;
+var deskshareLoaded = false;
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
 svgobj.setAttribute('width', '100%');
 
+document.addEventListener('media-ready', function(event) {
+  switch(event.detail) {
+    case 'video':
+    case 'audio':
+      videoLoaded = true;
+      break;
+    case 'deskshare':
+    case 'no-deskshare':
+      deskshareLoaded = true;
+      break;
+    case 'svg':
+      svjobjLoaded = true;
+      break;
+    default:
+      console.log('unhandled media-ready event: ' + event.detail);
+  }
+
+  if (videoLoaded && deskshareLoaded && svjobjLoaded) {
+    runPopcorn();
+
+    generateThumbnails();
+
+    var p = Popcorn("#video");
+    p.currentTime(defineStartTime());
+
+    removeLoadingScreen();
+  }
+}, false);
+
 svgobj.addEventListener('load', function() {
   console.log("got svgobj 'load' event");
-  runPopcorn();
-
-  if (svjobjLoaded) {
-    return;
-  }
-  svjobjLoaded = true;
-
-  generateThumbnails();
-
-  var p = Popcorn("#video");
-  p.currentTime(defineStartTime());
-
-  removeLoadingScreen();
+  document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'svg'}));
 }, false);
 
 // Fetches the metadata associated with the recording and uses it to configure
