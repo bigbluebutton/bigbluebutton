@@ -10,6 +10,7 @@ public class JnlpConfigurator {
   private IScreenShareApplication screenShareApplication;
   private String streamBaseUrl;
   private String codecOptions;
+  private boolean useH264 = false;
   
   
   public String getJnlpUrl() {
@@ -34,6 +35,14 @@ public class JnlpConfigurator {
   
   public String getCodecOptions() {
     return codecOptions;
+  }
+
+  public void setUseH264(boolean h264) {
+    useH264 = h264;
+  }
+
+  public boolean isUseH264() {
+    return useH264;
   }
   
   public ScreenShareInfo  getScreenShareInfo(String meetingId, String token) {

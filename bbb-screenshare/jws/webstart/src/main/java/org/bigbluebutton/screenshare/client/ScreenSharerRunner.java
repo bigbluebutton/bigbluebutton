@@ -39,8 +39,8 @@ public class ScreenSharerRunner {
     this.ssi = ssi;
     this.listener = listener;
 
-//    System.out.println("ScreenSharerRunner[captureWidth=" + ssi.captureWidth + ",captureHeight=" + ssi.captureHeight + "][" + ssi.x + "," + ssi.y +"]"
-//        + "[scaleWidth=" + ssi.scaleWidth + ",scaleHeight=" + ssi.scaleHeight + "]");
+    System.out.println("ScreenSharerRunner[captureWidth=" + ssi.captureWidth + ",captureHeight=" + ssi.captureHeight + "][" + ssi.x + "," + ssi.y +"]"
+        + "[scaleWidth=" + ssi.scaleWidth + ",scaleHeight=" + ssi.scaleHeight + "]");
 
       jcs = new FfmpegScreenshare(ssi, listener);
   }
@@ -76,12 +76,12 @@ public class ScreenSharerRunner {
   }
 
   public void disconnectSharing(){
-    //System.out.println(NAME + "Disconnected");
+    System.out.println(NAME + "Disconnected");
     jcs.stop();
   }
 
   public void stopSharing() {
-    //System.out.println(NAME + "Stopping");
+    System.out.println(NAME + "Stopping");
     jcs.stop();
   }
 
