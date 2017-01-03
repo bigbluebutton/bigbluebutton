@@ -102,10 +102,12 @@ trait PollApp {
       case Some(poll) => {
         pollModel.showPollResult(poll.id)
         val shape = pollResultToWhiteboardShape(poll, msg)
+        log.debug("handleShowPollResultRequest for pollId=[" + poll.id + "]")
 
         for {
           page <- presModel.getCurrentPage()
-          annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id)
+          pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
+          annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId)
         } this.context.self ! new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation)
 
         outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
@@ -140,7 +142,10 @@ trait PollApp {
     log.debug("Received StartCustomPollRequest for pollType=[" + msg.pollType + "]")
 
     presModel.getCurrentPage() foreach { page =>
-      val pollId = page.id + "/" + System.currentTimeMillis()
+      val pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
+
+      val pollId = pageId + "/" + System.currentTimeMillis()
+      log.debug("handleStartCustomPollRequest: new pollId = " + pollId);
 
       val numRespondents = usersModel.numUsers() - 1 // subtract the presenter
       PollFactory.createPoll(pollId, msg.pollType, numRespondents, Some(msg.answers)) foreach (poll => pollModel.addPoll(poll))
@@ -159,10 +164,13 @@ trait PollApp {
   }
 
   def handleStartPollRequest(msg: StartPollRequest) {
-    log.debug("Received StartPollRequest for pollType=[" + msg.pollType + "]")
+    log.debug("Received StartPollRequest for pollType=[" + msg.pollType + "] (pollId = " + msg.pollId + ")")
 
     presModel.getCurrentPage() foreach { page =>
-      val pollId = page.id + "/" + System.currentTimeMillis()
+      val pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
+
+      val pollId = pageId + "/" + System.currentTimeMillis()
+      log.debug("handleStartPollRequest: new pollId = " + pollId);
 
       val numRespondents = usersModel.numUsers() - 1 // subtract the presenter
       PollFactory.createPoll(pollId, msg.pollType, numRespondents, None) foreach (poll => pollModel.addPoll(poll))

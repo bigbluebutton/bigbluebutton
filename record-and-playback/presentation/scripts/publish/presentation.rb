@@ -131,7 +131,125 @@ def processPanAndZooms
 
     end
   end
+  processDesksharePanAndZooms()
   BigBlueButton.logger.info("Finished creating panzooms.xml")
+end
+
+def scaleToDeskshareVideo(width, height)
+  deskshare_video_height = 720.to_f
+  deskshare_video_width = 1280.to_f
+
+  scale = [deskshare_video_width/width, deskshare_video_height/height]
+  video_width = width * scale.min
+  video_height = height * scale.min
+
+  return video_width.floor, video_height.floor
+end
+
+def processDesksharePanAndZooms
+  BigBlueButton.logger.info("processDesksharePanAndZooms")
+  deskshare_start_evts = BigBlueButton::Events.get_start_deskshare_events("#{$process_dir}/events.xml")
+  deskshare_stop_evts = BigBlueButton::Events.get_stop_deskshare_events("#{$process_dir}/events.xml")
+  deskshare_matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(deskshare_start_evts, deskshare_stop_evts)
+
+  deskshare_matched_evts.each do |start_evt|
+    start_timestamp_orig = start_evt[:start_timestamp].to_f
+    start_timestamp = ( translateTimestamp(start_timestamp_orig) / 1000 ).round(1)
+
+    stop_timestamp_orig = start_evt[:stop_timestamp].to_f
+    stop_timestamp = ( translateTimestamp(stop_timestamp_orig) / 1000 ).round(1)
+
+    if(stop_timestamp != 0.0)
+      deskshare_stream_name = start_evt[:stream]
+      deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
+      BigBlueButton.logger.info("processDesksharePanAndZooms - trying to open: #{deskshare_video_filename} to get its dimensions")
+
+      if File.exist?(deskshare_video_filename)
+        video_width = BigBlueButton.get_video_width(deskshare_video_filename)
+        video_height = BigBlueButton.get_video_height(deskshare_video_filename)
+        video_width, video_height = scaleToDeskshareVideo(video_width, video_height)
+        insertDesksharePanAndZoom(start_timestamp,start_timestamp_orig,video_width,video_height,stop_timestamp,stop_timestamp_orig)
+      else
+        BigBlueButton.logger.info("processDesksharePanAndZooms - deskshare video file DOES NOT exist: #{deskshare_video_filename}")
+      end
+    end
+
+  end
+end
+
+def insertDesksharePanAndZoom(start_timestamp, start_timestamp_orig, video_width, video_height, stop_timestamp, stop_timestamp_orig)
+  BigBlueButton.logger.info("insertDesksharePanAndZoom | start_timestamp = #{start_timestamp}, start_timestamp_orig = #{start_timestamp_orig}")
+  BigBlueButton.logger.info("insertDesksharePanAndZoom | stop_timestamp = #{stop_timestamp}, stop_timestamp_orig = #{start_timestamp_orig}")
+  BigBlueButton.logger.info("insertDesksharePanAndZoom |  #{video_width}x#{video_height}")
+
+
+  all_events = $panzooms_xml.doc.xpath("//event")
+  previous_timestamp = 0.0
+
+  for i in 0..all_events.length-1
+    if (start_timestamp > previous_timestamp && start_timestamp < all_events[i].attribute("timestamp").value.to_f)
+        new_event = Nokogiri::XML::Node.new "event", $panzooms_xml.doc
+        new_event[:timestamp] = start_timestamp
+        new_event[:orig] = start_timestamp_orig
+
+        new_viewbox = Nokogiri::XML::Node.new "viewBox", $panzooms_xml.doc
+        new_viewbox.content = "0.0 0.0 #{video_width}.0 #{video_height}.0"
+
+        #set new_event content
+        Nokogiri::XML::Builder.with(new_event) do |xml|
+          xml << new_viewbox.to_s
+        end
+
+        #insert new panzoom event with deskshare start timestamp and dimensions
+        all_events[i-1].add_next_sibling(new_event)
+        break
+    else
+        previous_timestamp = all_events[i].attribute("timestamp").value.to_f
+    end
+  end
+
+  #insert new panzoom event with deskshare stop timestamp, using next slide dimensions
+  start_event = $panzooms_xml.doc.xpath("//event[@timestamp='#{start_timestamp}']")[0]
+  if(start_event)
+
+     #remove all panzooms events before stop timestamp
+     #Sometimes there's a panzoom event with the deskshare image dimension at time=stop_timestamp+0.1. We remove it as well.
+     threshold = (stop_timestamp + 0.1).round(1)
+     $panzooms_xml.doc.xpath("//event[@timestamp > '#{start_timestamp}'and @timestamp <= '#{threshold}']").remove
+
+     #set and insert the new panzoom event
+     new_event = Nokogiri::XML::Node.new "event", $panzooms_xml.doc
+     new_event[:timestamp] = stop_timestamp
+     new_event[:orig] = stop_timestamp_orig
+
+     new_viewbox = Nokogiri::XML::Node.new "viewBox", $panzooms_xml.doc
+
+     #get slide at stop_timestamp+0.1 and its dimensions
+     $ss.each do |key,val|
+       if(key === stop_timestamp+0.1)
+          slide_width = val[0].to_f
+          slide_height = val[1].to_f
+          new_viewbox.content = "0.0 0.0 #{slide_width} #{slide_height}"
+          break
+       end
+     end
+
+     #set new_event content
+     Nokogiri::XML::Builder.with(new_event) do |xml|
+       xml << new_viewbox.to_s
+     end
+
+     start_event.add_next_sibling(new_event)
+
+     #If deskshare begins at 0, the first panzoom must have deskshare dimensions
+     if (start_timestamp == 0.0)
+        start_event.xpath("viewBox")[0].content = "0.0 0.0 #{video_width}.0 #{video_height}.0"
+     end
+
+  else
+    BigBlueButton.logger.info("There's no panzoom event for timestamp = #{start_timestamp}")
+  end
+
 end
 
 def processCursorEvents
@@ -190,9 +308,15 @@ def processClearEvents
     #clearTime = ( clearEvent[:timestamp].to_f / 1000 ).round(1)
     $pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
     slideFolder = clearEvent.xpath(".//presentation")[0].text()
+    whiteboardId = clearEvent.xpath(".//whiteboardId")[0].text()
     if $version_atleast_0_9_0
-      $clearPageTimes[($prev_clear_time..clearTime)] =
-        [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i + 1}.png", nil]
+        if (whiteboardId == "deskshare")
+           $clearPageTimes[($prev_clear_time..clearTime)] =
+             [$pageCleared, $canvas_number, "presentation/deskshare/slide-1.png", nil]
+        else
+           $clearPageTimes[($prev_clear_time..clearTime)] =
+             [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i + 1}.png", nil]
+        end
     else
       $clearPageTimes[($prev_clear_time..clearTime)] =
         [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared}.png", nil]
@@ -605,6 +729,15 @@ end
 
 def processSlideEvents
   BigBlueButton.logger.info("Slide events processing")
+
+  deskshare_start_evts = BigBlueButton::Events.get_start_deskshare_events("#{$process_dir}/events.xml")
+  deskshare_stop_evts = BigBlueButton::Events.get_stop_deskshare_events("#{$process_dir}/events.xml")
+  deskshare_matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(deskshare_start_evts, deskshare_stop_evts)
+
+  deskshare_image_created = false
+  deskshare_slide_src = ""
+  deskshare_slide_size = nil
+
   # For each slide (there is only one image per slide)
   $slides_events.each do |node|
     # Ignore slide events that happened after the last recording period.
@@ -615,9 +748,27 @@ def processSlideEvents
     if eventname == "SharePresentationEvent"
       $presentation_name = node.xpath(".//presentationName")[0].text()
     else
+
+      #set slide times
       slide_timestamp =  node[:timestamp]
       slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
       orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
+
+      current_index = $slides_events.index(node)
+      if(current_index + 1 < $slides_events.length)
+        slide_end = ( translateTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
+        orig_slide_end = ( $slides_events[current_index + 1][:timestamp].to_f / 1000 ).round(1)
+      else
+        slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
+        orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
+      end
+
+      if slide_start == slide_end
+        BigBlueButton.logger.info("Slide is never displayed (slide_start = slide_end), so it won't be included in the svg")
+        next
+      end
+
+      #set slide resources
       slide_number = node.xpath(".//slide")[0].text().to_i
                         slide_number = slide_number < 0 ? 0 : slide_number
       slide_src = "presentation/#{$presentation_name}/slide-#{slide_number + 1}.png"
@@ -634,45 +785,90 @@ def processSlideEvents
       end
 
       slide_size = FastImage.size(image_url)
-      current_index = $slides_events.index(node)
-      if(current_index + 1 < $slides_events.length)
-        slide_end = ( translateTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
-        orig_slide_end = ( $slides_events[current_index + 1][:timestamp].to_f / 1000 ).round(1)
-      else
-        slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
-        orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
-      end
 
-      if slide_start == slide_end
-        BigBlueButton.logger.info("#{slide_src} is never displayed (slide_start = slide_end), so it won't be included in the svg")
-        next
-      end
+      deskshare_starts = []
+      deskshare_stops = []
+      orig_deskshare_starts = []
+      orig_deskshare_stops = []
+      # checking if there's a deskshare event inside the slide interval of time
+      deskshare_matched_evts.each do |start_evt|
+        start_timestamp_orig = start_evt[:start_timestamp].to_f
+        stop_timestamp_orig = start_evt[:stop_timestamp].to_f
 
-      BigBlueButton.logger.info("Processing slide image")
-      # Is this a new image or one previously viewed?
-      if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
-        # If it is, add it to the list with all the data.
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end]]
-        $global_slide_count = $global_slide_count + 1
-      else
-        # If not, append new in and out times to the old entry
-        # But if the previous slide_end is equal to the current slide_start, we just pop the previous slide_end and push the current one
-        # It will avoid the duplication of the thumbnails on the playback
-        if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].last == slide_start)
-          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].pop
-          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
-        else
-          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
-          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+        start_timestamp = ( translateTimestamp(start_timestamp_orig) / 1000 ).round(1)
+        stop_timestamp = ( translateTimestamp(stop_timestamp_orig) / 1000 ).round(1)
+
+        if( (slide_start < start_timestamp || start_timestamp == 0.0) && (slide_end > stop_timestamp && stop_timestamp != 0.0) )
+          deskshare_starts << start_timestamp
+          deskshare_stops << stop_timestamp
+          orig_deskshare_starts << ( start_timestamp_orig / 1000 ).round(1)
+          orig_deskshare_stops << ( stop_timestamp_orig / 1000 ).round(1)
         end
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
       end
 
-      $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
-      puts "#{slide_src} : #{slide_start} -> #{slide_end}"
+      if (deskshare_starts.length > 0)
+
+          if (!deskshare_image_created)
+              #Creating deskshare image
+              deskshare_slide_src = "presentation/deskshare/slide-1.png"
+
+              FileUtils.mkdir_p("#{$process_dir}/presentation/deskshare")
+              deskshare_image_url = "#{$process_dir}/#{deskshare_slide_src}"
+              command = "convert -size 1280x720 xc:transparent -background transparent #{deskshare_image_url}"
+              BigBlueButton.execute(command)
+              deskshare_image_created = true
+
+              deskshare_slide_size = FastImage.size(deskshare_image_url)
+          end
+
+          for i in 0..deskshare_starts.length-1
+            if (i == 0)
+               processSlideImage(slide_src, slide_size, slide_start, (deskshare_starts[0]-0.1), slide_text, orig_slide_start, (orig_deskshare_starts[0]-0.1))
+            else
+               processSlideImage(slide_src, slide_size, (deskshare_stops[i-1]+0.1), (deskshare_starts[i]-0.1), slide_text, (orig_deskshare_stops[i-1]+0.1), (orig_deskshare_starts[i]-0.1))
+            end
+
+            #insert deskshare image
+            processSlideImage(deskshare_slide_src, deskshare_slide_size, deskshare_starts[i], deskshare_stops[i], nil, orig_deskshare_starts[i], orig_deskshare_stops[i])
+
+            if (i == deskshare_starts.length-1)
+                processSlideImage(slide_src, slide_size, (deskshare_stops[i]+0.1), slide_end, slide_text, (orig_deskshare_stops[i]+0.1), orig_slide_end)
+            end
+          end
+      else
+        processSlideImage(slide_src, slide_size, slide_start, slide_end, slide_text, orig_slide_start, orig_slide_end)
+      end
+
     end
   end
+end
+
+def processSlideImage(slide_src, slide_size, slide_start, slide_end, slide_text, orig_slide_start, orig_slide_end)
+
+  BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
+  # Is this a new image or one previously viewed?
+  if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
+    # If it is, add it to the list with all the data.
+    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end]]
+    $global_slide_count = $global_slide_count + 1
+  else
+    # If not, append new in and out times to the old entry
+    # But if the previous slide_end is equal to the current slide_start, we just pop the previous slide_end and push the current one
+    # It will avoid the duplication of the thumbnails on the playback
+    if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].last == slide_start)
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].pop
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+    else
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
+      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+    end
+    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
+    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
+  end
+
+  $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
+  BigBlueButton.logger.info("End of slide image process => #{slide_src} : #{slide_start} -> #{slide_end}")
+
 end
 
 def processShapesAndClears
@@ -884,9 +1080,10 @@ def processDeskshareEvents
 
           start_timestamp = ( translateTimestamp(start_timestamp_orig) / 1000 ).round(1)
           stop_timestamp = ( translateTimestamp(stop_timestamp_orig) / 1000 ).round(1)
-          BigBlueButton.logger.info("start_timestamp = #{start_timestamp}, stop_timestamp = #{stop_timestamp}")
-
-          $xml.event(:start_timestamp => start_timestamp, :stop_timestamp => stop_timestamp)
+          if (stop_timestamp != 0.0)
+             BigBlueButton.logger.info("start_timestamp = #{start_timestamp}, stop_timestamp = #{stop_timestamp}")
+             $xml.event(:start_timestamp => start_timestamp, :stop_timestamp => stop_timestamp)
+          end
         end
       end
     end
@@ -969,6 +1166,8 @@ begin
     playback_host = bbb_props['playback_host']
     BigBlueButton.logger.info("setting target dir")
     target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
+    $deskshare_dir = "#{recording_dir}/raw/#{$meeting_id}/deskshare"
+
     if not FileTest.directory?(target_dir)
       BigBlueButton.logger.info("Making dir target_dir")
       FileUtils.mkdir_p target_dir
@@ -995,6 +1194,17 @@ begin
           BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
           FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
           BigBlueButton.logger.info("Copied audio.ogg file")
+        end
+
+        if File.exist?("#{$process_dir}/deskshare.webm")
+          BigBlueButton.logger.info("Making deskshare dir")
+          deskshare_dir = "#{package_dir}/deskshare"
+          FileUtils.mkdir_p deskshare_dir
+          BigBlueButton.logger.info("Made deskshare dir - copying: #{$process_dir}/deskshare.webm to -> #{deskshare_dir}")
+          FileUtils.cp("#{$process_dir}/deskshare.webm", deskshare_dir)
+          BigBlueButton.logger.info("Copied deskshare.webm file")
+        else
+          BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
         end
 
 

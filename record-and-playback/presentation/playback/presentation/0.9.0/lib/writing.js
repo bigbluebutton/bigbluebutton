@@ -43,17 +43,22 @@ function drawCursor(scaledX, scaledY, img) {
   var imageX = 0; //imgRect.x;
   var imageY = 0; //imgRect.y;
 
+  // Important to place the cursor over the deskshare
+  // It should not affect the regular slides
+  var scaledWidthTranslate = widthTranslate * (containerObj.width() / deskshareWidth);
+  var scaledHeightTranslate = heightTranslate * (containerObj.height() / deskshareHeight);
+
   // the offsets of the container that has the image inside it
-  var containerX = containerObj.offset().left;
-  var containerY = containerObj.offset().top;
+  var containerX = containerObj.offset().left + scaledWidthTranslate;
+  var containerY = containerObj.offset().top + scaledHeightTranslate;
 
   // calculates the overall offsets of the image in the page
   var imageOffsetX = containerX + imageX;
   var imageOffsetY = containerY + imageY;
 
   // position of the cursor relative to the container
-  var cursorXInImage = scaledX * containerObj.width();
-  var cursorYInImage = scaledY * containerObj.height();
+  var cursorXInImage = scaledX * (containerObj.width() * widthScale);
+  var cursorYInImage = scaledY * (containerObj.height() * heightScale);
 
   // absolute position of the cursor in the page
   var cursorLeft = parseInt(imageOffsetX + cursorXInImage, 10);
@@ -77,10 +82,14 @@ function showCursor(show) {
   }
 };
 
-function setViewBox(val) {
-  if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
-  else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
-	svgfile.setAttribute('viewBox', val);
+function setViewBox(time) {
+  var vboxVal = getViewboxAtTime(time);
+  if(vboxVal !== undefined) {
+    setTransform(time);
+    if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
+    else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
+    svgfile.setAttribute('viewBox', vboxVal);
+  }
 }
 
 function getImageAtTime(time) {
@@ -99,14 +108,15 @@ function getImageAtTime(time) {
 function getViewboxAtTime(time) {
 	var curr_t = parseFloat(time);
 	var key;
+	var isDeskshare = mustShowDesktopVideo(time);
 	for (key in vboxValues) {
 		if(vboxValues.hasOwnProperty(key)) {
 			var arry = key.split(",");
 			if(arry[1] == "end") {
-				return vboxValues[key];
+				return isDeskshare ? adaptViewBoxToDeskshare(vboxValues[key]) : vboxValues[key];
 			}
 			else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
-				return vboxValues[key];
+				return isDeskshare ? adaptViewBoxToDeskshare(vboxValues[key]) : vboxValues[key];
 			}
 		}
 	}
@@ -122,33 +132,47 @@ function removeSlideChangeAttribute() {
 	Popcorn('#video').unlisten(Popcorn.play, 'removeSlideChangeAttribute');
 }
 
-function hideWhiteboardIfDeskshare(time) {
-  var num_current = current_image.substr(5);
-  var wbcanvas;
+function mustShowDesktopVideo(time) {
+  var canShow = false;
+  for (var m = 0; m < deskshareTimes.length; m++) {
+    var start_timestamp = deskshareTimes[m][0];
+    var stop_timestamp = deskshareTimes[m][1];
 
-  if(svgobj.contentDocument)
-    wbcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
-  else
-    wbcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
+    if(time >= start_timestamp && time <= stop_timestamp)
+      canShow = true;
+  }
 
-  if(wbcanvas !== null) {
-    var sharing = false;
+  return canShow;
+}
 
-    for (var m = 0; m < deskshareTimes.length; m++) {
-      var start_timestamp = deskshareTimes[m][0];
-      var stop_timestamp = deskshareTimes[m][1];
+function isThereDeskshareVideo() {
+  return deskshareTimes.length > 0;
+}
 
-      if(time >= start_timestamp && time <= stop_timestamp)
-        sharing = true;
-    }
+function resyncVideos() {
+  var currentTime = Popcorn('#video').currentTime();
+  var currentDeskshareVideoTime = Popcorn("#deskshare-video").currentTime();
+  if (Math.abs(currentTime - currentDeskshareVideoTime) >= 0.1)
+    Popcorn("#deskshare-video").currentTime(currentTime);
+}
 
-    if(sharing) {
-      wbcanvas.setAttribute("display", "none");
-      document.getElementById("cursor").style.display = 'none';
-    } else {
-      wbcanvas.setAttribute("display", "");
-      document.getElementById("cursor").style.display = '';
-    }
+function handlePresentationAreaContent(time) {
+  var mustShow = mustShowDesktopVideo(time);
+  if(!sharingDesktop && mustShow) {
+    console.log("Showing deskshare video...");
+    document.getElementById("deskshare-video").style.visibility = "visible";
+    $('#slide').addClass('no-background');
+    sharingDesktop = true;
+  } else if(sharingDesktop && !mustShow) {
+    console.log("Hiding deskshare video...");
+    document.getElementById("deskshare-video").style.visibility = "hidden";
+    $('#slide').removeClass('no-background');
+    sharingDesktop = false;
+  }
+
+  if(isThereDeskshareVideo()) {
+    resyncVideos();
+    resizeDeshareVideo();
   }
 }
 
@@ -453,10 +477,7 @@ function runPopcorn() {
             var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
             var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
 
-            var vboxVal = getViewboxAtTime(t);
-            if(vboxVal !== undefined) {
-              setViewBox(vboxVal);
-            }
+            setViewBox(t);
 
             var cursorVal = getCursorAtTime(t);
             if (cursorVal != null) {
@@ -475,11 +496,65 @@ function runPopcorn() {
             currentImage = thisimg;
             resizeSlides();
           }
-          hideWhiteboardIfDeskshare(t);
+
+          handlePresentationAreaContent(t);
        }
     }
   });
 };
+
+// Deskshare's whiteboard variables
+var deskshareWidth = 1280.0;
+var deskshareHeight = 720.0;
+var widthScale = 1;
+var heightScale = 1;
+var widthTranslate = 0;
+var heightTranslate = 0;
+
+function clearTransform() {
+  widthScale = 1;
+  heightScale = 1;
+  widthTranslate = 0;
+  heightTranslate = 0;
+}
+
+function setDeskshareScale(viewBox) {
+  widthScale = viewBox[2] / deskshareWidth;
+  heightScale = viewBox[3] / deskshareHeight;
+}
+
+function setDeskshareTranslate(viewBox) {
+  widthTranslate = (deskshareWidth - viewBox[2]) / 2;
+  heightTranslate = (deskshareHeight - viewBox[3]) / 2;
+}
+
+// Deskshare viewBox has the information to transform the canvas to place it above the video
+function adaptViewBoxToDeskshare(viewBox) {
+  var vb = viewBox.split(" ");
+  setDeskshareScale(vb);
+  setDeskshareTranslate(vb);
+  vb[0] = 0;
+  vb[1] = 0;
+  vb[2] = deskshareWidth;
+  vb[3] = deskshareHeight;
+  return vb.join(" ");
+}
+
+// Transform canvas to fit the different deskshare video sizes
+function setTransform(time) {
+  if (mustShowDesktopVideo(time)) {
+    var canvasId = "canvas" + current_image.substr(5);
+    var canvas = svgobj.contentDocument ? svgobj.contentDocument.getElementById(canvasId) : svgobj.getSVGDocument('svgfile').getElementById(canvasId);
+    if (canvas !== undefined) {
+      var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
+      var translate = "translate(" + widthTranslate.toString() + ", " + heightTranslate.toString() + ")";
+      var transform = translate + " " + scale;
+      canvas.setAttribute('transform', transform);
+    }
+  } else {
+    clearTransform();
+  }
+}
 
 function removeLoadingScreen() {
   spinner.stop();
@@ -551,6 +626,7 @@ var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;
 var cursorShownAt = 0;
 var deskshareTimes = [];
+var sharingDesktop = false;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
@@ -565,27 +641,46 @@ var deskshare_xml = url + '/deskshare.xml';
 
 var firstLoad = true;
 var svjobjLoaded = false;
+var videoLoaded = false;
+var deskshareLoaded = false;
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
 svgobj.setAttribute('width', '100%');
 
+document.addEventListener('media-ready', function(event) {
+  switch(event.detail) {
+    case 'video':
+    case 'audio':
+      videoLoaded = true;
+      break;
+    case 'deskshare':
+    case 'no-deskshare':
+      deskshareLoaded = true;
+      break;
+    case 'svg':
+      svjobjLoaded = true;
+      break;
+    default:
+      console.log('unhandled media-ready event: ' + event.detail);
+  }
+
+  if (videoLoaded && deskshareLoaded && svjobjLoaded) {
+    runPopcorn();
+
+    generateThumbnails();
+
+    var p = Popcorn("#video");
+    p.currentTime(defineStartTime());
+
+    removeLoadingScreen();
+  }
+}, false);
+
 svgobj.addEventListener('load', function() {
   console.log("got svgobj 'load' event");
-  runPopcorn();
-
-  if (svjobjLoaded) {
-    return;
-  }
-  svjobjLoaded = true;
-
-  generateThumbnails();
-
-  var p = Popcorn("#video");
-  p.currentTime(defineStartTime());
-
-  removeLoadingScreen();
+  document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'svg'}));
 }, false);
 
 // Fetches the metadata associated with the recording and uses it to configure
@@ -628,6 +723,7 @@ var currentImage;
 window.onresize = function(event) {
 	showCursor(false);
   resizeSlides();
+  resizeDeshareVideo();
 };
 
 // Resize the container that has the slides (and whiteboard) to be the maximum
@@ -653,5 +749,21 @@ var resizeSlides = function() {
 
     var height = $slide.parent().width() / aspectRatio;
     $slide.css("max-height", height);
+  }
+};
+
+var resizeDeshareVideo = function() {
+  if (isThereDeskshareVideo()) {
+    var $deskhareVideo = $("#deskshare-video");
+
+    var videoWidth = parseInt(document.getElementById("deskshare-video").videoWidth, 10);
+    var videoHeight = parseInt(document.getElementById("deskshare-video").videoHeight, 10);
+
+    var aspectRatio = videoWidth/videoHeight;
+    var max = aspectRatio * $deskhareVideo.parent().outerHeight();
+    $deskhareVideo.css("max-width", max);
+
+    var height = $deskhareVideo.parent().width() / aspectRatio;
+    $deskhareVideo.css("max-height", height);
   }
 };

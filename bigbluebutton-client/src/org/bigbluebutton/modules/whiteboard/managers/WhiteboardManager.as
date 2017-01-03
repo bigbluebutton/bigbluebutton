@@ -53,6 +53,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 
 		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
 		private var displayModel:WhiteboardCanvasDisplayModel = new WhiteboardCanvasDisplayModel();
+
+		private var previousWhiteboardPageId:String;
         
 		public function WhiteboardManager() {
 			globalDispatcher = new Dispatcher();
@@ -138,7 +140,16 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
     
     public function handlePageChangedEvent(e:PageLoadedEvent):void {
-      displayModel.changePage(e.pageId);
+      if(!whiteboardModel.isOverlayingDeskshare()) {
+         whiteboardModel.setCurrentWhiteboardId(e.pageId);
+         displayModel.changePage(e.pageId);
+      }
+      else LOGGER.debug("Got new slide page loaded, but current whiteboard page is deskshare: doing nothing.");
+    }
+
+    public function handleChangeWhiteboardPageEvent(e:WhiteboardUpdate):void {
+      whiteboardModel.setCurrentWhiteboardId(e.pageID);
+      displayModel.changePage(e.pageID);
     }
 
     public function removeAnnotationsHistory():void {
