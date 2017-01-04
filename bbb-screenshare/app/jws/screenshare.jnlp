@@ -32,7 +32,7 @@
     </resources>
     
     <resources os="Mac OS X">
-        <nativelib href="ffmpeg-macosx-x86_64.jar"/>
+        <nativelib href="ffmpeg-macosx-x86_64-svc2.jar"/>
     </resources>
 
     <application-desc
