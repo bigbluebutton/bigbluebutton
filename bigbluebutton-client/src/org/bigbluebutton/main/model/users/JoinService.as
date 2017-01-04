@@ -162,7 +162,7 @@ package org.bigbluebutton.main.model.users
                                              .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
                                              .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
                                              .withAllowStartStopRecording(response.allowStartStopRecording)
-											 .withwebcamsOnlyForModerator(response.webcamsOnlyForModerator)
+                                             .withWebcamsOnlyForModerator(response.webcamsOnlyForModerator)
 											 .withBreakout(response.isBreakout)
                                              .build();
 

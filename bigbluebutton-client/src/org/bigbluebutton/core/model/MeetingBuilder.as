@@ -56,7 +56,7 @@ package org.bigbluebutton.core.model
       return this;
     }
 	
-	public function withwebcamsOnlyForModerator(value: Boolean):MeetingBuilder {
+	public function withWebcamsOnlyForModerator(value: Boolean):MeetingBuilder {
 		webcamsOnlyForModerator = value;
 		return this;
 	}
