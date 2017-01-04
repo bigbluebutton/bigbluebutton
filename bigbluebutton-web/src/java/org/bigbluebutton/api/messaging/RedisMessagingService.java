@@ -70,14 +70,15 @@ public class RedisMessagingService implements MessagingService {
     public void createMeeting(String meetingID, String externalMeetingID,
             String parentMeetingID, String meetingName, Boolean recorded,
             String voiceBridge, Integer duration, Boolean autoStartRecording,
-            Boolean allowStartStopRecording, String moderatorPass,
-            String viewerPass, Long createTime, String createDate,
-            Boolean isBreakout, Integer sequence) {
+            Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
+            String moderatorPass, String viewerPass, Long createTime,
+            String createDate, Boolean isBreakout, Integer sequence) {
         CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(
                 meetingID, externalMeetingID, parentMeetingID, meetingName,
                 recorded, voiceBridge, duration, autoStartRecording,
-                allowStartStopRecording, moderatorPass, viewerPass, createTime,
-                createDate, isBreakout, sequence);
+                allowStartStopRecording, webcamsOnlyForModerator,
+                moderatorPass, viewerPass, createTime, createDate, isBreakout,
+                sequence);
         CreateMeetingRequest msg = new CreateMeetingRequest(payload);
 
         Gson gson = new Gson();

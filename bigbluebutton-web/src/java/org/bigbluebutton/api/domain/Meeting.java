@@ -57,6 +57,7 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
+	private boolean webcamsOnlyForModerator = false;
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
@@ -82,6 +83,7 @@ public class Meeting {
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
+        webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
         duration = builder.duration;
         webVoice = builder.webVoice;
         telVoice = builder.telVoice;
@@ -267,6 +269,10 @@ public class Meeting {
 		return allowStartStopRecording;
 	}
 	
+    public boolean getWebcamsOnlyForModerator() {
+        return webcamsOnlyForModerator;
+    }
+	
 	public boolean hasUserJoined() {
 		return userHasJoined;
 	}
@@ -397,7 +403,8 @@ public class Meeting {
     	private int maxUsers;
     	private boolean record;
     	private boolean autoStartRecording;
-    	private boolean allowStartStopRecording;
+        private boolean allowStartStopRecording;
+        private boolean webcamsOnlyForModerator;
     	private String moderatorPass;
     	private String viewerPass;
     	private int duration;
@@ -447,6 +454,11 @@ public class Meeting {
     		this.allowStartStopRecording = allow;
     		return this;
     	}
+    	
+        public Builder withWebcamsOnlyForModerator(boolean only) {
+            this.webcamsOnlyForModerator = only;
+            return this;
+        }
     	
     	public Builder withWebVoice(String w) {
     		this.webVoice = w;
