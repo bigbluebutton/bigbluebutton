@@ -226,7 +226,7 @@
 			myRole: "undefined",
 			amIPresenter: "undefined",
 			dialNumber: "undefined",
-			voiceBridge: "undefined",
+			voiceBridge: "",
 			customdata: "undefined"
 		}
 
