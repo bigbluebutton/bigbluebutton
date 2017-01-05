@@ -226,7 +226,7 @@
 			myRole: "undefined",
 			amIPresenter: "undefined",
 			dialNumber: "undefined",
-			voiceBridge: "",
+			voiceBridge: "undefined",
 			customdata: "undefined"
 		}
 
@@ -309,7 +309,7 @@
 		console.log("[BBBClientCheck] Handling webRTCMediaFail");
 	}
 
-  BBB.webRTCCallStarted = function(inEchoTest) {
+	BBB.webRTCCallStarted = function(inEchoTest) {
 		console.log("[BBBClientCheck] Handling webRTCCallStarted");
 		BBB.webRTCEchoTestStarted();
 	};
