@@ -1,4 +1,4 @@
-FFMPEG=ffmpeg-3.0.2-1.2-linux-x86_64.jar
+FFMPEG=ffmpeg-3.0.2-1.2-linux-x86_64-svc2.jar
 mkdir workdir
 cp $FFMPEG workdir/ffmpeg-linux-x86_64.jar
 rm -rf src
