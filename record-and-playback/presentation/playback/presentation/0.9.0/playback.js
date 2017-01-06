@@ -422,6 +422,24 @@ load_spinner = function(){
   spinner = new Spinner(opts).spin(target);
 };
 
+var video_loaded_callbacks = [];
+var video_loaded = false;
+
+var notify_video_loaded = function() {
+  video_loaded = true;
+  for (i = 0; i < video_loaded_callbacks.length; i++) {
+    video_loaded_callbacks[i]();
+  }
+};
+window.await_video_loaded = function(callback) {
+  if (video_loaded) {
+    /* Video is already loaded, just immediately execute the callback */
+    callback();
+  } else {
+    video_loaded_callbacks.push(callback);
+  }
+}
+
 
 document.addEventListener("DOMContentLoaded", function() {
   console.log("==DOM content loaded");
@@ -433,6 +451,11 @@ document.addEventListener("DOMContentLoaded", function() {
     google_frame_warning();
   }
 
+  load_spinner();
+  console.log("==Hide playback content");
+  $("#playback-content").css('visibility', 'hidden');
+
+
   if (checkUrl(RECORDINGS + '/video/webcams.webm') == true) {
     hasVideo = true;
     $("#audio-area").attr("style", "display:none;");
@@ -443,10 +466,6 @@ document.addEventListener("DOMContentLoaded", function() {
     load_audio();
   }
 
-  load_spinner();
-  console.log("==Hide playback content");
-  $("#playback-content").css('visibility', 'hidden');
-
   //load up the acorn controls
   console.log("==Loading acorn media player ");
   $('#video').acornMediaPlayer({
@@ -456,6 +475,8 @@ document.addEventListener("DOMContentLoaded", function() {
   $('#video').on("swap", function() {
     swapVideoPresentation();
   });
+
+  notify_video_loaded();
 
   resizeComponents();
 }, false);
