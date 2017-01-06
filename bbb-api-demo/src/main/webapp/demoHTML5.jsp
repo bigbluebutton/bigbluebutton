@@ -35,6 +35,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <body>
 
+You must have the BigBlueButton HTML5 client installed to use this API demo.
+
 <%@ include file="bbb_api.jsp"%>
 
 <% 
