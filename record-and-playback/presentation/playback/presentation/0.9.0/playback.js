@@ -286,19 +286,6 @@ generateThumbnails = function() {
   }
 }
 
-google_frame_warning = function(){
-  console.log("==Google frame warning");
-  var message = "To support this playback please install 'Google Chrome Frame', or use other browser: Firefox, Safari, Chrome, Opera";
-  var line = document.createElement("p");
-  var link = document.createElement("a");
-  line.appendChild(document.createTextNode(message));
-  link.setAttribute("href", "http://www.google.com/chromeframe")
-  link.setAttribute("target", "_blank")
-  link.appendChild(document.createTextNode("Install Google Chrome Frame"));
-  document.getElementById("chat").appendChild(line);
-  document.getElementById("chat").appendChild(link);
-}
-
 function checkUrl(url)
 {
   try {
@@ -446,10 +433,6 @@ document.addEventListener("DOMContentLoaded", function() {
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
   var spinner;
-
-  if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
-    google_frame_warning();
-  }
 
   load_spinner();
   console.log("==Hide playback content");
