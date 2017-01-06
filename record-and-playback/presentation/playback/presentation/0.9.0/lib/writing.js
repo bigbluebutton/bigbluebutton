@@ -19,7 +19,6 @@
 
 
 // - - - START OF GLOBAL VARIABLES - - - //
-"use strict";
 
 function getUrlParameters() {
     console.log("** Getting url params");
