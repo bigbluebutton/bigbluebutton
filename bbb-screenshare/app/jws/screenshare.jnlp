@@ -12,15 +12,15 @@
     <resources>
         <j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se"/>
         <jar href="javacv-screenshare-0.0.1.jar" main="true" />
-        <jar href="ffmpeg-svc2.jar" />
+        <jar href="ffmpeg.jar" />
     </resources>
 
     <resources os="Windows" arch="amd64">
-        <nativelib href="ffmpeg-win-x86_64-native-svc2.jar"/>
+        <nativelib href="ffmpeg-win-x86_64-svc2.jar"/>
     </resources>
 
     <resources os="Windows" arch="x86">
-        <nativelib href="ffmpeg-win-x86-native-svc2.jar"/>
+        <nativelib href="ffmpeg-win-x86-svc2.jar"/>
     </resources>
 
     <resources os="Linux" arch="x86_64 amd64">
