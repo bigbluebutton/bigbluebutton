@@ -534,7 +534,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:Box id="publishView" height="100%" width="100%" styleName="desktopShareViewStyle">
     <mx:VBox id="helpInfoBox" width="100%" height="100%" verticalAlign="middle" verticalGap="12">
       <mx:HBox width="100%">
-        <mx:Label styleName="desktopShareTextStyle" width="100%"
+        <mx:Text styleName="desktopShareTextStyle" width="100%"
                   text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.commonHelpText.text')}" />
         <mx:LinkButton id="helpButton"
                        height="22"
@@ -548,19 +548,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:HBox id="helpBox" width="100%" horizontalAlign="center">
         <mx:VBox width="30%" horizontalAlign="center">
           <mx:Image id="helpImg1" source="{helpImg1.getStyle('imageSource')}" />
-          <mx:Label id="helpLbl1" styleName="desktopShareTextStyle" />
+          <mx:Text id="helpLbl1" styleName="desktopShareTextStyle" />
         </mx:VBox>
         <mx:VBox width="30%" horizontalAlign="center">
           <mx:Image id="helpImg2" source="{helpImg2.getStyle('imageSource')}" />
-          <mx:Label id="helpLbl2" styleName="desktopShareTextStyle" />
+          <mx:Text id="helpLbl2" styleName="desktopShareTextStyle" />
         </mx:VBox>
         <mx:VBox width="30%" horizontalAlign="center">
           <mx:Image id="helpImg3" source="{helpImg3.getStyle('imageSource')}" />
-          <mx:Label id="helpLbl3" styleName="desktopShareTextStyle" />
+          <mx:Text id="helpLbl3" styleName="desktopShareTextStyle" />
         </mx:VBox>
         <mx:VBox id="helpBox4" width="30%" horizontalAlign="center" visible="false" includeInLayout="false">
           <mx:Image id="helpImg4" source="{helpImg4.getStyle('imageSource')}" />
-          <mx:Label id="helpLbl4" styleName="desktopShareTextStyle" />
+          <mx:Text id="helpLbl4" styleName="desktopShareTextStyle" />
         </mx:VBox>
       </mx:HBox>
     </mx:VBox>
