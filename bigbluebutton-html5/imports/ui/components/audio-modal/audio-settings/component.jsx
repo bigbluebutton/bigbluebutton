@@ -15,6 +15,7 @@ export default class AudioSettings extends React.Component {
     this.chooseAudio = this.chooseAudio.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
+    this.handleClose = this.handleClose.bind(this);
 
     this.state = {
       inputDeviceId: undefined,
@@ -36,6 +37,11 @@ export default class AudioSettings extends React.Component {
     console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
   }
 
+  handleClose() {
+    this.setState({ isOpen: false });
+    clearModal();
+  }
+
   render() {
     return (
       <div>
@@ -47,6 +53,14 @@ export default class AudioSettings extends React.Component {
             color={'primary'}
             ghost={true}
             onClick={this.chooseAudio}
+          />
+          <Button className={styles.closeBtn}
+            label={'Close'}
+            icon={'close'}
+            size={'lg'}
+            circle={true}
+            hideLabel={true}
+            onClick={this.handleClose}
           />
           <div>
             Choose your audio settings
