@@ -9,7 +9,6 @@ import styles from './styles.scss';
 import JoinAudio from './join-audio/component';
 import ListenOnly from './listen-only/component';
 import AudioSettings from './audio-settings/component';
-import { joinListenOnly } from '/imports/api/phone';
 
 export default class Audio extends React.Component {
   constructor(props) {
@@ -38,14 +37,13 @@ export default class Audio extends React.Component {
 
   createMenu() {
     const curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
-    const handleJoinListenOnly = () => joinListenOnly();
 
     let props = {
       changeMenu: this.changeMenu.bind(this),
       JOIN_AUDIO: this.JOIN_AUDIO,
       AUDIO_SETTINGS: this.AUDIO_SETTINGS,
       LISTEN_ONLY: this.LISTEN_ONLY,
-      handleJoinListenOnly: handleJoinListenOnly,
+      handleJoinListenOnly: this.props.handleJoinListenOnly,
     };
 
     const Submenu = this.submenus[curr].componentName;

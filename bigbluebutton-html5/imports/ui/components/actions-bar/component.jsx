@@ -12,11 +12,15 @@ import MuteAudioContainer from './mute-button/container';
 import { exitAudio } from '/imports/api/phone';
 import JoinVideo from './video-button/component';
 
-const openJoinAudio = () => showModal(<Audio />);
+//const openJoinAudio = () => showModal(<Audio />);
 
 export default class ActionsBar extends Component {
   constructor(props) {
     super(props);
+  }
+
+  openJoinAudio() {
+    return showModal(<Audio handleJoinListenOnly={this.props.handleJoinListenOnly} />)
   }
 
   renderForPresenter() {
@@ -28,7 +32,7 @@ export default class ActionsBar extends Component {
         <div className={styles.center}>
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
-            open={openJoinAudio.bind(this)}
+            open={this.openJoinAudio.bind(this)}
             close={() => {exitAudio();}}
 
           />
@@ -47,7 +51,7 @@ export default class ActionsBar extends Component {
         <div className={styles.center}>
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
-            open={openJoinAudio.bind(this)}
+            open={this.openJoinAudio.bind(this)}
             close={() => {exitAudio();}}
 
           />
