@@ -12,8 +12,6 @@ import MuteAudioContainer from './mute-button/container';
 import { exitAudio } from '/imports/api/phone';
 import JoinVideo from './video-button/component';
 
-//const openJoinAudio = () => showModal(<Audio />);
-
 export default class ActionsBar extends Component {
   constructor(props) {
     super(props);
