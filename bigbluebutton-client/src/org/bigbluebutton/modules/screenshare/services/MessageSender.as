@@ -34,8 +34,8 @@ package org.bigbluebutton.modules.screenshare.services
           conn.isScreenSharing(meetingId);
         }
         
-        public function requestShareToken(meetingId: String, userId: String, record: Boolean):void {
-          conn.requestShareToken(meetingId, userId, record);
+        public function requestShareToken(meetingId: String, userId: String, record: Boolean, tunnel: Boolean):void {
+          conn.requestShareToken(meetingId, userId, record, tunnel);
         }
         
         public function startShareRequest(meetingId: String, userId: String, session: String):void {

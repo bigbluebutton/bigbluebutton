@@ -83,6 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="jnlpUrl" value="${jnlpUrl}"/>
     <property name="streamBaseUrl" value="${streamBaseUrl}"/>
     <property name="codecOptions" value="${codecOptions}"/>
+    <property name="useH264" value="${useH264}"/>
     <property name="application" ref="screenShareApplication"/>
   </bean>
 

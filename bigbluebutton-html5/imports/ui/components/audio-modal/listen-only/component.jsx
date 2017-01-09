@@ -1,7 +1,6 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
-import classNames from 'classnames';
-import ReactDOM from 'react-dom';
+import { clearModal } from '/imports/ui/components/app/service';
 import styles from '../styles.scss';
 
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
@@ -14,6 +13,7 @@ export default class ListenOnly extends React.Component {
 
     this.chooseAudio = this.chooseAudio.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
+    this.handleClose = this.handleClose.bind(this);
 
     this.state = {
       inputDeviceId: undefined,
@@ -28,6 +28,11 @@ export default class ListenOnly extends React.Component {
     console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
   }
 
+  handleClose() {
+    this.setState({ isOpen: false });
+    clearModal();
+  }
+
   render() {
     return (
       <div>
@@ -39,6 +44,14 @@ export default class ListenOnly extends React.Component {
             color={'primary'}
             ghost={true}
             onClick={this.chooseAudio}
+          />
+          <Button className={styles.closeBtn}
+            label={'Close'}
+            icon={'close'}
+            size={'lg'}
+            circle={true}
+            hideLabel={true}
+            onClick={this.handleClose}
           />
           <div>
             Choose your listen only settings

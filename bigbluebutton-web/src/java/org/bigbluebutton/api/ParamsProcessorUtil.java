@@ -68,6 +68,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean webcamsOnlyForModerator;
 
     private String defaultConfigXML = null;
 
@@ -363,6 +364,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean webcamsOnlyForMod = webcamsOnlyForModerator;
+        if (!StringUtils.isEmpty(params.get("webcamsOnlyForModerator"))) {
+            try {
+                webcamsOnlyForMod = Boolean.parseBoolean(params
+                        .get("webcamsOnlyForModerator"));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [webcamsOnlyForModerator] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+        
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
         Map<String, String> meetingInfo = new HashMap<String, String>();
@@ -403,6 +416,7 @@ public class ParamsProcessorUtil {
                 .withDefaultAvatarURL(defaultAvatarURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
+                .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
@@ -752,9 +766,13 @@ public class ParamsProcessorUtil {
 		this.autoStartRecording = start;
 	}
 
-	public void setAllowStartStopRecording(boolean allowStartStopRecording) {
-		this.allowStartStopRecording = allowStartStopRecording;
-	}
+    public void setAllowStartStopRecording(boolean allowStartStopRecording) {
+        this.allowStartStopRecording = allowStartStopRecording;
+    }
+	
+    public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {
+        this.webcamsOnlyForModerator = webcamsOnlyForModerator;
+    }
 	
 	public void setdefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;

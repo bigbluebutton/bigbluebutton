@@ -13,6 +13,7 @@ trait AppsTestFixtures {
   val durationInMinutes = 10
   val autoStartRecording = false
   val allowStartStopRecording = false
+  val webcamsOnlyForModerator = false;
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
   val createTime = System.currentTimeMillis
@@ -25,7 +26,7 @@ trait AppsTestFixtures {
     meetingName, record,
     voiceConfId, deskshareConfId,
     durationInMinutes,
-    autoStartRecording, allowStartStopRecording,
+    autoStartRecording, allowStartStopRecording, webcamsOnlyForModerator,
     moderatorPassword, viewerPassword,
     createTime, createDate, red5DeskShareIP, red5DeskShareApp,
     isBreakout, sequence)

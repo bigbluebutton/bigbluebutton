@@ -15,6 +15,7 @@ export default class AudioSettings extends React.Component {
     this.chooseAudio = this.chooseAudio.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
+    this.handleClose = this.handleClose.bind(this);
 
     this.state = {
       inputDeviceId: undefined,
@@ -34,6 +35,11 @@ export default class AudioSettings extends React.Component {
 
   handleOutputChange(deviceId) {
     console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
+  }
+
+  handleClose() {
+    this.setState({ isOpen: false });
+    clearModal();
   }
 
   render() {

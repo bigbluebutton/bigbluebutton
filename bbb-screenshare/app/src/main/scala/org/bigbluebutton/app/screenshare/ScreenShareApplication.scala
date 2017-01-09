@@ -98,7 +98,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       val reply = Await.result(future, timeout.duration).asInstanceOf[ScreenShareInfoRequestReply]
 
       val publishUrl = streamBaseUrl + "/" + meetingId
-      val info = new ScreenShareInfo(reply.session, publishUrl, reply.streamId)
+      val info = new ScreenShareInfo(reply.session, publishUrl, reply.streamId, reply.tunnel)
       new ScreenShareInfoResponse(info, null)
     } catch {
       case e: TimeoutException =>
@@ -157,12 +157,12 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
 
   }
 
-  def requestShareToken(meetingId: String, userId: String, record: java.lang.Boolean) {
+  def requestShareToken(meetingId: String, userId: String, record: java.lang.Boolean, tunnel: java.lang.Boolean) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received request share token on meeting=" + meetingId + "for user=" + userId + "]")
     }
 
-    screenShareManager ! RequestShareTokenMessage(meetingId, userId, jnlpFile, record)
+    screenShareManager ! RequestShareTokenMessage(meetingId, userId, jnlpFile, record, tunnel)
   }
 
   def startShareRequest(meetingId: String, userId: String, session: String) {
