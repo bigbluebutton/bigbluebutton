@@ -1,9 +1,11 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
+import { showModal } from '/imports/ui/components/app/service';
 import { renderRoutes } from '../imports/startup/client/routes.js';
 import { IntlProvider } from 'react-intl';
 import Singleton from '/imports/ui/services/storage/local.js';
+import AudioModalContainer  from '/imports/ui/components/audio-modal/container';
 
 function loadUserSettings() {
     const userSavedFontSize = Singleton.getItem('bbbSavedFontSizePixels');
@@ -11,6 +13,15 @@ function loadUserSettings() {
     if (userSavedFontSize) {
       document.getElementsByTagName('html')[0].style.fontSize = userSavedFontSize;
     }
+}
+
+function setAudio() {
+  const LOG_CONFIG = Meteor.settings || {};
+  let autoJoinAudio = LOG_CONFIG.public.app.autoJoinAudio;
+
+  if (autoJoinAudio) {
+    showModal( <AudioModalContainer /> );
+  }
 }
 
 function setMessages(data) {
@@ -22,6 +33,8 @@ function setMessages(data) {
       {renderRoutes()}
     </IntlProvider>
   ), document.getElementById('app'));
+
+  setAudio();
 }
 
 // Helper to load javascript libraries from the BBB server
