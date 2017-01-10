@@ -22,7 +22,8 @@ export default class JoinAudio extends React.Component {
   }
 
   openListen() {
-    this.props.changeMenu(this.props.LISTEN_ONLY);
+    this.handleClose();
+    this.props.handleJoinListenOnly();
   }
 
   render() {
