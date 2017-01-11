@@ -519,8 +519,9 @@ function swapVideoPresentation() {
   // if the cursor is currently being useful, he we'll be redrawn automatically soon
   showCursor(false);
 
-  // wait for the svg with the slides to be fully loaded and then set the current image
-  // as visible.
+  // wait for the svg with the slides to be fully loaded
+  // then set the current image as visible
+  // we also need to retrieve what was the current viewbox size to set it again
   function checkSVGLoaded() {
     var done = false;
     var svg = document.getElementsByTagName("object")[0];
@@ -529,6 +530,12 @@ function swapVideoPresentation() {
       if (img !== undefined && img !== null) {
         img.style.visibility = "visible";
         resizeSlides();
+
+        var vboxVal = getViewboxAtTime(t);
+        if(vboxVal !== undefined) {
+          setViewBox(vboxVal);
+        }
+
         done = true;
       }
     }
