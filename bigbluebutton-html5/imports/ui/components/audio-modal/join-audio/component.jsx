@@ -44,7 +44,7 @@ export default class JoinAudio extends React.Component {
         </div>
         <div className={styles.center}>
           <Button className={styles.audioBtn}
-            label={'Audio'}
+            label={'Microphone'}
             icon={'audio'}
             circle={true}
             size={'jumbo'}
