@@ -548,19 +548,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:HBox id="helpBox" width="100%" horizontalAlign="center">
         <mx:VBox width="30%" horizontalAlign="center">
           <mx:Image id="helpImg1" source="{helpImg1.getStyle('imageSource')}" />
-          <mx:Text id="helpLbl1" styleName="desktopShareTextStyle" />
+          <mx:Text id="helpLbl1" width="100%" styleName="desktopShareTextStyle" />
         </mx:VBox>
         <mx:VBox width="30%" horizontalAlign="center">
           <mx:Image id="helpImg2" source="{helpImg2.getStyle('imageSource')}" />
-          <mx:Text id="helpLbl2" styleName="desktopShareTextStyle" />
+          <mx:Text id="helpLbl2" width="100%" styleName="desktopShareTextStyle" />
         </mx:VBox>
         <mx:VBox width="30%" horizontalAlign="center">
           <mx:Image id="helpImg3" source="{helpImg3.getStyle('imageSource')}" />
-          <mx:Text id="helpLbl3" styleName="desktopShareTextStyle" />
+          <mx:Text id="helpLbl3" width="100%" styleName="desktopShareTextStyle" />
         </mx:VBox>
         <mx:VBox id="helpBox4" width="30%" horizontalAlign="center" visible="false" includeInLayout="false">
           <mx:Image id="helpImg4" source="{helpImg4.getStyle('imageSource')}" />
-          <mx:Text id="helpLbl4" styleName="desktopShareTextStyle" />
+          <mx:Text id="helpLbl4" width="100%" styleName="desktopShareTextStyle" />
         </mx:VBox>
       </mx:HBox>
     </mx:VBox>
