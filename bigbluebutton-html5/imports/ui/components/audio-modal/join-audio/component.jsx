@@ -1,9 +1,19 @@
 import React from 'react';
+import styles from '../styles.scss';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
-import styles from '../styles.scss';
+import { defineMessages, injectIntl } from 'react-intl';
 
-export default class JoinAudio extends React.Component {
+const intlMessages = defineMessages({
+  microphoneLabel: {
+    id: 'app.audioModal.microphoneLabel',
+  },
+  listenOnlyLabel: {
+    id: 'app.audioModal.listenOnlyLabel',
+  },
+});
+
+class JoinAudio extends React.Component {
   constructor(props) {
     super(props);
 
@@ -27,6 +37,7 @@ export default class JoinAudio extends React.Component {
   }
 
   render() {
+    const { intl } = this.props;
     return (
       <div>
         <div className={styles.center}>
@@ -44,14 +55,14 @@ export default class JoinAudio extends React.Component {
         </div>
         <div className={styles.center}>
           <Button className={styles.audioBtn}
-            label={'Microphone'}
+            label={intl.formatMessage(intlMessages.microphoneLabel)}
             icon={'audio'}
             circle={true}
             size={'jumbo'}
             onClick={this.openAudio}
           />
           <Button className={styles.audioBtn}
-            label={'Listen Only'}
+            label={intl.formatMessage(intlMessages.listenOnlyLabel)}
             icon={'listen'}
             circle={true}
             size={'jumbo'}
@@ -62,3 +73,5 @@ export default class JoinAudio extends React.Component {
     );
   }
 };
+
+export default injectIntl(JoinAudio);
