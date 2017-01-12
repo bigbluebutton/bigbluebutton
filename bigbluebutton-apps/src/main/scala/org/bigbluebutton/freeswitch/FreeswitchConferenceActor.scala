@@ -107,7 +107,6 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
       logger.info("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       fc.addUser(msg.user)
       // test if we already sent a recording command to FS before sending another
-      // we only set fc.isRecording to true when we receive a FsRecording message
       fc.synchronized {
         if (fc.numUsersInVoiceConference > 0 && fc.recorded) {
           if (! fc.isRecording) {
@@ -196,12 +195,25 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   private def handleFsRecording(msg: FsRecording) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     fsconf foreach {fc => 
-      // Need to filter recording events here to not have duplicate events
-      if (msg.recording) {
-        bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
-      } else if (! msg.recording) {
-        bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
-      }     
+      fc.synchronized {
+        logger.info("FreeSWITCH updated its recording status. recording[" + msg.recording + "], mid[" + fc.meetingId + "]");
+        if (fc.isRecording) {
+          if (msg.recording) {
+            // FreeSWITCH is recording, Actor is recording, do nothing
+          } else {
+            logger.info("FreeSWITCH automatically stopped recording, updating FreeSWITCHConferenceActor state")
+            fc.recordingStopped
+          }
+        } else {
+          if (msg.recording) {
+            logger.info("FreeSWITCH automatically started recording (it should probably never happen), updating FreeSWITCHConferenceActor state")
+            fc.recordingStarted
+          } else {
+            // FreeSWITCH is not recording, Actor is not recording, do nothing
+          }
+        }
+      }
+      bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
     }
   }
   
