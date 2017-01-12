@@ -580,9 +580,8 @@ trait UsersApp {
           userLeaving foreach (u => outGW.send(new UserLeft(mProps.meetingID, mProps.recorded, u)))
         }
       }
-
-      stopRecordingVoiceConference()
     }
+    stopRecordingVoiceConference()
   }
 
   def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
