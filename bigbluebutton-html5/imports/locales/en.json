@@ -89,5 +89,7 @@
   "app.breakoutJoinConfirmation.dismissDesc": "Closes and rejects Joining the Breakout Room",
   "app.breakoutTimeRemainingMessage": "Breakout Room time remaining: {time}",
   "app.breakoutWillCloseMessage": "Time ended. Breakout Room will close soon",
-  "app.calculatingBreakoutTimeRemaining": "Calculating remaining time..."
+  "app.calculatingBreakoutTimeRemaining": "Calculating remaining time...",
+  "app.audioModal.microphoneLabel": "Microphone",
+  "app.audioModal.listenOnlyLabel": "Listen Only"
 }
