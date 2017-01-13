@@ -23,6 +23,7 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
         public final Integer durationInMinutes;
         public final Boolean autoStartRecording;
         public final Boolean allowStartStopRecording;
+        public final Boolean webcamsOnlyForModerator;
         public final String moderatorPassword;
         public final String viewerPassword;
         public final Long createTime;
@@ -34,8 +35,9 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
                 String parentId, String name, Boolean record,
                 String voiceConfId, Integer duration,
                 Boolean autoStartRecording, Boolean allowStartStopRecording,
-                String moderatorPass, String viewerPass, Long createTime,
-                String createDate, Boolean isBreakout, Integer sequence) {
+                Boolean webcamsOnlyForModerator, String moderatorPass,
+                String viewerPass, Long createTime, String createDate,
+                Boolean isBreakout, Integer sequence) {
             this.id = id;
             this.externalId = externalId;
             this.parentId = parentId;
@@ -45,6 +47,7 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
             this.durationInMinutes = duration;
             this.autoStartRecording = autoStartRecording;
             this.allowStartStopRecording = allowStartStopRecording;
+            this.webcamsOnlyForModerator = webcamsOnlyForModerator;
             this.moderatorPassword = moderatorPass;
             this.viewerPassword = viewerPass;
             this.createTime = createTime;

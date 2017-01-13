@@ -6,6 +6,7 @@ import {
   wasUserKicked,
   redirectToLogoutUrl,
   getModal,
+  getCaptionsStatus,
 } from './service';
 
 import NavBarContainer from '../nav-bar/container';
@@ -25,7 +26,7 @@ const defaultProps = {
   media: <MediaContainer />,
 
   //CCs UI is commented till the next pull request
-  //captions: <ClosedCaptionsContainer />,
+  captions: <ClosedCaptionsContainer />,
 };
 
 class AppContainer extends Component {
@@ -75,7 +76,7 @@ export default createContainer(() => {
     wasKicked: wasUserKicked(),
     isLoading: getLoading(),
     modal: getModal(),
-    hasUnreadMessages: checkUnreadMessages(),
+    getCaptionsStatus,
     redirectToLogoutUrl,
   };
 }, AppContainer);

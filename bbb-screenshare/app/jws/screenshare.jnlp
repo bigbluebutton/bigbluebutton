@@ -16,23 +16,23 @@
     </resources>
 
     <resources os="Windows" arch="amd64">
-        <nativelib href="ffmpeg-windows-x86_64.jar"/>
+        <nativelib href="ffmpeg-win-x86_64-svc2.jar"/>
     </resources>
 
     <resources os="Windows" arch="x86">
-        <nativelib href="$$jnlpUrl/lib/ffmpeg-windows-x86.jar"/>
+        <nativelib href="ffmpeg-win-x86-svc2.jar"/>
     </resources>
 
     <resources os="Linux" arch="x86_64 amd64">
-        <nativelib href="ffmpeg-linux-x86_64.jar"/>
+        <nativelib href="ffmpeg-linux-x86_64-svc2.jar"/>
     </resources>
 
     <resources os="Linux" arch="x86 i386 i486 i586 i686">
-        <nativelib href="ffmpeg-linux-x86.jar"/>
+        <nativelib href="ffmpeg-linux-x86-svc2.jar"/>
     </resources>
     
     <resources os="Mac OS X">
-        <nativelib href="ffmpeg-macosx-x86_64.jar"/>
+        <nativelib href="ffmpeg-macosx-x86_64-svc2.jar"/>
     </resources>
 
     <application-desc
@@ -45,6 +45,7 @@
         <argument>$$fullScreen</argument>
         <argument>$$codecOptions</argument>
         <argument>$$session</argument>
+        <argument>$$useH264</argument>
         <argument>$$errorMessage</argument>
      </application-desc>
      <security><all-permissions/></security>

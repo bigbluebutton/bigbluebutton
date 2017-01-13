@@ -75,7 +75,6 @@ class SettingsMenuContainer extends Component {
     });
   };
 
-
   render() {
 
     const handleGetFontSizeName = () => this.handleGetFontSizeName();

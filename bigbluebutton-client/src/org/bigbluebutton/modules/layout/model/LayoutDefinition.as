@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.layout.model {
 		private var _layoutsPerRole:Dictionary = new Dictionary();
 		
 		static private var _ignoredWindows:Array = new Array("AvatarWindow", "PublishWindow", 
-				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow",
+				"VideoWindow", "ScreensharePublishWindow", "ScreenshareViewWindow",
 				"LogWindow");
 		static private var _roles:Array = new Array(Role.VIEWER, Role.MODERATOR, Role.PRESENTER);
 				

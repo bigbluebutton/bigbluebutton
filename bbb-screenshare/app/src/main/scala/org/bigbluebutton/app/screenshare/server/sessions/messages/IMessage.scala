@@ -1,6 +1,6 @@
 package org.bigbluebutton.app.screenshare.server.sessions.messages
 
-case class RequestShareTokenMessage(meetingId: String, userId: String, jnlp: String, record: Boolean)
+case class RequestShareTokenMessage(meetingId: String, userId: String, jnlp: String, record: Boolean, tunnel: Boolean)
 
 case class StartShareRequestMessage(meetingId: String, userId: String, session: String)
 
@@ -37,7 +37,7 @@ case class IsScreenSharingReply(sharing: Boolean, streamId: String,
 
 case class ScreenShareInfoRequest(meetingId: String, token: String)
 
-case class ScreenShareInfoRequestReply(meetingId: String, streamId: String, session: String)
+case class ScreenShareInfoRequestReply(meetingId: String, streamId: String, session: String, tunnel: Boolean)
 
 case class UserDisconnected(meetingId: String, userId: String)
 

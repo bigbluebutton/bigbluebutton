@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="$$jnlpUrl/lib" href="">
+<!--
+  Keep href empty. Otherwise this jnlp file will always be cached.
+  http://www.coderanch.com/t/284889/JSP/java/Caching-JNLP
+-->
+    <information>
+        <title>BigBlueButton Screen Share</title>
+        <vendor>BigBlueButton</vendor>
+    </information>
+
+    <resources>
+        <j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se"/>
+        <jar href="javacv-screenshare-0.0.1.jar" main="true" />
+        <jar href="ffmpeg.jar" />
+    </resources>
+
+    <resources os="Windows" arch="amd64">
+        <nativelib href="ffmpeg-win-x86_64-h264.jar"/>
+    </resources>
+
+    <resources os="Windows" arch="x86">
+        <nativelib href="ffmpeg-win-x86-h264.jar"/>
+    </resources>
+
+    <resources os="Linux" arch="x86_64 amd64">
+        <nativelib href="ffmpeg-linux-x86_64-h264.jar"/>
+    </resources>
+
+    <resources os="Linux" arch="x86 i386 i486 i586 i686">
+        <nativelib href="ffmpeg-linux-x86-h264.jar"/>
+    </resources>
+    
+    <resources os="Mac OS X">
+        <nativelib href="ffmpeg-macosx-x86_64-h264.jar"/>
+    </resources>
+
+    <application-desc
+         name="Desktop Sharing Demo Application"
+         main-class="org.bigbluebutton.screenshare.client.DeskshareMain">
+        <argument>$$publishUrl</argument>
+        <argument>$$serverUrl</argument>
+        <argument>$$meetingId</argument>
+        <argument>$$streamId</argument>
+        <argument>$$fullScreen</argument>
+        <argument>$$codecOptions</argument>
+        <argument>$$session</argument>
+        <argument>$$useH264</argument>
+        <argument>$$errorMessage</argument>
+     </application-desc>
+     <security><all-permissions/></security>
+     <update check="always" policy="always"/>
+</jnlp>

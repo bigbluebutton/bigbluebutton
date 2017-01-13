@@ -37,6 +37,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <%@ include file="bbb_api.jsp"%>
 
+You must have the BigBlueButton HTML5 client installed to use this API demo.
+
 <% 
 if (request.getParameterMap().isEmpty()) {
 	//

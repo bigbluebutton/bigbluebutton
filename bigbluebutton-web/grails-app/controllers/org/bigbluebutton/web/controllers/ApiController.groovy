@@ -1597,6 +1597,7 @@ class ApiController {
               record = us.record
               isBreakout = meeting.isBreakout()
               allowStartStopRecording = meeting.getAllowStartStopRecording()
+              webcamsOnlyForModerator = meeting.getWebcamsOnlyForModerator()
               welcome = us.welcome
               if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
                 modOnlyMessage = meeting.moderatorOnlyMessage

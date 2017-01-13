@@ -15,6 +15,7 @@ export default class AudioSettings extends React.Component {
     this.chooseAudio = this.chooseAudio.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
+    this.handleClose = this.handleClose.bind(this);
 
     this.state = {
       inputDeviceId: undefined,
@@ -36,6 +37,11 @@ export default class AudioSettings extends React.Component {
     console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
   }
 
+  handleClose() {
+    this.setState({ isOpen: false });
+    clearModal();
+  }
+
   render() {
     return (
       <div>
@@ -48,25 +54,31 @@ export default class AudioSettings extends React.Component {
             ghost={true}
             onClick={this.chooseAudio}
           />
-          <div>
+          <div className={styles.title}>
             Choose your audio settings
           </div>
         </div>
+        <div className={styles.audioNote}>
+          Please note, a dialog will appear in your browser, requiring you to accept sharing your microphone.
+        </div>
         <div className={styles.containerLeftHalfContent}>
+          <span className={styles.heading}>Microphone source</span>
           <DeviceSelector
             className={styles.item}
             kind="audioinput"
             onChange={this.handleInputChange} />
+          <span className={styles.heading}>Your audio stream volume</span>
           <AudioStreamVolume
             className={styles.item}
             deviceId={this.state.inputDeviceId} />
+        </div>
+        <div className={styles.containerRightHalfContent}>
+          <span className={styles.heading}>Speaker source</span>
           <DeviceSelector
             className={styles.item}
             kind="audiooutput"
             onChange={this.handleOutputChange} />
           <AudioTestContainer />
-        </div>
-        <div className={styles.containerRightHalfContent}>
           <EnterAudioContainer isFullAudio={true}/>
         </div>
       </div>

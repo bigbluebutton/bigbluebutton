@@ -19,7 +19,6 @@
 
 
 // - - - START OF GLOBAL VARIABLES - - - //
-"use strict";
 
 function getUrlParameters() {
     console.log("** Getting url params");
@@ -521,14 +520,8 @@ svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
 svgobj.setAttribute('width', '100%');
 
-svgobj.addEventListener('load', function() {
-  console.log("got svgobj 'load' event");
+var setupWriting = function() {
   runPopcorn();
-
-  if (svjobjLoaded) {
-    return;
-  }
-  svjobjLoaded = true;
 
   generateThumbnails();
 
@@ -536,6 +529,17 @@ svgobj.addEventListener('load', function() {
   p.currentTime(defineStartTime());
 
   removeLoadingScreen();
+}
+
+svgobj.addEventListener('load', function() {
+  console.log("got svgobj 'load' event");
+
+  if (svjobjLoaded) {
+    return;
+  }
+  svjobjLoaded = true;
+
+  window.await_video_loaded(setupWriting);
 }, false);
 
 // Fetches the metadata associated with the recording and uses it to configure
