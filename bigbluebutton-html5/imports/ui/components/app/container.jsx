@@ -15,7 +15,6 @@ import MediaContainer from '../media/container';
 import ClosedCaptionsContainer from '../closed-captions/container';
 import userListService from '../user-list/service';
 import Auth from '/imports/ui/services/auth';
-import ChatService from '../chat/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -58,13 +57,14 @@ const setLoading = (val) => {
 };
 
 const checkUnreadMessages = () => {
-  let users = userListService.getUsers();
-  return users
-     .map(user => user.id)
-     .filter(userID => userID !== Auth.userID)
-     .concat(PUBLIC_CHAT_KEY)
-     .some(receiverID => ChatService.hasUnreadMessages(receiverID));
+  return userListService.getOpenChats().map(chat=> chat.unreadCounter)
+                        .filter(userID => userID !== Auth.userID);
 };
+
+const getOpenChatID = () => {
+  return userListService.getOpenChats().map(chat=> chat.id)
+                        .filter(userID => userID !== Auth.userID);
+}
 
 export default createContainer(() => {
   Promise.all(subscribeForData())
@@ -76,6 +76,8 @@ export default createContainer(() => {
     wasKicked: wasUserKicked(),
     isLoading: getLoading(),
     modal: getModal(),
+    unreadMessageCount: checkUnreadMessages(),
+    getOpenChat: getOpenChatID(),
     getCaptionsStatus,
     redirectToLogoutUrl,
   };

@@ -11,6 +11,8 @@ import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
 
+import ChatService from '../chat/service';
+
 const propTypes = {
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
@@ -19,7 +21,8 @@ const propTypes = {
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   modal: PropTypes.element,
-  hasUnreadMessages: PropTypes.bool,
+  unreadMessageCount: PropTypes.array,
+  getOpenChat: PropTypes.array,
 };
 
 export default class App extends Component {
@@ -109,12 +112,13 @@ export default class App extends Component {
 
   renderClosedCaptions() {
     const { captions } = this.props;
-    if(captions && this.props.getCaptionsStatus()) {
-        return (
-          <section className={styles.closedCaptions}>
-            {captions}
-          </section>
-        );
+
+    if (captions) {
+      return (
+        <section className={styles.closedCaptions}>
+          {captions}
+        </section>
+      );
     }
   }
 
@@ -149,16 +153,29 @@ export default class App extends Component {
   }
 
   renderSoundUnreadeMessages() {
-    const snd = new Audio('resources/sounds/notify.mp3');
-    if(this.props.hasUnreadMessages) {
-      snd.play();
+    const snd = new Audio('/html5client/resources/sounds/notify.mp3');
+    snd.play();
+  }
+
+  componentDidUpdate(prevProps){
+    let { unreadMessageCount, getOpenChat } = this.props;
+
+    let cnt = unreadMessageCount.length;
+
+    // To get current url and find chatID(public or private chatID)
+    let path = window.location.pathname.split('/');
+
+    for( let i = 0; i < cnt; i++) {
+      // compare chatRoom(chatID) and chatID of currently opened chat room
+      if(getOpenChat[i] !== path[4]) {
+        if(unreadMessageCount[i] > prevProps.unreadMessageCount[i]){
+            this.renderSoundUnreadeMessages();
+        }
+      }
     }
   }
 
   render() {
-
-    const { hasUnreadMessages } = this.props;
-
     if (this.props.wasKicked) {
       return (
         <KickedScreen>
@@ -185,14 +202,13 @@ export default class App extends Component {
         <section className={styles.wrapper}>
           {this.renderUserList()}
           {this.renderChat()}
-          {this.renderSoundUnreadeMessages()}
           <div className={styles.content}>
             {this.renderNavBar()}
             {this.renderMedia()}
+            {this.renderClosedCaptions()}
             {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}
-          {this.renderClosedCaptions()}
         </section>
         {this.renderAudioElement()}
         {this.renderModal()}
