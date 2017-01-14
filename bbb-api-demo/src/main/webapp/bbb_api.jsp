@@ -234,10 +234,8 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 }
 
 
-
-
 // 
-// Create a meeting and return a URL to join it as moderator.  This is used for the API demos.
+// Create a meeting and return a URL to join it as attendee.  This is used for the API demos.
 //
 // Passed
 //	- username
@@ -249,8 +247,6 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 //
 // Returned
 //  - valid join URL using the username
-//
-//  Note this meeting will use username for meetingID
 //
 
 // VERSION ADJUSTED TO THE NEEDS OF THE HTML5 CLIENT
@@ -314,8 +310,11 @@ public String getJoinURLHTML5(String username, String meetingID, String record, 
 		// Looks good, now return a URL to join that meeting
 		//  
 
+		// Note that REDIRECT=FALSE -- we will use the url to extract meetingID, userID, authToken
+		// and will pass them to the joining url for the html5 client (different format)
+		// Also we set PASSWORD=AP FOR ATTENDEE
 		String join_parameters = "meetingID=" + urlEncode(meetingID)
-			+ "&fullName=" + urlEncode(username) + "&redirect=false&password=ap"; //REDIRECT=FALSE (HTML5 CLIENT) PASSWORD=AP FOR ATTENDEE
+			+ "&fullName=" + urlEncode(username) + "&redirect=false&password=ap";
 
 		return base_url_join + join_parameters + "&checksum="
 			+ checksum("join" + join_parameters + salt);
