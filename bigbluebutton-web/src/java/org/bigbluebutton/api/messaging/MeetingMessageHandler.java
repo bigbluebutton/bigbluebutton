@@ -131,8 +131,11 @@ public class MeetingMessageHandler implements MessageHandler {
             String username = user.get("name").getAsString();
             String role = user.get("role").getAsString();
             String avatarURL = user.get("avatarURL").getAsString();
+            Boolean guest = user.get("guest").getAsBoolean();
+            Boolean authed = user.get("authenticated").getAsBoolean();
+
             for (MessageListener listener : listeners) {
-              listener.handle(new UserJoined(meetingId, userid, externuserid, username, role, avatarURL));
+              listener.handle(new UserJoined(meetingId, userid, externuserid, username, role, avatarURL, guest, authed ));
             }
           } else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
             String meetingId = payload.get("meeting_id").getAsString();

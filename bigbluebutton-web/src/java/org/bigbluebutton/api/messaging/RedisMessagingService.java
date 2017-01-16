@@ -28,11 +28,11 @@ import java.util.Set;
 
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
-import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.bigbluebutton.common.converters.ToJsonEncoder;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
+import org.bigbluebutton.common.messages.RegisterUserMessage;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
 import org.bigbluebutton.web.services.turn.StunServer;
@@ -60,9 +60,11 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL) {
-		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken, avatarURL);
-		String json = MessageToJson.registerUserToJson(msg);
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role,
+							 String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed) {
+		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role,
+				externUserID, authToken, avatarURL, guest, authed);
+		String json = msg.toJson();
 		log.info("Sending register user message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
 	}

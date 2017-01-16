@@ -75,6 +75,7 @@ class ApiController {
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
 
+
   /* general methods */
   def index = {
     log.debug CONTROLLER_NAME + "#index"
@@ -423,6 +424,83 @@ class ApiController {
       errors.noConfigFound();
       respondWithErrors(errors);
     }
+
+    String guest;
+    if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true"))
+      guest = "true";
+    else
+      guest = "false";
+
+
+    String auth;
+    if (!StringUtils.isEmpty(params.auth) && params.auth.equalsIgnoreCase("true"))
+      auth = "true";
+    else
+      auth = "false";
+
+    //Adding user to waiting list if guest is true;
+    //Please note that guest is a string here
+    String allowed = "ALLOW" ;
+    //Wacky name but auth has been used somewhere else;
+    Boolean userAuth
+    if("true".equals(auth)){
+      userAuth = true;
+    }else{
+      userAuth = false;
+    }
+    if("true".equals(guest)){
+      //Note that a different way to allow a user to join, would be to set guest to true, rather than setting the status to ALLOWED
+      //This will cause the client to load right away!
+      String policy = meeting.getGuestPolicy();
+      switch (policy){
+        case "ASK_MODERATOR":
+          meetingService.setUserStatus(meeting.getInternalId() , internalUserID  , "PENDING" , fullName);
+          meetingService.setPermStatus(meeting.getInternalId() , internalUserID  , userAuth);
+          //Ask moderator to join to join
+          meetingService.userWaitingEvent(meeting.getInternalId() , internalUserID , fullName);
+          allowed = "DENY" ;
+          break;
+        case "ALWAYS_ACCEPT":
+          meetingService.setUserStatus(meeting.getInternalId() , internalUserID  , "ALLOWED" , fullName);
+          meetingService.setPermStatus(meeting.getInternalId() , internalUserID  , userAuth);
+          allowed = "ALLOW" ;
+          //Do not ask to join
+          break;
+        case "ALWAYS_ACCEPT_AUTH":
+          if("true".equals(auth)){
+            //If user is authenticated allow.
+            meetingService.setUserStatus(meeting.getInternalId() , internalUserID  , "ALLOWED" , fullName);
+            meetingService.setPermStatus(meeting.getInternalId() , internalUserID  , userAuth);
+            allowed = "ALLOW" ;
+          }else{
+            //Else ask for permission
+            meetingService.setUserStatus(meeting.getInternalId() , internalUserID  , "PENDING" , fullName);
+            meetingService.setPermStatus(meeting.getInternalId() , internalUserID  , userAuth);
+            meetingService.userWaitingEvent(meeting.getInternalId() , internalUserID , fullName);
+            allowed = "DENY" ;
+          }
+          break;
+        case "ALWAYS_DENY":
+          allowed = "DENY" ;
+          //Do nothing.
+          break;
+        default:
+          //Handle No case found
+          allowed = "DENY" ;
+          break;
+      }
+
+    }
+    /**/
+    // Creates the Connection Token Here.
+    //String connectionToken = connectionTokenUtil.createAndStoreToken(
+    //        meeting.getInternalId(),
+    //        internalUserID,
+    //       role,
+    //        guest,
+    //        auth,
+    //        allowed );
+
     UserSession us = new UserSession();
     us.authToken = authToken;
     us.internalUserId = internalUserID
@@ -441,6 +519,8 @@ class ApiController {
     us.welcome = meeting.getWelcomeMessage()
     us.logoutUrl = meeting.getLogoutUrl();
     us.configXML = configxml;
+    us.guest = guest
+    us.auth = auth;
 
     if (! StringUtils.isEmpty(params.defaultLayout)) {
       us.defaultLayout = params.defaultLayout;

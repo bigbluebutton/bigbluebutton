@@ -90,6 +90,11 @@ public class MeetingService implements MessageListener {
      */
     private final ConcurrentMap<String, Meeting> meetings;
     private final ConcurrentMap<String, UserSession> sessions;
+    //Map that holds the meetings and all the users with the current status of the waiting list.
+    // We created this list, because a user is only added to the user list in the meeting,
+    // after he joins the meeting from red5
+    private final ConcurrentMap<String, ConcurrentHashMap<String, String>> waitingList;
+    private final ConcurrentMap<String, ConcurrentHashMap<String, Boolean>> permList;
 
     private int defaultMeetingExpireDuration = 1;
     private int defaultMeetingCreateJoinDuration = 5;
@@ -106,6 +111,8 @@ public class MeetingService implements MessageListener {
     public MeetingService() {
         meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);
         sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);
+        waitingList = new ConcurrentHashMap<String, ConcurrentHashMap<String, String>>();
+        permList = new ConcurrentHashMap<String, ConcurrentHashMap<String, Boolean>>();
     }
 
     public void addUserSession(String token, UserSession user) {
@@ -113,10 +120,10 @@ public class MeetingService implements MessageListener {
     }
 
     public void registerUser(String meetingID, String internalUserId,
-            String fullname, String role, String externUserID,
-            String authToken, String avatarURL) {
+                             String fullname, String role, String externUserID,
+                             String authToken, String avatarURL, Boolean guest, Boolean authed) {
         handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-                externUserID, authToken, avatarURL));
+                externUserID, authToken, avatarURL, guest, authed));
     }
 
     public UserSession getUserSession(String token) {
@@ -351,7 +358,7 @@ public class MeetingService implements MessageListener {
     private void processRegisterUser(RegisterUser message) {
         messagingService.registerUser(message.meetingID,
                 message.internalUserId, message.fullname, message.role,
-                message.externUserID, message.authToken, message.avatarURL);
+                message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
     }
 
     public String addSubscription(String meetingId, String event,
@@ -695,7 +702,7 @@ public class MeetingService implements MessageListener {
             }
 
             User user = new User(message.userId, message.externalUserId,
-                    message.name, message.role, message.avatarURL);
+                    message.name, message.role, message.avatarURL, message.guest, message.auth);
             m.userJoined(user);
 
             Map<String, Object> logData = new HashMap<String, Object>();
@@ -979,5 +986,49 @@ public class MeetingService implements MessageListener {
 
     public void setStunTurnService(StunTurnService s) {
         stunTurnService = s;
+    }
+
+    /*
+ Function to update the perm list
+ So that we know which user is authed or no
+ */
+    public void setPermStatus(String meetingId, String userID, Boolean status) {
+        if (permList.containsKey(meetingId)) {
+            if (permList.get(meetingId).containsKey(userID)) {
+                log.debug("User " + userID + " already exists in meeting " + meetingId + " waiting list");
+                //Rewriting data
+                permList.get(meetingId).put(userID, status);
+            } else {
+                permList.get(meetingId).put(userID, status);
+            }
+        } else {
+            permList.put(meetingId, new ConcurrentHashMap<String, Boolean>());
+            //Recursive call to add the user to the map after having added the meeting id to the list;
+            setPermStatus(meetingId, userID, status);
+        }
+    }
+
+
+    /*
+ Function to update the waiting list.
+ The first key is the meeting ID
+ The second is the user id
+ And the data is the status of that user.
+ We are also sending the fullname to help the moderator make the decision .
+ */
+    public void setUserStatus(String meetingId, String userID, String status, String fullname) {
+        if (waitingList.containsKey(meetingId)) {
+            if (waitingList.get(meetingId).containsKey(userID)) {
+                log.debug("User " + userID + " already exists in meeting " + meetingId + " waiting list");
+                //Rewriting data
+                waitingList.get(meetingId).put(userID, status);
+            } else {
+                waitingList.get(meetingId).put(userID, status);
+            }
+        } else {
+            waitingList.put(meetingId, new ConcurrentHashMap<String, String>());
+            //Recursive call to add the user to the map after having added the meeting id to the list;
+            setUserStatus(meetingId, userID, status, fullname);
+        }
     }
 }

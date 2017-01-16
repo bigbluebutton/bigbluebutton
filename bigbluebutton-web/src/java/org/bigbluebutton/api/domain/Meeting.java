@@ -68,6 +68,7 @@ public class Meeting {
 	private final ConcurrentMap<String, Long> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
+	private String guestPolicy;
 	
 	private long lastUserLeftOn = 0;
 	
@@ -391,7 +392,15 @@ public class Meeting {
 	public Map<String, Object> getUserCustomData(String userID){
 		return (Map<String, Object>) userCustomData.get(userID);
 	}
-	
+
+	public String getGuestPolicy() {
+		return guestPolicy;
+	}
+
+	public void setGuestPolicy(String policy) {
+		this.guestPolicy = policy;
+	}
+
 	/***
 	 * Meeting Builder
 	 *
