@@ -113,7 +113,7 @@ export default class App extends Component {
   renderClosedCaptions() {
     const { captions } = this.props;
 
-    if(captions && this.props.getCaptionsStatus()) {
+    if (captions && this.props.getCaptionsStatus()) {
       return (
         <section className={styles.closedCaptions}>
           {captions}
@@ -157,20 +157,19 @@ export default class App extends Component {
     snd.play();
   }
 
-  componentDidUpdate(prevProps, params, par){
+  componentDidUpdate(prevProps) {
 
     let { unreadMessageCount, openChats, openChat } = this.props;
-    let cnt = unreadMessageCount.length;
-
+    
     unreadMessageCount.forEach((chat, i) => {
-      // When starting the new chat, prevProps is undefined or null.
-      if(!prevProps.unreadMessageCount[i]) {
+      // When starting the new chat, if prevProps is undefined or null, it is assigned 0.
+      if (!prevProps.unreadMessageCount[i]) {
         prevProps.unreadMessageCount[i] = 0;
       }
 
-      // compare chatRoom(chatID) to chatID of currently opened chat room
-      if(openChats[i] !== openChat) {
-        if(chat > prevProps.unreadMessageCount[i]) {
+      // compare openChats(chatID) to chatID of currently opened chat room
+      if (openChats[i] !== openChat) {
+        if (chat > prevProps.unreadMessageCount[i]) {
           this.playSoundForUnreadMessages();
         }
       }

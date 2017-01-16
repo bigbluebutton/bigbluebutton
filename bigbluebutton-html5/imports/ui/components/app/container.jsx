@@ -58,7 +58,7 @@ const checkUnreadMessages = () => {
                         .filter(userID => userID !== Auth.userID);
 };
 
-export default createContainer(( {params}) => {
+export default createContainer(({ params }) => {
   Promise.all(subscribeForData())
   .then(() => {
     setLoading(false);
