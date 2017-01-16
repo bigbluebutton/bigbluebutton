@@ -61,10 +61,17 @@ if (request.getParameterMap().isEmpty()) {
 
 		<tr>
 			<td>&nbsp;</td>
-			<td style="text-align: right; ">Meeting Name:</td>
+			<td style="text-align: right; ">(optional) Meeting Name:</td>
 			<td style="width: 5px; ">&nbsp;</td>
 			<td style="text-align: left "><input type="text" name="meetingname" value="Demo Meeting" /></td>
 		<tr>
+
+			<tr>
+				<td>&nbsp;</td>
+				<td style="text-align: right; ">(optional) Moderator Role:</td>
+				<td style="width: 5px; ">&nbsp;</td>
+				<td style="text-align: left "><input type=checkbox name=isModerator value="true"></td>
+			<tr>
 
 		<tr>
 			<td>&nbsp;</td>
@@ -87,8 +94,9 @@ if (request.getParameterMap().isEmpty()) {
 
 	String username = request.getParameter("username");
 	String meetingname = request.getParameter("meetingname");
+	boolean isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
 
-	String joinURL = getJoinURLHTML5(username, meetingname, "false", null, null, null);
+	String joinURL = getJoinURLHTML5(username, meetingname, "false", null, null, null, isModerator);
 	Document doc = null;
 	doc = parseXml(getURL(joinURL));
 

@@ -243,7 +243,8 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 //  - record ["true", "false"]
 //  - welcome message (null causes BigBlueButton to use the default welcome message
 //  - metadata (passed through when record="true"
-//  - xml (used for pre-upload of slides)_
+//  - xml (used for pre-upload of slides)
+//  - isModerator [true, false]
 //
 // Returned
 //  - valid join URL using the username
@@ -251,9 +252,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 
 // VERSION ADJUSTED TO THE NEEDS OF THE HTML5 CLIENT
 // -redirect=false //so that we get xml returned instead of being redirected to the meeting
-// -password=ap //at this stage the html5 client is viewer only (Feb 2015)
-
-public String getJoinURLHTML5(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml) {
+public String getJoinURLHTML5(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, boolean isModerator) {
 
 	String base_url_create = BigBlueButtonURL + "api/create?";
 	String base_url_join = BigBlueButtonURL + "api/join?";
@@ -268,6 +267,13 @@ public String getJoinURLHTML5(String username, String meetingID, String record, 
 		xml_param = xml;
 	}
 	
+	String defaultModeratorPW = "mp";
+	String defaultAttendeePW = "ap";
+	String html5UserPassword = defaultAttendeePW; // default html5 user to attendee
+	if (isModerator) {
+		html5UserPassword = defaultModeratorPW;
+	}
+
 	Random random = new Random();
 	String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));
 	
@@ -286,8 +292,11 @@ public String getJoinURLHTML5(String username, String meetingID, String record, 
 	//
 
 	String create_parameters = "name=" + urlEncode(meetingID)
-		+ "&meetingID=" + urlEncode(meetingID) + welcome_param + voiceBridge_param
-		+ "&attendeePW=ap&moderatorPW=mp"
+		+ "&meetingID=" + urlEncode(meetingID)
+		+ welcome_param
+		+ voiceBridge_param
+		+ "&attendeePW=" + defaultAttendeePW
+		+ "&moderatorPW=" + defaultModeratorPW
 		+ "&record=" + record + getMetaData( metadata );
 
 
@@ -314,7 +323,7 @@ public String getJoinURLHTML5(String username, String meetingID, String record, 
 		// and will pass them to the joining url for the html5 client (different format)
 		// Also we set PASSWORD=AP FOR ATTENDEE
 		String join_parameters = "meetingID=" + urlEncode(meetingID)
-			+ "&fullName=" + urlEncode(username) + "&redirect=false&password=ap";
+			+ "&fullName=" + urlEncode(username) + "&redirect=false&password=" + html5UserPassword;
 
 		return base_url_join + join_parameters + "&checksum="
 			+ checksum("join" + join_parameters + salt);
