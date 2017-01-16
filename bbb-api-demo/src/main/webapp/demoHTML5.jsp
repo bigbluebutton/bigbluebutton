@@ -35,11 +35,11 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <body>
 
+<p>You must have the BigBlueButton HTML5 client installed to use this API demo.</p>
+
 <%@ include file="bbb_api.jsp"%>
 
-You must have the BigBlueButton HTML5 client installed to use this API demo.
-
-<% 
+<%
 if (request.getParameterMap().isEmpty()) {
 	//
 	// Assume we want to create a meeting
@@ -49,29 +49,29 @@ if (request.getParameterMap().isEmpty()) {
 
 <h2>Join Meeting via HTML5 Client</h2>
 
-<FORM NAME="form1" METHOD="GET"> 
+<FORM NAME="form1" METHOD="GET">
 <table cellpadding="5" cellspacing="5" style="width: 400px; ">
 	<tbody>
 		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Full Name:</td>
-			<td style="width: 5px; ">
-				&nbsp;</td>
-			<td style="text-align: left ">
-				<input type="text" autofocus required name="username" /></td>
+			<td>&nbsp;</td>
+			<td style="text-align: right; ">Full Name:</td>
+			<td style="width: 5px; ">&nbsp;</td>
+			<td style="text-align: left "><input type="text" autofocus required name="username" /></td>
 		</tr>
+
 		<tr>
-			<td>
-				&nbsp;</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				<input type="submit" value="Join" /></td>
-		</tr>
+			<td>&nbsp;</td>
+			<td style="text-align: right; ">Meeting Name:</td>
+			<td style="width: 5px; ">&nbsp;</td>
+			<td style="text-align: left "><input type="text" name="meetingname" value="Demo Meeting" /></td>
+		<tr>
+
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td><input type="submit" value="Join" /></td>
+		<tr>
 	</tbody>
 </table>
 <INPUT TYPE=hidden NAME=action VALUE="create">
