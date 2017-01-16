@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import com.google.gson.Gson
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.LiveMeeting
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationApp {
   this: LiveMeeting =>

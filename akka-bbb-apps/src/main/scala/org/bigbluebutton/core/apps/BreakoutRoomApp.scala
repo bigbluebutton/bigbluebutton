@@ -4,14 +4,13 @@ import java.net.URLEncoder
 
 import scala.collection.SortedSet
 import scala.collection.mutable
-
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.LiveMeeting
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.running.LiveMeeting
 
 trait BreakoutRoomApp extends SystemConfiguration {
   this: LiveMeeting =>

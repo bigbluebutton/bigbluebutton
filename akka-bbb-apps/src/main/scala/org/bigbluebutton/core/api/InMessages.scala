@@ -75,7 +75,7 @@ case class GetLockSettings(meetingID: String, userId: String) extends InMessage
 case class ValidateAuthToken(meetingID: String, userId: String, token: String,
   correlationId: String, sessionId: String) extends InMessage
 case class RegisterUser(meetingID: String, userID: String, name: String, role: Role,
-  extUserID: String, authToken: String, avatarURL: String) extends InMessage
+  extUserID: String, authToken: String, avatarURL: String, guest: Boolean, authenticated: Boolean) extends InMessage
 case class UserJoining(meetingID: String, userID: String, authToken: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage

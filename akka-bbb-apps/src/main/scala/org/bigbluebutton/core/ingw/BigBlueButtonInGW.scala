@@ -1,34 +1,26 @@
-package org.bigbluebutton.core
+package org.bigbluebutton.core.ingw
 
-import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.api._
-import scala.collection.JavaConversions._
-import java.util.ArrayList
-import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.apps.Page
-import org.bigbluebutton.core.apps.Presentation
 import akka.actor.ActorSystem
-import org.bigbluebutton.core.apps.AnnotationVO
-import akka.pattern.{ ask, pipe }
-import akka.util.Timeout
-import scala.concurrent.duration._
-import scala.util.Success
-import scala.util.Failure
-import org.bigbluebutton.core.service.recorder.RecorderApplication
-import org.bigbluebutton.common.messages.IBigBlueButtonMessage
-import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
-import org.bigbluebutton.common.messages.PubSubPingMessage
-import org.bigbluebutton.messages._
-import org.bigbluebutton.messages.payload._
 import akka.event.Logging
-import spray.json.JsonParser
+import org.bigbluebutton.common.messages.{ IBigBlueButtonMessage, PubSubPingMessage, RegisterUserMessage, StartCustomPollRequestMessage }
+import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.apps.{ AnnotationVO, Page, Presentation }
+import org.bigbluebutton.core.bus._
+import org.bigbluebutton.core.{ BigBlueButtonActor, JsonMessageDecoder, MeetingProperties, OutMessageGateway }
+import org.bigbluebutton.messages._
+
+import scala.collection.JavaConversions._
 
 class BigBlueButtonInGW(
-    val system: ActorSystem,
-    eventBus: IncomingEventBus,
-    outGW: OutMessageGateway,
-    val red5DeskShareIP: String,
-    val red5DeskShareApp: String) extends IBigBlueButtonInGW {
+  val system: ActorSystem,
+  val eventBus: IncomingEventBus,
+  val outGW: OutMessageGateway,
+  val red5DeskShareIP: String,
+  val red5DeskShareApp: String) extends IBigBlueButtonInGW
+    with CreateMeetingRequestHandlerTrait
+    with StartCustomPollRequestMessageHandlerTrait
+    with PubSubPingMessageHandlerTrait
+    with RegisterUserMessageHandler {
 
   val log = Logging(system, getClass)
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, outGW), "bigbluebutton-actor")
@@ -36,46 +28,11 @@ class BigBlueButtonInGW(
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
     message match {
-      case msg: StartCustomPollRequestMessage => {
-        eventBus.publish(
-          BigBlueButtonEvent(
-            msg.payload.meetingId,
-            new StartCustomPollRequest(
-              msg.payload.meetingId,
-              msg.payload.requesterId,
-              msg.payload.pollType,
-              msg.payload.answers)))
-      }
-      case msg: PubSubPingMessage => {
-        eventBus.publish(
-          BigBlueButtonEvent(
-            "meeting-manager",
-            new PubSubPing(msg.payload.system, msg.payload.timestamp)))
-      }
+      case msg: StartCustomPollRequestMessage => handle(msg)
+      case msg: PubSubPingMessage => handle(msg)
+      case msg: CreateMeetingRequest => handle(msg)
+      case msg: RegisterUserMessage => handle(msg)
 
-      case msg: CreateMeetingRequest => {
-        val mProps = new MeetingProperties(
-          msg.payload.id,
-          msg.payload.externalId,
-          msg.payload.parentId,
-          msg.payload.name,
-          msg.payload.record,
-          msg.payload.voiceConfId,
-          msg.payload.voiceConfId + "-DESKSHARE", // WebRTC Desktop conference id
-          msg.payload.durationInMinutes,
-          msg.payload.autoStartRecording,
-          msg.payload.allowStartStopRecording,
-          msg.payload.webcamsOnlyForModerator,
-          msg.payload.moderatorPassword,
-          msg.payload.viewerPassword,
-          msg.payload.createTime,
-          msg.payload.createDate,
-          red5DeskShareIP, red5DeskShareApp,
-          msg.payload.isBreakout,
-          msg.payload.sequence)
-
-        eventBus.publish(BigBlueButtonEvent("meeting-manager", new CreateMeeting(msg.payload.id, mProps)))
-      }
     }
   }
 
@@ -137,11 +94,6 @@ class BigBlueButtonInGW(
    */
   def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String, sessionId: String) {
     eventBus.publish(BigBlueButtonEvent(meetingId, new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId)))
-  }
-
-  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String, avatarURL: String): Unit = {
-    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    eventBus.publish(BigBlueButtonEvent(meetingID, new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken, avatarURL)))
   }
 
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {

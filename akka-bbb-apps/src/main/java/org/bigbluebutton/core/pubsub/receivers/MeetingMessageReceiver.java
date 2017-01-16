@@ -60,7 +60,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 					bbbGW.endMeeting(emm.meetingId);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage rum = (RegisterUserMessage) msg;
-					bbbGW.registerUser(rum.meetingID, rum.internalUserId, rum.fullname, rum.role, rum.externUserID, rum.authToken, rum.avatarURL);
+					bbbGW.handleBigBlueButtonMessage(rum);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage dmm = (DestroyMeetingMessage) msg;
 					bbbGW.destroyMeeting(dmm.meetingId);

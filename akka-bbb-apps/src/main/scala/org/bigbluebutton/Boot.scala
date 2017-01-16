@@ -1,16 +1,15 @@
 package org.bigbluebutton
 
-import akka.event.{ LoggingAdapter, Logging }
+import akka.event.{ Logging, LoggingAdapter }
 import akka.actor.{ ActorSystem, Props }
+
 import scala.concurrent.duration._
-import redis.RedisClient
-import scala.concurrent.{ Future, Await }
+import scala.concurrent.{ Await, Future }
 import org.bigbluebutton.endpoint.redis.RedisPublisher
 import org.bigbluebutton.endpoint.redis.KeepAliveRedisPublisher
 import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.IBigBlueButtonInGW
-import org.bigbluebutton.core.BigBlueButtonInGW
 import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.MessageSenderActor
@@ -22,6 +21,7 @@ import org.bigbluebutton.core.service.recorder.RedisDispatcher
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.JsonMessageSenderActor
+import org.bigbluebutton.core.ingw.BigBlueButtonInGW
 
 object Boot extends App with SystemConfiguration {
 
