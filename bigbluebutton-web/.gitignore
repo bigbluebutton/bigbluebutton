@@ -11,4 +11,5 @@ bin/
 gradle/
 gradlew
 gradlew.bat
+classes/
 
