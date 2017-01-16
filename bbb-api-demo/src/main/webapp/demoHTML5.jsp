@@ -61,14 +61,14 @@ if (request.getParameterMap().isEmpty()) {
 
 		<tr>
 			<td>&nbsp;</td>
-			<td style="text-align: right; ">(optional) Meeting Name:</td>
+			<td style="text-align: right; ">Meeting Name:</td>
 			<td style="width: 5px; ">&nbsp;</td>
-			<td style="text-align: left "><input type="text" name="meetingname" value="Demo Meeting" /></td>
+			<td style="text-align: left "><input type="text" required name="meetingname" value="Demo Meeting" /></td>
 		<tr>
 
 			<tr>
 				<td>&nbsp;</td>
-				<td style="text-align: right; ">(optional) Moderator Role:</td>
+				<td style="text-align: right; ">Moderator Role:</td>
 				<td style="width: 5px; ">&nbsp;</td>
 				<td style="text-align: left "><input type=checkbox name=isModerator value="true"></td>
 			<tr>
