@@ -16,9 +16,6 @@ import ClosedCaptionsContainer from '../closed-captions/container';
 import userListService from '../user-list/service';
 import Auth from '/imports/ui/services/auth';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
-
 const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,

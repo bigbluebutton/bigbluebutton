@@ -166,7 +166,13 @@ export default class App extends Component {
     let path = window.location.pathname.split('/');
 
     for( let i = 0; i < cnt; i++) {
-      // compare chatRoom(chatID) and chatID of currently opened chat room
+
+      // When starting the new chat, prevProps is undefined or null.
+      if(prevProps.unreadMessageCount[i] === null ||  prevProps.unreadMessageCount[i] === undefined) {
+        prevProps.unreadMessageCount[i] = 0;
+      }
+
+      // compare chatRoom(chatID) to chatID of currently opened chat room
       if(getOpenChat[i] !== path[4]) {
         if(unreadMessageCount[i] > prevProps.unreadMessageCount[i]){
             this.renderSoundUnreadeMessages();
