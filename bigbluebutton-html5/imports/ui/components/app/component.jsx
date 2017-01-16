@@ -22,7 +22,7 @@ const propTypes = {
   captions: PropTypes.element,
   modal: PropTypes.element,
   unreadMessageCount: PropTypes.array,
-  getOpenChat: PropTypes.array,
+  openChats: PropTypes.array,
 };
 
 export default class App extends Component {
@@ -113,7 +113,7 @@ export default class App extends Component {
   renderClosedCaptions() {
     const { captions } = this.props;
 
-    if (captions) {
+    if(captions && this.props.getCaptionsStatus()) {
       return (
         <section className={styles.closedCaptions}>
           {captions}
@@ -152,33 +152,29 @@ export default class App extends Component {
     return false;
   }
 
-  renderSoundUnreadeMessages() {
+  playSoundForUnreadMessages() {
     const snd = new Audio('/html5client/resources/sounds/notify.mp3');
     snd.play();
   }
 
-  componentDidUpdate(prevProps){
-    let { unreadMessageCount, getOpenChat } = this.props;
+  componentDidUpdate(prevProps, params, par){
 
+    let { unreadMessageCount, openChats, openChat } = this.props;
     let cnt = unreadMessageCount.length;
 
-    // To get current url and find chatID(public or private chatID)
-    let path = window.location.pathname.split('/');
-
-    for( let i = 0; i < cnt; i++) {
-
+    unreadMessageCount.forEach((chat, i) => {
       // When starting the new chat, prevProps is undefined or null.
-      if(prevProps.unreadMessageCount[i] === null ||  prevProps.unreadMessageCount[i] === undefined) {
+      if(!prevProps.unreadMessageCount[i]) {
         prevProps.unreadMessageCount[i] = 0;
       }
 
       // compare chatRoom(chatID) to chatID of currently opened chat room
-      if(getOpenChat[i] !== path[4]) {
-        if(unreadMessageCount[i] > prevProps.unreadMessageCount[i]){
-            this.renderSoundUnreadeMessages();
+      if(openChats[i] !== openChat) {
+        if(chat > prevProps.unreadMessageCount[i]) {
+          this.playSoundForUnreadMessages();
         }
       }
-    }
+    });
   }
 
   render() {

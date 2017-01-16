@@ -58,12 +58,7 @@ const checkUnreadMessages = () => {
                         .filter(userID => userID !== Auth.userID);
 };
 
-const getOpenChatID = () => {
-  return userListService.getOpenChats().map(chat=> chat.id)
-                        .filter(userID => userID !== Auth.userID);
-}
-
-export default createContainer(() => {
+export default createContainer(( {params}) => {
   Promise.all(subscribeForData())
   .then(() => {
     setLoading(false);
@@ -74,7 +69,8 @@ export default createContainer(() => {
     isLoading: getLoading(),
     modal: getModal(),
     unreadMessageCount: checkUnreadMessages(),
-    getOpenChat: getOpenChatID(),
+    openChats: userListService.getOpenChats(params.chatID).map(chat => chat.id),
+    openChat: params.chatID,
     getCaptionsStatus,
     redirectToLogoutUrl,
   };
