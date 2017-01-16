@@ -86,10 +86,9 @@ if (request.getParameterMap().isEmpty()) {
 	//
 
 	String username = request.getParameter("username");
-	String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
-	// String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
+	String meetingname = request.getParameter("meetingname");
 
-	String joinURL = getJoinURLHTML5(request.getParameter("username"), "Demo Meeting", "false", null, null, null);
+	String joinURL = getJoinURLHTML5(username, meetingname, "false", null, null, null);
 	Document doc = null;
 	doc = parseXml(getURL(joinURL));
 
