@@ -24,8 +24,6 @@ public class MessageFromJsonConverter {
 					  return processEndMeetingMessage(payload);
 				  case KeepAliveMessage.KEEP_ALIVE_REQUEST:
 					  return processKeepAlive(payload);
-				  case RegisterUserMessage.REGISTER_USER:
-					  return RegisterUserMessage.fromJson(message);
 				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
 					  return processValidateAuthTokenMessage(header, payload);
 					  // return ValidateAuthTokenMessage.fromJson(message);

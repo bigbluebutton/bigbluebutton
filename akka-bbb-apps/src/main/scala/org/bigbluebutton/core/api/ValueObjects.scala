@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.api
 
-import java.lang.Boolean
-
 object Role extends Enumeration {
   type Role = Value
   val MODERATOR = Value("MODERATOR")
@@ -70,7 +68,9 @@ case class RegisteredUser(
   name: String,
   role: Role.Role,
   authToken: String,
-  avatarURL: String)
+  avatarURL: String,
+  guest: Boolean,
+  authenticated: Boolean)
 
 case class Voice(
   id: String,

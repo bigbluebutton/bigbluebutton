@@ -1,19 +1,217 @@
-package org.bigbluebutton.core.apps
+package org.bigbluebutton.core.running
 
+import java.util.concurrent.TimeUnit
+
+import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.bus._
+import org.bigbluebutton.core.running.handlers.{ RegisterUserMsgHdlr, UserJoinMsgHdlr, ValidateAuthTokenMsgHdlr }
+import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
 
-import scala.collection.mutable.HashMap
-import java.util.ArrayList
-
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.ListSet
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.LiveMeeting
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.duration._
 
-trait UsersApp {
-  this: LiveMeeting =>
+object MeetingActorInternal {
+  def props(mProps: MeetingProperties,
+    eventBus: IncomingEventBus,
+    outGW: OutMessageGateway): Props =
+    Props(classOf[MeetingActorInternal], mProps, eventBus, outGW)
+}
 
-  val outGW: OutMessageGateway
+// This actor is an internal audit actor for each meeting actor that
+// periodically sends messages to the meeting actor
+class MeetingActorInternal(val mProps: MeetingProperties,
+  val eventBus: IncomingEventBus, val outGW: OutMessageGateway)
+    extends Actor with ActorLogging {
+
+  import context.dispatcher
+  context.system.scheduler.schedule(5 seconds, 10 seconds, self, "MonitorNumberOfWebUsers")
+
+  // Query to get voice conference users
+  outGW.send(new GetUsersInVoiceConference(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+
+  if (mProps.isBreakout) {
+    // This is a breakout room. Inform our parent meeting that we have been successfully created.
+    eventBus.publish(BigBlueButtonEvent(
+      mProps.parentMeetingID,
+      BreakoutRoomCreated(mProps.parentMeetingID, mProps.meetingID)))
+  }
+
+  def receive = {
+    case "MonitorNumberOfWebUsers" => handleMonitorNumberOfWebUsers()
+  }
+
+  def handleMonitorNumberOfWebUsers() {
+    eventBus.publish(BigBlueButtonEvent(mProps.meetingID, MonitorNumberOfUsers(mProps.meetingID)))
+
+    // Trigger updating users of time remaining on meeting.
+    eventBus.publish(BigBlueButtonEvent(mProps.meetingID, SendTimeRemainingUpdate(mProps.meetingID)))
+
+    if (mProps.isBreakout) {
+      // This is a breakout room. Update the main meeting with list of users in this breakout room.
+      eventBus.publish(BigBlueButtonEvent(mProps.meetingID, SendBreakoutUsersUpdate(mProps.meetingID)))
+    }
+
+  }
+}
+
+object MeetingActor {
+  def props(mProps: MeetingProperties,
+    eventBus: IncomingEventBus,
+    outGW: OutMessageGateway): Props =
+    Props(classOf[MeetingActor], mProps, eventBus, outGW)
+}
+
+class MeetingActor(val mProps: MeetingProperties,
+  val eventBus: IncomingEventBus,
+  val outGW: OutMessageGateway)
+    extends Actor with ActorLogging
+    with RegisterUserMsgHdlr
+    with UserJoinMsgHdlr
+    with ValidateAuthTokenMsgHdlr
+    with PresentationApp
+    with LayoutApp with ChatApp with WhiteboardApp with PollApp
+    with BreakoutRoomApp with CaptionApp {
+
+  val chatModel = new ChatModel()
+  val layoutModel = new LayoutModel()
+  val meetingModel = new MeetingModel()
+  val usersModel = new UsersModel()
+  val pollModel = new PollModel()
+  val wbModel = new WhiteboardModel()
+  val presModel = new PresentationModel()
+  val breakoutModel = new BreakoutRoomModel()
+  val captionModel = new CaptionModel()
+
+  /**
+   * Put the internal message injector into another actor so this
+   * actor is easy to test.
+   */
+  var actorMonitor = context.actorOf(MeetingActorInternal.props(mProps, eventBus, outGW))
+
+  def receive = {
+    case msg: MonitorNumberOfUsers => handleMonitorNumberOfWebUsers(msg)
+    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
+    case msg: RegisterUser => handle(msg)
+    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
+    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
+    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
+    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
+    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
+    case msg: UserJoining => handleUserJoin(msg)
+    case msg: UserLeaving => handleUserLeft(msg)
+    case msg: AssignPresenter => handleAssignPresenter(msg)
+    case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
+    case msg: GetUsers => handleGetUsers(msg)
+    case msg: ChangeUserStatus => handleChangeUserStatus(msg)
+    case msg: EjectUserFromMeeting => handleEjectUserFromMeeting(msg)
+    case msg: UserEmojiStatus => handleUserEmojiStatus(msg)
+    case msg: UserShareWebcam => handleUserShareWebcam(msg)
+    case msg: UserUnshareWebcam => handleUserunshareWebcam(msg)
+    case msg: MuteMeetingRequest => handleMuteMeetingRequest(msg)
+    case msg: MuteAllExceptPresenterRequest => handleMuteAllExceptPresenterRequest(msg)
+    case msg: IsMeetingMutedRequest => handleIsMeetingMutedRequest(msg)
+    case msg: MuteUserRequest => handleMuteUserRequest(msg)
+    case msg: EjectUserFromVoiceRequest => handleEjectUserRequest(msg)
+    case msg: TransferUserToMeetingRequest => handleTransferUserToMeeting(msg)
+    case msg: SetLockSettings => handleSetLockSettings(msg)
+    case msg: GetLockSettings => handleGetLockSettings(msg)
+    case msg: LockUserRequest => handleLockUserRequest(msg)
+    case msg: InitLockSettings => handleInitLockSettings(msg)
+    case msg: InitAudioSettings => handleInitAudioSettings(msg)
+    case msg: GetChatHistoryRequest => handleGetChatHistoryRequest(msg)
+    case msg: SendPublicMessageRequest => handleSendPublicMessageRequest(msg)
+    case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
+    case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
+    case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
+    case msg: GetCurrentLayoutRequest => handleGetCurrentLayoutRequest(msg)
+    case msg: BroadcastLayoutRequest => handleBroadcastLayoutRequest(msg)
+    case msg: InitializeMeeting => handleInitializeMeeting(msg)
+    case msg: ClearPresentation => handleClearPresentation(msg)
+    case msg: PresentationConversionUpdate => handlePresentationConversionUpdate(msg)
+    case msg: PresentationPageCountError => handlePresentationPageCountError(msg)
+    case msg: PresentationSlideGenerated => handlePresentationSlideGenerated(msg)
+    case msg: PresentationConversionCompleted => handlePresentationConversionCompleted(msg)
+    case msg: RemovePresentation => handleRemovePresentation(msg)
+    case msg: GetPresentationInfo => handleGetPresentationInfo(msg)
+    case msg: SendCursorUpdate => handleSendCursorUpdate(msg)
+    case msg: ResizeAndMoveSlide => handleResizeAndMoveSlide(msg)
+    case msg: GotoSlide => handleGotoSlide(msg)
+    case msg: SharePresentation => handleSharePresentation(msg)
+    case msg: GetSlideInfo => handleGetSlideInfo(msg)
+    case msg: PreuploadedPresentations => handlePreuploadedPresentations(msg)
+    case msg: SendWhiteboardAnnotationRequest => handleSendWhiteboardAnnotationRequest(msg)
+    case msg: GetWhiteboardShapesRequest => handleGetWhiteboardShapesRequest(msg)
+    case msg: ClearWhiteboardRequest => handleClearWhiteboardRequest(msg)
+    case msg: UndoWhiteboardRequest => handleUndoWhiteboardRequest(msg)
+    case msg: EnableWhiteboardRequest => handleEnableWhiteboardRequest(msg)
+    case msg: IsWhiteboardEnabledRequest => handleIsWhiteboardEnabledRequest(msg)
+    case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
+    case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
+    case msg: StartCustomPollRequest => handleStartCustomPollRequest(msg)
+    case msg: StartPollRequest => handleStartPollRequest(msg)
+    case msg: StopPollRequest => handleStopPollRequest(msg)
+    case msg: ShowPollResultRequest => handleShowPollResultRequest(msg)
+    case msg: HidePollResultRequest => handleHidePollResultRequest(msg)
+    case msg: RespondToPollRequest => handleRespondToPollRequest(msg)
+    case msg: GetPollRequest => handleGetPollRequest(msg)
+    case msg: GetCurrentPollRequest => handleGetCurrentPollRequest(msg)
+    // Breakout rooms
+    case msg: BreakoutRoomsListMessage => handleBreakoutRoomsList(msg)
+    case msg: CreateBreakoutRooms => handleCreateBreakoutRooms(msg)
+    case msg: BreakoutRoomCreated => handleBreakoutRoomCreated(msg)
+    case msg: BreakoutRoomEnded => handleBreakoutRoomEnded(msg)
+    case msg: RequestBreakoutJoinURLInMessage => handleRequestBreakoutJoinURL(msg)
+    case msg: BreakoutRoomUsersUpdate => handleBreakoutRoomUsersUpdate(msg)
+    case msg: SendBreakoutUsersUpdate => handleSendBreakoutUsersUpdate(msg)
+    case msg: EndAllBreakoutRooms => handleEndAllBreakoutRooms(msg)
+
+    case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
+    case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
+    case msg: EndMeeting => handleEndMeeting(msg)
+
+    // Closed Caption
+    case msg: SendCaptionHistoryRequest => handleSendCaptionHistoryRequest(msg)
+    case msg: UpdateCaptionOwnerRequest => handleUpdateCaptionOwnerRequest(msg)
+    case msg: EditCaptionHistoryRequest => handleEditCaptionHistoryRequest(msg)
+
+    case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
+    case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
+
+    case _ => // do nothing
+  }
+
+  def assignNewPresenter(newPresenterID: String, newPresenterName: String, assignedBy: String) {
+    // Stop poll if one is running as presenter left.
+    handleStopPollRequest(StopPollRequest(mProps.meetingID, assignedBy))
+
+    if (usersModel.hasUser(newPresenterID)) {
+
+      usersModel.getCurrentPresenter match {
+        case Some(curPres) => {
+          usersModel.unbecomePresenter(curPres.userID)
+          outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, curPres.userID, "presenter", false: java.lang.Boolean))
+        }
+        case None => // do nothing
+      }
+
+      usersModel.getUser(newPresenterID) match {
+        case Some(newPres) => {
+          usersModel.becomePresenter(newPres.userID)
+          usersModel.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
+          outGW.send(new PresenterAssigned(mProps.meetingID, mProps.recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
+          outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, newPresenterID, "presenter", true: java.lang.Boolean))
+        }
+        case None => // do nothing
+      }
+
+    }
+  }
 
   def hasUser(userID: String): Boolean = {
     usersModel.hasUser(userID)
@@ -84,51 +282,6 @@ trait UsersApp {
       outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, msg.requesterID,
         u.userID, mProps.voiceBridge, u.voiceUser.userId, msg.mute))
     }
-  }
-
-  def handleValidateAuthToken(msg: ValidateAuthToken) {
-    log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-    usersModel.getRegisteredUserWithToken(msg.token) match {
-      case Some(u) =>
-        {
-          val replyTo = mProps.meetingID + '/' + msg.userId
-
-          //send the reply
-          outGW.send(new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, true, msg.correlationId))
-
-          log.info("ValidateToken success. meetingId=" + mProps.meetingID + " userId=" + msg.userId)
-
-          //join the user
-          handleUserJoin(new UserJoining(mProps.meetingID, msg.userId, msg.token))
-
-        }
-      case None => {
-        log.info("ValidateToken failed. meetingId=" + mProps.meetingID + " userId=" + msg.userId)
-        outGW.send(new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, false, msg.correlationId))
-      }
-    }
-
-    /**
-     * Send a reply to BigBlueButtonActor to let it know this MeetingActor hasn't hung!
-     * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
-     * audit to check whether the actor is still alive. (ralam feb 25, 2015)
-     */
-    //sender ! new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, false, msg.correlationId)
-  }
-
-  def handleRegisterUser(msg: RegisterUser) {
-    if (meetingModel.hasMeetingEnded()) {
-      // Check first if the meeting has ended and the user refreshed the client to re-connect.
-      log.info("Register user failed. Mmeeting has ended. meetingId=" + mProps.meetingID + " userId=" + msg.userID)
-      sendMeetingHasEnded(msg.userID)
-    } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.avatarURL)
-      usersModel.addRegisteredUser(msg.authToken, regUser)
-
-      log.info("Register user success. meetingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + regUser)
-      outGW.send(new UserRegistered(mProps.meetingID, mProps.recorded, regUser))
-    }
-
   }
 
   def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
@@ -316,85 +469,6 @@ trait UsersApp {
 
   def handleGetUsers(msg: GetUsers): Unit = {
     outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, usersModel.getUsers))
-  }
-
-  def handleUserJoin(msg: UserJoining): Unit = {
-    log.debug("Received user joined meeting. metingId=" + mProps.meetingID + " userId=" + msg.userID)
-
-    val regUser = usersModel.getRegisteredUserWithToken(msg.authToken)
-    regUser foreach { ru =>
-      log.debug("Found registered user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " ru=" + ru)
-
-      val wUser = usersModel.getUser(msg.userID)
-
-      val vu = wUser match {
-        case Some(u) => {
-          log.debug("Found  user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + u)
-          if (u.voiceUser.joined) {
-            /*
-             * User is in voice conference. Must mean that the user reconnected with audio
-             * still in the voice conference.
-             */
-            u.voiceUser.copy()
-          } else {
-            /**
-             * User is not joined in voice conference. Initialize user and copy status
-             * as user maybe joined listenOnly.
-             */
-            new VoiceUser(u.voiceUser.userId, msg.userID, ru.name, ru.name,
-              joined = false, locked = false, muted = false,
-              talking = false, u.avatarURL, listenOnly = u.listenOnly)
-          }
-        }
-        case None => {
-          log.debug("User not found. metingId=" + mProps.meetingID + " userId=" + msg.userID)
-          /**
-           * New user. Initialize voice status.
-           */
-          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,
-            joined = false, locked = false,
-            muted = false, talking = false, ru.avatarURL, listenOnly = false)
-        }
-      }
-
-      wUser.foreach { w =>
-        if (!w.joinedWeb) {
-          log.debug("User is in voice only. Mark as user left. metingId=" + mProps.meetingID + " userId=" + msg.userID)
-          /**
-           * If user is not joined through the web (perhaps reconnecting).
-           * Send a user left event to clear up user list of all clients.
-           */
-          val user = usersModel.removeUser(w.userID)
-          outGW.send(new UserLeft(msg.meetingID, mProps.recorded, w))
-        }
-      }
-
-      /**
-       * Initialize the newly joined user copying voice status in case this
-       * join is due to a reconnect.
-       */
-      val uvo = new UserVO(msg.userID, ru.externId, ru.name,
-        ru.role, emojiStatus = "none", presenter = false,
-        hasStream = false, locked = getInitialLockStatus(ru.role),
-        webcamStreams = new ListSet[String](), phoneUser = false, vu,
-        listenOnly = vu.listenOnly, avatarURL = vu.avatarURL, joinedWeb = true)
-
-      usersModel.addUser(uvo)
-
-      log.info("User joined meeting. metingId=" + mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
-
-      outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
-      outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingModel.isMeetingMuted()))
-
-      // Become presenter if the only moderator		
-      if ((usersModel.numModerators == 1) || (usersModel.noPresenter())) {
-        if (ru.role == Role.MODERATOR) {
-          assignNewPresenter(msg.userID, ru.name, msg.userID)
-        }
-      }
-      webUserJoined
-      startRecordingIfAutoStart()
-    }
   }
 
   def handleUserLeft(msg: UserLeaving): Unit = {
@@ -610,30 +684,220 @@ trait UsersApp {
     assignNewPresenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)
   }
 
-  def assignNewPresenter(newPresenterID: String, newPresenterName: String, assignedBy: String) {
-    // Stop poll if one is running as presenter left.
-    handleStopPollRequest(StopPollRequest(mProps.meetingID, assignedBy))
+  def hasMeetingEnded(): Boolean = {
+    meetingModel.hasMeetingEnded()
+  }
 
-    if (usersModel.hasUser(newPresenterID)) {
+  def webUserJoined() {
+    if (usersModel.numWebUsers > 0) {
+      meetingModel.resetLastWebUserLeftOn()
+    }
+  }
 
-      usersModel.getCurrentPresenter match {
-        case Some(curPres) => {
-          usersModel.unbecomePresenter(curPres.userID)
-          outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, curPres.userID, "presenter", false: java.lang.Boolean))
-        }
-        case None => // do nothing
+  def startRecordingIfAutoStart() {
+    if (mProps.recorded && !meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 1) {
+      log.info("Auto start recording. meetingId={}", mProps.meetingID)
+      meetingModel.recordingStarted()
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
+    }
+  }
+
+  def stopAutoStartedRecording() {
+    if (mProps.recorded && meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 0) {
+      log.info("Last web user left. Auto stopping recording. meetingId={}", mProps.meetingID)
+      meetingModel.recordingStopped()
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
+    }
+  }
+
+  def startCheckingIfWeNeedToEndVoiceConf() {
+    if (usersModel.numWebUsers == 0 && !mProps.isBreakout) {
+      meetingModel.lastWebUserLeft()
+      log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
+    }
+  }
+
+  def sendTimeRemainingNotice() {
+    val now = timeNowInSeconds
+
+    if (mProps.duration > 0 && (((meetingModel.startedOn + mProps.duration) - now) < 15)) {
+      //  log.warning("MEETING WILL END IN 15 MINUTES!!!!")
+    }
+  }
+
+  def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
+    if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
+      if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
+        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
+        outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+      }
+    }
+  }
+
+  def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate) {
+    if (mProps.duration > 0) {
+      val endMeetingTime = meetingModel.startedOn + (mProps.duration * 60)
+      val timeRemaining = endMeetingTime - timeNowInSeconds
+      outGW.send(new MeetingTimeRemainingUpdate(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+    }
+    if (!mProps.isBreakout && breakoutModel.getRooms().length > 0) {
+      val room = breakoutModel.getRooms()(0);
+      val endMeetingTime = meetingModel.breakoutRoomsStartedOn + (meetingModel.breakoutRoomsdurationInMinutes * 60)
+      val timeRemaining = endMeetingTime - timeNowInSeconds
+      outGW.send(new BreakoutRoomsTimeRemainingUpdateOutMessage(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+    } else if (meetingModel.breakoutRoomsStartedOn != 0) {
+      meetingModel.breakoutRoomsdurationInMinutes = 0;
+      meetingModel.breakoutRoomsStartedOn = 0;
+    }
+  }
+
+  def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {
+
+  }
+
+  def timeNowInMinutes(): Long = {
+    TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
+  }
+
+  def timeNowInSeconds(): Long = {
+    TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
+  }
+
+  def sendMeetingHasEnded(userId: String) {
+    outGW.send(new MeetingHasEnded(mProps.meetingID, userId))
+    outGW.send(new DisconnectUser(mProps.meetingID, userId))
+  }
+
+  def handleEndMeeting(msg: EndMeeting) {
+    // Broadcast users the meeting will end
+    outGW.send(new MeetingEnding(msg.meetingId))
+
+    meetingModel.meetingHasEnded
+
+    outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
+  }
+
+  def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
+    usersModel.getCurrentPresenter() match {
+      case Some(curPres) => {
+        val allowed = msg.userID equals (curPres.userID)
+        outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
+      }
+      case None => // do nothing
+    }
+  }
+
+  def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
+    if (msg.recording) {
+      meetingModel.setVoiceRecordingFilename(msg.recordStream)
+      outGW.send(new VoiceRecordingStarted(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
+    } else {
+      meetingModel.setVoiceRecordingFilename("")
+      outGW.send(new VoiceRecordingStopped(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
+    }
+  }
+
+  def handleSetRecordingStatus(msg: SetRecordingStatus) {
+    log.info("Change recording status. meetingId=" + mProps.meetingID + " recording=" + msg.recording)
+    if (mProps.allowStartStopRecording && meetingModel.isRecording() != msg.recording) {
+      if (msg.recording) {
+        meetingModel.recordingStarted()
+      } else {
+        meetingModel.recordingStopped()
       }
 
-      usersModel.getUser(newPresenterID) match {
-        case Some(newPres) => {
-          usersModel.becomePresenter(newPres.userID)
-          usersModel.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
-          outGW.send(new PresenterAssigned(mProps.meetingID, mProps.recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
-          outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, newPresenterID, "presenter", true: java.lang.Boolean))
-        }
-        case None => // do nothing
-      }
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, msg.userId, msg.recording))
+    }
+  }
 
+  def handleGetRecordingStatus(msg: GetRecordingStatus) {
+    outGW.send(new GetRecordingStatusReply(mProps.meetingID, mProps.recorded, msg.userId, meetingModel.isRecording().booleanValue()))
+  }
+
+  def lockLayout(lock: Boolean) {
+    meetingModel.lockLayout(lock)
+  }
+
+  def newPermissions(np: Permissions) {
+    meetingModel.setPermissions(np)
+  }
+
+  def permissionsEqual(other: Permissions): Boolean = {
+    meetingModel.permissionsEqual(other)
+  }
+
+  // WebRTC Desktop Sharing
+
+  def handleDeskShareStartedRequest(msg: DeskShareStartedRequest): Unit = {
+    log.info("handleDeskShareStartedRequest: dsStarted=" + meetingModel.getDeskShareStarted())
+
+    if (!meetingModel.getDeskShareStarted()) {
+      val timestamp = System.currentTimeMillis().toString
+      val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp +
+        "/" + mProps.meetingID + "/" + mProps.meetingID + "-" + timestamp
+      log.info("handleDeskShareStartedRequest: streamPath=" + streamPath)
+
+      // Tell FreeSwitch to broadcast to RTMP
+      outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath))
+
+      meetingModel.setDeskShareStarted(true)
+    }
+  }
+
+  def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit = {
+    log.info("handleDeskShareStoppedRequest: dsStarted=" + meetingModel.getDeskShareStarted() +
+      " URL:" + meetingModel.getRTMPBroadcastingUrl())
+
+    // Tell FreeSwitch to stop broadcasting to RTMP
+    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, meetingModel.getRTMPBroadcastingUrl()))
+
+    meetingModel.setDeskShareStarted(false)
+  }
+
+  def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit = {
+    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP() +
+      " URL:" + meetingModel.getRTMPBroadcastingUrl())
+
+    // only valid if not broadcasting yet
+    if (!meetingModel.isBroadcastingRTMP()) {
+      meetingModel.setRTMPBroadcastingUrl(msg.streamname)
+      meetingModel.broadcastingRTMPStarted()
+      meetingModel.setDesktopShareVideoWidth(msg.videoWidth)
+      meetingModel.setDesktopShareVideoHeight(msg.videoHeight)
+      log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
+
+      // Notify viewers in the meeting that there's an rtmp stream to view
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname, msg.videoWidth, msg.videoHeight, true))
+    } else {
+      log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
+    }
+  }
+
+  def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {
+    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" + meetingModel
+      .isBroadcastingRTMP() + " URL:" + meetingModel.getRTMPBroadcastingUrl())
+
+    // only valid if currently broadcasting
+    if (meetingModel.isBroadcastingRTMP()) {
+      log.info("STOP broadcast ALLOWED when isBroadcastingRTMP=true")
+      meetingModel.broadcastingRTMPStopped()
+
+      // notify viewers that RTMP broadcast stopped
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+        msg.videoWidth, msg.videoHeight, false))
+    } else {
+      log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
+    }
+  }
+
+  def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
+
+    log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
+      + meetingModel.isBroadcastingRTMP() + " URL:" + meetingModel.getRTMPBroadcastingUrl())
+    if (meetingModel.isBroadcastingRTMP()) {
+      // if the meeting has an ongoing WebRTC Deskshare session, send a notification
+      outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, meetingModel.getRTMPBroadcastingUrl(),
+        meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight(), true))
     }
   }
 }

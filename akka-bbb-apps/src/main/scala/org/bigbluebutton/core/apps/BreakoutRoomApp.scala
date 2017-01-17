@@ -10,10 +10,10 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.MeetingActor
 
 trait BreakoutRoomApp extends SystemConfiguration {
-  this: LiveMeeting =>
+  this: MeetingActor =>
 
   val outGW: OutMessageGateway
   val eventBus: IncomingEventBus

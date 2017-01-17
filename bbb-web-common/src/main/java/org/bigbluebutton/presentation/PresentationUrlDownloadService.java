@@ -19,8 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PresentationUrlDownloadService {
-    private static Logger log = LoggerFactory
-            .getLogger(PresentationUrlDownloadService.class);
+    private static Logger log = LoggerFactory.getLogger(PresentationUrlDownloadService.class);
 
     private final int maxRedirects = 5;
     private PageExtractor pageExtractor;
