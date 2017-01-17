@@ -107,4 +107,4 @@ mappings in Universal <+= (packageBin in Compile, sourceDirectory ) map { (_, sr
     logConf -> "conf/logback.xml"
 }
 
-debianPackageDependencies in Debian ++= Seq("java7-runtime-headless", "bash")
+debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash")
