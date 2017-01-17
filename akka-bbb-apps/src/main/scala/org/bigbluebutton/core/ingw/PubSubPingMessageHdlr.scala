@@ -4,7 +4,7 @@ import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.core.api.PubSubPing
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 
-trait PubSubPingMessageHandlerTrait {
+trait PubSubPingMessageHdlr {
 
   val eventBus: IncomingEventBus
 

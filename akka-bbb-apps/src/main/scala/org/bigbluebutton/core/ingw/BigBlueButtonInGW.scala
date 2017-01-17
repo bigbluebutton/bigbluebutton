@@ -18,10 +18,10 @@ class BigBlueButtonInGW(
   val outGW: OutMessageGateway,
   val red5DeskShareIP: String,
   val red5DeskShareApp: String) extends IBigBlueButtonInGW
-    with CreateMeetingRequestHandlerTrait
-    with StartCustomPollRequestMessageHandlerTrait
-    with PubSubPingMessageHandlerTrait
-    with RegisterUserMessageHandler {
+    with CreateMeetingRequestHdlr
+    with StartCustomPollRequestMessageHdlr
+    with PubSubPingMessageHdlr
+    with RegisterUserMessageHdlr {
 
   val log = Logging(system, getClass)
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, outGW), "bigbluebutton-actor")

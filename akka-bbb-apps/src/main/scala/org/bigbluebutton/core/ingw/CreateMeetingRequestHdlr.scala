@@ -5,7 +5,7 @@ import org.bigbluebutton.core.api.CreateMeeting
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 import org.bigbluebutton.messages.CreateMeetingRequest
 
-trait CreateMeetingRequestHandlerTrait {
+trait CreateMeetingRequestHdlr {
 
   val eventBus: IncomingEventBus
   val red5DeskShareIP: String

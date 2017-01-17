@@ -5,7 +5,7 @@ import org.bigbluebutton.core.api.StartCustomPollRequest
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 import scala.collection.JavaConversions._
 
-trait StartCustomPollRequestMessageHandlerTrait {
+trait StartCustomPollRequestMessageHdlr {
 
   val eventBus: IncomingEventBus
 

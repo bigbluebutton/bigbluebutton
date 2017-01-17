@@ -4,7 +4,7 @@ import org.bigbluebutton.messages.RegisterUserMessage
 import org.bigbluebutton.core.api.{ RegisterUser, Role }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, IncomingEventBus }
 
-trait RegisterUserMessageHandler {
+trait RegisterUserMessageHdlr {
 
   val eventBus: IncomingEventBus
 
