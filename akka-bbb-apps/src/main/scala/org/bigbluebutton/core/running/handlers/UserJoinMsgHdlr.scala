@@ -5,24 +5,21 @@ import org.bigbluebutton.core.running.MeetingActor
 
 import scala.collection.immutable.ListSet
 
-/**
- * Created by ralam on 1/17/2017.
- */
 trait UserJoinMsgHdlr {
   this: MeetingActor =>
 
   def handleUserJoin(msg: UserJoining): Unit = {
-    log.debug("Received user joined meeting. metingId=" + mProps.meetingID + " userId=" + msg.userID)
+    log.debug("Received user joined meeting. metingId=" + state.mProps.meetingID + " userId=" + msg.userID)
 
-    val regUser = usersModel.getRegisteredUserWithToken(msg.authToken)
+    val regUser = state.usersModel.getRegisteredUserWithToken(msg.authToken)
     regUser foreach { ru =>
-      log.debug("Found registered user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " ru=" + ru)
+      log.debug("Found registered user. metingId=" + state.mProps.meetingID + " userId=" + msg.userID + " ru=" + ru)
 
-      val wUser = usersModel.getUser(msg.userID)
+      val wUser = state.usersModel.getUser(msg.userID)
 
       val vu = wUser match {
         case Some(u) => {
-          log.debug("Found  user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + u)
+          log.debug("Found  user. metingId=" + state.mProps.meetingID + " userId=" + msg.userID + " user=" + u)
           if (u.voiceUser.joined) {
             /*
              * User is in voice conference. Must mean that the user reconnected with audio
@@ -40,7 +37,7 @@ trait UserJoinMsgHdlr {
           }
         }
         case None => {
-          log.debug("User not found. metingId=" + mProps.meetingID + " userId=" + msg.userID)
+          log.debug("User not found. metingId=" + state.mProps.meetingID + " userId=" + msg.userID)
           /**
            * New user. Initialize voice status.
            */
@@ -52,13 +49,13 @@ trait UserJoinMsgHdlr {
 
       wUser.foreach { w =>
         if (!w.joinedWeb) {
-          log.debug("User is in voice only. Mark as user left. metingId=" + mProps.meetingID + " userId=" + msg.userID)
+          log.debug("User is in voice only. Mark as user left. metingId=" + state.mProps.meetingID + " userId=" + msg.userID)
           /**
            * If user is not joined through the web (perhaps reconnecting).
            * Send a user left event to clear up user list of all clients.
            */
-          val user = usersModel.removeUser(w.userID)
-          outGW.send(new UserLeft(msg.meetingID, mProps.recorded, w))
+          val user = state.usersModel.removeUser(w.userID)
+          outGW.send(new UserLeft(msg.meetingID, state.mProps.recorded, w))
         }
       }
 
@@ -72,15 +69,15 @@ trait UserJoinMsgHdlr {
         webcamStreams = new ListSet[String](), phoneUser = false, vu,
         listenOnly = vu.listenOnly, avatarURL = vu.avatarURL, joinedWeb = true)
 
-      usersModel.addUser(uvo)
+      state.usersModel.addUser(uvo)
 
-      log.info("User joined meeting. metingId=" + mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
+      log.info("User joined meeting. metingId=" + state.mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
 
-      outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
-      outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingModel.isMeetingMuted()))
+      outGW.send(new UserJoined(state.mProps.meetingID, state.mProps.recorded, uvo))
+      outGW.send(new MeetingState(state.mProps.meetingID, state.mProps.recorded, uvo.userID, state.meetingModel.getPermissions(), state.meetingModel.isMeetingMuted()))
 
       // Become presenter if the only moderator
-      if ((usersModel.numModerators == 1) || (usersModel.noPresenter())) {
+      if ((state.usersModel.numModerators == 1) || (state.usersModel.noPresenter())) {
         if (ru.role == Role.MODERATOR) {
           assignNewPresenter(msg.userID, ru.name, msg.userID)
         }

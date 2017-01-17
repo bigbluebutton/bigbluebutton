@@ -41,6 +41,8 @@ public class UserSession {
   public String defaultLayout = "NOLAYOUT";
   public String avatarURL;
   public String configXML;
+  public String guest = "false";
+  String auth = "false";
   
   private AtomicInteger connections = new AtomicInteger(0);
   

@@ -1,30 +1,29 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-
-import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core.running.{ MeetingActor, MeetingStateModel }
 
 trait ChatApp {
   this: MeetingActor =>
 
   val outGW: OutMessageGateway
+  val state: MeetingStateModel
 
   def handleGetChatHistoryRequest(msg: GetChatHistoryRequest) {
-    val history = chatModel.getChatHistory()
-    outGW.send(new GetChatHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.replyTo, history))
+    val history = state.chatModel.getChatHistory()
+    outGW.send(new GetChatHistoryReply(state.mProps.meetingID, state.mProps.recorded, msg.requesterID, msg.replyTo, history))
   }
 
   def handleSendPublicMessageRequest(msg: SendPublicMessageRequest) {
-    chatModel.addNewChatMessage(msg.message.toMap)
+    state.chatModel.addNewChatMessage(msg.message.toMap)
     val pubMsg = msg.message.toMap
 
-    outGW.send(new SendPublicMessageEvent(mProps.meetingID, mProps.recorded, msg.requesterID, pubMsg))
+    outGW.send(new SendPublicMessageEvent(state.mProps.meetingID, state.mProps.recorded, msg.requesterID, pubMsg))
   }
 
   def handleSendPrivateMessageRequest(msg: SendPrivateMessageRequest) {
     val privMsg = msg.message.toMap
-    outGW.send(new SendPrivateMessageEvent(mProps.meetingID, mProps.recorded, msg.requesterID, privMsg))
+    outGW.send(new SendPrivateMessageEvent(state.mProps.meetingID, state.mProps.recorded, msg.requesterID, privMsg))
   }
 }
