@@ -64,12 +64,16 @@ export default createContainer(({ params }) => {
     setLoading(false);
   });
 
+  const openChats = () => {
+    return userListService.getOpenChats(params.chatID).map(chat => chat.id);
+  }
+
   return {
     wasKicked: wasUserKicked(),
     isLoading: getLoading(),
     modal: getModal(),
     unreadMessageCount: checkUnreadMessages(),
-    openChats: userListService.getOpenChats(params.chatID).map(chat => chat.id),
+    openChats: openChats(),
     openChat: params.chatID,
     getCaptionsStatus,
     redirectToLogoutUrl,
