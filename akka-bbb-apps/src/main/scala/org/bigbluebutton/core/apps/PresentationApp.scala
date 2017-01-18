@@ -3,12 +3,14 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import com.google.gson.Gson
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.running.{ MeetingActor, MeetingStateModel }
 
 trait PresentationApp {
-  this: LiveMeeting =>
+  this: MeetingActor =>
 
   val outGW: OutMessageGateway
+  val state: MeetingStateModel
 
   private var cursorLocation = new CursorLocation
 
@@ -16,7 +18,7 @@ trait PresentationApp {
     val pres = msg.presentations
 
     msg.presentations.foreach(presentation => {
-      presModel.addPresentation(presentation)
+      state.presModel.addPresentation(presentation)
 
       sharePresentation(presentation.id, true)
     })
@@ -27,23 +29,23 @@ trait PresentationApp {
   }
 
   def handleClearPresentation(msg: ClearPresentation) {
-    outGW.send(new ClearPresentationOutMsg(mProps.meetingID, mProps.recorded))
+    outGW.send(new ClearPresentationOutMsg(state.mProps.meetingID, state.mProps.recorded))
   }
 
   def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
-    outGW.send(new PresentationConversionProgress(mProps.meetingID, msg.messageKey,
+    outGW.send(new PresentationConversionProgress(state.mProps.meetingID, msg.messageKey,
       msg.code, msg.presentationId, msg.presName))
   }
 
   def handlePresentationPageCountError(msg: PresentationPageCountError) {
-    outGW.send(new PresentationConversionError(mProps.meetingID, msg.messageKey,
+    outGW.send(new PresentationConversionError(state.mProps.meetingID, msg.messageKey,
       msg.code, msg.presentationId,
       msg.numberOfPages,
       msg.maxNumberPages, msg.presName))
   }
 
   def handlePresentationSlideGenerated(msg: PresentationSlideGenerated) {
-    outGW.send(new PresentationPageGenerated(mProps.meetingID, msg.messageKey,
+    outGW.send(new PresentationPageGenerated(state.mProps.meetingID, msg.messageKey,
       msg.code, msg.presentationId,
       msg.numberOfPages,
       msg.pagesCompleted, msg.presName))
@@ -51,18 +53,18 @@ trait PresentationApp {
 
   def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) {
 
-    presModel.addPresentation(msg.presentation)
+    state.presModel.addPresentation(msg.presentation)
 
-    outGW.send(new PresentationConversionDone(mProps.meetingID, mProps.recorded, msg.messageKey,
+    outGW.send(new PresentationConversionDone(state.mProps.meetingID, state.mProps.recorded, msg.messageKey,
       msg.code, msg.presentation))
 
     sharePresentation(msg.presentation.id, true)
   }
 
   def handleRemovePresentation(msg: RemovePresentation) {
-    val curPres = presModel.getCurrentPresentation
+    val curPres = state.presModel.getCurrentPresentation
 
-    val removedPresentation = presModel.remove(msg.presentationID)
+    val removedPresentation = state.presModel.remove(msg.presentationID)
 
     curPres foreach (cp => {
       if (cp.id == msg.presentationID) {
@@ -70,37 +72,37 @@ trait PresentationApp {
       }
     })
 
-    outGW.send(new RemovePresentationOutMsg(msg.meetingID, mProps.recorded, msg.presentationID))
+    outGW.send(new RemovePresentationOutMsg(msg.meetingID, state.mProps.recorded, msg.presentationID))
 
   }
 
   def handleGetPresentationInfo(msg: GetPresentationInfo) {
-    val curPresenter = usersModel.getCurrentPresenterInfo();
+    val curPresenter = state.meetingStatus.getCurrentPresenterInfo();
     val presenter = new CurrentPresenter(curPresenter.presenterID, curPresenter.presenterName, curPresenter.assignedBy)
-    val presentations = presModel.getPresentations
+    val presentations = state.presModel.getPresentations
     val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
-    outGW.send(new GetPresentationInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, presentationInfo, msg.replyTo))
+    outGW.send(new GetPresentationInfoOutMsg(state.mProps.meetingID, state.mProps.recorded, msg.requesterID, presentationInfo, msg.replyTo))
   }
 
   def handleSendCursorUpdate(msg: SendCursorUpdate) {
     cursorLocation = new CursorLocation(msg.xPercent, msg.yPercent)
-    outGW.send(new SendCursorUpdateOutMsg(mProps.meetingID, mProps.recorded, msg.xPercent, msg.yPercent))
+    outGW.send(new SendCursorUpdateOutMsg(state.mProps.meetingID, state.mProps.recorded, msg.xPercent, msg.yPercent))
   }
 
   def handleResizeAndMoveSlide(msg: ResizeAndMoveSlide) {
-    val page = presModel.resizePage(msg.xOffset, msg.yOffset,
+    val page = state.presModel.resizePage(msg.xOffset, msg.yOffset,
       msg.widthRatio, msg.heightRatio);
-    page foreach (p => outGW.send(new ResizeAndMoveSlideOutMsg(mProps.meetingID, mProps.recorded, p)))
+    page foreach (p => outGW.send(new ResizeAndMoveSlideOutMsg(state.mProps.meetingID, state.mProps.recorded, p)))
   }
 
   def handleGotoSlide(msg: GotoSlide) {
-    presModel.changePage(msg.page) foreach { page =>
+    state.presModel.changePage(msg.page) foreach { page =>
       log.debug("Switching page for meeting=[{}] page=[{}]", msg.meetingID, page.num);
-      outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
+      outGW.send(new GotoSlideOutMsg(state.mProps.meetingID, state.mProps.recorded, page))
     }
 
-    usersModel.getCurrentPresenter() foreach { pres =>
-      handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.userID))
+    Users.getCurrentPresenter(state.users.toVector) foreach { pres =>
+      handleStopPollRequest(StopPollRequest(state.mProps.meetingID, pres.id))
     }
 
   }
@@ -110,29 +112,29 @@ trait PresentationApp {
   }
 
   def sharePresentation(presentationID: String, share: Boolean) {
-    val pres = presModel.sharePresentation(presentationID)
+    val pres = state.presModel.sharePresentation(presentationID)
 
     pres foreach { p =>
-      outGW.send(new SharePresentationOutMsg(mProps.meetingID, mProps.recorded, p))
+      outGW.send(new SharePresentationOutMsg(state.mProps.meetingID, state.mProps.recorded, p))
 
-      presModel.getCurrentPage(p) foreach { page =>
-        outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
+      state.presModel.getCurrentPage(p) foreach { page =>
+        outGW.send(new GotoSlideOutMsg(state.mProps.meetingID, state.mProps.recorded, page))
       }
     }
 
   }
 
   def handleGetSlideInfo(msg: GetSlideInfo) {
-    presModel.getCurrentPresentation foreach { pres =>
-      presModel.getCurrentPage(pres) foreach { page =>
-        outGW.send(new GetSlideInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, page, msg.replyTo))
+    state.presModel.getCurrentPresentation foreach { pres =>
+      state.presModel.getCurrentPage(pres) foreach { page =>
+        outGW.send(new GetSlideInfoOutMsg(state.mProps.meetingID, state.mProps.recorded, msg.requesterID, page, msg.replyTo))
       }
     }
 
   }
 
   def printPresentations() {
-    presModel.getPresentations foreach { pres =>
+    state.presModel.getPresentations foreach { pres =>
       println("presentation id=[" + pres.id + "] current=[" + pres.current + "]")
       pres.pages.values foreach { page =>
         println("page id=[" + page.id + "] current=[" + page.current + "]")

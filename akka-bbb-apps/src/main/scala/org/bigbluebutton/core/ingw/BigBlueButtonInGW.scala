@@ -2,7 +2,8 @@ package org.bigbluebutton.core.ingw
 
 import akka.actor.ActorSystem
 import akka.event.Logging
-import org.bigbluebutton.common.messages.{ IBigBlueButtonMessage, PubSubPingMessage, RegisterUserMessage, StartCustomPollRequestMessage }
+import org.bigbluebutton.common.messages.{ IBigBlueButtonMessage, PubSubPingMessage, StartCustomPollRequestMessage }
+import org.bigbluebutton.messages.RegisterUserMessage
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps.{ AnnotationVO, Page, Presentation }
 import org.bigbluebutton.core.bus._
@@ -17,10 +18,10 @@ class BigBlueButtonInGW(
   val outGW: OutMessageGateway,
   val red5DeskShareIP: String,
   val red5DeskShareApp: String) extends IBigBlueButtonInGW
-    with CreateMeetingRequestHandlerTrait
-    with StartCustomPollRequestMessageHandlerTrait
-    with PubSubPingMessageHandlerTrait
-    with RegisterUserMessageHandler {
+    with CreateMeetingRequestHdlr
+    with StartCustomPollRequestMessageHdlr
+    with PubSubPingMessageHdlr
+    with RegisterUserMessageHdlr {
 
   val log = Logging(system, getClass)
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, outGW), "bigbluebutton-actor")

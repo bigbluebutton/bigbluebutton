@@ -502,7 +502,7 @@ class MessageSenderActor(val service: MessageSender)
   private def handleLockLayoutEvent(msg: LockLayoutEvent) {
     val users = new java.util.ArrayList[String];
     msg.applyTo.foreach(uvo => {
-      users.add(uvo.userID)
+      users.add(uvo.id)
     })
 
     val evt = new LockLayoutMessage(msg.meetingID, msg.setById, msg.locked, users)
@@ -512,7 +512,7 @@ class MessageSenderActor(val service: MessageSender)
   private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
     val users = new java.util.ArrayList[String];
     msg.applyTo.foreach(uvo => {
-      users.add(uvo.userID)
+      users.add(uvo.id)
     })
 
     val evt = new BroadcastLayoutMessage(msg.meetingID, msg.setByUserID, msg.layoutID, msg.locked, users)

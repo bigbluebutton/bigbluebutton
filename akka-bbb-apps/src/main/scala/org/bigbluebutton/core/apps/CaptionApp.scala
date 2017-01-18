@@ -1,59 +1,57 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-
-import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.{ MeetingActor, MeetingStateModel }
 
 trait CaptionApp {
-  this: LiveMeeting =>
+  this: MeetingActor =>
 
   val outGW: OutMessageGateway
+  val state: MeetingStateModel
 
   def handleSendCaptionHistoryRequest(msg: SendCaptionHistoryRequest) {
-    var history = captionModel.getHistory()
+    var history = state.captionModel.getHistory()
     //println("Caption history requested " + history)
-    outGW.send(new SendCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, history))
+    outGW.send(new SendCaptionHistoryReply(state.mProps.meetingID, state.mProps.recorded, msg.requesterID, history))
   }
 
   def handleUpdateCaptionOwnerRequest(msg: UpdateCaptionOwnerRequest) {
     // clear owner from previous locale
     if (msg.ownerID.length > 0) {
-      captionModel.findLocaleByOwnerId(msg.ownerID).foreach(t => {
-        captionModel.changeTranscriptOwner(t, "")
+      state.captionModel.findLocaleByOwnerId(msg.ownerID).foreach(t => {
+        state.captionModel.changeTranscriptOwner(t, "")
 
         // send notification that owner has changed
-        outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, t, captionModel.findLocaleCodeByLocale(t), ""))
+        outGW.send(new UpdateCaptionOwnerReply(state.mProps.meetingID, state.mProps.recorded, t, state.captionModel.findLocaleCodeByLocale(t), ""))
       })
     }
     // create the locale if it doesn't exist
-    if (captionModel.transcripts contains msg.locale) {
-      captionModel.changeTranscriptOwner(msg.locale, msg.ownerID)
+    if (state.captionModel.transcripts contains msg.locale) {
+      state.captionModel.changeTranscriptOwner(msg.locale, msg.ownerID)
     } else { // change the owner if it does exist
-      captionModel.newTranscript(msg.locale, msg.localeCode, msg.ownerID)
+      state.captionModel.newTranscript(msg.locale, msg.localeCode, msg.ownerID)
     }
 
-    outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, msg.locale, msg.localeCode, msg.ownerID))
+    outGW.send(new UpdateCaptionOwnerReply(state.mProps.meetingID, state.mProps.recorded, msg.locale, msg.localeCode, msg.ownerID))
   }
 
   def handleEditCaptionHistoryRequest(msg: EditCaptionHistoryRequest) {
-    captionModel.findLocaleByOwnerId(msg.userID).foreach(t => {
+    state.captionModel.findLocaleByOwnerId(msg.userID).foreach(t => {
       if (t == msg.locale) {
-        captionModel.editHistory(msg.startIndex, msg.endIndex, msg.locale, msg.text)
+        state.captionModel.editHistory(msg.startIndex, msg.endIndex, msg.locale, msg.text)
 
-        outGW.send(new EditCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.userID, msg.startIndex, msg.endIndex, msg.locale, msg.localeCode, msg.text))
+        outGW.send(new EditCaptionHistoryReply(state.mProps.meetingID, state.mProps.recorded, msg.userID, msg.startIndex, msg.endIndex, msg.locale, msg.localeCode, msg.text))
       }
     })
   }
 
   def checkCaptionOwnerLogOut(userId: String) {
-    captionModel.findLocaleByOwnerId(userId).foreach(t => {
-      captionModel.changeTranscriptOwner(t, "")
+    state.captionModel.findLocaleByOwnerId(userId).foreach(t => {
+      state.captionModel.changeTranscriptOwner(t, "")
 
       // send notification that owner has changed
-      outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, t, captionModel.findLocaleCodeByLocale(t), ""))
+      outGW.send(new UpdateCaptionOwnerReply(state.mProps.meetingID, state.mProps.recorded, t, state.captionModel.findLocaleCodeByLocale(t), ""))
     })
   }
 }

@@ -32,7 +32,7 @@ import org.bigbluebutton.common.converters.ToJsonEncoder;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
-import org.bigbluebutton.common.messages.RegisterUserMessage;
+import org.bigbluebutton.messages.RegisterUserMessage;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
 import org.bigbluebutton.web.services.turn.StunServer;
@@ -62,9 +62,13 @@ public class RedisMessagingService implements MessagingService {
 	
 	public void registerUser(String meetingID, String internalUserId, String fullname, String role,
 							 String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed) {
-		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role,
+		RegisterUserMessage.RegisterUserMessagePayload payload =
+				new RegisterUserMessage.RegisterUserMessagePayload(meetingID, internalUserId, fullname, role,
 				externUserID, authToken, avatarURL, guest, authed);
-		String json = msg.toJson();
+
+		RegisterUserMessage msg = new RegisterUserMessage(payload);
+		Gson gson = new Gson();
+		String json = gson.toJson(msg);
 		log.info("Sending register user message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
 	}
