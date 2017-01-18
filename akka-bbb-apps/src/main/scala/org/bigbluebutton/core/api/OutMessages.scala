@@ -9,6 +9,7 @@ import org.bigbluebutton.core.apps.PollVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
 import org.bigbluebutton.core.apps.BreakoutUser
+import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
 
 case class VoiceRecordingStarted(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
 case class VoiceRecordingStopped(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
@@ -44,8 +45,8 @@ case class BreakoutRoomsTimeRemainingUpdateOutMessage(meetingId: String, recorde
 case class BreakoutRoomEndedOutMessage(parentMeetingId: String, meetingId: String) extends IOutMessage
 
 // Permissions
-case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
-case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
+case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Vector[UserVO]) extends IOutMessage
+case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Vector[UserVO]) extends IOutMessage
 case class UserLocked(meetingID: String, userId: String, lock: Boolean) extends IOutMessage
 case class GetPermissionsSettingReply(meetingID: String, userId: String) extends IOutMessage
 
@@ -56,7 +57,7 @@ case class UserEjectedFromMeeting(meetingID: String, recorded: Boolean, userId: 
 case class PresenterAssigned(meetingID: String, recorded: Boolean, presenter: Presenter) extends IOutMessage
 case class EjectAllVoiceUsers(meetingID: String, recorded: Boolean, voiceBridge: String) extends IOutMessage
 case class EndAndKickAll(meetingID: String, recorded: Boolean) extends IOutMessage
-case class GetUsersReply(meetingID: String, requesterID: String, users: Array[UserVO]) extends IOutMessage
+case class GetUsersReply(meetingID: String, requesterID: String, users: Vector[UserVO]) extends IOutMessage
 case class ValidateAuthTokenTimedOut(meetingID: String, requesterId: String, token: String, valid: Boolean, correlationId: String) extends IOutMessage
 case class ValidateAuthTokenReply(meetingID: String, requesterId: String, token: String, valid: Boolean, correlationId: String) extends IOutMessage
 case class UserJoined(meetingID: String, recorded: Boolean, user: UserVO) extends IOutMessage
@@ -95,9 +96,9 @@ case class SendPrivateMessageEvent(meetingID: String, recorded: Boolean, request
 case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,
   locked: Boolean, setByUserID: String) extends IOutMessage
 case class BroadcastLayoutEvent(meetingID: String, recorded: Boolean, requesterID: String,
-  layoutID: String, locked: Boolean, setByUserID: String, applyTo: Array[UserVO]) extends IOutMessage
+  layoutID: String, locked: Boolean, setByUserID: String, applyTo: Vector[UserVO]) extends IOutMessage
 case class LockLayoutEvent(meetingID: String, recorded: Boolean, setById: String, locked: Boolean,
-  applyTo: Array[UserVO]) extends IOutMessage
+  applyTo: Vector[UserVO]) extends IOutMessage
 
 // Presentation
 case class ClearPresentationOutMsg(meetingID: String, recorded: Boolean) extends IOutMessage

@@ -4,6 +4,7 @@ import org.bigbluebutton.core.api._
 
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.models.UserVO
 import org.bigbluebutton.core.running.{ MeetingActor, MeetingStateModel }
 
 trait LayoutApp {
@@ -45,17 +46,17 @@ trait LayoutApp {
     broadcastSyncLayout(state.mProps.meetingID, setById)
   }
 
-  def affectedUsers(): Array[UserVO] = {
+  def affectedUsers(): Vector[UserVO] = {
     if (state.layoutModel.doesLayoutApplyToViewersOnly()) {
       val au = ArrayBuffer[UserVO]()
-      state.usersModel.getUsers foreach { u =>
+      state.users.toVector foreach { u =>
         if (!u.presenter && u.role != Role.MODERATOR) {
           au += u
         }
       }
-      au.toArray
+      au.toVector
     } else {
-      state.usersModel.getUsers
+      state.users.toVector
     }
 
   }

@@ -4,7 +4,8 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.core.messaging.Util
 import com.google.gson.Gson
-import org.bigbluebutton.core.api.UserVO
+import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
+
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
 
@@ -12,10 +13,10 @@ object UsersMessageToJsonConverter {
   private def userToMap(user: UserVO): java.util.Map[String, Any] = {
 
     val wuser = new scala.collection.mutable.HashMap[String, Any]
-    wuser += "userid" -> user.userID
-    wuser += "extern_userid" -> user.externUserID
+    wuser += "userid" -> user.id
+    wuser += "extern_userid" -> user.externalId
     wuser += "name" -> user.name
-    wuser += "role" -> user.role.toString()
+    wuser += "role" -> user.role
     wuser += "emoji_status" -> user.emojiStatus
     wuser += "presenter" -> user.presenter
     wuser += "has_stream" -> user.hasStream
@@ -45,7 +46,7 @@ object UsersMessageToJsonConverter {
     wuser += "userid" -> user.id
     wuser += "extern_userid" -> user.externId
     wuser += "name" -> user.name
-    wuser += "role" -> user.role.toString()
+    wuser += "role" -> user.role
     wuser += "authToken" -> user.authToken
     wuser += "avatarURL" -> user.avatarURL
 
@@ -231,7 +232,7 @@ object UsersMessageToJsonConverter {
 
     val users = new java.util.ArrayList[String];
     msg.applyTo.foreach(uvo => {
-      users.add(uvo.userID)
+      users.add(uvo.id)
     })
 
     payload.put(Constants.USERS, users)

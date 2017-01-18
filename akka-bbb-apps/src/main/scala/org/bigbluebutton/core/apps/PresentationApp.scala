@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import com.google.gson.Gson
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.models.Users
 import org.bigbluebutton.core.running.{ MeetingActor, MeetingStateModel }
 
 trait PresentationApp {
@@ -76,7 +77,7 @@ trait PresentationApp {
   }
 
   def handleGetPresentationInfo(msg: GetPresentationInfo) {
-    val curPresenter = state.usersModel.getCurrentPresenterInfo();
+    val curPresenter = state.meetingStatus.getCurrentPresenterInfo();
     val presenter = new CurrentPresenter(curPresenter.presenterID, curPresenter.presenterName, curPresenter.assignedBy)
     val presentations = state.presModel.getPresentations
     val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
@@ -100,8 +101,8 @@ trait PresentationApp {
       outGW.send(new GotoSlideOutMsg(state.mProps.meetingID, state.mProps.recorded, page))
     }
 
-    state.usersModel.getCurrentPresenter() foreach { pres =>
-      handleStopPollRequest(StopPollRequest(state.mProps.meetingID, pres.userID))
+    Users.getCurrentPresenter(state.users.toVector) foreach { pres =>
+      handleStopPollRequest(StopPollRequest(state.mProps.meetingID, pres.id))
     }
 
   }

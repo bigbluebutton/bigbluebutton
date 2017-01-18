@@ -6,6 +6,7 @@ import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
+import org.bigbluebutton.core.models.{ Roles, UserVO, Users, VoiceUser }
 import org.bigbluebutton.core.running.handlers.{ RegisterUserMsgHdlr, UserJoinMsgHdlr, ValidateAuthTokenMsgHdlr }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
 
@@ -174,71 +175,58 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def assignNewPresenter(newPresenterID: String, newPresenterName: String, assignedBy: String) {
+
+    def sendPresenterStateChange(): Unit = {
+      outGW.send(new PresenterAssigned(state.mProps.meetingID, state.mProps.recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
+      outGW.send(new UserStatusChange(state.mProps.meetingID, state.mProps.recorded, newPresenterID, "presenter", true: java.lang.Boolean))
+    }
+
     // Stop poll if one is running as presenter left.
     handleStopPollRequest(StopPollRequest(state.mProps.meetingID, assignedBy))
 
-    if (state.usersModel.hasUser(newPresenterID)) {
+    if (Users.hasUserWithId(newPresenterID, state.users.toVector)) {
 
-      state.usersModel.getCurrentPresenter match {
-        case Some(curPres) => {
-          state.usersModel.unbecomePresenter(curPres.userID)
-          outGW.send(new UserStatusChange(state.mProps.meetingID, state.mProps.recorded, curPres.userID, "presenter", false: java.lang.Boolean))
-        }
-        case None => // do nothing
-      }
+      for {
+        curPres <- Users.getCurrentPresenter(state.users.toVector)
+        oldPres = Users.unbecomePresenter(curPres)
+        _ = state.users.save(oldPres)
+      } yield outGW.send(new UserStatusChange(state.mProps.meetingID, state.mProps.recorded, curPres.id, "presenter", false: java.lang.Boolean))
 
-      state.usersModel.getUser(newPresenterID) match {
-        case Some(newPres) => {
-          state.usersModel.becomePresenter(newPres.userID)
-          state.usersModel.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
-          outGW.send(new PresenterAssigned(state.mProps.meetingID, state.mProps.recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
-          outGW.send(new UserStatusChange(state.mProps.meetingID, state.mProps.recorded, newPresenterID, "presenter", true: java.lang.Boolean))
-        }
-        case None => // do nothing
-      }
-
+      for {
+        u <- Users.findWithId(newPresenterID, state.users.toVector)
+        newPres = Users.becomePresenter(u)
+        _ = state.users.save(newPres)
+      } sendPresenterStateChange()
     }
-  }
-
-  def hasUser(userID: String): Boolean = {
-    state.usersModel.hasUser(userID)
-  }
-
-  def getUser(userID: String): Option[UserVO] = {
-    state.usersModel.getUser(userID)
   }
 
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
     log.info("Handling UserConnectedToGlobalAudio: meetingId=" + state.mProps.meetingID + " userId=" + msg.userid)
 
-    val user = state.usersModel.getUser(msg.userid)
-    user foreach { u =>
-      if (state.usersModel.addGlobalAudioConnection(msg.userid)) {
-        val vu = u.voiceUser.copy(joined = false, talking = false)
-        val uvo = u.copy(listenOnly = true, voiceUser = vu)
-        state.usersModel.addUser(uvo)
-        log.info("UserConnectedToGlobalAudio: meetingId=" + state.mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
-        outGW.send(new UserListeningOnly(state.mProps.meetingID, state.mProps.recorded, uvo.userID, uvo.listenOnly))
-      }
-    }
+    for {
+      u <- Users.findWithId(msg.userid, state.users.toVector)
+      vu = u.voiceUser.copy(joined = false, talking = false)
+      uvo = u.copy(listenOnly = true, voiceUser = vu)
+      _ = state.users.save(uvo)
+    } yield outGW.send(new UserListeningOnly(state.mProps.meetingID, state.mProps.recorded, uvo.id, uvo.listenOnly))
   }
 
   def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
     log.info("Handling UserDisconnectedToGlobalAudio: meetingId=" + state.mProps.meetingID + " userId=" + msg.userid)
 
-    val user = state.usersModel.getUser(msg.userid)
+    val user = Users.findWithId(msg.userid, state.users.toVector)
     user foreach { u =>
-      if (state.usersModel.removeGlobalAudioConnection(msg.userid)) {
+      if (state.meetingStatus.removeGlobalAudioConnection(msg.userid)) {
         if (!u.joinedWeb) {
-          val userLeaving = state.usersModel.removeUser(u.userID)
-          log.info("Not web user. Send user left message. meetingId=" + state.mProps.meetingID + " userId=" + u.userID + " user=" + u)
+          val userLeaving = state.users.remove(u.id)
+          log.info("Not web user. Send user left message. meetingId=" + state.mProps.meetingID + " userId=" + u.id + " user=" + u)
           userLeaving foreach (u => outGW.send(new UserLeft(state.mProps.meetingID, state.mProps.recorded, u)))
         } else {
           val vu = u.voiceUser.copy(joined = false)
           val uvo = u.copy(listenOnly = false, voiceUser = vu)
-          state.usersModel.addUser(uvo)
-          log.info("UserDisconnectedToGlobalAudio: meetingId=" + state.mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
-          outGW.send(new UserListeningOnly(state.mProps.meetingID, state.mProps.recorded, uvo.userID, uvo.listenOnly))
+          state.users.save(uvo)
+          log.info("UserDisconnectedToGlobalAudio: meetingId=" + state.mProps.meetingID + " userId=" + uvo.id + " user=" + uvo)
+          outGW.send(new UserListeningOnly(state.mProps.meetingID, state.mProps.recorded, uvo.id, uvo.listenOnly))
         }
       }
     }
@@ -252,9 +240,9 @@ class MeetingActor(val eventBus: IncomingEventBus,
     }
     outGW.send(new MeetingMuted(state.mProps.meetingID, state.mProps.recorded, state.meetingModel.isMeetingMuted()))
 
-    usersWhoAreNotPresenter foreach { u =>
+    Users.usersWhoAreNotPresenter(state.users.toVector) foreach { u =>
       outGW.send(new MuteVoiceUser(state.mProps.meetingID, state.mProps.recorded, msg.requesterID,
-        u.userID, state.mProps.voiceBridge, u.voiceUser.userId, msg.mute))
+        u.id, state.mProps.voiceBridge, u.voiceUser.userId, msg.mute))
     }
   }
 
@@ -265,9 +253,10 @@ class MeetingActor(val eventBus: IncomingEventBus,
       state.meetingModel.unmuteMeeting()
     }
     outGW.send(new MeetingMuted(state.mProps.meetingID, state.mProps.recorded, state.meetingModel.isMeetingMuted()))
-    state.usersModel.getUsers foreach { u =>
+
+    state.users.toVector foreach { u =>
       outGW.send(new MuteVoiceUser(state.mProps.meetingID, state.mProps.recorded, msg.requesterID,
-        u.userID, state.mProps.voiceBridge, u.voiceUser.userId, msg.mute))
+        u.id, state.mProps.voiceBridge, u.voiceUser.userId, msg.mute))
     }
   }
 
@@ -278,30 +267,20 @@ class MeetingActor(val eventBus: IncomingEventBus,
 
   def handleMuteUserRequest(msg: MuteUserRequest) {
     log.info("Received mute user request. meetingId=" + state.mProps.meetingID + " userId=" + msg.userID + " mute=" + msg.mute)
-    state.usersModel.getUser(msg.userID) match {
-      case Some(u) => {
-        log.info("Send mute user request. meetingId=" + state.mProps.meetingID + " userId=" + u.userID + " user=" + u)
-        outGW.send(new MuteVoiceUser(state.mProps.meetingID, state.mProps.recorded,
-          msg.requesterID, u.userID, state.mProps.voiceBridge,
-          u.voiceUser.userId, msg.mute))
-      }
-      case None => {
-        log.info("Could not find user to mute.  meetingId=" + state.mProps.meetingID + " userId=" + msg.userID)
-      }
-    }
+
+    for {
+      user <- Users.findWithId(msg.userID, state.users.toVector)
+    } yield outGW.send(new MuteVoiceUser(state.mProps.meetingID, state.mProps.recorded,
+      msg.requesterID, user.id, state.mProps.voiceBridge,
+      user.voiceUser.userId, msg.mute))
   }
 
   def handleEjectUserRequest(msg: EjectUserFromVoiceRequest) {
     log.info("Received eject user request. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-    state.usersModel.getUser(msg.userId) match {
-      case Some(u) => {
-        if (u.voiceUser.joined) {
-          log.info("Ejecting user from voice.  meetingId=" + state.mProps.meetingID + " userId=" + u.userID)
-          outGW.send(new EjectVoiceUser(state.mProps.meetingID, state.mProps.recorded, msg.ejectedBy, u.userID, state.mProps.voiceBridge, u.voiceUser.userId))
-        }
-      }
-      case None => // do nothing
-    }
+
+    for {
+      u <- Users.findWithId(msg.userId, state.users.toVector)
+    } yield outGW.send(new EjectVoiceUser(state.mProps.meetingID, state.mProps.recorded, msg.ejectedBy, u.id, state.mProps.voiceBridge, u.voiceUser.userId))
   }
 
   def handleGetLockSettings(msg: GetLockSettings) {
@@ -309,39 +288,34 @@ class MeetingActor(val eventBus: IncomingEventBus,
 
     //reusing the existing handle for NewPermissionsSettings to reply to the GetLockSettings request
     outGW.send(new NewPermissionsSetting(state.mProps.meetingID, msg.userId,
-      state.meetingModel.getPermissions(), state.usersModel.getUsers))
+      state.meetingModel.getPermissions(), state.users.toVector))
   }
 
   def handleSetLockSettings(msg: SetLockSettings) {
     if (!permissionsEqual(msg.settings)) {
       newPermissions(msg.settings)
       outGW.send(new NewPermissionsSetting(state.mProps.meetingID, msg.setByUser,
-        state.meetingModel.getPermissions, state.usersModel.getUsers))
+        state.meetingModel.getPermissions, state.users.toVector))
 
       handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }
   }
 
   def handleLockUserRequest(msg: LockUserRequest) {
-    state.usersModel.getUser(msg.userID) match {
-      case Some(u) => {
-        val uvo = u.copy(locked = msg.lock)
-        state.usersModel.addUser(uvo)
 
-        log.info("Lock user.  meetingId=" + state.mProps.meetingID + " userId=" + u.userID + " lock=" + msg.lock)
-        outGW.send(new UserLocked(state.mProps.meetingID, u.userID, msg.lock))
-      }
-      case None => {
-        log.info("Could not find user to lock.  meetingId=" + state.mProps.meetingID + " userId=" + msg.userID + " lock=" + msg.lock)
-      }
-    }
+    for {
+      u <- Users.findWithId(msg.userID, state.users.toVector)
+      uvo = u.copy(locked = msg.lock)
+      _ = state.users.save(uvo)
+    } yield outGW.send(new UserLocked(state.mProps.meetingID, u.id, msg.lock))
+
   }
 
   def handleInitLockSettings(msg: InitLockSettings) {
     if (!state.meetingModel.permisionsInitialized()) {
       state.meetingModel.initializePermissions()
       newPermissions(msg.settings)
-      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings, state.usersModel.getUsers))
+      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings, state.users.toVector))
     }
   }
 
@@ -350,30 +324,19 @@ class MeetingActor(val eventBus: IncomingEventBus,
       state.meetingModel.initializeAudioSettings()
 
       if (state.meetingModel.isMeetingMuted() != msg.muted) {
-        handleMuteAllExceptPresenterRequest(
-          new MuteAllExceptPresenterRequest(state.mProps.meetingID,
-            msg.requesterID, msg.muted));
+        handleMuteAllExceptPresenterRequest(new MuteAllExceptPresenterRequest(state.mProps.meetingID, msg.requesterID, msg.muted));
       }
     }
-  }
-
-  def usersWhoAreNotPresenter(): Array[UserVO] = {
-    val au = ArrayBuffer[UserVO]()
-
-    state.usersModel.getUsers foreach { u =>
-      if (!u.presenter) {
-        au += u
-      }
-    }
-    au.toArray
   }
 
   def handleUserEmojiStatus(msg: UserEmojiStatus) {
-    state.usersModel.getUser(msg.userId) foreach { user =>
-      val uvo = user.copy(emojiStatus = msg.emojiStatus)
-      state.usersModel.addUser(uvo)
-      outGW.send(new UserChangedEmojiStatus(state.mProps.meetingID, state.mProps.recorded, msg.emojiStatus, uvo.userID))
-    }
+
+    for {
+      user <- Users.findWithId(msg.userId, state.users.toVector)
+      uvo = user.copy(emojiStatus = msg.emojiStatus)
+      _ = state.users.save(uvo)
+    } yield outGW.send(new UserChangedEmojiStatus(state.mProps.meetingID, state.mProps.recorded, msg.emojiStatus, uvo.id))
+
   }
 
   def makeSurePresenterIsAssigned(user: UserVO): Unit = {
@@ -382,11 +345,11 @@ class MeetingActor(val eventBus: IncomingEventBus,
        * him presenter. This way, if there is a moderator in the meeting, there
        * will always be a presenter.
        */
-      val moderator = state.usersModel.findAModerator()
+      val moderator = Users.findAModerator(state.users.toVector)
       moderator.foreach { mod =>
-        log.info("Presenter left meeting.  meetingId=" + state.mProps.meetingID + " userId=" + user.userID
-          + ". Making user=[" + mod.userID + "] presenter.")
-        assignNewPresenter(mod.userID, mod.name, mod.userID)
+        log.info("Presenter left meeting.  meetingId=" + state.mProps.meetingID + " userId=" + user.id
+          + ". Making user=[" + mod.id + "] presenter.")
+        assignNewPresenter(mod.id, mod.name, mod.id)
       }
 
       if (state.meetingModel.isBroadcastingRTMP()) {
@@ -404,14 +367,14 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def handleEjectUserFromMeeting(msg: EjectUserFromMeeting) {
-    state.usersModel.getUser(msg.userId) foreach { user =>
+    Users.findWithId(msg.userId, state.users.toVector) foreach { user =>
       if (user.voiceUser.joined) {
         outGW.send(new EjectVoiceUser(state.mProps.meetingID, state.mProps.recorded,
           msg.ejectedBy, msg.userId, state.mProps.voiceBridge, user.voiceUser.userId))
       }
 
-      state.usersModel.removeUser(msg.userId)
-      state.usersModel.removeRegUser(msg.userId)
+      state.users.remove(msg.userId)
+      state.registeredUsers.delete(msg.userId)
 
       makeSurePresenterIsAssigned(user)
 
@@ -424,45 +387,46 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def handleUserShareWebcam(msg: UserShareWebcam) {
-    state.usersModel.getUser(msg.userId) foreach { user =>
+    Users.findWithId(msg.userId, state.users.toVector) foreach { user =>
       val streams = user.webcamStreams + msg.stream
       val uvo = user.copy(hasStream = true, webcamStreams = streams)
-      state.usersModel.addUser(uvo)
-      log.info("User shared webcam.  meetingId=" + state.mProps.meetingID + " userId=" + uvo.userID
+      state.users.save(uvo)
+      log.info("User shared webcam.  meetingId=" + state.mProps.meetingID + " userId=" + uvo.id
         + " stream=" + msg.stream + " streams=" + streams)
-      outGW.send(new UserSharedWebcam(state.mProps.meetingID, state.mProps.recorded, uvo.userID, msg.stream))
+      outGW.send(new UserSharedWebcam(state.mProps.meetingID, state.mProps.recorded, uvo.id, msg.stream))
     }
   }
 
   def handleUserunshareWebcam(msg: UserUnshareWebcam) {
-    state.usersModel.getUser(msg.userId) foreach { user =>
+    Users.findWithId(msg.userId, state.users.toVector) foreach { user =>
       val streamName = user.webcamStreams find (w => w == msg.stream) foreach { streamName =>
         val streams = user.webcamStreams - streamName
         val uvo = user.copy(hasStream = (!streams.isEmpty), webcamStreams = streams)
-        state.usersModel.addUser(uvo)
-        log.info("User unshared webcam.  meetingId=" + state.mProps.meetingID + " userId=" + uvo.userID
+        state.users.save(uvo)
+        log.info("User unshared webcam.  meetingId=" + state.mProps.meetingID + " userId=" + uvo.id
           + " stream=" + msg.stream + " streams=" + streams)
-        outGW.send(new UserUnsharedWebcam(state.mProps.meetingID, state.mProps.recorded, uvo.userID, msg.stream))
+        outGW.send(new UserUnsharedWebcam(state.mProps.meetingID, state.mProps.recorded, uvo.id, msg.stream))
       }
 
     }
   }
 
   def handleChangeUserStatus(msg: ChangeUserStatus): Unit = {
-    if (state.usersModel.hasUser(msg.userID)) {
+    if (Users.hasUserWithId(msg.userID, state.users.toVector)) {
       outGW.send(new UserStatusChange(state.mProps.meetingID, state.mProps.recorded, msg.userID, msg.status, msg.value))
     }
   }
 
   def handleGetUsers(msg: GetUsers): Unit = {
-    outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, state.usersModel.getUsers))
+    outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, state.users.toVector))
   }
 
   def handleUserLeft(msg: UserLeaving): Unit = {
-    if (state.usersModel.hasUser(msg.userID)) {
-      val user = state.usersModel.removeUser(msg.userID)
+
+    if (Users.hasUserWithId(msg.userID, state.users.toVector)) {
+      val user = state.users.remove(msg.userID)
       user foreach { u =>
-        log.info("User left meeting. meetingId=" + state.mProps.meetingID + " userId=" + u.userID + " user=" + u)
+        log.info("User left meeting. meetingId=" + state.mProps.meetingID + " userId=" + u.id + " user=" + u)
         outGW.send(new UserLeft(msg.meetingID, state.mProps.recorded, u))
 
         makeSurePresenterIsAssigned(u)
@@ -475,11 +439,11 @@ class MeetingActor(val eventBus: IncomingEventBus,
            * user left voice conference message, then we will remove the user from the users list.
            */
           switchUserToPhoneUser(new UserJoinedVoiceConfMessage(state.mProps.voiceBridge,
-            vu.userId, u.userID, u.externUserID, vu.callerName,
+            vu.userId, u.id, u.externalId, vu.callerName,
             vu.callerNum, vu.muted, vu.talking, vu.avatarURL, u.listenOnly));
         }
 
-        checkCaptionOwnerLogOut(u.userID)
+        checkCaptionOwnerLogOut(u.id)
       }
 
       startCheckingIfWeNeedToEndVoiceConf()
@@ -487,14 +451,14 @@ class MeetingActor(val eventBus: IncomingEventBus,
     }
   }
 
-  def getInitialLockStatus(role: Role.Role): Boolean = {
-    state.meetingModel.getPermissions().lockOnJoin && !role.equals(Role.MODERATOR)
+  def getInitialLockStatus(role: String): Boolean = {
+    state.meetingModel.getPermissions().lockOnJoin && role != Roles.MODERATOR_ROLE
   }
 
   def handleUserJoinedVoiceFromPhone(msg: UserJoinedVoiceConfMessage) = {
     log.info("User joining from phone.  meetingId=" + state.mProps.meetingID + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
 
-    val user = state.usersModel.getUserWithVoiceUserId(msg.voiceUserId) match {
+    val user = Users.getUserWithVoiceUserId(msg.voiceUserId, state.users.toVector) match {
       case Some(user) => {
         log.info("Voice user=" + msg.voiceUserId + " is already in conf="
           + state.mProps.voiceBridge + ". Must be duplicate message. meetigId=" + state.mProps.meetingID)
@@ -506,7 +470,7 @@ class MeetingActor(val eventBus: IncomingEventBus,
           // No current web user. This means that the user called in through
           // the phone. We need to generate a new user as we are not able
           // to match with a web user.
-          state.usersModel.generateWebUserId
+          Users.generateWebUserId(state.users.toVector)
         }
 
         /**
@@ -520,20 +484,20 @@ class MeetingActor(val eventBus: IncomingEventBus,
          * So we call him "phoneUser".
          */
         val uvo = new UserVO(webUserId, msg.externUserId, msg.callerIdName,
-          Role.VIEWER, emojiStatus = "none", presenter = false,
-          hasStream = false, locked = getInitialLockStatus(Role.VIEWER),
+          Roles.VIEWER_ROLE, emojiStatus = "none", presenter = false,
+          hasStream = false, locked = getInitialLockStatus(Roles.VIEWER_ROLE),
           webcamStreams = new ListSet[String](),
           phoneUser = !msg.listenOnly, vu, listenOnly = msg.listenOnly, avatarURL = msg.avatarURL, joinedWeb = false)
 
-        state.usersModel.addUser(uvo)
+        state.users.save(uvo)
 
-        log.info("User joined from phone.  meetingId=" + state.mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
+        log.info("User joined from phone.  meetingId=" + state.mProps.meetingID + " userId=" + uvo.id + " user=" + uvo)
 
         outGW.send(new UserJoined(state.mProps.meetingID, state.mProps.recorded, uvo))
         outGW.send(new UserJoinedVoice(state.mProps.meetingID, state.mProps.recorded, state.mProps.voiceBridge, uvo))
 
         if (state.meetingModel.isMeetingMuted()) {
-          outGW.send(new MuteVoiceUser(state.mProps.meetingID, state.mProps.recorded, uvo.userID, uvo.userID,
+          outGW.send(new MuteVoiceUser(state.mProps.meetingID, state.mProps.recorded, uvo.id, uvo.id,
             state.mProps.voiceBridge, vu.userId, state.meetingModel.isMeetingMuted()))
         }
       }
@@ -541,8 +505,8 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def startRecordingVoiceConference() {
-    if (state.usersModel.numUsersInVoiceConference == 1 && state.mProps.recorded && !state.usersModel.isVoiceRecording) {
-      state.usersModel.startRecordingVoice()
+    if (Users.numUsersInVoiceConference(state.users.toVector) == 1 && state.mProps.recorded && !state.meetingStatus.isVoiceRecording) {
+      state.meetingStatus.startRecordingVoice()
       log.info("Send START RECORDING voice conf. meetingId=" + state.mProps.meetingID + " voice conf=" + state.mProps.voiceBridge)
       outGW.send(new StartRecordingVoiceConf(state.mProps.meetingID, state.mProps.recorded, state.mProps.voiceBridge))
     }
@@ -553,20 +517,20 @@ class MeetingActor(val eventBus: IncomingEventBus,
       + state.mProps.meetingID + " callername=" + msg.callerIdName
       + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
 
-    state.usersModel.getUser(msg.userId) match {
+    Users.findWithId(msg.userId, state.users.toVector) match {
       case Some(user) => {
         val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName,
           msg.callerIdNum, joined = true, locked = false,
           msg.muted, msg.talking, msg.avatarURL, msg.listenOnly)
         val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
-        state.usersModel.addUser(nu)
+        state.users.save(nu)
 
-        log.info("User joined voice. meetingId=" + state.mProps.meetingID + " userId=" + user.userID + " user=" + nu)
+        log.info("User joined voice. meetingId=" + state.mProps.meetingID + " userId=" + user.id + " user=" + nu)
         outGW.send(new UserJoinedVoice(state.mProps.meetingID, state.mProps.recorded, state.mProps.voiceBridge, nu))
 
         if (state.meetingModel.isMeetingMuted()) {
           outGW.send(new MuteVoiceUser(state.mProps.meetingID, state.mProps.recorded,
-            nu.userID, nu.userID, state.mProps.voiceBridge,
+            nu.id, nu.id, state.mProps.voiceBridge,
             nu.voiceUser.userId, state.meetingModel.isMeetingMuted()))
         }
       }
@@ -580,7 +544,7 @@ class MeetingActor(val eventBus: IncomingEventBus,
     log.info("Received user joined voice. meetingId=" + state.mProps.meetingID + " callername=" + msg.callerIdName
       + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
 
-    state.usersModel.getUser(msg.userId) match {
+    Users.findWithId(msg.userId, state.users.toVector) match {
       case Some(user) => {
         // this is used to restore the mute state on reconnect
         val previouslyMuted = user.voiceUser.muted
@@ -589,14 +553,15 @@ class MeetingActor(val eventBus: IncomingEventBus,
           msg.callerIdNum, joined = true, locked = false,
           msg.muted, msg.talking, msg.avatarURL, msg.listenOnly)
         val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
-        state.usersModel.addUser(nu)
 
-        log.info("User joined voice. meetingId=" + state.mProps.meetingID + " userId=" + user.userID + " user=" + nu)
+        state.users.save(nu)
+
+        log.info("User joined voice. meetingId=" + state.mProps.meetingID + " userId=" + user.id + " user=" + nu)
         outGW.send(new UserJoinedVoice(state.mProps.meetingID, state.mProps.recorded, state.mProps.voiceBridge, nu))
 
         if (state.meetingModel.isMeetingMuted() || previouslyMuted) {
           outGW.send(new MuteVoiceUser(state.mProps.meetingID, state.mProps.recorded,
-            nu.userID, nu.userID, state.mProps.voiceBridge,
+            nu.id, nu.id, state.mProps.voiceBridge,
             nu.voiceUser.userId, true))
         }
 
@@ -610,8 +575,8 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def stopRecordingVoiceConference() {
-    if (state.usersModel.numUsersInVoiceConference == 0 && state.mProps.recorded && state.usersModel.isVoiceRecording) {
-      state.usersModel.stopRecordingVoice()
+    if (Users.numUsersInVoiceConference(state.users.toVector) == 0 && state.mProps.recorded && state.meetingStatus.isVoiceRecording) {
+      state.meetingStatus.stopRecordingVoice()
       log.info("Send STOP RECORDING voice conf. meetingId=" + state.mProps.meetingID + " voice conf=" + state.mProps.voiceBridge)
       outGW.send(new StopRecordingVoiceConf(state.mProps.meetingID, state.mProps.recorded,
         state.mProps.voiceBridge, state.meetingModel.getVoiceRecordingFilename()))
@@ -622,21 +587,21 @@ class MeetingActor(val eventBus: IncomingEventBus,
     log.info("Received user left voice conf. meetingId=" + state.mProps.meetingID + " voice conf=" + msg.voiceConfId
       + " userId=" + msg.voiceUserId)
 
-    state.usersModel.getUserWithVoiceUserId(msg.voiceUserId) foreach { user =>
+    Users.getUserWithVoiceUserId(msg.voiceUserId, state.users.toVector) foreach { user =>
       /**
        * Reset user's voice status.
        */
-      val vu = new VoiceUser(user.userID, user.userID, user.name, user.name,
+      val vu = new VoiceUser(user.id, user.id, user.name, user.name,
         joined = false, locked = false, muted = false, talking = false, user.avatarURL, listenOnly = false)
       val nu = user.copy(voiceUser = vu, phoneUser = false, listenOnly = false)
-      state.usersModel.addUser(nu)
+      state.users.save(nu)
 
-      log.info("User left voice conf. meetingId=" + state.mProps.meetingID + " userId=" + nu.userID + " user=" + nu)
+      log.info("User left voice conf. meetingId=" + state.mProps.meetingID + " userId=" + nu.id + " user=" + nu)
       outGW.send(new UserLeftVoice(state.mProps.meetingID, state.mProps.recorded, state.mProps.voiceBridge, nu))
 
       if (user.phoneUser) {
-        if (state.usersModel.hasUser(user.userID)) {
-          val userLeaving = state.usersModel.removeUser(user.userID)
+        if (Users.hasUserWithId(user.id, state.users.toVector)) {
+          val userLeaving = state.users.remove(user.id)
           userLeaving foreach (u => outGW.send(new UserLeft(state.mProps.meetingID, state.mProps.recorded, u)))
         }
       }
@@ -645,23 +610,23 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
-    state.usersModel.getUserWithVoiceUserId(msg.voiceUserId) foreach { user =>
+    Users.getUserWithVoiceUserId(msg.voiceUserId, state.users.toVector) foreach { user =>
       val talking: Boolean = if (msg.muted) false else user.voiceUser.talking
       val nv = user.voiceUser.copy(muted = msg.muted, talking = talking)
       val nu = user.copy(voiceUser = nv)
-      state.usersModel.addUser(nu)
+      state.users.save(nu)
 
-      log.info("User muted in voice conf. meetingId=" + state.mProps.meetingID + " userId=" + nu.userID + " user=" + nu)
+      log.info("User muted in voice conf. meetingId=" + state.mProps.meetingID + " userId=" + nu.id + " user=" + nu)
 
       outGW.send(new UserVoiceMuted(state.mProps.meetingID, state.mProps.recorded, state.mProps.voiceBridge, nu))
     }
   }
 
   def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
-    state.usersModel.getUserWithVoiceUserId(msg.voiceUserId) foreach { user =>
+    Users.getUserWithVoiceUserId(msg.voiceUserId, state.users.toVector) foreach { user =>
       val nv = user.voiceUser.copy(talking = msg.talking)
       val nu = user.copy(voiceUser = nv)
-      state.usersModel.addUser(nu)
+      state.users.save(nu)
       //      println("Received voice talking=[" + msg.talking + "] wid=[" + msg.userId + "]" )
       outGW.send(new UserVoiceTalking(state.mProps.meetingID, state.mProps.recorded, state.mProps.voiceBridge, nu))
     }
@@ -676,13 +641,14 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def webUserJoined() {
-    if (state.usersModel.numWebUsers > 0) {
+    if (Users.numWebUsers(state.users.toVector) > 0) {
       state.meetingModel.resetLastWebUserLeftOn()
     }
   }
 
   def startRecordingIfAutoStart() {
-    if (state.mProps.recorded && !state.meetingModel.isRecording() && state.mProps.autoStartRecording && state.usersModel.numWebUsers == 1) {
+    if (state.mProps.recorded && !state.meetingModel.isRecording() && state.mProps.autoStartRecording
+      && Users.numWebUsers(state.users.toVector) == 1) {
       log.info("Auto start recording. meetingId={}", state.mProps.meetingID)
       state.meetingModel.recordingStarted()
       outGW.send(new RecordingStatusChanged(state.mProps.meetingID, state.mProps.recorded, "system", state.meetingModel.isRecording()))
@@ -690,7 +656,8 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def stopAutoStartedRecording() {
-    if (state.mProps.recorded && state.meetingModel.isRecording() && state.mProps.autoStartRecording && state.usersModel.numWebUsers == 0) {
+    if (state.mProps.recorded && state.meetingModel.isRecording() && state.mProps.autoStartRecording
+      && Users.numWebUsers(state.users.toVector) == 0) {
       log.info("Last web user left. Auto stopping recording. meetingId={}", state.mProps.meetingID)
       state.meetingModel.recordingStopped()
       outGW.send(new RecordingStatusChanged(state.mProps.meetingID, state.mProps.recorded, "system", state.meetingModel.isRecording()))
@@ -698,7 +665,7 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (state.usersModel.numWebUsers == 0 && !state.mProps.isBreakout) {
+    if (Users.numWebUsers(state.users.toVector) == 0 && !state.mProps.isBreakout) {
       state.meetingModel.lastWebUserLeft()
       log.debug("MonitorNumberOfWebUsers started for meeting [" + state.mProps.meetingID + "]")
     }
@@ -713,7 +680,7 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
-    if (state.usersModel.numWebUsers == 0 && state.meetingModel.lastWebUserLeftOn > 0) {
+    if (Users.numWebUsers(state.users.toVector) == 0 && state.meetingModel.lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - state.meetingModel.lastWebUserLeftOn > 2) {
         log.info("Empty meeting. Ejecting all users from voice. meetingId={}", state.mProps.meetingID)
         outGW.send(new EjectAllVoiceUsers(state.mProps.meetingID, state.mProps.recorded, state.mProps.voiceBridge))
@@ -765,9 +732,9 @@ class MeetingActor(val eventBus: IncomingEventBus,
   }
 
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
-    state.usersModel.getCurrentPresenter() match {
+    Users.getCurrentPresenter(state.users.toVector) match {
       case Some(curPres) => {
-        val allowed = msg.userID equals (curPres.userID)
+        val allowed = msg.userID equals (curPres.id)
         outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
       }
       case None => // do nothing

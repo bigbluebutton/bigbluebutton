@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.running.handlers
 
 import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.models.RegisteredUsers
 import org.bigbluebutton.core.running.{ MeetingActor, MeetingStateModel }
 
 trait RegisterUserMsgHdlr {
@@ -15,9 +16,9 @@ trait RegisterUserMsgHdlr {
       outGW.send(new MeetingHasEnded(state.mProps.meetingID, msg.userID))
       outGW.send(new DisconnectUser(state.mProps.meetingID, msg.userID))
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken,
+      val regUser = RegisteredUsers.create(msg.userID, msg.extUserID, msg.name, msg.role.toString, msg.authToken,
         msg.avatarURL, msg.guest, msg.authenticated)
-      state.usersModel.addRegisteredUser(msg.authToken, regUser)
+      state.registeredUsers.save(regUser)
 
       log.info("Register user success. meetingId=" + state.mProps.meetingID + " userId=" + msg.userID + " user=" + regUser)
       outGW.send(new UserRegistered(state.mProps.meetingID, state.mProps.recorded, regUser))

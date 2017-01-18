@@ -10,6 +10,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.models.Users
 import org.bigbluebutton.core.running.{ MeetingActor, MeetingStateModel }
 
 trait BreakoutRoomApp extends SystemConfiguration {
@@ -62,7 +63,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {
     log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId)
     for {
-      user <- state.usersModel.getUser(userId)
+      user <- Users.findWithId(userId, state.users.toVector)
       apiCall = "join"
       params = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true, externalMeetingId, state.mProps.moderatorPass)
       // We generate a first url with redirect -> true
@@ -119,8 +120,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
-    val users = state.usersModel.getUsers().toVector
-    val breakoutUsers = users map { u => new BreakoutUser(u.externUserID, u.name) }
+    val users = state.users.toVector
+    val breakoutUsers = users map { u => new BreakoutUser(u.externalId, u.name) }
     eventBus.publish(BigBlueButtonEvent(state.mProps.parentMeetingID,
       new BreakoutRoomUsersUpdate(state.mProps.parentMeetingID, state.mProps.meetingID, breakoutUsers)))
   }
@@ -140,10 +141,10 @@ trait BreakoutRoomApp extends SystemConfiguration {
       targetVoiceBridge = state.mProps.voiceBridge.dropRight(1)
     }
     // We check the user from the mode
-    state.usersModel.getUser(msg.userId) match {
+    Users.findWithId(msg.userId, state.users.toVector) match {
       case Some(u) => {
         if (u.voiceUser.joined) {
-          log.info("Transferring user userId=" + u.userID + " from voiceBridge=" + state.mProps.voiceBridge + " to targetVoiceConf=" + targetVoiceBridge)
+          log.info("Transferring user userId=" + u.id + " from voiceBridge=" + state.mProps.voiceBridge + " to targetVoiceConf=" + targetVoiceBridge)
           outGW.send(new TransferUserToMeeting(state.mProps.voiceBridge, targetVoiceBridge, u.voiceUser.userId))
         }
       }

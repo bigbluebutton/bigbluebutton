@@ -6,10 +6,11 @@ import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.running.{ MeetingActor, MeetingStateModel }
-// import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import com.google.gson.Gson
 import java.util.ArrayList
+
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.models.Users
 
 trait PollApp {
   this: MeetingActor =>
@@ -141,7 +142,7 @@ trait PollApp {
     state.presModel.getCurrentPage() foreach { page =>
       val pollId = page.id + "/" + System.currentTimeMillis()
 
-      val numRespondents = state.usersModel.numUsers() - 1 // subtract the presenter
+      val numRespondents = Users.numUsers(state.users.toVector) - 1 // subtract the presenter
       PollFactory.createPoll(pollId, msg.pollType, numRespondents, Some(msg.answers)) foreach (poll => state.pollModel.addPoll(poll))
 
       state.pollModel.getSimplePoll(pollId) match {
@@ -162,7 +163,7 @@ trait PollApp {
     state.presModel.getCurrentPage() foreach { page =>
       val pollId = page.id + "/" + System.currentTimeMillis()
 
-      val numRespondents = state.usersModel.numUsers() - 1 // subtract the presenter
+      val numRespondents = Users.numUsers(state.users.toVector) - 1 // subtract the presenter
       PollFactory.createPoll(pollId, msg.pollType, numRespondents, None) foreach (poll => state.pollModel.addPoll(poll))
 
       state.pollModel.getSimplePoll(pollId) match {
@@ -179,10 +180,10 @@ trait PollApp {
   }
 
   private def handleRespondToPoll(poll: SimplePollResultOutVO, msg: RespondToPollRequest) {
-    if (hasUser(msg.requesterId)) {
-      getUser(msg.requesterId) match {
+    if (Users.hasUserWithId(msg.requesterId, state.users.toVector)) {
+      Users.getUser(msg.requesterId, state.users.toVector) match {
         case Some(user) => {
-          val responder = new Responder(user.userID, user.name)
+          val responder = new Responder(user.id, user.name)
           /*
            * Hardcode to zero as we are assuming the poll has only one question. 
            * Our data model supports multiple question polls but for this
@@ -191,9 +192,9 @@ trait PollApp {
            */
           val questionId = 0
           state.pollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder)
-          state.usersModel.getCurrentPresenter foreach { cp =>
+          Users.getCurrentPresenter(state.users.toVector) foreach { cp =>
             state.pollModel.getSimplePollResult(poll.id) foreach { updatedPoll =>
-              outGW.send(new UserRespondedToPollMessage(state.mProps.meetingID, state.mProps.recorded, cp.userID, msg.pollId, updatedPoll))
+              outGW.send(new UserRespondedToPollMessage(state.mProps.meetingID, state.mProps.recorded, cp.id, msg.pollId, updatedPoll))
             }
 
           }

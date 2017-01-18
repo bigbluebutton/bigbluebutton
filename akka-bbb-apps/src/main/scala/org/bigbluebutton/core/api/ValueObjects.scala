@@ -62,16 +62,6 @@ case class Permissions(
   lockOnJoin: Boolean = false,
   lockOnJoinConfigurable: Boolean = false)
 
-case class RegisteredUser(
-  id: String,
-  externId: String,
-  name: String,
-  role: Role.Role,
-  authToken: String,
-  avatarURL: String,
-  guest: Boolean,
-  authenticated: Boolean)
-
 case class Voice(
   id: String,
   webId: String,
@@ -81,34 +71,6 @@ case class Voice(
   locked: Boolean,
   muted: Boolean,
   talking: Boolean)
-
-case class UserVO(
-  userID: String,
-  externUserID: String,
-  name: String,
-  role: Role.Role,
-  emojiStatus: String,
-  presenter: Boolean,
-  hasStream: Boolean,
-  locked: Boolean,
-  webcamStreams: Set[String],
-  phoneUser: Boolean,
-  voiceUser: VoiceUser,
-  listenOnly: Boolean,
-  avatarURL: String,
-  joinedWeb: Boolean)
-
-case class VoiceUser(
-  userId: String,
-  webUserId: String,
-  callerName: String,
-  callerNum: String,
-  joined: Boolean,
-  locked: Boolean,
-  muted: Boolean,
-  talking: Boolean,
-  avatarURL: String,
-  listenOnly: Boolean)
 
 case class MeetingConfig(name: String,
   id: MeetingID,

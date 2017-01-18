@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.{ PollApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, CaptionApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, CaptionModel }
+import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, PollModel, WhiteboardModel, CaptionModel }
 import org.bigbluebutton.core.apps.PresentationModel
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 

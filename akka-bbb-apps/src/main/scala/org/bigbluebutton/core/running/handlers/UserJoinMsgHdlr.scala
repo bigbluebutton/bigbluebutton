@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.running.handlers
 
 import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.models.{ RegisteredUsers, UserVO, Users, VoiceUser }
 import org.bigbluebutton.core.running.MeetingActor
 
 import scala.collection.immutable.ListSet
@@ -11,11 +12,11 @@ trait UserJoinMsgHdlr {
   def handleUserJoin(msg: UserJoining): Unit = {
     log.debug("Received user joined meeting. metingId=" + state.mProps.meetingID + " userId=" + msg.userID)
 
-    val regUser = state.usersModel.getRegisteredUserWithToken(msg.authToken)
+    val regUser = RegisteredUsers.findWithToken(msg.authToken, state.registeredUsers.toVector)
     regUser foreach { ru =>
       log.debug("Found registered user. metingId=" + state.mProps.meetingID + " userId=" + msg.userID + " ru=" + ru)
 
-      val wUser = state.usersModel.getUser(msg.userID)
+      val wUser = Users.findWithId(msg.userID, state.users.toVector)
 
       val vu = wUser match {
         case Some(u) => {
@@ -54,7 +55,7 @@ trait UserJoinMsgHdlr {
            * If user is not joined through the web (perhaps reconnecting).
            * Send a user left event to clear up user list of all clients.
            */
-          val user = state.usersModel.removeUser(w.userID)
+          state.users.remove(w.id)
           outGW.send(new UserLeft(msg.meetingID, state.mProps.recorded, w))
         }
       }
@@ -69,15 +70,15 @@ trait UserJoinMsgHdlr {
         webcamStreams = new ListSet[String](), phoneUser = false, vu,
         listenOnly = vu.listenOnly, avatarURL = vu.avatarURL, joinedWeb = true)
 
-      state.usersModel.addUser(uvo)
+      state.users.save(uvo)
 
-      log.info("User joined meeting. metingId=" + state.mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
+      log.info("User joined meeting. metingId=" + state.mProps.meetingID + " userId=" + uvo.id + " user=" + uvo)
 
       outGW.send(new UserJoined(state.mProps.meetingID, state.mProps.recorded, uvo))
-      outGW.send(new MeetingState(state.mProps.meetingID, state.mProps.recorded, uvo.userID, state.meetingModel.getPermissions(), state.meetingModel.isMeetingMuted()))
+      outGW.send(new MeetingState(state.mProps.meetingID, state.mProps.recorded, uvo.id, state.meetingModel.getPermissions(), state.meetingModel.isMeetingMuted()))
 
       // Become presenter if the only moderator
-      if ((state.usersModel.numModerators == 1) || (state.usersModel.noPresenter())) {
+      if ((Users.numModerators(state.users.toVector) == 1) || Users.hasNoPresenter(state.users.toVector)) {
         if (ru.role == Role.MODERATOR) {
           assignNewPresenter(msg.userID, ru.name, msg.userID)
         }
