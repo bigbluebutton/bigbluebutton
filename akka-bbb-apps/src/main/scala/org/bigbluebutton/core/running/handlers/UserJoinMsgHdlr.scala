@@ -9,7 +9,7 @@ import scala.collection.immutable.ListSet
 trait UserJoinMsgHdlr {
   this: MeetingActor =>
 
-  def handleUserJoin(msg: UserJoining): Unit = {
+  def handle(msg: UserJoining): Unit = {
     log.debug("Received user joined meeting. metingId=" + state.mProps.meetingID + " userId=" + msg.userID)
 
     val regUser = RegisteredUsers.findWithToken(msg.authToken, state.registeredUsers.toVector)

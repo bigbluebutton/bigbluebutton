@@ -88,7 +88,7 @@ class MeetingActor(val eventBus: IncomingEventBus,
     case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
     case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case msg: UserJoining => handleUserJoin(msg)
+    case msg: UserJoining => handle(msg)
     case msg: UserLeaving => handleUserLeft(msg)
     case msg: AssignPresenter => handleAssignPresenter(msg)
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
