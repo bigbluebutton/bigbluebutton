@@ -3,6 +3,14 @@ package org.bigbluebutton.core.models
 import org.bigbluebutton.core.util.RandomStringGenerator
 import com.softwaremill.quicklens._
 
+object GuestPolicies {
+  val ALLOW_ALL_GUESTS = "ALLOW_ALL_GUESTS"
+  val ALLOW_ALL_AUTH = "ALLOW_ALL_AUTH"
+  val ALLOW_ALL_NON_AUTH = "ALLOW_ALL_NON_AUTH"
+  val DENY_ALL_GUESTS = "DENY_ALL_GUESTS"
+  val DENY_ALL = "DENY_ALL"
+}
+
 object Roles {
   val MODERATOR_ROLE = "MODERATOR"
   val PRESENTER_ROLE = "PRESENTER"
