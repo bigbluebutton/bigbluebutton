@@ -129,7 +129,7 @@ class UserListItem extends Component {
       (!user.isCurrent ? this.renderUserAction(openChat, router, user) : null),
       (muteAudio ? this.renderUserAction(unmute, user) : null),
       (unmuteAudio ? this.renderUserAction(mute, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null),
+      (user.isCurrent ? this.renderUserAction(clearStatus, user) : null),
       (currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null),
       (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
       (currentUser.isModerator ? this.renderUserAction(kick, user) : null),
