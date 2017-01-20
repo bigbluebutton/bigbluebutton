@@ -160,7 +160,7 @@ export default class App extends Component {
   componentDidUpdate(prevProps) {
 
     let { unreadMessageCount, openChats, openChat } = this.props;
-    
+
     unreadMessageCount.forEach((chat, i) => {
       // When starting the new chat, if prevProps is undefined or null, it is assigned 0.
       if (!prevProps.unreadMessageCount[i]) {
