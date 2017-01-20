@@ -13,6 +13,8 @@ import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 import ClosedCaptionsContainer from '../closed-captions/container';
+import userListService from '../user-list/service';
+import Auth from '/imports/ui/services/auth';
 
 const defaultProps = {
   navbar: <NavBarContainer />,
@@ -51,16 +53,28 @@ const setLoading = (val) => {
   }
 };
 
-export default createContainer(() => {
+const checkUnreadMessages = () => {
+  return userListService.getOpenChats().map(chat=> chat.unreadCounter)
+                        .filter(userID => userID !== Auth.userID);
+};
+
+export default createContainer(({ params }) => {
   Promise.all(subscribeForData())
   .then(() => {
     setLoading(false);
   });
 
+  const openChats = () => {
+    return userListService.getOpenChats(params.chatID).map(chat => chat.id);
+  }
+
   return {
     wasKicked: wasUserKicked(),
     isLoading: getLoading(),
     modal: getModal(),
+    unreadMessageCount: checkUnreadMessages(),
+    openChats: openChats(),
+    openChat: params.chatID,
     getCaptionsStatus,
     redirectToLogoutUrl,
   };
