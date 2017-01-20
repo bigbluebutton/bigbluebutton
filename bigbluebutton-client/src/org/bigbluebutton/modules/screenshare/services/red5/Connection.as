@@ -70,7 +70,12 @@ package org.bigbluebutton.modules.screenshare.services.red5 {
             netConnection.client = this;
             netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatusHandler);
             netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-            uri = uri + "/" + UsersUtil.getInternalMeetingID();
+
+            // uri may include internal meetingId if we are reconnecting
+            var internalMeetingID:String = UsersUtil.getInternalMeetingID();
+            if (uri.indexOf(internalMeetingID) == -1) {
+                uri = uri + "/" + internalMeetingID;
+            }
 
             LOGGER.debug("Connecting to uri=[{0}]", [uri]);
             netConnection.connect(uri);
