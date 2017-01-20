@@ -127,13 +127,13 @@ class UserListItem extends Component {
 
     // if currentUser is a moderator or user is currently logged in,
     // can clear status from the userlist.
-    let userStatus = currentUser.isModerator || user.isCurrent ? true : false;
+    let allowedToResetStatus = currentUser.isModerator || user.isCurrent ? true : false;
 
     return _.compact([
       (!user.isCurrent ? this.renderUserAction(openChat, router, user) : null),
       (muteAudio ? this.renderUserAction(unmute, user) : null),
       (unmuteAudio ? this.renderUserAction(mute, user) : null),
-      (userStatus ? this.renderUserAction(clearStatus, user) : null),
+      (allowedToResetStatus ? this.renderUserAction(clearStatus, user) : null),
       (currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null),
       (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
       (currentUser.isModerator ? this.renderUserAction(kick, user) : null),
