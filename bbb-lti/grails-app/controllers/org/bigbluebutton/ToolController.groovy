@@ -1,5 +1,5 @@
 package org.bigbluebutton
-/* 
+/*
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
     Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
@@ -83,8 +83,8 @@ class ToolController {
                             result = doJoinMeeting(params)
                         } else {
                             log.debug  "LTI service running in extended mode."
-                            if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
-                                log.debug  "No bbb_record parameter was sent; immediately redirecting to BBB session!"
+                            if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) && !ltiService.allRecordedByDefault() ) {
+                                log.debug  "Parameter custom_record was not sent; immediately redirecting to BBB session!"
                                 result = doJoinMeeting(params)
                             }
                         }
@@ -222,7 +222,7 @@ class ToolController {
             log.debug "Overriding default welcome message with: [" + welcome + "]"
         }
 
-        if ( params.containsKey(Parameter.CUSTOM_RECORD) && Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
+        if ( params.containsKey(Parameter.CUSTOM_RECORD) && Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) || ltiService.allRecordedByDefault() ) {
             welcome += "<br><b>" + message(code: "bigbluebutton.welcome.record") + "</b><br>"
             log.debug "Adding record warning to welcome message, welcome is now: [" + welcome + "]"
         }
