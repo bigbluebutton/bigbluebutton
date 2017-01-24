@@ -9,11 +9,18 @@ export default class RecordingIndicator extends Component {
 
   render() {
     const { beingRecorded } = this.props;
+
+    let dividerNames = {};
+    dividerNames[styles.divider] = beingRecorded;
+
     let classNames = {};
     classNames[styles.indicator] = beingRecorded;
 
     return (
-      <span className={cx(classNames)}></span>
+      <div>
+        <span className={cx(dividerNames)}></span>
+        <span className={cx(classNames)}></span>
+      </div>
     );
   }
 };

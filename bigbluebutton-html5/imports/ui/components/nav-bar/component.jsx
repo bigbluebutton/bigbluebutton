@@ -82,7 +82,6 @@ class NavBar extends Component {
         </div>
         <div className={styles.center}>
           {this.renderPresentationTitle()}
-          <span className={styles.divider}></span>
           <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>
         <div className={styles.right}>

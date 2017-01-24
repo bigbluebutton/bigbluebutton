@@ -7,6 +7,7 @@
   height: $font-size-base;
   border-radius: 50%;
   border: 1px solid $color-white;
+  margin-left: 100%;
 
   &:after {
     content: '';
@@ -19,5 +20,21 @@
     margin-left: -($font-size-base / 4);
     border-radius: 50%;
     background-color: $color-danger;
+  }
+}
+
+.divider {
+  position: relative;
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    width: 1px;
+    margin-left: -($font-size-base / 4);
+    background: $color-white;
+    height: $font-size-base * 1.0;
+    margin: 0 $line-height-computed / 2;
+    opacity: .75;
   }
 }
