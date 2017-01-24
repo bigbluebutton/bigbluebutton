@@ -24,7 +24,8 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	creationComplete="onCreationComplete()" 
 	xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
-	showCloseButton="false">
+	showCloseButton="false"
+	minHeight="161" minWidth="191">
 
 	
 	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch" />
