@@ -5,18 +5,38 @@ import Button from '/imports/ui/components/button/component';
 import BaseMenu from '../base/component';
 import ReactDOM from 'react-dom';
 import styles from '../styles.scss';
+import LocalStorage from '/imports/ui/services/storage/local.js';
 
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
+    this.state = {
+      audioNotifChat: LocalStorage.getItem('audioNotifChat') || Meteor.settings.public.app.audioChatNotification,
+    }
+  }
+
+  checkBoxHandler(fieldname) {
+    let obj = {};
+    console.log("in checkBoxHandler " + fieldname + "   " + this.state[fieldname]);
+    obj[fieldname] = !this.state[fieldname];
+    LocalStorage.setItem('audioNotifChat', obj[fieldname]);
+    this.setState(obj);
+    console.log(obj); //
   }
 
   getContent() {
     return (
       <div className={styles.full} role='presentation'>
           <div className={styles.row} role='presentation'>
-            <label><input type='checkbox' tabIndex='7' aria-labelledby='audioNotifLabel'
-              aria-describedby='audioNotifDesc' />Audio notifications for chat</label>
+            <label>
+              <input type='checkbox'
+                          tabIndex='7'
+                          onChange={this.checkBoxHandler.bind(this, "audioNotifChat")}
+                          checked={this.state.audioNotifChat}
+                          aria-labelledby='audioNotifLabel'
+                          aria-describedby='audioNotifDesc' />
+              Audio notifications for chat
+            </label>
             <div id='audioNotifLabel' hidden>Audio notifications</div>
             <div id='audioNotifDesc' hidden>
               Toggles the audio notifications for chat.</div>

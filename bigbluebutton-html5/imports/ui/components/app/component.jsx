@@ -7,11 +7,11 @@ import KickedScreen from '../kicked-screen/component';
 
 import NotificationsBarContainer from '../notifications-bar/container';
 
+import LocalStorage from '/imports/ui/services/storage/local.js';
+
 import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
-
-import ChatService from '../chat/service';
 
 const propTypes = {
   navbar: PropTypes.element,
@@ -169,7 +169,8 @@ export default class App extends Component {
 
       // compare openChats(chatID) to chatID of currently opened chat room
       if (openChats[i] !== openChat) {
-        if (chat > prevProps.unreadMessageCount[i]) {
+        let shouldPlaySound = LocalStorage.getItem('audioNotifChat') || Meteor.settings.public.app.audioChatNotification;
+        if (shouldPlaySound && chat > prevProps.unreadMessageCount[i]) {
           this.playSoundForUnreadMessages();
         }
       }
