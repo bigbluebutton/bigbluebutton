@@ -17,11 +17,9 @@ export default class ApplicationMenu extends BaseMenu {
 
   checkBoxHandler(fieldname) {
     let obj = {};
-    console.log("in checkBoxHandler " + fieldname + "   " + this.state[fieldname]);
     obj[fieldname] = !this.state[fieldname];
     LocalStorage.setItem('audioNotifChat', obj[fieldname]);
     this.setState(obj);
-    console.log(obj); //
   }
 
   getContent() {
