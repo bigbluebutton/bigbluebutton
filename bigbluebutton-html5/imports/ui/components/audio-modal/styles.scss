@@ -16,6 +16,7 @@
 Button.closeBtn span:first-child {
   color: $color-gray-light;
   background: none;
+  background-color: $color-primary;
   border: none;
   box-shadow: none;
 }
@@ -23,7 +24,8 @@ Button.closeBtn span:first-child {
 // Modifies the audio button icon colour
 Button.audioBtn span:first-child {
   color: #25385D;
-  border: 5px solid #FFF;
+  border: 5px solid $color-white;
+  background-color: $color-primary;
   box-shadow: none;
 }
 

@@ -293,13 +293,13 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     private function openViewWindowFor(userID:String):void {
-      if (!proxy.connection.connected || hasWindow(userID)) {
-        return;
+      var bbbUser:BBBUser = UsersUtil.getUser(userID);
+      if (bbbUser == null || !proxy.connection.connected) {
+       return;
       }
       
       LOGGER.debug("VideoEventMapDelegate:: [{0}] openViewWindowFor:: Opening VIEW window for [{1}] [{2}]", [me, userID, UsersUtil.getUserName(userID)]);
 
-      var bbbUser:BBBUser = UsersUtil.getUser(userID);
       if (bbbUser.hasStream) {
         closeAllAvatarWindows(userID);
       }
