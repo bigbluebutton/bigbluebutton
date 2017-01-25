@@ -398,7 +398,7 @@
 				_dispatcher.dispatchEvent(sendPatchEvent);
 			}
 
-			public function handleCtrlCmd(event:KeyboardEvent):void {
+			public function handleCtrlCmd(event:KeyboardEvent):Boolean {
 				switch (event.keyCode) {
 					case Keyboard.Z:
 						if (btnUndo.enabled) btnUndo_clickHandler();
@@ -407,8 +407,9 @@
 						if (btnRedo.enabled) btnRedo_clickHandler();
 						break;
 					default:
-						break;
+						return false;
 				}
+				return true;
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
