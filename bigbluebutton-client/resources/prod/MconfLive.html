@@ -23,6 +23,7 @@
       }
     </style>
     
+    <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
     <script src="lib/deployJava.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript">
@@ -46,7 +47,6 @@
       params.bgcolor = "#869ca7";
       params.allowfullscreen = "true";
       params.allowfullscreeninteractive = "true";
-
       if (ffHangWorkaround()) {
         console.log("Applying Firefox Flash hang workaround");
 	// wmode = opaque causes button clicks to be sometimes unresponsive,
@@ -64,7 +64,21 @@
       attributes.name = "BigBlueButton";
       attributes.align = "middle";
       attributes.tabIndex = 0;
-      swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes, embedCallback);
+      // In Chrome 56 Google started blocking Flash by default so we force the SWF to 
+      // be loaded in the DOM rather than relying on the SWFObject code to detect 
+      // Flash because it can't.
+      var browserInfo = determineBrowser();
+      if (browserInfo && browserInfo[0] === "Chrome") {
+        // Added a sort of callback idea because when this script runs "content" doesn't exist yet
+        var fillContent = function(){
+          var content = document.getElementById("content");
+          if (content) {
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#869ca7"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+          }
+        };
+      } else {
+        swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes, embedCallback);
+      }
       
       function embedCallback(e) {
         // Work around pixel alignment bug with Chrome 21 on Mac.
@@ -92,7 +106,6 @@
     <script src="lib/bbblogger.js?v=VERSION" language="javascript"></script>
     <script src="lib/bigbluebutton.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_localization.js?v=VERSION" language="javascript"></script>
-    <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_deskshare.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
     <script src="lib/sip.js?v=VERSION" language="javascript"></script> 
@@ -109,48 +122,8 @@
     </script>
     <script type="text/javascript">
       window.onload = function() {
-        var checkRequest = $.ajax({
-           dataType: 'json',
-           url: '/html5client/check'
-        });
-        checkRequest.done(function(data) {
-          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus === "running" && document.getElementById('html5Section') != null) {
-            document.getElementById('html5Section').style.display='inherit';
-          }
-        });
+        if (fillContent) fillContent();
       };
-
-      function html5() {
-        // no Flash detected on the client
-        var originalPath, enterRequest, authToken, meetingId, userId;
-        originalPath = document.location.pathname;
-
-        // use the enter api to detect the meetingid, userid and authToken
-        // and reuse them to join via the HTML5 client
-        enterRequest = $.ajax({
-           dataType: 'json',
-           url: '/bigbluebutton/api/enter'
-        });
-
-        enterRequest.done(function(enterData) {
-          meetingId = enterData.response.meetingID;
-          userId = enterData.response.externUserID;
-          authToken = enterData.response.authToken;
-
-          if ((meetingId != null) && (userId != null) && (authToken != null)) {
-            // redirect to the html5 client with the received info
-            // format <IP>/html5client/<meetingId>/<userId>/<authToken>
-            document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
-          } else {
-            // go back to the redirection page
-            document.location.pathname = originalPath;
-          }
-        });
-
-        enterRequest.fail(function(enterData, textStatus, errorThrown){
-          BBBLog.debug("Enter request failed");
-        });
-      }
     </script>
   </head>
 
@@ -168,10 +141,6 @@
           <a href="http://www.adobe.com/go/getflashplayer">
             <img src="get_flash_player.gif" alt="Get Adobe Flash player" />
           </a>
-          <div id="html5Section" style="display:none">
-            <p style="margin-left:50px;" >OR</p>
-            <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
-          </div>
         </div>
       </div>
     </div>
