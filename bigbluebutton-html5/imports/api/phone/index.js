@@ -106,11 +106,11 @@ function joinVoiceCallSIP(options) {
       turn: m.turns,
     };
 
-    let audioFailed = new CustomEvent('bbb.webrtc.failed', { status: 'Failed' });
-
     callIntoConference(extension, function (audio) {
       switch (audio.status) {
         case 'failed':
+          let audioFailed = new CustomEvent('bbb.webrtc.failed', {
+            status: 'Failed' });
           window.dispatchEvent(audioFailed);
           break;
       }

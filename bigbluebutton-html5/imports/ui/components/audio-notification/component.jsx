@@ -33,7 +33,7 @@ export default class AudioNotification extends Component {
   render() {
     const { color, message } = this.props;
 
-    if(!color && !message || this.state.notification === 'closed'){
+    if(!color || !message || this.state.notification === 'closed'){
       return null;
     }else{
       return (
