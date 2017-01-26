@@ -20,9 +20,6 @@ export default class AudioNotification extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      notification: null,
-    }
     this.handleClose = this.handleClose.bind(this);
   }
 
@@ -33,7 +30,7 @@ export default class AudioNotification extends Component {
   render() {
     const { color, message } = this.props;
 
-    if(!color || !message || this.state.notification === 'closed'){
+    if(!color || !message ){
       return null;
     }else{
       return (
