@@ -29,6 +29,7 @@ require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'trollop'
 require 'yaml'
+require 'json'
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -125,6 +126,7 @@ if not FileTest.directory?(target_dir)
     BigBlueButton.logger.info("Created an updated metadata.xml with start_time and end_time")
 
     # Start processing raw files
+    presentation_text = {}
     presentations.each do |pres|
       pres_dir = "#{presentation_dir}/#{pres}"
       num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
@@ -151,13 +153,16 @@ if not FileTest.directory?(target_dir)
         end
 
         if !pres_pdf.empty?
+          text = {}
           1.upto(num_pages) do |page|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
               page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
             if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
+              text["slide-#{page}"] = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", :encoding => 'UTF-8')
               FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
             end
           end
+          presentation_text[pres] = text
         end
       else
         ext = File.extname("#{images[0]}")
@@ -165,6 +170,11 @@ if not FileTest.directory?(target_dir)
         command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
         BigBlueButton.execute(command)
       end
+    end
+
+    if not presentation_text.empty?
+      # Write presentation_text.json to file
+      File.open("#{target_dir}/presentation_text.json","w") { |f| f.puts presentation_text.to_json }
     end
 
     if !Dir["#{raw_archive_dir}/video/*"].empty?
