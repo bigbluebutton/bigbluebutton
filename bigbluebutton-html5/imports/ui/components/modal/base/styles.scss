@@ -20,7 +20,7 @@
   }
 }
 
-.audioOverlay {
+.transparentOverlay {
   z-index: 1000;
   background: transparentize($color-gray-dark, .40);
   display: flex;

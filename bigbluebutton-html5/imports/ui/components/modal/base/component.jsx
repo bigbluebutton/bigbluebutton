@@ -45,7 +45,7 @@ export default class ModalBase extends Component {
       isTransparent,
     } = this.props;
 
-    let styleOverlay = (isTransparent) ? styles.audioOverlay : styles.overlay;
+    let styleOverlay = (isTransparent) ? styles.transparentOverlay : styles.overlay;
 
     return (
       <ReactModal
