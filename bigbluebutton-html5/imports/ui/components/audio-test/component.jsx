@@ -14,7 +14,6 @@ export default class AudioTest extends React.Component {
           icon={'audio'}
           size={'md'}
           color={'primary'}
-          ghost={true}
           onClick={this.props.handlePlayAudioSample}
         />
     );

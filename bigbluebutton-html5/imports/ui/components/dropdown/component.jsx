@@ -47,7 +47,7 @@ const defaultProps = {
 export default class Dropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = { isOpen: false, };
+    this.state = { isOpen: true, };
     this.handleShow = this.handleShow.bind(this);
     this.handleHide = this.handleHide.bind(this);
     this.handleStateCallback = this.handleStateCallback.bind(this);

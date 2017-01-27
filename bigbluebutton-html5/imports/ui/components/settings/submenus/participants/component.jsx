@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom';
 import cx from 'classnames';
 import styles from '../styles.scss';
 import Toggle from '/imports/ui/components/switch/component';
+import Checkbox from '/imports/ui/components/checkbox/component';
 
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
@@ -17,14 +18,14 @@ export default class ApplicationMenu extends BaseMenu {
     return (
       <div className={styles.tabContent}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Application</h3>
+          <h3 className={styles.title}>Participants</h3>
         </div>
         <div className={styles.form}>
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Audio notifications for chat
+                  Mute all except the presenter
                 </label>
               </div>
             </div>
@@ -41,7 +42,7 @@ export default class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Push notifications for chat
+                  Lock all participants
                 </label>
               </div>
             </div>
@@ -54,47 +55,34 @@ export default class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
-          <hr className={styles.separator}/>
-          <div className={styles.row}>
+          <div className={cx(styles.row, styles.spacedLeft)}>
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Font size
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentCenter)}>
-                <label className={cx(styles.label, styles.bold)}>
-                  32pt
+                  Lock all participants
                 </label>
               </div>
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
-              <Button
-                onClick={this.props.handleIncreaseFontSize}
-                icon={'circle-add'}
-                circle={true}
-                tabIndex={9}
-                hideLabel={true}
-                label={'Increase Font'}
-                aria-labelledby={'sizeUpLabel'}
-                aria-describedby={'sizeUpDesc'}
-              />
-              <div id='sizeUpLabel' hidden>Font size up</div>
-              <div id='sizeUpDesc' hidden>
-                Increases the font size of the application.</div>
-              <Button
-                onClick={this.props.handleDecreaseFontSize}
-                icon={'circle-minus'}
-                circle={true}
-                tabIndex={10}
-                hideLabel={true}
-                label={'Decrease Font'}
-                aria-labelledby={'sizeDownLabel'}
-                aria-describedby={'sizeDownDesc'}
-              />
+              <Toggle
+                icons={false}
+                defaultChecked={true}
+                onChange={this.handleBaconChange} />
+              </div>
+            </div>
+          </div>
+          <div className={cx(styles.row, styles.spacedLeft)}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  Lock all participants
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                <Checkbox/>
               </div>
             </div>
           </div>

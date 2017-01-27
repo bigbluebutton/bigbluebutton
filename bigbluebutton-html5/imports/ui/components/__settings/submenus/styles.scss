@@ -1,0 +1,184 @@
+@import "../../../stylesheets/variables/_all";
+
+/* General Submenu */
+.submenuTitle {
+  height: 45px;
+  margin: 0px;
+  padding-top: 12px;
+  font-size: $font-size-large;
+  font-weight: $headings-font-weight;
+}
+
+.submenuContent {
+  height: 85%;
+  margin: 0px;
+  padding-top: 12px;
+  font-size: $font-size-base;
+  color: $color-gray-light;
+}
+
+div.submenuContent select {
+  width: 90%;
+  padding-top: 5px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  /*outline: none;*/
+  color: $color-gray-light;
+}
+
+.containerLeftHalf {
+  width: 50%;
+  float: left;
+}
+
+.containerRightHalf {
+  width: 50%;
+  float: right;
+}
+
+.containerFull{
+  width: 100%;
+  float: right;
+}
+
+.containerLeftHalfContent {
+  @extend .containerLeftHalf;
+  @extend .row;
+}
+
+.containerRightHalfContent {
+  @extend .containerRightHalf;
+  @extend .row;
+}
+
+div.containerLeftHalf label, div.containerRightHalf label {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: $color-primary;
+  margin-bottom: 5px;
+}
+
+input[type=checkbox] {
+    float: right;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0px;
+}
+
+ul li {
+  padding-bottom: 9%;
+}
+
+/* Application Submenu */
+.applicationFontContainer {
+  border-top: solid 1px $color-gray-light;
+  margin-top: 10%;
+  padding-top: 10%;
+}
+
+.fontBarLeft {
+  float: left;
+  margin: 0px;
+  height: 100%;
+  width: 25%;
+  text-align: left;
+}
+
+.fontBarMid {
+  float: left;
+  margin: 0px;
+  height: 100%;
+  width: 50%;
+  text-align: center;
+  font-weight: 600;
+}
+
+.fontBarRight {
+  float: left;
+  margin: 0px;
+  height: 100%;
+  width: 25%;
+  text-align: right;
+}
+
+.fontBarLeft p, .fontBarMid p {
+  margin: 0px;
+}
+
+/* Users Submenu */
+.checkboxOffset {
+  margin-right: 5%;
+}
+
+
+/* Buttons */
+.defaultBtn {
+  width: 90px;
+  border-radius: 18px;
+  border: none;
+  box-shadow: none;
+}
+
+.testAudioBtn {
+  @extend .defaultBtn;
+  width: 140px;
+  float: left;
+}
+
+/* Submenu containers */
+.full {
+  clear: both;
+  height: 100%;
+  width: 100%;
+}
+
+.row {
+  height: 42px;
+}
+
+.indentedRow {
+  @extend .row;
+  padding-left: 10%;
+}
+
+.ccPreviewBox {
+  height: 100px;
+  margin-left: 10%;
+  margin-right: 5%;
+  padding: 5px;
+  border: 1px solid #f1f1f1;
+  overflow: auto;
+}
+
+.swatch {
+  float: right;
+  margin-right: 10%;
+  padding: 5px;
+  background: #fff;
+  border-radius: 1px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 0px 1px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.swatchInner {
+  width: 36px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.colorPickerOverlay {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+
+.colorPickerPopover {
+  //it has to be bigger than the overlay of the settings modal
+  z-index: 1001;
+}

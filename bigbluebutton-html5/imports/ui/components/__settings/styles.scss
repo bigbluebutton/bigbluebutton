@@ -1,0 +1,107 @@
+@import "../../stylesheets/variables/_all";
+
+.full {
+  clear: both;
+  height: 100%;
+  width: 100%;
+}
+
+.settingsMenuLeft {
+  border-right: 2px solid $color-gray-light;
+  border-top: 2px solid $color-gray-light;
+  float: left;
+  width: 30%;
+  height: 100%;
+  overflow: auto;
+}
+
+.settingsMenuRight {
+  border-top: 2px solid $color-gray-light;
+  float: right;
+  padding-left: 10px;
+  width: 70%;
+  height: 100%;
+  overflow: auto;
+  color: $color-heading;
+}
+
+.settingsSubmenu {
+  list-style-type: none;
+  padding-left: 0px;
+}
+
+.settingsSubmenuItem {
+  color: $color-heading;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.settingsSubmenuItemText {
+  padding-left: 10px;
+  vertical-align: middle;
+}
+
+.settingsSubmenuItemActive {
+  border-right: 4px solid $color-primary;
+  color: $color-primary;
+}
+
+
+
+.containerLeftHalf {
+  width: 50%;
+  float: left;
+}
+
+.containerRightHalf {
+  width: 50%;
+  float: right;
+}
+
+.containerFull{
+  width: 100%;
+  float: right;
+}
+
+.containerLeftHalfContent {
+  @extend .containerLeftHalf;
+  @extend .row;
+}
+
+.containerRightHalfContent {
+  @extend .containerRightHalf;
+  @extend .row;
+}
+
+div.containerLeftHalf label, div.containerRightHalf label {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: $color-primary;
+  margin-bottom: 5px;
+}
+
+.row {
+  height: 42px;
+}
+
+//buttons
+.defaultBtn {
+  width: 90px;
+  border-radius: 18px;
+  border: none;
+  box-shadow: none;
+}
+
+.enterBtn {
+  position: relative;
+  margin-left: 10em;
+  margin-top: 2.5em;
+}
+
+.testAudioBtn {
+  @extend .defaultBtn;
+  width: 140px;
+  margin-top: 0px;
+}
