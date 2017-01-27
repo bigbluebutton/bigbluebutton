@@ -45,31 +45,19 @@ export default class ModalBase extends Component {
       isTransparent,
     } = this.props;
 
-    if (isTransparent) {
-      return (
-        <ReactModal
-        className={cx(styles.modal, className)}
-        overlayClassName={styles.audioOverlay}
-        portalClassName={styles.portal}
-        isOpen={isOpen}
-        onAfterOpen={this.handleAfterOpen}
-        onRequestClose={this.handleRequestClose}>
-          {this.props.children}
-        </ReactModal>
-      );
-    }else{
-      return (
-        <ReactModal
-        className={cx(styles.modal, className)}
-        overlayClassName={styles.overlay}
-        portalClassName={styles.portal}
-        isOpen={isOpen}
-        onAfterOpen={this.handleAfterOpen}
-        onRequestClose={this.handleRequestClose}>
-          {this.props.children}
-        </ReactModal>
-      );
-    }
+    let styleOverlay = (isTransparent) ? styles.audioOverlay : styles.overlay;
+
+    return (
+      <ReactModal
+      className={cx(styles.modal, className)}
+      overlayClassName={styleOverlay}
+      portalClassName={styles.portal}
+      isOpen={isOpen}
+      onAfterOpen={this.handleAfterOpen}
+      onRequestClose={this.handleRequestClose}>
+        {this.props.children}
+      </ReactModal>
+    );
   }
 };
 
