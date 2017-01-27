@@ -19,6 +19,8 @@ export default createContainer((params) => {
   const user = Users.findOne({ userId: userId }).user;
   const isMuted = user.voiceUser.muted;
   const isInAudio = user.voiceUser.joined;
+  const isTalking = user.voiceUser.talking;
+  
   let callback = () => {};
 
   if (isInAudio && !isMuted) {
@@ -33,6 +35,7 @@ export default createContainer((params) => {
     isInAudio,
     isMuted,
     callback,
+    isTalking,
   };
   return data;
 }, MuteAudioContainer);

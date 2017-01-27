@@ -5,11 +5,15 @@ import styles from '../styles.scss';
 export default class MuteAudio extends React.Component {
 
   render() {
-    const { isInAudio, isMuted, callback } = this.props;
+    const { isInAudio, isMuted, callback, isTalking} = this.props;
     let label = !isMuted ? 'Mute' : 'Unmute';
     let icon = !isMuted ? 'audio-off' : 'audio';
     let className = !isInAudio ? styles.invisible : null;
     let tabIndex = !isInAudio ? -1 : 0;
+
+    if(isInAudio && isTalking){
+      className = styles.isTalking;
+    }
 
     return (
       <Button
