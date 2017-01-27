@@ -518,7 +518,7 @@ function setTransform(time) {
   if (mustShowDesktopVideo(time)) {
     var canvasId = "canvas" + current_image.substr(5);
     var canvas = svgobj.contentDocument ? svgobj.contentDocument.getElementById(canvasId) : svgobj.getSVGDocument('svgfile').getElementById(canvasId);
-    if (canvas !== undefined) {
+    if (canvas !== null) {
       var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
       var translate = "translate(" + widthTranslate.toString() + ", " + heightTranslate.toString() + ")";
       var transform = translate + " " + scale;
