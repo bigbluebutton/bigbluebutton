@@ -18,8 +18,8 @@
 #
 # Author(s):
 #       Fred Dixon <ffdixon@bigbluebutton.org>
-#	    Sebastian Schneider <seb.sschneider@gmail.com>
-#	    Ghazi Triki <ghazi.nocturne@gmail.com>
+#	Sebastian Schneider <seb.sschneider@gmail.com>
+#	Ghazi Triki <ghazi.nocturne@gmail.com>
 #
 # Changelog:
 #   2009-10-18 FFD  Inital Version   
@@ -1499,7 +1499,7 @@ if [ $CHECK ]; then
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	echo "                       server name: $NGINX_IP"
 
-        PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl)
+        PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl | tr --delete '\n' | sed 's/\[/, \[/g' | sed 's/0$/0\n/g')
         echo "                              port: $PORT"
         if cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep ssl > /dev/null; then
           echo "                              port: 443 ssl"
