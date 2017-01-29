@@ -910,6 +910,15 @@ check_configuration() {
 			echo "#    $FREESWITCH_EXTERNAL"
 			echo 
 		fi
+                if grep ws-binding $FREESWITCH_EXTERNAL > /dev/null; then
+                        echo "# Warning: You have configured SSL, but FreeSWITCH is still listening"
+                        echo "# on port 5066.  You should edit "
+                        echo "#"
+                        echo "#    $FREESWITCH_EXTERNAL"
+                        echo "#"
+                        echo "# and remove the line that contains ws-binding."
+                        echo
+                fi
 	fi
 
 	if [ $DISTRIB_ID != "centos" ]; then
@@ -1487,7 +1496,12 @@ if [ $CHECK ]; then
 	echo "                              red5: $RED5_IP"
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
-	WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+        if grep -q ws-binding $FREESWITCH_EXTERNAL; then
+          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+        fi
+        if grep -q wss-binding $FREESWITCH_EXTERNAL; then
+          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="://;s/".*//;p}')
+        fi
 	echo
 	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
