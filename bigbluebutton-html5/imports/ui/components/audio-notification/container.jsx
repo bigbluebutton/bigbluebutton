@@ -2,12 +2,18 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'underscore';
 import AudioNotification from './component';
 import styles from './styles.scss';
 import Button from '/imports/ui/components/button/component';
 
-export default class AudioNotificationContainer extends Component {
+const intlMessages = defineMessages({
+  audioFailed: {
+    id: 'app.audioNotification.audioFailedMessage',
+    description: 'The audio could not connect, Try again',
+  },
+});
+
+class AudioNotificationContainer extends Component {
   constructor(props) {
     super(props);
 
@@ -38,12 +44,11 @@ export default class AudioNotificationContainer extends Component {
 
   handleAudioFailure() {
     this.color = 'danger';
-    this.message = 'Your audio connection failed to connect. Try again';
+    this.message = this.props.audioFailure;
     this.setState({status: 'failed'});
   }
 
   render() {
-
     const handleClose = this.handleClose;
 
     return(
@@ -55,3 +60,9 @@ export default class AudioNotificationContainer extends Component {
     );
   }
 }
+
+export default injectIntl(createContainer(({ intl }) => {
+  let messages = {};
+  messages.audioFailure = intl.formatMessage(intlMessages.audioFailed);
+  return messages;
+}, AudioNotificationContainer));

@@ -81,6 +81,7 @@
   "app.actionsBar.emojiMenu.thumbsupDesc": "Change your status to thumbs up",
   "app.actionsBar.emojiMenu.thumbsdownLabel": "Thumbs down",
   "app.actionsBar.emojiMenu.thumbsdownDesc": "Change your status to thumbs down",
+  "app.audioNotification.audioFailedMessage": "Your audio connection failed to connect. Try again.",
   "app.breakoutJoinConfirmation.title": "Join Breakout Room",
   "app.breakoutJoinConfirmation.message": "Do you want to join",
   "app.breakoutJoinConfirmation.confirmLabel": "Join",
