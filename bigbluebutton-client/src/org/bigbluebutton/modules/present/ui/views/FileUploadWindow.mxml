@@ -33,8 +33,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" method="handleConversionCompleted" />
     <mate:Listener type="{ConversionUpdateEvent.CONVERSION_UPDATE}" method="handleConvertUpdate" />
     <mate:Listener type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" method="handleThumbnailsProgressEvent" />
-    <mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
-    <mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
+	<mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
+	<mate:Listener type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" method="handleOfficeDocumentConversionInvalid"/>
+	<mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
     <mate:Listener type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" method="handleSupportedDocument"/>	
     <mate:Listener type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" method="handleUnsupportedDocument"/>
     <mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
@@ -44,10 +45,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
 		import mx.collections.ArrayCollection;
 		import mx.utils.StringUtil;
-		import org.bigbluebutton.core.UsersUtil;
+		
+		import org.as3commons.lang.StringUtils;
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
 		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
 		import org.bigbluebutton.modules.present.events.ConversionPageCountError;
@@ -57,6 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
 		import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
 		import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+		import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
 		import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
 		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 		import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
@@ -203,7 +207,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleOfficeDocumentConversionFailed(e:OfficeDocConvertFailedEvent):void {
         enableControls();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.failed'));
-      }   
+      }
+		
+		private function handleOfficeDocumentConversionInvalid(e:OfficeDocConvertInvalidEvent):void {
+			enableControls();
+			displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.invalid'));
+		}
 
       private function handleOfficeDocumentConversionSuccess(e:OfficeDocConvertSuccessEvent):void {
         progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.converted');
@@ -248,7 +257,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function displayAlert(error:String, message:String = null):void {
         var okLabel:String = ResourceUtil.getInstance().getString('bbb.presentation.ok');
         progressBar.setStyle("color", 0xFF0000);
-        progressBar.label = error + message;
+        progressBar.label = error;
+		if (!StringUtils.isEmpty(message)) {
+		  progressBar.label += message;	
+		}
         okCancelBtn.label = "Ok";
       }
 
