@@ -216,7 +216,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				showFooterOpt = layoutOptions.showFooter;
 				var locale:Object = BBB.initConfigManager().config.language;
-				langSelector.visible = locale.userSelectionEnabled;
+				langSelector.visible = langSelector.includeInLayout = locale.userSelectionEnabled;
 				
 				if (!showFooterOpt) {
 					footerHeight = 0;
