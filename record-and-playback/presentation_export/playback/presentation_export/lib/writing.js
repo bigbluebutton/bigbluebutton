@@ -141,6 +141,10 @@ function resyncVideos() {
 }
 
 function handlePresentationAreaContent(time) {
+  var meetingDuration = parseFloat(new Popcorn("#video").duration().toFixed(1));
+  if(time >= meetingDuration)
+     return;
+
   var mustShow = mustShowDesktopVideo(time);
   if(!sharingDesktop && mustShow) {
     console.log("Showing deskshare video...");
