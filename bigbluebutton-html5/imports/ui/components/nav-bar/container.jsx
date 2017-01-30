@@ -38,7 +38,7 @@ export default withRouter(createContainer(({ location, router }) => {
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingName;
-    meetingRecorded = meetingObject.intendedForRecording && meetingObject.currentlyBeingRecorded;
+    meetingRecorded = meetingObject.currentlyBeingRecorded;
   }
 
   const checkUnreadMessages = () => {
