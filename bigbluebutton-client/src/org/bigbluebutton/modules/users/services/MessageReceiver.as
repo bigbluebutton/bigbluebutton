@@ -548,19 +548,17 @@ package org.bigbluebutton.modules.users.services
     private function handleEmojiStatusHand(msg: Object): void {   
       var map:Object = JSON.parse(msg.msg);      
       UserManager.getInstance().getConference().emojiStatus(map.userId, map.emojiStatus);
-        }
-
-    private function handleUserSharedWebcam(msg:Object):void {
-        var map:Object = JSON.parse(msg.msg);
-        if (!MeetingModel.getInstance().meeting.webcamsOnlyForModerator) {
-            UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
-        } else if (
-			UserManager.getInstance().getConference().amIModerator() || 
-			(UserManager.getInstance().getConference().getUser(map.userId) != null && UserManager.getInstance().getConference().getUser(map.userId).role == Role.MODERATOR)
-		) {
-            UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
-        }
     }
+
+        private function handleUserSharedWebcam(msg:Object):void {
+            var map:Object = JSON.parse(msg.msg);
+            var webcamsOnlyForModerator:Boolean = MeetingModel.getInstance().meeting.webcamsOnlyForModerator;
+            if (!webcamsOnlyForModerator) {
+                UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
+            } else if (webcamsOnlyForModerator && (UserManager.getInstance().getConference().amIModerator() || (map.userId == UserManager.getInstance().getConference().getModeratorUserId()))) {
+                UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
+            }
+        }
 
     private function handleUserUnsharedWebcam(msg: Object):void {  
 	  var map:Object = JSON.parse(msg.msg);

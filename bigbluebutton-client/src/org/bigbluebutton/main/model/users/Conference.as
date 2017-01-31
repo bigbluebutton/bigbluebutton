@@ -198,7 +198,15 @@ package org.bigbluebutton.main.model.users {
 			}
 			return null;
 		}
-		
+
+        public function getModeratorUserId():String {
+            var moderator:BBBUser = getTheOnlyModerator();
+            if (moderator != null) {
+                return moderator.userID;
+            }
+            return null;
+        }
+
 		public function getPresenter():BBBUser {
 			var p:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
