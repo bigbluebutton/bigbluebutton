@@ -33,15 +33,8 @@ function getUrlParameters() {
 // - - - START OF JAVASCRIPT FUNCTIONS - - - //
 
 // Draw the cursor at a specific point
-function drawCursor(scaledX, scaledY, img) {
+function drawCursor(scaledX, scaledY) {
   var containerObj = $("#slide > object");
-
-  // the offsets of the image inside its parent
-  // Note: this block is only necessary if we let the svg do the resizing
-  // of the image, see the comments in resizeSlides()
-  var imgRect = img.getBoundingClientRect();
-  var imageX = 0; //imgRect.x;
-  var imageY = 0; //imgRect.y;
 
   // Important to place the cursor over the deskshare
   // It should not affect the regular slides
@@ -49,12 +42,8 @@ function drawCursor(scaledX, scaledY, img) {
   var scaledHeightTranslate = heightTranslate * (containerObj.height() / deskshareHeight);
 
   // the offsets of the container that has the image inside it
-  var containerX = containerObj.offset().left + scaledWidthTranslate;
-  var containerY = containerObj.offset().top + scaledHeightTranslate;
-
-  // calculates the overall offsets of the image in the page
-  var imageOffsetX = containerX + imageX;
-  var imageOffsetY = containerY + imageY;
+  var imageOffsetX = containerObj.offset().left + scaledWidthTranslate;
+  var imageOffsetY = containerObj.offset().top + scaledHeightTranslate;
 
   // position of the cursor relative to the container
   var cursorXInImage = scaledX * (containerObj.width() * widthScale);
@@ -458,7 +447,9 @@ function runPopcorn() {
               showCursor(true);
               // width and height are divided by 2 because that's the value used as a reference
               // when positions in cursor.xml is calculated
-              drawCursor(parseFloat(cursorVal[0]) / (imageWidth/2), parseFloat(cursorVal[1]) / (imageHeight/2), thisimg);
+              var cursorX = parseFloat(cursorVal[0]) / (imageWidth/2);
+              var cursorY = parseFloat(cursorVal[1]) / (imageHeight/2);
+              drawCursor(cursorX, cursorY);
 
               // hide the cursor after 3s of inactivity
             } else if (cursorShownAt < new Date().getTime() - 3000) {
@@ -606,33 +597,36 @@ var deskshare_xml = url + '/deskshare.xml';
 var presentation_text_json = url + '/presentation_text.json';
 
 var firstLoad = true;
-var svjobjLoaded = false;
-var videoLoaded = false;
-var deskshareLoaded = false;
+var svgReady = false;
+var videoReady = false;
+var audioReady = false;
+var deskshareReady = false;
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
 svgobj.setAttribute('width', '100%');
 
+// It's important to verify if all medias are ready before running Popcorn
 document.addEventListener('media-ready', function(event) {
   switch(event.detail) {
     case 'video':
+      videoReady = true;
+      break;
     case 'audio':
-      videoLoaded = true;
+      audioReady = true;
       break;
     case 'deskshare':
-    case 'no-deskshare':
-      deskshareLoaded = true;
+      deskshareReady = true;
       break;
     case 'svg':
-      svjobjLoaded = true;
+      svgReady = true;
       break;
     default:
       console.log('unhandled media-ready event: ' + event.detail);
   }
 
-  if (videoLoaded && deskshareLoaded && svjobjLoaded) {
+  if ((audioReady || videoReady) && deskshareReady && svgReady) {
     runPopcorn();
 
     generateThumbnails();
@@ -836,11 +830,13 @@ var resizeSlides = function() {
 };
 
 var resizeDeshareVideo = function() {
-  if (isThereDeskshareVideo()) {
+  var deskshareVideo = document.getElementById("deskshare-video");
+
+  if (deskshareVideo != null) {
     var $deskhareVideo = $("#deskshare-video");
 
-    var videoWidth = parseInt(document.getElementById("deskshare-video").videoWidth, 10);
-    var videoHeight = parseInt(document.getElementById("deskshare-video").videoHeight, 10);
+    var videoWidth = parseInt(deskshareVideo.videoWidth, 10);
+    var videoHeight = parseInt(deskshareVideo.videoHeight, 10);
 
     var aspectRatio = videoWidth/videoHeight;
     var max = aspectRatio * $deskhareVideo.parent().outerHeight();
