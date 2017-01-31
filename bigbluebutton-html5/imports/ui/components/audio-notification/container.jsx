@@ -50,19 +50,18 @@ class AudioNotificationContainer extends Component {
   }
 
   handleAudioFailure() {
-    this.color = 'danger';
     this.message = this.props.audioFailure;
     this.setState({status: 'failed'});
   }
 
   handleMediaFailure() {
-    this.color = 'danger';
     this.message = this.props.mediaFailure;
     this.setState({status: 'failed'});
   }
 
   render() {
     const handleClose = this.handleClose;
+    this.color = 'danger';
 
     return(
       <AudioNotification
