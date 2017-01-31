@@ -412,22 +412,16 @@ function runPopcorn() {
               p.listen(Popcorn.play, removeSlideChangeAttribute);
             }
 
-            var num_current = current_image.substr(5);
-            var num_next = next_image.substr(5);
-
-            if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
-            else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
-
-            if(currentcanvas !== null) {
-              currentcanvas.setAttribute("display", "none");
+            current_canvas = getCanvasFromImage(current_image);
+            if(current_canvas !== null) {
+              current_canvas.setAttribute("display", "none");
             }
 
-            if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
-            else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
-
-            if((nextcanvas !== undefined) && (nextcanvas != null)) {
-              nextcanvas.setAttribute("display", "");
+            next_canvas = getCanvasFromImage(next_image);
+            if((next_canvas !== undefined) && (next_canvas != null)) {
+              next_canvas.setAttribute("display", "");
             }
+
             previous_image = current_image;
             current_image = next_image;
           }
@@ -504,11 +498,16 @@ function adaptViewBoxToDeskshare(viewBox) {
   return vb.join(" ");
 }
 
+function getCanvasFromImage(image) {
+  var canvasId = "canvas" + image.substr(5);
+  var canvas = svgobj.contentDocument ? svgobj.contentDocument.getElementById(canvasId) : svgobj.getSVGDocument('svgfile').getElementById(canvasId);
+  return canvas;
+}
+
 // Transform canvas to fit the different deskshare video sizes
 function setTransform(time) {
   if (mustShowDesktopVideo(time)) {
-    var canvasId = "canvas" + current_image.substr(5);
-    var canvas = svgobj.contentDocument ? svgobj.contentDocument.getElementById(canvasId) : svgobj.getSVGDocument('svgfile').getElementById(canvasId);
+    var canvas = getCanvasFromImage(current_image);
     if (canvas !== null) {
       var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
       var translate = "translate(" + widthTranslate.toString() + ", " + heightTranslate.toString() + ")";
@@ -551,12 +550,11 @@ function defineStartTime() {
   return temp_start_time;
 }
 
-var current_canvas = "canvas0";
 var current_image = "image0";
 var previous_image = null;
-var currentcanvas;
+var current_canvas;
 var shape;
-var nextcanvas;
+var next_canvas;
 var next_image;
 var next_pgid;
 var curr_pgid;
