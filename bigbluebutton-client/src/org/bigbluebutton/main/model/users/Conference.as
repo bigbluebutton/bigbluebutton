@@ -201,11 +201,8 @@ package org.bigbluebutton.main.model.users {
         }
 
         public function userIsModerator(userId:String):Boolean {
-            var moderator:BBBUser = getTheOnlyModerator();
-            if (moderator != null) {
-                return moderator.userID == userId;
-            }
-            return false;
+            var user:BBBUser = getUser(userId);
+            return user != null && user.role == Role.MODERATOR;
         }
 
 		public function getPresenter():BBBUser {
