@@ -11,6 +11,10 @@ const intlMessages = defineMessages({
     id: 'app.audioNotification.audioFailedMessage',
     description: 'The audio could not connect, Try again',
   },
+  mediaFailed: {
+    id: 'app.audioNotification.mediaFailedMessage',
+    description: 'Could not access getUserMicMedia, Try again',
+  },
 });
 
 class AudioNotificationContainer extends Component {
@@ -25,15 +29,18 @@ class AudioNotificationContainer extends Component {
     }
 
     this.handleAudioFailure = this.handleAudioFailure.bind(this);
+    this.handleMediaFailure = this.handleMediaFailure.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
 
   componentDidMount() {
     window.addEventListener("bbb.webrtc.failed", this.handleAudioFailure);
+    window.addEventListener("bbb.webrtc.mediaFailed", this.handleMediaFailure);
   }
 
   componentWillUnmount() {
     window.removeEventListener("bbb.webrtc.failed", this.handleAudioFailure);
+    window.removeEventListener("bbb.webrtc.mediaFailed", this.handleMediaFailure);
   }
 
   handleClose(){
@@ -45,6 +52,12 @@ class AudioNotificationContainer extends Component {
   handleAudioFailure() {
     this.color = 'danger';
     this.message = this.props.audioFailure;
+    this.setState({status: 'failed'});
+  }
+
+  handleMediaFailure() {
+    this.color = 'danger';
+    this.message = this.props.mediaFailure;
     this.setState({status: 'failed'});
   }
 
@@ -64,5 +77,6 @@ class AudioNotificationContainer extends Component {
 export default injectIntl(createContainer(({ intl }) => {
   let messages = {};
   messages.audioFailure = intl.formatMessage(intlMessages.audioFailed);
+  messages.mediaFailure = intl.formatMessage(intlMessages.mediaFailed);
   return messages;
 }, AudioNotificationContainer));

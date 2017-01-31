@@ -113,6 +113,11 @@ function joinVoiceCallSIP(options) {
             status: 'Failed' });
           window.dispatchEvent(audioFailed);
           break;
+        case 'mediafail':
+          let mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
+            status: 'MediaFailed' });
+          window.dispatchEvent(mediaFailed);
+          break;
       }
     }, options.isListenOnly, st);
     return;
