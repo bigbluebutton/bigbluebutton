@@ -550,15 +550,10 @@ package org.bigbluebutton.modules.users.services
       UserManager.getInstance().getConference().emojiStatus(map.userId, map.emojiStatus);
     }
 
-        private function handleUserSharedWebcam(msg:Object):void {
-            var map:Object = JSON.parse(msg.msg);
-            var webcamsOnlyForModerator:Boolean = MeetingModel.getInstance().meeting.webcamsOnlyForModerator;
-            if (!webcamsOnlyForModerator) {
-                UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
-            } else if (webcamsOnlyForModerator && (UserManager.getInstance().getConference().amIModerator() || (map.userId == UserManager.getInstance().getConference().getModeratorUserId()))) {
-                UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
-            }
-        }
+    private function handleUserSharedWebcam(msg:Object):void {
+        var map:Object = JSON.parse(msg.msg);
+        UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
+    }
 
     private function handleUserUnsharedWebcam(msg: Object):void {  
 	  var map:Object = JSON.parse(msg.msg);
