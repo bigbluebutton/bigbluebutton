@@ -629,7 +629,8 @@
 			 width="100%" height="180">
 		<mx:HBox width="100%">
 			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
-			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" id="breakoutTimeLabel" text="..."/>
+			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" id="breakoutTimeLabel"
+					  text="..." toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
 		</mx:HBox>
 
 		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
