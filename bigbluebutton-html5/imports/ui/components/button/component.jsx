@@ -103,7 +103,7 @@ export default class Button extends BaseButton {
     } = this.props;
 
     let propClassNames = {};
-    let circleType = (glow) ? styles.isTalking : styles.circle;
+    let circleType = (glow) ? styles.circleGlow : styles.circle;
 
     propClassNames[styles.button] = true;
     propClassNames[styles[size]] = true;

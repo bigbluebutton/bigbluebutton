@@ -259,11 +259,11 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   }
 }
 
-.isTalking {
+.circleGlow {
     box-shadow: 0 0 .15rem #FFF;
 }
 
-.circle, .isTalking {
+.circle, .circleGlow {
   $btn-sm-padding-x: nth($btn-sm-padding, 2) / 2.75;
   $btn-md-padding-x: nth($btn-md-padding, 2) / 2.75;
   $btn-lg-padding-x: nth($btn-lg-padding, 2) / 2.75;
