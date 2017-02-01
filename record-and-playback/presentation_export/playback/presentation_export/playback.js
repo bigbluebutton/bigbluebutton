@@ -299,7 +299,7 @@ function checkUrl(url)
   } catch(e) {
     return false;
   }
-  return http.status==200;
+  return http.status == 200 || http.status == 206;
 }
 
 load_video = function(){
@@ -429,7 +429,8 @@ document.addEventListener("DOMContentLoaded", function() {
   if (checkUrl(RECORDINGS + '/deskshare/deskshare.webm') == true) {
     load_deskshare_video();
   } else {
-    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'no-deskshare'}));
+    // If there is no deskshare at all we must also trigger this event to signal Popcorn
+    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'deskshare'}));
   }
 
   resizeComponents();

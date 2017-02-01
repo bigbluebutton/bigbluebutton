@@ -247,7 +247,42 @@ def insertDesksharePanAndZoom(start_timestamp, start_timestamp_orig, video_width
      end
 
   else
-    BigBlueButton.logger.info("There's no panzoom event for timestamp = #{start_timestamp}")
+      #There's no panzoom event for timestamp = start_timestamp
+      #it means we have to add the start and stop deskshare timestamps at the end of file
+
+      if( stop_timestamp < ( translateTimestamp($meeting_end) / 1000 ).round(1) )
+         #add the STOP deskshare timestamp panzoom event...
+         stop_new_event = Nokogiri::XML::Node.new "event", $panzooms_xml.doc
+         stop_new_event[:timestamp] = stop_timestamp
+         stop_new_event[:orig] = stop_timestamp_orig
+
+         stop_viewbox = Nokogiri::XML::Node.new "viewBox", $panzooms_xml.doc
+         #get the last viewBox dimensions
+         stop_viewbox.content = all_events.xpath("//viewBox")[all_events.length-1].content
+
+         #set stop_new_event content
+         Nokogiri::XML::Builder.with(stop_new_event) do |xml|
+           xml << stop_viewbox.to_s
+         end
+
+         all_events[all_events.length-1].add_next_sibling(stop_new_event)
+      end
+
+
+      #add the START deskshare timestamp panzoom event...
+      start_new_event = Nokogiri::XML::Node.new "event", $panzooms_xml.doc
+      start_new_event[:timestamp] = start_timestamp
+      start_new_event[:orig] = start_timestamp_orig
+
+      start_viewbox = Nokogiri::XML::Node.new "viewBox", $panzooms_xml.doc
+      start_viewbox.content = "0.0 0.0 #{video_width}.0 #{video_height}.0"
+
+      #set start_new_event content
+      Nokogiri::XML::Builder.with(start_new_event) do |xml|
+        xml << start_viewbox.to_s
+      end
+
+      all_events[all_events.length-1].add_next_sibling(start_new_event)
   end
 
 end
@@ -798,7 +833,7 @@ def processSlideEvents
         start_timestamp = ( translateTimestamp(start_timestamp_orig) / 1000 ).round(1)
         stop_timestamp = ( translateTimestamp(stop_timestamp_orig) / 1000 ).round(1)
 
-        if( (slide_start < start_timestamp || start_timestamp == 0.0) && (slide_end > stop_timestamp && stop_timestamp != 0.0) )
+        if( (slide_start < start_timestamp || start_timestamp == 0.0) && (slide_end >= stop_timestamp && stop_timestamp != 0.0) )
           deskshare_starts << start_timestamp
           deskshare_stops << stop_timestamp
           orig_deskshare_starts << ( start_timestamp_orig / 1000 ).round(1)

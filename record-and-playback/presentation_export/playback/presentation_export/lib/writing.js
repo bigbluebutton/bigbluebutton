@@ -33,32 +33,16 @@ function getUrlParameters() {
 // - - - START OF JAVASCRIPT FUNCTIONS - - - //
 
 // Draw the cursor at a specific point
-function drawCursor(scaledX, scaledY, img) {
+function drawCursor(scaledX, scaledY) {
   var containerObj = $("#slide > object");
 
-  // the offsets of the image inside its parent
-  // Note: this block is only necessary if we let the svg do the resizing
-  // of the image, see the comments in resizeSlides()
-  var imgRect = img.getBoundingClientRect();
-  var imageX = 0; //imgRect.x;
-  var imageY = 0; //imgRect.y;
-
-  // Important to place the cursor over the deskshare
-  // It should not affect the regular slides
-  var scaledWidthTranslate = widthTranslate * (containerObj.width() / deskshareWidth);
-  var scaledHeightTranslate = heightTranslate * (containerObj.height() / deskshareHeight);
-
   // the offsets of the container that has the image inside it
-  var containerX = containerObj.offset().left + scaledWidthTranslate;
-  var containerY = containerObj.offset().top + scaledHeightTranslate;
-
-  // calculates the overall offsets of the image in the page
-  var imageOffsetX = containerX + imageX;
-  var imageOffsetY = containerY + imageY;
+  var imageOffsetX = containerObj.offset().left;
+  var imageOffsetY = containerObj.offset().top;
 
   // position of the cursor relative to the container
-  var cursorXInImage = scaledX * (containerObj.width() * widthScale);
-  var cursorYInImage = scaledY * (containerObj.height() * heightScale);
+  var cursorXInImage = scaledX * containerObj.width();
+  var cursorYInImage = scaledY * containerObj.height();
 
   // absolute position of the cursor in the page
   var cursorLeft = parseInt(imageOffsetX + cursorXInImage, 10);
@@ -157,6 +141,10 @@ function resyncVideos() {
 }
 
 function handlePresentationAreaContent(time) {
+  var meetingDuration = parseFloat(new Popcorn("#video").duration().toFixed(1));
+  if(time >= meetingDuration)
+     return;
+
   var mustShow = mustShowDesktopVideo(time);
   if(!sharingDesktop && mustShow) {
     console.log("Showing deskshare video...");
@@ -423,22 +411,16 @@ function runPopcorn() {
               p.listen(Popcorn.play, removeSlideChangeAttribute);
             }
 
-            var num_current = current_image.substr(5);
-            var num_next = next_image.substr(5);
-
-            if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
-            else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
-
-            if(currentcanvas !== null) {
-              currentcanvas.setAttribute("display", "none");
+            current_canvas = getCanvasFromImage(current_image);
+            if(current_canvas !== null) {
+              current_canvas.setAttribute("display", "none");
             }
 
-            if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
-            else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
-
-            if((nextcanvas !== undefined) && (nextcanvas != null)) {
-              nextcanvas.setAttribute("display", "");
+            next_canvas = getCanvasFromImage(next_image);
+            if((next_canvas !== undefined) && (next_canvas != null)) {
+              next_canvas.setAttribute("display", "");
             }
+
             previous_image = current_image;
             current_image = next_image;
           }
@@ -453,12 +435,14 @@ function runPopcorn() {
             setViewBox(t);
 
             var cursorVal = getCursorAtTime(t);
-            if (cursorVal != null) {
+            if (cursorVal != null && !$('#slide').hasClass('no-background')) {
               cursorShownAt = new Date().getTime();
               showCursor(true);
               // width and height are divided by 2 because that's the value used as a reference
               // when positions in cursor.xml is calculated
-              drawCursor(parseFloat(cursorVal[0]) / (imageWidth/2), parseFloat(cursorVal[1]) / (imageHeight/2), thisimg);
+              var cursorX = parseFloat(cursorVal[0]) / (imageWidth/2);
+              var cursorY = parseFloat(cursorVal[1]) / (imageHeight/2);
+              drawCursor(cursorX, cursorY);
 
               // hide the cursor after 3s of inactivity
             } else if (cursorShownAt < new Date().getTime() - 3000) {
@@ -513,11 +497,16 @@ function adaptViewBoxToDeskshare(viewBox) {
   return vb.join(" ");
 }
 
+function getCanvasFromImage(image) {
+  var canvasId = "canvas" + image.substr(5);
+  var canvas = svgobj.contentDocument ? svgobj.contentDocument.getElementById(canvasId) : svgobj.getSVGDocument('svgfile').getElementById(canvasId);
+  return canvas;
+}
+
 // Transform canvas to fit the different deskshare video sizes
 function setTransform(time) {
   if (mustShowDesktopVideo(time)) {
-    var canvasId = "canvas" + current_image.substr(5);
-    var canvas = svgobj.contentDocument ? svgobj.contentDocument.getElementById(canvasId) : svgobj.getSVGDocument('svgfile').getElementById(canvasId);
+    var canvas = getCanvasFromImage(current_image);
     if (canvas !== null) {
       var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
       var translate = "translate(" + widthTranslate.toString() + ", " + heightTranslate.toString() + ")";
@@ -560,12 +549,11 @@ function defineStartTime() {
   return temp_start_time;
 }
 
-var current_canvas = "canvas0";
 var current_image = "image0";
 var previous_image = null;
-var currentcanvas;
+var current_canvas;
 var shape;
-var nextcanvas;
+var next_canvas;
 var next_image;
 var next_pgid;
 var curr_pgid;
@@ -606,33 +594,36 @@ var deskshare_xml = url + '/deskshare.xml';
 var presentation_text_json = url + '/presentation_text.json';
 
 var firstLoad = true;
-var svjobjLoaded = false;
-var videoLoaded = false;
-var deskshareLoaded = false;
+var svgReady = false;
+var videoReady = false;
+var audioReady = false;
+var deskshareReady = false;
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
 svgobj.setAttribute('width', '100%');
 
+// It's important to verify if all medias are ready before running Popcorn
 document.addEventListener('media-ready', function(event) {
   switch(event.detail) {
     case 'video':
+      videoReady = true;
+      break;
     case 'audio':
-      videoLoaded = true;
+      audioReady = true;
       break;
     case 'deskshare':
-    case 'no-deskshare':
-      deskshareLoaded = true;
+      deskshareReady = true;
       break;
     case 'svg':
-      svjobjLoaded = true;
+      svgReady = true;
       break;
     default:
       console.log('unhandled media-ready event: ' + event.detail);
   }
 
-  if (videoLoaded && deskshareLoaded && svjobjLoaded) {
+  if ((audioReady || videoReady) && deskshareReady && svgReady) {
     runPopcorn();
 
     generateThumbnails();
@@ -836,11 +827,13 @@ var resizeSlides = function() {
 };
 
 var resizeDeshareVideo = function() {
-  if (isThereDeskshareVideo()) {
+  var deskshareVideo = document.getElementById("deskshare-video");
+
+  if (deskshareVideo != null) {
     var $deskhareVideo = $("#deskshare-video");
 
-    var videoWidth = parseInt(document.getElementById("deskshare-video").videoWidth, 10);
-    var videoHeight = parseInt(document.getElementById("deskshare-video").videoHeight, 10);
+    var videoWidth = parseInt(deskshareVideo.videoWidth, 10);
+    var videoHeight = parseInt(deskshareVideo.videoHeight, 10);
 
     var aspectRatio = videoWidth/videoHeight;
     var max = aspectRatio * $deskhareVideo.parent().outerHeight();
