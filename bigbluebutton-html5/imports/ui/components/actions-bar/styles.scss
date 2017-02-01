@@ -31,6 +31,6 @@
   visibility: hidden;
 }
 
-.circleGlow span i{
-  text-shadow: 0 0 .35rem #FFF;
+.circleGlow > :first-child{
+    box-shadow: 0 0 .15rem #FFF !important;
 }

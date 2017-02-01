@@ -17,7 +17,6 @@ export default class MuteAudio extends React.Component {
 
     return (
       <Button
-        glow={isTalking}
         onClick={callback}
         label={label}
         color={'primary'}
