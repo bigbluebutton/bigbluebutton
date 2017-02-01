@@ -36,18 +36,13 @@ function getUrlParameters() {
 function drawCursor(scaledX, scaledY) {
   var containerObj = $("#slide > object");
 
-  // Important to place the cursor over the deskshare
-  // It should not affect the regular slides
-  var scaledWidthTranslate = widthTranslate * (containerObj.width() / deskshareWidth);
-  var scaledHeightTranslate = heightTranslate * (containerObj.height() / deskshareHeight);
-
   // the offsets of the container that has the image inside it
-  var imageOffsetX = containerObj.offset().left + scaledWidthTranslate;
-  var imageOffsetY = containerObj.offset().top + scaledHeightTranslate;
+  var imageOffsetX = containerObj.offset().left;
+  var imageOffsetY = containerObj.offset().top;
 
   // position of the cursor relative to the container
-  var cursorXInImage = scaledX * (containerObj.width() * widthScale);
-  var cursorYInImage = scaledY * (containerObj.height() * heightScale);
+  var cursorXInImage = scaledX * containerObj.width();
+  var cursorYInImage = scaledY * containerObj.height();
 
   // absolute position of the cursor in the page
   var cursorLeft = parseInt(imageOffsetX + cursorXInImage, 10);
@@ -436,7 +431,7 @@ function runPopcorn() {
             setViewBox(t);
 
             var cursorVal = getCursorAtTime(t);
-            if (cursorVal != null) {
+            if (cursorVal != null && !$('#slide').hasClass('no-background')) {
               cursorShownAt = new Date().getTime();
               showCursor(true);
               // width and height are divided by 2 because that's the value used as a reference
