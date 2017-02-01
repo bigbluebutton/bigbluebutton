@@ -27,6 +27,8 @@ const moderator = {
   // muting
   muteSelf: true,
   unmuteSelf: true,
+  muteOther: true,
+  unmuteOther: true,
 
   logoutSelf: true,
 

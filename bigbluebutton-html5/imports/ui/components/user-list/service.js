@@ -234,12 +234,12 @@ const userActions = {
   },
   mute: {
     label: 'Mute Audio',
-    handler: user=> callServer('muteUser', Auth.userID),
+    handler: user=> callServer('muteUser', user.id),
     icon: 'mute',
   },
   unmute: {
     label: 'Unmute Audio',
-    handler: user=> callServer('unmuteUser', Auth.userID),
+    handler: user=> callServer('unmuteUser', user.id),
     icon: 'unmute',
   },
 };
