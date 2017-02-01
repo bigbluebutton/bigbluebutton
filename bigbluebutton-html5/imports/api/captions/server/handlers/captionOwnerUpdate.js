@@ -1,6 +1,7 @@
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import addCaption from '../modifiers/addCaption';
 
 export default function handleCaptionOwnerUpdate({ payload }) {
   const meetingId = payload.meeting_id;
@@ -21,6 +22,19 @@ export default function handleCaptionOwnerUpdate({ payload }) {
       'captionHistory.ownerId': ownerId,
     },
   };
+
+  const Caption = Captions.findOne(selector);
+
+  if (!Caption) {
+    const captionHistory = {
+      ownerId,
+      captions: '',
+      index: 0,
+      next: null,
+    };
+
+    addCaption(meetingId, locale, captionHistory);
+  }
 
   const cb = (err, numChanged) => {
     if (err) {
