@@ -113,18 +113,16 @@ class UserListItem extends Component {
       unmute,
     } = userActions;
 
+    const hasAuthority = currentUser.isModerator || user.isCurrent;
     let allowedToChatPrivately = !user.isCurrent;
-    let allowedToMuteAudio = (currentUser.isModerator || user.isCurrent) && user.isVoiceUser && user.isMuted;
-    let allowedToUnmuteAudio = (currentUser.isModerator || user.isCurrent) && user.isVoiceUser && !user.isMuted;
-
-    // if currentUser is a moderator or user is currently logged in,
-    // can clear status from the userlist.
-    let allowedToResetStatus = !!(currentUser.isModerator || user.isCurrent);
+    let allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
+    let allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
+    let allowedToResetStatus = hasAuthority;
 
     // if currentUser is a moderator, allow kicking other users
     let allowedToKick = currentUser.isModerator && !user.isCurrent;
 
-    let allowedToSetPresenter = currentUser.isModerator || currentUser.isPresenter;
+    let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 
     return _.compact([
       (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
