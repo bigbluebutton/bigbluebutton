@@ -219,7 +219,7 @@ const userActions = {
   },
   clearStatus: {
     label: 'Clear Status',
-    handler: user => console.log('missing clear status', user),
+    handler: user => callServer('userSetEmoji', user.id, 'none'),
     icon: 'clear-status',
   },
   setPresenter: {

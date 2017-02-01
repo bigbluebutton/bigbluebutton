@@ -206,10 +206,10 @@ export default class App extends Component {
           <div className={styles.content}>
             {this.renderNavBar()}
             {this.renderMedia()}
-            {this.renderClosedCaptions()}
             {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}
+          {this.renderClosedCaptions()}
         </section>
         {this.renderAudioElement()}
         {this.renderModal()}
