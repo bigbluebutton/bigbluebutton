@@ -4,12 +4,13 @@ import { check } from 'meteor/check';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import addCaption from '../modifiers/addCaption';
 
-const CAPTION_CHUNK_LENGTH = 1000;
-
 export default function handleCaptionReply({ payload }) {
   if (!inReplyToHTML5Client({ payload })) {
     return;
   }
+
+  const SERVER_CONFIG = Meteor.settings.app;
+  const CAPTION_CHUNK_LENGTH = SERVER_CONFIG.captionsChunkLength || 1000;
 
   const meetingId = payload.meeting_id;
   const locale = payload.locale;

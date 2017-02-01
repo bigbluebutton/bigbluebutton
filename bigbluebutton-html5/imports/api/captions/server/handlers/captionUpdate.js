@@ -3,9 +3,10 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import addCaption from '../modifiers/addCaption';
 
-const CAPTION_CHUNK_LENGTH = 1000;
-
 export default function handleCaptionUpdate({ payload }) {
+  const SERVER_CONFIG = Meteor.settings.app;
+  const CAPTION_CHUNK_LENGTH = SERVER_CONFIG.captionsChunkLength || 1000;
+
   const meetingId = payload.meeting_id;
   const locale = payload.locale;
 
