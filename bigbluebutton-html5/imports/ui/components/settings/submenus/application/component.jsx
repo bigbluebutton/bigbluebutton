@@ -28,11 +28,12 @@ export default class ApplicationMenu extends BaseMenu {
           <div className={styles.row} role='presentation'>
             <label>
               <input type='checkbox'
-                          tabIndex='7'
-                          onChange={this.checkBoxHandler.bind(this, "audioNotifChat")}
-                          checked={this.state.audioNotifChat}
-                          aria-labelledby='audioNotifLabel'
-                          aria-describedby='audioNotifDesc' />
+                tabIndex='7'
+                onChange={this.checkBoxHandler.bind(this, "audioNotifChat")}
+                checked={this.state.audioNotifChat}
+                aria-labelledby='audioNotifLabel'
+                aria-describedby='audioNotifDesc'
+              />
               Audio notifications for chat
             </label>
             <div id='audioNotifLabel' hidden>Audio notifications</div>

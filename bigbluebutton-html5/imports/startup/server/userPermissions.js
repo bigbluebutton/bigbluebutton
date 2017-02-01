@@ -78,9 +78,9 @@ const viewer = function (meetingId, userId) {
     // muting
     muteSelf: true,
     unmuteSelf:
-      !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+      !((meeting = Meetings.findOne({ meetingId })) != null &&
         meeting.roomLockSettings.disableMic) ||
-      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+      !((user = Users.findOne({ meetingId, userId })) != null &&
         user.user.locked),
 
     logoutSelf: true,
@@ -90,15 +90,15 @@ const viewer = function (meetingId, userId) {
     subscribeChat: true,
 
     //chat
-    chatPublic: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+    chatPublic: !((meeting = Meetings.findOne({ meetingId })) != null &&
       meeting.roomLockSettings.disablePublicChat) ||
-      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+      !((user = Users.findOne({ meetingId, userId })) != null &&
       user.user.locked) ||
       (user != null && user.user.presenter),
 
-    chatPrivate: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+    chatPrivate: !((meeting = Meetings.findOne({ meetingId })) != null &&
       meeting.roomLockSettings.disablePrivateChat) ||
-      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+      !((user = Users.findOne({ meetingId, userId })) != null &&
       user.user.locked) ||
       (user != null && user.user.presenter),
 
@@ -122,13 +122,13 @@ export function isAllowedTo(action, credentials) {
   const userId = credentials.requesterUserId;
   const authToken = credentials.requesterToken;
 
-  let user;
   let validated;
 
-  user = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
+  let user = Users.findOne({
+    meetingId,
+    userId,
   });
+
   if (user != null) {
     validated = user.validated;
   }
@@ -137,10 +137,6 @@ export function isAllowedTo(action, credentials) {
     `in isAllowedTo: action-${action}, userId=${userId}, ` +
     `authToken=${authToken} validated:${validated}`
   );
-  user = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
-  });
 
   // logger.info "user=" + JSON.stringify user
   if ((user != null) && authToken === user.authToken) { // check if the user is who he claims to be
@@ -170,10 +166,7 @@ export function isAllowedTo(action, credentials) {
       // user was not validated
       if (action === 'logoutSelf') {
         // on unsuccessful sign-in
-        logger.warn(
-          'a user was successfully removed from the ' +
-          'meeting following an unsuccessful login'
-        );
+        logger.warn('a user was successfully removed from the meeting after failed login');
         return true;
       }
 
