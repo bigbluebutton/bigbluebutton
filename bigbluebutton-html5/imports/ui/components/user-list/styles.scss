@@ -91,6 +91,7 @@ $user-icons-color-hover: $color-gray;
 .content {
   @extend %flex-column;
   flex-grow: 9;
+  overflow: hidden;
 }
 
 .lists {
@@ -135,6 +136,8 @@ $user-icons-color-hover: $color-gray;
   flex-basis: 31rem;
   flex-grow: 1;
   flex-shrink: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .separator {
