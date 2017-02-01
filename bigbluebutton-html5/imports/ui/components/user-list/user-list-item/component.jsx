@@ -108,35 +108,31 @@ class UserListItem extends Component {
       openChat,
       clearStatus,
       setPresenter,
-      promote,
       kick,
       mute,
       unmute,
     } = userActions;
 
-    let muteAudio, unmuteAudio;
-
-    // Check the state of joining the audio currently for current user
-    if (user.isCurrent && user.isVoiceUser) {
-      if (user.isMuted) {
-        muteAudio = true;
-      } else {
-        unmuteAudio = true;
-      }
-    }
+    let allowedToChatPrivately = !user.isCurrent;
+    let allowedToMuteAudio = (currentUser.isModerator || user.isCurrent) && user.isVoiceUser && user.isMuted;
+    let allowedToUnmuteAudio = (currentUser.isModerator || user.isCurrent) && user.isVoiceUser && !user.isMuted;
 
     // if currentUser is a moderator or user is currently logged in,
     // can clear status from the userlist.
-    let allowedToResetStatus = currentUser.isModerator || user.isCurrent ? true : false;
+    let allowedToResetStatus = !!(currentUser.isModerator || user.isCurrent);
+
+    // if currentUser is a moderator, allow kicking other users
+    let allowedToKick = currentUser.isModerator && !user.isCurrent;
+
+    let allowedToSetPresenter = currentUser.isModerator || currentUser.isPresenter;
 
     return _.compact([
-      (!user.isCurrent ? this.renderUserAction(openChat, router, user) : null),
-      (muteAudio ? this.renderUserAction(unmute, user) : null),
-      (unmuteAudio ? this.renderUserAction(mute, user) : null),
+      (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
+      (allowedToMuteAudio ? this.renderUserAction(unmute, user) : null),
+      (allowedToUnmuteAudio ? this.renderUserAction(mute, user) : null),
       (allowedToResetStatus ? this.renderUserAction(clearStatus, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(kick, user) : null),
+      (allowedToSetPresenter ? this.renderUserAction(setPresenter, user) : null),
+      (allowedToKick ? this.renderUserAction(kick, user) : null),
     ]);
   }
 
@@ -162,9 +158,6 @@ class UserListItem extends Component {
 
   render() {
     const {
-      user,
-      currentUser,
-      userActions,
       compact,
     } = this.props;
 
