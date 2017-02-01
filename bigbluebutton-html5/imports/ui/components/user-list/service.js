@@ -224,17 +224,12 @@ const userActions = {
   },
   setPresenter: {
     label: 'Make Presenter',
-    handler: user => callServer('setUserPresenter', user.userid, user.name),
+    handler: user => callServer('setUserPresenter', user.id, user.name),
     icon: 'presentation',
-  },
-  promote: {
-    label: 'Promote',
-    handler: user => console.log('missing promote', user),
-    icon: 'promote',
   },
   kick: {
     label: 'Kick User',
-    handler: user => callServer('kickUser', user.userid),
+    handler: user => callServer('kickUser', user.id),
     icon: 'kick-user',
   },
   mute: {
