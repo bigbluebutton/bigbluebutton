@@ -144,23 +144,24 @@ export function isAllowedTo(action, credentials) {
 
   // logger.info "user=" + JSON.stringify user
   if ((user != null) && authToken === user.authToken) { // check if the user is who he claims to be
-    if (user.validated && user.clientType === 'HTML5') {
+    if (user.validated && user.clientType === 'HTML5' && user.user != null) {
+
+      // MODERATOR
+      if (user.user.role === 'MODERATOR') {
+        logger.info('user permissions moderator case');
+        return moderator[action] || false;
 
       // PRESENTER
       // check presenter specific actions or fallback to regular viewer actions
-      if (user.user != null && user.user.presenter) {
+      } else if (user.user.presenter) {
         logger.info('user permissions presenter case');
         return presenter[action] || viewer(meetingId, userId)[action] || false;
 
       // VIEWER
-      } else if (user.user != null && user.user.role === 'VIEWER') {
+      } else if (user.user.role === 'VIEWER') {
         logger.info('user permissions viewer case');
         return viewer(meetingId, userId)[action] || false;
 
-      // MODERATOR
-      } else if (user.user != null && user.user.role === 'MODERATOR') {
-        logger.info('user permissions moderator case');
-        return moderator[action] || false;
       } else {
         logger.warn(`UNSUCCESSFULL ATTEMPT FROM userid=${userId} to perform:${action}`);
         return false;
