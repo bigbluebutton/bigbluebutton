@@ -64,6 +64,12 @@ const propTypes = {
    * @defaultValue false
    */
   hideLabel: PropTypes.bool,
+
+  /**
+   * Defines if the button should have styled box-shadow glow effect
+   * @defaultValue false
+   */
+  glow: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -75,6 +81,7 @@ const defaultProps = {
   block: false,
   iconRight: false,
   hideLabel: false,
+  glow: false,
 };
 
 export default class Button extends BaseButton {
@@ -92,14 +99,17 @@ export default class Button extends BaseButton {
       circle,
       block,
       iconRight,
+      glow,
     } = this.props;
 
     let propClassNames = {};
+    let circleType = (glow) ? styles.isTalking : styles.circle;
+
     propClassNames[styles.button] = true;
     propClassNames[styles[size]] = true;
     propClassNames[styles[color]] = true;
     propClassNames[styles.ghost] = ghost;
-    propClassNames[styles.circle] = circle;
+    propClassNames[circleType] = circle;
     propClassNames[styles.block] = block;
     propClassNames[styles.iconRight] = iconRight;
     propClassNames[styles.disabled] = disabled;
