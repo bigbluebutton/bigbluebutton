@@ -95,6 +95,7 @@ export default class Button extends BaseButton {
     } = this.props;
 
     let propClassNames = {};
+
     propClassNames[styles.button] = true;
     propClassNames[styles[size]] = true;
     propClassNames[styles[color]] = true;
