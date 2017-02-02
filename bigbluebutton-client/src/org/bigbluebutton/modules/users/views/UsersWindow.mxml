@@ -665,7 +665,7 @@
 	</mx:VBox>
 
 	<mx:ControlBar width="100%">
-		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
+		<mx:Button id="emojiStatusBtn" icon="{images.emoji_happy}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()"
 				   visible="true" />
