@@ -2,10 +2,11 @@
 
 .chat {
   background-color: #fff;
-  padding: $line-height-computed;
+  padding: $sm-padding-x;
   display: flex;
   flex-grow: 1;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .closeChat {
@@ -13,5 +14,15 @@
 }
 
 .header {
-  margin-bottom: $line-height-computed;
+  margin-top: $lg-padding-x - $sm-padding-x;
+  margin-bottom: $lg-padding-x;
+
+  > [class^="icon-bbb-"],
+  > [class*=" icon-bbb-"] {
+    font-size: 85%;
+  }
+}
+
+[class='icon-bbb-left-arrow'] {
+    padding-bottom: 5px;
 }

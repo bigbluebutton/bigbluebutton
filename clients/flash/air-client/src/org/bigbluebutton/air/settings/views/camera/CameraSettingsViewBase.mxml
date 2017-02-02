@@ -3,7 +3,7 @@
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:view="org.bigbluebutton.air.common.views.*"
-				styleName="cameraSettingsViewStyle">
+				styleName="cameraSettingsView">
 
 	<s:VGroup width="100%"
 			  height="100%"
@@ -21,7 +21,7 @@
 									height="100%" />
 					<s:Label id="noVideoMessage0"
 							 visible="false"
-							 styleName="noVideoMsgStyle contentFontSize"
+							 styleName="noVideoMsg contentFontSize"
 							 textAlign="center"
 							 width="100%"
 							 height="100%"
@@ -37,7 +37,7 @@
 					</s:layout>
 					<s:List id="cameraprofileslist"
 							width="100%"
-							styleName="cameraProfilesListStyle"
+							styleName="cameraProfilesList"
 							labelField="name"
 							itemRenderer="spark.components.LabelItemRenderer">
 						<s:layout>
@@ -52,15 +52,15 @@
 								  includeInLayout="false"
 								  width="100%"
 								  id="rotateCameraBtn0"
-								  styleName="cameraSettingsRotateButtonStyle videoAudioSettingStyle contentFontSize"
+								  styleName="cameraSettingsRotateButton videoAudioSetting contentFontSize"
 								  label="{resourceManager.getString('resources', 'cameraSettings.rotate')}" />
 					</s:HGroup>
 					<s:Button id="swapCameraBtn0"
-							  styleName="cameraSettingsSwapButtonStyle videoAudioSettingStyle contentFontSize"
+							  styleName="cameraSettingsSwapButton videoAudioSetting contentFontSize"
 							  width="100%"
 							  label="{resourceManager.getString('resources', 'cameraSettings.swap')}" />
 					<s:Button id="startCameraButton0"
-							  styleName="cameraSettingsStartButtonStyle videoAudioSettingStyle contentFontSize"
+							  styleName="cameraSettingsStartButton videoAudioSetting contentFontSize"
 							  width="100%"
 							  label="{resourceManager.getString('resources', 'userDetail.cameraBtn.text')}" />
 				</s:Group>

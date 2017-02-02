@@ -114,20 +114,12 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def handleEndMeeting(msg: EndMeeting) {
+    // Broadcast users the meeting will end
+    outGW.send(new MeetingEnding(msg.meetingId))
+
     meetingModel.meetingHasEnded
 
-    /**
-     * Check if this meeting has breakout rooms. If so, we also need to end them.
-     */
-    handleEndAllBreakoutRooms(new EndAllBreakoutRooms(msg.meetingId))
-
     outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
-    // Delay sending DisconnectAllUsers because of RTMPT connection being dropped before UserEject message arrives to the client  
-    import context.dispatcher
-    context.system.scheduler.scheduleOnce(Duration.create(2500, TimeUnit.MILLISECONDS)) {
-      log.info("Sending delayed DisconnectUser. meetingId={}", mProps.meetingID)
-      outGW.send(new DisconnectAllUsers(msg.meetingId))
-    }
   }
 
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {

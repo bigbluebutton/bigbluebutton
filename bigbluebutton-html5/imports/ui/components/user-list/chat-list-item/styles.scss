@@ -2,17 +2,23 @@
 
 .chatListItem {
   @extend %list-item;
-  padding: 0;
   cursor: pointer;
+  padding: 0;
 }
 
 .chatListItemLink {
   display: flex;
   flex-grow: 1;
   text-decoration: none;
-  padding: 0.3rem;
-  padding-left: 0.5rem;
-  padding-right: 0.3rem;
+  padding-left: $sm-padding-x / 2;
+  padding-right: $sm-padding-x;
+  padding-top: $sm-padding-y;
+  padding-bottom: $sm-padding-y;
+
+  .chatListItem:first-child > & {
+    padding-top: $sm-padding-y * 1.85;
+    padding-bottom: $sm-padding-y * 1.85;
+  }
 }
 
 .unreadMessages {
@@ -25,7 +31,7 @@
   @extend %no-margin;
   justify-content: center;
   color: $color-white;
-  height: 1rem;
+  line-height: calc(1rem + 1px);
   padding: 0 0.5rem;
   text-align: center;
   border-radius: 0.5rem/50%;
@@ -37,9 +43,7 @@
   @extend %flex-column;
   color: $color-gray-light;
   justify-content: center;
-  flex-basis: 1.9rem;
-  height: 1.9rem;
-  font-size: 1.30rem;
+  font-size: 175%;
 }
 
 .chatName {
@@ -51,8 +55,8 @@
 .chatNameMain {
   @extend %no-margin;
   font-size: 0.95rem;
-  font-weight: 600;
-  padding-left: 0.5rem;
+  font-weight: 400;
+  margin-left: $sm-padding-x;
 }
 
 .active {

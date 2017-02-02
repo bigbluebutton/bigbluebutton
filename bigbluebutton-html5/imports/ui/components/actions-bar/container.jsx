@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-
 import ActionsBar from './component';
 import Service from './service';
+import { joinListenOnly } from '/imports/api/phone';
 
 class ActionsBarContainer extends Component {
   constructor(props) {
@@ -10,8 +10,12 @@ class ActionsBarContainer extends Component {
   }
 
   render() {
+    const handleJoinListenOnly = () => joinListenOnly();
+
     return (
-      <ActionsBar {...this.props}>
+      <ActionsBar
+       handleJoinListenOnly={handleJoinListenOnly}
+      {...this.props}>
         {this.props.children}
       </ActionsBar>
     );

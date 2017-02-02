@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.screenshare.services {
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+    import org.bigbluebutton.core.BBB;
     
     /**
      * The DeskShareProxy communicates with the Red5 deskShare server application
@@ -81,7 +82,8 @@ package org.bigbluebutton.modules.screenshare.services {
         }
         
         public function requestShareToken():void {
-            sender.requestShareToken(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), UsersUtil.isRecorded());
+            sender.requestShareToken(UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID(), UsersUtil.isRecorded(), 
+                BBB.initConnectionManager().isTunnelling);
         }
         
         public function sharingStartMessage(session: String):void {

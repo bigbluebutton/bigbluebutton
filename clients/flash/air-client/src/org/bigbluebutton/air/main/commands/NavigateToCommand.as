@@ -1,14 +1,14 @@
 package org.bigbluebutton.air.main.commands {
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
 	public class NavigateToCommand extends Command {
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		[Inject]
 		public var to:String;

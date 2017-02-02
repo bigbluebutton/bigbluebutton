@@ -4,23 +4,37 @@ import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import BaseMenu from '../base/component';
 import ReactDOM from 'react-dom';
-import FontControl from '/imports/api/FontControl';
 import styles from '../styles.scss';
+import LocalStorage from '/imports/ui/services/storage/local.js';
 
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
     this.state = {
-      currentFontSize: FontControl.fontSizeEnum.MEDIUM,
-    };
+      audioNotifChat: LocalStorage.getItem('audioNotifChat') || Meteor.settings.public.app.audioChatNotification,
+    }
+  }
+
+  checkBoxHandler(fieldname) {
+    let obj = {};
+    obj[fieldname] = !this.state[fieldname];
+    LocalStorage.setItem('audioNotifChat', obj[fieldname]);
+    this.setState(obj);
   }
 
   getContent() {
     return (
       <div className={styles.full} role='presentation'>
           <div className={styles.row} role='presentation'>
-            <label><input type='checkbox' tabIndex='7' aria-labelledby='audioNotifLabel'
-              aria-describedby='audioNotifDesc' />Audio notifications for chat</label>
+            <label>
+              <input type='checkbox'
+                          tabIndex='7'
+                          onChange={this.checkBoxHandler.bind(this, "audioNotifChat")}
+                          checked={this.state.audioNotifChat}
+                          aria-labelledby='audioNotifLabel'
+                          aria-describedby='audioNotifDesc' />
+              Audio notifications for chat
+            </label>
             <div id='audioNotifLabel' hidden>Audio notifications</div>
             <div id='audioNotifDesc' hidden>
               Toggles the audio notifications for chat.</div>
@@ -37,11 +51,11 @@ export default class ApplicationMenu extends BaseMenu {
             <p>Font size</p>
           </div>
           <div className={styles.fontBarMid}>
-            <p>{FontControl.getFontSizeName.call(this)}</p>
+            <p>{this.props.handleGetFontSizeName()}</p>
           </div>
           <div className={styles.fontBarRight} role='presentation'>
             <Button
-              onClick={FontControl.increaseFontSize.bind(this)}
+              onClick={this.props.handleIncreaseFontSize}
               icon={'circle-add'}
               circle={true}
               tabIndex={9}
@@ -54,7 +68,7 @@ export default class ApplicationMenu extends BaseMenu {
             <div id='sizeUpDesc' hidden>
               Increases the font size of the application.</div>
             <Button
-              onClick={FontControl.decreaseFontSize.bind(this)}
+              onClick={this.props.handleDecreaseFontSize}
               icon={'circle-minus'}
               circle={true}
               tabIndex={10}

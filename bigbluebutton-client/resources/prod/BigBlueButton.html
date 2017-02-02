@@ -23,6 +23,7 @@
       }
     </style>
 
+    <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
     <script type="text/javascript">
       // Check for Firefox 41.0.1/2 to workaround Flash hang
@@ -61,8 +62,23 @@
       attributes.name = "BigBlueButton";
       attributes.align = "middle";
       attributes.tabIndex = 0;
-      swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes, embedCallback);
-
+      
+      // In Chrome 56 Google started blocking Flash by default so we force the SWF to 
+      // be loaded in the DOM rather than relying on the SWFObject code to detect 
+      // Flash because it can't.
+      var browserInfo = determineBrowser();
+      if (browserInfo && browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) {
+        // Added a sort of callback idea because when this script runs "content" doesn't exist yet
+        var fillContent = function(){
+          var content = document.getElementById("content");
+          if (content) {
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#869ca7"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+          }
+        };
+      } else {
+        swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes, embedCallback);
+      }
+      
       function embedCallback(e) {
         // Work around pixel alignment bug with Chrome 21 on Mac.
         // See: http://code.google.com/p/bigbluebutton/issues/detail?id=1294
@@ -90,7 +106,6 @@
     <script src="lib/bbblogger.js?v=VERSION" language="javascript"></script>
     <script src="lib/bigbluebutton.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_localization.js?v=VERSION" language="javascript"></script>
-    <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_screenshare.js" language="javascript"></script>
 
     <!--<script src="lib/jquery.mobile.min.js" language="javascript"></script>-->
@@ -127,6 +142,8 @@
             document.getElementById('html5Section').style.display='inherit';
           }
         });
+        
+        if (fillContent) fillContent();
       };
 
       function html5() {

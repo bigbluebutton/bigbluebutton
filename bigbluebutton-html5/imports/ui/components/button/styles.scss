@@ -49,7 +49,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   cursor: pointer;
   user-select: none;
   transition: all .2s ease-in-out;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
+  //box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
 
   &,
   &:active {
@@ -68,7 +68,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
   &:active {
     background-image: none;
     outline: 0;
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    //box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
   }
 
   &[aria-disabled="true"] {
@@ -105,7 +105,7 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
     margin-top: $btn-spacing;
     font-size: 90%;
     color: $color-white;
-    font-weight: $btn-font-weight;
+    font-weight: normal;
     line-height: 1.5;
     text-align: center;
     white-space: nowrap;
@@ -137,9 +137,10 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 .icon {
   width: 1.28571429em;
   text-align: center;
+  color: $color-white;
 
   .buttonWrapper & {
-    font-size: 155%;
+    font-size: 125%;
   }
 
   & + .label {
@@ -260,10 +261,10 @@ $btn-jumbo-padding: $jumbo-padding-y $jumbo-padding-x;
 
 
 .circle {
-  $btn-sm-padding-x: nth($btn-sm-padding, 1) / 2;
-  $btn-md-padding-x: nth($btn-md-padding, 1) / 2;
-  $btn-lg-padding-x: nth($btn-lg-padding, 1) / 2;
-  $btn-jumbo-padding-x: nth($btn-jumbo-padding, 1) / 2;
+  $btn-sm-padding-x: nth($btn-sm-padding, 2) / 2.75;
+  $btn-md-padding-x: nth($btn-md-padding, 2) / 2.75;
+  $btn-lg-padding-x: nth($btn-lg-padding, 2) / 2.75;
+  $btn-jumbo-padding-x: nth($btn-jumbo-padding, 2) / 2.75;
 
   border-radius: 50%;
 

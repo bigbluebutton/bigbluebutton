@@ -241,14 +241,6 @@ package org.bigbluebutton.lib.main.models {
 			return _authTokenSignal;
 		}
 		
-		public function get joinUrl():String {
-			return _joinUrl;
-		}
-		
-		public function set joinUrl(value:String):void {
-			_joinUrl = value;
-		}
-		
 		private function userChangedHandler(user:User, type:int):void {
 			if (user && user.me && (type == UserList.PRESENTER) || (type == UserList.MODERATOR)) {
 				dispatchLockSettings();

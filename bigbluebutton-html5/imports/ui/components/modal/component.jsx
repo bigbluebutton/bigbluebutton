@@ -45,6 +45,8 @@ export default class Modal extends Component {
   }
 
   handleDismiss() {
+    const { dismiss } = this.props;
+    dismiss.callback(...arguments);
     this.setState({ isOpen: false });
     clearModal();
   }
@@ -52,6 +54,8 @@ export default class Modal extends Component {
   handleConfirm() {
     const { confirm } = this.props;
     confirm.callback(...arguments);
+    this.setState({ isOpen: false });
+    clearModal();
   }
 
   componentDidUpdate(prevProps, prevState) {

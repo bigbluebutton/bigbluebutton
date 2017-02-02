@@ -4,7 +4,21 @@
 	<!-- host component -->
 	<fx:Metadata>
 		[HostComponent("spark.components.Button")]
+		[Style(name="labelPadding", inherit="no", type="Number")]
 	</fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				//label.setStyle("color", getStyle("color"));
+				//label.setStyle("fontSize", getStyle("fontSize"));
+				//label.setStyle("fontFamily", getStyle("fontFamily"));
+				icon.text = getStyle("icon");
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+		]]>
+	</fx:Script>
 
 	<!-- states -->
 	<s:states>
@@ -15,7 +29,7 @@
 	</s:states>
 
 	<s:Ellipse id="backgroundEllipse"
-			   height="{image.height * 3/2}"
+			   height="{getStyle('iconSize') * 2}"
 			   width="{backgroundEllipse.height}"
 			   x="{(this.width - backgroundEllipse.width)/2}"
 			   y="{(this.height - backgroundEllipse.height)/2}">
@@ -24,15 +38,17 @@
 						  color.down="{hostComponent.getStyle('selectedBackgroundColor')}" />
 		</s:fill>
 	</s:Ellipse>
-	<s:BitmapImage id="image"
-				   source="{getStyle('backgroundImage')}"
-				   horizontalCenter="0"
-				   verticalCenter="0" />
+	<s:Label id="icon"
+			 fontSize="{getStyle('iconSize')}"
+			 fontFamily="{getStyle('iconFont')}"
+			 color="{getStyle('iconColor')}"
+			 horizontalCenter="0"
+			 verticalCenter="0" />
 
 	<s:Label id="iconLabel"
 			 text="{hostComponent.label}"
 			 x="{(this.width - iconLabel.width)/2}"
-			 y="{backgroundEllipse.y + backgroundEllipse.height * 9/8}"
-			 fontSize="{getStyle('fontSize')}"/>
+			 y="{backgroundEllipse.y + backgroundEllipse.height + getStyle('labelPadding')}"
+			 fontSize="{getStyle('fontSize')}" />
 
 </s:Skin>

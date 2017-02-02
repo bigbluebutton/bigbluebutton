@@ -2,6 +2,7 @@
 
 $navbar-height: 60px; // TODO: Change to NavBar real height
 $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
+$bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is aligned with the presentation title
 
 .main {
   position: relative;
@@ -16,7 +17,7 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   z-index: 10;
 
   font-size: 1.5rem;
-  padding: .8rem 1rem;
+  padding: $bars-padding;
 }
 
 .wrapper {
@@ -56,6 +57,7 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
   @extend %full-page;
 
   background-color: $color-background;
+  padding: 0 .25%;
   // position: relative;
 
   &:before,
@@ -156,10 +158,13 @@ $actionsbar-height: 50px; // TODO: Change to ActionsBar real height
 }
 
 .closedCaptions {
-  order: 2;
+  order: 3;
+  flex-basis: 20%;
+  max-width: 20%;
 }
 
 .actionsbar {
+  padding: $bars-padding;
   position: relative;
   order: 3;
 

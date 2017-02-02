@@ -198,15 +198,26 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private function skipCameraSettingsCheck(camIndex:int = -1):void {
       if (camIndex == -1) {
-        var cam:Camera = changeDefaultCamForMac();
+        var cam:Camera = getDefaultCamera();
         if (cam == null) {
-          cam = Camera.getCamera();
+          LOGGER.debug("VideoEventMapDelegate:: Could not find a default camera");
+          return;
         }
         camIndex = cam.index;
       }
 
       var videoProfile:VideoProfile = BBB.defaultVideoProfile;
       initCameraWithSettings(camIndex, videoProfile);
+    }
+
+    private function getDefaultCamera():Camera {
+      var cam:Camera = null;
+      cam = changeDefaultCamForMac();
+      if (cam == null) {
+        cam = Camera.getCamera();
+      }
+
+      return cam;
     }
 
     private function openWebcamWindows():void {
@@ -282,13 +293,13 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     private function openViewWindowFor(userID:String):void {
-      if (!proxy.connection.connected) {
-        return;
+      var bbbUser:BBBUser = UsersUtil.getUser(userID);
+      if (bbbUser == null || !proxy.connection.connected) {
+       return;
       }
       
       LOGGER.debug("VideoEventMapDelegate:: [{0}] openViewWindowFor:: Opening VIEW window for [{1}] [{2}]", [me, userID, UsersUtil.getUserName(userID)]);
 
-      var bbbUser:BBBUser = UsersUtil.getUser(userID);
       if (bbbUser.hasStream) {
         closeAllAvatarWindows(userID);
       }
@@ -318,7 +329,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
       _dispatcher.dispatchEvent(broadcastEvent);
 	  if (proxy.videoOptions.showButton) {
-		  button.publishingStatus(button.START_PUBLISHING);
+		  button.callLater(button.publishingStatus, [button.START_PUBLISHING]);
 	  }
     }
 
@@ -380,7 +391,7 @@ package org.bigbluebutton.modules.videoconf.maps
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
 		LOGGER.debug("[VideoEventMapDelegate:handleShareCameraRequestEvent]");
 		if (options.skipCamSettingsCheck) {
-			skipCameraSettingsCheck(int(event.defaultCamera));
+			skipCameraSettingsCheck();
 		} else {
 			openWebcamPreview(event.publishInClient, event.defaultCamera, event.camerasArray);
 		}

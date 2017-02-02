@@ -1,0 +1,23 @@
+@import "../../../stylesheets/variables/_all";
+
+.indicator {
+  display: inline-block;
+  position: relative;
+  width: $font-size-base;
+  height: $font-size-base;
+  border-radius: 50%;
+  border: 1px solid $color-white;
+
+  &:after {
+    content: '';
+    width: $font-size-base / 2;
+    height: $font-size-base / 2;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -($font-size-base / 4);
+    margin-left: -($font-size-base / 4);
+    border-radius: 50%;
+    background-color: $color-danger;
+  }
+}

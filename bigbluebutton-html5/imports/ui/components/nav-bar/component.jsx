@@ -1,13 +1,15 @@
 import React, { Component, PropTypes } from 'react';
+import _ from 'underscore';
+import cx from 'classnames';
 import styles from './styles.scss';
+
+import { showModal } from '/imports/ui/components/app/service';
+
 import Button from '../button/component';
-import RecordButton from './recordbutton/component';
+import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdown from './settings-dropdown/component';
 import Icon from '/imports/ui/components/icon/component';
-import { showModal } from '/imports/ui/components/app/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
-import _ from 'underscore';
-
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -61,26 +63,27 @@ class NavBar extends Component {
   render() {
     const { hasUnreadMessages, beingRecorded } = this.props;
 
+    let toggleBtnClasses = {};
+    toggleBtnClasses[styles.btn] = true;
+    toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
+
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
-        <Button
-          onClick={this.handleToggleUserList}
-          ghost={true}
-          circle={true}
-          hideLabel={true}
-          label={'Toggle User-List'}
-          icon={'user'}
-          className={styles.btn}
-        />
+          <Button
+            onClick={this.handleToggleUserList}
+            ghost={true}
+            circle={true}
+            hideLabel={true}
+            label={'Toggle User-List'}
+            icon={'user'}
+            className={cx(toggleBtnClasses)}
+          />
         </div>
-        {hasUnreadMessages ? <span className={styles.withdot}></span> : null}
         <div className={styles.center}>
           {this.renderPresentationTitle()}
-          <span className={styles.divideBar}> | </span>
-          <div className={styles.record}>
-            <RecordButton beingRecorded={beingRecorded}/>
-          </div>
+          <span className={styles.divider}></span>
+          <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>
         <div className={styles.right}>
           <SettingsDropdown />
@@ -109,8 +112,8 @@ class NavBar extends Component {
       <Dropdown
         isOpen={this.state.isActionsOpen}
         ref="dropdown">
-        <DropdownTrigger className={styles.dropdownTrigger}>
-          <h1 className={styles.presentationTitle}>
+        <DropdownTrigger>
+          <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
             {presentationTitle} <Icon iconName='down-arrow'/>
           </h1>
         </DropdownTrigger>
@@ -163,8 +166,8 @@ class NavBar extends Component {
         className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakout.name)}
-        defaultMessage={'batata'}/>
+        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName)}
+      />
     );
   }
 }

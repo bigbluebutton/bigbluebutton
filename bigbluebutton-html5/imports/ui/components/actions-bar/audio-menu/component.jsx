@@ -3,34 +3,24 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Button from '/imports/ui/components/button/component';
 import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
-import MuteAudioContainer from '../mute-button/container';
 
-export default class JoinAudio extends React.Component {
+export default class JoinAudioOptions extends React.Component {
 
   renderLeaveButton() {
     return (
-      <span>
-      <Button
-        onClick={this.props.close}
-        label={'Leave Audio'}
-        color={'danger'}
-        icon={'audio'}
-        size={'lg'}
-        circle={true}
-      />
-      </span>
+        <Button
+          onClick={this.props.close}
+          label={'Leave Audio'}
+          color={'danger'}
+          icon={'mute'}
+          size={'lg'}
+          circle={true}
+        />
     );
   }
 
   render() {
-    if (this.props.isInAudio) {
-      return (
-        <span>
-          <MuteAudioContainer/>
-          {this.renderLeaveButton()}
-        </span>
-      );
-    } else if (this.props.isInListenOnly) {
+    if (this.props.isInAudio || this.props.isInListenOnly) {
       return this.renderLeaveButton();
     }
 
@@ -39,7 +29,7 @@ export default class JoinAudio extends React.Component {
         onClick={this.props.open}
         label={'Join Audio'}
         color={'primary'}
-        icon={'audio'}
+        icon={'unmute'}
         size={'lg'}
         circle={true}
       />

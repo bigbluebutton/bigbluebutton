@@ -15,11 +15,11 @@ clinical:nightwatch
 cfs:power-queue
 cfs:reactive-list
 cfs:micro-queue
-reactive-var@1.0.10
-ecmascript@0.5.8
+reactive-var@1.0.11
+ecmascript@0.6.1
 react-meteor-data
-standard-minifier-css@1.2.0
-standard-minifier-js@1.2.0
+standard-minifier-css@1.3.2
+standard-minifier-js@1.2.1
 nathantreid:css-modules
 shell-server@0.2.1
-http
+http@1.2.10

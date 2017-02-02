@@ -37,6 +37,11 @@ div.submenuContent select {
   float: right;
 }
 
+.containerFull{
+  width: 100%;
+  float: right;
+}
+
 .containerLeftHalfContent {
   @extend .containerLeftHalf;
   @extend .row;
@@ -137,4 +142,43 @@ ul li {
 .indentedRow {
   @extend .row;
   padding-left: 10%;
+}
+
+.ccPreviewBox {
+  height: 100px;
+  margin-left: 10%;
+  margin-right: 5%;
+  padding: 5px;
+  border: 1px solid #f1f1f1;
+  overflow: auto;
+}
+
+.swatch {
+  float: right;
+  margin-right: 10%;
+  padding: 5px;
+  background: #fff;
+  border-radius: 1px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 0px 1px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.swatchInner {
+  width: 36px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.colorPickerOverlay {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+
+.colorPickerPopover {
+  //it has to be bigger than the overlay of the settings modal
+  z-index: 1001;
 }

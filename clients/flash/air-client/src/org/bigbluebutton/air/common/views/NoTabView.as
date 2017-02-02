@@ -1,6 +1,5 @@
 package org.bigbluebutton.air.common.views {
 	
-	import flash.events.StageOrientationEvent;
 	import spark.components.View;
 	
 	public class NoTabView extends View {

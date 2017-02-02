@@ -87,6 +87,7 @@ object MessageNames {
   val VOICE_RECORDING_STOPPED = "voice_recording_stopped_message"
   val RECORDING_STATUS_CHANGED = "recording_status_changed_message"
   val GET_RECORDING_STATUS_REPLY = "get_recording_status_reply"
+  val MEETING_ENDING = "meeting_ending_message"
   val MEETING_ENDED = "meeting_ended_message"
   val MEETING_HAS_ENDED = "meeting_has_ended_message"
   val MEETING_STATE = "meeting_state_message"

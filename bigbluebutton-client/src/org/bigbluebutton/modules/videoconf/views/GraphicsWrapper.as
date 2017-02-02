@@ -45,36 +45,41 @@ package org.bigbluebutton.modules.videoconf.views
             return result;
         }
 
-        private function calculateCellDimensions(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int):Object {
+        private function calculateCellDimensions(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, priority:Boolean):Object {
             var obj:Object = {
                 width: Math.floor(canvasWidth / numColumns)-5,
                 height: Math.floor(canvasHeight / numRows)-5
             }
-            if (obj.width / obj.height > _minContentAspectRatio) {
-                obj.width = Math.floor(obj.height * _minContentAspectRatio);
+
+            var item:UserGraphicHolder = priorityItem as UserGraphicHolder;
+            var aspectRatio:Number = (item != null && priority) ? item.contentAspectRatio : _minContentAspectRatio;
+            obj.cellAspectRatio = aspectRatio;
+
+            if (obj.width / obj.height > aspectRatio) {
+                obj.width = Math.floor(obj.height * aspectRatio);
             } else {
-                obj.height = Math.floor(obj.width / _minContentAspectRatio);
+                obj.height = Math.floor(obj.width / aspectRatio);
             }
             return obj;
         }
 
-        private function calculateOccupiedArea(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int):Object {
-            var obj:Object = calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows);
+        private function calculateOccupiedArea(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, priority:Boolean):Object {
+            var obj:Object = calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows, priority);
             obj.occupiedArea = obj.width * obj.height * numChildren;
             obj.numColumns = numColumns;
             obj.numRows = numRows;
-            obj.cellAspectRatio = _minContentAspectRatio;
+
             return obj;
         }
 
-        private function findBestConfiguration(canvasWidth:int, canvasHeight:int, numChildrenInCanvas:int):Object {
+        private function findBestConfiguration(canvasWidth:int, canvasHeight:int, numChildrenInCanvas:int, priority:Boolean = false):Object {
             var bestConfiguration:Object = {
                 occupiedArea: 0
             }
 
             for (var numColumns:int = 1; numColumns <= numChildrenInCanvas; ++numColumns) {
                 var numRows:int = Math.ceil(numChildrenInCanvas / numColumns);
-                var currentConfiguration:Object = calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows);
+                var currentConfiguration:Object = calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows, priority);
                 if (currentConfiguration.occupiedArea > bestConfiguration.occupiedArea) {
                     bestConfiguration = currentConfiguration;
                 }
@@ -132,8 +137,8 @@ package org.bigbluebutton.modules.videoconf.views
             var oBestConf:Object = pBestConf;
             var isVertSplit:Boolean = false;
             if (numChildren > 1){
-                var pBestConfVer:Object = findBestConfiguration(Math.floor(unscaledWidth * priorityWeight), unscaledHeight, 1);
-                var pBestConfHor:Object = findBestConfiguration(unscaledWidth, Math.floor(unscaledHeight * priorityWeight), 1);
+                var pBestConfVer:Object = findBestConfiguration(Math.floor(unscaledWidth * priorityWeight), unscaledHeight, 1, true);
+                var pBestConfHor:Object = findBestConfiguration(unscaledWidth, Math.floor(unscaledHeight * priorityWeight), 1, true);
                 isVertSplit = (pBestConfVer.occupiedArea > pBestConfHor.occupiedArea);
                 if (isVertSplit) {
                     pBestConf = pBestConfVer;
@@ -174,13 +179,8 @@ package org.bigbluebutton.modules.videoconf.views
             var item:UserGraphicHolder = priorityItem as UserGraphicHolder;
 
             // set size and position of the prioritized video
-            if (item.contentAspectRatio > _minContentAspectRatio) {
-                itemWidth = pWidth;
-                itemHeight = Math.floor(pWidth / item.contentAspectRatio);
-            } else {
-                itemHeight = pHeight;
-                itemWidth = Math.floor(pHeight * item.contentAspectRatio);
-            }
+            itemWidth = pWidth;
+            itemHeight = pHeight;
 
             if (bestConf.isVertSplit) {
                 blockX = Math.floor((3*(unscaledWidth - oWidth*numColumns) + itemWidth)/4);
@@ -271,7 +271,21 @@ package org.bigbluebutton.modules.videoconf.views
 
             for each (var streamName:String in streamNames) {
                 if (user.viewingStream.indexOf(streamName) == -1) {
-                    addVideoForHelper(user.userID, connection, streamName);
+                    // When reconnecting there is discrepancy between the time when the usermodel's viewingStream array
+                    // is updated and the time when we check whether the steam needs to be displayed.
+                    // To avoid duplication of video views we must check if a view for the stream exists
+                    // in addition to the check whether the client is meant to view the stream
+
+                    var streamIsDisplayed:Boolean = false;
+                    for (var i:int = 0; i < numChildren; ++i) {
+                        var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
+                        if (userId == item.userId && streamName == item.streamName) {
+                            streamIsDisplayed = true;
+                        }
+                    }
+                    if (0 == numChildren || !streamIsDisplayed) {
+                        addVideoForHelper(user.userID, connection, streamName);
+                    }
                 }
             }
         }

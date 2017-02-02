@@ -7,17 +7,18 @@ import EmojiContainer from './emoji-menu/container';
 import ActionsDropdown from './actions-dropdown/component';
 import Auth from '/imports/ui/services/auth/index';
 import Users from '/imports/api/users/index';
-import JoinAudioContainer from './audio-menu/container';
+import JoinAudioOptionsContainer from './audio-menu/container';
+import MuteAudioContainer from './mute-button/container';
 import { exitAudio } from '/imports/api/phone';
-
-const openJoinAudio = () => showModal(<Audio />);
+import JoinVideo from './video-button/component';
 
 export default class ActionsBar extends Component {
   constructor(props) {
     super(props);
   }
 
-  handleClick() {
+  openJoinAudio() {
+    return showModal(<Audio handleJoinListenOnly={this.props.handleJoinListenOnly} />)
   }
 
   renderForPresenter() {
@@ -27,20 +28,13 @@ export default class ActionsBar extends Component {
           <ActionsDropdown />
         </div>
         <div className={styles.center}>
-          <JoinAudioContainer
-            open={openJoinAudio.bind(this)}
+          <MuteAudioContainer />
+          <JoinAudioOptionsContainer
+            open={this.openJoinAudio.bind(this)}
             close={() => {exitAudio();}}
 
           />
-
-          <Button
-            onClick={this.handleClick}
-            label={'Cam Off'}
-            color={'primary'}
-            icon={'video-off'}
-            size={'lg'}
-            circle={true}
-          />
+          {/*<JoinVideo />*/}
           <EmojiContainer />
         </div>
         <div className={styles.right}>
@@ -53,19 +47,13 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.center}>
-          <JoinAudioContainer
-            open={openJoinAudio.bind(this)}
-            close={exitAudio}
-          />
+          <MuteAudioContainer />
+          <JoinAudioOptionsContainer
+            open={this.openJoinAudio.bind(this)}
+            close={() => {exitAudio();}}
 
-          <Button
-            onClick={this.handleClick}
-            label={'Cam Off'}
-            color={'primary'}
-            icon={'video-off'}
-            size={'lg'}
-            circle={true}
           />
+          {/*<JoinVideo />*/}
           <EmojiContainer />
         </div>
         <div className={styles.right}>
@@ -76,10 +64,9 @@ export default class ActionsBar extends Component {
 
   render() {
     const { isUserPresenter } = this.props;
-    return(
-      <div>
-        {isUserPresenter ? this.renderForPresenter() : this.renderForUser()}
-      </div>
-    );
+
+    return isUserPresenter ?
+      this.renderForPresenter() :
+      this.renderForUser();
   }
 }

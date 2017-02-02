@@ -10,7 +10,7 @@ package org.bigbluebutton.air.video.views.videochat {
 	import mx.resources.ResourceManager;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
@@ -28,7 +28,7 @@ package org.bigbluebutton.air.video.views.videochat {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		protected var dataProvider:ArrayCollection;
 		

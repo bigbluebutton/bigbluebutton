@@ -96,6 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
     <property name="autoStartRecording" value="${autoStartRecording}"/>
     <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+    <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
     <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
     <property name="defaultConfigURL" value="${defaultConfigURL}"/>
   </bean>

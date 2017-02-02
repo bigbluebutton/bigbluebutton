@@ -33,7 +33,7 @@ class EmojiMenu extends Component {
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
-            icon="raiseHand"
+            icon="hand"
             ghost={false}
             circle={true}
             hideLabel={false}
@@ -48,29 +48,22 @@ class EmojiMenu extends Component {
         <DropdownContent placement="top left">
           <DropdownList>
             <DropdownListItem
-              icon="away"
-              label={intl.formatMessage(intlMessages.awayLabel)}
-              description={intl.formatMessage(intlMessages.awayDesc)}
-              onClick={() => actions.setEmojiHandler('away')}
-            />
-            <DropdownListItem
               icon="raiseHand"
               label={intl.formatMessage(intlMessages.raiseLabel)}
               description={intl.formatMessage(intlMessages.raiseDesc)}
               onClick={() => actions.setEmojiHandler('raiseHand')}
             />
             <DropdownListItem
+              icon="happy"
+              label={intl.formatMessage(intlMessages.happyLabel)}
+              description={intl.formatMessage(intlMessages.happyDesc)}
+              onClick={() => actions.setEmojiHandler('happy')}
+            />
+            <DropdownListItem
               icon="neutral"
               label={intl.formatMessage(intlMessages.undecidedLabel)}
               description={intl.formatMessage(intlMessages.undecidedDesc)}
               onClick={() => actions.setEmojiHandler('neutral')}
-
-            />
-            <DropdownListItem
-              icon="confused"
-              label={intl.formatMessage(intlMessages.confusedLabel)}
-              description={intl.formatMessage(intlMessages.confusedDesc)}
-              onClick={() => actions.setEmojiHandler('confused')}
             />
             <DropdownListItem
               icon="sad"
@@ -79,14 +72,38 @@ class EmojiMenu extends Component {
               onClick={() => actions.setEmojiHandler('sad')}
             />
             <DropdownListItem
-              icon="happy"
-              label={intl.formatMessage(intlMessages.happyLabel)}
-              description={intl.formatMessage(intlMessages.happyDesc)}
-              onClick={() => actions.setEmojiHandler('happy')}
+              icon="confused"
+              label={intl.formatMessage(intlMessages.confusedLabel)}
+              description={intl.formatMessage(intlMessages.confusedDesc)}
+              onClick={() => actions.setEmojiHandler('confused')}
+            />
+            <DropdownListItem
+              icon="away"
+              label={intl.formatMessage(intlMessages.awayLabel)}
+              description={intl.formatMessage(intlMessages.awayDesc)}
+              onClick={() => actions.setEmojiHandler('away')}
+            />
+            <DropdownListItem
+              icon="thumbsUp"
+              label={intl.formatMessage(intlMessages.thumbsupLabel)}
+              description={intl.formatMessage(intlMessages.thumbsupDesc)}
+              onClick={() => actions.setEmojiHandler('thumbsUp')}
+            />
+            <DropdownListItem
+              icon="thumbsDown"
+              label={intl.formatMessage(intlMessages.thumbsdownLabel)}
+              description={intl.formatMessage(intlMessages.thumbsdownDesc)}
+              onClick={() => actions.setEmojiHandler('thumbsDown')}
+            />
+            <DropdownListItem
+              icon="applause"
+              label={intl.formatMessage(intlMessages.applauseLabel)}
+              description={intl.formatMessage(intlMessages.applauseDesc)}
+              onClick={() => actions.setEmojiHandler('applause')}
             />
             <DropdownListSeparator/>
             <DropdownListItem
-              icon="none"
+              icon="clear-status"
               label={intl.formatMessage(intlMessages.clearLabel)}
               description={intl.formatMessage(intlMessages.clearDesc)}
               onClick={() => actions.setEmojiHandler('none')}
@@ -172,6 +189,36 @@ const intlMessages = defineMessages({
   clearDesc: {
     id: 'app.actionsBar.emojiMenu.clearDesc',
     defaultMessage: 'Clear your status',
+  },
+
+  // For applause status
+  applauseLabel: {
+    id: 'app.actionsBar.emojiMenu.applauseLabel',
+    defaultMessage: 'Applause',
+  },
+  applauseDesc: {
+    id: 'app.actionsBar.emojiMenu.applauseDesc',
+    defaultMessage: 'Change your status to applause',
+  },
+
+  // For thumbs up status
+  thumbsupLabel: {
+    id: 'app.actionsBar.emojiMenu.thumbsupLabel',
+    defaultMessage: 'Thumbs up',
+  },
+  thumbsupDesc: {
+    id: 'app.actionsBar.emojiMenu.thumbsupDesc',
+    defaultMessage: 'Change your status to thumbs up',
+  },
+
+  // For thumbs-down status
+  thumbsdownLabel: {
+    id: 'app.actionsBar.emojiMenu.thumbsdownLabel',
+    defaultMessage: 'Thumbs down',
+  },
+  thumbsdownDesc: {
+    id: 'app.actionsBar.emojiMenu.thumbsdownDesc',
+    defaultMessage: 'Change your status to thumbs down',
   },
 });
 

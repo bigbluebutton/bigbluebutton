@@ -1,26 +1,26 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
+import styles from '../styles.scss';
 
-export default class MuteAudioComponent extends React.Component {
+export default class MuteAudio extends React.Component {
 
   render() {
-    const { isMuted, muteUser, unmuteUser } = this.props;
-    let onClick = muteUser;
-    let label = 'Mute';
-
-    if (isMuted) {
-      onClick = unmuteUser;
-      label = 'Unmute';
-    }
+    const { isInAudio, isMuted, callback } = this.props;
+    let label = !isMuted ? 'Mute' : 'Unmute';
+    let icon = !isMuted ? 'audio-off' : 'audio';
+    let className = !isInAudio ? styles.invisible : null;
+    let tabIndex = !isInAudio ? -1 : 0;
 
     return (
       <Button
-        onClick={onClick}
+        onClick={callback}
         label={label}
         color={'primary'}
-        icon={'audio'}
+        icon={icon}
         size={'lg'}
         circle={true}
+        className={className}
+        tabIndex={tabIndex}
       />
     );
   }

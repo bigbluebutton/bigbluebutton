@@ -4,7 +4,7 @@
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:views="org.bigbluebutton.lib.common.views.*"
 				width="100%"
-				styleName="chatMessageStyle">
+				styleName="chatMessage">
 
 	<fx:Script>
 		<![CDATA[
@@ -86,7 +86,7 @@
 										selectable="false"
 										id="message"
 										width="100%"
-										styleName="contentStyle" />
+										styleName="content" />
 				</s:HGroup>
 			</s:VGroup>
 		</s:HGroup>

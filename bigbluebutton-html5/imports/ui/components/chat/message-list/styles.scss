@@ -7,6 +7,10 @@
   flex-grow: 1;
   flex-shrink: 1;
   position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 12px;
+  padding-bottom: 12px;
 }
 
 .messageList {
@@ -14,10 +18,10 @@
   flex-flow: column;
   flex-grow: 1;
   flex-shrink: 1;
-  margin-right: -$line-height-computed;
-  padding-right: $line-height-computed;
-  padding-top: $line-height-computed;
-  padding-bottom: $line-height-computed;
+  margin-right: -$sm-padding-x;
+  padding-right: $sm-padding-x;
+  padding-top: 0;
+  padding-bottom: $sm-padding-x;
 }
 
 .unreadButton {

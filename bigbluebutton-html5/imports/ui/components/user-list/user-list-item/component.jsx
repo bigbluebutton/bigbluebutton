@@ -110,11 +110,30 @@ class UserListItem extends Component {
       setPresenter,
       promote,
       kick,
+      mute,
+      unmute,
     } = userActions;
+
+    let muteAudio, unmuteAudio;
+
+    // Check the state of joining the audio currently for current user
+    if (user.isCurrent && user.isVoiceUser) {
+      if (user.isMuted) {
+        muteAudio = true;
+      } else {
+        unmuteAudio = true;
+      }
+    }
+
+    // if currentUser is a moderator or user is currently logged in,
+    // can clear status from the userlist.
+    let allowedToResetStatus = currentUser.isModerator || user.isCurrent ? true : false;
 
     return _.compact([
       (!user.isCurrent ? this.renderUserAction(openChat, router, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null),
+      (muteAudio ? this.renderUserAction(unmute, user) : null),
+      (unmuteAudio ? this.renderUserAction(mute, user) : null),
+      (allowedToResetStatus ? this.renderUserAction(clearStatus, user) : null),
       (currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null),
       (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
       (currentUser.isModerator ? this.renderUserAction(kick, user) : null),
@@ -203,6 +222,7 @@ class UserListItem extends Component {
                   className={styles.actionsHeader}
                   key={_.uniqueId('action-header')}
                   label={user.name}
+                  style={{ fontWeight: 600 }}
                   defaultMessage={user.name}/>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
@@ -272,14 +292,27 @@ class UserListItem extends Component {
     audioIconClassnames[styles.userIconsContainer] = true;
     audioIconClassnames[styles.userIconGlowing] = user.isTalking;
 
+    if (!audioChatIcon && !user.isSharingWebcam) {
+      // Prevent rendering the markup when there is no icon to show
+      return;
+    }
+
     return (
       <div className={styles.userIcons}>
-        <span className={styles.userIconsContainer}>
-          {user.isSharingWebcam ? <Icon iconName='video'/> : null}
-        </span>
-        <span className={cx(audioIconClassnames)}>
-          {audioChatIcon ? <Icon iconName={audioChatIcon}/> : null}
-        </span>
+        {
+          user.isSharingWebcam ?
+            <span className={styles.userIconsContainer}>
+              <Icon iconName='video'/>
+            </span>
+            : null
+        }
+        {
+          audioChatIcon ?
+          <span className={cx(audioIconClassnames)}>
+            <Icon iconName={audioChatIcon}/>
+          </span>
+          : null
+        }
       </div>
     );
   }
