@@ -2,21 +2,21 @@
 
 .indicator {
   display: inline-block;
-  position: relative;
+  position: absolute;;
   width: $font-size-base;
   height: $font-size-base;
   border-radius: 50%;
   border: 1px solid $color-white;
-  margin-left: 100%;
+  margin-left: 1000%;
 
   &:after {
     content: '';
     width: $font-size-base / 2;
     height: $font-size-base / 2;
     position: absolute;
-    top: 50%;
+    top: 140%;
     left: 50%;
-    margin-top: -($font-size-base / 4);
+    margin-top: -$font-size-base;
     margin-left: -($font-size-base / 4);
     border-radius: 50%;
     background-color: $color-danger;
@@ -25,16 +25,8 @@
 
 .divider {
   position: relative;
-
-  &:after {
-    content: '';
-    position: absolute;
-    top: 20%;
-    width: 1px;
-    margin-left: -($font-size-base / 4);
-    background: $color-white;
-    height: $font-size-base * 1.0;
-    margin: 0 $line-height-computed / 2;
-    opacity: .75;
-  }
+  width: 1px;
+  background: $color-white;
+  height: $font-size-base * 1.0;
+  margin: 0 $line-height-computed / 2;
 }
