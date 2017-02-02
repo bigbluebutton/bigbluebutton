@@ -29,7 +29,7 @@ module BigBlueButton
       raise MissingDirectoryException, "Directory not found #{to_dir}" if not BigBlueButton.dir_exists?(to_dir)
       raise FileNotFoundException, "No recording for #{meeting_id} in #{from_dir}" if Dir.glob("#{from_dir}").empty?
            
-      Dir.glob("#{from_dir}/#{meeting_id}-*.flv").each { |file|
+      Dir.glob("#{from_dir}/#{meeting_id}-*").each { |file|
         puts "deskshare #{file} to #{to_dir}"
         FileUtils.cp(file, to_dir)
       }         
