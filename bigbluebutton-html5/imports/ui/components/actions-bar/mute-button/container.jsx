@@ -20,7 +20,7 @@ export default createContainer((params) => {
   const isMuted = user.voiceUser.muted;
   const isInAudio = user.voiceUser.joined;
   const isTalking = user.voiceUser.talking;
-  
+
   let callback = () => {};
 
   if (isInAudio && !isMuted) {

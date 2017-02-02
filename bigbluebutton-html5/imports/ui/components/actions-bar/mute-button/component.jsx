@@ -11,7 +11,7 @@ export default class MuteAudio extends React.Component {
     let className = !isInAudio ? styles.invisible : null;
     let tabIndex = !isInAudio ? -1 : 0;
 
-    if(isInAudio && isTalking){
+    if (isInAudio && isTalking) {
       className = styles.circleGlow;
     }
 
