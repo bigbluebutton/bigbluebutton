@@ -6,6 +6,7 @@ import LoadingScreen from '../loading-screen/component';
 import KickedScreen from '../kicked-screen/component';
 
 import NotificationsBarContainer from '../notifications-bar/container';
+import AudioNotificationContainer from '../audio-notification/container';
 
 import LocalStorage from '/imports/ui/services/storage/local.js';
 
@@ -200,6 +201,7 @@ export default class App extends Component {
 
     return (
       <main className={styles.main}>
+        <AudioNotificationContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           {this.renderUserList()}
