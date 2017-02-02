@@ -7,7 +7,11 @@
 
 .left,
 .right,
-.center {
+.center,
+.nonVoiceUser,
+.voiceUser,
+.nonVoicePresenter,
+.voicePresenter {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -23,8 +27,28 @@
   flex: 0;
 }
 
-.center {
+.center,
+.nonVoicePresenter,
+.voicePresenter,
+.nonVoiceUser,
+.voiceUser {
   flex: 1;
+}
+
+.nonVoicePresenter {
+  margin-left: -11.6em;
+}
+
+.voicePresenter {
+  margin-left: -6.6em;
+}
+
+.nonVoiceUser {
+  margin-left: -6.5em;
+}
+
+.voiceUser {
+  margin-left: -1.5em;
 }
 
 .invisible {

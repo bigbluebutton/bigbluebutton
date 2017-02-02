@@ -21,13 +21,15 @@ export default class ActionsBar extends Component {
     return showModal(<Audio handleJoinListenOnly={this.props.handleJoinListenOnly} />)
   }
 
-  renderForPresenter() {
+  renderForPresenter(isVoiceUser) {
+    let centerStyle = (isVoiceUser) ? styles.voicePresenter : styles.nonVoicePresenter;
+
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
           <ActionsDropdown />
         </div>
-        <div className={styles.center}>
+        <div className={centerStyle}>
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={this.openJoinAudio.bind(this)}
@@ -43,10 +45,12 @@ export default class ActionsBar extends Component {
     );
   }
 
-  renderForUser() {
+  renderForUser(isVoiceUser) {
+    let centerStyle = (isVoiceUser) ? styles.voiceUser : styles.nonVoiceUser;
+    
     return (
       <div className={styles.actionsbar}>
-        <div className={styles.center}>
+        <div className={centerStyle}>
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={this.openJoinAudio.bind(this)}
@@ -63,10 +67,10 @@ export default class ActionsBar extends Component {
   }
 
   render() {
-    const { isUserPresenter } = this.props;
+    const { isUserPresenter, isVoiceUser } = this.props;
 
     return isUserPresenter ?
-      this.renderForPresenter() :
-      this.renderForUser();
+      this.renderForPresenter(isVoiceUser) :
+      this.renderForUser(isVoiceUser);
   }
 }

@@ -13,6 +13,11 @@ let isUserPresenter = () => {
   };
 };
 
-export default {
-  isUserPresenter,
+let isVoiceUser = () => {
+
+  return isJoined = Users.findOne({
+    userId: AuthSingleton.getCredentials().requesterUserId,
+  }).user.voiceUser.joined;
 };
+
+export { isUserPresenter, isVoiceUser };
