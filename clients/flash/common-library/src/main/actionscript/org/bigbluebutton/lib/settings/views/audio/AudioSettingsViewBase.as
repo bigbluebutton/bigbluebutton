@@ -15,7 +15,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 		
 		private var _audioToggle:ToggleButtonBase;
 		
-		private var _microhponeToggle:ToggleButtonBase;
+		private var _microphoneToggle:ToggleButtonBase;
 		
 		private var _gainSlider:HSlider;
 		
@@ -23,8 +23,8 @@ package org.bigbluebutton.lib.settings.views.audio {
 			return _audioToggle;
 		}
 		
-		public function get microhponeToggle():ToggleButtonBase {
-			return _microhponeToggle;
+		public function get microphoneToggle():ToggleButtonBase {
+			return _microphoneToggle;
 		}
 		
 		public function get gainSlider():HSlider {
@@ -68,8 +68,8 @@ package org.bigbluebutton.lib.settings.views.audio {
 			microphoneLabel.percentWidth = 100;
 			microphoneGroup.addElement(microphoneLabel);
 			
-			_microhponeToggle = new toggleButtonClass();
-			microphoneGroup.addElement(_microhponeToggle);
+			_microphoneToggle = new toggleButtonClass();
+			microphoneGroup.addElement(_microphoneToggle);
 			
 			var microphoneSeparator:Line = new Line();
 			microphoneSeparator.percentWidth = 100;
@@ -124,7 +124,7 @@ package org.bigbluebutton.lib.settings.views.audio {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			_audioToggle.parent["padding"] = getStyle("padding");
-			_microhponeToggle.parent["padding"] = getStyle("padding");
+			_microphoneToggle.parent["padding"] = getStyle("padding");
 			_gainSlider.parent["padding"] = getStyle("padding") * 0.5;
 			_gainSlider.parent.parent["padding"] = getStyle("padding");
 		}

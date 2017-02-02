@@ -33,13 +33,13 @@ package org.bigbluebutton.air.settings.views.audio {
 			
 			// view.continueBtn.addEventListener(MouseEvent.CLICK, onContinueClick);
 			view.audioToggle.addEventListener(Event.CHANGE, onEnableAudioClick);
-			view.microhponeToggle.addEventListener(Event.CHANGE, onmicrohponeToggleClick);
+			view.microphoneToggle.addEventListener(Event.CHANGE, onMicrophoneToggleClick);
 			// view.enablePushToTalk.addEventListener(Event.CHANGE, onEnablePushToTalkClick);
 			view.gainSlider.addEventListener(Event.CHANGE, gainChange);
 			userSession.lockSettings.disableMicSignal.add(disableMic);
 			disableMic(userSession.lockSettings.disableMic && userMe.role != User.MODERATOR && !userMe.presenter && userMe.locked);
 			view.audioToggle.selected = (userMe.voiceJoined || userMe.listenOnly);
-			// view.enablePushToTalk.enabled = view.microhponeToggle.selected = userMe.voiceJoined;
+			// view.enablePushToTalk.enabled = view.microphoneToggle.selected = userMe.voiceJoined;
 			// view.enablePushToTalk.selected = (userSession.pushToTalk || userSession.phoneOptions.autoJoin);
 			loadMicGain();
 			micActivityTimer = new Timer(100);
@@ -82,10 +82,10 @@ package org.bigbluebutton.air.settings.views.audio {
 		
 		private function disableMic(disable:Boolean):void {
 			if (disable) {
-				view.microhponeToggle.enabled = false;
-				view.microhponeToggle.selected = false;
+				view.microphoneToggle.enabled = false;
+				view.microphoneToggle.selected = false;
 			} else {
-				view.microhponeToggle.enabled = true;
+				view.microphoneToggle.enabled = true;
 			}
 		}
 		
@@ -97,26 +97,26 @@ package org.bigbluebutton.air.settings.views.audio {
 		
 		private function onEnableAudioClick(event:Event):void {
 			if (!view.audioToggle.selected) {
-				view.microhponeToggle.selected = false;
+				view.microphoneToggle.selected = false;
 				// view.enablePushToTalk.enabled = false;
 				userSession.pushToTalk = false;
 			}
 			var audioOptions:Object = new Object();
-			audioOptions.shareMic = userSession.userList.me.voiceJoined = view.microhponeToggle.selected && view.audioToggle.selected;
-			audioOptions.listenOnly = userSession.userList.me.listenOnly = !view.microhponeToggle.selected && view.audioToggle.selected;
+			audioOptions.shareMic = userSession.userList.me.voiceJoined = view.microphoneToggle.selected && view.audioToggle.selected;
+			audioOptions.listenOnly = userSession.userList.me.listenOnly = !view.microphoneToggle.selected && view.audioToggle.selected;
 			shareMicrophoneSignal.dispatch(audioOptions);
 		}
 		
 		
-		private function onmicrohponeToggleClick(event:Event):void {
-			// view.enablePushToTalk.enabled = view.microhponeToggle.selected;
-			if (view.microhponeToggle.selected) {
+		private function onMicrophoneToggleClick(event:Event):void {
+			// view.enablePushToTalk.enabled = view.microphoneToggle.selected;
+			if (view.microphoneToggle.selected) {
 				view.audioToggle.selected = true;
 			}
 			// userSession.pushToTalk = (view.enablePushToTalk.selected && view.enablePushToTalk.enabled);
 			var audioOptions:Object = new Object();
-			audioOptions.shareMic = userSession.userList.me.voiceJoined = view.microhponeToggle.selected && view.audioToggle.selected;
-			audioOptions.listenOnly = userSession.userList.me.listenOnly = !view.microhponeToggle.selected && view.audioToggle.selected;
+			audioOptions.shareMic = userSession.userList.me.voiceJoined = view.microphoneToggle.selected && view.audioToggle.selected;
+			audioOptions.listenOnly = userSession.userList.me.listenOnly = !view.microphoneToggle.selected && view.audioToggle.selected;
 			shareMicrophoneSignal.dispatch(audioOptions);
 		}
 		
@@ -128,7 +128,7 @@ package org.bigbluebutton.air.settings.views.audio {
 			if (user.me) {
 				if (type == UserList.LISTEN_ONLY) {
 					view.audioToggle.selected = user.voiceJoined || user.listenOnly;
-					view.microhponeToggle.selected = user.voiceJoined;
+					view.microphoneToggle.selected = user.voiceJoined;
 				}
 			}
 		}
@@ -139,9 +139,9 @@ package org.bigbluebutton.air.settings.views.audio {
 			userSession.lockSettings.disableMicSignal.remove(disableMic);
 			// view.continueBtn.removeEventListener(MouseEvent.CLICK, onContinueClick);
 			view.audioToggle.removeEventListener(Event.CHANGE, onEnableAudioClick);
-			view.microhponeToggle.removeEventListener(Event.CHANGE, onmicrohponeToggleClick);
+			view.microphoneToggle.removeEventListener(Event.CHANGE, onMicrophoneToggleClick);
 			if (micActivityTimer) {
-				// micActivityTimer.removeEventListener(TimerEvent.TIMER, micActivity);
+				micActivityTimer.removeEventListener(TimerEvent.TIMER, micActivity);
 			}
 			// view.enablePushToTalk.removeEventListener(Event.CHANGE, onEnablePushToTalkClick);
 			view.gainSlider.removeEventListener(Event.CHANGE, gainChange);
