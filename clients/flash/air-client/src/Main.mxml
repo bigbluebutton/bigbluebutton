@@ -41,6 +41,7 @@
 			import robotlegs.bender.framework.api.IContext;
 			import robotlegs.bender.framework.api.LogLevel;
 			import robotlegs.bender.framework.impl.Context;
+
 			include "../../shared/ColorPalette.as"
 			
 			protected var context:IContext;
