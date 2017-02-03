@@ -47,8 +47,10 @@ function callIntoConference(voiceBridge, callback, isListenOnly, stunTurn = null
 
 	// if additional stun configuration is passed, store the information
 	if (stunTurn != null) {
-		html5StunTurn['stunServers'] = stunTurn.stun;
-		html5StunTurn['turnServers'] = stunTurn.turn;
+		html5StunTurn = {
+			stunServers: stunTurn.stun,
+			turnServers: stunTurn.turn,
+		};
 	}
 
 	// reset callerIdName
