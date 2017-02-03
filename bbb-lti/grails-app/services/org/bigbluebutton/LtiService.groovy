@@ -1,5 +1,5 @@
 package org.bigbluebutton
-/* 
+/*
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
     Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
@@ -32,9 +32,10 @@ class LtiService {
     def consumers = "demo:welcome"
     def mode = "simple"
     def restrictedAccess = "true"
+    def recordedByDefault = "false"
 
     Map<String, String> consumerMap
-    
+
     def retrieveIconEndpoint() {
         return endPoint.replaceFirst("tool", "images/icon.ico")
     }
@@ -42,16 +43,16 @@ class LtiService {
     def retrieveBasicLtiEndpoint() {
         return endPoint
     }
-    
+
     private Map<String, String> getConsumer(consumerId) {
         Map<String, String> consumer = null
-        
+
         if( this.consumerMap.containsKey(consumerId) ){
             consumer = new HashMap<String, String>()
             consumer.put("key", consumerId);
             consumer.put("secret",  this.consumerMap.get(consumerId))
         }
-        
+
         return consumer
     }
 
@@ -66,19 +67,19 @@ class LtiService {
                 this.consumerMap.put(consumer[0], consumer[1])
             }
         }
-        
+
     }
-    
+
     public String sign(String sharedSecret, String data) throws Exception
     {
         Mac mac = setKey(sharedSecret)
-        
+
         // Signed String must be BASE64 encoded.
         byte[] signBytes = mac.doFinal(data.getBytes("UTF8"));
         String signature = encodeBase64(signBytes);
         return signature;
     }
-    
+
     private Mac setKey(String sharedSecret) throws Exception
     {
         Mac mac = Mac.getInstance("HmacSHA1");
@@ -137,10 +138,14 @@ class LtiService {
             log.debug("Exception: Message=" + e.getMessage())
         }
 
-		return ssl_enabled
+        return ssl_enabled
     }
 
     def boolean hasRestrictedAccess() {
         return Boolean.parseBoolean(this.restrictedAccess);
+    }
+
+    def boolean allRecordedByDefault() {
+        return Boolean.parseBoolean(this.recordedByDefault);
     }
 }
