@@ -1,7 +1,7 @@
 
 var userID, callerIdName=null, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout, iceGatheringTimeout;
 var inEchoTest = true;
-var html5StunTurn = {};
+var html5StunTurn = null;
 
 function webRTCCallback(message) {
 	switch (message.status) {
