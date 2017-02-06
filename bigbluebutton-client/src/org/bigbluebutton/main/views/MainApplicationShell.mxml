@@ -51,6 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
+	<mate:Listener type="{ExitApplicationEvent.EXIT_APPLICATION}" method="handleExitApplicationEvent" />
 	<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
 	<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
@@ -77,6 +78,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.IOErrorEvent;
 			import flash.events.TextEvent;
 			import flash.geom.Point;
+			import flash.net.navigateToURL;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -97,6 +99,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
@@ -105,6 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.main.events.ConfigLoadedEvent;
+			import org.bigbluebutton.main.events.ExitApplicationEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
@@ -120,7 +124,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-            import org.bigbluebutton.core.UsersUtil;
 	
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
@@ -507,53 +510,64 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
         showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
       }
-      
-      private function showlogoutWindow(reason:String):void {
-        if (layoutOptions!= null && layoutOptions.showLogoutWindow) {
-          if (logoutWindow != null) return;
-          logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, true));
-          
-          var point1:Point = new Point();
-          // Calculate position of TitleWindow in Application's coordinates. 
-          point1.x = width/2;
-          point1.y = height/2;                 
-          logoutWindow.x = point1.x - (logoutWindow.width/2);
-          logoutWindow.y = point1.y - (logoutWindow.height/2);
-          
-          logoutWindow.setReason(reason);
-          mdiCanvas.removeAllPopUps();
-		  removeToolBars();
-        } else {
-          mdiCanvas.removeAllPopUps();
-		  removeToolBars();
-          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-          LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
-          var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-          var urlLoader:URLLoader = new URLLoader();
-          urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
-          urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
-          urlLoader.load(request);
-        }	        
-      }
-	
-	  /**
-	   * Removes toolbars from the display list.
-	   * Used only when the user completely logged out.
-	   */
-	  private function removeToolBars():void{
-		  this.removeChild(toolbar);
-		  this.removeChild(controlBar);
-	  }
-      
-      
-      private function handleLogout(e:ConnectionFailedEvent):void {
-        if (e is ConnectionFailedEvent) {
-          showlogoutWindow((e as ConnectionFailedEvent).type);
-        }
-        else showlogoutWindow("You have logged out of the conference");	
-      }
-      
+
+			private function showlogoutWindow(reason:String):void {
+				if (layoutOptions!= null && layoutOptions.showLogoutWindow) {
+					if (UserManager.getInstance().getConference().iAskedToLogout) {
+						handleExitApplicationEvent();
+						return;
+					}
+					if (logoutWindow != null) return;
+					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, true));
+					
+					var point1:Point = new Point();
+					// Calculate position of TitleWindow in Application's coordinates. 
+					point1.x = width/2;
+					point1.y = height/2;                 
+					logoutWindow.x = point1.x - (logoutWindow.width/2);
+					logoutWindow.y = point1.y - (logoutWindow.height/2);
+					
+					logoutWindow.setReason(reason);
+					mdiCanvas.removeAllPopUps();
+					removeToolBars();
+				} else {
+					mdiCanvas.removeAllPopUps();
+					removeToolBars();
+					var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+					var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+					LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
+					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+					var urlLoader:URLLoader = new URLLoader();
+					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
+					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
+					urlLoader.load(request);
+				}	        
+			}
+
+            /**
+             * Removes toolbars from the display list.
+             * Used only when the user completely logged out.
+             */
+            private function removeToolBars():void {
+                this.removeChild(toolbar);
+                this.removeChild(controlBar);
+            }
+
+            private function handleLogout(e:ConnectionFailedEvent):void {
+                if (e is ConnectionFailedEvent) {
+                    showlogoutWindow((e as ConnectionFailedEvent).type);
+                } else
+                    showlogoutWindow("You have logged out of the conference");
+            }
+
+            private function handleExitApplicationEvent(e:ExitApplicationEvent = null):void {
+                if (!UserManager.getInstance().getConference().isBreakout) {
+                    navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
+                } else {
+                    ExternalInterface.call("window.close");
+                }
+            }
+
 			private function redirectToLogoutUrl ():void {
         		var logoutURL:String = BBB.getLogoutURL();
 				var request:URLRequest = new URLRequest(logoutURL);
@@ -591,12 +605,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleWebRTCCallEndedEvent(e:WebRTCCallEvent):void {
 				lblWebRTC.visible = lblWebRTC.includeInLayout = false;
 			}
-      
-      private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
-        showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
-        globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
-      }
-			
+
+            private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
+                showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
+                globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
+            }
+
 			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {
 				if (addedBtns.contains(event.button as UIComponent))
 					addedBtns.removeChild(event.button as UIComponent);

@@ -26,6 +26,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="168" y="86" layout="vertical" width="400" height="110" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import flash.net.navigateToURL;
 			
 			import mx.managers.PopUpManager;
@@ -35,6 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.ExitApplicationEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -62,11 +65,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function exitApplication():void {
-				if (!UserManager.getInstance().getConference().isBreakout) {
-					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
-				} else {
-					ExternalInterface.call("window.close");
-				}
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(new ExitApplicationEvent(ExitApplicationEvent.EXIT_APPLICATION));
 			}
 
 			private function handleComplete(e:Event):void {
