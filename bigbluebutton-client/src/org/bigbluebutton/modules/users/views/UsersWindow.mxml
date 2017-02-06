@@ -600,6 +600,15 @@
 			private function breakoutRoomNameLabelFunction(item:Object, column:DataGridColumn) : String {
 				return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room') + " " + item.sequence;
 			}
+
+            private function breakoutRoomsToolTip(item:Object):String {
+                var room:BreakoutRoom = item as BreakoutRoom;
+                var names:Array = [];
+                for (var i:int = 0; i < room.users.length; i++) {
+                    names.push(room.users.getItemAt(i)["name"]);
+                }
+                return names.join("\n");
+            }
 		]]>
 	</mx:Script>
 
@@ -627,17 +636,24 @@
 			 width="100%" height="180">
 		<mx:HBox width="100%">
 			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
-			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" id="breakoutTimeLabel" text="..."/>
+			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" id="breakoutTimeLabel"
+					  text="..." toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
 		</mx:HBox>
 
-		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
+		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false"
+					 dataProvider="{breakoutRoomsList}" dataTipFunction="breakoutRoomsToolTip"
 					 dragEnabled="false" width="100%" height="100%" draggableColumns="false"
 					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}">
 			<mx:columns>
-				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
-				<mx:DataGridColumn dataField="numberOfUsers" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
-				<mx:DataGridColumn dataField="meetingId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
+				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction"
+								   showDataTips="true"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
+				<mx:DataGridColumn dataField="numberOfUsers"
+								   showDataTips="true"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
+				<mx:DataGridColumn dataField="meetingId"
 								   visible="{amIModerator}"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</mx:columns>
 		</mx:DataGrid>
@@ -647,7 +663,7 @@
 	</mx:VBox>
 
 	<mx:ControlBar width="100%">
-		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
+		<mx:Button id="emojiStatusBtn" icon="{images.emoji_happy}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
