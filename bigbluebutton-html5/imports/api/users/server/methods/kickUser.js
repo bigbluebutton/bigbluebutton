@@ -8,15 +8,15 @@ export default function kickUser(credentials, userId) {
   const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
   const EVENT_NAME = 'eject_user_from_meeting_request_message';
 
-  if (!isAllowedTo('kickUser', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to kickUser`);
-  }
-
   const { meetingId, requesterUserId } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(userId, String);
+
+  if (!isAllowedTo('kickUser', credentials)) {
+    throw new Meteor.Error('not-allowed', `You are not allowed to kickUser`);
+  }
 
   let payload = {
     userid: userId,
