@@ -27,8 +27,7 @@ import '/imports/api/captions/server/publications';
 import '/imports/api/captions/server/modifiers/clearCaptionsCollection';
 import '/imports/api/captions/server/modifiers/eventHandlers';
 
-import '/imports/api/users/server/publications';
-import '/imports/api/users/server/methods/kickUser';
+import '/imports/api/users/server';
 import '/imports/api/users/server/methods/listenOnlyRequestToggle';
 import '/imports/api/users/server/methods/muteUser';
 import '/imports/api/users/server/methods/setUserPresenter';
