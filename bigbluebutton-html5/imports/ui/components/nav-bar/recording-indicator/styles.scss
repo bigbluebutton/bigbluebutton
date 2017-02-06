@@ -1,32 +1,33 @@
 @import "../../../stylesheets/variables/_all";
 
 .indicator {
+  position: relative;
   display: inline-block;
-  position: absolute;;
   width: $font-size-base;
   height: $font-size-base;
   border-radius: 50%;
   border: 1px solid $color-white;
-  margin-left: 1000%;
+  margin-left: $line-height-computed;
+
+  &:before {
+    content: '';
+    position: absolute;
+    left: calc( -1px - #{($line-height-computed / 2)});
+    width: 1px;
+    height: 100%;
+    background-color: $color-white;
+  }
 
   &:after {
     content: '';
     width: $font-size-base / 2;
     height: $font-size-base / 2;
     position: absolute;
-    top: 140%;
+    top: 50%;
     left: 50%;
-    margin-top: -$font-size-base;
+    margin-top: -($font-size-base / 4);
     margin-left: -($font-size-base / 4);
     border-radius: 50%;
     background-color: $color-danger;
   }
-}
-
-.divider {
-  position: relative;
-  width: 1px;
-  background: $color-white;
-  height: $font-size-base * 1.0;
-  margin: 0 $line-height-computed / 2;
 }
