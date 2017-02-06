@@ -50,6 +50,8 @@ package org.bigbluebutton.main.model.users {
 		
 		public var isBreakout:Boolean;
 		
+		public var iAskedToLogout:Boolean
+		
 		[Bindable]
 		public var record:Boolean;
 		
