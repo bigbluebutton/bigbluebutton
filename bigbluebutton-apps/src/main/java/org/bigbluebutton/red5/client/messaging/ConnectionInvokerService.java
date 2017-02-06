@@ -21,7 +21,6 @@ package org.bigbluebutton.red5.client.messaging;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -44,6 +43,8 @@ import org.red5.server.util.ScopeUtils;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 public class ConnectionInvokerService {
   private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
@@ -75,15 +76,21 @@ public class ConnectionInvokerService {
           ClientMessage message;
           try {
             message = messages.take();
-            sendMessageToClient(message);	
-          } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isTraceEnabled()) {
+              log.trace("Took message from queue: " + message.getMessageName());
+            }
+            sendMessageToClient(message);
+            if (log.isTraceEnabled()) {
+              log.trace("Sent message to client: " + message.getMessageName());
+            }
+          } catch (Exception e) {
+            Marker sendingException = MarkerFactory.getMarker("SENDING_EXCEPTION");
+            log.error(sendingException, "Exception while sending message to client.", e);
           }
         }
       }
     };
-    exec.execute(sender);		
+    exec.execute(sender);
   }
 
   public void stop() {
@@ -92,6 +99,9 @@ public class ConnectionInvokerService {
   }
 
   public void sendMessage(final ClientMessage message) {
+    if (log.isTraceEnabled()) {
+      log.trace("Queue message: " + message.getMessageName());
+    }
     messages.offer(message);
   }
 
@@ -124,7 +134,7 @@ public class ConnectionInvokerService {
           conn.close();
         }
       }	
-    }		
+    }
   }
 
   private void handleDisconnectAllClientsMessage(DisconnectAllClientsMessage msg) {
@@ -152,9 +162,9 @@ public class ConnectionInvokerService {
           log.info("Disconnecting user=[{}] from meeting=[{}]", msg.getUserId(), msg.getMeetingId());
           conn.close();
         }
-      }				
-    }		
-  }	
+      }
+    }
+  }
 
   private void sendSharedObjectMessage(SharedObjectClientMessage msg) {
     IScope meetingScope = getScope(msg.getMeetingID());
@@ -167,7 +177,8 @@ public class ConnectionInvokerService {
       } 
     } 
   }
-   
+
+
   private void sendDirectMessage(final DirectClientMessage msg) {
     if (log.isTraceEnabled()) {
       Gson gson = new Gson();
@@ -200,9 +211,9 @@ public class ConnectionInvokerService {
             log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + userId
                 + "] as no such session on meeting=[" + msg.getMeetingID() + "]");
           }
-        }	
+        }
       }
-    };		
+    };
 
     /**
      * We need to add a way to cancel sending when the thread is blocked.
@@ -218,6 +229,7 @@ public class ConnectionInvokerService {
       f.get(timeLeft, TimeUnit.NANOSECONDS);   
     } catch (ExecutionException e) {       
       log.warn("ExecutionException while sending direct message on connection[" + userId + "]");
+      log.warn("ExcecutionException cause: " + e.getMessage());
     } catch (InterruptedException e) {        
       log.warn("Interrupted exception while sending direct message on connection[" + userId + "]");
       Thread.currentThread().interrupt();         
@@ -226,7 +238,7 @@ public class ConnectionInvokerService {
       f.cancel(true);     
     } 
   }
-  
+
   private void sendBroadcastMessage(final BroadcastClientMessage msg) {
     if (log.isTraceEnabled()) {
       Gson gson = new Gson();
@@ -241,11 +253,13 @@ public class ConnectionInvokerService {
           List<Object> params = new ArrayList<Object>();
           params.add(msg.getMessageName());
           params.add(msg.getMessage());
+
           if (log.isTraceEnabled()) {
             Gson gson = new Gson();
             String json = gson.toJson(msg.getMessage());
             log.trace("Broadcast message: " + msg.getMessageName() + " msg=" + json);
           }
+
           ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer", params.toArray(), null);
         }
       }
@@ -266,10 +280,10 @@ public class ConnectionInvokerService {
     } catch (ExecutionException e) {       
     	log.warn("ExecutionException while sending broadcast message[" + msg.getMessageName() + "]");
     } catch (InterruptedException e) {        
-    	log.warn("Interrupted exception while sending direct message[" + msg.getMessageName() + "]");
+    	log.warn("Interrupted exception while sending broadcast message[" + msg.getMessageName() + "]");
     	Thread.currentThread().interrupt();         
     } catch (TimeoutException e) {               
-    	log.warn("Timeout exception while sending direct message[" + msg.getMessageName() + "]");
+    	log.warn("Timeout exception while sending broadcast message[" + msg.getMessageName() + "]");
     	f.cancel(true);     
     } 
   }

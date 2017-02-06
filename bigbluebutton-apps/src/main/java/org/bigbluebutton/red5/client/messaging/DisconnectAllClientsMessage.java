@@ -11,4 +11,8 @@ public class DisconnectAllClientsMessage implements ClientMessage {
 	public String getMeetingId() {
 		return meetingId;
 	}
+
+	public String getMessageName() {
+		return "DisconnectAllClientsMessage";
+	}
 }

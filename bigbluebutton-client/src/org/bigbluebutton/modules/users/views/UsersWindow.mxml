@@ -140,10 +140,12 @@
 
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				amIPresenter = UserManager.getInstance().getConference().amIPresenter;
-				
+
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
 				closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = amIModerator;
-				
+
+				emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
+
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
@@ -204,10 +206,6 @@
 			private function localeChanged(e:Event):void {
 				updateNumberofUsers(users.length);
 				resourcesChanged();
-			}
-			
-			private function changeButtons(presenter:Boolean):void {
-				emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
 			}
 			
 			/*
@@ -651,10 +649,9 @@
 	<mx:ControlBar width="100%">
 		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()"
-				   visible="true" />
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" />
+					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" />
 		<mx:VBox>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />

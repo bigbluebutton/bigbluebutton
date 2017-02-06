@@ -17,4 +17,8 @@ public class DisconnectClientMessage implements ClientMessage {
 	public String getUserId() {
 		return userId;
 	}
+
+	public String getMessageName() {
+		return "DisconnectClientMessage";
+	}
 }

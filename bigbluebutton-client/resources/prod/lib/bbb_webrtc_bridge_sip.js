@@ -1,7 +1,7 @@
 
 var userID, callerIdName=null, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout, iceGatheringTimeout;
 var inEchoTest = true;
-var html5StunTurn = {};
+var html5StunTurn = null;
 
 function webRTCCallback(message) {
 	switch (message.status) {
@@ -47,8 +47,10 @@ function callIntoConference(voiceBridge, callback, isListenOnly, stunTurn = null
 
 	// if additional stun configuration is passed, store the information
 	if (stunTurn != null) {
-		html5StunTurn['stunServers'] = stunTurn.stun;
-		html5StunTurn['turnServers'] = stunTurn.turn;
+		html5StunTurn = {
+			stunServers: stunTurn.stun,
+			turnServers: stunTurn.turn,
+		};
 	}
 
 	// reset callerIdName
