@@ -1,8 +1,10 @@
-import Users from '/imports/api/Users';
+import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
+
+import setConnectionStatus from './modifiers/setConnectionStatus';
 
 Meteor.publish('Users', function (credentials) {
   // TODO: Some publishers have ACL and others dont
@@ -22,7 +24,7 @@ Meteor.publish('Users', function (credentials) {
   // - Update `connection_status` when the user disconnects
 
   this.onStop(() => {
-    // update connection_status info to offline
+    setConnectionStatus(meetingId, requesterUserId, 'offline');
   });
 
   const selector = {

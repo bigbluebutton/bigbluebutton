@@ -61,3 +61,22 @@ export function requestUserLeaving(meetingId, userId) {
     return logger.info('did not have enough information to send a user_leaving_request');
   }
 };
+
+
+
+
+
+
+
+
+
+
+if (this.connection == null) {
+  Meteor.users.update(update.id,{
+    $set: {
+      "profile.name": update.name
+    }
+  });
+} else {
+  throw new Meteor.Error('server-only-method', 'Sorry, this method can only be called from the server.');
+}
