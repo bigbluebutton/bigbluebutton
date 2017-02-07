@@ -210,6 +210,7 @@ package org.bigbluebutton.util.i18n
 		[Bindable("change")]
 		public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
 			/**
+			 * @fixme: to be reviewed when all locales from transifex are updated (gtriki feb 7, 2017)
 			 * Get the translated string from the current locale. If empty, get the string from the master
 			 * locale. Locale chaining isn't working because mygengo actually puts the key and empty value
 			 * for untranslated strings into the locale file. So, when Flash does a lookup, it will see that
