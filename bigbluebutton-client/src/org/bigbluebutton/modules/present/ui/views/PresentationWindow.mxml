@@ -697,7 +697,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
 					pollMenuData.push({label: constructedLabel});
 				}
-				pollMenuData.push({label: "Custom Poll..."});
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPoll.label")});
 			}
 			
 			private function onPollStartButtonClicked():void {
