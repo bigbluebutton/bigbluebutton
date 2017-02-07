@@ -285,6 +285,10 @@ Verto.prototype.setMicrophone = function (tag) {
 };
 
 Verto.prototype.setScreenShare = function (tag) {
+  // required for Verto to know we want to use video
+  // tell Verto we want to share webcam so it knows there will be a video stream
+  // but instead of a webcam we pass screen constraints
+  this.useCamera = 'any';
   this.mediaCallback = this.makeShare;
   this.create(tag);
 };
