@@ -16,8 +16,8 @@ export default function publishCursorUpdate(credentials, coordinates) {
   check(requesterUserId, String);
   check(requesterToken, String);
   check(coordinates, {
-    x_percent: Number,
-    y_percent: Number,
+    xPercent: Number,
+    yPercent: Number,
   });
 
   if (!isAllowedTo('moveCursor', credentials)) {
@@ -35,9 +35,9 @@ export default function publishCursorUpdate(credentials, coordinates) {
   }
 
   let payload = {
-    x_percent: coordinates.x_percent,
+    x_percent: coordinates.xPercent,
     meeting_id: meetingId,
-    y_percent: coordinates.y_percent,
+    y_percent: coordinates.yPercent,
   };
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
