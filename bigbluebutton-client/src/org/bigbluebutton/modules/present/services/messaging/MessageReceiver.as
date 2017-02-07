@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
   import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+  import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.present.model.PresentationModel;
@@ -243,6 +244,9 @@ package org.bigbluebutton.modules.present.services.messaging
         case Constants.OFFICE_DOC_CONVERSION_FAILED_KEY :
           dispatcher.dispatchEvent(new OfficeDocConvertFailedEvent());
           break;
+		case Constants.OFFICE_DOC_CONVERSION_INVALID_KEY :
+			dispatcher.dispatchEvent(new OfficeDocConvertInvalidEvent());
+			break;
         case Constants.SUPPORTED_DOCUMENT_KEY :
           dispatcher.dispatchEvent(new ConversionSupportedDocEvent());
           break;

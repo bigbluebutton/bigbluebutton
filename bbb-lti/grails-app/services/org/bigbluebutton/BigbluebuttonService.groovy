@@ -1,5 +1,5 @@
 package org.bigbluebutton
-/* 
+/*
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
     Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
@@ -92,7 +92,7 @@ class BigbluebuttonService {
         Integer duration = 0
         if( "extended".equals(mode) ){
             voiceBridge = getValidatedBBBVoiceBridge(params.get(Parameter.CUSTOM_VOICEBRIDGE))
-            record = getValidatedBBBRecord(params.get(Parameter.CUSTOM_RECORD))
+            record = getValidatedBBBRecord(params.get(Parameter.CUSTOM_RECORD)) || ltiService.allRecordedByDefault()
             duration = getValidatedBBBDuration(params.get(Parameter.CUSTOM_DURATION))
         }
 
@@ -240,7 +240,7 @@ class BigbluebuttonService {
     private String getValidatedUserId(String userId){
         return (userId == null)? "": userId
     }
-    
+
     private Integer getValidatedBBBVoiceBridge(String voiceBridge){
         return (voiceBridge != null )? voiceBridge.toInteger(): 0
     }

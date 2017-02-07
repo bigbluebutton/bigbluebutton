@@ -106,7 +106,20 @@ function joinVoiceCallSIP(options) {
       turn: m.turns,
     };
 
-    callIntoConference(extension, function () {}, options.isListenOnly, st);
+    callIntoConference(extension, function (audio) {
+      switch (audio.status) {
+        case 'failed':
+          let audioFailed = new CustomEvent('bbb.webrtc.failed', {
+            status: 'Failed' });
+          window.dispatchEvent(audioFailed);
+          break;
+        case 'mediafail':
+          let mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
+            status: 'MediaFailed' });
+          window.dispatchEvent(mediaFailed);
+          break;
+      }
+    }, options.isListenOnly, st);
     return;
   }
 }

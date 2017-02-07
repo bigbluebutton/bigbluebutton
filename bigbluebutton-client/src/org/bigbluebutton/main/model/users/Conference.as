@@ -29,6 +29,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	
@@ -49,6 +50,8 @@ package org.bigbluebutton.main.model.users {
 		public var dialNumber:String;
 		
 		public var isBreakout:Boolean;
+		
+		public var iAskedToLogout:Boolean
 		
 		[Bindable]
 		public var record:Boolean;
@@ -197,8 +200,13 @@ package org.bigbluebutton.main.model.users {
 				}
 			}
 			return null;
-		}
-		
+        }
+
+        public function userIsModerator(userId:String):Boolean {
+            var user:BBBUser = getUser(userId);
+            return user != null && user.role == Role.MODERATOR;
+        }
+
 		public function getPresenter():BBBUser {
 			var p:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
@@ -409,14 +417,19 @@ package org.bigbluebutton.main.model.users {
 			}
 			users.refresh();
 		}
-		
-		public function sharedWebcam(userId:String, stream:String):void {
-			var aUser:BBBUser = getUser(userId);
-			if (aUser != null) {
-				aUser.sharedWebcam(stream)
-			}
-			users.refresh();
-		}
+
+        public function sharedWebcam(userId:String, stream:String):void {
+            var webcamsOnlyForModerator:Boolean = MeetingModel.getInstance().meeting.webcamsOnlyForModerator;
+            if (!webcamsOnlyForModerator || 
+				(webcamsOnlyForModerator && (amIModerator() || userIsModerator(userId)))
+			) {
+                var aUser:BBBUser = getUser(userId);
+                if (aUser != null) {
+                    aUser.sharedWebcam(stream)
+                }
+                users.refresh();
+            }
+        }
 		
 		public function unsharedWebcam(userId:String, stream:String):void {
 			var aUser:BBBUser = getUser(userId);
