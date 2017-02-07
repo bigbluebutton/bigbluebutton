@@ -1,4 +1,4 @@
-import Meteor from 'meteor/meteor';
+import { Meteor } from 'meteor/meteor';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 import userLeaving from './userLeaving';

@@ -1,9 +1,11 @@
-import Meteor from 'meteor/meteor';
+import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import Users from '/imports/api/users';
 
+import setConnectionStatus from '../modifiers/setConnectionStatus';
 import listenOnlyRequestToggle from './listenOnlyRequestToggle';
 
 export default function userLeaving(credentials, userId) {
@@ -27,6 +29,8 @@ export default function userLeaving(credentials, userId) {
     throw new Meteor.Error(
       'user-not-found', `You need a valid user to be able to toggle audio`);
   }
+
+  setConnectionStatus(meetingId, requesterUserId, 'offline');
 
   if (User.user.listenOnly) {
     listenOnlyRequestToggle(credentials, false);

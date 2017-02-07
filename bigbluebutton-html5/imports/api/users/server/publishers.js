@@ -4,27 +4,33 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
-import setConnectionStatus from './modifiers/setConnectionStatus';
+import userLeaving from './methods/userLeaving';
+import validateAuthToken from './methods/validateAuthToken';
 
-Meteor.publish('Users', function (credentials) {
-  // TODO: Some publishers have ACL and others dont
-  // if (!isAllowedTo('@@@', credentials)) {
-  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
-  // }
-
+Meteor.publish('users', function (credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  // TODO:
-  // - Add reconnection handlers
-  // - Add validateAuthToken stuff
-  // - Update `connection_status` when the user disconnects
+  let initializing = true;
+
+  validateAuthToken(credentials);
+
+  // const User = Users.find({ meetingId, userId: requesterUserId }).observeChanges({
+  //   changed: (id, fields) => {
+  //     console.log(fields);
+  //   },
+  // });
+
+  if (!isAllowedTo('subscribeUsers', credentials)) {
+    console.error('lul');
+    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
+  }
 
   this.onStop(() => {
-    setConnectionStatus(meetingId, requesterUserId, 'offline');
+    userLeaving(credentials, requesterUserId);
   });
 
   const selector = {

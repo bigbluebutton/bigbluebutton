@@ -37,7 +37,6 @@ import '/imports/api/users/server/modifiers/clearUsersCollection';
 import '/imports/api/users/server/modifiers/createDummyUser';
 import '/imports/api/users/server/modifiers/handleLockingMic';
 import '/imports/api/users/server/modifiers/markUserOffline';
-import '/imports/api/users/server/modifiers/requestUserLeaving';
 import '/imports/api/users/server/modifiers/setUserLockedStatus';
 import '/imports/api/users/server/modifiers/updateVoiceUser';
 import '/imports/api/users/server/modifiers/userJoined';

@@ -7,7 +7,7 @@ const VALID_CONNECTION_STATUS = ['online', 'offline'];
 export default function setConnectionStatus(meetingId, userId, status = 'online') {
   check(meetingId, String);
   check(userId, String);
-  check(connectionStatus, String);
+  check(status, String);
 
   if (!VALID_CONNECTION_STATUS.includes(status)) {
     throw `Invalid connection status, received ${status} expecting ${VALID_CONNECTION_STATUS.join()}`;
