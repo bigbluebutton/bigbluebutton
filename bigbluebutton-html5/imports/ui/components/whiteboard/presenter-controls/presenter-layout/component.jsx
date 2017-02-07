@@ -35,7 +35,7 @@ export default class PresenterLayout extends React.Component {
 
       let xPercent = this.state.lastOffsetX / this.props.vbwidth;
       let yPercent = this.state.lastOffsetY / this.props.vbheight;
-      this.props.updateCursor({ x_percent: xPercent, y_percent: yPercent });
+      this.props.updateCursor({ xPercent: xPercent, yPercent: yPercent });
       this.setState({
         offsetX: this.state.lastOffsetX,
         offsetY: this.state.lastOffsetY,
