@@ -422,8 +422,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:VBox width="100%" height="100%" horizontalAlign="center">
         <mx:HBox horizontalAlign="center">
           <mx:Button id="btnClosePublish"
-                     toolTip="Stop publishing"
-                     label="Stop"
+                     toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.toolTip')}"
+                     label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}"
                      visible="true"
                      enabled="false"
                      click="stopSharing()" />
@@ -437,7 +437,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:AddChild relativeTo="mainElement" position="after">
       <mx:VBox width="100%" height="100%" horizontalAlign="center">
         <mx:HBox width="100%" horizontalAlign="center">
-          <mx:Text width="100%" textAlign="center" styleName="" text="You're using a recent version of Chrome but don't have the screen sharing extension installed"/>
+          <mx:Text width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCChromeExtensionMissing.label')}"/>
         </mx:HBox>
         <mx:HBox width="100%" horizontalAlign="center">
           <mx:LinkButton id="btnInstallExtension" 
@@ -460,7 +460,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           enabled="true" 
           styleName="quickWindowLinkStyle"
           click="onInstallButtonClicked()" />
-        <mx:Label width="70%" textAlign="center" styleName="" text="After you have installed the screen sharing extention, click 'Retry' below"/>
+        <mx:Label width="70%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCRetryExtensionInstallation.label')}"/>
         <mx:Button id="btnRetry" label="Retry" visible="true" enabled="true" click="onRetryButtonClicked()" />
       </mx:VBox>
     </mx:AddChild>
@@ -470,10 +470,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:AddChild relativeTo="mainElement" position="after">
       <mx:VBox width="100%" height="100%" horizontalAlign="center">
         <mx:HBox width="100%" height="100%" horizontalAlign="center">
-          <mx:Text width="100%" textAlign="center" styleName="" text="Unable to detect screen sharing extension. Click here to try installing again, or select 'Use Java Screen Sharing'" />
+          <mx:Text width="100%" textAlign="center" styleName="" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionFailFallback.label')}" />
         </mx:HBox>
         <mx:HBox width="100%" height="100%" horizontalAlign="center">
-          <mx:Text id="incognitoLbl" width="100%" visible="false" text="It seems you may be Incognito or using private browsing. Make sure under your extension settings you allow the extension in incognito mode" />
+          <mx:Text id="incognitoLbl" width="100%" visible="false" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCPrivateBrowsingWarning.label')}" />
         </mx:HBox>
         <mx:HBox width="100%" height="100%" horizontalAlign="center">
           <mx:Button id="btnFallback" label="Use Java Screen Sharing" visible="true" enabled="true" click="onFallbackButtonClicked()" />
