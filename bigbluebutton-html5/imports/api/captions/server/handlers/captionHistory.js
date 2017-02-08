@@ -45,7 +45,7 @@ export default function handleCaptionHistory({ payload }) {
         ownerId,
         captions,
         index,
-        next: (index === chunks.length - 1) ? index + 1 : undefined,
+        next: (index < chunks.length - 1) ? index + 1 : undefined,
       };
 
       captionsAdded.push(addCaption(meetingId, locale, captionHistoryObject));
