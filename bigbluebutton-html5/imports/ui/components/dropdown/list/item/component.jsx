@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import styles from '../styles';
 import _ from 'underscore';
 import cx from 'classnames';
-
 import Icon from '/imports/ui/components/icon/component';
 import { defineMessages, injectIntl } from 'react-intl';
 
@@ -29,7 +28,6 @@ class DropdownListItem extends Component {
   }
 
   renderDefault() {
-
     let children = [];
     const { icon, label, intl } = this.props;
 
@@ -54,7 +52,6 @@ class DropdownListItem extends Component {
   }
 
   render() {
-
     const { label, description, children,
       injectRef, tabIndex, onClick, onKeyDown,
       className, style, } = this.props;
