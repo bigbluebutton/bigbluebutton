@@ -30,6 +30,7 @@
   "app.waitingMessage": "Disconnected. Trying to reconnect in {seconds} seconds...",
   "app.navBar.settingsDropdown.optionsLabel": "Options",
   "app.navBar.settingsDropdown.fullscreenLabel": "Make fullscreen",
+  "app.navBar.settingsDropdown.exitfullscreenLabel": "Exit fullscreen",
   "app.navBar.settingsDropdown.settingsLabel": "Open settings",
   "app.navBar.settingsDropdown.aboutLabel": "About",
   "app.navBar.settingsDropdown.leaveSessionLabel": "Logout",
