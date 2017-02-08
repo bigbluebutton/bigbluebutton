@@ -35,6 +35,10 @@ export default function handleCaptionReply({ payload }) {
       }
     }
 
+    if (captions.length === 0) {
+      chunks.push('');
+    }
+
     chunks.forEach((captions, index) => {
       let captionHistoryObject = {
         locale,
