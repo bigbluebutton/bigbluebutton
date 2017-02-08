@@ -25,7 +25,6 @@ class DropdownListItem extends Component {
     this.descID = _.uniqueId('dropdown-item-desc-');
 
     this.setMenuItem = this.setMenuItem.bind(this);
-    this.items = 0;
   }
 
   renderDefault() {
