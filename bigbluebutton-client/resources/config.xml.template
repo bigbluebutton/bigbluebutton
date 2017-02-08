@@ -42,15 +42,6 @@
 			baseTabIndex="301"
 		/>
 
-		<!--
-		tryWebRTCFirst: Forces the client to make WebRTC screensharing priority over java
-		chromeExtensionLink: The URL to the webstore for the extension that the user
-			will follow for installation
-		chromeExtensionKey: The extension's unique identifer that will be used for
-			communication within the client. This is the extension's google hash,
-			it is listed under the extension when it is installed,
-			and it is part of the URL in the webstore link
-		-->
 		<module name="ScreenshareModule"
 			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
