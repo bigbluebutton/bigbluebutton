@@ -4,7 +4,7 @@ import { check } from 'meteor/check';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import addCaption from '../modifiers/addCaption';
 
-export default function handleCaptionReply({ payload }) {
+export default function handleCaptionHistory({ payload }) {
   if (!inReplyToHTML5Client({ payload })) {
     return;
   }
