@@ -1,11 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import Chat from '/imports/api/chat';
-import Meetings from '/imports/api/meetings';
-import Cursor from '/imports/api/cursor';
-import Captions from '/imports/api/captions';
-import Polls from '/imports/api/polls';
+import Breakouts from '/imports/api/breakouts';
 import Storage from '/imports/ui/services/storage/session';
 
 function setCredentials(nextState, replace) {
@@ -72,11 +68,17 @@ const wasKickedDep = new Tracker.Dependency;
 function observeUserKick() {
   Users.find().observe({
     removed(old) {
+      const isMeetingBreakout = Breakouts.find(b => b.breakoutMeetingId === meetingId);
+
       if (old.userId === Auth.userID) {
         Auth.clearCredentials(() => {
           wasKicked = true;
           wasKickedDep.changed();
         });
+
+        if (!Breakouts.length || isMeetingBreakout) {
+          window.close();
+        }
       }
     },
   });
@@ -118,7 +120,6 @@ export {
   subscribeToCollections,
   wasUserKicked,
   redirectToLogoutUrl,
-  getBreakouts,
   getModal,
   showModal,
   clearModal,
