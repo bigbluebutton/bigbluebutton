@@ -33,7 +33,7 @@ export default function handleCaptionOwnerUpdate({ payload }) {
       next: null,
     };
 
-    addCaption(meetingId, locale, captionHistory);
+    return addCaption(meetingId, locale, captionHistory);
   }
 
   const cb = (err, numChanged) => {
