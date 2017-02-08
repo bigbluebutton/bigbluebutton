@@ -25,6 +25,7 @@ class DropdownListItem extends Component {
     this.descID = _.uniqueId('dropdown-item-desc-');
 
     this.setMenuItem = this.setMenuItem.bind(this);
+    this.items = 0;
   }
 
   renderDefault() {
@@ -37,7 +38,7 @@ class DropdownListItem extends Component {
       document.mozFullScreenElement ||
       document.msFullscreenElement
     ) {
-      if (label === 'Make fullscreen') {
+      if ( icon === 'fullscreen') {
         return this.setMenuItem(icon, intl.formatMessage(intlMessages.exitfullscreenLabel));
       }
     }
