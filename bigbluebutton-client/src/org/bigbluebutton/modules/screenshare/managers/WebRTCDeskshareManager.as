@@ -106,6 +106,10 @@ package org.bigbluebutton.modules.screenshare.managers
 			JSLog.warn("WebRTCDeskshareManager::stopWebRTCDeskshare", {});
 			viewWindowManager.stopViewing();
 
+			/* close the sharing window. The sharing window can also be open when going through
+			extension installation */
+			publishWindowManager.stopSharing();
+
 			if (ExternalInterface.available) {
 				ExternalInterface.call("vertoExitScreenShare");
 			}
