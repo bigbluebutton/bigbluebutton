@@ -48,6 +48,7 @@ function subscribeToCollections(cb) {
       observeUserKick();
       return Promise.all(subscribeForData())
         .then(() => {
+          observeBreakoutEnd();
           if (cb) {
             return cb();
           }
@@ -68,17 +69,22 @@ const wasKickedDep = new Tracker.Dependency;
 function observeUserKick() {
   Users.find().observe({
     removed(old) {
-      const isMeetingBreakout = Breakouts.find(b => b.breakoutMeetingId === meetingId);
-
       if (old.userId === Auth.userID) {
         Auth.clearCredentials(() => {
           wasKicked = true;
           wasKickedDep.changed();
         });
+      }
+    },
+  });
+}
 
-        if (!Breakouts.length || isMeetingBreakout) {
-          window.close();
-        }
+function observeBreakoutEnd() {
+  Breakouts.find().observe({
+    removed(old) {
+      if (old.breakoutMeetingId === Auth.meetingID) {
+        // The breakout room expired. Closing the browser tab to return to the main room
+        window.close();
       }
     },
   });
