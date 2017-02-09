@@ -25,7 +25,9 @@ export default function handleCaptionHistory({ payload }) {
     let captions = caption[1].slice(0);
     let chunks = [];
 
-    while (captions.length > 0) {
+    if (captions.length === 0) {
+      chunks.push('');
+    } else while (captions.length > 0) {
       if (captions.length > CAPTION_CHUNK_LENGTH) {
         chunks.push(captions.slice(0, CAPTION_CHUNK_LENGTH));
         captions = captions.slice(CAPTION_CHUNK_LENGTH);
@@ -33,10 +35,6 @@ export default function handleCaptionHistory({ payload }) {
         chunks.push(captions);
         captions = captions.slice(captions.length);
       }
-    }
-
-    if (captions.length === 0) {
-      chunks.push('');
     }
 
     chunks.forEach((captions, index) => {
