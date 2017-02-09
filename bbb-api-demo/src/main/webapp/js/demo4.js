@@ -109,7 +109,7 @@ function createMeetingTable(meeting) {
 	form += '<input type="submit" value="End"/></FORM>';
 	form += '</th>';
 	
-	var tableContent = '<table name="' + meeting.meetingID + '" class="hor-minimalist-b" cellspacing="0" summary="The current participants in a meeting"><caption>' + meeting.meetingID + '<caption><tr><th scope="col" abbr="Participants">Participants</th><th scope="col" abbr="Name">Name</th><th scope="col" abbr="Role">Role</th>';
+	var tableContent = '<table name="' + meeting.meetingID + '" class="hor-minimalist-b" cellspacing="0" summary="The current participants in a meeting"><caption>' + meeting.meetingName + '<caption><tr><th scope="col" abbr="Participants">Participants</th><th scope="col" abbr="Name">Name</th><th scope="col" abbr="Role">Role</th>';
 	
 	//uncomment below to add the ability to end meetings in the activity monitor
 	//tableContent += form;
@@ -158,3 +158,4 @@ function createMeetingTable(meeting) {
 function encode(string) {
 	return hex_md5(string);
 }
+
