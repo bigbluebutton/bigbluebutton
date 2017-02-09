@@ -47,8 +47,10 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
+			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.controls.listClasses.IListItemRenderer;
 			import mx.core.FlexGlobals;
+			import mx.core.mx_internal;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.ListEvent;
@@ -127,7 +129,10 @@
 			private const KICK_USER:String = "Kick User";
 			private const MUTE_USER:String = "Mute User";
 			private const MUTE_ALL_USER:String = "Mute All User";
-			
+			private const FOCUS_BREAKOUT_ROOMS_LIST:String = "Focus Breakout Rooms";
+			private const LISTEN_TO_BREAKOUT_ROOM:String = "Listen To Breakout Room";
+			private const JOIN_BREAKOUT_ROOM:String = "Join Breakout Room";
+
 			private var muteMeRolled:Boolean = false;
 			
 			private function onCreationComplete():void {
@@ -475,6 +480,9 @@
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteall') as String)] = MUTE_ALL_USER;
+				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.focusBreakoutRooms') as String)] = FOCUS_BREAKOUT_ROOMS_LIST;
+				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.listenToBreakoutRoom') as String)] = LISTEN_TO_BREAKOUT_ROOM;
+				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.joinBreakoutRoom') as String)] = JOIN_BREAKOUT_ROOM;
 				//TODO Include shortcuts to lock control
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_USERS;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_USERS;
@@ -501,6 +509,15 @@
 							break;
 						case MUTE_ALL_USER:
 							muteAll();
+							break;
+						case FOCUS_BREAKOUT_ROOMS_LIST:
+							remoteFocusBreakoutRooms();
+							break;
+						case LISTEN_TO_BREAKOUT_ROOM:
+							listenToBreakoutRoom();
+							break;
+						case JOIN_BREAKOUT_ROOM:
+							joinBreakoutRoom();
 							break;
 						case ShortcutEvent.MAXIMIZE_USERS:
 							remoteMaximize();
@@ -587,6 +604,33 @@
 			public function remoteFocusUsers():void {
 				focusManager.setFocus(usersGrid);
 				usersGrid.drawFocus(true);
+			}
+			
+			public function remoteFocusBreakoutRooms() : void {
+				if (roomsGrid && roomsGrid.visible) {
+					focusManager.setFocus(roomsGrid);
+					roomsGrid.drawFocus(true);			
+				}
+			}
+			
+			public function listenToBreakoutRoom() : void {
+				if (roomsGrid && roomsBox.visible && roomsGrid.selectedIndex > -1) {
+					// roomsGrid.selectedIndex + 1 is needed as the first index of rendererArray contains the header renderes
+					var renderer : RoomActionsRenderer = roomsGrid.mx_internal::rendererArray[roomsGrid.selectedIndex + 1][2];
+					if (renderer.listenBtn.visible) {
+						renderer.listenBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+					}
+				}
+			}
+			
+			public function joinBreakoutRoom() : void {
+				if (roomsGrid && roomsBox.visible && roomsGrid.selectedIndex > -1) {
+					// roomsGrid.selectedIndex + 1 is needed as the first index of rendererArray contains the header renderes
+					var renderer : RoomActionsRenderer = roomsGrid.mx_internal::rendererArray[roomsGrid.selectedIndex + 1][2];
+					if (renderer.joinBtn.visible) {
+						renderer.joinBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+					}
+				}
 			}
 			
 			private function remoteMuteAllButPres(e:ShortcutEvent):void{
