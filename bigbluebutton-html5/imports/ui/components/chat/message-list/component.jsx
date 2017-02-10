@@ -81,6 +81,8 @@ class MessageList extends Component {
 
     let position = scrollArea.scrollTop + scrollArea.offsetHeight;
 
+    //Compare with <1 to account for the chance scrollArea.scrollTop is a float
+    //value in some browsers.
     this.shouldScrollBottom = position === scrollArea.scrollHeight ||
                               (scrollArea.scrollHeight - position < 1);
   }
