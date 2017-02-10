@@ -79,8 +79,15 @@ class MessageList extends Component {
 
     const { scrollArea } = this.refs;
     this.shouldScrollBottom = scrollArea.scrollTop +
-                              scrollArea.offsetHeight <=
-                              scrollArea.scrollHeight;
+                              scrollArea.offsetHeight ===
+                              scrollArea.scrollHeight ||
+                              (scrollArea.scrollHeight -
+                              (scrollArea.scrollTop + scrollArea.offsetHeight) < 1);
+
+        console.log(scrollArea.scrollTop);
+        console.log(scrollArea.offsetHeight);
+        console.log(scrollArea.scrollHeight);
+
 
   }
 
