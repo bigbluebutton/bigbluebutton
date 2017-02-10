@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*"
 				width="630" height="650"
 				close="onCloseClicked()"
 				visible="false"
@@ -292,8 +293,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<mx:HBox id="durationBox" width="100%" paddingTop="12">
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" />
-			<mx:NumericStepper id="durationStepper" value="15" minimum="1" maximum="600" 
-							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.durationStepper.accessibilityName')}"/>
+			<common:AccessibleNumericStepper id="durationStepper" value="15" minimum="1" maximum="600" 
+							   toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.durationStepper.accessibilityName')}"/>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
 		</mx:HBox>
 		
