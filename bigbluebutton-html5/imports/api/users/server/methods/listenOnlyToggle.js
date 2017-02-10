@@ -6,7 +6,7 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
-export default function listenOnlyRequestToggle(credentials, isJoining) {
+export default function listenOnlyToggle(credentials, isJoining = true) {
   const REDIS_CONFIG = Meteor.settings.redis;
   const CHANNEL = REDIS_CONFIG.channels.toBBBApps.meeting;
 

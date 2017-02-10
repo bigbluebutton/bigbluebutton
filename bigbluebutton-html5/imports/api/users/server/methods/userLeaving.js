@@ -6,7 +6,7 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import Users from '/imports/api/users';
 
 import setConnectionStatus from '../modifiers/setConnectionStatus';
-import listenOnlyRequestToggle from './listenOnlyRequestToggle';
+import listenOnlyToggle from './listenOnlyToggle';
 
 export default function userLeaving(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -33,7 +33,7 @@ export default function userLeaving(credentials, userId) {
   setConnectionStatus(meetingId, requesterUserId, 'offline');
 
   if (User.user.listenOnly) {
-    listenOnlyRequestToggle(credentials, false);
+    listenOnlyToggle(credentials, false);
   }
 
   let payload = {

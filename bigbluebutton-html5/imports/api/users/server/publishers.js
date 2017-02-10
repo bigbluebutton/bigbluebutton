@@ -14,20 +14,11 @@ Meteor.publish('users', function (credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  let initializing = true;
-
   validateAuthToken(credentials);
 
-  // const User = Users.find({ meetingId, userId: requesterUserId }).observeChanges({
-  //   changed: (id, fields) => {
-  //     console.log(fields);
-  //   },
-  // });
-
-  if (!isAllowedTo('subscribeUsers', credentials)) {
-    console.error('lul');
-    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
-  }
+  // if (!isAllowedTo('subscribeUsers', credentials)) {
+  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
+  // }
 
   this.onStop(() => {
     userLeaving(credentials, requesterUserId);
