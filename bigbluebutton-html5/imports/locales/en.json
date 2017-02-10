@@ -93,5 +93,7 @@
   "app.breakoutWillCloseMessage": "Time ended. Breakout Room will close soon",
   "app.calculatingBreakoutTimeRemaining": "Calculating remaining time...",
   "app.audioModal.microphoneLabel": "Microphone",
-  "app.audioModal.listenOnlyLabel": "Listen Only"
+  "app.audioModal.listenOnlyLabel": "Listen Only",
+  "app.audioModal.audioChoiceLabel": "How would you like to join the audio?",
+  "app.audioModal.audioChoiceDescription": "Select how to join the audio in this meeting"
 }
