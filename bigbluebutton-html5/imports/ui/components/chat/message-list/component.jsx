@@ -83,12 +83,6 @@ class MessageList extends Component {
                               scrollArea.scrollHeight ||
                               (scrollArea.scrollHeight -
                               (scrollArea.scrollTop + scrollArea.offsetHeight) < 1);
-
-        console.log(scrollArea.scrollTop);
-        console.log(scrollArea.offsetHeight);
-        console.log(scrollArea.scrollHeight);
-
-
   }
 
   componentDidUpdate(prevProps) {
