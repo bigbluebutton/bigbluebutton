@@ -24,7 +24,7 @@ export default function removeMeeting(meetingId) {
     }
 
     if (numChanged) {
-      clearCaptionsCollection(meetingId);
+      clearCaptions(meetingId);
       clearChats(meetingId);
       clearCursor(meetingId);
       clearPresentations(meetingId);

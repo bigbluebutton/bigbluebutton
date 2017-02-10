@@ -14,7 +14,7 @@ import clearPresentations from '/imports/api/presentations/server/modifiers/clea
 
 export default function clearMeetings() {
   return Meetings.remove({}, (err) => {
-    clearCaptionsCollection();
+    clearCaptions();
     clearChats();
     clearCursor();
     clearPresentations();
