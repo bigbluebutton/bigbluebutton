@@ -82,6 +82,7 @@ templating@1.2.15
 templating-compiler@1.2.15
 templating-runtime@1.2.15
 templating-tools@1.0.5
+timbrandin:fetch@1.0.0
 tmeasday:check-npm-versions@0.3.1
 tracker@1.1.1
 udondan:yml@3.2.2_1
