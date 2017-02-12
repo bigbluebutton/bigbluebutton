@@ -25,6 +25,7 @@
 					 xmlns:flc="flexlib.controls.*"
 					 implements="org.bigbluebutton.common.IBbbModuleWindow"
 					 xmlns:mate="http://mate.asfusion.com/"
+					 xmlns:views="org.bigbluebutton.main.views.*"
 					 creationComplete="onCreationComplete()"
 					 title="{ResourceUtil.getInstance().getString('bbb.users.title')}"
 					 showCloseButton="false">
@@ -658,20 +659,20 @@
 
 	<mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
 	
-	<mx:DataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
+	<views:BBBDataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
     	dragEnabled="false" width="100%" height="100%" draggableColumns="false"
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)" 
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
-    	<mx:columns>
+    	<views:columns>
     		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="displayName" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false" minWidth="60"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
     		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" width="110" minWidth="110"
     			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
-    	</mx:columns>
-    </mx:DataGrid>
+    	</views:columns>
+    </views:BBBDataGrid>
 	
 	<mx:VBox id="roomsBox" styleName="breakoutRoomsBox"
 			 visible="{breakoutRoomsList.length > 0 &amp;&amp; amIModerator}"
@@ -684,11 +685,11 @@
 					  text="..." toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
 		</mx:HBox>
 
-		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false"
+		<views:BBBDataGrid id="roomsGrid" editable="false" sortableColumns="false"
 					 dataProvider="{breakoutRoomsList}" dataTipFunction="breakoutRoomsToolTip"
 					 dragEnabled="false" width="100%" height="100%" draggableColumns="false"
 					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}">
-			<mx:columns>
+			<views:columns>
 				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction"
 								   showDataTips="true"
 								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
@@ -699,8 +700,8 @@
 								   visible="{amIModerator}"
 								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
-			</mx:columns>
-		</mx:DataGrid>
+			</views:columns>
+		</views:BBBDataGrid>
 
 		<mx:Button id="closeRoomsBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.closeAllRooms')}"
 				   click="endAllBreakoutRoomsHandler(event)" width="100%"/>
