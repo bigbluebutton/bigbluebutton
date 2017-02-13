@@ -3,9 +3,9 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Media from './component';
 import MediaService from './service';
 import Button from '../button/component';
-import WhiteboardContainer from '../whiteboard/container';
+import WhiteboardContainer from '../presentation/container';
 import VideoDockContainer from '../video-dock/container';
-import DefaultContent from '../whiteboard/default-content/component';
+import DefaultContent from '../presentation/default-content/component';
 
 const defaultProps = {
   overlay: null, //<VideoDockContainer/>,
