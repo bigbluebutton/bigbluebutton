@@ -19,7 +19,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 -->
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <% 
 	request.setCharacterEncoding("UTF-8"); 
@@ -30,7 +31,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Join Password</title>
+	<title>Hoàng Phuong</title>
 </head>
 <body>
 
@@ -147,7 +148,7 @@ if (request.getParameterMap().isEmpty()) {
 	%> 
 <%@ include file="demo_header.jsp"%>
 
-<h2>Join a Session (password required)</h2>
+<h2>Hoàng Phuong</h2>
 
 
 <FORM NAME="form1" METHOD="GET">
