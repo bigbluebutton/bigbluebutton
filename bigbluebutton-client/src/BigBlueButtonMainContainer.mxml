@@ -33,19 +33,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <mx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;		
-		import flash.events.Event;		
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import flash.events.Event;
+		
 		import mx.managers.HistoryManager;
 		import mx.managers.IDragManager;
 		import mx.managers.ToolTipManager;
-		import mx.utils.URLUtil;	
+		import mx.utils.URLUtil;
+		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.core.BBB;
+		import org.bigbluebutton.core.KeyboardUtil;
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.ShortcutOptions;
-		import org.bigbluebutton.util.QueryStringParameters;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		private static const LOGGER:ILogger = getClassLogger(BigBlueButtonMainContainer);      
@@ -199,7 +202,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleKeyDown(e:KeyboardEvent) :void {
         if (keyCombos == null) loadKeyCombos(globalModifier);
         
-        var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
+        var keyPress:String = KeyboardUtil.buildPressedKeys(e);
         
         if (e.keyCode < 64 || e.keyCode > 90){
 			LOGGER.debug("Keypress debugging: KeyCode {0} is nonalphabetic (probably)", [e.keyCode]);

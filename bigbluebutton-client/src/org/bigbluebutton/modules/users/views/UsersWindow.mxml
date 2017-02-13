@@ -63,6 +63,7 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -492,8 +493,7 @@
 			// Handle general-access hotkeys, regardless of what window the user is focused in
 			private function handleKeyDown(e:KeyboardEvent):void {
 				if (keyCombos == null) loadKeyCombos(modifier);
-				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
-					(e.altKey   ? "alt+"     : "") + e.keyCode;		                              
+				var keyPress:String = KeyboardUtil.buildPressedKeys(e);
 				if (keyCombos[keyPress]) {
 					switch (keyCombos[keyPress]) {
 						case FOCUS_USERS_LIST:
