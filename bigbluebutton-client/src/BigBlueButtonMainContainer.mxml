@@ -186,6 +186,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (ShortcutOptions.webcamActive){
           keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.webcam') as String)] = ShortcutEvent.SHARE_WEBCAM;
         }
+		if (ShortcutOptions.closedCaptionActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.caption') as String)] = ShortcutEvent.FOCUS_CAPTION_WINDOW;
+		}
         if (ShortcutOptions.deskshareActive){
           keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.desktop') as String)] = ShortcutEvent.SHARE_DESKTOP;
         }

@@ -1,6 +1,7 @@
 package org.bigbluebutton.main.model
 {
 	import org.bigbluebutton.core.BBB;
+
 	public class ShortcutOptions
 	{
 		private static var users:Boolean = true;
@@ -9,6 +10,7 @@ package org.bigbluebutton.main.model
 		private static var chat:Boolean = true;
 		private static var polling:Boolean = true;
 		private static var webcam:Boolean = true;
+		private static var closedCaption:Boolean = true;
 		private static var deskshare:Boolean = true;
 		private static var audio:Boolean = true;
 		private static var generalResource:Array;
@@ -56,6 +58,11 @@ package org.bigbluebutton.main.model
 				audio = false;
 			}
 			
+			vxml = BBB.getConfigForModule("CaptionModule");
+			if (vxml == null) {
+				closedCaption = false;
+			}
+			
 			generalResource = new Array();
 			generateGlobalKeys();
 		}
@@ -65,7 +72,8 @@ package org.bigbluebutton.main.model
 		public static function get presentationActive():Boolean{return presentation;}
 		public static function get chatActive():Boolean{return chat;}
 		public static function get pollingActive():Boolean{return polling;}
-		public static function get webcamActive():Boolean{return webcam;}		
+		public static function get webcamActive():Boolean{return webcam;}	
+		public static function get closedCaptionActive():Boolean{return closedCaption;}
 		public static function get deskshareActive():Boolean{return deskshare;}
 		public static function get audioActive():Boolean{return audio;}
 		public static function get genResource():Array{return generalResource;}
@@ -81,6 +89,7 @@ package org.bigbluebutton.main.model
 			if (videoDock){generalResource.push('bbb.shortcutkey.focus.video');}
 			if (presentation){generalResource.push('bbb.shortcutkey.focus.presentation');}
 			if (chat){generalResource.push('bbb.shortcutkey.focus.chat');}
+			if (closedCaption){generalResource.push('bbb.shortcutkey.focus.caption');}
 			
 			if (deskshare){generalResource.push('bbb.shortcutkey.share.desktop');}
 			if (webcam){generalResource.push('bbb.shortcutkey.share.webcam');}
