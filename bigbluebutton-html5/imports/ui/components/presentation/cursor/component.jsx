@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import WhiteboardService from '/imports/ui/components/whiteboard/service.js';
+import WhiteboardService from '/imports/ui/components/presentation/service.js';
 
 const propTypes = {
   //Width of the view box
