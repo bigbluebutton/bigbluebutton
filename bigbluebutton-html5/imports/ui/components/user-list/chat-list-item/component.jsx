@@ -5,6 +5,13 @@ import styles from './styles.scss';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
+
+const intlMessages = defineMessages({
+  titlePublic: {
+    id: 'app.chat.titlePublic',
+  },
+});
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
@@ -26,12 +33,17 @@ class ChatListItem extends Component {
       chat,
       openChat,
       compact,
+      intl,
     } = this.props;
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
 
     let linkClasses = {};
     linkClasses[styles.active] = chat.id === openChat;
+
+    if (chat.name === 'Public Chat') {
+      chat.name = intl.formatMessage(intlMessages.titlePublic);
+    }
 
     return (
       <li className={cx(styles.chatListItem, linkClasses)}>
@@ -66,4 +78,4 @@ class ChatListItem extends Component {
 ChatListItem.propTypes = propTypes;
 ChatListItem.defaultProps = defaultProps;
 
-export default withRouter(ChatListItem);
+export default withRouter(injectIntl(ChatListItem));
