@@ -53,43 +53,15 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
     defaultMessage: 'Leave the meeting',
   },
+  exitFullScreenDesc: {
+    id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
+    defaultMessage: 'minimize the window',
+  },
+  exitFullScreenLabel: {
+    id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
+    defaultMessage: 'Exit fullscreen',
+  },
 });
-
-const toggleFullScreen = () => {
-  let element = document.documentElement;
-
-  if (document.fullscreenEnabled
-    || document.mozFullScreenEnabled
-    || document.webkitFullscreenEnabled) {
-
-    // If the page is already fullscreen, exit fullscreen
-    if (document.fullscreenElement
-      || document.webkitFullscreenElement
-      || document.mozFullScreenElement
-      || document.msFullscreenElement) {
-
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
-
-    // If the page is not currently fullscreen, make fullscreen
-    } else {
-      if (element.requestFullscreen) {
-        element.requestFullscreen();
-      } else if (element.mozRequestFullScreen) {
-        element.mozRequestFullScreen();
-      } else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen();
-      } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen();
-      }
-    }
-  }
-};
 
 const openSettings = () => showModal(<SettingsMenuContainer  />);
 
@@ -103,7 +75,19 @@ class SettingsDropdown extends Component {
   }
 
   render() {
+
     const { intl } = this.props;
+
+    let fullScreenLabel; let fullScreenDesc;
+
+    if(!this.props.isFullScreen){
+      fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+      fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    }else{
+      fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
+      fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
+    }
+
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
@@ -124,9 +108,9 @@ class SettingsDropdown extends Component {
           <DropdownList>
             <DropdownListItem
               icon="fullscreen"
-              label={intl.formatMessage(intlMessages.fullscreenLabel)}
-              description={intl.formatMessage(intlMessages.fullscreenDesc)}
-              onClick={toggleFullScreen.bind(this)}
+              label={fullScreenLabel}
+              description={fullScreenDesc}
+              onClick={this.props.handleToggleFullscreen}
             />
             <DropdownListItem
               icon="more"
