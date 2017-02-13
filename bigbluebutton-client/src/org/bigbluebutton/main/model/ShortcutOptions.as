@@ -5,7 +5,6 @@ package org.bigbluebutton.main.model
 	public class ShortcutOptions
 	{
 		private static var users:Boolean = true;
-		private static var videoDock:Boolean = true;
 		private static var presentation:Boolean = true;
 		private static var chat:Boolean = true;
 		private static var polling:Boolean = true;
@@ -21,11 +20,6 @@ package org.bigbluebutton.main.model
 			vxml = BBB.getConfigForModule("UsersModule");
 			if (vxml == null) {
 				users = false;
-			}
-			
-			vxml = BBB.getConfigForModule("VideodockModule");
-			if (vxml == null) {
-				videoDock = false;
 			}
 			
 			vxml = BBB.getConfigForModule("PresentModule");
@@ -68,7 +62,6 @@ package org.bigbluebutton.main.model
 		}
 		
 		public static function get usersActive():Boolean{return users;}
-		public static function get videoDockActive():Boolean{return videoDock;}
 		public static function get presentationActive():Boolean{return presentation;}
 		public static function get chatActive():Boolean{return chat;}
 		public static function get pollingActive():Boolean{return polling;}
@@ -86,7 +79,7 @@ package org.bigbluebutton.main.model
 			generalResource.push('bbb.shortcutkey.flash.exit');
 			
 			if (users){generalResource.push('bbb.shortcutkey.focus.users');}
-			if (videoDock){generalResource.push('bbb.shortcutkey.focus.video');}
+			if (webcam){generalResource.push('bbb.shortcutkey.focus.video');}
 			if (presentation){generalResource.push('bbb.shortcutkey.focus.presentation');}
 			if (chat){generalResource.push('bbb.shortcutkey.focus.chat');}
 			if (closedCaption){generalResource.push('bbb.shortcutkey.focus.caption');}
@@ -103,7 +96,7 @@ package org.bigbluebutton.main.model
 		}
 		
 		public static function debugString():String{
-			return "USERS: " + users + " VIDEODOCK: " + videoDock + " PRESENTATION: " + presentation + " CHAT: " + chat + " POLLING: " + polling + " WEBCAM: " + webcam + " DESKSHARE: " + deskshare + " AUDIO: " + audio;
+			return "USERS: " + users + " PRESENTATION: " + presentation + " CHAT: " + chat + " CLOSED CAPTION: " + closedCaption + " POLLING: " + polling + " WEBCAM: " + webcam + " DESKSHARE: " + deskshare + " AUDIO: " + audio;
 		}
 	}
 }
