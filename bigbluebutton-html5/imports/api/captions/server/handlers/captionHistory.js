@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
@@ -37,6 +38,14 @@ export default function handleCaptionHistory({ payload }) {
       }
     }
 
+    const selectorToRemove = {
+      meetingId,
+      locale,
+      'captionHistory.index': { $gt: (chunks.length - 1) },
+    };
+
+    Captions.remove(selectorToRemove);
+
     chunks.forEach((captions, index) => {
       let captionHistoryObject = {
         locale,
@@ -48,6 +57,7 @@ export default function handleCaptionHistory({ payload }) {
 
       captionsAdded.push(addCaption(meetingId, locale, captionHistoryObject));
     });
+
   });
 
   return captionsAdded;
