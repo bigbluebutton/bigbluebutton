@@ -95,5 +95,7 @@
   "app.audioModal.microphoneLabel": "Microphone",
   "app.audioModal.listenOnlyLabel": "Listen Only",
   "app.audioModal.audioChoiceLabel": "How would you like to join the audio?",
-  "app.audioModal.audioChoiceDescription": "Select how to join the audio in this meeting"
+  "app.audioModal.audioChoiceDescription": "Select how to join the audio in this meeting",
+  "app.audio.joinAudio": "Join Audio",
+  "app.audio.leaveAudio": "Leave Audio"
 }
