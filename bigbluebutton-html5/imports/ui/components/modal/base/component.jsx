@@ -7,6 +7,7 @@ const propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onShow: PropTypes.func,
   onHide: PropTypes.func,
+  isTransparent: PropTypes.bool
 };
 
 const defaultProps = {
@@ -41,12 +42,15 @@ export default class ModalBase extends Component {
       onShow,
       onHide,
       className,
+      isTransparent,
     } = this.props;
+
+    let styleOverlay = (isTransparent) ? styles.transparentOverlay : styles.overlay;
 
     return (
       <ReactModal
       className={cx(styles.modal, className)}
-      overlayClassName={styles.overlay}
+      overlayClassName={styleOverlay}
       portalClassName={styles.portal}
       isOpen={isOpen}
       onAfterOpen={this.handleAfterOpen}

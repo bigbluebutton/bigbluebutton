@@ -30,3 +30,7 @@
 .invisible {
   visibility: hidden;
 }
+
+.circleGlow > :first-child{
+    box-shadow: 0 0 .15rem #FFF !important;
+}

@@ -90,8 +90,13 @@ trait PresentationApp {
   }
 
   def handleResizeAndMoveSlide(msg: ResizeAndMoveSlide) {
-    val page = state.presModel.resizePage(msg.xOffset, msg.yOffset,
-      msg.widthRatio, msg.heightRatio);
+    // Force coordinate that are out-of-bounds inside valid values
+    val xOffset = if (msg.xOffset <= 0) msg.xOffset else 0
+    val yOffset = if (msg.yOffset <= 0) msg.yOffset else 0
+    val width = if (msg.widthRatio <= 100) msg.widthRatio else 100
+    val height = if (msg.heightRatio <= 100) msg.heightRatio else 100
+
+    val page = state.presModel.resizePage(xOffset, yOffset, width, height);
     page foreach (p => outGW.send(new ResizeAndMoveSlideOutMsg(state.mProps.meetingID, state.mProps.recorded, p)))
   }
 

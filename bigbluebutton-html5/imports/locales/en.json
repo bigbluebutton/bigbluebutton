@@ -81,6 +81,8 @@
   "app.actionsBar.emojiMenu.thumbsupDesc": "Change your status to thumbs up",
   "app.actionsBar.emojiMenu.thumbsdownLabel": "Thumbs down",
   "app.actionsBar.emojiMenu.thumbsdownDesc": "Change your status to thumbs down",
+  "app.audioNotification.audioFailedMessage": "Your audio connection failed to connect. Try again.",
+  "app.audioNotification.mediaFailedMessage": "getUserMicMedia failed, Only secure origins are allowed",
   "app.breakoutJoinConfirmation.title": "Join Breakout Room",
   "app.breakoutJoinConfirmation.message": "Do you want to join",
   "app.breakoutJoinConfirmation.confirmLabel": "Join",
@@ -91,5 +93,9 @@
   "app.breakoutWillCloseMessage": "Time ended. Breakout Room will close soon",
   "app.calculatingBreakoutTimeRemaining": "Calculating remaining time...",
   "app.audioModal.microphoneLabel": "Microphone",
-  "app.audioModal.listenOnlyLabel": "Listen Only"
+  "app.audioModal.listenOnlyLabel": "Listen Only",
+  "app.audioModal.audioChoiceLabel": "How would you like to join the audio?",
+  "app.audioModal.audioChoiceDescription": "Select how to join the audio in this meeting",
+  "app.audio.joinAudio": "Join Audio",
+  "app.audio.leaveAudio": "Leave Audio"
 }

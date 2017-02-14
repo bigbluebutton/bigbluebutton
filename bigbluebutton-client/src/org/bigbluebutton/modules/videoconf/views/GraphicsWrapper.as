@@ -271,7 +271,21 @@ package org.bigbluebutton.modules.videoconf.views
 
             for each (var streamName:String in streamNames) {
                 if (user.viewingStream.indexOf(streamName) == -1) {
-                    addVideoForHelper(user.userID, connection, streamName);
+                    // When reconnecting there is discrepancy between the time when the usermodel's viewingStream array
+                    // is updated and the time when we check whether the steam needs to be displayed.
+                    // To avoid duplication of video views we must check if a view for the stream exists
+                    // in addition to the check whether the client is meant to view the stream
+
+                    var streamIsDisplayed:Boolean = false;
+                    for (var i:int = 0; i < numChildren; ++i) {
+                        var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
+                        if (userId == item.userId && streamName == item.streamName) {
+                            streamIsDisplayed = true;
+                        }
+                    }
+                    if (0 == numChildren || !streamIsDisplayed) {
+                        addVideoForHelper(user.userID, connection, streamName);
+                    }
                 }
             }
         }

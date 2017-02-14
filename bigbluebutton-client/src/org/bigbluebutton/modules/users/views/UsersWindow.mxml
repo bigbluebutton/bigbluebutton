@@ -140,10 +140,12 @@
 
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				amIPresenter = UserManager.getInstance().getConference().amIPresenter;
-				
+
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
 				closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = amIModerator;
-				
+
+				emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
+
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
@@ -204,10 +206,6 @@
 			private function localeChanged(e:Event):void {
 				updateNumberofUsers(users.length);
 				resourcesChanged();
-			}
-			
-			private function changeButtons(presenter:Boolean):void {
-				emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
 			}
 			
 			/*
@@ -515,14 +513,6 @@
 			}
 
 			private function endAllBreakoutRoomsHandler(event:MouseEvent):void {
-				// We need to switch the use back to the main audio confrence if he is in a breakout audio conference
-				var br:BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomInListen();
-				if (br != null) {
-					var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
-					e.breakoutMeetingId = br.meetingId;
-					e.listen = false;
-					dispatcher.dispatchEvent(e);
-				}
 				dispatcher.dispatchEvent(new BreakoutRoomEvent(BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS));
 			}
 
@@ -602,6 +592,15 @@
 			private function breakoutRoomNameLabelFunction(item:Object, column:DataGridColumn) : String {
 				return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room') + " " + item.sequence;
 			}
+
+            private function breakoutRoomsToolTip(item:Object):String {
+                var room:BreakoutRoom = item as BreakoutRoom;
+                var names:Array = [];
+                for (var i:int = 0; i < room.users.length; i++) {
+                    names.push(room.users.getItemAt(i)["name"]);
+                }
+                return names.join("\n");
+            }
 		]]>
 	</mx:Script>
 
@@ -629,17 +628,24 @@
 			 width="100%" height="180">
 		<mx:HBox width="100%">
 			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
-			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" id="breakoutTimeLabel" text="..."/>
+			<mx:Label styleName="breakoutRoomUserWindowHeadingStyle" width="100%" textAlign="right" id="breakoutTimeLabel"
+					  text="..." toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
 		</mx:HBox>
 
-		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
+		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false"
+					 dataProvider="{breakoutRoomsList}" dataTipFunction="breakoutRoomsToolTip"
 					 dragEnabled="false" width="100%" height="100%" draggableColumns="false"
 					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}">
 			<mx:columns>
-				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
-				<mx:DataGridColumn dataField="numberOfUsers" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
-				<mx:DataGridColumn dataField="meetingId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
+				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction"
+								   showDataTips="true"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
+				<mx:DataGridColumn dataField="numberOfUsers"
+								   showDataTips="true"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
+				<mx:DataGridColumn dataField="meetingId"
 								   visible="{amIModerator}"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</mx:columns>
 		</mx:DataGrid>
@@ -649,12 +655,11 @@
 	</mx:VBox>
 
 	<mx:ControlBar width="100%">
-		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
+		<mx:Button id="emojiStatusBtn" icon="{images.emoji_happy}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()"
-				   visible="true" />
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" />
+					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" />
 		<mx:VBox>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />

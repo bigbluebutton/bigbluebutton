@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '../styles.scss';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 
 const intlMessages = defineMessages({
   microphoneLabel: {
@@ -50,7 +50,11 @@ class JoinAudio extends React.Component {
             onClick={this.handleClose}
           />
           <div>
-            How would you like to join the audio?
+            <FormattedMessage
+              id="app.audioModal.audioChoiceLabel"
+              description="app.audioModal.audioChoiceDescription"
+              defaultMessage="How would you like to join the audio?"
+            />
           </div>
         </div>
         <div className={styles.center}>

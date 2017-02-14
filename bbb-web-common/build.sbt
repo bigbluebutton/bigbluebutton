@@ -27,6 +27,7 @@ libraryDependencies ++= {
     "org.openoffice" % "ridl" % "3.2.1",
     "org.openoffice" % "juh" % "3.2.1",
     "org.openoffice" % "jurt" % "3.2.1",
+    "org.apache.poi" % "poi-ooxml" % "3.15",
     "org.bigbluebutton" % "bbb-common-message" % "0.0.19-SNAPSHOT",
     "org.slf4j" % "slf4j-api" % "1.7.5"
 
