@@ -118,22 +118,30 @@ function removeSlideChangeAttribute() {
 
 function mustShowDesktopVideo(time) {
   var canShow = false;
-  for (var m = 0; m < deskshareTimes.length; m++) {
-    var start_timestamp = deskshareTimes[m][0];
-    var stop_timestamp = deskshareTimes[m][1];
+  if (isThereDeskshareVideo()) {
+    for (var m = 0; m < deskshareTimes.length; m++) {
+      var start_timestamp = deskshareTimes[m][0];
+      var stop_timestamp = deskshareTimes[m][1];
 
-    if(time >= start_timestamp && time <= stop_timestamp)
-      canShow = true;
+      if(time >= start_timestamp && time <= stop_timestamp)
+        canShow = true;
+    }
   }
 
   return canShow;
 }
 
 function isThereDeskshareVideo() {
-  return deskshareTimes.length > 0;
+  var deskshareVideo = document.getElementById("deskshare-video");
+  if (deskshareVideo != null) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 function resyncVideos() {
+  if (!isThereDeskshareVideo()) return;
   var currentTime = Popcorn('#video').currentTime();
   var currentDeskshareVideoTime = Popcorn("#deskshare-video").currentTime();
   if (Math.abs(currentTime - currentDeskshareVideoTime) >= 0.1)
@@ -158,10 +166,8 @@ function handlePresentationAreaContent(time) {
     sharingDesktop = false;
   }
 
-  if(isThereDeskshareVideo()) {
-    resyncVideos();
-    resizeDeshareVideo();
-  }
+  resyncVideos();
+  resizeDeshareVideo();
 }
 
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
@@ -626,12 +632,17 @@ document.addEventListener('media-ready', function(event) {
   if ((audioReady || videoReady) && deskshareReady && svgReady) {
     runPopcorn();
 
-    generateThumbnails();
-
-    var p = Popcorn("#video");
-    p.currentTime(defineStartTime());
+    if (firstLoad) initPopcorn();
   }
 }, false);
+
+function initPopcorn() {
+  firstLoad = false;
+  generateThumbnails();
+
+  var p = Popcorn("#video");
+  p.currentTime(defineStartTime());
+}
 
 svgobj.addEventListener('load', function() {
   console.log("got svgobj 'load' event");
@@ -827,19 +838,17 @@ var resizeSlides = function() {
 };
 
 var resizeDeshareVideo = function() {
+  if (!isThereDeskshareVideo()) return;
   var deskshareVideo = document.getElementById("deskshare-video");
+  var $deskhareVideo = $("#deskshare-video");
 
-  if (deskshareVideo != null) {
-    var $deskhareVideo = $("#deskshare-video");
+  var videoWidth = parseInt(deskshareVideo.videoWidth, 10);
+  var videoHeight = parseInt(deskshareVideo.videoHeight, 10);
 
-    var videoWidth = parseInt(deskshareVideo.videoWidth, 10);
-    var videoHeight = parseInt(deskshareVideo.videoHeight, 10);
+  var aspectRatio = videoWidth/videoHeight;
+  var max = aspectRatio * $deskhareVideo.parent().outerHeight();
+  $deskhareVideo.css("max-width", max);
 
-    var aspectRatio = videoWidth/videoHeight;
-    var max = aspectRatio * $deskhareVideo.parent().outerHeight();
-    $deskhareVideo.css("max-width", max);
-
-    var height = $deskhareVideo.parent().width() / aspectRatio;
-    $deskhareVideo.css("max-height", height);
-  }
+  var height = $deskhareVideo.parent().width() / aspectRatio;
+  $deskhareVideo.css("max-height", height);
 };
