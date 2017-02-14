@@ -94,8 +94,7 @@ trait PresentationApp {
     val width = if (msg.widthRatio <= 100) msg.widthRatio else 100
     val height = if (msg.heightRatio <= 100) msg.heightRatio else 100
 
-    val page = presModel.resizePage(msg.xOffset, msg.yOffset,
-      msg.widthRatio, msg.heightRatio);
+    val page = presModel.resizePage(xOffset, yOffset, width, height);
     page foreach (p => outGW.send(new ResizeAndMoveSlideOutMsg(mProps.meetingID, mProps.recorded, p)))
   }
 
