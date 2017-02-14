@@ -62,7 +62,6 @@ class RedisPubSub {
 
     this.publish(this.config.channels.toBBBApps.meeting, REQUEST_EVENT);
     this.didSendRequestEvent = true;
-    console.log('oi');
   }
 
   handleMessage(pattern, channel, message = '') {
