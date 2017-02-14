@@ -7,7 +7,7 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ Roles, UserVO, Users, VoiceUser }
-import org.bigbluebutton.core.running.handlers.{ RegisterUserMsgHdlr, UserJoinMsgHdlr, ValidateAuthTokenMsgHdlr }
+import org.bigbluebutton.core.running.handlers._
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
 
 import scala.collection.immutable.ListSet
@@ -69,6 +69,12 @@ class MeetingActor(val eventBus: IncomingEventBus,
     with RegisterUserMsgHdlr
     with UserJoinMsgHdlr
     with ValidateAuthTokenMsgHdlr
+    with DeskShareGetDeskShareInfoRequestMsgHdlr
+    with DeskShareRTMPBroadcastStoppedRequestMsgHdlr
+    with DeskShareRTMPBroadcastStartedRequestMsgHdlr
+    with DeskShareStoppedRequestMsgHdlr
+    with DeskShareStartedRequestMsgHdlr
+    with GetRecordingStatusMsgHdlr
     with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with BreakoutRoomApp with CaptionApp {
@@ -88,7 +94,7 @@ class MeetingActor(val eventBus: IncomingEventBus,
     case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
     case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case msg: UserJoining => handleUserJoin(msg)
+    case msg: UserJoining => handle(msg)
     case msg: UserLeaving => handleUserLeft(msg)
     case msg: AssignPresenter => handleAssignPresenter(msg)
     case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
@@ -137,7 +143,7 @@ class MeetingActor(val eventBus: IncomingEventBus,
     case msg: EnableWhiteboardRequest => handleEnableWhiteboardRequest(msg)
     case msg: IsWhiteboardEnabledRequest => handleIsWhiteboardEnabledRequest(msg)
     case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
-    case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
+    case msg: GetRecordingStatus => handle(msg)
     case msg: StartCustomPollRequest => handleStartCustomPollRequest(msg)
     case msg: StartPollRequest => handleStartPollRequest(msg)
     case msg: StopPollRequest => handleStopPollRequest(msg)
@@ -165,11 +171,11 @@ class MeetingActor(val eventBus: IncomingEventBus,
     case msg: UpdateCaptionOwnerRequest => handleUpdateCaptionOwnerRequest(msg)
     case msg: EditCaptionHistoryRequest => handleEditCaptionHistoryRequest(msg)
 
-    case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
-    case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
-    case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
-    case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
-    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
+    case msg: DeskShareStartedRequest => handle(msg)
+    case msg: DeskShareStoppedRequest => handle(msg)
+    case msg: DeskShareRTMPBroadcastStartedRequest => handle(msg)
+    case msg: DeskShareRTMPBroadcastStoppedRequest => handle(msg)
+    case msg: DeskShareGetDeskShareInfoRequest => handle(msg)
 
     case _ => // do nothing
   }
@@ -764,10 +770,6 @@ class MeetingActor(val eventBus: IncomingEventBus,
     }
   }
 
-  def handleGetRecordingStatus(msg: GetRecordingStatus) {
-    outGW.send(new GetRecordingStatusReply(state.mProps.meetingID, state.mProps.recorded, msg.userId, state.meetingModel.isRecording().booleanValue()))
-  }
-
   def lockLayout(lock: Boolean) {
     state.meetingModel.lockLayout(lock)
   }
@@ -780,78 +782,4 @@ class MeetingActor(val eventBus: IncomingEventBus,
     state.meetingModel.permissionsEqual(other)
   }
 
-  // WebRTC Desktop Sharing
-
-  def handleDeskShareStartedRequest(msg: DeskShareStartedRequest): Unit = {
-    log.info("handleDeskShareStartedRequest: dsStarted=" + state.meetingModel.getDeskShareStarted())
-
-    if (!state.meetingModel.getDeskShareStarted()) {
-      val timestamp = System.currentTimeMillis().toString
-      val streamPath = "rtmp://" + state.mProps.red5DeskShareIP + "/" + state.mProps.red5DeskShareApp +
-        "/" + state.mProps.meetingID + "/" + state.mProps.meetingID + "-" + timestamp
-      log.info("handleDeskShareStartedRequest: streamPath=" + streamPath)
-
-      // Tell FreeSwitch to broadcast to RTMP
-      outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath))
-
-      state.meetingModel.setDeskShareStarted(true)
-    }
-  }
-
-  def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit = {
-    log.info("handleDeskShareStoppedRequest: dsStarted=" + state.meetingModel.getDeskShareStarted() +
-      " URL:" + state.meetingModel.getRTMPBroadcastingUrl())
-
-    // Tell FreeSwitch to stop broadcasting to RTMP
-    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, state.meetingModel.getRTMPBroadcastingUrl()))
-
-    state.meetingModel.setDeskShareStarted(false)
-  }
-
-  def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit = {
-    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" + state.meetingModel.isBroadcastingRTMP() +
-      " URL:" + state.meetingModel.getRTMPBroadcastingUrl())
-
-    // only valid if not broadcasting yet
-    if (!state.meetingModel.isBroadcastingRTMP()) {
-      state.meetingModel.setRTMPBroadcastingUrl(msg.streamname)
-      state.meetingModel.broadcastingRTMPStarted()
-      state.meetingModel.setDesktopShareVideoWidth(msg.videoWidth)
-      state.meetingModel.setDesktopShareVideoHeight(msg.videoHeight)
-      log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
-
-      // Notify viewers in the meeting that there's an rtmp stream to view
-      outGW.send(new DeskShareNotifyViewersRTMP(state.mProps.meetingID, msg.streamname, msg.videoWidth, msg.videoHeight, true))
-    } else {
-      log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
-    }
-  }
-
-  def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {
-    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" + state.meetingModel
-      .isBroadcastingRTMP() + " URL:" + state.meetingModel.getRTMPBroadcastingUrl())
-
-    // only valid if currently broadcasting
-    if (state.meetingModel.isBroadcastingRTMP()) {
-      log.info("STOP broadcast ALLOWED when isBroadcastingRTMP=true")
-      state.meetingModel.broadcastingRTMPStopped()
-
-      // notify viewers that RTMP broadcast stopped
-      outGW.send(new DeskShareNotifyViewersRTMP(state.mProps.meetingID, state.meetingModel.getRTMPBroadcastingUrl(),
-        msg.videoWidth, msg.videoHeight, false))
-    } else {
-      log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
-    }
-  }
-
-  def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
-
-    log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
-      + state.meetingModel.isBroadcastingRTMP() + " URL:" + state.meetingModel.getRTMPBroadcastingUrl())
-    if (state.meetingModel.isBroadcastingRTMP()) {
-      // if the meeting has an ongoing WebRTC Deskshare session, send a notification
-      outGW.send(new DeskShareNotifyASingleViewer(state.mProps.meetingID, msg.requesterID, state.meetingModel.getRTMPBroadcastingUrl(),
-        state.meetingModel.getDesktopShareVideoWidth(), state.meetingModel.getDesktopShareVideoHeight(), true))
-    }
-  }
 }

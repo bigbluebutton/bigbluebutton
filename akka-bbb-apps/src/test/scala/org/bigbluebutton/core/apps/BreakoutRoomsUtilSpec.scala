@@ -6,14 +6,6 @@ import org.bigbluebutton.core.UnitSpec
 
 class BreakoutRoomsUtilSpec extends UnitSpec {
 
-  it should "return a meetingId" in {
-    val mainMeetingId = "abc-123"
-    val index = 1
-    val result = mainMeetingId.concat("-").concat(index.toString())
-    val breakoutMeetingId = BreakoutRoomsUtil.createMeetingIds(mainMeetingId, index)
-    assert(breakoutMeetingId == result)
-  }
-
   it should "return a voiceConfId" in {
     val voiceConfId = "85115"
     val index = 1

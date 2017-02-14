@@ -15,13 +15,8 @@ class MeetingStatus {
 
   private var currentPresenter = new Presenter("system", "system", "system")
 
-  def setCurrentPresenterInfo(pres: Presenter) {
-    currentPresenter = pres
-  }
-
-  def getCurrentPresenterInfo(): Presenter = {
-    currentPresenter
-  }
+  def setCurrentPresenterInfo(pres: Presenter) = currentPresenter = pres
+  def getCurrentPresenterInfo(): Presenter = currentPresenter
 
   def addGlobalAudioConnection(userID: String): Boolean = {
     globalAudioConnectionCounter.get(userID) match {
@@ -53,15 +48,7 @@ class MeetingStatus {
     }
   }
 
-  def startRecordingVoice() {
-    recordingVoice = true
-  }
-
-  def stopRecordingVoice() {
-    recordingVoice = false
-  }
-
-  def isVoiceRecording: Boolean = {
-    recordingVoice
-  }
+  def startRecordingVoice() = recordingVoice = true
+  def stopRecordingVoice() = recordingVoice = false
+  def isVoiceRecording: Boolean = recordingVoice
 }

@@ -134,9 +134,9 @@
 					
 			public function startVideo(connection:Connection):void{
         var logData:Object = new Object();
-        logData.width = videoWidth;
-        logData.height = videoHeight;
-        logData.streamId = streamId;
+        logData.width = ScreenshareModel.getInstance().width;
+        logData.height = ScreenshareModel.getInstance().height;
+        logData.streamId = ScreenshareModel.getInstance().streamId;
         
         JSLog.debug(LOG + "startVideo", logData);
         

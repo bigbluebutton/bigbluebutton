@@ -5,7 +5,7 @@ import { appendMessageHeader } from '/imports/api/common/server/helpers';
 Meteor.methods({
   //meetingId: the meeting where the user is
   //newPresenterId: the userid of the new presenter
-  //requesterSetPresenter: the userid of the user that wants to change the presenter
+  //requesterUserId: the userid of the user that wants to change the presenter
   //newPresenterName: user name of the new presenter
   //authToken: the authToken of the user that wants to kick
   setUserPresenter(
@@ -13,7 +13,7 @@ Meteor.methods({
     newPresenterId,
     newPresenterName) {
     const REDIS_CONFIG = Meteor.settings.redis;
-    const { meetingId, requesterSetPresenter, requesterToken } = credentials;
+    const { meetingId, requesterUserId } = credentials;
     let message;
     if (isAllowedTo('setPresenter', credentials)) {
       message = {
@@ -21,7 +21,7 @@ Meteor.methods({
           new_presenter_id: newPresenterId,
           new_presenter_name: newPresenterName,
           meeting_id: meetingId,
-          assigned_by: requesterSetPresenter,
+          assigned_by: requesterUserId,
         },
       };
 

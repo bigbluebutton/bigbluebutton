@@ -219,32 +219,27 @@ const userActions = {
   },
   clearStatus: {
     label: 'Clear Status',
-    handler: user => console.log('missing clear status', user),
+    handler: user => callServer('userSetEmoji', user.id, 'none'),
     icon: 'clear-status',
   },
   setPresenter: {
     label: 'Make Presenter',
-    handler: user => callServer('setUserPresenter', user.userid, user.name),
+    handler: user => callServer('setUserPresenter', user.id, user.name),
     icon: 'presentation',
-  },
-  promote: {
-    label: 'Promote',
-    handler: user => console.log('missing promote', user),
-    icon: 'promote',
   },
   kick: {
     label: 'Kick User',
-    handler: user => callServer('kickUser', user.userid),
+    handler: user => callServer('kickUser', user.id),
     icon: 'kick-user',
   },
   mute: {
     label: 'Mute Audio',
-    handler: user=> callServer('muteUser', Auth.userID),
+    handler: user=> callServer('muteUser', user.id),
     icon: 'mute',
   },
   unmute: {
     label: 'Unmute Audio',
-    handler: user=> callServer('unmuteUser', Auth.userID),
+    handler: user=> callServer('unmuteUser', user.id),
     icon: 'unmute',
   },
 };

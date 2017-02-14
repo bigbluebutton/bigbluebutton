@@ -48,51 +48,17 @@ class MeetingModel {
     desktopShareVideoHeight = 0
   }
 
-  def getDeskShareStarted(): Boolean = {
-    return deskShareStarted
-  }
-
-  def setDeskShareStarted(b: Boolean) {
-    deskShareStarted = b
-    println("---deskshare status changed to:" + b)
-  }
-
-  def setDesktopShareVideoWidth(videoWidth: Int) {
-    desktopShareVideoWidth = videoWidth
-  }
-
-  def setDesktopShareVideoHeight(videoHeight: Int) {
-    desktopShareVideoHeight = videoHeight
-  }
-
-  def getDesktopShareVideoWidth(): Int = {
-    desktopShareVideoWidth
-  }
-
-  def getDesktopShareVideoHeight(): Int = {
-    desktopShareVideoHeight
-  }
-
-  def broadcastingRTMPStarted() {
-    broadcastingRTMP = true
-  }
-
-  def isBroadcastingRTMP(): Boolean = {
-    broadcastingRTMP
-  }
-
-  def broadcastingRTMPStopped() {
-    broadcastingRTMP = false
-  }
-
-  def setRTMPBroadcastingUrl(path: String) {
-    println("---RTMP broadcastUrl changed to:" + path)
-    rtmpBroadcastingUrl = path
-  }
-
-  def getRTMPBroadcastingUrl(): String = {
-    rtmpBroadcastingUrl
-  }
+  def getDeskShareStarted(): Boolean = return deskShareStarted
+  def setDeskShareStarted(b: Boolean) = deskShareStarted = b
+  def setDesktopShareVideoWidth(videoWidth: Int) = desktopShareVideoWidth = videoWidth
+  def setDesktopShareVideoHeight(videoHeight: Int) = desktopShareVideoHeight = videoHeight
+  def getDesktopShareVideoWidth(): Int = desktopShareVideoWidth
+  def getDesktopShareVideoHeight(): Int = desktopShareVideoHeight
+  def broadcastingRTMPStarted() = broadcastingRTMP = true
+  def isBroadcastingRTMP(): Boolean = broadcastingRTMP
+  def broadcastingRTMPStopped() = broadcastingRTMP = false
+  def setRTMPBroadcastingUrl(path: String) = rtmpBroadcastingUrl = path
+  def getRTMPBroadcastingUrl(): String = rtmpBroadcastingUrl
 
   def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
   def incNumExtension(): Int = {

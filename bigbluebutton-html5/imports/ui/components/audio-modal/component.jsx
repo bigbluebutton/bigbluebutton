@@ -53,6 +53,7 @@ export default class Audio extends React.Component {
   render() {
     return (
       <ModalBase
+        isTransparent={true}
         isOpen={true}
         onHide={null}
         onShow={null}

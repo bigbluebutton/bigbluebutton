@@ -1,33 +1,47 @@
 import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Button from '/imports/ui/components/button/component';
-import Users from '/imports/api/users/index';
-import Auth from '/imports/ui/services/auth/index';
+import { withRouter } from 'react-router';
+import { defineMessages, injectIntl } from 'react-intl';
 
-export default class JoinAudioOptions extends React.Component {
+const intlMessages = defineMessages({
+  joinAudio: {
+    id: 'app.audio.joinAudio',
+    defaultMessage: 'Join Audio',
+  },
+  leaveAudio: {
+    id: 'app.audio.leaveAudio',
+    defaultMessage: 'Leave Audio',
+  }
+});
 
-  renderLeaveButton() {
-    return (
+class JoinAudioOptions extends React.Component {
+  render() {
+    const {
+      close,
+      intl,
+      isInAudio,
+      isInListenOnly,
+      open,
+    } = this.props;
+
+    if (isInAudio || isInListenOnly) {
+      return (
         <Button
-          onClick={this.props.close}
-          label={'Leave Audio'}
+          onClick={close}
+          label={intl.formatMessage(intlMessages.leaveAudio)}
           color={'danger'}
           icon={'mute'}
           size={'lg'}
           circle={true}
         />
-    );
-  }
-
-  render() {
-    if (this.props.isInAudio || this.props.isInListenOnly) {
-      return this.renderLeaveButton();
+      );
     }
 
     return (
       <Button
-        onClick={this.props.open}
-        label={'Join Audio'}
+        onClick={open}
+        label={intl.formatMessage(intlMessages.joinAudio)}
         color={'primary'}
         icon={'unmute'}
         size={'lg'}
@@ -36,3 +50,5 @@ export default class JoinAudioOptions extends React.Component {
     );
   }
 }
+
+export default withRouter(injectIntl(JoinAudioOptions));

@@ -13,42 +13,39 @@ repositories {
 }
 
 dependencies {   
-
-	compile 'org.bigbluebutton:bbb-common-message:0.0.19-SNAPSHOT'
-	compile 'org.bigbluebutton:bbb-web-common:0.0.1-SNAPSHOT'
-
+  compile 'org.bigbluebutton:bbb-common-message:0.0.19-SNAPSHOT'
+  compile 'org.bigbluebutton:bbb-web-common:0.0.1-SNAPSHOT'
   // XML creation speedup
   compile 'org.freemarker:freemarker:2.3.23'
 
-	//junit
-	compile 'junit:junit:4.8.2'
+  //junit
+  compile 'junit:junit:4.8.2'
 
-	
-	// Testing
-	testCompile 'org.testng:testng:5.8@jar'
-	testCompile 'org.easymock:easymock:2.4@jar'
+  // Testing
+  testCompile 'org.testng:testng:5.8@jar'
+  testCompile 'org.easymock:easymock:2.4@jar'
 }
 
 sourceSets {
-	main {
-			java {
-					srcDir 'src/java'
-			}
-			resources {
-					srcDir 'src/resources'
-			}
-	}
-	test {
-		java {
-				srcDir 'test/unit'
-		}
-		resources {
-				srcDir 'test/resources'
-		}
-}
+  main {
+    java {
+      srcDir 'src/java'
+    }
+    resources {
+      srcDir 'src/resources'
+    }
+  }
+  test {
+    java {
+      srcDir 'test/unit'
+    }
+    resources {
+      srcDir 'test/resources'
+    }
+  }
 }
 
 test {
-	useTestNG()
+  useTestNG()
 }
 

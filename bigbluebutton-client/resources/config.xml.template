@@ -17,7 +17,7 @@
             showRecordingNotification="true" logoutOnStopRecording="false"/>
     <meeting muteOnStart="false" />
     <breakoutRooms enabled="true" record="false" />
-    <logging enabled="true" target="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST" logPattern=".*"/>
+    <logging enabled="true" target="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST/log" logPattern=".*"/>
     <lock disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
           disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
             
@@ -47,8 +47,6 @@
 			uri="rtmp://HOST/screenshare"
 			showButton="true"
 			baseTabIndex="201"
-			tryWebRTCFirst="false"
-			chromeExtensionKey=""
 			help="http://HOST/client/help/screenshare-help.html"
 		/>
     

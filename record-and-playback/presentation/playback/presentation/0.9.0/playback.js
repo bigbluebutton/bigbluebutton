@@ -519,23 +519,14 @@ function swapVideoPresentation() {
   // if the cursor is currently being useful, he we'll be redrawn automatically soon
   showCursor(false);
 
-  // wait for the svg with the slides to be fully loaded
-  // then set the current image as visible
-  // we also need to retrieve what was the current viewbox size to set it again
+  // wait for the svg with the slides to be fully loaded, then restore slides state and resize them
   function checkSVGLoaded() {
     var done = false;
     var svg = document.getElementsByTagName("object")[0];
     if (svg !== undefined && svg !== null && currentImage && svg.getSVGDocument('svgfile')) {
       var img = svg.getSVGDocument('svgfile').getElementById(currentImage.getAttribute("id"));
       if (img !== undefined && img !== null) {
-        img.style.visibility = "visible";
-        resizeSlides();
-
-        var vboxVal = getViewboxAtTime(t);
-        if(vboxVal !== undefined) {
-          setViewBox(vboxVal);
-        }
-
+        restoreSlidesState(img);
         done = true;
       }
     }
@@ -544,6 +535,46 @@ function swapVideoPresentation() {
     }
   }
   checkSVGLoaded();
+}
+
+function restoreSlidesState(img) {
+  //set the current image as visible
+  img.style.visibility = "visible";
+
+  resizeSlides();
+  restoreCanvas();
+
+  var isPaused = Popcorn("#video").paused();
+  if(isPaused) {
+    restoreViewBoxSize();
+    restoreCursor(img);
+  }
+}
+
+function restoreCanvas() {
+  var numCurrent = current_image.substr(5);
+  var currentCanvas;
+  if(svgobj.contentDocument) currentCanvas = svgobj.contentDocument.getElementById("canvas" + numCurrent);
+  else currentCanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + numCurrent);
+
+  if(currentCanvas !== null) {
+    currentCanvas.setAttribute("display", "");
+  }
+}
+
+function restoreViewBoxSize() {
+  var t = Popcorn("#video").currentTime().toFixed(1);
+  var vboxVal = getViewboxAtTime(t);
+  if(vboxVal !== undefined) {
+    setViewBox(vboxVal);
+  }
+}
+
+function restoreCursor(img) {
+    var imageWidth = parseInt(img.getAttribute("width"), 10);
+    var imageHeight = parseInt(img.getAttribute("height"), 10);
+    showCursor(true);
+    drawCursor(parseFloat(currentCursorVal[0]) / (imageWidth/2), parseFloat(currentCursorVal[1]) / (imageHeight/2), img);
 }
 
 // Manually resize some components we can't properly resize just using css.

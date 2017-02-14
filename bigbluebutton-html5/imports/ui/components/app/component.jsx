@@ -6,6 +6,9 @@ import LoadingScreen from '../loading-screen/component';
 import KickedScreen from '../kicked-screen/component';
 
 import NotificationsBarContainer from '../notifications-bar/container';
+import AudioNotificationContainer from '../audio-notification/container';
+
+import LocalStorage from '/imports/ui/services/storage/local.js';
 
 import Button from '../button/component';
 import styles from './styles';
@@ -19,6 +22,8 @@ const propTypes = {
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   modal: PropTypes.element,
+  unreadMessageCount: PropTypes.array,
+  openChats: PropTypes.array,
 };
 
 export default class App extends Component {
@@ -108,12 +113,13 @@ export default class App extends Component {
 
   renderClosedCaptions() {
     const { captions } = this.props;
-    if(captions && this.props.getCaptionsStatus()) {
-        return (
-          <section className={styles.closedCaptions}>
-            {captions}
-          </section>
-        );
+
+    if (captions && this.props.getCaptionsStatus()) {
+      return (
+        <section className={styles.closedCaptions}>
+          {captions}
+        </section>
+      );
     }
   }
 
@@ -147,6 +153,31 @@ export default class App extends Component {
     return false;
   }
 
+  playSoundForUnreadMessages() {
+    const snd = new Audio('/html5client/resources/sounds/notify.mp3');
+    snd.play();
+  }
+
+  componentDidUpdate(prevProps) {
+
+    let { unreadMessageCount, openChats, openChat } = this.props;
+
+    unreadMessageCount.forEach((chat, i) => {
+      // When starting the new chat, if prevProps is undefined or null, it is assigned 0.
+      if (!prevProps.unreadMessageCount[i]) {
+        prevProps.unreadMessageCount[i] = 0;
+      }
+
+      // compare openChats(chatID) to chatID of currently opened chat room
+      if (openChats[i] !== openChat) {
+        let shouldPlaySound = LocalStorage.getItem('audioNotifChat') || Meteor.settings.public.app.audioChatNotification;
+        if (shouldPlaySound && chat > prevProps.unreadMessageCount[i]) {
+          this.playSoundForUnreadMessages();
+        }
+      }
+    });
+  }
+
   render() {
     if (this.props.wasKicked) {
       return (
@@ -170,6 +201,7 @@ export default class App extends Component {
 
     return (
       <main className={styles.main}>
+        <AudioNotificationContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           {this.renderUserList()}
@@ -177,10 +209,10 @@ export default class App extends Component {
           <div className={styles.content}>
             {this.renderNavBar()}
             {this.renderMedia()}
+            {this.renderClosedCaptions()}
             {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}
-          {this.renderClosedCaptions()}
         </section>
         {this.renderAudioElement()}
         {this.renderModal()}

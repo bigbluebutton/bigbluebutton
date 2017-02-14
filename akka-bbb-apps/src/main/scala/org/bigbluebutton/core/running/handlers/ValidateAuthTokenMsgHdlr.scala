@@ -21,7 +21,7 @@ trait ValidateAuthTokenMsgHdlr {
         outGW.send(new ValidateAuthTokenReply(state.mProps.meetingID, msg.userId, msg.token, true, msg.correlationId))
 
         //join the user
-        handleUserJoin(new UserJoining(state.mProps.meetingID, msg.userId, msg.token))
+        handle(new UserJoining(state.mProps.meetingID, msg.userId, msg.token))
 
       case None =>
         outGW.send(new ValidateAuthTokenReply(state.mProps.meetingID, msg.userId, msg.token, false, msg.correlationId))
