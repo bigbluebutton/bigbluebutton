@@ -55,7 +55,7 @@ const intlMessages = defineMessages({
   },
   exitFullScreenDesc: {
     id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
-    defaultMessage: 'minimize the window',
+    defaultMessage: 'exit fullscreen mode',
   },
   exitFullScreenLabel: {
     id: 'app.navBar.settingsDropdown.exitFullScreenLabel',

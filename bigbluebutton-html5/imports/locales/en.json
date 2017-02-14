@@ -37,6 +37,8 @@
   "app.navBar.settingsDropdown.settingsDesc": "Change the general settings",
   "app.navBar.settingsDropdown.aboutDesc": "Show information about the client",
   "app.navBar.settingsDropdown.leaveSessionDesc": "Leave the meeting",
+  "app.navBar.settingsDropdown.exitFullScreenLabel": "Exit fullscreen",
+  "app.navBar.settingsDropdown.exitFullScreenDesc": "Exit fullscreen mode",
   "app.leaveConfirmation.title": "Leave Session",
   "app.leaveConfirmation.message": "Do you want to leave this meeting?",
   "app.leaveConfirmation.confirmLabel": "Leave",
