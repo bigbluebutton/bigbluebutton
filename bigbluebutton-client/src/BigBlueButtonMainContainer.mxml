@@ -166,6 +166,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand') as String)] = ShortcutEvent.RAISE_HAND;
           keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
           keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteAllButPres') as String)] = ShortcutEvent.MUTE_ALL_BUT_PRES;
+		  keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.breakoutRooms') as String)] = ShortcutEvent.OPEN_BREAKOUT_ROOMS;
         }
         if (ShortcutOptions.presentationActive){
           keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.presentation') as String)] = ShortcutEvent.FOCUS_PRESENTATION_WINDOW;
@@ -201,7 +202,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       // Handle general-access hotkeys, regardless of what window the user is focused in
       private function handleKeyDown(e:KeyboardEvent) :void {
-        if (keyCombos == null) loadKeyCombos(globalModifier);
+	        if (keyCombos == null) loadKeyCombos(globalModifier);
         
         var keyPress:String = KeyboardUtil.buildPressedKeys(e);
         

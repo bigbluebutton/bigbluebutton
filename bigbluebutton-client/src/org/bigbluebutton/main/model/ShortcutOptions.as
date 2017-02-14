@@ -90,6 +90,7 @@ package org.bigbluebutton.main.model
 			generalResource.push('bbb.shortcutkey.logout');
 			
 			if (users){generalResource.push('bbb.shortcutkey.raiseHand');}
+			if (users){generalResource.push('bbb.shortcutkey.users.breakoutRooms');}
 			if (audio){generalResource.push('bbb.shortcutkey.users.muteme');}
 			if (audio){generalResource.push('bbb.shortcutkey.users.muteAllButPres');}
 			if (chat){generalResource.push('bbb.shortcutkey.chat.chatinput');}

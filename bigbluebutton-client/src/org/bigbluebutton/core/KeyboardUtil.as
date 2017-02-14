@@ -17,6 +17,7 @@
  *
  */
 package org.bigbluebutton.core {
+
     import flash.events.KeyboardEvent;
 
     public final class KeyboardUtil {

@@ -34,6 +34,7 @@
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
+	<mate:Listener type="{ShortcutEvent.OPEN_BREAKOUT_ROOMS}" method="handleOpenBreakoutRooms" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
 	<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
@@ -641,7 +642,13 @@
 					muteAll();
 				}
 			}
-			
+
+			private function handleOpenBreakoutRooms(e:ShortcutEvent):void{
+				if (breakoutOptions.enabled && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
+					breakoutRooms();
+				}
+			}
+
 			private function breakoutRoomNameLabelFunction(item:Object, column:DataGridColumn) : String {
 				return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room') + " " + item.sequence;
 			}
