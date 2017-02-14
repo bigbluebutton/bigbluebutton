@@ -10,6 +10,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 const intlMessages = defineMessages({
   titlePublic: {
     id: 'app.chat.titlePublic',
+    defaultMessage: "Public Chat",
   },
 });
 
