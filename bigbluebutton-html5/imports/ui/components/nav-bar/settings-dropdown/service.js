@@ -1,4 +1,3 @@
-import LocalStorage from '/imports/ui/services/storage/local.js';
 
 toggleFullScreen = () => {
  let element = document.documentElement;
@@ -20,7 +19,6 @@ toggleFullScreen = () => {
      } else if (document.webkitExitFullscreen) {
        document.webkitExitFullscreen();
      }
-     minimize();
 
    // If the page is not currently fullscreen, make fullscreen
    } else {
@@ -33,21 +31,8 @@ toggleFullScreen = () => {
      } else if (element.msRequestFullscreen) {
        element.msRequestFullscreen();
      }
-     maximize();
    }
  }
-};
-
-maximize = () => {
-  let maximizeScreen = new CustomEvent('bbb.maximizeScreen', {
-    status: 'maximized' });
-  window.dispatchEvent(maximizeScreen);
-};
-
-minimize = () => {
-  let minimizeScreen = new CustomEvent('bbb.minimizeScreen', {
-    status: 'minimized' });
-  window.dispatchEvent(minimizeScreen);
 };
 
 export {

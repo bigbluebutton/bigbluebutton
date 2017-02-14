@@ -13,29 +13,34 @@ export default class SettingsDropdownContainer extends Component {
       isFullScreen: false,
     }
 
-    this.handleMinimize = this.handleMinimize.bind(this);
-    this.handleMaximize = this.handleMaximize.bind(this);
+    this.fullScreenToggleCallback = this.fullScreenToggleCallback.bind(this);
   }
 
   componentDidMount() {
-    window.addEventListener("bbb.maximizeScreen", this.handleMaximize);
-    window.addEventListener("bbb.minimizeScreen", this.handleMinimize);
+    document.addEventListener("fullscreenchange", this.fullScreenToggleCallback);
+    document.addEventListener("webkitfullscreenchange", this.fullScreenToggleCallback);
+    document.addEventListener("mozfullscreenchange", this.fullScreenToggleCallback);
+    document.addEventListener("MSFullscreenChange", this.fullScreenToggleCallback);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("bbb.maximizeScreen", this.handleMaximize);
-    window.removeEventListener("bbb.minimizeScreen", this.handleMinimize);
+    document.addEventListener("fullscreenchange", this.fullScreenToggleCallback);
+    document.addEventListener("webkitfullscreenchange", this.fullScreenToggleCallback);
+    document.addEventListener("mozfullscreenchange", this.fullScreenToggleCallback);
+    document.addEventListener("MSFullscreenChange", this.fullScreenToggleCallback);
   }
 
-  handleMaximize() {
-    this.setState({isFullScreen: true});
-  }
-
-  handleMinimize() {
-    this.setState({isFullScreen: false});
+  fullScreenToggleCallback() {
+    if (screen.height - 1 <= window.innerHeight) {
+      // browser is probably in fullscreen
+      this.setState({isFullScreen: true});
+    }else{
+      this.setState({isFullScreen: false});
+    }
   }
 
   render() {
+
     const handleToggleFullscreen = Service.toggleFullScreen;
     const isFullScreen = this.state.isFullScreen;
 
