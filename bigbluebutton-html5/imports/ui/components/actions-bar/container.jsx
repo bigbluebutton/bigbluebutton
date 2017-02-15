@@ -7,24 +7,11 @@ import { joinListenOnly } from '/imports/api/phone';
 class ActionsBarContainer extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      voiceAudio: false,
-    }
-  }
-
-  componentDidMount(){
-    if(this.props.isInVoiceAudio){
-      this.setState({voiceAudio: true});
-    }else{
-      this.setState({voiceAudio: false});
-    }
   }
 
   render() {
     const handleJoinListenOnly = () => joinListenOnly();
     const isInVoiceAudio = Service.isInVoiceAudio();
-    //console.log(isInVoiceAudio);
 
     return (
       <ActionsBar

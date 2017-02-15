@@ -21,24 +21,41 @@ export default class ActionsBar extends Component {
     return showModal(<Audio handleJoinListenOnly={this.props.handleJoinListenOnly} />)
   }
 
+  renderMuteButton() {
+    return (<MuteAudioContainer />);
+  }
+
+  renderActionsButton() {
+    return (<ActionsDropdown />);
+  }
+
+  renderStatusButton() {
+    return (<EmojiContainer />);
+  }
+
+  renderAudioButton() {
+    return (
+      <JoinAudioOptionsContainer
+        open={this.openJoinAudio.bind(this)}
+        close={() => {exitAudio();}}
+      />
+    );
+  }
+
   voicePresenter() {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          <ActionsDropdown />
+          {this.renderActionsButton()}
         </div>
         <div className={styles.center}>
-          <MuteAudioContainer />
-          <JoinAudioOptionsContainer
-            open={this.openJoinAudio.bind(this)}
-            close={() => {exitAudio();}}
-
-          />
+          {this.renderMuteButton()}
+          {this.renderAudioButton()}
           {/*<JoinVideo />*/}
-          <EmojiContainer />
+          {this.renderStatusButton()}
         </div>
         <div className={styles.right} style={{visibility: 'hidden'}}>
-          <ActionsDropdown />
+          {this.renderActionsButton()}
         </div>
       </div>
     );
@@ -48,18 +65,15 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          <ActionsDropdown />
+          {this.renderActionsButton()}
         </div>
         <div className={styles.center}>
-          <JoinAudioOptionsContainer
-            open={this.openJoinAudio.bind(this)}
-            close={() => {exitAudio();}}
-          />
+          {this.renderAudioButton()}
           {/*<JoinVideo />*/}
-          <EmojiContainer />
+          {this.renderStatusButton()}
         </div>
         <div className={styles.right} style={{visibility: 'hidden'}}>
-          <ActionsDropdown />
+          {this.renderActionsButton()}
         </div>
       </div>
     );
@@ -69,14 +83,9 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.center}>
-          <JoinAudioOptionsContainer
-            open={this.openJoinAudio.bind(this)}
-            close={() => {exitAudio();}}
-          />
+          {this.renderAudioButton()}
           {/*<JoinVideo />*/}
-          <EmojiContainer />
-        </div>
-        <div className={styles.right}>
+          {this.renderStatusButton()}
         </div>
       </div>
     );
@@ -86,15 +95,10 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.center}>
-          <MuteAudioContainer />
-          <JoinAudioOptionsContainer
-            open={this.openJoinAudio.bind(this)}
-            close={() => {exitAudio();}}
-          />
+          {this.renderMuteButton()}
+          {this.renderAudioButton()}
           {/*<JoinVideo />*/}
-          <EmojiContainer />
-        </div>
-        <div className={styles.right}>
+          {this.renderStatusButton()}
         </div>
       </div>
     );
