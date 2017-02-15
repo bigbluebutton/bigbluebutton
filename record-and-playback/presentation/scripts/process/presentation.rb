@@ -125,8 +125,8 @@ if not FileTest.directory?(target_dir)
         participants_info.each do |participant_info|
           xml.participant {
             xml.userId participant_info[0]
-            xml.role participant_info[1]
-            xml.userId participant_info[2]
+            xml.name_ participant_info[1]
+            xml.role participant_info[2]
           }
         end
       }
