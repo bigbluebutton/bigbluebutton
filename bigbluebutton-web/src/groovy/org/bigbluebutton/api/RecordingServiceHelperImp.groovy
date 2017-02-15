@@ -135,7 +135,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         r.setPublished(Boolean.parseBoolean(rec.published.text()));
         r.setStartTime(rec.start_time.text());
         r.setEndTime(rec.end_time.text());
-        r.setNumParticipants(rec.participants.text());
+        r.setNumParticipants(rec.participants_count.text());
         if ( !rec.playback.text().equals("") ) {
             r.setPlaybackFormat(rec.playback.format.text());
             r.setPlaybackLink(rec.playback.link.text());

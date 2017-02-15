@@ -7,6 +7,7 @@ raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
 redis_host: 127.0.0.1
 redis_port: 6379
+store_participants_list: false
 
 
 # For PRODUCTION
