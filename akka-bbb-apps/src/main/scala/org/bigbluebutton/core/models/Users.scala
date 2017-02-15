@@ -25,6 +25,31 @@ object PermissionLevels {
 
 }
 
+case class Guest(id: String, allowed: Boolean)
+
+object Guests {
+  def findWithId(id: String, guests: Vector[Guest]): Option[Guest] = guests.find(u => u.id == id)
+  def findWaitingForApproval(guests: Vector[Guest]): Vector[Guest] = guests.filter(u => u.allowed == false)
+  def findApproved(guests: Vector[Guest]): Vector[Guest] = guests.filter(u => u.allowed)
+}
+
+class Guests {
+  private var guests: collection.immutable.HashMap[String, Guest] = new collection.immutable.HashMap[String, Guest]
+
+  def toVector: Vector[Guest] = guests.values.toVector
+
+  def save(user: Guest): Guest = {
+    guests += user.id -> user
+    user
+  }
+
+  def remove(id: String): Option[Guest] = {
+    val user = guests.get(id)
+    user foreach (u => guests -= id)
+    user
+  }
+}
+
 object Users {
   def findWithId(id: String, users: Vector[UserVO]): Option[UserVO] = users.find(u => u.id == id)
   def findWithExtId(id: String, users: Vector[UserVO]): Option[UserVO] = users.find(u => u.externalId == id)
@@ -74,8 +99,7 @@ class Users {
 }
 
 case class User(id: String, externalId: String, name: String, emojiStatus: String,
-  avatar: String, roles: Set[String],
-  clients: Set[String], permissions: String,
+  avatar: String, roles: Set[String], clients: Set[String], permissions: String,
   config: Set[String], externalData: Set[String])
 
 case class UserVO(id: String, externalId: String, name: String, role: String, emojiStatus: String, presenter: Boolean,
@@ -91,3 +115,4 @@ object VoiceUser {
 
 case class VoiceUser(userId: String, webUserId: String, callerName: String, callerNum: String, joined: Boolean, locked: Boolean,
   muted: Boolean, talking: Boolean, avatarURL: String, listenOnly: Boolean)
+

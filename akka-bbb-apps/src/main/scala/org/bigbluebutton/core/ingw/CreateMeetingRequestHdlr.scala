@@ -13,24 +13,12 @@ trait CreateMeetingRequestHdlr {
 
   def handle(msg: CreateMeetingRequest): Unit = {
     val mProps = new MeetingProperties(
-      msg.payload.id,
-      msg.payload.externalId,
-      msg.payload.parentId,
-      msg.payload.name,
-      msg.payload.record,
-      msg.payload.voiceConfId,
-      msg.payload.voiceConfId + "-DESKSHARE", // WebRTC Desktop conference id
-      msg.payload.durationInMinutes,
-      msg.payload.autoStartRecording,
-      msg.payload.allowStartStopRecording,
-      msg.payload.webcamsOnlyForModerator,
-      msg.payload.moderatorPassword,
-      msg.payload.viewerPassword,
-      msg.payload.createTime,
-      msg.payload.createDate,
-      red5DeskShareIP, red5DeskShareApp,
-      msg.payload.isBreakout,
-      msg.payload.sequence)
+      msg.payload.id, msg.payload.externalId, msg.payload.parentId, msg.payload.name,
+      msg.payload.record, msg.payload.voiceConfId, msg.payload.voiceConfId + "-DESKSHARE", // WebRTC Desktop conference id
+      msg.payload.durationInMinutes, msg.payload.autoStartRecording, msg.payload.allowStartStopRecording,
+      msg.payload.webcamsOnlyForModerator, msg.payload.moderatorPassword, msg.payload.viewerPassword,
+      msg.payload.createTime, msg.payload.createDate, red5DeskShareIP, red5DeskShareApp,
+      msg.payload.isBreakout, msg.payload.sequence)
 
     eventBus.publish(BigBlueButtonEvent("meeting-manager", new CreateMeeting(msg.payload.id, mProps)))
   }

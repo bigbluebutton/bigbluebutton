@@ -58,10 +58,7 @@ class BigBlueButtonInGW(
   def destroyMeeting(meetingID: String) {
     forwardMessage(new EndAllBreakoutRooms(meetingID))
     eventBus.publish(
-      BigBlueButtonEvent(
-        "meeting-manager",
-        new DestroyMeeting(
-          meetingID)))
+      BigBlueButtonEvent("meeting-manager", new DestroyMeeting(meetingID)))
   }
 
   def getAllMeetings(meetingID: String) {
@@ -135,12 +132,9 @@ class BigBlueButtonInGW(
     val lockedLayout = s.getOrElse("lockedLayout", false)
     val lockOnJoin = s.getOrElse("lockOnJoin", false)
     val lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
-    val permissions = new Permissions(disableCam = disableCam,
-      disableMic = disableMic,
-      disablePrivChat = disablePrivChat,
-      disablePubChat = disablePubChat,
-      lockedLayout = lockedLayout,
-      lockOnJoin = lockOnJoin,
+    val permissions = new Permissions(disableCam = disableCam, disableMic = disableMic,
+      disablePrivChat = disablePrivChat, disablePubChat = disablePubChat,
+      lockedLayout = lockedLayout, lockOnJoin = lockOnJoin,
       lockOnJoinConfigurable = lockOnJoinConfigurable)
 
     eventBus.publish(BigBlueButtonEvent(meetingID, new InitLockSettings(meetingID, permissions)))
