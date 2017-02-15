@@ -3,7 +3,7 @@ package org.bigbluebutton.core.running
 import akka.actor.ActorContext
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models.{ MeetingStatus, RegisteredUsers, Users }
+import org.bigbluebutton.core.models.{ Guests, MeetingStatus, RegisteredUsers, Users }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
 
 object RunningMeeting {
@@ -26,9 +26,10 @@ class RunningMeeting(val mProps: MeetingProperties, val outGW: OutMessageGateway
   private val captionModel = new CaptionModel()
   private val registeredUsers = new RegisteredUsers
   private val meetingStatus = new MeetingStatus
+  private val guests = new Guests
 
   val state: MeetingStateModel = new MeetingStateModel(mProps, registeredUsers,
-    chatModel, layoutModel, meetingModel, usersModel, pollModel,
+    chatModel, layoutModel, meetingModel, usersModel, guests, pollModel,
     wbModel, presModel, breakoutModel, captionModel, meetingStatus)
 
   val actorRef = context.actorOf(MeetingActor.props(eventBus, outGW, state), mProps.meetingID)

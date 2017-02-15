@@ -521,6 +521,7 @@ class ApiController {
     us.configXML = configxml;
     us.guest = guest
     us.auth = auth;
+    us.allowed = allowed;
 
     if (! StringUtils.isEmpty(params.defaultLayout)) {
       us.defaultLayout = params.defaultLayout;
