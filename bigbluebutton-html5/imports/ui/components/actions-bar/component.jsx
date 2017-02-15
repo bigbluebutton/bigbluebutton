@@ -21,7 +21,7 @@ export default class ActionsBar extends Component {
     return showModal(<Audio handleJoinListenOnly={this.props.handleJoinListenOnly} />)
   }
 
-  renderForPresenter() {
+  voicePresenter() {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
@@ -37,21 +37,41 @@ export default class ActionsBar extends Component {
           {/*<JoinVideo />*/}
           <EmojiContainer />
         </div>
-        <div className={styles.right}>
+        <div className={styles.right} style={{visibility: 'hidden'}}>
+          <ActionsDropdown />
         </div>
       </div>
     );
   }
 
-  renderForUser() {
+  nonVoicePresenter() {
     return (
       <div className={styles.actionsbar}>
+        <div className={styles.left}>
+          <ActionsDropdown />
+        </div>
         <div className={styles.center}>
-          <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={this.openJoinAudio.bind(this)}
             close={() => {exitAudio();}}
+          />
+          {/*<JoinVideo />*/}
+          <EmojiContainer />
+        </div>
+        <div className={styles.right} style={{visibility: 'hidden'}}>
+          <ActionsDropdown />
+        </div>
+      </div>
+    );
+  }
 
+  nonVoiceUser() {
+    return (
+      <div className={styles.actionsbar}>
+        <div className={styles.center}>
+          <JoinAudioOptionsContainer
+            open={this.openJoinAudio.bind(this)}
+            close={() => {exitAudio();}}
           />
           {/*<JoinVideo />*/}
           <EmojiContainer />
@@ -62,11 +82,45 @@ export default class ActionsBar extends Component {
     );
   }
 
+  voiceUser() {
+    return (
+      <div className={styles.actionsbar}>
+        <div className={styles.center}>
+          <MuteAudioContainer />
+          <JoinAudioOptionsContainer
+            open={this.openJoinAudio.bind(this)}
+            close={() => {exitAudio();}}
+          />
+          {/*<JoinVideo />*/}
+          <EmojiContainer />
+        </div>
+        <div className={styles.right}>
+        </div>
+      </div>
+    );
+  }
+
+  renderForPresenter(isInVoiceAudio) {
+    if (isInVoiceAudio) {
+      return this.voicePresenter();
+    }else{
+      return this.nonVoicePresenter();
+    }
+  }
+
+  renderForUser(isInVoiceAudio) {
+    if (isInVoiceAudio) {
+      return this.voiceUser();
+    }else{
+      return this.nonVoiceUser();
+    }
+  }
+
   render() {
-    const { isUserPresenter } = this.props;
+    const { isUserPresenter, isInVoiceAudio } = this.props;
 
     return isUserPresenter ?
-      this.renderForPresenter() :
-      this.renderForUser();
+      this.renderForPresenter(isInVoiceAudio) :
+      this.renderForUser(isInVoiceAudio);
   }
 }
