@@ -26,11 +26,12 @@ require 'nokogiri'
 module BigBlueButton
   module Events
   
-    # Get the total number of participants
-    def self.get_num_participants(events_xml)
-      BigBlueButton.logger.info("Task: Getting num participants")
+    # Get the list of participants
+    def self.get_participants_info(events_xml)
+      BigBlueButton.logger.info("Task: Getting participants info")
       doc = Nokogiri::XML(File.open(events_xml))
       participants_ids = []
+      participants_info = []
 
       doc.xpath("//event[@eventname='ParticipantJoinEvent']").each do |joinEvent|
          userId = joinEvent.xpath(".//userId").text
@@ -39,13 +40,14 @@ module BigBlueButton
          userId.gsub!(/_\d*/, "")
 
          if !participants_ids.include? userId
-            BigBlueButton.logger.info("Counting id = #{userId}")
             participants_ids << userId
+
+            participant_name = joinEvent.xpath(".//name").text
+            participant_role = joinEvent.xpath(".//role").text
+            participants_info << [userId, participant_name, participant_role]
          end
       end
-
-      BigBlueButton.logger.info("get_num_participants = #{participants_ids.length}")
-      participants_ids.length
+      participants_info
     end
 
     # Get the meeting metadata
