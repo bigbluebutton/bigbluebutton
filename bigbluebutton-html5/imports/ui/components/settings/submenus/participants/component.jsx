@@ -12,6 +12,53 @@ import Checkbox from '/imports/ui/components/checkbox/component';
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
+    console.log(props);
+    const {
+      muteAll,
+      lockAll,
+      webcam,
+      microphone,
+      publicChat,
+      privateChat,
+      layout,
+    } = props.settings;
+
+    this.state = {
+      muteAll,
+      lockAll,
+      webcam,
+      microphone,
+      publicChat,
+      privateChat,
+      layout,
+    };
+
+    this.handleUpdateSettings = props.handleUpdateSettings;
+  }
+
+  getLockItems() {
+    return [
+      {
+        key: 'webcam',
+        label: 'Webcam',
+      },
+      {
+        key: 'microphone',
+        label: 'Microphone',
+      },
+      {
+        key: 'publicChat',
+        label: 'Public Chat',
+      },
+      {
+        key: 'privateChat',
+        label: 'Private Chat',
+      },
+      {
+        key: 'layout',
+        label: 'Layout',
+      },
+    ];
   }
 
   render() {
@@ -33,8 +80,8 @@ export default class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={true}
-                onChange={this.handleBaconChange} />
+                defaultChecked={this.state.muteAll}
+                onChange={() => this.handleToggle('muteAll')} />
               </div>
             </div>
           </div>
@@ -50,41 +97,30 @@ export default class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={true}
-                onChange={this.handleBaconChange} />
+                defaultChecked={this.state.lockAll}
+                onChange={() => this.handleToggle('lockAll')} />
               </div>
             </div>
           </div>
-          <div className={cx(styles.row, styles.spacedLeft)}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  Lock all participants
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-              <Toggle
-                icons={false}
-                defaultChecked={true}
-                onChange={this.handleBaconChange} />
-              </div>
-            </div>
+          {this.getLockItems().map((item, i)  => this.renderLockItem(item, i))}
+        </div>
+      </div>
+    );
+  }
+
+  renderLockItem({ label, key }, i) {
+    return (
+      <div key={i} className={cx(styles.row, styles.spacedLeft)}>
+        <div className={styles.col}>
+          <div className={styles.formElement}>
+            <label className={styles.label}>
+              {label}
+            </label>
           </div>
-          <div className={cx(styles.row, styles.spacedLeft)}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  Lock all participants
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Checkbox/>
-              </div>
-            </div>
+        </div>
+        <div className={styles.col}>
+          <div className={cx(styles.formElement, styles.pullContentRight)}>
+            <Checkbox onChange={() => this.handleToggle(key)} checked={this.state[key]}/>
           </div>
         </div>
       </div>

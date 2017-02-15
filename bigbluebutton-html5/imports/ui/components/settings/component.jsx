@@ -3,10 +3,11 @@ import { FormattedMessage } from 'react-intl';
 import Modal from '/imports/ui/components/modal/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
-import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/container';
-import Audio from '/imports/ui/components/settings/submenus/audio/container';
-import Application from '/imports/ui/components/settings/submenus/application/container';
-import Participants from '/imports/ui/components/settings/submenus/participants/container';
+import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
+import Audio from '/imports/ui/components/settings/submenus/audio/component';
+import Application from '/imports/ui/components/settings/submenus/application/component';
+import Participants from '/imports/ui/components/settings/submenus/participants/component';
+import Video from '/imports/ui/components/settings/submenus/video/component';
 
 import Button from '../button/component';
 import Icon from '../icon/component';
@@ -14,28 +15,21 @@ import styles from './styles';
 import cx from 'classnames';
 
 const propTypes = {
-  navbar: PropTypes.element,
-  sidebar: PropTypes.element,
-  sidebarRight: PropTypes.element,
-  media: PropTypes.element,
-  actionsbar: PropTypes.element,
-  captions: PropTypes.element,
-  modal: PropTypes.element,
 };
 
-export default class App extends Component {
+export default class Settings extends Component {
   constructor(props) {
     super(props);
     this.state = {
       current: {
-        audio: {},
-        cc: {},
+        audio: props.audio,
+        cc: props.cc,
+        participants: {},
       },
-      selectedTab: 4,
-
-      // handleSettingsApply: Service.updateSetting(),
+      selectedTab: 3,
     };
 
+    this.handleSettingsApply = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
   }
@@ -49,7 +43,8 @@ export default class App extends Component {
             // this.commit(this.state.current);
             // this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
             // console.log('SHOULD APPLY SETTINGS CHANGES');
-            // this.props.handleSaveFontState();
+            console.log('SETTINGS', this.state.current);
+            this.handleSettingsApply(this.state.current);
           }),
           label: 'Save',
           description: 'Saves the changes and close the settings menu',
@@ -70,7 +65,7 @@ export default class App extends Component {
 
   handleUpdateSettings(key, newSettings) {
     let settings = {
-      current: {},
+      current: this.state.current,
     };
     settings.current[key] = newSettings;
     this.setState(settings, () => console.log(this.state));
@@ -112,23 +107,31 @@ export default class App extends Component {
           </Tab>
         </TabList>
         <TabPanel className={styles.tabPanel}>
-          <Audio handleUpdateSettings={this.handleUpdateSettings}/>
+          <Audio
+            settings={this.state.current.audio}
+            handleUpdateSettings={this.handleUpdateSettings}/>
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
-          <h2>Hello from Video</h2>
+          <Video
+            settings={this.state.current.video}
+            />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
           <Application />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
-          <ClosedCaptions/>
+          <ClosedCaptions
+            settings={this.state.current.cc}
+            handleUpdateSettings={this.handleUpdateSettings}/>
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
-          <Participants/>
+          <Participants
+            settings={this.state.current.participants}
+            handleUpdateSettings={this.handleUpdateSettings}/>
         </TabPanel>
       </Tabs>
     );
   }
 }
 
-App.propTypes = propTypes;
+Settings.propTypes = propTypes;

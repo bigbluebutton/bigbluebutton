@@ -18,8 +18,4 @@ class AudioContainer extends Component {
   }
 }
 
-export default createContainer(() => {
-  return {
-    a: 'a',
-  }
-}, AudioContainer);
+export default createContainer(() => {}, AudioContainer);

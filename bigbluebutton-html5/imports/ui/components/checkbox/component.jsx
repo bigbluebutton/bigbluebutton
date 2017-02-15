@@ -8,7 +8,12 @@ export default class Checkbox extends Component {
   constructor(props) {
     super(props);
 
-    // this.handleChange = props.handleChange.bind(this);
+    this.onChange = props.onChange;
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange() {
+    this.onChange();
   }
 
   render() {
@@ -17,8 +22,13 @@ export default class Checkbox extends Component {
         <input
           type='checkbox'
           onChange={this.handleChange}
+          checked={this.props.checked}
           className={styles.input}/>
-        <div className={styles.checkbox}>
+        <div onClick={this.handleChange}>
+          { this.props.checked ?
+            <Icon iconName='check' className={cx(styles.icon, styles.checked)}/> :
+            <Icon iconName='circle' className={styles.icon}/>
+          }
         </div>
       </div>
     );

@@ -29,6 +29,7 @@
 
   &:last-child {
     margin-right: 0;
+    padding-right: 0.1rem;
   }
 }
 
@@ -45,6 +46,7 @@
 }
 
 .formElement {
+  position: relative;
   display: flex;
   flex-flow: column;
   flex-grow: 1;
@@ -93,4 +95,41 @@
 
 .spacedLeft {
   margin-left: 1rem;
+}
+
+.swatch {
+  position: absolute;
+  float: right;
+  background: #fff;
+  border-radius: 5px;
+  border: 2px solid $color-gray-light;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.swatchInner {
+  width: 3rem;
+  height: 1.1rem;
+  border-radius: 3px;
+}
+
+.colorPickerOverlay {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+
+.colorPickerPopover {
+  position: absolute;
+  top: 2rem;
+  z-index: 1001;
+}
+
+.ccPreviewBox {
+  height: 100px;
+  padding: 5px;
+  border: 1px solid #f1f1f1;
+  overflow: auto;
 }
