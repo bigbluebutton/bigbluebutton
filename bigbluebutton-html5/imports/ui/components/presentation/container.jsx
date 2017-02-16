@@ -1,25 +1,25 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import WhiteboardService from './service';
-import Whiteboard from './component';
+import PresentationAreaService from './service';
+import PresentationArea from './component';
 
-class WhiteboardContainer extends Component {
+class PresentationAreaContainer extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
     return (
-      <Whiteboard {...this.props}>
+      <PresentationArea {...this.props}>
         {this.props.children}
-      </Whiteboard>
+      </PresentationArea>
     );
   }
 }
 
 export default createContainer(() => ({
-  currentSlide: WhiteboardService.getCurrentSlide(),
-  shapes: WhiteboardService.getCurrentShapes(),
-  cursor: WhiteboardService.getCurrentCursor(),
-  userIsPresenter: WhiteboardService.isPresenter(),
-}), WhiteboardContainer);
+  currentSlide: PresentationAreaService.getCurrentSlide(),
+  shapes: PresentationAreaService.getCurrentShapes(),
+  cursor: PresentationAreaService.getCurrentCursor(),
+  userIsPresenter: PresentationAreaService.isPresenter(),
+}), PresentationAreaContainer);

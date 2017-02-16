@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import WhiteboardShapeModel from './shape-factory/component.jsx';
+import WhiteboardShapeModel from '../whiteboard/shape-factory/component.jsx';
 import Cursor from './cursor/component.jsx';
 import SlideControlsContainer from './slide-controls/container.jsx'; //I added
 import { createContainer } from 'meteor/react-meteor-data';
@@ -8,12 +8,12 @@ import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PollingContainer from '/imports/ui/components/polling/container';
 
-export default class Whiteboard extends React.Component {
+export default class PresentationArea extends React.Component {
   constructor(props) {
     super(props);
   }
 
-  renderWhiteboard() {
+  renderPresentationArea() {
     let slideObj = this.props.currentSlide;
 
     if (this.props.currentSlide) {
@@ -100,10 +100,10 @@ export default class Whiteboard extends React.Component {
 
   render() {
     return (
-      <div className={styles.whiteboardContainer}>
-        <div className={styles.whiteboardWrapper}>
-          <div className={styles.whiteboardPaper}>
-            {this.renderWhiteboard()}
+      <div className={styles.presentationContainer}>
+        <div className={styles.presentationWrapper}>
+          <div className={styles.presentationPaper}>
+            {this.renderPresentationArea()}
           </div>
         </div>
         <PollingContainer />
@@ -113,7 +113,7 @@ export default class Whiteboard extends React.Component {
   }
 }
 
-Whiteboard.defaultProps = {
+PresentationArea.defaultProps = {
   svgProps: {
 
   },
