@@ -97,5 +97,6 @@
   "app.audioModal.audioChoiceLabel": "How would you like to join the audio?",
   "app.audioModal.audioChoiceDescription": "Select how to join the audio in this meeting",
   "app.audio.joinAudio": "Join Audio",
-  "app.audio.leaveAudio": "Leave Audio"
+  "app.audio.leaveAudio": "Leave Audio",
+  "app.audio.playSoundLabel": "Play Sound"
 }
