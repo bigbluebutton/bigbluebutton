@@ -98,5 +98,11 @@
   "app.audioModal.audioChoiceDescription": "Select how to join the audio in this meeting",
   "app.audio.joinAudio": "Join Audio",
   "app.audio.leaveAudio": "Leave Audio",
-  "app.audio.playSoundLabel": "Play Sound"
+  "app.audio.playSoundLabel": "Play Sound",
+  "app.audio.backLabel": "Back",
+  "app.audio.audioSettings.titleLabel": "Choose your audio settings",
+  "app.audio.audioSettings.descriptionLabel": "Please note, a dialog will appear in your browser, requiring you to accept sharing your microphone.",
+  "app.audio.audioSettings.microphoneSourceLabel": "Microphone source",
+  "app.audio.audioSettings.speakerSourceLabel": "Speaker source",
+  "app.audio.audioSettings.microphoneStreamLabel": "Your audio stream volume"
 }
