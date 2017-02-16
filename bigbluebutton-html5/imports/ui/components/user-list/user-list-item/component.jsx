@@ -117,7 +117,7 @@ class UserListItem extends Component {
     let allowedToChatPrivately = !user.isCurrent;
     let allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
     let allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
-    let allowedToResetStatus = hasAuthority;
+    let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
 
     // if currentUser is a moderator, allow kicking other users
     let allowedToKick = currentUser.isModerator && !user.isCurrent;
