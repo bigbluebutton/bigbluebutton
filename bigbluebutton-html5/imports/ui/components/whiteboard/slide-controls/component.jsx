@@ -2,9 +2,20 @@ import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
 import Button from '/imports/ui/components/button/component';
 import classNames from 'classnames';
-import { FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 
-export default class SlideControls extends Component {
+const intlMessages = defineMessages({
+  previousSlideLabel: {
+    id: 'app.presenterControls.previousSlideLabel',
+    defaultMessage: 'Previous Slide',
+  },
+  nextSlideLabel: {
+    id: 'app.presenterControls.nextSlideLabel',
+    defaultMessage: 'Next Slide',
+  },
+});
+
+class SlideControls extends Component {
   constructor(props) {
     super(props);
 
@@ -48,6 +59,7 @@ export default class SlideControls extends Component {
       currentSlideNum,
       numberOfSlides,
       actions,
+      intl,
     } = this.props;
 
     return (
@@ -65,7 +77,7 @@ export default class SlideControls extends Component {
           icon={'left-arrow'}
           size={'md'}
           onClick={actions.previousSlideHandler}
-          label={'Previous Slide'}
+          label={intl.formatMessage(intlMessages.previousSlideLabel)}
           hideLabel={true}
           className={styles.prevSlide}
         />
@@ -80,7 +92,7 @@ export default class SlideControls extends Component {
           icon={'right-arrow'}
           size={'md'}
           onClick={actions.nextSlideHandler}
-          label={'Next Slide'}
+          label={intl.formatMessage(intlMessages.nextSlideLabel)}
           hideLabel={true}
         />
         {/*Skip Slide drop down*/}
@@ -248,3 +260,5 @@ export default class SlideControls extends Component {
     );
   }
 }
+
+export default injectIntl(SlideControls);

@@ -83,6 +83,7 @@
   "app.actionsBar.emojiMenu.thumbsdownDesc": "Change your status to thumbs down",
   "app.audioNotification.audioFailedMessage": "Your audio connection failed to connect. Try again.",
   "app.audioNotification.mediaFailedMessage": "getUserMicMedia failed, Only secure origins are allowed",
+  "app.audioNotification.closeLabel": "Close",
   "app.breakoutJoinConfirmation.title": "Join Breakout Room",
   "app.breakoutJoinConfirmation.message": "Do you want to join",
   "app.breakoutJoinConfirmation.confirmLabel": "Join",
@@ -96,13 +97,20 @@
   "app.audioModal.listenOnlyLabel": "Listen Only",
   "app.audioModal.audioChoiceLabel": "How would you like to join the audio?",
   "app.audioModal.audioChoiceDescription": "Select how to join the audio in this meeting",
+  "app.audioModal.closeLabel": "Close",
   "app.audio.joinAudio": "Join Audio",
   "app.audio.leaveAudio": "Leave Audio",
+  "app.audio.enterSessionLabel": "Enter Session",
   "app.audio.playSoundLabel": "Play Sound",
   "app.audio.backLabel": "Back",
   "app.audio.audioSettings.titleLabel": "Choose your audio settings",
   "app.audio.audioSettings.descriptionLabel": "Please note, a dialog will appear in your browser, requiring you to accept sharing your microphone.",
   "app.audio.audioSettings.microphoneSourceLabel": "Microphone source",
   "app.audio.audioSettings.speakerSourceLabel": "Speaker source",
-  "app.audio.audioSettings.microphoneStreamLabel": "Your audio stream volume"
+  "app.audio.audioSettings.microphoneStreamLabel": "Your audio stream volume",
+  "app.audio.listenOnly.backLabel": "Back",
+  "app.audio.listenOnly.closeLabel": "Close",
+  "app.presenterControls.previousSlideLabel": "Previous Slide",
+  "app.presenterControls.nextSlideLabel": "Next Slide"
+
 }

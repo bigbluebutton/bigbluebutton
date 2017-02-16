@@ -1,4 +1,5 @@
 import React from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
 import styles from '../styles.scss';
@@ -7,7 +8,18 @@ import DeviceSelector from '/imports/ui/components/audio/device-selector/compone
 import AudioTestContainer from '/imports/ui/components/audio-test/container';
 import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 
-export default class ListenOnly extends React.Component {
+const intlMessages = defineMessages({
+  backLabel: {
+    id: 'app.audio.listenOnly.backLabel',
+    defaultMessage: 'Back',
+  },
+  closeLabel: {
+    id: 'app.audio.listenOnly.closeLabel',
+    defaultMessage: 'Close',
+  },
+});
+
+class ListenOnly extends React.Component {
   constructor(props) {
     super(props);
 
@@ -34,11 +46,15 @@ export default class ListenOnly extends React.Component {
   }
 
   render() {
+    const {
+      intl
+    } = this.props;
+
     return (
       <div>
         <div className={styles.center}>
           <Button className={styles.backBtn}
-            label={'Back'}
+            label={intl.formatMessage(intlMessages.backLabel)}
             icon={'left-arrow'}
             size={'md'}
             color={'primary'}
@@ -46,7 +62,7 @@ export default class ListenOnly extends React.Component {
             onClick={this.chooseAudio}
           />
           <Button className={styles.closeBtn}
-            label={'Close'}
+            label={intl.formatMessage(intlMessages.closeLabel)}
             icon={'close'}
             size={'lg'}
             circle={true}
@@ -73,3 +89,5 @@ export default class ListenOnly extends React.Component {
     );
   }
 };
+
+export default injectIntl(ListenOnly);

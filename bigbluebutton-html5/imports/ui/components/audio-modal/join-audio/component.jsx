@@ -7,10 +7,16 @@ import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 const intlMessages = defineMessages({
   microphoneLabel: {
     id: 'app.audioModal.microphoneLabel',
+    defaultMessage: 'Microphone',
   },
   listenOnlyLabel: {
     id: 'app.audioModal.listenOnlyLabel',
+    defaultMessage: 'Listen Only',
   },
+  closeLabel: {
+    id: 'app.audioModal.closeLabel',
+    defaultMessage: 'Close',
+  }
 });
 
 class JoinAudio extends React.Component {
@@ -42,7 +48,7 @@ class JoinAudio extends React.Component {
       <div>
         <div className={styles.center}>
           <Button className={styles.closeBtn}
-            label={'Close'}
+            label={intl.formatMessage(intlMessages.closeLabel)}
             icon={'close'}
             size={'lg'}
             circle={true}
