@@ -15,7 +15,6 @@ export default function addCaption(meetingId, locale, captionHistory, id = false
   if (id) {
     selector._id = id;
   } else {
-    selector['captionHistory.next'] = captionHistory.next;
     selector['captionHistory.index'] = captionHistory.index;
   }
 
