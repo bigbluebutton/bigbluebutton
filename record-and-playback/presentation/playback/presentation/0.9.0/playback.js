@@ -373,7 +373,6 @@ load_deskshare_video = function () {
    webmsource.setAttribute('type','video/webm; codecs="vp8.0, vorbis"');
    deskshare_video.appendChild(webmsource);
 
-   deskshare_video.setAttribute('data-timeline-sources', SLIDES_XML);
    var presentationArea = document.getElementById("presentation-area");
    presentationArea.insertBefore(deskshare_video,presentationArea.childNodes[0]);
 
