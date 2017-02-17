@@ -11,6 +11,9 @@ const intlMessages = defineMessages({
   listenOnlyLabel: {
     id: 'app.audioModal.listenOnlyLabel',
   },
+  closeLabel: {
+    id: 'app.audioModal.closeLabel',
+  }
 });
 
 class JoinAudio extends React.Component {
@@ -42,7 +45,7 @@ class JoinAudio extends React.Component {
       <div>
         <div className={styles.center}>
           <Button className={styles.closeBtn}
-            label={'Close'}
+            label={intl.formatMessage(intlMessages.closeLabel)}
             icon={'close'}
             size={'lg'}
             circle={true}

@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
@@ -16,7 +17,13 @@ const defaultProps = {
   color: 'default',
 };
 
-export default class AudioNotification extends Component {
+const intlMessages = defineMessages({
+  closeLabel: {
+    id: 'app.audioNotification.closeLabel',
+  },
+});
+
+class AudioNotification extends Component {
   constructor(props) {
     super(props);
 
@@ -28,18 +35,22 @@ export default class AudioNotification extends Component {
   }
 
   render() {
-    const { color, message } = this.props;
+    const {
+      color,
+      message,
+      intl,
+    } = this.props;
 
-    if(!color || !message ){
+    if (!color || !message ){
       return null;
-    }else{
+    } else {
       return (
         <div
           role="alert"
           className={cx(styles.audioNotifications, styles[this.props.color])}>
           {message}
           <Button className={styles.closeBtn}
-            label={'Close'}
+            label={intl.formatMessage(intlMessages.closeLabel)}
             icon={'close'}
             size={'sm'}
             circle={true}
@@ -54,3 +65,5 @@ export default class AudioNotification extends Component {
 
 AudioNotification.propTypes = propTypes;
 AudioNotification.defaultProps = defaultProps;
+
+export default injectIntl(AudioNotification);
