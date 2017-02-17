@@ -21,18 +21,6 @@ export default class ActionsBar extends Component {
     return showModal(<Audio handleJoinListenOnly={this.props.handleJoinListenOnly} />)
   }
 
-  renderMuteButton() {
-    return (<MuteAudioContainer />);
-  }
-
-  renderActionsButton() {
-    return (<ActionsDropdown />);
-  }
-
-  renderStatusButton() {
-    return (<EmojiContainer />);
-  }
-
   renderAudioButton() {
     return (
       <JoinAudioOptionsContainer
@@ -46,16 +34,16 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          {this.renderActionsButton()}
+          {this.props.actionsButton}
         </div>
         <div className={styles.center}>
-          {this.renderMuteButton()}
+          {this.props.muteButton}
           {this.renderAudioButton()}
           {/*<JoinVideo />*/}
-          {this.renderStatusButton()}
+          {this.props.emojiButton}
         </div>
         <div className={styles.right} style={{visibility: 'hidden'}}>
-          {this.renderActionsButton()}
+          {this.props.actionsButton}
         </div>
       </div>
     );
@@ -65,15 +53,15 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          {this.renderActionsButton()}
+          {this.props.actionsButton}
         </div>
         <div className={styles.center}>
           {this.renderAudioButton()}
           {/*<JoinVideo />*/}
-          {this.renderStatusButton()}
+          {this.props.emojiButton}
         </div>
         <div className={styles.right} style={{visibility: 'hidden'}}>
-          {this.renderActionsButton()}
+          {this.props.emojiButton}
         </div>
       </div>
     );
@@ -85,7 +73,7 @@ export default class ActionsBar extends Component {
         <div className={styles.center}>
           {this.renderAudioButton()}
           {/*<JoinVideo />*/}
-          {this.renderStatusButton()}
+          {this.props.emojiButton}
         </div>
       </div>
     );
@@ -95,10 +83,10 @@ export default class ActionsBar extends Component {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.center}>
-          {this.renderMuteButton()}
+          {this.props.muteButton}
           {this.renderAudioButton()}
           {/*<JoinVideo />*/}
-          {this.renderStatusButton()}
+          {this.props.emojiButton}
         </div>
       </div>
     );
@@ -121,6 +109,7 @@ export default class ActionsBar extends Component {
   }
 
   render() {
+    console.log(this.props);
     const { isUserPresenter, isInVoiceAudio } = this.props;
 
     return isUserPresenter ?
