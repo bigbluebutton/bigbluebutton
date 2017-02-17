@@ -62,22 +62,18 @@ class AudioSettings extends React.Component {
           <div className={styles.title}>
             <FormattedMessage
               id="app.audio.audioSettings.titleLabel"
-              defaultMessage="Choose your audio settings"
             />
           </div>
         </div>
         <div className={styles.audioNote}>
           <FormattedMessage
             id="app.audio.audioSettings.descriptionLabel"
-            defaultMessage="Please note, a dialog will appear in your browser,
-             requiring you to accept sharing your microphone."
           />
         </div>
         <div className={styles.containerLeftHalfContent}>
           <span className={styles.heading}>
             <FormattedMessage
               id="app.audio.audioSettings.microphoneSourceLabel"
-              defaultMessage="Microphone source"
             />
           </span>
           <DeviceSelector
@@ -87,7 +83,6 @@ class AudioSettings extends React.Component {
           <span className={styles.heading}>
             <FormattedMessage
               id="app.audio.audioSettings.microphoneStreamLabel"
-              defaultMessage="Your audio stream volume"
             />
           </span>
           <AudioStreamVolume
@@ -98,7 +93,6 @@ class AudioSettings extends React.Component {
           <span className={styles.heading}>
             <FormattedMessage
               id="app.audio.audioSettings.speakerSourceLabel"
-              defaultMessage="Speaker source"
             />
           </span>
           <DeviceSelector
@@ -116,7 +110,6 @@ class AudioSettings extends React.Component {
 const intlMessages = defineMessages({
   backLabel: {
     id: 'app.audio.backLabel',
-    defaultMessage: 'Back',
   },
 });
 

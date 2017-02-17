@@ -11,11 +11,9 @@ import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 const intlMessages = defineMessages({
   backLabel: {
     id: 'app.audio.listenOnly.backLabel',
-    defaultMessage: 'Back',
   },
   closeLabel: {
     id: 'app.audio.listenOnly.closeLabel',
-    defaultMessage: 'Close',
   },
 });
 

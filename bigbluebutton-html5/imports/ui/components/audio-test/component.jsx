@@ -29,7 +29,6 @@ class AudioTest extends React.Component {
 const intlMessages = defineMessages({
   playSoundLabel: {
     id: 'app.audio.playSoundLabel',
-    defaultMessage: 'Play Sound',
   },
 });
 

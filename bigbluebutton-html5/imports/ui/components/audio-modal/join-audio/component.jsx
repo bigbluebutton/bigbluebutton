@@ -7,15 +7,12 @@ import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 const intlMessages = defineMessages({
   microphoneLabel: {
     id: 'app.audioModal.microphoneLabel',
-    defaultMessage: 'Microphone',
   },
   listenOnlyLabel: {
     id: 'app.audioModal.listenOnlyLabel',
-    defaultMessage: 'Listen Only',
   },
   closeLabel: {
     id: 'app.audioModal.closeLabel',
-    defaultMessage: 'Close',
   }
 });
 
