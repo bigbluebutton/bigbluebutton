@@ -24,21 +24,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/" xmlns:common="org.bigbluebutton.common.*"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	enabled="true" visible="{showToolbar}"
-	initialize="init()" creationComplete="onCreationComplete()">   
+	initialize="init()">   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
 	<mate:Listener type="{BBBEvent.END_MEETING_EVENT}" method="handleEndMeetingEvent"/>
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="hideToolbar" />
-	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
+	<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
-  <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
+	<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
   
 	<mx:Script>
 		<![CDATA[
@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigEvent;
+			import org.bigbluebutton.main.events.ConfigLoadedEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -96,9 +96,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 timer.start();
 
 			}
-      
-      private function onCreationComplete():void {
-      }
       
       private function checkAccessiblity(e:TimerEvent):void {
         // remove the quick links if there's no screen reader active
@@ -208,7 +205,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onHelpButtonClicked():void {
-        DEFAULT_HELP_URL = BBB.getConfigManager().config.help.url;        
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL))
 			}
 			
@@ -223,9 +219,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					// Confirm logout using built-in alert
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
 					
-          var newX:Number = btnLogout.x + btnLogout.width - alert.width;
+					var newX:Number = btnLogout.x + btnLogout.width - alert.width;
 					var newY:Number = btnLogout.y + btnLogout.height + 5;
-												
+
 					alert.validateNow();
 					alert.move(newX, newY);
 					//Accessibility.updateProperties();
@@ -235,7 +231,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-						
 			private function alertLogout(e:CloseEvent):void {
 				// Check to see if the YES button was pressed.
 				if (e.detail==Alert.YES) {
@@ -314,12 +309,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//}
 				}
 			}
-						
-			private function gotConfigParameters(e:ConfigEvent):void{
-				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = e.config.shortcutKeysShowButton; 
-				DEFAULT_HELP_URL = e.config.helpURL;
-			}
 			
+			public function initOptions(e:Event):void {
+				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = BBB.getConfigManager().config.shortcutKeys['showButton'];
+				DEFAULT_HELP_URL = BBB.getConfigManager().config.help['url'];
+			}
+
 			private function onDisconnectTest():void{
 				var d:Dispatcher = new Dispatcher();
 				var e:LogoutEvent = new LogoutEvent(LogoutEvent.DISCONNECT_TEST);
