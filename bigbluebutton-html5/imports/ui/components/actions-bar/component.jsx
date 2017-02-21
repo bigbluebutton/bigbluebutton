@@ -91,19 +91,11 @@ export default class ActionsBar extends Component {
   }
 
   renderForPresenter(isInVoiceAudio) {
-    if (isInVoiceAudio) {
-      return this.voicePresenter();
-    }else{
-      return this.nonVoicePresenter();
-    }
+    return isInVoiceAudio ? this.voicePresenter() : this.nonVoicePresenter();
   }
 
   renderForUser(isInVoiceAudio) {
-    if (isInVoiceAudio) {
-      return this.voiceUser();
-    }else{
-      return this.nonVoiceUser();
-    }
+    return isInVoiceAudio ? this.voiceUser() : this.nonVoiceUser();
   }
 
   render() {
