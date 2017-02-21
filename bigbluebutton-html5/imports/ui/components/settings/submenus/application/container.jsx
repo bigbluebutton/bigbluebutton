@@ -17,9 +17,14 @@ class ApplicationContainer extends Component {
     );
   }
 }
-
 export default createContainer(() => {
   return {
-    a: 'a',
+    fontSizes: {
+      1: { size: '12px', name: 'Extra Small' },
+      2: { size: '14px', name: 'Small' },
+      3: { size: '16px', name: 'Medium' },
+      4: { size: '18px', name: 'Large' },
+      5: { size: '20px', name: 'Extra Large' },
+    },
   };
 }, ApplicationContainer);

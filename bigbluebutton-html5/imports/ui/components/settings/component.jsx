@@ -20,11 +20,15 @@ const propTypes = {
 export default class Settings extends Component {
   constructor(props) {
     super(props);
+
+    console.log('CONSTRUCTOR SETTINGS', props);
     this.state = {
       current: {
         audio: props.audio,
+        video: props.video,
+        application: props.application,
         cc: props.cc,
-        participants: {},
+        participants: props.participants,
       },
       selectedTab: 3,
     };
@@ -64,6 +68,7 @@ export default class Settings extends Component {
   }
 
   handleUpdateSettings(key, newSettings) {
+    console.log(key, newSettings);
     let settings = {
       current: this.state.current,
     };
@@ -113,6 +118,7 @@ export default class Settings extends Component {
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
           <Video
+            handleUpdateSettings={this.handleUpdateSettings}
             settings={this.state.current.video}
             />
         </TabPanel>
@@ -122,7 +128,8 @@ export default class Settings extends Component {
         <TabPanel className={styles.tabPanel}>
           <ClosedCaptions
             settings={this.state.current.cc}
-            handleUpdateSettings={this.handleUpdateSettings}/>
+            handleUpdateSettings={this.handleUpdateSettings}
+            locales={this.props.locales}/>
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
           <Participants

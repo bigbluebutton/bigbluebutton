@@ -26,15 +26,16 @@ export default class ClosedCaptionsMenu extends BaseMenu {
     super(props);
     this.state = {
       settingsName: 'cc',
-      backgroundColor: props.settings ? props.settings.backgroundColor : '#f3f6f9',
-      fontColor: props.settings ? props.settings.fontColor : '#000000',
-      closedCaptions: props.settings ? props.settings.closedCaptions : false,
-      fontFamily: props.settings ? props.settings.fontFamily : 'Calibri',
-      fontSize: props.settings ? props.settings.fontSize : -1,
-      locale: props.settings ? props.settings.locale : -1,
-      takeOwnership: props.settings ? props.settings.takeOwnership : false,
+      settings: {
+        backgroundColor: props.settings ? props.settings.backgroundColor : '#f3f6f9',
+        fontColor: props.settings ? props.settings.fontColor : '#000000',
+        closedCaptions: props.settings ? props.settings.closedCaptions : false,
+        fontFamily: props.settings ? props.settings.fontFamily : 'Calibri',
+        fontSize: props.settings ? props.settings.fontSize : -1,
+        locale: props.settings ? props.settings.locale : -1,
+        takeOwnership: props.settings ? props.settings.takeOwnership : false,
+      },
     };
-
   }
 
   getPreviewStyle() {
@@ -62,21 +63,25 @@ export default class ClosedCaptionsMenu extends BaseMenu {
 
   handleSelectChange(fieldname, options, e) {
     let obj = this.state;
-    obj[fieldname] = options[e.target.value];
+    obj.settings[fieldname] = options[e.target.value];
     this.setState(obj);
-    this.handleUpdateSettings('cc', obj);
+    this.handleUpdateSettings('cc', obj.settings);
   }
 
   handleColorChange(fieldname, color) {
-    var obj = this.state;
-    obj[fieldname] = color.hex;
+    let obj = this.state;
+    obj.settings[fieldname] = color.hex;
 
     this.setState(obj);
-    this.handleUpdateSettings('cc', obj);
+    this.handleUpdateSettings('cc', obj.settings);
     this.handleCloseColorPicker();
   }
 
   render() {
+    const {
+      locales,
+    } = this.props;
+
     return (
       <div className={styles.tabContent}>
         <div className={styles.header}>
@@ -95,7 +100,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={this.state.closedCaptions}
+                defaultChecked={this.state.settings.closedCaptions}
                 onChange={() => this.handleToggle('closedCaptions')} />
               </div>
             </div>
@@ -112,7 +117,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Checkbox
                   onChange={() => this.handleToggle('takeOwnership')}
-                  checked={this.state.takeOwnership}/>
+                  checked={this.state.settings.takeOwnership}/>
               </div>
             </div>
           </div>
@@ -127,6 +132,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <select
+                  defaultValue={locales ? locales.indexOf(this.state.settings.locale) : -1}
                   className={styles.select}
                   onChange={this.handleSelectChange.bind(this, 'locale', this.props.locales)}>
                 <option>
@@ -156,7 +162,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <select
-                  defaultValue={FONT_FAMILIES.indexOf(this.state.fontFamily)}
+                  defaultValue={FONT_FAMILIES.indexOf(this.state.settings.fontFamily)}
                   onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
                   className={styles.select}>
                   <option value='-1' disabled>Choose Font-family</option>
@@ -183,7 +189,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <select
-                  defaultValue={FONT_SIZES.indexOf(this.state.fontSize)}
+                  defaultValue={FONT_SIZES.indexOf(this.state.settings.fontSize)}
                   onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
                   className={styles.select}>
                   <option value='-1' disabled>Choose Font-size</option>
@@ -215,7 +221,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
                 onClick={ this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker') }>
                 <div
                   className={styles.swatchInner}
-                  style={ { background: this.state.backgroundColor } }>
+                  style={ { background: this.state.settings.backgroundColor } }>
                 </div>
 
               </div>
@@ -255,7 +261,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
                 onClick={ this.handleColorPickerClick.bind(this, 'displayFontColorPicker') }>
                 <div
                   className={styles.swatchInner}
-                  style={ { background: this.state.fontColor } }>
+                  style={ { background: this.state.settings.fontColor } }>
                 </div>
 
               </div>

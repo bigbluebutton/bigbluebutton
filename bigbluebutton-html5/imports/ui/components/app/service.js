@@ -107,8 +107,8 @@ const clearModal = () => {
 };
 
 function getCaptionsStatus() {
-  var CCEnabled = Storage.getItem('closedCaptions');
-  return !!CCEnabled;
+  const settings = Storage.getItem('settings_cc');
+  return settings ? settings.closedCaptions : false;
 };
 
 export {

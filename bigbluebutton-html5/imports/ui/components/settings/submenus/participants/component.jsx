@@ -13,24 +13,17 @@ export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
     console.log(props);
-    const {
-      muteAll,
-      lockAll,
-      webcam,
-      microphone,
-      publicChat,
-      privateChat,
-      layout,
-    } = props.settings;
 
     this.state = {
-      muteAll,
-      lockAll,
-      webcam,
-      microphone,
-      publicChat,
-      privateChat,
-      layout,
+      settings: {
+        muteAll: props.settings ? props.settings.muteAll : undefined,
+        lockAll: props.settings ? props.settings.lockAll : undefined,
+        lockAll: props.settings ? props.settings.webcam : undefined,
+        microphone: props.settings ? props.settings.microphone : undefined,
+        publicChat: props.settings ? props.settings.publicChat : undefined,
+        privateChat: props.settings ? props.settings.privateChat : undefined,
+        layout: props.settings ? props.settings.layout : undefined,
+      },
     };
 
     this.handleUpdateSettings = props.handleUpdateSettings;
@@ -80,7 +73,7 @@ export default class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={this.state.muteAll}
+                defaultChecked={this.state.settings.muteAll}
                 onChange={() => this.handleToggle('muteAll')} />
               </div>
             </div>
@@ -97,7 +90,7 @@ export default class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={this.state.lockAll}
+                defaultChecked={this.state.settings.lockAll}
                 onChange={() => this.handleToggle('lockAll')} />
               </div>
             </div>
@@ -120,7 +113,7 @@ export default class ApplicationMenu extends BaseMenu {
         </div>
         <div className={styles.col}>
           <div className={cx(styles.formElement, styles.pullContentRight)}>
-            <Checkbox onChange={() => this.handleToggle(key)} checked={this.state[key]}/>
+            <Checkbox onChange={() => this.handleToggle(key)} checked={this.state.settings[key]}/>
           </div>
         </div>
       </div>

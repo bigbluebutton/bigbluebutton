@@ -11,6 +11,8 @@ import Toggle from '/imports/ui/components/switch/component';
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
+
+    console.log('application', props);
   }
 
   render() {

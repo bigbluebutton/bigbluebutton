@@ -5,14 +5,16 @@ import Storage from '/imports/ui/services/storage/session';
 let getCCData = () => {
   const meetingID = Auth.meetingID;
 
+  const ccSettings = Storage.getItem('settings_cc');
 
-  let CCEnabled = Storage.getItem('closedCaptions');
+  console.log('cc settings component', ccSettings);
+  let CCEnabled = ccSettings.closedCaptions;
 
   //associative array that keeps locales with arrays of string objects related to those locales
   let captions = [];
 
   //list of unique locales in the Captions Collection
-  if(CCEnabled) {
+  if (CCEnabled) {
     let locales = _.uniq(Captions.find({}, {
       sort: { locale: 1 },
       fields: { locale: true },
@@ -47,11 +49,11 @@ let getCCData = () => {
   }
 
   //fetching settings for the captions
-  let selectedLocale = Storage.getItem('ccLocale');
-  let ccFontFamily = Storage.getItem('ccFontFamily') ? Storage.getItem('ccFontFamily') : 'Arial';
-  let ccFontSize = Storage.getItem('ccFontSize') ? Storage.getItem('ccFontSize') : 18;
-  let ccBackgroundColor = Storage.getItem('ccBackgroundColor') ? Storage.getItem('ccBackgroundColor') : '#f3f6f9';
-  let ccFontColor = Storage.getItem('ccFontColor') ? Storage.getItem('ccFontColor') : '#000000';
+  let selectedLocale = ccSettings.locale;
+  let ccFontFamily = ccSettings.fontFamily ? ccSettings.fontFamily : 'Arial';
+  let ccFontSize = ccSettings.fontSize ? ccSettings.fontSize : 18;
+  let ccBackgroundColor = ccSettings.backgroundColor ? ccSettings.backgroundColor : '#f3f6f9';
+  let ccFontColor = ccSettings.fontColor ? ccSettings.fontColor : '#000000';
   return {
     locale: selectedLocale,
     fontFamily: ccFontFamily,
