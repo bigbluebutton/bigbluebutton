@@ -333,12 +333,10 @@ Verto.prototype.makeShare = function () {
   var screenInfo = null;
   if (!!navigator.mozGetUserMedia) {
     screenInfo = {
-      video: {
         mozMediaSource: 'window',
         mediaSource: 'window',
-      },
     };
-    this.doShare(screenInfo.video);
+    this.doShare(screenInfo);
   } else if (!!window.chrome) {
     var _this = this;
     if (!_this.chromeExtension) {
@@ -357,7 +355,10 @@ Verto.prototype.makeShare = function () {
         return _this.logError(constraints);
       }
 
-      screenInfo = constraints.streamId;
+      screenInfo = {
+        chromeMediaSource: "desktop",
+        chromeMediaSourceId: constraints.streamId,
+      };
 
       _this.logger(screenInfo);
       _this.doShare(screenInfo);
@@ -372,12 +373,7 @@ Verto.prototype.doShare = function (screenConstraints) {
     caller_id_number: this.caller_id_number,
     outgoingBandwidth: "default",
     incomingBandwidth: "default",
-    videoParams: {
-      chromeMediaSource: "desktop",
-      chromeMediaSourceId: screenConstraints,
-      maxWidth: this.vid_width,
-      maxHeight: this.vid_height
-    },
+    videoParams: screenConstraints,
     useVideo: true,
     screenShare: true,
 
