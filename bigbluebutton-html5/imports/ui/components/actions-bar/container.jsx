@@ -3,10 +3,8 @@ import { createContainer } from 'meteor/react-meteor-data';
 import ActionsBar from './component';
 import Service from './service';
 import { joinListenOnly } from '/imports/api/phone';
-
 import EmojiContainer from './emoji-menu/container';
 import ActionsDropdown from './actions-dropdown/component';
-import JoinAudioOptionsContainer from './audio-menu/container';
 import MuteAudioContainer from './mute-button/container';
 
 

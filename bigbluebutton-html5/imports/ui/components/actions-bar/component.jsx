@@ -3,12 +3,10 @@ import { showModal } from '/imports/ui/components/app/service';
 import Audio from '/imports/ui/components/audio-modal/component';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
-import EmojiContainer from './emoji-menu/container';
-import ActionsDropdown from './actions-dropdown/component';
 import Auth from '/imports/ui/services/auth/index';
 import Users from '/imports/api/users/index';
 import JoinAudioOptionsContainer from './audio-menu/container';
-import MuteAudioContainer from './mute-button/container';
+
 import { exitAudio } from '/imports/api/phone';
 import JoinVideo from './video-button/component';
 
@@ -61,7 +59,7 @@ export default class ActionsBar extends Component {
           {this.props.emojiButton}
         </div>
         <div className={styles.right} style={{visibility: 'hidden'}}>
-          {this.props.emojiButton}
+          {this.props.actionsButton}
         </div>
       </div>
     );
@@ -109,7 +107,6 @@ export default class ActionsBar extends Component {
   }
 
   render() {
-    console.log(this.props);
     const { isUserPresenter, isInVoiceAudio } = this.props;
 
     return isUserPresenter ?
