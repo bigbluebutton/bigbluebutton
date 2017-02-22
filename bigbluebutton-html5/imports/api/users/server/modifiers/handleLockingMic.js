@@ -18,8 +18,9 @@ export default function handleLockingMic(meetingId, newSettings) {
 
   for (let i = 0; i < _userObjectsLength; i++) {
     userObject = userObjects[i];
-    results.push(Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId,
-        userObject.authToken, true)); //true for muted
+    // TODO: REMEMBER TO UNCOMMEND THIS
+    // results.push(Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId,
+    //     userObject.authToken, true)); //true for muted
   }
 
   return results;

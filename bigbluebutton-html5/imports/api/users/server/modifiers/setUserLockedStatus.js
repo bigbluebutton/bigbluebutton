@@ -31,8 +31,9 @@ export function setUserLockedStatus(meetingId, userId, isLocked) {
     if (userObject.user.role === 'VIEWER' && !userObject.user.listenOnly &&
         userObject.user.voiceUser.joined && !userObject.user.voiceUser.muted && isLocked) {
       // TODO why are we doing Meteor.call here?! Anton
-      return Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId,
-          userObject.authToken, true); //true for muted
+      // TODO: Uncomment this before PR
+      // return Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId,
+      //     userObject.authToken, true); //true for muted
     }
   } else {
     let tempMsg = '(unsuccessful-no such user) setting user locked status for userid:';

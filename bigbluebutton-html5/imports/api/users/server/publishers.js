@@ -16,6 +16,7 @@ Meteor.publish('users', function (credentials) {
 
   validateAuthToken(credentials);
 
+  // TODO: We need to fix the Authentication flow to enable ACL
   // if (!isAllowedTo('subscribeUsers', credentials)) {
   //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
   // }

@@ -28,11 +28,6 @@ import '/imports/api/captions/server/modifiers/clearCaptionsCollection';
 import '/imports/api/captions/server/modifiers/eventHandlers';
 
 import '/imports/api/users/server';
-import '/imports/api/users/server/methods/muteUser';
-import '/imports/api/users/server/methods/setUserPresenter';
-import '/imports/api/users/server/methods/unmuteUser';
-import '/imports/api/users/server/methods/userSetEmoji';
-import '/imports/api/users/server/methods/validateAuthToken';
 import '/imports/api/users/server/modifiers/clearUsersCollection';
 import '/imports/api/users/server/modifiers/createDummyUser';
 import '/imports/api/users/server/modifiers/handleLockingMic';

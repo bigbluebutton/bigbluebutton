@@ -8,6 +8,8 @@ const presenter = {
   //poll
   subscribePoll: true,
   subscribeAnswers: true,
+
+  setPresenter: true,
 };
 
 // holds the values for whether the moderator user is allowed to perform an action (true)
