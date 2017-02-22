@@ -224,7 +224,7 @@ const userActions = {
   },
   setPresenter: {
     label: 'Make Presenter',
-    handler: user => callServer('setUserPresenter', user.id, user.name),
+    handler: user => callServer('assignPresenter', user.id),
     icon: 'presentation',
   },
   kick: {
