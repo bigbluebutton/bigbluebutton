@@ -2,7 +2,6 @@ import { logger } from '/imports/startup/server/logger';
 import { eventEmitter } from '/imports/startup/server';
 import { userJoined } from './userJoined';
 import { setUserLockedStatus } from './setUserLockedStatus';
-import { markUserOffline } from './markUserOffline';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Users from '../..';
 
@@ -141,19 +140,6 @@ eventEmitter.on('user_locked_message', function (arg) {
 eventEmitter.on('user_unlocked_message', function (arg) {
   handleLockEvent(arg);
 });
-
-const handleRemoveUserEvent = function (arg) {
-  const { payload, callback } = arg;
-  if ((payload.userid || payload.user.userid) &&
-    payload.meeting_id) {
-    const meetingId = payload.meeting_id;
-    const userId = payload.userid || payload.user.userid;
-    return markUserOffline(meetingId, userId, callback);
-  } else {
-    logger.info('could not perform handleRemoveUserEvent');
-    return callback();
-  }
-};
 
 const handleLockEvent = function (arg) {
   const userId = arg.payload.userid;
