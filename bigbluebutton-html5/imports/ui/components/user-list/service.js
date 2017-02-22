@@ -219,7 +219,7 @@ const userActions = {
   },
   clearStatus: {
     label: 'Clear Status',
-    handler: user => callServer('userSetEmoji', user.id, 'none'),
+    handler: user => callServer('setEmojiStatus', user.id, 'none'),
     icon: 'clear-status',
   },
   setPresenter: {
