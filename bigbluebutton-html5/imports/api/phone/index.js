@@ -1,3 +1,4 @@
+// TODO: This file should be a `service.js` somewhere in the /ui folder
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';

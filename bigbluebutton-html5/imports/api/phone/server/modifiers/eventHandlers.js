@@ -1,6 +1,8 @@
 import { eventEmitter } from '/imports/startup/server';
 import { updateVoiceUser } from '/imports/api/users/server/modifiers/updateVoiceUser';
 
+// TODO: Should we move those handlers to the /api/uses?
+
 eventEmitter.on('user_left_voice_message', function (arg) {
   handleVoiceEvent(arg);
 });

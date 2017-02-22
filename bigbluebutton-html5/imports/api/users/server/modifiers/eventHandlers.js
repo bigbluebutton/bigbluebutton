@@ -6,18 +6,6 @@ import { markUserOffline } from './markUserOffline';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Users from '../..';
 
-eventEmitter.on('user_eject_from_meeting', function (arg) {
-  handleRemoveUserEvent(arg);
-});
-
-eventEmitter.on('disconnect_user_message', function (arg) {
-  handleRemoveUserEvent(arg);
-});
-
-eventEmitter.on('user_left_message', function (arg) {
-  handleRemoveUserEvent(arg);
-});
-
 eventEmitter.on('validate_auth_token_reply', function (arg) {
   const meetingId = arg.payload.meeting_id;
   const userId = arg.payload.userid;
@@ -152,42 +140,6 @@ eventEmitter.on('user_locked_message', function (arg) {
 
 eventEmitter.on('user_unlocked_message', function (arg) {
   handleLockEvent(arg);
-});
-
-eventEmitter.on('presenter_assigned_message', function (arg) {
-  const meetingId = arg.payload.meeting_id;
-  const newPresenterId = arg.payload.new_presenter_id;
-  if (newPresenterId != null) {
-    // reset the previous presenter
-    Users.update({
-      'user.presenter': true,
-      meetingId: meetingId,
-    }, {
-      $set: {
-        'user.presenter': false,
-      },
-    }, (err, numUpdated) => logger.info(
-      ` Updating old presenter numUpdated=${numUpdated}, ` +
-      ` err=${err}`
-      )
-    );
-
-    // set the new presenter
-    Users.update({
-      'user.userid': newPresenterId,
-      meetingId: meetingId,
-    }, {
-      $set: {
-        'user.presenter': true,
-      },
-    }, (err, numUpdated) => logger.info(
-      ` Updating new presenter numUpdated=${numUpdated}, ` +
-      `err=${err}`
-      )
-    );
-  }
-
-  return arg.callback();
 });
 
 const handleRemoveUserEvent = function (arg) {
