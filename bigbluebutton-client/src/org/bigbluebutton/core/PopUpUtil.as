@@ -28,7 +28,12 @@ package org.bigbluebutton.core {
     import mx.managers.PopUpManager;
     import mx.managers.SystemManager;
 
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
+
     public final class PopUpUtil {
+
+        private static const LOGGER:ILogger = getClassLogger(PopUpUtil);
 
         private static var popUpDict:Dictionary = new Dictionary(true);
 
@@ -46,14 +51,17 @@ package org.bigbluebutton.core {
             return null;
         }
 
-        public static function removePopUp(className:Class):void {
-            var fqcn:String = getQualifiedClassName(className);
+        public static function removePopUp(classOrInstance:*):void {
+            var fqcn:String = getQualifiedClassName(classOrInstance);
             if (popUpDict[fqcn] != undefined) {
                 PopUpManager.removePopUp(popUpDict[fqcn])
+                delete popUpDict[fqcn];
+                LOGGER.debug("Removed PopUp with type [{0}]", [fqcn]);
             }
         }
 
         private static function checkPopUpExists(className:Class):Boolean {
+            LOGGER.debug("Checking if [{0}] exists as a PopUp", [className]);
             var systemManager:SystemManager = FlexGlobals.topLevelApplication.systemManager;
 
             var childList:IChildList = systemManager.rawChildren;
@@ -61,10 +69,11 @@ package org.bigbluebutton.core {
                 var childObject:IUIComponent = childList.getChildAt(i) as IUIComponent;
                 // PopUp already exists
                 if (childObject is className && childObject.isPopUp) {
+                    LOGGER.debug("PopUp with type [{0}] found", [className]);
                     return true;
                 }
             }
-
+            LOGGER.debug("No PopUp with type [{0}] not found", [className]);
             return false;
         }
 
@@ -74,6 +83,9 @@ package org.bigbluebutton.core {
                 PopUpManager.centerPopUp(popUp)
             }
             popUpDict[getQualifiedClassName(className)] = popUp;
+
+            LOGGER.debug("Created PopUp with type [{0}]", [className]);
+
             return popUp;
         }
     }
