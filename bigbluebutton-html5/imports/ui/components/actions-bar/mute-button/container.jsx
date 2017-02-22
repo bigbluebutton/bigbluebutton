@@ -5,11 +5,13 @@ import Button from '/imports/ui/components/button/component';
 import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
 import MuteAudio from './component';
+import Service from '../service.js';
 
 class MuteAudioContainer extends React.Component {
   render() {
+    const  isInVoiceAudio = Service.isInVoiceAudio();
     return (
-      <MuteAudio {...this.props} />
+      <MuteAudio isInVoiceAudio={isInVoiceAudio} {...this.props} />
     );
   }
 }

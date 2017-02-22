@@ -28,7 +28,7 @@ export default class ActionsBar extends Component {
     );
   }
 
-  voicePresenter() {
+  renderForPresenter() {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
@@ -47,37 +47,7 @@ export default class ActionsBar extends Component {
     );
   }
 
-  nonVoicePresenter() {
-    return (
-      <div className={styles.actionsbar}>
-        <div className={styles.left}>
-          {this.props.actionsButton}
-        </div>
-        <div className={styles.center}>
-          {this.renderAudioButton()}
-          {/*<JoinVideo />*/}
-          {this.props.emojiButton}
-        </div>
-        <div className={styles.right} style={{visibility: 'hidden'}}>
-          {this.props.actionsButton}
-        </div>
-      </div>
-    );
-  }
-
-  nonVoiceUser() {
-    return (
-      <div className={styles.actionsbar}>
-        <div className={styles.center}>
-          {this.renderAudioButton()}
-          {/*<JoinVideo />*/}
-          {this.props.emojiButton}
-        </div>
-      </div>
-    );
-  }
-
-  voiceUser() {
+  renderForUser() {
     return (
       <div className={styles.actionsbar}>
         <div className={styles.center}>
@@ -86,23 +56,17 @@ export default class ActionsBar extends Component {
           {/*<JoinVideo />*/}
           {this.props.emojiButton}
         </div>
+        <div className={styles.right}>
+        </div>
       </div>
     );
-  }
-
-  renderForPresenter(isInVoiceAudio) {
-    return isInVoiceAudio ? this.voicePresenter() : this.nonVoicePresenter();
-  }
-
-  renderForUser(isInVoiceAudio) {
-    return isInVoiceAudio ? this.voiceUser() : this.nonVoiceUser();
   }
 
   render() {
-    const { isUserPresenter, isInVoiceAudio } = this.props;
+    const { isUserPresenter } = this.props;
 
     return isUserPresenter ?
-      this.renderForPresenter(isInVoiceAudio) :
-      this.renderForUser(isInVoiceAudio);
+      this.renderForPresenter() :
+      this.renderForUser();
   }
 }

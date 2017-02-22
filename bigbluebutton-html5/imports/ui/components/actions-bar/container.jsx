@@ -21,13 +21,11 @@ class ActionsBarContainer extends Component {
 
   render() {
     const handleJoinListenOnly = () => joinListenOnly();
-    const isInVoiceAudio = Service.isInVoiceAudio();
 
     return (
       <ActionsBar
-       handleJoinListenOnly={handleJoinListenOnly}
-       isInVoiceAudio={isInVoiceAudio}
-      {...this.props}>
+        handleJoinListenOnly={handleJoinListenOnly}
+        {...this.props}>
         {this.props.children}
       </ActionsBar>
     );
