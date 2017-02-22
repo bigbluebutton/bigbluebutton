@@ -775,9 +775,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
 
 	<mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-		<chat:AdvancedList width="100%" height="{chatListHeight - timerBox.height}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
+		<chat:AdvancedList width="100%" height="{chatListHeight - timerBox.height}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
 						   itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
 						   dataProvider="{chatMessages.messages}"
+						   rollOverColor="0xFFFFFF" selectionColor="0x000000"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
 		<mx:HBox id="timerBox" styleName="breakoutRoomTimerBox"
 				 includeInLayout="false" visible="false"
