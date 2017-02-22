@@ -3,11 +3,7 @@ import '/imports/api/chat/server';
 
 import '/imports/api/cursor/server';
 
-import '/imports/api/deskshare/server/publications';
-import '/imports/api/deskshare/server/modifiers/clearDeskshareCollection';
-import '/imports/api/deskshare/server/modifiers/handleDeskShareChange';
-import '/imports/api/deskshare/server/modifiers/handleIncomingDeskshareMessage';
-import '/imports/api/deskshare/server/modifiers/eventHandlers';
+import '/imports/api/deskshare/server';
 
 import '/imports/api/meetings/server';
 

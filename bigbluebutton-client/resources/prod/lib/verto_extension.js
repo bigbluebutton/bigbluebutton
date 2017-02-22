@@ -263,8 +263,8 @@ Verto.prototype.vmute = function () {
 Verto.prototype.setWatchVideo = function (tag) {
   this.mediaCallback = this.docall;
   this.useVideo = true;
-  this.useCamera = 'any'; // temp
-  this.useMic = 'any'; // temp
+  this.useCamera = 'none';
+  this.useMic = 'none';
   this.create(tag);
 };
 
