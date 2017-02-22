@@ -114,25 +114,6 @@ eventEmitter.on('get_users_reply', function (arg) {
   }
 });
 
-eventEmitter.on('user_emoji_status_message', function (arg) {
-  const userId = arg.payload.userid;
-  const meetingId = arg.payload.meeting_id;
-  const emojiStatus = arg.payload.emoji_status;
-  if (userId != null && meetingId != null) {
-    const setEmojiTime = new Date();
-    Users.update({
-      'user.userid': userId,
-    }, {
-      $set: {
-        'user.set_emoji_time': setEmojiTime,
-        'user.emoji_status': emojiStatus,
-      },
-    }, (err, numUpdated) => logger.info(`Updating emoji numUpdated=${numUpdated}, err=${err}`));
-  }
-
-  return arg.callback();
-});
-
 eventEmitter.on('user_locked_message', function (arg) {
   handleLockEvent(arg);
 });
