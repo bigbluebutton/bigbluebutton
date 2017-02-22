@@ -34,22 +34,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flexlib.controls.tabBarClasses.SuperTab;
-			
 			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.controls.Button;
-			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;
+			
+			import flexlib.controls.tabBarClasses.SuperTab;
 			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
-			import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
-			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 			import org.bigbluebutton.modules.caption.model.CaptionOptions;
 			import org.bigbluebutton.modules.caption.model.Transcript;
 			import org.bigbluebutton.modules.caption.model.Transcripts;

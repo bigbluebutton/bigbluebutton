@@ -38,18 +38,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.managers.PopUpManager;
-			
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private function handleBroadcastStartedEvent(e:BroadcastStartedEvent):void {
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function handleCameraSettingsClosedEvent(e:BBBEvent):void {
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 		]]>
