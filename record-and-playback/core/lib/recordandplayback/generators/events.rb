@@ -182,7 +182,12 @@ module BigBlueButton
       return video_edl
     end
 
-        
+    def self.get_matched_start_and_stop_deskshare_events(events_path)
+      deskshare_start_events = BigBlueButton::Events.get_start_deskshare_events(events_path)
+      deskshare_stop_events = BigBlueButton::Events.get_stop_deskshare_events(events_path)
+      return BigBlueButton::Events.match_start_and_stop_video_events(deskshare_start_events, deskshare_stop_events)
+    end
+
     # Determine if the start and stop event matched.
     def self.deskshare_event_matched?(stop_events, start)
       BigBlueButton.logger.info("Task: Determining if the start and stop DESKSHARE events matched")      
