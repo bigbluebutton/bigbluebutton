@@ -1,8 +1,7 @@
 import React, { PropTypes } from 'react';
-import WhiteboardShapeModel from '../whiteboard/shape-factory/component.jsx';
+import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
 import Cursor from './cursor/component.jsx';
 import SlideControlsContainer from './slide-controls/container.jsx'; //I added
-import { createContainer } from 'meteor/react-meteor-data';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
@@ -54,17 +53,11 @@ export default class PresentationArea extends React.Component {
             </defs>
             <g clipPath="url(#viewBox)">
               <Slide id="slideComponent" currentSlide={this.props.currentSlide}/>
-              {this.props.shapes ? this.props.shapes.map((shape) =>
-                <WhiteboardShapeModel
-                  shape={shape.shape}
-                  key={shape.shape.id}
-                  slideWidth = {slideObj.width}
-                  slideHeight = {slideObj.height}
-                  widthRatio={slideObj.width_ratio}
-                  heightRatio={slideObj.height_ratio}
-                />
-                )
-              : null }
+              <ShapeGroupContainer
+                width = {slideObj.width}
+                height = {slideObj.height}
+                whiteboardId = {slideObj.id}
+              />
               {this.props.cursor ?
                 <Cursor
                 viewBoxWidth={viewBoxWidth}

@@ -157,14 +157,14 @@ export default class SlideControls extends Component {
         {/*Previous Slide button aria*/}
         <div id="prevSlideLabel">
           <FormattedMessage
-            id="app.whiteboard.slideControls.prevSlideLabel"
+            id="app.presentation.slideControls.prevSlideLabel"
             description="Aria label for when switching to previous slide"
             defaultMessage="Previous slide"
           />
         </div>
         <div id="prevSlideDescrip">
           <FormattedMessage
-            id="app.whiteboard.slideControls.prevSlideDescrip"
+            id="app.presentation.slideControls.prevSlideDescrip"
             description="Aria description for when switching to previous slide"
             defaultMessage="Change the presentation to the previous slide"
           />
@@ -172,14 +172,14 @@ export default class SlideControls extends Component {
         {/*Next Slide button aria*/}
         <div id="nextSlideLabel">
           <FormattedMessage
-            id="app.whiteboard.slideControls.nextSlideLabel"
+            id="app.presentation.slideControls.nextSlideLabel"
             description="Aria label for when switching to next slide"
             defaultMessage="Next slide"
           />
         </div>
         <div id="nextSlideDescrip">
           <FormattedMessage
-            id="app.whiteboard.slideControls.nextSlideDescrip"
+            id="app.presentation.slideControls.nextSlideDescrip"
             description="Aria description for when switching to next slide"
             defaultMessage="Change the presentation to the next slide"
           />
@@ -187,14 +187,14 @@ export default class SlideControls extends Component {
         {/*Skip Slide drop down aria*/}
         <div id="skipSlideLabel">
           <FormattedMessage
-            id="app.whiteboard.slideControls.skipSlideLabel"
+            id="app.presentation.slideControls.skipSlideLabel"
             description="Aria label for when switching to a specific slide"
             defaultMessage="Skip slide"
           />
         </div>
         <div id="skipSlideDescrip">
           <FormattedMessage
-            id="app.whiteboard.slideControls.skipSlideDescrip"
+            id="app.presentation.slideControls.skipSlideDescrip"
             description="Aria description for when switching to a specific slide"
             defaultMessage="Change the presentation to a specific slide"
           />
@@ -202,14 +202,14 @@ export default class SlideControls extends Component {
         {/*Fit to width button aria*/}
         <div id="fitWidthLabel">
           <FormattedMessage
-            id="app.whiteboard.slideControls.fitWidthLabel"
+            id="app.presentation.slideControls.fitWidthLabel"
             description="Aria description to display the whole width of the slide"
             defaultMessage="Fit to width"
           />
         </div>
         <div id="fitWidthDescrip">
           <FormattedMessage
-            id="app.whiteboard.slideControls.fitWidthDescrip"
+            id="app.presentation.slideControls.fitWidthDescrip"
             description="Aria description to display the whole width of the slide"
             defaultMessage="Display the whole width of the slide"
           />
@@ -217,14 +217,14 @@ export default class SlideControls extends Component {
         {/*Fit to screen button aria*/}
         <div id="fitScreenLabel">
           <FormattedMessage
-            id="app.whiteboard.slideControls.fitScreenLabel"
+            id="app.presentation.slideControls.fitScreenLabel"
             description="Aria label to display the whole slide"
             defaultMessage="Fit to screen"
           />
         </div>
         <div id="fitScreenDescrip">
           <FormattedMessage
-            id="app.whiteboard.slideControls.fitScreenDescrip"
+            id="app.presentation.slideControls.fitScreenDescrip"
             description="Aria label to display the whole slide"
             defaultMessage="Display the whole slide"
           />
@@ -232,14 +232,14 @@ export default class SlideControls extends Component {
         {/*Zoom slider aria*/}
         <div id="zoomLabel">
           <FormattedMessage
-            id="app.whiteboard.slideControls.zoomLabel"
+            id="app.presentation.slideControls.zoomLabel"
             description="Aria label to zoom presentation"
             defaultMessage="Zoom"
           />
         </div>
         <div id="zoomDescrip">
           <FormattedMessage
-            id="app.whiteboard.slideControls.zoomDescrip"
+            id="app.presentation.slideControls.zoomDescrip"
             description="Aria label to zoom presentation"
             defaultMessage="Change the zoom level of the presentation"
           />
