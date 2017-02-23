@@ -6,6 +6,8 @@ import handleEmojiStatus from './handlers/emojiStatus';
 import handleLockedStatusChange from './handlers/lockedStatusChange';
 import handleUserJoined from './handlers/userJoined';
 import handleValidateAuthToken from './handlers/validateAuthToken';
+import handleVoiceUpdate from './handlers/voiceUpdate';
+import handleListeningOnly from './handlers/listeningOnly';
 
 RedisPubSub.on('validate_auth_token_reply', handleValidateAuthToken);
 RedisPubSub.on('get_users_reply', handleGetUsers);
@@ -17,3 +19,8 @@ RedisPubSub.on('presenter_assigned_message', handlePresenterAssigned);
 RedisPubSub.on('user_emoji_status_message', handleEmojiStatus);
 RedisPubSub.on('user_locked_message', handleLockedStatusChange);
 RedisPubSub.on('user_unlocked_message', handleLockedStatusChange);
+RedisPubSub.on('user_left_voice_message', handleVoiceUpdate);
+RedisPubSub.on('user_joined_voice_message', handleVoiceUpdate);
+RedisPubSub.on('user_voice_talking_message', handleVoiceUpdate);
+RedisPubSub.on('user_voice_muted_message', handleVoiceUpdate);
+RedisPubSub.on('user_listening_only', handleListeningOnly);

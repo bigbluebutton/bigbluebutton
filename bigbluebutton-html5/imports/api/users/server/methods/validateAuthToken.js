@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import Users from '/imports/api/users';
 
-import { createDummyUser } from '/imports/api/users/server/modifiers/createDummyUser';
+import createDummyUser from '../modifiers/createDummyUser';
 
 export default function validateAuthToken(credentials) {
   const REDIS_CONFIG = Meteor.settings.redis;
