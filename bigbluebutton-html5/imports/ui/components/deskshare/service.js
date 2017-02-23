@@ -1,7 +1,6 @@
 import Deskshare from '/imports/api/deskshare';
-import {createVertoUserName, vertoWatchVideo} from '/imports/api/verto';
+import {vertoWatchVideo} from '/imports/api/verto';
 import Auth from '/imports/ui/services/auth';
-import {getVoiceBridge} from '/imports/api/phone';
 
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video
@@ -30,19 +29,6 @@ function isVideoBroadcasting() {
   }
 }
 
-function shouldShowComponent() {
-  let isThereVideo = isVideoBroadcasting();
-
-  if (isThereVideo) {
-    presenterDeskshareHasStarted();
-    return true;
-  } else {
-    presenterDeskshareHasEnded();
-    return false;
-   }
- }
-
-
 // if remote deskshare has been ended disconnect and hide the video stream
 function presenterDeskshareHasEnded() {
   vertoExitVideo();
@@ -57,7 +43,5 @@ function presenterDeskshareHasStarted() {
 
 export {
   isVideoBroadcasting, presenterDeskshareHasEnded, presenterDeskshareHasStarted,
-  shouldShowComponent,
-
 };
 

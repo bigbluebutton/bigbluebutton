@@ -1,24 +1,29 @@
 import React from 'react';
-import {shouldShowComponent, presenterDeskshareHasEnded} from './service';
+import {isVideoBroadcasting, presenterDeskshareHasEnded, presenterDeskshareHasStarted} from './service';
 import { createContainer } from 'meteor/react-meteor-data';
 import DeskshareComponent from './component';
 
 class DeskshareContainer extends React.Component {
   render() {
-    if (this.props.shouldShowComponent) {
-      return <DeskshareComponent />;
+    if (this.props.isVideoBroadcasting()) {
+      return <DeskshareComponent {...this.props} />;
     } else {
-      return <p>hello</p>;
+      return null;
     }
   }
 
   componentWillUnmount() {
-    presenterDeskshareHasEnded();
+    this.props.presenterDeskshareHasEnded();
   }
 
 }
 
 export default createContainer(() => {
-  const data = { shouldShowComponent: shouldShowComponent() };
+  const data = {
+    isVideoBroadcasting
+    presenterDeskshareHasStarted,
+    presenterDeskshareHasEnded,
+  };
+
   return data;
 }, DeskshareContainer);
