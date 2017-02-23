@@ -192,22 +192,19 @@ def scaleToDeskshareVideo(width, height)
   return video_width.floor, video_height.floor
 end
 
-def getDeskshareVideoDimension(deskshare_event)
+def getDeskshareVideoDimension(deskshare_stream_name)
   video_width = 1280
   video_height = 720
-  if deskshare_event not nil
-    filename = deskshare_event.xpath('file').text.sub(/(.+)\//, "")
-    deskshare_video_filename = "#{$deskshare_dir}/#{filename}"
-    if File.exist?(deskshare_video_filename)
-      video_width = BigBlueButton.get_video_width(deskshare_video_filename)
-      video_height = BigBlueButton.get_video_height(deskshare_video_filename)
-      video_width, video_height = scaleToDeskshareVideo(video_width, video_height)
-    else
-      BigBlueButton.logger.error("Could not find deskshare video: #{deskshare_video_filename}")
-    end
+  deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
+
+  if File.exist?(deskshare_video_filename)
+    video_width = BigBlueButton.get_video_width(deskshare_video_filename)
+    video_height = BigBlueButton.get_video_height(deskshare_video_filename)
+    video_width, video_height = scaleToDeskshareVideo(video_width, video_height)
   else
-    BigBlueButton.logger.error("Invalid DeskshareStartedEvent")
+    BigBlueButton.logger.error("Could not find deskshare video: #{deskshare_video_filename}")
   end
+
   return video_width, video_height
 end
 
@@ -1002,8 +999,7 @@ def processDeskshareEvents
         start_timestamp = (translateTimestamp(event[:start_timestamp].to_f) / 1000).round(1)
         stop_timestamp = (translateTimestamp(event[:stop_timestamp].to_f) / 1000).round(1)
         if (start_timestamp != stop_timestamp)
-          deskshare_event = @doc.xpath("//event[@timestamp=#{event[:start_timestamp]} and @eventname='DeskshareStartedEvent']")
-          video_width, video_height = getDeskshareVideoDimension(deskshare_event)
+          video_width, video_height = getDeskshareVideoDimension(event[:stream])
           $xml.event(:start_timestamp => start_timestamp,
                      :stop_timestamp => stop_timestamp,
                      :video_width => video_width,
