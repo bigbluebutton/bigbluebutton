@@ -52,8 +52,8 @@ public class Pdf2SwfPageConverter implements PageConverter {
   private long placementsThreshold;
   private long defineTextThreshold;
   private long imageTagThreshold;
-  private String convTimeout = "5s";
-  private int WAIT_FOR_SEC = 6;
+  private String convTimeout = "7s";
+  private int WAIT_FOR_SEC = 7;
 
   public boolean convert(File presentation, File output, int page, UploadedPresentation pres) {
     long convertStart = System.currentTimeMillis();
