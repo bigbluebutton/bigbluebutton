@@ -20,7 +20,7 @@ class DeskshareContainer extends React.Component {
 
 export default createContainer(() => {
   const data = {
-    isVideoBroadcasting
+    isVideoBroadcasting,
     presenterDeskshareHasStarted,
     presenterDeskshareHasEnded,
   };
