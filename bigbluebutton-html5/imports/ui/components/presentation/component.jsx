@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
 import Cursor from './cursor/component.jsx';
-import SlideControlsContainer from './slide-controls/container.jsx'; //I added
+import PresentationToolbarContainer from './presentation-toolbar/container.jsx';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
@@ -78,10 +78,10 @@ export default class PresentationArea extends React.Component {
     }
   }
 
-  renderSlideControlsContainer() {
+  renderPresentationToolbar() {
     if (this.props.currentSlide) {
       return (
-        <SlideControlsContainer
+        <PresentationToolbarContainer
           currentSlideNum={this.props.currentSlide.slide.num}
           presentationId={this.props.currentSlide.presentationId}
         />
@@ -100,7 +100,7 @@ export default class PresentationArea extends React.Component {
           </div>
         </div>
         <PollingContainer />
-        {this.renderSlideControlsContainer()}
+        {this.renderPresentationToolbar()}
       </div>
     );
   }

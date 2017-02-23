@@ -6,14 +6,14 @@ import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
-    id: 'app.presenterControls.previousSlideLabel',
+    id: 'app.presentation.presentationToolbar.prevSlideLabel',
   },
   nextSlideLabel: {
-    id: 'app.presenterControls.nextSlideLabel',
+    id: 'app.presentation.presentationToolbar.nextSlideLabel',
   },
 });
 
-class SlideControls extends Component {
+class PresentationToolbar extends Component {
   constructor(props) {
     super(props);
 
@@ -61,7 +61,7 @@ class SlideControls extends Component {
     } = this.props;
 
     return (
-      <div id="slideControlsWrapper" className={styles.slideControlsWrapper}>
+      <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {this.renderAriaLabelsDescs()}
 
         {/*Previous Slide button*/}
@@ -167,14 +167,14 @@ class SlideControls extends Component {
         {/*Previous Slide button aria*/}
         <div id="prevSlideLabel">
           <FormattedMessage
-            id="app.presentation.slideControls.prevSlideLabel"
+            id="app.presentation.presentationToolbar.prevSlideLabel"
             description="Aria label for when switching to previous slide"
             defaultMessage="Previous slide"
           />
         </div>
         <div id="prevSlideDescrip">
           <FormattedMessage
-            id="app.presentation.slideControls.prevSlideDescrip"
+            id="app.presentation.presentationToolbar.prevSlideDescrip"
             description="Aria description for when switching to previous slide"
             defaultMessage="Change the presentation to the previous slide"
           />
@@ -182,14 +182,14 @@ class SlideControls extends Component {
         {/*Next Slide button aria*/}
         <div id="nextSlideLabel">
           <FormattedMessage
-            id="app.presentation.slideControls.nextSlideLabel"
+            id="app.presentation.presentationToolbar.nextSlideLabel"
             description="Aria label for when switching to next slide"
             defaultMessage="Next slide"
           />
         </div>
         <div id="nextSlideDescrip">
           <FormattedMessage
-            id="app.presentation.slideControls.nextSlideDescrip"
+            id="app.presentation.presentationToolbar.nextSlideDescrip"
             description="Aria description for when switching to next slide"
             defaultMessage="Change the presentation to the next slide"
           />
@@ -197,14 +197,14 @@ class SlideControls extends Component {
         {/*Skip Slide drop down aria*/}
         <div id="skipSlideLabel">
           <FormattedMessage
-            id="app.presentation.slideControls.skipSlideLabel"
+            id="app.presentation.presentationToolbar.skipSlideLabel"
             description="Aria label for when switching to a specific slide"
             defaultMessage="Skip slide"
           />
         </div>
         <div id="skipSlideDescrip">
           <FormattedMessage
-            id="app.presentation.slideControls.skipSlideDescrip"
+            id="app.presentation.presentationToolbar.skipSlideDescrip"
             description="Aria description for when switching to a specific slide"
             defaultMessage="Change the presentation to a specific slide"
           />
@@ -212,14 +212,14 @@ class SlideControls extends Component {
         {/*Fit to width button aria*/}
         <div id="fitWidthLabel">
           <FormattedMessage
-            id="app.presentation.slideControls.fitWidthLabel"
+            id="app.presentation.presentationToolbar.fitWidthLabel"
             description="Aria description to display the whole width of the slide"
             defaultMessage="Fit to width"
           />
         </div>
         <div id="fitWidthDescrip">
           <FormattedMessage
-            id="app.presentation.slideControls.fitWidthDescrip"
+            id="app.presentation.presentationToolbar.fitWidthDescrip"
             description="Aria description to display the whole width of the slide"
             defaultMessage="Display the whole width of the slide"
           />
@@ -227,14 +227,14 @@ class SlideControls extends Component {
         {/*Fit to screen button aria*/}
         <div id="fitScreenLabel">
           <FormattedMessage
-            id="app.presentation.slideControls.fitScreenLabel"
+            id="app.presentation.presentationToolbar.fitScreenLabel"
             description="Aria label to display the whole slide"
             defaultMessage="Fit to screen"
           />
         </div>
         <div id="fitScreenDescrip">
           <FormattedMessage
-            id="app.presentation.slideControls.fitScreenDescrip"
+            id="app.presentation.presentationToolbar.fitScreenDescrip"
             description="Aria label to display the whole slide"
             defaultMessage="Display the whole slide"
           />
@@ -242,14 +242,14 @@ class SlideControls extends Component {
         {/*Zoom slider aria*/}
         <div id="zoomLabel">
           <FormattedMessage
-            id="app.presentation.slideControls.zoomLabel"
+            id="app.presentation.presentationToolbar.zoomLabel"
             description="Aria label to zoom presentation"
             defaultMessage="Zoom"
           />
         </div>
         <div id="zoomDescrip">
           <FormattedMessage
-            id="app.presentation.slideControls.zoomDescrip"
+            id="app.presentation.presentationToolbar.zoomDescrip"
             description="Aria label to zoom presentation"
             defaultMessage="Change the zoom level of the presentation"
           />
@@ -259,4 +259,4 @@ class SlideControls extends Component {
   }
 }
 
-export default injectIntl(SlideControls);
+export default injectIntl(PresentationToolbar);

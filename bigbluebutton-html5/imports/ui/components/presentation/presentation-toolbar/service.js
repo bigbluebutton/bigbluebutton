@@ -1,4 +1,3 @@
-import SlideControls from './component.jsx';
 import AuthSingleton from '/imports/ui/services/auth/index.js';
 import Users from '/imports/api/users';
 import Slides from '/imports/api/slides';
