@@ -51,6 +51,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
   import org.bigbluebutton.modules.present.events.GetListOfPresentationsReply;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+  import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -317,6 +318,12 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.OFFICE_DOC_CONVERSION_SUCCESS;
       broadcastEvent(payload);
     }
+	
+	public function handleOfficeDocConversionInvalid(event:OfficeDocConvertInvalidEvent):void{
+		var payload:Object = new Object();
+		payload.eventName = EventConstants.OFFICE_DOC_CONVERSION_INVALID;
+		broadcastEvent(payload);
+	}
 
     public function handleOfficeDocConversionFailed(event:OfficeDocConvertFailedEvent):void{
       var payload:Object = new Object();

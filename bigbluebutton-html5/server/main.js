@@ -19,9 +19,7 @@ import '/imports/api/shapes/server';
 
 import '/imports/api/slides/server';
 
-import '/imports/api/captions/server/publications';
-import '/imports/api/captions/server/modifiers/clearCaptionsCollection';
-import '/imports/api/captions/server/modifiers/eventHandlers';
+import '/imports/api/captions/server';
 
 import '/imports/api/users/server/publications';
 import '/imports/api/users/server/methods/kickUser';

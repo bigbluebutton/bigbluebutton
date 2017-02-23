@@ -4,7 +4,6 @@ import ptBR from './pt-BR.json';
 
 export default {
   en: en,
-  'en-US': en,
   de: de,
   'pt-BR': ptBR,
 };

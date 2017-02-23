@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.pubsub.receivers;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.bigbluebutton.common.messages.GetPresentationInfoMessage;
 import org.bigbluebutton.common.messages.GetSlideInfoMessage;
@@ -15,19 +14,18 @@ import org.bigbluebutton.common.messages.SendCursorUpdateMessage;
 import org.bigbluebutton.common.messages.SendPageCountErrorMessage;
 import org.bigbluebutton.common.messages.SendSlideGeneratedMessage;
 import org.bigbluebutton.common.messages.SharePresentationMessage;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
-import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 public class PresentationMessageListener implements MessageHandler {
         
         public static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
         public static final String OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
+        public static final String OFFICE_DOC_CONVERSION_INVALID_KEY = "OFFICE_DOC_CONVERSION_INVALID";
         public static final String SUPPORTED_DOCUMENT_KEY = "SUPPORTED_DOCUMENT";
         public static final String UNSUPPORTED_DOCUMENT_KEY = "UNSUPPORTED_DOCUMENT";
         public static final String PAGE_COUNT_FAILED_KEY = "PAGE_COUNT_FAILED";
@@ -145,13 +143,14 @@ public class PresentationMessageListener implements MessageHandler {
     				String conference = (String) map.get("conference");
     				String messageKey = (String) map.get("messageKey");
 
-    				if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY) ||
-    						messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY) ||
-    						messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY) ||
-    						messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY) ||
-    						messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY) ||
-    						messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY) ||
-    						messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
+            if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY) ||
+                messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY) ||
+                messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_INVALID_KEY) ||
+                messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY) ||
+                messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY) ||
+                messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY) ||
+                messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY) ||
+                messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
 
     					sendConversionUpdate(messageKey, conference, code, presId, filename);
     				} else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){

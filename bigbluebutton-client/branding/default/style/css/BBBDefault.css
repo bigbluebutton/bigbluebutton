@@ -1061,6 +1061,11 @@ EmojiGrid {
 	horizontalGap: 6;
 }
 
+RoomActionsRenderer {
+	paddingLeft  : 5;
+	paddingRight : 5;
+}
+
 .breakoutRoomUserWindowHeadingStyle {
 	fontWeight: bold;
 }

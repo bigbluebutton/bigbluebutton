@@ -9,6 +9,7 @@ class RedisPubSub {
   constructor(config = {}) {
     this.config = config;
 
+    this.didSendRequestEvent = false;
     this.pub = Redis.createClient();
     this.sub = Redis.createClient();
     this.emitter = new EventEmitter2();
@@ -57,7 +58,10 @@ class RedisPubSub {
   }
 
   handleSubscribe() {
+    if (this.didSendRequestEvent) return;
+
     this.publish(this.config.channels.toBBBApps.meeting, REQUEST_EVENT);
+    this.didSendRequestEvent = true;
   }
 
   handleMessage(pattern, channel, message = '') {
