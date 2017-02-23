@@ -127,7 +127,11 @@ if not FileTest.directory?(target_dir)
            participants_info.each do |participant_info|
              xml.participant {
                xml.userId participant_info[0]
-               xml.name_ participant_info[1]
+
+               xml.method_missing("name"){
+                 xml.cdata(participant_info[1].tr("\u0000-\u001f\u007f\u2028",''))
+               }
+
                xml.role participant_info[2]
              }
            end
