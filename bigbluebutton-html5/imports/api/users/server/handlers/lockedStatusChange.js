@@ -18,10 +18,7 @@ export default function handleLockedStatusChange({ payload }) {
     userId,
   };
 
-  const User = Users.findOne({
-    meetingId,
-    userId,
-  });
+  const User = Users.findOne(selector);
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `You need a valid user to be able to set presenter`);

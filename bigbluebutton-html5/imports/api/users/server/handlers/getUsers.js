@@ -17,11 +17,10 @@ export default function handleGetUsers({ payload }) {
   check(meetingId, String);
   check(users, Array);
 
-  const usersIds = users.map(m => m.user_id);
+  const usersIds = users.map(m => m.userid);
 
   const usersToRemove = Users.find({
     meetingId,
-    clientType: { $ne: 'HTML5' },
     userId: { $nin: usersIds },
   }).fetch();
 
