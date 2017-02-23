@@ -1,11 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import Chat from '/imports/api/chat';
-import Meetings from '/imports/api/meetings';
-import Cursor from '/imports/api/cursor';
-import Captions from '/imports/api/captions';
-import Polls from '/imports/api/polls';
+import Breakouts from '/imports/api/breakouts';
 import Storage from '/imports/ui/services/storage/session';
 
 function setCredentials(nextState, replace) {
@@ -52,6 +48,7 @@ function subscribeToCollections(cb) {
       observeUserKick();
       return Promise.all(subscribeForData())
         .then(() => {
+          observeBreakoutEnd();
           if (cb) {
             return cb();
           }
@@ -77,6 +74,17 @@ function observeUserKick() {
           wasKicked = true;
           wasKickedDep.changed();
         });
+      }
+    },
+  });
+}
+
+function observeBreakoutEnd() {
+  Breakouts.find().observe({
+    removed(old) {
+      if (old.breakoutMeetingId === Auth.meetingID) {
+        // The breakout room expired. Closing the browser tab to return to the main room
+        window.close();
       }
     },
   });
@@ -118,7 +126,6 @@ export {
   subscribeToCollections,
   wasUserKicked,
   redirectToLogoutUrl,
-  getBreakouts,
   getModal,
   showModal,
   clearModal,

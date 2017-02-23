@@ -9,13 +9,12 @@ import clearShapes from '/imports/api/shapes/server/modifiers/clearShapes';
 import clearSlides from '/imports/api/slides/server/modifiers/clearSlides';
 import clearPolls from '/imports/api/polls/server/modifiers/clearPolls';
 import clearCursor from '/imports/api/cursor/server/modifiers/clearCursor';
-import { clearCaptionsCollection }
-  from '/imports/api/captions/server/modifiers/clearCaptionsCollection';
+import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions';
 import clearPresentations from '/imports/api/presentations/server/modifiers/clearPresentations';
 
 export default function clearMeetings() {
   return Meetings.remove({}, (err) => {
-    clearCaptionsCollection();
+    clearCaptions();
     clearChats();
     clearCursor();
     clearPresentations();
