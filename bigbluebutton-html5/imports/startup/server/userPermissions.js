@@ -129,8 +129,6 @@ export function isAllowedTo(action, credentials) {
     userId,
   });
 
-  console.log(user);
-
   const allowedToInitiateRequest =
     null != user &&
     authToken === user.authToken &&

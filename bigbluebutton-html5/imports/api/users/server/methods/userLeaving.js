@@ -41,7 +41,7 @@ export default function userLeaving(credentials, userId) {
     userid: userId,
   };
 
-  Logger.verbose(`User '${requesterUserId}' ${isJoining ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
+  Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
 
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
 };

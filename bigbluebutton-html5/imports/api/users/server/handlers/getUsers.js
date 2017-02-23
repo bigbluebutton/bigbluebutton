@@ -17,8 +17,6 @@ export default function handleGetUsers({ payload }) {
   check(meetingId, String);
   check(users, Array);
 
-  console.error('HUEHUEHHUEHEUE');
-
   const usersIds = users.map(m => m.user_id);
 
   const usersToRemove = Users.find({

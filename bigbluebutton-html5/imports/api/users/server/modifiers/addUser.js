@@ -8,10 +8,10 @@ import addChat from '/imports/api/chat/server/modifiers/addChat';
 import requestStunTurn from '../methods/requestStunTurn';
 
 export default function addUser(meetingId, user) {
-  const userId = user.user_id;
-
   check(user, Object);
   check(meetingId, String);
+
+  const userId = user.userid;
   check(userId, String);
 
   const selector = {
@@ -39,14 +39,14 @@ export default function addUser(meetingId, user) {
       'user.phone_user': user.phone_user,
       'user.listenOnly': user.listenOnly,
       'user.has_stream': user.has_stream,
-      'user.has_stream.voiceUser.web_userid': user.voiceUser.web_userid,
-      'user.has_stream.voiceUser.callernum': user.voiceUser.callernum,
-      'user.has_stream.voiceUser.userid': user.voiceUser.userid,
-      'user.has_stream.voiceUser.talking': user.voiceUser.talking,
-      'user.has_stream.voiceUser.joined': user.voiceUser.joined,
-      'user.has_stream.voiceUser.callername': user.voiceUser.callername,
-      'user.has_stream.voiceUser.locked': user.voiceUser.locked,
-      'user.has_stream.voiceUser.muted': user.voiceUser.muted,
+      'user.voiceUser.web_userid': user.voiceUser.web_userid,
+      'user.voiceUser.callernum': user.voiceUser.callernum,
+      'user.voiceUser.userid': user.voiceUser.userid,
+      'user.voiceUser.talking': user.voiceUser.talking,
+      'user.voiceUser.joined': user.voiceUser.joined,
+      'user.voiceUser.callername': user.voiceUser.callername,
+      'user.voiceUser.locked': user.voiceUser.locked,
+      'user.voiceUser.muted': user.voiceUser.muted,
     },
   };
 
