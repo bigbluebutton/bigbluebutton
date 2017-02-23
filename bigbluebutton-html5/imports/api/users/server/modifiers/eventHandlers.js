@@ -1,7 +1,6 @@
 import { logger } from '/imports/startup/server/logger';
 import { eventEmitter } from '/imports/startup/server';
 import { userJoined } from './userJoined';
-import { setUserLockedStatus } from './setUserLockedStatus';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
 import Users from '../..';
 
@@ -82,50 +81,3 @@ eventEmitter.on('user_joined_message', function (arg) {
 
   return arg.callback();
 });
-
-eventEmitter.on('get_users_reply', function (arg) {
-  if (inReplyToHTML5Client(arg)) {
-    let users = arg.payload.users;
-    const meetingId = arg.payload.meeting_id;
-
-    //TODO make the serialization be split per meeting. This will allow us to
-    // use N threads vs 1 and we'll take advantage of Mongo's concurrency tricks
-
-    // Processing the users recursively with a callback to notify us,
-    // ensuring that we update the users collection serially
-    let processUser = function () {
-      let user = users.pop();
-      if (user != null) {
-        user.timeOfJoining = arg.header.current_time;
-        if (user.emoji_status !== 'none' && typeof user.emoji_status === 'string') {
-          user.set_emoji_time = new Date();
-          return userJoined(meetingId, user, processUser);
-        } else {
-          return userJoined(meetingId, user, processUser);
-        }
-      } else {
-        return arg.callback(); // all meeting arrays (if any) have been processed
-      }
-    };
-
-    return processUser();
-  } else {
-    arg.callback();
-  }
-});
-
-eventEmitter.on('user_locked_message', function (arg) {
-  handleLockEvent(arg);
-});
-
-eventEmitter.on('user_unlocked_message', function (arg) {
-  handleLockEvent(arg);
-});
-
-const handleLockEvent = function (arg) {
-  const userId = arg.payload.userid;
-  const isLocked = arg.payload.locked;
-  const meetingId = arg.payload.meeting_id;
-  setUserLockedStatus(meetingId, userId, isLocked);
-  return arg.callback();
-};
