@@ -7,6 +7,8 @@ export default function handleVoiceUpdate({ payload }) {
   const meetingId = payload.meeting_id;
   const user = payload.user;
 
+  console.error(payload);
+
   check(meetingId, String);
   check(user, Object);
 
@@ -14,7 +16,7 @@ export default function handleVoiceUpdate({ payload }) {
   check(voiceUser, Object);
 
   const userId = voiceUser.web_userid;
-  check(userId, Object);
+  check(userId, String);
 
   return updateVoiceUser(meetingId, userId, voiceUser);
 };

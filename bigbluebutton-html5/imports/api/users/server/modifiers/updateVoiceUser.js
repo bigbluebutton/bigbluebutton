@@ -14,10 +14,10 @@ export default function updateVoiceUser(meetingId, userId, voiceUser) {
 
   const modifier = {
     $set: {
-      'user.voiceUser.talking': voiceUserObject.talking,
-      'user.voiceUser.joined': voiceUserObject.joined,
-      'user.voiceUser.locked': voiceUserObject.locked,
-      'user.voiceUser.muted': voiceUserObject.muted,
+      'user.voiceUser.talking': voiceUser.talking,
+      'user.voiceUser.joined': voiceUser.joined,
+      'user.voiceUser.locked': voiceUser.locked,
+      'user.voiceUser.muted': voiceUser.muted,
     },
   };
 
