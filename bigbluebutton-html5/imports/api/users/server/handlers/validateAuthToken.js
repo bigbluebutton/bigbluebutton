@@ -1,6 +1,9 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
+import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
+
+import addChat from '/imports/api/chat/server/modifiers/addChat';
 
 export default function handleValidateAuthToken({ payload }) {
   const meetingId = payload.meeting_id;
@@ -28,9 +31,36 @@ export default function handleValidateAuthToken({ payload }) {
     }
 
     if (numChanged) {
+      if (validStatus) {
+        addWelcomeChatMessage(meetingId, userId);
+      }
+
       return Logger.info(`Validated auth token as '${validStatus}' user=${userId} meeting=${meetingId}`);
     }
   };
 
   return Users.update(selector, modifier, cb);
+};
+
+const addWelcomeChatMessage = (meetingId, userId) => {
+  const APP_CONFIG = Meteor.settings.public.app;
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+
+  const Meeting = Meetings.findOne({ meetingId });
+
+  let welcomeMessage = APP_CONFIG.defaultWelcomeMessage
+      .concat(APP_CONFIG.defaultWelcomeMessageFooter)
+      .replace(/%%CONFNAME%%/, Meeting.meetingName);
+
+  const message = {
+    chat_type: CHAT_CONFIG.type_system,
+    message: welcomeMessage,
+    from_color: '0x3399FF',
+    to_userid: userId,
+    from_userid: CHAT_CONFIG.type_system,
+    from_username: '',
+    from_time: (new Date()).getTime(),
+  };
+
+  return addChat(meetingId, message);
 };

@@ -1,5 +1,6 @@
+import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Users from '/imports/api/slides';
+import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
 const VALID_CONNECTION_STATUS = ['online', 'offline'];
@@ -10,7 +11,8 @@ export default function setConnectionStatus(meetingId, userId, status = 'online'
   check(status, String);
 
   if (!VALID_CONNECTION_STATUS.includes(status)) {
-    throw `Invalid connection status, received ${status} expecting ${VALID_CONNECTION_STATUS.join()}`;
+    throw new Meteor.Error('invalid-connection-status',
+      `Invalid connection status, received ${status} expecting ${VALID_CONNECTION_STATUS.join()}`);
   }
 
   const selector = {
@@ -30,7 +32,7 @@ export default function setConnectionStatus(meetingId, userId, status = 'online'
     }
 
     if (numChanged) {
-      return Logger.verbose(`Updated connection status user=${userId} status=${status} meeting=${meetingId}`);
+      return Logger.info(`Updated connection status user=${userId} status=${status} meeting=${meetingId}`);
     }
   };
 

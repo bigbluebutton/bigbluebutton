@@ -38,7 +38,7 @@ export default function removeUser(meetingId, userId) {
       'user.voiceUser.joined': false,
       'user.voiceUser.muted': false,
       'user.time_of_joining': 0,
-      'user.listenOnly': false, //TODO make this user: {}
+      'user.listenOnly': false,
     },
   };
 

@@ -9,7 +9,7 @@ export default function handleListeningOnly({ payload }) {
 
   check(meetingId, String);
   check(userId, String);
-  check(listenOnly, String);
+  check(listenOnly, Boolean);
 
   const selector = {
     meetingId,

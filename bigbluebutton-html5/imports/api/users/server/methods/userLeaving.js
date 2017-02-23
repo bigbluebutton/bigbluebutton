@@ -8,9 +8,11 @@ import Users from '/imports/api/users';
 import setConnectionStatus from '../modifiers/setConnectionStatus';
 import listenOnlyToggle from './listenOnlyToggle';
 
+const OFFLINE_CONNECTION_STATUS = 'offline';
+
 export default function userLeaving(credentials, userId) {
   const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.meeting;
+  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
   const EVENT_NAME = 'user_leaving_request';
 
   const { meetingId, requesterUserId } = credentials;
@@ -19,18 +21,18 @@ export default function userLeaving(credentials, userId) {
   check(requesterUserId, String);
   check(userId, String);
 
-  // TODO: Should we check if requesterUserId is equal to userId?
-
   const User = Users.findOne({
     meetingId,
-    userId: requesterUserId,
+    userId,
   });
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `You need a valid user to be able to toggle audio`);
   }
 
-  setConnectionStatus(meetingId, requesterUserId, 'offline');
+  if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
+    return;
+  }
 
   if (User.user.listenOnly) {
     listenOnlyToggle(credentials, false);
@@ -42,6 +44,5 @@ export default function userLeaving(credentials, userId) {
   };
 
   Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
-
   return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
 };

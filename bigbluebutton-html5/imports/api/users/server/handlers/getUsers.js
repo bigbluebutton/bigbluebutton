@@ -21,6 +21,7 @@ export default function handleGetUsers({ payload }) {
 
   const usersToRemove = Users.find({
     meetingId,
+    clientType: { $ne: 'HTML5' },
     userId: { $nin: usersIds },
   }).fetch();
 

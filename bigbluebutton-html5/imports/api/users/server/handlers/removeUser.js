@@ -5,7 +5,7 @@ import removeUser from '../modifiers/removeUser';
 
 export default function handleRemoveUser({ payload }) {
   const meetingId = payload.meeting_id;
-  const userId = payload.userid;
+  const userId = payload.userid || payload.user.userid;
 
   check(meetingId, String);
   check(userId, String);

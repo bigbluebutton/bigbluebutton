@@ -6,6 +6,9 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import Users from '/imports/api/users';
 
 import createDummyUser from '../modifiers/createDummyUser';
+import setConnectionStatus from '../modifiers/setConnectionStatus';
+
+const ONLINE_CONNECTION_STATUS = 'online';
 
 export default function validateAuthToken(credentials) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -25,6 +28,8 @@ export default function validateAuthToken(credentials) {
 
   if (!User) {
     createDummyUser(meetingId, requesterUserId, requesterToken);
+  } else if (User.validated) {
+    return setConnectionStatus(meetingId, requesterUserId, ONLINE_CONNECTION_STATUS);
   }
 
   let payload = {

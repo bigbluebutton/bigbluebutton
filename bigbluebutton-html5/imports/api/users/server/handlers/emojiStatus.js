@@ -18,7 +18,7 @@ export default function handleEmojiStatus({ payload }) {
 
   const modifier = {
     $set: {
-      'user.set_emoji_time': new Date(),
+      'user.set_emoji_time': (new Date()).getTime(),
       'user.emoji_status': status,
     },
   };
