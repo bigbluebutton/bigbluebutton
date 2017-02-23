@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.main.model.users {
 	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	import mx.collections.SortField;
@@ -28,10 +30,12 @@ package org.bigbluebutton.main.model.users {
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
+	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	
 	public class Conference {
 		public var userEjectedFromMeeting:Boolean = false;
@@ -638,6 +642,16 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function removeBreakoutRoom(breakoutMeetingId:String):void {
+			
+			// We need to switch the use back to the main audio confrence if he is in a breakout audio conference
+			if (isListeningToBreakoutRoom(breakoutMeetingId)) {
+				var dispatcher:Dispatcher = new Dispatcher();
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+				e.breakoutMeetingId = breakoutMeetingId;
+				e.listen = false;
+				dispatcher.dispatchEvent(e);
+			}
+			
 			var room:Object = getBreakoutRoomIndex(breakoutMeetingId);
 			if (room != null) {
 				breakoutRooms.removeItemAt(room.index);
@@ -674,17 +688,12 @@ package org.bigbluebutton.main.model.users {
 					br.listenStatus = BreakoutRoom.OTHER;
 				}
 			}
-		}
-		
-		public function getBreakoutRoomInListen() : BreakoutRoom {
-			for (var i:int = 0; i < breakoutRooms.length; i++) {
-				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
-				if (br.listenStatus == BreakoutRoom.SELF) {
-					return br;
-				}
-			}
-			return null;
-		}
+        }
+
+        public function isListeningToBreakoutRoom(breakoutMeetingId:String):Boolean {
+            var room:BreakoutRoom = getBreakoutRoom(breakoutMeetingId);
+            return room != null && room.listenStatus == BreakoutRoom.SELF;
+        }
 
 		public function resetBreakoutRooms():void {
 			for (var i:int = 0; i < breakoutRooms.length; i++) {

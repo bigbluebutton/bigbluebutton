@@ -68,6 +68,7 @@ if not FileTest.directory?(target_dir)
       b.published(false)
       b.start_time
       b.end_time
+      b.participants
       b.playback
       b.meta
     }
@@ -107,6 +108,10 @@ if not FileTest.directory?(target_dir)
     start_time.content = real_start_time
     end_time = recording.at_xpath("end_time")
     end_time.content = real_end_time
+
+    participants = recording.at_xpath("participants")
+    participants.content = BigBlueButton::Events.get_num_participants("#{target_dir}/events.xml")
+
     ## Remove empty meta
     metadata.search('//recording/meta').each do |meta|
       meta.remove

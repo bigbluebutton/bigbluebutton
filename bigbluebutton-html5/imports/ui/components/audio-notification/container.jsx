@@ -36,14 +36,16 @@ class AudioNotificationContainer extends Component {
   componentDidMount() {
     window.addEventListener("bbb.webrtc.failed", this.handleAudioFailure);
     window.addEventListener("bbb.webrtc.mediaFailed", this.handleMediaFailure);
+    window.addEventListener("bbb.webrtc.connected", this.handleClose);
   }
 
   componentWillUnmount() {
     window.removeEventListener("bbb.webrtc.failed", this.handleAudioFailure);
     window.removeEventListener("bbb.webrtc.mediaFailed", this.handleMediaFailure);
+    window.removeEventListener("bbb.webrtc.connected", this.handleClose);
   }
 
-  handleClose(){
+  handleClose() {
     this.color = null;
     this.message = null;
     this.setState({status: null});
