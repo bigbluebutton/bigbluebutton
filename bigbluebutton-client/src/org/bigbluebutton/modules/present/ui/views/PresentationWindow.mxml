@@ -81,6 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.MenuEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
+			import mx.controls.TabBar;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
@@ -848,6 +849,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					btnActualSize.visible = false;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = true;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = true;
+					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).enabled = true;
 				} else {
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
@@ -860,6 +862,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						btnClosePublish.visible = false;
 						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
 						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).enabled = false;
 					} else if (currentTabIndex == DESKSHARE_VIEW_TAB_INDEX) {
 						btnActualSize.visible = true;
 						downloadPres.visible = true;
@@ -932,7 +935,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSelectTabEvent(event:MouseEvent):void {
-				onSelectTab();
+				if (event.target.parent is TabBar) {
+					var selectedIndex:uint= TabBar(event.target.parent).getChildIndex(event.target as DisplayObject);
+					if(presenterTabs.getTabAt(selectedIndex).enabled) {
+					   presenterTabs.selectedIndex = selectedIndex;
+					   onSelectTab();
+					}
+				}
 			}
 
 			private function onSelectTab():void {
@@ -966,6 +975,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(!presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible) {
 					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = true;
 					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = true;
+					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).enabled = true;
 				}
 
 				btnActualSize.visible = false;
@@ -976,6 +986,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else if(presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible) {
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
 					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+					presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).enabled = false;
 				}
 			}
 
@@ -1030,6 +1041,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Stopping desktop publish");
 				presenterTabs.getTabAt(DESKSHARE_VIEW_TAB_INDEX).visible = false;
 				presenterTabs.getTabAt(DESKSHARE_VIEW_TAB_INDEX).includeInLayout = false;
+				presenterTabs.getTabAt(DESKSHARE_VIEW_TAB_INDEX).enabled = false;
 				dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
 				sharing = false;
 				PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = false;
@@ -1076,10 +1088,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = true;
 						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).visible = false;
 						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+						presenterTabs.getTabAt(DESKSHARE_PUBLISH_TAB_INDEX).enabled = false;
 					}
 					else {
 						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = false;
 						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = false;
+						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).enabled = false;
 					}
 				} else {
 					LOGGER.debug("viewTabContent is NULL.");
