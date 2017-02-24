@@ -8,7 +8,7 @@ app:
   audioChatNotification: false
 
   # Will offer the user to join the audio when entering the meeting
-  autoJoinAudio: false
+  autoJoinAudio: true
   listenOnly: false
   skipCheck: false
 

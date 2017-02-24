@@ -15,7 +15,7 @@ class AudioTest extends React.Component {
 
     return (
         <Button className={styles.testAudioBtn}
-          label={'Play sound'}
+          label={intl.formatMessage(intlMessages.playSoundLabel)}
           icon={'audio'}
           size={'md'}
           color={'primary'}
