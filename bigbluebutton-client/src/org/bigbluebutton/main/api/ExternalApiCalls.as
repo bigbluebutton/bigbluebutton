@@ -158,21 +158,24 @@ package org.bigbluebutton.main.api
     }
     
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
-      var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
-      
-      var payload:Object = new Object();
-      payload.eventName = EventConstants.AM_I_SHARING_CAM_RESP;
-      payload.isPublishing = camSettings.isPublishing;
-      payload.camIndex = camSettings.camIndex;
-      payload.camWidth = camSettings.videoProfile.width;
-      payload.camHeight = camSettings.videoProfile.height;
-      payload.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
-      payload.camModeFps = camSettings.videoProfile.modeFps;
-      payload.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
-      payload.camQualityPicture = camSettings.videoProfile.qualityPicture;
-      payload.avatarURL = UsersUtil.getAvatarURL();
-      
-      broadcastEvent(payload);        
+      var camSettingsArray = UsersUtil.amIPublishing(); //
+      for (var i:int = 0; i < camSettingsArray.length; i++) {
+        var camSettings:CameraSettingsVO = camSettingsArray.getItemAt(i) as CameraSettingsVO; //todo
+
+        var payload:Object = new Object();
+        payload.eventName = EventConstants.AM_I_SHARING_CAM_RESP;
+        payload.isPublishing = camSettings.isPublishing;
+        payload.camIndex = camSettings.camIndex;
+        payload.camWidth = camSettings.videoProfile.width;
+        payload.camHeight = camSettings.videoProfile.height;
+        payload.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+        payload.camModeFps = camSettings.videoProfile.modeFps;
+        payload.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+        payload.camQualityPicture = camSettings.videoProfile.qualityPicture;
+        payload.avatarURL = UsersUtil.getAvatarURL();
+
+        broadcastEvent(payload);
+      }
     }
     
 

@@ -84,13 +84,15 @@ package org.bigbluebutton.modules.videoconf.maps
 	private var _restream:Boolean = false;
 	private var _cameraIndex:int;
 	private var _videoProfile:VideoProfile;
-	
+    private var _myCamSettings:ArrayCollection = null;
+
 	private var globalDispatcher:Dispatcher;
 	
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
       _dispatcher = dispatcher;
 	  globalDispatcher = new Dispatcher();
+      _myCamSettings = new ArrayCollection();
     }
 
     private function get me():String {
@@ -253,6 +255,7 @@ package org.bigbluebutton.modules.videoconf.maps
             openAvatarWindowFor(userID);
           } else {
             LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindowFor:: Is THERE another option for user = [{1}]", [me, userID]);
+            LOGGER.debug(" _______myCamSettings.length = {0}", [_myCamSettings.length]);
           }
         }
       }
@@ -318,16 +321,20 @@ package org.bigbluebutton.modules.videoconf.maps
 
 	  _isWaitingActivation = false;
       _isPublishing = true;
-      UsersUtil.setIAmPublishing(true);
+      UsersUtil.setIAmPublishing(true); // TODO
 
-      var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
-      streamList.addItem(e.stream);
-      broadcastEvent.stream = e.stream;
-      broadcastEvent.userid = UsersUtil.getMyUserID();
-      broadcastEvent.isPresenter = UsersUtil.amIPresenter();
-      broadcastEvent.camSettings = UsersUtil.amIPublishing();
+      var arr: ArrayCollection = UsersUtil.amIPublishing();
+      for (var i:int = 0; i < arr.length; i++) {
+        var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
+        streamList.addItem(e.stream);
+        broadcastEvent.stream = e.stream;
+        broadcastEvent.userid = UsersUtil.getMyUserID();
+        broadcastEvent.isPresenter = UsersUtil.amIPresenter();
+        broadcastEvent.camSettings = arr.getItemAt(i) as CameraSettingsVO;
 
-      _dispatcher.dispatchEvent(broadcastEvent);
+        _dispatcher.dispatchEvent(broadcastEvent);
+      }
+
 	  if (proxy.videoOptions.showButton) {
 		  button.callLater(button.publishingStatus, [button.START_PUBLISHING]);
 	  }
@@ -335,6 +342,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     public function stopPublishing(e:StopBroadcastEvent):void{
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Stop publishing. ready = [{1}]", [me, _ready]);
+      UsersUtil.removeCameraSettings(e.camId); // TODO
       checkLastBroadcasting();
       streamList.removeItem(e.stream);
       stopBroadcasting(e.stream);
@@ -344,7 +352,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private function checkLastBroadcasting():void {
       LOGGER.debug("[VideoEventMapDelegate:checkLastBroadcasting]");
       _isPublishing = streamList.length > 0;
-      UsersUtil.setIAmPublishing(streamList.length > 0);
+      UsersUtil.setIAmPublishing(streamList.length > 0); // TODO
     }
 
     private function stopBroadcasting(stream:String = ""):void {
@@ -389,7 +397,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-		LOGGER.debug("[VideoEventMapDelegate:handleShareCameraRequestEvent]");
+		LOGGER.debug("[VideoEventMapDelegate:handleShareCameraRequestEvent] {0} {1}", [options.skipCamSettingsCheck, event.toString()]);
 		if (options.skipCamSettingsCheck) {
 			skipCameraSettingsCheck();
 		} else {
@@ -406,6 +414,9 @@ package org.bigbluebutton.modules.videoconf.maps
       LOGGER.debug("[VideoEventMapDelegate:handleStopShareCameraRequestEvent]");
       var userID:String = UsersUtil.getMyUserID();
       var camIndex:int = event.camId;
+
+      // remove the camera from the settings so it does not resume sharing on reconnect
+      _myCamSettings.removeItemAt(camIndex);
 
       _graphics.removeVideoByCamIndex(userID, camIndex);
     }
@@ -438,7 +449,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private function closeAllWindows():void {
       LOGGER.debug("VideoEventMapDelegate:: closing all windows");
-      if (_isPublishing) {
+      if (_isPublishing) { //todo
         stopBroadcasting();
       }
 
@@ -481,12 +492,21 @@ package org.bigbluebutton.modules.videoconf.maps
     public function handleCameraSetting(event:BBBEvent):void {
 	  _cameraIndex = event.payload.cameraIndex;
       _videoProfile = event.payload.videoProfile;
+
+      var camSettings:CameraSettingsVO = new CameraSettingsVO();
+      camSettings.camIndex = event.payload.cameraIndex;
+      camSettings.videoProfile = event.payload.videoProfile;
+      _myCamSettings.addItem(camSettings);
+
 	  _restream = event.payload.restream;
-      LOGGER.debug("VideoEventMapDelegate::handleCameraSettings [{0},{1}]", [_cameraIndex, _videoProfile.id]);
+      LOGGER.debug("VideoEventMapDelegate::handleCameraSettings [{0},{1}] after", [_cameraIndex, _videoProfile.id]);
       initCameraWithSettings(_cameraIndex, _videoProfile);
     }
 
 	public function handleEraseCameraSetting(event:BBBEvent):void {
+        _myCamSettings = new ArrayCollection(); // TODO - reset or remove one camera?
+        //UsersUtil.removeCameraSettings(camSettings);
+
 		_cameraIndex = -1;
 		_videoProfile = null;
 		_restream = event.payload.restream;
@@ -495,7 +515,13 @@ package org.bigbluebutton.modules.videoconf.maps
 	private function handleRestream():void {
 		if(_restream){
 			LOGGER.debug("VideoEventMapDelegate::handleRestream [{0},{1}]", [_cameraIndex, _videoProfile.id]);
-			initCameraWithSettings(_cameraIndex, _videoProfile);
+			// initCameraWithSettings(_cameraIndex, _videoProfile);
+
+			for each(var aCamSettings:CameraSettingsVO in _myCamSettings) {
+				LOGGER.debug("~~~~~~~~~~~~~VideoEventMapDelegate::handleRestream in loop [{0},{1}]",
+					[aCamSettings.camIndex, aCamSettings.videoProfile.id]);
+				initCameraWithSettings(aCamSettings.camIndex, aCamSettings.videoProfile);
+			}
 		}
 	}
 	
@@ -504,7 +530,8 @@ package org.bigbluebutton.modules.videoconf.maps
       camSettings.camIndex = camIndex;
       camSettings.videoProfile = videoProfile;
 
-      UsersUtil.setCameraSettings(camSettings);
+      // UsersUtil.setCameraSettings(camSettings);
+      UsersUtil.addCameraSettings(camSettings);
 
       _isWaitingActivation = true;
       button.setCamAsActive(camIndex);

@@ -64,7 +64,7 @@ package org.bigbluebutton.main.model.users {
 		
 		private var lockSettings:LockSettingsVO;
 		
-		private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
+		private var _myCamSettings:ArrayCollection = null;
 		
 		[Bindable]
 		private var me:BBBUser = null;
@@ -90,6 +90,7 @@ package org.bigbluebutton.main.model.users {
 			users.sort = sort;
 			users.refresh();
 			breakoutRooms = new ArrayCollection();
+			_myCamSettings = new ArrayCollection();
 		}
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
@@ -154,14 +155,41 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function setCamPublishing(publishing:Boolean):void {
-			_myCamSettings.isPublishing = publishing;
+			//_myCamSettings.isPublishing = publishing; //TODO
+
+			for(var i:int = 0; i < _myCamSettings.length; i++) {
+				_myCamSettings.getItemAt(i).isPublishing = publishing;
+			}
+
 		}
 		
-		public function setCameraSettings(camSettings:CameraSettingsVO):void {
-			_myCamSettings = camSettings;
+		// public function setCameraSettings(camSettings:CameraSettingsVO):void {
+		// 	_myCamSettings = camSettings;
+		// }
+
+		public function addCameraSettings(camSettings: CameraSettingsVO): void {
+			// TODO check for index
+
+            LOGGER.info("^^^^ start addCameraSettings _myCamSettings =[{0}]",[JSON.stringify(_myCamSettings)]);
+			_myCamSettings.addItem(camSettings);
+
+            LOGGER.info("^^^^ end addCameraSettings _myCamSettings =" + _myCamSettings.length);
+		}
+
+		public function removeCameraSettings(camIndex:int): void {
+			// TODO check
+            LOGGER.info("^^" + flag + "^^removeCameraSettings before _myCamSettings =" + JSON.stringify(_myCamSettings));
+			var flag:int = 0;
+			if (_myCamSettings.getItemAt(camIndex) != null) {
+                _myCamSettings.removeItemAt(camIndex);
+				flag = 1;
+            }
+
+            LOGGER.info("^^" + flag + "^^removeCameraSettings after _myCamSettings =" + JSON.stringify(_myCamSettings));
+			// TODO - can we rest this in one go?
 		}
 		
-		public function amIPublishing():CameraSettingsVO {
+		public function amIPublishing():ArrayCollection {
 			return _myCamSettings;
 		}
 		
@@ -460,7 +488,7 @@ package org.bigbluebutton.main.model.users {
 			users.refresh();
 		}
 		
-		public function getUserIDs():ArrayCollection {
+		public function getUserIDs():ArrayCollection  {
 			var uids:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < users.length; i++) {
 				var u:BBBUser = users.getItemAt(i) as BBBUser;

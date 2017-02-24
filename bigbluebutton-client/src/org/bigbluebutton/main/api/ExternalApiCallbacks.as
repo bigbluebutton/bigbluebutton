@@ -188,7 +188,8 @@ package org.bigbluebutton.main.api
     
     private function handleAmISharingCameraRequestSync():Object {
       var obj:Object = new Object();
-      var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
+
+      var camSettings:CameraSettingsVO = UsersUtil.amIPublishing().getItemAt(0) as CameraSettingsVO; // TODO loop
       obj.isPublishing = camSettings.isPublishing;
       obj.camIndex = camSettings.camIndex;
       obj.camWidth = camSettings.videoProfile.width;
@@ -200,6 +201,7 @@ package org.bigbluebutton.main.api
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
+
     }
     
     private function handleAmISharingCameraRequestAsync():void {
