@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 
-export default class PresenterLayout extends React.Component {
+export default class PresentationOverlay extends React.Component {
   constructor(props) {
     super(props);
 
@@ -23,6 +23,9 @@ export default class PresenterLayout extends React.Component {
   }
 
   mouseMoveHandler(event) {
+    console.log('mouseMove');
+    console.log(event.nativeEvent.offsetX);
+    console.log(event.nativeEvent.offsetY);
     this.setState({
       lastOffsetX: event.nativeEvent.offsetX,
       lastOffsetY: event.nativeEvent.offsetY,
@@ -52,6 +55,12 @@ export default class PresenterLayout extends React.Component {
     clearInterval(this.state.intervalId);
   }
 
+  mouseDownHandler(event) {
+    console.log('mouseDown');
+    console.log(event.nativeEvent.offsetX);
+    console.log(event.nativeEvent.offsetY);
+  }
+
   render() {
     return (
       <foreignObject
@@ -67,7 +76,9 @@ export default class PresenterLayout extends React.Component {
             onMouseEnter={this.mouseEnterHandler}
             onMouseMove={this.mouseMoveHandler}
             style={{ width: '100%', height: '100%' }}
-          />
+          >
+            <div style={{ width: '100%', height: '100%' }} onMouseDown={this.mouseDownHandler} />
+          </div>
         : null }
       </foreignObject>
     );

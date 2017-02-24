@@ -6,7 +6,7 @@ import Slide from './slide/component.jsx';
 import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PollingContainer from '/imports/ui/components/polling/container';
-import PresenterLayoutContainer from './presenter-controls/presenter-layout/container';
+import PresentationOverlayContainer from './presentation-overlay/container';
 
 export default class PresentationArea extends React.Component {
   constructor(props) {
@@ -72,7 +72,7 @@ export default class PresentationArea extends React.Component {
               : null }
             </g>
             {this.props.userIsPresenter ?
-              <PresenterLayoutContainer
+              <PresentationOverlayContainer
                 x={x}
                 y={y}
                 vbwidth={viewBoxWidth}
