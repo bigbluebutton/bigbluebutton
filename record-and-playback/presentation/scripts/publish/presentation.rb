@@ -721,24 +721,9 @@ def processSlideEvents
         slide_number = node.xpath(".//slide")[0].text().to_i
       end
 
-      #set slide times
       slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
       orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
 
-      if(index + 1 < $slides_events.length)
-        slide_end = ( translateTimestamp($slides_events[index + 1][:timestamp]) / 1000 ).round(1)
-        orig_slide_end = ( $slides_events[index + 1][:timestamp].to_f / 1000 ).round(1)
-      else
-        slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
-        orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
-      end
-
-      if slide_start == slide_end
-        BigBlueButton.logger.info("Slide is never displayed (slide_start = slide_end), so it won't be included in the svg")
-        next
-      end
-
-      #set slide resources
       slide_number = slide_number < 0 ? 0 : slide_number
       slide_src = deskshare_slide ?
           "presentation/deskshare/slide-1.png" :
@@ -763,38 +748,44 @@ def processSlideEvents
       end
 
       slide_size = FastImage.size(image_url)
+      if (index + 1 < $slides_events.length)
+        slide_end = ( translateTimestamp($slides_events[index + 1][:timestamp]) / 1000 ).round(1)
+        orig_slide_end = ( $slides_events[index + 1][:timestamp].to_f / 1000 ).round(1)
+      else
+        slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
+        orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
+      end
 
-      processSlideImage(slide_src, slide_size, slide_start, slide_end, slide_text, orig_slide_start, orig_slide_end)
+      if slide_start == slide_end
+        BigBlueButton.logger.info("Slide is never displayed (slide_start = slide_end), so it won't be included in the svg")
+        next
+      end
+
+      BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
+      # Is this a new image or one previously viewed?
+      if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
+        # If it is, add it to the list with all the data.
+        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end]]
+        $global_slide_count = $global_slide_count + 1
+      else
+        # If not, append new in and out times to the old entry
+        # But if the previous slide_end is equal to the current slide_start, we just pop the previous slide_end and push the current one
+        # It will avoid the duplication of the thumbnails on the playback
+        if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].last == slide_start)
+          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].pop
+          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+        else
+          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
+          $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+        end
+        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
+        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
+      end
+
+      $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
+      puts "#{slide_src} : #{slide_start} -> #{slide_end}"
     end
   end
-end
-
-def processSlideImage(slide_src, slide_size, slide_start, slide_end, slide_text, orig_slide_start, orig_slide_end)
-
-  BigBlueButton.logger.info("Processing slide image: #{slide_src} : #{slide_start} -> #{slide_end}")
-  # Is this a new image or one previously viewed?
-  if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
-    # If it is, add it to the list with all the data.
-    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end]]
-    $global_slide_count = $global_slide_count + 1
-  else
-    # If not, append new in and out times to the old entry
-    # But if the previous slide_end is equal to the current slide_start, we just pop the previous slide_end and push the current one
-    # It will avoid the duplication of the thumbnails on the playback
-    if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].last == slide_start)
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].pop
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
-    else
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
-      $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
-    end
-    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
-    $slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
-  end
-
-  $ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
-  BigBlueButton.logger.info("End of slide image process => #{slide_src} : #{slide_start} -> #{slide_end}")
-
 end
 
 def processShapesAndClears
@@ -1203,10 +1194,10 @@ begin
         $end_time = $meeting_end.to_f
 
         # Create a list of timestamps when the moderator cleared the public chat
-		$clear_chat_timestamps = [ ]
-		clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
-		clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
-		$clear_chat_timestamps.sort!
+        $clear_chat_timestamps = [ ]
+        clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
+        clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
+        $clear_chat_timestamps.sort!
 
         calculateRecordEventsOffset()
 
