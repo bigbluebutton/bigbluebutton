@@ -61,7 +61,7 @@ export default class Settings extends Component {
         }}
         dismiss={{
           callback: (() => {
-            // this.setHtmlFontSize(this.state.saved.application.fontSize);
+            this.setHtmlFontSize(this.state.saved.application.fontSize);
           }),
           label: 'Cancel',
           description: 'Discart the changes and close the settings menu',
