@@ -533,6 +533,9 @@ module BigBlueButton
     deskshare_edl = BigBlueButton::Events.create_deskshare_edl(
       "#{temp_dir}/#{meeting_id}")
     deskshare_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(deskshare_edl, "#{temp_dir}/#{meeting_id}")
+
+    return if not BigBlueButton.video_recorded?(deskshare_video_edl)
+
     BigBlueButton::EDL::Video.dump(deskshare_video_edl)
 
     deskshare_layout = {
@@ -564,6 +567,15 @@ module BigBlueButton
     end
   end
 
+  def self.video_recorded?(video_edl)
+    video_edl.each do |edl|
+      edl[:areas].each do |name, videos|
+        return true if not videos.empty?
+      end
+    end
+
+    return false
+  end
 
  # Muxes audio with deskshare video
  # audio_file     : Audio of the recording
