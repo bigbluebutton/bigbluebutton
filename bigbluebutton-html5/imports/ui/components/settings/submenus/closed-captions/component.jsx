@@ -22,7 +22,6 @@ const COLORS =  [
 
 export default class ClosedCaptionsMenu extends BaseMenu {
   constructor(props) {
-    console.log('captions settings', props);
     super(props);
     this.state = {
       settingsName: 'cc',
@@ -40,9 +39,9 @@ export default class ClosedCaptionsMenu extends BaseMenu {
 
   getPreviewStyle() {
     return {
-      fontFamily: this.state.ccFontFamilyValue,
-      fontSize: `${this.state.ccFontSizeValue}px`,
-      color: this.state.fontColor,
+      fontFamily: this.state.settings.fontFamily,
+      fontSize: this.state.settings.fontSize,
+      color: this.state.settings.fontColor,
     };
   }
 
@@ -74,7 +73,6 @@ export default class ClosedCaptionsMenu extends BaseMenu {
 
     this.setState(obj);
     this.handleUpdateSettings('cc', obj.settings);
-    this.handleCloseColorPicker();
   }
 
   render() {
@@ -234,7 +232,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
                     </div>
                     <ChromePicker
                       onChange={this.handleColorChange.bind(this, 'backgroundColor')}
-                      color={this.state.backgroundColor}
+                      color={this.state.settings.backgroundColor}
                       colors={COLORS}
                       width={'140px'}
                       triangle={'top-right'}
@@ -274,7 +272,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
                     </div>
                     <ChromePicker
                       onChange={this.handleColorChange.bind(this, 'fontColor')}
-                      color={this.state.fontColor}
+                      color={this.state.settings.fontColor}
                       colors={COLORS}
                       width={'140px'}
                       triangle={'top-right'}
@@ -288,13 +286,12 @@ export default class ClosedCaptionsMenu extends BaseMenu {
           <div
             className={cx(styles.ccPreviewBox, styles.spacedLeft)}
             role='presentation'
-            style={ { background: this.state.backgroundColor } }>
+            style={ { background: this.state.settings.backgroundColor } }>
             <span style={this.getPreviewStyle()}>
               Etiam porta sem malesuada magna mollis euis-mod.
               Donec ullamcorper nulla non metus auctor fringilla.
             </span>
           </div>
-
         </div>
       </div>
     );

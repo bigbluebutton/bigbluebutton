@@ -4,11 +4,6 @@ import ClosedCaptionsMenu from './component';
 import Service from './service';
 
 class ClosedCaptionsMenuContainer extends Component {
-  constructor(props) {
-    super(props);
-    console.log(props);
-  }
-
   render() {
     return (
       <ClosedCaptionsMenu {...this.props}>
@@ -20,6 +15,5 @@ class ClosedCaptionsMenuContainer extends Component {
 
 export default createContainer(() => {
   let data = Service.getClosedCaptionSettings();
-  console.log('data', data);
   return data;
 }, ClosedCaptionsMenuContainer);

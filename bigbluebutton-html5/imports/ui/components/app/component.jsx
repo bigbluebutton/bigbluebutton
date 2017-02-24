@@ -27,6 +27,17 @@ export default class App extends Component {
     this.state = {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
+
+    this.setDefaultSettings = props.setDefaultSettings;
+  }
+
+  setHtmlFontSize(size) {
+    document.getElementsByTagName('html')[0].style.fontSize = size;
+  };
+
+  componentDidMount() {
+    this.setDefaultSettings();
+    this.setHtmlFontSize(this.props.fontSize);
   }
 
   renderNavBar() {
@@ -108,12 +119,12 @@ export default class App extends Component {
 
   renderClosedCaptions() {
     const { captions } = this.props;
-    if(captions && this.props.getCaptionsStatus()) {
-        return (
-          <section className={styles.closedCaptions}>
-            {captions}
-          </section>
-        );
+    if (captions && this.props.getCaptionsStatus()) {
+      return (
+        <section className={styles.closedCaptions}>
+          {captions}
+        </section>
+      );
     }
   }
 

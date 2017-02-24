@@ -35,6 +35,10 @@
   transition: 0.3s color;
   color: $color-gray-dark;
 
+  &:first-child {
+    margin-top: 0;
+  }
+
   &[aria-selected="true"] {
     border-right: 0.2rem solid $color-primary !important;
     padding-right: 1rem !important;

@@ -8,12 +8,54 @@ import cx from 'classnames';
 import styles from '../styles.scss';
 import Toggle from '/imports/ui/components/switch/component';
 
+const MIN_FONTSIZE = 0;
+const MAX_FONTSIZE = 4;
+
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
 
-    console.log('application', props);
+    this.state = {
+      settingsName: 'application',
+      settings: props.settings,
+    };
   }
+
+  handleUpdateFontSize(size) {
+    let obj = this.state;
+    obj.settings.fontSize = size;
+    this.setState(obj);
+    this.handleUpdateSettings(this.state.settingsName, obj.settings);
+  }
+
+  setHtmlFontSize(size) {
+    document.getElementsByTagName('html')[0].style.fontSize = size;
+  };
+
+  changeFontSize(size) {
+    let obj = this.state;
+    obj.settings.fontSize = size;
+    this.setState(obj, () => {
+      this.setHtmlFontSize(this.state.settings.fontSize);
+      this.handleUpdateFontSize(this.state.settings.fontSize);
+    });
+  }
+
+  handleIncreaseFontSize() {
+    const currentFontSize = this.state.settings.fontSize;
+    const availableFontSizes = this.props.fontSizes;
+    const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < MAX_FONTSIZE;
+    let fs = (canIncreaseFontSize) ? availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
+    this.changeFontSize(availableFontSizes[fs]);
+  };
+
+  handleDecreaseFontSize() {
+    const currentFontSize = this.state.settings.fontSize;
+    const availableFontSizes = this.props.fontSizes;
+    const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
+    let fs = (canDecreaseFontSize) ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
+    this.changeFontSize(availableFontSizes[fs]);
+  };
 
   render() {
     return (
@@ -34,8 +76,8 @@ export default class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={true}
-                onChange={this.handleBaconChange} />
+                defaultChecked={this.state.settings.chatAudioNotifications}
+                onChange={() => this.handleToggle('chatAudioNotifications')} />
               </div>
             </div>
           </div>
@@ -51,8 +93,8 @@ export default class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={true}
-                onChange={this.handleBaconChange} />
+                defaultChecked={this.state.settings.chatPushNotifications}
+                onChange={() => this.handleToggle('chatPushNotifications')} />
               </div>
             </div>
           </div>
@@ -68,14 +110,14 @@ export default class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentCenter)}>
                 <label className={cx(styles.label, styles.bold)}>
-                  32pt
+                  {this.props.fontSizes[this.state.settings.fontSize]}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Button
-                onClick={this.props.handleIncreaseFontSize}
+                onClick={() => this.handleIncreaseFontSize()}
                 icon={'circle-add'}
                 circle={true}
                 tabIndex={9}
@@ -88,7 +130,7 @@ export default class ApplicationMenu extends BaseMenu {
               <div id='sizeUpDesc' hidden>
                 Increases the font size of the application.</div>
               <Button
-                onClick={this.props.handleDecreaseFontSize}
+                onClick={() => this.handleDecreaseFontSize()}
                 icon={'circle-minus'}
                 circle={true}
                 tabIndex={10}

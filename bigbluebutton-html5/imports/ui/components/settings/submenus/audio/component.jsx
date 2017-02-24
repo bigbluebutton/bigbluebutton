@@ -13,11 +13,9 @@ export default class AudioMenu extends BaseMenu {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
 
-    console.log('audio', props);
     this.state = {
       settingsName: 'audio',
-      inputDeviceId: props.settings ? props.settings.inputDeviceId : undefined,
-      outputDeviceId: props.settings ? props.settings.outputDeviceId : undefined,
+      settings: props.settings,
     };
   }
 
@@ -27,21 +25,21 @@ export default class AudioMenu extends BaseMenu {
 
   handleSelectChange(fieldname, options, e) {
     let obj = this.state;
-    obj[fieldname] = options[e.target.value];
+    obj.settings[fieldname] = options[e.target.value];
     this.setState(obj);
     this.handleUpdateSettings('audio', obj);
   }
 
   handleInputChange(deviceId) {
     let obj = this.state;
-    obj.inputDeviceId = deviceId;
+    obj.settings.inputDeviceId = deviceId;
     this.setState(obj);
     this.handleUpdateSettings('audio', obj);
   }
 
   handleOutputChange(deviceId) {
     let obj = this.state;
-    obj.outputDeviceId = deviceId;
+    obj.settings.outputDeviceId = deviceId;
     this.setState(obj);
     this.handleUpdateSettings('audio', obj);
   }

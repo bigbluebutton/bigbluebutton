@@ -5,7 +5,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
 import Audio from '/imports/ui/components/settings/submenus/audio/component';
-import Application from '/imports/ui/components/settings/submenus/application/component';
+import Application from '/imports/ui/components/settings/submenus/application/container';
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import Video from '/imports/ui/components/settings/submenus/video/component';
 
@@ -21,7 +21,6 @@ export default class Settings extends Component {
   constructor(props) {
     super(props);
 
-    console.log('CONSTRUCTOR SETTINGS', props);
     this.state = {
       current: {
         audio: props.audio,
@@ -30,13 +29,24 @@ export default class Settings extends Component {
         cc: props.cc,
         participants: props.participants,
       },
-      selectedTab: 3,
+      saved: {
+        audio: props.audio,
+        video: props.video,
+        application: props.application,
+        cc: props.cc,
+        participants: props.participants,
+      },
+      selectedTab: 2,
     };
 
     this.handleSettingsApply = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
-    this.handleSelect = this.handleSelect.bind(this);
+    this.handleSelectTab = this.handleSelectTab.bind(this);
   }
+
+  setHtmlFontSize(size) {
+    document.getElementsByTagName('html')[0].style.fontSize = size;
+  };
 
   render() {
     return (
@@ -44,10 +54,6 @@ export default class Settings extends Component {
         title="Settings"
         confirm={{
           callback: (() => {
-            // this.commit(this.state.current);
-            // this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
-            // console.log('SHOULD APPLY SETTINGS CHANGES');
-            console.log('SETTINGS', this.state.current);
             this.handleSettingsApply(this.state.current);
           }),
           label: 'Save',
@@ -55,9 +61,7 @@ export default class Settings extends Component {
         }}
         dismiss={{
           callback: (() => {
-            // this.setState({ activeSubmenu: 0, focusSubmenu: 0 });
-            // console.log('SHOULD DISCART SETTINGS CHANGES');
-            // this.props.handleRevertFontState();
+            // this.setHtmlFontSize(this.state.saved.application.fontSize);
           }),
           label: 'Cancel',
           description: 'Discart the changes and close the settings menu',
@@ -68,25 +72,28 @@ export default class Settings extends Component {
   }
 
   handleUpdateSettings(key, newSettings) {
-    console.log(key, newSettings);
     let settings = {
       current: this.state.current,
     };
     settings.current[key] = newSettings;
-    this.setState(settings, () => console.log(this.state));
+    this.setState(settings);
   }
 
-  handleSelect(tab) {
+  handleSelectTab(tab) {
     this.setState({
       selectedTab: tab,
     });
   }
 
   renderModalContent() {
+    const {
+      isModerator,
+    } = this.props;
+
     return (
       <Tabs
         className={styles.tabs}
-        onSelect={this.handleSelect}
+        onSelect={this.handleSelectTab}
         selectedIndex={this.state.selectedTab}
       >
         <TabList className={styles.tabList}>
@@ -106,10 +113,12 @@ export default class Settings extends Component {
             <Icon iconName='user' className={styles.icon}/>
             Closed Captions
           </Tab>
-          <Tab className={styles.tabSelector}>
-            <Icon iconName='user' className={styles.icon}/>
-            Participants
-          </Tab>
+          { isModerator ?
+            <Tab className={styles.tabSelector}>
+              <Icon iconName='user' className={styles.icon}/>
+              Participants
+            </Tab>
+            : null }
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Audio
@@ -123,7 +132,10 @@ export default class Settings extends Component {
             />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
-          <Application />
+          <Application
+            handleUpdateSettings={this.handleUpdateSettings}
+            settings={this.state.current.application}
+            />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
           <ClosedCaptions
@@ -131,11 +143,13 @@ export default class Settings extends Component {
             handleUpdateSettings={this.handleUpdateSettings}
             locales={this.props.locales}/>
         </TabPanel>
-        <TabPanel className={styles.tabPanel}>
-          <Participants
-            settings={this.state.current.participants}
-            handleUpdateSettings={this.handleUpdateSettings}/>
-        </TabPanel>
+        { isModerator ?
+          <TabPanel className={styles.tabPanel}>
+            <Participants
+              settings={this.state.current.participants}
+              handleUpdateSettings={this.handleUpdateSettings}/>
+          </TabPanel>
+          : null }
       </Tabs>
     );
   }

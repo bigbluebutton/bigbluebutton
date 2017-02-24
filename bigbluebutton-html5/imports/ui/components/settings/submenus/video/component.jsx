@@ -10,7 +10,8 @@ export default class AudioMenu extends BaseMenu {
     super(props);
 
     this.state = {
-
+      settingsName: 'video',
+      settings: props.settings,
     };
   }
 
@@ -60,8 +61,8 @@ export default class AudioMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={this.state.muteAll}
-                onChange={() => this.handleToggle('muteAll')} />
+                defaultChecked={this.state.viewParticipantsWebcams}
+                onChange={() => this.handleToggle('viewParticipantsWebcams')} />
               </div>
             </div>
           </div>

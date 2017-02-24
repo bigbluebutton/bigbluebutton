@@ -7,6 +7,7 @@ import Cursor from '/imports/api/cursor';
 import Captions from '/imports/api/captions';
 import Polls from '/imports/api/polls';
 import Storage from '/imports/ui/services/storage/session';
+import SettingsService from '/imports/ui/components/settings/service';
 
 function setCredentials(nextState, replace) {
   if (nextState && nextState.params.authToken) {
@@ -106,9 +107,14 @@ const clearModal = () => {
   showModal(null);
 };
 
-function getCaptionsStatus() {
+const getCaptionsStatus = () => {
   const settings = Storage.getItem('settings_cc');
   return settings ? settings.closedCaptions : false;
+};
+
+const getFontSize = () => {
+  const settings = SettingsService.getSettingsFor('application');
+  return settings ? settings.fontSize : '14px';
 };
 
 export {
@@ -123,4 +129,5 @@ export {
   showModal,
   clearModal,
   getCaptionsStatus,
+  getFontSize,
 };

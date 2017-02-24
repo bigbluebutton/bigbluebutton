@@ -12,18 +12,9 @@ import Checkbox from '/imports/ui/components/checkbox/component';
 export default class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
-    console.log(props);
 
     this.state = {
-      settings: {
-        muteAll: props.settings ? props.settings.muteAll : undefined,
-        lockAll: props.settings ? props.settings.lockAll : undefined,
-        lockAll: props.settings ? props.settings.webcam : undefined,
-        microphone: props.settings ? props.settings.microphone : undefined,
-        publicChat: props.settings ? props.settings.publicChat : undefined,
-        privateChat: props.settings ? props.settings.privateChat : undefined,
-        layout: props.settings ? props.settings.layout : undefined,
-      },
+      settings: props.settings,
     };
 
     this.handleUpdateSettings = props.handleUpdateSettings;

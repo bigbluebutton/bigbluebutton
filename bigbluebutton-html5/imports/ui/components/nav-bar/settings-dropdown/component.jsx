@@ -102,10 +102,6 @@ class SettingsDropdown extends Component {
     super(props);
   }
 
-  componentDidMount() {
-    openSettings();
-  }
-
   render() {
     const { intl } = this.props;
     return (
