@@ -24,10 +24,10 @@ export default class SettingsDropdownContainer extends Component {
   }
 
   componentWillUnmount() {
-    document.addEventListener("fullscreenchange", this.fullScreenToggleCallback);
-    document.addEventListener("webkitfullscreenchange", this.fullScreenToggleCallback);
-    document.addEventListener("mozfullscreenchange", this.fullScreenToggleCallback);
-    document.addEventListener("MSFullscreenChange", this.fullScreenToggleCallback);
+    document.removeEventListener("fullscreenchange", this.fullScreenToggleCallback);
+    document.removeEventListener("webkitfullscreenchange", this.fullScreenToggleCallback);
+    document.removeEventListener("mozfullscreenchange", this.fullScreenToggleCallback);
+    document.removeEventListener("MSFullscreenChange", this.fullScreenToggleCallback);
   }
 
   fullScreenToggleCallback() {
