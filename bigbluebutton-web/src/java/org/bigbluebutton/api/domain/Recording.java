@@ -34,6 +34,7 @@ public class Recording {
 	private boolean published;
 	private String startTime;
 	private String endTime;
+	private String numParticipants;
 	private Map<String, String> metadata = new TreeMap<String, String>();
 	private List<Playback> playbacks=new ArrayList<Playback>();
 	
@@ -93,6 +94,14 @@ public class Recording {
 		return endTime;
 	}
 	
+	public void setNumParticipants(String numParticipants) {
+		this.numParticipants = numParticipants;
+	}
+
+	public String getNumParticipants() {
+		return numParticipants;
+	}
+
 	public void setEndTime(String endTime) {
 		this.endTime = convertOldDateFormat(endTime);
 	}

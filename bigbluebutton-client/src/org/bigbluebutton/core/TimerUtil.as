@@ -36,13 +36,10 @@ package org.bigbluebutton.core {
 				timer.addEventListener(TimerEvent.TIMER, function():void {
 					var remainingSeconds:int = timer.repeatCount - timer.currentCount;
 					var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
-					label.htmlText = ResourceUtil.getInstance().getString(
-						UserManager.getInstance().getConference().isBreakout ? 'bbb.users.breakout.remainingTimeBreakout' : 'bbb.users.breakout.remainingTimeParent',
-						[UserManager.getInstance().getConference().meetingName, formattedTime]
-					);
+					label.htmlText = ResourceUtil.getInstance().getString('bbb.users.breakout.timer', [formattedTime]);
 				});
 				timer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTimeEnded');
+					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.closing');
 				});
 			} else {
 				timer.stop();

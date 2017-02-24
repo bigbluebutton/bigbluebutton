@@ -67,7 +67,7 @@
       // be loaded in the DOM rather than relying on the SWFObject code to detect 
       // Flash because it can't.
       var browserInfo = determineBrowser();
-      if (browserInfo && browserInfo[0] === "Chrome") {
+      if (browserInfo && browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) {
         // Added a sort of callback idea because when this script runs "content" doesn't exist yet
         var fillContent = function(){
           var content = document.getElementById("content");
