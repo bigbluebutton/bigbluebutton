@@ -97,10 +97,10 @@ function getViewboxAtTime(time) {
 		if(vboxValues.hasOwnProperty(key)) {
 			var arry = key.split(",");
 			if(arry[1] == "end") {
-				return isDeskshare ? adaptViewBoxToDeskshare(vboxValues[key]) : vboxValues[key];
+				return isDeskshare ? adaptViewBoxToDeskshare(time) : vboxValues[key];
 			}
 			else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
-				return isDeskshare ? adaptViewBoxToDeskshare(vboxValues[key]) : vboxValues[key];
+				return isDeskshare ? adaptViewBoxToDeskshare(time) : vboxValues[key];
 			}
 		}
 	}
@@ -129,6 +129,29 @@ function mustShowDesktopVideo(time) {
   }
 
   return canShow;
+}
+
+function getDeskshareDimension(time) {
+  var start_timestamp = 0.0;
+  var stop_timestamp = 0.0;
+  var width = deskshareWidth;
+  var height = deskshareHeight;
+  if (isThereDeskshareVideo()) {
+    for (var m = 0; m < deskshareTimes.length; m++) {
+      start_timestamp = deskshareTimes[m][0];
+      stop_timestamp = deskshareTimes[m][1];
+      if(time >= start_timestamp && time <= stop_timestamp) {
+        width = deskshareTimes[m][2];
+        height = deskshareTimes[m][3];
+        break;
+      }
+    }
+  }
+
+  return {
+    width: width,
+    height: height
+  };
 }
 
 function isThereDeskshareVideo() {
@@ -284,15 +307,20 @@ function runPopcorn() {
   xmlhttp.open("GET", deskshare_xml, false);
   xmlhttp.send();
   xmlDoc = xmlhttp.responseXML;
-  //getting all the event tags
-  console.log("** Processing deskshare.xml");
-  var deskelements = xmlDoc.getElementsByTagName("recording");
-  var deskshareArray = deskelements[0].getElementsByTagName("event");
+  if (xmlDoc) {
+    //getting all the event tags
+    console.log("** Processing deskshare.xml");
+    var deskelements = xmlDoc.getElementsByTagName("recording");
+    var deskshareArray = deskelements[0].getElementsByTagName("event");
 
-  if(deskshareArray != null && deskshareArray.length != 0) {
-    for (var m = 0; m < deskshareArray.length; m++) {
-      var deskTimes = [parseFloat(deskshareArray[m].getAttribute("start_timestamp")),parseFloat(deskshareArray[m].getAttribute("stop_timestamp"))];
-      deskshareTimes[m] = deskTimes;
+    if(deskshareArray != null && deskshareArray.length != 0) {
+      for (var m = 0; m < deskshareArray.length; m++) {
+        var deskTimes = [parseFloat(deskshareArray[m].getAttribute("start_timestamp")),
+                         parseFloat(deskshareArray[m].getAttribute("stop_timestamp")),
+                         parseFloat(deskshareArray[m].getAttribute("video_width")),
+                         parseFloat(deskshareArray[m].getAttribute("video_height"))];
+        deskshareTimes[m] = deskTimes;
+      }
     }
   }
 
@@ -481,26 +509,24 @@ function clearTransform() {
   heightTranslate = 0;
 }
 
-function setDeskshareScale(viewBox) {
-  widthScale = viewBox[2] / deskshareWidth;
-  heightScale = viewBox[3] / deskshareHeight;
+function setDeskshareScale(originalVideoWidth, originalVideoHeight) {
+  widthScale = originalVideoWidth / deskshareWidth;
+  heightScale = originalVideoHeight / deskshareHeight;
 }
 
-function setDeskshareTranslate(viewBox) {
-  widthTranslate = (deskshareWidth - viewBox[2]) / 2;
-  heightTranslate = (deskshareHeight - viewBox[3]) / 2;
+function setDeskshareTranslate(originalVideoWidth, originalVideoHeight) {
+  widthTranslate = (deskshareWidth - originalVideoWidth) / 2;
+  heightTranslate = (deskshareHeight - originalVideoHeight) / 2;
 }
 
 // Deskshare viewBox has the information to transform the canvas to place it above the video
-function adaptViewBoxToDeskshare(viewBox) {
-  var vb = viewBox.split(" ");
-  setDeskshareScale(vb);
-  setDeskshareTranslate(vb);
-  vb[0] = 0;
-  vb[1] = 0;
-  vb[2] = deskshareWidth;
-  vb[3] = deskshareHeight;
-  return vb.join(" ");
+function adaptViewBoxToDeskshare(time) {
+  var dimension = getDeskshareDimension(time);
+  setDeskshareScale(dimension.width, dimension.height);
+  setDeskshareTranslate(dimension.width, dimension.height);
+
+  var viewBox = "0.0 0.0 " + deskshareWidth + " " + deskshareHeight;
+  return viewBox;
 }
 
 function getCanvasFromImage(image) {
@@ -509,10 +535,26 @@ function getCanvasFromImage(image) {
   return canvas;
 }
 
+function getDeskshareImage() {
+  var images = svgobj.contentDocument ? svgobj.contentDocument.getElementsByTagName("image") : svgobj.getSVGDocument('svgfile').getElementsByTagName("image");
+  for(var i = 0; i < images.length; i++) {
+    var element = images[i];
+    var id = element.getAttribute("id");
+    var href = element.getAttribute("xlink:href");
+    if (href != null && href.indexOf("deskshare") !=-1) {
+      return id;
+    }
+  }
+  return "image0";
+}
+
 // Transform canvas to fit the different deskshare video sizes
 function setTransform(time) {
+  if (deskshare_image == null) {
+    deskshare_image = getDeskshareImage();
+  }
   if (mustShowDesktopVideo(time)) {
-    var canvas = getCanvasFromImage(current_image);
+    var canvas = getCanvasFromImage(deskshare_image);
     if (canvas !== null) {
       var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
       var translate = "translate(" + widthTranslate.toString() + ", " + heightTranslate.toString() + ")";
@@ -555,6 +597,7 @@ function defineStartTime() {
   return temp_start_time;
 }
 
+var deskshare_image = null;
 var current_image = "image0";
 var previous_image = null;
 var current_canvas;
