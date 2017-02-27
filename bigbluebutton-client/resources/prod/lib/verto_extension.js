@@ -22,7 +22,6 @@ Verto = function (
 
   this.destination_number = voiceBridge;
   this.caller_id_name = conferenceUsername;
-  // this.caller_id_number = conferenceIdNumber;
   this.caller_id_number = conferenceUsername;
 
   this.vertoPort = "8082";
@@ -593,11 +592,6 @@ window.vertoWatchVideo = function () {
 window.vertoShareScreen = function () {
   window.vertoInitialize();
   window.vertoManager.shareScreen.apply(window.vertoManager, arguments);
-};
-
-window.vertoExtensionGetChromeExtensionStatus = function (extensionid, callback) {
-  callback = Verto.normalizeCallback(callback);
-  getChromeExtensionStatus(extensionid, callback);
 };
 
 // a function to check whether the browser (Chrome only) is in an isIncognito

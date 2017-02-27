@@ -43,22 +43,10 @@ function vertoWatchVideo() {
   );
 }
 
-function shareVertoScreen() {
-  vertoShareScreen(
-    'deskshareVideo',
-    getVoiceBridge(),
-    createVertoUserName(),
-    null,
-    null,
-    "pholbikkacmlilmoalemamdjcdkahcga",
-  );
-}
-
 export {
   vertoJoinListenOnly,
   vertoJoinMicrophone,
   vertoWatchVideo,
   vertoExitAudio,
-  shareVertoScreen,
 };
 

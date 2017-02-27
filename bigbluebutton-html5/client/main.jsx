@@ -68,8 +68,6 @@ Meteor.startup(() => {
   loadLib('jquery.verto.js');
   loadLib('verto_extension.js');
   loadLib('jquery.jsonrpcclient.js');
-  loadLib('Screen-Capturing.js');
-  loadLib('getScreenId.js');
 
   loadUserSettings();
 
