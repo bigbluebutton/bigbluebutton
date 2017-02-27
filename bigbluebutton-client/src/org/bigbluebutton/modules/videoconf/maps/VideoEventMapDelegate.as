@@ -416,7 +416,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var camIndex:int = event.camId;
 
       // remove the camera from the settings so it does not resume sharing on reconnect
-      _myCamSettings.removeItemAt(camIndex);
+      removeCamera(camIndex);
 
       _graphics.removeVideoByCamIndex(userID, camIndex);
     }
@@ -489,14 +489,25 @@ package org.bigbluebutton.modules.videoconf.maps
       openWebcamWindows();
     }
 
+    private function addCamera(camIndex:int, videoProfile:VideoProfile):void {
+      var camSettings:CameraSettingsVO = new CameraSettingsVO();
+      camSettings.camIndex = camIndex;
+      camSettings.videoProfile = videoProfile;
+
+      if(!_myCamSettings.contains(camSettings)) {
+          _myCamSettings.addItem(camSettings);
+      }
+    }
+
+    private function removeCamera(camIndex:int):void {
+      // TODO
+    }
+
     public function handleCameraSetting(event:BBBEvent):void {
-	  _cameraIndex = event.payload.cameraIndex;
+      _cameraIndex = event.payload.cameraIndex;
       _videoProfile = event.payload.videoProfile;
 
-      var camSettings:CameraSettingsVO = new CameraSettingsVO();
-      camSettings.camIndex = event.payload.cameraIndex;
-      camSettings.videoProfile = event.payload.videoProfile;
-      _myCamSettings.addItem(camSettings);
+      addCamera(_cameraIndex, _videoProfile); //
 
 	  _restream = event.payload.restream;
       LOGGER.debug("VideoEventMapDelegate::handleCameraSettings [{0},{1}] after", [_cameraIndex, _videoProfile.id]);
@@ -504,9 +515,10 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
 	public function handleEraseCameraSetting(event:BBBEvent):void {
-        _myCamSettings = new ArrayCollection(); // TODO - reset or remove one camera?
-        //UsersUtil.removeCameraSettings(camSettings);
+		_myCamSettings = new ArrayCollection(); // TODO - reset or remove one camera?
+		//UsersUtil.removeCameraSettings(camSettings);
 
+		LOGGER.debug("VideoEventMapDelegate::handleEraseCameraSetting [{0},{1}] after", [event.toString()]);
 		_cameraIndex = -1;
 		_videoProfile = null;
 		_restream = event.payload.restream;

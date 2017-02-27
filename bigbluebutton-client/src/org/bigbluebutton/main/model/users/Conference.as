@@ -162,37 +162,23 @@ package org.bigbluebutton.main.model.users {
 			}
 
 		}
-		
-		// public function setCameraSettings(camSettings:CameraSettingsVO):void {
-		// 	_myCamSettings = camSettings;
-		// }
 
 		public function addCameraSettings(camSettings: CameraSettingsVO): void {
-			// TODO check for index
-
-            LOGGER.info("^^^^ start addCameraSettings _myCamSettings =[{0}]",[JSON.stringify(_myCamSettings)]);
-			_myCamSettings.addItem(camSettings);
-
-            LOGGER.info("^^^^ end addCameraSettings _myCamSettings =" + _myCamSettings.length);
+			if(!_myCamSettings.contains(camSettings)) {
+				_myCamSettings.addItem(camSettings);
+			}
 		}
 
 		public function removeCameraSettings(camIndex:int): void {
-			// TODO check
-            LOGGER.info("^^" + flag + "^^removeCameraSettings before _myCamSettings =" + JSON.stringify(_myCamSettings));
-			var flag:int = 0;
 			if (_myCamSettings.getItemAt(camIndex) != null) {
-                _myCamSettings.removeItemAt(camIndex);
-				flag = 1;
-            }
-
-            LOGGER.info("^^" + flag + "^^removeCameraSettings after _myCamSettings =" + JSON.stringify(_myCamSettings));
-			// TODO - can we rest this in one go?
+				_myCamSettings.removeItemAt(camIndex);
+			}
 		}
-		
+
 		public function amIPublishing():ArrayCollection {
 			return _myCamSettings;
 		}
-		
+
 		public function setDefaultLayout(defaultLayout:String):void {
 			this.defaultLayout = defaultLayout;
 		}
