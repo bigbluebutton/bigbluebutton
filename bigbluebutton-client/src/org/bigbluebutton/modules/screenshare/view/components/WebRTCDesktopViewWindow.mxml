@@ -282,6 +282,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function fitVideoToWindow():void {
+				if (this.video == null) {
+					return;
+				}
+
 				if (this.width < this.height) {
 					fitToWidthAndAdjustHeightToMaintainAspectRatio();
 				} else {
