@@ -34,12 +34,6 @@ package org.bigbluebutton.main.events {
 		public static const FOCUS_CHAT_INPUT:String = 'FOCUS_CHAT_INPUT';
 		public static const UNDO_WHITEBOARD:String = 'UNDO_WHITEBOARD';
 		public static const FOCUS_SLIDE:String = 'FOCUS_SLIDE_VIEW';
-		public static const ADVANCE_MESSAGE:String = 'ADVANCE_MESSAGE';
-		public static const GOBACK_MESSAGE:String = 'GOBACK_MESSAGE';
-		public static const REPEAT_MESSAGE:String = 'REPEAT_MESSAGE';
-		public static const GOLATEST_MESSAGE:String = 'GOLATEST_MESSAGE';
-		public static const GOFIRST_MESSAGE:String = 'GOFIRST_MESSAGE';
-		public static const GOREAD_MESSAGE:String = 'GOREAD_MESSAGE';
 		public static const OPEN_SHORTCUT_WIN:String = 'OPEN_SHORTCUT_WIN';
 		
 		public static const FOCUS_USERS_WINDOW:String = 'FOCUS_USERS_WINDOW';
@@ -100,9 +94,6 @@ package org.bigbluebutton.main.events {
 		public static const SC_REFRESH_POLL:String = 'SC_REFRESH_POLL';
 		public static const SC_REPOST_POLL:String = 'SC_REPOST_POLL';
 		public static const SC_STOP_POLL:String = 'SC_STOP_POLL';
-		
-		// Temporary string to help fix chat message navigation for screen readers
-		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';
 		
 		public var otherUserID:String;
 		

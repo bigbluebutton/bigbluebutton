@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.chat.model {
 		
 		public function toString() : String {
 			var result:String;
-			var accName = (!name || name == "" || name == " "? ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage") : name);
+			var accName:String = (!name || name == "" || name == " "? ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage") : name);
 			result = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.stringRespresentation", [accName, stripTags(text), time]);
 			return result;
 		}
