@@ -4,6 +4,7 @@ import Meetings from '/imports/api/meetings';
 
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import Storage from '/imports/ui/services/storage/session';
 
 import { callServer } from '/imports/ui/services/api';
 
@@ -130,8 +131,8 @@ const getPrivateMessages = (userID) => {
       { 'message.from_userid': userID },
     ],
   }, {
-    sort: ['message.from_time'],
-  }).fetch();
+      sort: ['message.from_time'],
+    }).fetch();
 
   return messages.reduce(reduceMessages, []).map(mapMessage);
 };
@@ -192,6 +193,16 @@ const sendMessage = (receiverID, message) => {
     from_time: Date.now(),
     from_color: 0,
   };
+
+  let closedChat = Storage.getItem('closedChat');
+
+  if (closedChat !== null && !closedChat.flag) {
+    let chatInfo = {
+      chatID: closedChat.chatID,
+      flag: true,
+    };
+    Storage.setItem('closedChat', chatInfo);
+  }
 
   callServer('sendChat', messagePayload);
 

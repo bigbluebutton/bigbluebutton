@@ -9,10 +9,6 @@
   overflow: hidden;
 }
 
-.closeChat {
-  text-decoration: none;
-}
-
 .header {
   margin-top: $lg-padding-x - $sm-padding-x;
   margin-bottom: $lg-padding-x;
@@ -22,7 +18,12 @@
     font-size: 85%;
   }
 }
+.closeIcon {
+  margin-left: $line-height-computed * 6;
+}
 
-[class='icon-bbb-left-arrow'] {
+[class='icon-bbb-left-arrow'],
+[class='icon-bbb-close']
+{
     padding-bottom: 5px;
 }

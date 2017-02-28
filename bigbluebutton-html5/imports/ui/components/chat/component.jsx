@@ -5,12 +5,14 @@ import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import Icon from '../icon/component';
+import Storage from '/imports/ui/services/storage/session';
 
 const ELEMENT_ID = 'chat-messages';
 
 export default class Chat extends Component {
   constructor(props) {
     super(props);
+    this.closeChat = this.closeChat.bind(this);
   }
 
   render() {
@@ -26,13 +28,23 @@ export default class Chat extends Component {
       actions,
     } = this.props;
 
-    return (
-      <section className={styles.chat}>
-        <header className={styles.header}>
-          <Link className={styles.closeChat} to="/users">
-            <Icon iconName="left-arrow" /> {title}
-          </Link>
-        </header>
+        return (
+        <section className={styles.chat}>
+
+          <header className={styles.header}>
+            <Link to="/users">
+              <Icon iconName="left-arrow"/> {title}
+            </Link>
+
+            {
+              ( (this.props.chatID == "public") ?
+                null :
+                <Link to="/users">
+                  <Icon iconName="close" onClick={this.closeChat} className={styles.closeIcon}/>
+                </Link> )
+            }
+          </header>
+
         <MessageList
           chatId={chatID}
           messages={messages}
@@ -52,5 +64,18 @@ export default class Chat extends Component {
         />
       </section>
     );
+  }
+
+  closeChat() {
+    const { chatID } = this.props;
+
+    let chatInfo;
+
+    chatInfo = {
+      chatID: chatID,
+      flag: false,
+    };
+
+    Storage.setItem("closedChat", chatInfo);
   }
 }

@@ -2,6 +2,8 @@ import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import Storage from '/imports/ui/services/storage/session';
+
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
 import { callServer } from '/imports/ui/services/api';
@@ -170,14 +172,16 @@ const getUsers = () => {
 };
 
 const getOpenChats = chatID => {
+
   window.Users = Users;
 
   let openChats = Chat
-  .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
-  .fetch()
-  .map(mapOpenChats);
+    .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
+    .fetch()
+    .map(mapOpenChats);
 
   let currentUserId = Auth.userID;
+
   if (chatID) {
     openChats.push(chatID);
   }
@@ -185,13 +189,28 @@ const getOpenChats = chatID => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-  .find({ 'user.userid': { $in: openChats } })
-  .map(u => u.user)
-  .map(mapUser)
-  .map(op => {
-    op.unreadCounter = UnreadMessages.count(op.id);
-    return op;
-  });
+    .find({ 'user.userid': { $in: openChats } })
+    .map(u => u.user)
+    .map(mapUser)
+    .map(op => {
+      op.unreadCounter = UnreadMessages.count(op.id);
+      return op;
+    });
+
+  let closedChat = Storage.getItem('closedChat');
+
+  if (closedChat !== null) {
+
+    if (UnreadMessages.count(closedChat.chatID) > 0) {
+      closedChat.flag = true;
+
+      Storage.setItem('closedChat', closedChat.flag);
+    }
+
+    if (!closedChat.flag) {
+      openChats = openChats.filter(o => o.id !== closedChat.chatID);
+    }
+  }
 
   openChats.push({
     id: 'public',
