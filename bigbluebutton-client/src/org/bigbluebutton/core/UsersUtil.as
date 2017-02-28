@@ -74,14 +74,6 @@ package org.bigbluebutton.core
     public static function amIPublishing():ArrayCollection {
      return UserManager.getInstance().getConference().amIPublishing() as ArrayCollection;
     }
-    
-    public static function setIAmPublishing(publishing:Boolean):void {
-      UserManager.getInstance().getConference().setCamPublishing(publishing);
-    }
-    
-    // public static function setCameraSettings(camSettings:CameraSettingsVO):void {
-    //   UserManager.getInstance().getConference().setCameraSettings(camSettings);
-    // }
 
     public static function addCameraSettings(camSettings:CameraSettingsVO):void {
       UserManager.getInstance().getConference().addCameraSettings(camSettings);

@@ -71,7 +71,6 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private var _dispatcher:IEventDispatcher;
     private var _ready:Boolean = false;
-    private var _isPublishing:Boolean = false;
     private var _isPreviewWebcamOpen:Boolean = false;
     private var _isWaitingActivation:Boolean = false;
     private var _chromeWebcamPermissionDenied:Boolean = false;
@@ -316,8 +315,6 @@ package org.bigbluebutton.modules.videoconf.maps
       proxy.startPublishing(e);
 
       _isWaitingActivation = false;
-      _isPublishing = true;
-      UsersUtil.setIAmPublishing(true); // TODO
 
       var arr: ArrayCollection = UsersUtil.amIPublishing();
       for (var i:int = 0; i < arr.length; i++) {
@@ -339,18 +336,10 @@ package org.bigbluebutton.modules.videoconf.maps
     public function stopPublishing(e:StopBroadcastEvent):void{
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Stop publishing. ready = [{1}]", [me, _ready]);
       UsersUtil.removeCameraSettings(e.camId);
-      removeCamera(e.camId);
 
-      checkLastBroadcasting();
       streamList.removeItem(e.stream);
       stopBroadcasting(e.stream);
-      button.setCamAsInactive(e.camId); //
-    }
-
-    private function checkLastBroadcasting():void {
-      LOGGER.debug("[VideoEventMapDelegate:checkLastBroadcasting]");
-      _isPublishing = streamList.length > 0;
-      UsersUtil.setIAmPublishing(streamList.length > 0); // TODO
+      button.setCamAsInactive(e.camId);
     }
 
     private function stopBroadcasting(stream:String = ""):void {
@@ -389,7 +378,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
       LOGGER.debug("Closing publish window");
-      if (_isPublishing || _chromeWebcamPermissionDenied) {
+      if (_myCamSettings.length > 0 || _chromeWebcamPermissionDenied) {
         stopBroadcasting();
       }
     }
@@ -413,7 +402,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var userID:String = UsersUtil.getMyUserID();
       var camIndex:int = event.camId;
 
-      // remove the camera from the settings so it does not resume sharing on reconnect
+      // remove the camera from the settings so it does not resume sharing on refresh
       removeCamera(camIndex);
 
       _graphics.removeVideoByCamIndex(userID, camIndex);
@@ -447,7 +436,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private function closeAllWindows():void {
       LOGGER.debug("VideoEventMapDelegate:: closing all windows");
-      if (_isPublishing) { //todo
+      if (_myCamSettings.length > 0) {
         stopBroadcasting();
       }
 
@@ -468,7 +457,7 @@ package org.bigbluebutton.modules.videoconf.maps
       if (options.showButton){
         LOGGER.debug("****************** Switching to viewer. Show video button?=[{0}]", [UsersUtil.amIPresenter()]);
         displayToolbarButton();
-        if (_isPublishing && options.presenterShareOnly) {
+        if (_myCamSettings.length > 0 && options.presenterShareOnly) {
           stopBroadcasting();
         }
       }
@@ -491,6 +480,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
       camSettings.camIndex = camIndex;
       camSettings.videoProfile = videoProfile;
+      camSettings.isPublishing = true;
 
       if(!_myCamSettings.contains(camSettings)) {
           _myCamSettings.addItem(camSettings);
@@ -498,8 +488,10 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     private function removeCamera(camIndex:int):void {
-      if (_myCamSettings.getItemAt(camIndex) != null) {
-        _myCamSettings.removeItemAt(camIndex);
+      for(var i:int = 0; i < _myCamSettings.length; i++) {
+        if (_myCamSettings.getItemAt(i) != null && _myCamSettings.getItemAt(i).camIndex == camIndex) {
+          _myCamSettings.removeItemAt(i);
+        }
       }
     }
 
@@ -507,7 +499,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var camIndex:int = event.payload.cameraIndex;
       var videoProfile:VideoProfile = event.payload.videoProfile;
 
-      addCamera(camIndex, videoProfile); //
+      addCamera(camIndex, videoProfile);
 
       _restream = event.payload.restream;
       LOGGER.debug("VideoEventMapDelegate::handleCameraSettings [{0},{1}] _restream={2}", [camIndex, videoProfile.id, _restream]);
@@ -515,8 +507,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function handleEraseCameraSetting(event:BBBEvent):void {
-     _myCamSettings = new ArrayCollection(); // TODO - reset or remove one camera?
-     //UsersUtil.removeCameraSettings(camSettings);
+     _myCamSettings = new ArrayCollection();
 
      LOGGER.debug("VideoEventMapDelegate::handleEraseCameraSetting [{0},{1}] after", [event.toString()]);
      _restream = event.payload.restream;
@@ -535,7 +526,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
       camSettings.camIndex = camIndex;
       camSettings.videoProfile = videoProfile;
-
+      camSettings.isPublishing = true;
       UsersUtil.addCameraSettings(camSettings);
 
       _isWaitingActivation = true;

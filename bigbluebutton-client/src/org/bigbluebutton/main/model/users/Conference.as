@@ -153,15 +153,6 @@ package org.bigbluebutton.main.model.users {
 			users.addItem(newuser);
 			users.refresh();
 		}
-		
-		public function setCamPublishing(publishing:Boolean):void {
-			//_myCamSettings.isPublishing = publishing; //TODO
-
-			for(var i:int = 0; i < _myCamSettings.length; i++) {
-				_myCamSettings.getItemAt(i).isPublishing = publishing;
-			}
-
-		}
 
 		public function addCameraSettings(camSettings: CameraSettingsVO): void {
 			if(!_myCamSettings.contains(camSettings)) {
@@ -170,8 +161,13 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function removeCameraSettings(camIndex:int): void {
-			if (_myCamSettings.getItemAt(camIndex) != null) {
-				_myCamSettings.removeItemAt(camIndex);
+			if (camIndex != -1) {
+				for(var i:int = 0; i < _myCamSettings.length; i++) {
+					if (_myCamSettings.getItemAt(i) != null && _myCamSettings.getItemAt(i).camIndex == camIndex) {
+						_myCamSettings.removeItemAt(i);
+						return;
+					}
+				}
 			}
 		}
 
