@@ -198,6 +198,9 @@ const getOpenChats = chatID => {
     });
 
   let closedChat = Storage.getItem('closedChat');
+  let closedArray = Storage.getItem('closedArray');
+
+  console.log(closedArray);
 
   if (closedChat !== null) {
 

@@ -70,12 +70,16 @@ export default class Chat extends Component {
     const { chatID } = this.props;
 
     let chatInfo;
+    let obj = [];
 
     chatInfo = {
       chatID: chatID,
       flag: false,
     };
 
+    obj.push(chatInfo);
+
     Storage.setItem("closedChat", chatInfo);
+    Storage.setItem("closedArray", obj);
   }
 }
