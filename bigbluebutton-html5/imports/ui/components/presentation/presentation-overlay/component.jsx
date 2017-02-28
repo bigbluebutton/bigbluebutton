@@ -55,12 +55,6 @@ export default class PresentationOverlay extends React.Component {
     clearInterval(this.state.intervalId);
   }
 
-  mouseDownHandler(event) {
-    console.log('mouseDown');
-    console.log(event.nativeEvent.offsetX);
-    console.log(event.nativeEvent.offsetY);
-  }
-
   render() {
     return (
       <foreignObject
@@ -77,7 +71,7 @@ export default class PresentationOverlay extends React.Component {
             onMouseMove={this.mouseMoveHandler}
             style={{ width: '100%', height: '100%' }}
           >
-            <div style={{ width: '100%', height: '100%' }} onMouseDown={this.mouseDownHandler} />
+            {this.props.children}
           </div>
         : null }
       </foreignObject>

@@ -7,6 +7,7 @@ import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PollingContainer from '/imports/ui/components/polling/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
+import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/component';
 
 export default class PresentationArea extends React.Component {
   constructor(props) {
@@ -77,7 +78,9 @@ export default class PresentationArea extends React.Component {
                 y={y}
                 vbwidth={viewBoxWidth}
                 vbheight={viewBoxHeight}
-              />
+              >
+                <WhiteboardOverlayContainer />
+              </PresentationOverlayContainer>
             : null }
           </svg>
         </ReactCSSTransitionGroup>
