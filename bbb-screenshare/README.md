@@ -1,7 +1,8 @@
 This document contains instructions on how to build your own native libraries, screenshare webstart app, and how to deploy screenshare application.
 
 
-== Building your own native libraries ==
+Building your own native libraries
+----------------------------------
 
 Linux (x86 and x86_64)
 ----------------------
@@ -53,7 +54,7 @@ To produce native libraries that can run on the largest possible number of Linux
 
 where `linux-xxx` is either `linux-x86` or `linux-x86_64`.
 
-9. If things go well, copy the resulting jar into `native-libs/ffmpeg-linux-xxx` and sign the jar.
+If things go well, copy the resulting jar into `native-libs/ffmpeg-linux-xxx` and sign the jar.
 
 
 Mac OS X (x86_64)
@@ -89,7 +90,7 @@ $ mvn clean install
 ```
 
 
-8. If things go well, copy the resulting jar into `native-libs/ffmpeg-macosx-x86_64` and sign the jar.
+If things go well, copy the resulting jar into `native-libs/ffmpeg-macosx-x86_64` and sign the jar.
 
 
 Windows (x86 and x86_64)
@@ -125,7 +126,7 @@ $ mvn clean install -Djavacpp.platform=windows-xxx
 ```
 where `windows-xxx` is either `windows-x86` or `windows-x86_64`. Run the builds for `windows-x86` inside the "MINGW32" window, and the ones for `windows-x86_64` in the "MINGW64" one.
 
-9. If things go well, copy the resulting jar into `native-libs/ffmpeg-windows-xxx` and sign the jar.
+If things go well, copy the resulting jar into `native-libs/ffmpeg-windows-xxx` and sign the jar.
 
 
 Signing the jar files
@@ -173,7 +174,10 @@ Deploying and testing the screenshare application
 
 
 
-== Ignore the docs below. These are instructions taken from JavaCV website to write the instructions above. We keep a copy here to make sure the insructions we have are compatible with out version of javacpp-presets. ==
+*** Ignore the docs below ****
+-------------------------------
+
+These are instructions taken from JavaCV website to write the instructions above. We keep a copy here to make sure the instructions we have are compatible with out version of javacpp-presets. 
 
 
 ** NOTE: **
