@@ -1,13 +1,13 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- * 
- * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- * 
+ *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -16,21 +16,13 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.main.events
-{
-	import flash.events.Event;
-	
-	import org.bigbluebutton.core.vo.Config;
+package org.bigbluebutton.core {
 
-	public class ConfigEvent extends Event
-	{
-		public static const CONFIG_EVENT:String = "config event";
-		
-		public var config:Config;
-		
-		public function ConfigEvent(type:String)
-		{
-			super(type, true, false);
-		}
-	}
+    import flash.events.KeyboardEvent;
+
+    public final class KeyboardUtil {
+        public static function buildPressedKeys(e:KeyboardEvent):String {
+            return (e.ctrlKey ? "control+" : "") + (e.shiftKey ? "shift+" : "") + (e.altKey ? "alt+" : "") + e.keyCode;
+        }
+    }
 }

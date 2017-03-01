@@ -86,7 +86,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;
 			
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
@@ -99,6 +98,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -133,7 +133,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
 			private var scWindow:ShortcutHelpWindow;
-			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
 			// LIVE or PLAYBACK
@@ -165,7 +164,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var isTunneling:Boolean = false;
 			
 			private var confirmingLogout:Boolean = false;
-			private var chromeBrowser:ChromeWebcamPermissionImage = null;
 			
 			public function getLogWindow() : LogWindow
 			{
@@ -408,141 +406,151 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (version != localeVersion) wrongLocaleVersion();
 				}	   			
 	   		}
+            private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
+                /**
+                 * There is a bug in Flex SDK 4.14 where the screen stays blurry if a
+                 * pop-up is opened from another pop-up. I delayed the second open to
+                 * avoid this case. - Chad
+                 */
+                this.callLater(function():void {
+                    var micSettings:FlashMicSettings = PopUpUtil.createModalPopUp(mdiCanvas, FlashMicSettings, false) as FlashMicSettings;
+                    if (micSettings) {
+                        micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+                            var point1:Point = new Point();
+                            // Calculate position of TitleWindow in Application's coordinates. 
+                            point1.x = width / 2;
+                            point1.y = height / 2;
+                            micSettings.x = point1.x - (micSettings.width / 2);
+                            micSettings.y = point1.y - (micSettings.height / 2);
+                        });
+                    }
+                });
+            }
 
-			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
-				/**
-				 * There is a bug in Flex SDK 4.14 where the screen stays blurry if a 
-				 * pop-up is opened from another pop-up. I delayed the second open to 
-				 * avoid this case. - Chad
-				 */
-				this.callLater( function():void {
-					var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
-					micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-						var point1:Point = new Point();
-						// Calculate position of TitleWindow in Application's coordinates. 
-						point1.x = width/2;
-						point1.y = height/2;
-						micSettings.x = point1.x - (micSettings.width/2);
-						micSettings.y = point1.y - (micSettings.height/2);
-					});
-				});
-			}
-			
-      private function openVideoPreviewWindow(event:BBBEvent):void {
-        var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
-        camSettings.defaultCamera = event.payload.defaultCamera;
-        camSettings.camerasArray = event.payload.camerasArray;
-        camSettings.publishInClient = event.payload.publishInClient;
-        camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
-        
-        var point1:Point = new Point();
-        // Calculate position of TitleWindow in Application's coordinates. 
-        point1.x = width/2;
-        point1.y = height/2;                
-        camSettings.x = point1.x - (camSettings.width/2);
-        camSettings.y = point1.y - (camSettings.height/2);	
-      }
-      
-	   	private function wrongLocaleVersion():void {
-				var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
+            private function openVideoPreviewWindow(event:BBBEvent):void {
+                var camSettings:CameraDisplaySettings = PopUpUtil.createModalPopUp(mdiCanvas, CameraDisplaySettings, true) as CameraDisplaySettings;
+                if (camSettings) {
+                    camSettings.defaultCamera = event.payload.defaultCamera;
+                    camSettings.camerasArray = event.payload.camerasArray;
+                    camSettings.publishInClient = event.payload.publishInClient;
+                    camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
 
-				var point1:Point = new Point();
-	        	// Calculate position of TitleWindow in Application's coordinates. 
-				point1.x = width/2;
-				point1.y = height/2;              
-				localeWindow.x = point1.x - (localeWindow.width/2);
-				localeWindow.y = point1.y - (localeWindow.height/2);	
-      }
+                    var point1:Point = new Point();
+                    // Calculate position of TitleWindow in Application's coordinates. 
+                    point1.x = width / 2;
+                    point1.y = height / 2;
+                    camSettings.x = point1.x - (camSettings.width / 2);
+                    camSettings.y = point1.y - (camSettings.height / 2);
+                }
+            }
 
-      private function handleShowAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
-  	    var audioSelection:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, AudioSelectionWindow, true);
-		PopUpManager.centerPopUp(audioSelection);
-	  }
-          
-      private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
-        var browser:String = ExternalInterface.call("determineBrowser")[0];
-        if (browser == "Firefox") {
-          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
-          ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-            ffBrowser.x = 100;
-            ffBrowser.y = 150;
-          }); 
-        } else if (browser == "Chrome") {
-          var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
-          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-            chromeBrowser.x = 20;
-            chromeBrowser.y = 130;
-          });          
-        }
-      }
-      
-      private function handleWebRTCEchoTestConnectingEvent(event:WebRTCEchoTestEvent):void {
-        var webRTCEchoTest:WebRTCEchoTest = PopUpManager.createPopUp(mdiCanvas, WebRTCEchoTest, true) as WebRTCEchoTest;
-          webRTCEchoTest.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-          var point1:Point = new Point();
-          // Calculate position of TitleWindow in Application's coordinates. 
-          point1.x = width/2;
-          point1.y = height/2;
-          webRTCEchoTest.x = point1.x - (webRTCEchoTest.width/2);
-          webRTCEchoTest.y = point1.y - (webRTCEchoTest.height/2);
-        });        
-      }
+            private function wrongLocaleVersion():void {
+                var localeWindow:OldLocaleWarnWindow = PopUpUtil.createNonModelPopUp(mdiCanvas, OldLocaleWarnWindow, false) as OldLocaleWarnWindow;
+                if (localeWindow) {
+                    var point1:Point = new Point();
+                    // Calculate position of TitleWindow in Application's coordinates. 
+                    point1.x = width / 2;
+                    point1.y = height / 2;
+                    localeWindow.x = point1.x - (localeWindow.width / 2);
+                    localeWindow.y = point1.y - (localeWindow.height / 2);
+                }
+            }
 
-      private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-          if (ExternalInterface.call("determineBrowser")[0] == "Chrome" && chromeBrowser == null ) {
-          chromeBrowser = PopUpManager.createPopUp(mdiCanvas, ChromeWebcamPermissionImage , true) as ChromeWebcamPermissionImage;
-          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-          var point1:Point = new Point();
-          // Calculate position of TitleWindow in Application's coordinates.
-          point1.x = width/2;
-          point1.y = height/2;
-          if (Capabilities.os.indexOf("Mac") >= 0) {
-            chromeBrowser.x = (mdiCanvas.width - chromeBrowser.width);
-		  }
-          else {
-		    chromeBrowser.x = 20;
-		  }
-	      chromeBrowser.y = 20;
-         });
-       }
-     }
-      
-      private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
-        showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
-      }
+            private function handleShowAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
+                PopUpUtil.createModalPopUp(mdiCanvas, AudioSelectionWindow, true);
+            }
 
-			private function showlogoutWindow(reason:String):void {
-				if (layoutOptions!= null && layoutOptions.showLogoutWindow) {
-					if (UserManager.getInstance().getConference().iAskedToLogout) {
-						handleExitApplicationEvent();
-						return;
-					}
-					if (logoutWindow != null) return;
-					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, true));
-					
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;                 
-					logoutWindow.x = point1.x - (logoutWindow.width/2);
-					logoutWindow.y = point1.y - (logoutWindow.height/2);
-					
-					logoutWindow.setReason(reason);
-					mdiCanvas.removeAllPopUps();
-					removeToolBars();
-				} else {
-					mdiCanvas.removeAllPopUps();
-					removeToolBars();
-					var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-					var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-					LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
-					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-					var urlLoader:URLLoader = new URLLoader();
-					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
-					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
-					urlLoader.load(request);
-				}	        
-			}
+            private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
+                var browser:String = ExternalInterface.call("determineBrowser")[0];
+                if (browser == "Firefox") {
+                    var ffBrowser:FirefoxMicPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, FirefoxMicPermissionImage, false) as FirefoxMicPermissionImage;
+                    if (ffBrowser) {
+                        ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+                            ffBrowser.x = 100;
+                            ffBrowser.y = 150;
+                        });
+                    }
+                } else if (browser == "Chrome") {
+                    var chromeBrowser:ChromeMicPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, ChromeMicPermissionImage, false) as ChromeMicPermissionImage;
+                    if (chromeBrowser) {
+                        chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+                            chromeBrowser.x = 20;
+                            chromeBrowser.y = 130;
+                        });
+                    }
+                }
+            }
+
+            private function handleWebRTCEchoTestConnectingEvent(event:WebRTCEchoTestEvent):void {
+                var webRTCEchoTest:WebRTCEchoTest = PopUpUtil.createModalPopUp(mdiCanvas, WebRTCEchoTest, false) as WebRTCEchoTest;
+                if (webRTCEchoTest) {
+                    webRTCEchoTest.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+                        var point1:Point = new Point();
+                        // Calculate position of TitleWindow in Application's coordinates. 
+                        point1.x = width / 2;
+                        point1.y = height / 2;
+                        webRTCEchoTest.x = point1.x - (webRTCEchoTest.width / 2);
+                        webRTCEchoTest.y = point1.y - (webRTCEchoTest.height / 2);
+                    });
+                }
+            }
+
+            private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
+                if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
+                    var chromeWebcmPermissionImg : ChromeWebcamPermissionImage = PopUpUtil.createModalPopUp(mdiCanvas, ChromeWebcamPermissionImage, false) as ChromeWebcamPermissionImage;
+                    if (chromeWebcmPermissionImg) {
+                        chromeWebcmPermissionImg.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+                            var point1:Point = new Point();
+                            // Calculate position of TitleWindow in Application's coordinates.
+                            point1.x = width / 2;
+                            point1.y = height / 2;
+                            if (Capabilities.os.indexOf("Mac") >= 0) {
+                                chromeWebcmPermissionImg.x = (mdiCanvas.width - chromeWebcmPermissionImg.width);
+                            } else {
+                                chromeWebcmPermissionImg.x = 20;
+                            }
+                            chromeWebcmPermissionImg.y = 20;
+                        });
+                    }
+                }
+            }
+
+            private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
+                showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
+            }
+
+            private function showlogoutWindow(reason:String):void {
+                if (layoutOptions != null && layoutOptions.showLogoutWindow) {
+                    if (UserManager.getInstance().getConference().iAskedToLogout) {
+                        handleExitApplicationEvent();
+                        return;
+                    }
+                    var logoutWindow:LoggedOutWindow = PopUpUtil.createModalPopUp(mdiCanvas, LoggedOutWindow, false) as LoggedOutWindow;
+                    if (logoutWindow) {
+                        var point1:Point = new Point();
+                        // Calculate position of TitleWindow in Application's coordinates. 
+                        point1.x = width / 2;
+                        point1.y = height / 2;
+                        logoutWindow.x = point1.x - (logoutWindow.width / 2);
+                        logoutWindow.y = point1.y - (logoutWindow.height / 2);
+
+                        logoutWindow.setReason(reason);
+                        mdiCanvas.removeAllPopUps();
+                        removeToolBars();
+                    }
+                } else {
+                    mdiCanvas.removeAllPopUps();
+                    removeToolBars();
+                    var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+                    var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+                    LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
+                    var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+                    var urlLoader:URLLoader = new URLLoader();
+                    urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);
+                    urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
+                    urlLoader.load(request);
+                }
+            }
 
             /**
              * Removes toolbars from the display list.
@@ -635,33 +643,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function closeNetworkStatsWindow(e:Event = null):void {
 				networkStatsWindow.disappear();
 			}
-			
-			private function openLockSettingsWindow(event:LockControlEvent):void {
-				var conference:Conference = UserManager.getInstance().getConference();
-				var lsv:LockSettingsVO = conference.getLockSettings();
-        
-				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, LockSettings, true);
-				var ls:LockSettings = LockSettings(popUp);
-				ls.disableCam = lsv.getDisableCam();
-				ls.disableMic = lsv.getDisableMic();
-				ls.disablePrivChat = lsv.getDisablePrivateChat();
-				ls.disablePubChat = lsv.getDisablePublicChat();
-				ls.lockedLayout = lsv.getLockedLayout();
-				ls.lockOnJoin = lsv.getLockOnJoin();
-				ls.lockOnJoinConfigurable = lsv.getLockOnJoinConfigurable();
-        
-				var point1:Point = new Point();
-				point1.x = width/2;
-				point1.y = height/2;
-				ls.x = point1.x - (ls.width/2);
-				ls.y = point1.y - (ls.height/2);	
-			}
-			
-			private function openBreakoutRoomsWindow(e:BreakoutRoomEvent):void  {
-				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, BreakoutRoomSettings, true);
-				PopUpManager.centerPopUp(popUp);
-				BreakoutRoomSettings(popUp).initCreateBreakoutRooms(e.joinMode, e.record);
-			}
+
+            private function openLockSettingsWindow(event:LockControlEvent):void {
+                var conference:Conference = UserManager.getInstance().getConference();
+                var lsv:LockSettingsVO = conference.getLockSettings();
+
+                var popUp:IFlexDisplayObject = PopUpUtil.createModalPopUp(mdiCanvas, LockSettings, false);
+                if (popUp) {
+                    var ls:LockSettings = LockSettings(popUp);
+                    ls.disableCam = lsv.getDisableCam();
+                    ls.disableMic = lsv.getDisableMic();
+                    ls.disablePrivChat = lsv.getDisablePrivateChat();
+                    ls.disablePubChat = lsv.getDisablePublicChat();
+                    ls.lockedLayout = lsv.getLockedLayout();
+                    ls.lockOnJoin = lsv.getLockOnJoin();
+                    ls.lockOnJoinConfigurable = lsv.getLockOnJoinConfigurable();
+
+                    var point1:Point = new Point();
+                    point1.x = width / 2;
+                    point1.y = height / 2;
+                    ls.x = point1.x - (ls.width / 2);
+                    ls.y = point1.y - (ls.height / 2);
+                }
+            }
+
+            private function openBreakoutRoomsWindow(e:BreakoutRoomEvent):void {
+                var popUp:IFlexDisplayObject = PopUpUtil.createModalPopUp(mdiCanvas, BreakoutRoomSettings, true);
+                if (popUp != null) {
+                    BreakoutRoomSettings(popUp).initCreateBreakoutRooms(e.joinMode, e.record);
+                }
+            }
 			
 			private function onFooterLinkClicked(e:TextEvent):void{
 				if (ExternalInterface.available) {
@@ -672,7 +683,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
 	<common:TabIndexer id="tabIndexer" startIndex="100000"
-					   tabIndices="{[langSelector, logBtn]}"/>
+					   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 

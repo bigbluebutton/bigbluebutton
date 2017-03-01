@@ -36,14 +36,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.globalization.DateTimeFormatter;
 			import flash.globalization.DateTimeStyle;
 			import flash.globalization.LocaleID;
-
+			
 			import mx.controls.ToolTip;
 			import mx.core.FlexGlobals;
-			import mx.managers.PopUpManager;
 			import mx.managers.ToolTipManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -124,15 +124,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				return -1;
 			}
-			
-			private function handleButtonClick():void {
-				hideNotification();
-				
-				var clientStatusWindow:ClientStatusWindow = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClientStatusWindow, true) as ClientStatusWindow;
-				clientStatusWindow.setMessages(messages);
-				PopUpManager.centerPopUp(clientStatusWindow);
-			}
-			
+
+            private function handleButtonClick():void {
+                hideNotification();
+
+                var clientStatusWindow:ClientStatusWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClientStatusWindow, true) as ClientStatusWindow
+                if (clientStatusWindow) {
+                    clientStatusWindow.setMessages(messages);
+                }
+            }
+
 			private function handleMove():void {
 				if (notification) {
 					var location:Point = localToGlobal(new Point(0,0));

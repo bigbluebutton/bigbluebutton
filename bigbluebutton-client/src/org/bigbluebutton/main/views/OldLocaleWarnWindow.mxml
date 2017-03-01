@@ -25,17 +25,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="168" y="86" layout="vertical" width="400" height="150" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
-			import mx.managers.PopUpManager;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.util.i18n.ResourceUtil; 
-			
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
 			private static const LOGGER:ILogger = getClassLogger(OldLocaleWarnWindow);      
 			private const windowTitleDefault:String = "Warning: Old Language Version";
 			private const reminder1Default:String = "You have an old language translation of BigBlueButton.";
 			private const reminder2Default:String = "Please clear your browser cache and try again.";
+
 			[Bindable] private var windowTitle:String;
 			[Bindable] private var oldLocalesReminder1:String;
 			[Bindable] private var oldLocalesReminder2:String;
@@ -55,25 +55,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if ((reminder2 == null) || (reminder2 == "")) oldLocalesReminder2 = reminder2Default;
 				else oldLocalesReminder2 = reminder2;
 			}
-			
-      private function redirect():void { 
-				var logoutURL:String = BBB.getLogoutURL();
-				var request:URLRequest = new URLRequest(logoutURL);
-				LOGGER.debug("Log out url: " + logoutURL);
-				request.method = URLRequestMethod.GET;
-				var urlLoader:URLLoader = new URLLoader();
-				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
-				urlLoader.load(request);
-      }
-            
+
+            private function redirect():void {
+                var logoutURL:String = BBB.getLogoutURL();
+                var request:URLRequest = new URLRequest(logoutURL);
+                LOGGER.debug("Log out url: " + logoutURL);
+                request.method = URLRequestMethod.GET;
+                var urlLoader:URLLoader = new URLLoader();
+                urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+                urlLoader.load(request);
+            }
+
 			private function handleComplete(e:Event):void {	
 				var request:URLRequest = new URLRequest(BBB.getLogoutURL());
 				navigateToURL(request, '_self');
-				PopUpManager.removePopUp(this);				
+				PopUpUtil.removePopUp(this);				
 			}
 			
             private function onUserLoggedOutWindowClose(e:Event):void {
-            	PopUpManager.removePopUp(this);
+            	PopUpUtil.removePopUp(this);
             }
 			
 		]]>
@@ -82,4 +82,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Label text="{oldLocalesReminder2}"/>
 	<mx:Button id="okBtn" label="OK" click="redirect()"/>
 
-</mx:TitleWindow> 
+</mx:TitleWindow>

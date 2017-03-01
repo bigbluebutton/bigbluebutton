@@ -34,11 +34,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.collections.ArrayCollection;
 		import mx.collections.ArrayList;
 		import mx.events.CloseEvent;
-		import mx.managers.PopUpManager;
 		
 		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.common.Media;
 		import org.bigbluebutton.core.BBB;
+		import org.bigbluebutton.core.PopUpUtil;
 		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -211,7 +211,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			var event:BBBEvent = new BBBEvent(BBBEvent.CAM_SETTINGS_CLOSED);
 			event.payload['clicked'] = payload;
 			dispatchEvent(event);
-			PopUpManager.removePopUp(this);
+			PopUpUtil.removePopUp(this);
 		}
       
     ]]>

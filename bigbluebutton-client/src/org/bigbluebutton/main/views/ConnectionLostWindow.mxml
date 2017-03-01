@@ -26,14 +26,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.net.navigateToURL;
 			
-			import mx.managers.PopUpManager;
-			
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 			
 			private function connectionReestablished(e:UsersConnectionEvent):void{
 				var url:URLRequest = new URLRequest(ExternalInterface.call("window.location.href.toString"));
 				navigateToURL(url, '_self');
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 		]]>

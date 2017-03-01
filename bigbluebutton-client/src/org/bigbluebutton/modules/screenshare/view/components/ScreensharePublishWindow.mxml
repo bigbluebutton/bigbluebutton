@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   implements="org.bigbluebutton.common.IBbbModuleWindow"
   xmlns:mate="http://mate.asfusion.com/"
   xmlns:dspub="flexlib.mdi.containers.*"
+  xmlns:common="org.bigbluebutton.common.*"
   backgroundColor="#C0C0C0"
   initialize="init()"
   creationComplete="onCreationComplete()"	
@@ -49,13 +50,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
-      import mx.core.UIComponent;
-      
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.managers.ReconnectionManager;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -66,8 +64,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
       import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
-      import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
+      import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
       import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
@@ -134,14 +132,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         windowControls.maximizeRestoreBtn.enabled = false;
         
-        titleBarOverlay.tabIndex = baseIndex;
         titleBarOverlay.focusEnabled = true;
         
-        minimizeBtn.tabIndex = baseIndex+1;
-        maximizeRestoreBtn.tabIndex = baseIndex+2;
-        closeBtn.tabIndex = baseIndex+3;
-        
         resourcesChanged();
+		
+		focusManager.setFocus(titleBarOverlay);
       }
       
       private function remoteFocus(e:ShortcutEvent):void{
@@ -522,6 +517,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         helpInfoBox.visible = helpInfoBox.includeInLayout = showHelp;
         previewBox.visible = !showHelp;
         
+		titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
+		
         shareTypeBox.visible = showHelp;
         cancelBtn.visible = cancelBtn.includeInLayout = showHelp;
         startBtn.visible = startBtn.includeInLayout = showHelp;
@@ -530,6 +527,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
   
+	<common:TabIndexer id="tabIndexer" startIndex="{dsOptions.baseTabIndex + 1}"
+					   tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, helpButton, shareTypeCombo, startBtn, cancelBtn, stopBtn, pauseBtn, restartBtn]}"/>
+	
   <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
   <mx:Box id="publishView" height="100%" width="100%" styleName="desktopShareViewStyle">
     <mx:VBox id="helpInfoBox" width="100%" height="100%" verticalAlign="middle" verticalGap="12">
