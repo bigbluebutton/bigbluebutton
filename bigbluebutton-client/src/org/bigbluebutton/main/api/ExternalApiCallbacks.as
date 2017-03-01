@@ -19,7 +19,8 @@
 package org.bigbluebutton.main.api
 {
   import com.asfusion.mate.events.Dispatcher;
-  
+  import mx.collections.ArrayCollection;
+
   import flash.external.ExternalInterface;
   import org.bigbluebutton.core.BBB;
   import org.as3commons.logging.api.ILogger;
@@ -188,20 +189,27 @@ package org.bigbluebutton.main.api
     
     private function handleAmISharingCameraRequestSync():Object {
       var obj:Object = new Object();
+      var camArray: ArrayCollection = new ArrayCollection();
 
-      var camSettings:CameraSettingsVO = UsersUtil.amIPublishing().getItemAt(0) as CameraSettingsVO; // TODO loop
-      obj.isPublishing = camSettings.isPublishing;
-      obj.camIndex = camSettings.camIndex;
-      obj.camWidth = camSettings.videoProfile.width;
-      obj.camHeight = camSettings.videoProfile.height;
-      obj.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
-      obj.camModeFps = camSettings.videoProfile.modeFps;
-      obj.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
-      obj.camQualityPicture = camSettings.videoProfile.qualityPicture;
-      obj.avatarURL = UsersUtil.getAvatarURL();
-      
+      var camSettingsArray:ArrayCollection = UsersUtil.amIPublishing();
+      for (var i:int = 0; i < camSettingsArray.length; i++) {
+        var camSettings:CameraSettingsVO = camSettingsArray.getItemAt(i) as CameraSettingsVO;
+        var cam:Object = new Object();
+
+        cam.isPublishing = camSettings.isPublishing;
+        cam.camIndex = camSettings.camIndex;
+        cam.camWidth = camSettings.videoProfile.width;
+        cam.camHeight = camSettings.videoProfile.height;
+        cam.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+        cam.camModeFps = camSettings.videoProfile.modeFps;
+        cam.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+        cam.camQualityPicture = camSettings.videoProfile.qualityPicture;
+        cam.avatarURL = UsersUtil.getAvatarURL();
+        camArray.addItem(cam);
+      }
+
+      obj.cameras = camArray;
       return obj;
-
     }
     
     private function handleAmISharingCameraRequestAsync():void {

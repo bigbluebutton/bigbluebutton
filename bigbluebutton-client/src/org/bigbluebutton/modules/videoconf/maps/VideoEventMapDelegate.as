@@ -509,7 +509,7 @@ package org.bigbluebutton.modules.videoconf.maps
     public function handleEraseCameraSetting(event:BBBEvent):void {
      _myCamSettings = new ArrayCollection();
 
-     LOGGER.debug("VideoEventMapDelegate::handleEraseCameraSetting [{0},{1}] after", [event.toString()]);
+     LOGGER.debug("VideoEventMapDelegate::handleEraseCameraSetting [{0}]", [event.toString()]);
      _restream = event.payload.restream;
     }
 
