@@ -1043,6 +1043,11 @@ PollChoicesModal {
 	fontFamily: Arial;
 }
 
+.chatMessageListStyle {
+	rollOverColor: #ffffff;
+	selectionColor: #f3f3f3;
+}
+
 EmojiGrid {
 	backgroundColor: #ffffff;
 	horizontalAlign: center;
