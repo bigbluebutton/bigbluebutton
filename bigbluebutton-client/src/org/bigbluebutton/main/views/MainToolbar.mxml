@@ -76,6 +76,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var showToolbar:Boolean = false;
 			[Bindable] public var toolbarOptions:LayoutOptions = new LayoutOptions();		
 			[Bindable] private var numButtons:int;
+			
+			private var logoutAlert:Alert; 
       
 			/*
 			 * Because of the de-centralized way buttons are added to the toolbar, there is a large gap between the tab indexes of the main buttons
@@ -212,25 +214,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Received end meeting event.");
 				doLogout();
 			}
-			
-			
-			private function confirmLogout():void {
-				if (toolbarOptions.confirmLogout){
-					// Confirm logout using built-in alert
-					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
-					
-					var newX:Number = btnLogout.x + btnLogout.width - alert.width;
-					var newY:Number = btnLogout.y + btnLogout.height + 5;
 
-					alert.validateNow();
-					alert.move(newX, newY);
-					//Accessibility.updateProperties();
-				}
-				else{
-					doLogout();
-				}
-			}
-			
+            private function confirmLogout():void {
+                if (toolbarOptions.confirmLogout) {
+                    if (logoutAlert == null) {
+                        // Confirm logout using built-in alert
+                        logoutAlert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
+
+                        var newX:Number = btnLogout.x + btnLogout.width - logoutAlert.width;
+                        var newY:Number = btnLogout.y + btnLogout.height + 5;
+
+                        logoutAlert.validateNow();
+                        logoutAlert.move(newX, newY);
+                    }
+                } else {
+                    doLogout();
+                }
+            }
+
 			private function alertLogout(e:CloseEvent):void {
 				// Check to see if the YES button was pressed.
 				if (e.detail==Alert.YES) {
@@ -244,6 +245,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 */
 					callLater(doLogout);
 				}
+				logoutAlert = null;
 			}
 			
 			private function doLogout():void {

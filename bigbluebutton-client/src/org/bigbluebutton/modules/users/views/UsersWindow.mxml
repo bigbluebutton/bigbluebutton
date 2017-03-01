@@ -60,6 +60,7 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -251,12 +252,12 @@
 				dispatcher.dispatchEvent(rollEvent);
 			}
 
-			private function openEmojiStatusMenu():void {
-				var grid:EmojiGrid = PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication), EmojiGrid, false) as EmojiGrid;
-				var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - grid.height));
-				grid.x = menuXY.x;
-				grid.y = menuXY.y;
-			}
+            private function openEmojiStatusMenu():void {
+                var grid:EmojiGrid = PopUpUtil.createNonModelPopUp(DisplayObject(FlexGlobals.topLevelApplication), EmojiGrid, false) as EmojiGrid;
+                var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - grid.height));
+                grid.x = menuXY.x;
+                grid.y = menuXY.y;
+            }
 
 			private function openSettings():void {
 				paramsMenuData = [];
@@ -362,50 +363,11 @@
 
 			private function removeJoinAlert():void {
 				if (joinAlert != null) {
+					// @todo: any way using PopUpUtil ?
 					PopUpManager.removePopUp(joinAlert);
 				}
 			}
 
-			/*private function unlockAll():void {
-				LogUtil.traceObject("Action: unlockAll");
-				if (amIModerator) {
-					if (roomLocked) {
-						var unlockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.UNLOCK_ALL);
-						dispatchEvent(unlockCommand);
-						roomLocked = false;
-					} else {
-						LogUtil.error("Action: unlockAll, but room is not locked");
-					}
-				}
-			}
-			
-			private function lockAll():void {
-				LogUtil.traceObject("Action: lockAll");
-				if (amIModerator) {
-					if (!roomLocked) {
-						var lockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.LOCK_ALL);
-						dispatchEvent(lockCommand);
-						roomLocked = true;
-					} else {
-						LogUtil.error("Action: lockAll, but room is already locked");
-					}
-				}
-			}
-			
-			private function lockAlmostAll():void {
-				LogUtil.traceObject("Action: lockAlmostAll");
-				
-				if (amIModerator) {
-					if (!roomLocked) {
-						var lockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.LOCK_ALMOST_ALL);
-						dispatchEvent(lockCommand);
-						roomLocked = true;
-					} else {
-						LogUtil.error("Action: lockAlmostAll, but room is already locked");
-					}
-				}
-			}
-			*/
 			private function handleMeetingMuted(e:MeetingMutedEvent):void {
 				roomMuted = MeetingModel.getInstance().meetingMuted;
 			}
