@@ -532,14 +532,6 @@
 			}
 
 			private function endAllBreakoutRoomsHandler(event:MouseEvent):void {
-				// We need to switch the use back to the main audio confrence if he is in a breakout audio conference
-				var br:BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomInListen();
-				if (br != null) {
-					var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
-					e.breakoutMeetingId = br.meetingId;
-					e.listen = false;
-					dispatcher.dispatchEvent(e);
-				}
 				dispatcher.dispatchEvent(new BreakoutRoomEvent(BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS));
 			}
 

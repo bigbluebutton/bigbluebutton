@@ -1452,12 +1452,20 @@ check_state() {
           fi
         fi
 
+	if [ "$(cat /usr/share/bbb-apps-akka/conf/application.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
+	        BBB_WEB_IP=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+                echo "# Error: Detected that /usr/share/bbb-apps-akka/conf/application.conf has the default"
+                echo "# configuration values.  To update, run"
+                echo "#"
+                echo "#    sudo bbb-conf --setip $BBB_WEB_IP"
+                echo "#"
+	fi
 	exit 0
 }
 
 
 #
-# Print out the status of the current setup and look for bugs.
+# Print out the status of the current setup and look for configuration issues
 #
 if [ $CHECK ]; then
 	need_root

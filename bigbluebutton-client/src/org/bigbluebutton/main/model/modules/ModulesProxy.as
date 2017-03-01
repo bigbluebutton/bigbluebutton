@@ -20,9 +20,9 @@ package org.bigbluebutton.main.model.modules
 {
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.PortTestProxy;
-    import org.bigbluebutton.core.UsersUtil;
 	
 	public class ModulesProxy {
 		private static const LOGGER:ILogger = getClassLogger(ModulesProxy);      

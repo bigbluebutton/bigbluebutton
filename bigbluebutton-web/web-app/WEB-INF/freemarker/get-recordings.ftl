@@ -14,6 +14,7 @@
       <state>${r.getState()?string}</state>
       <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
       <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
+      <participants><#if r.getNumParticipants()??>${r.getNumParticipants()}</#if></participants>
       <#assign m = r.getMetadata()>
       <metadata>
       <#list m?keys as prop>

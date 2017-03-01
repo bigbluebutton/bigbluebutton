@@ -78,10 +78,13 @@ class MessageList extends Component {
     }
 
     const { scrollArea } = this.refs;
-    this.shouldScrollBottom = scrollArea.scrollTop +
-                              scrollArea.offsetHeight ===
-                              scrollArea.scrollHeight;
 
+    let position = scrollArea.scrollTop + scrollArea.offsetHeight;
+
+    //Compare with <1 to account for the chance scrollArea.scrollTop is a float
+    //value in some browsers.
+    this.shouldScrollBottom = position === scrollArea.scrollHeight ||
+                              (scrollArea.scrollHeight - position < 1);
   }
 
   componentDidUpdate(prevProps) {
