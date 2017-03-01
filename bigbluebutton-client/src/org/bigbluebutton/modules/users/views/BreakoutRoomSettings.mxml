@@ -36,8 +36,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
-			import mx.managers.PopUpManager;
 			
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
@@ -57,7 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static var assignement : Dictionary;
 
 			private function onCloseClicked():void {
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 
 			/**
@@ -88,7 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					event.record = recordCheckbox.selected;
 					dispatcher.dispatchEvent(event);
 					storeAssignement();
-					PopUpManager.removePopUp(this);
+					PopUpUtil.removePopUp(this);
 				} else {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
 				}
@@ -115,7 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 				if (usersInvited) {
-					PopUpManager.removePopUp(this);
+					PopUpUtil.removePopUp(this);
 				} else {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
 				}

@@ -566,7 +566,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<chat:AdvancedList width="100%" height="{chatListHeight - timerBox.height}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
 						   itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
 						   dataProvider="{chatMessages.messages}"
-						   rollOverColor="0xFFFFFF" selectionColor="0x000000"
+						   styleName="chatMessageListStyle"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
 		<mx:HBox id="timerBox" styleName="breakoutRoomTimerBox"
 				 includeInLayout="false" visible="false"

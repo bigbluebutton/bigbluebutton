@@ -37,22 +37,6 @@ package org.bigbluebutton.modules.chat.views
     {
       super();
     }
-    
-	override protected function drawSelectionIndicator(indicator:Sprite, x:Number, y:Number, width:Number, height:Number, color:uint, itemRenderer:IListItemRenderer):void {
-		var g:Graphics = Sprite(indicator).graphics;
-		g.clear();
-		//g.beginFill(color);
-		g.lineStyle(1, color, 1.0, true, "normal", CapsStyle.SQUARE, JointStyle.MITER);
-		g.drawRect(0, 0, width-2, height);
-		//g.endFill();
-		
-		indicator.x = x;
-		indicator.y = y;
-	}
-	
-	override protected function drawHighlightIndicator(indicator:Sprite, x:Number, y:Number, width:Number, height:Number, color:uint, itemRenderer:IListItemRenderer):void {
-		
-	}
 	
     override protected function measure():void
     {

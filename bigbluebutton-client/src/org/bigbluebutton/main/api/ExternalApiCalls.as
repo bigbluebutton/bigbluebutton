@@ -19,6 +19,7 @@
 package org.bigbluebutton.main.api
 {
   import flash.external.ExternalInterface;
+  import mx.collections.ArrayCollection;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -158,21 +159,28 @@ package org.bigbluebutton.main.api
     }
     
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
-      var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
-      
+      var camSettingsArray:ArrayCollection = UsersUtil.amIPublishing();
       var payload:Object = new Object();
+      var camArray: ArrayCollection = new ArrayCollection();
+      for (var i:int = 0; i < camSettingsArray.length; i++) {
+        var camSettings:CameraSettingsVO = camSettingsArray.getItemAt(i) as CameraSettingsVO;
+
+        var cam:Object = new Object();
+        cam.isPublishing = camSettings.isPublishing;
+        cam.camIndex = camSettings.camIndex;
+        cam.camWidth = camSettings.videoProfile.width;
+        cam.camHeight = camSettings.videoProfile.height;
+        cam.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+        cam.camModeFps = camSettings.videoProfile.modeFps;
+        cam.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+        cam.camQualityPicture = camSettings.videoProfile.qualityPicture;
+        cam.avatarURL = UsersUtil.getAvatarURL();
+        camArray.addItem(cam);
+      }
       payload.eventName = EventConstants.AM_I_SHARING_CAM_RESP;
-      payload.isPublishing = camSettings.isPublishing;
-      payload.camIndex = camSettings.camIndex;
-      payload.camWidth = camSettings.videoProfile.width;
-      payload.camHeight = camSettings.videoProfile.height;
-      payload.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
-      payload.camModeFps = camSettings.videoProfile.modeFps;
-      payload.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
-      payload.camQualityPicture = camSettings.videoProfile.qualityPicture;
-      payload.avatarURL = UsersUtil.getAvatarURL();
-      
-      broadcastEvent(payload);        
+      payload.cameras = camArray;
+
+      broadcastEvent(payload);
     }
     
 
