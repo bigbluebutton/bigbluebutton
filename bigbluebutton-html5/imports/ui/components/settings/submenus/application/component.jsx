@@ -110,7 +110,7 @@ export default class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentCenter)}>
                 <label className={cx(styles.label, styles.bold)}>
-                  {this.props.fontSizes[this.state.settings.fontSize]}
+                  {this.state.settings.fontSize}
                 </label>
               </div>
             </div>
