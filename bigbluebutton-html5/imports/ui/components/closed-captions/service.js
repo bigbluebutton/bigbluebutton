@@ -7,7 +7,6 @@ let getCCData = () => {
 
   const ccSettings = Storage.getItem('settings_cc');
 
-  console.log('cc settings component', ccSettings);
   let CCEnabled = ccSettings.closedCaptions;
 
   //associative array that keeps locales with arrays of string objects related to those locales
