@@ -683,7 +683,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
 	<common:TabIndexer id="tabIndexer" startIndex="100000"
-					   tabIndices="{[langSelector, logBtn]}"/>
+					   tabIndices="{[warningBtn, langSelector, logBtn]}"/>
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
