@@ -1,15 +1,15 @@
 import React from 'react';
 import Toggle from 'react-toggle';
-import classNames from 'classnames'
+import classNames from 'classnames';
 
 export default class Switch extends Toggle {
   render() {
-    const { className, icons: _icons, ...inputProps } = this.props
+    const { className, icons: _icons, ...inputProps } = this.props;
     const classes = classNames('react-toggle', {
       'react-toggle--checked': this.state.checked,
       'react-toggle--focus': this.state.hasFocus,
       'react-toggle--disabled': this.props.disabled,
-    }, className)
+    }, className);
 
     return (
       <div className={classes}
@@ -33,7 +33,8 @@ export default class Switch extends Toggle {
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           className='react-toggle-screenreader-only'
-          type='checkbox' />
+          type='checkbox'
+          tabIndex='0'/>
       </div>
     );
   }

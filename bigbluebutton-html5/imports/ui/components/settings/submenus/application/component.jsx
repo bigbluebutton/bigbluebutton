@@ -120,7 +120,7 @@ export default class ApplicationMenu extends BaseMenu {
                 onClick={() => this.handleIncreaseFontSize()}
                 icon={'circle-add'}
                 circle={true}
-                tabIndex={9}
+                tabIndex='0'
                 hideLabel={true}
                 label={'Increase Font'}
                 aria-labelledby={'sizeUpLabel'}
@@ -133,7 +133,7 @@ export default class ApplicationMenu extends BaseMenu {
                 onClick={() => this.handleDecreaseFontSize()}
                 icon={'circle-minus'}
                 circle={true}
-                tabIndex={10}
+                tabIndex='0'
                 hideLabel={true}
                 label={'Decrease Font'}
                 aria-labelledby={'sizeDownLabel'}
