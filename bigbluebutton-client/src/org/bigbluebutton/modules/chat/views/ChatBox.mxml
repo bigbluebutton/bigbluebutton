@@ -72,6 +72,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -99,25 +100,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private static const LOGGER:ILogger = getClassLogger(ChatBox);      
       
-      public var publicChat:Boolean = false;
-      public var chatWithUserID:String;
-      public var chatWithUsername:String
+			public var publicChat:Boolean = false;
+			public var chatWithUserID:String;
+			public var chatWithUsername:String
       
 			public var read:Boolean = true;
 			public var userHasLeft:Boolean = false;
 			
 			private var globalDispatcher:Dispatcher = new Dispatcher();
-      [Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
-        '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+			[Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
+			'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
       
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
 			private var lastSenderId:String = "";
 			private var lastTime:String = "";
 			
-	    [Bindable]
-	    private var chatMessages:ChatConversation = new ChatConversation();
-      
+			[Bindable]
+			private var chatMessages:ChatConversation = new ChatConversation();
+
 			private var lastCount:Number = 0;			
 			private var scrollTimer:Timer;
 			private var currentMessage:int;
@@ -126,8 +127,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var focus:Boolean = false;
 			private var keyCombos:Object;
 			
-		      [Bindable]
-		      private var chatListHeight:Number = 100;
+			private var navToFirst:Boolean = false;
+			private var navToLatest:Boolean = false;
+			private var spacerNeeded:Boolean = false;
+			private var indicatorNeeded:Boolean = false
+			private var repeat:Boolean = false;
+			
+			[Bindable]
+			private var chatListHeight:Number = 100;
 			
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
       

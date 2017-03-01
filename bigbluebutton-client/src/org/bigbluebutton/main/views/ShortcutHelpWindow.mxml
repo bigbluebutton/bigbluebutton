@@ -72,7 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											  'bbb.shortcutkey.chat.closePrivate'];
 			
 			private var userResource:Array = ['bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
-											  /*'bbb.shortcutkey.users.kick',*/ 'bbb.shortcutkey.users.muteall'];
+											  'bbb.shortcutkey.users.kick', 'bbb.shortcutkey.users.muteall', 'bbb.shortcutkey.users.focusBreakoutRooms',
+											  'bbb.shortcutkey.users.listenToBreakoutRoom', 'bbb.shortcutkey.users.joinBreakoutRoom'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;

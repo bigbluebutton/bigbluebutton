@@ -17,6 +17,7 @@
  *
  */
 package org.bigbluebutton.main.events {
+
 	import flash.events.Event;
 
 	public class ShortcutEvent extends Event {
@@ -46,6 +47,8 @@ package org.bigbluebutton.main.events {
 		public static const SHARE_WEBCAM:String = 'SHARE_WEBCAM';
 		public static const PAUSE_REMOTE_STREAM:String = 'PAUSE_REMOTE_STREAM';
 		
+		public static const FOCUS_CAPTION_WINDOW:String = 'FOCUS_CAPTION_WINDOW';
+		
 		public static const REMOTE_FOCUS_DESKTOP:String = 'REMOTE_FOCUS_DESKTOP';
 		public static const REMOTE_FOCUS_WEBCAM:String = 'REMOTE_FOCUS_WEBCAM';
 		// Remote focus microphone not necessary; audio options already hog focus
@@ -70,6 +73,7 @@ package org.bigbluebutton.main.events {
 		//public static const FOCUS_LOOP_END:String = 'FOCUS_LOOP_END';
 		public static const FOCUS_SHORTCUT_BUTTON:String = 'FOCUS_SHORTCUT_BUTTON';
 		public static const MUTE_ALL_BUT_PRES:String = 'MUTE_ALL_BUT_PRES';
+		public static const OPEN_BREAKOUT_ROOMS:String = 'OPEN_BREAKOUT_ROOMS';
 		public static const FOCUS_LOGOUT_BUTTON:String = 'FOCUS_LOGOUT_BUTTON';
 		
 		public static const CLOSE_POLL_STATS:String = 'CLOSE_POLL_STATS';

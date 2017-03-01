@@ -29,7 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			creationComplete="onCreationComplete()">
 	
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	
+	<mate:Listener type="{ShortcutEvent.FOCUS_CAPTION_WINDOW}" method="focusWindow" />
+
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -43,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
 			import org.bigbluebutton.modules.caption.model.CaptionOptions;
@@ -228,7 +230,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					setTextTabLabel(currentTranscript.ownerID);
 				}
 			}
-			
+
+			private function focusWindow(e:ShortcutEvent):void {
+				focusManager.setFocus(titleBarOverlay);
+			}
 		]]>
 	</mx:Script>
 	<mx:Box width="100%" height="100%" horizontalAlign="left">

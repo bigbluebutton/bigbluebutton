@@ -121,6 +121,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           case "chat":
             dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_WINDOW));
             break;
+		  case "caption":
+			  dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CAPTION_WINDOW));
+			  break;
          }
        }
 								
@@ -375,7 +378,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-	<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn]}"/>
+	<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
 	<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
 					   tabIndices="{[recordBtn, muteMeBtn, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 
@@ -393,6 +396,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
                        accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
                        height="22" styleName="quickWindowLinkStyle" />
+		<mx:LinkButton id="captionLinkBtn" click="onQuickLinkClicked('caption')" label="{ResourceUtil.getInstance().getString('bbb.caption.quickLink.label')}" 
+					   accessibilityDescription="{captionLinkBtn.label}" toolTip="{captionLinkBtn.label}"
+					   height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
 	<views:RecordButton id="recordBtn"/>
