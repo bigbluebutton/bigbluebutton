@@ -80,13 +80,7 @@ package org.bigbluebutton.core
     }
 
     public static function removeCameraSettings(camIndex:int):void {
-      var logData:Object = getUserData();
-      logData.camIndex = camIndex;
-      logData.aa = "before removeCameraSettings";
-      LOGGER.warn(JSON.stringify(logData));
       UserManager.getInstance().getConference().removeCameraSettings(camIndex);
-      logData.aa = "after removeCameraSettings";
-      LOGGER.warn(JSON.stringify(logData));
     }
 
     public static function hasWebcamStream(userID:String):Boolean {

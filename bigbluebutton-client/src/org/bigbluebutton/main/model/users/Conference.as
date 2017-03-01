@@ -470,7 +470,7 @@ package org.bigbluebutton.main.model.users {
 			users.refresh();
 		}
 		
-		public function getUserIDs():ArrayCollection  {
+		public function getUserIDs():ArrayCollection {
 			var uids:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < users.length; i++) {
 				var u:BBBUser = users.getItemAt(i) as BBBUser;
