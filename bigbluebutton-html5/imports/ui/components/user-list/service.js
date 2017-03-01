@@ -197,21 +197,46 @@ const getOpenChats = chatID => {
       return op;
     });
 
-  let closedChat = Storage.getItem('closedChat');
   let closedArray = Storage.getItem('closedArray');
+  let sessionArr = [];
+  let closedID, updateFlag = false;
 
-  console.log(closedArray);
+  if (closedArray !== null) {
 
-  if (closedChat !== null) {
+    sessionArr = closedArray;
 
-    if (UnreadMessages.count(closedChat.chatID) > 0) {
-      closedChat.flag = true;
+    //if chatID has unreadMessage
+    closedID = openChats.map(o=> o)
+      .filter(op => op.unreadCounter > 0);
 
-      Storage.setItem('closedChat', closedChat.flag);
+    if (closedID !== null) {
+      closedArray.forEach((c, i) => {
+        closedID.forEach((a) => {
+          if (sessionArr[i].chatID == a.id) {
+            if (!sessionArr[i].flag) {
+              sessionArr[i].flag = true;
+              updateFlag = true;
+            }
+          }
+        });
+      });
     }
 
-    if (!closedChat.flag) {
-      openChats = openChats.filter(o => o.id !== closedChat.chatID);
+    // filter to display the list ( flag == true )
+    closedArray.forEach((closed) => {
+      if (!closed.flag) {
+        openChats = openChats.filter(o => o.id !== closed.chatID);
+      }
+    });
+
+    // filter to take chatInfo which has unreadMessages
+    if (updateFlag) {
+      // remove session
+      Storage.removeItem('closedArray');
+
+      //update session
+      Storage.setItem('closedArray', sessionArr);
+
     }
   }
 

@@ -194,14 +194,24 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
-  let closedChat = Storage.getItem('closedChat');
+  // Session for close private chats
+  let closedArray = Storage.getItem('closedArray');
+  let sessionArr = [];
 
-  if (closedChat !== null && !closedChat.flag) {
-    let chatInfo = {
-      chatID: closedChat.chatID,
-      flag: true,
-    };
-    Storage.setItem('closedChat', chatInfo);
+  if (closedArray !== null) {
+    sessionArr = closedArray;
+
+    closedArray.forEach((chat, i) => {
+
+      if (receiver.id == chat.chatID && !chat.flag) {
+        if (sessionArr[i].chatID == receiver.id) {
+          sessionArr[i].flag = true;
+        }
+      }
+    });
+
+    Storage.removeItem('closedArray');
+    Storage.setItem('closedArray', sessionArr);
   }
 
   callServer('sendChat', messagePayload);

@@ -17,13 +17,14 @@
   > [class*=" icon-bbb-"] {
     font-size: 85%;
   }
-}
-.closeIcon {
-  margin-left: $line-height-computed * 6;
+
+  .closeIcon {
+    margin-left: $line-height-computed * 5;
+  }
 }
 
-[class='icon-bbb-left-arrow'],
-[class='icon-bbb-close']
+
+[class='icon-bbb-left-arrow']
 {
     padding-bottom: 5px;
 }
