@@ -7,8 +7,6 @@ export default function handleVoiceUpdate({ payload }) {
   const meetingId = payload.meeting_id;
   const user = payload.user;
 
-  console.error(payload);
-
   check(meetingId, String);
   check(user, Object);
 
