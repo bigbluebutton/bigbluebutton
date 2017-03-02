@@ -434,6 +434,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     camSettings.camerasArray = event.payload.camerasArray;
                     camSettings.publishInClient = event.payload.publishInClient;
                     camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
+					camSettings.updateCameraList();
 
                     var point1:Point = new Point();
                     // Calculate position of TitleWindow in Application's coordinates. 
