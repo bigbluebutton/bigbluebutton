@@ -29,7 +29,7 @@ export default function validateAuthToken(credentials) {
   if (!User) {
     createDummyUser(meetingId, requesterUserId, requesterToken);
   } else if (User.validated) {
-    return setConnectionStatus(meetingId, requesterUserId, ONLINE_CONNECTION_STATUS);
+    setConnectionStatus(meetingId, requesterUserId, ONLINE_CONNECTION_STATUS);
   }
 
   let payload = {
