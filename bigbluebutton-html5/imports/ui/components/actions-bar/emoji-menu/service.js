@@ -22,7 +22,7 @@ let getEmojiData = () => {
 
 // Below doesn't even need to receieve credentials
 const setEmoji = (toRaiseUserId, status) => {
-  callServer('userSetEmoji', toRaiseUserId, status);
+  callServer('setEmojiStatus', toRaiseUserId, status);
 };
 
 export default {
