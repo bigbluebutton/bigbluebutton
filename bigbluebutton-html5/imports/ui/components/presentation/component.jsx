@@ -1,19 +1,18 @@
 import React, { PropTypes } from 'react';
-import WhiteboardShapeModel from './shape-factory/component.jsx';
+import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
 import Cursor from './cursor/component.jsx';
-import SlideControlsContainer from './slide-controls/container.jsx'; //I added
-import { createContainer } from 'meteor/react-meteor-data';
+import PresentationToolbarContainer from './presentation-toolbar/container.jsx';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PollingContainer from '/imports/ui/components/polling/container';
 
-export default class Whiteboard extends React.Component {
+export default class PresentationArea extends React.Component {
   constructor(props) {
     super(props);
   }
 
-  renderWhiteboard() {
+  renderPresentationArea() {
     let slideObj = this.props.currentSlide;
 
     if (this.props.currentSlide) {
@@ -54,17 +53,11 @@ export default class Whiteboard extends React.Component {
             </defs>
             <g clipPath="url(#viewBox)">
               <Slide id="slideComponent" currentSlide={this.props.currentSlide}/>
-              {this.props.shapes ? this.props.shapes.map((shape) =>
-                <WhiteboardShapeModel
-                  shape={shape.shape}
-                  key={shape.shape.id}
-                  slideWidth = {slideObj.width}
-                  slideHeight = {slideObj.height}
-                  widthRatio={slideObj.width_ratio}
-                  heightRatio={slideObj.height_ratio}
-                />
-                )
-              : null }
+              <ShapeGroupContainer
+                width = {slideObj.width}
+                height = {slideObj.height}
+                whiteboardId = {slideObj.id}
+              />
               {this.props.cursor ?
                 <Cursor
                 viewBoxWidth={viewBoxWidth}
@@ -85,10 +78,10 @@ export default class Whiteboard extends React.Component {
     }
   }
 
-  renderSlideControlsContainer() {
+  renderPresentationToolbar() {
     if (this.props.currentSlide) {
       return (
-        <SlideControlsContainer
+        <PresentationToolbarContainer
           currentSlideNum={this.props.currentSlide.slide.num}
           presentationId={this.props.currentSlide.presentationId}
         />
@@ -100,20 +93,20 @@ export default class Whiteboard extends React.Component {
 
   render() {
     return (
-      <div className={styles.whiteboardContainer}>
-        <div className={styles.whiteboardWrapper}>
-          <div className={styles.whiteboardPaper}>
-            {this.renderWhiteboard()}
+      <div className={styles.presentationContainer}>
+        <div className={styles.presentationWrapper}>
+          <div className={styles.presentationPaper}>
+            {this.renderPresentationArea()}
           </div>
         </div>
         <PollingContainer />
-        {this.renderSlideControlsContainer()}
+        {this.renderPresentationToolbar()}
       </div>
     );
   }
 }
 
-Whiteboard.defaultProps = {
+PresentationArea.defaultProps = {
   svgProps: {
 
   },

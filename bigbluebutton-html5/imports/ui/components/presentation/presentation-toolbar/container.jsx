@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import SlideControlsService from './service';
-import SlideControls from './component.jsx';
+import PresentationToolbarService from './service';
+import PresentationToolbar from './component.jsx';
 
 const propTypes = {
   // Number of current slide being displayed
@@ -18,7 +18,7 @@ const propTypes = {
   numberOfSlides: PropTypes.number.isRequired,
 };
 
-class SlideControlsContainer extends React.Component {
+class PresentationToolbarContainer extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -35,7 +35,7 @@ class SlideControlsContainer extends React.Component {
     if (userIsPresenter) {
       // Only show controls if user is presenter
       return (
-        <SlideControls
+        <PresentationToolbar
           currentSlideNum={currentSlideNum}
           numberOfSlides={numberOfSlides}
           actions={actions}
@@ -48,7 +48,7 @@ class SlideControlsContainer extends React.Component {
 }
 
 export default createContainer((params) => {
-  const data = SlideControlsService.getSlideData(params);
+  const data = PresentationToolbarService.getSlideData(params);
 
   const {
     userIsPresenter,
@@ -60,13 +60,13 @@ export default createContainer((params) => {
     numberOfSlides,
     actions: {
       nextSlideHandler: () =>
-        SlideControlsService.nextSlide(params.currentSlideNum, numberOfSlides),
+        PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides),
       previousSlideHandler: () =>
-        SlideControlsService.previousSlide(params.currentSlideNum, numberOfSlides),
+        PresentationToolbarService.previousSlide(params.currentSlideNum, numberOfSlides),
       skipToSlideHandler: (event) =>
-        SlideControlsService.skipToSlide(event),
+        PresentationToolbarService.skipToSlide(event),
     },
   };
-}, SlideControlsContainer);
+}, PresentationToolbarContainer);
 
-SlideControlsContainer.propTypes = propTypes;
+PresentationToolbarContainer.propTypes = propTypes;

@@ -4,7 +4,7 @@
 $controls-color: #212121 !default;
 $controls-background: #F0F2F6 !default;
 
-.slideControlsWrapper,
+.presentationToolbarWrapper,
 .zoomWrapper {
   order: 2;
   padding: $line-height-computed / 2;
@@ -13,7 +13,7 @@ $controls-background: #F0F2F6 !default;
   align-items: center;
 }
 
-.slideControlsWrapper {
+.presentationToolbarWrapper {
   flex: 1;
   justify-content: center;
   width: 100%;
