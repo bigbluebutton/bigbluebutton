@@ -57,7 +57,7 @@ export default class ApplicationMenu extends BaseMenu {
           <div className={styles.fontBarRight} role='presentation'>
             <Button
               onClick={this.props.handleIncreaseFontSize}
-              icon={'circle-add'}
+              icon={'add'}
               circle={true}
               tabIndex={9}
               hideLabel={true}
@@ -70,7 +70,7 @@ export default class ApplicationMenu extends BaseMenu {
               Increases the font size of the application.</div>
             <Button
               onClick={this.props.handleDecreaseFontSize}
-              icon={'circle-minus'}
+              icon={'substract'}
               circle={true}
               tabIndex={10}
               hideLabel={true}

@@ -106,20 +106,20 @@ export default class DefaultContent extends Component {
                 <Button
                   label={'With Icon'}
                   onClick={this.handleClick}
-                  icon={'circle-add'}
+                  icon={'add'}
                 />&nbsp;
                 <Button
                   label={'Ghost With Icon'}
                   onClick={this.handleClick}
                   color={'primary'}
-                  icon={'circle-add'}
+                  icon={'add'}
                   ghost={true}
                 />&nbsp;
                 <Button
                   label={'Icon Right'}
                   onClick={this.handleClick}
                   color={'danger'}
-                  icon={'circle-add'}
+                  icon={'add'}
                   ghost={true}
                   iconRight={true}
                 />&nbsp;
@@ -127,7 +127,7 @@ export default class DefaultContent extends Component {
                   label={'Icon Right'}
                   onClick={this.handleClick}
                   color={'success'}
-                  icon={'circle-add'}
+                  icon={'add'}
                   iconRight={true}
                 />
               </p>
@@ -136,7 +136,7 @@ export default class DefaultContent extends Component {
                   label={'Medium'}
                   onClick={this.handleClick}
                   color={'primary'}
-                  icon={'audio'}
+                  icon={'unmute'}
                   ghost={true}
                   circle={true}
                 />&nbsp;
@@ -144,7 +144,7 @@ export default class DefaultContent extends Component {
                   label={'Large'}
                   onClick={this.handleClick}
                   color={'danger'}
-                  icon={'audio'}
+                  icon={'unmute'}
                   size={'lg'}
                   ghost={true}
                   circle={true}
@@ -152,7 +152,7 @@ export default class DefaultContent extends Component {
                 <Button
                   label={'Small'}
                   onClick={this.handleClick}
-                  icon={'audio'}
+                  icon={'unmute'}
                   size={'sm'}
                   circle={true}
                 />&nbsp;
@@ -160,7 +160,7 @@ export default class DefaultContent extends Component {
                   label={'Icon Right'}
                   onClick={this.handleClick}
                   color={'success'}
-                  icon={'audio'}
+                  icon={'unmute'}
                   size={'sm'}
                   iconRight={true}
                   circle={true}

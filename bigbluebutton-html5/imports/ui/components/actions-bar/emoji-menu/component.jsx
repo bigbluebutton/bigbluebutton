@@ -48,10 +48,10 @@ class EmojiMenu extends Component {
         <DropdownContent placement="top left">
           <DropdownList>
             <DropdownListItem
-              icon="raiseHand"
+              icon="hand"
               label={intl.formatMessage(intlMessages.raiseLabel)}
               description={intl.formatMessage(intlMessages.raiseDesc)}
-              onClick={() => actions.setEmojiHandler('raiseHand')}
+              onClick={() => actions.setEmojiHandler('hand')}
             />
             <DropdownListItem
               icon="happy"
@@ -60,10 +60,10 @@ class EmojiMenu extends Component {
               onClick={() => actions.setEmojiHandler('happy')}
             />
             <DropdownListItem
-              icon="neutral"
+              icon="undecided"
               label={intl.formatMessage(intlMessages.undecidedLabel)}
               description={intl.formatMessage(intlMessages.undecidedDesc)}
-              onClick={() => actions.setEmojiHandler('neutral')}
+              onClick={() => actions.setEmojiHandler('undecided')}
             />
             <DropdownListItem
               icon="sad"
@@ -78,22 +78,22 @@ class EmojiMenu extends Component {
               onClick={() => actions.setEmojiHandler('confused')}
             />
             <DropdownListItem
-              icon="away"
+              icon="time"
               label={intl.formatMessage(intlMessages.awayLabel)}
               description={intl.formatMessage(intlMessages.awayDesc)}
-              onClick={() => actions.setEmojiHandler('away')}
+              onClick={() => actions.setEmojiHandler('time')}
             />
             <DropdownListItem
-              icon="thumbsUp"
+              icon="thumbs_up"
               label={intl.formatMessage(intlMessages.thumbsupLabel)}
               description={intl.formatMessage(intlMessages.thumbsupDesc)}
-              onClick={() => actions.setEmojiHandler('thumbsUp')}
+              onClick={() => actions.setEmojiHandler('thumbs_up')}
             />
             <DropdownListItem
-              icon="thumbsDown"
+              icon="thumbs_down"
               label={intl.formatMessage(intlMessages.thumbsdownLabel)}
               description={intl.formatMessage(intlMessages.thumbsdownDesc)}
-              onClick={() => actions.setEmojiHandler('thumbsDown')}
+              onClick={() => actions.setEmojiHandler('thumbs_down')}
             />
             <DropdownListItem
               icon="applause"
@@ -103,7 +103,7 @@ class EmojiMenu extends Component {
             />
             <DropdownListSeparator/>
             <DropdownListItem
-              icon="clear-status"
+              icon="clear_status"
               label={intl.formatMessage(intlMessages.clearLabel)}
               description={intl.formatMessage(intlMessages.clearDesc)}
               onClick={() => actions.setEmojiHandler('none')}

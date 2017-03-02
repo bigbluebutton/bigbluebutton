@@ -275,7 +275,7 @@ class UserListItem extends Component {
     }
 
     if (user.isVoiceUser) {
-      audioChatIcon = !user.isMuted ? 'audio' : 'audio-off';
+      audioChatIcon = !user.isMuted ? 'unmute' : 'mute';
     }
 
     let audioIconClassnames = {};

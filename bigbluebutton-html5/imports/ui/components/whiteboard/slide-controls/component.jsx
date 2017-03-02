@@ -72,7 +72,7 @@ class SlideControls extends Component {
           aria-controls="skipSlide slideComponent"
           disabled={currentSlideNum > 1 ? false : true}
           color={'default'}
-          icon={'left-arrow'}
+          icon={'left_arrow'}
           size={'md'}
           onClick={actions.previousSlideHandler}
           label={intl.formatMessage(intlMessages.previousSlideLabel)}
@@ -87,7 +87,7 @@ class SlideControls extends Component {
           aria-controls="skipSlide slideComponent"
           disabled={currentSlideNum < numberOfSlides ? false : true}
           color={'default'}
-          icon={'right-arrow'}
+          icon={'right_arrow'}
           size={'md'}
           onClick={actions.nextSlideHandler}
           label={intl.formatMessage(intlMessages.nextSlideLabel)}
@@ -114,7 +114,7 @@ class SlideControls extends Component {
           aria-labelledby="fitWidthLabel"
           aria-describedby="fitWidthDescrip"
           color={'default'}
-          icon={'fit-to-width'}
+          icon={'fit_to_width'}
           size={'md'}
           circle={false}
           onClick={this.fitToWidthClickHandler}
@@ -127,7 +127,7 @@ class SlideControls extends Component {
           aria-labelledby="fitScreenLabel"
           aria-describedby="fitScreenDescrip"
           color={'default'}
-          icon={'fit-to-screen'}
+          icon={'fit_to_screen'}
           size={'md'}
           circle={false}
           onClick={this.fitToScreenClickHandler}

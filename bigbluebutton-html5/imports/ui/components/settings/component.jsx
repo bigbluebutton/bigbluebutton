@@ -24,7 +24,7 @@ export default class Settings extends React.Component {
     this.submenus = [];
     this.submenus.push(
       { componentName: AudioMenu, tabIndex: 3,
-        props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-audio', }, },
+        props: { title: 'Audio', prependIconName: 'icon-', icon: 'bbb-unmute', }, },
       { componentName: VideoMenu, tabIndex: 4,
         props: { title: 'Video', prependIconName: 'icon-', icon: 'bbb-video', }, },
       { componentName: ApplicationMenu, tabIndex: 5,
