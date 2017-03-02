@@ -7,6 +7,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
 import { callServer } from '/imports/ui/services/api';
+import _ from 'underscore';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
@@ -197,48 +198,24 @@ const getOpenChats = chatID => {
       return op;
     });
 
-  let closedArray = Storage.getItem('closedArray');
-  let sessionArr = [];
-  let closedID, updateFlag = false;
+  let currentClosedChats = Storage.getItem('closedChatList') || [];
+  let filteredChatList = [];
 
-  if (closedArray !== null) {
-
-    sessionArr = closedArray;
-
-    //if chatID has unreadMessage
-    closedID = openChats.map(o=> o)
-      .filter(op => op.unreadCounter > 0);
-
-    if (closedID !== null) {
-      closedArray.forEach((c, i) => {
-        closedID.forEach((a) => {
-          if (sessionArr[i].chatID == a.id) {
-            if (!sessionArr[i].flag) {
-              sessionArr[i].flag = true;
-              updateFlag = true;
-            }
-          }
-        });
-      });
-    }
-
-    // filter to display the list ( flag == true )
-    closedArray.forEach((closed) => {
-      if (!closed.flag) {
-        openChats = openChats.filter(o => o.id !== closed.chatID);
+  // when user gets new messages, then remove the chat from the session.
+  openChats.forEach((op) => {
+    if (op.unreadCounter > 0) {
+      if (_.contains(currentClosedChats, op.id)) {
+        currentClosedChats = _.without(currentClosedChats, op.id);
+        Storage.setItem('closedChatList', currentClosedChats);
       }
-    });
-
-    // filter to take chatInfo which has unreadMessages
-    if (updateFlag) {
-      // remove session
-      Storage.removeItem('closedArray');
-
-      //update session
-      Storage.setItem('closedArray', sessionArr);
-
     }
-  }
+
+    if (!_.contains(currentClosedChats, op.id)) {
+      filteredChatList.push(op);
+    }
+  });
+
+  openChats = filteredChatList;
 
   openChats.push({
     id: 'public',

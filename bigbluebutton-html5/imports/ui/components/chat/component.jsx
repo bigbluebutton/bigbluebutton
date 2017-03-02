@@ -5,7 +5,7 @@ import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import Icon from '../icon/component';
-import Storage from '/imports/ui/services/storage/session';
+import ChatService from './service';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -67,56 +67,6 @@ export default class Chat extends Component {
   }
 
   closeChat() {
-
-    const { chatID } = this.props;
-
-
-    // chatInfo is for session, cnt is for checking same chatID in the session array
-    let chatInfo, cnt = false;
-    let obj = Storage.getItem("closedArray");
-    let sessionArray = [];
-    let updateFlag = false;
-
-    // closed chat info for session
-    chatInfo = {
-      chatID: chatID,
-      flag: false,
-    };
-
-    // session is null
-    if (obj == null) {
-      obj = [];
-      obj.push(chatInfo);
-    } else {
-      sessionArray = obj;
-
-      obj.forEach((sess, i) => {
-
-        // find chatID in session which is the same with chatID from this.props
-        if (sess.chatID === chatID) {
-          cnt = true;
-
-          // if flag in session is true, it is changed to false
-          if(sess.flag) {
-            sessionArray[i].flag = false;
-            updateFlag = true;
-          }
-        }
-
-      });
-
-      // no same chatID in session
-      if (!cnt) {
-        obj.push(chatInfo);
-      }
-    }
-
-    // if session occurs some changes, remove the previous session and create new
-    if (updateFlag) {
-      Storage.removeItem('closedArray');
-      obj = sessionArray;
-    }
-
-    Storage.setItem("closedArray", obj);
+    ChatService.createClosedChatSession(this.props.chatID);
   }
 }

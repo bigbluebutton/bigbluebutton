@@ -7,6 +7,7 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 
 import { callServer } from '/imports/ui/services/api';
+import _ from 'underscore';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -194,24 +195,14 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
-  // Session for close private chats
-  let closedArray = Storage.getItem('closedArray');
-  let sessionArr = [];
+  let currentClosedChats = Storage.getItem('closedChatList');
 
-  if (closedArray !== null) {
-    sessionArr = closedArray;
+  if (_.contains(currentClosedChats, receiver.id)) {
 
-    closedArray.forEach((chat, i) => {
+    currentClosedChats = _.without(currentClosedChats, receiver.id);
 
-      if (receiver.id == chat.chatID && !chat.flag) {
-        if (sessionArr[i].chatID == receiver.id) {
-          sessionArr[i].flag = true;
-        }
-      }
-    });
+    Storage.setItem('closedChatList', currentClosedChats);
 
-    Storage.removeItem('closedArray');
-    Storage.setItem('closedArray', sessionArr);
   }
 
   callServer('sendChat', messagePayload);
@@ -236,6 +227,17 @@ const updateUnreadMessage = (receiverID, timestamp) => {
   return UnreadMessages.update(receiverID, timestamp);
 };
 
+const createClosedChatSession = (chatID) => {
+
+  let currentClosedChats = Storage.getItem('closedChatList') || [];
+
+  if (!_.contains(currentClosedChats, chatID)) {
+    currentClosedChats.push(chatID);
+  }
+
+  Storage.setItem('closedChatList', currentClosedChats);
+};
+
 export default {
   getPublicMessages,
   getPrivateMessages,
@@ -247,4 +249,5 @@ export default {
   updateScrollPosition,
   updateUnreadMessage,
   sendMessage,
+  createClosedChatSession,
 };
