@@ -72,10 +72,10 @@ Meteor.startup(() => {
   loadUserSettings();
 
   let browserLanguage = navigator.language; //set this manually to force localization in a specific language
-  let request = new Request
-    (`${window.location.origin}/html5client/locale?locale=${browserLanguage}`);
+//  let request = new Request(`${window.location.origin}/html5client/locale?locale=${browserLanguage}`);
+var fetchUrl = `${window.location.origin}/html5client/locale?locale=en`;
 
-  fetch(request, { method: 'GET' })
+  fetch(fetchUrl, { method: 'GET' })
     .then(function (response) {
       return response.json();
     })

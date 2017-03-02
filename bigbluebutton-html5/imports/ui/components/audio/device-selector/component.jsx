@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-
+global.Intl = require('intl');
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
   onChange: PropTypes.func.isRequired,
