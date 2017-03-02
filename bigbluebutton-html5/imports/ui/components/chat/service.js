@@ -132,8 +132,8 @@ const getPrivateMessages = (userID) => {
       { 'message.from_userid': userID },
     ],
   }, {
-      sort: ['message.from_time'],
-    }).fetch();
+    sort: ['message.from_time'],
+  }).fetch();
 
   return messages.reduce(reduceMessages, []).map(mapMessage);
 };
@@ -197,12 +197,9 @@ const sendMessage = (receiverID, message) => {
 
   let currentClosedChats = Storage.getItem('closedChatList');
 
+  // Remove the chat that user send messages from the session.
   if (_.contains(currentClosedChats, receiver.id)) {
-
-    currentClosedChats = _.without(currentClosedChats, receiver.id);
-
-    Storage.setItem('closedChatList', currentClosedChats);
-
+    Storage.setItem('closedChatList', _.without(currentClosedChats, receiver.id));
   }
 
   callServer('sendChat', messagePayload);

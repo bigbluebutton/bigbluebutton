@@ -28,22 +28,22 @@ export default class Chat extends Component {
       actions,
     } = this.props;
 
-        return (
-        <section className={styles.chat}>
+    return (
+      <section className={styles.chat}>
 
-          <header className={styles.header}>
-            <Link to="/users">
-              <Icon iconName="left-arrow"/> {title}
-            </Link>
+        <header className={styles.header}>
+          <Link to="/users">
+            <Icon iconName="left-arrow"/> {title}
+          </Link>
 
-            {
-              ( (this.props.chatID == "public") ?
-                null :
-                <Link to="/users">
-                  <Icon iconName="close" onClick={this.closeChat} className={styles.closeIcon}/>
-                </Link> )
-            }
-          </header>
+          {
+            ((this.props.chatID == 'public') ?
+              null :
+              <Link to="/users">
+                <Icon iconName="close" onClick={this.closeChat} className={styles.closeIcon}/>
+              </Link>)
+          }
+        </header>
 
         <MessageList
           chatId={chatID}

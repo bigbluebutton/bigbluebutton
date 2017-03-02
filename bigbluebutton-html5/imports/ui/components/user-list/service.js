@@ -3,7 +3,6 @@ import Chat from '/imports/api/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
 import { callServer } from '/imports/ui/services/api';
@@ -167,9 +166,9 @@ const getUsers = () => {
   .fetch();
 
   return users
-    .map(u => u.user)
-    .map(mapUser)
-    .sort(sortUsers);
+  .map(u => u.user)
+  .map(mapUser)
+  .sort(sortUsers);
 };
 
 const getOpenChats = chatID => {
@@ -177,9 +176,9 @@ const getOpenChats = chatID => {
   window.Users = Users;
 
   let openChats = Chat
-    .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
-    .fetch()
-    .map(mapOpenChats);
+  .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
+  .fetch()
+  .map(mapOpenChats);
 
   let currentUserId = Auth.userID;
 
@@ -190,26 +189,29 @@ const getOpenChats = chatID => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-    .find({ 'user.userid': { $in: openChats } })
-    .map(u => u.user)
-    .map(mapUser)
-    .map(op => {
-      op.unreadCounter = UnreadMessages.count(op.id);
-      return op;
-    });
+  .find({ 'user.userid': { $in: openChats } })
+  .map(u => u.user)
+  .map(mapUser)
+  .map(op => {
+    op.unreadCounter = UnreadMessages.count(op.id);
+    return op;
+  });
 
   let currentClosedChats = Storage.getItem('closedChatList') || [];
   let filteredChatList = [];
 
-  // when user gets new messages, then remove the chat from the session.
   openChats.forEach((op) => {
+
+    // When user gets new messages, remove the chat from the session.
     if (op.unreadCounter > 0) {
       if (_.contains(currentClosedChats, op.id)) {
-        currentClosedChats = _.without(currentClosedChats, op.id);
-        Storage.setItem('closedChatList', currentClosedChats);
+        Storage.setItem('closedChatList', _.without(currentClosedChats, op.id));
       }
     }
 
+    // Compare openChats with session and push it into filteredChatList
+    // if one of the openChat is not in session.
+    // It will pass to openChats.
     if (!_.contains(currentClosedChats, op.id)) {
       filteredChatList.push(op);
     }
