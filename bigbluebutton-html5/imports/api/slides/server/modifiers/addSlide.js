@@ -65,8 +65,9 @@ export default function addSlide(meetingId, presentationId, slide) {
 
     const { insertedId } = numChanged;
 
+    requestWhiteboardHistory(meetingId, slide.id);
+
     if (insertedId) {
-      requestWhiteboardHistory(meetingId, slide.id);
       return Logger.info(`Added slide id=${slide.id} to presentation=${presentationId}`);
     }
 

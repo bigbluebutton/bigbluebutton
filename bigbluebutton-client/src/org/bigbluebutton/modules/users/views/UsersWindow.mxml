@@ -25,6 +25,7 @@
 					 xmlns:flc="flexlib.controls.*"
 					 implements="org.bigbluebutton.common.IBbbModuleWindow"
 					 xmlns:mate="http://mate.asfusion.com/"
+					 xmlns:views="org.bigbluebutton.main.views.*"
 					 creationComplete="onCreationComplete()"
 					 title="{ResourceUtil.getInstance().getString('bbb.users.title')}"
 					 showCloseButton="false">
@@ -33,6 +34,7 @@
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
+	<mate:Listener type="{ShortcutEvent.OPEN_BREAKOUT_ROOMS}" method="handleOpenBreakoutRooms" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
 	<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
@@ -47,8 +49,10 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
+			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.controls.listClasses.IListItemRenderer;
 			import mx.core.FlexGlobals;
+			import mx.core.mx_internal;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.ListEvent;
@@ -60,6 +64,8 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -127,7 +133,10 @@
 			private const KICK_USER:String = "Kick User";
 			private const MUTE_USER:String = "Mute User";
 			private const MUTE_ALL_USER:String = "Mute All User";
-			
+			private const FOCUS_BREAKOUT_ROOMS_LIST:String = "Focus Breakout Rooms";
+			private const LISTEN_TO_BREAKOUT_ROOM:String = "Listen To Breakout Room";
+			private const JOIN_BREAKOUT_ROOM:String = "Join Breakout Room";
+
 			private var muteMeRolled:Boolean = false;
 			
 			private function onCreationComplete():void {
@@ -251,12 +260,12 @@
 				dispatcher.dispatchEvent(rollEvent);
 			}
 
-			private function openEmojiStatusMenu():void {
-				var grid:EmojiGrid = PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication), EmojiGrid, false) as EmojiGrid;
-				var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - grid.height));
-				grid.x = menuXY.x;
-				grid.y = menuXY.y;
-			}
+            private function openEmojiStatusMenu():void {
+                var grid:EmojiGrid = PopUpUtil.createNonModelPopUp(DisplayObject(FlexGlobals.topLevelApplication), EmojiGrid, false) as EmojiGrid;
+                var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - grid.height));
+                grid.x = menuXY.x;
+                grid.y = menuXY.y;
+            }
 
 			private function openSettings():void {
 				paramsMenuData = [];
@@ -362,50 +371,11 @@
 
 			private function removeJoinAlert():void {
 				if (joinAlert != null) {
+					// @todo: any way using PopUpUtil ?
 					PopUpManager.removePopUp(joinAlert);
 				}
 			}
 
-			/*private function unlockAll():void {
-				LogUtil.traceObject("Action: unlockAll");
-				if (amIModerator) {
-					if (roomLocked) {
-						var unlockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.UNLOCK_ALL);
-						dispatchEvent(unlockCommand);
-						roomLocked = false;
-					} else {
-						LogUtil.error("Action: unlockAll, but room is not locked");
-					}
-				}
-			}
-			
-			private function lockAll():void {
-				LogUtil.traceObject("Action: lockAll");
-				if (amIModerator) {
-					if (!roomLocked) {
-						var lockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.LOCK_ALL);
-						dispatchEvent(lockCommand);
-						roomLocked = true;
-					} else {
-						LogUtil.error("Action: lockAll, but room is already locked");
-					}
-				}
-			}
-			
-			private function lockAlmostAll():void {
-				LogUtil.traceObject("Action: lockAlmostAll");
-				
-				if (amIModerator) {
-					if (!roomLocked) {
-						var lockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.LOCK_ALMOST_ALL);
-						dispatchEvent(lockCommand);
-						roomLocked = true;
-					} else {
-						LogUtil.error("Action: lockAlmostAll, but room is already locked");
-					}
-				}
-			}
-			*/
 			private function handleMeetingMuted(e:MeetingMutedEvent):void {
 				roomMuted = MeetingModel.getInstance().meetingMuted;
 			}
@@ -475,6 +445,9 @@
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteall') as String)] = MUTE_ALL_USER;
+				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.focusBreakoutRooms') as String)] = FOCUS_BREAKOUT_ROOMS_LIST;
+				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.listenToBreakoutRoom') as String)] = LISTEN_TO_BREAKOUT_ROOM;
+				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.joinBreakoutRoom') as String)] = JOIN_BREAKOUT_ROOM;
 				//TODO Include shortcuts to lock control
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_USERS;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_USERS;
@@ -483,8 +456,7 @@
 			// Handle general-access hotkeys, regardless of what window the user is focused in
 			private function handleKeyDown(e:KeyboardEvent):void {
 				if (keyCombos == null) loadKeyCombos(modifier);
-				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
-					(e.altKey   ? "alt+"     : "") + e.keyCode;		                              
+				var keyPress:String = KeyboardUtil.buildPressedKeys(e);
 				if (keyCombos[keyPress]) {
 					switch (keyCombos[keyPress]) {
 						case FOCUS_USERS_LIST:
@@ -501,6 +473,15 @@
 							break;
 						case MUTE_ALL_USER:
 							muteAll();
+							break;
+						case FOCUS_BREAKOUT_ROOMS_LIST:
+							remoteFocusBreakoutRooms();
+							break;
+						case LISTEN_TO_BREAKOUT_ROOM:
+							listenToBreakoutRoom();
+							break;
+						case JOIN_BREAKOUT_ROOM:
+							joinBreakoutRoom();
 							break;
 						case ShortcutEvent.MAXIMIZE_USERS:
 							remoteMaximize();
@@ -565,11 +546,11 @@
 			
 			public function remoteMuteUser():void {
 				if (amIModerator && usersGrid.selectedIndex != -1) {
-					var selData:Object = usersGrid.selectedItem;
+					var selData:BBBUser = (usersGrid.selectedItem) as BBBUser;
 					
 					if (selData.voiceJoined) {
 						var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-						e.userid = selData.voiceUserid;
+						e.userid = selData.userID;
 						e.mute = !selData.voiceMuted;
 						dispatchEvent(e);
 					}
@@ -581,6 +562,33 @@
 				usersGrid.drawFocus(true);
 			}
 			
+			public function remoteFocusBreakoutRooms() : void {
+				if (roomsGrid && roomsGrid.visible) {
+					focusManager.setFocus(roomsGrid);
+					roomsGrid.drawFocus(true);			
+				}
+			}
+			
+			public function listenToBreakoutRoom() : void {
+				if (roomsGrid && roomsBox.visible && roomsGrid.selectedIndex > -1) {
+					// roomsGrid.selectedIndex + 1 is needed as the first index of rendererArray contains the header renderes
+					var renderer : RoomActionsRenderer = roomsGrid.mx_internal::rendererArray[roomsGrid.selectedIndex + 1][2];
+					if (renderer.listenBtn.visible) {
+						renderer.listenBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+					}
+				}
+			}
+			
+			public function joinBreakoutRoom() : void {
+				if (roomsGrid && roomsBox.visible && roomsGrid.selectedIndex > -1) {
+					// roomsGrid.selectedIndex + 1 is needed as the first index of rendererArray contains the header renderes
+					var renderer : RoomActionsRenderer = roomsGrid.mx_internal::rendererArray[roomsGrid.selectedIndex + 1][2];
+					if (renderer.joinBtn.visible) {
+						renderer.joinBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+					}
+				}
+			}
+			
 			private function remoteMuteAllButPres(e:ShortcutEvent):void{
 				if (!roomMuted) {
 					muteAlmostAll();
@@ -588,7 +596,13 @@
 					muteAll();
 				}
 			}
-			
+
+			private function handleOpenBreakoutRooms(e:ShortcutEvent):void{
+				if (breakoutOptions.enabled && amIModerator && !UserManager.getInstance().getConference().isBreakout) {
+					breakoutRooms();
+				}
+			}
+
 			private function breakoutRoomNameLabelFunction(item:Object, column:DataGridColumn) : String {
 				return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room') + " " + item.sequence;
 			}
@@ -606,20 +620,20 @@
 
 	<mdi:TabIndexer id="tabIndexer" startIndex="{partOptions.baseTabIndex + 5}" tabIndices="{[usersGrid, roomsGrid, closeRoomsBtn, emojiStatusBtn, settingsBtn]}"/>
 	
-	<mx:DataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
+	<views:BBBDataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
     	dragEnabled="false" width="100%" height="100%" draggableColumns="false"
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)" 
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
-    	<mx:columns>
+    	<views:columns>
     		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="displayName" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false" minWidth="60"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
     		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" width="110" minWidth="110"
     			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
-    	</mx:columns>
-    </mx:DataGrid>
+    	</views:columns>
+    </views:BBBDataGrid>
 	
 	<mx:VBox id="roomsBox" styleName="breakoutRoomsBox"
 			 visible="{breakoutRoomsList.length > 0 &amp;&amp; amIModerator}"
@@ -632,11 +646,11 @@
 					  text="..." toolTip="{ResourceUtil.getInstance().getString('bbb.users.breakout.timer.toolTip')}"/>
 		</mx:HBox>
 
-		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false"
+		<views:BBBDataGrid id="roomsGrid" editable="false" sortableColumns="false"
 					 dataProvider="{breakoutRoomsList}" dataTipFunction="breakoutRoomsToolTip"
 					 dragEnabled="false" width="100%" height="100%" draggableColumns="false"
 					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}">
-			<mx:columns>
+			<views:columns>
 				<mx:DataGridColumn labelFunction="breakoutRoomNameLabelFunction"
 								   showDataTips="true"
 								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
@@ -647,8 +661,8 @@
 								   visible="{amIModerator}"
 								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
-			</mx:columns>
-		</mx:DataGrid>
+			</views:columns>
+		</views:BBBDataGrid>
 
 		<mx:Button id="closeRoomsBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.closeAllRooms')}"
 				   click="endAllBreakoutRoomsHandler(event)" width="100%"/>

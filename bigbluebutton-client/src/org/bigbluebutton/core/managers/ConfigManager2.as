@@ -21,7 +21,6 @@ package org.bigbluebutton.core.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;

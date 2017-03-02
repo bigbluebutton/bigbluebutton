@@ -14,8 +14,8 @@ package org.bigbluebutton.modules.polling.views
 	import mx.controls.Label;
 	import mx.controls.TextArea;
 	import mx.core.ScrollPolicy;
-	import mx.managers.PopUpManager;
 	
+	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
 	import org.bigbluebutton.modules.polling.events.PollVotedEvent;
 	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
@@ -193,7 +193,7 @@ package org.bigbluebutton.modules.polling.views
 			_stopPollListener.method = null;
 			_stopPollListener = null;
 			
-			PopUpManager.removePopUp(this);
+			PopUpUtil.removePopUp(this);
 		}
 		
 		private function dotAnimate(e:TimerEvent):void {

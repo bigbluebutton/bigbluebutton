@@ -48,12 +48,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Style>
   
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
-	<mate:Listener type="{ShortcutEvent.ADVANCE_MESSAGE}" method="advanceMessage" />
-	<mate:Listener type="{ShortcutEvent.GOBACK_MESSAGE}" method="goBackOneMessage" />
-	<mate:Listener type="{ShortcutEvent.REPEAT_MESSAGE}" method="repeatMessage" />
-	<mate:Listener type="{ShortcutEvent.GOLATEST_MESSAGE}" method="goToLatestMessage" />
-	<mate:Listener type="{ShortcutEvent.GOFIRST_MESSAGE}" method="goToFirstMessage" />
-	<mate:Listener type="{ShortcutEvent.GOREAD_MESSAGE}" method="goToLatestReadMessage" />
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
   <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
@@ -62,7 +56,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
   <mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
   <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
-  <mate:Listener type="{ShortcutEvent.CHAT_DEBUG}" method="chatDebugInfo" />
   <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
 	
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
@@ -79,6 +72,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -106,35 +100,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private static const LOGGER:ILogger = getClassLogger(ChatBox);      
       
-      public var publicChat:Boolean = false;
-      public var chatWithUserID:String;
-      public var chatWithUsername:String
+			public var publicChat:Boolean = false;
+			public var chatWithUserID:String;
+			public var chatWithUsername:String
       
 			public var read:Boolean = true;
 			public var userHasLeft:Boolean = false;
 			
 			private var globalDispatcher:Dispatcher = new Dispatcher();
-      [Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
-        '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+			[Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
+			'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
       
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
 			private var lastSenderId:String = "";
 			private var lastTime:String = "";
 			
-	    [Bindable]
-	    private var chatMessages:ChatConversation = new ChatConversation();
-      
+			[Bindable]
+			private var chatMessages:ChatConversation = new ChatConversation();
+
 			private var lastCount:Number = 0;			
 			private var scrollTimer:Timer;
 			private var currentMessage:int;
 			private var latestMessage:int; 
-			
-			private var reachedLatest:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.reachedLatest');
-			private var reachedFirst:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.reachedFirst');
-			private var navLatestString:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.navigatedLatest');
-			private var navRecentString:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.navigatedLatestRead');
-			private var navFirstString:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.navigatedFirst');
 			
 			public var focus:Boolean = false;
 			private var keyCombos:Object;
@@ -145,8 +133,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var indicatorNeeded:Boolean = false
 			private var repeat:Boolean = false;
 			
-		      [Bindable]
-		      private var chatListHeight:Number = 100;
+			[Bindable]
+			private var chatListHeight:Number = 100;
 			
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
       
@@ -161,11 +149,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				currentMessage = -1;
 				latestMessage = -1;
 				
-				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);	
-				
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing	
-				
-				hotkeyCapture();
 				
 				// Listen for the ENTER key to send the message.
 				txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
@@ -173,13 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				queryForChatHistory();
 				
-				if(chatMessagesList.accessibilityProperties == null)
-					chatMessagesList.accessibilityProperties = new AccessibilityProperties();
-				
 				chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
-				
-				if(Capabilities.hasAccessibility)
-					Accessibility.updateProperties();
 				
 				if (publicChat && UserManager.getInstance().getConference().isBreakout){
 					var timerListener : Listener = new Listener();
@@ -400,16 +378,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			
-			// Determines for navigateMessages() whether the message to be spoken by the screen-reader needs an extra space added to the end or not
-			private function setDescription():Boolean{
-				var chatHistorySpacer:Boolean = false;
-				if (chatMessagesList.accessibilityProperties.description == chatMessages.messages.getItemAt(currentMessage).toString()) {
-		          	chatHistorySpacer = true;
-		        }
-				return chatHistorySpacer;
-			}
-			
 			public function getLatestMessage():int{
 				return latestMessage;
 			}
@@ -420,188 +388,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function localeChanged(e:Event):void {
 				var modifier:String = ExternalInterface.call("determineModifier");
-		  		loadKeyCombos(modifier);
 				
 				addContextMenuItems();
-			}
-
-			private function loadKeyCombos(modifier:String):void {
-				keyCombos = new Object(); // always start with a fresh array
-				//keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.debug') as String)] = ShortcutEvent.CHAT_DEBUG;
-				//keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat') as String)] = ShortcutEvent.REPEAT_MESSAGE;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goread') as String)] = ShortcutEvent.GOREAD_MESSAGE;
-				// Special cases: Using the arrow keys with no modifiers
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.advance') as String)] = ShortcutEvent.ADVANCE_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goback') as String)] = ShortcutEvent.GOBACK_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest') as String)] = ShortcutEvent.GOLATEST_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst') as String)] = ShortcutEvent.GOFIRST_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat') as String)] = ShortcutEvent.REPEAT_MESSAGE;
-			}
-			
-			public function hotkeyCapture():void{
-			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
-		    }
-			
-			private function handleKeyDown(e:KeyboardEvent) :void {
-		  		var modifier:String = ExternalInterface.call("determineModifier");
-		  		loadKeyCombos(modifier);
-		  
-		  		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
-				
-				if (keyCombos[keyPress]) {
-					LOGGER.debug("WATERFALL: Caught shortcut in chat box, {0}", [keyCombos[keyPress]]);
-					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
-					event.otherUserID = chatWithUserID;
-					globalDispatcher.dispatchEvent(event);
-				}
-		    }
-			      
-			private function advanceMessage(e:ShortcutEvent):void{
-				if (e.otherUserID == chatWithUserID){
-					if (currentMessage < (chatMessages.numMessages() - 1)){
-						currentMessage++;
-					} else {
-						chatMessagesList.accessibilityProperties.description += " ";
-						repeat = true;
-					}
-					navigationMaintenance();
-				}
-			}
-			
-			private function goBackOneMessage(e:ShortcutEvent):void {
-				if (e.otherUserID == chatWithUserID){
-					if (currentMessage > 0){
-						currentMessage--;
-					}
-					else if (currentMessage < 0){
-						currentMessage = 0;
-						latestMessage = 0;
-					}
-					else{
-						chatMessagesList.accessibilityProperties.description += " ";
-						repeat = true;
-					}
-					navigationMaintenance();
-				}
-			}
-			
-			private function repeatMessage(e:ShortcutEvent):void {
-				if (currentMessage < 0){
-					currentMessage = 0;
-					latestMessage = 0;
-					if (chatMessages.messages.length > 0)
-						chatMessagesList.accessibilityProperties.description = chatMessages.messages.getItemAt(currentMessage).toString();
-				}
-				if (e.otherUserID == chatWithUserID){
-					chatMessagesList.accessibilityProperties.description += " ";
-					repeat = true;
-					navigationMaintenance();
-				}
-			}
-			
-			private function goToLatestMessage(e:ShortcutEvent):void {
-				if (latestMessage < 0){
-					currentMessage = 0;
-					latestMessage = 0;
-				}
-				if (e.otherUserID == chatWithUserID){
-					currentMessage = chatMessages.numMessages() - 1;
-					navToLatest = true;
-					spacerNeeded = setDescription();
-					indicatorNeeded = true;
-					chatMessagesList.accessibilityProperties.description = navLatestString + " " + chatMessages.messages.getItemAt(currentMessage).toString();
-					navigationMaintenance();
-				}
-			}
-			
-			private function goToFirstMessage(e:ShortcutEvent):void {
-				if (e.otherUserID == chatWithUserID){
-					currentMessage = 0;
-					navToFirst = true;
-					spacerNeeded = setDescription();
-					indicatorNeeded = true;
-					chatMessagesList.accessibilityProperties.description = navFirstString + " " + chatMessages.messages.getItemAt(currentMessage).toString();
-					navigationMaintenance();
-				}
-			}
-			
-			private function goToLatestReadMessage(e:ShortcutEvent):void {
-				if (e.otherUserID == chatWithUserID){
-					if (latestMessage < 0) {
-						latestMessage = 0;
-					}
-					currentMessage = latestMessage;
-					chatMessagesList.accessibilityProperties.description = navRecentString + " " + chatMessages.messages.getItemAt(currentMessage).toString();
-					navigationMaintenance();
-				}
-			}
-			
-			private function navigationMaintenance():void {
-				// Update the latestMessage counter for new message notifications
-				if (currentMessage > latestMessage)
-					latestMessage = currentMessage;
-					
-				if (!repeat){
-				// Make it clear to the user that they have either navigated to or reached one end of the message history or the other.
-					if (currentMessage == 0){
-						if (!navToFirst){
-							indicatorNeeded = true;
-							chatMessagesList.accessibilityProperties.description = reachedFirst + " " + chatMessages.messages.getItemAt(currentMessage).toString();
-						}
-					}
-					else if (currentMessage == chatMessages.numMessages() - 1){
-						if (!navToLatest){
-							indicatorNeeded = true;
-							chatMessagesList.accessibilityProperties.description = reachedLatest + " " + chatMessages.messages.getItemAt(currentMessage).toString();			
-						}
-					}
-					else{
-						// Set the accessibility description to the indicated message
-						chatMessagesList.accessibilityProperties.description = chatMessages.messages.getItemAt(currentMessage).toString();
-					}
-					
-					// Add a single space to the end of the accessibilityProperties.description if necessary to ensure that it reflects the current message after being updated.
-					if (spacerNeeded || setDescription()){
-						chatMessagesList.accessibilityProperties.description += " ";
-					}
-				}
-				if(Capabilities.hasAccessibility)
-					Accessibility.updateProperties();
-				navToFirst = false;
-				navToLatest = false;
-				spacerNeeded = false;
-				indicatorNeeded = false
-				repeat = false;
-				LOGGER.debug("Done with navigationMaintenance(); description is now {0}", [chatMessagesList.accessibilityProperties.description]);
-			}
-			
-			// General-purpose developer method, used during testing of ChatBox accessibility
-			private function chatDebugInfo(e:ShortcutEvent):void{
-				LOGGER.debug("----CHAT DEBUG INFORMATION----");
-					var num:int = chatMessages.numMessages();
-					LOGGER.debug("Printing all chat messages of the {0} present:", [num]);
-					for (var i:int = 0; i < num; i++){
-						if (chatMessages.messages.getItemAt(i) != null)
-							LOGGER.debug("Message {0}: {1}", [i, chatMessages.messages.getItemAt(i).toString()]);
-						else
-							LOGGER.debug("Message {0} is NULL", [i]);
-					}
-					
-					/*
-					LogUtil.debug("chatWithUserID is: " + chatWithUserID);
-					LogUtil.debug("currentMessage is: " + currentMessage);
-					LogUtil.debug("latestMessage is: " + latestMessage);
-					LogUtil.debug("Focused message is: " + chatMessages.messages.getItemAt(currentMessage).toString());
-					LogUtil.debug("Number of messages is: " + chatMessages.messages.length);
-					LogUtil.debug("chatMessagesList.accessibilityProperties.description is: " + chatMessagesList.accessibilityProperties.description);
-					*/
-					//LogUtil.debug("repeat is: " + repeat);
-					//LogUtil.debug("navToFirst is: " + navToFirst);
-					//LogUtil.debug("indicatorNeeded is: " + indicatorNeeded);
-					//LogUtil.debug("navToLatest is: " + navToLatest);
-					//LogUtil.debug(" is: " + ); 
-				
-				LOGGER.debug("------------------------------");
 			}
      
       private function sendStartCustomPollEvent(answers:Array):void {
@@ -775,9 +563,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
 
 	<mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-		<chat:AdvancedList width="100%" height="{chatListHeight - timerBox.height}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
+		<chat:AdvancedList width="100%" height="{chatListHeight - timerBox.height}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
 						   itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
 						   dataProvider="{chatMessages.messages}"
+						   styleName="chatMessageListStyle"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
 		<mx:HBox id="timerBox" styleName="breakoutRoomTimerBox"
 				 includeInLayout="false" visible="false"
