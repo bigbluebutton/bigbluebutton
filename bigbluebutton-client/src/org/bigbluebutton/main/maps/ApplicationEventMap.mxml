@@ -29,7 +29,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
-		<ObjectBuilder generator="{ConfigManager}" cache="global" />
 		<ObjectBuilder generator="{ReconnectionManager}" cache="global" />
 		<!--
 		Disabling temporarily the stream monitor
@@ -100,13 +99,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<![CDATA[
 		import mx.events.FlexEvent;
 		
-		import org.bigbluebutton.core.managers.ConfigManager;
 		import org.bigbluebutton.core.managers.ReconnectionManager;
 		import org.bigbluebutton.core.services.SkinningService;
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.main.events.ConfigLoadedEvent;
 		import org.bigbluebutton.main.events.LoadConfigCommand;
-		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;

@@ -1,47 +1,35 @@
-import Users from '/imports/api/users';
+import { check } from 'meteor/check';
+import Users from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 
-//update a voiceUser - a helper method
-export function updateVoiceUser(meetingId, voiceUserObject, callback = () => {}) {
+export default function updateVoiceUser(meetingId, userId, voiceUser) {
   check(meetingId, String);
-  check(voiceUserObject, Object);
-
-  const webUserId = voiceUserObject.web_userid;
-
-  check(webUserId, String);
-
-  let userObject = Users.findOne({
-    userId: webUserId,
-  });
-
-  Logger.debug(`user ${userObject.userId} vu=${JSON.stringify(voiceUserObject)}`);
-
-  check(userObject, Object);
+  check(userId, String);
+  check(voiceUser, Object);
 
   const selector = {
     meetingId,
-    userId: webUserId,
+    userId,
   };
 
   const modifier = {
     $set: {
-      'user.voiceUser.talking': voiceUserObject.talking || false,
-      'user.voiceUser.joined': voiceUserObject.joined || false,
-      'user.voiceUser.locked': voiceUserObject.locked || false,
-      'user.voiceUser.muted': voiceUserObject.muted || false,
-      'user.listenOnly': voiceUserObject.listen_only || false,
+      'user.voiceUser.talking': voiceUser.talking,
+      'user.voiceUser.joined': voiceUser.joined,
+      'user.voiceUser.locked': voiceUser.locked,
+      'user.voiceUser.muted': voiceUser.muted,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      Logger.error(
-        `failed to update voiceUser ${JSON.stringify(voiceUserObject)} err=${JSON.stringify(err)}`
-      );
+      return Logger.error(`Updating voice user=${userId}: ${err}`);
     }
 
-    return callback();
+    if (numChanged) {
+      return Logger.verbose(`Updated voice user=${userId} meeting=${meetingId}`);
+    }
   };
 
-  Users.update(selector, modifier, cb);
+  return Users.update(selector, modifier, cb);
 };

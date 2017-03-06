@@ -21,7 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
                 xmlns:view="org.bigbluebutton.main.views.*"
 				xmlns:common="org.bigbluebutton.common.*"
-                layout="absolute" 
+                layout="absolute"
                 verticalScrollPolicy="off" horizontalScrollPolicy="off"
                 width="630" height="450" creationComplete="onCreationComplete()" styleName="cameraDisplaySettingsWindowStyle" 
                 showCloseButton="false" close="onCancelClicked()" keyDown="handleKeyDown(event)">
@@ -34,11 +34,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.collections.ArrayCollection;
 		import mx.collections.ArrayList;
 		import mx.events.CloseEvent;
-		import mx.managers.PopUpManager;
 		
 		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.common.Media;
 		import org.bigbluebutton.core.BBB;
+		import org.bigbluebutton.core.PopUpUtil;
 		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -70,10 +70,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    {
 	       return;
 	    }
-      
+
 		private function onCreationComplete():void {
             tabIndex = 51;
-            
+		}
+
+		public function updateCameraList() : void {
 			if(defaultCamera != null) {
 				var indexDefault:int = 0;
 				for (var i:int = 0; i < Media.availableCameras; i++){
@@ -97,14 +99,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			for each (var value:VideoProfile in BBB.videoProfiles) {
 				var item:Object = {index:idx, label:value.name, profile:value};
 				_videoProfiles.addItem(item);
-
+				
 				if (value.id == defaultProfile.id) {
 					cmbVideoProfile.selectedIndex = idx;
 				}
-
+				
 				idx++;
 			}
-
+			
 			if (_videoProfiles.length > 1) {
 				showResControls(true);
 			}
@@ -197,11 +199,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function onCancelClicked():void {
 			close("cancel");
 		}
-		
-		private function showCameraSettings():void {
-			Security.showSettings(SecurityPanel.CAMERA);
-		}
-		
+
 		private function close(payload:String):void {
 			disableCamera();
 			
@@ -211,7 +209,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			var event:BBBEvent = new BBBEvent(BBBEvent.CAM_SETTINGS_CLOSED);
 			event.payload['clicked'] = payload;
 			dispatchEvent(event);
-			PopUpManager.removePopUp(this);
+			PopUpUtil.removePopUp(this);
 		}
       
     ]]>

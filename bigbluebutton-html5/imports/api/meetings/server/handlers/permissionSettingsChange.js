@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import { Meteor } from 'meteor/meteor';
-import handleLockingMic from '/imports/api/users/server/modifiers/handleLockingMic';
+import lockAllViewersMic from '/imports/api/users/server/modifiers/lockAllViewersMic';
 
 export default function handlePermissionSettingsChange({ payload }) {
   const meetingId = payload.meeting_id;
@@ -41,7 +41,7 @@ export default function handlePermissionSettingsChange({ payload }) {
     }
 
     if (permissions.disableMic) {
-      handleLockingMic(meetingId, permissions);
+      lockAllViewersMic(meetingId);
     }
 
     if (numChanged) {

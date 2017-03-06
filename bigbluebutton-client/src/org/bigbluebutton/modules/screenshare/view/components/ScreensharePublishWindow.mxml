@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   implements="org.bigbluebutton.common.IBbbModuleWindow"
   xmlns:mate="http://mate.asfusion.com/"
   xmlns:dspub="flexlib.mdi.containers.*"
+  xmlns:common="org.bigbluebutton.common.*"
   backgroundColor="#C0C0C0"
   initialize="init()"
   creationComplete="onCreationComplete()"	
@@ -49,13 +50,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
-      import mx.core.UIComponent;
-      
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.managers.ReconnectionManager;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -66,8 +64,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
       import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
-      import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
+      import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
       import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
@@ -89,6 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var connection:Connection;
       private var uri:String;
       private var room:String;
+      private var tunnel:Boolean = false;
       private var sharingFullScreen:Boolean = false;
       private var streaming:Boolean = false;
       
@@ -134,14 +133,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         windowControls.maximizeRestoreBtn.enabled = false;
         
-        titleBarOverlay.tabIndex = baseIndex;
         titleBarOverlay.focusEnabled = true;
         
-        minimizeBtn.tabIndex = baseIndex+1;
-        maximizeRestoreBtn.tabIndex = baseIndex+2;
-        closeBtn.tabIndex = baseIndex+3;
-        
         resourcesChanged();
+		
+		focusManager.setFocus(titleBarOverlay);
+		
+		if (tunnel) {
+			helpInfoBox.visible = helpInfoBox.includeInLayout = false;
+			previewBox.visible = previewBox.includeInLayout = false;
+			tunnelBox.visible = tunnelBox.includeInLayout = true;
+			
+			shareTypeBox.visible = false;
+			cancelBtn.visible = cancelBtn.includeInLayout = true;
+			startBtn.visible = startBtn.includeInLayout = false;
+			stopBtn.visible = stopBtn.includeInLayout = false;
+		}
       }
       
       private function remoteFocus(e:ShortcutEvent):void{
@@ -179,10 +186,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       */
       public function resetWidthAndHeight():void{/* do nothing */}
       
-      public function initWindow(connection:Connection, uri:String, room:String):void {
+      public function initWindow(connection:Connection, uri:String, room:String, tunnel:Boolean):void {
         this.connection = connection;
         this.uri = uri;
         this.room = room;
+		this.tunnel = tunnel;
       }
       
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
@@ -522,6 +530,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         helpInfoBox.visible = helpInfoBox.includeInLayout = showHelp;
         previewBox.visible = !showHelp;
         
+		titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
+		
         shareTypeBox.visible = showHelp;
         cancelBtn.visible = cancelBtn.includeInLayout = showHelp;
         startBtn.visible = startBtn.includeInLayout = showHelp;
@@ -530,6 +540,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
   
+	<common:TabIndexer id="tabIndexer" startIndex="{dsOptions.baseTabIndex + 1}"
+					   tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, helpButton, shareTypeCombo, startBtn, cancelBtn, stopBtn, pauseBtn, restartBtn]}"/>
+	
   <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
   <mx:Box id="publishView" height="100%" width="100%" styleName="desktopShareViewStyle">
     <mx:VBox id="helpInfoBox" width="100%" height="100%" verticalAlign="middle" verticalGap="12">
@@ -568,7 +581,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Box id="videoHolder" width="100%" height="90%" horizontalAlign="center">
         <mx:UIComponent id="videoWrapper" width="100%" height="100%" />
         <mx:VBox id="pauseBox" visible="false" includeInLayout="false" styleName="desksharePublishPauseBox" >
-          <mx:Label width="100%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pauseMessage.label')}" />
+          <mx:Text width="100%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pauseMessage.label')}" />
         </mx:VBox>
 	  </mx:Box>
       <mx:Button id="pauseBtn"
@@ -582,10 +595,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label')}" />
     </mx:VBox>
     <mx:VBox id="errorBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">
-      <mx:Label id="startFailedLbl" width="70%" visible="false" includeInLayout="false" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startFailed.label')}"/>
-      <mx:Label id="restartFailedLbl" width="70%" textAlign="center" visible="false" includeInLayout="false" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restartFailed.label')}"/>
-      <mx:Label id="jwsCrashedLbl" width="70%" textAlign="center" visible="false" includeInLayout="false" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.jwsCrashed.label')}"/>
-      <mx:Label width="70%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.commonErrorMessage.label')}"/>
+      <mx:Text id="startFailedLbl" width="70%" visible="false" includeInLayout="false" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startFailed.label')}"/>
+      <mx:Text id="restartFailedLbl" width="70%" textAlign="center" visible="false" includeInLayout="false" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.restartFailed.label')}"/>
+      <mx:Text id="jwsCrashedLbl" width="70%" textAlign="center" visible="false" includeInLayout="false" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.jwsCrashed.label')}"/>
+      <mx:Text width="70%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.commonErrorMessage.label')}"/>
+    </mx:VBox>
+    <mx:VBox id="tunnelBox" width="100%" height="100%" visible="false" includeInLayout="false" horizontalAlign="center" verticalAlign="middle">
+      <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.tunnelingErrorMessage.one')}" />
+      <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.tunnelingErrorMessage.two')}" />
     </mx:VBox>
   </mx:Box>
   <mx:ControlBar horizontalAlign="right">

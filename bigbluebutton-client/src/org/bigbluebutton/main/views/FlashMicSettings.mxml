@@ -39,17 +39,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.ui.Keyboard;
-			import org.bigbluebutton.core.UsersUtil;
+			
 			import mx.controls.sliderClasses.Slider;
 			import mx.events.CloseEvent;
 			import mx.events.SliderEvent;
-			import mx.managers.PopUpManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Media;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestFailedEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
@@ -241,7 +242,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {
-        PopUpManager.removePopUp(this);
+        PopUpUtil.removePopUp(this);
       }
       
       private function echoTestButtonClickHandler():void {
@@ -263,7 +264,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         stopEchoTest();
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
-        PopUpManager.removePopUp(this);
+        PopUpUtil.removePopUp(this);
       }
       
       private function stopEchoTest():void {
@@ -307,7 +308,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         dispatchEvent(new FlashEchoTestHasAudioEvent());
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
-        PopUpManager.removePopUp(this);
+        PopUpUtil.removePopUp(this);
       }
       
       private function noButtonClicked():void {

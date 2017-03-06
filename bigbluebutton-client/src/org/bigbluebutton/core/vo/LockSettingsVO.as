@@ -18,9 +18,6 @@
  */
 package org.bigbluebutton.core.vo
 {
-	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.model.users.BBBUser;
-
 	public class LockSettingsVO
 	{
 		private var lockOnJoinConfigurable:Boolean;
