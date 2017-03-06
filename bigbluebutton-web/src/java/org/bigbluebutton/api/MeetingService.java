@@ -560,7 +560,7 @@ public class MeetingService implements MessageListener {
 
             createMeeting(breakout);
 
-            presDownloadService.extractPage(message.parentMeetingId,
+            presDownloadService.extractPresentationPage(message.parentMeetingId,
                     message.sourcePresentationId,
                     message.sourcePresentationSlide, breakout.getInternalId());
         } else {
