@@ -638,10 +638,10 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
 		if [ -z "$SALT" ]; then
-			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
-				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
-				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
+			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
+				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
 				echo
 				echo "       URL: $LTI_URL"
 				echo "  Customer: $CUSTOMER"
@@ -889,13 +889,13 @@ check_configuration() {
 		fi
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
                 BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
 		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
 			echo "# Warning: LTI shared secret (salt) mismatch:"
-			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties                      = $LTI_SALT"
+			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties                      = $LTI_SALT"
 			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
 			echo 
 		fi
@@ -1395,8 +1395,8 @@ check_state() {
 
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
 		echo "#"
 		echo "#    $LTI_URL"
@@ -1460,6 +1460,14 @@ check_state() {
                 echo "#    sudo bbb-conf --setip $BBB_WEB_IP"
                 echo "#"
 	fi
+
+        if [ -z $(cat /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | tr -d '\r' | sed -n "/useH264[ ]*=[ ]*/{s/useH264[ ]*=[ ]*//;p}") ]; then
+                echo "# Error: Detected there is no value set for useH264 in"
+                echo "#"
+                echo "#   /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+        fi
+
 	exit 0
 }
 
@@ -1542,10 +1550,10 @@ if [ $CHECK ]; then
 		echo "                               url: $BBB_WEB_URL"
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
-		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
+		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
 	fi
 
@@ -1791,15 +1799,15 @@ if [ -n "$HOST" ]; then
 	fi
 	
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties"
 		# We don't wat to guess on http/https as the lti endpoint may be a different BigBlueButton server
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
         	sed -i "s/bigbluebuttonURL=https:\/\/.*/bigbluebuttonURL=https:\/\/$HOST\/bigbluebutton/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
         	sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
 	fi
 
 
