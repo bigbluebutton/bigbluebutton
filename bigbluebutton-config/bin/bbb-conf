@@ -1460,6 +1460,14 @@ check_state() {
                 echo "#    sudo bbb-conf --setip $BBB_WEB_IP"
                 echo "#"
 	fi
+
+        if [ -z $(cat /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | tr -d '\r' | sed -n "/useH264[ ]*=[ ]*/{s/useH264[ ]*=[ ]*//;p}") ]; then
+                echo "# Error: Detected there is no value set for useH264 in"
+                echo "#"
+                echo "#   /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+        fi
+
 	exit 0
 }
 
