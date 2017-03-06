@@ -79,20 +79,7 @@ class PresentationToolbar extends Component {
           hideLabel={true}
           className={styles.prevSlide}
         />
-        {/*Next Slide button*/}
-        <Button
-          role="button"
-          aria-labelledby="nextSlideLabel"
-          aria-describedby="nextSlideDescrip"
-          aria-controls="skipSlide slideComponent"
-          disabled={currentSlideNum < numberOfSlides ? false : true}
-          color={'default'}
-          icon={'right-arrow'}
-          size={'md'}
-          onClick={actions.nextSlideHandler}
-          label={intl.formatMessage(intlMessages.nextSlideLabel)}
-          hideLabel={true}
-        />
+
         {/*Skip Slide drop down*/}
         <select
           id="skipSlide"
@@ -108,6 +95,22 @@ class PresentationToolbar extends Component {
         >
           {this.renderSkipSlideOpts(numberOfSlides)}
         </select>
+
+        {/*Next Slide button*/}
+        <Button
+          role="button"
+          aria-labelledby="nextSlideLabel"
+          aria-describedby="nextSlideDescrip"
+          aria-controls="skipSlide slideComponent"
+          disabled={currentSlideNum < numberOfSlides ? false : true}
+          color={'default'}
+          icon={'right-arrow'}
+          size={'md'}
+          onClick={actions.nextSlideHandler}
+          label={intl.formatMessage(intlMessages.nextSlideLabel)}
+          hideLabel={true}
+        />
+
         {/*Fit to width button
         <Button
           role="button"
