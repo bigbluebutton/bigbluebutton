@@ -38,7 +38,7 @@ find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec 
 find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
 find /usr/share/red5/webapps/video/streams/ -name "*.flv.ser" -mtime +$history -exec rm '{}' +
 find /usr/share/red5/webapps/video/streams/ -name "*.flv.info" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -name "*.flv.meta" -mtime +$history -exec rm '{}' +
+find /usr/share/red5/webapps/video/streams/ -name "*.meta" -mtime +$history -exec rm '{}' +
 find /usr/share/red5/webapps/video/streams/ -type d -empty -mtime +$history -exec rmdir '{}' +
 
 #
