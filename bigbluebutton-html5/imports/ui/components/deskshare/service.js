@@ -8,37 +8,24 @@ import Auth from '/imports/ui/services/auth';
 function isVideoBroadcasting() {
   const ds = Deskshare.findOne({});
   if (ds == null || !ds.broadcasting) {
-    console.log('Deskshare broadcasting has ended');
     return false;
-  } else {
-    console.log("DS isnt empty");
   }
 
-  if (ds.broadcasting) {
-    console.log('Deskshare is now broadcasting');
-    if (ds.startedBy != Auth.userID) {
-      console.log('deskshare wasn\'t initiated by me');
-      return true;
-    } else {
-      console.log("ending DS");
-      return false;
-    }
-  } else {
-    console.log("DS int broadcasting");
-    return false;
-  }
+  return (ds.broadcasting && ds.startedBy != Auth.userID);
 }
 
 // if remote deskshare has been ended disconnect and hide the video stream
 function presenterDeskshareHasEnded() {
-  vertoExitVideo();
-  console.log("presenterDeskshareHasEnded");
+  // references a functiion in the global namespace inside verto_extension.js
+  // that we load dynamically
+  window.vertoExitVideo();
 };
 
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
-  vertoWatchVideo();
-  console.log("presenterDeskshareHasStarted");
+  // references a functiion in the global namespace inside verto_extension.js
+  // that we load dynamically
+  window.vertoWatchVideo();
 };
 
 export {
