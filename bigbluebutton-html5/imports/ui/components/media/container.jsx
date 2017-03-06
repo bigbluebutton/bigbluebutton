@@ -58,7 +58,7 @@ export default createContainer(() => {
   data.currentPresentation = MediaService.getPresentationInfo();
 
   if (MediaService.shouldShowWhiteboard()) {
-    data.content = <WhiteboardContainer />;
+    data.content = <PresentationAreaContainer />;
   }
 
   if (MediaService.shouldShowDeskshare()) {
