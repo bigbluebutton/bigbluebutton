@@ -230,9 +230,9 @@ const createClosedChatSession = (chatID) => {
 
   if (!_.contains(currentClosedChats, chatID)) {
     currentClosedChats.push(chatID);
-  }
 
-  Storage.setItem('closedChatList', currentClosedChats);
+    Storage.setItem('closedChatList', currentClosedChats);
+  }
 };
 
 export default {

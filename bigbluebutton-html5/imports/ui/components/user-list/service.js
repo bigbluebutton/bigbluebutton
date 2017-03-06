@@ -202,7 +202,7 @@ const getOpenChats = chatID => {
 
   openChats.forEach((op) => {
 
-    // When user gets new messages, remove the chat from the session.
+    // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
       if (_.contains(currentClosedChats, op.id)) {
         Storage.setItem('closedChatList', _.without(currentClosedChats, op.id));
