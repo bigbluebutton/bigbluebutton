@@ -31,7 +31,7 @@ class JoinAudioOptions extends React.Component {
           onClick={close}
           label={intl.formatMessage(intlMessages.leaveAudio)}
           color={'danger'}
-          icon={'mute'}
+          icon={'audio_off'}
           size={'lg'}
           circle={true}
         />
@@ -43,7 +43,7 @@ class JoinAudioOptions extends React.Component {
         onClick={open}
         label={intl.formatMessage(intlMessages.joinAudio)}
         color={'primary'}
-        icon={'unmute'}
+        icon={'audio_on'}
         size={'lg'}
         circle={true}
       />

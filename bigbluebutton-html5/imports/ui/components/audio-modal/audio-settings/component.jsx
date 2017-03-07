@@ -53,7 +53,7 @@ class AudioSettings extends React.Component {
         <div className={styles.center}>
           <Button className={styles.backBtn}
             label={intl.formatMessage(intlMessages.backLabel)}
-            icon={'left-arrow'}
+            icon={'left_arrow'}
             size={'md'}
             color={'primary'}
             ghost={true}
