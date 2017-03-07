@@ -23,7 +23,7 @@ export default function handleValidateAuthToken({ payload }) {
 
   if (!User) {
     throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to set presenter`);
+      'user-not-found', `You need a valid user to be able validate the token`);
   }
 
   if (User.validated === validStatus) {
