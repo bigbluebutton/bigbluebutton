@@ -100,7 +100,18 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                 }
             }
             Map<String,String> metainfo = info.getMetadata();
-            builder.meta{
+            builder.meta {
+                // Insert breakout info
+                builder.meetingId(info.getMeetingID())
+                builder.meetingName(info.getName())
+                builder.isBreakout(info.isBreakout())
+                if ( info.hasChildrenMeetingID() ) {
+                    builder.childrenMeetingId(info.getChildrenMeetingIDSerialized())
+                } else {
+                    builder.sequence(info.getSequence())
+                    builder.parentMeetingId(info.getParentMeetingID())
+                }
+                // Insert meta info
                 metainfo.keySet().each { key ->
                     builder."$key"(metainfo.get(key))
                 }
@@ -152,8 +163,35 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         //Add metadata
         Map<String, String> meta = new HashMap<String, String>();
         rec.meta.children().each { anode ->
-            meta.put(anode.name().toString(), anode.text().toString());
+            def metaKey = anode.name().toString()
+            def metaValue = anode.text().toString()
+            switch ( metaKey ) {
+              case "meetingId":
+                r.setMeetingID(metaValue)
+                break
+              case "meetingName":
+                r.setName(metaValue)
+                break
+              case "isBreakout":
+                  r.setIsBreakout(metaValue == "true")
+                  break
+              case "sequence":
+                  r.setSequence(metaValue)
+                  break
+              case "parentMeetingId":
+                  r.setParentMeetingID(metaValue)
+                  break
+              case "childrenMeetingId":
+                  if ( metaValue != null && metaValue != "" ) {
+                      List<String> chmids = new ArrayList<String>(Arrays.asList(metaValue.split("\\s*,\\s*")))
+                      r.setChildrenMeetingID(chmids)
+                  }
+                  break
+              default:
+                  meta.put(anode.name().toString(), anode.text().toString())
+            }
         }
+
         r.setMetadata(meta);
         return r;
     }

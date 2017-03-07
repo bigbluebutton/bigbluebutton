@@ -32,13 +32,15 @@ public class Recording {
 	private String meetingID;
 	private String name;
 	private boolean published;
+	private boolean breakout;
+	private String parentMeetingID;
+	private String sequence;
+	private List<String> childrenMeetingID;
 	private String startTime;
 	private String endTime;
 	private String numParticipants;
 	private Map<String, String> metadata = new TreeMap<String, String>();
 	private List<Playback> playbacks=new ArrayList<Playback>();
-	
-	//TODO: 
 	private String state;
 	private String playbackLink;
 	private String playbackFormat;
@@ -80,6 +82,14 @@ public class Recording {
 	
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+
+	public boolean isBreakout() {
+		return breakout;
+	}
+
+	public void setIsBreakout(boolean breakout) {
+		this.breakout = breakout;
 	}
 	
 	public String getStartTime() {
@@ -176,6 +186,44 @@ public class Recording {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getParentMeetingID() {
+		return this.parentMeetingID;
+	}
+
+	public void setParentMeetingID(String meetingID) {
+		this.parentMeetingID = meetingID;
+	}
+
+	public void setChildrenMeetingID(List<String> childrenMeetingID) {
+		this.childrenMeetingID = childrenMeetingID;
+	}
+
+	public List<String> getChildrenMeetingID() {
+		return childrenMeetingID;
+	}
+
+	public String getChildrenMeetingIDSerialized() {
+		String childrenMeetingIDSerialized = "";
+		if ( childrenMeetingID != null ) {
+			for (String s : childrenMeetingID) {
+				childrenMeetingIDSerialized += (childrenMeetingIDSerialized == ""? "": ",") + s;
+			}
+		}
+		return childrenMeetingIDSerialized;
+	}
+
+	public boolean hasChildrenMeetingID() {
+		return !(childrenMeetingID == null || childrenMeetingID.isEmpty());
+	}
+
+	public String getSequence() {
+		return this.sequence;
+	}
+
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
 	}
 
 	public List<Playback> getPlaybacks() {

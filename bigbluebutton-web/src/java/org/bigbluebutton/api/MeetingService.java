@@ -20,6 +20,7 @@
 package org.bigbluebutton.api;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -85,11 +86,10 @@ public class MeetingService implements MessageListener {
     private final Executor runExec = Executors.newSingleThreadExecutor();
 
     /**
-     * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-
-     * misuse/
+     * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
      */
-    private final ConcurrentMap<String, Meeting> meetings;
-    private final ConcurrentMap<String, UserSession> sessions;
+    private ConcurrentMap<String, Meeting> meetings;
+    private ConcurrentMap<String, UserSession> sessions;
 
     private int defaultMeetingExpireDuration = 1;
     private int defaultMeetingCreateJoinDuration = 5;
@@ -294,18 +294,32 @@ public class MeetingService implements MessageListener {
     }
 
     private void handleCreateMeeting(Meeting m) {
+        String externalId;
+        if (m.isBreakout()) {
+            // Lookup for the parent
+            Meeting parent = getMeeting(m.getParentMeetingId());
+            // Add the current meeting as a child in memory
+            parent.addChildMeetingId(m.getInternalId());
+            // Assigns externalId
+            externalId = parent.getExternalId();
+        } else {
+            // Uses internalId and externalId as they where defined
+            externalId = m.getExternalId();
+        }
+
         meetings.put(m.getInternalId(), m);
+
         if (m.isRecord()) {
             Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
             // TODO: Need a better way to store these values for recordings
-            metadata.put("meetingId", m.getExternalId());
+            metadata.put("meetingId", externalId);
             metadata.put("meetingName", m.getName());
-            metadata.put("isBreakout", m.isBreakout().toString());
 
             Map<String, String> breakoutMetadata = new TreeMap<String, String>();
-            breakoutMetadata.put("meetingId", m.getExternalId());
+            breakoutMetadata.put("isBreakout", m.isBreakout().toString());
             if (m.isBreakout()){
+                breakoutMetadata.put("meetingId", m.getExternalId());
                 breakoutMetadata.put("sequence", m.getSequence().toString());
                 breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
             }
@@ -409,7 +423,11 @@ public class MeetingService implements MessageListener {
     }
 
     public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
-        List<Recording> recsList = recordingService.getRecordings(idList, states);
+        return getRecordings(idList, states, false);
+    }
+
+    public Map<String, Recording> getRecordings(List<String> idList, List<String> states, boolean includeBreakouts) {
+        List<Recording> recsList = recordingService.getRecordings(idList, states, includeBreakouts);
         Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
@@ -424,13 +442,6 @@ public class MeetingService implements MessageListener {
         Map<String, Recording> map = new HashMap<String, Recording>();
         for (Recording r : olds) {
             if (!map.containsKey(r.getId())) {
-                Map<String, String> meta = r.getMetadata();
-                String mid = meta.remove("meetingId");
-                String name = meta.remove("meetingName");
-
-                r.setMeetingID(mid);
-                r.setName(name);
-
                 List<Playback> plays = new ArrayList<Playback>();
 
                 if (r.getPlaybackFormat() != null) {
@@ -572,6 +583,14 @@ public class MeetingService implements MessageListener {
 
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
+            if (m.isBreakout()) {
+                // Remove child from parent
+                Meeting p = getMeeting(m.getParentMeetingId());
+                if (p != null) {
+                    // Remove the current meeting from parent children list
+                    p.removeChildMeetingId(m.getInternalId());
+                }
+            }
             m.setForciblyEnded(true);
             if (removeMeetingWhenEnded) {
                 processRecording(m.getInternalId());

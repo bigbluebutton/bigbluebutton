@@ -67,6 +67,7 @@ class ApiController {
   private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
   private static final String API_VERSION = '0.81'
   private static final String REDIRECT_RESPONSE = true
+  private static final boolean INCLUDE_BREAKOUTS = true
 
   MeetingService meetingService;
   PresentationService presentationService
@@ -862,10 +863,11 @@ class ApiController {
                     meetingID() { mkp.yield(m.getExternalId()) }
                     internalMeetingID() { mkp.yield(m.getInternalId()) }
                     if (m.isBreakout()) {
-                        parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
+                        parentInternalMeetingID() { mkp.yield(m.getParentMeetingId()) }
                         sequence(m.getSequence())
+                    } else if ( m.hasChildrenMeetingId() ) {
+                        childrenInternalMeetingID() { mkp.yield(m.getChildrenMeetingIdSerialized()) }
                     }
-                    isBreakout() { mkp.yield(m.isBreakout()) }
                     meetingName() { mkp.yield(m.getName()) }
                     createTime(m.getCreateTime())
                     createDate(formatPrettyDate(m.getCreateTime()))
@@ -1774,13 +1776,17 @@ class ApiController {
     }
 
     // Everything is good so far.
+    Map<String,Recording> recs
     if ( internalRecordIds.size() == 0 && externalMeetingIds.size() > 0 ) {
-      // No recordIDs, process the request based on meetingID(s)
+      // No recordIDs, process the request based on meetingID(s) and include breakouts
       // Translate the external meeting ids to internal meeting ids (which is the seed for the recordIDs).
-      internalRecordIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
+      List<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds)
+      recs = meetingService.getRecordings(internalMeetingIds, states, INCLUDE_BREAKOUTS)
+    } else {
+      // As recordIDs was included, process the request based on recordID(s), and don't include breakouts
+      recs = meetingService.getRecordings(internalRecordIds, states)
     }
 
-    Map<String,Recording> recs = meetingService.getRecordings(internalRecordIds, states);
     recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 
     if (recs.isEmpty()) {
@@ -2157,12 +2163,13 @@ class ApiController {
           response() {
             returncode(RESP_CODE_SUCCESS)
             meetingName() { mkp.yield(meeting.getName()) }
-            isBreakout() { mkp.yield(meeting.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
             if (meeting.isBreakout()) {
-                parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+                parentInternalMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
                 sequence(meeting.getSequence())
+            } else if ( meeting.hasChildrenMeetingId() ) {
+                childrenInternalMeetingID() { mkp.yield(meeting.getChildrenMeetingIdSerialized()) }
             }
             createTime(meeting.getCreateTime())
             createDate(formatPrettyDate(meeting.getCreateTime()))
@@ -2224,7 +2231,12 @@ class ApiController {
             returncode(RESP_CODE_SUCCESS)
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID() { mkp.yield(meeting.getInternalId()) }
-            parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+            if (meeting.isBreakout()) {
+                parentInternalMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
+                sequence(meeting.getSequence())
+            } else if ( meeting.hasChildrenMeetingId() ) {
+                childrenInternalMeetingID() { mkp.yield(meeting.getChildrenMeetingIdSerialized()) }
+            }
             attendeePW() { mkp.yield(meeting.getViewerPassword()) }
             moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
             createTime(meeting.getCreateTime())

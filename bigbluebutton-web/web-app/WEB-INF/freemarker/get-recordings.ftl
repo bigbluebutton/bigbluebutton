@@ -12,6 +12,7 @@
       <name><#if r.getName()?? && r.getName() != ""><![CDATA[${r.getName()}]]></#if></name>
       <published>${r.isPublished()?string}</published>
       <state>${r.getState()?string}</state>
+      <#if r.getParentMeetingID()?? && r.getParentMeetingID() != ""><parentRecordID>${r.getParentMeetingID()}</parentRecordID></#if>
       <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
       <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
       <participants><#if r.getNumParticipants()??>${r.getNumParticipants()}</#if></participants>

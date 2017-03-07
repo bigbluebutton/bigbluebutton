@@ -52,15 +52,22 @@ module BigBlueButton
     def self.get_meeting_metadata(events_xml)
       BigBlueButton.logger.info("Task: Getting meeting metadata")
       doc = Nokogiri::XML(File.open(events_xml))
+      meeting_id = doc.xpath("//recording")[0]["meeting_id"]
       metadata = {}
-      doc.xpath("//metadata").each do |e| 
+      doc.xpath("//metadata").each do |e|
         e.keys.each do |k| 
           metadata[k] = e.attribute(k)
         end
-      end  
+      end
+      doc.xpath("//breakout").each do |e|
+        e.keys.each do |k|
+           # Includes breakout elements as metadata but ignores meetingId 
+           metadata[k] = e.attribute(k) unless k == 'meetingId'
+        end
+      end
       metadata
     end
-    
+
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events_xml)
       BigBlueButton.logger.info("Task: Getting the timestamp of the first event.")

@@ -54,7 +54,18 @@ public class RedisStorageService {
             jedis.close();
         }
     }
-	
+
+	public Map<String, String> fetchMeetingKey(String meetingId, String key) {
+		Map<String, String> info;
+		Jedis jedis = redisPool.getResource();
+		try {
+			info = jedis.hgetAll("meeting:" + key + ":" + meetingId);
+		} finally {
+			jedis.close();
+		}
+			return info;
+	}
+
 	public void removeMeeting(String meetingId){
 		Jedis jedis = redisPool.getResource();
 		try {
