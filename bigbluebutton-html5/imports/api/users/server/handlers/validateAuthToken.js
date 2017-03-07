@@ -19,6 +19,17 @@ export default function handleValidateAuthToken({ payload }) {
     userId,
   };
 
+  const User = Users.findOne(selector);
+
+  if (!User) {
+    throw new Meteor.Error(
+      'user-not-found', `You need a valid user to be able to set presenter`);
+  }
+
+  if (User.validated === validStatus) {
+    return;
+  }
+
   const modifier = {
     $set: {
       validated: validStatus,
