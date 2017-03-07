@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Users from '/imports/api/slides';
+import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
 export default function updateVoiceUser(meetingId, userId, voiceUser) {
