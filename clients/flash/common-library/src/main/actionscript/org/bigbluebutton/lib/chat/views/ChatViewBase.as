@@ -86,7 +86,7 @@ package org.bigbluebutton.lib.chat.views {
 			_textInput.styleName = "messageInput";
 			_inputGroup.addElement(_textInput);
 			
-			addElement(_inputGroup);
+			addElement(group);
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
