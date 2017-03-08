@@ -37,37 +37,7 @@ function setMessages(data) {
   setAudio();
 }
 
-// Helper to load javascript libraries from the BBB server
-function loadLib(libname, success, fail) {
-  const successCallback = function (cb) {
-    console.log(`successfully loaded lib - ${this}`);
-    if (typeof (cb) == 'function' || cb instanceof Function) {
-      cb();
-    }
-  };
-
-  const failCallback = function (cb, issue) {
-    console.error(`failed to load lib - ${this}`);
-    console.error(issue);
-    if (typeof (cb) == 'function' || cb instanceof Function) {
-      cb();
-    }
-  };
-
-  return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`,
-    successCallback.bind(libname, success), 10000).fail(failCallback.bind(libname, fail));
-};
-
 Meteor.startup(() => {
-
-  loadLib('sip.js');
-  loadLib('bbb_webrtc_bridge_sip.js');
-  loadLib('bbblogger.js');
-  loadLib('jquery.json-2.4.min.js');
-  loadLib('jquery.FSRTC.js');
-  loadLib('jquery.verto.js');
-  loadLib('verto_extension.js');
-  loadLib('jquery.jsonrpcclient.js');
 
   loadUserSettings();
 
