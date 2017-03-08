@@ -1570,13 +1570,6 @@ if [ $CHECK ]; then
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml (red5)"
 	echo "                  voice conference: $CONFERENCING_MODULE"
 
-	CAPTURE_VIDEO="$(cat /usr/share/red5/webapps/video/WEB-INF/red5-web.xml | sed -n '/recordVideoStream/{s/^.*="//g;s/"\/>//g;p}')"
-	echo "                     capture video: $CAPTURE_VIDEO"
-
-	# CAPTURE_DESKTOP="$(cat /usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml | grep -m 1 '<constructor-arg index="0" value'  | sed -n '/constructor-arg/{s/^.*="//g;s/"\/>//g;p}')"
-	# echo "                   capture desktop: $CAPTURE_DESKTOP"
-
-
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
 		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | grep -v '#' | sed -n '/^playback_host/{s/.*:[ ]*//;s/;//;p}' | tail -n 1)
 		echo
