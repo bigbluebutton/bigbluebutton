@@ -24,7 +24,7 @@ export default class ApplicationMenu extends BaseMenu {
   handleUpdateFontSize(size) {
     let obj = this.state;
     obj.settings.fontSize = size;
-    this.setState(obj);
+    // this.setState(obj);
     this.handleUpdateSettings(this.state.settingsName, obj.settings);
   }
 
@@ -116,29 +116,36 @@ export default class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
-              <Button
-                onClick={() => this.handleIncreaseFontSize()}
-                icon={'circle-add'}
-                circle={true}
-                tabIndex='0'
-                hideLabel={true}
-                label={'Increase Font'}
-                aria-labelledby={'sizeUpLabel'}
-                aria-describedby={'sizeUpDesc'}
-              />
-              <div id='sizeUpLabel' hidden>Font size up</div>
-              <div id='sizeUpDesc' hidden>
-                Increases the font size of the application.</div>
-              <Button
-                onClick={() => this.handleDecreaseFontSize()}
-                icon={'circle-minus'}
-                circle={true}
-                tabIndex='0'
-                hideLabel={true}
-                label={'Decrease Font'}
-                aria-labelledby={'sizeDownLabel'}
-                aria-describedby={'sizeDownDesc'}
-              />
+                <div className={styles.pullContentRight}>
+                  <div className={styles.col}>
+                    <Button
+                      onClick={() => this.handleIncreaseFontSize()}
+                      color={'success'}
+                      icon={'circle-add'}
+                      circle={true}
+                      tabIndex='0'
+                      hideLabel={true}
+                      label={'Increase Font'}
+                      aria-labelledby={'sizeUpLabel'}
+                      aria-describedby={'sizeUpDesc'}
+                    />
+                    <div id='sizeUpLabel' hidden>Font size up</div>
+                  </div>
+                  <div className={styles.col}>
+                    <Button
+                      onClick={() => this.handleDecreaseFontSize()}
+                      color={'success'}
+                      icon={'circle-minus'}
+                      circle={true}
+                      tabIndex='0'
+                      hideLabel={true}
+                      label={'Decrease Font'}
+                      aria-labelledby={'sizeDownLabel'}
+                      aria-describedby={'sizeDownDesc'}
+                    />
+                    <div id='sizeUpDesc' hidden>Increases the font size of the application.</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

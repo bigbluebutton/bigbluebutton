@@ -4,7 +4,16 @@ import classNames from 'classnames';
 
 export default class Switch extends Toggle {
   render() {
-    const { className, icons: _icons, ...inputProps } = this.props;
+    const {
+      className,
+      icons: _icons,
+      ariaLabelledBy,
+      ariaDescribedBy,
+      ariaLabel,
+      ariaDesc,
+      ...inputProps,
+    } = this.props;
+
     const classes = classNames('react-toggle', {
       'react-toggle--checked': this.state.checked,
       'react-toggle--focus': this.state.hasFocus,
@@ -34,7 +43,11 @@ export default class Switch extends Toggle {
           onBlur={this.handleBlur}
           className='react-toggle-screenreader-only'
           type='checkbox'
-          tabIndex='0'/>
+          tabIndex='0'
+          aria-labelledby={ariaLabelledBy}
+          aria-describedby={ariaDescribedBy}/>
+          <div id={ariaLabelledBy} hidden>{ariaLabel}</div>
+          <div id={ariaDescribedBy} hidden>{ariaDesc}</div>
       </div>
     );
   }

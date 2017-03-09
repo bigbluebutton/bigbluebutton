@@ -21,20 +21,26 @@ export default class Settings extends Component {
   constructor(props) {
     super(props);
 
+    const audio = props.audio;
+    const video = props.video;
+    const application = props.application;
+    const cc = props.cc;
+    const participants = props.participants;
+
     this.state = {
       current: {
-        audio: props.audio,
-        video: props.video,
-        application: props.application,
-        cc: props.cc,
-        participants: props.participants,
+        audio,
+        video,
+        application,
+        cc,
+        participants,
       },
       saved: {
-        audio: props.audio,
-        video: props.video,
-        application: props.application,
-        cc: props.cc,
-        participants: props.participants,
+        audio: _.clone(audio),
+        video: _.clone(video),
+        application: _.clone(application),
+        cc: _.clone(cc),
+        participants: _.clone(participants),
       },
       selectedTab: 2,
     };
@@ -61,6 +67,7 @@ export default class Settings extends Component {
         }}
         dismiss={{
           callback: (() => {
+
             this.setHtmlFontSize(this.state.saved.application.fontSize);
           }),
           label: 'Cancel',
@@ -72,9 +79,7 @@ export default class Settings extends Component {
   }
 
   handleUpdateSettings(key, newSettings) {
-    let settings = {
-      current: this.state.current,
-    };
+    let settings = this.state;
     settings.current[key] = newSettings;
     this.setState(settings);
   }
@@ -98,6 +103,10 @@ export default class Settings extends Component {
       >
         <TabList className={styles.tabList}>
           <Tab className={styles.tabSelector}>
+            <Icon iconName='application' className={styles.icon}/>
+            Application
+          </Tab>
+          <Tab className={styles.tabSelector}>
             <Icon iconName='audio' className={styles.icon}/>
             <span>Audio</span>
           </Tab>
@@ -105,10 +114,6 @@ export default class Settings extends Component {
             <Icon iconName='video' className={styles.icon}/>
             Video
           </Tab>
-          <Tab className={styles.tabSelector}>
-            <Icon iconName='application' className={styles.icon}/>
-            Application
-            </Tab>
           <Tab className={styles.tabSelector}>
             <Icon iconName='user' className={styles.icon}/>
             Closed Captions
@@ -121,6 +126,12 @@ export default class Settings extends Component {
             : null }
         </TabList>
         <TabPanel className={styles.tabPanel}>
+          <Application
+            handleUpdateSettings={this.handleUpdateSettings}
+            settings={this.state.current.application}
+            />
+        </TabPanel>
+        <TabPanel className={styles.tabPanel}>
           <Audio
             settings={this.state.current.audio}
             handleUpdateSettings={this.handleUpdateSettings}/>
@@ -129,12 +140,6 @@ export default class Settings extends Component {
           <Video
             handleUpdateSettings={this.handleUpdateSettings}
             settings={this.state.current.video}
-            />
-        </TabPanel>
-        <TabPanel className={styles.tabPanel}>
-          <Application
-            handleUpdateSettings={this.handleUpdateSettings}
-            settings={this.state.current.application}
             />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>

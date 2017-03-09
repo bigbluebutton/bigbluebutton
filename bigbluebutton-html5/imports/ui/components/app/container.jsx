@@ -9,7 +9,7 @@ import {
   getCaptionsStatus,
   getFontSize,
 } from './service';
-import { setDefaultSettings } from '/imports/ui/components/settings/service';
+import { setDefaultSettings, getSettingsFor } from '/imports/ui/components/settings/service';
 
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
@@ -82,6 +82,7 @@ export default createContainer(({ params }) => {
     redirectToLogoutUrl,
     setDefaultSettings,
     fontSize: getFontSize(),
+    applicationSettings: getSettingsFor('application'),
   };
 }, AppContainer);
 

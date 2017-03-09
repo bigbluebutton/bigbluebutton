@@ -48,7 +48,7 @@ export default class ClosedCaptions extends React.Component {
     return (
       <div disabled className={styles.ccbox}>
         <div className={styles.title}>
-          <p> {this.props.locale ? this.props.locale : "Locale is not selected"} </p>
+          <p> {this.props.locale > -1 ? this.props.locale : 'Locale is not selected'} </p>
         </div>
         <div
           ref="ccScrollArea"

@@ -180,7 +180,8 @@ export default class App extends Component {
 
       // compare openChats(chatID) to chatID of currently opened chat room
       if (openChats[i] !== openChat) {
-        let shouldPlaySound = LocalStorage.getItem('audioNotifChat') || Meteor.settings.public.app.audioChatNotification;
+        let shouldPlaySound = this.props.applicationSettings.chatAudioNotifications;
+
         if (shouldPlaySound && chat > prevProps.unreadMessageCount[i]) {
           this.playSoundForUnreadMessages();
         }

@@ -5,7 +5,7 @@ import cx from 'classnames';
 import BaseMenu from '../base/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
-import { ChromePicker } from 'react-color';
+import { GithubPicker } from 'react-color';
 
 //an array of font-families
 const FONT_FAMILIES = ['Arial', 'Calibri', 'Time New Roman', 'Sans-serif'];
@@ -73,6 +73,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
 
     this.setState(obj);
     this.handleUpdateSettings('cc', obj.settings);
+    this.handleCloseColorPicker();
   }
 
   render() {
@@ -230,7 +231,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
                       onClick={ this.handleCloseColorPicker.bind(this) }
                     >
                     </div>
-                    <ChromePicker
+                    <GithubPicker
                       onChange={this.handleColorChange.bind(this, 'backgroundColor')}
                       color={this.state.settings.backgroundColor}
                       colors={COLORS}
@@ -270,7 +271,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
                       onClick={ this.handleCloseColorPicker.bind(this) }
                     >
                     </div>
-                    <ChromePicker
+                    <GithubPicker
                       onChange={this.handleColorChange.bind(this, 'fontColor')}
                       color={this.state.settings.fontColor}
                       colors={COLORS}

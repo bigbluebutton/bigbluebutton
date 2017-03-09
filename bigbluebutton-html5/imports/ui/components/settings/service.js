@@ -72,8 +72,8 @@ const setDefaultSettings = () => {
     application: getSettingsFor('application'),
     audio: getSettingsFor('audio'),
     video: getSettingsFor('video'),
-    cc: getSettingsFor('participants'),
-    participants: getSettingsFor('cc'),
+    cc: getSettingsFor('cc'),
+    participants: getSettingsFor('participants'),
   };
 
   let settings = {};

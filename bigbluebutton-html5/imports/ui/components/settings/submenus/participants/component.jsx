@@ -25,21 +25,41 @@ export default class ApplicationMenu extends BaseMenu {
       {
         key: 'webcam',
         label: 'Webcam',
+        ariaLabelledBy: 'webcamLabel',
+        ariaDescribedBy: 'webcamDesc',
+        ariaLabel: 'Webcam lock',
+        ariaDesc: 'Disables the webcam for all locked participants.',
       },
       {
         key: 'microphone',
         label: 'Microphone',
+        ariaLabelledBy: 'micLabel',
+        ariaDescribedBy: 'micDesc',
+        ariaLabel: 'Microphone lock',
+        ariaDesc: 'Disables the microphone for all locked participants.',
       },
       {
         key: 'publicChat',
+        ariaLabelledBy: 'pubChatLabel',
+        ariaDescribedBy: 'pubChatDesc',
+        ariaLabel: 'Public chat lock',
+        ariaDesc: 'Disables public chat for all locked participants.',
         label: 'Public Chat',
       },
       {
         key: 'privateChat',
         label: 'Private Chat',
+        ariaLabelledBy: 'privChatLabel',
+        ariaDescribedBy: 'privChatDesc',
+        ariaLabel: 'Private chat lock',
+        ariaDesc: 'Disables private chat for all locked participants.',
       },
       {
         key: 'layout',
+        ariaLabelledBy: 'layoutLabel',
+        ariaDescribedBy: 'layoutDesc',
+        ariaLabel: 'Layout lock',
+        ariaDesc: 'Locks layout for all locked participants.',
         label: 'Layout',
       },
     ];
@@ -82,7 +102,8 @@ export default class ApplicationMenu extends BaseMenu {
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.lockAll}
-                onChange={() => this.handleToggle('lockAll')} />
+                onChange={() => this.handleToggle('lockAll')}
+                 />
               </div>
             </div>
           </div>
@@ -92,7 +113,7 @@ export default class ApplicationMenu extends BaseMenu {
     );
   }
 
-  renderLockItem({ label, key }, i) {
+  renderLockItem({ label, key, ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy }, i) {
     return (
       <div key={i} className={cx(styles.row, styles.spacedLeft)}>
         <div className={styles.col}>
@@ -104,7 +125,14 @@ export default class ApplicationMenu extends BaseMenu {
         </div>
         <div className={styles.col}>
           <div className={cx(styles.formElement, styles.pullContentRight)}>
-            <Checkbox onChange={() => this.handleToggle(key)} checked={this.state.settings[key]}/>
+            <Checkbox
+              onChange={() => this.handleToggle(key)}
+              checked={this.state.settings[key]}
+              ariaLabel={ariaLabel}
+              ariaLabelledBy={ariaLabelledBy}
+              ariaDesc={ariaDesc}
+              ariaDescribedBy={ariaDescribedBy}
+              />
           </div>
         </div>
       </div>
