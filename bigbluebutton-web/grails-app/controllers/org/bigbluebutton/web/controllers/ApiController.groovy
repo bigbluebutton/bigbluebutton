@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
+import org.bigbluebutton.api.util.ResponseBuilder
 
 import javax.servlet.ServletRequest;
 
@@ -53,9 +54,10 @@ import org.bigbluebutton.web.services.turn.StunTurnService;
 import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+import org.bigbluebutton.api.util.ResponseBuilder
 import freemarker.template.Configuration;
 import freemarker.cache.WebappTemplateLoader;
+import java.io.File;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
@@ -74,6 +76,8 @@ class ApiController {
   ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
+
+
 
   /* general methods */
   def index = {
@@ -791,7 +795,15 @@ class ApiController {
       return;
     }
 
-    respondWithConferenceDetails(meeting, null, null, null);
+    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
+    ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
+
+    def xmlText = responseBuilder.buildGetMeetingInfoResponse(meeting, "success")
+    withFormat {
+      xml {
+        render(text: xmlText, contentType: "text/xml")
+      }
+    }
   }
 
   /************************************
@@ -850,41 +862,14 @@ class ApiController {
       }
     } else {
       response.addHeader("Cache-Control", "no-cache")
+
+      def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
+      ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
+
+      def xmlText = responseBuilder.buildGetMeetingsResponse(mtgs, "success")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode(RESP_CODE_SUCCESS)
-              meetings {
-                for (m in mtgs) {
-                  meeting {
-                    meetingID() { mkp.yield(m.getExternalId()) }
-                    internalMeetingID() { mkp.yield(m.getInternalId()) }
-                    if (m.isBreakout()) {
-                        parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
-                        sequence(m.getSequence())
-                    }
-                    isBreakout() { mkp.yield(m.isBreakout()) }
-                    meetingName() { mkp.yield(m.getName()) }
-                    createTime(m.getCreateTime())
-                    createDate(formatPrettyDate(m.getCreateTime()))
-                    voiceBridge() { mkp.yield(m.getTelVoice()) }
-                    dialNumber() { mkp.yield(m.getDialNumber()) }
-                    attendeePW() { mkp.yield(m.getViewerPassword()) }
-                    moderatorPW() { mkp.yield(m.getModeratorPassword()) }
-                    hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
-                    running(m.isRunning() ? "true" : "false")
-                    participantCount(m.getNumUsers())
-                    listenerCount(m.getNumListenOnly())
-                    voiceParticipantCount(m.getNumVoiceJoined())
-                    videoCount(m.getNumVideos())
-                    duration(m.duration)
-                    hasUserJoined(m.hasUserJoined())
-                  }
-                }
-              }
-            }
-          }
+          render(text: xmlText, contentType: "text/xml")
         }
       }
     }
@@ -1798,6 +1783,9 @@ class ApiController {
       }
       return;
     }
+
+
+
     def cfg = new Configuration()
 
     // Load the XML template

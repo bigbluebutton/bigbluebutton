@@ -28,6 +28,7 @@ import java.util.Set;
 
 public interface MessagingService {	
 	void recordMeetingInfo(String meetingId, Map<String, String> info, Map<String, String> breakoutInfo);
+	void addBreakoutRoom(String parentId, String breakoutId);
 	void destroyMeeting(String meetingID);
     void createMeeting(String meetingID, String externalMeetingID,
             String parentMeetingID, String meetingName, Boolean recorded,

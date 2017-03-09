@@ -302,6 +302,19 @@ public class MeetingService implements MessageListener {
     }
 
     private void handleCreateMeeting(Meeting m) {
+        Map<String, String> breakoutMetadata = new TreeMap<String, String>();
+
+        if (m.isBreakout()){
+            breakoutMetadata.put("meetingId", m.getExternalId());
+            breakoutMetadata.put("sequence", m.getSequence().toString());
+            breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
+            Meeting parent = meetings.get(m.getParentMeetingId());
+            parent.addBreakoutRoom(m.getExternalId());
+            if (parent.isRecord()) {
+                messagingService.addBreakoutRoom(parent.getInternalId(), m.getInternalId());
+            }
+        }
+
         if (m.isRecord()) {
             Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
@@ -310,12 +323,6 @@ public class MeetingService implements MessageListener {
             metadata.put("meetingName", m.getName());
             metadata.put("isBreakout", m.isBreakout().toString());
 
-            Map<String, String> breakoutMetadata = new TreeMap<String, String>();
-            breakoutMetadata.put("meetingId", m.getExternalId());
-            if (m.isBreakout()){
-                breakoutMetadata.put("sequence", m.getSequence().toString());
-                breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
-            }
             messagingService.recordMeetingInfo(m.getInternalId(), metadata, breakoutMetadata);
         }
 

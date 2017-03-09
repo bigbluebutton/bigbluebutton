@@ -53,6 +53,10 @@ public class RedisMessagingService implements MessagingService {
 		storeService.recordMeetingInfo(meetingId, info, breakoutInfo);
 	}
 
+	public void addBreakoutRoom(String parentId, String breakoutId) {
+		storeService.addBreakoutRoom(parentId, breakoutId);
+	}
+
 	public void destroyMeeting(String meetingID) {
 		DestroyMeetingMessage msg = new DestroyMeetingMessage(meetingID);
 		String json = MessageToJson.destroyMeetingMessageToJson(msg);
