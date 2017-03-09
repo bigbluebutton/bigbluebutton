@@ -19,6 +19,10 @@ package org.bigbluebutton.lib.settings.views.audio {
 		
 		private var _gainSlider:HSlider;
 		
+		private var _audioSeparator:Line;
+		
+		private var _microphoneSeparator:Line;
+		
 		public function get audioToggle():ToggleButtonBase {
 			return _audioToggle;
 		}
@@ -52,10 +56,9 @@ package org.bigbluebutton.lib.settings.views.audio {
 			_audioToggle = new toggleButtonClass();
 			audioGroup.addElement(_audioToggle);
 			
-			var audioSeparator:Line = new Line();
-			audioSeparator.percentWidth = 100;
-			audioSeparator.stroke = new SolidColorStroke(0xF2F2F2);
-			addElement(audioSeparator);
+			_audioSeparator = new Line();
+			_audioSeparator.percentWidth = 100;
+			addElement(_audioSeparator);
 			
 			// Mirohpone group
 			var microphoneGroup:HGroup = new HGroup();
@@ -71,10 +74,9 @@ package org.bigbluebutton.lib.settings.views.audio {
 			_microphoneToggle = new toggleButtonClass();
 			microphoneGroup.addElement(_microphoneToggle);
 			
-			var microphoneSeparator:Line = new Line();
-			microphoneSeparator.percentWidth = 100;
-			microphoneSeparator.stroke = new SolidColorStroke(0xF2F2F2);
-			addElement(microphoneSeparator);
+			_microphoneSeparator = new Line();
+			_microphoneSeparator.percentWidth = 100;
+			addElement(_microphoneSeparator);
 			
 			// Gain group
 			var gainGroup:VGroup = new VGroup();
@@ -127,6 +129,9 @@ package org.bigbluebutton.lib.settings.views.audio {
 			_microphoneToggle.parent["padding"] = getStyle("padding");
 			_gainSlider.parent["padding"] = getStyle("padding") * 0.5;
 			_gainSlider.parent.parent["padding"] = getStyle("padding");
+			
+			_audioSeparator.stroke = new SolidColorStroke(getStyle("separatorColor"));
+			_microphoneSeparator.stroke = new SolidColorStroke(getStyle("separatorColor"));
 		}
 	}
 }

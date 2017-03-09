@@ -27,3 +27,5 @@ private const shakespeare:uint = 0x4998D0;
 private const white:uint = 0xFFFFFF;
 
 private const shamrock:uint = 0x36CC84;
+
+private const lightGrey:uint = 0xF2F2F2;

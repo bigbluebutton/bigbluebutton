@@ -41,9 +41,7 @@
 			bottom="1"
 			radiusX="2">
 		<s:fill>
-			<s:SolidColor id="backgroundFill"
-						  color="0xFF0000"
-						  alpha="1" />
+			<s:SolidColor id="backgroundFill" />
 		</s:fill>
 	</s:Rect>
 

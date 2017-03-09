@@ -88,6 +88,7 @@ participants|ParticipantsViewBase, users|UsersViewBase {
 settings|SettingsViewBase, audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, camera|CameraSettingsViewBase {
 	color            : PropertyReference("regentGrey");
 	headerBackground : PropertyReference("shakespeare");
+	separatorColor   : PropertyReference("lightGrey");
 }
 
 participants|ParticipantsViewBase s|List{

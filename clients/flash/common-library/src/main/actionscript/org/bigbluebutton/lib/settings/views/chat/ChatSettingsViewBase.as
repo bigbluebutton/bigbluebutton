@@ -22,6 +22,10 @@ package org.bigbluebutton.lib.settings.views.chat {
 		
 		private var _decreaseFontSizeButton:Button;
 		
+		private var _microphoneSeparator:Line;
+		
+		private var _audioSeparator:Line;
+		
 		public function get audioToggle():ToggleButtonBase {
 			return _audioToggle;
 		}
@@ -59,10 +63,9 @@ package org.bigbluebutton.lib.settings.views.chat {
 			_pushToggle = new toggleButtonClass();
 			audioGroup.addElement(_pushToggle);
 			
-			var microphoneSeparator:Line = new Line();
-			microphoneSeparator.percentWidth = 100;
-			microphoneSeparator.stroke = new SolidColorStroke(0xF2F2F2);
-			addElement(microphoneSeparator);
+			_microphoneSeparator = new Line();
+			_microphoneSeparator.percentWidth = 100;
+			addElement(_microphoneSeparator);
 			
 			// Audio group
 			var notificationGroup:HGroup = new HGroup();
@@ -78,10 +81,9 @@ package org.bigbluebutton.lib.settings.views.chat {
 			_audioToggle = new toggleButtonClass();
 			notificationGroup.addElement(_audioToggle);
 			
-			var audioSeparator:Line = new Line();
-			audioSeparator.percentWidth = 100;
-			audioSeparator.stroke = new SolidColorStroke(0xF2F2F2);
-			addElement(audioSeparator);
+			_audioSeparator = new Line();
+			_audioSeparator.percentWidth = 100;
+			addElement(_audioSeparator);
 			
 			// Settings title
 			var _settingsTitle:Label = new Label();
@@ -120,6 +122,9 @@ package org.bigbluebutton.lib.settings.views.chat {
 			_audioToggle.parent["padding"] = getStyle("padding");
 			_pushToggle.parent["padding"] = getStyle("padding");
 			_fontSizeLabel.parent["padding"] = getStyle("padding");
+			
+			_microphoneSeparator.stroke = new SolidColorStroke(getStyle("separatorColor"));
+			_audioSeparator.stroke = new SolidColorStroke(getStyle("separatorColor"));
 		}
 	}
 }
