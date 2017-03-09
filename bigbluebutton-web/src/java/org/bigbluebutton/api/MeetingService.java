@@ -303,9 +303,9 @@ public class MeetingService implements MessageListener {
 
     private void handleCreateMeeting(Meeting m) {
         Map<String, String> breakoutMetadata = new TreeMap<String, String>();
+        breakoutMetadata.put("meetingId", m.getExternalId());
 
         if (m.isBreakout()){
-            breakoutMetadata.put("meetingId", m.getExternalId());
             breakoutMetadata.put("sequence", m.getSequence().toString());
             breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
             Meeting parent = meetings.get(m.getParentMeetingId());
