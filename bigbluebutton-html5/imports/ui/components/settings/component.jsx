@@ -107,7 +107,7 @@ export default class Settings extends Component {
             Application
           </Tab>
           <Tab className={styles.tabSelector}>
-            <Icon iconName='audio' className={styles.icon}/>
+            <Icon iconName='unmute' className={styles.icon}/>
             <span>Audio</span>
           </Tab>
           <Tab className={styles.tabSelector}>

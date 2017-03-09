@@ -121,7 +121,7 @@ export default class ApplicationMenu extends BaseMenu {
                     <Button
                       onClick={() => this.handleIncreaseFontSize()}
                       color={'success'}
-                      icon={'circle-add'}
+                      icon={'add'}
                       circle={true}
                       tabIndex='0'
                       hideLabel={true}
@@ -135,7 +135,7 @@ export default class ApplicationMenu extends BaseMenu {
                     <Button
                       onClick={() => this.handleDecreaseFontSize()}
                       color={'success'}
-                      icon={'circle-minus'}
+                      icon={'substract'}
                       circle={true}
                       tabIndex='0'
                       hideLabel={true}
