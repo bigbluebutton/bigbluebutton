@@ -1,8 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
+import Presentations from '/imports/api/presentations';
 
 import addPresentation from '../modifiers/addPresentation';
+import removePresentation from '../modifiers/removePresentation';
 
 export default function handlePresentationInfoReply({ payload }) {
   if (!inReplyToHTML5Client({ payload })) {
@@ -14,6 +16,14 @@ export default function handlePresentationInfoReply({ payload }) {
 
   check(meetingId, String);
   check(presentations, Array);
+
+  const presentationsIds = presentations.map(_ => _.id);
+  const presentationsToRemove = Presentations.find({
+    meetingId,
+    'presentation.id': { $nin: presentationsIds },
+  }).fetch();
+
+  presentationsToRemove.forEach(p => removePresentation(meetingId, p.presentation.id));
 
   let presentationsAdded = [];
   presentations.forEach(presentation => {

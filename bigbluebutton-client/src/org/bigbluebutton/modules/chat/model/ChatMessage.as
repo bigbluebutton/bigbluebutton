@@ -17,6 +17,7 @@
 *
 */
 package org.bigbluebutton.modules.chat.model {
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class ChatMessage {
 		[Bindable] public var lastSenderId:String;
@@ -42,8 +43,8 @@ package org.bigbluebutton.modules.chat.model {
 		
 		public function toString() : String {
 			var result:String;
-			// Remember to localize this later
-			result = "Chat message " + name + " said " + stripTags(text) + " at " + time;  
+			var accName:String = (!name || name == "" || name == " "? ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage") : name);
+			result = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.stringRespresentation", [accName, stripTags(text), time]);
 			return result;
 		}
 		

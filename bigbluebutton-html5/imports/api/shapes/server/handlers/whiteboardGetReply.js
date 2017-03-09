@@ -1,8 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import { inReplyToHTML5Client } from '/imports/api/common/server/helpers';
+import Shapes from '/imports/api/shapes';
 
 import addShape from '../modifiers/addShape';
+import removeShape from '../modifiers/removeShape';
 
 export default function handleWhiteboardGetReply({ payload }) {
   if (!inReplyToHTML5Client({ payload })) {
@@ -14,6 +16,14 @@ export default function handleWhiteboardGetReply({ payload }) {
 
   check(meetingId, String);
   check(shapes, Array);
+
+  const shapesIds = shapes.map(_ => _.id);
+  const shapesToRemove = Shapes.find({
+    meetingId,
+    'shape.id': { $nin: shapesIds },
+  }).fetch();
+
+  shapesToRemove.forEach(s => removeShape(meetingId, s.shape.wb_id, s.shape.id));
 
   let shapesAdded = [];
   shapes.forEach(shape => {

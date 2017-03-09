@@ -29,7 +29,7 @@
 		public var stream:String;
 		public var userid:String;
 		public var isPresenter:Boolean;
-    public var camSettings:CameraSettingsVO;
+		public var camSettings:CameraSettingsVO;
     
 		public function BroadcastStartedEvent(type:String = BROADCAST_STARTED_EVENT) {
 			super(type, true, false);

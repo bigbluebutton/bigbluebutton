@@ -63,7 +63,7 @@ class JoinAudio extends React.Component {
         <div className={styles.center}>
           <Button className={styles.audioBtn}
             label={intl.formatMessage(intlMessages.microphoneLabel)}
-            icon={'audio'}
+            icon={'unmute'}
             circle={true}
             size={'jumbo'}
             onClick={this.openAudio}

@@ -155,44 +155,43 @@ class ApiController {
       return
     }
 
-
-    // Translate the external meeting id into an internal meeting id.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
-    Meeting existing = meetingService.getNotEndedMeetingWithId(internalMeetingId);
-    if (existing != null) {
-      log.debug "Existing conference found"
-      Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
-      if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
-        paramsProcessorUtil.updateMeeting(updateParams, existing);
-        // trying to create a conference a second time, return success, but give extra info
-        // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
-        //uploadDocuments(existing);
-        respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
-      } else {
-        // BEGIN - backward compatibility
-        invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
-        return;
-        // END - backward compatibility
-
-        // enforce meetingID unique-ness
-        errors.nonUniqueMeetingIdError()
-        respondWithErrors(errors)
-      }
-
-      return;
-    }
-
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);
 
     if (! StringUtils.isEmpty(params.moderatorOnlyMessage)) {
       newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
     }
 
-    meetingService.createMeeting(newMeeting);
+    if (meetingService.createMeeting(newMeeting)) {
+      // See if the request came with pre-uploading of presentation.
+      uploadDocuments(newMeeting);
+      respondWithConference(newMeeting, null, null)
+    } else {
+      // Translate the external meeting id into an internal meeting id.
+      String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
+      Meeting existing = meetingService.getNotEndedMeetingWithId(internalMeetingId);
+      if (existing != null) {
+        log.debug "Existing conference found"
+        Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
+        if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
+          paramsProcessorUtil.updateMeeting(updateParams, existing);
+          // trying to create a conference a second time, return success, but give extra info
+          // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
+          //uploadDocuments(existing);
+          respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
+        } else {
+          // BEGIN - backward compatibility
+          invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
+          return;
+          // END - backward compatibility
 
-    // See if the request came with pre-uploading of presentation.
-    uploadDocuments(newMeeting);
-    respondWithConference(newMeeting, null, null)
+          // enforce meetingID unique-ness
+          errors.nonUniqueMeetingIdError()
+          respondWithErrors(errors)
+        }
+
+        return;
+      }
+    }
   }
 
   /**********************************************
