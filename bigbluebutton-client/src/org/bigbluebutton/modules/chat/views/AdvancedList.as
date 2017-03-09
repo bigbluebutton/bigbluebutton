@@ -38,6 +38,10 @@ package org.bigbluebutton.modules.chat.views
       super();
     }
 	
+	override protected function drawHighlightIndicator(indicator:Sprite, x:Number, y:Number, width:Number, height:Number, color:uint, itemRenderer:IListItemRenderer):void {
+		//intentionally empty to not show on hover
+	}
+	
     override protected function measure():void
     {
       super.measure();
