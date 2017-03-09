@@ -84,7 +84,7 @@
 	
 	.sendButton {
 		borderWeight : 2;
-		radius 		 : 40;
+		diameter     : 40;
 	}
 	
 	.titleLabel {
@@ -119,7 +119,7 @@
 	}
 	
 	.participantIcon {
-		radius       : 44;
+		diameter     : 44;
 		fontSize     : 18;
 		circleStroke : 2;
 	}

@@ -13,7 +13,7 @@
 	<fx:Script>
 		<![CDATA[
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-				border.width = border.height = getStyle("radius");
+				border.width = border.height = getStyle("diameter");
 				
 				borderStroke.color = getStyle("borderColor");
 				borderStroke.weight = getStyle("borderWeight");
