@@ -36,6 +36,25 @@
 				}
 			}
 			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				wrapperGroup.padding = getStyle("padding");
+				wrapperGroup.gap = getStyle("padding") / 4;
+				
+				labelDisplay.setStyle("paddingLeft", getStyle("padding"));
+				labelDisplay.setStyle("paddingRight", getStyle("padding"));
+				
+				cameraIcon.text = cameraIcon.getStyle("icon");
+				cameraIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				audioIcon.text = audioIcon.getStyle("icon");
+				audioIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				lockIcon.text = lockIcon.getStyle("icon");
+				lockIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
@@ -75,9 +94,8 @@
 			}
 		]]>
 	</fx:Script>
-	<s:VGroup width="100%"
-			  padding="{getStyle('padding')}"
-			  gap="{getStyle('padding')/4}">
+	<s:VGroup id="wrapperGroup"
+			  width="100%">
 		<s:HGroup width="100%"
 				  verticalAlign="middle">
 
@@ -85,20 +103,12 @@
 
 			<s:Label id="labelDisplay"
 					 width="100%"
-					 styleName="participantTitle"
-					 paddingLeft="{getStyle('padding')}"
-					 paddingRight="{getStyle('padding')}" />
+					 styleName="participantTitle" />
 			<s:Label id="cameraIcon"
-					 text="{cameraIcon.getStyle('icon')}"
-					 fontSize="{getStyle('iconSize')}"
 					 styleName="icon icon-video" />
 			<s:Label id="audioIcon"
-					 text="{audioIcon.getStyle('icon')}"
-					 fontSize="{getStyle('iconSize')}"
 					 styleName="icon icon-audio-on" />
 			<s:Label id="lockIcon"
-					 text="{lockIcon.getStyle('icon')}"
-					 fontSize="{getStyle('iconSize')}"
 					 styleName="icon icon-lock" />
 		</s:HGroup>
 		<s:Label id="subLabelDisplay"

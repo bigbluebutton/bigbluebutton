@@ -11,6 +11,16 @@
 		<![CDATA[
 			import org.bigbluebutton.lib.user.utils.UserUtils;
 			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				publicChatIcon.text = publicChatIcon.getStyle("icon");
+				
+				containerGroup.padding = getStyle("padding");
+				title.setStyle("paddingLeft", getStyle("padding"));
+				title.setStyle("paddingRight", getStyle("padding"));
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
@@ -29,21 +39,19 @@
 			}
 		]]>
 	</fx:Script>
-	<s:HGroup width="100%"
-			  padding="{getStyle('padding')}"
+	<s:HGroup id="containerGroup"
+			  width="100%"
 			  verticalAlign="middle"
 			  horizontalAlign="center">
-		<s:Button id="publicChatIcon"
-				  visible="false"
-				  includeInLayout="false"
-				  styleName="icon-group-chat chatIcon" />
+		<s:Label id="publicChatIcon"
+				 visible="false"
+				 includeInLayout="false"
+				 styleName="icon-group-chat chatIcon" />
 		<common:ParticipantIcon id="participantIcon"
 								visible="false"
 								includeInLayout="false" />
 		<s:Label id="title"
 				 width="100%"
-				 paddingLeft="{getStyle('padding')}"
-				 paddingRight="{getStyle('padding')}"
 				 styleName="contentFontSize" />
 		<views:NewMessagesIndicator id="newMessages"
 									styleName="newMessagesIndicator" />

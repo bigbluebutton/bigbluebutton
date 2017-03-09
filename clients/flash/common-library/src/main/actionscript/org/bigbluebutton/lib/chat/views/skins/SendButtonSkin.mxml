@@ -18,6 +18,8 @@
 				borderStroke.color = getStyle("borderColor");
 				borderStroke.weight = getStyle("borderWeight");
 				
+				labelDisplay.text = getStyle("icon");
+				
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
 			}
 		]]>
@@ -46,8 +48,7 @@
 			 maxDisplayedLines="1"
 			 horizontalCenter="0"
 			 verticalCenter="0"
-			 verticalAlign="middle"
-			 text="{getStyle('icon')}">
+			 verticalAlign="middle">
 	</s:Label>
 
 </s:Skin>

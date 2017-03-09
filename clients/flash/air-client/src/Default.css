@@ -182,7 +182,7 @@ settings|SettingsItemRenderer {
 }
 
 .chatIcon {
-	iconColor : PropertyReference("regentGrey");
+	color : PropertyReference("regentGrey");
 }
 
 .menuButton {

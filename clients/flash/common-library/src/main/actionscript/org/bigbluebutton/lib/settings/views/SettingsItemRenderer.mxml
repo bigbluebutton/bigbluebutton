@@ -24,6 +24,7 @@
 				
 				arrowIcon.setStyle("color", getStyle("iconColor"));
 				arrowIcon.setStyle("fontSize", getStyle("iconSize"));
+				arrowIcon.text = arrowIcon.getStyle("icon");
 				
 				if (data.page == "exit") {
 					container.styleName = "leaveLabel";
@@ -41,7 +42,6 @@
 		<s:Label id="settingName"
 				 width="100%" />
 		<s:Label id="arrowIcon"
-				 styleName="icon icon-right-arrow"
-				 text="{arrowIcon.getStyle('icon')}" />
+				 styleName="icon icon-right-arrow" />
 	</s:HGroup>
 </s:ItemRenderer>

@@ -22,6 +22,11 @@
 				backgroundFill.color = getStyle("backgroundColor");
 				backgroundFill.alpha = getStyle("backgroundAlpha");
 				
+				labelDisplay.setStyle("left", getStyle("labelPadding"));
+				labelDisplay.setStyle("right", getStyle("labelPadding"));
+				labelDisplay.setStyle("top", getStyle("labelPadding") / 4);
+				labelDisplay.setStyle("bottom", getStyle("labelPadding") / 4);
+				
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
 			}
 		]]>
@@ -50,9 +55,5 @@
 			 maxDisplayedLines="1"
 			 horizontalCenter="0"
 			 verticalCenter="1"
-			 verticalAlign="middle"
-			 left="{getStyle('labelPadding')}"
-			 right="{getStyle('labelPadding')}"
-			 top="{getStyle('labelPadding')/4}"
-			 bottom="{getStyle('labelPadding')/4}" />
+			 verticalAlign="middle" />
 </s:Skin>

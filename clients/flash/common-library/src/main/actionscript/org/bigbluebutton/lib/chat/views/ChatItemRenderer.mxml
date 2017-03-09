@@ -12,6 +12,18 @@
 			import org.bigbluebutton.lib.chat.models.ChatMessage;
 			import org.bigbluebutton.lib.user.utils.UserUtils;
 			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				wrapperGroup.padding = getStyle("padding");
+				titleGroup.gap = getStyle("padding");
+				
+				username.setStyle("color", getStyle("nameColor"));
+				username.setStyle("fontSize", getStyle("nameFontSize"));
+				
+				time.setStyle("fontSize", getStyle("timeFontSize"));
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				var m:ChatMessage = obj as ChatMessage;
@@ -60,23 +72,20 @@
 		]]>
 	</fx:Script>
 
-	<s:VGroup width="100%"
-			  padding="{getStyle('padding')}">
-		<s:HGroup width="100%"
-				  verticalAlign="middle"
-				  gap="{getStyle('padding')}">
+	<s:VGroup id="wrapperGroup"
+			  width="100%">
+		<s:HGroup id="titleGroup"
+				  width="100%"
+				  verticalAlign="middle">
 			<views:ParticipantIcon id="participantIcon" />
 			<s:Label id="username"
-					 visible="true"
-					 color="{getStyle('nameColor')}"
-					 fontSize="{getStyle('nameFontSize')}" />
-			<s:Label id="time"
-					 fontSize="{getStyle('timeFontSize')}" />
+					 visible="true" />
+			<s:Label id="time" />
 		</s:HGroup>
-		<s:RichEditableText paddingLeft="{participantIcon.width + getStyle('padding')}"
+		<s:RichEditableText id="message"
+							paddingLeft="{participantIcon.width + getStyle('padding')}"
 							editable="false"
 							selectable="false"
-							id="message"
 							width="100%" />
 	</s:VGroup>
 </s:ItemRenderer>
