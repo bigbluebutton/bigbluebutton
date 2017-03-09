@@ -23,3 +23,5 @@ app:
 
   # Name displayed in the brower URL
   basename: '/html5client'
+
+  defaultLocale: 'en'

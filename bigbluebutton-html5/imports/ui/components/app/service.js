@@ -4,59 +4,6 @@ import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
 import Storage from '/imports/ui/services/storage/session';
 
-function setCredentials(nextState, replace) {
-  if (nextState && nextState.params.authToken) {
-    const { meetingID, userID, authToken } = nextState.params;
-    Auth.setCredentials(meetingID, userID, authToken);
-    replace({
-      pathname: '/',
-    });
-  }
-};
-
-let dataSubscriptions = null;
-function subscribeForData() {
-  if (dataSubscriptions) {
-    return dataSubscriptions;
-  }
-
-  const subNames = [
-    'users', 'chat', 'cursor', 'deskshare', 'meetings',
-    'polls', 'presentations', 'shapes', 'slides', 'captions', 'breakouts',
-  ];
-
-  let subs = [];
-  subNames.forEach(name => subs.push(subscribeFor(name)));
-
-  dataSubscriptions = subs;
-  return subs;
-};
-
-function subscribeFor(collectionName) {
-  const credentials = Auth.getCredentials();
-  return new Promise((resolve, reject) => {
-    Meteor.subscribe(collectionName, credentials, {
-      onReady: (...args) => resolve(...args),
-      onStop: (...args) => reject(...args),
-    });
-  });
-};
-
-function subscribeToCollections(cb) {
-  subscribeFor('users')
-    .then(() => {
-      observeUserKick();
-      return Promise.all(subscribeForData())
-        .then(() => {
-          observeBreakoutEnd();
-          if (cb) {
-            return cb();
-          }
-        });
-    })
-    .catch(redirectToLogoutUrl);
-};
-
 function redirectToLogoutUrl(reason) {
   console.error(reason);
   console.log('Redirecting user to the logoutURL...');

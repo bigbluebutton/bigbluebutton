@@ -2,11 +2,12 @@ import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import App from './component';
 import {
-  subscribeForData,
+  subscribeToCollections,
   wasUserKicked,
   redirectToLogoutUrl,
   getModal,
   getCaptionsStatus,
+  showModal,
 } from './service';
 
 import NavBarContainer from '../nav-bar/container';
@@ -14,14 +15,14 @@ import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 import ClosedCaptionsContainer from '../closed-captions/container';
 import UserListService from '../user-list/service';
+import AudioModalContainer  from '/imports/ui/components/audio-modal/container';
+
 import Auth from '/imports/ui/services/auth';
 
 const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
-
-  //CCs UI is commented till the next pull request
   captions: <ClosedCaptionsContainer />,
 };
 
@@ -36,21 +37,6 @@ class AppContainer extends Component {
       </App>
     );
   }
-}
-
-let loading = true;
-const loadingDep = new Tracker.Dependency;
-
-const getLoading = () => {
-  loadingDep.depend();
-  return loading;
-};
-
-const setLoading = (val) => {
-  if (val !== loading) {
-    loading = val;
-    loadingDep.changed();
-  }
 };
 
 const checkUnreadMessages = () => {
@@ -61,24 +47,25 @@ const checkUnreadMessages = () => {
 const openChats = (chatID) => {
   // get currently opened chatID
   return UserListService.getOpenChats(chatID).map(chat => chat.id);
-}
+};
 
-export default createContainer(({ params }) => {
-  Promise.all(subscribeForData())
-  .then(() => {
-    setLoading(false);
-  });
+const APP_CONFIG = Meteor.settings.public.app;
 
-  return {
-    wasKicked: wasUserKicked(),
-    isLoading: getLoading(),
-    modal: getModal(),
-    unreadMessageCount: checkUnreadMessages(),
-    openChats: openChats(params.chatID),
-    openChat: params.chatID,
-    getCaptionsStatus,
-    redirectToLogoutUrl,
-  };
-}, AppContainer);
+const init = () => {
+  if (APP_CONFIG.autoJoinAudio) {
+    showModal(<AudioModalContainer />);
+  }
+};
+
+export default createContainer(({ params }) => ({
+  init,
+  wasKicked: wasUserKicked(),
+  modal: getModal(),
+  unreadMessageCount: checkUnreadMessages(),
+  openChats: openChats(params.chatID),
+  openChat: params.chatID,
+  getCaptionsStatus,
+  redirectToLogoutUrl,
+}), AppContainer);
 
 AppContainer.defaultProps = defaultProps;

@@ -49,6 +49,10 @@ class Auth {
     Storage.setItem('logoutURL', this._logoutURL);
   }
 
+  get loggedIn() {
+    return true;
+  }
+
   setCredentials(meeting, user, token) {
     this.meetingID = meeting;
     this.userID = user;

@@ -7,7 +7,7 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 import cx from 'classnames';
-import _ from 'underscore';
+import _ from 'lodash';
 
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';

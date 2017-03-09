@@ -2,19 +2,20 @@
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import LoadingScreen from '../loading-screen/component';
 import KickedScreen from '../kicked-screen/component';
 
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio-notification/container';
 
 import LocalStorage from '/imports/ui/services/storage/local.js';
+import { showModal } from '/imports/ui/components/app/service';
 
 import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
 
 const propTypes = {
+  init: PropTypes.func.isRequired,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
   sidebarRight: PropTypes.element,
@@ -29,9 +30,12 @@ const propTypes = {
 export default class App extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
+
+    props.init.call(this);
   }
 
   renderNavBar() {
@@ -193,10 +197,6 @@ export default class App extends Component {
             onClick={this.props.redirectToLogoutUrl}/>
         </KickedScreen>
       );
-    }
-
-    if (this.props.isLoading) {
-      return <LoadingScreen/>;
     }
 
     return (
