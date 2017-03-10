@@ -6,6 +6,7 @@ import IntlStartup from './intl';
 import Auth from '/imports/ui/services/auth';
 
 import AppContainer from '/imports/ui/components/app/container';
+import ErrorScreen from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
@@ -41,10 +42,10 @@ class Base extends Component {
 
     const { loading, error } = this.state;
 
-    const { subscriptionsReady } = this.props;
+    const { subscriptionsReady, errorCode } = this.props;
 
-    if (error) {
-      return (<h1>{error}</h1>);
+    if (error || errorCode) {
+      return (<ErrorScreen code={errorCode}>{error}</ErrorScreen>);
     }
 
     if (loading || !subscriptionsReady) {
@@ -71,10 +72,13 @@ const SUBSCRIPTIONS_NAME = [
   'polls', 'presentations', 'shapes', 'slides', 'captions', 'breakouts',
 ];
 
-export default BaseContainer = createContainer(() => {
+export default BaseContainer = createContainer(({ params }) => {
+  if (Object.keys(params).length) return params;
+
   if (!Auth.loggedIn) {
     return {
-      error: 'ERROR 401: You are unauthorized to access this meeting',
+      errorCode: 401,
+      error: 'You are unauthorized to access this meeting',
     };
   }
 

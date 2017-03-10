@@ -9,7 +9,7 @@ export function joinRouteHandler(nextState, replace, callback) {
         callback();
       })
       .catch(() => {
-        replace({ pathname: '/error' });
+        replace({ pathname: '/error/401' });
         callback();
       });
   }
@@ -23,7 +23,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
   Auth.authenticate()
     .then(callback)
     .catch(() => {
-      replace({ pathname: '/error' });
+      replace({ pathname: '/error/401' });
       callback();
     });
 };

@@ -63,14 +63,12 @@ class Auth {
     this._loggedIn.tracker.changed();
   }
 
-  authenticate(meeting = null, user, token) {
+  authenticate(meetingID, userID, token) {
     if (arguments.length) {
-      this.meetingID = meeting;
-      this.userID = user;
+      this.meetingID = meetingID;
+      this.userID = userID;
       this.token = token;
     }
-
-    const credentials = this.getCredentials();
 
     return this._subscribeToCurrentUser()
       .then(this._addObserverToValidatedField.bind(this));

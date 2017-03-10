@@ -26,6 +26,7 @@ export const renderRoutes = () => (
       }} />
       <Redirect from="users/chat" to="/users/chat/public" />
     </Route>
-    <Redirect from="*" to="/" />
+    <Route name="error" path="/error/:errorCode" component={Base}/>
+    <Redirect from="*" to="/error/404" />
   </Router>
 );

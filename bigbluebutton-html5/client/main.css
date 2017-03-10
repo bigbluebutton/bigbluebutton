@@ -9,6 +9,7 @@ html {
 body {
   font-family: 'Source Sans Pro', Arial, sans-serif;
   font-size: 1rem; /* 16px */
+  background-color: #2A2D36;
 }
 
 a {
