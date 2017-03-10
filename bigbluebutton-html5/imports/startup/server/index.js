@@ -23,7 +23,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   let localeRegion = _.snakeCase(req.query.locale).split('_');
   let messages = {};
 
-  let locales = [defaultLocale, localeRegion[0], 'james'];
+  let locales = [defaultLocale, localeRegion[0]];
 
   if (localeRegion.length > 1) {
     locales.push(`${localeRegion[0]}_${localeRegion[1]}`);

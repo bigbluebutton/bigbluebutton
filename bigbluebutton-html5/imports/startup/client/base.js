@@ -67,7 +67,7 @@ class Base extends Component {
 };
 
 const SUBSCRIPTIONS_NAME = [
-  'current-user', 'users', 'chat', 'cursor', 'deskshare', 'meetings',
+  'users', 'chat', 'cursor', 'deskshare', 'meetings',
   'polls', 'presentations', 'shapes', 'slides', 'captions', 'breakouts',
 ];
 
@@ -80,7 +80,7 @@ export default BaseContainer = createContainer(() => {
 
   const credentials = Auth.getCredentials();
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials));
-  
+
   return {
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
   };

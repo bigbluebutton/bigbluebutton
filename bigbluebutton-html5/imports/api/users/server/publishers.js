@@ -5,9 +5,6 @@ import Logger from '/imports/startup/server/logger';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 import userLeaving from './methods/userLeaving';
-import validateAuthToken from './methods/validateAuthToken';
-
-const ONLINE_CONNECTION_STATUS = 'online';
 
 Meteor.publish('current-user', function (credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;

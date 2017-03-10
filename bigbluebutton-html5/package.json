@@ -29,10 +29,10 @@
     "react-modal": "~1.7.1",
     "react-router": "~3.0.2",
     "redis": "^2.6.2",
-    "underscore": "~1.8.3",
     "winston": "^2.3.1",
     "xml2js": "^0.4.17",
-    "xmlhttprequest": "^1.8.0"
+    "xmlhttprequest": "^1.8.0",
+    "lodash": "~4.17.4"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",

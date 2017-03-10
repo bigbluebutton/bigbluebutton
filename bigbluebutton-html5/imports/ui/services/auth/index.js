@@ -119,6 +119,8 @@ class Auth {
 
         const handle = query.observeChanges({
           changed: (id, fields) => {
+            if (id !== this.userID) return;
+
             if (fields.validated === true) {
               c.stop();
               didValidate();
