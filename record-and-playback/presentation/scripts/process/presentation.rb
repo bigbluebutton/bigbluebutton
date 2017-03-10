@@ -109,6 +109,8 @@ if not FileTest.directory?(target_dir)
     end_time = recording.at_xpath("end_time")
     end_time.content = real_end_time
 
+    ## Copy the breakout and breakout rooms node from
+    ## events.xml if present.
     breakout_xpath = @doc.xpath("//breakout")
     breakout_rooms_xpath = @doc.xpath("//breakoutRooms")
 
