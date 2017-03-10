@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.chat.views
 {
   import mx.controls.List;
+  import org.bigbluebutton.modules.chat.events.ChatEvent;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -37,6 +38,8 @@ package org.bigbluebutton.modules.chat.views
       super.measure();
       //sovled on forum by Flex HarUI
       measuredHeight = measureHeightOfItems() + viewMetrics.top + viewMetrics.bottom;
+
+      dispatchEvent(new ChatEvent(ChatEvent.RESIZE_CHAT_TOOLBAR));
     }
     
     public function scrollToBottom():void {

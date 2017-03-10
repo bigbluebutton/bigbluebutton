@@ -140,6 +140,10 @@ package org.bigbluebutton.core
     public static function amIPresenter():Boolean {
       return UserManager.getInstance().getConference().amIPresenter;
     }
+
+    public static function amIWaitingForAcceptance():Boolean {
+      return UserManager.getInstance().getConference().amIWaitingForAcceptance();
+    }
         
     public static function hasUser(userID:String):Boolean {
       return UserManager.getInstance().getConference().hasUser(userID);
@@ -147,6 +151,10 @@ package org.bigbluebutton.core
     
     public static function getUser(userID:String):BBBUser {
       return UserManager.getInstance().getConference().getUser(userID);
+    }
+
+    public static function getMyself():BBBUser {
+      return UserManager.getInstance().getConference().getMyself();
     }
     
     public static function isMe(userID:String):Boolean {

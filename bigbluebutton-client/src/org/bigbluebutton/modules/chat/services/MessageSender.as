@@ -76,5 +76,19 @@ package org.bigbluebutton.modules.chat.services
         message.toObj()
       );
     }
+
+    public function clearPublicChatMessages():void
+    {
+      LOGGER.debug("Sending [chat.clearPublicChatMessages] to server.");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("chat.clearPublicChatMessages",
+        function(result:String):void { // On successful result
+          LOGGER.debug(result);
+        },
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status);
+        }
+      );
+    }
   }
 }

@@ -160,6 +160,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 				lsMap = new HashMap<String, Boolean>();
 			}
 		}
+
+		Boolean guest  = false;
+		if (params.length >= 9 && ((Boolean) params[9])) {
+			guest = true;
+		}
 		   	    	
 		String userId = internalUserID;
 		String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -198,7 +203,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 
 		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
-    			voiceBridge, record, externalUserID, muted, sessionId);
+    			voiceBridge, record, externalUserID, muted, sessionId, guest);
 		connection.setAttribute(Constants.SESSION, bbbSession);        
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
 		connection.setAttribute("USER_SESSION_ID", sessionId);

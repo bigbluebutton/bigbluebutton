@@ -15,8 +15,9 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 	public final String externUserID;
 	public final String authToken;
 	public final String avatarURL;
+	public final Boolean guest;
 
-	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL) {
+	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL, Boolean guest) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
@@ -24,6 +25,7 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 		this.externUserID = externUserID;
 		this.authToken = authToken;
 		this.avatarURL = avatarURL;
+		this.guest = guest;
 	}
 
 	public String toJson() {
@@ -36,6 +38,7 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 		payload.put(Constants.EXT_USER_ID, externUserID);
 		payload.put(Constants.AUTH_TOKEN, authToken);
 		payload.put(Constants.AVATAR_URL, avatarURL);
+		payload.put(Constants.GUEST, guest.toString());
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(REGISTER_USER, VERSION, null);
 
@@ -56,7 +59,8 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 							&& payload.has(Constants.NAME)
 							&& payload.has(Constants.ROLE)
 							&& payload.has(Constants.EXT_USER_ID)
-							&& payload.has(Constants.AUTH_TOKEN)) {
+							&& payload.has(Constants.AUTH_TOKEN)
+							&& payload.has(Constants.GUEST)) {
 
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String fullname = payload.get(Constants.NAME).getAsString();
@@ -64,9 +68,10 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 						String externUserID = payload.get(Constants.EXT_USER_ID).getAsString();
 						String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
 						String avatarURL = payload.get(Constants.AVATAR_URL).getAsString();
+						Boolean guest = payload.get(Constants.GUEST).getAsBoolean();
 
 						//use externalUserId twice - once for external, once for internal
-						return new RegisterUserMessage(meetingID, externUserID, fullname, role, externUserID, authToken, avatarURL);
+						return new RegisterUserMessage(meetingID, externUserID, fullname, role, externUserID, authToken, avatarURL, guest);
 					}
 				}
 			}

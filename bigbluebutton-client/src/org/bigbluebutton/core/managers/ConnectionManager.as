@@ -63,6 +63,10 @@ package org.bigbluebutton.core.managers
     public function forceClose():void {
       connDelegate.forceClose(); 
     }
+
+    public function guestDisconnect():void {
+      connDelegate.guestDisconnect();
+    }
             
 	}
 }

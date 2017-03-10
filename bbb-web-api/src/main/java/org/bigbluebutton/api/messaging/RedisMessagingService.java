@@ -72,11 +72,11 @@ public class RedisMessagingService implements MessagingService {
 			                      String voiceBridge, Integer duration, 
 			                      Boolean autoStartRecording, Boolean allowStartStopRecording,
 			                      String moderatorPass, String viewerPass, Long createTime,
-			                      String createDate, Boolean isBreakout) {
+			                      String createDate, Boolean isBreakout, Map<String, String> metadata) {
 	  CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(meetingID, externalMeetingID, meetingName, 
 				                                  recorded, voiceBridge, duration, 
 				                                  autoStartRecording, allowStartStopRecording,
-				                                  moderatorPass, viewerPass, createTime, createDate, isBreakout);
+				                                  moderatorPass, viewerPass, createTime, createDate, isBreakout, metadata);
 	  CreateMeetingRequest msg = new CreateMeetingRequest(payload);
 	  
 	  Gson gson = new Gson();

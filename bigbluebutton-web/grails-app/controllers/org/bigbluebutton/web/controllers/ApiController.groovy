@@ -249,6 +249,13 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
+    String guest;
+    if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true")) {
+        guest = "true";
+    } else {
+        guest = "false";
+    }
+
     // Do we have a name for the user joining? If none, complain.
     if(!StringUtils.isEmpty(params.fullName)) {
       params.fullName = StringUtils.strip(params.fullName);
@@ -439,6 +446,7 @@ class ApiController {
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
+    us.guest = guest
     us.logoutUrl = meeting.getLogoutUrl();
     us.configXML = configxml;
 
@@ -456,7 +464,7 @@ class ApiController {
     meetingService.addUserSession(sessionToken, us);
 
     // Register user into the meeting.
-    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.avatarURL)
+    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.avatarURL, us.guest)
 
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
     // when maxUsers is set to 0, the validation is ignored
@@ -1588,6 +1596,7 @@ class ApiController {
               internalUserID = newInternalUserID
               authToken = us.authToken
               role = us.role
+              guest = us.guest
               conference = us.conference
               room = us.room
               voicebridge = us.voicebridge
@@ -1607,6 +1616,11 @@ class ApiController {
                 userCustomData.each { k, v ->
                   // Somehow we need to prepend something (custdata) for the JSON to work
                   custdata "$k" : v
+                }
+              }
+              metadata = array {
+                meeting.getMetadata().each{ k, v ->
+                  metadata "$k" : v
                 }
               }
             }
@@ -2188,10 +2202,17 @@ class ApiController {
                   userID() { mkp.yield("${att.externalUserId}") }
                   fullName() { mkp.yield("${att.fullname}") }
                   role("${att.role}")
+                  guest("${att.guest}")
+                  waitingForAcceptance("${att.waitingForAcceptance}")
                   isPresenter("${att.isPresenter()}")
                   isListeningOnly("${att.isListeningOnly()}")
                   hasJoinedVoice("${att.isVoiceJoined()}")
                   hasVideo("${att.hasVideo()}")
+                  videoStreams() {
+                    att.getStreams().each { s ->
+                      streamName("${s}")
+                    }
+                  }
                   customdata(){
                     meeting.getUserCustomData(att.externalUserId).each{ k,v ->
                       "$k"("$v")

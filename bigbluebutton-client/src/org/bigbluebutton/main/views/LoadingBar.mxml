@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:ProgressBar xmlns:mate="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml" labelPlacement="bottom" minimum="0" maximum="100" mode="manual" >
+<mx:ProgressBar xmlns:mate="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml" labelPlacement="bottom" minimum="0" maximum="100" mode="manual" barColor="black" >
 	
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}" method="moduleLoadingStarted" />
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
@@ -47,6 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function moduleLoadingStarted(e:ModuleLoadEvent):void{
 		  numModules = BBB.getConfigManager().config.numberOfModules();
         this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
+        this.visible = true;
       }
 			
       private function moduleLoadProgress(e:ModuleLoadEvent):void{

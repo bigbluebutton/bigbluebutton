@@ -31,10 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
 		<ObjectBuilder generator="{ReconnectionManager}" cache="global" />
-		<!--
-		Disabling temporarily the stream monitor
-		-->
-		<!--ObjectBuilder generator="{StreamMonitor}" cache="global" /-->
+		<ObjectBuilder generator="{StreamMonitor}" cache="global" />
 	</EventHandlers>
 	
 	<EventHandlers type="{LoadConfigCommand.LOAD_CONFIG_COMMAND}" >
@@ -78,6 +75,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
   </EventHandlers>
 
+  <EventHandlers type="{LogoutEvent.MODERATOR_DENIED_ME}" >
+    <MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+  </EventHandlers>
+
   <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
     <MethodInvoker generator="{ReconnectionManager}" method="onDisconnected" arguments="{[event.payload.type, event.payload.callback, event.payload.callbackParameters]}"/>
   </EventHandlers>
@@ -103,6 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.core.managers.ConfigManager;
 		import org.bigbluebutton.core.managers.ReconnectionManager;
 		import org.bigbluebutton.core.services.SkinningService;
+		import org.bigbluebutton.core.services.StreamMonitor;
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.main.events.ConfigLoadedEvent;
 		import org.bigbluebutton.main.events.LoadConfigCommand;

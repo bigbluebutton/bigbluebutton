@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.messaging.MessagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,7 @@ public class RecordingService {
     private String unpublishedDir = "/var/bigbluebutton/unpublished";
     private String deletedDir = "/var/bigbluebutton/deleted";
     private RecordingServiceHelper recordingServiceHelper;
+    private MessagingService messagingService;
     private String recordStatusDir;
 
     public void startIngestAndProcessing(String meetingId) {
@@ -295,22 +297,25 @@ public class RecordingService {
         return r;
     }
 
-    public void changeState(String recordingId, String state) {
+    public boolean changeState(String recordingId, String state) {
+        boolean anyResult = false;
         if (state.equals(Recording.STATE_PUBLISHED)) {
             // It can only be published if it is unpublished
-            changeState(unpublishedDir, recordingId, state);
+            anyResult |= changeState(unpublishedDir, recordingId, state);
         } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
             // It can only be unpublished if it is published
-            changeState(publishedDir, recordingId, state);
+            anyResult |= changeState(publishedDir, recordingId, state);
         } else if (state.equals(Recording.STATE_DELETED)) {
             // It can be deleted from any state
-            changeState(publishedDir, recordingId, state);
-            changeState(unpublishedDir, recordingId, state);
+            anyResult |= changeState(publishedDir, recordingId, state);
+            anyResult |= changeState(unpublishedDir, recordingId, state);
         }
+        return anyResult;
     }
 
-    private void changeState(String path, String recordingId, String state) {
+    private boolean changeState(String path, String recordingId, String state) {
         String[] format = getPlaybackFormats(path);
+        boolean anyResult = false;
         for (int i = 0; i < format.length; i++) {
             List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
             for (int f = 0; f < recordings.size(); f++) {
@@ -326,7 +331,7 @@ public class RecordingService {
                             dest = new File(deletedDir + File.separatorChar + format[i]);
                         } else {
                             log.debug(String.format("State: %s, is not supported", state));
-                            return;
+                            return anyResult;
                         }
                         if (!dest.exists())
                             dest.mkdirs();
@@ -340,13 +345,29 @@ public class RecordingService {
                                 deleteRecording(recordingId, deletedDir);
                             }
                             recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings.get(f).getName(), r);
+                            sendRedisEvent(r.getId(), r.getId(), r.getExternalMeetingId(), format[i], state);
                             log.debug(String.format("Recording successfully %s!", state));
                         } else {
                             log.debug("Recording was not moved");
                         }
+                        anyResult |= moved;
                     }
                 }
             }
+        }
+        return anyResult;
+    }
+
+    private void sendRedisEvent(String recordId, String meetingId, String externalMeetingId, String format, String state) {
+        log.debug("Sending Redis event for meeting {} {}", meetingId, format);
+        if (state.equals(Recording.STATE_PUBLISHED)) {
+            messagingService.publishRecording(recordId, meetingId, externalMeetingId, format, true);
+        } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
+            messagingService.publishRecording(recordId, meetingId, externalMeetingId, format, false);
+        } else if (state.equals(Recording.STATE_DELETED)) {
+            messagingService.deleteRecording(recordId, meetingId, externalMeetingId, format);
+        } else {
+            log.debug("No event for {}", state);
         }
     }
 
@@ -471,4 +492,7 @@ public class RecordingService {
         return baseDir;
     }
 
+    public void setMessagingService(MessagingService service) {
+        messagingService = service;
+    }
 }

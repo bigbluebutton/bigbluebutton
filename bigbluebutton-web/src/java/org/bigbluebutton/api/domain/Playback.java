@@ -25,12 +25,16 @@ public class Playback {
 	private String format;
 	private String url;
 	private int length;
+	private String size;
+	private String processingTime;
 	private List<Extension> extensions;
 	
-	public Playback(String format, String url, int length, List<Extension> extensions) {
+	public Playback(String format, String url, int length, String size, String processingTime, List<Extension> extensions) {
 		this.format = format;
 		this.url = url;
 		this.length = length;
+		this.size = size;
+		this.processingTime = processingTime;
 		this.extensions = extensions;
 	}
 	public String getFormat() {
@@ -50,6 +54,18 @@ public class Playback {
 	}
 	public void setLength(int length) {
 		this.length = length;
+	}
+	public String getSize() {
+		return size;
+	}
+	public void setSize(String size) {
+		this.size = size;
+	}
+	public String getProcessingTime() {
+		return processingTime;
+	}
+	public void setProcessingTime(String processingTime) {
+		this.processingTime = processingTime;
 	}
 	public List<Extension> getExtensions() {
 		return extensions;

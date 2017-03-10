@@ -38,6 +38,15 @@ module BigBlueButton
       end  
       metadata
     end
+
+    # Get the external meeting id
+    def self.get_external_meeting_id(events_xml)
+      BigBlueButton.logger.info("Task: Getting external meeting id")
+      metadata = get_meeting_metadata(events_xml)
+      external_meeting_id = {}
+      external_meeting_id = metadata['meetingId'] if !metadata['meetingId'].nil?
+      external_meeting_id
+    end
     
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events_xml)

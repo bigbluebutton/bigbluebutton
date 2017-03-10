@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.screenshare.managers {
     import org.bigbluebutton.common.events.OpenWindowEvent;
     import org.bigbluebutton.modules.screenshare.services.ScreenshareService;
     import org.bigbluebutton.modules.screenshare.view.components.ScreensharePublishWindow;
+    import org.bigbluebutton.modules.screenshare.events.ShareEvent;
     
     public class PublishWindowManager {
         private static const LOGGER:ILogger = getClassLogger(PublishWindowManager);
@@ -47,7 +48,10 @@ package org.bigbluebutton.modules.screenshare.managers {
         }
         
         public function stopSharing():void {
-            if (shareWindow != null) shareWindow.stopSharing();
+            if (shareWindow != null) {
+                shareWindow.stopSharing();
+                shareWindow = null;
+            }
         }
         
         public function startSharing(uri:String, room:String):void {
@@ -59,23 +63,27 @@ package org.bigbluebutton.modules.screenshare.managers {
               openWindow(shareWindow);
             }
         }
+
+        public function handleShareScreenEvent(fullScreen:Boolean):void {
+            if (shareWindow != null) {
+                LOGGER.debug("Starting deskshare publishing. fullScreen = " + fullScreen);
+                shareWindow.shareScreen(fullScreen);
+            }
+        }
         
         public function handleShareWindowCloseEvent():void {
-            closeWindow(shareWindow);
+            closeWindow();
         }
         
-        private function openWindow(window:IBbbModuleWindow):void {
-            var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-            event.window = window;
-            globalDispatcher.dispatchEvent(event);
+        private function openWindow(window:ScreensharePublishWindow):void {
+            var e:ShareEvent = new ShareEvent(ShareEvent.CREATE_SCREENSHARE_PUBLISH_TAB);
+            e.publishTabContent = window;
+            globalDispatcher.dispatchEvent(e);
         }
         
-        private function closeWindow(window:IBbbModuleWindow):void {
-            var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-            event.window = window;
-            globalDispatcher.dispatchEvent(event);
-            
-            shareWindow = null;
+        private function closeWindow():void {
+            var e:ShareEvent = new ShareEvent(ShareEvent.CLEAN_SCREENSHARE_PUBLISH_TAB);
+            globalDispatcher.dispatchEvent(e);
         }
     }
 }

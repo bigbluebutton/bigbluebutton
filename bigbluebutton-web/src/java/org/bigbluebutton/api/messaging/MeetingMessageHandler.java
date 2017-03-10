@@ -14,6 +14,7 @@ import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
 import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
 import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
@@ -131,8 +132,10 @@ public class MeetingMessageHandler implements MessageHandler {
             String username = user.get("name").getAsString();
             String role = user.get("role").getAsString();
             String avatarURL = user.get("avatarURL").getAsString();
+            Boolean guest = user.get("guest").getAsBoolean();
+            Boolean waitingForAcceptance = user.get("waiting_for_acceptance").getAsBoolean();
             for (MessageListener listener : listeners) {
-              listener.handle(new UserJoined(meetingId, userid, externuserid, username, role, avatarURL));
+              listener.handle(new UserJoined(meetingId, userid, externuserid, username, role, avatarURL, guest, waitingForAcceptance));
             }
           } else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
             String meetingId = payload.get("meeting_id").getAsString();
@@ -183,6 +186,13 @@ public class MeetingMessageHandler implements MessageHandler {
             String stream = payload.get("stream").getAsString();
             for (MessageListener listener : listeners) {
               listener.handle(new UserUnsharedWebcam(meetingId, userid, stream));
+            }
+          } else if (MessagingConstants.USER_ROLE_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
+            String meetingId = payload.get("meeting_id").getAsString();
+            String userid = payload.get("userid").getAsString();
+            String role = payload.get("role").getAsString();
+            for (MessageListener listener : listeners) {
+              listener.handle(new UserRoleChanged(meetingId, userid, role));
             }
           } else if (SendStunTurnInfoRequestMessage.SEND_STUN_TURN_INFO_REQUEST_MESSAGE.equalsIgnoreCase(messageName)) {
             String meetingId = payload.get(Constants.MEETING_ID).getAsString();

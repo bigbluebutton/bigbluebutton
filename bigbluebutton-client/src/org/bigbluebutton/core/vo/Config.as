@@ -30,6 +30,11 @@ package org.bigbluebutton.core.vo {
 		private var _shortcutKeysShowButton:Boolean;
 		private var _skinning:String = "";
 		private var _showDebug:Boolean = false;
+		private var _copyright:String;
+		private var _logo:String;
+		private var _background:String;
+		private var _toolbarColor:String;
+		private var _toolbarColorAlphas:String;
 		
 		public function Config(builder:ConfigBuilder) {
 			_version = builder.version;
@@ -44,6 +49,11 @@ package org.bigbluebutton.core.vo {
 			_shortcutKeysShowButton = builder.shortcutKeysShowButton;
 			_skinning = builder.skinning;
 			_showDebug = builder.showDebug;
+			_copyright = builder.copyright;
+			_logo = builder.logo;
+			_background = builder.background;
+			_toolbarColor = builder.toolbarColor;
+			_toolbarColorAlphas = builder.toolbarColorAlphas;
 		}
 		
 		public function get version():String {
@@ -93,5 +103,21 @@ package org.bigbluebutton.core.vo {
 		public function get showDebug():Boolean {
 			return _showDebug;
 		} 
+
+		public function get copyright():String {
+			return _copyright;
+		}
+
+		public function get logo():String {
+			return _logo;
+		}
+
+		public function get toolbarColor():String {
+			return _toolbarColor;
+		}
+
+		public function get toolbarColorAlphas():String {
+			return _toolbarColorAlphas;
+		}
 	}
 }

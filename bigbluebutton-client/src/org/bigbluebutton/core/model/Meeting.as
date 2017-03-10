@@ -14,6 +14,7 @@ package org.bigbluebutton.core.model
     private var _welcomeMessage:String;
     private var _modOnlyMessage:String;
     private var _allowStartStopRecording:Boolean;
+    private var _metadata:Object = null;
     
     public var isRecording: Boolean = false;
     
@@ -31,6 +32,7 @@ package org.bigbluebutton.core.model
       _welcomeMessage = build.welcomeMessage;
       _modOnlyMessage = build.modOnlyMessage;
       _allowStartStopRecording = build.allowStartStopRecording;
+      _metadata = build.metadata;
     }
     
     public function get name():String {
@@ -67,6 +69,17 @@ package org.bigbluebutton.core.model
     
     public function get allowStartStopRecording():Boolean {
       return _allowStartStopRecording;
+    }
+
+    public function get metadata():Object {
+      return _metadata;
+    }
+
+    public function isMetadata(key: String):Boolean {
+      if (_metadata != null) {
+        return _metadata.hasOwnProperty(key);
+      }
+      return false;
     }
   }
 }

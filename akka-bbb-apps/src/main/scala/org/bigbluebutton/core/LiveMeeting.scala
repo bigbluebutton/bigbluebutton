@@ -22,10 +22,11 @@ class LiveMeeting(val mProps: MeetingProperties,
   val wbModel: WhiteboardModel,
   val presModel: PresentationModel,
   val breakoutModel: BreakoutRoomModel,
-  val captionModel: CaptionModel)(implicit val context: ActorContext)
+  val captionModel: CaptionModel,
+  val notesModel: SharedNotesModel)(implicit val context: ActorContext)
     extends UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with BreakoutRoomApp with CaptionApp {
+    with BreakoutRoomApp with CaptionApp with SharedNotesApp {
 
   val log = Logging(context.system, getClass)
 
@@ -246,4 +247,24 @@ class LiveMeeting(val mProps: MeetingProperties,
     }
   }
 
+  def handleGetGuestPolicy(msg: GetGuestPolicy) {
+    outGW.send(new GetGuestPolicyReply(msg.meetingID, mProps.recorded, msg.requesterID, meetingModel.getGuestPolicy().toString()))
+  }
+
+  def handleSetGuestPolicy(msg: SetGuestPolicy) {
+    meetingModel.setGuestPolicy(msg.policy)
+    meetingModel.setGuestPolicySetBy(msg.setBy)
+    outGW.send(new GuestPolicyChanged(msg.meetingID, mProps.recorded, meetingModel.getGuestPolicy().toString()))
+  }
+
+  def handleLogoutEndMeeting(msg: LogoutEndMeeting) {
+    if (usersModel.isModerator(msg.userID)) {
+      handleEndMeeting(EndMeeting(mProps.meetingID))
+    }
+  }
+
+  def handleActivityResponse(msg: ActivityResponse) {
+    log.info("User endorsed that meeting {} is active", mProps.meetingID)
+    outGW.send(new MeetingIsActive(mProps.meetingID))
+  }
 }

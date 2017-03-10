@@ -20,17 +20,14 @@
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*"
-           xmlns:mx="http://www.adobe.com/2006/mxml"
-           width="600"
-           height="400"
-           initialize="init()"
-           creationComplete="onCreationComplete()"
-           implements="org.bigbluebutton.common.IBbbModuleWindow"
-           xmlns:mate="http://mate.asfusion.com/"
-           title="{    ResourceUtil.getInstance().getString('bbb.screenshareView.title')    }"
-           showCloseButton="false"
-           resize="fitToWindow()">
+<mx:Canvas xmlns="org.bigbluebutton.common.*"
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        width="100%"
+        height="100%"
+        creationComplete="onCreationComplete()"
+        implements="org.bigbluebutton.common.IBbbCanvas"
+        xmlns:mate="http://mate.asfusion.com/"
+        backgroundColor="#C0C0C0">
 
     <mate:Listener type="{    ViewStreamEvent.STOP    }" method="onStopViewStreamEvent" />
     <mate:Listener type="{    LocaleChangeEvent.LOCALE_CHANGED    }" method="localeChanged" />
@@ -40,6 +37,7 @@
         <![CDATA[
       import com.asfusion.mate.events.Dispatcher;     
       import flexlib.mdi.events.MDIWindowEvent;      
+      import mx.events.ResizeEvent;
       import mx.core.UIComponent;      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -50,6 +48,7 @@
       import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
+      import org.bigbluebutton.modules.screenshare.managers.SmartWindowResizer;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -67,20 +66,28 @@
 			private var screenWidth:Number = Capabilities.screenResolutionX;
 						
 			private var images:Images = new Images();
-			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
-			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
+			//[Bindable] public var fitToWidthIcon:Class = images.magnifier;
+			//[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 					
       private var streamAvailable:Boolean = false;
       
 			private var video:Video;
 			private var ns:NetStream;
-			private var videoHolder:UIComponent = new UIComponent();
+			private var videoWithWarnings:VideoWithWarnings = new VideoWithWarnings();
+			private var videoHolder:UIComponent;
 			private var streamId:String;
 			private var videoHeight:Number = 1;
 			private var videoWidth:Number = 1;
+			private var loaded:Boolean = false;
 			
 			private static const VIDEO_WIDTH_PADDING:int = 7;
 			private static const VIDEO_HEIGHT_PADDING:int = 65;
+			[Bindable] private var _actualSize:Boolean = false;
+
+			private var resizer:SmartWindowResizer = new SmartWindowResizer();
+
+			private var whiteboardCanvas:IBbbCanvas = null;
+			private var whiteboardCanvasHolder:Canvas = new Canvas();
 
 			// The following code block is to deal with a bug in FLexLib 
 			// with MDI windows not responding well to being maximized
@@ -102,20 +109,15 @@
 			private function onCreationComplete():void{
         viewScreenshareStream();
         
-				videoHolder.addChild(video);				
-				this.addChild(videoHolder);
+				addEventListener(ResizeEvent.RESIZE, onResizeEvent);
+				this.addChildAt(videoWithWarnings,0);
+				videoHolder = videoWithWarnings.videoHolder;
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
-				fitToActualSize();				
-				maximize();
 				
 				resourcesChanged();
-				
-				titleBarOverlay.tabIndex = baseIndex;
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				closeBtn.tabIndex = baseIndex+3;
+				onResizeEvent();
+				loaded = true;
                
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["screenshare"];
@@ -126,9 +128,13 @@
         LOGGER.info(JSON.stringify(logData));
 			}
 			
-			private function onResizeEndEvent(event:MDIWindowEvent):void {
-				if (event.window == this && streamAvailable) {
-					fitToWindow();
+			private function onResizeEvent(e:ResizeEvent = null):void {
+				if (!loaded) return;
+				LOGGER.debug("ScreenshareViewWindow::onResizeEvent");
+				if (actualSize) {
+					onResizeCallback(this.width, this.height, videoWidth, videoHeight, Math.max((this.width - videoWidth) / 2, 0), Math.max((this.height - videoHeight) / 2, 0));
+				} else {
+					resizer.onResize(this.width, this.height, false, video.width, video.height, videoWidth / videoHeight, false, onResizeCallback);
 				}
 			}
 					
@@ -170,10 +176,9 @@
         video.smoothing = true;
         video.attachNetStream(ns);
         ns.play(streamId);	
-        this.title = "Viewing Remote Desktop";
         streamAvailable = true;
-        
-        fitToWindow();
+
+        videoWithWarnings.setCallback(setVideo);
       }
       
       public function onMetaData(info:Object):void{
@@ -187,6 +192,80 @@
         LOGGER.info(JSON.stringify(logData));
       }
       
+
+			public function onParentResized(width:Number, height:Number):void {
+				onResizeEvent();
+			}
+
+			private function onResizeCallback(externalWidth:int, externalHeight:int, internalWidth:int, internalHeight:int, internalOffsetX:int, internalOffsetY:int):void {
+				if(videoHolder != null) {
+					/* Reposition video within window */
+					videoWithWarnings.x = internalOffsetX;
+					videoWithWarnings.y = internalOffsetY;
+
+					videoWithWarnings.width = video.width = internalWidth;
+					videoWithWarnings.height = video.height = internalHeight;
+
+					// update the whiteboard canvas holder and overlay with new video dimensions
+					updateWhiteboardCanvasHolder();
+					updateWhiteboardCanvasOverlay();
+				}
+			}
+
+			private function setVideo():void {
+				LOGGER.debug("Callback called. Adding video, its whiteboard canvas and resizing components...");
+				videoHolder.addChild(video);
+				addWhiteboardCanvasHolder();
+				addWhiteboardCanvasOverlay();
+				onResizeEvent();
+			}
+
+			private function addWhiteboardCanvasHolder():void{
+				if(video != null) {
+					this.addChildAt(whiteboardCanvasHolder, 1);
+					LOGGER.debug("Whiteboard canvas holder added");
+				}
+			}
+
+			private function cleanCanvasHolder():void{
+				while (this.whiteboardCanvasHolder.rawChildren.numChildren > 0) {
+					this.whiteboardCanvasHolder.rawChildren.removeChildAt(0);
+				}
+			}
+
+			private function updateWhiteboardCanvasHolder():void{
+				if (video != null && videoHolder != null) {
+					whiteboardCanvasHolder.x = videoWithWarnings.x;
+					whiteboardCanvasHolder.y = videoWithWarnings.y;
+					whiteboardCanvasHolder.width = videoWithWarnings.width;
+					whiteboardCanvasHolder.height = videoWithWarnings.height;
+					LOGGER.debug("Whiteboard canvas holder dimensions updated");
+				}
+			}
+
+			public function addWhiteboardCanvasOverlay():void {
+				updateWhiteboardCanvasOverlay();
+				if (video != null && whiteboardCanvas != null && videoHolder != null) {
+					this.addChild(whiteboardCanvas as Canvas);
+					LOGGER.debug("Whiteboard Canvas OVERLAY added.");
+				}
+				else {
+					LOGGER.error("COULD NOT add whiteboard overlay");
+				}
+			}
+
+			private function updateWhiteboardCanvasOverlay():void{
+				if (video != null && whiteboardCanvas != null && videoHolder != null) {
+					whiteboardCanvas.moveCanvas(videoWithWarnings.x, videoWithWarnings.y);
+
+					var zoomPercentage:Number = (videoWithWarnings.width / videoWidth)*100;
+					if(zoomPercentage > 0)
+						whiteboardCanvas.zoomCanvas(videoWithWarnings.width, videoWithWarnings.height, zoomPercentage);
+
+					LOGGER.debug("Whiteboard canvas overlay dimensions updated");
+				}
+			}
+/*
       protected function updateButtonsPosition():void {
         if (this.width < bottomBar.width) {
           bottomBar.visible = false;
@@ -199,7 +278,7 @@
           bottomBar.x = (this.width - bottomBar.width) / 2;
         }
       }
-      
+*/
 			public function stopViewing():void {
 				ns.close();
 				closeWindow();				
@@ -235,90 +314,17 @@
 				}
 			}
 			
-			public function getPrefferedPosition():String{
-				return MainCanvas.DESKTOP_SHARING_VIEW;
-			}
-												
-			/**
-			 * resizes the desktop sharing video to fit to this window
-			 */
-			private function fitToWindow():void{
-        if (!streamAvailable) return;
-        
-				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
-				}
-				
-				// Ignore if we are displaying the actual size of the video
-				if (! btnActualSize.selected) {
-					fitVideoToWindow();
-				}
+			private function toggleActualSize():void {
+				actualSize = !actualSize;
 			}
 			
-			private function fitVideoToWindow():void {
-				if (this.width < this.height) {
-					fitToWidthAndAdjustHeightToMaintainAspectRatio();				
-				} else {
-					fitToHeightAndAdjustWidthToMaintainAspectRatio();
-				}				
-			}
-						
-			private function fitWindowToVideo():void {	
-				video.width = videoWidth;
-				videoHolder.width = videoWidth;
-				video.height = videoHeight;
-				videoHolder.height = videoHeight;			
-				this.height = videoHeight + VIDEO_HEIGHT_PADDING;
-				this.width = videoWidth + VIDEO_WIDTH_PADDING;
+			public function set actualSize(value:Boolean):void {
+				_actualSize = value;
+				onResizeEvent();
 			}
 			
-			private function videoIsSmallerThanWindow():Boolean {
-				return (videoHeight < this.height) && (videoWidth < this.width);
-			}
-			
-		
-			private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
-					video.width = this.width - VIDEO_WIDTH_PADDING;
-					videoHolder.width = video.width;
-					// Maintain aspect-ratio
-					video.height = (videoHeight * video.width) / videoWidth;
-					videoHolder.height = video.height;
-					this.height = video.height + VIDEO_HEIGHT_PADDING;					
-			}
-				
-			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-					video.height = this.height - VIDEO_HEIGHT_PADDING;
-					videoHolder.height = video.height;
-					// Maintain aspect-ratio
-					video.width = (videoWidth * video.height) / videoHeight;
-					videoHolder.width = video.width;
-					this.width = video.width + VIDEO_WIDTH_PADDING;					
-			}
-								
-			/**
-			 * resizes the desktop sharing video to actual video resolution
-			 */
-			private function fitToActualSize():void{
-				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
-				} else {
-					video.width = videoWidth;
-					videoHolder.width = videoWidth;
-					video.height = videoHeight;
-					videoHolder.height = videoHeight;
-				}
-			}
-			
-			private function determineHowToDisplayVideo():void {
-				if (btnActualSize.selected) {
-					fitToActualSize();			
-					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow');	
-					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow');
-				} else {
-					fitToWindow();
-					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize');
-					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize');
-				}
+			public function get actualSize():Boolean {
+				return _actualSize;
 			}
 			
 			private function closeWindow():void {
@@ -327,22 +333,45 @@
 			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString('bbb.screenshareView.title');
-				
-				if (windowControls != null) {
-					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
-					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screenshareView.minimizeBtn.accessibilityName");
-
-					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
-					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screenshareView.maximizeRestoreBtn.accessibilityName");
-
-					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
-					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.screenshareView.closeBtn.accessibilityName");
-				}
 			}
 			
 			private function localeChanged(e:Event):void{
 				resourcesChanged();
+			}
+
+			/** Inherited from IBbbCanvas*/
+			public function addRawChild(child:DisplayObject):void {
+				whiteboardCanvasHolder.rawChildren.addChild(child);
+			}
+
+			public function removeRawChild(child:DisplayObject):void {
+				this.whiteboardCanvasHolder.rawChildren.removeChild(child);
+			}
+
+			public function doesContain(child:DisplayObject):Boolean {
+				return this.whiteboardCanvasHolder.rawChildren.contains(child);
+			}
+
+			public function acceptOverlayCanvas(overlay:IBbbCanvas):void {
+				LOGGER.debug("ScreenshareViewWindow: acceptOverlayCanvas");
+				cleanCanvasHolder();
+				whiteboardCanvas = overlay;
+			}
+
+			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
+				LOGGER.debug("ScreenshareViewWindow: handleWhiteboardCanvasClick");
+			}
+
+			public function moveCanvas(x:Number, y:Number):void {
+				LOGGER.debug("ScreenshareViewWindow: moveCanvas");
+			}
+
+			public function zoomCanvas(width:Number, height:Number, zoom:Number):void {
+				LOGGER.debug("ScreenshareViewWindow: zoomCanvas");
+			}
+
+			public function showCanvas(show:Boolean):void {
+				LOGGER.debug("ScreenshareViewWindow: showCanvas");
 			}
             
        public function handleDisconnectedEvent(event:BBBEvent):void {
@@ -354,17 +383,4 @@
 		]]>
     </mx:Script>
 
-    <mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%">
-        <mx:Button id="btnActualSize"
-                   paddingTop="0"
-                   paddingBottom="0"
-                   styleName="deskshareControlButtonStyle"
-                   toggle="true"
-                   click="determineHowToDisplayVideo()"
-                   selected="false"
-                   height="90%"
-                   label="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"
-                   toolTip="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"
-                   tabIndex="{    baseIndex + 4    }" />
-    </mx:HBox>
-</MDIWindow>
+</mx:Canvas>

@@ -4,6 +4,9 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy.Resume
+import java.io.{ PrintWriter, StringWriter }
 import org.bigbluebutton.core.api._
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
@@ -23,6 +26,16 @@ class OutMessageGatewayActor(val meetingId: String, val recorder: RecorderApplic
 
   private val recorderActor = context.actorOf(RecorderActor.props(recorder), "recorderActor-" + meetingId)
   private val msgSenderActor = context.actorOf(MessageSenderActor.props(msgSender), "senderActor-" + meetingId)
+
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+    case e: Exception => {
+      val sw: StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on OutMessageGatewayActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      log.error(sw.toString())
+      Resume
+    }
+  }
 
   def receive = {
     case msg: IOutMessage => {

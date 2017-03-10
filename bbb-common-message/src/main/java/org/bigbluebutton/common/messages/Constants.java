@@ -139,4 +139,20 @@ public class Constants {
   public static final String URL                             = "url";
   public static final String TTL                             = "ttl";
   public static final String PASSWORD                        = "password";
+  public static final String GUEST                           = "guest";
+  public static final String WAITING_FOR_ACCEPTANCE          = "waiting_for_acceptance";
+  public static final String DOWNLOADABLE                    = "downloadable";
+  public static final String GUEST_POLICY                    = "guest_policy";
+  public static final String NOTE_ID                         = "note_id";
+  public static final String PATCH                           = "patch";
+  public static final String PATCH_ID                        = "patch_id";
+  public static final String NOTE_NAME                       = "note_name";
+  public static final String NOTES                           = "notes";
+  public static final String ADDITIONAL_NOTES_SET_SIZE       = "additional_notes_set_size";
+  public static final String SET_BY                          = "set_by";
+  public static final String UNDO                            = "undo";
+  public static final String REDO                            = "redo";
+  public static final String OPERATION                       = "operation";
+  public static final String NOTE                            = "note";
+  public static final String METADATA                        = "metadata";
 }

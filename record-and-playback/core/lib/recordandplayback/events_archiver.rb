@@ -26,6 +26,10 @@ require 'builder'
 require 'yaml'
 
 module BigBlueButton  
+  $bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+  $recording_dir = $bbb_props['recording_dir']
+  $raw_recording_dir = "#{$recording_dir}/raw"
+
   # Class to wrap Redis so we can mock
   # for testing
   class RedisWrapper
@@ -101,7 +105,15 @@ module BigBlueButton
     RECORDINGS_CHANNEL = "bigbluebutton:from-rap"
 
     def put_message(message_type, meeting_id, additional_payload = {})
+      events_xml = "#{$raw_recording_dir}/#{meeting_id}/events.xml"
+      if File.exist?(events_xml)
+        additional_payload.merge!({
+          "external_meeting_id" => BigBlueButton::Events.get_external_meeting_id(events_xml)
+        })
+      end
+
       msg = build_message build_header(message_type), additional_payload.merge({
+        "record_id" => meeting_id,
         "meeting_id" => meeting_id
       })
       @redis.publish RECORDINGS_CHANNEL, msg.to_json

@@ -213,7 +213,7 @@ package org.bigbluebutton.modules.present.services.messaging
       }
       
       var preso:PresentationVO = new PresentationVO(presentation.id, presentation.name, 
-                                   presentation.current, presoPages);
+                                   presentation.current, presoPages, presentation.downloadable);
       return preso;
     }
     

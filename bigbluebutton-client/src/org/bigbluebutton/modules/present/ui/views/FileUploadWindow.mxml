@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	 layout="absolute" width="580" height="410" styleName="presentationFileUploadWindowStyle"
+	 layout="absolute" width="580" height="426" styleName="presentationFileUploadWindowStyle"
       initialize="initData();">
 
     <mate:Dispatcher id="globalDispatch" />
@@ -82,6 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var genThumbDots:String = ".";
 
       private var fileToUpload:FileReference = new FileReference();
+      [Bindable] private var presentOptions:PresentOptions = new PresentOptions();
 		
       override public function move(x:Number, y:Number):void{
         return;
@@ -172,12 +173,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
           progBarLbl.visible = true;          
           lblFileName.enabled = false;
+
+          var isDownloadable:Boolean = new Boolean(letUserDownload.selected);
           
           var uploadCmd:UploadFileCommand = new UploadFileCommand();
           uploadCmd.filename = presentationName;
           uploadCmd.file = fileToUpload;
+          uploadCmd.isDownloadable = isDownloadable;
           globalDispatch.dispatchEvent(uploadCmd);
-
+          letUserDownload.visible = false;
         }       		
       }
 
@@ -258,6 +262,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         selectBtn.enabled = true;
         uploadBtn.enabled = true;
         lblFileName.enabled = true;			
+        letUserDownload.visible = true;
       }
 
       private function handleConvertUpdate(e:ConversionUpdateEvent):void{
@@ -306,6 +311,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
+    <mx:Box paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}" >
+      <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="{presentOptions.enableDownload}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
+    </mx:Box>
     <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle" visible="false"/>

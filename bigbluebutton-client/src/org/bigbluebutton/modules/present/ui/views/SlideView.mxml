@@ -473,6 +473,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
+				cleanCanvasHolder();
 				whiteboardCanvas = overlay;
 				var c:Canvas = overlay as Canvas;
                 // add the canvas below the thumbnails
@@ -516,6 +517,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function focusSlide(e:ShortcutEvent):void{
 				focusManager.setFocus(slideLoader);
 				slideLoader.drawFocus(true);
+			}
+
+			private function cleanCanvasHolder():void{
+				while (this.whiteboardCanvasHolder.rawChildren.numChildren > 0) {
+					this.whiteboardCanvasHolder.rawChildren.removeChildAt(0);
+				}
 			}
 			
 		]]>

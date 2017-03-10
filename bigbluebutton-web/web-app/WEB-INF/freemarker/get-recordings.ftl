@@ -14,6 +14,8 @@
       <state>${r.getState()?string}</state>
       <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
       <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
+      <size><#if r.getSize()?? && r.getSize() != "">${r.getSize()}</#if></size>
+      <rawSize><#if r.getRawSize()?? && r.getRawSize() != "">${r.getRawSize()}</#if></rawSize>
       <#assign m = r.getMetadata()>
       <metadata>
       <#list m?keys as prop>
@@ -28,6 +30,8 @@
             <type>${p.getFormat()}</type>
             <url>${p.getUrl()}</url>
             <length>${p.getLength()}</length>
+            <size>${p.getSize()}</size>
+            <processingTime>${p.getProcessingTime()}</processingTime>
             <#if p.getExtensions()??>
             <#list p.getExtensions() as extension>
               <${extension.getType()}>
@@ -58,6 +62,22 @@
         </#list>
         </#if>
       </playback>
+      <download>
+        <#if r.getDownloads()??>
+        <#list r.getDownloads() as p>
+          <#if p?? && p.getFormat()??>
+          <format>
+            <type>${p.getFormat()}</type>
+            <url>${p.getUrl()}</url>
+            <md5>${p.getMd5()}</md5>
+            <key>${p.getKey()}</key>
+            <length>${p.getLength()}</length>
+            <size>${p.getSize()}</size>
+          </format>
+          </#if>
+        </#list>
+        </#if>
+      </download>
     </recording>
   </#list>
   </recordings>

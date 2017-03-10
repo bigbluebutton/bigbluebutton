@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.layout.services
     private function onReceivedFirstLayout(message:Object):void {
       LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]);
 	  trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "], moderator = [" + UsersUtil.amIModerator() + "]");
-	  if(message.layout == "" || UsersUtil.amIModerator())
+	  if(message.layout == "")
 		  _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
 	  else {
       	handleSyncLayout(message);
@@ -81,6 +81,9 @@ package org.bigbluebutton.modules.layout.services
       layoutDefinition.load(new XML(message.layout));
       var translatedName:String = ResourceUtil.getInstance().getString(layoutDefinition.name)
       if (translatedName == "undefined") translatedName = layoutDefinition.name;
+      // remove previously added [Remote] mark
+      var pattern:RegExp = /^\[.*\] /g;
+      translatedName = translatedName.replace(pattern, "");
       layoutDefinition.name = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] " + translatedName;
       var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
       redefineLayout.layout = layoutDefinition;

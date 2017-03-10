@@ -7,13 +7,17 @@ public class UserJoined implements IMessage {
   public final String name;
   public final String role;
   public final String avatarURL;
+  public final Boolean guest;
+  public final Boolean waitingForAcceptance;
   
-  public UserJoined(String meetingId, String userId, String externalUserId, String name, String role, String avatarURL) {
+  public UserJoined(String meetingId, String userId, String externalUserId, String name, String role, String avatarURL, Boolean guest, Boolean waitingForAcceptance) {
   	this.meetingId = meetingId;
   	this.userId = userId;
   	this.externalUserId = externalUserId;
   	this.name = name;
   	this.role = role;
   	this.avatarURL = avatarURL;
+  	this.guest = guest;
+  	this.waitingForAcceptance = waitingForAcceptance;
   }
 }

@@ -1,6 +1,9 @@
 package org.bigbluebutton.endpoint.redis
 
 import akka.actor.Props
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy.Resume
+import java.io.{ PrintWriter, StringWriter }
 import java.net.InetSocketAddress
 import redis.actors.RedisSubscriberActor
 import redis.api.pubsub.{ PMessage, Message }
@@ -31,6 +34,16 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
   redisPort: Int, channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
       channels, patterns) {
+
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+    case e: Exception => {
+      val sw: StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on AppsRedisSubscriberActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      log.error(sw.toString())
+      Resume
+    }
+  }
 
   val decoder = new FromJsonDecoder()
 

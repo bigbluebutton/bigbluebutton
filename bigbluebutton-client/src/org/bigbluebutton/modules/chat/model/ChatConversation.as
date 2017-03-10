@@ -18,15 +18,24 @@
  */
 package org.bigbluebutton.modules.chat.model
 {
+  import com.adobe.utils.StringUtil;
+
   import flash.system.Capabilities;
   
   import mx.collections.ArrayCollection;
   
+  import com.asfusion.mate.events.Dispatcher;
+
   import org.bigbluebutton.modules.chat.ChatUtil;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+  import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 
   public class ChatConversation
   { 
+
+    private var _dispatcher:Dispatcher = new Dispatcher();
+
     [Bindable]
     public var messages:ArrayCollection = new ArrayCollection();
     
@@ -51,22 +60,28 @@ package org.bigbluebutton.modules.chat.model
       cm.name = msg.fromUsername;
       cm.senderColor = uint(msg.fromColor);
       
-      cm.fromTime = msg.fromTime;		
-      cm.fromTimezoneOffset = msg.fromTimezoneOffset;
-      
-      var sentTime:Date = new Date();
-      sentTime.setTime(cm.fromTime);
-      cm.time = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
+      // Welcome message will skip time
+      if (msg.fromTime != -1) {
+        cm.fromTime = msg.fromTime;
+        cm.fromTimezoneOffset = msg.fromTimezoneOffset;
+        var sentTime:Date = new Date();
+        sentTime.setTime(cm.fromTime);
+        cm.time = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
+      }
       
       messages.addItem(cm); 
     }
     
     public function getAllMessageAsString():String{
       var allText:String = "";
-      var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\r");
+      var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\n");
       for (var i:int = 0; i < messages.length; i++){
         var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-        allText += item.name + " - " + item.time + " : " + item.text + returnStr;
+        allText += "[" + item.time + "] ";
+        if (StringUtil.trim(item.name) != "") {
+          allText += item.name + ": ";
+        }
+        allText += item.text + returnStr;
       }
       return allText;
     }
@@ -81,5 +96,18 @@ package org.bigbluebutton.modules.chat.model
       return msg.time;
     }
             
+    public function clearPublicChat():void {
+      var cm:ChatMessage = new ChatMessage();
+      cm.time = getLastTime();
+      cm.text = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.clearBtn.chatMessage')+"</b></i>";
+      cm.name = "";
+      cm.senderColor = uint(0x000000);
+
+      messages.removeAll();
+      messages.addItem(cm);
+
+      var welcomeEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
+      _dispatcher.dispatchEvent(welcomeEvent);
+    }
   }
 }

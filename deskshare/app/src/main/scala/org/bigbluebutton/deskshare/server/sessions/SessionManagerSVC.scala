@@ -25,6 +25,7 @@ import scala.collection.mutable.HashMap
 import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import java.awt.Point
+import java.io.{PrintWriter, StringWriter}
 
 case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension, seqNum: Int, useSVC2: Boolean)
 case class RemoveSession(room: String)
@@ -41,6 +42,15 @@ class SessionManagerSVC(streamManager: StreamManager, keyFrameInterval: Int, int
  	private val sessions = new HashMap[String, SessionSVC]
  	private val stoppedSessions = new HashMap[String, String]
 	
+	override def exceptionHandler() = {
+	  case e: Exception => {
+	    val sw:StringWriter = new StringWriter()
+	    sw.write("An exception has been thrown on SessionManagerSVC, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+	    e.printStackTrace(new PrintWriter(sw))
+	    log.error(sw.toString())
+	  }
+	}
+
 	def act() = {
 	  loop {
 	    react {

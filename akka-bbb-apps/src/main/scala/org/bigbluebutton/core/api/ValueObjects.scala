@@ -2,10 +2,33 @@ package org.bigbluebutton.core.api
 
 import java.lang.Boolean
 
+import scala.collection.mutable.Stack
+
 object Role extends Enumeration {
   type Role = Value
   val MODERATOR = Value("MODERATOR")
   val VIEWER = Value("VIEWER")
+}
+
+object Metadata extends Enumeration {
+  type Metadata = String
+  val INACTIVITY_DEADLINE = "mconf-live-inactivity-deadline"
+  val INACTIVITY_TIMELEFT = "mconf-live-inactivity-timeleft"
+}
+
+object GuestPolicy extends Enumeration {
+  type GuestPolicy = Value
+  val ALWAYS_ACCEPT = Value("ALWAYS_ACCEPT")
+  val ALWAYS_DENY = Value("ALWAYS_DENY")
+  val ASK_MODERATOR = Value("ASK_MODERATOR")
+}
+
+object SharedNotesOperation extends Enumeration {
+  type SharedNotesOperation = Value
+  val PATCH = Value("PATCH")
+  val UNDO = Value("UNDO")
+  val REDO = Value("REDO")
+  val UNDEFINED = Value("UNDEFINED")
 }
 
 case class StatusCode(val code: Int, val text: String)
@@ -70,7 +93,9 @@ case class RegisteredUser(
   name: String,
   role: Role.Role,
   authToken: String,
-  avatarURL: String)
+  avatarURL: String,
+  guest: Boolean,
+  waitingForAcceptance: Boolean)
 
 case class Voice(
   id: String,
@@ -87,6 +112,8 @@ case class UserVO(
   externUserID: String,
   name: String,
   role: Role.Role,
+  guest: Boolean,
+  waitingForAcceptance: Boolean,
   emojiStatus: String,
   presenter: Boolean,
   hasStream: Boolean,
@@ -119,7 +146,8 @@ case class MeetingConfig(name: String,
   record: Boolean = false,
   duration: MeetingDuration,
   defaultAvatarURL: String,
-  defaultConfigToken: String)
+  defaultConfigToken: String,
+  guestPolicy: GuestPolicy.GuestPolicy = GuestPolicy.ASK_MODERATOR)
 
 case class MeetingName(name: String)
 
@@ -138,3 +166,23 @@ case class MeetingInfo(
   recorded: Boolean,
   voiceBridge: String,
   duration: Long)
+
+trait BaseNote {
+  def name: String
+  def document: String
+  def patchCounter: Int
+}
+
+case class Note(
+  name: String,
+  document: String,
+  patchCounter: Int,
+  undoPatches: Stack[(String, String)],
+  redoPatches: Stack[(String, String)]) extends BaseNote
+
+case class NoteReport(
+  name: String,
+  document: String,
+  patchCounter: Int,
+  undo: Boolean,
+  redo: Boolean) extends BaseNote

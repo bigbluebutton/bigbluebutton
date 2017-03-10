@@ -7,7 +7,7 @@ GEM
     curb (0.9.3)
     fastimage (2.0.0)
       addressable (~> 2)
-    mime-types (2.6.2)
+    mime-types (2.99.2)
     mini_portile2 (2.1.0)
     mono_logger (1.1.0)
     multi_json (1.12.1)
@@ -48,13 +48,13 @@ DEPENDENCIES
   builder
   curb
   fastimage
-  mime-types (= 2.6.2)
+  mime-types (= 2.99.2)
   nokogiri
   open4
   redis
   resque
   rubyzip
-  streamio-ffmpeg
+  streamio-ffmpeg (= 2.1.0)
   trollop
 
 BUNDLED WITH

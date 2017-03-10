@@ -6,6 +6,7 @@ import java.util.Map;
 import org.bigbluebutton.common.messages.GetChatHistoryReplyMessage;
 import org.bigbluebutton.common.messages.SendPrivateChatMessage;
 import org.bigbluebutton.common.messages.SendPublicChatMessage;
+import org.bigbluebutton.common.messages.ClearPublicChatHistoryReplyMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
@@ -52,6 +53,13 @@ public class ChatClientMessageSender {
 
 						if (gch != null) {
 							processGetChatHistoryReply(gch);
+						}
+						break;
+					case ClearPublicChatHistoryReplyMessage.CLEAR_PUBLIC_CHAT_HISTORY_REPLY:
+						ClearPublicChatHistoryReplyMessage gcl = ClearPublicChatHistoryReplyMessage.fromJson(message);
+
+						if (gcl != null) {
+							processClearPublicChatHistoryReply(gcl);
 						}
 						break;
 				}
@@ -108,6 +116,20 @@ public class ChatClientMessageSender {
 		message.put("msg", gson.toJson(args.get("chat_history")));
 
 		DirectClientMessage m = new DirectClientMessage(gch.meetingId, gch.requesterId, "ChatRequestMessageHistoryReply", message);
+		service.sendMessage(m);
+	}
+
+	private void processClearPublicChatHistoryReply(ClearPublicChatHistoryReplyMessage gcl) {
+
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("meetingId", gcl.meetingId);
+		args.put("requester_id", gcl.requesterId);
+
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+
+		BroadcastClientMessage m = new BroadcastClientMessage(gcl.meetingId, "ChatClearPublicMessageCommand", message);
 		service.sendMessage(m);
 	}
 

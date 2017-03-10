@@ -53,6 +53,9 @@ package org.bigbluebutton.main.model.users {
 		[Bindable]
 		public var record:Boolean;
 		
+		[Bindable]
+		public var numAdditionalSharedNotes:Number = 0;
+
 		private static const LOGGER:ILogger = getClassLogger(Conference);
 		
 		private var lockSettings:LockSettingsVO;
@@ -360,6 +363,10 @@ package org.bigbluebutton.main.model.users {
 			return me.userID;
 		}
 		
+		public function getMyself():BBBUser {
+			return me;
+		}
+
 		public function setMyUserid(userID:String):void {
 			me.userID = userID;
 		}
@@ -382,6 +389,19 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setMyRole(role:String):void {
 			me.role = role;
+			applyLockSettings();
+		}
+
+		public function amIGuest():Boolean {
+			return me.guest;
+		}
+
+		public function amIWaitingForAcceptance():Boolean {
+			return me.waitingForAcceptance;
+		}
+
+		public function setGuest(guest:Boolean):void {
+			me.guest = guest;
 		}
 		
 		public function setMyRoom(room:String):void {
@@ -439,6 +459,15 @@ package org.bigbluebutton.main.model.users {
 			if (aUser != null) {
 				var s:Status = new Status(status, value);
 				aUser.changeStatus(s);
+			}
+
+			users.refresh();
+		}
+
+		public function newUserRole(userID:String, role:String):void {
+			var aUser:BBBUser = getUser(userID);
+			if (aUser != null) {
+				aUser.role = role;
 			}
 			users.refresh();
 		}

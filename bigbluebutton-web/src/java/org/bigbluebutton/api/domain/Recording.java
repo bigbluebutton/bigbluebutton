@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.api.domain;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,15 +35,25 @@ public class Recording {
 	private boolean published;
 	private String startTime;
 	private String endTime;
+	private String rawSize;
 	private Map<String, String> metadata = new TreeMap<String, String>();
 	private List<Playback> playbacks=new ArrayList<Playback>();
+	private ArrayList<Download> downloads=new ArrayList<Download>();
 	
 	//TODO: 
 	private String state;
 	private String playbackLink;
 	private String playbackFormat;
 	private String playbackDuration;
+	private String playbackSize;
+	private String processingTime;
 	private List<Extension> playbackExtensions;
+
+	private String downloadLink;
+	private String downloadFormat;
+	private String downloadMd5;
+	private String downloadKey;
+	private String downloadSize;
 
 	public static final String STATE_PROCESSING = "processing";
 	public static final String STATE_PROCESSED = "processed";
@@ -97,6 +108,69 @@ public class Recording {
 		this.endTime = convertOldDateFormat(endTime);
 	}
 	
+	public String getSize() {
+		BigInteger size = BigInteger.ZERO;
+		for (Playback p: playbacks) {
+			if (p.getSize().length() > 0) {
+				size = size.add(new BigInteger(p.getSize()));
+			}
+		}
+		for (Download p: downloads) {
+			if (p.getSize().length() > 0) {
+				size = size.add(new BigInteger(p.getSize()));
+			}
+		}
+		return size.toString();
+	}
+
+	public String getRawSize() {
+		return rawSize;
+	}
+
+	public void setRawSize(String rawSize) {
+		this.rawSize = rawSize;
+	}
+
+	public String getDownloadLink() {
+		return downloadLink;
+	}
+
+	public void setDownloadLink(String downloadLink) {
+		this.downloadLink = downloadLink;
+	}
+
+	public String getDownloadFormat() {
+		return downloadFormat;
+	}
+
+	public void setDownloadFormat(String downloadFormat) {
+		this.downloadFormat = downloadFormat;
+	}
+
+	public String getDownloadMd5() {
+		return downloadMd5;
+	}
+
+	public void setDownloadMd5(String downloadMd5) {
+		this.downloadMd5 = downloadMd5;
+	}
+
+	public String getDownloadKey() {
+		return downloadKey;
+	}
+
+	public void setDownloadKey(String downloadKey) {
+		this.downloadKey = downloadKey;
+	}
+
+	public String getDownloadSize() {
+		return downloadSize;
+	}
+
+	public void setDownloadSize(String downloadSize) {
+		this.downloadSize = downloadSize;
+	}
+
 	public String getPlaybackLink() {
 		return playbackLink;
 	}
@@ -119,6 +193,22 @@ public class Recording {
 	
 	public void setPlaybackDuration(String playbackDuration) {
 		this.playbackDuration = playbackDuration;
+	}
+
+	public String getPlaybackSize() {
+		return playbackSize;
+	}
+
+	public void setPlaybackSize(String playbackSize) {
+		this.playbackSize = playbackSize;
+	}
+
+	public String getProcessingTime() {
+		return processingTime;
+	}
+
+	public void setProcessingTime(String processingTime) {
+		this.processingTime = processingTime;
 	}
 
 	public List<Extension> getPlaybackExtensions() {
@@ -169,6 +259,14 @@ public class Recording {
 		this.name = name;
 	}
 
+	public ArrayList<Download> getDownloads() {
+		return downloads;
+	}
+
+	public void setDownloads(ArrayList<Download> downloads) {
+		this.downloads = downloads;
+	}
+
 	public List<Playback> getPlaybacks() {
 		return playbacks;
 	}
@@ -199,6 +297,18 @@ public class Recording {
 		return newdate;
 	}
 	
+	public String getExternalMeetingId() {
+		String externalMeetingId = null;
+		if (this.metadata != null) {
+			externalMeetingId = this.metadata.get("meetingId");
+		}
+
+		if (externalMeetingId != null) {
+			return externalMeetingId;
+		} else {
+			return "";
+		}
+	}
 }
 
 /*
