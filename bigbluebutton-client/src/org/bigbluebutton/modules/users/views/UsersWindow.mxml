@@ -442,7 +442,9 @@
 				keyCombos = new Object(); // always start with a fresh array bbb.shortcutkey.users.muteall
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.focusUsers') as String)] = FOCUS_USERS_LIST;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.makePresenter') as String)] = MAKE_PRESENTER;
-				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
+				if (!UserManager.getInstance().getConference().isBreakout) {
+					keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
+				}
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteall') as String)] = MUTE_ALL_USER;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.focusBreakoutRooms') as String)] = FOCUS_BREAKOUT_ROOMS_LIST;
@@ -536,7 +538,7 @@
 			}
 			
 			public function remoteKickUser():void {
-				if (amIModerator && usersGrid.selectedIndex != -1 && partOptions.allowKickUser) {
+				if (amIModerator && usersGrid.selectedIndex != -1 && partOptions.allowKickUser && !UserManager.getInstance().getConference().isBreakout) {
 					var selData:Object = usersGrid.selectedItem;
 					
 					if (!selData.me)

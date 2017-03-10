@@ -155,7 +155,7 @@
 				var ls:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 				
 				if (data != null) {
-					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser;
+					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser && !UserManager.getInstance().getConference().isBreakout;
 					
 					if (!data.voiceJoined) {
 						if (data.listenOnly) {
