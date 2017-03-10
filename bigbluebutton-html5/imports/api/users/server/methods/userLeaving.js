@@ -21,10 +21,12 @@ export default function userLeaving(credentials, userId) {
   check(requesterUserId, String);
   check(userId, String);
 
-  const User = Users.findOne({
+  const selector = {
     meetingId,
     userId,
-  });
+  };
+
+  const User = Users.findOne(selector);
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `You need a valid user to be able to toggle audio`);
@@ -36,6 +38,26 @@ export default function userLeaving(credentials, userId) {
 
   if (User.user.listenOnly) {
     listenOnlyToggle(credentials, false);
+  }
+
+  if (User.validated) {
+    const modifier = {
+      $set: {
+        validated: false,
+      },
+    };
+
+    const cb = (err, numChanged) => {
+      if (err) {
+        return Logger.error(`Invalidating user: ${err}`);
+      }
+
+      if (numChanged) {
+        return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
+      }
+    };
+
+    return Users.update(selector, modifier, cb);
   }
 
   let payload = {

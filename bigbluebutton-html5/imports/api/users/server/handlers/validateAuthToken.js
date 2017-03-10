@@ -8,11 +8,11 @@ import addChat from '/imports/api/chat/server/modifiers/addChat';
 export default function handleValidateAuthToken({ payload }) {
   const meetingId = payload.meeting_id;
   const userId = payload.userid;
-  const validStatus = payload.valid;
+  const validStatus = JSON.parse(payload.valid);
 
   check(meetingId, String);
   check(userId, String);
-  check(validStatus, String);
+  check(validStatus, Boolean);
 
   const selector = {
     meetingId,
@@ -21,14 +21,11 @@ export default function handleValidateAuthToken({ payload }) {
 
   const User = Users.findOne(selector);
 
-  if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able validate the token`);
-  }
+  // If we dont find the user on our collection is a flash user and we can skip
+  if (!User) return;
 
-  if (User.validated === validStatus) {
-    return;
-  }
+  // User already flagged so we skip
+  if (User.validated === validStatus) return;
 
   const modifier = {
     $set: {

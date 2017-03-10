@@ -12,7 +12,7 @@ function redirectToLogoutUrl(reason) {
 
 let wasKicked = false;
 const wasKickedDep = new Tracker.Dependency;
-
+// TODO: readd this observers
 function observeUserKick() {
   Users.find().observe({
     removed(old) {
@@ -25,7 +25,6 @@ function observeUserKick() {
     },
   });
 }
-
 function observeBreakoutEnd() {
   Breakouts.find().observe({
     removed(old) {

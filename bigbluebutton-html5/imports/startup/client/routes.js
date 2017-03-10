@@ -2,9 +2,10 @@ import React from 'react';
 import { Router, Route, Redirect, IndexRoute, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 
+import { joinRouteHandler, authenticatedRouteHandler } from './auth';
 import Base from './base';
-import AuthStartup from './auth';
 
+import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
 
@@ -14,8 +15,9 @@ const browserHistory = useRouterHistory(createHistory)({
 
 export const renderRoutes = () => (
   <Router history={browserHistory}>
-    <Route path="/join/:meetingID/:userID/:authToken" onEnter={AuthStartup} />
-    <Route path="/" component={Base}>
+    <Route path="/join/:meetingID/:userID/:authToken"
+           component={LoadingScreen} onEnter={joinRouteHandler} />
+    <Route path="/" component={Base} onEnter={authenticatedRouteHandler} >
       <IndexRoute components={{}} />
       <Route name="users" path="users" components={{ userList: UserListContainer }} />
       <Route name="chat" path="users/chat/:chatID" components={{
