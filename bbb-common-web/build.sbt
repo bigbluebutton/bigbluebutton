@@ -4,6 +4,18 @@ organization := "org.bigbluebutton"
 
 version := "0.0.1-SNAPSHOT"
 
+scalaVersion := "2.11.7"
+
+scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
+  "-Xlint",
+  "-Ywarn-dead-code",
+  "-language:_",
+  "-target:jvm-1.8",
+  "-encoding", "UTF-8"
+)
+
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
 // into eclipse.
@@ -13,8 +25,15 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
+val scalaV = "2.11.7"
+
+libraryDependencies +=  "org.scala-lang"    %   "scala-compiler"      % scalaV
+libraryDependencies +=  "org.scala-lang"    %   "scala-library"       % scalaV
+libraryDependencies +=  "org.scala-lang"    %   "scala-reflect"       % scalaV
+
 libraryDependencies += "commons-lang" % "commons-lang" % "2.5"
 libraryDependencies += "org.freemarker" % "freemarker" % "2.3.23"
+libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % "2.6.3"
 
 libraryDependencies += "org.pegdown" % "pegdown" % "1.4.0" % "test"
 libraryDependencies += "junit" % "junit" % "4.12" % "test"
