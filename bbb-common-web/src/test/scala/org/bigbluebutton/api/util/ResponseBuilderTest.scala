@@ -53,7 +53,7 @@ class ResponseBuilderTest extends UnitSpec {
     val templateLoc = new File("src/test/resources")
     val builder = new ResponseBuilder(templateLoc)
     def response = builder.buildGetMeetingInfoResponse(meeting, "success")
-    println(response)
+//    println(response)
 
     assert(templateLoc.exists())
   }
@@ -178,7 +178,7 @@ class ResponseBuilderTest extends UnitSpec {
     val templateLoc = new File("src/test/resources")
     val builder = new ResponseBuilder(templateLoc)
     def response = builder.buildGetMeetingsResponse(meetings, "success")
-    println(response)
+//    println(response)
 
     assert(templateLoc.exists())
   }

@@ -13,6 +13,8 @@ public class RecordingMetadataPlayback {
 
   private Long duration;
 
+  private Extensions extensions;
+
   public void setFormat(String format) {
     this.format = format;
   }
@@ -43,5 +45,13 @@ public class RecordingMetadataPlayback {
 
   public Long getDuration() {
     return duration;
+  }
+
+  public void setExtensions(Extensions extensions) {
+    this.extensions = extensions;
+  }
+
+  public Extensions getExtensions() {
+    return extensions;
   }
 }

@@ -4,17 +4,17 @@ import java.io.{File, FileInputStream}
 import javax.xml.stream.{XMLInputFactory, XMLStreamReader}
 
 import com.fasterxml.jackson.dataformat.xml.{JacksonXmlModule, XmlMapper}
-import org.bigbluebutton.api.domain.RecordingMetadataPlayback
+import org.bigbluebutton.api.domain.{RecordingMetadata, RecordingMetadataPlayback}
 
 /**
   * Created by ralam on 3/10/2017.
   */
 class RecordingMetadataReaderHelperTest extends UnitSpec {
 
-  it should "find template" in {
+  it should "deserialize playback part of metadata.xml" in {
     val factory: XMLInputFactory  = XMLInputFactory.newInstance();
 
-    val templateLoc = new File("src/test/resources/playback-metadata.xml")
+    val xml = new File("src/test/resources/playback-metadata.xml")
     val module: JacksonXmlModule  = new JacksonXmlModule();
     // and then configure, for example:
     module.setDefaultUseWrapper(false);
@@ -22,13 +22,35 @@ class RecordingMetadataReaderHelperTest extends UnitSpec {
     val mapper: XmlMapper = new XmlMapper(module)
 
     //Reading from xml file and creating XMLStreamReader
-    val reader: XMLStreamReader  = factory.createXMLStreamReader(new FileInputStream(templateLoc))
+    val reader: XMLStreamReader  = factory.createXMLStreamReader(new FileInputStream(xml))
 
-    val openCredentials: RecordingMetadataPlayback = mapper.readValue(reader, classOf[RecordingMetadataPlayback])
+    val playback: RecordingMetadataPlayback = mapper.readValue(reader, classOf[RecordingMetadataPlayback])
 
-    println(openCredentials)
+    println("***** FOOO =" + mapper.writeValueAsString(playback))
 
-    assert(openCredentials.getDuration == 545949)
+    assert(playback.getDuration == 545949)
+
+  }
+
+  it should "deserialize metadata.xml" in {
+    val factory: XMLInputFactory  = XMLInputFactory.newInstance();
+
+    val xml = new File("src/test/resources/breakout-room-metadata.xml")
+    val module: JacksonXmlModule  = new JacksonXmlModule();
+    // and then configure, for example:
+    module.setDefaultUseWrapper(false);
+
+    val mapper: XmlMapper = new XmlMapper(module)
+
+    //Reading from xml file and creating XMLStreamReader
+    val reader: XMLStreamReader  = factory.createXMLStreamReader(new FileInputStream(xml))
+
+    val recMeta: RecordingMetadata = mapper.readValue(reader, classOf[RecordingMetadata])
+
+    println("***** FOOO =" + mapper.writeValueAsString(recMeta))
+
+    assert(recMeta.getPlayback.getDuration == 126376)
+
   }
 
 }

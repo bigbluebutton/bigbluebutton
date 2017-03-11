@@ -34,6 +34,8 @@ libraryDependencies +=  "org.scala-lang"    %   "scala-reflect"       % scalaV
 libraryDependencies += "commons-lang" % "commons-lang" % "2.5"
 libraryDependencies += "org.freemarker" % "freemarker" % "2.3.23"
 libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % "2.6.3"
+// https://mvnrepository.com/artifact/org.codehaus.woodstox/woodstox-core-asl
+libraryDependencies += "org.codehaus.woodstox" % "woodstox-core-asl" % "4.4.1"
 
 libraryDependencies += "org.pegdown" % "pegdown" % "1.4.0" % "test"
 libraryDependencies += "junit" % "junit" % "4.12" % "test"
