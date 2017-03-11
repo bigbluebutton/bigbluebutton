@@ -68,6 +68,7 @@ if not FileTest.directory?(target_dir)
       b.published(false)
       b.start_time
       b.end_time
+      b.participants_count
       b.participants
       b.playback
       b.meta
@@ -109,8 +110,28 @@ if not FileTest.directory?(target_dir)
     end_time = recording.at_xpath("end_time")
     end_time.content = real_end_time
 
-    participants = recording.at_xpath("participants")
-    participants.content = BigBlueButton::Events.get_num_participants("#{target_dir}/events.xml")
+    participants_info = BigBlueButton::Events.get_participants_info("#{target_dir}/events.xml")
+
+    participants_count = recording.at_xpath("participants_count")
+    participants_count.content = participants_info.length
+
+    ## Remove empty participants
+    metadata.search('//recording/participants').each do |participants|
+      participants.remove
+    end
+    ## Add the actual participants
+    Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
+      xml.participants {
+        participants_info.each do |participant_info|
+          xml.participant {
+            xml.userId participant_info[0]
+            xml.name_ participant_info[1]
+            xml.role participant_info[2]
+          }
+        end
+      }
+    end
+
 
     ## Remove empty meta
     metadata.search('//recording/meta').each do |meta|
