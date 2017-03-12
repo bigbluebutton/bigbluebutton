@@ -4,12 +4,13 @@ import Users from '/imports/api/users';
 let isUserPresenter = () => {
 
   // check if user is a presenter
-  let isPresenter = Users.findOne({
+  let thisUser = Users.findOne({
     userId: AuthSingleton.getCredentials().requesterUserId,
-  }).user.presenter;
+  });
 
+  const isUserPresenter = !!thisUser && thisUser.user.presenter;
   return {
-    isUserPresenter: isPresenter,
+    isUserPresenter,
   };
 };
 

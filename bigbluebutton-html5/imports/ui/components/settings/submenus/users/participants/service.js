@@ -2,13 +2,21 @@ import Users from '/imports/api/users';
 import AuthSingleton from '/imports/ui/services/auth/index.js';
 
 checkUserRoles = () => {
-  const user = Users.findOne({
-     userId: AuthSingleton.getCredentials().requesterUserId,
-   }).user;
+  let user = Users.findOne({
+    userId: AuthSingleton.getCredentials().requesterUserId,
+  });
 
+  let isPresenter = false;
+  let role = null;
+
+  if (user != null && user.user != null) {
+    user = user.user;
+    isPresenter = user.presenter;
+    role = user.role;
+  }
   return {
-    isPresenter: user.presenter,
-    role: user.role,
+    isPresenter,
+    role,
   };
 };
 

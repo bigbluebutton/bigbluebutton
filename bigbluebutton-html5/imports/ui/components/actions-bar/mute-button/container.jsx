@@ -1,7 +1,6 @@
 import React from 'react';
 import {createContainer} from 'meteor/react-meteor-data';
 import {callServer} from '/imports/ui/services/api';
-import Button from '/imports/ui/components/button/component';
 import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
 import MuteAudio from './component';
@@ -16,10 +15,18 @@ class MuteAudioContainer extends React.Component {
 
 export default createContainer((params) => {
   const userId = Auth.userID;
-  const user = Users.findOne({ userId: userId }).user;
-  const isMuted = user.voiceUser.muted;
-  const isInAudio = user.voiceUser.joined;
-  const isTalking = user.voiceUser.talking;
+  let user = Users.findOne({ userId });
+
+  let isMuted = false;
+  let isInAudio = false;
+  let isTalking = false;
+
+  if (user != null && user.user != null && user.user.voiceUser != null) {
+    const voiceUser = user.user.voiceUser;
+    isMuted = voiceUser.muted;
+    isInAudio = voiceUser.joined;
+    isTalking = voiceUser.talking;
+  }
 
   let callback = () => {};
 
@@ -31,11 +38,10 @@ export default createContainer((params) => {
     callback = () => callServer('unmuteUser', userId);
   }
 
-  const data = {
+  return {
     isInAudio,
     isMuted,
     callback,
     isTalking,
   };
-  return data;
 }, MuteAudioContainer);
