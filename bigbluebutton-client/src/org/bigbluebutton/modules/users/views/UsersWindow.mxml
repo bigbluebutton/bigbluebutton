@@ -638,8 +638,8 @@
     </views:BBBDataGrid>
 	
 	<mx:VBox id="roomsBox" styleName="breakoutRoomsBox"
-			 visible="{breakoutRoomsList.length > 0 &amp;&amp; amIModerator}"
-			 includeInLayout="{breakoutRoomsList.length > 0 &amp;&amp; amIModerator}"
+			 visible="{breakoutRoomsList.length > 0}"
+			 includeInLayout="{breakoutRoomsList.length > 0}"
 			 horizontalScrollPolicy="off"
 			 width="100%" height="180">
 		<mx:HBox width="100%">
@@ -660,7 +660,6 @@
 								   showDataTips="true"
 								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
 				<mx:DataGridColumn dataField="meetingId"
-								   visible="{amIModerator}"
 								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</views:columns>
