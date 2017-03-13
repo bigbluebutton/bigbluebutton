@@ -2475,6 +2475,72 @@ var Hacks = module.exports = {
        *
        **/
       return sdp.replace(/ RTP\/SAVP/gmi, " UDP/TLS/RTP/SAVP");
+    },
+    addArtificialRemoteIceCandidates: function (response, artificialRemoteIceCandidates) {
+      /*
+        For those SIP endpoints that don't add all it's possible candidates,
+        we can manually add it to successfully complete ICE.
+       */
+      function findACandidate(sdpArray) {
+        for (i=0; i < sdpArray.length; i++) {
+          if (sdpArray[i].trim().match("^a=candidate:.*")) {
+            return sdpArray[i];
+          }
+        }
+        return null;
+      }
+
+      function findEndOfCandidatesIndex(sdpArray) {
+        var lastCandidateNeighborIndex = -1;
+        for (i=0; i < sdpArray.length; i++) {
+          if (sdpArray[i].trim().match("^a=end-of-candidates$")) {
+            return i;
+          } else if (sdpArray[i].trim().match("^a=candidate:.*")) {
+            lastCandidateNeighborIndex = i + 1;
+          }
+        }
+        return lastCandidateNeighborIndex;
+      }
+      
+      function findCandidatePriority(candidate) {
+        var result = candidate.match(/.* (udp|tcp) (\d+) .*/);
+        return result[2];
+      }
+
+      sdp = response.body;
+      if (sdp == null || sdp.length == 0) {
+        console.log("Empty SDP");
+        return response;
+      }
+      var sdpArray = sdp.split("\n");
+      if (sdpArray.length == 0) {
+        console.log("Can't split SDP properly");
+        return response;
+      }
+      var a_candidate = findACandidate(sdpArray);
+      if (a_candidate == null) {
+        console.log("No candidate found");
+        return response;
+      }
+      var index = findEndOfCandidatesIndex(sdpArray);
+      if (index == -1) {
+        console.log("end-of-candidates not found");
+        return response;
+      }
+
+      for (i=0; i < artificialRemoteIceCandidates.length; i++) {
+        var ipAddress = artificialRemoteIceCandidates[i];
+        console.log("Processing artificialRemoteIceCandidate " + ipAddress);
+        // we set the new candidates to a lower priority
+        // https://webrtchacks.com/sdp-anatomy/
+        var priority = findCandidatePriority(a_candidate) - 256;
+        var new_candidate = a_candidate.replace(/\d+ \d+\.\d+\.\d+\.\d+/g, priority + " " + ipAddress);
+        sdpArray.splice(index, 0, new_candidate);
+      }
+      sdp = sdpArray.join("\n");
+      console.log("SDP with the new candidates:\r\n" + sdp);
+      response.body = sdp;
+      return response;
     }
   },
   Firefox: {
@@ -5909,6 +5975,7 @@ InviteClientContext = function(ua, target, options) {
     extraHeaders = (options.extraHeaders || []).slice(),
     stunServers = options.stunServers || null,
     turnServers = options.turnServers || null,
+    artificialRemoteIceCandidates = options.artificialRemoteIceCandidates || null,
     isMediaSupported = ua.configuration.mediaHandlerFactory.isSupported;
 
   // Check WebRTC support
@@ -5996,6 +6063,15 @@ InviteClientContext = function(ua, target, options) {
       throw new TypeError('Invalid turnServers: '+ turnServers);
     } else {
       this.turnServers = iceServers;
+    }
+  }
+
+  if (artificialRemoteIceCandidates) {
+    iceServers = SIP.UA.configuration_check.optional['artificialRemoteIceCandidates'](artificialRemoteIceCandidates);
+    if (!iceServers) {
+      throw new TypeError('Invalid artificialRemoteIceCandidates: '+ artificialRemoteIceCandidates);
+    } else {
+      this.artificialRemoteIceCandidates = iceServers;
     }
   }
 
@@ -6138,6 +6214,8 @@ InviteClientContext.prototype = {
       }
       return;
     }
+
+    SIP.Hacks.AllBrowsers.addArtificialRemoteIceCandidates(response, this.ua.configuration.artificialRemoteIceCandidates);
 
     switch(true) {
       case /^100$/.test(response.status_code):
@@ -8888,6 +8966,7 @@ UA.prototype.loadConfig = function(configuration) {
       noAnswerTimeout: 60,
       stunServers: ['stun:stun.l.google.com:19302'],
       turnServers: [],
+      artificialRemoteIceCandidates: [],
 
       // Logging parameters
       traceSip: false,
@@ -8949,7 +9028,7 @@ UA.prototype.loadConfig = function(configuration) {
 
   SIP.Utils.optionsOverride(configuration, 'rel100', 'reliable', true, this.logger, SIP.C.supported.UNSUPPORTED);
 
-  var emptyArraysAllowed = ['stunServers', 'turnServers'];
+  var emptyArraysAllowed = ['stunServers', 'turnServers', 'artificialRemoteIceCandidates'];
 
   // Check Optional parameters
   for(parameter in UA.configuration_check.optional) {
@@ -9119,6 +9198,7 @@ UA.configuration_skeleton = (function() {
       "userAgentString", //SIP.C.USER_AGENT
       "autostart",
       "stunServers",
+      "artificialRemoteIceCandidates",
       "traceSip",
       "turnServers",
       "usePreloadedRoute",
@@ -9396,6 +9476,10 @@ UA.configuration_check = {
         }
       }
       return stunServers;
+    },
+    
+    artificialRemoteIceCandidates: function(candidates) {
+      return candidates;
     },
 
     traceSip: function(traceSip) {
@@ -10291,6 +10375,7 @@ var MediaHandler = function(session, options) {
     servers = [],
     stunServers = options.stunServers || null,
     turnServers = options.turnServers || null,
+    artificialRemoteIceCandidates = options.artificialRemoteIceCandidates || null,
     config = this.session.ua.configuration;
   this.RTCConstraints = options.RTCConstraints || {};
 
@@ -10300,6 +10385,10 @@ var MediaHandler = function(session, options) {
 
   if(!turnServers) {
     turnServers = config.turnServers;
+  }
+
+  if(!artificialRemoteIceCandidates) {
+    artificialRemoteIceCandidates = config.artificialRemoteIceCandidates;
   }
 
   /* Change 'url' to 'urls' whenever this issue is solved:

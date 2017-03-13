@@ -7,6 +7,7 @@ public class StunTurnService {
 
   private Set<StunServer> stunServers;
   private Set<TurnServer> turnServers;
+  private Set<RemoteIceCandidate> remoteIceCandidates;
 
   public Set<StunServer> getStunServers() {
     return stunServers;
@@ -25,12 +26,20 @@ public class StunTurnService {
     return turns;
   }
 
+  public Set<RemoteIceCandidate> getRemoteIceCandidates() {
+    return remoteIceCandidates;
+  }
+
   public void setStunServers(Set<StunServer> stuns) {
     stunServers = stuns;
   }
 
   public void setTurnServers(Set<TurnServer> turns) {
     turnServers = turns;
+  }
+
+  public void setRemoteIceCandidates(Set<RemoteIceCandidate> candidates) {
+    remoteIceCandidates = candidates;
   }
 
 }

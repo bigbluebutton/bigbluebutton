@@ -1373,6 +1373,7 @@ class ApiController {
         } else {
             Set<String> stuns = stunTurnService.getStunServers()
             Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(us.internalUserId)
+            Set<String> candidates = stunTurnService.getRemoteIceCandidates()
 
             response.addHeader("Cache-Control", "no-cache")
             withFormat {
@@ -1391,6 +1392,11 @@ class ApiController {
                                     url = turn.url
                                     ttl = turn.ttl
                                 }
+                            }
+                        }
+                        remoteIceCandidates = array {
+                            candidates.each { candidate ->
+                                candidateData = { ip = candidate.ip }
                             }
                         }
                     }
