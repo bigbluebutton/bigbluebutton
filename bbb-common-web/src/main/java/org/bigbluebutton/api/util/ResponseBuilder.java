@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.util.*;
 
 import freemarker.template.*;
+import org.bigbluebutton.api.domain.RecordingMetadata;
 
 public class ResponseBuilder {
   Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
@@ -83,6 +84,32 @@ public class ResponseBuilder {
     for (MeetingResponseDetail details : (ArrayList<MeetingResponseDetail>)root.get("meetingDetailsList"))  {
       System.out.println(details.getMeeting().getName());
     }
+
+    try {
+      ftl.process(root, xmlText);
+    } catch (TemplateException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return xmlText.toString();
+  }
+
+  public String buildGetRecordingsResponse(List<RecordingMetadata> recordings, String returnCode) {
+
+    Template ftl = null;
+    try {
+      ftl = cfg.getTemplate("get-recordings.ftl");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    StringWriter xmlText = new StringWriter();
+
+    Map root = new HashMap();
+    root.put("returnCode", returnCode);
+    root.put("recordings", recordings);
 
     try {
       ftl.process(root, xmlText);

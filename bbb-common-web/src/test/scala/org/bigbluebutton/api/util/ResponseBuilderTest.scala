@@ -3,7 +3,7 @@ package org.bigbluebutton.api.util
 import java.io.File
 import java.util
 
-import org.bigbluebutton.api.domain.{Meeting, User}
+import org.bigbluebutton.api.domain.{Meeting, RecordingMetadata, User}
 import org.scalatest._
 
 class ResponseBuilderTest extends UnitSpec {
@@ -179,6 +179,20 @@ class ResponseBuilderTest extends UnitSpec {
     val builder = new ResponseBuilder(templateLoc)
     def response = builder.buildGetMeetingsResponse(meetings, "success")
 //    println(response)
+
+    assert(templateLoc.exists())
+  }
+
+  it should "reply to getRecordings api call" in {
+    val templateLoc = new File("src/test/resources")
+    val builder = new ResponseBuilder(templateLoc)
+
+    val metadataXml = new File("src/test/resources/breakout-room-metadata.xml")
+    val recMeta = RecordingMetadataReaderHelper.getRecordingMetadata(metadataXml);
+    val recList = new util.ArrayList[RecordingMetadata]()
+    recList.add(recMeta)
+    def response = builder.buildGetRecordingsResponse(recList, "success")
+    println(response)
 
     assert(templateLoc.exists())
   }

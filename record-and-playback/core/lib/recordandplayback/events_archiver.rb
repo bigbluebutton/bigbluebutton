@@ -191,6 +191,8 @@ module BigBlueButton
     MODULE = 'module'
     EVENTNAME = 'eventName'
     MEETINGID = 'meetingId'
+    MEETINGNAME = 'meetingName'
+    ISBREAKOUT = 'isBreakout'
     
     def initialize(redis)
       @redis = redis
@@ -206,6 +208,7 @@ module BigBlueButton
 
       if (meeting_metadata != nil)
           xml.recording(:meeting_id => meeting_id, :bbb_version => version) {
+            xml.meeting(:id => meeting_id, :externalId => meeting_metadata[MEETINGID], :name => meeting_metadata[MEETINGNAME], :breakout => meeting_metadata[ISBREAKOUT])
             xml.metadata(meeting_metadata)
 
             if (@redis.has_breakout_metadata_for(meeting_id))

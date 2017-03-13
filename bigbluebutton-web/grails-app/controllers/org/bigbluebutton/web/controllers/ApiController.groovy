@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
+import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api.util.ResponseBuilder
 
 import javax.servlet.ServletRequest;
@@ -1735,6 +1736,8 @@ class ApiController {
       return
     }
 
+    log.debug  request.getQueryString()
+
     // Do we agree on the checksum? If not, complain.
     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       errors.checksumError()
@@ -1764,8 +1767,12 @@ class ApiController {
       internalRecordIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
     }
 
-    Map<String,Recording> recs = meetingService.getRecordings(internalRecordIds, states);
-    recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
+    for(String intRecId : internalRecordIds){
+      log.debug intRecId
+    }
+
+    List<RecordingMetadata> recsList = meetingService.getRecordingsMetadata(internalRecordIds, states);
+    List<RecordingMetadata>recs = meetingService.filterRecordingsByMetadata(recsList, ParamsProcessorUtil.processMetaParam(params));
 
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -1784,20 +1791,13 @@ class ApiController {
       return;
     }
 
+    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
+    ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
 
-
-    def cfg = new Configuration()
-
-    // Load the XML template
-    // TODO: Maybe there is a better way to define the templates path
-    def wtl = new WebappTemplateLoader(getServletContext(), "/WEB-INF/freemarker")
-    cfg.setTemplateLoader(wtl)
-    def ftl = cfg.getTemplate("get-recordings.ftl")
-    def xmlText = new StringWriter()
-    ftl.process([code:RESP_CODE_SUCCESS, recs:recs.values()], xmlText)
+    def xmlText = responseBuilder.buildGetRecordingsResponse(recsList, "success")
     withFormat {
       xml {
-        render(text: xmlText.toString(), contentType: "text/xml")
+        render(text: xmlText, contentType: "text/xml")
       }
     }
   }

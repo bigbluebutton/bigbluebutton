@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +64,38 @@ public class RecordingService {
         } else {
             log.error(done + " file already exists.");
         }
+    }
+
+    public List<RecordingMetadata> getRecordingsMetadata(List<String> recordIDs, List<String> states) {
+        List<RecordingMetadata> recs = new ArrayList<RecordingMetadata>();
+
+        Map<String, List<File>> allDirectories = getAllDirectories(states);
+        if (recordIDs.isEmpty()) {
+            for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
+                recordIDs.addAll(getAllRecordingIds(entry.getValue()));
+            }
+        }
+
+        for (String recordID : recordIDs) {
+            for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
+                List<File> _recs = getRecordingsForPath(recordID, entry.getValue());
+                Iterator<File> iterator = _recs.iterator();
+                while (iterator.hasNext()) {
+                    RecordingMetadata r = getRecordingMetadata(iterator.next());
+                    if (r != null) {
+                        recs.add(r);
+                    }
+                }
+            }
+        }
+
+        return recs;
+    }
+
+    private RecordingMetadata getRecordingMetadata(File dir) {
+        File file = new File(dir.getPath() + File.separatorChar + "metadata.xml");
+        RecordingMetadata rec = RecordingMetadataReaderHelper.getRecordingMetadata(file);
+        return rec;
     }
 
     public List<Recording> getRecordings(List<String> recordIDs, List<String> states) {
@@ -117,6 +151,45 @@ public class RecordingService {
             }
         }
         return matchesMetadata;
+    }
+
+    public boolean recordingMatchesMetadata(RecordingMetadata recording, Map<String, String> metadataFilters) {
+        boolean matchesMetadata = true;
+        for (Map.Entry<String, String> filter : metadataFilters.entrySet()) {
+            String metadataValue = recording.getMeta().get().get(filter.getKey());
+            if ( metadataValue == null ) {
+                // The recording doesn't have metadata specified
+                matchesMetadata = false;
+            } else {
+                String filterValue = filter.getValue();
+                if( filterValue.charAt(0) == '%' && filterValue.charAt(filterValue.length()-1) == '%' && metadataValue.contains(filterValue.substring(1, filterValue.length()-1)) ){
+                    // Filter value embraced by two wild cards
+                    // AND the filter value is part of the metadata value
+                } else if( filterValue.charAt(0) == '%' && metadataValue.endsWith(filterValue.substring(1, filterValue.length())) ) {
+                    // Filter value starts with a wild cards
+                    // AND the filter value ends with the metadata value
+                } else if( filterValue.charAt(filterValue.length()-1) == '%' && metadataValue.startsWith(filterValue.substring(0, filterValue.length()-1)) ) {
+                    // Filter value ends with a wild cards
+                    // AND the filter value starts with the metadata value
+                } else if( metadataValue.equals(filterValue) ) {
+                    // Filter value doesnt have wildcards
+                    // AND the filter value is the same as metadata value
+                } else {
+                    matchesMetadata = false;
+                }
+            }
+        }
+        return matchesMetadata;
+    }
+
+
+    public List<RecordingMetadata> filterRecordingsByMetadata(List<RecordingMetadata> recordings, Map<String, String> metadataFilters) {
+        List<RecordingMetadata> resultRecordings = new ArrayList<RecordingMetadata>();
+        for (RecordingMetadata entry : recordings) {
+            if (recordingMatchesMetadata(entry, metadataFilters))
+                resultRecordings.add(entry);
+        }
+        return resultRecordings;
     }
 
     public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {

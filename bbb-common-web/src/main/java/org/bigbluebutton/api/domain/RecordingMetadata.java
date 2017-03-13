@@ -48,6 +48,12 @@ public class RecordingMetadata {
   @JacksonXmlProperty(localName = "end_time")
   private String endTime;
 
+  @JacksonXmlProperty(localName = "participants")
+  private int participants;
+
+  @JacksonXmlProperty(localName = "meeting")
+  private MeetingInfo meetingInfo;
+
   private Breakout breakout;
 
   @JacksonXmlElementWrapper(localName = "breakoutRooms")
@@ -98,12 +104,36 @@ public class RecordingMetadata {
     return endTime;
   }
 
+  public void setParticipants(int participants) {
+    this.participants = participants;
+  }
+
+  public int getParticipants() {
+    return participants;
+  }
+
+  public void setMeeting(MeetingInfo meetingInfo) {
+    this.meetingInfo = meetingInfo;
+  }
+
+  public MeetingInfo getMeeting() {
+    return meetingInfo;
+  }
+
   public void setBreakout(Breakout breakout) {
     this.breakout = breakout;
   }
 
   public Breakout getBreakout() {
     return breakout;
+  }
+
+  public void setBreakoutRooms(BreakoutRoom[] breakoutRooms) {
+    this.breakoutRooms = breakoutRooms;
+  }
+
+  public BreakoutRoom[] getBreakoutRooms() {
+    return breakoutRooms;
   }
 
   public void setMeta(Metadata meta) {

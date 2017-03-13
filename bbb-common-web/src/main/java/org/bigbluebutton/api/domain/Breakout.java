@@ -18,4 +18,27 @@ public class Breakout {
   @JacksonXmlProperty(isAttribute = true)
   private String meetingId;
 
+  public void setParentMeetingId(String parentMeetingId) {
+    this.parentMeetingId = parentMeetingId;
+  }
+
+  public String getParentMeetingId() {
+    return parentMeetingId;
+  }
+
+  public void setSequence(int sequence) {
+    this.sequence = sequence;
+  }
+
+  public int getSequence() {
+    return sequence;
+  }
+
+  public void setMeetingId(String meetingId) {
+    this.meetingId = meetingId;
+  }
+
+  public String getMeetingId() {
+    return meetingId;
+  }
 }

@@ -37,11 +37,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Playback;
-import org.bigbluebutton.api.domain.Recording;
-import org.bigbluebutton.api.domain.User;
-import org.bigbluebutton.api.domain.UserSession;
+
+import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
@@ -425,17 +422,29 @@ public class MeetingService implements MessageListener {
         return null;
     }
 
+    public List<RecordingMetadata> getRecordingsMetadata(List<String> idList, List<String> states) {
+        List<RecordingMetadata> recsList = recordingService.getRecordingsMetadata(idList, states);
+        return recsList;
+    }
+
+
     public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
         List<Recording> recsList = recordingService.getRecordings(idList, states);
         Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
 
-    public Map<String, Recording> filterRecordingsByMetadata(
-            Map<String, Recording> recordings,
-            Map<String, String> metadataFilters) {
+    public List<RecordingMetadata> filterRecordingsByMetadata(List<RecordingMetadata> recsList,
+                                                             Map<String, String> metadataFilters) {
+        return recordingService.filterRecordingsByMetadata(recsList, metadataFilters);
+    }
+
+    public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings,
+                                                             Map<String, String> metadataFilters) {
         return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
     }
+
+
 
     public Map<String, Recording> reorderRecordings(List<Recording> olds) {
         Map<String, Recording> map = new HashMap<String, Recording>();
