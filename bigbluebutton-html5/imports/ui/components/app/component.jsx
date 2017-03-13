@@ -36,6 +36,17 @@ export default class App extends Component {
     };
 
     props.init.call(this);
+
+    this.setDefaultSettings = props.setDefaultSettings;
+  }
+
+  setHtmlFontSize(size) {
+    document.getElementsByTagName('html')[0].style.fontSize = size;
+  };
+
+  componentDidMount() {
+    this.setDefaultSettings();
+    this.setHtmlFontSize(this.props.fontSize);
   }
 
   renderNavBar() {
@@ -117,7 +128,6 @@ export default class App extends Component {
 
   renderClosedCaptions() {
     const { captions } = this.props;
-
     if (captions && this.props.getCaptionsStatus()) {
       return (
         <section className={styles.closedCaptions}>
@@ -174,7 +184,8 @@ export default class App extends Component {
 
       // compare openChats(chatID) to chatID of currently opened chat room
       if (openChats[i] !== openChat) {
-        let shouldPlaySound = LocalStorage.getItem('audioNotifChat') || Meteor.settings.public.app.audioChatNotification;
+        let shouldPlaySound = this.props.applicationSettings.chatAudioNotifications;
+
         if (shouldPlaySound && chat > prevProps.unreadMessageCount[i]) {
           this.playSoundForUnreadMessages();
         }

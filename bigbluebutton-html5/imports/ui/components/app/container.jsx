@@ -8,7 +8,9 @@ import {
   getModal,
   getCaptionsStatus,
   showModal,
+  getFontSize,
 } from './service';
+import { setDefaultSettings, getSettingsFor } from '/imports/ui/components/settings/service';
 
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
@@ -60,12 +62,16 @@ const init = () => {
 export default createContainer(({ params }) => ({
   init,
   wasKicked: wasUserKicked(),
+  isLoading: getLoading(),
   modal: getModal(),
   unreadMessageCount: checkUnreadMessages(),
   openChats: openChats(params.chatID),
   openChat: params.chatID,
   getCaptionsStatus,
   redirectToLogoutUrl,
+  setDefaultSettings,
+  fontSize: getFontSize(),
+  applicationSettings: getSettingsFor('application'),
 }), AppContainer);
 
 AppContainer.defaultProps = defaultProps;

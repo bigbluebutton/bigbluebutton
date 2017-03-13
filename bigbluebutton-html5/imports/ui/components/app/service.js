@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
 import Storage from '/imports/ui/services/storage/session';
+import SettingsService from '/imports/ui/components/settings/service';
 
 function redirectToLogoutUrl(reason) {
   console.error(reason);
@@ -60,9 +61,14 @@ const clearModal = () => {
   showModal(null);
 };
 
-function getCaptionsStatus() {
-  var CCEnabled = Storage.getItem('closedCaptions');
-  return !!CCEnabled;
+const getCaptionsStatus = () => {
+  const settings = Storage.getItem('settings_cc');
+  return settings ? settings.closedCaptions : false;
+};
+
+const getFontSize = () => {
+  const settings = SettingsService.getSettingsFor('application');
+  return settings ? settings.fontSize : '14px';
 };
 
 export {
@@ -76,4 +82,5 @@ export {
   showModal,
   clearModal,
   getCaptionsStatus,
+  getFontSize,
 };

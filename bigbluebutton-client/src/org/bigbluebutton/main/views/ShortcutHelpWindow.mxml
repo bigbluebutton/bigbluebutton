@@ -80,10 +80,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var modifier:String;
 			private var globalModifier:String;
+			private var globalAlternateModifier:String;
 			
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
+				globalAlternateModifier = ExternalInterface.call("determineGlobalAlternateModifier");
 				
 				ShortcutOptions.initialize();
 				
@@ -194,8 +196,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.right') 
 								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.down')){
 						keyList.addItem({shortcut:convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
-					}
-					else{
+					} else if (convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.minus')
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.plus')) {
+						keyList.addItem({shortcut:globalAlternateModifier + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					} else{
 						keyList.addItem({shortcut:mod + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
 					}
 				}
