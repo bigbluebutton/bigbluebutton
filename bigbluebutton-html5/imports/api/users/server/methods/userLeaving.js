@@ -30,11 +30,11 @@ export default function userLeaving(credentials, userId) {
       'user-not-found', `You need a valid user to be able to toggle audio`);
   }
 
-  if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
+  if (User.connection_status === OFFLINE_CONNECTION_STATUS) {
     return;
   }
 
-  if (User.user.listenOnly) {
+  if (User.listenOnly) {
     listenOnlyToggle(credentials, false);
   }
 
