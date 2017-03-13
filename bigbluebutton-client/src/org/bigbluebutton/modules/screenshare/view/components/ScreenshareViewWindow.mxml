@@ -22,7 +22,7 @@
 
 <MDIWindow xmlns="flexlib.mdi.containers.*"
            xmlns:mx="http://www.adobe.com/2006/mxml"
-           width="600"
+		   width="600"
            height="400"
            initialize="init()"
            creationComplete="onCreationComplete()"
@@ -38,27 +38,25 @@
 
     <mx:Script>
         <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import flexlib.mdi.events.MDIWindowEvent;      
-      import mx.core.UIComponent;      
+      import mx.core.UIComponent;
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.ReconnectionManager;
       import org.bigbluebutton.main.api.JSLog;
+      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.screenshare.events.CursorEvent;
-      import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.managers.ReconnectionManager;
-      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOG:String = "SC::ScreenshareViewWIndow - ";
       private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
@@ -70,7 +68,7 @@
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
 			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 					
-      private var streamAvailable:Boolean = false;
+			private var streamAvailable:Boolean = false;
       
 			private var video:Video;
 			private var ns:NetStream;
@@ -100,7 +98,7 @@
 			}
 									
 			private function onCreationComplete():void{
-        viewScreenshareStream();
+				viewScreenshareStream();
         
 				videoHolder.addChild(video);				
 				this.addChild(videoHolder);
@@ -116,14 +114,14 @@
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
-               
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["screenshare"];
-        logData.width = videoWidth;
-        logData.height = videoHeight;
-        logData.streamId = streamId;
-        
-        LOGGER.info(JSON.stringify(logData));
+
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["screenshare"];
+				logData.width = videoWidth;
+				logData.height = videoHeight;
+				logData.streamId = streamId;
+				
+				LOGGER.info(JSON.stringify(logData));
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -238,22 +236,24 @@
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
-												
-			/**
-			 * resizes the desktop sharing video to fit to this window
-			 */
-			private function fitToWindow():void{
-        if (!streamAvailable) return;
-        
-				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
-				}
-				
-				// Ignore if we are displaying the actual size of the video
-				if (! btnActualSize.selected) {
-					fitVideoToWindow();
-				}
-			}
+
+            /**
+             * resizes the desktop sharing video to fit to this window
+             */
+            private function fitToWindow():void {
+                if (!streamAvailable)
+                    return;
+
+                if (videoIsSmallerThanWindow()) {
+                    fitWindowToVideo();
+                }
+
+                // Ignore if we are displaying the actual size of the video
+                if (!btnActualSize.selected) {
+                    fitVideoToWindow();
+                }
+            }
+
 			
 			private function fitVideoToWindow():void {
 				if (this.width < this.height) {
@@ -344,13 +344,12 @@
 			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
-            
-       public function handleDisconnectedEvent(event:BBBEvent):void {
-          if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
-            closeWindow();  
-          }
-      }
-			
+
+            public function handleDisconnectedEvent(event:BBBEvent):void {
+                if (event.payload.type == ReconnectionManager.DESKSHARE_CONNECTION) {
+                    closeWindow();
+                }
+            }			
 		]]>
     </mx:Script>
 

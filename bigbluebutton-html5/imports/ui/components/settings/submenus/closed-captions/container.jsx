@@ -4,10 +4,6 @@ import ClosedCaptionsMenu from './component';
 import Service from './service';
 
 class ClosedCaptionsMenuContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <ClosedCaptionsMenu {...this.props}>

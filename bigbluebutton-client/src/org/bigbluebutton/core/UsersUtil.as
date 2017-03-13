@@ -71,18 +71,18 @@ package org.bigbluebutton.core
     return UserManager.getInstance().getConference().record;
   }
   
-    public static function amIPublishing():CameraSettingsVO {
-     return UserManager.getInstance().getConference().amIPublishing();
+    public static function amIPublishing():ArrayCollection {
+     return UserManager.getInstance().getConference().amIPublishing() as ArrayCollection;
     }
-    
-    public static function setIAmPublishing(publishing:Boolean):void {
-      UserManager.getInstance().getConference().setCamPublishing(publishing);
+
+    public static function addCameraSettings(camSettings:CameraSettingsVO):void {
+      UserManager.getInstance().getConference().addCameraSettings(camSettings);
     }
-    
-    public static function setCameraSettings(camSettings:CameraSettingsVO):void {
-      UserManager.getInstance().getConference().setCameraSettings(camSettings);
+
+    public static function removeCameraSettings(camIndex:int):void {
+      UserManager.getInstance().getConference().removeCameraSettings(camIndex);
     }
-    
+
     public static function hasWebcamStream(userID:String):Boolean {
       var u:BBBUser = getUser(userID);
       if (u != null) {

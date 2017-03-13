@@ -30,7 +30,7 @@ export default class Chat extends Component {
       <section className={styles.chat}>
         <header className={styles.header}>
           <Link className={styles.closeChat} to="/users">
-            <Icon iconName="left-arrow" /> {title}
+            <Icon iconName="left_arrow" /> {title}
           </Link>
         </header>
         <MessageList

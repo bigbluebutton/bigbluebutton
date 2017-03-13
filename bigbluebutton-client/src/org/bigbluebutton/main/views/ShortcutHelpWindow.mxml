@@ -69,22 +69,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
 			
 			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.sendMessage',
-											  'bbb.shortcutkey.chat.closePrivate', 'bbb.shortcutkey.chat.explanation', 'bbb.shortcutkey.chat.chatbox.gofirst', 
-											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.advance', 'bbb.shortcutkey.chat.chatbox.golatest',
-											  'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.goread'];
+											  'bbb.shortcutkey.chat.closePrivate'];
 			
 			private var userResource:Array = ['bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
-											  /*'bbb.shortcutkey.users.kick',*/ 'bbb.shortcutkey.users.muteall'];
+											  'bbb.shortcutkey.users.kick', 'bbb.shortcutkey.users.muteall', 'bbb.shortcutkey.users.focusBreakoutRooms',
+											  'bbb.shortcutkey.users.listenToBreakoutRoom', 'bbb.shortcutkey.users.joinBreakoutRoom'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
 			
 			private var modifier:String;
 			private var globalModifier:String;
+			private var globalAlternateModifier:String;
 			
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
+				globalAlternateModifier = ExternalInterface.call("determineGlobalAlternateModifier");
 				
 				ShortcutOptions.initialize();
 				
@@ -195,8 +196,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.right') 
 								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.down')){
 						keyList.addItem({shortcut:convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
-					}
-					else{
+					} else if (convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.minus')
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.plus')) {
+						keyList.addItem({shortcut:globalAlternateModifier + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					} else{
 						keyList.addItem({shortcut:mod + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
 					}
 				}

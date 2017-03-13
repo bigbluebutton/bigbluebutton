@@ -13,7 +13,7 @@ export default class JoinVideo extends React.Component {
         onClick={this.handleClick}
         label={'Cam Off'}
         color={'primary'}
-        icon={'video-off'}
+        icon={'video_off'}
         size={'lg'}
         circle={true}
         style={{visibility: 'hidden'}}

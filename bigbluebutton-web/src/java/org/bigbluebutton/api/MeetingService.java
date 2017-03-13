@@ -289,12 +289,19 @@ public class MeetingService implements MessageListener {
                 : Collections.unmodifiableCollection(sessions.values());
     }
 
-    public void createMeeting(Meeting m) {
-        handle(new CreateMeeting(m));
+    public  synchronized boolean createMeeting(Meeting m) {
+        String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
+        Meeting existing = getNotEndedMeetingWithId(internalMeetingId);
+        if (existing == null) {
+            meetings.put(m.getInternalId(), m);
+            handle(new CreateMeeting(m));
+            return true;
+        }
+
+        return false;
     }
 
     private void handleCreateMeeting(Meeting m) {
-        meetings.put(m.getInternalId(), m);
         if (m.isRecord()) {
             Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
@@ -551,9 +558,9 @@ public class MeetingService implements MessageListener {
 
             Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 
-            handleCreateMeeting(breakout);
+            createMeeting(breakout);
 
-            presDownloadService.extractPage(message.parentMeetingId,
+            presDownloadService.extractPresentationPage(message.parentMeetingId,
                     message.sourcePresentationId,
                     message.sourcePresentationSlide, breakout.getInternalId());
         } else {

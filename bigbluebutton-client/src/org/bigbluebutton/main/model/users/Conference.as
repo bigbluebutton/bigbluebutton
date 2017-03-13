@@ -64,7 +64,7 @@ package org.bigbluebutton.main.model.users {
 		
 		private var lockSettings:LockSettingsVO;
 		
-		private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
+		private var _myCamSettings:ArrayCollection = null;
 		
 		[Bindable]
 		private var me:BBBUser = null;
@@ -90,6 +90,7 @@ package org.bigbluebutton.main.model.users {
 			users.sort = sort;
 			users.refresh();
 			breakoutRooms = new ArrayCollection();
+			_myCamSettings = new ArrayCollection();
 		}
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
@@ -152,19 +153,28 @@ package org.bigbluebutton.main.model.users {
 			users.addItem(newuser);
 			users.refresh();
 		}
-		
-		public function setCamPublishing(publishing:Boolean):void {
-			_myCamSettings.isPublishing = publishing;
+
+		public function addCameraSettings(camSettings: CameraSettingsVO): void {
+			if(!_myCamSettings.contains(camSettings)) {
+				_myCamSettings.addItem(camSettings);
+			}
 		}
-		
-		public function setCameraSettings(camSettings:CameraSettingsVO):void {
-			_myCamSettings = camSettings;
+
+		public function removeCameraSettings(camIndex:int): void {
+			if (camIndex != -1) {
+				for(var i:int = 0; i < _myCamSettings.length; i++) {
+					if (_myCamSettings.getItemAt(i) != null && _myCamSettings.getItemAt(i).camIndex == camIndex) {
+						_myCamSettings.removeItemAt(i);
+						return;
+					}
+				}
+			}
 		}
-		
-		public function amIPublishing():CameraSettingsVO {
+
+		public function amIPublishing():ArrayCollection {
 			return _myCamSettings;
 		}
-		
+
 		public function setDefaultLayout(defaultLayout:String):void {
 			this.defaultLayout = defaultLayout;
 		}

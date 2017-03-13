@@ -14,14 +14,13 @@ class AudioTest extends React.Component {
     } = this.props;
 
     return (
-      <Button className={styles.testAudioBtn}
-        label={intl.formatMessage(intlMessages.playSoundLabel)}
-        icon={'audio'}
-        size={'md'}
-        color={'primary'}
-        ghost={true}
-        onClick={this.props.handlePlayAudioSample}
-      />
+        <Button className={styles.testAudioBtn}
+          label={intl.formatMessage(intlMessages.playSoundLabel)}
+          icon={'unmute'}
+          size={'md'}
+          color={'primary'}
+          onClick={this.props.handlePlayAudioSample}
+        />
     );
   }
 };

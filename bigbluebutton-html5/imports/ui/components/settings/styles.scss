@@ -1,107 +1,58 @@
 @import "../../stylesheets/variables/_all";
 
-.full {
-  clear: both;
-  height: 100%;
-  width: 100%;
+.tabs {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
 }
 
-.settingsMenuLeft {
-  border-right: 2px solid $color-gray-light;
-  border-top: 2px solid $color-gray-light;
-  float: left;
-  width: 30%;
-  height: 100%;
-  overflow: auto;
+.tabList {
+  display: flex;
+  flex-flow: column;
+  flex-grow: 0;
+  border: none !important;
+  flex-shrink: 0;
+  border-right: 0.2rem solid #d4d9df;
 }
 
-.settingsMenuRight {
-  border-top: 2px solid $color-gray-light;
-  float: right;
-  padding-left: 10px;
-  width: 70%;
-  height: 100%;
-  overflow: auto;
-  color: $color-heading;
+.icon {
+  margin-right: 0.7rem;
+  color: $color-gray-light;
 }
 
-.settingsSubmenu {
-  list-style-type: none;
-  padding-left: 0px;
+.tabSelector {
+  font-size: 0.9rem;
+  padding: 0.1rem 0 !important;
+  padding-right: 1.2rem !important;
+  display: flex !important;
+  flex-flow: row;
+  justify-content: flex-start;
+  border: none !important;
+  border-radius: 0 !important;
+  bottom: 0 !important;
+  margin: 0.5rem 0;
+  margin-right: 0.5rem;
+  transition: 0.3s color;
+  color: $color-gray-dark;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &[aria-selected="true"] {
+    border-right: 0.2rem solid $color-primary !important;
+    padding-right: 1rem !important;
+    color: $color-link !important;
+
+    &>.icon {
+      color: $color-link !important;
+    }
+  }
 }
 
-.settingsSubmenuItem {
-  color: $color-heading;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.settingsSubmenuItemText {
-  padding-left: 10px;
-  vertical-align: middle;
-}
-
-.settingsSubmenuItemActive {
-  border-right: 4px solid $color-primary;
-  color: $color-primary;
-}
-
-
-
-.containerLeftHalf {
-  width: 50%;
-  float: left;
-}
-
-.containerRightHalf {
-  width: 50%;
-  float: right;
-}
-
-.containerFull{
-  width: 100%;
-  float: right;
-}
-
-.containerLeftHalfContent {
-  @extend .containerLeftHalf;
-  @extend .row;
-}
-
-.containerRightHalfContent {
-  @extend .containerRightHalf;
-  @extend .row;
-}
-
-div.containerLeftHalf label, div.containerRightHalf label {
-  font-size: 0.75em;
-  font-weight: 600;
-  color: $color-primary;
-  margin-bottom: 5px;
-}
-
-.row {
-  height: 42px;
-}
-
-//buttons
-.defaultBtn {
-  width: 90px;
-  border-radius: 18px;
-  border: none;
-  box-shadow: none;
-}
-
-.enterBtn {
-  position: relative;
-  margin-left: 10em;
-  margin-top: 2.5em;
-}
-
-.testAudioBtn {
-  @extend .defaultBtn;
-  width: 140px;
-  margin-top: 0px;
+.tabPanel {
+  flex-grow: 1;
+  padding: 1rem;
+  padding-top: 0;
+  padding-right: 0;
 }

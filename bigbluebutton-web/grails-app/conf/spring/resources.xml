@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
   
-  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService">
+  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService" destroy-method="stop">
     <property name="presentationDir" value="${presentationDir}"/>
     <property name="presentationBaseURL" value="${presentationBaseURL}"/>
    	<property name="pageExtractor" ref="pageExtractor"/>  

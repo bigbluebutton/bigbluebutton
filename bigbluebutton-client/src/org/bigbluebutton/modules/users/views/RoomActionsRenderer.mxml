@@ -51,8 +51,8 @@
 		]]>
 	</mx:Script>
 
-	<mx:Button id="joinImg" width="20" height="20"
-			   includeInLayout="{UserManager.getInstance().getConference().breakoutRoomsReady}" visible="{joinImg.includeInLayout}"
+	<mx:Button id="joinBtn" width="20" height="20"
+			   includeInLayout="{UserManager.getInstance().getConference().breakoutRoomsReady}" visible="{joinBtn.includeInLayout}"
 			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
 			   click="requestBreakoutJoinUrl(event)"/>
 	<mx:Button id="listenBtn" toggle="true"
