@@ -1,50 +1,71 @@
-import React from 'react';
-import Modal from 'react-modal';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
+import React, { Component } from 'react';
 import BaseMenu from '../base/component';
 import styles from '../styles.scss';
 
-export default class VideoMenu extends BaseMenu {
+import Toggle from '/imports/ui/components/switch/component';
+import cx from 'classnames';
+
+export default class AudioMenu extends BaseMenu {
   constructor(props) {
     super(props);
+
+    this.state = {
+      settingsName: 'video',
+      settings: props.settings,
+    };
   }
 
-  getContent() {
+  render() {
     return (
-      <div className={styles.full} role='presentation'>
-        <div className={styles.containerLeftHalf}>
-          <label htmlFor='camera'>Select camera</label>
+      <div className={styles.tabContent}>
+        <div className={styles.header}>
+          <h3 className={styles.title}>Video</h3>
         </div>
-        <div className={styles.containerRightHalf}>
-          <label htmlFor='quality'  >Video quality</label>
-        </div>
-        <div className={styles.containerLeftHalfContent} role='presentation'>
-          <select id='camera' defaultValue='0' tabIndex='7'
-            aria-labelledby='camLabel' aria-describedby='camDesc'>
-            <option value='0' disabled>Select camera</option>
-            <option value='1'>Camera 1</option>
-            <option value='2'>Camera 2</option>
-            <option value='3'>Camera 3</option>
-          </select>
-          <div id='camLabel' hidden>Camera source</div>
-          <div id='camDesc' hidden>
-            Chooses a camera source from the dropdown menu.</div>
-        </div>
-        <div className={styles.containerRightHalfContent} role='presentation'>
-          <select id='quality' defaultValue='0' tabIndex='8'
-            aria-labelledby='vidLabel' aria-describedby='vidDesc'>
-            <option value='0' disabled>Select quality</option>
-            <option value='1'>Low</option>
-            <option value='2'>Medium</option>
-            <option value='3'>High</option>
-          </select>
-          <div id='vidLabel' hidden>Video quality</div>
-          <div id='vidDesc' hidden>
-            Chooses the video quality level from the dropdown menu.</div>
-        </div>
-        <div className={styles.row}>
-          <div>Viewing participants webcams</div>
+
+        <div className={styles.form}>
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  View source
+                </label>
+                <select
+                  defaultValue='-1'
+                  className={styles.select}>
+                  <option value='-1' disabled>Choose view source</option>
+                </select>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  Video Quality
+                </label>
+                <select
+                  defaultValue='-1'
+                  className={styles.select}>
+                  <option value='-1' disabled>Choose the video quality</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  Viewing participants webcams
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <Toggle
+                icons={false}
+                defaultChecked={this.state.viewParticipantsWebcams}
+                onChange={() => this.handleToggle('viewParticipantsWebcams')} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

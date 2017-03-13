@@ -89,14 +89,14 @@ export default class Modal extends Component {
               label={dismiss.label}
               onClick={this.handleDismiss}
               aria-describedby={'modalDismissDescription'}
-              tabIndex={1} />
+              tabIndex={0} />
             <Button
               color={'primary'}
               className={styles.confirm}
               label={confirm.label}
               onClick={this.handleConfirm}
               aria-describedby={'modalConfirmDescription'}
-              tabIndex={2} />
+              tabIndex={0} />
           </div>
         </header>
         <div className={styles.content}>
