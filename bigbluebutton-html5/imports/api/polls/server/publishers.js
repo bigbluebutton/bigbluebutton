@@ -4,10 +4,10 @@ import Polls from '/imports/api/polls';
 import { check } from 'meteor/check';
 import { logger } from '/imports/startup/server/logger';
 
-Meteor.publish('polls', (credentials) => {
+Meteor.publish('polls', function(credentials) {
   //checking if it is allowed to see Poll Collection in general
   if (!isAllowedTo('subscribePoll', credentials)) {
-    throw new Meteor.Error(402, "The user was not authorized to subscribe for 'polls'");
+    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'polls'"));
   }
 
   const { meetingId, requesterUserId, requesterToken } = credentials;

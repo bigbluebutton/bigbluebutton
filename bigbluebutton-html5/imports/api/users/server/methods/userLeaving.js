@@ -25,16 +25,17 @@ export default function userLeaving(credentials, userId) {
     meetingId,
     userId,
   });
+
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `You need a valid user to be able to toggle audio`);
   }
 
-  if (User.connection_status === OFFLINE_CONNECTION_STATUS) {
+  if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
     return;
   }
 
-  if (User.listenOnly) {
+  if (User.user.listenOnly) {
     listenOnlyToggle(credentials, false);
   }
 
