@@ -3,6 +3,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import ActionsBar from './component';
 import Service from './service';
 import { joinListenOnly } from '/imports/api/phone';
+import { exitAudio } from '/imports/api/phone';
 
 class ActionsBarContainer extends Component {
   constructor(props) {
@@ -11,11 +12,13 @@ class ActionsBarContainer extends Component {
 
   render() {
     const handleJoinListenOnly = () => joinListenOnly();
+    const handleExitAudio = () => exitAudio();
 
     return (
       <ActionsBar
        handleJoinListenOnly={handleJoinListenOnly}
-      {...this.props}>
+        handleExitAudio={handleExitAudio}
+        {...this.props}>
         {this.props.children}
       </ActionsBar>
     );

@@ -9,7 +9,6 @@ import Auth from '/imports/ui/services/auth/index';
 import Users from '/imports/api/users/index';
 import JoinAudioOptionsContainer from './audio-menu/container';
 import MuteAudioContainer from './mute-button/container';
-import { exitAudio } from '/imports/api/phone';
 import JoinVideo from './video-button/component';
 
 export default class ActionsBar extends Component {
@@ -31,7 +30,7 @@ export default class ActionsBar extends Component {
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={this.openJoinAudio.bind(this)}
-            close={() => {exitAudio();}}
+            close={() => {this.props.handleExitAudio();}}
 
           />
           {/*<JoinVideo />*/}
@@ -51,7 +50,7 @@ export default class ActionsBar extends Component {
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={this.openJoinAudio.bind(this)}
-            close={() => {exitAudio();}}
+            close={() => {this.props.handleExitAudio();}}
 
           />
           {/*<JoinVideo />*/}
