@@ -24,7 +24,6 @@ export default class ApplicationMenu extends BaseMenu {
   handleUpdateFontSize(size) {
     let obj = this.state;
     obj.settings.fontSize = size;
-    // this.setState(obj);
     this.handleUpdateSettings(this.state.settingsName, obj.settings);
   }
 

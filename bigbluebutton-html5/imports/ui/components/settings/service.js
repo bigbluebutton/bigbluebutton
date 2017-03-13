@@ -54,7 +54,7 @@ const setDefaultSettings = () => {
       closedCaptions: false,
       fontFamily: 'Calibri',
       fontSize: -1,
-      locale: -1,
+      locale: undefined,
       takeOwnership: false,
     },
     participants: {
