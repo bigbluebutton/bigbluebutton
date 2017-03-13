@@ -1,8 +1,48 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BBB - HTML5 Client</title>
+  <style>
+    html {
+      box-sizing: border-box;
+    }
+
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+
+    body {
+      font-family: 'Source Sans Pro', Arial, sans-serif;
+      font-size: 1rem; /* 16px */
+      background-color: #2A2D33;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    #app {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+
+    [hidden]:not([hidden="false"]) {
+      display: none !important;
+    }
+  </style>
 </head>
-<body>
+<body style="background-color: #2A2D33">
   <div id="app" role="application"></div>
   <script src="/client/lib/sip.js"></script>
   <script src="/client/lib/bbb_webrtc_bridge_sip.js"></script>
