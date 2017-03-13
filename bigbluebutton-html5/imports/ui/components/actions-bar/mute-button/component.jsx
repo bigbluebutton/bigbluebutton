@@ -8,24 +8,28 @@ export default class MuteAudio extends React.Component {
     const { isInAudio, isMuted, callback, isTalking} = this.props;
     let label = !isMuted ? 'Mute' : 'Unmute';
     let icon = !isMuted ? 'unmute' : 'mute';
-    let className = !isInAudio ? styles.invisible : null;
     let tabIndex = !isInAudio ? -1 : 0;
+    let className = null;
 
     if (isInAudio && isTalking) {
       className = styles.circleGlow;
     }
 
-    return (
-      <Button
-        onClick={callback}
-        label={label}
-        color={'primary'}
-        icon={icon}
-        size={'lg'}
-        circle={true}
-        className={className}
-        tabIndex={tabIndex}
-      />
-    );
+    if (isInAudio) {
+      return (
+        <Button
+          onClick={callback}
+          label={label}
+          color={'primary'}
+          icon={icon}
+          size={'lg'}
+          circle={true}
+          className={className}
+          tabIndex={tabIndex}
+        />
+      );
+    }else{
+      return null;
+    }
   }
 }
