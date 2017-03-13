@@ -331,11 +331,13 @@ Verto.prototype.makeShare = function () {
 
   var screenInfo = null;
   if (!!navigator.mozGetUserMedia) {
-    screenInfo = {
+    return this.onFail();
+
+    /*screenInfo = {
         mozMediaSource: 'window',
         mediaSource: 'window',
     };
-    this.doShare(screenInfo);
+    this.doShare(screenInfo);*/
   } else if (!!window.chrome) {
     var _this = this;
     if (!_this.chromeExtension) {

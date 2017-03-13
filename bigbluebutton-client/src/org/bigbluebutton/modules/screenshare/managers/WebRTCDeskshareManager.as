@@ -38,6 +38,7 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
 	import org.bigbluebutton.modules.screenshare.events.DeskshareToolbarEvent;
 	import org.bigbluebutton.main.api.JSLog;
+	import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
 
 	public class WebRTCDeskshareManager {
 		private static const LOGGER:ILogger = getClassLogger(WebRTCDeskshareManager);
@@ -151,6 +152,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			if (options.chromeExtensionKey) {
 				chromeExtensionKey = options.chromeExtensionKey;
 			}
+			usingWebRTC = options.tryWebRTCFirst;
 		}
 
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
@@ -251,19 +253,23 @@ package org.bigbluebutton.modules.screenshare.managers
 		}
 
 		public function handleStreamStartEvent(e:WebRTCViewStreamEvent):void{
-			JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent rtmp=", e.rtmp);
-			// if (!usingWebRTC) { return; } //TODO this was causing issues
 			if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
-			JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent after sharing return", {});
 			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
-			JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent isPresenter=", isPresenter);
 			LOGGER.debug("Received start viewing command when isPresenter==[{0}]",[isPresenter]);
 
-			if(isPresenter) {
+			if(isPresenter && usingWebRTC) {
 				JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent is presenter", {});
 				publishWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 			} else {
 				JSLog.warn("WebRTCDeskshareManager::handleStreamStartEvent is viewer", {});
+
+				var options:ScreenshareOptions = new ScreenshareOptions();
+				options.parseOptions();
+
+				if (!options.tryWebRTCFirst || e == null || e.rtmp == null) {
+					return;
+				}
+
 				viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 			}
 
@@ -281,7 +287,7 @@ package org.bigbluebutton.modules.screenshare.managers
 			handleStartSharingEvent();
 		}
 
-		public function handleScreenShareStartedEvent(event: WebRTCViewStreamEvent):void {
+		public function handleScreenShareStartedEvent(event:ShareStartedEvent):void {
 			if (UsersUtil.amIPresenter()) {
 			} else {
 				/*handleStreamStartEvent(ScreenshareModel.getInstance().streamId, event.width, event.height);*/
