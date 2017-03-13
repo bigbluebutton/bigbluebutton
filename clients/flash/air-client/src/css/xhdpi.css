@@ -125,7 +125,7 @@
 	}
 	
 	.participantIconSettings {
-		radius       : 124;
+		diameter     : 124;
 		fontSize     : 52;
 		circleStroke : 2;
 	}
