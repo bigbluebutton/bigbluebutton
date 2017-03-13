@@ -6,7 +6,7 @@ import { isAllowedTo } from '/imports/startup/server/userPermissions';
 
 Meteor.publish('chat', function(credentials) {
   if (!isAllowedTo('subscribeChat', credentials)) {
-      this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'chats'"));
+    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'chats'"));
   }
 
   const CHAT_CONFIG = Meteor.settings.public.chat;
