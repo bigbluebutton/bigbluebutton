@@ -145,10 +145,13 @@ VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 # Determine IP so it works on multilingual installations
 #
 
-if ifconfig eth0 > /dev/null 2>&1; then
-	IP=$(LANG=c ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
+if LANG=c ifconfig | grep -q 'venet0:0'; then
+        # IP detection for OpenVZ environment
+        echo "yes"
+        IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 else
-	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+        # IP detection for et* and en* networks
+        IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
 fi
 
 MEM=`free -m | grep Mem | awk '{ print $2}'`
