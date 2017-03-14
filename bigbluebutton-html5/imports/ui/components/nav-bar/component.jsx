@@ -16,6 +16,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -93,15 +94,11 @@ class NavBar extends Component {
 
   renderPresentationTitle() {
     const {
-      meetingId,
-      currentUserId,
+      breakouts,
+      presentationTitle,
     } = this.props;
 
-    const presentationTitle = this.props.presentationTitle;
-    const breakouts = this.props.breakouts;
-    const isMeetingBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
-
-    if (!breakouts.length || isMeetingBreakout) {
+    if (meetingIsBreakout()) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
@@ -129,8 +126,6 @@ class NavBar extends Component {
   componentDidUpdate() {
     const {
       breakouts,
-      currentUserId,
-      meetingId,
       getBreakoutJoinURL,
     } = this.props;
 
@@ -141,8 +136,7 @@ class NavBar extends Component {
 
       const breakoutURL = getBreakoutJoinURL(breakout);
 
-      const meetingIsBreakout = meetingId === breakout.breakoutMeetingId;
-      if (!this.state.didSendBreakoutInvite && !meetingIsBreakout) {
+      if (!this.state.didSendBreakoutInvite && !meetingIsBreakout()) {
         this.inviteUserToBreakout(breakout, breakoutURL);
       }
     });
