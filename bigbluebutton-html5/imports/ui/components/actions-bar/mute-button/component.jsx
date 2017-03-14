@@ -15,21 +15,19 @@ export default class MuteAudio extends React.Component {
       className = styles.circleGlow;
     }
 
-    if (isInAudio) {
-      return (
-        <Button
-          onClick={callback}
-          label={label}
-          color={'primary'}
-          icon={icon}
-          size={'lg'}
-          circle={true}
-          className={className}
-          tabIndex={tabIndex}
-        />
-      );
-    }else{
-      return null;
-    }
+    if (!isInAudio) return null;
+
+    return (
+      <Button
+        onClick={callback}
+        label={label}
+        color={'primary'}
+        icon={icon}
+        size={'lg'}
+        circle={true}
+        className={className}
+        tabIndex={tabIndex}
+      />
+    );
   }
 }

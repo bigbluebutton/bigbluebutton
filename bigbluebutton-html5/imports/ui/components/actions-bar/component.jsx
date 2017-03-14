@@ -30,13 +30,13 @@ export default class ActionsBar extends Component {
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={this.openJoinAudio.bind(this)}
-            close={() => {this.props.handleExitAudio();}}
+            close={this.props.handleExitAudio}
 
           />
           {/*<JoinVideo />*/}
           <EmojiContainer />
         </div>
-        <div className={styles.right} style={{visibility: 'hidden'}}>
+        <div className={styles.hidden}>
           <ActionsDropdown />
         </div>
       </div>
@@ -50,13 +50,11 @@ export default class ActionsBar extends Component {
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             open={this.openJoinAudio.bind(this)}
-            close={() => {this.props.handleExitAudio();}}
+            close={this.props.handleExitAudio}
 
           />
           {/*<JoinVideo />*/}
           <EmojiContainer />
-        </div>
-        <div className={styles.right}>
         </div>
       </div>
     );
