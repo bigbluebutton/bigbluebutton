@@ -42,7 +42,7 @@ export default class Settings extends Component {
         cc: _.clone(cc),
         participants: _.clone(participants),
       },
-      selectedTab: 2,
+      selectedTab: 0,
     };
 
     this.handleSettingsApply = props.updateSettings;
