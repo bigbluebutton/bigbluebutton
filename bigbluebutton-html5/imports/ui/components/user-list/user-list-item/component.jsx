@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import Icon from '/imports/ui/components/icon/component';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -120,7 +121,7 @@ class UserListItem extends Component {
     let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
 
     // if currentUser is a moderator, allow kicking other users
-    let allowedToKick = currentUser.isModerator && !user.isCurrent;
+    let allowedToKick = currentUser.isModerator && !user.isCurrent && !meetingIsBreakout();
 
     let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 

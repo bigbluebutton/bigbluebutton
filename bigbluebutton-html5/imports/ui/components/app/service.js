@@ -91,6 +91,11 @@ function observeBreakoutEnd() {
   });
 }
 
+function meetingIsBreakout() {
+  const breakouts = Breakouts.find().fetch();
+  return (breakouts && breakouts.filter(b => b.breakoutMeetingId === Auth.meetingID).length != 0);
+}
+
 function wasUserKicked() {
   wasKickedDep.depend();
   return wasKicked;
@@ -137,4 +142,5 @@ export {
   clearModal,
   getCaptionsStatus,
   getFontSize,
+  meetingIsBreakout,
 };
