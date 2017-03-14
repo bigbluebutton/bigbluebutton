@@ -16,10 +16,10 @@ class ActionsBarContainer extends Component {
 
     return (
       <ActionsBar
-       handleJoinListenOnly={handleJoinListenOnly}
+        handleJoinListenOnly={handleJoinListenOnly}
         handleExitAudio={handleExitAudio}
         {...this.props}>
-        {this.props.children}
+          {this.props.children}
       </ActionsBar>
     );
   }

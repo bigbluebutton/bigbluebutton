@@ -30,7 +30,7 @@ export default class ActionsBar extends Component {
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             handleJoinAudio={this.openJoinAudio.bind(this)}
-            handleExitAudio={this.props.handleExitAudio}
+            handleCloseAudio={this.props.handleExitAudio}
 
           />
           {/*<JoinVideo />*/}
@@ -50,7 +50,7 @@ export default class ActionsBar extends Component {
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             handleJoinAudio={this.openJoinAudio.bind(this)}
-            handleExitAudio={this.props.handleExitAudio}
+            handleCloseAudio={this.props.handleExitAudio}
 
           />
           {/*<JoinVideo />*/}
