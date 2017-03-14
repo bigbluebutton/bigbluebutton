@@ -29,8 +29,8 @@ export default class ActionsBar extends Component {
         <div className={styles.center}>
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
-            open={this.openJoinAudio.bind(this)}
-            close={this.props.handleExitAudio}
+            handleJoinAudio={this.openJoinAudio.bind(this)}
+            handleExitAudio={this.props.handleExitAudio}
 
           />
           {/*<JoinVideo />*/}
