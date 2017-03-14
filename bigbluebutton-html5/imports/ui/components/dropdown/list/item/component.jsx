@@ -2,8 +2,15 @@ import React, { Component, PropTypes } from 'react';
 import styles from '../styles';
 import _ from 'underscore';
 import cx from 'classnames';
-
 import Icon from '/imports/ui/components/icon/component';
+import { defineMessages, injectIntl } from 'react-intl';
+
+const intlMessages = defineMessages({
+  exitfullscreenLabel: {
+    id: 'app.navBar.settingsDropdown.exitfullscreenLabel',
+    defaultMessage: 'Exit fullscreen',
+  },
+});
 
 const propTypes = {
   icon: PropTypes.string,
@@ -11,17 +18,33 @@ const propTypes = {
   description: PropTypes.string,
 };
 
-export default class DropdownListItem extends Component {
+class DropdownListItem extends Component {
   constructor(props) {
     super(props);
     this.labelID = _.uniqueId('dropdown-item-label-');
     this.descID = _.uniqueId('dropdown-item-desc-');
+
+    this.setMenuItem = this.setMenuItem.bind(this);
   }
 
   renderDefault() {
     let children = [];
-    const { icon, label } = this.props;
+    const { icon, label, intl } = this.props;
 
+    if (
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    ) {
+      if ( icon === 'fullscreen') {
+        return this.setMenuItem(icon, intl.formatMessage(intlMessages.exitfullscreenLabel));
+      }
+    }
+    return this.setMenuItem(icon, label);
+  }
+
+  setMenuItem(icon, label) {
     return [
       (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon}/> : null),
       (<span className={styles.itemLabel} key="label">{label}</span>),
@@ -64,3 +87,4 @@ export default class DropdownListItem extends Component {
 }
 
 DropdownListItem.propTypes = propTypes;
+export default injectIntl(DropdownListItem);
