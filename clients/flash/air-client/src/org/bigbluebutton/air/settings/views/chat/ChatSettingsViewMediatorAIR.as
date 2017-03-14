@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.settings.views.chat {
-	import org.bigbluebutton.lib.chat.views.ChatViewMediatorBase;
+	import org.bigbluebutton.lib.settings.views.chat.ChatSettingsViewMediatorBase;
 	
-	public class ChatSettingsViewMediatorAIR extends ChatViewMediatorBase {
+	public class ChatSettingsViewMediatorAIR extends ChatSettingsViewMediatorBase {
 	}
 }

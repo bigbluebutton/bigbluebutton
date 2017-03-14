@@ -4,13 +4,9 @@ package org.bigbluebutton.air.settings.views.lock {
 	
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.main.commands.SaveLockSettingsSignal;
-	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewMediatorBase;
 	
 	public class LockSettingsViewMediatorAIR extends LockSettingsViewMediatorBase {
-		
-		[Inject]
-		public var userSession:IUserSession;
 		
 		[Inject]
 		public var saveLockSettingsSignal:SaveLockSettingsSignal;
@@ -19,7 +15,7 @@ package org.bigbluebutton.air.settings.views.lock {
 		public var userUISession:IUISession;
 		
 		override public function initialize():void {
-			loadLockSettings();
+			super.initialize();
 			// view.applyButton.addEventListener(MouseEvent.CLICK, onApply);
 			// FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
 			// FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = true;
@@ -37,14 +33,6 @@ package org.bigbluebutton.air.settings.views.lock {
 			newLockSettings.lockOnJoinConfigurable = userSession.lockSettings.lockOnJoinConfigurable;
 			saveLockSettingsSignal.dispatch(newLockSettings);
 			userUISession.popPage();
-		}
-		
-		private function loadLockSettings():void {
-			view.webcamCheckbox.selected = !userSession.lockSettings.disableCam;
-			view.microphoneCheckbox.selected = !userSession.lockSettings.disableMic;
-			view.privateChatCheckbox.selected = !userSession.lockSettings.disablePrivateChat;
-			view.publicChatCheckbox.selected = !userSession.lockSettings.disablePublicChat;
-			view.layoutCheckbox.selected = !userSession.lockSettings.lockedLayout;
 		}
 		
 		override public function destroy():void {

@@ -106,6 +106,7 @@ package org.bigbluebutton.lib.settings.views.camera {
 			
 			_cameraProfilesList = new List();
 			_cameraProfilesList.percentWidth = 100;
+			cameraProfilesList.labelField = "name";
 			var listLayout:VerticalLayout = new VerticalLayout();
 			listLayout.requestedRowCount = -1;
 			listLayout.gap = 0;
@@ -122,7 +123,7 @@ package org.bigbluebutton.lib.settings.views.camera {
 			positionActionButtons();
 		}
 		
-		public function positionActionButtons() : void {
+		public function positionActionButtons():void {
 			_actionsGroup.paddingBottom = getStyle("groupsPadding");
 			_actionsGroup.y = _previewVideo.y + _previewVideo.height + getStyle("groupsPadding");
 		}
