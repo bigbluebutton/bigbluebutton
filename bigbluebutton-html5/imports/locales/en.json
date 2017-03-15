@@ -109,5 +109,6 @@
   "app.audio.audioSettings.speakerSourceLabel": "Speaker source",
   "app.audio.audioSettings.microphoneStreamLabel": "Your audio stream volume",
   "app.audio.listenOnly.backLabel": "Back",
-  "app.audio.listenOnly.closeLabel": "Close"
+  "app.audio.listenOnly.closeLabel": "Close",
+  "app.dropdown.close": "Close"
 }
