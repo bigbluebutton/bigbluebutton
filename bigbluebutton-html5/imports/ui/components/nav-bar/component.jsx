@@ -50,6 +50,9 @@ class NavBar extends Component {
   }
 
   handleToggleUserList() {
+    let x = document.getElementById("UserListBtn").getAttribute("aria-expanded");
+    let isExpanded =  (x == "true") ? "false" : "true";
+    document.getElementById("UserListBtn").setAttribute("aria-expanded", isExpanded);
     this.props.toggleUserList();
   }
 
@@ -77,6 +80,8 @@ class NavBar extends Component {
             label={'User-List Toggle'}
             icon={'user'}
             className={cx(toggleBtnClasses)}
+            aria-expanded="false"
+            id="UserListBtn"
           />
         </div>
         <div className={styles.center} role="banner">
