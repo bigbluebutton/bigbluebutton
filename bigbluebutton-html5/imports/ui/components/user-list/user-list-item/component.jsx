@@ -102,7 +102,7 @@ class UserListItem extends Component {
       user,
       userActions,
       router,
-      meetingIsBreakout,
+      isBreakoutRoom,
     } = this.props;
 
     const {
@@ -121,7 +121,7 @@ class UserListItem extends Component {
     let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
 
     // if currentUser is a moderator, allow kicking other users
-    let allowedToKick = currentUser.isModerator && !user.isCurrent && !meetingIsBreakout();
+    let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
     let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 

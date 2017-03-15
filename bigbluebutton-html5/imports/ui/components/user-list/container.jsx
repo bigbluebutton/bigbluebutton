@@ -22,7 +22,7 @@ class UserListContainer extends Component {
         compact={compact}
         users={users}
         currentUser={currentUser}
-        meetingIsBreakout={meetingIsBreakout}
+        isBreakoutRoom={meetingIsBreakout()}
         openChats={openChats}
         openChat={openChat}
         userActions={userActions}>

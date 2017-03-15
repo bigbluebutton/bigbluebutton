@@ -22,7 +22,7 @@ class NavBarContainer extends Component {
   render() {
     return (
       <NavBar
-      meetingIsBreakout={meetingIsBreakout}
+      isBreakoutRoom={meetingIsBreakout()}
       {...this.props}>
         {this.props.children}
       </NavBar>

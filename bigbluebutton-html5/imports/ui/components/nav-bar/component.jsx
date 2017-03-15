@@ -94,11 +94,11 @@ class NavBar extends Component {
   renderPresentationTitle() {
     const {
       breakouts,
-      meetingIsBreakout,
+      isBreakoutRoom,
       presentationTitle,
     } = this.props;
 
-    if (meetingIsBreakout()) {
+    if (isBreakoutRoom) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
@@ -127,7 +127,7 @@ class NavBar extends Component {
     const {
       breakouts,
       getBreakoutJoinURL,
-      meetingIsBreakout,
+      isBreakoutRoom,
     } = this.props;
 
     breakouts.forEach(breakout => {
@@ -137,7 +137,7 @@ class NavBar extends Component {
 
       const breakoutURL = getBreakoutJoinURL(breakout);
 
-      if (!this.state.didSendBreakoutInvite && !meetingIsBreakout()) {
+      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout, breakoutURL);
       }
     });
