@@ -10,8 +10,12 @@ import java.util.*;
 
 import freemarker.template.*;
 import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResponseBuilder {
+  private static Logger log = LoggerFactory.getLogger(ResponseBuilder.class);
+
   Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
 
   public ResponseBuilder(File templatesLoc) {
@@ -37,7 +41,7 @@ public class ResponseBuilder {
     try {
       ftl = cfg.getTemplate("get-meeting-info.ftl");
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Cannot find get-meeting-info.ftl template for meeting : " + meeting.getInternalId(), e);
     }
 
     StringWriter xmlText = new StringWriter();
@@ -50,9 +54,9 @@ public class ResponseBuilder {
     try {
       ftl.process(root, xmlText);
     } catch (TemplateException e) {
-      e.printStackTrace();
+      log.error("Template exception for meeting : " + meeting.getInternalId(), e);
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("IO exception for meeting : " + meeting.getInternalId(), e);
     }
 
     return xmlText.toString();
@@ -72,7 +76,7 @@ public class ResponseBuilder {
     try {
       ftl = cfg.getTemplate("get-meetings.ftl");
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("IO exception for get-meetings.ftl : ", e);
     }
 
     StringWriter xmlText = new StringWriter();
@@ -81,16 +85,12 @@ public class ResponseBuilder {
     root.put("returnCode", returnCode);
     root.put("meetingDetailsList", meetingResponseDetails);
 
-    for (MeetingResponseDetail details : (ArrayList<MeetingResponseDetail>)root.get("meetingDetailsList"))  {
-      System.out.println(details.getMeeting().getName());
-    }
-
     try {
       ftl.process(root, xmlText);
     } catch (TemplateException e) {
-      e.printStackTrace();
+      log.error("Template exception : ", e);
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("IO exception for get-meetings.ftl : ", e);
     }
 
     return xmlText.toString();
@@ -102,7 +102,7 @@ public class ResponseBuilder {
     try {
       ftl = cfg.getTemplate("get-recordings.ftl");
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("IO exception for get-recordings.ftl : ", e);
     }
 
     StringWriter xmlText = new StringWriter();
@@ -114,9 +114,9 @@ public class ResponseBuilder {
     try {
       ftl.process(root, xmlText);
     } catch (TemplateException e) {
-      e.printStackTrace();
+      log.error("Template exception : ", e);
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("IO exception for get-meetings.ftl : ", e);
     }
 
     return xmlText.toString();
