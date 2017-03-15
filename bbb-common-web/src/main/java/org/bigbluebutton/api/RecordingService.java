@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RecordingMetadata;
 import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
@@ -408,68 +409,78 @@ public class RecordingService {
     }
 
     public static void publishRecording(File destDir, String recordingId, File recordingDir) {
-        File metadataXml = RecordingMetadataReaderHelper.getMetadataXmlLocation(recordingDir.getPath() + File.separatorChar + recordingId);
+        File metadataXml = RecordingMetadataReaderHelper.getMetadataXmlLocation(recordingDir.getPath());
         RecordingMetadata r = RecordingMetadataReaderHelper.getRecordingMetadata(metadataXml);
         if (r != null) {
             if (!destDir.exists()) destDir.mkdirs();
 
-            boolean moved = recordingDir.renameTo(destDir);
-            if (moved) {
+            try {
+                FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
                 log.debug("Recording successfully moved!");
                 r.setState(Recording.STATE_PUBLISHED);
                 r.setPublished(true);
 
-                File medataXmlFile = RecordingMetadataReaderHelper.getMetadataXmlLocation(destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                File medataXmlFile = RecordingMetadataReaderHelper.getMetadataXmlLocation(
+                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
+
                 // Process the changes by saving the recording into metadata.xml
                 RecordingMetadataReaderHelper.saveRecordingMetadata(medataXmlFile, r);
 
                 log.debug(String.format("Published successfully %s!", recordingId));
-            } else {
+            } catch (IOException e) {
+                e.printStackTrace();
                 log.debug("Recording was not moved");
             }
         }
     }
 
     public static void unpublishRecording(File destDir, String recordingId, File recordingDir) {
-        File metadataXml = RecordingMetadataReaderHelper.getMetadataXmlLocation(recordingDir.getPath() + File.separatorChar + recordingId);
+        File metadataXml = RecordingMetadataReaderHelper.getMetadataXmlLocation(recordingDir.getPath());
+
         RecordingMetadata r = RecordingMetadataReaderHelper.getRecordingMetadata(metadataXml);
         if (r != null) {
             if (!destDir.exists()) destDir.mkdirs();
 
-            boolean moved = recordingDir.renameTo(destDir);
-            if (moved) {
+            try {
+                FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
                 r.setState(Recording.STATE_UNPUBLISHED);
                 r.setPublished(false);
 
-                File medataXmlFile = RecordingMetadataReaderHelper.getMetadataXmlLocation(destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                File medataXmlFile = RecordingMetadataReaderHelper.getMetadataXmlLocation(
+                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
+
                 // Process the changes by saving the recording into metadata.xml
                 RecordingMetadataReaderHelper.saveRecordingMetadata(medataXmlFile, r);
 
                 log.debug(String.format("Unpublished successfully %s!", recordingId));
-            } else {
+            } catch (IOException e) {
+                e.printStackTrace();
                 log.debug("Recording was not moved");
             }
         }
     }
 
     public static void deleteRecording(File destDir, String recordingId, File recordingDir) {
-        File metadataXml = RecordingMetadataReaderHelper.getMetadataXmlLocation(recordingDir.getPath() + File.separatorChar + recordingId);
+        File metadataXml = RecordingMetadataReaderHelper.getMetadataXmlLocation(recordingDir.getPath());
+
         RecordingMetadata r = RecordingMetadataReaderHelper.getRecordingMetadata(metadataXml);
         if (r != null) {
             if (!destDir.exists()) destDir.mkdirs();
 
-            boolean moved = recordingDir.renameTo(destDir);
-            if (moved) {
+            try {
+                FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
                 r.setState(Recording.STATE_DELETED);
                 r.setPublished(false);
-                deleteRecording(recordingId, destDir.getAbsolutePath());
 
-                File medataXmlFile = RecordingMetadataReaderHelper.getMetadataXmlLocation(destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                File medataXmlFile = RecordingMetadataReaderHelper.getMetadataXmlLocation(
+                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
+
                 // Process the changes by saving the recording into metadata.xml
                 RecordingMetadataReaderHelper.saveRecordingMetadata(medataXmlFile, r);
 
                 log.debug(String.format("Unpublished successfully %s!", recordingId));
-            } else {
+            } catch (IOException e) {
+                e.printStackTrace();
                 log.debug("Recording was not moved");
             }
         }
