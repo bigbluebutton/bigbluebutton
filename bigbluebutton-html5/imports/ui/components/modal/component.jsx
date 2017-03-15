@@ -46,7 +46,9 @@ export default class Modal extends Component {
 
   handleDismiss() {
     const { dismiss } = this.props;
-    dismiss.callback(...arguments);
+    if (!!dismiss.callback) {
+      dismiss.callback(...arguments);
+    }
     this.setState({ isOpen: false });
     clearModal();
   }
@@ -96,7 +98,7 @@ export default class Modal extends Component {
               label={confirm.label}
               onClick={this.handleConfirm}
               aria-describedby={'modalConfirmDescription'}
-              tabIndex={0} />
+              tabIndex={1} />
           </div>
         </header>
         <div className={styles.content}>
