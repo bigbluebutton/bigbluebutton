@@ -22,7 +22,6 @@ class UserListContainer extends Component {
         compact={compact}
         users={users}
         currentUser={currentUser}
-        isBreakoutRoom={meetingIsBreakout()}
         openChats={openChats}
         openChat={openChat}
         userActions={userActions}>
@@ -38,4 +37,5 @@ export default createContainer(({ params }) => ({
   openChats: Service.getOpenChats(params.chatID),
   openChat: params.chatID,
   userActions: Service.userActions,
+  isBreakoutRoom: meetingIsBreakout(),
 }), UserListContainer);
