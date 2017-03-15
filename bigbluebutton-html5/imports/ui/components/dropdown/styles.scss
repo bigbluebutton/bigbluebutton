@@ -35,6 +35,19 @@ $dropdown-caret-height: 8px;
   &[aria-expanded="true"] {
     display: block;
   }
+
+  @include mq($small-only) {
+    z-index: 1010;
+    overflow: auto;
+    position: fixed;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    border-radius: 0;
+    transform: translateX(0) translateY(0) !important;
+  }
 }
 
 .trigger {}
@@ -232,4 +245,19 @@ $dropdown-caret-height: 8px;
   @extend %left-caret;
   @extend %vert-bottom-caret;
   transform: translateX(100%) translateY(0);
+}
+
+.close {
+  display: none;
+  position: fixed;
+  bottom: 1rem;
+  z-index: 1011;
+  font-size: 1.5rem;
+  width: 34rem;
+  left: 50vw;
+  margin-left: -17rem;
+
+  @include mq($small-only) {
+    display: block;
+  }
 }

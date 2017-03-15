@@ -3,6 +3,7 @@ import { findDOMNode } from 'react-dom';
 import styles from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
+import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 
 const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
@@ -137,6 +138,14 @@ export default class Dropdown extends Component {
       <div style={style} className={cx(styles.dropdown, className)}>
         {trigger}
         {content}
+        { this.state.isOpen ?
+          <Button
+            className={styles.close}
+            label={'Close'}
+            size={'lg'}
+            color={'danger'}
+            onClick={this.handleHide}
+          /> : null }
       </div>
     );
   }

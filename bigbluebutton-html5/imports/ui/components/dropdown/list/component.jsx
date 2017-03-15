@@ -95,7 +95,7 @@ export default class DropdownList extends Component {
   }
 
   render() {
-    const { children, style, className } = this.props;
+    const { children, style, className, dropdownHide } = this.props;
 
     const boundChildren = Children.map(children,
       (item, i) => {
