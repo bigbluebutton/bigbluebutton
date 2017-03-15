@@ -8,8 +8,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javax.xml.stream.*;
 import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RecordingMetadataReaderHelper {
+  private static Logger log = LoggerFactory.getLogger(RecordingMetadataReaderHelper.class);
 
   public static String inputStreamToString(InputStream is) throws IOException {
     StringBuilder sb = new StringBuilder();
@@ -38,11 +41,11 @@ public class RecordingMetadataReaderHelper {
       reader = factory.createXMLStreamReader(new FileInputStream(metadataXml));
       recMeta  = mapper.readValue(reader, RecordingMetadata.class);
     } catch (XMLStreamException e) {
-      e.printStackTrace();
+     log.error("Failed to read metadata xml for recording: " + metadataXml.getAbsolutePath(), e);
     } catch (FileNotFoundException e) {
-      e.printStackTrace();
+      log.error("File not found: " + metadataXml.getAbsolutePath(), e);
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("IOException on " + metadataXml.getAbsolutePath(), e);
     }
 
     return recMeta;
@@ -67,9 +70,9 @@ public class RecordingMetadataReaderHelper {
       mapper.enable(SerializationFeature.INDENT_OUTPUT);
       mapper.writeValue(metadataXml, recordingMetadata);
     } catch (FileNotFoundException e) {
-      e.printStackTrace();
+      log.error("File not found: " + metadataXml.getAbsolutePath(), e);
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("IOException on " + metadataXml.getAbsolutePath(), e);
     }
   }
 }

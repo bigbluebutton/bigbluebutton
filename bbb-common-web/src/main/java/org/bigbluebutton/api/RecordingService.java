@@ -416,7 +416,7 @@ public class RecordingService {
 
             try {
                 FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
-                log.debug("Recording successfully moved!");
+
                 r.setState(Recording.STATE_PUBLISHED);
                 r.setPublished(true);
 
@@ -426,10 +426,8 @@ public class RecordingService {
                 // Process the changes by saving the recording into metadata.xml
                 RecordingMetadataReaderHelper.saveRecordingMetadata(medataXmlFile, r);
 
-                log.debug(String.format("Published successfully %s!", recordingId));
             } catch (IOException e) {
-                e.printStackTrace();
-                log.debug("Recording was not moved");
+              log.error("Failed to publish recording : " + recordingId, e);
             }
         }
     }
@@ -452,10 +450,8 @@ public class RecordingService {
                 // Process the changes by saving the recording into metadata.xml
                 RecordingMetadataReaderHelper.saveRecordingMetadata(medataXmlFile, r);
 
-                log.debug(String.format("Unpublished successfully %s!", recordingId));
             } catch (IOException e) {
-                e.printStackTrace();
-                log.debug("Recording was not moved");
+              log.error("Failed to unpublish recording : " + recordingId, e);
             }
         }
     }
@@ -477,11 +473,8 @@ public class RecordingService {
 
                 // Process the changes by saving the recording into metadata.xml
                 RecordingMetadataReaderHelper.saveRecordingMetadata(medataXmlFile, r);
-
-                log.debug(String.format("Unpublished successfully %s!", recordingId));
             } catch (IOException e) {
-                e.printStackTrace();
-                log.debug("Recording was not moved");
+              log.error("Failed to delete recording : " + recordingId, e);
             }
         }
     }
