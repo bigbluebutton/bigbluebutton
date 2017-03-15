@@ -14,7 +14,6 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -215,7 +214,6 @@ class UserListItem extends Component {
                   label={user.name}
                   style={{ fontWeight: 600 }}
                   defaultMessage={user.name}/>),
-                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
             }
           </DropdownList>

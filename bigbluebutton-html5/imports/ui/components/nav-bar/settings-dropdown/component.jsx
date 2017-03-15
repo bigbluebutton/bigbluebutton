@@ -139,7 +139,6 @@ class SettingsDropdown extends Component {
               description={intl.formatMessage(intlMessages.aboutDesc)}
               onClick={openAbout.bind(this)}
             />
-            <DropdownListSeparator />
             <DropdownListItem
               icon="logout"
               label={intl.formatMessage(intlMessages.leaveSessionLabel)}
