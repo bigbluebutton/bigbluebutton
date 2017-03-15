@@ -26,11 +26,17 @@ export default class Chat extends Component {
       actions,
     } = this.props;
 
+    let closeChatLabel = "close " + title;
+
     return (
       <section className={styles.chat}>
         <header className={styles.header}>
-          <Link className={styles.closeChat} to="/users">
-            <Icon iconName="left_arrow" /> {title}
+          <Link 
+            className={styles.closeChat}
+            to="/users"
+            role="button"
+            aria-label={closeChatLabel}>
+              <Icon iconName="left_arrow" /> {title}
           </Link>
         </header>
         <MessageList
