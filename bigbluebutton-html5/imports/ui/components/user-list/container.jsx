@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Service from './service.js';
 
 import UserList from './component.jsx';
@@ -13,6 +14,7 @@ class UserListContainer extends Component {
       openChats,
       openChat,
       userActions,
+      isBreakoutRoom,
       children,
     } = this.props;
 
@@ -23,6 +25,7 @@ class UserListContainer extends Component {
         currentUser={currentUser}
         openChats={openChats}
         openChat={openChat}
+        isBreakoutRoom={isBreakoutRoom}
         userActions={userActions}>
         {children}
       </UserList>
@@ -36,4 +39,5 @@ export default createContainer(({ params }) => ({
   openChats: Service.getOpenChats(params.chatID),
   openChat: params.chatID,
   userActions: Service.userActions,
+  isBreakoutRoom: meetingIsBreakout(),
 }), UserListContainer);

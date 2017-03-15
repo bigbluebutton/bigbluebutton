@@ -25,6 +25,7 @@ export default function userLeaving(credentials, userId) {
     meetingId,
     userId,
   });
+
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `You need a valid user to be able to toggle audio`);
