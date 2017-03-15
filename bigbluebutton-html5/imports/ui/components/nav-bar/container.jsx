@@ -21,9 +21,7 @@ class NavBarContainer extends Component {
 
   render() {
     return (
-      <NavBar
-      isBreakoutRoom={meetingIsBreakout()}
-      {...this.props}>
+      <NavBar {...this.props}>
         {this.props.children}
       </NavBar>
     );
@@ -68,6 +66,7 @@ export default withRouter(createContainer(({ location, router }) => {
     getBreakoutJoinURL: Service.getBreakoutJoinURL,
     presentationTitle: meetingTitle,
     hasUnreadMessages: checkUnreadMessages(),
+    isBreakoutRoom: meetingIsBreakout(),
     beingRecorded: meetingRecorded,
     toggleUserList: () => {
       if (location.pathname.indexOf('/users') !== -1) {
