@@ -517,8 +517,7 @@ public class MeetingService implements MessageListener {
         }
     }
 
-    public void updateRecordings(List<String> idList,
-            Map<String, String> metaParams) {
+    public void updateRecordings(List<String> idList, Map<String, String> metaParams) {
         recordingService.updateMetaParams(idList, metaParams);
     }
 

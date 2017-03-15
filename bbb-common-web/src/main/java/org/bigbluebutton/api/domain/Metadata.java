@@ -20,4 +20,12 @@ public class Metadata {
   public void set(String name, String value) {
     map.put(name, value);
   }
+
+  public void remove(String key) {
+    map.remove(key);
+  }
+
+  public boolean containsKey(String key) {
+    return map.containsKey(key);
+  }
 }

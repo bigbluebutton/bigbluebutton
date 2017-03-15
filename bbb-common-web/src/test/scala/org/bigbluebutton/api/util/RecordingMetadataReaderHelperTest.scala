@@ -6,9 +6,6 @@ import javax.xml.stream.{XMLInputFactory, XMLStreamReader}
 import com.fasterxml.jackson.dataformat.xml.{JacksonXmlModule, XmlMapper}
 import org.bigbluebutton.api.domain.{RecordingMetadata, RecordingMetadataPlayback}
 
-/**
-  * Created by ralam on 3/10/2017.
-  */
 class RecordingMetadataReaderHelperTest extends UnitSpec {
 
   it should "deserialize playback part of metadata.xml" in {
@@ -50,6 +47,32 @@ class RecordingMetadataReaderHelperTest extends UnitSpec {
     println("***** FOOO =" + mapper.writeValueAsString(recMeta))
 
     assert(recMeta.getPlayback.getDuration == 126376)
+
+  }
+
+  it should "save metadata.xml" in {
+    val factory: XMLInputFactory  = XMLInputFactory.newInstance();
+
+    val xml = new File("src/test/resources/breakout-room-metadata.xml")
+    val module: JacksonXmlModule  = new JacksonXmlModule();
+    // and then configure, for example:
+    module.setDefaultUseWrapper(false);
+
+    val mapper: XmlMapper = new XmlMapper(module)
+
+    //Reading from xml file and creating XMLStreamReader
+    val reader: XMLStreamReader  = factory.createXMLStreamReader(new FileInputStream(xml))
+
+    val recMeta: RecordingMetadata = mapper.readValue(reader, classOf[RecordingMetadata])
+
+    recMeta.getMeta().set("FOO", "BAR");
+
+    val metadataXml = RecordingMetadataReaderHelper.getMetadataXmlLocation("target")
+    if (metadataXml.exists()) metadataXml.delete()
+
+    RecordingMetadataReaderHelper.saveRecordingMetadata(metadataXml, recMeta)
+
+    assert(metadataXml.exists())
 
   }
 

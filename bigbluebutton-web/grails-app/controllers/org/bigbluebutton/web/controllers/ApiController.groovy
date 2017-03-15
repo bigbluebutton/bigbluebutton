@@ -1772,7 +1772,7 @@ class ApiController {
     }
 
     List<RecordingMetadata> recsList = meetingService.getRecordingsMetadata(internalRecordIds, states);
-    List<RecordingMetadata>recs = meetingService.filterRecordingsByMetadata(recsList, ParamsProcessorUtil.processMetaParam(params));
+    List<RecordingMetadata> recs = meetingService.filterRecordingsByMetadata(recsList, ParamsProcessorUtil.processMetaParam(params));
 
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -1794,7 +1794,7 @@ class ApiController {
     def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
     ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
 
-    def xmlText = responseBuilder.buildGetRecordingsResponse(recsList, "success")
+    def xmlText = responseBuilder.buildGetRecordingsResponse(recs, "success")
     withFormat {
       xml {
         render(text: xmlText, contentType: "text/xml")
