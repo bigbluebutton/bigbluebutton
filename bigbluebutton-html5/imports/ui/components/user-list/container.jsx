@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import Service from './service.js';
 
 import UserList from './component.jsx';
@@ -21,6 +22,7 @@ class UserListContainer extends Component {
         compact={compact}
         users={users}
         currentUser={currentUser}
+        meetingIsBreakout={meetingIsBreakout}
         openChats={openChats}
         openChat={openChat}
         userActions={userActions}>

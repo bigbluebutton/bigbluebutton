@@ -7,6 +7,7 @@ import Auth from '/imports/ui/services/auth';
 import userListService from '../user-list/service';
 import ChatService from '../chat/service';
 import Service from './service';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 import NavBar from './component';
 
@@ -20,7 +21,9 @@ class NavBarContainer extends Component {
 
   render() {
     return (
-      <NavBar {...this.props}>
+      <NavBar
+      meetingIsBreakout={meetingIsBreakout}
+      {...this.props}>
         {this.props.children}
       </NavBar>
     );

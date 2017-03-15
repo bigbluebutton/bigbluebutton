@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import Icon from '/imports/ui/components/icon/component';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { findDOMNode } from 'react-dom';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -103,6 +102,7 @@ class UserListItem extends Component {
       user,
       userActions,
       router,
+      meetingIsBreakout,
     } = this.props;
 
     const {

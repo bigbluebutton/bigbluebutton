@@ -16,7 +16,6 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -95,6 +94,7 @@ class NavBar extends Component {
   renderPresentationTitle() {
     const {
       breakouts,
+      meetingIsBreakout,
       presentationTitle,
     } = this.props;
 
@@ -127,6 +127,7 @@ class NavBar extends Component {
     const {
       breakouts,
       getBreakoutJoinURL,
+      meetingIsBreakout,
     } = this.props;
 
     breakouts.forEach(breakout => {

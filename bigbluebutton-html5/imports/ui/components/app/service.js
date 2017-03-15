@@ -93,7 +93,7 @@ function observeBreakoutEnd() {
 
 function meetingIsBreakout() {
   const breakouts = Breakouts.find().fetch();
-  return (breakouts && breakouts.filter(b => b.breakoutMeetingId === Auth.meetingID).length != 0);
+  return (breakouts && breakouts.some(b => b.breakoutMeetingId === Auth.meetingID));
 }
 
 function wasUserKicked() {
