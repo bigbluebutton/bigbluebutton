@@ -14,6 +14,7 @@ class UserListContainer extends Component {
       openChats,
       openChat,
       userActions,
+      isBreakoutRoom,
       children,
     } = this.props;
 
@@ -24,6 +25,7 @@ class UserListContainer extends Component {
         currentUser={currentUser}
         openChats={openChats}
         openChat={openChat}
+        isBreakoutRoom={isBreakoutRoom}
         userActions={userActions}>
         {children}
       </UserList>
