@@ -75,12 +75,12 @@ class NavBar extends Component {
             ghost={true}
             circle={true}
             hideLabel={true}
-            label={'Toggle User-List'}
+            label={'User-List Toggle'}
             icon={'user'}
             className={cx(toggleBtnClasses)}
           />
         </div>
-        <div className={styles.center}>
+        <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}
           <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>

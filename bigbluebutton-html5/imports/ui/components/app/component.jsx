@@ -50,9 +50,9 @@ export default class App extends Component {
 
     if (navbar) {
       return (
-        <header className={styles.navbar}>
+        <div className={styles.navbar}>
           {navbar}
-        </header>
+        </div>
       );
     }
 
@@ -85,9 +85,9 @@ export default class App extends Component {
       });
 
       return (
-        <nav className={cx(styles.userList, userListStyle)}>
+        <div className={cx(styles.userList, userListStyle)} role="region" aria-label="user list">
           {userList}
-        </nav>
+        </div>
       );
     }
 
@@ -99,9 +99,9 @@ export default class App extends Component {
 
     if (chat) {
       return (
-        <section className={styles.chat} role="log">
+        <div className={styles.chat} role="region" aria-label="chat">
           {chat}
-        </section>
+        </div>
       );
     }
 
@@ -113,9 +113,9 @@ export default class App extends Component {
 
     if (media) {
       return (
-        <section className={styles.media}>
+        <div className={styles.media} role="region" aria-label="media">
           {media}
-        </section>
+        </div>
       );
     }
 
@@ -126,9 +126,9 @@ export default class App extends Component {
     const { captions } = this.props;
     if (captions && this.props.getCaptionsStatus()) {
       return (
-        <section className={styles.closedCaptions}>
+        <div className={styles.closedCaptions} role="region" aria-label="Closed Captions">
           {captions}
-        </section>
+        </div>
       );
     }
   }
@@ -138,9 +138,9 @@ export default class App extends Component {
 
     if (actionsbar) {
       return (
-        <section className={styles.actionsbar}>
+        <div className={styles.actionsbar} role="region" aria-label="actions bar">
           {actionsbar}
-        </section>
+        </div>
       );
     }
 
@@ -211,7 +211,7 @@ export default class App extends Component {
     }
 
     return (
-      <main className={styles.main}>
+      <main className={styles.main} role="main">
         <AudioNotificationContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
