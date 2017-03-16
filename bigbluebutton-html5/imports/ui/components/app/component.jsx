@@ -1,14 +1,11 @@
-
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
+import _ from 'lodash';
 
 import KickedScreen from '../kicked-screen/component';
 
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio-notification/container';
-
-import LocalStorage from '/imports/ui/services/storage/local.js';
-import { showModal } from '/imports/ui/components/app/service';
 
 import Button from '../button/component';
 import styles from './styles';
@@ -18,10 +15,8 @@ const propTypes = {
   init: PropTypes.func.isRequired,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
-  sidebarRight: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  captions: PropTypes.element,
   modal: PropTypes.element,
   unreadMessageCount: PropTypes.array,
   openChats: PropTypes.array,
@@ -35,9 +30,9 @@ export default class App extends Component {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
 
-    props.init.call(this);
+    this.notificationAudio = new Audio('/html5client/resources/sounds/notify.mp3');
 
-    this.setDefaultSettings = props.setDefaultSettings;
+    props.init.call(this);
   }
 
   setHtmlFontSize(size) {
@@ -45,36 +40,31 @@ export default class App extends Component {
   };
 
   componentDidMount() {
-    this.setDefaultSettings();
     this.setHtmlFontSize(this.props.fontSize);
   }
 
   renderNavBar() {
     const { navbar } = this.props;
 
-    if (navbar) {
-      return (
-        <header className={styles.navbar}>
-          {navbar}
-        </header>
-      );
-    }
+    if (!navbar) return null;
 
-    return false;
+    return (
+      <header className={styles.navbar}>
+        {navbar}
+      </header>
+    );
   }
 
   renderSidebar() {
     const { sidebar } = this.props;
 
-    if (sidebar) {
-      return (
-        <aside className={styles.sidebar}>
-          {sidebar}
-        </aside>
-      );
-    }
+    if (!sidebar) return null;
 
-    return false;
+    return (
+      <aside className={styles.sidebar}>
+        {sidebar}
+      </aside>
+    );
   }
 
   renderUserList() {
@@ -101,99 +91,50 @@ export default class App extends Component {
   renderChat() {
     const { chat } = this.props;
 
-    if (chat) {
-      return (
-        <section className={styles.chat} role="log">
-          {chat}
-        </section>
-      );
-    }
+    if (!chat) return null;
 
-    return false;
+    return (
+      <section className={styles.chat} role="log">
+        {chat}
+      </section>
+    );
   }
 
   renderMedia() {
     const { media } = this.props;
 
-    if (media) {
-      return (
-        <section className={styles.media}>
-          {media}
-        </section>
-      );
-    }
+    if (!media) return null;
 
-    return false;
-  }
-
-  renderClosedCaptions() {
-    const { captions } = this.props;
-    if (captions && this.props.getCaptionsStatus()) {
-      return (
-        <section className={styles.closedCaptions}>
-          {captions}
-        </section>
-      );
-    }
+    return (
+      <section className={styles.media}>
+        {media}
+      </section>
+    );
   }
 
   renderActionsBar() {
     const { actionsbar } = this.props;
 
-    if (actionsbar) {
-      return (
-        <section className={styles.actionsbar}>
-          {actionsbar}
-        </section>
-      );
-    }
+    if (!actionsbar) return null;
 
-    return false;
-  }
-
-  renderAudioElement() {
     return (
-      <audio id="remote-media" autoPlay="autoplay"></audio>
+      <section className={styles.actionsbar}>
+        {actionsbar}
+      </section>
     );
   }
 
-  renderModal() {
-    const { modal } = this.props;
-
-    if (modal) {
-      return (<div>{modal}</div>);
-    }
-
-    return false;
-  }
-
-  playSoundForUnreadMessages() {
-    const snd = new Audio('/html5client/resources/sounds/notify.mp3');
-    snd.play();
+  playNotificationSound() {
+    const wait = notificationAudio || 1;
+    _.debounce(this.notificationSound.play, wait * 1000);
   }
 
   componentDidUpdate(prevProps) {
-
-    let { unreadMessageCount, openChats, openChat } = this.props;
-
-    unreadMessageCount.forEach((chat, i) => {
-      // When starting the new chat, if prevProps is undefined or null, it is assigned 0.
-      if (!prevProps.unreadMessageCount[i]) {
-        prevProps.unreadMessageCount[i] = 0;
-      }
-
-      // compare openChats(chatID) to chatID of currently opened chat room
-      if (openChats[i] !== openChat) {
-        let shouldPlaySound = this.props.applicationSettings.chatAudioNotifications;
-
-        if (shouldPlaySound && chat > prevProps.unreadMessageCount[i]) {
-          this.playSoundForUnreadMessages();
-        }
-      }
-    });
   }
 
   render() {
+    const { modal } = this.props;
+
     if (this.props.wasKicked) {
       return (
         <KickedScreen>
@@ -223,10 +164,9 @@ export default class App extends Component {
             {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}
-          {this.renderClosedCaptions()}
         </section>
-        {this.renderAudioElement()}
-        {this.renderModal()}
+        <audio id="remote-media" autoPlay="autoplay"></audio>
+        {modal}
       </main>
     );
   }

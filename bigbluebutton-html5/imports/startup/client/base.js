@@ -73,7 +73,7 @@ const SUBSCRIPTIONS_NAME = [
 ];
 
 export default BaseContainer = createContainer(({ params }) => {
-  if (Object.keys(params).length) return params;
+  if (params.errorCode) return params;
 
   if (!Auth.loggedIn) {
     return {

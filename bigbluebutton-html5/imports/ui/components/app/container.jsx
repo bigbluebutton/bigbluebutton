@@ -25,7 +25,6 @@ const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
-  captions: <ClosedCaptionsContainer />,
 };
 
 class AppContainer extends Component {
@@ -61,13 +60,12 @@ const init = () => {
 
 export default createContainer(({ params }) => ({
   init,
+  sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
   wasKicked: wasUserKicked(),
-  isLoading: getLoading(),
   modal: getModal(),
   unreadMessageCount: checkUnreadMessages(),
   openChats: openChats(params.chatID),
   openChat: params.chatID,
-  getCaptionsStatus,
   redirectToLogoutUrl,
   setDefaultSettings,
   fontSize: getFontSize(),
