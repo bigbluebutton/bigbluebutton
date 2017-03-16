@@ -32,17 +32,20 @@ export default class Chat extends Component {
       <section className={styles.chat}>
 
         <header className={styles.header}>
-          <Link to="/users">
-            <Icon iconName="left-arrow"/> {title}
-          </Link>
-
-          {
-            ((this.props.chatID == 'public') ?
-              null :
-              <Link to="/users">
-                <Icon iconName="close" onClick={this.closeChat} className={styles.closeIcon}/>
-              </Link>)
-          }
+          <div className={styles.title}>
+            <Link to="/users">
+              <Icon iconName="left_arrow"/> {title}
+            </Link>
+          </div>
+          <div className={styles.closeIcon}>
+            {
+              ((this.props.chatID == 'public') ?
+                null :
+                <Link to="/users">
+                  <Icon iconName="close" onClick={this.closeChat}/>
+                </Link>)
+            }
+          </div>
         </header>
 
         <MessageList

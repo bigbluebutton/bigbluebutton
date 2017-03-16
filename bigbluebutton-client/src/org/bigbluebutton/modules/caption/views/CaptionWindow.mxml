@@ -160,10 +160,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					addTextTab();
 				}
 				
-				var tab:Button = captionTabs.getTabAt(0);
-				if (tab != null) {
-					tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
-				}
+				captionTabs.selectedIndex = 0;
+				
+				// When the tab is switched we want to autofocus to the area that we likely want to immediately interact with, 
+				// but if we move focus immediately the tab's contents aren't actually visible on the screen. This results in 
+				// a screen reader not recognizing the focus shift. We need to delay the focus change for a couple of frames, 
+				// but there isn't a good event to listen for so a short Timer was used instead.
+				textTab.delayedFocusTextArea();
 			}
 			
 			private function onTranscriptOwnerIDChange(o:Object):void {

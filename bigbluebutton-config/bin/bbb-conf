@@ -145,10 +145,13 @@ VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 # Determine IP so it works on multilingual installations
 #
 
-if ifconfig eth0 > /dev/null 2>&1; then
-	IP=$(LANG=c ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
+if LANG=c ifconfig | grep -q 'venet0:0'; then
+        # IP detection for OpenVZ environment
+        echo "yes"
+        IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 else
-	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+        # IP detection for et* and en* networks
+        IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
 fi
 
 MEM=`free -m | grep Mem | awk '{ print $2}'`
@@ -1460,6 +1463,14 @@ check_state() {
                 echo "#    sudo bbb-conf --setip $BBB_WEB_IP"
                 echo "#"
 	fi
+
+        if [ -z $(cat /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | tr -d '\r' | sed -n "/useH264[ ]*=[ ]*/{s/useH264[ ]*=[ ]*//;p}") ]; then
+                echo "# Error: Detected there is no value set for useH264 in"
+                echo "#"
+                echo "#   /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+        fi
+
 	exit 0
 }
 
@@ -1561,13 +1572,6 @@ if [ $CHECK ]; then
 	echo
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml (red5)"
 	echo "                  voice conference: $CONFERENCING_MODULE"
-
-	CAPTURE_VIDEO="$(cat /usr/share/red5/webapps/video/WEB-INF/red5-web.xml | sed -n '/recordVideoStream/{s/^.*="//g;s/"\/>//g;p}')"
-	echo "                     capture video: $CAPTURE_VIDEO"
-
-	# CAPTURE_DESKTOP="$(cat /usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml | grep -m 1 '<constructor-arg index="0" value'  | sed -n '/constructor-arg/{s/^.*="//g;s/"\/>//g;p}')"
-	# echo "                   capture desktop: $CAPTURE_DESKTOP"
-
 
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
 		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | grep -v '#' | sed -n '/^playback_host/{s/.*:[ ]*//;s/;//;p}' | tail -n 1)

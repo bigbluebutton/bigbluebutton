@@ -6,6 +6,7 @@
   display: flex;
   flex-grow: 1;
   flex-direction: column;
+  justify-content: space-around;
   overflow: hidden;
 }
 
@@ -13,18 +14,30 @@
   margin-top: $lg-padding-x - $sm-padding-x;
   margin-bottom: $lg-padding-x;
 
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.title {
+  @extend %text-elipsis;
+  width: 90%;
+
   > [class^="icon-bbb-"],
   > [class*=" icon-bbb-"] {
     font-size: 85%;
   }
-
-  .closeIcon {
-    margin-left: $line-height-computed * 5;
-  }
 }
 
+.closeIcon {
+  position: relative;
+}
 
-[class='icon-bbb-left-arrow']
-{
-    padding-bottom: 5px;
+[class='icon-bbb-left_arrow'],
+[class='icon-bbb-close']{
+  padding-bottom: 5px;
 }

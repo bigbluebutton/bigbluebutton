@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
 import Storage from '/imports/ui/services/storage/session';
+import SettingsService from '/imports/ui/components/settings/service';
 
 function setCredentials(nextState, replace) {
   if (nextState && nextState.params.authToken) {
@@ -90,6 +91,11 @@ function observeBreakoutEnd() {
   });
 }
 
+function meetingIsBreakout() {
+  const breakouts = Breakouts.find().fetch();
+  return (breakouts && breakouts.some(b => b.breakoutMeetingId === Auth.meetingID));
+}
+
 function wasUserKicked() {
   wasKickedDep.depend();
   return wasKicked;
@@ -114,9 +120,14 @@ const clearModal = () => {
   showModal(null);
 };
 
-function getCaptionsStatus() {
-  var CCEnabled = Storage.getItem('closedCaptions');
-  return !!CCEnabled;
+const getCaptionsStatus = () => {
+  const settings = Storage.getItem('settings_cc');
+  return settings ? settings.closedCaptions : false;
+};
+
+const getFontSize = () => {
+  const settings = SettingsService.getSettingsFor('application');
+  return settings ? settings.fontSize : '14px';
 };
 
 export {
@@ -130,4 +141,6 @@ export {
   showModal,
   clearModal,
   getCaptionsStatus,
+  getFontSize,
+  meetingIsBreakout,
 };

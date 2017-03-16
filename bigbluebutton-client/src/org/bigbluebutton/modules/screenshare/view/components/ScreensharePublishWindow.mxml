@@ -133,6 +133,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         windowControls.maximizeRestoreBtn.enabled = false;
         
+        titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
         titleBarOverlay.focusEnabled = true;
         
         resourcesChanged();
@@ -529,8 +530,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function switchView(showHelp:Boolean):void {
         helpInfoBox.visible = helpInfoBox.includeInLayout = showHelp;
         previewBox.visible = !showHelp;
-        
-		titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
 		
         shareTypeBox.visible = showHelp;
         cancelBtn.visible = cancelBtn.includeInLayout = showHelp;
@@ -555,8 +554,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        styleName="micSettingsWindowHelpButtonStyle"
                        right="0"
                        click="onHelpButtonClicked()"
-                       toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.helpbutton.toolTip')}"
-                       accessibilityName="{ResourceUtil.getInstance().getString('bbb.screensharePublish.helpbutton.accessibilityName')}"/>
+                       toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.helpButton.toolTip')}"
+                       accessibilityName="{ResourceUtil.getInstance().getString('bbb.screensharePublish.helpButton.accessibilityName')}"/>
       </mx:HBox>
       <mx:HBox id="helpBox" width="100%" horizontalAlign="center">
         <mx:VBox width="30%" horizontalAlign="center">

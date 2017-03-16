@@ -20,7 +20,7 @@ export default class MessageFormActions extends BaseButton {
   render() {
     return (
       <BaseButton {...this.props}>
-        <Icon iconName={'circle-add'} />
+        <Icon iconName={'add'} />
       </BaseButton>
     );
   }

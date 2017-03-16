@@ -72,26 +72,12 @@ class PresentationToolbar extends Component {
           aria-controls="skipSlide slideComponent"
           disabled={currentSlideNum > 1 ? false : true}
           color={'default'}
-          icon={'left-arrow'}
+          icon={'left_arrow'}
           size={'md'}
           onClick={actions.previousSlideHandler}
           label={intl.formatMessage(intlMessages.previousSlideLabel)}
           hideLabel={true}
           className={styles.prevSlide}
-        />
-        {/*Next Slide button*/}
-        <Button
-          role="button"
-          aria-labelledby="nextSlideLabel"
-          aria-describedby="nextSlideDescrip"
-          aria-controls="skipSlide slideComponent"
-          disabled={currentSlideNum < numberOfSlides ? false : true}
-          color={'default'}
-          icon={'right-arrow'}
-          size={'md'}
-          onClick={actions.nextSlideHandler}
-          label={intl.formatMessage(intlMessages.nextSlideLabel)}
-          hideLabel={true}
         />
         {/*Skip Slide drop down*/}
         <select
@@ -108,13 +94,28 @@ class PresentationToolbar extends Component {
         >
           {this.renderSkipSlideOpts(numberOfSlides)}
         </select>
+        {/*Next Slide button*/}
+        <Button
+          role="button"
+          aria-labelledby="nextSlideLabel"
+          aria-describedby="nextSlideDescrip"
+          aria-controls="skipSlide slideComponent"
+          disabled={currentSlideNum < numberOfSlides ? false : true}
+          color={'default'}
+          icon={'right_arrow'}
+          size={'md'}
+          onClick={actions.nextSlideHandler}
+          label={intl.formatMessage(intlMessages.nextSlideLabel)}
+          hideLabel={true}
+        />
+
         {/*Fit to width button
         <Button
           role="button"
           aria-labelledby="fitWidthLabel"
           aria-describedby="fitWidthDescrip"
           color={'default'}
-          icon={'fit-to-width'}
+          icon={'fit_to_width'}
           size={'md'}
           circle={false}
           onClick={this.fitToWidthClickHandler}
@@ -127,7 +128,7 @@ class PresentationToolbar extends Component {
           aria-labelledby="fitScreenLabel"
           aria-describedby="fitScreenDescrip"
           color={'default'}
-          icon={'fit-to-screen'}
+          icon={'fit_to_screen'}
           size={'md'}
           circle={false}
           onClick={this.fitToScreenClickHandler}

@@ -102,6 +102,7 @@ class UserListItem extends Component {
       user,
       userActions,
       router,
+      isBreakoutRoom,
     } = this.props;
 
     const {
@@ -120,7 +121,7 @@ class UserListItem extends Component {
     let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
 
     // if currentUser is a moderator, allow kicking other users
-    let allowedToKick = currentUser.isModerator && !user.isCurrent;
+    let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
     let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 
@@ -275,7 +276,7 @@ class UserListItem extends Component {
     }
 
     if (user.isVoiceUser) {
-      audioChatIcon = !user.isMuted ? 'audio' : 'audio-off';
+      audioChatIcon = !user.isMuted ? 'unmute' : 'mute';
     }
 
     let audioIconClassnames = {};
