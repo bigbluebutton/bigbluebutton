@@ -75,7 +75,7 @@ $dropdown-caret-height: 8px;
   position: fixed;
   bottom: 1rem;
   z-index: 1011;
-  font-size: $font-size-large;
+  font-size: $font-size-large * 1.1;
   width: calc(100% - #{($line-height-computed * 2)});
   left: $line-height-computed;
   box-shadow: 0 0 0 2rem #fff;
