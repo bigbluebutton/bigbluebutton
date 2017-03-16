@@ -151,7 +151,7 @@ class Dropdown extends Component {
             className={styles.close}
             label={intl.formatMessage(intlMessages.close)}
             size={'lg'}
-            color={'danger'}
+            color={'default'}
             onClick={this.handleHide}
           /> : null }
       </div>

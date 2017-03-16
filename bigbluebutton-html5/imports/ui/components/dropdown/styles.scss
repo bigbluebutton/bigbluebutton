@@ -1,4 +1,5 @@
 @import "../../stylesheets/variables/_all";
+@import "../../stylesheets/mixins/_scrollable";
 
 $dropdown-bg: $color-white;
 $dropdown-color: $color-text;
@@ -18,7 +19,6 @@ $dropdown-caret-height: 8px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
   border: 1px solid rgba(0, 0, 0, .15);
   padding: $line-height-computed / 2;
-  // min-width: 150px;
   z-index: 1000;
 
   &:after, &:before {
@@ -37,21 +37,53 @@ $dropdown-caret-height: 8px;
   }
 
   @include mq($small-only) {
-    z-index: 1010;
-    overflow: auto;
+    z-index: 1015;
+    border-radius: 0;
+    background-color: #fff;
+    box-shadow: none;
     position: fixed;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    margin: 0 !important;
-    border-radius: 0;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 0 $line-height-computed * 5.25 0 !important;
     transform: translateX(0) translateY(0) !important;
+
+    &:after, &:before {
+      display: none !important;
+    }
+  }
+}
+
+.scrollable {
+  @include mq($small-only) {
+    @include scrollbox-vertical();
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 }
 
 .trigger {}
 
+.close {
+  display: none;
+  position: fixed;
+  bottom: 1rem;
+  z-index: 1011;
+  font-size: $font-size-large;
+  width: calc(100% - #{($line-height-computed * 2)});
+  left: $line-height-computed;
+  box-shadow: 0 0 0 2rem #fff;
+
+  @include mq($small-only) {
+    display: block;
+  }
+}
 
 /* Placements
  * ==========
@@ -245,19 +277,4 @@ $dropdown-caret-height: 8px;
   @extend %left-caret;
   @extend %vert-bottom-caret;
   transform: translateX(100%) translateY(0);
-}
-
-.close {
-  display: none;
-  position: fixed;
-  bottom: 1rem;
-  z-index: 1011;
-  font-size: 1.5rem;
-  width: 94vw;
-  left: 50vw;
-  margin-left: -47vw;
-
-  @include mq($small-only) {
-    display: block;
-  }
 }

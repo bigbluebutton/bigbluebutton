@@ -12,9 +12,8 @@
   flex-direction: column;
 
   @include mq($small-only) {
-    font-size: 1.75rem;
-    padding: 1rem;
-    margin-bottom: 5rem;
+    font-size: $font-size-large;
+    padding: $line-height-computed;
   }
 }
 
@@ -39,7 +38,7 @@
   justify-content: flex-start;
 
   @include mq($small-only) {
-    padding: ($line-height-computed / 1.25) 0;
+    padding: ($line-height-computed / 2) 0;
     justify-content: center;
   }
 
