@@ -19,20 +19,14 @@
 
 package org.bigbluebutton.api.domain;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.commons.lang.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 public class Meeting {
-	private static Logger log = LoggerFactory.getLogger(Meeting.class);
-	
+
 	private static final long MILLIS_IN_A_MINUTE = 60000;
 	
 	private String name;
@@ -68,6 +62,7 @@ public class Meeting {
 	private final ConcurrentMap<String, Long> registeredUsers;
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
+	private final List<String> breakoutRooms = new ArrayList();
 	
 	private long lastUserLeftOn = 0;
 	
@@ -101,6 +96,14 @@ public class Meeting {
 
         configs = new ConcurrentHashMap<String, Config>();
     }
+
+	public void addBreakoutRoom(String meetingId) {
+		breakoutRooms.add(meetingId);
+	}
+
+	public List<String> getBreakoutRooms() {
+		return breakoutRooms;
+	}
 
 	public String storeConfig(boolean defaultConfig, String config) {
 		String token = RandomStringUtils.randomAlphanumeric(8);
