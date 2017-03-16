@@ -4,7 +4,6 @@ let currentModal = {
   component: null,
   tracker: new Tracker.Dependency,
 };
-const modalDep = new Tracker.Dependency;
 
 const getModal = () => {
   currentModal.tracker.depend();
@@ -38,4 +37,5 @@ export {
   clearModal,
   getCaptionsStatus,
   getFontSize,
+  meetingIsBreakout,
 };
