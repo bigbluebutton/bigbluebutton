@@ -31,7 +31,10 @@ libraryDependencies +=  "org.scala-lang"    %   "scala-compiler"      % scalaV
 libraryDependencies +=  "org.scala-lang"    %   "scala-library"       % scalaV
 libraryDependencies +=  "org.scala-lang"    %   "scala-reflect"       % scalaV
 
-libraryDependencies += "commons-lang" % "commons-lang" % "2.5"
+// https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.5"
+
+
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
 libraryDependencies += "org.freemarker" % "freemarker" % "2.3.23"
 libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % "2.6.3"
