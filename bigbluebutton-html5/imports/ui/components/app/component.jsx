@@ -6,6 +6,7 @@ import KickedScreen from '../kicked-screen/component';
 
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio-notification/container';
+import ChatNotificationContainer from '../chat/notification/container';
 
 import Button from '../button/component';
 import styles from './styles';
@@ -13,13 +14,16 @@ import cx from 'classnames';
 
 const propTypes = {
   init: PropTypes.func.isRequired,
+  fontSize: PropTypes.string,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
   modal: PropTypes.element,
-  unreadMessageCount: PropTypes.array,
-  openChats: PropTypes.array,
+};
+
+const defaultProps = {
+  fontSize: '16px',
 };
 
 export default class App extends Component {
@@ -30,17 +34,11 @@ export default class App extends Component {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
 
-    this.notificationAudio = new Audio('/html5client/resources/sounds/notify.mp3');
-
     props.init.call(this);
   }
 
-  setHtmlFontSize(size) {
-    document.getElementsByTagName('html')[0].style.fontSize = size;
-  };
-
   componentDidMount() {
-    this.setHtmlFontSize(this.props.fontSize);
+    document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
 
   renderNavBar() {
@@ -71,21 +69,19 @@ export default class App extends Component {
     let { userList } = this.props;
     const { compactUserList } = this.state;
 
+    if (!userList) return;
+
     let userListStyle = {};
     userListStyle[styles.compact] = compactUserList;
-    if (userList) {
-      userList = React.cloneElement(userList, {
-        compact: compactUserList,
-      });
+    userList = React.cloneElement(userList, {
+      compact: compactUserList,
+    });
 
-      return (
-        <nav className={cx(styles.userList, userListStyle)}>
-          {userList}
-        </nav>
-      );
-    }
-
-    return false;
+    return (
+      <nav className={cx(styles.userList, userListStyle)}>
+        {userList}
+      </nav>
+    );
   }
 
   renderChat() {
@@ -124,32 +120,8 @@ export default class App extends Component {
     );
   }
 
-  playNotificationSound() {
-    const wait = notificationAudio || 1;
-    _.debounce(this.notificationSound.play, wait * 1000);
-  }
-
-  componentDidUpdate(prevProps) {
-  }
-
   render() {
-    const { modal } = this.props;
-
-    if (this.props.wasKicked) {
-      return (
-        <KickedScreen>
-          <FormattedMessage
-            id="app.kickMessage"
-            description="Message when the user is kicked out of the meeting"
-            defaultMessage="You have been kicked out of the meeting"
-          />
-          <br/><br/>
-          <Button
-            label={'OK'}
-            onClick={this.props.redirectToLogoutUrl}/>
-        </KickedScreen>
-      );
-    }
+    const { modal, params } = this.props;
 
     return (
       <main className={styles.main}>
@@ -165,11 +137,13 @@ export default class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
-        <audio id="remote-media" autoPlay="autoplay"></audio>
         {modal}
+        <audio id="remote-media" autoPlay="autoplay"></audio>
+        <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );
   }
 }
 
 App.propTypes = propTypes;
+App.defaultProps = defaultProps;

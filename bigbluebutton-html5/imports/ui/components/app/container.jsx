@@ -1,25 +1,19 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import App from './component';
 import {
-  subscribeToCollections,
-  wasUserKicked,
-  redirectToLogoutUrl,
   getModal,
-  getCaptionsStatus,
   showModal,
   getFontSize,
+  getCaptionsStatus,
 } from './service';
-import { setDefaultSettings, getSettingsFor } from '/imports/ui/components/settings/service';
 
+import { setDefaultSettings } from '../settings/service';
+
+import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import ClosedCaptionsContainer from '../closed-captions/container';
-import UserListService from '../user-list/service';
-import AudioModalContainer  from '/imports/ui/components/audio-modal/container';
-
-import Auth from '/imports/ui/services/auth';
+import AudioModalContainer  from '../audio-modal/container';
 
 const defaultProps = {
   navbar: <NavBarContainer />,
@@ -40,36 +34,20 @@ class AppContainer extends Component {
   }
 };
 
-const checkUnreadMessages = () => {
-  return UserListService.getOpenChats().map(chat=> chat.unreadCounter)
-                        .filter(userID => userID !== Auth.userID);
-};
-
-const openChats = (chatID) => {
-  // get currently opened chatID
-  return UserListService.getOpenChats(chatID).map(chat => chat.id);
-};
-
 const APP_CONFIG = Meteor.settings.public.app;
 
 const init = () => {
+  setDefaultSettings();
   if (APP_CONFIG.autoJoinAudio) {
     showModal(<AudioModalContainer />);
   }
 };
 
-export default createContainer(({ params }) => ({
+export default createContainer(() => ({
   init,
   sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
-  wasKicked: wasUserKicked(),
   modal: getModal(),
-  unreadMessageCount: checkUnreadMessages(),
-  openChats: openChats(params.chatID),
-  openChat: params.chatID,
-  redirectToLogoutUrl,
-  setDefaultSettings,
   fontSize: getFontSize(),
-  applicationSettings: getSettingsFor('application'),
 }), AppContainer);
 
 AppContainer.defaultProps = defaultProps;
