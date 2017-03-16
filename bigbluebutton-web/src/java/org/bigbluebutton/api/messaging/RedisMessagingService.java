@@ -49,8 +49,16 @@ public class RedisMessagingService implements MessagingService {
 	private MessageSender sender;
 	private ToJsonEncoder encoder = new ToJsonEncoder();
 	
-	public void recordMeetingInfo(String meetingId, Map<String, String> info, Map<String, String> breakoutInfo) {
-		storeService.recordMeetingInfo(meetingId, info, breakoutInfo);
+	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
+		storeService.recordMeetingInfo(meetingId, info);
+	}
+
+	public void recordBreakoutInfo(String meetingId, Map<String, String> breakoutInfo) {
+		storeService.recordBreakoutInfo(meetingId, breakoutInfo);
+	}
+
+	public void addBreakoutRoom(String parentId, String breakoutId) {
+		storeService.addBreakoutRoom(parentId, breakoutId);
 	}
 
 	public void destroyMeeting(String meetingID) {

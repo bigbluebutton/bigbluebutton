@@ -50,10 +50,22 @@ module BigBlueButton
       @redis.hgetall("meeting:info:#{meeting_id}")
     end
     
+    def has_breakout_metadata_for(meeting_id)
+      @redis.exists("meeting:breakout:#{meeting_id}")
+    end
+
     def breakout_metadata_for(meeting_id)
       @redis.hgetall("meeting:breakout:#{meeting_id}")
     end
     
+    def has_breakout_rooms_for(meeting_id)
+      @redis.exists("meeting:breakout:rooms:#{meeting_id}")
+    end
+
+    def breakout_rooms_for(meeting_id)
+      @redis.smembers("meeting:breakout:rooms:#{meeting_id}")
+    end
+
     def num_events_for(meeting_id)
       @redis.llen("meeting:#{meeting_id}:recordings")
     end
@@ -80,6 +92,10 @@ module BigBlueButton
 
     def delete_breakout_metadata_for(meeting_id)
       @redis.del("meeting:breakout:#{meeting_id}")
+    end
+
+    def delete_breakout_rooms_for(meeting_id)
+      @redis.del("meeting:breakout:rooms:#{meeting_id}")
     end
 
     def build_header(message_type)
@@ -175,6 +191,8 @@ module BigBlueButton
     MODULE = 'module'
     EVENTNAME = 'eventName'
     MEETINGID = 'meetingId'
+    MEETINGNAME = 'meetingName'
+    ISBREAKOUT = 'isBreakout'
     
     def initialize(redis)
       @redis = redis
@@ -186,13 +204,29 @@ module BigBlueButton
       result = xml.instruct! :xml, :version => "1.0", :encoding=>"UTF-8"
       
       meeting_metadata = @redis.metadata_for(meeting_id)
-      breakout_metadata = @redis.breakout_metadata_for(meeting_id)
       version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
 
       if (meeting_metadata != nil)
           xml.recording(:meeting_id => meeting_id, :bbb_version => version) {
+            xml.meeting(:id => meeting_id, :externalId => meeting_metadata[MEETINGID], :name => meeting_metadata[MEETINGNAME], :breakout => meeting_metadata[ISBREAKOUT])
             xml.metadata(meeting_metadata)
-            xml.breakout(breakout_metadata)
+
+            if (@redis.has_breakout_metadata_for(meeting_id))
+              breakout_metadata = @redis.breakout_metadata_for(meeting_id)
+              xml.breakout(breakout_metadata)
+            end
+
+            if (@redis.has_breakout_rooms_for(meeting_id))
+              breakout_rooms = @redis.breakout_rooms_for(meeting_id)
+              if (breakout_rooms != nil)
+                xml.breakoutRooms() {
+                  breakout_rooms.each do |breakout_room|
+                    xml.breakoutRoom(breakout_room)
+                  end
+                }
+              end
+            end
+
             msgs = @redis.events_for(meeting_id)                      
             msgs.each do |msg|
               res = @redis.event_info_for(meeting_id, msg)
@@ -231,6 +265,7 @@ module BigBlueButton
       end
       @redis.delete_metadata_for(meeting_id) 
       @redis.delete_breakout_metadata_for(meeting_id) 
+      @redis.delete_breakout_rooms_for(meeting_id)
     end
     
     def save_events_to_file(directory, result)
