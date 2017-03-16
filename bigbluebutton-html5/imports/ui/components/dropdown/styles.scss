@@ -253,9 +253,9 @@ $dropdown-caret-height: 8px;
   bottom: 1rem;
   z-index: 1011;
   font-size: 1.5rem;
-  width: 34rem;
+  width: 94vw;
   left: 50vw;
-  margin-left: -17rem;
+  margin-left: -47vw;
 
   @include mq($small-only) {
     display: block;
