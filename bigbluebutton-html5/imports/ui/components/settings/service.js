@@ -39,7 +39,7 @@ const setDefaultSettings = () => {
     application: {
       chatAudioNotifications: false,
       chatPushNotifications: false,
-      fontSize: '14px',
+      fontSize: '16px',
     },
     audio: {
       inputDeviceId: undefined,
