@@ -95,6 +95,9 @@ export default injectIntl(createContainer(({ params, intl }) => {
     isChatLocked,
     scrollPosition,
     actions: {
+
+      handleClosePrivateChat: chatID => ChatService.createClosedChatSession(chatID),
+
       handleSendMessage: message => {
         let sentMessage = ChatService.sendMessage(chatID, message);
         ChatService.updateScrollPosition(chatID, null); //null so its scrolls to bottom

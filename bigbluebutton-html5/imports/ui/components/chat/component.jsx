@@ -12,7 +12,6 @@ const ELEMENT_ID = 'chat-messages';
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.closeChat = this.closeChat.bind(this);
   }
 
   render() {
@@ -42,7 +41,7 @@ export default class Chat extends Component {
               ((this.props.chatID == 'public') ?
                 null :
                 <Link to="/users">
-                  <Icon iconName="close" onClick={this.closeChat}/>
+                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
                 </Link>)
             }
           </div>
@@ -67,9 +66,5 @@ export default class Chat extends Component {
         />
       </section>
     );
-  }
-
-  closeChat() {
-    ChatService.createClosedChatSession(this.props.chatID);
   }
 }
