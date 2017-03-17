@@ -76,14 +76,12 @@ class SettingsDropdown extends Component {
 
   render() {
 
-    const { intl } = this.props;
+    const { intl, isFullScreen } = this.props;
 
-    let fullScreenLabel; let fullScreenDesc;
+    let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+    let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
 
-    if(!this.props.isFullScreen){
-      fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-      fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
-    }else{
+    if (isFullScreen) {
       fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
       fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
     }
