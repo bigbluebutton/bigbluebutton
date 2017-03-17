@@ -1,3 +1,4 @@
+import Breakouts from '/imports/api/breakouts';
 import SettingsService from '/imports/ui/components/settings/service';
 
 let currentModal = {
@@ -30,6 +31,11 @@ const getFontSize = () => {
   const settings = SettingsService.getSettingsFor('application');
   return settings ? settings.fontSize : '16px';
 };
+
+function meetingIsBreakout() {
+  const breakouts = Breakouts.find().fetch();
+  return (breakouts && breakouts.some(b => b.breakoutMeetingId === Auth.meetingID));
+}
 
 export {
   getModal,

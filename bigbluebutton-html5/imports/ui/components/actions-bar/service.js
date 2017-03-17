@@ -5,7 +5,7 @@ let isUserPresenter = () => {
 
   // check if user is a presenter
   let isPresenter = Users.findOne({
-    userId: AuthSingleton.getCredentials().requesterUserId,
+    userId: AuthSingleton.userID,
   }).user.presenter;
 
   return {

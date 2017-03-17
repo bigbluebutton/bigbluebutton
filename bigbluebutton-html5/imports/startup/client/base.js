@@ -82,7 +82,7 @@ export default BaseContainer = createContainer(({ params }) => {
     };
   }
 
-  const credentials = Auth.getCredentials();
+  const credentials = Auth.credentials;
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials));
 
   return {

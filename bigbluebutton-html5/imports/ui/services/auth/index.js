@@ -10,7 +10,6 @@ class Auth {
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
     this._authToken = Storage.getItem('authToken');
-    this._logoutURL = Storage.getItem('logoutURL');
     this._loggedIn = {
       value: false,
       tracker: new Tracker.Dependency,
@@ -44,15 +43,6 @@ class Auth {
     Storage.setItem('authToken', this._authToken);
   }
 
-  get logoutURL() {
-    return this._logoutURL;
-  }
-
-  set logoutURL(logoutURL) {
-    this._logoutURL = logoutURL;
-    Storage.setItem('logoutURL', this._logoutURL);
-  }
-
   get loggedIn() {
     this._loggedIn.tracker.depend();
     return this._loggedIn.value;
@@ -62,6 +52,41 @@ class Auth {
     this._loggedIn.value = value;
     this._loggedIn.tracker.changed();
   }
+
+  get credentials() {
+    return {
+      meetingId: this.meetingID,
+      requesterUserId: this.userID,
+      requesterToken: this.token,
+    };
+  }
+
+  set credentials(value) {
+    throw 'Credentials are read-only';
+  }
+
+  clearCredentials() {
+    this.meetingID = null;
+    this.userID = null;
+    this.token = null;
+    this.loggedIn = false;
+
+    return Promise.resolve(...arguments);
+  };
+
+  logout() {
+    if (!this.loggedIn) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      callServer('userLogout', () => {
+        this.fetchLogoutUrl()
+          .then(this.clearCredentials)
+          .then(resolve);
+      });
+    });
+  };
 
   authenticate(meetingID, userID, token) {
     if (arguments.length) {
@@ -75,7 +100,7 @@ class Auth {
   }
 
   _subscribeToCurrentUser() {
-    const credentials = this.getCredentials();
+    const credentials = this.credentials;
 
     return new Promise((resolve, reject) => {
       Tracker.autorun((c) => {
@@ -133,62 +158,17 @@ class Auth {
         });
       });
 
-      const credentials = this.getCredentials();
+      const credentials = this.credentials;
       callServer('validateAuthToken', credentials);
     });
   }
 
-  getCredentials() {
-    return {
-      meetingId: this.meetingID,
-      requesterUserId: this.userID,
-      requesterToken: this.token,
-    };
-  }
+  fetchLogoutUrl() {
+    const url = `/bigbluebutton/api/enter`;
 
-  clearCredentials() {
-    this.meetingID = null;
-    this.userID = null;
-    this.token = null;
-    this.loggedIn = false;
-
-    return Promise.resolve();
-  };
-
-  completeLogout() {
-    let logoutURL = this.logoutURL;
-    callServer('userLogout');
-
-    this.clearCredentials()
-      .then(() => {
-        document.location.href = logoutURL;
-      });
-  };
-
-  _setLogOut() {
-    let request;
-    let handleLogoutUrlError;
-
-    handleLogoutUrlError = function () {
-      console.log('Error : could not find the logoutURL');
-      this.logoutURL = document.location.hostname;
-    };
-
-    // obtain the logoutURL
-    request = $.ajax({
-      dataType: 'json',
-      url: '/bigbluebutton/api/enter',
-    });
-
-    request.done(data => {
-      if (data.response.logoutURL != null) {
-        this.logoutURL = data.response.logoutURL;
-      } else {
-        return handleLogoutUrlError();
-      }
-    });
-
-    return request.fail(() => handleLogoutUrlError());
+    return fetch(url)
+      .then(response => response.json())
+      .then(data => Promise.resolve(data.response.logoutURL));
   }
 };
 

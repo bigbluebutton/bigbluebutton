@@ -9,6 +9,10 @@ import {
 
 import { setDefaultSettings } from '../settings/service';
 
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
+import Breakouts from '/imports/api/breakouts';
+
 import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
@@ -43,11 +47,27 @@ const init = () => {
   }
 };
 
-export default createContainer(() => ({
-  init,
-  sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
-  modal: getModal(),
-  fontSize: getFontSize(),
-}), AppContainer);
+export default createContainer(({ baseControls }) => {
+  // Check if user is kicked out of the session
+  Users.find({ userId: Auth.userID }).observeChanges({
+    removed() {
+      Auth.clearCredentials().then(() => alert('KICKED'));
+    },
+  });
+
+  // Close the widow when the current breakout room ends
+  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
+    removed(old) {
+      Auth.clearCredentials().then(window.close);
+    },
+  });
+
+  return {
+    init,
+    sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
+    modal: getModal(),
+    fontSize: getFontSize(),
+  };
+}, AppContainer);
 
 AppContainer.defaultProps = defaultProps;
