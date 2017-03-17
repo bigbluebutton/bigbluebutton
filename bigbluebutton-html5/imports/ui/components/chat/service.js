@@ -22,6 +22,9 @@ const PUBLIC_CHAT_USERNAME = CHAT_CONFIG.public_username;
 
 const ScrollCollection = new Mongo.Collection(null);
 
+// session for closed chat list
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
 const mapUser = (user) => ({
@@ -195,11 +198,11 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
-  let currentClosedChats = Storage.getItem('closedChatList');
+  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   // Remove the chat that user send messages from the session.
   if (_.contains(currentClosedChats, receiver.id)) {
-    Storage.setItem('closedChatList', _.without(currentClosedChats, receiver.id));
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
   }
 
   callServer('sendChat', messagePayload);
@@ -226,12 +229,12 @@ const updateUnreadMessage = (receiverID, timestamp) => {
 
 const createClosedChatSession = (chatID) => {
 
-  let currentClosedChats = Storage.getItem('closedChatList') || [];
+  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
   if (!_.contains(currentClosedChats, chatID)) {
     currentClosedChats.push(chatID);
 
-    Storage.setItem('closedChatList', currentClosedChats);
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
   }
 };
 

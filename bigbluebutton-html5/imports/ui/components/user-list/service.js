@@ -13,6 +13,9 @@ const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 
+// session for closed chat list
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+
 /* TODO: Same map is done in the chat/service we should share this someway */
 
 const mapUser = user => ({
@@ -197,7 +200,7 @@ const getOpenChats = chatID => {
     return op;
   });
 
-  let currentClosedChats = Storage.getItem('closedChatList') || [];
+  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   let filteredChatList = [];
 
   openChats.forEach((op) => {
@@ -205,7 +208,7 @@ const getOpenChats = chatID => {
     // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
       if (_.contains(currentClosedChats, op.id)) {
-        Storage.setItem('closedChatList', _.without(currentClosedChats, op.id));
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.id));
       }
     }
 
