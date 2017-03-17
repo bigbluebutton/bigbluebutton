@@ -11,30 +11,24 @@ Verto = function (
   this.share_call = null;
   this.vertoHandle;
 
-  this.vid_width = 1920;
-  this.vid_height = 1080;
+  this.vid_width = window.screen.width;
+  this.vid_height = window.screen.height;
 
-  this.local_vid_width = 320;
-  this.local_vid_height = 180;
-  this.outgoingBandwidth;
-  this.incomingBandwidth;
-  this.sessid = null;
+  this.outgoingBandwidth = "default";
+  this.incomingBandwidth = "default";
+  this.sessid = $.verto.genUUID();
 
   this.renderTag = 'remote-media';
 
   this.destination_number = voiceBridge;
   this.caller_id_name = conferenceUsername;
-  this.caller_id_number = conferenceIdNumber;
+  this.caller_id_number = conferenceUsername;
 
   this.vertoPort = "8082";
   this.hostName = window.location.hostname;
   this.socketUrl = 'wss://' + this.hostName + ':' + this.vertoPort;
   this.login = "bbbuser";
   this.password = "secret";
-  this.minWidth = '640';
-  this.minHeight = '480';
-  this.maxWidth = '1920';
-  this.maxHeight = '1080';
 
   this.useVideo = false;
   this.useCamera = false;
@@ -105,7 +99,26 @@ Verto.prototype.onWSLogin = function (v, success) {
 
 Verto.prototype.registerCallbacks = function () {
   var callbacks = {
-    onMessage: function () {},
+    onMessage: function (verto, dialog, msg, data) {
+
+      switch (msg) {
+        case $.verto.enum.message.pvtEvent:
+          if (data.pvtData) {
+            switch (data.pvtData.action) {
+              // This client has joined the live array for the conference.
+              case "conference-liveArray-join":
+                initLiveArray(verto, dialog, data);
+                break;
+              // This client has left the live array for the conference.
+              case "conference-liveArray-part":
+                // Some kind of client-side wrapup...
+              break;
+            }
+          }
+          break;
+      }
+
+    },
 
     onDialogState: function (d) {},
 
@@ -134,6 +147,62 @@ Verto.prototype.registerCallbacks = function () {
   this.callbacks = callbacks;
 };
 
+var initLiveArray = function(verto, dialog, data) {
+    // Set up addtional configuration specific to the call.
+    window.vertoConf = new $.verto.conf(verto, {
+      dialog: dialog,
+      hasVid: true,
+      laData: data.pvtData,
+      // For subscribing to published chat messages.
+      chatCallback: function(verto, eventObj) {
+        var from = eventObj.data.fromDisplay || eventObj.data.from || 'Unknown';
+        var message = eventObj.data.message || '';
+      },
+    });
+    var config = {
+      subParams: {
+        callID: dialog ? dialog.callID : null
+      },
+    };
+    // Set up the live array, using the live array data received from FreeSWITCH.
+    window.liveArray = new $.verto.liveArray(window.vertoHandle, data.pvtData.laChannel, data.pvtData.laName, config);
+    // Subscribe to live array changes.
+    window.liveArray.onChange = function(liveArrayObj, args) {
+      console.log("Call UUID is: " + args.key);
+      console.log("Call data is: ", args.data);
+
+      console.log(liveArrayObj);
+      console.log(args);
+
+      try {
+        switch (args.action) {
+
+          // Initial list of existing conference users.
+          case "bootObj":
+            break;
+
+          // New user joined conference.
+          case "add":
+            break;
+
+          // User left conference.
+          case "del":
+            break;
+
+          // Existing user's state changed (mute/unmute, talking, floor, etc)
+          case "modify":
+            break;
+        }
+      } catch (err) {
+        console.error("ERROR: " + err);
+      }
+    };
+    // Called if the live array throws an error.
+    window.liveArray.onErr = function (obj, args) {
+      console.error("Error: ", obj, args);
+    };
+};
+
 Verto.prototype.hold = function () {
   this.cur_call.toggleHold();
 };
@@ -149,6 +218,7 @@ Verto.prototype.hangup = function () {
   if (this.share_call) {
     // the duration of the call
     this.logger('call ended ' + this.share_call.audioStream.currentTime);
+    this.share_call.rtc.localStream.getTracks().forEach(track => track.stop());
     this.share_call.hangup();
     this.share_call = null;
   }
@@ -214,6 +284,10 @@ Verto.prototype.setMicrophone = function (tag) {
 };
 
 Verto.prototype.setScreenShare = function (tag) {
+  // required for Verto to know we want to use video
+  // tell Verto we want to share webcam so it knows there will be a video stream
+  // but instead of a webcam we pass screen constraints
+  this.useCamera = 'any';
   this.mediaCallback = this.makeShare;
   this.create(tag);
 };
@@ -221,7 +295,9 @@ Verto.prototype.setScreenShare = function (tag) {
 Verto.prototype.create = function (tag) {
   this.setRenderTag(tag);
   this.registerCallbacks();
-  this.configStuns(this.init);
+  //this.configStuns(this.init);
+  this.iceServers = true;
+  this.init();
 };
 
 Verto.prototype.docall = function () {
@@ -255,13 +331,13 @@ Verto.prototype.makeShare = function () {
 
   var screenInfo = null;
   if (!!navigator.mozGetUserMedia) {
-    screenInfo = {
-      video: {
+    return this.onFail();
+
+    /*screenInfo = {
         mozMediaSource: 'window',
         mediaSource: 'window',
-      },
     };
-    this.doShare(screenInfo.video);
+    this.doShare(screenInfo);*/
   } else if (!!window.chrome) {
     var _this = this;
     if (!_this.chromeExtension) {
@@ -273,26 +349,21 @@ Verto.prototype.makeShare = function () {
       return;
     }
 
-    getChromeExtensionStatus(this.chromeExtension, function (status) {
-      if (status != 'installed-enabled') {
-        _this.logError('No chrome Extension');
+    // bring up Chrome screen picker
+    getMyScreenConstraints(function (constraints) {
+      if (constraints == null || constraints == "" || constraints.streamId == null || constraints.streamId == "") {
         _this.onFail();
-        return -1;
+        return _this.logError(constraints);
       }
 
-      // bring up Chrome screen picker
-      getScreenConstraints(function (error, screenConstraints) {
-        if (error) {
-          _this.onFail();
-          return _this.logError(error);
-        }
+      screenInfo = {
+        chromeMediaSource: "desktop",
+        chromeMediaSourceId: constraints.streamId,
+      };
 
-        screenInfo =  screenConstraints.mandatory;
-
-        _this.logger(screenInfo);
-        _this.doShare(screenInfo);
-      });
-    });
+      _this.logger(screenInfo);
+      _this.doShare(screenInfo);
+    }, _this.chromeExtension);
   }
 };
 
@@ -301,15 +372,35 @@ Verto.prototype.doShare = function (screenConstraints) {
     destination_number: this.destination_number,
     caller_id_name: this.caller_id_name,
     caller_id_number: this.caller_id_number,
-    outgoingBandwidth: this.outgoingBandwidth,
-    incomingBandwidth: this.incomingBandwidth,
+    outgoingBandwidth: "default",
+    incomingBandwidth: "default",
     videoParams: screenConstraints,
     useVideo: true,
     screenShare: true,
+
+    useCamera: this.useCamera,
+    useMic: this.useMic,
+    useSpeak: 'any',
+
     dedEnc: true,
     mirrorInput: false,
     tag: this.renderTag,
   });
+
+  var stopSharing = function() {
+    console.log("stopSharing");
+    this.share_call.hangup();
+    this.share_call = null;
+  };
+
+  var _this = this;
+  // Override onStream callback in $.FSRTC instance
+  this.share_call.rtc.options.callbacks.onStream = function (rtc, stream) {
+    if (stream) {
+      var StreamTrack = stream.getVideoTracks()[0];
+      StreamTrack.addEventListener('ended', stopSharing.bind(_this));
+    }
+  };
 };
 
 Verto.prototype.init = function () {
@@ -317,6 +408,7 @@ Verto.prototype.init = function () {
 
   if (!window.vertoHandle) {
     window.vertoHandle = new $.verto({
+      useVideo: true,
       login: this.login,
       passwd: this.password,
       socketUrl: this.socketUrl,
@@ -324,10 +416,6 @@ Verto.prototype.init = function () {
       ringFile: 'sounds/bell_ring2.wav',
       sessid: this.sessid,
       videoParams: {
-        minWidth: this.vid_width,
-        minHeight: this.vid_height,
-        maxWidth: this.vid_width,
-        maxHeight: this.vid_height,
         minFrameRate: 15,
         vertoBestFrameRate: 30,
       },
@@ -478,6 +566,11 @@ window.vertoExitAudio = function () {
   window.vertoManager.exitAudio();
 };
 
+window.vertoExitVideo = function () {
+  window.vertoInitialize();
+  window.vertoManager.exitVideo();
+};
+
 window.vertoExitScreenShare = function () {
   window.vertoInitialize();
   window.vertoManager.exitScreenShare();
@@ -503,7 +596,54 @@ window.vertoShareScreen = function () {
   window.vertoManager.shareScreen.apply(window.vertoManager, arguments);
 };
 
-window.vertoExtensionGetChromeExtensionStatus = function (extensionid, callback) {
+// a function to check whether the browser (Chrome only) is in an isIncognito
+// session. Requires 1 mandatory callback that only gets called if the browser
+// session is incognito. The callback for not being incognito is optional.
+// Attempts to retrieve the chrome filesystem API.
+window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {}) {
+  isIncognito = Verto.normalizeCallback(isIncognito);
+  isNotIncognito = Verto.normalizeCallback(isNotIncognito);
+
+  var fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+  if (!fs) {
+    isNotIncognito();
+    return;
+  }
+  fs(window.TEMPORARY, 100, function(){isNotIncognito()}, function(){isIncognito()});
+};
+
+window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
   callback = Verto.normalizeCallback(callback);
-  getChromeExtensionStatus(extensionid, callback);
+
+  if (typeof chrome === "undefined" || !chrome || !chrome.runtime) {
+    // No API, so no extension for sure
+    callback(false);
+    return;
+  }
+  chrome.runtime.sendMessage(
+    chromeExtensionId,
+    { getVersion: true },
+    function (response) {
+      if (!response || !response.version) {
+        // Communication failure - assume that no endpoint exists
+        callback(false);
+        return;
+      }
+      callback(true);
+    }
+  );
+}
+
+window.getMyScreenConstraints = function(theCallback, extensionId) {
+  theCallback = Verto.normalizeCallback(theCallback);
+  chrome.runtime.sendMessage(extensionId, {
+    getStream: true,
+    sources: [
+      "window",
+      "screen"
+    ]},
+    function(response) {
+      console.log(response);
+      theCallback(response);
+   });
 };
