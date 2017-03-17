@@ -6,7 +6,6 @@ import { joinRouteHandler, logoutRouteHandler, authenticatedRouteHandler } from 
 import Base from './base';
 
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
-import KickedScreen from '/imports/ui/components/kicked-screen/component';
 import ChatContainer from '/imports/ui/components/chat/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
 
@@ -29,7 +28,6 @@ export const renderRoutes = () => (
       <Redirect from="users/chat" to="/users/chat/public" />
     </Route>
     <Route name="error" path="/error/:errorCode" component={Base}/>
-    <Route name="kicked" path="/kicked" component={KickedScreen}/>
     <Redirect from="*" to="/error/404" />
   </Router>
 );

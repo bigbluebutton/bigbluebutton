@@ -16,6 +16,10 @@ const intlMessages = defineMessages({
     id: 'app.about.401',
     defaultMessage: 'Unauthorized',
   },
+  403: {
+    id: 'app.about.403',
+    defaultMessage: 'Forbidden',
+  },
 });
 
 const propTypes = {

@@ -2,8 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
 
-import KickedScreen from '../kicked-screen/component';
-
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio-notification/container';
 import ChatNotificationContainer from '../chat/notification/container';

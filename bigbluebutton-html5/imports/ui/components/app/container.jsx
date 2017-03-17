@@ -1,5 +1,8 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import { withRouter } from 'react-router';
+import { defineMessages, injectIntl } from 'react-intl';
+
 import {
   getModal,
   showModal,
@@ -25,6 +28,14 @@ const defaultProps = {
   media: <MediaContainer />,
 };
 
+const intlMessages = defineMessages({
+  kickedMessage: {
+    id: 'app.error.kicked',
+    description: 'Message when the user is kicked out of the meeting',
+    defaultMessage: 'You have been kicked out of the meeting',
+  },
+});
+
 class AppContainer extends Component {
   render() {
     // inject location on the navbar container
@@ -47,11 +58,17 @@ const init = () => {
   }
 };
 
-export default createContainer(({ baseControls }) => {
+export default withRouter(injectIntl(createContainer(({ router, intl, baseControls }) => {
   // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     removed() {
-      Auth.clearCredentials().then(() => alert('KICKED'));
+      Auth.clearCredentials()
+        .then(() => {
+          router.push('/error/403');
+          baseControls.updateErrorState(
+            intl.formatMessage(intlMessages.kickedMessage),
+          );
+        });
     },
   });
 
@@ -68,6 +85,6 @@ export default createContainer(({ baseControls }) => {
     modal: getModal(),
     fontSize: getFontSize(),
   };
-}, AppContainer);
+}, AppContainer)));
 
 AppContainer.defaultProps = defaultProps;
