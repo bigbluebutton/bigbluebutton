@@ -21,12 +21,7 @@ export default function handleValidateAuthToken({ payload }) {
 
   const User = Users.findOne(selector);
 
-  if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able validate the token`);
-  }
-
-  if (User.validated === validStatus) {
+  if (User && User.validated === validStatus) {
     return;
   }
 
