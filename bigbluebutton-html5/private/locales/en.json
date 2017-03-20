@@ -12,7 +12,6 @@
   "app.chat.titlePrivate": "Private Chat with {name}",
   "app.chat.partnerDisconnected": "{name} has left the meeting",
   "app.chat.moreMessages": "More messages below",
-  "app.kickMessage": "You have been kicked out of the meeting",
   "app.presentation.presentationToolbar.prevSlideLabel": "Previous slide",
   "app.presentation.presentationToolbar.prevSlideDescrip": "Change the presentation to the previous slide",
   "app.presentation.presentationToolbar.nextSlideLabel": "Next slide",
@@ -109,5 +108,10 @@
   "app.audio.audioSettings.speakerSourceLabel": "Speaker source",
   "app.audio.audioSettings.microphoneStreamLabel": "Your audio stream volume",
   "app.audio.listenOnly.backLabel": "Back",
-  "app.audio.listenOnly.closeLabel": "Close"
+  "app.audio.listenOnly.closeLabel": "Close",
+  "app.error.kicked": "You have been kicked out of the meeting",
+  "app.error.500": "Ops, something went wrong",
+  "app.error.404": "Not found",
+  "app.error.401": "Unauthorized",
+  "app.error.403": "Forbidden"
 }

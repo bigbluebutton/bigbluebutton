@@ -37,6 +37,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.httpclient.*;
@@ -103,9 +104,14 @@ public class ParamsProcessorUtil {
 
         // Do we have a meeting id? If not, complain.
         if(!StringUtils.isEmpty(params.get("meetingID"))) {
-            if (StringUtils.isEmpty(StringUtils.strip(params.get("meetingID")))) {
+        	  String meetingId = StringUtils.strip(params.get("meetingID"));
+            if (StringUtils.isEmpty(meetingId)) {
                 errors.missingParamError("meetingID");
-            }
+            } else {
+            	if (! ParamsUtil.isValidMeetingId(meetingId)) {
+								errors.addError(new String[] {"invalidFormat", "Meeting id contains invalid characters."});
+							}
+						}
         } else {
             errors.missingParamError("meetingID");
         }
@@ -290,10 +296,14 @@ public class ParamsProcessorUtil {
 	}
 	
     public Meeting processCreateParams(Map<String, String> params) {
+
         String meetingName = params.get("name");
         if (meetingName == null) {
             meetingName = "";
         }
+
+        meetingName = ParamsUtil.stripControlChars(meetingName);
+
         String externalMeetingId = params.get("meetingID");
 
         String viewerPass = processPassword(params.get("attendeePW"));
