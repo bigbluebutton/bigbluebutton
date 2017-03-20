@@ -35,7 +35,6 @@ package org.bigbluebutton.modules.screenshare.managers {
     import org.bigbluebutton.modules.screenshare.services.ScreenshareService;
     import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
     import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
-    import org.bigbluebutton.main.api.JSLog;
     
     public class ScreenshareManager {
         private static const LOGGER:ILogger = getClassLogger(ScreenshareManager);
@@ -220,13 +219,11 @@ package org.bigbluebutton.modules.screenshare.managers {
 
 
         public function handleUseJavaModeCommand():void {
-          JSLog.warn("ScreenshareManager::handleUseJavaModeCommand", {});
-          var force:Boolean = true;
-          handleRequestStartSharingEvent(force);
+          // true to force Java desksharing to be used regardless of WebRTC settings
+          handleRequestStartSharingEvent(true);
         }
 
         public function handleDeskshareToolbarStopEvent():void {
-          JSLog.warn("ScreenshareManager::handleDeskshareToolbarStopEvent", {});
           toolbarButtonManager.stoppedSharing();
         }
     }

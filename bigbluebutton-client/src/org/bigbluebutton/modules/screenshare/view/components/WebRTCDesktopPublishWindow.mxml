@@ -441,7 +441,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         </mx:HBox>
         <mx:HBox width="100%" horizontalAlign="center">
           <mx:LinkButton id="btnInstallExtension" 
-            label="Click here to install" 
+            label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionInstallButton.label')}" 
             visible="true" 
             enabled="true" 
             styleName="quickWindowLinkStyle"
@@ -455,7 +455,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:AddChild relativeTo="mainElement" position="after">
       <mx:VBox width="100%" height="100%" horizontalAlign="center">
         <mx:LinkButton id="btnInstallExtension2" 
-          label="Click here to install" 
+          label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCExtensionInstallButton.label')}"
           visible="true" 
           enabled="true" 
           styleName="quickWindowLinkStyle"
@@ -476,7 +476,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           <mx:Text id="incognitoLbl" width="100%" visible="false" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCPrivateBrowsingWarning.label')}" />
         </mx:HBox>
         <mx:HBox width="100%" height="100%" horizontalAlign="center">
-          <mx:Button id="btnFallback" label="Use Java Screen Sharing" visible="true" enabled="true" click="onFallbackButtonClicked()" />
+          <mx:Button id="btnFallback" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.WebRTCUseJavaButton.label')}" visible="true" enabled="true" click="onFallbackButtonClicked()" />
         </mx:HBox>
       </mx:VBox>
     </mx:AddChild>
