@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import _ from 'underscore';
+import _ from 'lodash';
 
 const propTypes = {
   text: PropTypes.string.isRequired,

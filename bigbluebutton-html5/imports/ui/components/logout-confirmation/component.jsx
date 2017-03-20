@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
-import Auth from '/imports/ui/services/auth';
 import Modal from '/imports/ui/components/modal/component';
-import LocalStorage from '/imports/ui/services/storage/local.js';
-import { clearModal } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   title: {
@@ -33,33 +31,19 @@ const intlMessages = defineMessages({
 });
 
 class LeaveConfirmation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.handleLeaveConfirmation = this.handleLeaveConfirmation.bind(this);
-    this.handleCancleLogout = this.handleCancleLogout.bind(this);
-  }
-
-  handleLeaveConfirmation() {
-    Auth.completeLogout();
-  }
-
-  handleCancleLogout() {
-    clearModal();
-  }
-
   render() {
-    const { intl } = this.props;
+    const { intl, router } = this.props;
+
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
         confirm={{
-          callback: this.handleLeaveConfirmation,
+          callback: () => router.push('/logout'),
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
         }}
         dismiss={{
-          callback: this.handleCancleLogout,
+          callback: () => null,
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}>
@@ -69,4 +53,4 @@ class LeaveConfirmation extends Component {
   }
 };
 
-export default injectIntl(LeaveConfirmation);
+export default withRouter(injectIntl(LeaveConfirmation));

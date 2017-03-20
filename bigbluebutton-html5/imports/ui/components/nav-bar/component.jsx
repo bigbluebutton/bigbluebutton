@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import _ from 'underscore';
+import _ from 'lodash';
 import cx from 'classnames';
 import styles from './styles.scss';
 

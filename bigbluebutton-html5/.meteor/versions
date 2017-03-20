@@ -56,7 +56,6 @@ modules@0.7.9
 modules-runtime@0.7.9
 mongo@1.1.15
 mongo-id@1.0.6
-mrt:external-file-loader@0.1.4
 nathantreid:css-modules@2.4.0
 npm-mongo@2.2.16_1
 observe-sequence@1.0.15

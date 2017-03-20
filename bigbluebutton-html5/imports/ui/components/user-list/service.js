@@ -170,8 +170,6 @@ const getUsers = () => {
 };
 
 const getOpenChats = chatID => {
-  window.Users = Users;
-
   let openChats = Chat
   .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
   .fetch()
