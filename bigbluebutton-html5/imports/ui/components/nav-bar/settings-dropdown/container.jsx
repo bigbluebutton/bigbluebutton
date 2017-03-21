@@ -13,7 +13,7 @@ export default class SettingsDropdownContainer extends Component {
       isFullScreen: false,
     }
 
-    this.fullScreenToggleCallback = this.fullScreenToggleCallback.bind(this);
+    this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
   }
 
   componentDidMount() {
@@ -23,7 +23,7 @@ export default class SettingsDropdownContainer extends Component {
                                     'MSFullscreenChange'];
 
     fullscreenChangedEvents.forEach(event =>
-      document.addEventListener(event, this.fullScreenToggleCallback));
+      document.addEventListener(event, this.handleFullscreenChange));
   }
 
   componentWillUnmount() {
@@ -36,7 +36,7 @@ export default class SettingsDropdownContainer extends Component {
       document.removeEventListener(event, this.fullScreenToggleCallback));
   }
 
-  fullScreenToggleCallback() {
+  handleFullscreenChange() {
     if (screen.height - 1 <= window.innerHeight) {
       // browser is probably in fullscreen
       this.setState({isFullScreen: true});
