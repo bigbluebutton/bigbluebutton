@@ -4,14 +4,17 @@ import { joinListenOnly } from '/imports/api/phone';
 import { showModal } from '/imports/ui/components/app/service';
 import { exitAudio } from '/imports/api/phone';
 import Audio from '/imports/ui/components/audio-modal/component';
-import React, { Component } from 'react';
 
 let isUserPresenter = () => {
 
   // check if user is a presenter
-  return isPresenter = Users.findOne({
+  let isPresenter = Users.findOne({
     userId: AuthSingleton.getCredentials().requesterUserId,
   }).user.presenter;
+
+  return {
+    isUserPresenter: isPresenter,
+  };
 };
 
 const handleExitAudio = () => {
