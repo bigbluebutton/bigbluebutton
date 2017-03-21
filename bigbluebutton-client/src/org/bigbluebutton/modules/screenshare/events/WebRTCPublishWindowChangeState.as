@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.screenshare.events
 {
 	import flash.events.Event;
-	import org.bigbluebutton.main.api.JSLog;
 
 	public class WebRTCPublishWindowChangeState extends Event
 	{
@@ -29,7 +28,6 @@ package org.bigbluebutton.modules.screenshare.events
 
 		public function WebRTCPublishWindowChangeState(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
-			JSLog.warn("new WebRTCPublishWindowChangeState", type);
 			super(type, bubbles, cancelable);
 		}
 
