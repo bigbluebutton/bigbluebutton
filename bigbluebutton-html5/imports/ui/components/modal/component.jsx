@@ -99,7 +99,7 @@ export default class Modal extends Component {
               label={confirm.label}
               onClick={this.handleConfirm}
               aria-describedby={'modalConfirmDescription'}
-              tabIndex={1} />
+              tabIndex={0} />
           </div>
         </header>
         <div className={styles.content}>
