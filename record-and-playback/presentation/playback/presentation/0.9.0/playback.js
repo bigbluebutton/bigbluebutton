@@ -301,15 +301,15 @@ google_frame_warning = function(){
 
 function checkUrl(url)
 {
+  console.log("==Checking Url",url);
+  var http = new XMLHttpRequest();
+  http.open('HEAD', url, false);
   try {
-    console.log("==Checking Url",url)
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
     http.send();
-    return http.status==200;
-  } catch (e) {
+  } catch(e) {
     return false;
   }
+  return http.status == 200 || http.status == 206;
 }
 
 load_video = function(){
@@ -355,6 +355,7 @@ load_video = function(){
    //video.setAttribute('autoplay','autoplay');
 
    document.getElementById("video-area").appendChild(video);
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'video'}));
 }
 
 load_audio = function() {
@@ -388,6 +389,30 @@ load_audio = function() {
    //leave auto play turned off for accessiblity support
    //audio.setAttribute('autoplay','autoplay');
    document.getElementById("audio-area").appendChild(audio);
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'audio'}));
+}
+
+load_deskshare_video = function () {
+   console.log("==Loading deskshare video");
+   var deskshare_video = document.createElement("video");
+   deskshare_video.setAttribute('id','deskshare-video');
+
+   var webmsource = document.createElement("source");
+   webmsource.setAttribute('src', RECORDINGS + '/deskshare/deskshare.webm');
+   webmsource.setAttribute('type','video/webm; codecs="vp8.0, vorbis"');
+   deskshare_video.appendChild(webmsource);
+
+   var presentationArea = document.getElementById("presentation-area");
+   presentationArea.insertBefore(deskshare_video,presentationArea.childNodes[0]);
+
+   $('#video').on("play", function() {
+       Popcorn('#deskshare-video').play();
+   });
+   $('#video').on("pause", function() {
+       Popcorn('#deskshare-video').pause();
+   });
+
+   document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'deskshare'}));
 }
 
 load_script = function(file){
@@ -398,36 +423,12 @@ load_script = function(file){
   document.getElementsByTagName('body').item(0).appendChild(script);
 }
 
-load_spinner = function(){
-  console.log("==Loading spinner");
-  var opts = {
-    lines: 13, // The number of lines to draw
-    length: 24, // The length of each line
-    width: 4, // The line thickness
-    radius: 24, // The radius of the inner circle
-    corners: 1, // Corner roundness (0..1)
-    rotate: 24, // The rotation offset
-    direction: 1, // 1: clockwise, -1: counterclockwise
-    color: '#000', // #rgb or #rrggbb or array of colors
-    speed: 1, // Rounds per second
-    trail: 87, // Afterglow percentage
-    shadow: false, // Whether to render a shadow
-    hwaccel: false, // Whether to use hardware acceleration
-    className: 'spinner', // The CSS class to assign to the spinner
-    zIndex: 2e9, // The z-index (defaults to 2000000000)
-    top: '50%', // Top position relative to parent
-    left: '50%' // Left position relative to parent
-  };
-  var target = document.getElementById('spinner');
-  spinner = new Spinner(opts).spin(target);
-};
-
-
 document.addEventListener("DOMContentLoaded", function() {
   console.log("==DOM content loaded");
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
-  var spinner;
+
+  startLoadingBar();
 
   if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
     google_frame_warning();
@@ -443,10 +444,6 @@ document.addEventListener("DOMContentLoaded", function() {
     load_audio();
   }
 
-  load_spinner();
-  console.log("==Hide playback content");
-  $("#playback-content").css('visibility', 'hidden');
-
   //load up the acorn controls
   console.log("==Loading acorn media player ");
   $('#video').acornMediaPlayer({
@@ -456,6 +453,13 @@ document.addEventListener("DOMContentLoaded", function() {
   $('#video').on("swap", function() {
     swapVideoPresentation();
   });
+
+  if (checkUrl(RECORDINGS + '/deskshare/deskshare.webm') == true) {
+    load_deskshare_video();
+  } else {
+    // If there is no deskshare at all we must also trigger this event to signal Popcorn
+    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'deskshare'}));
+  }
 
   resizeComponents();
 }, false);

@@ -19,7 +19,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" visible="{_visibleTools}"
+		   creationComplete="init()" visible="{_visibleTools}" includeInLayout="{_visibleTools}"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:common="org.bigbluebutton.common.*"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"

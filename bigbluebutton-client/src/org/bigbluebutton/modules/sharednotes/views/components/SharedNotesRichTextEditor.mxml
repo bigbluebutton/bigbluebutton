@@ -988,6 +988,7 @@
     private var refreshSelection:Boolean = false;
     private var shiftPressed:Boolean = false;
     private var ctrlPressed:Boolean = false;
+    private var preventTextInput:Boolean = false;
 
     public function restoreVerticalScroll(oldVerticalScroll:Number):void
     {
@@ -1162,7 +1163,7 @@
         }
         if (e.ctrlKey)
         {
-            parentDocument.handleCtrlCmd(e);
+            preventTextInput = parentDocument.handleCtrlCmd(e);
             if (!ctrlPressed)
             {
                 ctrlPressed = true;
@@ -1180,6 +1181,7 @@
         }
         if (!e.ctrlKey && ctrlPressed)
         {
+            preventTextInput = false;
             ctrlPressed = false;
             parentDocument.handleResizableStatus(true);
         }
@@ -1212,7 +1214,7 @@
     {
         if (e.text.length > 0) refreshSelection = true;
 
-        if (ctrlPressed) e.preventDefault();
+        if (preventTextInput) e.preventDefault();
     }
 
     private function onKeyUp(event:KeyboardEvent):void

@@ -29,6 +29,7 @@ require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'trollop'
 require 'yaml'
+require 'json'
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -125,6 +126,7 @@ if not FileTest.directory?(target_dir)
     BigBlueButton.logger.info("Created an updated metadata.xml with start_time and end_time")
 
     # Start processing raw files
+    presentation_text = {}
     presentations.each do |pres|
       pres_dir = "#{presentation_dir}/#{pres}"
       num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
@@ -151,13 +153,16 @@ if not FileTest.directory?(target_dir)
         end
 
         if !pres_pdf.empty?
+          text = {}
           1.upto(num_pages) do |page|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
               page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
             if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
+              text["slide-#{page}"] = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", :encoding => 'UTF-8')
               FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
             end
           end
+          presentation_text[pres] = text
         end
       else
         ext = File.extname("#{images[0]}")
@@ -177,26 +182,33 @@ if not FileTest.directory?(target_dir)
     end
     captions = JSON.load(File.new("#{target_dir}/captions.json", 'r'))
 
+    if not presentation_text.empty?
+      # Write presentation_text.json to file
+      File.open("#{target_dir}/presentation_text.json","w") { |f| f.puts presentation_text.to_json }
+    end
+
     # We have to decide whether to actually generate the video file
     # We do so if any of the following conditions are true:
     # - There is webcam video present, or
-    # - We have deskshare video *enabled* and there's deskshare/broadcast video present, or
+    # - There's broadcast video present, or
     # - There are closed captions present (they need a video stream to be rendered on top of)
-    if !Dir["#{raw_archive_dir}/video/*"].empty? or
-        (presentation_props['include_deskshare'] and
-          (!Dir["#{raw_archive_dir}/deskshare/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?)) or
-        captions.length > 0
-      width = presentation_props['video_output_width']
-      height = presentation_props['video_output_height']
+    if !Dir["#{raw_archive_dir}/video/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? or captions.length > 0
+      webcam_width = presentation_props['video_output_width']
+      webcam_height = presentation_props['video_output_height']
 
-      # Use a higher resolution video canvas if there's deskshare/broadcast video streams
-      if presentation_props['include_deskshare'] and
-          (!Dir["#{raw_archive_dir}/deskshare/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?)
-        width = presentation_props['deskshare_output_width']
-        height = presentation_props['deskshare_output_height']
+      # Use a higher resolution video canvas if there's broadcast video streams
+      if !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?
+        webcam_width = presentation_props['deskshare_output_width']
+        webcam_height = presentation_props['deskshare_output_height']
       end
 
-      BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, width, height, presentation_props['audio_offset'], presentation_props['include_deskshare'])
+      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'])
+    end
+
+    if !Dir["#{raw_archive_dir}/deskshare/*"].empty? and presentation_props['include_deskshare']
+      deskshare_width = presentation_props['deskshare_output_width']
+      deskshare_height = presentation_props['deskshare_output_height']
+      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height)
     end
 
     process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")

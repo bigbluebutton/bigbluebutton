@@ -73,6 +73,10 @@ html, .acorn-controls {
   height: auto;
 }
 
+#presentation-area {
+  position: relative;
+}
+
 /* Some internal elements should just fill the entire size of their parents,
    that will control their size. */
 #slide {
@@ -80,10 +84,26 @@ html, .acorn-controls {
   height: 100%;
   margin: 0 auto;
 
-  /* vertical alignment */
-  position: relative;
+  /* vertical and horizontal alignment */
+  position: absolute;
   top: 50%;
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+#deskshare-video {
+  display: block;
+  visibility: hidden;
+
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+
+  /* vertical and horizontal alignment */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
 }
 
 #chat {
@@ -181,6 +201,9 @@ body {
   background-repeat: no-repeat;
   background-position: center center;
 }
+#slide.no-background {
+  background-image:none;
+}
 #cursor {
   visibility: hidden;
   width: 12px;
@@ -277,16 +300,21 @@ ul.off-canvas-list li label {
 }
 
 /* Video style */
-#video {
+#video, #deskshare-video {
   background-color: #f6f6f6;
 }
 
-/* Loading page with a spinner */
-#loading-recording {
+#loading-error {
+  visibility: hidden;
   width: 100%;
   height: 100%;
+  background-image: url('logo.png');
+  background-size: 160px 160px;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
-#load-recording-msg {
+
+#load-error-msg {
   text-align: center;
   vertical-align: middle;
   position: absolute;
@@ -345,4 +373,27 @@ ul.off-canvas-list li label {
   #chat-area {
     border: none;
   }
+}
+
+.pace {
+  -webkit-pointer-events: none;
+  pointer-events: none;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.pace .pace-progress {
+  background: #35383e;
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  right: 100%;
+  width: 100%;
+  height: 4px;
+}
+
+.pace-inactive {
+  display: none;
 }

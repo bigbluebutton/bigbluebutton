@@ -43,6 +43,7 @@ class BigBlueButtonInGW(
             new StartCustomPollRequest(
               msg.payload.meetingId,
               msg.payload.requesterId,
+              msg.payload.pollId,
               msg.payload.pollType,
               msg.payload.answers)))
       }
@@ -578,7 +579,7 @@ class BigBlueButtonInGW(
   }
 
   def startPoll(meetingId: String, requesterId: String, pollId: String, pollType: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new StartPollRequest(meetingId, requesterId, pollType)))
+    eventBus.publish(BigBlueButtonEvent(meetingId, new StartPollRequest(meetingId, requesterId, pollId, pollType)))
   }
 
   def stopPoll(meetingId: String, userId: String, pollId: String) {

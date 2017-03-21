@@ -37,6 +37,8 @@ package org.bigbluebutton.modules.whiteboard.models
 		private var _whiteboards:ArrayCollection = new ArrayCollection();
 
     private var _dispatcher:IEventDispatcher;
+
+    private var currentWhiteboardId:String;
         
     public function WhiteboardModel(dispatcher:IEventDispatcher) {
       _dispatcher = dispatcher;
@@ -157,14 +159,21 @@ package org.bigbluebutton.modules.whiteboard.models
         
       
     public function getCurrentWhiteboardId():String {
-      var page:Page = PresentationModel.getInstance().getCurrentPage();
-      if (page != null) {
-        return page.id;
-      }
-      
+      if(currentWhiteboardId)
+        return currentWhiteboardId;
+
       return null;
     }
     
+    public function setCurrentWhiteboardId(whiteboardId:String):void {
+      currentWhiteboardId = whiteboardId;
+      LOGGER.debug("currentWhiteboardId set to: " + currentWhiteboardId);
+      LOGGER.debug("(current page id: " + PresentationModel.getInstance().getCurrentPage().id + ")");
+    }
+
+    public function isOverlayingDeskshare():Boolean {
+      return (currentWhiteboardId && currentWhiteboardId == "deskshare");
+    }
 
 	}
 }

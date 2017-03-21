@@ -69,6 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShareEvent.CLEAN_SCREENSHARE_PUBLISH_TAB}" method="cleanScreensharePublishTab" />
 	<mate:Listener type="{ShareEvent.OPEN_SCREENSHARE_VIEW_TAB}" method="openScreenshareViewTab" />
 	<mate:Listener type="{ShareEvent.CLOSE_SCREENSHARE_VIEW_TAB}" method="closeScreenshareViewTab" />
+	<mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="addWhiteboardCanvasToSlideView" />
 
 	<mx:Script>
 		<![CDATA[
@@ -116,6 +117,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              		
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
@@ -174,6 +177,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var whiteboardOverlay:IBbbCanvas = null;
 			private var screenshareView:ScreenshareViewWindow = null;
+			private var whiteboardAdded:Boolean = false;
 			
 			private function init():void{
 				presentOptions = new PresentOptions();
@@ -546,16 +550,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
         LOGGER.debug("OVERLAYING WHITEBOARD CANVAS");
         whiteboardOverlay = e.canvas;
+      }
 
-        LOGGER.debug("addOverlayCanvas: Adding whiteboard canvas to SlideView");
-        e.canvas.acceptOverlayCanvas(slideView);
-        slideView.acceptOverlayCanvas(e.canvas);
-
-        if (currentTabIndex == SCREENSHARE_VIEW_TAB_INDEX && screenshareView != null) {
-           LOGGER.debug("addOverlayCanvas: Adding whiteboard canvas to ScreenshareViewWindow");
-           screenshareView.acceptOverlayCanvas(whiteboardOverlay);
-           whiteboardOverlay.acceptOverlayCanvas(screenshareView);
-        }
+      private function addWhiteboardCanvasToSlideView(e:PageLoadedEvent):void{
+        if(!whiteboardAdded && whiteboardOverlay != null) {
+           LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
+           changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
+           whiteboardOverlay.acceptOverlayCanvas(slideView);
+           slideView.acceptOverlayCanvas(whiteboardOverlay);
+           whiteboardAdded = true;
+        } else LOGGER.debug("addWhiteboardCanvasToSlideView: NOT adding whiteboard canvas to Slide View.");
       }
 					
 			override protected function resourcesChanged():void{
@@ -691,7 +695,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
 					pollMenuData.push({label: constructedLabel});
 				}
-				pollMenuData.push({label: "Custom Poll..."});
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPoll.label")});
 			}
 			
 			private function onPollStartButtonClicked():void {
@@ -952,8 +956,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (whiteboardOverlay != null) {
+					changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
 					slideView.acceptOverlayCanvas(whiteboardOverlay);
 					whiteboardOverlay.acceptOverlayCanvas(slideView);
+				}
+
+				if(!presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible) {
+					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = true;
+					presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = true;
 				}
 
 				btnActualSize.visible = false;
@@ -987,11 +997,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				if (whiteboardOverlay != null && screenshareView != null) {
 					LOGGER.debug("Adding whiteboard layer to Deskshare View Canvas");
+					changeWhiteboardPageOnly("deskshare");
 					screenshareView.acceptOverlayCanvas(whiteboardOverlay);
 					whiteboardOverlay.acceptOverlayCanvas(screenshareView);
 					if(UsersUtil.amIPresenter()) {
 						annotationsPermissionChanged(true);
 					}
+					if(!whiteboardAdded)
+						whiteboardAdded = true;
 				} else {
 					LOGGER.debug("openScreenshareViewTab: whiteboard overlay or desktop view canvas is null!");
 				}
@@ -1005,12 +1018,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
+			private function changeWhiteboardPageOnly(whiteboardId:String):void {
+				LOGGER.debug("Dispatching whiteboard page changed event. Id: " + whiteboardId);
+				var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.CHANGE_PAGE);
+				e.pageID = whiteboardId;
+				dispatchEvent(e);
+			}
+
 			private function stopSharing():void {
 				LOGGER.debug("Stopping desktop publish");
 				presenterTabs.getTabAt(SCREENSHARE_VIEW_TAB_INDEX).visible = false;
 				presenterTabs.getTabAt(SCREENSHARE_VIEW_TAB_INDEX).includeInLayout = false;
 				dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
 				sharing = false;
+				PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = false;
 			}
 
 			private function createScreensharePublishTab(e:ShareEvent):void {
@@ -1047,8 +1068,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 					if (UsersUtil.amIPresenter()) {
 						sharing = true;
+						PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = true;
 						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
 						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
+					}
+					else {
+						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible = false;
+						presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).includeInLayout = false;
 					}
 				} else {
 					LOGGER.debug("viewTabContent is NULL.");

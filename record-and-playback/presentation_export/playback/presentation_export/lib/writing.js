@@ -33,23 +33,12 @@ function getUrlParameters() {
 // - - - START OF JAVASCRIPT FUNCTIONS - - - //
 
 // Draw the cursor at a specific point
-function drawCursor(scaledX, scaledY, img) {
+function drawCursor(scaledX, scaledY) {
   var containerObj = $("#slide > object");
 
-  // the offsets of the image inside its parent
-  // Note: this block is only necessary if we let the svg do the resizing
-  // of the image, see the comments in resizeSlides()
-  var imgRect = img.getBoundingClientRect();
-  var imageX = 0; //imgRect.x;
-  var imageY = 0; //imgRect.y;
-
   // the offsets of the container that has the image inside it
-  var containerX = containerObj.offset().left;
-  var containerY = containerObj.offset().top;
-
-  // calculates the overall offsets of the image in the page
-  var imageOffsetX = containerX + imageX;
-  var imageOffsetY = containerY + imageY;
+  var imageOffsetX = containerObj.offset().left;
+  var imageOffsetY = containerObj.offset().top;
 
   // position of the cursor relative to the container
   var cursorXInImage = scaledX * containerObj.width();
@@ -77,10 +66,14 @@ function showCursor(show) {
   }
 };
 
-function setViewBox(val) {
-  if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
-  else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
-	svgfile.setAttribute('viewBox', val);
+function setViewBox(time) {
+  var vboxVal = getViewboxAtTime(time);
+  if(vboxVal !== undefined) {
+    setTransform(time);
+    if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
+    else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
+    svgfile.setAttribute('viewBox', vboxVal);
+  }
 }
 
 function getImageAtTime(time) {
@@ -99,14 +92,15 @@ function getImageAtTime(time) {
 function getViewboxAtTime(time) {
 	var curr_t = parseFloat(time);
 	var key;
+	var isDeskshare = mustShowDesktopVideo(time);
 	for (key in vboxValues) {
 		if(vboxValues.hasOwnProperty(key)) {
 			var arry = key.split(",");
 			if(arry[1] == "end") {
-				return vboxValues[key];
+				return isDeskshare ? adaptViewBoxToDeskshare(time) : vboxValues[key];
 			}
 			else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
-				return vboxValues[key];
+				return isDeskshare ? adaptViewBoxToDeskshare(time) : vboxValues[key];
 			}
 		}
 	}
@@ -122,9 +116,96 @@ function removeSlideChangeAttribute() {
 	Popcorn('#video').unlisten(Popcorn.play, 'removeSlideChangeAttribute');
 }
 
+function mustShowDesktopVideo(time) {
+  var canShow = false;
+  if (isThereDeskshareVideo()) {
+    for (var m = 0; m < deskshareTimes.length; m++) {
+      var start_timestamp = deskshareTimes[m][0];
+      var stop_timestamp = deskshareTimes[m][1];
+
+      if(time >= start_timestamp && time <= stop_timestamp)
+        canShow = true;
+    }
+  }
+
+  return canShow;
+}
+
+function getDeskshareDimension(time) {
+  var start_timestamp = 0.0;
+  var stop_timestamp = 0.0;
+  var width = deskshareWidth;
+  var height = deskshareHeight;
+  if (isThereDeskshareVideo()) {
+    for (var m = 0; m < deskshareTimes.length; m++) {
+      start_timestamp = deskshareTimes[m][0];
+      stop_timestamp = deskshareTimes[m][1];
+      if(time >= start_timestamp && time <= stop_timestamp) {
+        width = deskshareTimes[m][2];
+        height = deskshareTimes[m][3];
+        break;
+      }
+    }
+  }
+
+  return {
+    width: width,
+    height: height
+  };
+}
+
+function isThereDeskshareVideo() {
+  var deskshareVideo = document.getElementById("deskshare-video");
+  if (deskshareVideo != null) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function resyncVideos() {
+  if (!isThereDeskshareVideo()) return;
+  var currentTime = Popcorn('#video').currentTime();
+  var currentDeskshareVideoTime = Popcorn("#deskshare-video").currentTime();
+  if (Math.abs(currentTime - currentDeskshareVideoTime) >= 0.1)
+    Popcorn("#deskshare-video").currentTime(currentTime);
+}
+
+function handlePresentationAreaContent(time) {
+  var meetingDuration = parseFloat(new Popcorn("#video").duration().toFixed(1));
+  if(time >= meetingDuration)
+     return;
+
+  var mustShow = mustShowDesktopVideo(time);
+  if(!sharingDesktop && mustShow) {
+    console.log("Showing deskshare video...");
+    document.getElementById("deskshare-video").style.visibility = "visible";
+    $('#slide').addClass('no-background');
+    sharingDesktop = true;
+  } else if(sharingDesktop && !mustShow) {
+    console.log("Hiding deskshare video...");
+    document.getElementById("deskshare-video").style.visibility = "hidden";
+    $('#slide').removeClass('no-background');
+    sharingDesktop = false;
+  }
+
+  resyncVideos();
+  resizeDeshareVideo();
+}
+
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 
+function startLoadingBar() {
+  console.log("==Hide playback content");
+  $("#playback-content").css('visibility', 'hidden');
+  Pace.once('done', function() {
+    $("#loading-error").css('height','0');
+    console.log("==Show playback content");
+    $("#playback-content").css('visibility', 'visible');
+  });
+  Pace.start();
+}
 
 function runPopcorn() {
   console.log("** Running popcorn");
@@ -158,14 +239,6 @@ function runPopcorn() {
     return $(this).attr('class') == 'shape';
   });
 
-  // Newer recordings have slide images identified by class="slide"
-  // because they might include images in shapes
-  var images = shapeelements[0].getElementsByClassName("slide");
-  // To handle old recordings, fetch a list of all images instead
-  if (images.length == 0) {
-    images = shapeelements[0].getElementsByTagName("image");
-  }
-
   //create a map from timestamp to id list
   var timestampToId = {};
   for (var j = 0; j < array.length; j++) {
@@ -185,36 +258,7 @@ function runPopcorn() {
 
   var times_length = times.length; //get the length of the times array.
 
-  console.log("** Getting text files");
-  for(var m = 0; m < images.length; m++) {
-  	len = images[m].getAttribute("in").split(" ").length;
-  	for(var n = 0; n < len; n++) {
-  		imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
-  	}
-
-        // the logo at the start has no text attribute
-        if (images[m].getAttribute("text")) {
-          var txtFile = false;
-          if (window.XMLHttpRequest) {
-  	    // code for IE7+, Firefox, Chrome, Opera, Safari
-  	    txtFile = new XMLHttpRequest();
-          } else {
-  	    // code for IE6, IE5
-  	    txtFile = new ActiveXObject("Microsoft.XMLHTTP");
-          }
-          var imgid = images[m].getAttribute("id"); //have to save the value because images array might go out of scope
-          txtFile.open("GET", url + "/" + images[m].getAttribute("text"), false);
-          txtFile.onreadystatechange = function() {
-              if (txtFile.readyState === 4) {
-                if (txtFile.status === 200) {
-                  slidePlainText[imgid] = $('<div/>').text(txtFile.responseText).html();
-                  //console.log("**Text file read " + imgid);
-                }
-              }
-          };
-          txtFile.send(null);
-        }
-  }
+  getPresentationText();
 
   // PROCESS PANZOOMS.XML
   console.log("** Getting panzooms.xml");
@@ -257,6 +301,28 @@ function runPopcorn() {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
 
+
+  // PROCESS DESKSHARE.XML
+  console.log("** Getting deskshare.xml");
+  xmlhttp.open("GET", deskshare_xml, false);
+  xmlhttp.send();
+  xmlDoc = xmlhttp.responseXML;
+  if (xmlDoc) {
+    //getting all the event tags
+    console.log("** Processing deskshare.xml");
+    var deskelements = xmlDoc.getElementsByTagName("recording");
+    var deskshareArray = deskelements[0].getElementsByTagName("event");
+
+    if(deskshareArray != null && deskshareArray.length != 0) {
+      for (var m = 0; m < deskshareArray.length; m++) {
+        var deskTimes = [parseFloat(deskshareArray[m].getAttribute("start_timestamp")),
+                         parseFloat(deskshareArray[m].getAttribute("stop_timestamp")),
+                         parseFloat(deskshareArray[m].getAttribute("video_width")),
+                         parseFloat(deskshareArray[m].getAttribute("video_height"))];
+        deskshareTimes[m] = deskTimes;
+      }
+    }
+  }
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
   svgobj.style.top = "0px";
@@ -379,22 +445,16 @@ function runPopcorn() {
               p.listen(Popcorn.play, removeSlideChangeAttribute);
             }
 
-            var num_current = current_image.substr(5);
-            var num_next = next_image.substr(5);
-
-            if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
-            else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
-
-            if(currentcanvas !== null) {
-              currentcanvas.setAttribute("display", "none");
+            current_canvas = getCanvasFromImage(current_image);
+            if(current_canvas !== null) {
+              current_canvas.setAttribute("display", "none");
             }
 
-            if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
-            else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
-
-            if((nextcanvas !== undefined) && (nextcanvas != null)) {
-              nextcanvas.setAttribute("display", "");
+            next_canvas = getCanvasFromImage(next_image);
+            if((next_canvas !== undefined) && (next_canvas != null)) {
+              next_canvas.setAttribute("display", "");
             }
+
             previous_image = current_image;
             current_image = next_image;
           }
@@ -406,18 +466,17 @@ function runPopcorn() {
             var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
             var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
 
-            var vboxVal = getViewboxAtTime(t);
-            if(vboxVal !== undefined) {
-              setViewBox(vboxVal);
-            }
+            setViewBox(t);
 
             var cursorVal = getCursorAtTime(t);
-            if (cursorVal != null) {
+            if (cursorVal != null && !$('#slide').hasClass('no-background')) {
               cursorShownAt = new Date().getTime();
               showCursor(true);
               // width and height are divided by 2 because that's the value used as a reference
               // when positions in cursor.xml is calculated
-              drawCursor(parseFloat(cursorVal[0]) / (imageWidth/2), parseFloat(cursorVal[1]) / (imageHeight/2), thisimg);
+              var cursorX = parseFloat(cursorVal[0]) / (imageWidth/2);
+              var cursorY = parseFloat(cursorVal[1]) / (imageHeight/2);
+              drawCursor(cursorX, cursorY);
 
               // hide the cursor after 3s of inactivity
             } else if (cursorShownAt < new Date().getTime() - 3000) {
@@ -428,17 +487,83 @@ function runPopcorn() {
             currentImage = thisimg;
             resizeSlides();
           }
+
+          handlePresentationAreaContent(t);
        }
     }
   });
 };
 
-function removeLoadingScreen() {
-  spinner.stop();
-  $("#playback-content").css('visibility','visible');
-  $("#loading-recording").css('visibility','hidden');
-  $("#loading-recording").css('height','0');
-  $("#load-recording-msg").css('display','none');
+// Deskshare's whiteboard variables
+var deskshareWidth = 1280.0;
+var deskshareHeight = 720.0;
+var widthScale = 1;
+var heightScale = 1;
+var widthTranslate = 0;
+var heightTranslate = 0;
+
+function clearTransform() {
+  widthScale = 1;
+  heightScale = 1;
+  widthTranslate = 0;
+  heightTranslate = 0;
+}
+
+function setDeskshareScale(originalVideoWidth, originalVideoHeight) {
+  widthScale = originalVideoWidth / deskshareWidth;
+  heightScale = originalVideoHeight / deskshareHeight;
+}
+
+function setDeskshareTranslate(originalVideoWidth, originalVideoHeight) {
+  widthTranslate = (deskshareWidth - originalVideoWidth) / 2;
+  heightTranslate = (deskshareHeight - originalVideoHeight) / 2;
+}
+
+// Deskshare viewBox has the information to transform the canvas to place it above the video
+function adaptViewBoxToDeskshare(time) {
+  var dimension = getDeskshareDimension(time);
+  setDeskshareScale(dimension.width, dimension.height);
+  setDeskshareTranslate(dimension.width, dimension.height);
+
+  var viewBox = "0.0 0.0 " + deskshareWidth + " " + deskshareHeight;
+  return viewBox;
+}
+
+function getCanvasFromImage(image) {
+  var canvasId = "canvas" + image.substr(5);
+  var canvas = svgobj.contentDocument ? svgobj.contentDocument.getElementById(canvasId) : svgobj.getSVGDocument('svgfile').getElementById(canvasId);
+  return canvas;
+}
+
+function getDeskshareImage() {
+  var images = svgobj.contentDocument ? svgobj.contentDocument.getElementsByTagName("image") : svgobj.getSVGDocument('svgfile').getElementsByTagName("image");
+  for(var i = 0; i < images.length; i++) {
+    var element = images[i];
+    var id = element.getAttribute("id");
+    var href = element.getAttribute("xlink:href");
+    if (href != null && href.indexOf("deskshare") !=-1) {
+      return id;
+    }
+  }
+  return "image0";
+}
+
+// Transform canvas to fit the different deskshare video sizes
+function setTransform(time) {
+  if (deskshare_image == null) {
+    deskshare_image = getDeskshareImage();
+  }
+  if (mustShowDesktopVideo(time)) {
+    var canvas = getCanvasFromImage(deskshare_image);
+    if (canvas !== null) {
+      var scale = "scale(" + widthScale.toString() + ", " + heightScale.toString() + ")";
+      var translate = "translate(" + widthTranslate.toString() + ", " + heightTranslate.toString() + ")";
+      var transform = translate + " " + scale;
+      canvas.setAttribute('transform', transform);
+    }
+  } else {
+    clearTransform();
+  }
 }
 
 function defineStartTime() {
@@ -472,12 +597,12 @@ function defineStartTime() {
   return temp_start_time;
 }
 
-var current_canvas = "canvas0";
+var deskshare_image = null;
 var current_image = "image0";
 var previous_image = null;
-var currentcanvas;
+var current_canvas;
 var shape;
-var nextcanvas;
+var next_canvas;
 var next_image;
 var next_pgid;
 var curr_pgid;
@@ -502,6 +627,8 @@ var imageAtTime = {};
 var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;
 var cursorShownAt = 0;
+var deskshareTimes = [];
+var sharingDesktop = false;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
@@ -512,31 +639,69 @@ var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
 var metadata_xml = url + '/metadata.xml';
+var deskshare_xml = url + '/deskshare.xml';
+var presentation_text_json = url + '/presentation_text.json';
 
 var firstLoad = true;
-var svjobjLoaded = false;
+var svgReady = false;
+var videoReady = false;
+var audioReady = false;
+var deskshareReady = false;
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
 svgobj.setAttribute('width', '100%');
 
-svgobj.addEventListener('load', function() {
-  console.log("got svgobj 'load' event");
-  runPopcorn();
-
-  if (svjobjLoaded) {
-    return;
+// It's important to verify if all medias are ready before running Popcorn
+document.addEventListener('media-ready', function(event) {
+  switch(event.detail) {
+    case 'video':
+      videoReady = true;
+      break;
+    case 'audio':
+      audioReady = true;
+      break;
+    case 'deskshare':
+      deskshareReady = true;
+      break;
+    case 'svg':
+      svgReady = true;
+      break;
+    default:
+      console.log('unhandled media-ready event: ' + event.detail);
   }
-  svjobjLoaded = true;
 
+  if ((audioReady || videoReady) && deskshareReady && svgReady) {
+    runPopcorn();
+
+    if (firstLoad) initPopcorn();
+  }
+}, false);
+
+function initPopcorn() {
+  firstLoad = false;
   generateThumbnails();
 
   var p = Popcorn("#video");
   p.currentTime(defineStartTime());
+}
 
-  removeLoadingScreen();
+svgobj.addEventListener('load', function() {
+  console.log("got svgobj 'load' event");
+  document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'svg'}));
 }, false);
+
+svgobj.addEventListener('error', function() {
+  console.log("got svgobj 'error' event");
+  onSVGLoadingError();
+}, false);
+
+function onSVGLoadingError() {
+  Pace.off('done');
+  Pace.stop();
+  $("#loading-error").css('visibility', 'visible');
+}
 
 // Fetches the metadata associated with the recording and uses it to configure
 // the playback page
@@ -569,6 +734,114 @@ var getMetadata = function() {
   }
 };
 
+function setPresentationTextFromJSON(images, presentationText) {
+  for (var m = 0; m < images.length; m++) {
+    len = images[m].getAttribute("in").split(" ").length;
+    for (var n = 0; n < len; n++) {
+      imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
+    }
+    // The logo at the start has no text attribute
+    if (images[m].getAttribute("text")) {
+      var imgId = images[m].getAttribute("id"); // Have to save the value because images array might go out of scope
+      var imgTxt = images[m].getAttribute("text").split("/"); // Text format: presentation/PRESENTATION_ID/textfiles/SLIDE_ID.txt
+      var presentationId = imgTxt[1];
+      var slideId = imgTxt[3].split(".")[0];
+      slidePlainText[imgId] = $('<div/>').text(presentationText[presentationId][slideId]).html();
+    }
+  }
+}
+
+function setPresentationTextFromTxt(images) {
+  for (var m = 0; m < images.length; m++) {
+    len = images[m].getAttribute("in").split(" ").length;
+    for (var n = 0; n < len; n++) {
+      imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
+    }
+    // The logo at the start has no text attribute
+    if (images[m].getAttribute("text")) {
+      var txtFile = false;
+      if (window.XMLHttpRequest) {
+        // Code for IE7+, Firefox, Chrome, Opera, Safari
+        txtFile = new XMLHttpRequest();
+      } else {
+        // Code for IE6, IE5
+        txtFile = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      var imgId = images[m].getAttribute("id"); // Have to save the value because images array might go out of scope
+      txtFile.open("GET", url + "/" + images[m].getAttribute("text"), false);
+      txtFile.onreadystatechange = function() {
+          if (txtFile.readyState === 4) {
+            if (txtFile.status === 200) {
+              slidePlainText[imgId] = $('<div/>').text(txtFile.responseText).html();
+            }
+          }
+      };
+      txtFile.send(null);
+    }
+  }
+}
+
+function processPresentationText(response) {
+  // Making the object for requesting the read of the XML files.
+  if (window.XMLHttpRequest) {
+    // Code for IE7+, Firefox, Chrome, Opera, Safari
+    var xmlhttp = new XMLHttpRequest();
+  } else {
+    // Code for IE6, IE5
+    var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.open("GET", shapes_svg, false);
+  xmlhttp.send();
+  var xmlDoc = xmlhttp.responseXML;
+
+  // Getting all the event tags
+  var shapeelements = xmlDoc.getElementsByTagName("svg");
+
+  // Newer recordings have slide images identified by class="slide"
+  // because they might include images in shapes
+  var images = shapeelements[0].getElementsByClassName("slide");
+  // To handle old recordings, fetch a list of all images instead
+  if (images.length == 0) {
+    images = shapeelements[0].getElementsByTagName("image");
+  }
+
+  if (response !== undefined) {
+    setPresentationTextFromJSON(images, response);
+  } else {
+    setPresentationTextFromTxt(images);
+  }
+}
+
+function getPresentationText() {
+  console.log("** Getting text files");
+  loadJSON(processPresentationText, presentation_text_json);
+}
+
+function loadJSON(callback, url) {
+  var xobj;
+  if (window.XMLHttpRequest) {
+    // Code for IE7+, Firefox, Chrome, Opera, Safari
+    xobj = new XMLHttpRequest();
+  } else {
+    // Code for IE6, IE5
+    xobj = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xobj.overrideMimeType("application/json");
+  xobj.open('GET', url, true);
+  xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4) {
+        // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+        if (xobj.status == "200") {
+          callback(JSON.parse(xobj.responseText));
+        } else {
+          console.log("Could not get JSON file");
+          callback(undefined);
+        }
+      }
+  };
+  xobj.send(null);
+}
+
 document.getElementById('slide').appendChild(svgobj);
 
 var currentImage;
@@ -578,6 +851,7 @@ var currentImage;
 window.onresize = function(event) {
 	showCursor(false);
   resizeSlides();
+  resizeDeshareVideo();
 };
 
 // Resize the container that has the slides (and whiteboard) to be the maximum
@@ -604,4 +878,20 @@ var resizeSlides = function() {
     var height = $slide.parent().width() / aspectRatio;
     $slide.css("max-height", height);
   }
+};
+
+var resizeDeshareVideo = function() {
+  if (!isThereDeskshareVideo()) return;
+  var deskshareVideo = document.getElementById("deskshare-video");
+  var $deskhareVideo = $("#deskshare-video");
+
+  var videoWidth = parseInt(deskshareVideo.videoWidth, 10);
+  var videoHeight = parseInt(deskshareVideo.videoHeight, 10);
+
+  var aspectRatio = videoWidth/videoHeight;
+  var max = aspectRatio * $deskhareVideo.parent().outerHeight();
+  $deskhareVideo.css("max-width", max);
+
+  var height = $deskhareVideo.parent().width() / aspectRatio;
+  $deskhareVideo.css("max-height", height);
 };

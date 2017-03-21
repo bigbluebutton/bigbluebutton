@@ -172,7 +172,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (firstAudioJoin && this.visible && !this.selected 
 						&& getLayoutOptions().showRecordingNotification
 						&& UserManager.getInstance().getConference().amIModerator()
-						&& MeetingModel.getInstance().meeting.allowStartStopRecording) {
+						&& MeetingModel.getInstance().meeting.allowStartStopRecording
+						&& this.enabled) {
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
 					// we need to set transparency duration to avoid the blur effect when two alerts are displayed sequentially
 					alert.setStyle("modalTransparencyDuration", 250);
