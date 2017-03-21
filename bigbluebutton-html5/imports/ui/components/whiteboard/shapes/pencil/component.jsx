@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import ShapeHelpers from '../helpers.js';
+import styles from './styles.scss';
 
 export default class PencilDrawComponent extends React.Component {
   constructor(props) {
@@ -27,6 +28,7 @@ export default class PencilDrawComponent extends React.Component {
     let path = this.getCoordinates();
     return (
       <path
+        className={styles.path}
         fill="none"
         stroke={ShapeHelpers.formatColor(this.props.shape.color)}
         d={path}

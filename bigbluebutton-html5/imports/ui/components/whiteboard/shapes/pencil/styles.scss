@@ -1,0 +1,11 @@
+.path {
+  stroke-dasharray: 3000;
+  stroke-dashoffset: 3000;
+  animation: dash 0.5s linear forwards;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
