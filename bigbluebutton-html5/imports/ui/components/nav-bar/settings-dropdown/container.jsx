@@ -8,7 +8,7 @@ export default class SettingsDropdownContainer extends Component {
 
     this.state = {
       isFullScreen: false,
-    }
+    };
 
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
   }
@@ -17,7 +17,7 @@ export default class SettingsDropdownContainer extends Component {
     const fullscreenChangedEvents = ['fullscreenchange',
                                     'webkitfullscreenchange',
                                     'mozfullscreenchange',
-                                    'MSFullscreenChange'];
+                                    'MSFullscreenChange',];
 
     fullscreenChangedEvents.forEach(event =>
       document.addEventListener(event, this.handleFullscreenChange));
@@ -27,7 +27,7 @@ export default class SettingsDropdownContainer extends Component {
     const fullscreenChangedEvents = ['fullscreenchange',
                                     'webkitfullscreenchange',
                                     'mozfullscreenchange',
-                                    'MSFullscreenChange'];
+                                    'MSFullscreenChange',];
 
     fullscreenChangedEvents.forEach(event =>
       document.removeEventListener(event, this.fullScreenToggleCallback));
@@ -36,9 +36,9 @@ export default class SettingsDropdownContainer extends Component {
   handleFullscreenChange() {
     if (screen.height - 1 <= window.innerHeight) {
       // browser is probably in fullscreen
-      this.setState({isFullScreen: true});
-    }else{
-      this.setState({isFullScreen: false});
+      this.setState({ isFullScreen: true });
+    }else {
+      this.setState({ isFullScreen: false });
     }
   }
 
@@ -47,7 +47,7 @@ export default class SettingsDropdownContainer extends Component {
     const handleToggleFullscreen = Service.toggleFullScreen;
     const isFullScreen = this.state.isFullScreen;
 
-    return(
+    return (
       <SettingsDropdown
         handleToggleFullscreen={handleToggleFullscreen}
         isFullScreen={isFullScreen}
