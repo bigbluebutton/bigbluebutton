@@ -13,6 +13,13 @@ let isUserPresenter = () => {
   };
 };
 
+let isInVoiceAudio = () => {
+  return isInAudio = Users.findOne({
+    userId: AuthSingleton.getCredentials().requesterUserId,
+  }).user.voiceUser.joined;
+};
+
 export default {
   isUserPresenter,
+  isInVoiceAudio,
 };

@@ -5,7 +5,7 @@ import styles from '../styles.scss';
 export default class MuteAudio extends React.Component {
 
   render() {
-    const { isInAudio, isMuted, callback, isTalking} = this.props;
+    const { isInAudio, isMuted, callback, isTalking, isInVoiceAudio} = this.props;
     let label = !isMuted ? 'Mute' : 'Unmute';
     let icon = !isMuted ? 'unmute' : 'mute';
     let className = !isInAudio ? styles.invisible : null;
@@ -15,17 +15,21 @@ export default class MuteAudio extends React.Component {
       className = styles.circleGlow;
     }
 
-    return (
-      <Button
-        onClick={callback}
-        label={label}
-        color={'primary'}
-        icon={icon}
-        size={'lg'}
-        circle={true}
-        className={className}
-        tabIndex={tabIndex}
-      />
-    );
+    if(isInVoiceAudio){
+        return(
+          <Button
+            onClick={callback}
+            label={label}
+            color={'primary'}
+            icon={icon}
+            size={'lg'}
+            circle={true}
+            className={className}
+            tabIndex={tabIndex}
+          />
+        );
+    }else{
+      return null;
+    }
   }
 }
