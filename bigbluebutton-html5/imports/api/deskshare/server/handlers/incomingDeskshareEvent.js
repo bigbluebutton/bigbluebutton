@@ -1,11 +1,17 @@
 import Deskshare from '/imports/api/deskshare';
 import Meetings from '/imports/api/meetings';
 import modifyDeskshareStatus from '../modifiers/modifyDeskshareStatus';
+import { check } from 'meteor/check';
 
-export default function incomingDeskshareEvent(arg) {
-  const payload = arg.payload;
+export default function incomingDeskshareEvent({ payload }) {
+  check(payload, Object);
+  check(payload.meeting_id, String);
+  check(payload.broadcasting, Boolean);
+  check(payload.vh, Number);
+  check(payload.vw, Number);
+
   const meetingId = payload.meeting_id;
-  const voiceBridge = Meetings.findOne({ meetingId: payload.meeting_id }).voiceConf;
+  const voiceBridge = Meetings.findOne({ meetingId }).voiceConf;
 
   const deskShareInfo = {
     vw: payload.vw,
@@ -15,3 +21,4 @@ export default function incomingDeskshareEvent(arg) {
   };
   modifyDeskshareStatus(meetingId, deskShareInfo);
 }
+

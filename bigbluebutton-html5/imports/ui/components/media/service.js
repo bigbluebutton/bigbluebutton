@@ -1,6 +1,6 @@
 import Presentations from '/imports/api/presentations';
 import Slides from '/imports/api/slides';
-import {isVideoBroadcasting} from '../deskshare/service';
+import { isVideoBroadcasting } from '../deskshare/service';
 
 let getPresentationInfo = () => {
   let currentPresentation;
@@ -23,8 +23,8 @@ function shouldShowDeskshare() {
 }
 
 function shouldShowOverlay() {
+  return false;
 }
-
 
 export default {
   getPresentationInfo,

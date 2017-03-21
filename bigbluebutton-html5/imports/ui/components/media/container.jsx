@@ -57,6 +57,8 @@ export default createContainer(() => {
   let data = {};
   data.currentPresentation = MediaService.getPresentationInfo();
 
+  data.content = <DefaultContent />;
+
   if (MediaService.shouldShowWhiteboard()) {
     data.content = <PresentationAreaContainer />;
   }
@@ -68,7 +70,6 @@ export default createContainer(() => {
   if (MediaService.shouldShowOverlay()) {
     data.overlay = <VideoDockContainer />;
   }
-
 
   return data;
 }, MediaContainer);
