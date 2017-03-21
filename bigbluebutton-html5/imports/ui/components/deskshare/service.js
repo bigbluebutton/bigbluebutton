@@ -11,7 +11,11 @@ function isVideoBroadcasting() {
     return false;
   }
 
-  return (ds.broadcasting && ds.startedBy != Auth.userID);
+  if (ds.broadcasting) {
+    return (ds.startedBy != Auth.userID);
+  } else {
+    return false;
+  }
 }
 
 // if remote deskshare has been ended disconnect and hide the video stream
