@@ -1,7 +1,4 @@
-import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
-import React, { Component, PropTypes } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import React, { Component } from 'react';
 import SettingsDropdown from './component';
 import Service from './service';
 
