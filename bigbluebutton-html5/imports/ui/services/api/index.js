@@ -8,7 +8,7 @@ function callServer(name) {
     return false;
   }
 
-  const credentials = Auth.getCredentials();
+  const credentials = Auth.credentials;
 
   // slice off the first element. That is the function name but we already have that.
   const args = Array.prototype.slice.call(arguments, 1);

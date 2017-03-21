@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import { Tracker } from 'meteor/tracker';
 import { EJSON } from 'meteor/ejson';
 

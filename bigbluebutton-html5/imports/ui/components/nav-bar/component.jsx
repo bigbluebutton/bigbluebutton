@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import _ from 'underscore';
+import _ from 'lodash';
 import cx from 'classnames';
 import styles from './styles.scss';
 
@@ -7,7 +7,7 @@ import { showModal } from '/imports/ui/components/app/service';
 
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdown from './settings-dropdown/component';
+import SettingsDropdownContainer from './settings-dropdown/container';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -85,7 +85,7 @@ class NavBar extends Component {
           <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>
         <div className={styles.right}>
-          <SettingsDropdown />
+          <SettingsDropdownContainer />
         </div>
       </div>
     );

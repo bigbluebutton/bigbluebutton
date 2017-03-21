@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';

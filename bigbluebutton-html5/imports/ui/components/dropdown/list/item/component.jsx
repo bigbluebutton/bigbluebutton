@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import styles from '../styles';
-import _ from 'underscore';
+import _ from 'lodash';
 import cx from 'classnames';
 
 import Icon from '/imports/ui/components/icon/component';

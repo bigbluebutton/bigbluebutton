@@ -1,9 +1,7 @@
 import Breakouts from '/imports/api/breakouts';
-import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
-import { XMLHttpRequest } from 'xmlhttprequest';
+
 import xml2js from 'xml2js';
 import url from 'url';
 const xmlParser = new xml2js.Parser();
