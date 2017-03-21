@@ -3,10 +3,12 @@ import React, { Component, PropTypes } from 'react';
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
   onChange: PropTypes.func.isRequired,
+  value: PropTypes.string,
 };
 
 const defaultProps = {
   kind: 'audioinput',
+  value: undefined,
 };
 
 class DeviceSelector extends Component {
@@ -18,7 +20,7 @@ class DeviceSelector extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
 
     this.state = {
-      value: undefined,
+      value: props.value,
       devices: [],
       options: [],
     };

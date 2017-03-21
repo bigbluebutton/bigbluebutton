@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import _ from 'underscore';
+import _ from 'lodash';
 import cx from 'classnames';
 import styles from './styles.scss';
 
@@ -93,15 +93,12 @@ class NavBar extends Component {
 
   renderPresentationTitle() {
     const {
-      meetingId,
-      currentUserId,
+      breakouts,
+      isBreakoutRoom,
+      presentationTitle,
     } = this.props;
 
-    const presentationTitle = this.props.presentationTitle;
-    const breakouts = this.props.breakouts;
-    const isMeetingBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
-
-    if (!breakouts.length || isMeetingBreakout) {
+    if (isBreakoutRoom) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
@@ -129,9 +126,8 @@ class NavBar extends Component {
   componentDidUpdate() {
     const {
       breakouts,
-      currentUserId,
-      meetingId,
       getBreakoutJoinURL,
+      isBreakoutRoom,
     } = this.props;
 
     breakouts.forEach(breakout => {
@@ -141,8 +137,7 @@ class NavBar extends Component {
 
       const breakoutURL = getBreakoutJoinURL(breakout);
 
-      const meetingIsBreakout = meetingId === breakout.breakoutMeetingId;
-      if (!this.state.didSendBreakoutInvite && !meetingIsBreakout) {
+      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout, breakoutURL);
       }
     });

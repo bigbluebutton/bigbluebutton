@@ -56,7 +56,7 @@ class ActionsDropdown extends Component {
         <DropdownTrigger>
           <Button
             label={intl.formatMessage(intlMessages.actionsLabel)}
-            icon="circle-add"
+            icon="add"
             color="primary"
             size="lg"
             circle={true}

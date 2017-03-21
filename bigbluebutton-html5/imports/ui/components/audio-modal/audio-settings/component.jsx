@@ -1,4 +1,5 @@
 import React from 'react';
+import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
 import styles from '../styles.scss';
@@ -8,7 +9,7 @@ import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/
 import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 import AudioTestContainer from '/imports/ui/components/audio-test/container';
 
-export default class AudioSettings extends React.Component {
+class AudioSettings extends React.Component {
   constructor(props) {
     super(props);
 
@@ -43,37 +44,57 @@ export default class AudioSettings extends React.Component {
   }
 
   render() {
+    const {
+      intl,
+    } = this.props;
+
     return (
       <div>
         <div className={styles.center}>
           <Button className={styles.backBtn}
-            label={'Back'}
-            icon={'left-arrow'}
+            label={intl.formatMessage(intlMessages.backLabel)}
+            icon={'left_arrow'}
             size={'md'}
             color={'primary'}
             ghost={true}
             onClick={this.chooseAudio}
           />
           <div className={styles.title}>
-            Choose your audio settings
+            <FormattedMessage
+              id="app.audio.audioSettings.titleLabel"
+            />
           </div>
         </div>
         <div className={styles.audioNote}>
-          Please note, a dialog will appear in your browser, requiring you to accept sharing your microphone.
+          <FormattedMessage
+            id="app.audio.audioSettings.descriptionLabel"
+          />
         </div>
         <div className={styles.containerLeftHalfContent}>
-          <span className={styles.heading}>Microphone source</span>
+          <span className={styles.heading}>
+            <FormattedMessage
+              id="app.audio.audioSettings.microphoneSourceLabel"
+            />
+          </span>
           <DeviceSelector
             className={styles.item}
             kind="audioinput"
             onChange={this.handleInputChange} />
-          <span className={styles.heading}>Your audio stream volume</span>
+          <span className={styles.heading}>
+            <FormattedMessage
+              id="app.audio.audioSettings.microphoneStreamLabel"
+            />
+          </span>
           <AudioStreamVolume
             className={styles.item}
             deviceId={this.state.inputDeviceId} />
         </div>
         <div className={styles.containerRightHalfContent}>
-          <span className={styles.heading}>Speaker source</span>
+          <span className={styles.heading}>
+            <FormattedMessage
+              id="app.audio.audioSettings.speakerSourceLabel"
+            />
+          </span>
           <DeviceSelector
             className={styles.item}
             kind="audiooutput"
@@ -85,3 +106,11 @@ export default class AudioSettings extends React.Component {
     );
   }
 };
+
+const intlMessages = defineMessages({
+  backLabel: {
+    id: 'app.audio.backLabel',
+  },
+});
+
+export default injectIntl(AudioSettings);

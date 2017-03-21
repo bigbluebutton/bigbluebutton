@@ -170,8 +170,6 @@ const getUsers = () => {
 };
 
 const getOpenChats = chatID => {
-  window.Users = Users;
-
   let openChats = Chat
   .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
   .fetch()
@@ -196,7 +194,7 @@ const getOpenChats = chatID => {
   openChats.push({
     id: 'public',
     name: 'Public Chat',
-    icon: 'group-chat',
+    icon: 'group_chat',
     unreadCounter: UnreadMessages.count('public_chat_userid'),
   });
 
@@ -219,28 +217,28 @@ const userActions = {
   },
   clearStatus: {
     label: 'Clear Status',
-    handler: user => callServer('userSetEmoji', user.id, 'none'),
-    icon: 'clear-status',
+    handler: user => callServer('setEmojiStatus', user.id, 'none'),
+    icon: 'clear_status',
   },
   setPresenter: {
     label: 'Make Presenter',
-    handler: user => callServer('setUserPresenter', user.id, user.name),
+    handler: user => callServer('assignPresenter', user.id),
     icon: 'presentation',
   },
   kick: {
     label: 'Kick User',
     handler: user => callServer('kickUser', user.id),
-    icon: 'kick-user',
+    icon: 'circle_close',
   },
   mute: {
     label: 'Mute Audio',
     handler: user=> callServer('muteUser', user.id),
-    icon: 'mute',
+    icon: 'audio_off',
   },
   unmute: {
     label: 'Unmute Audio',
     handler: user=> callServer('unmuteUser', user.id),
-    icon: 'unmute',
+    icon: 'audio_on',
   },
 };
 

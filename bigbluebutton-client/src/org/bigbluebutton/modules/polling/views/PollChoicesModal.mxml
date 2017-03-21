@@ -27,14 +27,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.managers.PopUpManager;
-			
 			import org.as3commons.lang.ArrayUtils;
 			import org.as3commons.lang.StringUtils;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+
 			private var _presentationWindow : PresentationWindow;
 			
 			public function setPresentationWindow(window:PresentationWindow):void {
@@ -47,7 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_presentationWindow.slideView.onZoomSlide(100);
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatchEvent(new StartCustomPollEvent("Custom", answers));
-					PopUpManager.removePopUp(this);
+					PopUpUtil.removePopUp(this);
 				}
 			}
 			
@@ -83,7 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:HBox width="100%" horizontalGap="10" horizontalAlign="right">
 		<mx:Button id="publishButton" click="publishButton_clickHandler(event)"
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.startButton.label')}"/>
-		<mx:Button id="closeButton" click="PopUpManager.removePopUp(this)"
+		<mx:Button id="closeButton" click="PopUpUtil.removePopUp(this)"
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.closeButton.label')}"/>
 	</mx:HBox>
 	

@@ -145,10 +145,13 @@ VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 # Determine IP so it works on multilingual installations
 #
 
-if ifconfig eth0 > /dev/null 2>&1; then
-	IP=$(LANG=c ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
+if LANG=c ifconfig | grep -q 'venet0:0'; then
+        # IP detection for OpenVZ environment
+        echo "yes"
+        IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 else
-	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+        # IP detection for et* and en* networks
+        IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
 fi
 
 MEM=`free -m | grep Mem | awk '{ print $2}'`
@@ -638,10 +641,10 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
 		if [ -z "$SALT" ]; then
-			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
-				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
-				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
+			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
+				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
 				echo
 				echo "       URL: $LTI_URL"
 				echo "  Customer: $CUSTOMER"
@@ -889,13 +892,13 @@ check_configuration() {
 		fi
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
                 BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
 		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
 			echo "# Warning: LTI shared secret (salt) mismatch:"
-			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties                      = $LTI_SALT"
+			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties                      = $LTI_SALT"
 			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
 			echo 
 		fi
@@ -1395,8 +1398,8 @@ check_state() {
 
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
 		echo "#"
 		echo "#    $LTI_URL"
@@ -1452,12 +1455,28 @@ check_state() {
           fi
         fi
 
+	if [ "$(cat /usr/share/bbb-apps-akka/conf/application.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
+	        BBB_WEB_IP=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+                echo "# Error: Detected that /usr/share/bbb-apps-akka/conf/application.conf has the default"
+                echo "# configuration values.  To update, run"
+                echo "#"
+                echo "#    sudo bbb-conf --setip $BBB_WEB_IP"
+                echo "#"
+	fi
+
+        if [ -z $(cat /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | tr -d '\r' | sed -n "/useH264[ ]*=[ ]*/{s/useH264[ ]*=[ ]*//;p}") ]; then
+                echo "# Error: Detected there is no value set for useH264 in"
+                echo "#"
+                echo "#   /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+        fi
+
 	exit 0
 }
 
 
 #
-# Print out the status of the current setup and look for bugs.
+# Print out the status of the current setup and look for configuration issues
 #
 if [ $CHECK ]; then
 	need_root
@@ -1534,10 +1553,10 @@ if [ $CHECK ]; then
 		echo "                               url: $BBB_WEB_URL"
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
-		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
+		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
 	fi
 
@@ -1553,13 +1572,6 @@ if [ $CHECK ]; then
 	echo
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml (red5)"
 	echo "                  voice conference: $CONFERENCING_MODULE"
-
-	CAPTURE_VIDEO="$(cat /usr/share/red5/webapps/video/WEB-INF/red5-web.xml | sed -n '/recordVideoStream/{s/^.*="//g;s/"\/>//g;p}')"
-	echo "                     capture video: $CAPTURE_VIDEO"
-
-	# CAPTURE_DESKTOP="$(cat /usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml | grep -m 1 '<constructor-arg index="0" value'  | sed -n '/constructor-arg/{s/^.*="//g;s/"\/>//g;p}')"
-	# echo "                   capture desktop: $CAPTURE_DESKTOP"
-
 
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
 		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | grep -v '#' | sed -n '/^playback_host/{s/.*:[ ]*//;s/;//;p}' | tail -n 1)
@@ -1783,15 +1795,15 @@ if [ -n "$HOST" ]; then
 	fi
 	
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties"
 		# We don't wat to guess on http/https as the lti endpoint may be a different BigBlueButton server
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
         	sed -i "s/bigbluebuttonURL=https:\/\/.*/bigbluebuttonURL=https:\/\/$HOST\/bigbluebutton/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
         	sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
 	fi
 
 

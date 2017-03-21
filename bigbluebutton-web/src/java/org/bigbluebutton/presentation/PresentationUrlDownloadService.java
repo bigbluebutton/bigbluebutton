@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.HttpClient;
@@ -29,8 +33,24 @@ public class PresentationUrlDownloadService {
     private String presentationDir;
     private String BLANK_PRESENTATION;
 
-    public void processUploadedPresentation(UploadedPresentation uploadedPres) {
-        documentConversionService.processDocument(uploadedPres);
+    private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(3);
+
+    public void stop() {
+        scheduledThreadPool.shutdownNow();
+    }
+
+    public void processUploadedPresentation(final UploadedPresentation uploadedPres) {
+        /**
+         * We delay processing of the presentation to make sure that the meeting has already been created.
+         * Otherwise, the meeting won't get the conversion events.
+         */
+        ScheduledFuture scheduledFuture =
+                scheduledThreadPool.schedule(new Runnable() {
+                    public void run() {
+                        documentConversionService.processDocument(uploadedPres);
+                    }
+                }, 5, TimeUnit.SECONDS);
+
     }
 
     public void processUploadedFile(String meetingId, String presId,
@@ -41,8 +61,22 @@ public class PresentationUrlDownloadService {
         processUploadedPresentation(uploadedPres);
     }
 
-    public void extractPage(String sourceMeetingId, String presentationId,
-            Integer presentationSlide, String destinationMeetingId) {
+    public void extractPresentationPage(final String sourceMeetingId, final String presentationId,
+                                        final Integer presentationSlide, final String destinationMeetingId)  {
+        /**
+         * We delay processing of the presentation to make sure that the meeting has already been created.
+         * Otherwise, the meeting won't get the conversion events.
+         */
+        ScheduledFuture scheduledFuture =
+                scheduledThreadPool.schedule(new Runnable() {
+                    public void run() {
+                        extractPage(sourceMeetingId, presentationId, presentationSlide, destinationMeetingId) ;
+                    }
+                }, 5, TimeUnit.SECONDS);
+    }
+
+    private void extractPage(final String sourceMeetingId, final String presentationId,
+                             final Integer presentationSlide, final String destinationMeetingId) {
 
         // Build the source meeting path
         File sourceMeetingPath = new File(presentationDir + File.separator

@@ -7,7 +7,7 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 import cx from 'classnames';
-import _ from 'underscore';
+import _ from 'lodash';
 
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -102,6 +102,7 @@ class UserListItem extends Component {
       user,
       userActions,
       router,
+      isBreakoutRoom,
     } = this.props;
 
     const {
@@ -117,10 +118,10 @@ class UserListItem extends Component {
     let allowedToChatPrivately = !user.isCurrent;
     let allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
     let allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
-    let allowedToResetStatus = hasAuthority;
+    let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
 
     // if currentUser is a moderator, allow kicking other users
-    let allowedToKick = currentUser.isModerator && !user.isCurrent;
+    let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
     let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 
@@ -275,7 +276,7 @@ class UserListItem extends Component {
     }
 
     if (user.isVoiceUser) {
-      audioChatIcon = !user.isMuted ? 'audio' : 'audio-off';
+      audioChatIcon = !user.isMuted ? 'unmute' : 'mute';
     }
 
     let audioIconClassnames = {};
