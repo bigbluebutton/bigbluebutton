@@ -6,7 +6,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
 import { callServer } from '/imports/ui/services/api';
-import _ from 'underscore';
+import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
@@ -205,7 +205,7 @@ const getOpenChats = chatID => {
 
     // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
-      if (_.contains(currentClosedChats, op.id)) {
+      if (_.indexOf(currentClosedChats, op.id) > -1) {
         Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.id));
       }
     }
@@ -213,7 +213,7 @@ const getOpenChats = chatID => {
     // Compare openChats with session and push it into filteredChatList
     // if one of the openChat is not in session.
     // It will pass to openChats.
-    if (!_.contains(currentClosedChats, op.id)) {
+    if (_.indexOf(currentClosedChats, op.id) < 0) {
       filteredChatList.push(op);
     }
   });

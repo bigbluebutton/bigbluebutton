@@ -7,7 +7,7 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 
 import { callServer } from '/imports/ui/services/api';
-import _ from 'underscore';
+import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -200,8 +200,9 @@ const sendMessage = (receiverID, message) => {
 
   let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
+
   // Remove the chat that user send messages from the session.
-  if (_.contains(currentClosedChats, receiver.id)) {
+  if (_.indexOf(currentClosedChats, receiver.id) > -1) {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
   }
 
@@ -231,7 +232,7 @@ const createClosedChatSession = (chatID) => {
 
   let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
-  if (!_.contains(currentClosedChats, chatID)) {
+  if (_.indexOf(currentClosedChats, chatID) < 0) {
     currentClosedChats.push(chatID);
 
     Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
