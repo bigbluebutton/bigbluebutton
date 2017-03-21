@@ -11,25 +11,21 @@ function isVideoBroadcasting() {
     return false;
   }
 
-  if (ds.broadcasting) {
-    return (ds.startedBy != Auth.userID);
-  } else {
-    return false;
-  }
+  return (ds.broadcasting && ds.startedBy != Auth.userID);
 }
 
 // if remote deskshare has been ended disconnect and hide the video stream
 function presenterDeskshareHasEnded() {
   // references a functiion in the global namespace inside verto_extension.js
   // that we load dynamically
-  window.vertoExitVideo();
+  vertoExitVideo();
 };
 
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
   // references a functiion in the global namespace inside verto_extension.js
   // that we load dynamically
-  window.vertoWatchVideo();
+  vertoWatchVideo();
 };
 
 export {
