@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import BaseMenu from '../base/component';
 import styles from '../styles.scss';
 
@@ -46,7 +46,7 @@ export default class AudioMenu extends BaseMenu {
 
   render() {
     return (
-      <div className={styles.tabContent}>
+      <div>
         <div className={styles.header}>
           <h3 className={styles.title}>Audio</h3>
         </div>

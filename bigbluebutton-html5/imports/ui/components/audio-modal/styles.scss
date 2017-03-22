@@ -1,53 +1,60 @@
 @import "../../stylesheets/variables/_all";
 
-.center {
-  text-align: center;
-  font-size: $font-size-large;
-  padding-top: 40px;
+.center { //OK
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 2rem;
 }
 
-.closeBtn {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
-
-// Modifies the close button style
-Button.closeBtn span:first-child {
-  color: $color-gray-light;
-  background: none;
-  background-color: $color-primary;
+.closeBtn { //OK
+  background-color: #FFFFFF;
   border: none;
-  box-shadow: none;
+  display: flex;
+  justify-content: flex-end;
+  i {
+    color: $color-gray-light;
+  }
+}
+
+Button.audioBtn {
+  i{
+    color: #3c5764;
+  }
 }
 
 // Modifies the audio button icon colour
-Button.audioBtn span:first-child {
-  color: #25385D;
-  border: 5px solid $color-white;
-  background-color: $color-primary;
+Button.audioBtn span:first-child { //OK
+  color: #1b3c4b;
+  background-color: #f1f8ff;
   box-shadow: none;
+  border: 5px solid  #f1f8ff;
 }
 
 // When hovering over a button of class audioBtn, change the border colour of first span-child
-Button.audioBtn:hover span:first-child {
+Button.audioBtn:hover span:first-child { //OK
   border: 5px solid $color-primary;
+  background-color: #f1f8ff;
 }
 
 // Modifies the button label text
-Button.audioBtn span:last-child {
-  color: $color-gray-dark;
-  font-size: 30%;
+Button.audioBtn span:last-child { //OK
+  color: black;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
-Button.audioBtn:first-of-type {
-  margin-right: 70px;
+Button.audioBtn:first-of-type { //OK
+  margin-right: 5%;
+}
+
+Button.audioBtn:last-of-type { //OK
+  margin-left: 5%;
 }
 
 .inner {
   padding: 10px;
-  min-height: 350px;
-  min-width: 500px;
+  min-height: 300px;
 }
 
 // Audio settings menu
@@ -64,28 +71,18 @@ div.half label {
   margin-bottom: 5px;
 }
 
-.backBtn {
-  position: absolute;
-  left: 10px;
-  top: 10px;
+
+.backBtn { //OK
   border: none;
-  box-shadow: none;
+  i {
+    color: $color-primary;
+  }
 }
 
-.playSound {
-  border: none;
-  box-shadow: none;
+.topRow { //OK
+  align-items: center;
+  display: flex;
 }
-
-.enterBtn {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  border: none;
-  box-shadow: none;
-}
-
-
 
 .containerLeftHalf {
   width: 50%;
@@ -130,19 +127,10 @@ div.half label {
   text-decoration-color: $color-gray-dark;
 }
 
-
-.title {
-  color: $color-gray-dark;
-  font-weight: 700;
-  font-size: $font-size-large;
-  margin-top: -1em;
-}
-
-.audioNote {
+.audioNote { //OK
   color: $color-text;
   display: inline-block;
-  margin-top: 1.75em;
-  margin-bottom: 2em;
+  font-size: 0.9rem;
 }
 
 .heading {
@@ -157,3 +145,94 @@ div.half label {
   left: 11em;
   top: 3em;
 }
+
+
+
+
+
+
+////-----------------
+
+.title { //OK
+  text-align: center;
+  margin: auto;
+  color: black;
+  font-weight: 400;
+  font-size: 1.3rem;
+}
+
+.form {
+  display: flex;
+  flex-flow: column;
+  padding: 2em;
+  //background-color: pink;
+}
+
+.row {
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.col {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+  margin-right: 1rem;
+
+  &:last-child {
+    margin-right: 0;
+    padding-right: 0.1rem;
+    padding-left: 4rem;
+  }
+}
+
+.labelSmall {
+  color: black;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.formElement {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+}
+
+.select {
+  background-color: #fff;
+  border: 0;
+  border-bottom: 0.1rem solid $color-gray-lighter;
+  color: $color-gray-light;
+  width: 100%;
+  // appearance: none;
+  height: 1.75rem;
+}
+
+.audioMeter {
+  width: 100%;
+}
+
+.pullContentRight {
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: row;
+}
+
+.verticalLine {
+  color: #f3f6f9;
+  border-left: 1px solid;
+  height: 5rem;
+}
+
+.enterAudio {
+  //background-color: red;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 2rem;
+}
+

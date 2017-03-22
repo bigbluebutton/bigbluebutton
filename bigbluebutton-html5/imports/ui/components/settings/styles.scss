@@ -56,3 +56,11 @@
   padding-top: 0;
   padding-right: 0;
 }
+
+.testAudioBtn {
+  border: none;
+  padding-left: 0;
+  i {
+    color: $color-primary;
+  }
+}
