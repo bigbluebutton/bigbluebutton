@@ -1,13 +1,13 @@
 @import "../../stylesheets/variables/_all";
 
-.center { //OK
+.center {
   display: flex;
   justify-content: center;
   align-items: center;
   padding-top: 2rem;
 }
 
-.closeBtn { //OK
+.closeBtn {
   background-color: #FFFFFF;
   border: none;
   display: flex;
@@ -24,7 +24,7 @@ Button.audioBtn {
 }
 
 // Modifies the audio button icon colour
-Button.audioBtn span:first-child { //OK
+Button.audioBtn span:first-child {
   color: #1b3c4b;
   background-color: #f1f8ff;
   box-shadow: none;
@@ -32,128 +32,50 @@ Button.audioBtn span:first-child { //OK
 }
 
 // When hovering over a button of class audioBtn, change the border colour of first span-child
-Button.audioBtn:hover span:first-child { //OK
+Button.audioBtn:hover span:first-child {
   border: 5px solid $color-primary;
   background-color: #f1f8ff;
 }
 
 // Modifies the button label text
-Button.audioBtn span:last-child { //OK
+Button.audioBtn span:last-child {
   color: black;
   font-size: 0.8rem;
   font-weight: 500;
 }
 
-Button.audioBtn:first-of-type { //OK
+Button.audioBtn:first-of-type {
   margin-right: 5%;
 }
 
-Button.audioBtn:last-of-type { //OK
+Button.audioBtn:last-of-type {
   margin-left: 5%;
 }
 
 .inner {
-  padding: 10px;
-  min-height: 300px;
+  padding: 1em;
+  min-height: 20rem;
 }
 
-// Audio settings menu
-.half {
-  width: 50%;
-  float: left;
-  padding-top: 30px;
-}
-
-div.half label {
-  font-size: 0.75em;
-  font-weight: 600;
-  color: $color-primary;
-  margin-bottom: 5px;
-}
-
-
-.backBtn { //OK
+.backBtn {
   border: none;
   i {
     color: $color-primary;
   }
 }
 
-.topRow { //OK
+.topRow {
   align-items: center;
   display: flex;
 }
 
-.containerLeftHalf {
-  width: 50%;
-  float: left;
-}
-
-.containerRightHalf {
-  width: 50%;
-  float: right;
-}
-
-.containerFull{
-  width: 100%;
-  float: right;
-}
-
-.containerLeftHalfContent {
-  @extend .containerLeftHalf;
-  @extend .row;
-}
-
-.containerRightHalfContent {
-  @extend .containerRightHalf;
-  @extend .row;
-}
-
-.row {
-  height: 42px;
-}
-
-.item {
-  display: block;
-  margin-bottom: $md-padding-y;
-  width: 85%;
-  margin-bottom: 2em;
-  border-bottom: 3px solid;
-  border-top:0px;
-  border-left: 0px;
-  border-right: 0px;
-  outline:0px;
-  border-color:  $color-gray-dark;
-  text-decoration-color: $color-gray-dark;
-}
-
-.audioNote { //OK
+.audioNote {
   color: $color-text;
   display: inline-block;
   font-size: 0.9rem;
 }
 
-.heading {
-  font-weight: 700;
-  font-size: $font-size-small;
-  display: inline-block;
-  margin-bottom: .5em;
-}
-
-.joinButton {
-  position: relative;
-  left: 11em;
-  top: 3em;
-}
-
-
-
-
-
-
-////-----------------
-
-.title { //OK
+.title {
   text-align: center;
   margin: auto;
   color: black;
@@ -165,7 +87,6 @@ div.half label {
   display: flex;
   flex-flow: column;
   padding: 2em;
-  //background-color: pink;
 }
 
 .row {
@@ -230,9 +151,7 @@ div.half label {
 }
 
 .enterAudio {
-  //background-color: red;
   display: flex;
   justify-content: flex-end;
   margin-right: 2rem;
 }
-
