@@ -368,6 +368,10 @@ Verto.prototype.makeShare = function () {
 };
 
 Verto.prototype.doShare = function (screenConstraints) {
+
+  screenConstraints.maxWidth = this.vid_width;
+  screenConstraints.maxHeight = this.vid_height;
+
   this.share_call = window.vertoHandle.newCall({
     destination_number: this.destination_number,
     caller_id_name: this.caller_id_name,
