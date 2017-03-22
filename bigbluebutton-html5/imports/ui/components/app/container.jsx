@@ -1,31 +1,40 @@
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import App from './component';
-import {
-  subscribeForData,
-  wasUserKicked,
-  redirectToLogoutUrl,
-  getModal,
-  getCaptionsStatus,
-  getFontSize,
-} from './service';
-import { setDefaultSettings, getSettingsFor } from '/imports/ui/components/settings/service';
+import { withRouter } from 'react-router';
+import { defineMessages, injectIntl } from 'react-intl';
 
+import {
+  getModal,
+  showModal,
+  getFontSize,
+  getCaptionsStatus,
+} from './service';
+
+import { setDefaultSettings } from '../settings/service';
+
+import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
+import Breakouts from '/imports/api/breakouts';
+
+import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import ClosedCaptionsContainer from '../closed-captions/container';
-import UserListService from '../user-list/service';
-import Auth from '/imports/ui/services/auth';
+import AudioModalContainer  from '../audio-modal/container';
 
 const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
-
-  //CCs UI is commented till the next pull request
-  captions: <ClosedCaptionsContainer />,
 };
+
+const intlMessages = defineMessages({
+  kickedMessage: {
+    id: 'app.error.kicked',
+    description: 'Message when the user is kicked out of the meeting',
+    defaultMessage: 'You have been kicked out of the meeting',
+  },
+});
 
 class AppContainer extends Component {
   render() {
@@ -38,52 +47,44 @@ class AppContainer extends Component {
       </App>
     );
   }
-}
-
-let loading = true;
-const loadingDep = new Tracker.Dependency;
-
-const getLoading = () => {
-  loadingDep.depend();
-  return loading;
 };
 
-const setLoading = (val) => {
-  if (val !== loading) {
-    loading = val;
-    loadingDep.changed();
+const APP_CONFIG = Meteor.settings.public.app;
+
+const init = () => {
+  setDefaultSettings();
+  if (APP_CONFIG.autoJoinAudio) {
+    showModal(<AudioModalContainer />);
   }
 };
 
-const checkUnreadMessages = () => {
-  return UserListService.getOpenChats().map(chat=> chat.unreadCounter)
-                        .filter(userID => userID !== Auth.userID);
-};
+export default withRouter(injectIntl(createContainer(({ router, intl, baseControls }) => {
+  // Check if user is kicked out of the session
+  Users.find({ userId: Auth.userID }).observeChanges({
+    removed() {
+      Auth.clearCredentials()
+        .then(() => {
+          router.push('/error/403');
+          baseControls.updateErrorState(
+            intl.formatMessage(intlMessages.kickedMessage),
+          );
+        });
+    },
+  });
 
-const openChats = (chatID) => {
-  // get currently opened chatID
-  return UserListService.getOpenChats(chatID).map(chat => chat.id);
-}
-
-export default createContainer(({ params }) => {
-  Promise.all(subscribeForData())
-  .then(() => {
-    setLoading(false);
+  // Close the widow when the current breakout room ends
+  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
+    removed(old) {
+      Auth.clearCredentials().then(window.close);
+    },
   });
 
   return {
-    wasKicked: wasUserKicked(),
-    isLoading: getLoading(),
+    init,
+    sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     modal: getModal(),
-    unreadMessageCount: checkUnreadMessages(),
-    openChats: openChats(params.chatID),
-    openChat: params.chatID,
-    getCaptionsStatus,
-    redirectToLogoutUrl,
-    setDefaultSettings,
     fontSize: getFontSize(),
-    applicationSettings: getSettingsFor('application'),
   };
-}, AppContainer);
+}, AppContainer)));
 
 AppContainer.defaultProps = defaultProps;

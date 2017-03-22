@@ -1,0 +1,18 @@
+<recording>
+    <id>f3ffe06acedf425565cc024c8ebe89a6552e8782-1489095153417</id>
+    <state>published</state>
+    <published>true</published>
+    <start_time>1489095153417</start_time>
+    <end_time>1489095772224</end_time>
+    <meta>
+        <meetingId>random-2810069</meetingId>
+        <meetingName>random-2810069</meetingName>
+        <isBreakout>false</isBreakout>
+    </meta>
+    <playback>
+        <format>presentation</format>
+        <link>http://192.168.23.22/playback/presentation/0.9.0/playback.html?meetingId=f3ffe06acedf425565cc024c8ebe89a6552e8782-1489095153417</link>
+        <processing_time>191283</processing_time>
+        <duration>545949</duration>
+    </playback>
+</recording>

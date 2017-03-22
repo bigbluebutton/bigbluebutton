@@ -37,11 +37,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Playback;
-import org.bigbluebutton.api.domain.Recording;
-import org.bigbluebutton.api.domain.User;
-import org.bigbluebutton.api.domain.UserSession;
+
+import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
@@ -302,6 +299,14 @@ public class MeetingService implements MessageListener {
     }
 
     private void handleCreateMeeting(Meeting m) {
+        if (m.isBreakout()){
+            Meeting parent = meetings.get(m.getParentMeetingId());
+            parent.addBreakoutRoom(m.getExternalId());
+            if (parent.isRecord()) {
+                messagingService.addBreakoutRoom(parent.getInternalId(), m.getInternalId());
+            }
+        }
+
         if (m.isRecord()) {
             Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
@@ -310,13 +315,15 @@ public class MeetingService implements MessageListener {
             metadata.put("meetingName", m.getName());
             metadata.put("isBreakout", m.isBreakout().toString());
 
-            Map<String, String> breakoutMetadata = new TreeMap<String, String>();
-            breakoutMetadata.put("meetingId", m.getExternalId());
-            if (m.isBreakout()){
+            messagingService.recordMeetingInfo(m.getInternalId(), metadata);
+
+            if (m.isBreakout()) {
+                Map<String, String> breakoutMetadata = new TreeMap<String, String>();
+                breakoutMetadata.put("meetingId", m.getExternalId());
                 breakoutMetadata.put("sequence", m.getSequence().toString());
                 breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
+                messagingService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
             }
-            messagingService.recordMeetingInfo(m.getInternalId(), metadata, breakoutMetadata);
         }
 
         Map<String, Object> logData = new HashMap<String, Object>();
@@ -415,17 +422,29 @@ public class MeetingService implements MessageListener {
         return null;
     }
 
+    public List<RecordingMetadata> getRecordingsMetadata(List<String> idList, List<String> states) {
+        List<RecordingMetadata> recsList = recordingService.getRecordingsMetadata(idList, states);
+        return recsList;
+    }
+
+
     public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
         List<Recording> recsList = recordingService.getRecordings(idList, states);
         Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
 
-    public Map<String, Recording> filterRecordingsByMetadata(
-            Map<String, Recording> recordings,
-            Map<String, String> metadataFilters) {
+    public List<RecordingMetadata> filterRecordingsByMetadata(List<RecordingMetadata> recsList,
+                                                             Map<String, String> metadataFilters) {
+        return recordingService.filterRecordingsByMetadata(recsList, metadataFilters);
+    }
+
+    public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings,
+                                                             Map<String, String> metadataFilters) {
         return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
     }
+
+
 
     public Map<String, Recording> reorderRecordings(List<Recording> olds) {
         Map<String, Recording> map = new HashMap<String, Recording>();
@@ -498,8 +517,7 @@ public class MeetingService implements MessageListener {
         }
     }
 
-    public void updateRecordings(List<String> idList,
-            Map<String, String> metaParams) {
+    public void updateRecordings(List<String> idList, Map<String, String> metaParams) {
         recordingService.updateMetaParams(idList, metaParams);
     }
 
