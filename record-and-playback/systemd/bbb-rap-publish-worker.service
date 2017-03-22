@@ -1,0 +1,10 @@
+[Unit]
+Description=BigBlueButton recording and playback publish worker
+ConditionPathExistsGlob=/var/bigbluebutton/recording/status/processed/*.done
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bigbluebutton/core/scripts/rap-publish-worker.rb
+WorkingDirectory=/usr/local/bigbluebutton/core/scripts
+User=tomcat7
+Slice=bbb_record_core.slice
