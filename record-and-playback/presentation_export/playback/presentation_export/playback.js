@@ -53,6 +53,16 @@ removeUrlParameter = function(url, param) {
   }
 }
 
+addUrlParameter = function(url, param, value) {
+  var s = encodeURIComponent(param) + '=' + encodeURIComponent(value);
+  console.log('Adding URL parameter ' + s);
+  if (url.indexOf('?') == -1) {
+    return url + '?' + s;
+  } else {
+    return url + '&' + s;
+  }
+}
+
 /*
  * Converts seconds to HH:MM:SS
  * From: http://stackoverflow.com/questions/6312993/javascript-seconds-to-time-with-format-hhmmss#6313008
@@ -103,7 +113,7 @@ secondsToHHMMSSText = function(secs) {
 }
 
 replaceTimeOnUrl = function(secs) {
-  var newUrl = removeUrlParameter(document.URL, "t") + "&t=" + secondsToYouTubeFormat(secs);
+  var newUrl = addUrlParameter(removeUrlParameter(document.URL, 't'), 't', secondsToYouTubeFormat(secs));
   window.history.replaceState({}, "", newUrl);
 }
 
@@ -313,6 +323,25 @@ load_video = function(){
    webmsource.setAttribute('src', RECORDINGS + '/video/webcams.webm');
    webmsource.setAttribute('type','video/webm; codecs="vp8.0, vorbis"');
    video.appendChild(webmsource);
+
+   // Try to load the captions
+   // TODO this all should be done asynchronously...
+   var capReq = new XMLHttpRequest();
+   capReq.open('GET', RECORDINGS + '/captions.json', /*async=*/false);
+   capReq.send();
+   if (capReq.status == 200) {
+     console.log("==Loading closed captions");
+     // With sync request, responseType should always be blank (=="text")
+     var captions = JSON.parse(capReq.responseText);
+     for (var i = 0; i < captions.length; i++) {
+       var track = document.createElement("track");
+       track.setAttribute('kind', 'captions');
+       track.setAttribute('label', captions[i]['localeName']);
+       track.setAttribute('srclang', captions[i]['locale']);
+       track.setAttribute('src', RECORDINGS + '/caption_' + captions[i]['locale'] + '.vtt');
+       video.appendChild(track);
+     }
+   }
 
    /*var time_manager = Popcorn("#video");
    var pc_webcam = Popcorn("#webcam");
