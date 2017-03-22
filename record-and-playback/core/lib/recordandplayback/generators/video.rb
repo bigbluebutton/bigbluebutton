@@ -21,10 +21,19 @@
 
 
 require 'rubygems'
+require 'streamio-ffmpeg'
 
 require File.expand_path('../../edl', __FILE__)
 
 module BigBlueButton
+
+  def self.get_video_height(video)
+    FFMPEG::Movie.new(video).height
+  end
+
+  def self.get_video_width(video)
+    FFMPEG::Movie.new(video).width
+  end
 
   def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset)
     BigBlueButton.logger.info("Processing webcam videos")
