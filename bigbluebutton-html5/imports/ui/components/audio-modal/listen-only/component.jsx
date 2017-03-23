@@ -5,7 +5,7 @@ import { clearModal } from '/imports/ui/components/app/service';
 import styles from '../styles.scss';
 
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
-import AudioTestContainer from '/imports/ui/components/audio-test/container';
+import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 
 const intlMessages = defineMessages({

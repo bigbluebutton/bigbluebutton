@@ -13,7 +13,7 @@ const intlMessages = defineMessages({
   },
   closeLabel: {
     id: 'app.audioModal.closeLabel',
-  }
+  },
 });
 
 class JoinAudio extends React.Component {
