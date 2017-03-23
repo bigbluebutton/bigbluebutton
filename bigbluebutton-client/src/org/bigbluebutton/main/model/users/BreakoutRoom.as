@@ -38,6 +38,8 @@ package org.bigbluebutton.main.model.users {
 		
 		public var users:ArrayCollection;
 		
+		public var invitedRecently : Boolean;
+		
 		// Can be one of three following values self, none, other
 		public var listenStatus:String = NONE;
 		

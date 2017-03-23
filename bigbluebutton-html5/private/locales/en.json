@@ -112,6 +112,7 @@
   "app.audio.listenOnly.backLabel": "Back",
   "app.audio.listenOnly.closeLabel": "Close",
   "app.error.kicked": "You have been kicked out of the meeting",
+  "app.dropdown.close": "Close",
   "app.error.500": "Ops, something went wrong",
   "app.error.404": "Not found",
   "app.error.401": "Unauthorized",

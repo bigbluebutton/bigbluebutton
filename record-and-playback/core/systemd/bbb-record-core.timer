@@ -1,0 +1,10 @@
+[Unit]
+Description=BigBlueButton record & playback processing timer
+
+[Timer]
+OnActiveSec=0
+OnUnitInactiveSec=30s
+Unit=bbb-record-core.target
+
+[Install]
+WantedBy=timers.target

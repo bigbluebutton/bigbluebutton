@@ -755,6 +755,16 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   borderThicknessRight: 3;
 }
 
+.videoDockStyleFocusChatLayout {
+	borderColor: #42444c;
+	backgroundColor: #42444c;
+}
+
+.videoDockStyleNoFocusChatLayout {
+	borderColor: #32343b;
+	backgroundColor: #42444c;
+}
+
 .presentationSlideViewStyle {
   backgroundColor: #b9babc;
 }
