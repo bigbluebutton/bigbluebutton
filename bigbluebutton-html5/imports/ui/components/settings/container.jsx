@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import _ from 'lodash';
 import Settings from './component';
 import {
     getSettingsFor,
