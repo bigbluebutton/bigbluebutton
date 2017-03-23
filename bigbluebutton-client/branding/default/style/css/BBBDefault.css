@@ -764,11 +764,13 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 }
 
 .videoDockStyleFocusChatLayout {
+	borderStyle : none;
 	borderColor: #42444c;
 	backgroundColor: #42444c;
 }
 
 .videoDockStyleNoFocusChatLayout {
+	borderStyle : none;
 	borderColor: #42444c;
 	backgroundColor: #42444c;
 }
