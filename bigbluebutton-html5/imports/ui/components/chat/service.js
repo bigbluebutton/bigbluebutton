@@ -200,7 +200,6 @@ const sendMessage = (receiverID, message) => {
 
   let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
-
   // Remove the chat that user send messages from the session.
   if (_.indexOf(currentClosedChats, receiver.id) > -1) {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
@@ -228,7 +227,7 @@ const updateUnreadMessage = (receiverID, timestamp) => {
   return UnreadMessages.update(receiverID, timestamp);
 };
 
-const createClosedChatSession = (chatID) => {
+const closePrivateChat = (chatID) => {
 
   let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
@@ -250,5 +249,5 @@ export default {
   updateScrollPosition,
   updateUnreadMessage,
   sendMessage,
-  createClosedChatSession,
+  closePrivateChat,
 };

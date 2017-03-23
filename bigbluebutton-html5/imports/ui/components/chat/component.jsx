@@ -5,7 +5,6 @@ import styles from './styles';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import Icon from '../icon/component';
-import ChatService from './service';
 
 const ELEMENT_ID = 'chat-messages';
 

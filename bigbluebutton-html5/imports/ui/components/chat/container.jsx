@@ -96,7 +96,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     scrollPosition,
     actions: {
 
-      handleClosePrivateChat: chatID => ChatService.createClosedChatSession(chatID),
+      handleClosePrivateChat: chatID => ChatService.closePrivateChat(chatID),
 
       handleSendMessage: message => {
         let sentMessage = ChatService.sendMessage(chatID, message);
