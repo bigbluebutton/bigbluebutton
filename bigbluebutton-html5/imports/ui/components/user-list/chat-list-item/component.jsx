@@ -57,7 +57,6 @@ class ChatListItem extends Component {
             <div className={styles.unreadMessages}>
               <p className={styles.unreadMessagesText}>
                 {chat.unreadCounter}
-                <span aria-label="unread messages" />
               </p>
             </div>
             : null}
