@@ -155,3 +155,10 @@ Button.audioBtn:last-of-type {
   justify-content: flex-end;
   margin-right: 2rem;
 }
+
+.chooseAudio {
+  position:absolute;
+  left:50%;
+  transform: translate(-50%, 0);
+}
+
