@@ -2,7 +2,7 @@ import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/api/users';
 import Captions from '/imports/api/captions';
 import Auth from '/imports/ui/services/auth';
-import _ from 'underscore';
+import _ from 'lodash';
 
 const updateSettings = (obj) => {
   Object.keys(obj).forEach(k => Storage.setItem(`settings_${k}`, obj[k]));
@@ -39,7 +39,7 @@ const setDefaultSettings = () => {
     application: {
       chatAudioNotifications: false,
       chatPushNotifications: false,
-      fontSize: '14px',
+      fontSize: '16px',
     },
     audio: {
       inputDeviceId: undefined,

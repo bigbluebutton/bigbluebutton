@@ -7,7 +7,7 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 import cx from 'classnames';
-import _ from 'underscore';
+import _ from 'lodash';
 
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -101,6 +101,7 @@ class UserListItem extends Component {
       user,
       userActions,
       router,
+      isBreakoutRoom,
     } = this.props;
 
     const {
@@ -119,7 +120,7 @@ class UserListItem extends Component {
     let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
 
     // if currentUser is a moderator, allow kicking other users
-    let allowedToKick = currentUser.isModerator && !user.isCurrent;
+    let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
     let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 

@@ -18,7 +18,7 @@ export default function createDummyUser(meetingId, userId, authToken) {
     userId,
     authToken,
     clientType: 'HTML5',
-    validated: false,
+    validated: null,
   };
 
   const cb = (err, numChanged) => {

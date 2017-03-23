@@ -1,4 +1,8 @@
+import { Tracker } from 'meteor/tracker';
+
 import Storage from '/imports/ui/services/storage/session';
+
+import Users from '/imports/api/users';
 import { callServer } from '/imports/ui/services/api';
 
 class Auth {
@@ -6,11 +10,10 @@ class Auth {
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
     this._authToken = Storage.getItem('authToken');
-    this._logoutURL = Storage.getItem('logoutURL');
-
-    if (!this._logoutURL) {
-      this._setLogOut();
-    }
+    this._loggedIn = {
+      value: false,
+      tracker: new Tracker.Dependency,
+    };
   }
 
   get meetingID() {
@@ -40,22 +43,17 @@ class Auth {
     Storage.setItem('authToken', this._authToken);
   }
 
-  get logoutURL() {
-    return this._logoutURL;
+  get loggedIn() {
+    this._loggedIn.tracker.depend();
+    return this._loggedIn.value;
   }
 
-  set logoutURL(logoutURL) {
-    this._logoutURL = logoutURL;
-    Storage.setItem('logoutURL', this._logoutURL);
+  set loggedIn(value) {
+    this._loggedIn.value = value;
+    this._loggedIn.tracker.changed();
   }
 
-  setCredentials(meeting, user, token) {
-    this.meetingID = meeting;
-    this.userID = user;
-    this.token = token;
-  }
-
-  getCredentials() {
+  get credentials() {
     return {
       meetingId: this.meetingID,
       requesterUserId: this.userID,
@@ -63,49 +61,114 @@ class Auth {
     };
   }
 
-  clearCredentials(callback) {
+  set credentials(value) {
+    throw 'Credentials are read-only';
+  }
+
+  clearCredentials() {
     this.meetingID = null;
     this.userID = null;
     this.token = null;
+    this.loggedIn = false;
 
-    if (typeof callback === 'function') {
-      return callback();
+    return Promise.resolve(...arguments);
+  };
+
+  logout() {
+    if (!this.loggedIn) {
+      return Promise.resolve();
     }
-  };
 
-  completeLogout() {
-    let logoutURL = this.logoutURL;
-    callServer('userLogout');
-
-    this.clearCredentials(() => {
-      document.location.href = logoutURL;
+    return new Promise((resolve, reject) => {
+      callServer('userLogout', () => {
+        this.fetchLogoutUrl()
+          .then(this.clearCredentials)
+          .then(resolve);
+      });
     });
   };
 
-  _setLogOut() {
-    let request;
-    let handleLogoutUrlError;
+  authenticate(meetingID, userID, token) {
+    if (arguments.length) {
+      this.meetingID = meetingID;
+      this.userID = userID;
+      this.token = token;
+    }
 
-    handleLogoutUrlError = function () {
-      console.log('Error : could not find the logoutURL');
-      this.logoutURL = document.location.hostname;
-    };
+    return this._subscribeToCurrentUser()
+      .then(this._addObserverToValidatedField.bind(this));
+  }
 
-    // obtain the logoutURL
-    request = $.ajax({
-      dataType: 'json',
-      url: '/bigbluebutton/api/enter',
+  _subscribeToCurrentUser() {
+    const credentials = this.credentials;
+
+    return new Promise((resolve, reject) => {
+      Tracker.autorun((c) => {
+        setTimeout(() => {
+          c.stop();
+          reject('Authentication subscription timeout.');
+        }, 2000);
+
+        const subscription = Meteor.subscribe('current-user', credentials);
+        if (!subscription.ready()) return;
+
+        resolve(c);
+      });
     });
+  }
 
-    request.done(data => {
-      if (data.response.logoutURL != null) {
-        this.logoutURL = data.response.logoutURL;
-      } else {
-        return handleLogoutUrlError();
-      }
+  _addObserverToValidatedField(prevComp) {
+    return new Promise((resolve, reject) => {
+      const validationTimeout = setTimeout(() => {
+        this.clearCredentials();
+        reject('Authentication timeout.');
+      }, 2500);
+
+      const didValidate = () => {
+        this.loggedIn = true;
+        clearTimeout(validationTimeout);
+        prevComp.stop();
+        resolve();
+      };
+
+      Tracker.autorun((c) => {
+        const selector = { meetingId: this.meetingID, userId: this.userID };
+        const query = Users.find(selector);
+
+        if (query.count() && query.fetch()[0].validated) {
+          c.stop();
+          didValidate();
+        }
+
+        const handle = query.observeChanges({
+          changed: (id, fields) => {
+            if (id !== this.userID) return;
+
+            if (fields.validated === true) {
+              c.stop();
+              didValidate();
+            }
+
+            if (fields.validated === false) {
+              c.stop();
+              this.clearCredentials();
+              reject('Authentication failed.');
+            }
+          },
+        });
+      });
+
+      const credentials = this.credentials;
+      callServer('validateAuthToken', credentials);
     });
+  }
 
-    return request.fail(() => handleLogoutUrlError());
+  fetchLogoutUrl() {
+    const url = `/bigbluebutton/api/enter`;
+
+    return fetch(url)
+      .then(response => response.json())
+      .then(data => Promise.resolve(data.response.logoutURL));
   }
 };
 

@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'underscore';
+import _ from 'lodash';
 import NavBarService from '../nav-bar/service';
 import Auth from '/imports/ui/services/auth';
 import { humanizeSeconds } from '/imports/utils/humanizeSeconds';
