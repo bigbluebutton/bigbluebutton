@@ -21,6 +21,7 @@ import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
 import AudioModalContainer  from '../audio-modal/container';
+import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
 const defaultProps = {
   navbar: <NavBarContainer />,
