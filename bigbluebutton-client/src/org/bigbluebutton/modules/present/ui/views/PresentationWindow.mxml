@@ -69,6 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShareEvent.CLEAN_SCREENSHARE_PUBLISH_TAB}" method="cleanScreensharePublishTab" />
 	<mate:Listener type="{ShareEvent.OPEN_SCREENSHARE_VIEW_TAB}" method="openScreenshareViewTab" />
 	<mate:Listener type="{ShareEvent.CLOSE_SCREENSHARE_VIEW_TAB}" method="closeScreenshareViewTab" />
+	<mate:Listener type="{ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB}" method="handleRefreshScreenshareTab" />
 	<mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="addWhiteboardCanvasToSlideView" />
 
 	<mx:Script>
@@ -1079,6 +1080,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					LOGGER.debug("viewTabContent is NULL.");
 				}
+			}
+
+			private function handleRefreshScreenshareTab(e:ShareEvent):void {
+				selectPresentationTab();
 			}
 
 			private function closeScreenshareViewTab(e:ShareEvent):void {

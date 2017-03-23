@@ -61,6 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
       import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
+      import org.bigbluebutton.modules.screenshare.events.ShareEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
@@ -512,6 +513,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onStartButtonClick():void {
+        cancelBtn.visible = cancelBtn.includeInLayout = true;
         shareScreen(shareTypeCombo.selectedIndex == 0);
       }
       
@@ -523,6 +525,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         //cancelBtn.visible = cancelBtn.includeInLayout = showHelp;
         startBtn.visible = startBtn.includeInLayout = showHelp;
         //stopBtn.visible = stopBtn.includeInLayout = !showHelp;
+      }
+
+      private function onCancelButtonClick():void {
+        dispatchEvent(new ShareEvent(ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB));
       }
     ]]>
   </mx:Script>
@@ -593,7 +599,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       </mx:HBox>
     <mx:Spacer width="80%" />
     <mx:Button id="startBtn" click="onStartButtonClick()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.startButton.label')}" />
-    <!--mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
-    <mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" /-->
+    <mx:Button id="cancelBtn" click="onCancelButtonClick()" visible="false" includeInLayout="false" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
+    <!--mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" /-->
   </mx:ControlBar>
 </mx:Canvas>

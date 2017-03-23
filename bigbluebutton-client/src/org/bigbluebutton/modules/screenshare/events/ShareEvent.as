@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.screenshare.events
 		public static const STOP_SHARING:String = "SCREENSHARE STOP SHARING";
 
 		public static const CREATE_SCREENSHARE_PUBLISH_TAB:String = "CREATE SCREENSHARE PUBLISH TAB";
+		public static const REFRESH_SCREENSHARE_PUBLISH_TAB:String = "REFRESH SCREENSHARE PUBLISH TAB";
 		public static const CLEAN_SCREENSHARE_PUBLISH_TAB:String = "CLEAN SCREENSHARE PUBLISH TAB";
 
 		public static const OPEN_SCREENSHARE_VIEW_TAB:String = "OPEN SCREENSHARE VIEW TAB";

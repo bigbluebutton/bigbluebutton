@@ -70,6 +70,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ScreenshareManager}" method="handleVideoDisplayModeEvent" arguments="{event.fullScreen}"/>
 	</EventHandlers>
 
+	<EventHandlers type="{ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleRefreshScreenshareTab"/>
+	</EventHandlers>
+
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
 		<MethodInvoker generator="{ScreenshareManager}" method="handleStartSharingEvent"/>
 	</EventHandlers>

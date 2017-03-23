@@ -212,6 +212,10 @@ package org.bigbluebutton.modules.screenshare.managers {
             publishWindowManager.stopSharing();
         }
 
+        public function handleRefreshScreenshareTab():void {
+            handleStopSharingEvent();
+        }
+
         public function handleShareWindowCloseEvent():void {
             //toolbarButtonManager.enableToolbarButton();
             publishWindowManager.handleShareWindowCloseEvent();
