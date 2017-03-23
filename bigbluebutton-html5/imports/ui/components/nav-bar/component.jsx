@@ -50,8 +50,8 @@ class NavBar extends Component {
   }
 
   handleToggleUserList() {
-    let x = document.getElementById("UserListBtn").getAttribute("aria-expanded");
-    let isExpanded =  (x == "true") ? "false" : "true";
+    let btn = document.getElementById("UserListBtn").getAttribute("aria-expanded");
+    let isExpanded =  (btn == "true") ? "false" : "true";
     document.getElementById("UserListBtn").setAttribute("aria-expanded", isExpanded);
     this.props.toggleUserList();
   }
