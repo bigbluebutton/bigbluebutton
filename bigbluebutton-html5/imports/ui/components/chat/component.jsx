@@ -13,6 +13,16 @@ export default class Chat extends Component {
     super(props);
   }
 
+  componentDidMount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
   render() {
     const {
       chatID,

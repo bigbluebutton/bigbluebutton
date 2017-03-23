@@ -12,18 +12,91 @@ import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteb
 export default class PresentationArea extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      paperWidth: 0,
+      paperHeight: 0,
+      showSlide: false,
+    };
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  componentDidMount() {
+    var fn = setTimeout(this.handleResize.bind(this), 0);
+    window.addEventListener('resize', () => {
+      setTimeout(this.handleResize.bind(this), 0);
+    });
+    this.setState({
+      paperHeight: this.refs.presentationPaper.parentNode.clientHeight,
+      paperWidth: this.refs.presentationPaper.parentNode.clientWidth,
+      showSlide: true,
+    });
+  }
+
+  calculateSize() {
+    let originalWidth;
+    let originalHeight;
+    let adjustedWidth;
+    let adjustedHeight;
+
+    originalWidth = this.props.currentSlide.slide.width;
+    originalHeight = this.props.currentSlide.slide.height;
+
+    //Slide has a portrait orientation
+    if (originalWidth <= originalHeight) {
+      adjustedWidth = this.state.paperHeight * originalWidth / originalHeight;
+     if (this.state.paperWidth < adjustedWidth) {
+        adjustedHeight = this.state.paperHeight * this.state.paperWidth / adjustedWidth;
+        adjustedWidth = this.state.paperWidth;
+      } else {
+        adjustedHeight = this.state.paperHeight;
+      }
+
+      //Slide has a landscape orientation
+    } else {
+      adjustedHeight = this.state.paperWidth * originalHeight / originalWidth;
+      if (this.state.paperHeight < adjustedHeight) {
+        adjustedWidth = this.state.paperWidth * this.state.paperHeight / adjustedHeight;
+        adjustedHeight = this.state.paperHeight;
+      } else {
+        adjustedWidth = this.state.paperWidth;
+      }
+    }
+    return {
+      width: adjustedWidth,
+      height: adjustedHeight,
+    };
+  }
+
+  handleResize() {
+    this.setState({
+      paperHeight: this.refs.presentationPaper.clientHeight,
+      paperWidth: this.refs.presentationPaper.clientWidth,
+    });
   }
 
   renderPresentationArea() {
-    let slideObj = this.props.currentSlide;
 
     if (this.props.currentSlide) {
-      slideObj = this.props.currentSlide.slide;
-      let x = -slideObj.x_offset * 2 * slideObj.width / 100;
-      let y = -slideObj.y_offset * 2 * slideObj.height / 100;
-      let viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
-      let viewBoxHeight = slideObj.height * slideObj.height_ratio / 100;
+      let adjustedSizes = this.calculateSize();
+      let slideObj = this.props.currentSlide.slide;
+      let x = -slideObj.x_offset * 2 * adjustedSizes.width / 100;
+      let y = -slideObj.y_offset * 2 * adjustedSizes.height / 100;
+      let viewBoxWidth = adjustedSizes.width * slideObj.width_ratio / 100;
+      let viewBoxHeight = adjustedSizes.height * slideObj.height_ratio / 100;
       return (
+        <div
+          style={{
+            width: adjustedSizes.width,
+            height: adjustedSizes.height,
+            WebkitTransition: 'width 0.2s', /* Safari */
+            transition: 'width 0.2s',
+            WebkitTransition: 'height 0.2s', /* Safari */
+            transition: 'height 0.2s',
+          }}
+        >
         <ReactCSSTransitionGroup
           transitionName={ {
             enter: styles.enter,
@@ -41,10 +114,7 @@ export default class PresentationArea extends React.Component {
           <svg
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"
-
-            //it's supposed to be here in theory
-            //but now it's ignored by all the browsers and it's not supported by React
-            //xmlNS="http://www.w3.org/2000/svg"
+            xmlns="http://www.w3.org/2000/svg"
             className={styles.svgStyles}
             key={slideObj.id}
           >
@@ -54,10 +124,15 @@ export default class PresentationArea extends React.Component {
               </clipPath>
             </defs>
             <g clipPath="url(#viewBox)">
-              <Slide id="slideComponent" currentSlide={this.props.currentSlide}/>
+              <Slide
+                id="slideComponent"
+                currentSlide={this.props.currentSlide}
+                paperWidth={adjustedSizes.width}
+                paperHeight={adjustedSizes.height}
+              />
               <ShapeGroupContainer
-                width = {slideObj.width}
-                height = {slideObj.height}
+                width = {adjustedSizes.width}
+                height = {adjustedSizes.height}
                 whiteboardId = {slideObj.id}
               />
               {this.props.cursor ?
@@ -84,6 +159,7 @@ export default class PresentationArea extends React.Component {
             : null }
           </svg>
         </ReactCSSTransitionGroup>
+        </div>
       );
     } else {
       return null;
@@ -106,11 +182,14 @@ export default class PresentationArea extends React.Component {
   render() {
     return (
       <div className={styles.presentationContainer}>
-        <div className={styles.presentationWrapper}>
-          <div className={styles.presentationPaper}>
-            {this.renderPresentationArea()}
+          <div
+            ref="presentationPaper"
+            className={styles.presentationPaper}
+          >
+            {this.state.showSlide ?
+              this.renderPresentationArea()
+            : null }
           </div>
-        </div>
         <PollingContainer />
         {this.renderPresentationToolbar()}
       </div>

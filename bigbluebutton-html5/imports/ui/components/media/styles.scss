@@ -4,7 +4,9 @@
   position: relative;
   display: flex;
   flex: 2;
-  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
 }
 
 %ratio {

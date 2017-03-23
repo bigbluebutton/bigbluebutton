@@ -33,6 +33,16 @@ class UserList extends Component {
     };
   }
 
+  componentDidMount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
   render() {
     return (
       <div className={styles.userList}>

@@ -7,6 +7,16 @@ export default class PollingComponent extends React.Component {
     super(props);
   }
 
+  componentDidMount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  componentWillUnmount() {
+    //to let the whiteboard know that the presentation area's size has changed
+    window.dispatchEvent(new Event('resize'));
+  }
+
   getStyles() {
     const number = this.props.poll.answers.length + 1;
     const buttonStyle =
