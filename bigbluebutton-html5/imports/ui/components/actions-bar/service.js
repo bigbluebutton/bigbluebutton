@@ -9,7 +9,7 @@ import Audio from '/imports/ui/components/audio-modal/component';
 let isUserPresenter = () => {
 
   // check if user is a presenter
-  return isPresenter = Users.findOne({
+  return Users.findOne({
     userId: AuthSingleton.userID,
   }).user.presenter;
 };
