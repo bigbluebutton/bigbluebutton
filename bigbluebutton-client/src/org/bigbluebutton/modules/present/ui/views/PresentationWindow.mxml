@@ -69,6 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShareEvent.CLEAN_SCREENSHARE_PUBLISH_TAB}" method="cleanScreensharePublishTab" />
 	<mate:Listener type="{ShareEvent.OPEN_SCREENSHARE_VIEW_TAB}" method="openScreenshareViewTab" />
 	<mate:Listener type="{ShareEvent.CLOSE_SCREENSHARE_VIEW_TAB}" method="closeScreenshareViewTab" />
+	<mate:Listener type="{ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB}" method="handleRefreshScreenshareTab" />
 	<mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="addWhiteboardCanvasToSlideView" />
 
 	<mx:Script>
@@ -95,6 +96,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.PresenterStatusEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
+			import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
+			import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
 			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
 			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
@@ -134,6 +137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var currentTabIndex:Number = PRESENTATION_TAB_INDEX;
 
 			private var sharing:Boolean = false;
+			private var paused:Boolean = false;
 			
 			[Bindable] 
       private var thumbY:Number;
@@ -843,6 +847,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					pollVoteBox.visible = false;
 					pollVoteBox.includeInLayout = false;
 					btnClosePublish.visible = false;
+					btnPauseScreenshare.visible = false;
 					btnActualSize.visible = false;
 					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = true;
 					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = true;
@@ -856,6 +861,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						presenterControls.includeInLayout = false;
 						btnActualSize.visible = false;
 						btnClosePublish.visible = false;
+						btnPauseScreenshare.visible = false;
 						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
 						presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
 					} else if (currentTabIndex == SCREENSHARE_VIEW_TAB_INDEX) {
@@ -968,6 +974,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				btnActualSize.visible = false;
 				btnClosePublish.visible = false;
+				btnPauseScreenshare.visible = false;
 				if (UsersUtil.amIPresenter()) {
 					setControlBarState("presenter");
 					annotationsPermissionChanged(true);
@@ -980,15 +987,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleDesktopPublishTabSelected():void {
 				LOGGER.debug("Handling Desktop Publish Tab selected");
 				currentTabIndex = SCREENSHARE_PUBLISH_TAB_INDEX;
-				startDeskshareTabCreation();
 
-				if (UsersUtil.amIPresenter()) {
+				if (paused) {
+					paused = false;
+					screenshareTab.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.title');
+					dispatchEvent(new RequestToRestartSharing());
+				} else {
+					startDeskshareTabCreation();
 					dispatchEvent(new RequestToStartSharing());
-					presenterControls.visible = false;
-					presenterControls.includeInLayout = false;
-					pollStartBtn.visible = false;
-					annotationsPermissionChanged(false);
 				}
+				presenterControls.visible = false;
+				presenterControls.includeInLayout = false;
+				pollStartBtn.visible = false;
+				annotationsPermissionChanged(false);
 			}
 
 			private function handleDesktopViewTabSelected():void {
@@ -1015,6 +1026,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (UsersUtil.amIPresenter()) {
 					pollStartBtn.visible = true;
 					btnClosePublish.visible = true;
+					btnPauseScreenshare.visible = true;
 				}
 			}
 
@@ -1029,7 +1041,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Stopping desktop publish");
 				presenterTabs.getTabAt(SCREENSHARE_VIEW_TAB_INDEX).visible = false;
 				presenterTabs.getTabAt(SCREENSHARE_VIEW_TAB_INDEX).includeInLayout = false;
-				dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
+				if (!paused) dispatchEvent(new ShareEvent(ShareEvent.STOP_SHARING));
 				sharing = false;
 				PresentationModel.getInstance().getCurrentPresentation().sharingDesktop = false;
 			}
@@ -1081,6 +1093,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
+			private function handleRefreshScreenshareTab(e:ShareEvent):void {
+				selectPresentationTab();
+			}
+
 			private function closeScreenshareViewTab(e:ShareEvent):void {
 				LOGGER.debug("Closing the dekstop share VIEWING tab");
 				selectPresentationTab();
@@ -1121,11 +1137,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				e.fullScreen = fullScreen;
 				dispatchEvent(e);
 			}
+
+			private function pauseScreenshare():void {
+				paused = true;
+				screenshareTab.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label');
+				dispatchEvent(new RequestToPauseSharing());
+			}
 		]]>
 	</mx:Script>
 	
 	<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
-			tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage, btnClosePublish, btnActualSize]}"/>
+			tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, pollStartBtn, quickPollBtn, uploadPres, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage, btnClosePublish, btnPauseScreenshare, btnActualSize]}"/>
   	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
@@ -1179,6 +1201,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				visible="false"
 				includeInLayout="{btnClosePublish.visible}"
 				click="selectPresentationTab()"/>
+
+		<mx:Button id="btnPauseScreenshare"
+				label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.label')}"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.pause.tooltip')}"
+				visible="false"
+				includeInLayout="{btnPauseScreenshare.visible}"
+				click="pauseScreenshare()"/>
 
 		<mx:Button id="btnActualSize"
 				visible="false"
