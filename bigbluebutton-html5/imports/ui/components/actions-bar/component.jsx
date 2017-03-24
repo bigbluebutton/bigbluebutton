@@ -14,7 +14,7 @@ export default class ActionsBar extends Component {
 
   render() {
     const { isUserPresenter } = this.props;
-    console.log(this.props);
+
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
