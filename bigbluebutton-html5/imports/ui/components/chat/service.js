@@ -4,8 +4,10 @@ import Meetings from '/imports/api/meetings';
 
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import Storage from '/imports/ui/services/storage/session';
 
 import { callServer } from '/imports/ui/services/api';
+import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -19,6 +21,9 @@ const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 const PUBLIC_CHAT_USERNAME = CHAT_CONFIG.public_username;
 
 const ScrollCollection = new Mongo.Collection(null);
+
+// session for closed chat list
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 /* TODO: Same map is done in the user-list/service we should share this someway */
 
@@ -193,6 +198,13 @@ const sendMessage = (receiverID, message) => {
     from_color: 0,
   };
 
+  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+
+  // Remove the chat that user send messages from the session.
+  if (_.indexOf(currentClosedChats, receiver.id) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
+  }
+
   callServer('sendChat', messagePayload);
 
   return messagePayload;
@@ -215,6 +227,17 @@ const updateUnreadMessage = (receiverID, timestamp) => {
   return UnreadMessages.update(receiverID, timestamp);
 };
 
+const closePrivateChat = (chatID) => {
+
+  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+
+  if (_.indexOf(currentClosedChats, chatID) < 0) {
+    currentClosedChats.push(chatID);
+
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
+  }
+};
+
 export default {
   getPublicMessages,
   getPrivateMessages,
@@ -226,4 +249,5 @@ export default {
   updateScrollPosition,
   updateUnreadMessage,
   sendMessage,
+  closePrivateChat,
 };

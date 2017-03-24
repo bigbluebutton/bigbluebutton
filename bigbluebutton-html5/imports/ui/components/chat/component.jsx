@@ -30,15 +30,24 @@ export default class Chat extends Component {
 
     return (
       <section className={styles.chat}>
+
         <header className={styles.header}>
-          <Link 
-            className={styles.closeChat}
-            to="/users"
-            role="button"
-            aria-label={closeChatLabel}>
-              <Icon iconName="left_arrow" /> {title}
-          </Link>
+          <div className={styles.title}>
+            <Link to="/users" role="button" aria-label={closeChatLabel}>
+              <Icon iconName="left_arrow"/> {title}
+            </Link>
+          </div>
+          <div className={styles.closeIcon}>
+            {
+              ((this.props.chatID == 'public') ?
+                null :
+                <Link to="/users">
+                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
+                </Link>)
+            }
+          </div>
         </header>
+
         <MessageList
           chatId={chatID}
           messages={messages}
