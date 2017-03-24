@@ -46,7 +46,10 @@ export default class Modal extends Component {
 
   handleDismiss() {
     const { dismiss } = this.props;
-    dismiss.callback(...arguments);
+    if (dismiss && dismiss.callback) {
+      dismiss.callback(...arguments);
+    }
+
     this.setState({ isOpen: false });
     clearModal();
   }

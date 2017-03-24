@@ -43,22 +43,22 @@ class JoinAudio extends React.Component {
     const { intl } = this.props;
     return (
       <div>
-        <div className={styles.center}>
+        <div className={styles.closeBtn}>
           <Button className={styles.closeBtn}
             label={intl.formatMessage(intlMessages.closeLabel)}
             icon={'close'}
             size={'lg'}
-            circle={true}
             hideLabel={true}
             onClick={this.handleClose}
           />
-          <div>
-            <FormattedMessage
+        </div>
+
+        <div className={styles.title}>
+          <FormattedMessage
               id="app.audioModal.audioChoiceLabel"
               description="app.audioModal.audioChoiceDescription"
               defaultMessage="How would you like to join the audio?"
-            />
-          </div>
+          />
         </div>
         <div className={styles.center}>
           <Button className={styles.audioBtn}
@@ -68,6 +68,9 @@ class JoinAudio extends React.Component {
             size={'jumbo'}
             onClick={this.openAudio}
           />
+
+          <span className={styles.verticalLine}>
+          </span>
           <Button className={styles.audioBtn}
             label={intl.formatMessage(intlMessages.listenOnlyLabel)}
             icon={'listen'}

@@ -1,5 +1,4 @@
-import React, { Component, PropTypes } from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
@@ -9,10 +8,8 @@ import Application from '/imports/ui/components/settings/submenus/application/co
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import Video from '/imports/ui/components/settings/submenus/video/component';
 
-import Button from '../button/component';
 import Icon from '../icon/component';
 import styles from './styles';
-import cx from 'classnames';
 
 const propTypes = {
 };
