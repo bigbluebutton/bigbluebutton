@@ -1,13 +1,7 @@
 import React from 'react';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
 import ModalBase from '../modal/base/component';
-import { clearModal } from '/imports/ui/components/app/service';
-import classNames from 'classnames';
-import ReactDOM from 'react-dom';
 import styles from './styles.scss';
 import JoinAudio from './join-audio/component';
-import ListenOnly from './listen-only/component';
 import AudioSettings from '../audio/audio-settings/component';
 
 export default class Audio extends React.Component {
@@ -16,7 +10,6 @@ export default class Audio extends React.Component {
 
     this.JOIN_AUDIO = 0;
     this.AUDIO_SETTINGS = 1;
-    this.LISTEN_ONLY = 2;
 
     this.submenus = [];
   }
@@ -28,7 +21,6 @@ export default class Audio extends React.Component {
     this.setState({ activeSubmenu: 0 });
     this.submenus.push({ componentName: JoinAudio, });
     this.submenus.push({ componentName: AudioSettings, });
-    this.submenus.push({ componentName: ListenOnly, });
   }
 
   changeMenu(i) {
