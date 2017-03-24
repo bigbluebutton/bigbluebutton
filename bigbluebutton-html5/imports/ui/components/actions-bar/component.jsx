@@ -13,10 +13,13 @@ export default class ActionsBar extends Component {
   }
 
   renderForPresenter() {
+
+    const { isUserPresenter } = this.props;
+
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
-          <ActionsDropdown />
+          <ActionsDropdown {...isUserPresenter}/>
         </div>
         <div className={styles.center}>
           <MuteAudioContainer />
@@ -29,7 +32,7 @@ export default class ActionsBar extends Component {
           <EmojiContainer />
         </div>
         <div className={styles.hidden}>
-          <ActionsDropdown />
+          <ActionsDropdown {...isUserPresenter}/>
         </div>
       </div>
     );
