@@ -1,8 +1,8 @@
 import React from 'react';
-import ModalBase from '../modal/base/component';
+import ModalBase from '../../modal/base/component';
 import styles from './styles.scss';
-import JoinAudio from './join-audio/component';
-import AudioSettings from '../audio/audio-settings/component';
+import JoinAudio from '../join-audio/component';
+import AudioSettings from '../audio-settings/component';
 
 export default class Audio extends React.Component {
   constructor(props) {
