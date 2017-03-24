@@ -286,7 +286,7 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5=bbb-html5
        fi
-       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer $HTML5
+       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5
     else
 	/etc/init.d/monit stop
 
