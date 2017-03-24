@@ -1,6 +1,5 @@
 import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import Button from '/imports/ui/components/button/component';
 import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
 import JoinAudioOptions from './component';

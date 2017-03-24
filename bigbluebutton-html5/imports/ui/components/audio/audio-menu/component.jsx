@@ -12,7 +12,7 @@ const intlMessages = defineMessages({
   leaveAudio: {
     id: 'app.audio.leaveAudio',
     defaultMessage: 'Leave Audio',
-  }
+  },
 });
 
 class JoinAudioOptions extends React.Component {
