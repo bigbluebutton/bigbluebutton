@@ -3,7 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
 
 import NotificationsBarContainer from '../notifications-bar/container';
-import AudioNotificationContainer from '../audio-notification/container';
+import AudioNotificationContainer from '../audio/audio-notification/container';
 import ChatNotificationContainer from '../chat/notification/container';
 
 import Button from '../button/component';
