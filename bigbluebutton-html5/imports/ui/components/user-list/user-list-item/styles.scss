@@ -38,6 +38,8 @@
   margin-left: $sm-padding-x;
   justify-content: center;
   font-size: 0.95rem;
+  width: 30ch;
+  background-color: yellow;
 }
 
 .userNameMain {
@@ -158,7 +160,9 @@
 }
 
 .actionsHeader {
+  @extend %text-elipsis;
   color: $color-gray;
+  width: 30ch;
 
   &:hover {
     color: $color-gray !important;
