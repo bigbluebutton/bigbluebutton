@@ -7,8 +7,8 @@ let getSlideData = (params) => {
   const { currentSlideNum, presentationId } = params;
 
   // Get userId and meetingId
-  const userId = AuthSingleton.getCredentials().requesterUserId;
-  const meetingId = AuthSingleton.getCredentials().meetingId;
+  const userId = AuthSingleton.userID;
+  const meetingId = AuthSingleton.meetingID;
 
   // Find the user object of this specific meeting and userid
   const currentUser = Users.findOne({

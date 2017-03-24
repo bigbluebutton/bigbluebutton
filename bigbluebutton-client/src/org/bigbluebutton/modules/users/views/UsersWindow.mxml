@@ -128,7 +128,6 @@
 			
 			private var joinAlert : Alert;
 			
-			private const FOCUS_USERS_LIST:String = "Focus Users List";
 			private const MAKE_PRESENTER:String = "Make Presenter";
 			private const KICK_USER:String = "Kick User";
 			private const MUTE_USER:String = "Mute User";
@@ -440,9 +439,10 @@
 
 			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array bbb.shortcutkey.users.muteall
-				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.focusUsers') as String)] = FOCUS_USERS_LIST;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.makePresenter') as String)] = MAKE_PRESENTER;
-				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
+				if (!UserManager.getInstance().getConference().isBreakout) {
+					keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
+				}
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteall') as String)] = MUTE_ALL_USER;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.focusBreakoutRooms') as String)] = FOCUS_BREAKOUT_ROOMS_LIST;
@@ -459,9 +459,6 @@
 				var keyPress:String = KeyboardUtil.buildPressedKeys(e);
 				if (keyCombos[keyPress]) {
 					switch (keyCombos[keyPress]) {
-						case FOCUS_USERS_LIST:
-							remoteFocusUsers();
-							break;
 						case MAKE_PRESENTER:
 							remoteMakePresenter();
 							break;
@@ -498,7 +495,9 @@
 			}
 
 			private function focusWindow(e:ShortcutEvent):void {
-				focusManager.setFocus(titleBarOverlay);
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
 			}
 			
 			public function remoteRaiseHand(e:ShortcutEvent):void{
@@ -536,7 +535,7 @@
 			}
 			
 			public function remoteKickUser():void {
-				if (amIModerator && usersGrid.selectedIndex != -1 && partOptions.allowKickUser) {
+				if (amIModerator && usersGrid.selectedIndex != -1 && partOptions.allowKickUser && !UserManager.getInstance().getConference().isBreakout) {
 					var selData:Object = usersGrid.selectedItem;
 					
 					if (!selData.me)
@@ -557,13 +556,8 @@
 				}
 			}
 			
-			public function remoteFocusUsers():void {
-				focusManager.setFocus(usersGrid);
-				usersGrid.drawFocus(true);
-			}
-			
 			public function remoteFocusBreakoutRooms() : void {
-				if (roomsGrid && roomsGrid.visible) {
+				if (roomsGrid && roomsBox.visible) {
 					focusManager.setFocus(roomsGrid);
 					roomsGrid.drawFocus(true);			
 				}
@@ -636,8 +630,8 @@
     </views:BBBDataGrid>
 	
 	<mx:VBox id="roomsBox" styleName="breakoutRoomsBox"
-			 visible="{breakoutRoomsList.length > 0 &amp;&amp; amIModerator}"
-			 includeInLayout="{breakoutRoomsList.length > 0 &amp;&amp; amIModerator}"
+			 visible="{breakoutRoomsList.length > 0}"
+			 includeInLayout="{breakoutRoomsList.length > 0}"
 			 horizontalScrollPolicy="off"
 			 width="100%" height="180">
 		<mx:HBox width="100%">
@@ -658,7 +652,6 @@
 								   showDataTips="true"
 								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
 				<mx:DataGridColumn dataField="meetingId"
-								   visible="{amIModerator}"
 								   headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</views:columns>

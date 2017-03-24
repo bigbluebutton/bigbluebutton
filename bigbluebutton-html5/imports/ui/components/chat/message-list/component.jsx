@@ -1,7 +1,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'underscore';
+import _ from 'lodash';
 import styles from './styles';
 
 import Button from '/imports/ui/components/button/component';

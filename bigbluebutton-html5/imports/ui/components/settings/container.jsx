@@ -1,13 +1,13 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import _ from 'underscore';
-import Settings from './component.jsx';
+import _ from 'lodash';
+import Settings from './component';
 import {
     getSettingsFor,
     updateSettings,
     getClosedCaptionLocales,
     getUserRoles,
-  } from './service.js';
+  } from './service';
 
 class SettingsContainer extends Component {
   render() {

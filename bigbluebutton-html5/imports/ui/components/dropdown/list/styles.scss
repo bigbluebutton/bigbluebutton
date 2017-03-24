@@ -10,6 +10,11 @@
   padding: ($line-height-computed / 2);
   display: flex;
   flex-direction: column;
+
+  @include mq($small-only) {
+    font-size: $font-size-large * 1.1;
+    padding: $line-height-computed;
+  }
 }
 
 
@@ -31,6 +36,11 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+
+  @include mq($small-only) {
+    padding: ($line-height-computed / 1.5) 0;
+    justify-content: center;
+  }
 
   &:first-child {
     padding-top: 0;

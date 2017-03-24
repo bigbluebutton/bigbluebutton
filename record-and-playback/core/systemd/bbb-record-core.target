@@ -1,0 +1,4 @@
+[Unit]
+Description=BigBlueButton recording & playback processing
+Wants=bbb-rap-archive-worker.service bbb-rap-sanity-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service
+StopWhenUnneeded=true

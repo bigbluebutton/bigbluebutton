@@ -68,6 +68,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 	<mate:Listener type="{BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL}" method="openBreakoutRoomsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
+	
+	<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
 	  
 	<mx:Script>
 		<![CDATA[
@@ -101,6 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
@@ -680,6 +683,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					ExternalInterface.call("chatLinkClicked", e.text);
 				}
 			}
+
+            private function onLayoutChanged(e:SwitchedLayoutEvent):void {
+                if (e.layoutID != "bbb.layout.name.videochat") {
+                    this.styleName = "defaultShellStyle";
+					controlBar.styleName = "defaultControlBarStyle";
+                } else {
+					this.styleName = "darkShellStyle";
+					controlBar.styleName = "darkControlBarStyle";
+                }
+            }
+
 		]]>
 	</mx:Script>
 	

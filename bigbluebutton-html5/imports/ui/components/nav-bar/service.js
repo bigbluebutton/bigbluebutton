@@ -4,7 +4,7 @@ import Breakouts from '/imports/api/breakouts';
 const getBreakouts = () => Breakouts.find().fetch();
 
 const getBreakoutJoinURL = (breakout) => {
-  const currentUserId = Auth.getCredentials().requesterUserId;
+  const currentUserId = Auth.userID;
 
   if (breakout.users) {
     const user = breakout.users.find(user => user.userId === currentUserId);

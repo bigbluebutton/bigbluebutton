@@ -30,7 +30,6 @@ package org.bigbluebutton.main.model.users {
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
@@ -568,8 +567,21 @@ package org.bigbluebutton.main.model.users {
 			}
 			breakoutRooms.addItem(newRoom);
 			sortBreakoutRooms();
-		}
-		
+        }
+
+        public function setLastBreakoutRoomInvitation(sequence:int):void {
+            var aRoom:BreakoutRoom;
+            for (var i:int = 0; i < breakoutRooms.length; i++) {
+                aRoom = breakoutRooms.getItemAt(i) as BreakoutRoom;
+                if (aRoom.sequence != sequence) {
+                    aRoom.invitedRecently = false;
+                } else {
+                    aRoom.invitedRecently = true;
+                }
+            }
+			sortBreakoutRooms();
+        }
+
 		private function sortBreakoutRooms() : void {
 			var sort:Sort = new Sort();
 			sort.fields = [new SortField("sequence", true, false, true)];
