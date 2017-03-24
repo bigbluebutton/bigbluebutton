@@ -17,7 +17,7 @@ class AudioTest extends React.Component {
         <Button className={styles.testAudioBtn}
           label={intl.formatMessage(intlMessages.playSoundLabel)}
           icon={'unmute'}
-          size={'md'}
+          size={'sm'}
           color={'primary'}
           onClick={this.props.handlePlayAudioSample}
         />
