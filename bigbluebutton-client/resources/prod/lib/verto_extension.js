@@ -24,9 +24,9 @@ Verto = function (
   this.caller_id_name = conferenceUsername;
   this.caller_id_number = conferenceUsername;
 
-  this.vertoPort = "8082";
+  this.vertoPort = "verto";
   this.hostName = window.location.hostname;
-  this.socketUrl = 'wss://' + this.hostName + ':' + this.vertoPort;
+  this.socketUrl = 'wss://' + this.hostName + '/' + this.vertoPort;
   this.login = "bbbuser";
   this.password = "secret";
 
