@@ -60,7 +60,7 @@ class AudioSettings extends React.Component {
             ghost={true}
             onClick={this.chooseAudio}
           />
-          <div className={styles.title}>
+          <div className={cx(styles.title, styles.chooseAudio)}>
             <FormattedMessage
               id="app.audio.audioSettings.titleLabel"
             />

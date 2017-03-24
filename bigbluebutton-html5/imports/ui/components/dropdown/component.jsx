@@ -3,9 +3,18 @@ import { findDOMNode } from 'react-dom';
 import styles from './styles';
 import DropdownTrigger from './trigger/component';
 import DropdownContent from './content/component';
+import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
 
 const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
+
+const intlMessages = defineMessages({
+  close: {
+    id: 'app.dropdown.close',
+    defaultMessage: 'Close',
+  },
+});
 
 const propTypes = {
   /**
@@ -44,7 +53,7 @@ const defaultProps = {
   isOpen: false,
 };
 
-export default class Dropdown extends Component {
+class Dropdown extends Component {
   constructor(props) {
     super(props);
     this.state = { isOpen: false, };
@@ -113,7 +122,7 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const { children, className, style } = this.props;
+    const { children, className, style, intl } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
@@ -137,6 +146,14 @@ export default class Dropdown extends Component {
       <div style={style} className={cx(styles.dropdown, className)}>
         {trigger}
         {content}
+        { this.state.isOpen ?
+          <Button
+            className={styles.close}
+            label={intl.formatMessage(intlMessages.close)}
+            size={'lg'}
+            color={'default'}
+            onClick={this.handleHide}
+          /> : null }
       </div>
     );
   }
@@ -144,3 +161,4 @@ export default class Dropdown extends Component {
 
 Dropdown.propTypes = propTypes;
 Dropdown.defaultProps = defaultProps;
+export default injectIntl(Dropdown);

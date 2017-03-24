@@ -18,17 +18,17 @@ const intlMessages = defineMessages({
 class JoinAudioOptions extends React.Component {
   render() {
     const {
-      close,
       intl,
       isInAudio,
       isInListenOnly,
-      open,
+      handleJoinAudio,
+      handleCloseAudio,
     } = this.props;
 
     if (isInAudio || isInListenOnly) {
       return (
         <Button
-          onClick={close}
+          onClick={handleCloseAudio}
           label={intl.formatMessage(intlMessages.leaveAudio)}
           color={'danger'}
           icon={'audio_off'}
@@ -40,7 +40,7 @@ class JoinAudioOptions extends React.Component {
 
     return (
       <Button
-        onClick={open}
+        onClick={handleJoinAudio}
         label={intl.formatMessage(intlMessages.joinAudio)}
         color={'primary'}
         icon={'audio_on'}

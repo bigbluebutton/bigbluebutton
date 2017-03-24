@@ -41,7 +41,7 @@ Button.audioBtn:hover span:first-child {
 Button.audioBtn span:last-child {
   color: black;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 Button.audioBtn:first-of-type {
@@ -155,3 +155,10 @@ Button.audioBtn:last-of-type {
   justify-content: flex-end;
   margin-right: 2rem;
 }
+
+.chooseAudio {
+  position:absolute;
+  left:50%;
+  transform: translate(-50%, 0);
+}
+

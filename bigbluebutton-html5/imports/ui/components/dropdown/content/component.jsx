@@ -40,7 +40,9 @@ export default class DropdownContent extends Component {
         style={style}
         aria-expanded={this.props['aria-expanded']}
         className={cx(styles.content, styles[placementName], className)}>
-        {boundChildren}
+        <div className={styles.scrollable}>
+          {boundChildren}
+        </div>
       </div>
     );
   }
