@@ -15,6 +15,14 @@ ApplicationControlBar {
   dropShadowColor: #000000;
 }
 
+.defaultControlBarStyle {
+	color : #0B333C;
+}
+
+.darkControlBarStyle {
+	color : #ffffff;
+}
+
 Panel {
   borderColor: #dfdfdf;
   borderAlpha: 1;
@@ -756,12 +764,14 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 }
 
 .videoDockStyleFocusChatLayout {
+	borderStyle : none;
 	borderColor: #42444c;
 	backgroundColor: #42444c;
 }
 
 .videoDockStyleNoFocusChatLayout {
-	borderColor: #32343b;
+	borderStyle : none;
+	borderColor: #42444c;
 	backgroundColor: #42444c;
 }
 
@@ -873,6 +883,14 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	borderThicknessTop: 0;
 	borderThicknessBottom: 3;
 	borderThicknessRight: 3;
+}
+
+.defaultShellStyle {
+	backgroundColor: #fefeff;
+}
+
+.darkShellStyle {
+	backgroundColor: #42444c;
 }
 
 .mdiWindowTitle {
