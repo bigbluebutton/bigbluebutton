@@ -1,3 +1,4 @@
+import React from 'react';
 import AuthSingleton from '/imports/ui/services/auth/index.js';
 import Users from '/imports/api/users';
 import { joinListenOnly } from '/imports/api/phone';
@@ -8,13 +9,9 @@ import Audio from '/imports/ui/components/audio-modal/component';
 let isUserPresenter = () => {
 
   // check if user is a presenter
-  let isPresenter = Users.findOne({
+  return isPresenter = Users.findOne({
     userId: AuthSingleton.userID,
   }).user.presenter;
-
-  return {
-    isUserPresenter: isPresenter,
-  };
 };
 
 const handleExitAudio = () => {

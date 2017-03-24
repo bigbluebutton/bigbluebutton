@@ -51,7 +51,7 @@ class ActionsDropdown extends Component {
 
   render() {
     const { intl, isUserPresenter } = this.props;
-
+    console.log(this.props);
     if (!isUserPresenter) return null;
 
     return (
