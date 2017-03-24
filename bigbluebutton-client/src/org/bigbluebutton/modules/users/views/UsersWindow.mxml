@@ -128,7 +128,6 @@
 			
 			private var joinAlert : Alert;
 			
-			private const FOCUS_USERS_LIST:String = "Focus Users List";
 			private const MAKE_PRESENTER:String = "Make Presenter";
 			private const KICK_USER:String = "Kick User";
 			private const MUTE_USER:String = "Mute User";
@@ -440,7 +439,6 @@
 
 			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array bbb.shortcutkey.users.muteall
-				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.focusUsers') as String)] = FOCUS_USERS_LIST;
 				keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.makePresenter') as String)] = MAKE_PRESENTER;
 				if (!UserManager.getInstance().getConference().isBreakout) {
 					keyCombos[modifier + (ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
@@ -461,9 +459,6 @@
 				var keyPress:String = KeyboardUtil.buildPressedKeys(e);
 				if (keyCombos[keyPress]) {
 					switch (keyCombos[keyPress]) {
-						case FOCUS_USERS_LIST:
-							remoteFocusUsers();
-							break;
 						case MAKE_PRESENTER:
 							remoteMakePresenter();
 							break;
@@ -500,7 +495,9 @@
 			}
 
 			private function focusWindow(e:ShortcutEvent):void {
-				focusManager.setFocus(titleBarOverlay);
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
 			}
 			
 			public function remoteRaiseHand(e:ShortcutEvent):void{
@@ -559,13 +556,8 @@
 				}
 			}
 			
-			public function remoteFocusUsers():void {
-				focusManager.setFocus(usersGrid);
-				usersGrid.drawFocus(true);
-			}
-			
 			public function remoteFocusBreakoutRooms() : void {
-				if (roomsGrid && roomsGrid.visible) {
+				if (roomsGrid && roomsBox.visible) {
 					focusManager.setFocus(roomsGrid);
 					roomsGrid.drawFocus(true);			
 				}
