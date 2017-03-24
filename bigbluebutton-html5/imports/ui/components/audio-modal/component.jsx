@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 import styles from './styles.scss';
 import JoinAudio from './join-audio/component';
 import ListenOnly from './listen-only/component';
-import AudioSettings from './audio-settings/component';
+import AudioSettings from '../audio/audio-settings/component';
 
 export default class Audio extends React.Component {
   constructor(props) {
