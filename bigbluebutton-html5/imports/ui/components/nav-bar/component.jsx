@@ -2,9 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
 import styles from './styles.scss';
-
 import { showModal } from '/imports/ui/components/app/service';
-
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
@@ -50,14 +48,8 @@ class NavBar extends Component {
   }
 
   handleToggleUserList() {
-    let btn = document.getElementById('UserListBtn')
-                      .getAttribute('aria-expanded');
-
-    let isExpanded = (btn == 'true') ? 'false' : 'true';
-
-    document.getElementById('UserListBtn')
-            .setAttribute('aria-expanded', isExpanded);
-
+    let toggled = (this.props.isExpanded == false) ? true : false;
+    this.props.setToggleState(toggled);
     this.props.toggleUserList();
   }
 
@@ -68,7 +60,7 @@ class NavBar extends Component {
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded } = this.props;
+    const { hasUnreadMessages, beingRecorded, isExpanded } = this.props;
 
     let toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -85,8 +77,7 @@ class NavBar extends Component {
             label={'User-List Toggle'}
             icon={'user'}
             className={cx(toggleBtnClasses)}
-            aria-expanded="false"
-            id="UserListBtn"
+            aria-expanded={isExpanded}
           />
         </div>
         <div className={styles.center} role="banner">
