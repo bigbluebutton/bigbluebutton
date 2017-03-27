@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../styles.scss';
+import styles from '../audio-modal/styles.scss';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
@@ -13,7 +13,7 @@ const intlMessages = defineMessages({
   },
   closeLabel: {
     id: 'app.audioModal.closeLabel',
-  }
+  },
 });
 
 class JoinAudio extends React.Component {

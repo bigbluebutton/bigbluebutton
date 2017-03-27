@@ -5,7 +5,7 @@ import styles from '../styles.scss';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
 
-export default class AudioMenu extends BaseMenu {
+export default class VideoMenu extends BaseMenu {
   constructor(props) {
     super(props);
 

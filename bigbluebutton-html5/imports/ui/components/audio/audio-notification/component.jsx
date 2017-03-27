@@ -41,7 +41,7 @@ class AudioNotification extends Component {
       intl,
     } = this.props;
 
-    if (!color || !message ){
+    if (!color || !message) {
       return null;
     } else {
       return (
