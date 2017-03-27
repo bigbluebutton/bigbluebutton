@@ -116,7 +116,7 @@ public class ResponseBuilder {
     } catch (TemplateException e) {
       log.error("Template exception : ", e);
     } catch (IOException e) {
-      log.error("IO exception for get-meetings.ftl : ", e);
+      log.error("IO exception for get-recordings.ftl : ", e);
     }
 
     return xmlText.toString();
