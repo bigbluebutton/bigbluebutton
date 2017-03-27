@@ -215,6 +215,7 @@ class UserListItem extends Component {
                   label={user.name}
                   style={{ fontWeight: 600 }}
                   defaultMessage={user.name}/>),
+                (<DropdownListItem separator={true} />),
               ].concat(actions)
             }
           </DropdownList>

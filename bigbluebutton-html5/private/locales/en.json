@@ -14,6 +14,8 @@
   "app.chat.partnerDisconnected": "{name} has left the meeting",
   "app.chat.moreMessages": "More messages below",
   "app.chat.Label": "Chat",
+  "app.dropdownListItem.separatorLabel": "separator",
+  "app.dropdownListItem.separatorDesc": "used to visually divide menu items",
   "app.media.Label": "Media",
   "app.presentation.presentationToolbar.prevSlideLabel": "Previous slide",
   "app.presentation.presentationToolbar.prevSlideDescrip": "Change the presentation to the previous slide",
