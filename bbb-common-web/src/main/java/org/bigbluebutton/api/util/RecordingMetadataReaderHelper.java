@@ -42,13 +42,10 @@ public class RecordingMetadataReaderHelper {
       recMeta  = mapper.readValue(reader, RecordingMetadata.class);
       recMeta.setMetadataXml(metadataXml.getParent());
     } catch (XMLStreamException e) {
-      System.out.println("Failed to read metadata xml for recording: " + metadataXml.getAbsolutePath());
-     log.error("Failed to read metadata xml for recording: " + metadataXml.getAbsolutePath(), e);
+      log.error("Failed to read metadata xml for recording: " + metadataXml.getAbsolutePath(), e);
     } catch (FileNotFoundException e) {
-      System.out.println("File not found: " + metadataXml.getAbsolutePath());
       log.error("File not found: " + metadataXml.getAbsolutePath(), e);
     } catch (IOException e) {
-      System.out.println("IOException on " + metadataXml.getAbsolutePath());
       log.error("IOException on " + metadataXml.getAbsolutePath(), e);
     }
 
