@@ -1,5 +1,5 @@
 import { createContainer } from 'meteor/react-meteor-data';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import AudioNotification from './component';
 

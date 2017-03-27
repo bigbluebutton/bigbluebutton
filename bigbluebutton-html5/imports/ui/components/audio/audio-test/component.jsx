@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '/imports/ui/components/button/component';
-import styles from '../styles.scss';
+import styles from './styles.scss';
 import { defineMessages, injectIntl } from 'react-intl';
 
 class AudioTest extends React.Component {
