@@ -1,12 +1,11 @@
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
-import _ from 'lodash';
 
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio/audio-notification/container';
+import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
 
-import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
 
@@ -119,7 +118,7 @@ export default class App extends Component {
   }
 
   render() {
-    const { modal, params } = this.props;
+    const { params } = this.props;
 
     return (
       <main className={styles.main}>
@@ -135,8 +134,7 @@ export default class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
-        {modal}
-        <audio id="remote-media" autoPlay="autoplay"></audio>
+        <AudioContainer />
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );
