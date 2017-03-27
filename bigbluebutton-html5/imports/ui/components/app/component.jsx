@@ -107,7 +107,7 @@ class App extends Component {
     return (
       <section
         className={styles.chat}
-        role="section"
+        role="region"
         aria-label={intl.formatMessage(intlMessages.chatLabel)}>
           {chat}
       </section>
