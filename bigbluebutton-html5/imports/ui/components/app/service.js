@@ -1,5 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
-import SettingsService from '/imports/ui/components/settings/service';
+import Settings from '/imports/ui/services/settings';
 
 let currentModal = {
   component: null,
@@ -23,12 +23,12 @@ const clearModal = () => {
 };
 
 const getCaptionsStatus = () => {
-  const settings = SettingsService.getSettingsFor('cc');
-  return settings ? settings.closedCaptions : false;
+  const settings = Settings.cc;
+  return settings ? settings.cc : false;
 };
 
 const getFontSize = () => {
-  const settings = SettingsService.getSettingsFor('application');
+  const settings = Settings.application;
   return settings ? settings.fontSize : '16px';
 };
 

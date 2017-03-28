@@ -42,7 +42,7 @@ export default class Settings extends Component {
       selectedTab: 0,
     };
 
-    this.handleSettingsApply = props.updateSettings;
+    this.updateSettings = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
@@ -57,7 +57,7 @@ export default class Settings extends Component {
         title="Settings"
         confirm={{
           callback: (() => {
-            this.handleSettingsApply(this.state.current);
+            this.updateSettings(this.state.current);
           }),
           label: 'Save',
           description: 'Saves the changes and close the settings menu',

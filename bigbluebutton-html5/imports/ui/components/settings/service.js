@@ -1,19 +1,8 @@
-import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/api/users';
 import Captions from '/imports/api/captions';
 import Auth from '/imports/ui/services/auth';
 import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
-
-const updateSettings = (obj) => {
-  Object.keys(obj).forEach(k => Storage.setItem(`settings_${k}`, obj[k]));
-};
-
-const getSettingsFor = (key) => {
-  const setting = Storage.getItem(`settings_${key}`);
-
-  return setting;
-};
 
 const getClosedCaptionLocales = () => {
   //list of unique locales in the Captions Collection
@@ -35,63 +24,13 @@ const getUserRoles = () => {
   return user.role;
 };
 
-const setDefaultSettings = () => {
-  console.log(Settings);
-
-  const defaultSettings = {
-    application: {
-      chatAudioNotifications: false,
-      chatPushNotifications: false,
-      fontSize: '16px',
-    },
-    audio: {
-      inputDeviceId: undefined,
-      outputDeviceId: undefined,
-    },
-    video: {
-      viewParticipantsWebcams: true,
-    },
-    cc: {
-      backgroundColor: '#FFFFFF',
-      fontColor: '#000000',
-      closedCaptions: false,
-      fontFamily: 'Calibri',
-      fontSize: -1,
-      locale: undefined,
-      takeOwnership: false,
-    },
-    participants: {
-      muteAll: false,
-      lockAll: false,
-      lockAll: false,
-      microphone: false,
-      publicChat: false,
-      privateChat: false,
-      layout: false,
-    },
-  };
-
-  const savedSettings = {
-    application: getSettingsFor('application'),
-    audio: getSettingsFor('audio'),
-    video: getSettingsFor('video'),
-    cc: getSettingsFor('cc'),
-    participants: getSettingsFor('participants'),
-  };
-
-  let settings = {};
-
-  Object.keys(defaultSettings).forEach(key => {
-    settings[key] = _.extend(defaultSettings[key], savedSettings[key]);
-  });
-
-  updateSettings(settings);
+const updateSettings = (obj) => {
+  Object.keys(obj).forEach(k => Settings[k] = obj[k]);
+  Settings.save();
 };
 
 export {
-  updateSettings,
-  getSettingsFor,
   getClosedCaptionLocales,
   getUserRoles,
-  setDefaultSettings,
+  updateSettings,
 };

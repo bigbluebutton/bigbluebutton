@@ -1,39 +1,56 @@
 import Storage from '/imports/ui/services/storage/session';
 import _ from 'underscore';
 
-const SettingsCollection = new Mongo.Collection(null);
+const SETTINGS = [
+  'application',
+  'audio',
+  'video',
+  'cc',
+  'participants',
+];
 
 class Settings {
-  constructor() {
-    console.log('constructor 4Head');
-    const defaultSettings = Meteor.settings.public.app.defaultSettings;
+  constructor(defaultValues = {}) {
+    SETTINGS.forEach(p => {
+      const privateProp = `_${p}`;
+      this[privateProp] = {
+        tracker: new Tracker.Dependency,
+        value: undefined,
+      };
 
-    const savedSettings = {
-      application: this.getSettingsFor('application'),
-      audio: this.getSettingsFor('audio'),
-      video: this.getSettingsFor('video'),
-      cc: this.getSettingsFor('cc'),
-      participants: this.getSettingsFor('participants'),
-    };
+      Object.defineProperty(this, p, {
+        get: () => {
+          this[privateProp].tracker.depend();
+          return this[privateProp].value;
+        },
 
-    Object.keys(defaultSettings).forEach(key => {
-      this[key] = _.extend(defaultSettings[key], savedSettings[key]);
+        set: v => {
+          this[privateProp].value = v;
+          this[privateProp].tracker.changed();
+        },
+      });
     });
+    this.setDefault(defaultValues);
   }
 
-  // get achalaboy(key) {
-  //   return SettingsCollection.findOne({ key }).properties;
-  // }
+  setDefault(defaultValues) {
+    const savedSettings = {};
 
-  // set setalaboy(key, object) {
-  //   SettingsCollection.upsert({ key }, object);
-  // }
+    SETTINGS.forEach(s => {
+      savedSettings[s] = Storage.getItem(`settings_${s}`);
+    });
 
-  getSettingsFor(key) {
-   const setting = Storage.getItem(`settings_${key}`);
-   return setting;
- };
+    Object.keys(defaultValues).forEach(key => {
+      this[key] = _.extend(defaultValues[key], savedSettings[key]);
+    });
+
+    this.save();
+  };
+
+  save() {
+    Object.keys(this).forEach(k => Storage.setItem(`settings${k}`, this[k].value));
+  }
 }
 
-const SettingsSingleton = new Settings();
+const SettingsSingleton = new Settings(Meteor.settings.public.app.defaultSettings);
 export default SettingsSingleton;
