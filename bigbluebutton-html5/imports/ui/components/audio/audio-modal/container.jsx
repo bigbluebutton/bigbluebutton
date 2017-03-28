@@ -1,7 +1,7 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Audio from './component';
-import { joinListenOnly } from '/imports/api/phone';
+import { joinListenOnly } from '../service';
 
 export default class AudioModalContainer extends Component {
   constructor(props) {

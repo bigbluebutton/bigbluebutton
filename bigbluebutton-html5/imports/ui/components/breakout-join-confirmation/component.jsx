@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { clearModal } from '/imports/ui/components/app/service';
-import { exitAudio } from '/imports/api/phone'
+import { exitAudio } from '../audio/service'
 import Modal from '/imports/ui/components/modal/component';
 
 const intlMessages = defineMessages({

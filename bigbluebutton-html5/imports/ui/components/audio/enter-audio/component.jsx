@@ -1,7 +1,6 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import styles from '../settings/styles.scss';
 
 class EnterAudio extends React.Component {
   constructor(props) {
@@ -14,8 +13,8 @@ class EnterAudio extends React.Component {
     } = this.props;
 
     return (
-      <div className={styles.half}>
-        <Button className={styles.enterBtn}
+      <div>
+        <Button
           label={intl.formatMessage(intlMessages.enterSessionLabel)}
           size={'md'}
           color={'primary'}

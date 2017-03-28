@@ -1,7 +1,6 @@
 import Deskshare from '/imports/api/deskshare';
 import {createVertoUserName, watchVertoVideo} from '/imports/api/verto';
 import Auth from '/imports/ui/services/auth';
-import {getVoiceBridge} from '/imports/api/phone';
 
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video

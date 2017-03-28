@@ -6,7 +6,7 @@ import styles from '../audio-modal/styles.scss';
 
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
-import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
+import EnterAudioContainer from '/imports/ui/components/audio/enter-audio/container';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import cx from 'classnames';
 
