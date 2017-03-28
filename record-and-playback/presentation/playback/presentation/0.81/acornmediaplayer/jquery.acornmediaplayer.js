@@ -45,10 +45,6 @@
 			}
 		}
 		
-		/* Detect Touch support
-		 */
-		var is_touch_device = 'ontouchstart' in document.documentElement;
-		
 		/*
 		 * Get the volume value from localStorage
 		 * If no value is present, define as maximum
@@ -230,6 +226,9 @@
 					//acorn.$self.trigger('play');
 					acorn.$self[0].play();
 				}
+				
+				// We return false to stop the followup click event on tablets
+				return false;
 			};
 			
 			/* 
@@ -1027,8 +1026,8 @@
 			 */
 			var init = function() {
 				// attach playback handlers
-				acorn.$playBtn.bind( (is_touch_device) ? 'touchstart' : 'click', playMedia);
-				acorn.$self.bind( (is_touch_device) ? 'touchstart' : 'click' , playMedia);
+				acorn.$playBtn.bind( 'touchstart click', playMedia);
+				acorn.$self.bind( 'touchstart click' , playMedia);
 
 				acorn.$self.bind('play', startPlayback);
 				acorn.$self.bind('pause', stopPlayback);

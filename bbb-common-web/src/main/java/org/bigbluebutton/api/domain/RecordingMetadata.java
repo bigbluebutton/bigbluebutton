@@ -38,6 +38,9 @@ public class RecordingMetadata {
    </recording>
    */
 
+  private String metadataXml;
+  private Boolean processingError = false;
+
   private String id;
   private String state;
   private boolean published;
@@ -53,6 +56,10 @@ public class RecordingMetadata {
 
   @JacksonXmlProperty(localName = "meeting")
   private MeetingInfo meetingInfo;
+
+  private String meetingId = "";
+
+  private String meetingName = "";
 
   private Breakout breakout;
 
@@ -70,6 +77,31 @@ public class RecordingMetadata {
 
   public String getId() {
     return id;
+  }
+
+  public String getMeetingId() {
+    MeetingInfo info = getMeeting();
+    if (info == null) {
+      // return the recording id
+      return id;
+    }
+    return info.getId();
+  }
+
+  public String getMeetingName() {
+    MeetingInfo info = getMeeting();
+    if (info == null) {
+      return getMeta().get().get("meetingName");
+    }
+    return info.getName();
+  }
+
+  public Boolean isBreakout() {
+    MeetingInfo info = getMeeting();
+    if (info == null) {
+      return Boolean.parseBoolean(getMeta().get().get("isBreakout"));
+    }
+    return info.isBreakout();
   }
 
   public void setState(String state) {
@@ -146,5 +178,21 @@ public class RecordingMetadata {
 
   public RecordingMetadataPlayback getPlayback() {
     return playback;
+  }
+
+  public void setMetadataXml(String metadataXml) {
+    this.metadataXml = metadataXml;
+  }
+
+  public String getMetadataXml() {
+    return metadataXml;
+  }
+
+  public void setProcessingError(Boolean error) {
+    processingError = error;
+  }
+
+  public Boolean hasError() {
+    return processingError;
   }
 }

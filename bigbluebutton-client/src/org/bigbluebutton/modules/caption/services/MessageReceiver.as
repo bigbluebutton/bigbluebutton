@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.caption.services {
 			
 			var event:ReceiveUpdateCaptionOwnerEvent = new ReceiveUpdateCaptionOwnerEvent(ReceiveUpdateCaptionOwnerEvent.RECEIVE_UPDATE_CAPTION_OWNER_EVENT);
 			event.locale = message.locale;
-			event.localeCode = message.localeCode;
+			event.localeCode = message.locale_code;
 			event.ownerID = message.owner_id;
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);
