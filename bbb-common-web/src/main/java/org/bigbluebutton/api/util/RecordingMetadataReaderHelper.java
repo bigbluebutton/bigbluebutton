@@ -40,7 +40,7 @@ public class RecordingMetadataReaderHelper {
     try {
       reader = factory.createXMLStreamReader(new FileInputStream(metadataXml));
       recMeta  = mapper.readValue(reader, RecordingMetadata.class);
-      recMeta.setMetadataXml(metadataXml.getParent());
+      recMeta.setMetadataXml(metadataXml.getParentFile().getName());
     } catch (XMLStreamException e) {
       log.error("Failed to read metadata xml for recording: " + metadataXml.getAbsolutePath(), e);
     } catch (FileNotFoundException e) {

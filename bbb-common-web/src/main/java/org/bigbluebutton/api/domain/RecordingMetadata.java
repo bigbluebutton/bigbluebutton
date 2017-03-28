@@ -57,6 +57,10 @@ public class RecordingMetadata {
   @JacksonXmlProperty(localName = "meeting")
   private MeetingInfo meetingInfo;
 
+  private String meetingId = "";
+
+  private String meetingName = "";
+
   private Breakout breakout;
 
   @JacksonXmlElementWrapper(localName = "breakoutRooms")
@@ -78,7 +82,8 @@ public class RecordingMetadata {
   public String getMeetingId() {
     MeetingInfo info = getMeeting();
     if (info == null) {
-      return getMeta().get().get("meetingId");
+      // return the recording id
+      return id;
     }
     return info.getId();
   }

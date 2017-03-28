@@ -1,15 +1,15 @@
 <recordID>${r.getId()}</recordID>
 
 <#if r.getMeeting()??>
-    <meetingID>${r.getMeeting().getId()?html}</meetingID>
-    <externalMeetingID>${r.getMeeting().getExternalId()?html}</externalMeetingID>
-    <name><![CDATA[${r.getMeeting().getName()}]]></name>
-    <isBreakout>${r.getMeeting().isBreakout()?c}</isBreakout>
+<meetingID>${r.getMeeting().getId()?html}</meetingID>
+<externalMeetingID>${r.getMeeting().getExternalId()?html}</externalMeetingID>
+<name><![CDATA[${r.getMeeting().getName()}]]></name>
+<isBreakout>${r.getMeeting().isBreakout()?c}</isBreakout>
 <#else>
-    <meetingID>${r.getMeetingId()?html}</meetingID>
-    <name><![CDATA[${r.getMeetingName()}]]></name>
-    <isBreakout>${r.isBreakout()?c}</isBreakout>
-</#if>
+<meetingID>${r.getMeetingId()?html}</meetingID>
+<name><![CDATA[${r.getMeetingName()}]]></name>
+<isBreakout>${r.isBreakout()?c}</isBreakout>
+        </#if>
 
 <published>${r.getPublished()?string}</published>
 <state>${r.getState()?string}</state>
@@ -18,54 +18,55 @@
 <participants><#if r.getParticipants()??>${r.getParticipants()}</#if></participants>
 
 <#if r.getBreakout()??>
-    <#assign breakout = r.getBreakout()>
-    <breakout>
-        <parentId>${breakout.getParentMeetingId()}</parentId>
-        <sequence>${breakout.getSequence()?c}</sequence>
-    </breakout>
-</#if>
+<#assign breakout = r.getBreakout()>
+<breakout>
+<parentId>${breakout.getParentMeetingId()}</parentId>
+<sequence>${breakout.getSequence()?c}</sequence>
+</breakout>
+        </#if>
 
 <#if r.getBreakoutRooms()??>
-    <#list r.getBreakoutRooms()>
-        <breakoutRooms>
-            <#items as broom>
-                <breakoutRoom>${broom.getValue()}</breakoutRoom>
-            </#items>
+<#list r.getBreakoutRooms()>
+<breakoutRooms>
+<#items as broom>
+<breakoutRoom>${broom.getValue()}</breakoutRoom>
+</#items>
         </breakoutRooms>
-    </#list>
-</#if>
+        </#list>
+        </#if>
 
 <#assign m = r.getMeta().get()>
 <metadata>
-    <#list m?keys as prop>
-        <${prop}><![CDATA[${(m[prop])!""}]]></${prop}>
-    </#list>
-</metadata>
+<#list m?keys as prop>
+<${prop}><![CDATA[${(m[prop])!""}]]></${prop}>
+        </#list>
+        </metadata>
 
 <#assign pb = r.getPlayback()>
 <playback>
-    <format>${pb.getFormat()}</format>
-    <link>${pb.getLink()}</link>
+<format>
+    <type>${pb.getFormat()}</type>
+    <url>${pb.getLink()}</url>
     <processingTime>${pb.getProcessingTime()?c}</processingTime>
-    <duration>${pb.getDuration()?c}</duration>
+    <length>${pb.getDuration()?c}</length>
+
     <#if pb.getExtensions()??>
-        <extensions>
-            <#if pb.getExtensions().getPreview()??>
-                <#assign prev = pb.getExtensions().getPreview()>
-                <preview>
-                    <#if prev.getImages()??>
-                        <#list prev.getImages()>
-                            <images>
-                                <#if image??>
-                                    <#items as image>
-                                        <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()}">${image.getValue()}</image>
-                                    </#items>
-                                </#if>
-                            </images>
-                        </#list>
-                    </#if>
-                </preview>
-            </#if>
-        </extensions>
-    </#if>
-</playback>
+    <#if pb.getExtensions().getPreview()??>
+    <#assign prev = pb.getExtensions().getPreview()>
+    <preview>
+        <#if prev.getImages()??>
+        <#list prev.getImages()>
+        <images>
+            <#items as image>
+            <#if image??>
+            <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()}">${image.getValue()!"Link not found."}</image>
+        </#if>
+    </#items>
+</images>
+</#list>
+        </#if>
+        </preview>
+        </#if>
+        </#if>
+        </format>
+        </playback>
