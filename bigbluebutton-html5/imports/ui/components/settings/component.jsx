@@ -26,11 +26,11 @@ export default class Settings extends Component {
 
     this.state = {
       current: {
-        audio,
-        video,
-        application,
-        cc,
-        participants,
+        audio: _.clone(audio),
+        video: _.clone(video),
+        application: _.clone(application),
+        cc: _.clone(cc),
+        participants: _.clone(participants),
       },
       saved: {
         audio: _.clone(audio),
