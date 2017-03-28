@@ -39,7 +39,7 @@ public class ResponseBuilder {
 
     Template ftl = null;
     try {
-      ftl = cfg.getTemplate("get-meeting-info.ftl");
+      ftl = cfg.getTemplate("get-meeting-info.ftlx");
     } catch (IOException e) {
       log.error("Cannot find get-meeting-info.ftl template for meeting : " + meeting.getInternalId(), e);
     }
@@ -74,9 +74,9 @@ public class ResponseBuilder {
 
     Template ftl = null;
     try {
-      ftl = cfg.getTemplate("get-meetings.ftl");
+      ftl = cfg.getTemplate("get-meetings.ftlx");
     } catch (IOException e) {
-      log.error("IO exception for get-meetings.ftl : ", e);
+      log.error("IO exception for get-meetings.ftlx : ", e);
     }
 
     StringWriter xmlText = new StringWriter();
@@ -90,7 +90,7 @@ public class ResponseBuilder {
     } catch (TemplateException e) {
       log.error("Template exception : ", e);
     } catch (IOException e) {
-      log.error("IO exception for get-meetings.ftl : ", e);
+      log.error("IO exception for get-meetings.ftlx : ", e);
     }
 
     return xmlText.toString();
@@ -100,7 +100,7 @@ public class ResponseBuilder {
 
     Template ftl = null;
     try {
-      ftl = cfg.getTemplate("get-recordings.ftl");
+      ftl = cfg.getTemplate("get-recordings.ftlx");
     } catch (IOException e) {
       log.error("IO exception for get-recordings.ftl : ", e);
     }
@@ -116,7 +116,7 @@ public class ResponseBuilder {
     } catch (TemplateException e) {
       log.error("Template exception : ", e);
     } catch (IOException e) {
-      log.error("IO exception for get-recordings.ftl : ", e);
+      log.error("IO exception for get-recordings.ftlx : ", e);
     }
 
     return xmlText.toString();
