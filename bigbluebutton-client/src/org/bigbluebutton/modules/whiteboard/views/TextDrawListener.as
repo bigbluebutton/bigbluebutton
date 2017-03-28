@@ -42,9 +42,9 @@ package org.bigbluebutton.modules.whiteboard.views {
 
         private var _mouseYMove:Number = 0;
 
-        private var _singleClickWidth:Number = 200;
+        private var _singleClickWidth:Number = 260;
 
-        private var _singleClickHeight:Number = 80;
+        private var _singleClickHeight:Number = 110;
 
         private var _idGenerator:AnnotationIDGenerator;
 
@@ -112,6 +112,10 @@ package org.bigbluebutton.modules.whiteboard.views {
                 if (tbHeight == 0 && tbWidth == 0) {
                     tbWidth = _singleClickWidth;
                     tbHeight = _singleClickHeight;
+                    if (_mouseXDown + _singleClickWidth > _wbCanvas.width || _mouseYDown + _singleClickHeight > _wbCanvas.height) {
+                        _mouseXDown = _wbCanvas.width - _singleClickWidth;
+                        _mouseYDown = _wbCanvas.height - _singleClickHeight;
+                    }
                 } else if (tbHeight < 15 || tbWidth < 50) {
                     return;
                 }
