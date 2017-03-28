@@ -44,28 +44,29 @@
 
 <#assign pb = r.getPlayback()>
 <playback>
-    <format>${pb.getFormat()}</format>
-    <link>${pb.getLink()}</link>
-    <processingTime>${pb.getProcessingTime()?c}</processingTime>
-    <duration>${pb.getDuration()?c}</duration>
-    <#if pb.getExtensions()??>
-        <extensions>
+    <format>
+        <type>${pb.getFormat()}</type>
+        <url>${pb.getLink()}</url>
+        <processingTime>${pb.getProcessingTime()?c}</processingTime>
+        <length>${pb.getDuration()?c}</length>
+
+        <#if pb.getExtensions()??>
             <#if pb.getExtensions().getPreview()??>
                 <#assign prev = pb.getExtensions().getPreview()>
                 <preview>
                     <#if prev.getImages()??>
                         <#list prev.getImages()>
                             <images>
-                                <#if image??>
                                     <#items as image>
-                                        <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()}">${image.getValue()}</image>
+                                        <#if image??>
+                                            <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()}">${image.getValue()!"Link not found."}</image>
+                                        </#if>
                                     </#items>
-                                </#if>
                             </images>
                         </#list>
                     </#if>
                 </preview>
             </#if>
-        </extensions>
-    </#if>
+        </#if>
+    </format>
 </playback>
