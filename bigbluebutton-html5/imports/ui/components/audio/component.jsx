@@ -6,12 +6,9 @@ export default class Audio extends Component {
   }
 
   render() {
-    const { modal } = this.props;
-
     // console.log(this.props);
     return (
       <div>
-        {modal}
       </div>
     );
   }

@@ -118,7 +118,7 @@ export default class App extends Component {
   }
 
   render() {
-    const { params } = this.props;
+    const { modal, params } = this.props;
 
     return (
       <main className={styles.main}>
@@ -134,6 +134,7 @@ export default class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
+        {modal}
         <AudioContainer />
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
