@@ -11,7 +11,7 @@
                         <recordID>${r.getMetadataXml()?html}</recordID>
                     </error>
                 <#else>
-                    <#include "include-recording.ftl">
+                    <#include "include-recording.ftlx">
                 </#if>
             </recording>
         </#list>

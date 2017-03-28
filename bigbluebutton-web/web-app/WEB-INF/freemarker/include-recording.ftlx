@@ -59,7 +59,7 @@
         <images>
             <#items as image>
             <#if image??>
-            <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()}">${image.getValue()!"Link not found."}</image>
+            <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()?html}">${image.getValue()!"Link not found."}</image>
         </#if>
     </#items>
 </images>
