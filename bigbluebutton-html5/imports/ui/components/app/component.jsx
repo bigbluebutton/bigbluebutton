@@ -1,214 +1,125 @@
-
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
-
-import LoadingScreen from '../loading-screen/component';
-import KickedScreen from '../kicked-screen/component';
+import _ from 'lodash';
 
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio-notification/container';
-
-import LocalStorage from '/imports/ui/services/storage/local.js';
+import ChatNotificationContainer from '../chat/notification/container';
 
 import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
 
 const propTypes = {
+  init: PropTypes.func.isRequired,
+  fontSize: PropTypes.string,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
-  sidebarRight: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  captions: PropTypes.element,
   modal: PropTypes.element,
-  unreadMessageCount: PropTypes.array,
-  openChats: PropTypes.array,
+};
+
+const defaultProps = {
+  fontSize: '16px',
 };
 
 export default class App extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
 
-    this.setDefaultSettings = props.setDefaultSettings;
+    props.init.call(this);
   }
 
-  setHtmlFontSize(size) {
-    document.getElementsByTagName('html')[0].style.fontSize = size;
-  };
-
   componentDidMount() {
-    this.setDefaultSettings();
-    this.setHtmlFontSize(this.props.fontSize);
+    document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
   }
 
   renderNavBar() {
     const { navbar } = this.props;
 
-    if (navbar) {
-      return (
-        <header className={styles.navbar}>
-          {navbar}
-        </header>
-      );
-    }
+    if (!navbar) return null;
 
-    return false;
+    return (
+      <header className={styles.navbar}>
+        {navbar}
+      </header>
+    );
   }
 
   renderSidebar() {
     const { sidebar } = this.props;
 
-    if (sidebar) {
-      return (
-        <aside className={styles.sidebar}>
-          {sidebar}
-        </aside>
-      );
-    }
+    if (!sidebar) return null;
 
-    return false;
+    return (
+      <aside className={styles.sidebar}>
+        {sidebar}
+      </aside>
+    );
   }
 
   renderUserList() {
     let { userList } = this.props;
     const { compactUserList } = this.state;
 
+    if (!userList) return;
+
     let userListStyle = {};
     userListStyle[styles.compact] = compactUserList;
-    if (userList) {
-      userList = React.cloneElement(userList, {
-        compact: compactUserList,
-      });
+    userList = React.cloneElement(userList, {
+      compact: compactUserList,
+    });
 
-      return (
-        <nav className={cx(styles.userList, userListStyle)}>
-          {userList}
-        </nav>
-      );
-    }
-
-    return false;
+    return (
+      <nav className={cx(styles.userList, userListStyle)}>
+        {userList}
+      </nav>
+    );
   }
 
   renderChat() {
     const { chat } = this.props;
 
-    if (chat) {
-      return (
-        <section className={styles.chat} role="log">
-          {chat}
-        </section>
-      );
-    }
+    if (!chat) return null;
 
-    return false;
+    return (
+      <section className={styles.chat} role="log">
+        {chat}
+      </section>
+    );
   }
 
   renderMedia() {
     const { media } = this.props;
 
-    if (media) {
-      return (
-        <section className={styles.media}>
-          {media}
-        </section>
-      );
-    }
+    if (!media) return null;
 
-    return false;
-  }
-
-  renderClosedCaptions() {
-    const { captions } = this.props;
-    if (captions && this.props.getCaptionsStatus()) {
-      return (
-        <section className={styles.closedCaptions}>
-          {captions}
-        </section>
-      );
-    }
+    return (
+      <section className={styles.media}>
+        {media}
+      </section>
+    );
   }
 
   renderActionsBar() {
     const { actionsbar } = this.props;
 
-    if (actionsbar) {
-      return (
-        <section className={styles.actionsbar}>
-          {actionsbar}
-        </section>
-      );
-    }
+    if (!actionsbar) return null;
 
-    return false;
-  }
-
-  renderAudioElement() {
     return (
-      <audio id="remote-media" autoPlay="autoplay"></audio>
+      <section className={styles.actionsbar}>
+        {actionsbar}
+      </section>
     );
   }
 
-  renderModal() {
-    const { modal } = this.props;
-
-    if (modal) {
-      return (<div>{modal}</div>);
-    }
-
-    return false;
-  }
-
-  playSoundForUnreadMessages() {
-    const snd = new Audio('/html5client/resources/sounds/notify.mp3');
-    snd.play();
-  }
-
-  componentDidUpdate(prevProps) {
-
-    let { unreadMessageCount, openChats, openChat } = this.props;
-
-    unreadMessageCount.forEach((chat, i) => {
-      // When starting the new chat, if prevProps is undefined or null, it is assigned 0.
-      if (!prevProps.unreadMessageCount[i]) {
-        prevProps.unreadMessageCount[i] = 0;
-      }
-
-      // compare openChats(chatID) to chatID of currently opened chat room
-      if (openChats[i] !== openChat) {
-        let shouldPlaySound = this.props.applicationSettings.chatAudioNotifications;
-
-        if (shouldPlaySound && chat > prevProps.unreadMessageCount[i]) {
-          this.playSoundForUnreadMessages();
-        }
-      }
-    });
-  }
-
   render() {
-    if (this.props.wasKicked) {
-      return (
-        <KickedScreen>
-          <FormattedMessage
-            id="app.kickMessage"
-            description="Message when the user is kicked out of the meeting"
-            defaultMessage="You have been kicked out of the meeting"
-          />
-          <br/><br/>
-          <Button
-            label={'OK'}
-            onClick={this.props.redirectToLogoutUrl}/>
-        </KickedScreen>
-      );
-    }
-
-    if (this.props.isLoading) {
-      return <LoadingScreen/>;
-    }
+    const { modal, params } = this.props;
 
     return (
       <main className={styles.main}>
@@ -223,13 +134,14 @@ export default class App extends Component {
             {this.renderActionsBar()}
           </div>
           {this.renderSidebar()}
-          {this.renderClosedCaptions()}
         </section>
-        {this.renderAudioElement()}
-        {this.renderModal()}
+        {modal}
+        <audio id="remote-media" autoPlay="autoplay"></audio>
+        <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );
   }
 }
 
 App.propTypes = propTypes;
+App.defaultProps = defaultProps;

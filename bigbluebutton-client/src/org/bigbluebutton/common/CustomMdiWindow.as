@@ -23,8 +23,6 @@ package org.bigbluebutton.common
   import flexlib.mdi.containers.MDIWindow;
   import flexlib.mdi.managers.MDIManager;
   
-  import mx.utils.ObjectUtil;
-  
   /**
    *  This class exists so we can properly handle context menus on MDIWindow
    *  instances. Also, we'll be able in the future to properly handle shortcuts

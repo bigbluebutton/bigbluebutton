@@ -20,10 +20,11 @@ package org.bigbluebutton.modules.users.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import flash.utils.setTimeout;
+  
   import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
@@ -649,11 +650,17 @@ package org.bigbluebutton.modules.users.services
 	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
+		var externalMeetingId : String = StringUtils.substringBetween(map.redirectJoinURL, "meetingID=", "&");
+		var breakoutRoom : BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId);
+		var sequence : int = breakoutRoom.sequence;
+		
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
 		event.joinURL = map.redirectJoinURL;
-		var externalMeetingId : String = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
-		event.breakoutMeetingSequence = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId).sequence;
+		event.breakoutMeetingSequence = sequence;
 		dispatcher.dispatchEvent(event);
+		
+		// We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
+		setTimeout(function() : void {UserManager.getInstance().getConference().setLastBreakoutRoomInvitation(sequence)}, 1000);
 	}
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{

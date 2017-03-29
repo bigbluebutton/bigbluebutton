@@ -7,7 +7,8 @@
 
 .left,
 .right,
-.center {
+.center,
+.hidden {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -19,7 +20,8 @@
 }
 
 .left,
-.right {
+.right,
+.hidden {
   flex: 0;
 }
 
@@ -27,7 +29,7 @@
   flex: 1;
 }
 
-.invisible {
+.hidden {
   visibility: hidden;
 }
 

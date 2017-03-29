@@ -57,7 +57,7 @@ export default withRouter(createContainer(({ location, router }) => {
   };
 
   const breakouts = Service.getBreakouts();
-  const currentUserId = Auth.getCredentials().requesterUserId;
+  const currentUserId = Auth.userID;
 
   return {
     breakouts,

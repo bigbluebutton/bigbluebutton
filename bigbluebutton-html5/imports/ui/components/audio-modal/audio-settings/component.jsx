@@ -8,6 +8,7 @@ import DeviceSelector from '/imports/ui/components/audio/device-selector/compone
 import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
 import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 import AudioTestContainer from '/imports/ui/components/audio-test/container';
+import cx from 'classnames';
 
 class AudioSettings extends React.Component {
   constructor(props) {
@@ -20,7 +21,7 @@ class AudioSettings extends React.Component {
 
     this.state = {
       inputDeviceId: undefined,
-    }
+    };
   }
 
   chooseAudio() {
@@ -30,7 +31,7 @@ class AudioSettings extends React.Component {
   handleInputChange(deviceId) {
     console.log(`INPUT DEVICE CHANGED: ${deviceId}`);
     this.setState({
-      inputDeviceId: deviceId
+      inputDeviceId: deviceId,
     });
   }
 
@@ -50,7 +51,7 @@ class AudioSettings extends React.Component {
 
     return (
       <div>
-        <div className={styles.center}>
+        <div className={styles.topRow}>
           <Button className={styles.backBtn}
             label={intl.formatMessage(intlMessages.backLabel)}
             icon={'left_arrow'}
@@ -59,47 +60,69 @@ class AudioSettings extends React.Component {
             ghost={true}
             onClick={this.chooseAudio}
           />
-          <div className={styles.title}>
+          <div className={cx(styles.title, styles.chooseAudio)}>
             <FormattedMessage
               id="app.audio.audioSettings.titleLabel"
             />
           </div>
         </div>
-        <div className={styles.audioNote}>
-          <FormattedMessage
-            id="app.audio.audioSettings.descriptionLabel"
-          />
+
+        <div className={styles.form}>
+
+          <div className={styles.row}>
+            <div className={styles.audioNote}>
+              <FormattedMessage
+                  id="app.audio.audioSettings.descriptionLabel"
+              />
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  Microphone source
+                </label>
+                <DeviceSelector
+                  value={this.state.inputDeviceId}
+                  className={styles.select}
+                  kind="audioinput"
+                  onChange={this.handleInputChange} />
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  Speaker source
+                </label>
+                <DeviceSelector
+                    value={this.state.outputDeviceId}
+                    className={styles.select}
+                    kind="audiooutput"
+                    onChange={this.handleOutputChange} />
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  Your audio stream volume
+                </label>
+                <AudioStreamVolume
+                  deviceId={this.state.inputDeviceId}
+                  className={styles.audioMeter} />
+              </div>
+            </div>
+            <div className={styles.col}>
+              <label className={styles.label}>&nbsp;</label>
+              <AudioTestContainer/>
+            </div>
+          </div>
         </div>
-        <div className={styles.containerLeftHalfContent}>
-          <span className={styles.heading}>
-            <FormattedMessage
-              id="app.audio.audioSettings.microphoneSourceLabel"
-            />
-          </span>
-          <DeviceSelector
-            className={styles.item}
-            kind="audioinput"
-            onChange={this.handleInputChange} />
-          <span className={styles.heading}>
-            <FormattedMessage
-              id="app.audio.audioSettings.microphoneStreamLabel"
-            />
-          </span>
-          <AudioStreamVolume
-            className={styles.item}
-            deviceId={this.state.inputDeviceId} />
-        </div>
-        <div className={styles.containerRightHalfContent}>
-          <span className={styles.heading}>
-            <FormattedMessage
-              id="app.audio.audioSettings.speakerSourceLabel"
-            />
-          </span>
-          <DeviceSelector
-            className={styles.item}
-            kind="audiooutput"
-            onChange={this.handleOutputChange} />
-          <AudioTestContainer />
+
+        <div className={styles.enterAudio}>
           <EnterAudioContainer isFullAudio={true}/>
         </div>
       </div>

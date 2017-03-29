@@ -20,7 +20,7 @@ export default createContainer((params) => {
   return {
     isInAudio: user.voiceUser.joined,
     isInListenOnly: user.listenOnly,
-    open: params.open,
-    close: params.close,
+    handleJoinAudio: params.handleJoinAudio,
+    handleCloseAudio: params.handleCloseAudio,
   };
 }, JoinAudioOptionsContainer);
