@@ -20,7 +20,7 @@ export default class ActionsBar extends Component {
         <div className={styles.left}>
           <ActionsDropdown {...{isUserPresenter}}/>
         </div>
-        <div className={styles.center}>
+        <div className={!isUserPresenter ? styles.relative : styles.absolute}>
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             handleJoinAudio={this.props.handleOpenJoinAudio}
@@ -29,9 +29,6 @@ export default class ActionsBar extends Component {
           />
           {/*<JoinVideo />*/}
           <EmojiContainer />
-        </div>
-        <div className={styles.hidden}>
-          <ActionsDropdown {...{isUserPresenter}}/>
         </div>
       </div>
     );
