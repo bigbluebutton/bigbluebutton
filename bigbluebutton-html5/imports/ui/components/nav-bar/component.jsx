@@ -13,6 +13,14 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import { defineMessages, injectIntl } from 'react-intl';
+
+
+const intlMessages = defineMessages({
+  toggleUserListLabel: {
+    id: 'app.navBar.userListToggleBtnLabel',
+  },
+});
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -58,7 +66,7 @@ class NavBar extends Component {
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded, isExpanded } = this.props;
+    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
 
     let toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -72,7 +80,7 @@ class NavBar extends Component {
             ghost={true}
             circle={true}
             hideLabel={true}
-            label={'User-List Toggle'}
+            label={intl.formatMessage(intlMessages.toggleUserListLabel)}
             icon={'user'}
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
@@ -166,5 +174,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-
-export default NavBar;
+export default injectIntl(NavBar);
