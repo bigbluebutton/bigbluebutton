@@ -26,18 +26,19 @@
   flex: 0;
 }
 
-.relative {
+.relative,
+.absolute {
   flex: 1;
-  position: relative;
   left: 0;
   right: 0;
 }
 
+.relative {
+  position: relative
+}
+
 .absolute {
-  flex: 1;
   position: absolute;
-  left: 0;
-  right: 0;
 }
 
 .hidden {
