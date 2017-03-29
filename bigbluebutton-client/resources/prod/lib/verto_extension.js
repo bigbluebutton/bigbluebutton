@@ -359,6 +359,8 @@ Verto.prototype.makeShare = function () {
       screenInfo = {
         chromeMediaSource: "desktop",
         chromeMediaSourceId: constraints.streamId,
+        maxWidth: window.screen.width > 1920 ? window.screen.width : 1920,
+        maxHeight: window.screen.height > 1080 ? window.screen.height : 1080
       };
 
       _this.logger(screenInfo);
