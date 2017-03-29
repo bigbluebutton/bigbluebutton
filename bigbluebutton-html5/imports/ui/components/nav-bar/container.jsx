@@ -18,10 +18,6 @@ class NavBarContainer extends Component {
     super(props);
   }
 
-  componentWillUnmount() {
-    LocalStorage.removeItem('bbb.toggleUserList.isExpanded');
-  }
-
   render() {
     return (
       <NavBar {...this.props}>
@@ -32,13 +28,6 @@ class NavBarContainer extends Component {
 }
 
 export default withRouter(createContainer(({ location, router }) => {
-
-  let toggleState = LocalStorage.getItem('bbb.toggleUserList.isExpanded');
-  let isExpanded = (!toggleState) ? false : toggleState;
-
-  const setToggleState = (state) => {
-    LocalStorage.setItem('bbb.toggleUserList.isExpanded', state);
-  };
 
   let meetingTitle;
   let meetingRecorded;
@@ -70,8 +59,9 @@ export default withRouter(createContainer(({ location, router }) => {
   const breakouts = Service.getBreakouts();
   const currentUserId = Auth.userID;
 
+  let isExpanded = location.pathname.indexOf('/users') !== -1;
+
   return {
-    setToggleState,
     isExpanded,
     breakouts,
     currentUserId,

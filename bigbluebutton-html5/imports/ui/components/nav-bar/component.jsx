@@ -48,8 +48,6 @@ class NavBar extends Component {
   }
 
   handleToggleUserList() {
-    let toggled = (this.props.isExpanded == false) ? true : false;
-    this.props.setToggleState(toggled);
     this.props.toggleUserList();
   }
 

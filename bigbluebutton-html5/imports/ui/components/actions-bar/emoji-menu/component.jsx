@@ -7,6 +7,7 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 
 const propTypes = {
   // Emoji status of the current user
@@ -100,7 +101,7 @@ class EmojiMenu extends Component {
               description={intl.formatMessage(intlMessages.applauseDesc)}
               onClick={() => actions.setEmojiHandler('applause')}
             />
-            <DropdownListItem separator={true} />
+            <DropdownListSeparator/>
             <DropdownListItem
               icon="clear_status"
               label={intl.formatMessage(intlMessages.clearLabel)}
