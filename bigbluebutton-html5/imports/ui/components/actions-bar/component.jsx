@@ -6,10 +6,38 @@ import ActionsDropdown from './actions-dropdown/component';
 import JoinAudioOptionsContainer from './audio-menu/container';
 import MuteAudioContainer from './mute-button/container';
 import JoinVideo from './video-button/component';
+import cx from 'classnames';
 
 export default class ActionsBar extends Component {
   constructor(props) {
     super(props);
+  }
+
+  renderCenterBtns() {
+    const { isUserPresenter } = this.props;
+
+    let centerContent;
+
+    let positionClasses = {};
+    positionClasses[styles.relative] = !isUserPresenter;
+    positionClasses[styles.absolute] = isUserPresenter;
+
+    if (isUserPresenter || !isUserPresenter) {
+      centerContent = (
+        <div className={cx(positionClasses)}>
+          <MuteAudioContainer />
+          <JoinAudioOptionsContainer
+            handleJoinAudio={this.props.handleOpenJoinAudio}
+            handleCloseAudio={this.props.handleExitAudio}
+
+          />
+          {/*<JoinVideo />*/}
+          <EmojiContainer />
+        </div>
+      );
+    }
+
+    return centerContent;
   }
 
   render() {
@@ -20,16 +48,7 @@ export default class ActionsBar extends Component {
         <div className={styles.left}>
           <ActionsDropdown {...{isUserPresenter}}/>
         </div>
-        <div className={!isUserPresenter ? styles.relative : styles.absolute}>
-          <MuteAudioContainer />
-          <JoinAudioOptionsContainer
-            handleJoinAudio={this.props.handleOpenJoinAudio}
-            handleCloseAudio={this.props.handleExitAudio}
-
-          />
-          {/*<JoinVideo />*/}
-          <EmojiContainer />
-        </div>
+        {this.renderCenterBtns()}
       </div>
     );
   }
