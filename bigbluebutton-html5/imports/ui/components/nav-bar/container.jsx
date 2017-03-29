@@ -7,7 +7,6 @@ import userListService from '../user-list/service';
 import ChatService from '../chat/service';
 import Service from './service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import LocalStorage from '/imports/ui/services/storage/local.js';
 import NavBar from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
