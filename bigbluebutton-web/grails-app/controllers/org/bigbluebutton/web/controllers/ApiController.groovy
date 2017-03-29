@@ -799,7 +799,7 @@ class ApiController {
     def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
     ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
 
-    def xmlText = responseBuilder.buildGetMeetingInfoResponse(meeting, "success")
+    def xmlText = responseBuilder.buildGetMeetingInfoResponse(meeting, RESP_CODE_SUCCESS)
     withFormat {
       xml {
         render(text: xmlText, contentType: "text/xml")
@@ -867,7 +867,7 @@ class ApiController {
       def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
       ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
 
-      def xmlText = responseBuilder.buildGetMeetingsResponse(mtgs, "success")
+      def xmlText = responseBuilder.buildGetMeetingsResponse(mtgs, RESP_CODE_SUCCESS)
       withFormat {
         xml {
           render(text: xmlText, contentType: "text/xml")
@@ -1794,7 +1794,7 @@ class ApiController {
     def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
     ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
 
-    def xmlText = responseBuilder.buildGetRecordingsResponse(recs, "success")
+    def xmlText = responseBuilder.buildGetRecordingsResponse(recs, RESP_CODE_SUCCESS)
     withFormat {
       xml {
         render(text: xmlText, contentType: "text/xml")
