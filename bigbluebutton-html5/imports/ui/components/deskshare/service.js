@@ -1,5 +1,5 @@
 import Deskshare from '/imports/api/deskshare';
-import {createVertoUserName, watchVertoVideo} from '/imports/api/verto';
+import {createVertoUserName, watchVertoVideo} from '/imports/api/audio/client/verto-bridge';
 import Auth from '/imports/ui/services/auth';
 
 // when the meeting information has been updated check to see if it was

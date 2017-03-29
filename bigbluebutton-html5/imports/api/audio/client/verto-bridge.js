@@ -1,4 +1,3 @@
-import { getInStorage } from '/imports/ui/components/app/service';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { getVoiceBridge } from '/imports/ui/components/audio/service';
@@ -10,11 +9,11 @@ function createVertoUserName() {
   return conferenceUsername;
 }
 
-function vertoExitAudio() {
+function exitAudio() {
   window.vertoExitAudio();
 }
 
-function vertoJoinListenOnly() {
+function joinListenOnly() {
   window.vertoJoinListenOnly(
     'remote-media',
     getVoiceBridge(),
@@ -23,7 +22,7 @@ function vertoJoinListenOnly() {
   );
 }
 
-function vertoJoinMicrophone() {
+function joinMicrophone() {
   window.vertoJoinMicrophone(
     'remote-media',
     getVoiceBridge(),
@@ -50,10 +49,10 @@ function shareVertoScreen() {
   );
 }
 
-export {
-  vertoJoinListenOnly,
-  vertoJoinMicrophone,
+export default {
+  joinListenOnly,
+  joinMicrophone,
+  exitAudio,
   vertoWatchVideo,
-  vertoExitAudio,
   shareVertoScreen,
 };
