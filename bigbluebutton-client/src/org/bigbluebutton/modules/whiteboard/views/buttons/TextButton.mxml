@@ -25,7 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   accessibilityName="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
-            import org.bigbluebutton.common.Images;
             import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
             import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
             import org.bigbluebutton.util.i18n.ResourceUtil;

@@ -10,13 +10,13 @@ public class Breakout {
    */
 
   @JacksonXmlProperty(isAttribute = true)
-  private String parentMeetingId;
+  private String parentMeetingId = "";
 
   @JacksonXmlProperty(isAttribute = true)
-  private int sequence;
+  private int sequence = 0;
 
   @JacksonXmlProperty(isAttribute = true)
-  private String meetingId;
+  private String meetingId = "";
 
   public void setParentMeetingId(String parentMeetingId) {
     this.parentMeetingId = parentMeetingId;
