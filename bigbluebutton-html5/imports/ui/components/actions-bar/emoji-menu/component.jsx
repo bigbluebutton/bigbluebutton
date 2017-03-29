@@ -101,7 +101,7 @@ class EmojiMenu extends Component {
               description={intl.formatMessage(intlMessages.applauseDesc)}
               onClick={() => actions.setEmojiHandler('applause')}
             />
-            <DropdownListSeparator/>
+            <DropdownListSeparator />
             <DropdownListItem
               icon="clear_status"
               label={intl.formatMessage(intlMessages.clearLabel)}

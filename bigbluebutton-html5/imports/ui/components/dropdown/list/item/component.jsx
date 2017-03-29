@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import styles from '../styles';
 import _ from 'lodash';
 import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 
 const propTypes = {
@@ -11,16 +10,7 @@ const propTypes = {
   description: PropTypes.string,
 };
 
-const intlMessages = defineMessages({
-  separatorLabel: {
-    id: 'app.dropdownListItem.separatorLabel',
-  },
-  separatorDesc: {
-    id: 'app.dropdownListItem.separatorDesc',
-  },
-});
-
-class DropdownListItem extends Component {
+export default class DropdownListItem extends Component {
   constructor(props) {
     super(props);
     this.labelID = _.uniqueId('dropdown-item-label-');
@@ -38,15 +28,8 @@ class DropdownListItem extends Component {
   }
 
   render() {
-    const { children, injectRef, tabIndex, onClick, onKeyDown,
+    const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
       className, style, separator, intl} = this.props;
-
-    let { label, description} = this.props;
-
-      if (separator) {
-        label = intl.formatMessage(intlMessages.separatorLabel);
-        description = intl.formatMessage(intlMessages.separatorDesc)
-      }
 
     return (
       <li
@@ -79,4 +62,3 @@ class DropdownListItem extends Component {
 }
 
 DropdownListItem.propTypes = propTypes;
-export default injectIntl(DropdownListItem);
