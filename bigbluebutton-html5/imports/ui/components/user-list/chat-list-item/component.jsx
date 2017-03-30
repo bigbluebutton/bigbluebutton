@@ -43,10 +43,10 @@ class ChatListItem extends Component {
     } = this.props;
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
+    const isCurrentChat = chat.id === openChat;
 
-    let isExpanded;
     let linkClasses = {};
-    linkClasses[styles.active] = chat.id === openChat;
+    linkClasses[styles.active] = isCurrentChat;
 
     if (chat.name === 'Public Chat') {
       chat.name = intl.formatMessage(intlMessages.titlePublic);
@@ -54,27 +54,25 @@ class ChatListItem extends Component {
 
     return (
       <li className={cx(styles.chatListItem, linkClasses)}>
-        {isExpanded = !openChat ? false : true}
         <Link
           to={linkPath}
           className={styles.chatListItemLink}
           role="button"
-          aria-expanded={isExpanded}>
+          aria-expanded={isCurrentChat}>
             {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
             <div className={styles.chatName}>
               {!compact ? <h3 className={styles.chatNameMain}>{chat.name}</h3> : null }
             </div>
             {(chat.unreadCounter > 0) ?
               <div className={styles.unreadMessages}>
-                <div className={styles.unreadMessagesText} aria-describedby="unreadMsgDesc">
+                <div className={styles.unreadMessagesText} aria-describedby="newMsgDesc">
                   {chat.unreadCounter}
-                  {(chat.unreadCounter == 1) ?
-                    <div
-                      id="unreadMsgDesc"
-                      aria-label={intl.formatMessage(intlMessages.unreadSingular)} />
-                    : <div
-                        id="unreadMsgDesc"
-                        aria-label={intl.formatMessage(intlMessages.unreadPlural)} />}
+                  <div
+                    id="newMsgDesc"
+                    aria-label={!(chat.unreadCounter === 1)
+                      ? intl.formatMessage(intlMessages.unreadPlural) 
+                      : intl.formatMessage(intlMessages.unreadSingular)}
+                    />
                 </div>
               </div>
               : null}
