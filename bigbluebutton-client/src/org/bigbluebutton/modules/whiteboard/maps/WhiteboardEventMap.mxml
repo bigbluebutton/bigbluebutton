@@ -51,8 +51,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
 	
-	<EventHandlers type="{WhiteboardPresenterEvent.MODIFY_ENABLED}" >
-		<MethodInvoker generator="{WhiteboardService}" method="modifyEnabled" arguments="{event}" />
+	<EventHandlers type="{WhiteboardPresenterEvent.MODIFY_WHITEBOARD_ACCESS}" >
+		<MethodInvoker generator="{WhiteboardService}" method="modifyAccess" arguments="{event}" />
 	</EventHandlers>
 		
 	<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}" >

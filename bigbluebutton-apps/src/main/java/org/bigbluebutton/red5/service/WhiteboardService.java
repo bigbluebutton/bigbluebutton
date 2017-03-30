@@ -119,14 +119,14 @@ public class WhiteboardService {
 		//application.toggleGrid();
 	}
 		
-	public void enableWhiteboard(Map<String, Object> message) {
-		log.info("WhiteboardApplication - Setting whiteboard enabled: " + (Boolean)message.get("enabled"));
+	public void modifyWhiteboardAccess(Map<String, Object> message) {
+		log.info("WhiteboardApplication - Setting whiteboard multi user access: " + (Boolean)message.get("multiUser"));
 
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
-		Boolean enable = (Boolean)message.get("enabled");
+		Boolean multiUser = (Boolean)message.get("multiUser");
 		
-		application.setWhiteboardEnable(meetingID, requesterID, enable);
+		application.modifyWhiteboardAccess(meetingID, requesterID, multiUser);
 	}
 	
 	public void isWhiteboardEnabled() {

@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
         
         override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+			this.graphics.clear();
 //            LogUtil.debug("Drawing RECTANGLE");
             var ao:Object = a.annotation;
             if (!ao.fill)

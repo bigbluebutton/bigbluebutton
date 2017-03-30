@@ -22,13 +22,14 @@ package org.bigbluebutton.modules.whiteboard.events
 	
 	public class WhiteboardPresenterEvent extends Event
 	{
-		public static const MODIFY_ENABLED:String = "EnableHighlighterEvent";
+		public static const MODIFY_WHITEBOARD_ACCESS:String = "MODIFY_WHITEBOARD_ACCESS_EVENT";
+		public static const MODIFIED_WHITEBOARD_ACCESS:String = "MODIFIED_WHITEBOARD_ACCESS_EVENT";
 		
-		public var enabled:Boolean;
+		public var multiUser:Boolean;
 		
 		public function WhiteboardPresenterEvent(type:String)
 		{
-			super(type, true, false);
+			super(type, false, false);
 		}
 
 	}

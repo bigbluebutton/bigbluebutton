@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
+  <mate:Listener type="{WhiteboardPresenterEvent.MODIFIED_WHITEBOARD_ACCESS}" method="whiteboardAccessModified" />
   <mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
   <mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
   <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
@@ -63,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:Script>
     <![CDATA[
+		import com.asfusion.mate.core.GlobalDispatcher;
 		import com.asfusion.mate.events.Listener;
 		
 		import mx.events.MoveEvent;
@@ -77,6 +79,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 		import org.bigbluebutton.modules.present.events.NavigationEvent;
 		import org.bigbluebutton.modules.present.events.UploadEvent;
+		import org.bigbluebutton.modules.present.model.Presenter;
 		import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 		import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 		import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
@@ -84,6 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+		import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 		import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -107,7 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
-			[Bindable] public var wbOptions:WhiteboardOptions;
+			[Bindable] public var wbOptions:WhiteboardOptions = new WhiteboardOptions();
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
@@ -119,11 +123,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
+			private var multiUser:Boolean = false;
+		
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
 			
 			private function init():void{
-				wbOptions = new WhiteboardOptions();
+				
 			}
 			
       private function onCreationComplete():void {
@@ -184,6 +190,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function changeThickness(e:Event):void {
 				canvas.changeThickness(e);
 			}
+		
+			protected function changeMultiUser():void {
+				var dispatcher:GlobalDispatcher = new GlobalDispatcher();
+				
+				var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFY_WHITEBOARD_ACCESS);
+				event.multiUser = !multiUser;
+				dispatcher.dispatchEvent(event);
+			}
 			
 			protected function toggleFill():void {
 				canvas.toggleFill();
@@ -194,20 +208,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function presenterMode(e:MadePresenterEvent):void {
-        if (canvas == null) return;
-        
-				canvas.makeTextObjectsEditable(e);
-        setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+				checkVisibility();
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
-				canvas.makeTextObjectsUneditable(e);
-				if (!toolbarAllowed()) {
-                    checkVisibility();
-                    if (panzoomBtn) {
-                        panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-                    }
-                }
+				checkVisibility();
+			}
+		
+			private function whiteboardAccessModified(e:WhiteboardPresenterEvent):void {
+				multiUser = e.multiUser;
+				multiUserBtn.label = (multiUser ? "M" : "P");
+				checkVisibility();
 			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
@@ -237,19 +248,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     				
     				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
     				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
-                } else {
-                    var listener1:Listener = new Listener();
-                    listener1.method = checkVisibility;
-                    listener1.type = MadePresenterEvent.SWITCH_TO_PRESENTER_MODE;
-                    var listener2:Listener = new Listener();
-                    listener2.method = checkVisibility;
-                    listener2.type = MadePresenterEvent.SWITCH_TO_VIEWER_MODE;
-                    //Do an initial check to see if the toolbar should be visible
-                    checkVisibility();
                 }
 			}
 			
-            private function checkVisibility(e:MadePresenterEvent = null):void {
+            private function checkVisibility():void {
                 if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver)) {
                     setPositionAndDepth();
                     showWhiteboardToolbar = true;
@@ -306,17 +308,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function toolbarAllowed():Boolean {
-      	if (wbOptions) {
-      	  if (wbOptions.whiteboardAccess == "presenter")
-            return isPresenter;
-          else if (wbOptions.whiteboardAccess == "moderator")
-            return isModerator || isPresenter;
-          else if (wbOptions.whiteboardAccess == "all")
-            return true;
-          else
-            return false;
-        } else
-          return false;
+        return (multiUser? true : isPresenter);
       }
       
       /** Helper method to test whether this user is the presenter */
@@ -338,29 +330,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
-    <wbBtns:PanZoomButton id="panzoomBtn" 
-    					  visible="{showWhiteboardToolbar}"/>
-    <mx:Spacer height="10" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:ScribbleButton id="scribbleBtn" 
-						   visible="{showWhiteboardToolbar}"/>
-	<wbBtns:RectangleButton id="rectangleBtn" 
-							visible="{showWhiteboardToolbar}"/>
-	<wbBtns:CircleButton id="circleBtn" 
-						 visible="{showWhiteboardToolbar}"/>
-	<wbBtns:TriangleButton id="triangleBtn" 
-						   visible="{showWhiteboardToolbar}"/>
-	<wbBtns:LineButton id="lineBtn" 
-					   visible="{showWhiteboardToolbar}"/>
-	<wbBtns:TextButton id="textBtn" 
-					   visible="{showWhiteboardToolbar}"/>
+    <wbBtns:PanZoomButton id="panzoomBtn"/>
+    <mx:Spacer height="10"/>
+	<wbBtns:ScribbleButton id="scribbleBtn"/>
+	<wbBtns:RectangleButton id="rectangleBtn"/>
+	<wbBtns:CircleButton id="circleBtn"/>
+	<wbBtns:TriangleButton id="triangleBtn"/>
+	<wbBtns:LineButton id="lineBtn"/>
+	<wbBtns:TextButton id="textBtn"/>
 		
-	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:ClearButton id="clearBtn" 
-						visible="{showWhiteboardToolbar}"/>
-	<wbBtns:UndoButton id="undoBtn" 
-					   visible="{showWhiteboardToolbar}"/>
+	<mx:Spacer height="5"/>
+	<wbBtns:ClearButton id="clearBtn"/>
+	<wbBtns:UndoButton id="undoBtn"/>
 	
-	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
+	<mx:Spacer height="5"/>
 	
 	<!--
 	Properties that were removed from original color picker:
@@ -373,18 +356,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	of ColorPickers, one for the "line" color for the outlines of shapes, and the other for
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
-	<mx:ColorPicker change="changeColor(event)" id="cpik"  visible="{showWhiteboardToolbar}"
+	<mx:ColorPicker change="changeColor(event)" id="cpik"
                   selectedColor="0x000000" width="30" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"
 				  accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
-	<mx:Spacer height="3" visible="{showWhiteboardToolbar}"/>
-	<mx:Image source="{thick_icon}" horizontalAlign="center" width="30" visible="{showWhiteboardToolbar}"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)" visible="{showWhiteboardToolbar}"
+	<mx:Spacer height="3"/>
+	<mx:Image source="{thick_icon}" horizontalAlign="center" width="30"/>
+	<mx:VSlider height="50" id="sld" change="changeThickness(event)"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" 
 				minimum="1" maximum="30" 
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
-	<mx:Image source="{thin_icon}" horizontalAlign="center" width="30" visible="{showWhiteboardToolbar}"/>
-	
+	<mx:Image source="{thin_icon}" horizontalAlign="center" width="30"/>
+	<mx:Button id="multiUserBtn" click="changeMultiUser()" label="P" />
 </mx:VBox>

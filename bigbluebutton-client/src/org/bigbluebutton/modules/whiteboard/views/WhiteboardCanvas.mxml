@@ -179,14 +179,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				displayModel.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
 			}
 			
-			public function makeTextObjectsEditable(e:MadePresenterEvent):void {
-//				model.makeTextObjectsEditable(e);
-			}
-			
-			public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
-//				model.makeTextObjectsUneditable(e);
-			}
-			
 			private function setWhiteboardVisibility():void {
                 if (this.whiteboardEnabled && this.showWhiteboard) {
                     this.visible = true;

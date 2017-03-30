@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.whiteboard.models
     }
     
     public function getAnnotation(id:String):Annotation {
-      for (var i:int = 0; i < _annotations.length; i++) {
+      for (var i:int = _annotations.length-1; i >= 0; i--) {
         if ((_annotations.getItemAt(i) as Annotation).id == id) {
           return _annotations.getItemAt(i) as Annotation;
         }

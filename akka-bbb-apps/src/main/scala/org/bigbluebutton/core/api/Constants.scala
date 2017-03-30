@@ -84,6 +84,7 @@ object Constants {
   val SHAPES = "shapes"
   val SHAPE = "shape"
   val SHAPE_ID = "shape_id"
+  val MULTI_USER = "multi_user"
   val PRESENTATION = "presentation"
   val ID = "id"
   val CURRENT = "current"

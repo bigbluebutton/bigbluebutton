@@ -46,8 +46,8 @@ package org.bigbluebutton.modules.whiteboard.services
         case "WhiteboardIsWhiteboardEnabledReply":
           handleIsWhiteboardEnabledReply(message);
           break;
-        case "WhiteboardEnableWhiteboardCommand":
-          handleEnableWhiteboardCommand(message);
+        case "WhiteboardAccessModifiedCommand":
+          handleWhiteboardAccessModifiedCommand(message);
           break;    
         case "WhiteboardNewAnnotationCommand":
           handleNewAnnotationCommand(message);
@@ -79,10 +79,10 @@ package org.bigbluebutton.modules.whiteboard.services
       }
     }
 
-    private function handleEnableWhiteboardCommand(message:Object):void {
+    private function handleWhiteboardAccessModifiedCommand(message:Object):void {
       var map:Object = JSON.parse(message.msg);
-            
-      whiteboardModel.enable(map.enabled);
+      
+      whiteboardModel.accessModified(map.multiUser);
     }
     
     private function handleNewAnnotationCommand(message:Object):void {

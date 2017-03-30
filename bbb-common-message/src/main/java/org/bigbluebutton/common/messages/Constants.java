@@ -67,7 +67,7 @@ public class Constants {
   public static final String RECORDING_FILE                  = "recording_file";
   public static final String ANNOTATION                      = "annotation";
   public static final String WHITEBOARD_ID                   = "whiteboard_id";
-  public static final String ENABLE                          = "enable";
+  public static final String MULTI_USER                      = "multi_user";
   public static final String PRESENTER                       = "presenter";
   public static final String USERS                           = "users";
   public static final String EMOJI_STATUS                    = "emoji_status";

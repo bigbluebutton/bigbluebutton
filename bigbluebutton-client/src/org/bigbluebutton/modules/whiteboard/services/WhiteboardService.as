@@ -38,8 +38,8 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.requestAnnotationHistory(cmd.whiteboardId);
     }
     
-    public function modifyEnabled(e:WhiteboardPresenterEvent):void {
-      sender.modifyEnabled(e);
+    public function modifyAccess(e:WhiteboardPresenterEvent):void {
+      sender.modifyAccess(e);
     }
 
     public function toggleGrid():void {

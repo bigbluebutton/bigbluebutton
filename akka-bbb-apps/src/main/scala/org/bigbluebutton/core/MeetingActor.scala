@@ -148,7 +148,7 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: GetWhiteboardShapesRequest => liveMeeting.handleGetWhiteboardShapesRequest(msg)
     case msg: ClearWhiteboardRequest => liveMeeting.handleClearWhiteboardRequest(msg)
     case msg: UndoWhiteboardRequest => liveMeeting.handleUndoWhiteboardRequest(msg)
-    case msg: EnableWhiteboardRequest => liveMeeting.handleEnableWhiteboardRequest(msg)
+    case msg: ModifyWhiteboardAccessRequest => liveMeeting.handleModifyWhiteboardAccessRequest(msg)
     case msg: IsWhiteboardEnabledRequest => liveMeeting.handleIsWhiteboardEnabledRequest(msg)
     case msg: SetRecordingStatus => liveMeeting.handleSetRecordingStatus(msg)
     case msg: GetRecordingStatus => liveMeeting.handleGetRecordingStatus(msg)

@@ -91,7 +91,23 @@ package org.bigbluebutton.modules.whiteboard
             break;
           case DrawObject.DRAW_UPDATE:
           case DrawObject.DRAW_END:
-            if (_annotationsList.length > 0) {
+			  for (var i:int = _annotationsList.length -1; i >= 0; i--) {
+				  dobj = _annotationsList[i] as DrawObject;
+				  if (dobj.id == o.id) {
+					  dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+					  return;
+				  }
+			  }
+			  
+			  dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
+			  if (dobj != null) {
+				  dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+				  wbCanvas.addGraphic(dobj);
+				  _annotationsList.push(dobj);              
+			  }
+			  
+            /*
+			  if (_annotationsList.length > 0) {
               var gobj:Object = _annotationsList.pop();
               if (gobj.id == o.id) {
                 // LogUtil.debug("Removing shape [" + gobj.id + "]");
@@ -107,6 +123,7 @@ package org.bigbluebutton.modules.whiteboard
               wbCanvas.addGraphic(dobj);
               _annotationsList.push(dobj);              
             }
+			  */
             break;
         }                   
       } else { 

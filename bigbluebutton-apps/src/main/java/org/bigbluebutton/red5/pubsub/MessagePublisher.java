@@ -258,8 +258,8 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
-	public void enableWhiteboard(String meetingID, String requesterID, Boolean enable) {
-		EnableWhiteboardRequestMessage msg = new EnableWhiteboardRequestMessage(meetingID, requesterID, enable);
+	public void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser) {
+		ModifyWhiteboardAccessRequestMessage msg = new ModifyWhiteboardAccessRequestMessage(meetingID, requesterID, multiUser);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 

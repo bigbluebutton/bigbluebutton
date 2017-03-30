@@ -120,7 +120,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
     case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
-    case msg: WhiteboardEnabledEvent => handleWhiteboardEnabledEvent(msg)
+    case msg: ModifiedWhiteboardAccessEvent => handleModifiedWhiteboardAccessEvent(msg)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
     // breakout room cases
     case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
@@ -711,8 +711,8 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 
-  private def handleWhiteboardEnabledEvent(msg: WhiteboardEnabledEvent) {
-    val json = WhiteboardMessageToJsonConverter.whiteboardEnabledEventToJson(msg)
+  private def handleModifiedWhiteboardAccessEvent(msg: ModifiedWhiteboardAccessEvent) {
+    val json = WhiteboardMessageToJsonConverter.modifiedWhiteboardAccessEventToJson(msg)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 

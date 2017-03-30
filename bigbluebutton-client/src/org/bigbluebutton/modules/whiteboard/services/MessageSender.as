@@ -29,13 +29,13 @@ package org.bigbluebutton.modules.whiteboard.services
 	{	
 		private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
-		public function modifyEnabled(e:WhiteboardPresenterEvent):void {
+		public function modifyAccess(e:WhiteboardPresenterEvent):void {
 //			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
 			var message:Object = new Object();
-			message["enabled"] = e.enabled;
+			message["multiUser"] = e.multiUser;
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.toggleGrid", 
+			_nc.sendMessage("whiteboard.modifyWhiteboardAccess", 
 				function(result:String):void { // On successful result
 				},	                   
 				function(status:String):void { // status - On error occurred

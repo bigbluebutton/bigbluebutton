@@ -108,8 +108,8 @@ public class WhiteboardApplication implements IApplication {
 		red5BBBInGW.undoWhiteboard(meetingID, requesterID, whiteboardId);
 	}
 
-	public void setWhiteboardEnable(String meetingID, String requesterID, Boolean enable) {
-		red5BBBInGW.enableWhiteboard(meetingID, requesterID, enable);
+	public void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser) {
+		red5BBBInGW.modifyWhiteboardAccess(meetingID, requesterID, multiUser);
 	}
 
 	public void setIsWhiteboardEnabled(String meetingID, String requesterID) {

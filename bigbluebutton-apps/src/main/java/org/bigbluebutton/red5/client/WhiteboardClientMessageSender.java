@@ -8,6 +8,7 @@ import org.bigbluebutton.common.messages.GetWhiteboardShapesReplyMessage;
 import org.bigbluebutton.common.messages.IsWhiteboardEnabledReplyMessage;
 import org.bigbluebutton.common.messages.SendWhiteboardAnnotationReplyMessage;
 import org.bigbluebutton.common.messages.UndoWhiteboardReplyMessage;
+import org.bigbluebutton.common.messages.ModifiedWhiteboardAccessMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
@@ -34,36 +35,42 @@ public class WhiteboardClientMessageSender {
 				String messageName = header.get("name").getAsString();
 	
 				switch (messageName) {
-				  case UndoWhiteboardReplyMessage.UNDO_WHITEBOARD_REPLY:
-					  UndoWhiteboardReplyMessage uwrm = UndoWhiteboardReplyMessage.fromJson(message);
-					  if (uwrm != null) {
-						  processUndoWhiteboardReply(uwrm);
-					  }
-					  break;
-				  case ClearWhiteboardReplyMessage.WHITEBOARD_CLEARED_MESSAGE:
-					  ClearWhiteboardReplyMessage wcm = ClearWhiteboardReplyMessage.fromJson(message);
-					  if (wcm != null) {
-						  processClearWhiteboardReply(wcm);
-					  }
-					  break;
-					  case IsWhiteboardEnabledReplyMessage.IS_WHITEBOARD_ENABLED_REPLY:
-						  IsWhiteboardEnabledReplyMessage iwe = IsWhiteboardEnabledReplyMessage.fromJson(message);
-						  if (iwe != null) {
-							  processIsWhiteboardEnabledReply(iwe);
-						  }
-						  break;
-					  case GetWhiteboardShapesReplyMessage.GET_WHITEBOARD_SHAPES_REPLY:
-						  GetWhiteboardShapesReplyMessage gwsrm = GetWhiteboardShapesReplyMessage.fromJson(message);
-						  if (gwsrm != null) {
-							  processGetWhiteboardShapesReplyMessage(gwsrm);
-						  }
-						  break;
-						  case SendWhiteboardAnnotationReplyMessage.SEND_WHITEBOARD_ANNOTATION_REPLY:
-							  SendWhiteboardAnnotationReplyMessage swarm = SendWhiteboardAnnotationReplyMessage.fromJson(message);
-							  if (swarm != null) {
-								  processSendWhiteboardAnnotationReplyMessage(swarm);
-							  }
-							  break;
+					case UndoWhiteboardReplyMessage.UNDO_WHITEBOARD_REPLY:
+						UndoWhiteboardReplyMessage uwrm = UndoWhiteboardReplyMessage.fromJson(message);
+						if (uwrm != null) {
+							processUndoWhiteboardReply(uwrm);
+						}
+						break;
+					case ClearWhiteboardReplyMessage.WHITEBOARD_CLEARED_MESSAGE:
+						ClearWhiteboardReplyMessage wcm = ClearWhiteboardReplyMessage.fromJson(message);
+						if (wcm != null) {
+							processClearWhiteboardReply(wcm);
+						}
+						break;
+					case IsWhiteboardEnabledReplyMessage.IS_WHITEBOARD_ENABLED_REPLY:
+						IsWhiteboardEnabledReplyMessage iwe = IsWhiteboardEnabledReplyMessage.fromJson(message);
+						if (iwe != null) {
+							processIsWhiteboardEnabledReply(iwe);
+						}
+						break;
+					case GetWhiteboardShapesReplyMessage.GET_WHITEBOARD_SHAPES_REPLY:
+						GetWhiteboardShapesReplyMessage gwsrm = GetWhiteboardShapesReplyMessage.fromJson(message);
+						if (gwsrm != null) {
+							processGetWhiteboardShapesReplyMessage(gwsrm);
+						}
+						break;
+					case SendWhiteboardAnnotationReplyMessage.SEND_WHITEBOARD_ANNOTATION_REPLY:
+						SendWhiteboardAnnotationReplyMessage swarm = SendWhiteboardAnnotationReplyMessage.fromJson(message);
+						if (swarm != null) {
+							processSendWhiteboardAnnotationReplyMessage(swarm);
+						}
+						break;
+					case ModifiedWhiteboardAccessMessage.MODIFIED_WHITEBOARD_ACCESS:
+						ModifiedWhiteboardAccessMessage mwam = ModifiedWhiteboardAccessMessage.fromJson(message);
+						if (mwam != null) {
+							processModifiedWhiteboardAccessMessage(mwam);
+						}
+						break;
 				}
 			}
 		}
@@ -147,6 +154,18 @@ public class WhiteboardClientMessageSender {
 
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "WhiteboardUndoCommand", message);
 		service.sendMessage(m);
-		
+	}
+	
+	private void processModifiedWhiteboardAccessMessage(ModifiedWhiteboardAccessMessage msg) {
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("multiUser", msg.multiUser);
+
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+
+		// broadcast message
+		BroadcastClientMessage b = new BroadcastClientMessage(msg.meetingId, "WhiteboardAccessModifiedCommand", message);
+		service.sendMessage(b);
 	}
 }

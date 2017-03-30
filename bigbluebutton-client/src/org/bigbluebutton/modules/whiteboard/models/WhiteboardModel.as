@@ -21,13 +21,15 @@ package org.bigbluebutton.modules.whiteboard.models
 	import flash.events.IEventDispatcher;
 	
 	import mx.collections.ArrayCollection;
-	import org.bigbluebutton.core.UsersUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 
@@ -35,6 +37,8 @@ package org.bigbluebutton.modules.whiteboard.models
 	{
 		private static const LOGGER:ILogger = getClassLogger(WhiteboardModel);      
 		private var _whiteboards:ArrayCollection = new ArrayCollection();
+		
+		private var _multiUser:Boolean = false;
 
     private var _dispatcher:IEventDispatcher;
         
@@ -151,8 +155,12 @@ package org.bigbluebutton.modules.whiteboard.models
     }
 
 
-		public function enable(enabled:Boolean):void {
+		public function accessModified(multiUser:Boolean):void {
+			_multiUser = multiUser;
 			
+			var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFIED_WHITEBOARD_ACCESS);
+			event.multiUser = multiUser;
+			_dispatcher.dispatchEvent(event);
 		}
         
       

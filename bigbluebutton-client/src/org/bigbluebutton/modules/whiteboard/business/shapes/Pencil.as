@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
         override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+			this.graphics.clear();
             var ao:Object = a.annotation;
             
             this.graphics.lineStyle(ao.thickness * zoom, ao.color);

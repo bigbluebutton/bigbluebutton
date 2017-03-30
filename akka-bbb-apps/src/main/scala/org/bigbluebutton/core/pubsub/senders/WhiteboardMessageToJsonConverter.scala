@@ -73,13 +73,13 @@ object WhiteboardMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def whiteboardEnabledEventToJson(msg: WhiteboardEnabledEvent): String = {
+  def modifiedWhiteboardAccessEventToJson(msg: ModifiedWhiteboardAccessEvent): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.ENABLE, msg.enable)
+    payload.put(Constants.MULTI_USER, msg.multiUser)
 
-    val header = Util.buildHeader(MessageNames.WHITEBOARD_ENABLED, None)
+    val header = Util.buildHeader(MessageNames.MODIFIED_WHITEBOARD_ACCESS, None)
     Util.buildJson(header, payload)
   }
 
