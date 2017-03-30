@@ -399,7 +399,7 @@ class BigBlueButtonInGW(
    * Message Interface for Whiteboard
    * *****************************************************************
    */
-  private def buildAnnotation(annotation: scala.collection.mutable.Map[String, Object]): Option[AnnotationVO] = {
+  private def buildAnnotation(annotation: scala.collection.mutable.Map[String, Object], userId: String): Option[AnnotationVO] = {
     var shape: Option[AnnotationVO] = None
 
     val id = annotation.getOrElse("id", null).asInstanceOf[String]
@@ -409,7 +409,7 @@ class BigBlueButtonInGW(
     //    println("** GOT ANNOTATION status[" + status + "] shape=[" + shapeType + "]");
 
     if (id != null && shapeType != null && status != null && wbId != null) {
-      shape = Some(new AnnotationVO(id, status, shapeType, annotation.toMap, wbId))
+      shape = Some(new AnnotationVO(id, status, shapeType, annotation.toMap, wbId, userId, -1))
     }
 
     shape
@@ -418,7 +418,7 @@ class BigBlueButtonInGW(
   def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: java.util.Map[String, Object]) {
     val ann: scala.collection.mutable.Map[String, Object] = mapAsScalaMap(annotation)
 
-    buildAnnotation(ann) match {
+    buildAnnotation(ann, requesterID) match {
       case Some(shape) => {
         eventBus.publish(BigBlueButtonEvent(meetingID, new SendWhiteboardAnnotationRequest(meetingID, requesterID, shape)))
       }

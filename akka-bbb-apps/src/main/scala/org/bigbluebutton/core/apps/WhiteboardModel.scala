@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps
 import scala.collection.immutable.List
 import scala.collection.immutable.HashMap
 
-case class AnnotationVO(id: String, status: String, shapeType: String, shape: scala.collection.immutable.Map[String, Object], wbId: String)
+case class AnnotationVO(id: String, status: String, shapeType: String, shape: scala.collection.immutable.Map[String, Object], wbId: String, userId: String, position: Int)
 
 class WhiteboardModel {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -25,7 +25,7 @@ class WhiteboardModel {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(wbId, new HashMap[String, List[AnnotationVO]]())
+    new Whiteboard(wbId, 0, new HashMap[String, List[AnnotationVO]]())
   }
 
   private def getShapesByUserId(wb: Whiteboard, id: String): List[AnnotationVO] = {
@@ -35,9 +35,9 @@ class WhiteboardModel {
   def addAnnotation(wbId: String, userId: String, shape: AnnotationVO) {
     val wb = getWhiteboard(wbId)
     val usersShapes = getShapesByUserId(wb, userId)
-    val newShapesMap = wb.shapesMap + (userId -> (shape :: usersShapes))
+    val newShapesMap = wb.shapesMap + (userId -> (shape.copy(position = wb.shapeCount) :: usersShapes))
 
-    val newWb = wb.copy(shapesMap = newShapesMap)
+    val newWb = new Whiteboard(wb.id, wb.shapeCount + 1, newShapesMap)
     //println("Adding shape to page [" + wb.id + "]. After numShapes=[" + getShapesByUserId(wb, userId).length + "].")
     saveWhiteboard(newWb)
   }
@@ -48,8 +48,8 @@ class WhiteboardModel {
 
     //not empty and head id equals shape id
     if (!usersShapes.isEmpty && usersShapes.head.id == shape.id) {
-      val newShapesMap = wb.shapesMap + (userId -> (shape :: usersShapes.tail))
-
+      val newShapesMap = wb.shapesMap + (userId -> (shape.copy(position = usersShapes.head.position) :: usersShapes.tail))
+      //println("Shape has position [" + usersShapes.head.position + "]")
       val newWb = wb.copy(shapesMap = newShapesMap)
       //println("Updating shape on page [" + wb.id + "]. After numShapes=[" + getShapesByUserId(wb, userId).length + "].")
       saveWhiteboard(newWb)
@@ -71,11 +71,10 @@ class WhiteboardModel {
     //}
   }
 
-  /*
-  def history(wbId: String): Option[Whiteboard] = {
-    getWhiteboard(wbId)
+  def getHistory(wbId: String): Array[AnnotationVO] = {
+    val wb = getWhiteboard(wbId)
+    wb.shapesMap.values.flatten.toArray.sortBy(_.position);
   }
-  */
 
   /*
   def clearWhiteboard(wbId: String) {

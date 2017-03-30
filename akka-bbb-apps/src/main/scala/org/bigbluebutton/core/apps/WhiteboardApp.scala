@@ -5,7 +5,7 @@ import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.LiveMeeting
 
-case class Whiteboard(id: String, shapesMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
+case class Whiteboard(id: String, shapeCount: Int, shapesMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
 
 trait WhiteboardApp {
   this: LiveMeeting =>
@@ -53,6 +53,10 @@ trait WhiteboardApp {
 
   def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
     //println("WB: Received page history [" + msg.whiteboardId + "]")
+    val history = wbModel.getHistory(msg.whiteboardId);
+    if (history.length > 0) {
+      outGW.send(new GetWhiteboardShapesReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId, history, msg.replyTo))
+    }
     //wbModel.history(msg.whiteboardId) foreach { wb =>
     //  outGW.send(new GetWhiteboardShapesReply(mProps.meetingID, mProps.recorded, msg.requesterID, wb.id, wb.shapes.toArray, msg.replyTo))
     //}
