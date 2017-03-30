@@ -45,6 +45,7 @@ class ChatListItem extends Component {
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
 
+    let isExpanded;
     let linkClasses = {};
     linkClasses[styles.active] = chat.id === openChat;
 
@@ -54,10 +55,12 @@ class ChatListItem extends Component {
 
     return (
       <li className={cx(styles.chatListItem, linkClasses)}>
+        {isExpanded = !openChat ? false : true}
         <Link
           to={linkPath}
           className={styles.chatListItemLink}
-          role="button">
+          role="button"
+          aria-expanded={isExpanded}>
             {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
             <div className={styles.chatName}>
               {!compact ? <h3 className={styles.chatNameMain}>{chat.name}</h3> : null }
