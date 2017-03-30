@@ -10,14 +10,13 @@ import { defineMessages, injectIntl } from 'react-intl';
 const intlMessages = defineMessages({
   titlePublic: {
     id: 'app.chat.titlePublic',
-    defaultMessage: "Public Chat",
   },
   unreadPlural: {
-   id: 'app.chatlistitem.unreadPlural',
- },
- unreadSingular: {
-   id: 'app.chatlistitem.unreadSingular'
- },
+    id: 'app.chatlistitem.unreadPlural',
+  },
+  unreadSingular: {
+    id: 'app.chatlistitem.unreadSingular',
+  },
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -70,8 +69,12 @@ class ChatListItem extends Component {
                 <div className={styles.unreadMessagesText} aria-describedby="unreadMsgDesc">
                   {chat.unreadCounter}
                   {(chat.unreadCounter == 1) ?
-                    <div id="unreadMsgDesc" aria-label={intl.formatMessage(intlMessages.unreadSingular)} />
-                    : <div id="unreadMsgDesc" aria-label={intl.formatMessage(intlMessages.unreadPlural)} />}
+                    <div
+                      id="unreadMsgDesc"
+                      aria-label={intl.formatMessage(intlMessages.unreadSingular)} />
+                    : <div
+                        id="unreadMsgDesc"
+                        aria-label={intl.formatMessage(intlMessages.unreadPlural)} />}
                 </div>
               </div>
               : null}
