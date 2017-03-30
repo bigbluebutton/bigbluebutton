@@ -12,6 +12,12 @@ const intlMessages = defineMessages({
     id: 'app.chat.titlePublic',
     defaultMessage: "Public Chat",
   },
+  unreadPlural: {
+   id: 'app.chatlistitem.unreadPlural',
+ },
+ unreadSingular: {
+   id: 'app.chatlistitem.unreadSingular'
+ },
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -48,16 +54,24 @@ class ChatListItem extends Component {
 
     return (
       <li className={cx(styles.chatListItem, linkClasses)}>
-        <Link to={linkPath} className={styles.chatListItemLink}>
-          {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
-          <div className={styles.chatName}>
-            {!compact ? <h3 className={styles.chatNameMain}>{chat.name}</h3> : null }
-          </div>
-          {(chat.unreadCounter > 0) ?
-            <div className={styles.unreadMessages}>
-              <p className={styles.unreadMessagesText}>{chat.unreadCounter}</p>
+        <Link
+          to={linkPath}
+          className={styles.chatListItemLink}
+          role="button">
+            {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
+            <div className={styles.chatName}>
+              {!compact ? <h3 className={styles.chatNameMain}>{chat.name}</h3> : null }
             </div>
-            : null}
+            {(chat.unreadCounter > 0) ?
+              <div className={styles.unreadMessages}>
+                <div className={styles.unreadMessagesText} aria-describedby="unreadMsgDesc">
+                  {chat.unreadCounter}
+                  {(chat.unreadCounter == 1) ?
+                    <div id="unreadMsgDesc" aria-label={intl.formatMessage(intlMessages.unreadSingular)} />
+                    : <div id="unreadMsgDesc" aria-label={intl.formatMessage(intlMessages.unreadPlural)} />}
+                </div>
+              </div>
+              : null}
         </Link>
       </li>
     );
