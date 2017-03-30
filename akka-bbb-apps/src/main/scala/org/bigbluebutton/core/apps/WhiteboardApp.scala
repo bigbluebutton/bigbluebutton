@@ -43,23 +43,12 @@ trait WhiteboardApp {
 
   }
 
-  /*
-  private def initWhiteboard(wbId: String) {
-    if (!wbModel.hasWhiteboard(wbId)) {
-      wbModel.createWhiteboard(wbId)
-    }
-  }
-  */
-
   def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
     //println("WB: Received page history [" + msg.whiteboardId + "]")
     val history = wbModel.getHistory(msg.whiteboardId);
     if (history.length > 0) {
       outGW.send(new GetWhiteboardShapesReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId, history, msg.replyTo))
     }
-    //wbModel.history(msg.whiteboardId) foreach { wb =>
-    //  outGW.send(new GetWhiteboardShapesReply(mProps.meetingID, mProps.recorded, msg.requesterID, wb.id, wb.shapes.toArray, msg.replyTo))
-    //}
   }
 
   def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {
@@ -72,7 +61,9 @@ trait WhiteboardApp {
 
   def handleUndoWhiteboardRequest(msg: UndoWhiteboardRequest) {
     //    println("WB: Received undo whiteboard")
-
+    wbModel.undoWhiteboard(msg.whiteboardId, msg.requesterID) foreach { last =>
+      outGW.send(new UndoWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId, last.id))
+    }
     // wbModel.getWhiteboard(msg.whiteboardId) foreach { wb =>
     // wbModel.undoWhiteboard(msg.whiteboardId) foreach { last =>
     // outGW.send(new UndoWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wb.id, last.id))

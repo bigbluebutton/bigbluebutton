@@ -86,20 +86,38 @@ class WhiteboardModel {
   }
   */
 
-  /*
-  def undoWhiteboard(wbId: String): Option[AnnotationVO] = {
+  def undoWhiteboard(wbId: String, userId: String): Option[AnnotationVO] = {
     var last: Option[AnnotationVO] = None
-    getWhiteboard(wbId) foreach { wb =>
-      if (!wb.shapes.isEmpty) {
-        last = Some(wb.shapes.last)
-        val remaining = wb.shapes.dropRight(1)
-        val newWb = wb.copy(shapes = remaining)
+    val wb = getWhiteboard(wbId)
+
+    if (_multiUser) {
+      val usersShapes = getShapesByUserId(wb, userId)
+
+      //not empty and head id equals shape id
+      if (!usersShapes.isEmpty) {
+        last = Some(usersShapes.head)
+
+        val newWb = removeHeadShape(wb, userId, usersShapes)
+        //println("Removing shape on page [" + wb.id + "]. After numShapes=[" + getShapesByUserId(wb, userId).length + "].")
+        saveWhiteboard(newWb)
+      }
+    } else {
+      if (wb.shapesMap.nonEmpty) {
+        val lastElement = wb.shapesMap.maxBy(_._2.head.position)
+        val lastList = lastElement._2
+        last = Some(lastList.head)
+        val newWb = removeHeadShape(wb, lastElement._1, lastList)
+        //println("Removing shape on page [" + wb.id + "]. After numShapes=[" + getShapesByUserId(wb, userId).length + "].")
         saveWhiteboard(newWb)
       }
     }
     last
   }
-  */
+
+  private def removeHeadShape(wb: Whiteboard, key: String, list: List[AnnotationVO]): Whiteboard = {
+    val newShapesMap = if (list.tail == Nil) wb.shapesMap - key else wb.shapesMap + (key -> list.tail)
+    wb.copy(shapesMap = newShapesMap)
+  }
 
   def modifyWhiteboardAccess(multiUser: Boolean) {
     _multiUser = multiUser

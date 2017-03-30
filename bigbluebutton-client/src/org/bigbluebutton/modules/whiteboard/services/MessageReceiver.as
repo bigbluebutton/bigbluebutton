@@ -74,8 +74,8 @@ package org.bigbluebutton.modules.whiteboard.services
 
     private function handleUndoCommand(message:Object):void {
       var map:Object = JSON.parse(message.msg);      
-      if (map.hasOwnProperty("whiteboardId")) {
-        whiteboardModel.undo(map.whiteboardId);
+      if (map.hasOwnProperty("whiteboardId") && map.hasOwnProperty("shapeId")) {
+        whiteboardModel.removeAnnotation(map.whiteboardId, map.shapeId);
       }
     }
 

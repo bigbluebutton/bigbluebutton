@@ -122,7 +122,7 @@ package org.bigbluebutton.modules.whiteboard.managers
     }
 		
 		public function undoAnnotation(event:WhiteboardUpdate):void {
-      displayModel.undoAnnotation(event.annotationID);
+			displayModel.undoAnnotation(event.annotation);
 		}
 		
 		public function toggleGrid(event:ToggleGridEvent = null):void {

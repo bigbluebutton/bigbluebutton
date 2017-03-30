@@ -105,8 +105,17 @@ package org.bigbluebutton.modules.whiteboard.models
       _dispatcher.dispatchEvent(new WhiteboardShapesEvent(wb.id));
     }
         
-		public function removeAnnotation(id:String):void {
-			
+		public function removeAnnotation(wbId:String, shapeId:String):void {
+			LOGGER.debug("Removing annotation");
+			var wb:Whiteboard = getWhiteboard(wbId);
+			if (wb != null) {
+				var removedAnnotation:Annotation = wb.undo(shapeId);
+				if (removedAnnotation != null) {
+					var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION);
+					e.annotation = removedAnnotation;
+					_dispatcher.dispatchEvent(e);
+				}
+			}
 		}
 		
     public function getAnnotation(id:String):Annotation {
@@ -128,16 +137,6 @@ package org.bigbluebutton.modules.whiteboard.models
       // Just return an empty array.
       return new Array();
     }
-        
-		public function undo(wbId:String):void {
-      LOGGER.debug("Undoing whiteboard");
-      var wb:Whiteboard = getWhiteboard(wbId);
-      if (wb != null) {
-        wb.undo();
-        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION));
-      }
-      
-		}
 		
 		public function clear(wbId:String = null):void {
       LOGGER.debug("Clearing whiteboard");

@@ -299,10 +299,13 @@ package org.bigbluebutton.modules.whiteboard
       wbCanvas.textToolbar.visible = false;
     }
     
-    public function undoAnnotation(id:String):void {
-      /** We'll just remove the last annotation for now **/
+    public function undoAnnotation(annotation:Annotation):void {
       if (this._annotationsList.length > 0) {
-        removeLastGraphic();
+        if (annotation.type == DrawObject.TEXT) {
+          removeText(annotation.id);
+        } else {
+          removeGraphic(annotation.id);
+        }
       }
     }
         
