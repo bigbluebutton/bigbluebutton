@@ -952,16 +952,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onSelectTab():void {
-				if (presenterTabs.selectedIndex != currentTabIndex) {
-					if(presenterTabs.selectedIndex == PRESENTATION_TAB_INDEX) {
+				if (presenterTabs.selectedIndex == currentTabIndex) return;
+
+				switch (presenterTabs.selectedIndex) {
+					case PRESENTATION_TAB_INDEX:
 						handlePresentationTabSelected();
-					} else if (presenterTabs.selectedIndex == DESKSHARE_PUBLISH_TAB_INDEX) {
+						break;
+					case DESKSHARE_PUBLISH_TAB_INDEX:
 						handleDesktopPublishTabSelected();
-					} else {
+						break;
+					case DESKSHARE_VIEW_TAB_INDEX:
 						handleDesktopViewTabSelected();
-					}
-					updateDownloadBtn();
+						break;
+					default:
+						break;
 				}
+				updateDownloadBtn();
 				callLater(fitSlideToWindowMaintainingAspectRatio);
 			}
 
