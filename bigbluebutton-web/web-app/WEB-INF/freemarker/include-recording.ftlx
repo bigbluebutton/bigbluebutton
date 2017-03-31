@@ -48,7 +48,12 @@
     <type>${pb.getFormat()}</type>
     <url>${pb.getLink()}</url>
     <processingTime>${pb.getProcessingTime()?c}</processingTime>
-    <length>${pb.getDuration()?c}</length>
+
+    <#if pb.getDuration() == 0>
+        <length>${r.calculateDuration()?c}</length>
+    <#else>
+        <length>${pb.calculateDuration()?c}</length>
+    </#if>
 
     <#if pb.getExtensions()??>
     <#if pb.getExtensions().getPreview()??>
@@ -59,14 +64,14 @@
         <images>
             <#items as image>
             <#if image??>
-            <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()?html}">${image.getValue()!"Link not found."}</image>
+                <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()?html}">${image.getValue()!"Link not found."}</image>
+            </#if>
+            </#items>
+        </images>
+        </#list>
         </#if>
-    </#items>
-</images>
-</#list>
-        </#if>
-        </preview>
-        </#if>
-        </#if>
-        </format>
-        </playback>
+    </preview>
+    </#if>
+    </#if>
+</format>
+</playback>
