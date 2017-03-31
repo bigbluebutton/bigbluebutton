@@ -1,9 +1,9 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { getVoiceBridge } from '/imports/ui/components/audio/service';
-import BaseAudioService from './base';
+import BaseAudioBridge from './base';
 
-export default class VertoService extends BaseAudioService {
+export default class VertoBridge extends BaseAudioBridge {
   constructor() {
     super();
   }

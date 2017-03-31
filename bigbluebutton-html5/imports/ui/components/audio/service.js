@@ -3,7 +3,7 @@ import AudioModal from './audio-modal/component';
 import Meetings from '/imports/api/meetings';
 
 import { showModal } from '/imports/ui/components/app/service';
-import AudioAPI from '/imports/api/audio/client/bridge'
+import AudioManager from '/imports/api/audio/client/bridge'
 
 const handleJoinAudio = () => {
   const handleJoinListenOnly = () => joinListenOnly();
@@ -14,10 +14,9 @@ const getVoiceBridge = () => {
   return Meetings.findOne({}).voiceConf;
 } ;
 
-const audioAPI = new AudioAPI();
-let exitAudio = () => audioAPI.exitAudio();
-let joinListenOnly = () => audioAPI.joinListenOnly();
-let joinMicrophone = () => audioAPI.joinMicrophone();
+let exitAudio = () => AudioManager.exitAudio();
+let joinListenOnly = () => AudioManager.joinAudio(true);
+let joinMicrophone = () => AudioManager.joinAudio(false);
 
 export {
   handleJoinAudio,

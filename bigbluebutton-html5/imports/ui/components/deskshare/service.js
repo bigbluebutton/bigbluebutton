@@ -1,8 +1,8 @@
 import Deskshare from '/imports/api/deskshare';
-import VertoAPI from '/imports/api/audio/client/bridge/verto';
+import VertoBridge from '/imports/api/audio/client/bridge/verto';
 import Auth from '/imports/ui/services/auth';
 
-const vertoAPI = new VertoAPI();
+const vertoBridge = new VertoBridge();
 
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video
@@ -30,12 +30,12 @@ function videoIsBroadcasting() {
 
 // if remote deskshare has been ended disconnect and hide the video stream
 function presenterDeskshareHasEnded() {
-  // vertoAPI.exitVoiceCall();
+  // vertoBridge.exitVoiceCall();
 };
 
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
-  vertoAPI.vertoWatchVideo();
+  vertoBridge.vertoWatchVideo();
 };
 
 export {

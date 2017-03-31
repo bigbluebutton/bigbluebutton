@@ -1,4 +1,4 @@
-export default class BaseAudioService {
+export default class BaseAudioBridge {
   constructor() {
   }
 

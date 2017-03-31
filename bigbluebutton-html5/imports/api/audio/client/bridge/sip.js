@@ -1,7 +1,7 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import BaseAudioService from './base';
+import BaseAudioBridge from './base';
 
 import {callServer} from '/imports/ui/services/api';
 import { getVoiceBridge } from '/imports/ui/components/audio/service';
@@ -11,7 +11,7 @@ const MEDIA_CONFIG = Meteor.settings.public.media;
 
 let triedHangup = false;
 
-export default class SIPService extends BaseAudioService {
+export default class SIPBridge extends BaseAudioBridge {
   constructor() {
     super();
   }
@@ -133,6 +133,5 @@ export default class SIPService extends BaseAudioService {
       }
     }, options.isListenOnly, st);
   }
-
 
 }
