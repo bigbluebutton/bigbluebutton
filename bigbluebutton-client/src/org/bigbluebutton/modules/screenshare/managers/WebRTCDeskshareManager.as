@@ -51,6 +51,7 @@ package org.bigbluebutton.modules.screenshare.managers
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
 		private var chromeExtensionKey:String = null;
+		private var webRTCAudioFailed:Boolean = false;
 
 		public function WebRTCDeskshareManager() {
 			LOGGER.debug("WebRTCDeskshareManager::WebRTCDeskshareManager");
@@ -186,7 +187,7 @@ package org.bigbluebutton.modules.screenshare.managers
 				startWebRTCDeskshare();
 			};
 
-			if (options.tryWebRTCFirst && BrowserCheck.isWebRTCSupported()) {
+			if (options.tryWebRTCFirst && BrowserCheck.isWebRTCSupported() && BrowserCheck.isHttps()) {
 				LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent WebRTC Supported");
 				if (BrowserCheck.isFirefox()) {
 					onSuccess("Firefox, lets try");
@@ -224,6 +225,12 @@ package org.bigbluebutton.modules.screenshare.managers
 		/*handle start sharing event*/
 		public function handleStartSharingEvent():void {
 			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
+			if (webRTCAudioFailed) {
+                               usingWebRTC = false;
+                               globalDispatcher.dispatchEvent(new UseJavaModeCommand());
+                               return;
+                       }
+
 			canIUseVertoOnThisBrowser();
 		}
 
@@ -293,5 +300,9 @@ package org.bigbluebutton.modules.screenshare.managers
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START));
 		}
+
+		public function handleUseFlashModeCommand():void {
+                       webRTCAudioFailed = true;
+                }
 	}
 }

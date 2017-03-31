@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
+			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
 		]]>
 	</mx:Script>
 
@@ -131,8 +132,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 
-	<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
-		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
-	</EventHandlers>
+        <!--
+        This is when the WebRTC deskshare manager detects that either WebRTC is
+        not supported, one one of the requirements (browser version, extension,
+        etc) is not met so it issues a fallback to Java deskshare event
+        -->
+        <EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
+                <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
+        </EventHandlers>
 
+        <!--
+        This is when the phone module's WebRTC call manager detects a problem
+        trying to make a WebRTC calls and emits an event for the flash
+        call manager. The WebRTC deskshare manager will listen for this and
+        automatically fallback to flash
+        -->
+        <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">
+                <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseFlashModeCommand"/>
+        </EventHandlers>
 </EventMap>
