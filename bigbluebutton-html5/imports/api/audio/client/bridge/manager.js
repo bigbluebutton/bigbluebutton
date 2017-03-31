@@ -16,7 +16,7 @@ export default class AudioBridge {
 
   joinAudio(listenOnly) {
     if (listenOnly) {
-      callServer('listenOnlyRequestToggle', true);
+      callServer('listenOnlyToggle', true);
       this.bridge.joinListenOnly();
     } else {
       this.bridge.joinMicrophone();

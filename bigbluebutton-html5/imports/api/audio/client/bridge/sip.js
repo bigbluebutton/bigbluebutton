@@ -23,7 +23,7 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   joinListenOnly() {
-    callServer('listenOnlyRequestToggle', true);
+    callServer('listenOnlyToggle', true);
     this._joinVoiceCallSIP({ isListenOnly: true });
   }
 
@@ -54,7 +54,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
         // notify BBB-apps we are leaving the call call if we are listen only
         if (this._amIListenOnly()) {
-          callServer('listenOnlyRequestToggle', false);
+          callServer('listenOnlyToggle', false);
         }
 
         window.webrtc_hangup(hangupCallback);
