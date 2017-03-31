@@ -356,21 +356,6 @@ public class MeetingService implements MessageListener {
                 message.externUserID, message.authToken, message.avatarURL, message.guest);
     }
 
-    public String addSubscription(String meetingId, String event,
-            String callbackURL) {
-        String sid = messagingService.storeSubscription(meetingId, event,
-                callbackURL);
-        return sid;
-    }
-
-    public boolean removeSubscription(String meetingId, String subscriptionId) {
-        return messagingService.removeSubscription(meetingId, subscriptionId);
-    }
-
-    public List<Map<String, String>> listSubscriptions(String meetingId) {
-        return messagingService.listSubscriptions(meetingId);
-    }
-
     public Meeting getMeeting(String meetingId) {
         if (meetingId == null)
             return null;
