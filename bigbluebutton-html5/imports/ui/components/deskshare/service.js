@@ -7,37 +7,30 @@ const vertoBridge = new VertoBridge();
 // when the meeting information has been updated check to see if it was
 // desksharing. If it has changed either trigger a call to receive video
 // and display it, or end the call and hide the video
-function videoIsBroadcasting() {
+function isVideoBroadcasting() {
   const ds = Deskshare.findOne({});
   if (ds == null || !ds.broadcasting) {
-    console.log('Deskshare broadcasting has ended');
-    presenterDeskshareHasEnded();
     return false;
   }
 
-  if (ds.broadcasting) {
-    console.log('Deskshare is now broadcasting');
-    if (ds.startedBy != Auth.userID) {
-      console.log('deskshare wasn\'t initiated by me');
-      presenterDeskshareHasStarted();
-      return true;
-    } else {
-      presenterDeskshareHasEnded();
-      return false;
-    }
-  }
+  return (ds.broadcasting && ds.startedBy != Auth.userID);
 }
 
 // if remote deskshare has been ended disconnect and hide the video stream
 function presenterDeskshareHasEnded() {
-  // vertoBridge.exitVoiceCall();
+  // references a functiion in the global namespace inside verto_extension.js
+  // that we load dynamically
+  vertoBridge.vertoExitVideo();
 };
 
 // if remote deskshare has been started connect and display the video stream
 function presenterDeskshareHasStarted() {
+  // references a functiion in the global namespace inside verto_extension.js
+  // that we load dynamically
   vertoBridge.vertoWatchVideo();
 };
 
 export {
-  videoIsBroadcasting, presenterDeskshareHasEnded, presenterDeskshareHasStarted
+  isVideoBroadcasting, presenterDeskshareHasEnded, presenterDeskshareHasStarted,
 };
+

@@ -9,8 +9,8 @@ export default class VertoBridge extends BaseAudioBridge {
   }
 
   createVertoUserName() {
-    const uid = Auth.userID;
-    const uName = Users.findOne({ userId: uid }).user.name;
+    const userId = Auth.userID;
+    const uName = Users.findOne({ userId }).user.name;
     const conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
     return conferenceUsername;
   }
@@ -43,14 +43,7 @@ export default class VertoBridge extends BaseAudioBridge {
       getVoiceBridge(),
       this.createVertoUserName(),
       null,
-    );
-  }
-
-  shareVertoScreen() {
-    vertoManager.shareScreen(
-      'deskshareVideo',
-      getVoiceBridge(),
-      this.createVertoUserName(),
+      null,
       null,
     );
   }

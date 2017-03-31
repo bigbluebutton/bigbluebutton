@@ -60,11 +60,11 @@
   <message>${message}</message>
   </#if>
 
+  <isBreakout>${meeting.isBreakout()?c}</isBreakout>
+
   <#if meeting.isBreakout()>
-    <breakout>
      <parentMeetingID>${meeting.getParentMeetingId()}</parentMeetingID>
      <sequence>${meeting.getSequence()}</sequence>
-    </breakout>
   </#if>
 
   <#list meeting.getBreakoutRooms()>

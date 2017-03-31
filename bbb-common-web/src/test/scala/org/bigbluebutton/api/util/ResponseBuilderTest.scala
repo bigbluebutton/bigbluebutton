@@ -3,6 +3,7 @@ package org.bigbluebutton.api.util
 import java.io.File
 import java.util
 
+import org.apache.commons.io.FileUtils
 import org.bigbluebutton.api.domain.{Meeting, RecordingMetadata, User}
 import org.scalatest._
 
@@ -193,6 +194,40 @@ class ResponseBuilderTest extends UnitSpec {
     recList.add(recMeta)
     def response = builder.buildGetRecordingsResponse(recList, "success")
     println(response)
+
+    assert(templateLoc.exists())
+  }
+
+  it should "support old metadata.xml in getRecordings api call" in {
+    val templateLoc = new File("src/test/resources")
+    val builder = new ResponseBuilder(templateLoc)
+
+    // Make a copy of our sample recording
+    val destDir = new File("target/recording-metadata/presentation")
+    if (destDir.exists()) FileUtils.deleteDirectory(destDir)
+
+    val srcDir = new File("src/test/resources/recording-metadata/presentation")
+    FileUtils.copyDirectory(srcDir, destDir)
+
+    val recDirs = destDir.listFiles()
+    val recList = new util.ArrayList[RecordingMetadata]()
+    println("START **********************")
+
+    recDirs.map {rec =>
+      val metadataXml = new File(rec.getAbsolutePath + File.separatorChar + "metadata.xml")
+    //  println(metadataXml.getAbsolutePath)
+      val recMeta = RecordingMetadataReaderHelper.getRecordingMetadata(metadataXml);
+    //  val recList = new util.ArrayList[RecordingMetadata]()
+    //  println("START **********************")
+      if (recMeta != null) recList.add(recMeta)
+    //  val response = builder.buildGetRecordingsResponse(recList, "success")
+    //  println(response)
+    //  println("END **********************")
+    }
+
+    val response = builder.buildGetRecordingsResponse(recList, "success")
+    println(response)
+    println("END **********************")
 
     assert(templateLoc.exists())
   }

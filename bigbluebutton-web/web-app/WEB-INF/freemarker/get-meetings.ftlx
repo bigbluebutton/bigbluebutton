@@ -57,11 +57,11 @@
         </#list>
         </metadata>
 
+        <isBreakout>${meetingDetail.meeting.isBreakout()?c}</isBreakout>
+
         <#if meetingDetail.meeting.isBreakout()>
-          <breakout>
            <parentMeetingID>${meetingDetail.meeting.getParentMeetingId()}</parentMeetingID>
            <sequence>${meetingDetail.meeting.getSequence()}</sequence>
-          </breakout>
         </#if>
 
         <#list meetingDetail.meeting.getBreakoutRooms()>

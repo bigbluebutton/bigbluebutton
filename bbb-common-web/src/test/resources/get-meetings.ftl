@@ -1,12 +1,12 @@
 <#-- GET_RECORDINGS FreeMarker XML template -->
 <response>
-  <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
-  <returncode>${returnCode}</returncode>
-  <#list meetingDetailsList>
-  <meetings>
+<#-- Where code is a 'SUCCESS' or 'FAILED' String -->
+<returncode>${returnCode}</returncode>
+<#list meetingDetailsList>
+<meetings>
     <#items as meetingDetail>
-      <#assign meeting = meetingDetail.getMeeting()>
-      <meeting>
+    <#assign meeting = meetingDetail.getMeeting()>
+    <meeting>
         <meetingName>${meeting.getName()}</meetingName>
         <meetingID>${meeting.getExternalId()}</meetingID>
         <internalMeetingID>${meeting.getInternalId()}</internalMeetingID>
@@ -30,49 +30,49 @@
         <maxUsers>${meeting.getMaxUsers()}</maxUsers>
         <moderatorCount>${meeting.getNumModerators()}</moderatorCount>
         <attendees>
-        <#list meetingDetail.meeting.getUsers() as att>
-          <attendee>
-              <userID>${att.getInternalUserId()}</userID>
-              <fullName>${att.getFullname()}</fullName>
-              <role>${att.getRole()}</role>
-              <isPresenter>${att.isPresenter()?c}</isPresenter>
-              <isListeningOnly>${att.isListeningOnly()?c}</isListeningOnly>
-              <hasJoinedVoice>${att.isVoiceJoined()?c}</hasJoinedVoice>
-              <hasVideo>${att.hasVideo()?c}</hasVideo>
-              <#if meeting.getUserCustomData(att.getExternalUserId())??>
-                  <#assign ucd = meetingDetail.meeting.getUserCustomData(att.getExternalUserId())>
-                  <customdata>
-                      <#list ucd?keys as prop>
-                          <${prop}><![CDATA[${ucd[prop]}]]></${prop}>
-                      </#list>
-                  </customdata>
-              </#if>
-          </attendee>
-        </#list>
+            <#list meetingDetail.meeting.getUsers() as att>
+            <attendee>
+                <userID>${att.getInternalUserId()}</userID>
+                <fullName>${att.getFullname()}</fullName>
+                <role>${att.getRole()}</role>
+                <isPresenter>${att.isPresenter()?c}</isPresenter>
+                <isListeningOnly>${att.isListeningOnly()?c}</isListeningOnly>
+                <hasJoinedVoice>${att.isVoiceJoined()?c}</hasJoinedVoice>
+                <hasVideo>${att.hasVideo()?c}</hasVideo>
+                <#if meeting.getUserCustomData(att.getExternalUserId())??>
+                <#assign ucd = meetingDetail.meeting.getUserCustomData(att.getExternalUserId())>
+                <customdata>
+                    <#list ucd?keys as prop>
+                    <${prop}><![CDATA[${ucd[prop]}]]></${prop}>
+            </#list>
+        </customdata>
+    </#if>
+</attendee>
+</#list>
         </attendees>
-        <#assign m = meetingDetail.meeting.getMetadata()>
-        <metadata>
-        <#list m?keys as prop>
-           <${prop}><![CDATA[${m[prop]}]]></${prop}>
+<#assign m = meetingDetail.meeting.getMetadata()>
+<metadata>
+<#list m?keys as prop>
+<${prop}><![CDATA[${m[prop]}]]></${prop}>
         </#list>
         </metadata>
 
-        <#if meetingDetail.meeting.isBreakout()>
-          <breakout>
-           <parentMeetingID>${meetingDetail.meeting.getParentMeetingId()}</parentMeetingID>
-           <sequence>${meetingDetail.meeting.getSequence()}</sequence>
-          </breakout>
+<isBreakout>${meetingDetail.meeting.isBreakout()?c}</isBreakout>
+
+<#if meetingDetail.meeting.isBreakout()>
+<parentMeetingID>${meetingDetail.meeting.getParentMeetingId()}</parentMeetingID>
+<sequence>${meetingDetail.meeting.getSequence()}</sequence>
         </#if>
 
-        <#list meetingDetail.meeting.getBreakoutRooms()>
-           <breakoutRooms>
-           <#items as room>
-              <breakout>${room}</breakout>
-           </#items>
-           </breakoutRooms>
+<#list meetingDetail.meeting.getBreakoutRooms()>
+<breakoutRooms>
+<#items as room>
+<breakout>${room}</breakout>
+</#items>
+        </breakoutRooms>
         </#list>
-      </meeting>
-    </#items>
-  </meetings>
-  </#list>
-</response>
+        </meeting>
+        </#items>
+        </meetings>
+        </#list>
+        </response>
