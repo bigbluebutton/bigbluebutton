@@ -107,6 +107,10 @@
 			private const KICK_USER:String = "Kick User";
 			private const MUTE_USER:String = "Mute User";
 			private const MUTE_ALL_USER:String = "Mute All User";
+
+			private const STATUS_GRID_WIDTH:int = 56;
+			private const NAME_GRID_MIN_WIDTH:int = 80;
+			private const MEDIA_GRID_WIDTH:int = 112;
 			
 			private var muteMeRolled:Boolean = false;
 			
@@ -516,13 +520,14 @@
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)" 
 		tabIndex="{partOptions.baseTabIndex+5}"
+		minWidth="{STATUS_GRID_WIDTH + NAME_GRID_MIN_WIDTH + MEDIA_GRID_WIDTH}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="56" resizable="false"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="{STATUS_GRID_WIDTH}" resizable="false"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
-    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" width="112" resizable="false"
+    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" width="{MEDIA_GRID_WIDTH}" resizable="false"
     			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
     	</mx:columns>
     </mx:DataGrid>
