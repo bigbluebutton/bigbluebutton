@@ -195,4 +195,13 @@ public class RecordingMetadata {
   public Boolean hasError() {
     return processingError;
   }
+
+  public Integer calculateDuration() {
+    if ((endTime == null) || (endTime == "") || (startTime == null) || (startTime == "")) return 0;
+
+    int start = (int) Math.ceil((Long.parseLong(startTime)) / 60000.0);
+    int end = (int) Math.ceil((Long.parseLong(endTime)) / 60000.0);
+
+    return end - start;
+  }
 }
