@@ -78,15 +78,8 @@ SERVLET_DIR=/var/lib/$SERVLET_CONTAINER/webapps
 
 FREESWITCH_VARS=/opt/freeswitch/conf/vars.xml
 FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
-FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
+FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
-
-if [ ! -d /opt/freeswitch/conf ]; then
-	FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
-	FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
-	FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
-	FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
-fi
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
