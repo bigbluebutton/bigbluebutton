@@ -11,8 +11,8 @@ Verto = function (
   this.share_call = null;
   this.vertoHandle;
 
-  this.vid_width = window.screen.width;
-  this.vid_height = window.screen.height;
+  this.vid_width = Math.max(window.screen.width, 1920);
+  this.vid_height = Math.max(window.screen.height, 1080);
 
   this.outgoingBandwidth = "default";
   this.incomingBandwidth = "default";
@@ -360,8 +360,6 @@ Verto.prototype.makeShare = function () {
       screenInfo = {
         chromeMediaSource: "desktop",
         chromeMediaSourceId: constraints.streamId,
-        maxWidth: window.screen.width > 1920 ? window.screen.width : 1920,
-        maxHeight: window.screen.height > 1080 ? window.screen.height : 1080
       };
 
       _this.logger(screenInfo);
