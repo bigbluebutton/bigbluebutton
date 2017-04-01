@@ -29,6 +29,14 @@ require 'fileutils'
 # Number of seconds to delay archiving (red5 race condition workaround)
 ARCHIVE_DELAY_SECONDS = 120
 
+def record_id_to_timestamp(r)
+    r.split("-")[1].to_i / 1000
+end
+
+def done_to_timestamp(r)
+    record_id_to_timestamp(File.basename(r, ".done"))
+end
+
 def archive_recorded_meeting(recording_dir)
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
 
@@ -119,7 +127,7 @@ def process_archived_meeting(recording_dir)
   sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
 
   FileUtils.mkdir_p("#{recording_dir}/status/processed")
-  sanity_done_files.each do |sanity_done|
+  sanity_done_files.sort{ |a,b| done_to_timestamp(a) <=> done_to_timestamp(b) }.each do |sanity_done|
     match = /([^\/]*).done$/.match(sanity_done)
     meeting_id = match[1]
 
@@ -188,7 +196,7 @@ def publish_processed_meeting(recording_dir)
   processed_done_files = Dir.glob("#{recording_dir}/status/processed/*.done")
 
   FileUtils.mkdir_p("#{recording_dir}/status/published")
-  processed_done_files.each do |processed_done|
+  processed_done_files.sort{ |a,b| done_to_timestamp(a) <=> done_to_timestamp(b) }.each do |processed_done|
     match = /([^\/]*)-([^\/-]*).done$/.match(processed_done)
     meeting_id = match[1]
     process_type = match[2]
