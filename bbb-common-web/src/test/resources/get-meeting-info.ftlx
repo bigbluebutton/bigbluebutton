@@ -1,16 +1,16 @@
-<#-- GET_RECORDINGS FreeMarker XML template -->
+<#compress>
 <response>
   <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
   <returncode>${returnCode}</returncode>
-  <meetingName>${meeting.getName()}</meetingName>
-  <meetingID>${meeting.getExternalId()}</meetingID>
+  <meetingName>${meeting.getName()?html}</meetingName>
+  <meetingID>${meeting.getExternalId()?html}</meetingID>
   <internalMeetingID>${meeting.getInternalId()}</internalMeetingID>
   <createTime>${meeting.getCreateTime()?c}</createTime>
   <createDate>${createdOn}</createDate>
   <voiceBridge>${meeting.getTelVoice()}</voiceBridge>
   <dialNumber>${meeting.getDialNumber()}</dialNumber>
-  <attendeePW>${meeting.getViewerPassword()}</attendeePW>
-  <moderatorPW>${meeting.getModeratorPassword()}</moderatorPW>
+  <attendeePW>${meeting.getViewerPassword()?html}</attendeePW>
+  <moderatorPW>${meeting.getModeratorPassword()?html}</moderatorPW>
   <running>${meeting.isRunning()?c}</running>
   <duration>${meeting.getDuration()}</duration>
   <hasUserJoined>${meeting.hasUserJoined()?c}</hasUserJoined>
@@ -28,7 +28,7 @@
   <#list meeting.getUsers() as att>
     <attendee>
         <userID>${att.getInternalUserId()}</userID>
-        <fullName>${att.getFullname()}</fullName>
+        <fullName>${att.getFullname()?html}</fullName>
         <role>${att.getRole()}</role>
         <isPresenter>${att.isPresenter()?c}</isPresenter>
         <isListeningOnly>${att.isListeningOnly()?c}</isListeningOnly>
@@ -38,7 +38,7 @@
             <#assign ucd = meeting.getUserCustomData(att.getExternalUserId())>
             <customdata>
                 <#list ucd?keys as prop>
-                    <${prop}><![CDATA[${ucd[prop]}]]></${prop}>
+                    <${(prop)?html}>${(ucd[prop])?html}</${(prop)?html}>
                 </#list>
             </customdata>
         </#if>
@@ -48,7 +48,7 @@
   <#assign m = meeting.getMetadata()>
   <metadata>
   <#list m?keys as prop>
-     <${prop}><![CDATA[${m[prop]}]]></${prop}>
+     <${(prop)?html}>${(m[prop])?html}</${(prop)?html}>
   </#list>
   </metadata>
 
@@ -60,11 +60,11 @@
   <message>${message}</message>
   </#if>
 
+  <isBreakout>${meeting.isBreakout()?c}</isBreakout>
+
   <#if meeting.isBreakout()>
-    <breakout>
      <parentMeetingID>${meeting.getParentMeetingId()}</parentMeetingID>
      <sequence>${meeting.getSequence()}</sequence>
-    </breakout>
   </#if>
 
   <#list meeting.getBreakoutRooms()>
@@ -76,3 +76,4 @@
   </#list>
 
 </response>
+</#compress>
