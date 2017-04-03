@@ -140,14 +140,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
                 <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
         </EventHandlers>
-
-        <!--
-        This is when the phone module's WebRTC call manager detects a problem
-        trying to make a WebRTC calls and emits an event for the flash
-        call manager. The WebRTC deskshare manager will listen for this and
-        automatically fallback to flash
-        -->
-        <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">
-                <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseFlashModeCommand"/>
-        </EventHandlers>
 </EventMap>

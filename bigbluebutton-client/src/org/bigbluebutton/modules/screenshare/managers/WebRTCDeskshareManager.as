@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.screenshare.managers
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.modules.phone.models.WebRTCAudioStatus;
 	import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
 	import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
@@ -51,7 +52,6 @@ package org.bigbluebutton.modules.screenshare.managers
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
 		private var chromeExtensionKey:String = null;
-		private var webRTCAudioFailed:Boolean = false;
 
 		public function WebRTCDeskshareManager() {
 			LOGGER.debug("WebRTCDeskshareManager::WebRTCDeskshareManager");
@@ -225,11 +225,11 @@ package org.bigbluebutton.modules.screenshare.managers
 		/*handle start sharing event*/
 		public function handleStartSharingEvent():void {
 			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
-			if (webRTCAudioFailed) {
+			if (WebRTCAudioStatus.getInstance().getDidWebRTCAudioFail()) {
                                usingWebRTC = false;
                                globalDispatcher.dispatchEvent(new UseJavaModeCommand());
                                return;
-                       }
+			}
 
 			canIUseVertoOnThisBrowser();
 		}
@@ -300,9 +300,5 @@ package org.bigbluebutton.modules.screenshare.managers
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START));
 		}
-
-		public function handleUseFlashModeCommand():void {
-                       webRTCAudioFailed = true;
-                }
 	}
 }
