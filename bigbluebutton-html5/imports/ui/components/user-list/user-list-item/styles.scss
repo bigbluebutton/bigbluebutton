@@ -38,8 +38,7 @@
   margin-left: $sm-padding-x;
   justify-content: center;
   font-size: 0.95rem;
-  width: 30ch;
-  background-color: yellow;
+  width: 20rem;
 }
 
 .userNameMain {
@@ -157,12 +156,12 @@
 .dropdownContent {
   cursor: default;
   min-width: 10vw;
+  width: 20rem;
 }
 
 .actionsHeader {
   @extend %text-elipsis;
   color: $color-gray;
-  width: 30ch;
 
   &:hover {
     color: $color-gray !important;
