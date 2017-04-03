@@ -166,6 +166,8 @@ class UserListItem extends Component {
 
     return (
       <li
+        role="button"
+        aria-haspopup="true"
         className={cx(styles.userListItem, userItemContentsStyle)}>
         {this.renderUserContents()}
       </li>
@@ -249,12 +251,12 @@ class UserListItem extends Component {
 
     return (
       <div className={styles.userName}>
-        <h3 className={styles.userNameMain}>
+        <span className={styles.userNameMain}>
           {user.name}
-        </h3>
-        <p className={styles.userNameSub}>
+        </span>
+        <span className={styles.userNameSub}>
           {userNameSub}
-        </p>
+        </span>
       </div>
     );
   }

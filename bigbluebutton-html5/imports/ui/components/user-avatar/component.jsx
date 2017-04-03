@@ -32,10 +32,8 @@ export default class UserAvatar extends Component {
 
     return (
       <div className={!user.isLoggedOut ? styles.userAvatar : styles.userLogout}
-           style={avatarStyles}>
-        <span>
-          {this.renderAvatarContent()}
-        </span>
+           style={avatarStyles} aria-hidden="true">
+        {this.renderAvatarContent()}
         {this.renderUserStatus()}
         {this.renderUserMediaStatus()}
       </div>
