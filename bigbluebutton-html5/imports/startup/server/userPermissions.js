@@ -8,6 +8,7 @@ const presenter = {
   //poll
   subscribePoll: true,
   subscribeAnswers: true,
+
 };
 
 // holds the values for whether the moderator user is allowed to perform an action (true)
@@ -27,6 +28,8 @@ const moderator = {
   // muting
   muteSelf: true,
   unmuteSelf: true,
+  muteOther: true,
+  unmuteOther: true,
 
   logoutSelf: true,
 
@@ -76,9 +79,9 @@ const viewer = function (meetingId, userId) {
     // muting
     muteSelf: true,
     unmuteSelf:
-      !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+      !((meeting = Meetings.findOne({ meetingId })) != null &&
         meeting.roomLockSettings.disableMic) ||
-      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+      !((user = Users.findOne({ meetingId, userId })) != null &&
         user.user.locked),
 
     logoutSelf: true,
@@ -88,15 +91,15 @@ const viewer = function (meetingId, userId) {
     subscribeChat: true,
 
     //chat
-    chatPublic: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+    chatPublic: !((meeting = Meetings.findOne({ meetingId })) != null &&
       meeting.roomLockSettings.disablePublicChat) ||
-      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+      !((user = Users.findOne({ meetingId, userId })) != null &&
       user.user.locked) ||
       (user != null && user.user.presenter),
 
-    chatPrivate: !((meeting = Meetings.findOne({ meetingId: meetingId })) != null &&
+    chatPrivate: !((meeting = Meetings.findOne({ meetingId })) != null &&
       meeting.roomLockSettings.disablePrivateChat) ||
-      !((user = Users.findOne({ meetingId: meetingId, userId: userId })) != null &&
+      !((user = Users.findOne({ meetingId, userId })) != null &&
       user.user.locked) ||
       (user != null && user.user.presenter),
 
@@ -120,70 +123,42 @@ export function isAllowedTo(action, credentials) {
   const userId = credentials.requesterUserId;
   const authToken = credentials.requesterToken;
 
-  let user;
-  let validated;
-
-  user = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
-  });
-  if (user != null) {
-    validated = user.validated;
-  }
-
-  logger.info(
-    `in isAllowedTo: action-${action}, userId=${userId}, ` +
-    `authToken=${authToken} validated:${validated}`
-  );
-  user = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
+  const user = Users.findOne({
+    meetingId,
+    userId,
   });
 
-  // logger.info "user=" + JSON.stringify user
-  if ((user != null) && authToken === user.authToken) { // check if the user is who he claims to be
-    if (user.validated && user.clientType === 'HTML5') {
+  const allowedToInitiateRequest =
+    null != user &&
+    authToken === user.authToken &&
+    user.validated &&
+    'HTML5' === user.clientType &&
+    null != user.user;
 
-      // PRESENTER
-      // check presenter specific actions or fallback to regular viewer actions
-      if (user.user != null && user.user.presenter) {
-        logger.info('user permissions presenter case');
-        return presenter[action] || viewer(meetingId, userId)[action] || false;
+  if (allowedToInitiateRequest) {
+    let result = false;
 
-      // VIEWER
-      } else if (user.user != null && user.user.role === 'VIEWER') {
-        logger.info('user permissions viewer case');
-        return viewer(meetingId, userId)[action] || false;
-
-      // MODERATOR
-      } else if (user.user != null && user.user.role === 'MODERATOR') {
-        logger.info('user permissions moderator case');
-        return moderator[action] || false;
-      } else {
-        logger.warn(`UNSUCCESSFULL ATTEMPT FROM userid=${userId} to perform:${action}`);
-        return false;
-      }
-    } else {
-      // user was not validated
-      if (action === 'logoutSelf') {
-        // on unsuccessful sign-in
-        logger.warn(
-          'a user was successfully removed from the ' +
-          'meeting following an unsuccessful login'
-        );
-        return true;
-      }
-
-      return false;
+    // check role specific actions
+    if ('MODERATOR' === user.user.role) {
+      logger.debug('user permissions moderator case');
+      result = result || moderator[action];
+    } else if ('VIEWER' === user.user.role) {
+      logger.debug('user permissions viewer case');
+      result = result || viewer(meetingId, userId)[action];
     }
-  } else {
-    logger.error(
-      `in meetingId=${meetingId} userId=${userId} tried to perform ${action} ` +
-      `without permission${'\n..while the authToken was ' +
-      (user != null && user.authToken != null ? user.authToken : void 0) +
-      "    and the user's object is " + (JSON.stringify(user))}`
-    );
 
+    // check presenter actions
+    if (user.user.presenter) {
+      logger.debug('user permissions presenter case');
+      result = result || presenter[action];
+    }
+
+    logger.debug(`attempt from userId=${userId} to perform:${action}, allowed=${result}`);
+
+    return result;
+  } else {
+    logger.error(`FAILED due to permissions:${action} ${JSON.stringify(credentials)}`);
     return false;
   }
+
 };

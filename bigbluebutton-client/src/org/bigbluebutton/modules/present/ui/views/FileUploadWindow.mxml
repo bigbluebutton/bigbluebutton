@@ -20,10 +20,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:mate="http://mate.asfusion.com/"
-	 layout="absolute" width="580" height="426" styleName="presentationFileUploadWindowStyle"
-      initialize="initData();">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+                xmlns:mate="http://mate.asfusion.com/"
+                layout="absolute"
+                width="580"
+                height="410"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off"
+                styleName="presentationFileUploadWindowStyle"
+                initialize="initData();">
 
     <mate:Dispatcher id="globalDispatch" />
     <mate:Listener type="{UploadProgressEvent.UPLOAD_PROGRESS_UPDATE}" method="handleUploadProgressUpdate" />
@@ -33,8 +38,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" method="handleConversionCompleted" />
     <mate:Listener type="{ConversionUpdateEvent.CONVERSION_UPDATE}" method="handleConvertUpdate" />
     <mate:Listener type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" method="handleThumbnailsProgressEvent" />
-    <mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
-    <mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
+	<mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
+	<mate:Listener type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" method="handleOfficeDocumentConversionInvalid"/>
+	<mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
     <mate:Listener type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" method="handleSupportedDocument"/>	
     <mate:Listener type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" method="handleUnsupportedDocument"/>
     <mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
@@ -44,10 +50,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
 		import mx.collections.ArrayCollection;
 		import mx.utils.StringUtil;
-		import org.bigbluebutton.core.UsersUtil;
+		
+		import org.as3commons.lang.StringUtils;
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
 		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
 		import org.bigbluebutton.modules.present.events.ConversionPageCountError;
@@ -57,6 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
 		import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
 		import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+		import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
 		import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
 		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 		import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
@@ -207,7 +216,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleOfficeDocumentConversionFailed(e:OfficeDocConvertFailedEvent):void {
         enableControls();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.failed'));
-      }   
+      }
+		
+		private function handleOfficeDocumentConversionInvalid(e:OfficeDocConvertInvalidEvent):void {
+			enableControls();
+			displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.invalid'));
+		}
 
       private function handleOfficeDocumentConversionSuccess(e:OfficeDocConvertSuccessEvent):void {
         progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.converted');
@@ -252,7 +266,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function displayAlert(error:String, message:String = null):void {
         var okLabel:String = ResourceUtil.getInstance().getString('bbb.presentation.ok');
         progressBar.setStyle("color", 0xFF0000);
-        progressBar.label = error + message;
+        progressBar.label = error;
+		if (!StringUtils.isEmpty(message)) {
+		  progressBar.label += message;	
+		}
         okCancelBtn.label = "Ok";
       }
 
@@ -301,9 +318,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:TextArea borderSkin="{null}"
 				 text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
                  editable="false" styleName="presentationUploadTitleStyle"
-                 width="400" left="0"/>
-    <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingTop="0" verticalAlign="middle"> 
-      <mx:Label id="lblFileName" width="{fileUploadBox.width-selectBtn.width-uploadBtn.width-30}" selectable="false" click="selectFile()" text="{ResourceUtil.getInstance().getString('bbb.fileupload.lblFileName.defaultText')}" />
+                 width="100%"/>
+    <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingRight="5" paddingTop="0" verticalAlign="middle"> 
+      <mx:Label id="lblFileName" truncateToFit="true" width="{fileUploadBox.width-selectBtn.width-uploadBtn.width-30}" selectable="false" click="selectFile()" text="{ResourceUtil.getInstance().getString('bbb.fileupload.lblFileName.defaultText')}" />
 	  <mx:Button id="selectBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
 				   click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>
@@ -314,11 +331,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Box paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}" >
       <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="{presentOptions.enableDownload}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
     </mx:Box>
-    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
+    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle" visible="false"/>
       <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"
-                      styleName="presentationUploadProgressBarStyle" labelPlacement="center" width="460" visible="false"/>
+                      styleName="presentationUploadProgressBarStyle" labelPlacement="center" width="100%" visible="false"/>
     </mx:HBox>
 	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
 		<mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
@@ -326,7 +343,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:Box>
     </mx:Box>
     <mx:Canvas width="100%" height="145" verticalScrollPolicy="off">
-      <mx:List width="100%" height="142" left="5" top="5" right="5" bottom="5" id="uploadedFilesList" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
+      <mx:List height="142" left="5" top="5" right="5" bottom="5" id="uploadedFilesList" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>

@@ -14,6 +14,7 @@ public class CreateMeetingMessage {
 	public final Long duration;
 	public boolean autoStartRecording;
 	public boolean allowStartStopRecording;
+	public boolean webcamsOnlyForModerator;
 	public final String moderatorPass;
 	public final String viewerPass;
 	public final Long createTime;
@@ -23,16 +24,17 @@ public class CreateMeetingMessage {
 	public CreateMeetingMessage(String id, String externalId, String name, Boolean record, 
 						String voiceBridge, Long duration, 
 						Boolean autoStartRecording, Boolean allowStartStopRecording,
-						String moderatorPass, String viewerPass, Long createTime,
-						String createDate, Map<String, String> metadata) {
+						Boolean webcamsOnlyForModerator, String moderatorPass,
+						String viewerPass, Long createTime, String createDate, Map<String, String> metadata) {
 		this.id = id;
 		this.externalId = externalId;
 		this.name = name;
 		this.record = record;
 		this.voiceBridge = voiceBridge;
 		this.duration = duration;
-		this.autoStartRecording = autoStartRecording;	
+		this.autoStartRecording = autoStartRecording;
 		this.allowStartStopRecording = allowStartStopRecording;
+		this.webcamsOnlyForModerator = webcamsOnlyForModerator;
 		this.moderatorPass = moderatorPass;
 		this.viewerPass = viewerPass;
 		this.createTime = createTime;

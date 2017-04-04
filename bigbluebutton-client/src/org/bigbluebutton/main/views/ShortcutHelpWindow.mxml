@@ -69,22 +69,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
 			
 			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.sendMessage',
-											  'bbb.shortcutkey.chat.closePrivate', 'bbb.shortcutkey.chat.explanation', 'bbb.shortcutkey.chat.chatbox.gofirst', 
-											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.advance', 'bbb.shortcutkey.chat.chatbox.golatest',
-											  'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.goread'];
+											  'bbb.shortcutkey.chat.closePrivate'];
 			
-			private var userResource:Array = ['bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
-											  /*'bbb.shortcutkey.users.kick',*/ 'bbb.shortcutkey.users.muteall'];
+			private var userResource:Array = ['bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
+											  'bbb.shortcutkey.users.kick', 'bbb.shortcutkey.users.muteall', 'bbb.shortcutkey.users.focusBreakoutRooms',
+											  'bbb.shortcutkey.users.listenToBreakoutRoom', 'bbb.shortcutkey.users.joinBreakoutRoom'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
 			
 			private var modifier:String;
 			private var globalModifier:String;
+			private var globalAlternateModifier:String;
 			
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
+				globalAlternateModifier = ExternalInterface.call("determineGlobalAlternateModifier");
 				
 				ShortcutOptions.initialize();
 				
@@ -98,14 +99,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function populateModules():void{
 				categoryAC.addItem(generalString);
-				if (ShortcutOptions.usersActive)
-					categoryAC.addItem(userString);
 				
-				if (ShortcutOptions.presentationActive)
-					categoryAC.addItem(presentationString);
-				
-				if (ShortcutOptions.chatActive)
-					categoryAC.addItem(chatString);
+				if (Capabilities.playerType == "ActiveX") {
+					if (ShortcutOptions.usersActive)
+						categoryAC.addItem(userString);
+					
+					if (ShortcutOptions.presentationActive)
+						categoryAC.addItem(presentationString);
+					
+					if (ShortcutOptions.chatActive)
+						categoryAC.addItem(chatString);
+				} else {
+					browserWarningText.visible = browserWarningText.includeInLayout = true;
+				}
 			}
 			
 			private function reloadKeys():void {
@@ -195,8 +201,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.right') 
 								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.down')){
 						keyList.addItem({shortcut:convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
-					}
-					else{
+					} else if (convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.minus')
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.plus')) {
+						keyList.addItem({shortcut:globalAlternateModifier + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					} else{
 						keyList.addItem({shortcut:mod + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
 					}
 				}
@@ -246,10 +254,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-	<common:TabIndexer id="headerIndexer" startIndex="101" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn]}"/>
-	<common:TabIndexer startIndex="115" tabIndices="{[categories, keyList]}"/>
+	<common:TabIndexer id="headerIndexer" startIndex="115" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn]}"/>
+	<common:TabIndexer startIndex="119" tabIndices="{[categories, keyList]}"/>
 
-	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " 
+	<mx:ComboBox id="categories" accessibilityName="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.dropdown.accessibilityName')}" 
 				 editable="false" 
 				 change="changeArray()">
 		<mx:ArrayCollection id="categoryAC">
@@ -261,6 +269,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			-->
       	</mx:ArrayCollection>
 	</mx:ComboBox>
+	<mx:Text id="browserWarningText" visible="false" includeInLayout="false" text="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.browserWarning.text')}" />
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
 		<mx:columns>
 			<mx:DataGridColumn dataField="shortcut" width="150" headerText="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.headers.shortcut')}"/>

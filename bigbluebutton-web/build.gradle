@@ -16,16 +16,17 @@ dependencies {
   //redis
     compile 'redis.clients:jedis:2.7.2'
     compile 'org.apache.commons:commons-pool2:2.3'
-  
-	compile 'commons-lang:commons-lang:2.5'
+
 	compile 'commons-io:commons-io:2.4'
     compile 'commons-codec:commons-codec:1.10'
     compile 'com.google.code.gson:gson:1.7.1'
 	compile 'commons-httpclient:commons-httpclient:3.1'
+    compile 'org.apache.poi:poi-ooxml:3.15'
 	compile 'com.zaxxer:nuprocess:1.1.0'
 
 	compile 'org.bigbluebutton:bbb-common-message:0.0.18-SNAPSHOT'
-	
+	compile 'org.bigbluebutton:bbb-common-web:0.0.1-SNAPSHOT'
+
   // Logging
   // Commenting out as it results in build failure (ralam - may 11, 2014)
   //compile 'ch.qos.logback:logback-core:1.0.9@jar'
@@ -53,7 +54,7 @@ dependencies {
 	compile 'commons-codec:commons-codec:1.3'
 	compile 'commons-httpclient:commons-httpclient:3.1'
 	compile 'commons-io:commons-io:1.4'
-  compile 'com.artofsolving:jodconverter:2.2.1'
+	compile 'com.artofsolving:jodconverter:2.2.1'
 
 	compile 'org.apache.geronimo.specs:geronimo-j2ee-connector_1.5_spec:1.0'
   compile 'org.openoffice:unoil:3.2.1'

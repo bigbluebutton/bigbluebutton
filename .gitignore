@@ -30,3 +30,5 @@ bigbluebutton-web/target-eclipse*
 record-and-playback/.loadpath
 clients/flash/**/build
 clients/flash/**/.gradle
+**/.idea/*
+*.iml

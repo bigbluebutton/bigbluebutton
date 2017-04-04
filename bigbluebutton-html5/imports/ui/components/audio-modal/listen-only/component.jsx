@@ -1,19 +1,29 @@
 import React from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import classNames from 'classnames';
-import ReactDOM from 'react-dom';
+import { clearModal } from '/imports/ui/components/app/service';
 import styles from '../styles.scss';
 
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import AudioTestContainer from '/imports/ui/components/audio-test/container';
 import EnterAudioContainer from '/imports/ui/components/enter-audio/container';
 
-export default class ListenOnly extends React.Component {
+const intlMessages = defineMessages({
+  backLabel: {
+    id: 'app.audio.listenOnly.backLabel',
+  },
+  closeLabel: {
+    id: 'app.audio.listenOnly.closeLabel',
+  },
+});
+
+class ListenOnly extends React.Component {
   constructor(props) {
     super(props);
 
     this.chooseAudio = this.chooseAudio.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
+    this.handleClose = this.handleClose.bind(this);
 
     this.state = {
       inputDeviceId: undefined,
@@ -28,17 +38,34 @@ export default class ListenOnly extends React.Component {
     console.log(`OUTPUT DEVICE CHANGED: ${deviceId}`);
   }
 
+  handleClose() {
+    this.setState({ isOpen: false });
+    clearModal();
+  }
+
   render() {
+    const {
+      intl
+    } = this.props;
+
     return (
       <div>
         <div className={styles.center}>
           <Button className={styles.backBtn}
-            label={'Back'}
-            icon={'left-arrow'}
+            label={intl.formatMessage(intlMessages.backLabel)}
+            icon={'left_arrow'}
             size={'md'}
             color={'primary'}
             ghost={true}
             onClick={this.chooseAudio}
+          />
+          <Button className={styles.closeBtn}
+            label={intl.formatMessage(intlMessages.closeLabel)}
+            icon={'close'}
+            size={'lg'}
+            circle={true}
+            hideLabel={true}
+            onClick={this.handleClose}
           />
           <div>
             Choose your listen only settings
@@ -60,3 +87,5 @@ export default class ListenOnly extends React.Component {
     );
   }
 };
+
+export default injectIntl(ListenOnly);

@@ -1,145 +1,130 @@
 @import "../../../stylesheets/variables/_all";
 
-/* General Submenu */
-.submenuTitle {
-  height: 45px;
-  margin: 0px;
-  padding-top: 12px;
-  font-size: $font-size-large;
-  font-weight: $headings-font-weight;
+.title {
+  color: $color-gray-dark;
+  font-weight: 400;
+  font-size: 1.3rem;
+  margin: 0;
+  margin-bottom: 1.5rem;
 }
 
-.submenuContent {
-  height: 85%;
-  margin: 0px;
-  padding-top: 12px;
-  font-size: $font-size-base;
-  color: $color-gray-light;
-}
-
-div.submenuContent select {
-  width: 90%;
-  padding-top: 5px;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  /*outline: none;*/
-  color: $color-gray-light;
-}
-
-.containerLeftHalf {
-  width: 50%;
-  float: left;
-}
-
-.containerRightHalf {
-  width: 50%;
-  float: right;
-}
-
-.containerFull{
-  width: 100%;
-  float: right;
-}
-
-.containerLeftHalfContent {
-  @extend .containerLeftHalf;
-  @extend .row;
-}
-
-.containerRightHalfContent {
-  @extend .containerRightHalf;
-  @extend .row;
-}
-
-div.containerLeftHalf label, div.containerRightHalf label {
-  font-size: 0.75em;
-  font-weight: 600;
-  color: $color-primary;
-  margin-bottom: 5px;
-}
-
-input[type=checkbox] {
-    float: right;
-}
-
-ul {
-  list-style-type: none;
-  margin: 0px;
-}
-
-ul li {
-  padding-bottom: 9%;
-}
-
-/* Application Submenu */
-.applicationFontContainer {
-  border-top: solid 1px $color-gray-light;
-  margin-top: 10%;
-  padding-top: 10%;
-}
-
-.fontBarLeft {
-  float: left;
-  margin: 0px;
-  height: 100%;
-  width: 25%;
-  text-align: left;
-}
-
-.fontBarMid {
-  float: left;
-  margin: 0px;
-  height: 100%;
-  width: 50%;
-  text-align: center;
-  font-weight: 600;
-}
-
-.fontBarRight {
-  float: left;
-  margin: 0px;
-  height: 100%;
-  width: 25%;
-  text-align: right;
-}
-
-.fontBarLeft p, .fontBarMid p {
-  margin: 0px;
-}
-
-/* Users Submenu */
-.checkboxOffset {
-  margin-right: 5%;
-}
-
-
-/* Buttons */
-.defaultBtn {
-  width: 90px;
-  border-radius: 18px;
-  border: none;
-  box-shadow: none;
-}
-
-.testAudioBtn {
-  @extend .defaultBtn;
-  width: 140px;
-  float: left;
-}
-
-/* Submenu containers */
-.full {
-  clear: both;
-  height: 100%;
-  width: 100%;
+.form {
+  display: flex;
+  flex-flow: column;
 }
 
 .row {
-  height: 42px;
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
 }
 
-.indentedRow {
-  @extend .row;
-  padding-left: 10%;
+.col {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+  margin-right: 1rem;
+
+  &:last-child {
+    margin-right: 0;
+    padding-right: 0.1rem;
+  }
+}
+
+.label {
+  color: $color-gray-light;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.labelSmall {
+  color: $color-link;
+  font-size: 0.7rem;
+  margin-bottom: 0.3rem;
+}
+
+.formElement {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+}
+
+.select {
+  background-color: #fff;
+  border: 0;
+  border-bottom: 0.1rem solid $color-gray-lighter;
+  color: $color-gray-light;
+  width: 100%;
+  // appearance: none;
+  height: 1.75rem;
+}
+
+.audioMeter {
+  width: 100%;
+}
+
+.pullContentRight {
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: row;
+}
+
+.pullContentCenter {
+  display: flex;
+  justify-content: center;
+  flex-flow: row;
+}
+
+.separator {
+  margin: 2.5rem 0;
+  border: 1px solid $color-gray-lighter;
+  opacity: 0.25;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.spacedLeft {
+  margin-left: 1rem;
+}
+
+.swatch {
+  position: absolute;
+  float: right;
+  background: #fff;
+  border-radius: 5px;
+  border: 2px solid $color-gray-light;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.swatchInner {
+  width: 3rem;
+  height: 1.1rem;
+  border-radius: 3px;
+}
+
+.colorPickerOverlay {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+
+.colorPickerPopover {
+  position: absolute;
+  top: 2rem;
+  z-index: 1001;
+}
+
+.ccPreviewBox {
+  height: 100px;
+  padding: 5px;
+  border: 1px solid #f1f1f1;
+  overflow: auto;
 }

@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit
 case object StopMeetingActor
 case class MeetingProperties(meetingID: String, externalMeetingID: String, parentMeetingID: String, meetingName: String,
   recorded: Boolean, voiceBridge: String, deskshareBridge: String, duration: Int,
-  autoStartRecording: Boolean, allowStartStopRecording: Boolean, moderatorPass: String,
-  viewerPass: String, createTime: Long, createDate: String,
+  autoStartRecording: Boolean, allowStartStopRecording: Boolean, webcamsOnlyForModerator: Boolean,
+  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String,
   red5DeskShareIP: String, red5DeskShareApp: String, isBreakout: Boolean, sequence: Int, metadata: java.util.Map[String, String])
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,

@@ -1,11 +1,22 @@
 import React from 'react';
+import styles from '../styles.scss';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
-import classNames from 'classnames';
-import ReactDOM from 'react-dom';
-import styles from '../styles.scss';
+import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 
-export default class JoinAudio extends React.Component {
+const intlMessages = defineMessages({
+  microphoneLabel: {
+    id: 'app.audioModal.microphoneLabel',
+  },
+  listenOnlyLabel: {
+    id: 'app.audioModal.listenOnlyLabel',
+  },
+  closeLabel: {
+    id: 'app.audioModal.closeLabel',
+  }
+});
+
+class JoinAudio extends React.Component {
   constructor(props) {
     super(props);
 
@@ -24,35 +35,44 @@ export default class JoinAudio extends React.Component {
   }
 
   openListen() {
-    this.props.changeMenu(this.props.LISTEN_ONLY);
+    this.handleClose();
+    this.props.handleJoinListenOnly();
   }
 
   render() {
+    const { intl } = this.props;
     return (
       <div>
-        <div className={styles.center}>
+        <div className={styles.closeBtn}>
           <Button className={styles.closeBtn}
-            label={'Close'}
+            label={intl.formatMessage(intlMessages.closeLabel)}
             icon={'close'}
             size={'lg'}
-            circle={true}
             hideLabel={true}
             onClick={this.handleClose}
           />
-          <div>
-            How would you like to join the audio?
-          </div>
+        </div>
+
+        <div className={styles.title}>
+          <FormattedMessage
+              id="app.audioModal.audioChoiceLabel"
+              description="app.audioModal.audioChoiceDescription"
+              defaultMessage="How would you like to join the audio?"
+          />
         </div>
         <div className={styles.center}>
           <Button className={styles.audioBtn}
-            label={'Audio'}
-            icon={'audio'}
+            label={intl.formatMessage(intlMessages.microphoneLabel)}
+            icon={'unmute'}
             circle={true}
             size={'jumbo'}
             onClick={this.openAudio}
           />
+
+          <span className={styles.verticalLine}>
+          </span>
           <Button className={styles.audioBtn}
-            label={'Listen Only'}
+            label={intl.formatMessage(intlMessages.listenOnlyLabel)}
             icon={'listen'}
             circle={true}
             size={'jumbo'}
@@ -63,3 +83,5 @@ export default class JoinAudio extends React.Component {
     );
   }
 };
+
+export default injectIntl(JoinAudio);

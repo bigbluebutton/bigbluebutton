@@ -26,18 +26,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="168" y="86" layout="vertical" width="400" height="110" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
-			import flash.net.navigateToURL;
+			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.managers.PopUpManager;
+			import flash.net.URLLoader;
+			import flash.net.URLRequest;
+			import flash.net.URLRequestMethod;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.ExitApplicationEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-
+			
 			private static const LOGGER:ILogger = getClassLogger(LoggedOutWindow);
 
 			[Bindable]
@@ -62,15 +66,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function exitApplication():void {
-				if (!UserManager.getInstance().getConference().isBreakout) {
-					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
-				} else {
-					ExternalInterface.call("window.close");
-				}
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(new ExitApplicationEvent(ExitApplicationEvent.EXIT_APPLICATION));
 			}
 
 			private function handleComplete(e:Event):void {
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 				exitApplication();
 			}
 
@@ -79,13 +80,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				logData.tags = ["logout"];
 				logData.message = "Log out redirection returned with error.";
 				LOGGER.error(JSON.stringify(logData));
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 				exitApplication();
 			}
 
 			private function onUserLoggedOutWindowClose(e:Event):void {
 				LOGGER.debug("Closing UserLoggedOutWindow");
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 
 			public function setReason(reason:String):void {

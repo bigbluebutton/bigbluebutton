@@ -30,8 +30,7 @@ public class RedisStorageService {
 		        Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
 	}
 	
-    public void recordMeetingInfo(String meetingId, Map<String, String> info,
-            Map<String, String> breakoutInfo) {
+    public void recordMeetingInfo(String meetingId, Map<String, String> info) {
         Jedis jedis = redisPool.getResource();
         try {
             for (String key : info.keySet()) {
@@ -40,20 +39,37 @@ public class RedisStorageService {
 
             log.debug("Saving metadata in {}", meetingId);
             jedis.hmset("meeting:info:" + meetingId, info);
-
-            for (String breakoutKey : breakoutInfo.keySet()) {
-                log.debug("Storing breakout metadata {} = {}", breakoutKey,
-                        breakoutInfo.get(breakoutKey));
-            }
-
-            log.debug("Saving breakout metadata in {}", meetingId);
-            jedis.hmset("meeting:breakout:" + meetingId, breakoutInfo);
         } catch (Exception e) {
             log.warn("Cannot record the info meeting:" + meetingId, e);
         } finally {
             jedis.close();
         }
     }
+
+	public void recordBreakoutInfo(String meetingId, Map<String, String> breakoutInfo) {
+		Jedis jedis = redisPool.getResource();
+		try {
+			log.debug("Saving breakout metadata in {}", meetingId);
+			jedis.hmset("meeting:breakout:" + meetingId, breakoutInfo);
+		} catch (Exception e) {
+			log.warn("Cannot record the info meeting:" + meetingId, e);
+		} finally {
+			jedis.close();
+		}
+	}
+
+	public void addBreakoutRoom(String parentId, String breakoutId) {
+		Jedis jedis = redisPool.getResource();
+		try {
+
+			log.debug("Saving breakout room for meeting {}", parentId);
+			jedis.sadd("meeting:breakout:rooms:" + parentId, breakoutId);
+		} catch (Exception e) {
+			log.warn("Cannot record the info meeting:" + parentId, e);
+		} finally {
+			jedis.close();
+		}
+	}
 	
 	public void removeMeeting(String meetingId){
 		Jedis jedis = redisPool.getResource();

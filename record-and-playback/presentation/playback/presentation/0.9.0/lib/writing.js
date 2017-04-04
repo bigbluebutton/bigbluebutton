@@ -19,7 +19,6 @@
 
 
 // - - - START OF GLOBAL VARIABLES - - - //
-"use strict";
 
 function getUrlParameters() {
     console.log("** Getting url params");
@@ -381,36 +380,38 @@ function runPopcorn() {
             if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(array[i].getAttribute("id"));
             else shape = svgobj.getSVGDocument('svgfile').getElementById(array[i].getAttribute("id"));
 
-            var shape_i = shape.getAttribute("shape");
-            if (time_f < t) {
-              if(current_shapes.indexOf(shape_i) > -1) { //currently drawing the same shape so don't draw the older steps
-                shape.style.visibility = "hidden"; //hide older steps to shape
-              } else if(main_shapes_ids.indexOf(shape.getAttribute("id")) > -1) { //as long as it is a main shape, it can be drawn... no intermediate steps.
-                if(parseFloat(shape.getAttribute("undo")) === -1) { //As long as the undo event hasn't happened yet...
-                  shape.style.visibility = "visible";
-                } else if (parseFloat(shape.getAttribute("undo")) > t) {
-                  shape.style.visibility = "visible";
-                } else {
+            if(shape != null) {
+                var shape_i = shape.getAttribute("shape");
+                if (time_f < t) {
+                  if(current_shapes.indexOf(shape_i) > -1) { //currently drawing the same shape so don't draw the older steps
+                    shape.style.visibility = "hidden"; //hide older steps to shape
+                  } else if(main_shapes_ids.indexOf(shape.getAttribute("id")) > -1) { //as long as it is a main shape, it can be drawn... no intermediate steps.
+                    if(parseFloat(shape.getAttribute("undo")) === -1) { //As long as the undo event hasn't happened yet...
+                      shape.style.visibility = "visible";
+                    } else if (parseFloat(shape.getAttribute("undo")) > t) {
+                      shape.style.visibility = "visible";
+                    } else {
+                      shape.style.visibility = "hidden";
+                    }
+                  }
+                } else if(time_s === t) { //for the shapes with the time specific to the current time
+                  // only makes visible the last drawing of a given shape
+                  var idx = current_shapes.indexOf(shape_i);
+                  if (idx > -1) {
+                    current_shapes.splice(idx, 1);
+                    idx = current_shapes.indexOf(shape_i);
+                    if (idx > -1) {
+                      shape.style.visibility = "hidden";
+                    } else {
+                      shape.style.visibility = "visible";
+                    }
+                  } else {
+                    // this is an inconsistent state, since current_shapes should have at least one drawing of this shape
+                    shape.style.visibility = "hidden";
+                  }
+                } else { //for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.
                   shape.style.visibility = "hidden";
                 }
-              }
-            } else if(time_s === t) { //for the shapes with the time specific to the current time
-              // only makes visible the last drawing of a given shape
-              var idx = current_shapes.indexOf(shape_i);
-              if (idx > -1) {
-                current_shapes.splice(idx, 1);
-                idx = current_shapes.indexOf(shape_i);
-                if (idx > -1) {
-                  shape.style.visibility = "hidden";
-                } else {
-                  shape.style.visibility = "visible";
-                }
-              } else {
-                // this is an inconsistent state, since current_shapes should have at least one drawing of this shape
-                shape.style.visibility = "hidden";
-              }
-            } else { //for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.
-              shape.style.visibility = "hidden";
             }
           }
 
@@ -468,14 +469,14 @@ function runPopcorn() {
 
             setViewBox(t);
 
-            var cursorVal = getCursorAtTime(t);
-            if (cursorVal != null && !$('#slide').hasClass('no-background')) {
+            if (getCursorAtTime(t) != null && getCursorAtTime(t) != undefined && !$('#slide').hasClass('no-background')) {
+              currentCursorVal = getCursorAtTime(t);
               cursorShownAt = new Date().getTime();
               showCursor(true);
               // width and height are divided by 2 because that's the value used as a reference
               // when positions in cursor.xml is calculated
-              var cursorX = parseFloat(cursorVal[0]) / (imageWidth/2);
-              var cursorY = parseFloat(cursorVal[1]) / (imageHeight/2);
+              var cursorX = parseFloat(currentCursorVal[0]) / (imageWidth/2);
+              var cursorY = parseFloat(currentCursorVal[1]) / (imageHeight/2);
               drawCursor(cursorX, cursorY);
 
               // hide the cursor after 3s of inactivity
@@ -623,6 +624,7 @@ var clearTimes = [];
 var main_shapes_ids = [];
 var vboxValues = {};
 var cursorValues = {};
+var currentCursorVal;
 var imageAtTime = {};
 var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;

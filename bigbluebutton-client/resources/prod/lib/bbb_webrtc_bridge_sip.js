@@ -1,7 +1,7 @@
 
 var userID, callerIdName=null, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout, iceGatheringTimeout;
 var inEchoTest = true;
-var html5StunTurn = {};
+var html5StunTurn = null;
 
 function webRTCCallback(message) {
 	switch (message.status) {
@@ -50,8 +50,10 @@ function callIntoConference(voiceBridge, callback, isListenOnly, stunTurn = null
 
 	// if additional stun configuration is passed, store the information
 	if (stunTurn != null) {
-		html5StunTurn['stunServers'] = stunTurn.stun;
-		html5StunTurn['turnServers'] = stunTurn.turn;
+		html5StunTurn = {
+			stunServers: stunTurn.stun,
+			turnServers: stunTurn.turn,
+		};
 	}
 
 	// reset callerIdName
@@ -192,19 +194,13 @@ function createUA(username, server, callback, makeCallFunc) {
 function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc) {
 	console.log("Creating new user agent");
 
-	var wsServer;
-	if (window.location.protocol == 'https:') {
-		wsServer = 'wss://' + server + '/wss';
-	} else {
-		wsServer = 'ws://' + server + '/ws';
-	}
 	/* VERY IMPORTANT 
 	 *	- You must escape the username because spaces will cause the connection to fail
 	 *	- We are connecting to the websocket through an nginx redirect instead of directly to 5066
 	 */
 	var configuration = {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
-		wsServers: wsServer,
+		wsServers: ('https:' == document.location.protocol ? 'wss://' : 'ws://')  + server + '/ws',
 		displayName: username,
 		register: false,
 		traceSip: true,

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { clearModal } from '/imports/ui/components/app/service';
-import Auth from '/imports/ui/services/auth';
+import { exitAudio } from '/imports/api/phone'
 import Modal from '/imports/ui/components/modal/component';
 
 const intlMessages = defineMessages({
@@ -31,7 +31,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class LeaveConfirmation extends Component {
+class BreakoutJoinConfirmation extends Component {
   constructor(props) {
     super(props);
 
@@ -40,6 +40,9 @@ class LeaveConfirmation extends Component {
 
   handleJoinBreakoutConfirmation() {
     const { breakoutURL } = this.props;
+
+    // leave main room's audio when joining a breakout room
+    exitAudio();
 
     window.open(breakoutURL);
     clearModal();
@@ -65,4 +68,4 @@ class LeaveConfirmation extends Component {
   }
 };
 
-export default injectIntl(LeaveConfirmation);
+export default injectIntl(BreakoutJoinConfirmation);

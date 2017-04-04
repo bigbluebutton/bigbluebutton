@@ -14,6 +14,7 @@ package org.bigbluebutton.core.model
     private var _welcomeMessage:String;
     private var _modOnlyMessage:String;
     private var _allowStartStopRecording:Boolean;
+	private var _webcamsOnlyForModerator:Boolean;
     private var _metadata:Object = null;
     
     public var isRecording: Boolean = false;
@@ -32,6 +33,7 @@ package org.bigbluebutton.core.model
       _welcomeMessage = build.welcomeMessage;
       _modOnlyMessage = build.modOnlyMessage;
       _allowStartStopRecording = build.allowStartStopRecording;
+	  _webcamsOnlyForModerator = build.webcamsOnlyForModerator;
       _metadata = build.metadata;
     }
     
@@ -69,6 +71,10 @@ package org.bigbluebutton.core.model
     
     public function get allowStartStopRecording():Boolean {
       return _allowStartStopRecording;
+    }
+	
+    public function get webcamsOnlyForModerator() : Boolean {
+        return _webcamsOnlyForModerator;
     }
 
     public function get metadata():Object {

@@ -34,8 +34,8 @@ public class Red5AppHandler {
     app.isScreenSharing(meetingId, userId);
   }
   
-  public void requestShareToken(String meetingId, String userId, Boolean record) {
-    app.requestShareToken(meetingId, userId, record);
+  public void requestShareToken(String meetingId, String userId, Boolean record, Boolean tunnel) {
+    app.requestShareToken(meetingId, userId, record, tunnel);
   }
 
   public void startShareRequest(String meetingId, String userId, String session) {

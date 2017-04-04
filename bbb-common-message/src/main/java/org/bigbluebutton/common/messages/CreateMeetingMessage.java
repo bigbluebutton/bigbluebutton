@@ -14,6 +14,7 @@ public class CreateMeetingMessage implements IBigBlueButtonMessage {
 	public final Long duration;
 	public final Boolean autoStartRecording;
 	public final Boolean allowStartStopRecording;
+	public final Boolean webcamsOnlyForModerator;
 	public final String moderatorPass;
 	public final String viewerPass;
 	public final Long createTime;
@@ -22,8 +23,9 @@ public class CreateMeetingMessage implements IBigBlueButtonMessage {
 	
 	public CreateMeetingMessage(String id, String externalId, String name, Boolean record, String voiceBridge, 
 			                        Long duration, Boolean autoStartRecording, 
-			                        Boolean allowStartStopRecording, String moderatorPass,
-			                        String viewerPass, Long createTime, String createDate, Map<String, String> metadata) {
+			                        Boolean allowStartStopRecording,Boolean webcamsOnlyForModerator, 
+			                        String moderatorPass, String viewerPass,
+			                        Long createTime, String createDate, Map<String, String> metadata) {
 		this.id = id;
 		this.externalId = externalId;
 		this.name = name;
@@ -32,6 +34,7 @@ public class CreateMeetingMessage implements IBigBlueButtonMessage {
 		this.duration = duration;	
 		this.autoStartRecording = autoStartRecording;
 		this.allowStartStopRecording = allowStartStopRecording;
+		this.webcamsOnlyForModerator = webcamsOnlyForModerator;
 		this.moderatorPass = moderatorPass;
 		this.viewerPass = viewerPass;
 		this.createTime = createTime;

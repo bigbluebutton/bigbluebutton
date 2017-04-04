@@ -63,6 +63,7 @@ public class MessageFromJsonConverter {
 		Long duration = payload.get(Constants.DURATION).getAsLong();
 		Boolean autoStartRecording = payload.get(Constants.AUTO_START_RECORDING).getAsBoolean();
 		Boolean allowStartStopRecording = payload.get(Constants.ALLOW_START_STOP_RECORDING).getAsBoolean();
+		Boolean webcamsOnlyForModerator = payload.get(Constants.WEBCAMS_ONLY_FOR_MODERATOR).getAsBoolean();
 		String moderatorPassword = payload.get(Constants.MODERATOR_PASS).getAsString();
 		String viewerPassword = payload.get(Constants.VIEWER_PASS).getAsString();
 		Long createTime = payload.get(Constants.CREATE_TIME).getAsLong();
@@ -74,7 +75,8 @@ public class MessageFromJsonConverter {
 		
 		return new CreateMeetingMessage(id, externalId, name, record, voiceBridge, 
 				          duration, autoStartRecording, allowStartStopRecording,
-				          moderatorPassword, viewerPassword, createTime, createDate, metadata);
+				          webcamsOnlyForModerator, moderatorPassword, viewerPassword,
+				          createTime, createDate, metadata);
 	}
 	
 	private static IBigBlueButtonMessage processDestroyMeeting(JsonObject payload) {

@@ -4,8 +4,11 @@ app:
   mobileFont: 16
   desktopFont: 14
 
+  # Audio notification for unread chat message
+  audioChatNotification: false
+
   # Will offer the user to join the audio when entering the meeting
-  autoJoinAudio: false
+  autoJoinAudio: true
   listenOnly: false
   skipCheck: false
 
@@ -20,3 +23,5 @@ app:
 
   # Name displayed in the brower URL
   basename: '/html5client'
+
+  defaultLocale: 'en'

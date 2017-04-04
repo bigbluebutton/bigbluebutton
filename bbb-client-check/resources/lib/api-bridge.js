@@ -208,9 +208,14 @@
 		var swfObj = getSwfObj();
 		swfObj.webRTCEchoTest(success, errorcode);
 
-		if (callActive === true) {
-			leaveWebRTCVoiceConference();
-		}
+		webrtc_hangup(function() {
+			console.log("[BBBClientCheck] Handling webRTC hangup callback");
+			if (userAgent) {
+				var userAgentTemp = userAgent;
+				userAgent = null;
+				userAgentTemp.stop();
+			}
+		});
 	}
 
 	BBB.getMyUserInfo = function(callback) {
@@ -221,7 +226,7 @@
 			myRole: "undefined",
 			amIPresenter: "undefined",
 			dialNumber: "undefined",
-			voiceBridge: "00000",
+			voiceBridge: "",
 			customdata: "undefined"
 		}
 
@@ -229,42 +234,67 @@
 	}
 
 	// webrtc test callbacks
-	BBB.webRTCCallSucceeded = function() {
-		console.log("[BBBClientCheck] Handling webRTCCallSucceeded");
+	BBB.webRTCEchoTestFailed = function(errorcode) {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestFailed");
+		sendWebRTCEchoTestAnswer(false, errorcode);
+	}
+
+	BBB.webRTCEchoTestEnded = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestEnded");
+	}
+
+	BBB.webRTCEchoTestStarted = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestStarted");
+		sendWebRTCEchoTestAnswer(true, 'Success');
+	}
+
+	BBB.webRTCEchoTestConnecting = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestConnecting");
+	}
+
+	BBB.webRTCEchoTestWaitingForICE = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestWaitingForICE");
+	}
+
+	BBB.webRTCEchoTestWebsocketSucceeded = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestWebsocketSucceeded");
 		var swfObj = getSwfObj();
 		swfObj.webRTCSocketTest(true, 'Connected');
 	}
 
-	BBB.webRTCCallFailed = function(inEchoTest, errorcode, cause) {
-		console.log("[BBBClientCheck] Handling webRTCCallFailed, errorcode " + errorcode + ", cause: " + cause);
-		if (errorcode == 1002) {
-			// failed to connect the websocket
-			var swfObj = getSwfObj();
-			swfObj.webRTCSocketTest(false, errorcode);
-		} else {
-			sendWebRTCEchoTestAnswer(false, errorcode);
-		}
+	BBB.webRTCEchoTestWebsocketFailed = function(errorcode) {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestWebsocketFailed");
+		var swfObj = getSwfObj();
+		swfObj.webRTCSocketTest(false, errorcode);
 	}
 
-	BBB.webRTCCallEnded = function(inEchoTest) {
-		console.log("[BBBClientCheck] Handling webRTCCallEnded");
+	// webrtc callbacks
+	BBB.webRTCConferenceCallFailed = function(errorcode) {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallFailed");
 	}
 
-	BBB.webRTCCallStarted = function(inEchoTest) {
-		console.log("[BBBClientCheck] Handling webRTCCallStarted");
-		sendWebRTCEchoTestAnswer(true, 'Connected');
+	BBB.webRTCConferenceCallEnded = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallEnded");
 	}
 
-	BBB.webRTCCallConnecting = function(inEchoTest) {
-		console.log("[BBBClientCheck] Handling webRTCCallConnecting");
+	BBB.webRTCConferenceCallStarted = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallStarted");
 	}
 
-	BBB.webRTCCallWaitingForICE = function(inEchoTest) {
-		console.log("[BBBClientCheck] Handling webRTCCallWaitingForICE");
+	BBB.webRTCConferenceCallConnecting = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallConnecting");
 	}
 
-	BBB.webRTCCallTransferring = function(inEchoTest) {
-		console.log("[BBBClientCheck] Handling webRTCCallTransferring");
+	BBB.webRTCConferenceCallWaitingForICE = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallWaitingForICE");
+	}
+
+	BBB.webRTCConferenceCallWebsocketSucceeded = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallWebsocketSucceeded");
+	}
+
+	BBB.webRTCConferenceCallWebsocketFailed = function(errorcode) {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallWebsocketFailed");
 	}
 
 	BBB.webRTCMediaRequest = function() {
@@ -278,4 +308,36 @@
 	BBB.webRTCMediaFail = function() {
 		console.log("[BBBClientCheck] Handling webRTCMediaFail");
 	}
+
+	BBB.webRTCCallStarted = function(inEchoTest) {
+		console.log("[BBBClientCheck] Handling webRTCCallStarted");
+		BBB.webRTCEchoTestStarted();
+	};
+
+	BBB.webRTCCallConnecting = function(inEchoTest) {
+		console.log("[BBBClientCheck] Handling webRTCCallConnecting");
+		BBB.webRTCEchoTestWebsocketSucceeded();
+	};
+
+	BBB.webRTCCallEnded = function(inEchoTest) {
+		console.log("[BBBClientCheck] Handling webRTCCallEnded");
+	};
+
+	BBB.webRTCCallFailed = function(inEchoTest, errorcode, cause) {
+		console.log("[BBBClientCheck] Handling webRTCCallFailed");
+		BBB.webRTCEchoTestFailed(errorcode);
+		BBB.webRTCEchoTestWebsocketFailed();
+	};
+
+	BBB.webRTCCallWaitingForICE = function(inEchoTest) {
+		console.log("[BBBClientCheck] Handling webRTCCallWaitingForICE");
+	};
+
+	BBB.webRTCCallTransferring = function(inEchoTest) {
+		console.log("[BBBClientCheck] Handling webRTCCallTransferring");
+	};
+
+	BBB.webRTCCallProgressCallback = function(progress) {
+		console.log("[BBBClientCheck] Handling webRTCCallProgressCallback");
+	};
 }

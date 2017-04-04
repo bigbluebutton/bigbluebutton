@@ -69,7 +69,7 @@
       // be loaded in the DOM rather than relying on the SWFObject code to detect 
       // Flash because it can't.
       var browserInfo = determineBrowser();
-      if (browserInfo && browserInfo[0] === "Chrome") {
+      if (browserInfo && browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) {
         // Added a sort of callback idea because when this script runs "content" doesn't exist yet
         var fillContent = function(){
           var content = document.getElementById("content");
@@ -115,11 +115,9 @@
     <script src="lib/jquery.cookie.js" language="javascript"></script>
     <!--<script src="lib/jquery.dataTables.min.js" language="javascript"></script>-->
 
-    <script src="lib/getScreenId.js" language="javascript"></script>
     <script src="lib/jquery.FSRTC.js" language="javascript"></script>
     <script src="lib/jquery.jsonrpcclient.js" language="javascript"></script>
     <script src="lib/jquery.verto.js" language="javascript"></script>
-    <script src="lib/Screen-Capturing.js" language="javascript"></script>
     <script src="lib/verto_extension.js" language="javascript"></script>
 
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
@@ -195,7 +193,7 @@
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="content">
       <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
-        <h2>You need Flash installed and enabled in order to use the Flash client.</h2>
+        <h3>You need Adobe Flash installed and enabled in order to use this client.</h3>
         <br/>
         <div style="width:50%; margin-left: auto; margin-right: auto; ">
           <a href="http://www.adobe.com/go/getflashplayer">

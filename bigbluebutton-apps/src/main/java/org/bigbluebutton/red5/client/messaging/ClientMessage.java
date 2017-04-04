@@ -21,4 +21,5 @@ package org.bigbluebutton.red5.client.messaging;
 
 public interface ClientMessage {
 
+    String getMessageName();
 }

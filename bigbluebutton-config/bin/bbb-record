@@ -32,8 +32,9 @@
 #   2013-04-03 GUG  Enable/Disable a recording workflow
 #   2013-04-05 GUG  Description is optional in bbb-record --watch
 #   2013-04-05 GUG  Map internal meeting id with external meeting id
-#   2016-07-02 FFD  Updates for 1.1
+#   2016-07-02 FFD  Updates for 1.1-beta
 #   2016-10-17 GTR  Stricter rule for detection of recording directories names
+#   2017-04-28 FFD  Updated references to systemd processing units
 
 #set -e
 #set -x
@@ -167,9 +168,9 @@ while [ $# -gt 0 ]; do
 		shift
                 continue
         fi
-        if [ "$1" = "--list20" ]; then
+        if [ "$1" = "--list-recent" ]; then
                 LIST=1
-		HEAD=20
+		HEAD=10
                 if [ "$2" ]; then
                         WITHDESC=1
                         shift
@@ -443,7 +444,7 @@ else
 fi 
 
 if [ -z $HEAD ]; then
-	# If we're not called with --list20, show all recordings
+	# If we're not called with --list-recent, show all recordings
 	HEAD=99999
 fi
 
@@ -609,7 +610,7 @@ done
 	echo "--"
 	systemctl --all --no-pager list-timers bbb-record-core.timer
 	echo "--"
-	systemctl --no-pager status bbb-record-core.service
+	systemctl --no-pager status bbb-rap-archive-worker.service bbb-rap-sanity-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service
 	echo "--"
 
 	if tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep -q "is recorded. Process it."; then
@@ -621,7 +622,7 @@ done
 fi
 
 if [ $WATCH ]; then
-	watch -n 2 "bbb-record --list20 $WITHDESC"
+	watch -n 2 "bbb-record --list-recent $WITHDESC"
 fi
 
 if [ $ENABLE ]; then

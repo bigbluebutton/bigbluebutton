@@ -2,14 +2,19 @@ import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
 import { callServer } from '/imports/ui/services/api';
+import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
+
+// session for closed chat list
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 /* TODO: Same map is done in the chat/service we should share this someway */
 
@@ -164,13 +169,12 @@ const getUsers = () => {
   .fetch();
 
   return users
-    .map(u => u.user)
-    .map(mapUser)
-    .sort(sortUsers);
+  .map(u => u.user)
+  .map(mapUser)
+  .sort(sortUsers);
 };
 
 const getOpenChats = chatID => {
-  window.Users = Users;
 
   let openChats = Chat
   .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
@@ -178,6 +182,7 @@ const getOpenChats = chatID => {
   .map(mapOpenChats);
 
   let currentUserId = Auth.userID;
+
   if (chatID) {
     openChats.push(chatID);
   }
@@ -193,10 +198,32 @@ const getOpenChats = chatID => {
     return op;
   });
 
+  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  let filteredChatList = [];
+
+  openChats.forEach((op) => {
+
+    // When a new private chat message is received, ensure the conversation view is restored.
+    if (op.unreadCounter > 0) {
+      if (_.indexOf(currentClosedChats, op.id) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.id));
+      }
+    }
+
+    // Compare openChats with session and push it into filteredChatList
+    // if one of the openChat is not in session.
+    // It will pass to openChats.
+    if (_.indexOf(currentClosedChats, op.id) < 0) {
+      filteredChatList.push(op);
+    }
+  });
+
+  openChats = filteredChatList;
+
   openChats.push({
     id: 'public',
     name: 'Public Chat',
-    icon: 'group-chat',
+    icon: 'group_chat',
     unreadCounter: UnreadMessages.count('public_chat_userid'),
   });
 
@@ -219,33 +246,28 @@ const userActions = {
   },
   clearStatus: {
     label: 'Clear Status',
-    handler: user => console.log('missing clear status', user),
-    icon: 'clear-status',
+    handler: user => callServer('setEmojiStatus', user.id, 'none'),
+    icon: 'clear_status',
   },
   setPresenter: {
     label: 'Make Presenter',
-    handler: user => callServer('setUserPresenter', user.userid, user.name),
+    handler: user => callServer('assignPresenter', user.id),
     icon: 'presentation',
-  },
-  promote: {
-    label: 'Promote',
-    handler: user => console.log('missing promote', user),
-    icon: 'promote',
   },
   kick: {
     label: 'Kick User',
-    handler: user => callServer('kickUser', user.userid),
-    icon: 'kick-user',
+    handler: user => callServer('kickUser', user.id),
+    icon: 'circle_close',
   },
   mute: {
     label: 'Mute Audio',
-    handler: user=> callServer('muteUser', Auth.userID),
-    icon: 'mute',
+    handler: user=> callServer('muteUser', user.id),
+    icon: 'audio_off',
   },
   unmute: {
     label: 'Unmute Audio',
-    handler: user=> callServer('unmuteUser', Auth.userID),
-    icon: 'unmute',
+    handler: user=> callServer('unmuteUser', user.id),
+    icon: 'audio_on',
   },
 };
 

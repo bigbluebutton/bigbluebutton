@@ -5,6 +5,7 @@ node_modules/
 .meteor/dev_bundle
 
 private/config/server/*
+!private/config/server/app.yaml
 !private/config/server/redis.yaml
 !private/config/server/shell.yaml
 

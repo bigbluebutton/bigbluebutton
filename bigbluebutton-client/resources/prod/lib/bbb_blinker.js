@@ -64,6 +64,28 @@ function determineGlobalModifier()
 	return modifier;
 }
 
+function determineGlobalAlternateModifier()
+{
+	var browser = determineBrowser()[0];
+	var modifier;
+	if (browser == "Firefox"){
+		modifier = "control+";
+	}
+	else if (browser == "Chrome"){
+		modifier = "control+";
+	}
+	else if (browser == "Microsoft Internet Explorer"){
+		modifier = "control+shift+";
+	}
+	//else if (browser == "Safari"){
+	//	modifier = "control+alt";
+	//}
+	else{
+		modifier = "control+shift+";
+	}
+	return modifier;
+}
+
 function determineBrowser()
 {
 	// Browser name extraction code provided by http://www.javascripter.net/faq/browsern.htm

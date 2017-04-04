@@ -40,4 +40,5 @@ public class ScreenShareInfo {
   public boolean enableTrayActions;
   public String URL;
   public String session;
+  public boolean useH264;
 }

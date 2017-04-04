@@ -94,13 +94,14 @@ public class DeskshareClient {
     private boolean fullScreen = false;
     private String URL = "rtmp://192.168.23.23/live/foo/room2";
     private String session = "";
+    private Boolean useH264 = false;
 
     public NewBuilder host(String host) {
       this.host = host;
       return this;
     }
 
-    public NewBuilder port(int port) {  		
+    public NewBuilder port(int port) {
       this.port = port;
       return this;
     }
@@ -152,6 +153,11 @@ public class DeskshareClient {
 
     public NewBuilder autoScale(double scaleTo) {
       this.scale = scaleTo;
+      return this;
+    }
+
+    public NewBuilder useH264(boolean useH264) {
+      this.useH264 = useH264;
       return this;
     }
 
@@ -219,6 +225,7 @@ public class DeskshareClient {
       ssi.sysTrayIcon = sysTrayIcon;
       ssi.enableTrayActions = enableTrayActions;
       ssi.session = session;
+      ssi.useH264 = useH264;
 
       System.out.println("ScreenShareInfo[captureWidth=" + captureWidth + ",captureHeight=" + captureHeight + "][" + x + "," + y +"]"
           + "[scaleWidth=" + scaleWidth + ",scaleHeight=" + scaleHeight + "]");

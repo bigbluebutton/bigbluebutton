@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
   
-  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService">
+  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService" destroy-method="stop">
     <property name="presentationDir" value="${presentationDir}"/>
     <property name="presentationBaseURL" value="${presentationBaseURL}"/>
    	<property name="pageExtractor" ref="pageExtractor"/>  
@@ -69,7 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="publishedDir" value="${publishedDir}"/>
     <property name="unpublishedDir" value="${unpublishedDir}"/>  
     <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
-    <property name="messagingService" ref="messagingService"/>
+    <!--property name="messagingService" ref="messagingService"/-->
   </bean>
   
   <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
@@ -97,6 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
     <property name="autoStartRecording" value="${autoStartRecording}"/>
     <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+    <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
     <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
     <property name="defaultConfigURL" value="${defaultConfigURL}"/>
   </bean>
