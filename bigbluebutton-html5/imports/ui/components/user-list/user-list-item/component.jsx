@@ -123,7 +123,8 @@ class UserListItem extends Component {
     // if currentUser is a moderator, allow kicking other users
     let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
-    let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
+    let allowedToSetPresenter =
+      (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 
     return _.compact([
       (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
