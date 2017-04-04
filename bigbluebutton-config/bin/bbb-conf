@@ -154,7 +154,8 @@ else
         IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
 fi
 
-MEM=`free -m | grep Mem | awk '{ print $2}'`
+MEM=`grep MemTotal /proc/meminfo | awk '{print $2}'`
+
 
 
 #
@@ -1373,7 +1374,7 @@ check_state() {
                 echo
         fi
 
-        if (( $MEM < 3940 )); then
+        if (( $MEM < 3940000 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
                 echo
