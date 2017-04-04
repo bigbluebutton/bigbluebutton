@@ -69,9 +69,9 @@ class ChatListItem extends Component {
                   {chat.unreadCounter}
                   <div
                     id="newMsgDesc"
-                    aria-label={!(chat.unreadCounter === 1)
-                      ? intl.formatMessage(intlMessages.unreadPlural) 
-                      : intl.formatMessage(intlMessages.unreadSingular)}
+                    aria-label={chat.unreadCounter === 1
+                      ? intl.formatMessage(intlMessages.unreadSingular)
+                      : intl.formatMessage(intlMessages.unreadPlural)}
                     />
                 </div>
               </div>
