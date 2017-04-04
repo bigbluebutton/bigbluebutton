@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import styles from './styles';
-
+import { defineMessages, injectIntl } from 'react-intl';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import Icon from '../icon/component';
 
 const ELEMENT_ID = 'chat-messages';
 
-export default class Chat extends Component {
+const intlMessages = defineMessages({
+  closeChatLabel: {
+    id: 'app.chat.closeChatLabel',
+  },
+});
+
+class Chat extends Component {
   constructor(props) {
     super(props);
   }
@@ -24,6 +30,7 @@ export default class Chat extends Component {
       lastReadMessageTime,
       isChatLocked,
       actions,
+      intl,
     } = this.props;
 
     return (
@@ -31,8 +38,11 @@ export default class Chat extends Component {
 
         <header className={styles.header}>
           <div className={styles.title}>
-            <Link to="/users">
-              <Icon iconName="left_arrow"/> {title}
+            <Link
+              to="/users"
+              role="button"
+              aria-label={intl.formatMessage(intlMessages.closeChatLabel, { title: title })}>
+                <Icon iconName="left_arrow"/> {title}
             </Link>
           </div>
           <div className={styles.closeIcon}>
@@ -67,3 +77,5 @@ export default class Chat extends Component {
     );
   }
 }
+
+export default injectIntl(Chat);

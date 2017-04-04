@@ -2,9 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
 import styles from './styles.scss';
-
 import { showModal } from '/imports/ui/components/app/service';
-
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
@@ -15,7 +13,14 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import { defineMessages, injectIntl } from 'react-intl';
+
+
+const intlMessages = defineMessages({
+  toggleUserListLabel: {
+    id: 'app.navBar.userListToggleBtnLabel',
+  },
+});
 
 const propTypes = {
   presentationTitle: PropTypes.string.isRequired,
@@ -61,7 +66,7 @@ class NavBar extends Component {
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded } = this.props;
+    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
 
     let toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -75,12 +80,13 @@ class NavBar extends Component {
             ghost={true}
             circle={true}
             hideLabel={true}
-            label={'Toggle User-List'}
+            label={intl.formatMessage(intlMessages.toggleUserListLabel)}
             icon={'user'}
             className={cx(toggleBtnClasses)}
+            aria-expanded={isExpanded}
           />
         </div>
-        <div className={styles.center}>
+        <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}
           <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>
@@ -168,5 +174,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-
-export default NavBar;
+export default injectIntl(NavBar);
