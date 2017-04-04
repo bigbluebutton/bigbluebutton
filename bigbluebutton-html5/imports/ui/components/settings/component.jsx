@@ -7,6 +7,7 @@ import Audio from '/imports/ui/components/settings/submenus/audio/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import Video from '/imports/ui/components/settings/submenus/video/component';
+import _ from 'lodash';
 
 import Icon from '../icon/component';
 import styles from './styles';
