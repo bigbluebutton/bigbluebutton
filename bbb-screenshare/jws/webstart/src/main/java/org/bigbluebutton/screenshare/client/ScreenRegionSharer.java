@@ -114,14 +114,14 @@ public class ScreenRegionSharer implements ScreenSharer, NetworkConnectionListen
   public void networkConnectionException(ExitCode reason, String streamId) {
     if (listener != null) {
       if (reason.getExitCode() == ExitCode.PAUSED.getExitCode()) {
-        //System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
+        System.out.println(NAME + "Pausing. Reason=" + reason.getExitCode());
         pause();
       } else if (reason.getExitCode() == ExitCode.START.getExitCode()) {
         this.streamId = streamId;
-        //System.out.println(NAME + "starting. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
+        System.out.println(NAME + "starting. StreamId=" + this.streamId + " fullScreen=" + fullScreen);
         start();
       } else {
-        //System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
+        System.out.println(NAME + "Closing. Reason=" + reason.getExitCode());
         listener.onClientStop(reason);
       }
     }

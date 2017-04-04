@@ -18,7 +18,13 @@
  */
 package org.bigbluebutton.modules.chat.views
 {
+  import flash.display.CapsStyle;
+  import flash.display.Graphics;
+  import flash.display.JointStyle;
+  import flash.display.Sprite;
+  
   import mx.controls.List;
+  import mx.controls.listClasses.IListItemRenderer;
   import org.bigbluebutton.modules.chat.events.ChatEvent;
   
   import org.as3commons.logging.api.ILogger;
@@ -32,7 +38,11 @@ package org.bigbluebutton.modules.chat.views
     {
       super();
     }
-    
+	
+	override protected function drawHighlightIndicator(indicator:Sprite, x:Number, y:Number, width:Number, height:Number, color:uint, itemRenderer:IListItemRenderer):void {
+		//intentionally empty to not show on hover
+	}
+	
     override protected function measure():void
     {
       super.measure();

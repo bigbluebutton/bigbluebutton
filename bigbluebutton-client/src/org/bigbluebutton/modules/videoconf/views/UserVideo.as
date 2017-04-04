@@ -67,7 +67,14 @@ package org.bigbluebutton.modules.videoconf.views
        */   
       var d:Date = new Date();
       var curTime:Number = d.getTime(); 
-      return profile.id + "-" + userId + "-" + curTime;
+      var streamId: String = profile.id + "-" + userId + "-" + curTime;
+       if (UsersUtil.isRecorded()) {
+          // Append recorded to stream name to tell server to record this stream.
+          // ralam (feb 27, 2017)
+          streamId += "-recorded";
+        }
+        
+        return streamId;
     }
 
     public static function getVideoProfile(stream:String):VideoProfile {

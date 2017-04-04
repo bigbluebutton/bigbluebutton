@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/" xmlns:common="org.bigbluebutton.common.*"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	enabled="true" visible="{showToolbar}"
-	initialize="init()" creationComplete="onCreationComplete()">   
+	initialize="init()">   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
@@ -41,7 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="hideToolbar" />
 	<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
 	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
-  <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
+	<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 	<mate:Listener type="{BBBEvent.CONFIRM_LOGOUT_END_MEETING_EVENT}" method="confirmEndSession" />
@@ -125,9 +125,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				BindingUtils.bindSetter(refreshModeratorButtonsVisibility, UserManager.getInstance().getConference(), "record");
 			}
       
-      private function onCreationComplete():void {
-      }
-      
       private function checkAccessiblity(e:TimerEvent):void {
         // remove the quick links if there's no screen reader active
         if (!Accessibility.active) {
@@ -150,6 +147,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           case "chat":
             dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_WINDOW));
             break;
+		  case "caption":
+			  dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CAPTION_WINDOW));
+			  break;
          }
        }
 								
@@ -248,7 +248,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onHelpButtonClicked():void {
-        DEFAULT_HELP_URL = BBB.getConfigManager().config.help.url;        
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL))
 			}
 			
@@ -279,6 +278,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function alertLogout(e:CloseEvent):void {
 				// Check to see if the YES button was pressed.
 				if (e.detail==Alert.YES) {
+					UserManager.getInstance().getConference().iAskedToLogout = true;
 					/* 
 					 * If doLogout() is called immediately there is a null exception in AlertAccImpl
 					 * line 185, but if we delay calling doLogout() until the next frame the Alert 
@@ -503,7 +503,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-	<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn]}"/>
+	<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn, captionLinkBtn]}"/>
 	<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
 					   tabIndices="{[recordBtn, muteMeBtn, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 
@@ -524,6 +524,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
                        accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
                        height="22" styleName="quickWindowLinkStyle" />
+		<mx:LinkButton id="captionLinkBtn" click="onQuickLinkClicked('caption')" label="{ResourceUtil.getInstance().getString('bbb.caption.quickLink.label')}" 
+					   accessibilityDescription="{captionLinkBtn.label}" toolTip="{captionLinkBtn.label}"
+					   height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
 	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>

@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.main.model.users {
 	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	import mx.collections.SortField;
@@ -29,8 +31,10 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
+	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	
 	public class Conference {
 		public var userEjectedFromMeeting:Boolean = false;
@@ -50,6 +54,8 @@ package org.bigbluebutton.main.model.users {
 		
 		public var isBreakout:Boolean;
 		
+		public var iAskedToLogout:Boolean
+		
 		[Bindable]
 		public var record:Boolean;
 		
@@ -60,7 +66,7 @@ package org.bigbluebutton.main.model.users {
 		
 		private var lockSettings:LockSettingsVO;
 		
-		private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
+		private var _myCamSettings:ArrayCollection = null;
 		
 		[Bindable]
 		private var me:BBBUser = null;
@@ -86,6 +92,7 @@ package org.bigbluebutton.main.model.users {
 			users.sort = sort;
 			users.refresh();
 			breakoutRooms = new ArrayCollection();
+			_myCamSettings = new ArrayCollection();
 		}
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
@@ -148,19 +155,28 @@ package org.bigbluebutton.main.model.users {
 			users.addItem(newuser);
 			users.refresh();
 		}
-		
-		public function setCamPublishing(publishing:Boolean):void {
-			_myCamSettings.isPublishing = publishing;
+
+		public function addCameraSettings(camSettings: CameraSettingsVO): void {
+			if(!_myCamSettings.contains(camSettings)) {
+				_myCamSettings.addItem(camSettings);
+			}
 		}
-		
-		public function setCameraSettings(camSettings:CameraSettingsVO):void {
-			_myCamSettings = camSettings;
+
+		public function removeCameraSettings(camIndex:int): void {
+			if (camIndex != -1) {
+				for(var i:int = 0; i < _myCamSettings.length; i++) {
+					if (_myCamSettings.getItemAt(i) != null && _myCamSettings.getItemAt(i).camIndex == camIndex) {
+						_myCamSettings.removeItemAt(i);
+						return;
+					}
+				}
+			}
 		}
-		
-		public function amIPublishing():CameraSettingsVO {
+
+		public function amIPublishing():ArrayCollection {
 			return _myCamSettings;
 		}
-		
+
 		public function setDefaultLayout(defaultLayout:String):void {
 			this.defaultLayout = defaultLayout;
 		}
@@ -200,8 +216,13 @@ package org.bigbluebutton.main.model.users {
 				}
 			}
 			return null;
-		}
-		
+        }
+
+        public function userIsModerator(userId:String):Boolean {
+            var user:BBBUser = getUser(userId);
+            return user != null && user.role == Role.MODERATOR;
+        }
+
 		public function getPresenter():BBBUser {
 			var p:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
@@ -429,14 +450,19 @@ package org.bigbluebutton.main.model.users {
 			}
 			users.refresh();
 		}
-		
-		public function sharedWebcam(userId:String, stream:String):void {
-			var aUser:BBBUser = getUser(userId);
-			if (aUser != null) {
-				aUser.sharedWebcam(stream)
-			}
-			users.refresh();
-		}
+
+        public function sharedWebcam(userId:String, stream:String):void {
+            var webcamsOnlyForModerator:Boolean = MeetingModel.getInstance().meeting.webcamsOnlyForModerator;
+            if (!webcamsOnlyForModerator || 
+				(webcamsOnlyForModerator && (amIModerator() || userIsModerator(userId)))
+			) {
+                var aUser:BBBUser = getUser(userId);
+                if (aUser != null) {
+                    aUser.sharedWebcam(stream)
+                }
+                users.refresh();
+            }
+        }
 		
 		public function unsharedWebcam(userId:String, stream:String):void {
 			var aUser:BBBUser = getUser(userId);
@@ -570,8 +596,21 @@ package org.bigbluebutton.main.model.users {
 			}
 			breakoutRooms.addItem(newRoom);
 			sortBreakoutRooms();
-		}
-		
+        }
+
+        public function setLastBreakoutRoomInvitation(sequence:int):void {
+            var aRoom:BreakoutRoom;
+            for (var i:int = 0; i < breakoutRooms.length; i++) {
+                aRoom = breakoutRooms.getItemAt(i) as BreakoutRoom;
+                if (aRoom.sequence != sequence) {
+                    aRoom.invitedRecently = false;
+                } else {
+                    aRoom.invitedRecently = true;
+                }
+            }
+			sortBreakoutRooms();
+        }
+
 		private function sortBreakoutRooms() : void {
 			var sort:Sort = new Sort();
 			sort.fields = [new SortField("sequence", true, false, true)];
@@ -654,6 +693,16 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function removeBreakoutRoom(breakoutMeetingId:String):void {
+			
+			// We need to switch the use back to the main audio confrence if he is in a breakout audio conference
+			if (isListeningToBreakoutRoom(breakoutMeetingId)) {
+				var dispatcher:Dispatcher = new Dispatcher();
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+				e.breakoutMeetingId = breakoutMeetingId;
+				e.listen = false;
+				dispatcher.dispatchEvent(e);
+			}
+			
 			var room:Object = getBreakoutRoomIndex(breakoutMeetingId);
 			if (room != null) {
 				breakoutRooms.removeItemAt(room.index);
@@ -690,17 +739,12 @@ package org.bigbluebutton.main.model.users {
 					br.listenStatus = BreakoutRoom.OTHER;
 				}
 			}
-		}
-		
-		public function getBreakoutRoomInListen() : BreakoutRoom {
-			for (var i:int = 0; i < breakoutRooms.length; i++) {
-				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
-				if (br.listenStatus == BreakoutRoom.SELF) {
-					return br;
-				}
-			}
-			return null;
-		}
+        }
+
+        public function isListeningToBreakoutRoom(breakoutMeetingId:String):Boolean {
+            var room:BreakoutRoom = getBreakoutRoom(breakoutMeetingId);
+            return room != null && room.listenStatus == BreakoutRoom.SELF;
+        }
 
 		public function resetBreakoutRooms():void {
 			for (var i:int = 0; i < breakoutRooms.length; i++) {

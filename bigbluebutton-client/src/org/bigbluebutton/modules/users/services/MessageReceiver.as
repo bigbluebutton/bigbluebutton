@@ -20,6 +20,8 @@ package org.bigbluebutton.modules.users.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import flash.utils.setTimeout;
+  
   import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -32,7 +34,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.vo.LockSettingsVO;
-  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.BreakoutRoomEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
@@ -589,7 +590,6 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
-      
       var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
       roleEvent.amIPresenter = amIPresenter;
       roleEvent.newPresenterUserID = newPresenterUserID;
@@ -601,9 +601,9 @@ package org.bigbluebutton.modules.users.services
       UserManager.getInstance().getConference().emojiStatus(map.userId, map.emojiStatus);
     }
 
-    private function handleUserSharedWebcam(msg: Object):void {   
-      var map:Object = JSON.parse(msg.msg);
-      UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
+    private function handleUserSharedWebcam(msg:Object):void {
+        var map:Object = JSON.parse(msg.msg);
+        UserManager.getInstance().getConference().sharedWebcam(map.userId, map.webcamStream);
     }
 
     private function handleUserUnsharedWebcam(msg: Object):void {  
@@ -733,11 +733,17 @@ package org.bigbluebutton.modules.users.services
 	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
+		var externalMeetingId : String = StringUtils.substringBetween(map.redirectJoinURL, "meetingID=", "&");
+		var breakoutRoom : BreakoutRoom = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId);
+		var sequence : int = breakoutRoom.sequence;
+		
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
 		event.joinURL = map.redirectJoinURL;
-		var externalMeetingId : String = StringUtils.substringBetween(event.joinURL, "meetingID=", "&");
-		event.breakoutMeetingSequence = UserManager.getInstance().getConference().getBreakoutRoomByExternalId(externalMeetingId).sequence;
+		event.breakoutMeetingSequence = sequence;
 		dispatcher.dispatchEvent(event);
+		
+		// We delay assigning last room invitation sequence to be sure it is handle in time by the item renderer
+		setTimeout(function() : void {UserManager.getInstance().getConference().setLastBreakoutRoomInvitation(sequence)}, 1000);
 	}
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{

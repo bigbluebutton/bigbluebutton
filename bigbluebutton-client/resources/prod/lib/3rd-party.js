@@ -29,20 +29,24 @@ var registerListeners = function() {
 			console.log("AmISharingCamQueryResponse [isPublishing=" + bbbEvent2.isPublishing + ",camIndex=" + bbbEvent2.camIndex + "]");
 		});
 		BBB.amISharingWebcam();
+
 		BBB.amISharingWebcam(function(bbbEvent3) {
-			console.log("amISharingWebcam [isPublishing=" + bbbEvent3.isPublishing 
-						+ ",camIndex=" + bbbEvent3.camIndex 
-						+ ",camWidth=" + bbbEvent3.camWidth
-						+ ",camHeight=" + bbbEvent3.camHeight
-						+ ",camKeyFrameInterval=" + bbbEvent3.camKeyFrameInterval
-						+ ",camModeFps=" + bbbEvent3.camModeFps
-						+ ",camQualityBandwidth=" + bbbEvent3.camQualityBandwidth
-						+ ",camQualityPicture=" + bbbEvent3.camQualityPicture						
-						+ "]");
-			if (bbbEvent3.isPublishing) {	
-				CAM_PREVIEW.stopPreviewCamera(bbbEvent3.avatarURL);
-				CAM_PREVIEW.previewCamera(bbbEvent3.camIndex, bbbEvent3.camWidth, bbbEvent3.camHeight, bbbEvent3.camKeyFrameInterval,
-										  bbbEvent3.camModeFps, bbbEvent3.camQualityBandwidth, bbbEvent3.camQualityPicture, bbbEvent3.avatarURL);
+			var cameras = bbbEvent3.cameras;
+			for(var aCamera in cameras){
+				console.log("amISharingWebcam [isPublishing=" + aCamera.isPublishing
+					+ ",camIndex=" + aCamera.camIndex
+					+ ",camWidth=" + aCamera.camWidth
+					+ ",camHeight=" + aCamera.camHeight
+					+ ",camKeyFrameInterval=" + aCamera.camKeyFrameInterval
+					+ ",camModeFps=" + aCamera.camModeFps
+					+ ",camQualityBandwidth=" + aCamera.camQualityBandwidth
+					+ ",camQualityPicture=" + aCamera.camQualityPicture
+					+ "]");
+				if (aCamera.isPublishing) {
+					CAM_PREVIEW.stopPreviewCamera(aCamera.avatarURL);
+					CAM_PREVIEW.previewCamera(aCamera.camIndex, aCamera.camWidth, aCamera.camHeight, aCamera.camKeyFrameInterval,
+						aCamera.camModeFps, aCamera.camQualityBandwidth, aCamera.camQualityPicture, aCamera.avatarURL);
+				}
 			}
 		});
 	} else {

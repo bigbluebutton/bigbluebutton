@@ -7,6 +7,7 @@ import Auth from '/imports/ui/services/auth';
 import userListService from '../user-list/service';
 import ChatService from '../chat/service';
 import Service from './service';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 import NavBar from './component';
 
@@ -56,7 +57,7 @@ export default withRouter(createContainer(({ location, router }) => {
   };
 
   const breakouts = Service.getBreakouts();
-  const currentUserId = Auth.getCredentials().requesterUserId;
+  const currentUserId = Auth.userID;
 
   return {
     breakouts,
@@ -65,6 +66,7 @@ export default withRouter(createContainer(({ location, router }) => {
     getBreakoutJoinURL: Service.getBreakoutJoinURL,
     presentationTitle: meetingTitle,
     hasUnreadMessages: checkUnreadMessages(),
+    isBreakoutRoom: meetingIsBreakout(),
     beingRecorded: meetingRecorded,
     toggleUserList: () => {
       if (location.pathname.indexOf('/users') !== -1) {

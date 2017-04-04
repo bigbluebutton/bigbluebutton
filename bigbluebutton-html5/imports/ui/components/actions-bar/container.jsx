@@ -1,6 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-
 import ActionsBar from './component';
 import Service from './service';
 
@@ -11,14 +10,22 @@ class ActionsBarContainer extends Component {
 
   render() {
     return (
-      <ActionsBar {...this.props}>
-        {this.props.children}
+      <ActionsBar
+        {...this.props}>
+          {this.props.children}
       </ActionsBar>
     );
   }
 }
 
 export default createContainer(() => {
-  let data = Service.isUserPresenter();
-  return data;
+  const isPresenter = Service.isUserPresenter();
+  const handleExitAudio = () => Service.handleExitAudio();
+  const handleOpenJoinAudio = () => Service.handleJoinAudio();
+
+  return {
+    isUserPresenter: isPresenter,
+    handleExitAudio: handleExitAudio,
+    handleOpenJoinAudio: handleOpenJoinAudio,
+  };
 }, ActionsBarContainer);

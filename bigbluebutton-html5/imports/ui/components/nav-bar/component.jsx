@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import _ from 'underscore';
+import _ from 'lodash';
 import cx from 'classnames';
 import styles from './styles.scss';
 
@@ -7,7 +7,7 @@ import { showModal } from '/imports/ui/components/app/service';
 
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdown from './settings-dropdown/component';
+import SettingsDropdownContainer from './settings-dropdown/container';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -82,11 +82,10 @@ class NavBar extends Component {
         </div>
         <div className={styles.center}>
           {this.renderPresentationTitle()}
-          <span className={styles.divider}></span>
           <RecordingIndicator beingRecorded={beingRecorded}/>
         </div>
         <div className={styles.right}>
-          <SettingsDropdown />
+          <SettingsDropdownContainer />
         </div>
       </div>
     );
@@ -94,15 +93,12 @@ class NavBar extends Component {
 
   renderPresentationTitle() {
     const {
-      meetingId,
-      currentUserId,
+      breakouts,
+      isBreakoutRoom,
+      presentationTitle,
     } = this.props;
 
-    const presentationTitle = this.props.presentationTitle;
-    const breakouts = this.props.breakouts;
-    const isMeetingBreakout = breakouts.find(b => b.breakoutMeetingId === meetingId);
-
-    if (!breakouts.length || isMeetingBreakout) {
+    if (isBreakoutRoom) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
@@ -130,9 +126,8 @@ class NavBar extends Component {
   componentDidUpdate() {
     const {
       breakouts,
-      currentUserId,
-      meetingId,
       getBreakoutJoinURL,
+      isBreakoutRoom,
     } = this.props;
 
     breakouts.forEach(breakout => {
@@ -142,8 +137,7 @@ class NavBar extends Component {
 
       const breakoutURL = getBreakoutJoinURL(breakout);
 
-      const meetingIsBreakout = meetingId === breakout.breakoutMeetingId;
-      if (!this.state.didSendBreakoutInvite && !meetingIsBreakout) {
+      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout, breakoutURL);
       }
     });

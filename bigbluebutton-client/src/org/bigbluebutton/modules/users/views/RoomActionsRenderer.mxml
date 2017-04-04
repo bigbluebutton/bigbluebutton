@@ -7,21 +7,26 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
+
 			import mx.events.FlexEvent;
-			
+
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.model.users.BreakoutRoom;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+
 			private var globalDispatch:Dispatcher = new Dispatcher();
 
 			[Bindable]
 			private var images:Images = new Images();
 
+			[Bindable]
+			private var moderator:Boolean = false;
+
 			protected function onCreationCompleteHandler(event:FlexEvent):void {
+				moderator = UserManager.getInstance().getConference().amIModerator();
+
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
 			}
 
@@ -51,13 +56,19 @@
 		]]>
 	</mx:Script>
 
-	<mx:Button id="joinImg" width="20" height="20"
-			   includeInLayout="{UserManager.getInstance().getConference().breakoutRoomsReady}" visible="{joinImg.includeInLayout}"
-			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
-			   click="requestBreakoutJoinUrl(event)"/>
-	<mx:Button id="listenBtn" toggle="true"
-			   width="20" height="20"
-			   visible="{data.listenStatus != BreakoutRoom.OTHER &amp;&amp; UserManager.getInstance().getConference().voiceJoined || data.listenStatus == BreakoutRoom.SELF}" includeInLayout="{listenBtn.visible}"
-			   icon="{images.transfer}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.transfer')}"
-			   click="listenToBreakoutRoom(event)"/>
+	<mx:Button id="joinBtn"
+			   width="20"
+			   height="20"
+			   icon="{images.join}"
+			   visible="{(UserManager.getInstance().getConference().breakoutRoomsReady &amp;&amp; moderator) || (!moderator &amp;&amp; data.invitedRecently)}"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
+			   click="requestBreakoutJoinUrl(event)" />
+	<mx:Button id="listenBtn"
+			   toggle="true"
+			   width="20"
+			   height="20"
+			   visible="{moderator &amp;&amp; data.listenStatus != BreakoutRoom.OTHER &amp;&amp; UserManager.getInstance().getConference().voiceJoined || data.listenStatus == BreakoutRoom.SELF}"
+			   icon="{images.transfer}"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.transfer')}"
+			   click="listenToBreakoutRoom(event)" />
 </mx:HBox>

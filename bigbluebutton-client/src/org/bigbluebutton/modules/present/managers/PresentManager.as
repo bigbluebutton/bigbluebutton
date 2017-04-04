@@ -24,10 +24,10 @@ package org.bigbluebutton.modules.present.managers
 	import flash.geom.Point;
 	
 	import mx.core.FlexGlobals;
-	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
@@ -37,8 +37,6 @@ package org.bigbluebutton.modules.present.managers
 	public class PresentManager
 	{
 		private var globalDispatcher:Dispatcher;
-		private var uploadWindow:FileUploadWindow;
-		private var downloadWindow:FileDownloadWindow;
 		private var presentWindow:PresentationWindow;
 		
 		public function PresentManager() {
@@ -64,42 +62,39 @@ package org.bigbluebutton.modules.present.managers
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
 		}
-	
-		public function handleOpenUploadWindow(e:UploadEvent):void{
-			if (uploadWindow != null) return;
 
-			uploadWindow = FileUploadWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, true));
-			uploadWindow.maxFileSize = e.maxFileSize;
-			
-			var point1:Point = new Point();
-			point1.x = FlexGlobals.topLevelApplication.width / 2;
-			point1.y = FlexGlobals.topLevelApplication.height / 2;  
-			
-			uploadWindow.x = point1.x - (uploadWindow.width/2);
-			uploadWindow.y = point1.y - (uploadWindow.height/2);
+		public function handleOpenUploadWindow(e:UploadEvent):void{
+			var uploadWindow : FileUploadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, false) as FileUploadWindow;
+			if (uploadWindow) {
+				uploadWindow.maxFileSize = e.maxFileSize;
+				
+				var point1:Point = new Point();
+				point1.x = FlexGlobals.topLevelApplication.width / 2;
+				point1.y = FlexGlobals.topLevelApplication.height / 2;  
+				
+				uploadWindow.x = point1.x - (uploadWindow.width/2);
+				uploadWindow.y = point1.y - (uploadWindow.height/2);
+			}
 		}
 		
 		public function handleCloseUploadWindow():void{
-			PopUpManager.removePopUp(uploadWindow);
-			uploadWindow = null;
+			PopUpUtil.removePopUp(FileUploadWindow);
 		}
 
 		public function handleOpenDownloadWindow():void {
-			if (downloadWindow != null) return;
+			var downloadWindow:FileDownloadWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileDownloadWindow, false) as FileDownloadWindow;
+			if (downloadWindow) {
+				var point1:Point = new Point();
+				point1.x = FlexGlobals.topLevelApplication.width / 2;
+				point1.y = FlexGlobals.topLevelApplication.height / 2;
 
-			downloadWindow = FileDownloadWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileDownloadWindow, true));
-
-			var point1:Point = new Point();
-			point1.x = FlexGlobals.topLevelApplication.width / 2;
-			point1.y = FlexGlobals.topLevelApplication.height / 2;
-
-			downloadWindow.x = point1.x - (downloadWindow.width/2);
-			downloadWindow.y = point1.y - (downloadWindow.height/2);
+				downloadWindow.x = point1.x - (downloadWindow.width/2);
+				downloadWindow.y = point1.y - (downloadWindow.height/2);
+			}
 		}
 
 		public function handleCloseDownloadWindow():void {
-			PopUpManager.removePopUp(downloadWindow);
-			downloadWindow = null;
+			PopUpUtil.removePopUp(FileDownloadWindow);
 		}
 	}
 }

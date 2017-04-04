@@ -15,6 +15,14 @@ ApplicationControlBar {
   dropShadowColor: #000000;
 }
 
+.defaultControlBarStyle {
+	color : #0B333C;
+}
+
+.darkControlBarStyle {
+	color : #ffffff;
+}
+
 Panel {
   borderColor: #dfdfdf;
   borderAlpha: 1;
@@ -845,6 +853,18 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   borderThicknessRight: 3;
 }
 
+.videoDockStyleFocusChatLayout {
+	borderStyle : none;
+	borderColor: #42444c;
+	backgroundColor: #42444c;
+}
+
+.videoDockStyleNoFocusChatLayout {
+	borderStyle : none;
+	borderColor: #42444c;
+	backgroundColor: #42444c;
+}
+
 .presentationSlideViewStyle {
   backgroundColor: #b9babc;
 }
@@ -953,6 +973,14 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	borderThicknessTop: 0;
 	borderThicknessBottom: 3;
 	borderThicknessRight: 3;
+}
+
+.defaultShellStyle {
+	backgroundColor: #fefeff;
+}
+
+.darkShellStyle {
+	backgroundColor: #42444c;
 }
 
 .mdiWindowTitle {
@@ -1168,6 +1196,11 @@ PollChoicesModal {
 	fontFamily: Arial;
 }
 
+.chatMessageListStyle {
+	rollOverColor: #ffffff;
+	selectionColor: #f3f3f3;
+}
+
 EmojiGrid {
 	backgroundColor: #ffffff;
 	horizontalAlign: center;
@@ -1184,6 +1217,11 @@ EmojiGrid {
 	paddingTop: 10;
 	verticalGap: 6;
 	horizontalGap: 6;
+}
+
+RoomActionsRenderer {
+	paddingLeft  : 5;
+	paddingRight : 5;
 }
 
 .breakoutRoomUserWindowHeadingStyle {

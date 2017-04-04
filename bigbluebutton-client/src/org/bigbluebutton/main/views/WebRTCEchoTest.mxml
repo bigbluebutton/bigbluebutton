@@ -24,8 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				creationComplete="onCreationComplete()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false" 
-				close="onCancelClicked()" 
-				keyDown="handleKeyDown(event)">
+				close="onCancelClicked()">
 	
 	<mate:Listener type="{WebRTCEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRTCEchoTestStartedEvent" />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED}" method="handleWebRTCEchoTestEndedEvent" />
@@ -41,13 +40,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.managers.PopUpManager;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.main.api.JSLog;
 			import org.bigbluebutton.modules.phone.PhoneModel;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
@@ -55,7 +52,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.models.Constants;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-      
+
 			private static const LOGGER:ILogger = getClassLogger(WebRTCEchoTest);      
 			private static var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 
@@ -79,11 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCancelClicked():void {
 
 				stopTimers();
-				PopUpManager.removePopUp(this);
-			}
-			
-			private function handleKeyDown(event:KeyboardEvent):void {
-				
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function onCreationComplete():void {

@@ -1,5 +1,5 @@
 function setTitle(title){
-    document.title= title;
+    document.title= "BigBlueButton - " + title;
 }
 
 function clientReady(message){
@@ -60,6 +60,28 @@ function determineGlobalModifier()
 	//}
 	else{
 		modifier = "control+alt+";
+	}
+	return modifier;
+}
+
+function determineGlobalAlternateModifier()
+{
+	var browser = determineBrowser()[0];
+	var modifier;
+	if (browser == "Firefox"){
+		modifier = "control+";
+	}
+	else if (browser == "Chrome"){
+		modifier = "control+";
+	}
+	else if (browser == "Microsoft Internet Explorer"){
+		modifier = "control+shift+";
+	}
+	//else if (browser == "Safari"){
+	//	modifier = "control+alt";
+	//}
+	else{
+		modifier = "control+shift+";
 	}
 	return modifier;
 }

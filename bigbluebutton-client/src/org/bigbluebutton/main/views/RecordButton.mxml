@@ -230,8 +230,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				} else {
 					if (UserManager.getInstance().getConference().amIModerator()) {
-						if (MeetingModel.getInstance().meeting.isMetadata("mconf-live-wont-record-message")) {
-							this.toolTip = MeetingModel.getInstance().meeting.metadata["mconf-live-wont-record-message"];
+						if (MeetingModel.getInstance().meeting.isMetadata("wont-record-message")) {
+							this.toolTip = MeetingModel.getInstance().meeting.metadata["wont-record-message"];
 						} else {
 							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.wontRecord');
 						}

@@ -34,10 +34,12 @@ package org.bigbluebutton.util.i18n
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
 	import mx.utils.URLUtil;
-    import org.bigbluebutton.core.UsersUtil;
+	
+	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.AppVersionEvent;
 
 	public class ResourceUtil extends EventDispatcher {
@@ -113,8 +115,8 @@ package org.bigbluebutton.util.i18n
 
 			for each(locale in list){
 				locales.push({
-					code: locale.@code,
-					name: locale.@name
+					code: locale.@code.toString(),
+					name: locale.@name.toString()
 				});
 			}							
 		}
@@ -276,6 +278,7 @@ package org.bigbluebutton.util.i18n
 		[Bindable("change")]
 		public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
 			/**
+			 * @fixme: to be reviewed when all locales from transifex are updated (gtriki feb 7, 2017)
 			 * Get the translated string from the current locale. If empty, get the string from the master
 			 * locale. Locale chaining isn't working because mygengo actually puts the key and empty value
 			 * for untranslated strings into the locale file. So, when Flash does a lookup, it will see that
@@ -287,7 +290,7 @@ package org.bigbluebutton.util.i18n
 			}
 
 			var localeTxt:String = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
-			if (locale != MASTER_LOCALE && (localeTxt == "" || localeTxt == null)) {
+			if (locale != MASTER_LOCALE && StringUtils.isEmpty(localeTxt)) {
 				localeTxt = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
 			}
 			return localeTxt;

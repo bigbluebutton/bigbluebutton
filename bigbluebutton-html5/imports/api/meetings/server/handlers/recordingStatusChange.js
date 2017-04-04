@@ -3,9 +3,9 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 
 export default function handleRecordingStatusChange({ payload }) {
-  const meetingId = arg.payload.meeting_id;
-  const intendedForRecording = arg.payload.recorded;
-  const currentlyBeingRecorded = arg.payload.recording;
+  const meetingId = payload.meeting_id;
+  const intendedForRecording = payload.recorded;
+  const currentlyBeingRecorded = payload.recording;
 
   check(meetingId, String);
   check(intendedForRecording, Boolean);

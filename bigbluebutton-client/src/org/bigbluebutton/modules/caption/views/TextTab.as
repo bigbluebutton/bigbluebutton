@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.modules.caption.views {
 	import com.asfusion.mate.events.Dispatcher;
+	import com.asfusion.mate.events.Listener;
 	
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
@@ -36,6 +37,7 @@ package org.bigbluebutton.modules.caption.views {
 	import mx.controls.Button;
 	import mx.events.FlexEvent;
 	
+	import org.bigbluebutton.common.events.LocaleChangeEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
 	import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
@@ -74,6 +76,8 @@ package org.bigbluebutton.modules.caption.views {
 		private var outputArea:TextArea2;
 		private var claimButton:Button;
 		
+		private var focusSwitchTimer:Timer;
+		
 		public function TextTab(startIndex:int, captionOptions:CaptionOptions) {
 			super();
 			
@@ -98,8 +102,6 @@ package org.bigbluebutton.modules.caption.views {
 			addChild(outputArea);
 			
 			claimButton = new Button();
-			claimButton.label = ResourceUtil.getInstance().getString('bbb.caption.option.takeowner');
-			claimButton.toolTip = ResourceUtil.getInstance().getString('bbb.caption.option.takeowner.tooltip');
 			claimButton.height = 22; 
 			claimButton.visible = false;
 			claimButton.includeInLayout = false;
@@ -111,6 +113,12 @@ package org.bigbluebutton.modules.caption.views {
 			_sendTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onSendTimerComplete);
 			
 			addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
+			
+			var localeListener:Listener = new Listener();
+			localeListener.type = LocaleChangeEvent.LOCALE_CHANGED;
+			localeListener.method = localeChanged;
+			
+			resourcesChanged();
 		}
 		
 		private function onCreationComplete(e:FlexEvent):void {
@@ -118,6 +126,40 @@ package org.bigbluebutton.modules.caption.views {
 			outputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
 			
 			removeEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
+		}
+		
+		private function localeChanged(e:Event):void{
+			resourcesChanged();
+		}
+		
+		override protected function resourcesChanged():void{
+			super.resourcesChanged();
+			
+			if (inputArea != null) {
+				inputArea.toolTip = ResourceUtil.getInstance().getString('bbb.caption.transcript.inputArea.toolTip');
+			}
+			
+			if (outputArea != null) {
+				outputArea.toolTip = ResourceUtil.getInstance().getString('bbb.caption.transcript.outputArea.toolTip');
+			}
+			
+			if (claimButton != null) {
+				claimButton.label = ResourceUtil.getInstance().getString('bbb.caption.option.takeowner');
+				claimButton.toolTip = ResourceUtil.getInstance().getString('bbb.caption.option.takeowner.tooltip');
+			}
+		}
+		
+		public function delayedFocusTextArea():void {
+			focusSwitchTimer = new Timer(250, 1);
+			focusSwitchTimer.addEventListener(TimerEvent.TIMER, function():void {
+				focusTextArea();
+			});
+			focusSwitchTimer.start();
+		}
+		
+		public function focusTextArea():void {
+			var areaToFocus:TextArea2 = (inputArea.visible ? inputArea : outputArea);
+			areaToFocus.setFocus();
 		}
 		
 		public function setCurrentTranscript(t:Transcript):void {
@@ -134,8 +176,15 @@ package org.bigbluebutton.modules.caption.views {
 		}
 		
 		public function transcriptOwnerIDChange(ownerID:String):void {
+			//check focus targets before switching visibility
+			var focusedTextArea:TextArea2 = null;
+			
 			if (ownerID == UserManager.getInstance().getConference().getMyUserId()) {
 				claimButton.visible = claimButton.includeInLayout = false;
+				
+				if (focusManager && focusManager.getFocus() == outputArea) {
+					delayedFocusTextArea();
+				}
 				
 				//release text
 				inputArea.visible = inputArea.includeInLayout = true;
@@ -145,17 +194,14 @@ package org.bigbluebutton.modules.caption.views {
 			} else {
 				claimButton.visible = claimButton.includeInLayout = UserManager.getInstance().getConference().amIModerator();
 				
-				if (ownerID == "") {
-					//unclaimed text
-					inputArea.visible = inputArea.includeInLayout = false;
-					outputArea.visible = outputArea.includeInLayout = true;
-					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
-				} else {
-					//claimed by other
-					inputArea.visible = inputArea.includeInLayout = false;
-					outputArea.visible = outputArea.includeInLayout = true;
-					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
+				if (focusManager && focusManager.getFocus() == outputArea) {
+					delayedFocusTextArea();
 				}
+				
+				//unclaimed text
+				inputArea.visible = inputArea.includeInLayout = false;
+				outputArea.visible = outputArea.includeInLayout = true;
+				inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
 				
 				resetOverwriteVars();
 				resetTextToSendVars();
@@ -189,6 +235,8 @@ package org.bigbluebutton.modules.caption.views {
 		
 		private function onClaimButtonClick(e:MouseEvent):void {
 			claimTranscript(currentTranscript.locale, currentTranscript.localeCode, true);
+			
+			delayedFocusTextArea();
 		}
 		
 		private function claimTranscript(locale:String, localeCode:String, claim:Boolean):void {

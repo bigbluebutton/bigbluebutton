@@ -19,6 +19,8 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
+import org.bigbluebutton.api.domain.RecordingMetadata
+import org.bigbluebutton.api.util.ResponseBuilder
 
 import javax.servlet.ServletRequest;
 
@@ -53,9 +55,10 @@ import org.bigbluebutton.web.services.turn.StunTurnService;
 import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+import org.bigbluebutton.api.util.ResponseBuilder
 import freemarker.template.Configuration;
 import freemarker.cache.WebappTemplateLoader;
+import java.io.File;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
@@ -74,6 +77,8 @@ class ApiController {
   ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
+
+
 
   /* general methods */
   def index = {
@@ -155,44 +160,43 @@ class ApiController {
       return
     }
 
-
-    // Translate the external meeting id into an internal meeting id.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
-    Meeting existing = meetingService.getNotEndedMeetingWithId(internalMeetingId);
-    if (existing != null) {
-      log.debug "Existing conference found"
-      Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
-      if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
-        paramsProcessorUtil.updateMeeting(updateParams, existing);
-        // trying to create a conference a second time, return success, but give extra info
-        // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
-        //uploadDocuments(existing);
-        respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
-      } else {
-        // BEGIN - backward compatibility
-        invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
-        return;
-        // END - backward compatibility
-
-        // enforce meetingID unique-ness
-        errors.nonUniqueMeetingIdError()
-        respondWithErrors(errors)
-      }
-
-      return;
-    }
-
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);
 
     if (! StringUtils.isEmpty(params.moderatorOnlyMessage)) {
       newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
     }
 
-    meetingService.createMeeting(newMeeting);
+    if (meetingService.createMeeting(newMeeting)) {
+      // See if the request came with pre-uploading of presentation.
+      uploadDocuments(newMeeting);
+      respondWithConference(newMeeting, null, null)
+    } else {
+      // Translate the external meeting id into an internal meeting id.
+      String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
+      Meeting existing = meetingService.getNotEndedMeetingWithId(internalMeetingId);
+      if (existing != null) {
+        log.debug "Existing conference found"
+        Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
+        if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
+          paramsProcessorUtil.updateMeeting(updateParams, existing);
+          // trying to create a conference a second time, return success, but give extra info
+          // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
+          //uploadDocuments(existing);
+          respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
+        } else {
+          // BEGIN - backward compatibility
+          invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
+          return;
+          // END - backward compatibility
 
-    // See if the request came with pre-uploading of presentation.
-    uploadDocuments(newMeeting);
-    respondWithConference(newMeeting, null, null)
+          // enforce meetingID unique-ness
+          errors.nonUniqueMeetingIdError()
+          respondWithErrors(errors)
+        }
+
+        return;
+      }
+    }
   }
 
   /**********************************************
@@ -800,7 +804,15 @@ class ApiController {
       return;
     }
 
-    respondWithConferenceDetails(meeting, null, null, null);
+    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
+    ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
+
+    def xmlText = responseBuilder.buildGetMeetingInfoResponse(meeting, RESP_CODE_SUCCESS)
+    withFormat {
+      xml {
+        render(text: xmlText, contentType: "text/xml")
+      }
+    }
   }
 
   /************************************
@@ -859,41 +871,14 @@ class ApiController {
       }
     } else {
       response.addHeader("Cache-Control", "no-cache")
+
+      def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
+      ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
+
+      def xmlText = responseBuilder.buildGetMeetingsResponse(mtgs, RESP_CODE_SUCCESS)
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode(RESP_CODE_SUCCESS)
-              meetings {
-                for (m in mtgs) {
-                  meeting {
-                    meetingID() { mkp.yield(m.getExternalId()) }
-                    internalMeetingID() { mkp.yield(m.getInternalId()) }
-                    if (m.isBreakout()) {
-                        parentMeetingID() { mkp.yield(m.getParentMeetingId()) }
-                        sequence(m.getSequence())
-                    }
-                    isBreakout() { mkp.yield(m.isBreakout()) }
-                    meetingName() { mkp.yield(m.getName()) }
-                    createTime(m.getCreateTime())
-                    createDate(formatPrettyDate(m.getCreateTime()))
-                    voiceBridge() { mkp.yield(m.getTelVoice()) }
-                    dialNumber() { mkp.yield(m.getDialNumber()) }
-                    attendeePW() { mkp.yield(m.getViewerPassword()) }
-                    moderatorPW() { mkp.yield(m.getModeratorPassword()) }
-                    hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
-                    running(m.isRunning() ? "true" : "false")
-                    participantCount(m.getNumUsers())
-                    listenerCount(m.getNumListenOnly())
-                    voiceParticipantCount(m.getNumVoiceJoined())
-                    videoCount(m.getNumVideos())
-                    duration(m.duration)
-                    hasUserJoined(m.hasUserJoined())
-                  }
-                }
-              }
-            }
-          }
+          render(text: xmlText, contentType: "text/xml")
         }
       }
     }
@@ -1363,6 +1348,7 @@ class ApiController {
               record = us.record
               isBreakout = meeting.isBreakout()
               allowStartStopRecording = meeting.getAllowStartStopRecording()
+              webcamsOnlyForModerator = meeting.getWebcamsOnlyForModerator()
               welcome = us.welcome
               if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
                 modOnlyMessage = meeting.moderatorOnlyMessage
@@ -1527,6 +1513,8 @@ class ApiController {
       return
     }
 
+    log.debug  request.getQueryString()
+
     // Do we agree on the checksum? If not, complain.
     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       errors.checksumError()
@@ -1556,8 +1544,12 @@ class ApiController {
       internalRecordIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
     }
 
-    Map<String,Recording> recs = meetingService.getRecordings(internalRecordIds, states);
-    recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
+    for(String intRecId : internalRecordIds){
+      log.debug intRecId
+    }
+
+    List<RecordingMetadata> recsList = meetingService.getRecordingsMetadata(internalRecordIds, states);
+    List<RecordingMetadata> recs = meetingService.filterRecordingsByMetadata(recsList, ParamsProcessorUtil.processMetaParam(params));
 
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -1575,18 +1567,14 @@ class ApiController {
       }
       return;
     }
-    def cfg = new Configuration()
 
-    // Load the XML template
-    // TODO: Maybe there is a better way to define the templates path
-    def wtl = new WebappTemplateLoader(getServletContext(), "/WEB-INF/freemarker")
-    cfg.setTemplateLoader(wtl)
-    def ftl = cfg.getTemplate("get-recordings.ftl")
-    def xmlText = new StringWriter()
-    ftl.process([code:RESP_CODE_SUCCESS, recs:recs.values()], xmlText)
+    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
+    ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
+
+    def xmlText = responseBuilder.buildGetRecordingsResponse(recs, RESP_CODE_SUCCESS)
     withFormat {
       xml {
-        render(text: xmlText.toString(), contentType: "text/xml")
+        render(text: xmlText, contentType: "text/xml")
       }
     }
   }

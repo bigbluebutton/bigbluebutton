@@ -43,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -97,8 +98,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		    private function handleKeyDown(e:KeyboardEvent) :void {
 		      var modifier:String = ExternalInterface.call("determineModifier");
 			  loadKeyCombos(modifier);			  
-			  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
-		                            (e.altKey   ? "alt+"     : "") + e.keyCode;		                              
+			  var keyPress:String = KeyboardUtil.buildPressedKeys(e);
 		      if (keyCombos[keyPress]) {
 		        disp.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 		      }
@@ -120,7 +120,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function focusWindow(e:ShortcutEvent):void{
-				focusManager.setFocus(titleBarOverlay);
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {

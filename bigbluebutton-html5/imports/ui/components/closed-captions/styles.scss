@@ -4,6 +4,26 @@
   border: 0;
   padding: none;
   width: 100%;
-  height:300px;
-  overflow: scroll;
+  height:100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.frame {
+  width: calc(100% - 40px);
+  height: calc(100% - 80px);
+  margin: 20px;
+  overflow: auto;
+
+  //if you change the thickness of the border
+  //you should also change a corresponding value in the componentWillUpdate
+  //otherwise auto-scrolling for closed-captions will break
+  border: 2px solid #bbbfcd;
+}
+
+.title {
+  height: 20px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-left: 20px;
 }

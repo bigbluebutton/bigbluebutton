@@ -22,81 +22,78 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 
 public final class UploadedPresentation {
-	private final String meetingId;
-	private final String id;
-	private final String name;
-	private File uploadedFile;
-	private String fileType = "unknown";
-	private int numberOfPages = 0;
-	private boolean lastStepSuccessful = false;
-	private final String baseUrl;
-	private boolean isDownloadable = false;
-	
-	public UploadedPresentation(String meetingId, String id, 
-			                    String name, 
-			                    String baseUrl) {
-		this.meetingId = meetingId;
-		this.id = id;
-		this.name = name;
-		this.baseUrl = baseUrl;
-		this.isDownloadable = false;
-	}
+  private final String meetingId;
+  private final String id;
+  private final String name;
+  private File uploadedFile;
+  private String fileType = "unknown";
+  private int numberOfPages = 0;
+  private String conversionStatus;
+  private final String baseUrl;
+  private boolean isDownloadable = false;
 
-	public boolean isDownloadable() {
-		return isDownloadable;
-	}
+  public UploadedPresentation(String meetingId, String id, String name,
+      String baseUrl) {
+    this.meetingId = meetingId;
+    this.id = id;
+    this.name = name;
+    this.baseUrl = baseUrl;
+    this.isDownloadable = false;
+  }
 
-	public void setDownloadable() {
-		this.isDownloadable = true;
-	}
+  public File getUploadedFile() {
+    return uploadedFile;
+  }
 
-	public File getUploadedFile() {
-		return uploadedFile;
-	}
+  public void setUploadedFile(File uploadedFile) {
+    this.uploadedFile = uploadedFile;
+  }
 
-	public void setUploadedFile(File uploadedFile) {
-		this.uploadedFile = uploadedFile;
-	}
+  public String getMeetingId() {
+    return meetingId;
+  }
 
-	public String getMeetingId() {
-		return meetingId;
-	}
-	
-	public String getId() {
-		return id;
-	}
+  public String getId() {
+    return id;
+  }
 
-	public String getName() {
-		return name;
-	}
-	
-	public String getBaseUrl() {
-		return baseUrl;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public String getFileType() {
-		return fileType;
-	}
+  public String getBaseUrl() {
+    return baseUrl;
+  }
 
-	public void setFileType(String fileType) {
-		this.fileType = fileType;
-	}
+  public String getFileType() {
+    return fileType;
+  }
 
-	public int getNumberOfPages() {
-		return numberOfPages;
-	}
+  public void setFileType(String fileType) {
+    this.fileType = fileType;
+  }
 
-	public void setNumberOfPages(int numberOfPages) {
-		this.numberOfPages = numberOfPages;
-	}
+  public int getNumberOfPages() {
+    return numberOfPages;
+  }
 
-	public boolean isLastStepSuccessful() {
-		return lastStepSuccessful;
-	}
+  public void setNumberOfPages(int numberOfPages) {
+    this.numberOfPages = numberOfPages;
+  }
 
-	public void setLastStepSuccessful(boolean lastStepSuccessful) {
-		this.lastStepSuccessful = lastStepSuccessful;
-	}
-	
-	
+  public String getConversionStatus() {
+    return conversionStatus;
+  }
+
+  public void setConversionStatus(String conversionStatus) {
+    this.conversionStatus = conversionStatus;
+  }
+
+  public boolean isDownloadable() {
+    return isDownloadable;
+  }
+
+  public void setDownloadable() {
+    this.isDownloadable = true;
+  }
 }

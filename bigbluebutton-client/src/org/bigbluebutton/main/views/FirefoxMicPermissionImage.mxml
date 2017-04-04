@@ -44,24 +44,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-			import mx.managers.PopUpManager;
-			
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private function handleWebRTCMediaSuccessEvent(e:WebRTCMediaEvent):void {
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function handleWebRTCMediaFailEvent(e:WebRTCMediaEvent):void {
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function handleWebRTCEchoTestFailedEvent(e:WebRTCEchoTestEvent):void {
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
-		
 		]]>
 	</mx:Script>
   

@@ -116,6 +116,7 @@ class UserList extends Component {
       currentUser,
       userActions,
       compact,
+      isBreakoutRoom,
     } = this.props;
 
     return (
@@ -146,6 +147,7 @@ class UserList extends Component {
             <UserListItem
               compact={this.state.compact}
               key={user.id}
+              isBreakoutRoom={isBreakoutRoom}
               user={user}
               currentUser={currentUser}
               userActions={userActions}

@@ -79,7 +79,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
-			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -90,6 +89,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -126,7 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              		
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
-      public static const TITLE:String = "Presentation";
+      		public static const TITLE:String = "Presentation";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
 
 			private static const TAB_MAX_WIDTH:Number = 200;
@@ -140,9 +141,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var paused:Boolean = false;
 			
 			[Bindable] 
-      private var thumbY:Number;
+      		private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
-			private var pageDialog:GotoPageDialog;
 			
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
@@ -171,9 +171,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
-			
-			private var pollResultsPopUp:PollResultsModal
-			private var pollChoicesPopUp:PollChoicesModal
 			
 			[Embed(source="../../../polling/sounds/Poll.mp3")] 
 			private var noticeSoundClass:Class;
@@ -262,7 +259,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var modifier:String = ExternalInterface.call("determineModifier");
 				loadKeyCombos(modifier);
 				  
-				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
+				var keyPress:String = KeyboardUtil.buildPressedKeys(e);
 				                          
 				if (keyCombos[keyPress]) {
 				    //globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
@@ -286,7 +283,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function focusWindow(e:ShortcutEvent):void{
-				focusManager.setFocus(titleBarOverlay);
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
 			}
 			
 			private function resizeHandler():void {
@@ -699,7 +698,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
 					pollMenuData.push({label: constructedLabel});
 				}
-				pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPoll.label")});
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPollOption.label")});
 			}
 			
 			private function onPollStartButtonClicked():void {
@@ -725,15 +724,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenu.show();
 
 			}
-			
-			private function sendStartCustomPollEvent(pollType:String):void {
-				// Let's reset the page to display full size so we can display the result
-				// on the bottom right-corner.
-				pollChoicesPopUp = PopUpManager.createPopUp(this, PollChoicesModal, true) as PollChoicesModal;
-				pollChoicesPopUp.setPresentationWindow(this);
-				PopUpManager.centerPopUp(pollChoicesPopUp);
-			}
-			
+
+            private function sendStartCustomPollEvent(pollType:String):void {
+                // Let's reset the page to display full size so we can display the result
+                // on the bottom right-corner.
+                var pollChoicesPopUp:PollChoicesModal = PopUpUtil.createModalPopUp(this, PollChoicesModal, true) as PollChoicesModal;
+                if (pollChoicesPopUp) {
+                    pollChoicesPopUp.setPresentationWindow(this);
+                }
+            }
+
 			private function sendStartPollEvent(pollType:String):void {
 				// Let's reset the page to display full size so we can display the result
 				// on the bottom right-corner.
@@ -789,9 +789,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// the event for this doesn't exist yet
 				if (UsersUtil.amIPresenter()) {
 					// display the results view
-					pollResultsPopUp = PopUpManager.createPopUp(this, PollResultsModal, true) as PollResultsModal;
-					pollResultsPopUp.setPoll(e.poll);
-					PopUpManager.centerPopUp(pollResultsPopUp);
+					var pollResultsPopUp : PollResultsModal = PopUpUtil.createModalPopUp(this, PollResultsModal, true) as PollResultsModal;
+					if (pollResultsPopUp) {
+						pollResultsPopUp.setPoll(e.poll);
+					}
 				} else {
 					//switch to vote state
 					setControlBarState("vote");
@@ -876,7 +877,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function pollStoppedHandler(e:PollStoppedEvent):void {
 				setControlBarState("presenter");
-				PopUpManager.removePopUp(pollResultsPopUp);
+				PopUpUtil.removePopUp(PollResultsModal);
 			}
 			
 			private function pollShowResultHandler(e:PollShowResultEvent):void {

@@ -35,29 +35,27 @@
 
     <mx:Script>
         <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import flexlib.mdi.events.MDIWindowEvent;      
+      import mx.core.UIComponent;
       import mx.events.ResizeEvent;
-      import mx.core.UIComponent;      
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import org.as3commons.logging.api.ILogger;
+      import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.ReconnectionManager;
       import org.bigbluebutton.main.api.JSLog;
+      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.screenshare.events.CursorEvent;
-      import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
       import org.bigbluebutton.modules.screenshare.managers.SmartWindowResizer;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.managers.ReconnectionManager;
-      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOG:String = "SC::ScreenshareViewWIndow - ";
       private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
@@ -69,7 +67,7 @@
 			//[Bindable] public var fitToWidthIcon:Class = images.magnifier;
 			//[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 					
-      private var streamAvailable:Boolean = false;
+			private var streamAvailable:Boolean = false;
       
 			private var video:Video;
 			private var ns:NetStream;
@@ -107,25 +105,32 @@
 			}
 									
 			private function onCreationComplete():void{
-        viewScreenshareStream();
+				viewScreenshareStream();
         
 				addEventListener(ResizeEvent.RESIZE, onResizeEvent);
 				this.addChildAt(videoWithWarnings,0);
 				videoHolder = videoWithWarnings.videoHolder;
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
+				//addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
+				//fitToActualSize();				
+				//maximize();
 				
 				resourcesChanged();
 				onResizeEvent();
 				loaded = true;
-               
-        var logData:Object = UsersUtil.initLogData();
-        logData.tags = ["screenshare"];
-        logData.width = videoWidth;
-        logData.height = videoHeight;
-        logData.streamId = streamId;
-        
-        LOGGER.info(JSON.stringify(logData));
+				//titleBarOverlay.tabIndex = baseIndex;
+				//minimizeBtn.tabIndex = baseIndex+1;
+				//maximizeRestoreBtn.tabIndex = baseIndex+2;
+				//closeBtn.tabIndex = baseIndex+3;
+
+				var logData:Object = UsersUtil.initLogData();
+				logData.tags = ["screenshare"];
+				logData.width = videoWidth;
+				logData.height = videoHeight;
+				logData.streamId = streamId;
+				
+				LOGGER.info(JSON.stringify(logData));
 			}
 			
 			private function onResizeEvent(e:ResizeEvent = null):void {
@@ -140,9 +145,9 @@
 					
 			public function startVideo(connection:Connection):void{
         var logData:Object = new Object();
-        logData.width = videoWidth;
-        logData.height = videoHeight;
-        logData.streamId = streamId;
+        logData.width = ScreenshareModel.getInstance().width;
+        logData.height = ScreenshareModel.getInstance().height;
+        logData.streamId = ScreenshareModel.getInstance().streamId;
         
         JSLog.debug(LOG + "startVideo", logData);
         
@@ -176,6 +181,7 @@
         video.smoothing = true;
         video.attachNetStream(ns);
         ns.play(streamId);	
+        //this.title = "Viewing Remote Desktop";
         streamAvailable = true;
 
         videoWithWarnings.setCallback(setVideo);

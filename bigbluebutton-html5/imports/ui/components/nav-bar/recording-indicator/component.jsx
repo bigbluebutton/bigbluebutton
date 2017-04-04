@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
-import cx from 'classnames';
 
 export default class RecordingIndicator extends Component {
   constructor(props) {
@@ -9,11 +8,11 @@ export default class RecordingIndicator extends Component {
 
   render() {
     const { beingRecorded } = this.props;
-    let classNames = {};
-    classNames[styles.indicator] = beingRecorded;
 
-    return (
-      <span className={cx(classNames)}></span>
-    );
+    if (!beingRecorded) {
+      return null;
+    }
+
+    return (<div className={styles.indicator}></div>);
   }
 };

@@ -33,13 +33,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		creationComplete="onCreationComplete()">
 	
 	<mate:Listener type="{ShortcutEvent.FOCUS_VIDEO_WINDOW}" method="focusWindow" />
-	
+	<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
+
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.core.UIComponent;
 			
+			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -48,6 +51,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoOptions:VideoConfOptions = new VideoConfOptions();
 			private var keyCombos:Object;
 			private var disp:Dispatcher = new Dispatcher();
+			
+			private var darkMode:Boolean;
 			
 			private function onCreationComplete():void {
 				hotkeyCapture();
@@ -73,8 +78,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleKeyDown(e:KeyboardEvent) :void {
 				var modifier:String = ExternalInterface.call("determineModifier");
 				loadKeyCombos(modifier);
-				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
-					(e.altKey   ? "alt+"     : "") + e.keyCode;
+				var keyPress:String = KeyboardUtil.buildPressedKeys(e);
 				if (keyCombos[keyPress]) {
 					disp.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 				}
@@ -89,7 +93,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			override protected function resourcesChanged():void {
 				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString("bbb.videodock.title");
+				if (!darkMode) {
+					this.title = ResourceUtil.getInstance().getString("bbb.videodock.title");
+				} else {
+					this.title = "";
+				}
 				
 				if (titleBarOverlay != null) {
 					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.videoDock.titleBar');
@@ -112,7 +120,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function focusWindow(e:ShortcutEvent):void {
-				focusManager.setFocus(titleBarOverlay);
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
+			}
+			
+			private function onLayoutChanged(e:SwitchedLayoutEvent):void {
+				if(e.layoutID != "bbb.layout.name.videochat"){
+					setStyle("styleNameFocus", "videoDockStyleFocus");
+					setStyle("styleNameNoFocus", "videoDockStyleNoFocus");
+					showControls = true;
+					this.title = ResourceUtil.getInstance().getString("bbb.videodock.title");
+				} else {
+					setStyle("styleNameFocus", "videoDockStyleFocusChatLayout");
+					setStyle("styleNameNoFocus", "videoDockStyleNoFocusChatLayout");
+					showControls = false;
+					this.title = "";
+				}
+				styleChanged("styleName");
 			}
 			
 			private function remoteMinimize(e:ShortcutEvent):void {

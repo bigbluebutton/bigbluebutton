@@ -91,6 +91,12 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/BBBlogo.png")]
         public var bbb_logo:Class;
 
+        [Embed(source="assets/images/magnifier.png")]
+        public var magnifier:Class;
+
+        [Embed(source="assets/images/magnifier_reset.png")]
+        public var mag_reset:Class;
+
         [Embed(source="assets/images/control_play_blue.png")]
         public var control_play:Class;
 

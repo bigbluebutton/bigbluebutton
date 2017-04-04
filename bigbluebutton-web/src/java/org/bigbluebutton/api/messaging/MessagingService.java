@@ -27,14 +27,16 @@ import java.util.Map;
 import java.util.Set;
 
 public interface MessagingService {	
-	void recordMeetingInfo(String meetingId, Map<String, String> info, Map<String, String> breakoutInfo);
+	void recordMeetingInfo(String meetingId, Map<String, String> info);
+	void recordBreakoutInfo(String meetingId, Map<String, String> breakoutInfo);
+	void addBreakoutRoom(String parentId, String breakoutId);
 	void destroyMeeting(String meetingID);
     void createMeeting(String meetingID, String externalMeetingID,
             String parentMeetingID, String meetingName, Boolean recorded,
             String voiceBridge, Integer duration, Boolean autoStartRecording,
-            Boolean allowStartStopRecording, String moderatorPass,
-            String viewerPass, Long createTime, String createDate,
-            Boolean isBreakout, Integer sequence, Map<String, String> metadata);
+            Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
+            String moderatorPass, String viewerPass, Long createTime,
+            String createDate, Boolean isBreakout, Integer sequence, Map<String, String> metadata);
 	void endMeeting(String meetingId);
 	void send(String channel, String message);
 	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);

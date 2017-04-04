@@ -34,10 +34,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.managers.PopUpManager;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.api.JSAPI;
@@ -99,7 +98,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatcher.dispatchEvent(command);
 				}
 				
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function onListenClick():void {
@@ -109,7 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				command.mic = false;
 				dispatcher.dispatchEvent(command);
 				
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function onCancelClicked():void {
@@ -117,7 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
 				
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function handleBecomePresenter(e:MadePresenterEvent):void {

@@ -52,8 +52,16 @@ public class RedisMessagingService implements MessagingService {
 	private MessageSender sender;
 	private ToJsonEncoder encoder = new ToJsonEncoder();
 	
-	public void recordMeetingInfo(String meetingId, Map<String, String> info, Map<String, String> breakoutInfo) {
-		storeService.recordMeetingInfo(meetingId, info, breakoutInfo);
+	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
+		storeService.recordMeetingInfo(meetingId, info);
+	}
+
+	public void recordBreakoutInfo(String meetingId, Map<String, String> breakoutInfo) {
+		storeService.recordBreakoutInfo(meetingId, breakoutInfo);
+	}
+
+	public void addBreakoutRoom(String parentId, String breakoutId) {
+		storeService.addBreakoutRoom(parentId, breakoutId);
 	}
 
 	public void destroyMeeting(String meetingID) {
@@ -73,14 +81,15 @@ public class RedisMessagingService implements MessagingService {
     public void createMeeting(String meetingID, String externalMeetingID,
             String parentMeetingID, String meetingName, Boolean recorded,
             String voiceBridge, Integer duration, Boolean autoStartRecording,
-            Boolean allowStartStopRecording, String moderatorPass,
-            String viewerPass, Long createTime, String createDate,
-            Boolean isBreakout, Integer sequence, Map<String, String> metadata) {
+            Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
+            String moderatorPass, String viewerPass, Long createTime,
+            String createDate, Boolean isBreakout, Integer sequence, Map<String, String> metadata) {
         CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(
                 meetingID, externalMeetingID, parentMeetingID, meetingName,
                 recorded, voiceBridge, duration, autoStartRecording,
-                allowStartStopRecording, moderatorPass, viewerPass, createTime,
-                createDate, isBreakout, sequence, metadata);
+                allowStartStopRecording, webcamsOnlyForModerator,
+                moderatorPass, viewerPass, createTime, createDate, isBreakout,
+                sequence, metadata);
         CreateMeetingRequest msg = new CreateMeetingRequest(payload);
 
         Gson gson = new Gson();

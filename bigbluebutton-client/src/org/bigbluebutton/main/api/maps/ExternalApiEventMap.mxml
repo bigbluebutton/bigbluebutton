@@ -23,32 +23,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
   <mx:Script>
     <![CDATA[
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
-      import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
-      import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
-      import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
-      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-      import org.bigbluebutton.main.api.ExternalApiCalls;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.LogoutEvent;
-      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
-      import org.bigbluebutton.main.events.UserJoinedEvent;
-      import org.bigbluebutton.main.events.UserLeftEvent;
-      import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
-      import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
-      import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-      import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
-      import org.bigbluebutton.modules.present.events.ConversionPageCountError;
-      import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
-      import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
-      import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
-      import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
-      import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
-      import org.bigbluebutton.modules.present.events.GetListOfPresentationsReply;
-      import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
-      import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
+		import org.bigbluebutton.core.EventConstants;
+		import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
+		import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
+		import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
+		import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
+		import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+		import org.bigbluebutton.main.api.ExternalApiCalls;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.LogoutEvent;
+		import org.bigbluebutton.main.events.SwitchedPresenterEvent;
+		import org.bigbluebutton.main.events.UserJoinedEvent;
+		import org.bigbluebutton.main.events.UserLeftEvent;
+		import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+		import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+		import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
+		import org.bigbluebutton.modules.present.events.ConversionPageCountError;
+		import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
+		import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
+		import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
+		import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
+		import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+		import org.bigbluebutton.modules.present.events.GetListOfPresentationsReply;
+		import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+		import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
+		import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
+		import org.bigbluebutton.modules.present.events.UploadEvent;
     ]]>
   </mx:Script>
   <!--
@@ -149,6 +150,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionSuccess" arguments="{event}" />
   </EventHandlers>
 
+	<EventHandlers type="{OfficeDocConvertInvalidEvent.OFFICE_DOC_CONVERT_INVALID}" >
+		<MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionInvalid" arguments="{event}" />
+	</EventHandlers>
+	
   <EventHandlers type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionFailed" arguments="{event}" />
   </EventHandlers>

@@ -158,7 +158,9 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 }
 
 .closedCaptions {
-  order: 2;
+  order: 3;
+  flex-basis: 20%;
+  max-width: 20%;
 }
 
 .actionsbar {

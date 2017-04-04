@@ -1,0 +1,22 @@
+<recording>
+    <id>f3ffe06acedf425565cc024c8ebe89a6552e8782-1489172964374</id>
+    <state>published</state>
+    <published>true</published>
+    <start_time>1489172964374</start_time>
+    <end_time>1489173221647</end_time>
+    <breakoutRooms>
+        <breakoutRoom>32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780</breakoutRoom>
+        <breakoutRoom>721d83a3907548734d4a505992ebb94ec1454a91-1489173065780</breakoutRoom>
+    </breakoutRooms>
+    <meta>
+        <isBreakout>false</isBreakout>
+        <meetingId>random-2810069</meetingId>
+        <meetingName>random-2810069</meetingName>
+    </meta>
+    <playback>
+        <format>presentation</format>
+        <link>http://192.168.23.22/playback/presentation/0.9.0/playback.html?meetingId=f3ffe06acedf425565cc024c8ebe89a6552e8782-1489172964374</link>
+        <processing_time>87598</processing_time>
+        <duration>226417</duration>
+    </playback>
+</recording>

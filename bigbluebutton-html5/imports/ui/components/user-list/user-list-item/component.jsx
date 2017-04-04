@@ -7,7 +7,7 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 import cx from 'classnames';
-import _ from 'underscore';
+import _ from 'lodash';
 
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -102,37 +102,36 @@ class UserListItem extends Component {
       user,
       userActions,
       router,
+      isBreakoutRoom,
     } = this.props;
 
     const {
       openChat,
       clearStatus,
       setPresenter,
-      promote,
       kick,
       mute,
       unmute,
     } = userActions;
 
-    let muteAudio, unmuteAudio;
+    const hasAuthority = currentUser.isModerator || user.isCurrent;
+    let allowedToChatPrivately = !user.isCurrent;
+    let allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
+    let allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
+    let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
 
-    // Check the state of joining the audio currently for current user
-    if (user.isCurrent && user.isVoiceUser) {
-      if (user.isMuted) {
-        muteAudio = true;
-      } else {
-        unmuteAudio = true;
-      }
-    }
+    // if currentUser is a moderator, allow kicking other users
+    let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+
+    let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 
     return _.compact([
-      (!user.isCurrent ? this.renderUserAction(openChat, router, user) : null),
-      (muteAudio ? this.renderUserAction(unmute, user) : null),
-      (unmuteAudio ? this.renderUserAction(mute, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(clearStatus, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(setPresenter, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(promote, user) : null),
-      (currentUser.isModerator ? this.renderUserAction(kick, user) : null),
+      (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
+      (allowedToMuteAudio ? this.renderUserAction(unmute, user) : null),
+      (allowedToUnmuteAudio ? this.renderUserAction(mute, user) : null),
+      (allowedToResetStatus ? this.renderUserAction(clearStatus, user) : null),
+      (allowedToSetPresenter ? this.renderUserAction(setPresenter, user) : null),
+      (allowedToKick ? this.renderUserAction(kick, user) : null),
     ]);
   }
 
@@ -158,9 +157,6 @@ class UserListItem extends Component {
 
   render() {
     const {
-      user,
-      currentUser,
-      userActions,
       compact,
     } = this.props;
 
@@ -280,7 +276,7 @@ class UserListItem extends Component {
     }
 
     if (user.isVoiceUser) {
-      audioChatIcon = !user.isMuted ? 'audio' : 'audio-off';
+      audioChatIcon = !user.isMuted ? 'unmute' : 'mute';
     }
 
     let audioIconClassnames = {};

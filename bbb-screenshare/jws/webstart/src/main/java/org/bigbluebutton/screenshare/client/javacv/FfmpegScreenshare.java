@@ -77,6 +77,8 @@ public class FfmpegScreenshare {
     System.out.println("Platform : " + Loader.getPlatform());
     System.out.println("Platform lib path: " + System.getProperty("java.library.path"));
     System.out.println("Capturing w=[" + width + "] h=[" + height + "] at x=[" + x + "] y=[" + y + "]");
+    System.out.println("URL=" + ssi.URL);
+    System.out.println("useH264=" + ssi.useH264);
     
     Map<String, String> codecOptions = splitToMap(ssi.codecOptions, "&", "=");
     Double frameRate = parseFrameRate(codecOptions.get(FRAMERATE_KEY));
@@ -85,13 +87,14 @@ public class FfmpegScreenshare {
     String osName = System.getProperty("os.name").toLowerCase();
     if (platform.startsWith("windows")) {
       grabber = setupWindowsGrabber(width, height, x, y);
-      mainRecorder = setupWindowsRecorder(URL, width, height, codecOptions);
+      mainRecorder = setupWindowsRecorder(URL, width, height, codecOptions, ssi.useH264);
     } else if (platform.startsWith("linux")) {
       grabber = setupLinuxGrabber(width, height, x, y);
-      mainRecorder = setupLinuxRecorder(URL, width, height, codecOptions);
+      mainRecorder = setupLinuxRecorder(URL, width, height, codecOptions, ssi.useH264);
     } else if (platform.startsWith("macosx-x86_64")) {
       grabber = setupMacOsXGrabber(width, height, x, y);
-      mainRecorder = setupMacOsXRecorder(URL, width, height, codecOptions);
+
+      mainRecorder = setupMacOsXRecorder(URL, width, height, codecOptions, ssi.useH264);
     }
     
     grabber.setFrameRate(frameRate);
@@ -99,6 +102,7 @@ public class FfmpegScreenshare {
       ignoreDisconnect = false;
       grabber.start();
     } catch (Exception e) {
+      System.out.println("Exception starting grabber.");
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
@@ -109,6 +113,7 @@ public class FfmpegScreenshare {
     try {
       mainRecorder.start();
     } catch (Exception e) {
+      System.out.println("Exception starting recorder. \n" + e.toString());
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
@@ -153,13 +158,14 @@ public class FfmpegScreenshare {
           //System.out.println("frame timestamp=[" + frame.timestamp + "] ");
           mainRecorder.record(frame);
         } catch (Exception e) {
-          //System.out.println("CaptureScreen Exception 1");
+          System.out.println("CaptureScreen Exception 1");
           if (!ignoreDisconnect) {
             listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
           }
         }
       }
     } catch (Exception e1) {
+      System.out.println("Exception grabbing image");
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
 
@@ -168,7 +174,7 @@ public class FfmpegScreenshare {
     //System.out.println("timestamp=[" + timestamp + "]");
     mainRecorder.setFrameNumber(frameNumber);
 
-//    System.out.println("[ENCODER] encoded image " + frameNumber + " in " + (System.currentTimeMillis() - now));
+    //System.out.println("[ENCODER] encoded image " + frameNumber + " in " + (System.currentTimeMillis() - now));
     frameNumber++;
 
     long execDuration = (System.currentTimeMillis() - now);
@@ -181,6 +187,7 @@ public class FfmpegScreenshare {
     try{
       Thread.sleep(dur);
     } catch (Exception e){
+      System.out.println("Exception pausing screen share.");
       listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
     }
   }
@@ -192,28 +199,29 @@ public class FfmpegScreenshare {
         while (startBroadcast){
           captureScreen();
         }
-        //System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
+        System.out.println("*******************Stopped screen capture. !!!!!!!!!!!!!!!!!!!");
       }
     };
     startBroadcastExec.execute(startBroadcastRunner);    
   }
 
   public void stop() {
-    //System.out.println("Stopping screen capture.");
+    System.out.println("Stopping screen capture.");
     startBroadcast = false;
     if (mainRecorder != null) {
       try {
         ignoreDisconnect = true;
-        //System.out.println("mainRecorder.stop.");
+        System.out.println("mainRecorder.stop.");
         mainRecorder.stop();
-        //System.out.println("mainRecorder.release.");
+        System.out.println("mainRecorder.release.");
         mainRecorder.release();
-        //System.out.println("grabber.stop.");
+        System.out.println("grabber.stop.");
         // Do not invoke grabber.stop as it exits the JWS app.
         // Not sure why. (ralam - aug 10, 2016)
         //grabber.stop();
         //System.out.println("End stop sequence.");
       } catch (Exception e) {
+        System.out.println("Exception stopping screen share.");
         listener.networkConnectionException(ExitCode.INTERNAL_ERROR, null);
       }
     }
@@ -263,7 +271,9 @@ public class FfmpegScreenshare {
 //==============================================
 // RECORDERS
 //==============================================
-private  FFmpegFrameRecorder setupWindowsRecorder(String url, int width, int height, Map<String, String> codecOptions) {
+private  FFmpegFrameRecorder setupWindowsRecorder(String url, int width, int height,
+                                                  Map<String, String> codecOptions,
+                                                  Boolean useH264) {
   FFmpegFrameRecorder winRecorder = new FFmpegFrameRecorder(url, grabber.getImageWidth(), grabber.getImageHeight());
   Double frameRate = parseFrameRate(codecOptions.get(FRAMERATE_KEY));
   winRecorder.setFrameRate(frameRate);
@@ -285,19 +295,30 @@ private  FFmpegFrameRecorder setupWindowsRecorder(String url, int width, int hei
   System.out.println("==== END CODEC OPTIONS =====");
   
   winRecorder.setFormat("flv");
-    
-  // H264
-  winRecorder.setVideoCodec(AV_CODEC_ID_H264);
-  winRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
-  winRecorder.setVideoOption("crf", "38");
-  winRecorder.setVideoOption("preset", "veryfast");
-  winRecorder.setVideoOption("tune", "zerolatency");
-  winRecorder.setVideoOption("intra-refresh", "1"); 
+
+  if (useH264) {
+    System.out.println("Using H264 codec");
+    // H264
+    winRecorder.setVideoCodec(AV_CODEC_ID_H264);
+    winRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
+    winRecorder.setVideoOption("crf", "38");
+    winRecorder.setVideoOption("preset", "veryfast");
+    winRecorder.setVideoOption("tune", "zerolatency");
+    winRecorder.setVideoOption("intra-refresh", "1");
+  } else {
+    System.out.println("Using SVC2 codec");
+    // Flash SVC2
+    winRecorder.setVideoCodec(AV_CODEC_ID_FLASHSV2);
+    winRecorder.setPixelFormat(AV_PIX_FMT_BGR24);
+  }
+
   
   return winRecorder;
 }
 
-private  FFmpegFrameRecorder setupLinuxRecorder(String url, int width, int height, Map<String, String> codecOptions) {
+private  FFmpegFrameRecorder setupLinuxRecorder(String url, int width, int height,
+                                                Map<String, String> codecOptions,
+                                                Boolean useH264) {
   FFmpegFrameRecorder linuxRecorder = new FFmpegFrameRecorder(url, grabber.getImageWidth(), grabber.getImageHeight());
   Double frameRate = parseFrameRate(codecOptions.get(FRAMERATE_KEY));
   linuxRecorder.setFrameRate(frameRate);
@@ -319,19 +340,29 @@ private  FFmpegFrameRecorder setupLinuxRecorder(String url, int width, int heigh
   System.out.println("==== END CODEC OPTIONS =====");
   
   linuxRecorder.setFormat("flv");
+
+  if (useH264) {
+    // H264
+    linuxRecorder.setVideoCodec(AV_CODEC_ID_H264);
+    linuxRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
+    linuxRecorder.setVideoOption("crf", "38");
+    linuxRecorder.setVideoOption("preset", "veryfast");
+    linuxRecorder.setVideoOption("tune", "zerolatency");
+    linuxRecorder.setVideoOption("intra-refresh", "1");
+  } else {
+    // Flash SVC2
+    linuxRecorder.setVideoCodec(AV_CODEC_ID_FLASHSV2);
+    linuxRecorder.setPixelFormat(AV_PIX_FMT_BGR24);
+  }
     
-  // H264
-  linuxRecorder.setVideoCodec(AV_CODEC_ID_H264);
-  linuxRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
-  linuxRecorder.setVideoOption("crf", "38");
-  linuxRecorder.setVideoOption("preset", "veryfast");
-  linuxRecorder.setVideoOption("tune", "zerolatency");
-  linuxRecorder.setVideoOption("intra-refresh", "1"); 
+
   
   return linuxRecorder;
 }
 
-private  FFmpegFrameRecorder setupMacOsXRecorder(String url, int width, int height, Map<String, String> codecOptions) {
+private  FFmpegFrameRecorder setupMacOsXRecorder(String url, int width, int height,
+                                                 Map<String, String> codecOptions,
+                                                 Boolean useH264) {
   FFmpegFrameRecorder macRecorder = new FFmpegFrameRecorder(url, grabber.getImageWidth(), grabber.getImageHeight());
   Double frameRate = parseFrameRate(codecOptions.get(FRAMERATE_KEY));
   macRecorder.setFrameRate(frameRate);
@@ -353,15 +384,23 @@ private  FFmpegFrameRecorder setupMacOsXRecorder(String url, int width, int heig
   System.out.println("==== END CODEC OPTIONS =====");
   
   macRecorder.setFormat("flv");
-    
-  // H264
-  macRecorder.setVideoCodec(AV_CODEC_ID_H264);
-  macRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
-  macRecorder.setVideoOption("crf", "34");
-  macRecorder.setVideoOption("preset", "veryfast");
+
+  if (useH264) {
+    // H264
+    macRecorder.setVideoCodec(AV_CODEC_ID_H264);
+    macRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
+    macRecorder.setVideoOption("crf", "34");
+    macRecorder.setVideoOption("preset", "veryfast");
+
+    // Mac doesn't support the options below.
 //  macRecorder.setVideoOption("tune", "zerolatency");
-//  macRecorder.setVideoOption("intra-refresh", "1"); 
-  
+//  macRecorder.setVideoOption("intra-refresh", "1");
+  } else {
+    // Flash SVC2
+    macRecorder.setVideoCodec(AV_CODEC_ID_FLASHSV2);
+    macRecorder.setPixelFormat(AV_PIX_FMT_BGR24);
+  }
+
   return macRecorder;
 }
 

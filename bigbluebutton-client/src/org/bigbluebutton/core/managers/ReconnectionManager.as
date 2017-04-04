@@ -18,19 +18,20 @@
 */
 package org.bigbluebutton.core.managers
 {
-  import com.asfusion.mate.events.Dispatcher; 
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.display.DisplayObject;
   import flash.events.TimerEvent;
   import flash.utils.Dictionary;
-  import flash.utils.Timer; 
+  import flash.utils.Timer;
+  
   import mx.collections.ArrayCollection;
   import mx.core.FlexGlobals;
-  import mx.core.IFlexDisplayObject;
-  import mx.managers.PopUpManager;  
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
@@ -52,7 +53,6 @@ package org.bigbluebutton.core.managers
     private var _reconnectTimer:Timer = new Timer(10000, 1);
     private var _reconnectTimeout:Timer = new Timer(15000, 1);
     private var _dispatcher:Dispatcher = new Dispatcher();
-    private var _popup:IFlexDisplayObject = null;
     private var _canceled:Boolean = false;
 
     public function ReconnectionManager() {
@@ -97,8 +97,7 @@ package org.bigbluebutton.core.managers
         _connections[type] = obj;
 
         if (!_reconnectTimer.running) {
-          _popup = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ReconnectionPopup, true);
-          PopUpManager.centerPopUp(_popup);
+			PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, ReconnectionPopup, true);
 
           _reconnectTimer.reset();
           _reconnectTimer.start();
@@ -163,8 +162,8 @@ package org.bigbluebutton.core.managers
           msg, 'bbb.connection.reestablished'));
 
         _reconnectTimeout.reset();
-        removePopUp();
-      }
+		PopUpUtil.removePopUp(ReconnectionPopup);
+	  }
     }
 
     public function onCancelReconnection():void {
@@ -172,15 +171,8 @@ package org.bigbluebutton.core.managers
 
       for (var type:Object in _connections) delete _connections[type];
 
-      removePopUp();
-    }
-
-    private function removePopUp():void {
-      if (_popup != null) {
-        PopUpManager.removePopUp(_popup);
-        _popup = null;
-      }
-    }
+	  PopUpUtil.removePopUp(ReconnectionPopup);
+	}
 
     private function connectionReestablishedMessage():String {
       var msg:String = "";

@@ -34,6 +34,7 @@ cd lib
 sudo cp -r ~/dev/bigbluebutton/bbb-screenshare/app/jws/lib/* .
 cd ..
 sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/jws/screenshare.jnlp .
+sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/jws/screenshare.jnlp.h264 .
 
 sudo chmod -R 777 /usr/share/red5/webapps/screenshare
 sudo chown -R red5:red5 /usr/share/red5/webapps/screenshare

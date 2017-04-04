@@ -58,10 +58,11 @@
 
     i++;
 
-    //  Default to empty if not used
-    //options.innerHTML = options.innerHTML || "";
-
     contentDiv.innerHTML = "<strong>" + options.name + ":</strong>" + options.message;
+
+    //If chat message contains a link, we add to it a target attribute
+    //So when the user clicks on it, it opens in a new tab
+    $(contentDiv).find('a').attr('target', '_blank');
 
     return {
 

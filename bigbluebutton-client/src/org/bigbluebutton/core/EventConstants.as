@@ -65,6 +65,7 @@ package org.bigbluebutton.core
     /** For Conversion Update Events **/
     public static const OFFICE_DOC_CONVERSION_SUCCESS:String    = "OfficeDocConversionSuccessEvent";
     public static const OFFICE_DOC_CONVERSION_FAILED:String     = "OfficeDocConversionFailedEvent";
+	public static const OFFICE_DOC_CONVERSION_INVALID:String    = "OfficeDocConversionInvalidEvent";
     public static const SUPPORTED_DOCUMENT:String               = "SupportedDocEvent";
     public static const UNSUPPORTED_DOCUMENT:String             = "UnsupportedDocEvent";    
     public static const PAGE_COUNT_FAILED:String                = "PageCountFailedEvent";

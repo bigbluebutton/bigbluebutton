@@ -1,0 +1,31 @@
+<recording>
+  <id>f3ffe06acedf425565cc024c8ebe89a6552e8782-1489435015784</id>
+  <state>foo</state>
+  <published>false</published>
+  <start_time>1489435015784</start_time>
+  <end_time>1489435076055</end_time>
+  <meeting id="f3ffe06acedf425565cc024c8ebe89a6552e8782-1489435015784" externalId="random-2810069" name="random-2810069" breakout="false"/>
+  <breakout parentMeetingId="f3ffe06acedf425565cc024c8ebe89a6552e8782-1489172964374" sequence="2" meetingId="f2041d123b6a4b994e7ad87ee9d348496a73472c-1489173065780"/>
+    <breakoutRooms>
+        <breakoutRoom>32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780</breakoutRoom>
+        <breakoutRoom>721d83a3907548734d4a505992ebb94ec1454a91-1489173065780</breakoutRoom>
+    </breakoutRooms>
+  <meta>
+    <meetingName>random-2810069</meetingName>
+    <meetingId>random-2810069</meetingId>
+    <isBreakout>false</isBreakout>
+  </meta>
+  <playback>
+    <format>presentation</format>
+    <link>http://192.168.23.22/playback/presentation/0.9.0/playback.html?meetingId=f3ffe06acedf425565cc024c8ebe89a6552e8782-1489435015784</link>
+    <processing_time>28627</processing_time>
+    <duration>32213</duration>
+        <extensions>
+            <preview>
+                <images>
+                    <image width="176" height="136" alt="Welcome to">http://192.168.23.22/presentation/32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780/presentation/743dd59a958334b4cdcdaa302846d0c0eadcf9ff-1489173070800/thumbnails/thumb-1.png</image>
+                </images>
+            </preview>
+        </extensions>
+  </playback>
+</recording>

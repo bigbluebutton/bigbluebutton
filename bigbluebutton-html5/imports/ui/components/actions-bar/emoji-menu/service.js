@@ -5,13 +5,13 @@ import { callServer } from '/imports/ui/services/api/index.js';
 let getEmojiData = () => {
 
   // Get userId and meetingId
-  const credentials = Auth.getCredentials();
+  const credentials = Auth.credentials;
   const { requesterUserId: userId, meetingId } = credentials;
 
   // Find the Emoji Status of this specific meeting and userid
   const userEmojiStatus = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
+    meetingId: Auth.meetingID,
+    userId: Auth.userID,
   }).user.emoji_status;
 
   return {
@@ -22,7 +22,7 @@ let getEmojiData = () => {
 
 // Below doesn't even need to receieve credentials
 const setEmoji = (toRaiseUserId, status) => {
-  callServer('userSetEmoji', toRaiseUserId, status);
+  callServer('setEmojiStatus', toRaiseUserId, status);
 };
 
 export default {
