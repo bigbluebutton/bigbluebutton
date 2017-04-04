@@ -87,6 +87,7 @@ public class Constants {
   public static final String SHAPES                          = "shapes"; 
   public static final String SHAPE                           = "shape";
   public static final String SHAPE_ID                        = "shape_id";    
+  public static final String FULL_CLEAR                      = "full_clear";
   public static final String PRESENTATION                    = "presentation";
   public static final String ID                              = "id";
   public static final String CURRENT                         = "current";

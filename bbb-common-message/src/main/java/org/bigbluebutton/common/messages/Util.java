@@ -520,17 +520,20 @@ public class Util {
 		if (annotationElement.has(Constants.ID)
 				&& annotationElement.has("shape")
 				&& annotationElement.has("status")
-				&& annotationElement.has("shape_type")){
+				&& annotationElement.has("shape_type")
+				&& annotationElement.has("user_id")){
 
 			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
 
 			String id = annotationElement.get(Constants.ID).getAsString();
 			String status = annotationElement.get("status").getAsString();
 			String type = annotationElement.get("shape_type").getAsString();
+			String userId = annotationElement.get("user_id").getAsString();
 
 			finalAnnotation.put(Constants.ID, id);
 			finalAnnotation.put("type", type);
 			finalAnnotation.put("status", status);
+			finalAnnotation.put("userId", userId);
 
 			JsonElement shape = annotationElement.get("shape");
 			Map<String, Object> shapesMap;

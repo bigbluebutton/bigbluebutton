@@ -96,7 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
   
 	<EventHandlers type="{WhiteboardUpdate.CLEAR_ANNOTATIONS}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="clearAnnotations"/>
+		<MethodInvoker generator="{WhiteboardManager}" method="clearAnnotations" arguments="{event}"/>
 	</EventHandlers>
   
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}" >

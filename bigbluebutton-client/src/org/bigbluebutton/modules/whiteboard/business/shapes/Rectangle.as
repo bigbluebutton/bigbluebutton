@@ -27,9 +27,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 */	
 	public class Rectangle extends DrawObject
 	{	
-		public function Rectangle(id:String, type:String, status:String)
+		public function Rectangle(id:String, type:String, status:String, userId:String)
 		{
-			super(id, type, status);
+			super(id, type, status, userId);
 		}
 		
         /**

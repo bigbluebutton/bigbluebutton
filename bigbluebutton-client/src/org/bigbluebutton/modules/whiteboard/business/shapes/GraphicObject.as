@@ -23,6 +23,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		function get type():String;
 		
 		function get id():String;
+		
+		function get userId():String;
 				
 		function denormalize(val:Number, side:Number):Number;
 		

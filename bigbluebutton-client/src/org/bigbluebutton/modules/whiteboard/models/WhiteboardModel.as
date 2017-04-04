@@ -138,29 +138,34 @@ package org.bigbluebutton.modules.whiteboard.models
       return new Array();
     }
 		
-		public function clear(wbId:String = null):void {
+    public function clear(wbId:String, fullClear:Boolean, userId:String):void {
       LOGGER.debug("Clearing whiteboard");
-      if (wbId != null) {
-        var wb:Whiteboard = getWhiteboard(wbId);
-        if (wb != null) {
-          wb.clear();
+      var wb:Whiteboard = getWhiteboard(wbId);
+      if (wb != null) {
+        if (fullClear) {
+          wb.clearAll();
           _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
+        } else {
+          wb.clear(userId);
+          var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS);
+          event.userId = userId;
+          _dispatcher.dispatchEvent(event);
         }
-      } else {
-        _whiteboards.removeAll();
-        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
       }
-      
+    }
+    
+    public function clearAll():void {
+      _whiteboards.removeAll();
+      _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
     }
 
-
-		public function accessModified(multiUser:Boolean):void {
-			_multiUser = multiUser;
-			
-			var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFIED_WHITEBOARD_ACCESS);
-			event.multiUser = multiUser;
-			_dispatcher.dispatchEvent(event);
-		}
+    public function accessModified(multiUser:Boolean):void {
+      _multiUser = multiUser;
+      
+      var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFIED_WHITEBOARD_ACCESS);
+      event.multiUser = multiUser;
+      _dispatcher.dispatchEvent(event);
+   }
         
       
     public function getCurrentWhiteboardId():String {

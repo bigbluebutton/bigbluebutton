@@ -13,6 +13,7 @@ object WhiteboardMessageToJsonConverter {
     res += "status" -> shape.status
     res += "shape_type" -> shape.shapeType
     res += "wb_id" -> shape.wbId
+    res += "user_id" -> shape.userId
 
     val shapeMap = new scala.collection.mutable.HashMap[String, Any]()
     shapeMap += "whiteboardId" -> shape.wbId
@@ -57,6 +58,7 @@ object WhiteboardMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
+    payload.put(Constants.FULL_CLEAR, msg.fullClear)
 
     val header = Util.buildHeader(MessageNames.WHITEBOARD_CLEARED, None)
     Util.buildJson(header, payload)

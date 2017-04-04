@@ -46,8 +46,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     private var _data:Array;
     private var _textFields:Array;
 
-    public function PollResultObject(id:String, type:String, status:String) {
-      super(id, type, status)
+    public function PollResultObject(id:String, type:String, status:String, userId:String) {
+      super(id, type, status, userId)
       
       _textFields = new Array();
       data = null;

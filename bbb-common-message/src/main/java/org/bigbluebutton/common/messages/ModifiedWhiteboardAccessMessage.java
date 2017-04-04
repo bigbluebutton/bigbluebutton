@@ -12,20 +12,20 @@ public class ModifiedWhiteboardAccessMessage implements ISubscribedMessage {
 
 	public final String meetingId;
 	public final String requesterId;
-    public final Boolean multiUser;
+	public final Boolean multiUser;
 
 
 	public ModifiedWhiteboardAccessMessage(String meetingId, String requesterId, Boolean multiUser) {
 		this.meetingId = meetingId;
 		this.requesterId = requesterId;
-        this.multiUser = multiUser;
+		this.multiUser = multiUser;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
 		payload.put(Constants.REQUESTER_ID, requesterId);
-        payload.put(Constants.MULTI_USER, multiUser);
+		payload.put(Constants.MULTI_USER, multiUser);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(MODIFIED_WHITEBOARD_ACCESS, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);

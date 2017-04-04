@@ -42,6 +42,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
      */
     public var status:String = TEXT_CREATED;
 
+    private var _userId:String = "undefined";
+	
     private var _editable:Boolean;
     
     /**
@@ -87,6 +89,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       return WhiteboardConstants.TYPE_TEXT;
     }
     
+    public function get userId():String {
+      return _userId;
+    }
+	
+    public function set userId(u:String):void {
+      _userId = u;
+    }
+	
     public function getOrigX():Number {
       return origX;
     }

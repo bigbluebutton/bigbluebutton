@@ -23,9 +23,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	public class Triangle extends DrawObject
 	{
 		
-		public function Triangle(id:String, type:String, status:String)
+		public function Triangle(id:String, type:String, status:String, userId:String)
 		{
-            super(id, type, status);
+            super(id, type, status, userId);
 		}
 		
 		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {

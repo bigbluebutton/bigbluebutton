@@ -86,6 +86,7 @@ public class WhiteboardClientMessageSender {
 		shape.put("id", msg.shape.get("id"));
 		shape.put("type", msg.shape.get("type"));
 		shape.put("status", msg.shape.get("status"));
+		shape.put("userId", msg.shape.get("userId"));
 		shape.put("shape", msg.shape.get("shapes"));
 		
 		args.put("shape", shape);
@@ -134,6 +135,8 @@ public class WhiteboardClientMessageSender {
 	private void processClearWhiteboardReply(ClearWhiteboardReplyMessage msg) {
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("whiteboardId", msg.whiteboardId);
+		args.put("userId", msg.requesterId);
+		args.put("fullClear", msg.fullClear);
 
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();

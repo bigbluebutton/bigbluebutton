@@ -54,8 +54,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				
         private var _id:String;
         private var _type:String;
-        
         private var _status:String;
+        private var _userId:String;
 		
 		/**
 		 * ID we can use to match the shape in the client's view
@@ -67,10 +67,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
-		public function DrawObject(id:String, type:String, status:String) {
+		public function DrawObject(id:String, type:String, status:String, userId:String) {
             _id = id;
             _type = type;
             _status = status;
+            _userId = userId;
 		}
 		
         public function get id():String {
@@ -79,6 +80,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
         public function get type():String {
             return _type;
+        }
+        
+        public function get userId():String {
+            return _userId;
         }
         
         public function get status():String {

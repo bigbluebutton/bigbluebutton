@@ -53,10 +53,9 @@ trait WhiteboardApp {
 
   def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {
     //println("WB: Received clear whiteboard")
-    // wbModel.clearWhiteboard(msg.whiteboardId)
-    // if (wbModel.hasWhiteboard(msg.whiteboardId)) {
-    // outGW.send(new ClearWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId))
-    // }
+    wbModel.clearWhiteboard(msg.whiteboardId, msg.requesterID) foreach { fullClear =>
+      outGW.send(new ClearWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId, fullClear))
+    }
   }
 
   def handleUndoWhiteboardRequest(msg: UndoWhiteboardRequest) {
@@ -64,11 +63,6 @@ trait WhiteboardApp {
     wbModel.undoWhiteboard(msg.whiteboardId, msg.requesterID) foreach { last =>
       outGW.send(new UndoWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.whiteboardId, last.id))
     }
-    // wbModel.getWhiteboard(msg.whiteboardId) foreach { wb =>
-    // wbModel.undoWhiteboard(msg.whiteboardId) foreach { last =>
-    // outGW.send(new UndoWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wb.id, last.id))
-    // }
-    // }
   }
 
   def handleModifyWhiteboardAccessRequest(msg: ModifyWhiteboardAccessRequest) {

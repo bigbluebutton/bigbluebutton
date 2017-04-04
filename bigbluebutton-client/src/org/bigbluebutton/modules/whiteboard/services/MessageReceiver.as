@@ -66,8 +66,8 @@ package org.bigbluebutton.modules.whiteboard.services
     private function handleClearCommand(message:Object):void {
       var map:Object = JSON.parse(message.msg);      
       
-      if (map.hasOwnProperty("whiteboardId")) {
-        whiteboardModel.clear(map.whiteboardId);
+      if (map.hasOwnProperty("whiteboardId") && map.hasOwnProperty("fullClear") && map.hasOwnProperty("userId")) {
+        whiteboardModel.clear(map.whiteboardId, map.fullClear, map.userId);
       }
       
     }
@@ -92,6 +92,7 @@ package org.bigbluebutton.modules.whiteboard.services
       
       var annotation:Annotation = new Annotation(shape.id, shape.type, an);
       annotation.status = shape.status;
+      annotation.userId = shape.userId;
       whiteboardModel.addAnnotation(annotation);
     }
 
@@ -111,6 +112,7 @@ package org.bigbluebutton.modules.whiteboard.services
           var shape:Object = an.shapes as Object;                    
           var annotation:Annotation = new Annotation(an.id, an.type, shape);
           annotation.status = an.status;
+          annotation.userId = an.userId;
           tempAnnotations.push(annotation);
         }   
                 

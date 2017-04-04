@@ -27,9 +27,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 */	
 	public class Ellipse extends DrawObject
 	{
-        public function Ellipse(id:String, type:String, status:String)
+        public function Ellipse(id:String, type:String, status:String, userId:String)
         {
-            super(id, type, status);
+            super(id, type, status, userId);
         }
         
 

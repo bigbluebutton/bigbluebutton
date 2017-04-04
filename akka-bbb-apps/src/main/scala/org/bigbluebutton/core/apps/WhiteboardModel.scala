@@ -76,15 +76,28 @@ class WhiteboardModel {
     wb.shapesMap.values.flatten.toArray.sortBy(_.position);
   }
 
-  /*
-  def clearWhiteboard(wbId: String) {
-    getWhiteboard(wbId) foreach { wb =>
-      val clearedShapes = wb.shapes.drop(wb.shapes.length)
-      val newWb = wb.copy(shapes = clearedShapes)
-      saveWhiteboard(newWb)
+  def clearWhiteboard(wbId: String, userId: String): Option[Boolean] = {
+    var cleared: Option[Boolean] = None
+
+    if (hasWhiteboard(wbId)) {
+      val wb = getWhiteboard(wbId)
+
+      if (_multiUser) {
+        if (wb.shapesMap.contains(userId)) {
+          val newWb = wb.copy(shapesMap = wb.shapesMap - userId)
+          saveWhiteboard(newWb)
+          cleared = Some(false)
+        }
+      } else {
+        if (wb.shapesMap.nonEmpty) {
+          val newWb = wb.copy(shapesMap = new HashMap[String, List[AnnotationVO]]())
+          saveWhiteboard(newWb)
+          cleared = Some(true)
+        }
+      }
     }
+    cleared
   }
-  */
 
   def undoWhiteboard(wbId: String, userId: String): Option[AnnotationVO] = {
     var last: Option[AnnotationVO] = None

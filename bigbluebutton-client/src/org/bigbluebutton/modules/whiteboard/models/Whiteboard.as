@@ -28,14 +28,27 @@ package org.bigbluebutton.modules.whiteboard.models
       }
     }
     
-    public function undo():void {
-      _annotations.removeItemAt(_annotations.length - 1);
+    public function undo(id:String):Annotation {
+      for (var i:int = _annotations.length-1; i >= 0; i--) {
+        if ((_annotations.getItemAt(i) as Annotation).id == id) {
+          return (_annotations.removeItemAt(i) as Annotation);
+        }
+      }
+      return null;
     }
     
-    public function clear():void {
+    public function clearAll():void {
       _annotations.removeAll();
     }
-       
+    
+    public function clear(userId:String):void {
+      for (var i:int = _annotations.length-1; i >= 0; i--) {
+        if ((_annotations.getItemAt(i) as Annotation).userId == userId) {
+          _annotations.removeItemAt(i);
+        }
+      }
+    }
+    
     public function getAnnotations():Array {
       var a:Array = new Array();
       for (var i:int = 0; i < _annotations.length; i++) {

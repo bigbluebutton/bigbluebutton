@@ -141,7 +141,7 @@ case class GetCurrentPollReplyMessage(meetingID: String, recorded: Boolean, requ
 // Whiteboard
 case class GetWhiteboardShapesReply(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapes: Array[AnnotationVO], replyTo: String) extends IOutMessage
 case class SendWhiteboardAnnotationEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shape: AnnotationVO) extends IOutMessage
-case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String) extends IOutMessage
+case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, fullClear: Boolean) extends IOutMessage
 case class UndoWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapeId: String) extends IOutMessage
 case class ModifiedWhiteboardAccessEvent(meetingID: String, recorded: Boolean, requesterID: String, multiUser: Boolean) extends IOutMessage
 case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean, replyTo: String) extends IOutMessage

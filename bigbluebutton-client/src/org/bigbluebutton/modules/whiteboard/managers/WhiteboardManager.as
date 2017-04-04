@@ -113,8 +113,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 			}
 		}
 		
-		public function clearAnnotations():void {
-      displayModel.clearBoard();
+		public function clearAnnotations(event:WhiteboardUpdate):void {
+      displayModel.clearBoard(event);
 		}
         
     public function receivedAnnotationsHistory(event:WhiteboardShapesEvent):void {
@@ -143,7 +143,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 
     public function removeAnnotationsHistory():void {
       // it will dispatch the cleanAnnotations in the displayModel later
-      whiteboardModel.clear();
+      whiteboardModel.clearAll();
     }
 	}
 }
