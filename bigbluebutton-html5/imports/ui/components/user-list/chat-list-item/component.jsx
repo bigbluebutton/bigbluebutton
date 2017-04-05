@@ -44,6 +44,7 @@ class ChatListItem extends Component {
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
     const isCurrentChat = chat.id === openChat;
+    let isSingleMessage = chat.unreadCounter === 1;
 
     let linkClasses = {};
     linkClasses[styles.active] = isCurrentChat;
@@ -53,6 +54,7 @@ class ChatListItem extends Component {
     }
 
     return (
+      <span>
       <li className={cx(styles.chatListItem, linkClasses)}>
         <Link
           to={linkPath}
@@ -61,23 +63,22 @@ class ChatListItem extends Component {
           aria-expanded={isCurrentChat}>
             {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
             <div className={styles.chatName}>
-              {!compact ? <h3 className={styles.chatNameMain}>{chat.name}</h3> : null }
+              {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null }
             </div>
             {(chat.unreadCounter > 0) ?
-              <div className={styles.unreadMessages}>
-                <div className={styles.unreadMessagesText} aria-describedby="newMsgDesc">
+              <div 
+                className={styles.unreadMessages}
+                aria-label={isSingleMessage
+                  ? intl.formatMessage(intlMessages.unreadSingular, { count: chat.unreadCounter })
+                  : intl.formatMessage(intlMessages.unreadPlural, { count: chat.unreadCounter })}>
+                <div className={styles.unreadMessagesText} aria-hidden="true">
                   {chat.unreadCounter}
-                  <div
-                    id="newMsgDesc"
-                    aria-label={chat.unreadCounter === 1
-                      ? intl.formatMessage(intlMessages.unreadSingular)
-                      : intl.formatMessage(intlMessages.unreadPlural)}
-                    />
                 </div>
               </div>
               : null}
         </Link>
       </li>
+      </span>
     );
   }
 
