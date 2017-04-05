@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import { withRouter } from 'react-router';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import styles from './styles.scss';
-import { FormattedMessage } from 'react-intl';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import UserListItem from './user-list-item/component.jsx';
@@ -154,12 +153,15 @@ class UserList extends Component {
 const intlMessages = defineMessages({
   usersTitle: {
     id: 'app.userlist.usersTitle',
+    description: 'Title for the Header',
   },
   messagesTitle: {
     id: 'app.userlist.messagesTitle',
+    description: 'Title for the messages list',
   },
   participantsTitle: {
     id: 'app.userlist.participantsTitle',
+    description: 'Title for the Users list',
   },
 });
 
