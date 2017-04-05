@@ -4,7 +4,7 @@ package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.ClearWhiteboardRequestMessage;
 import org.bigbluebutton.common.messages.ModifyWhiteboardAccessRequestMessage;
-import org.bigbluebutton.common.messages.IsWhiteboardEnabledRequestMessage;
+import org.bigbluebutton.common.messages.GetWhiteboardAccessRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.RequestWhiteboardAnnotationHistoryRequestMessage;
 import org.bigbluebutton.common.messages.SendWhiteboardAnnotationRequestMessage;
@@ -43,9 +43,9 @@ public class WhiteboardMessageReceiver implements MessageHandler {
 					} else if (RequestWhiteboardAnnotationHistoryRequestMessage.REQUEST_WHITEBOARD_ANNOTATION_HISTORY_REQUEST.equals(messageName)) {
 						RequestWhiteboardAnnotationHistoryRequestMessage msg = RequestWhiteboardAnnotationHistoryRequestMessage.fromJson(message);
 						bbbInGW.requestWhiteboardAnnotationHistory(msg.meetingId, msg.requesterId, msg.whiteboardId, msg.replyTo);
-					} else if (IsWhiteboardEnabledRequestMessage.IS_WHITEBOARD_ENABLED_REQUEST.equals(messageName)) {
-						IsWhiteboardEnabledRequestMessage msg = IsWhiteboardEnabledRequestMessage.fromJson(message);
-						bbbInGW.isWhiteboardEnabled(msg.meetingId, msg.requesterId, msg.replyTo);
+					} else if (GetWhiteboardAccessRequestMessage.GET_WHITEBOARD_ACCESS_REQUEST.equals(messageName)) {
+						GetWhiteboardAccessRequestMessage msg = GetWhiteboardAccessRequestMessage.fromJson(message);
+						bbbInGW.getWhiteboardAccess(msg.meetingId, msg.requesterId);
 					} else if (ModifyWhiteboardAccessRequestMessage.MODIFY_WHITEBOARD_ACCESS_REQUEST.equals(messageName)) {
 						ModifyWhiteboardAccessRequestMessage msg = ModifyWhiteboardAccessRequestMessage.fromJson(message);
 						bbbInGW.modifyWhiteboardAccess(msg.meetingId, msg.requesterId, msg.multiUser);

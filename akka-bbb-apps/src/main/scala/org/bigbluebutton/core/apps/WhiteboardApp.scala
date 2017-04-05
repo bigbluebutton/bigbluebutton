@@ -70,8 +70,8 @@ trait WhiteboardApp {
     outGW.send(new ModifiedWhiteboardAccessEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.multiUser))
   }
 
-  def handleIsWhiteboardEnabledRequest(msg: IsWhiteboardEnabledRequest) {
-    val enabled = wbModel.isWhiteboardEnabled()
-    outGW.send(new IsWhiteboardEnabledReply(mProps.meetingID, mProps.recorded, msg.requesterID, enabled, msg.replyTo))
+  def handleGetWhiteboardAccessRequest(msg: GetWhiteboardAccessRequest) {
+    val multiUser = wbModel.getWhiteboardAccess()
+    outGW.send(new GetWhiteboardAccessReply(mProps.meetingID, mProps.recorded, msg.requesterID, multiUser))
   }
 }

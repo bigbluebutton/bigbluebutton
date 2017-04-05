@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.bigbluebutton.common.messages.ClearWhiteboardReplyMessage;
 import org.bigbluebutton.common.messages.GetWhiteboardShapesReplyMessage;
-import org.bigbluebutton.common.messages.IsWhiteboardEnabledReplyMessage;
+import org.bigbluebutton.common.messages.GetWhiteboardAccessReplyMessage;
 import org.bigbluebutton.common.messages.SendWhiteboardAnnotationReplyMessage;
 import org.bigbluebutton.common.messages.UndoWhiteboardReplyMessage;
 import org.bigbluebutton.common.messages.ModifiedWhiteboardAccessMessage;
@@ -47,12 +47,6 @@ public class WhiteboardClientMessageSender {
 							processClearWhiteboardReply(wcm);
 						}
 						break;
-					case IsWhiteboardEnabledReplyMessage.IS_WHITEBOARD_ENABLED_REPLY:
-						IsWhiteboardEnabledReplyMessage iwe = IsWhiteboardEnabledReplyMessage.fromJson(message);
-						if (iwe != null) {
-							processIsWhiteboardEnabledReply(iwe);
-						}
-						break;
 					case GetWhiteboardShapesReplyMessage.GET_WHITEBOARD_SHAPES_REPLY:
 						GetWhiteboardShapesReplyMessage gwsrm = GetWhiteboardShapesReplyMessage.fromJson(message);
 						if (gwsrm != null) {
@@ -69,6 +63,12 @@ public class WhiteboardClientMessageSender {
 						ModifiedWhiteboardAccessMessage mwam = ModifiedWhiteboardAccessMessage.fromJson(message);
 						if (mwam != null) {
 							processModifiedWhiteboardAccessMessage(mwam);
+						}
+						break;
+					case GetWhiteboardAccessReplyMessage.GET_WHITEBOARD_ACCESS_REPLY:
+						GetWhiteboardAccessReplyMessage gwa = GetWhiteboardAccessReplyMessage.fromJson(message);
+						if (gwa != null) {
+							processGetWhiteboardAccessReply(gwa);
 						}
 						break;
 				}
@@ -116,22 +116,6 @@ public class WhiteboardClientMessageSender {
 		service.sendMessage(m);
 	}
 
-	private void processIsWhiteboardEnabledReply(IsWhiteboardEnabledReplyMessage msg) {
-		Map<String, Object> args = new HashMap<String, Object>();	
-		args.put("enabled", msg.enabled);
-
-		Map<String, Object> message = new HashMap<String, Object>();
-		Gson gson = new Gson();
-		message.put("msg", gson.toJson(args));
-
-		DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "WhiteboardIsWhiteboardEnabledReply", message);
-		service.sendMessage(m);
-
-		// broadcast message
-		BroadcastClientMessage b = new BroadcastClientMessage(msg.meetingId, "WhiteboardIsWhiteboardEnabledReply", message);
-		service.sendMessage(b);
-	}
-
 	private void processClearWhiteboardReply(ClearWhiteboardReplyMessage msg) {
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("whiteboardId", msg.whiteboardId);
@@ -170,5 +154,17 @@ public class WhiteboardClientMessageSender {
 		// broadcast message
 		BroadcastClientMessage b = new BroadcastClientMessage(msg.meetingId, "WhiteboardAccessModifiedCommand", message);
 		service.sendMessage(b);
+	}
+  
+  	private void processGetWhiteboardAccessReply(GetWhiteboardAccessReplyMessage msg) {
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("multiUser", msg.multiUser);
+
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+
+		DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "WhiteboardGetWhiteboardAccessReply", message);
+		service.sendMessage(m);
 	}
 }

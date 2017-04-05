@@ -45,6 +45,17 @@ package org.bigbluebutton.modules.whiteboard.services
 			);
 		}
 		
+		public function getWhiteboardAccess():void {
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("whiteboard.getWhiteboardAccess", 
+				function(result:String):void { // On successful result
+				},
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status); 
+				}
+			);
+		}
+		
 		/**
 		 * Sends a call out to the red5 server to notify the clients to toggle grid mode
 		 * 
@@ -150,17 +161,5 @@ package org.bigbluebutton.modules.whiteboard.services
 					e.annotation.annotation
 			);
 		}
-		
-		public function checkIsWhiteboardOn():void {
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.isWhiteboardEnabled", 
-				function(result:String):void { // On successful result
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-				}
-			);
-		}
-					
 	}
 }

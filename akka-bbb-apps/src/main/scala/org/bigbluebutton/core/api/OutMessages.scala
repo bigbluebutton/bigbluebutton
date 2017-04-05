@@ -144,7 +144,7 @@ case class SendWhiteboardAnnotationEvent(meetingID: String, recorded: Boolean, r
 case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, fullClear: Boolean) extends IOutMessage
 case class UndoWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapeId: String) extends IOutMessage
 case class ModifiedWhiteboardAccessEvent(meetingID: String, recorded: Boolean, requesterID: String, multiUser: Boolean) extends IOutMessage
-case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean, replyTo: String) extends IOutMessage
+case class GetWhiteboardAccessReply(meetingID: String, recorded: Boolean, requesterID: String, multiUser: Boolean) extends IOutMessage
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
 // Caption

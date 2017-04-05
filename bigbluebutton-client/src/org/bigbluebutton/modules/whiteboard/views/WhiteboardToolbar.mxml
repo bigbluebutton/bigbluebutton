@@ -123,6 +123,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
+			[Bindable]
 			private var multiUser:Boolean = false;
 		
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
@@ -192,6 +193,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		
 			protected function changeMultiUser():void {
+				if (!isPresenter) return;
+				
 				var dispatcher:GlobalDispatcher = new GlobalDispatcher();
 				
 				var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFY_WHITEBOARD_ACCESS);
@@ -212,12 +215,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
+				checkToolReset();
 				checkVisibility();
 			}
 		
 			private function whiteboardAccessModified(e:WhiteboardPresenterEvent):void {
 				multiUser = e.multiUser;
-				multiUserBtn.label = (multiUser ? "M" : "P");
+				checkToolReset();
 				checkVisibility();
 			}
 			
@@ -264,6 +268,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.x = presentationWindow.x + presentationWindow.width - 43;
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren - 1);
+			}
+		
+			private function checkToolReset():void {
+				if (!multiUser && !isPresenter) {
+					setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+				}
 			}
 			
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void {
@@ -369,5 +379,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="30"/>
-	<mx:Button id="multiUserBtn" click="changeMultiUser()" label="P" />
+	<mx:Button id="multiUserBtn" click="changeMultiUser()" label="{multiUser ? 'M' : 'P'}" />
 </mx:VBox>

@@ -41,6 +41,10 @@ package org.bigbluebutton.modules.whiteboard.services
     public function modifyAccess(e:WhiteboardPresenterEvent):void {
       sender.modifyAccess(e);
     }
+    
+    public function getWhiteboardAccess():void {
+      sender.getWhiteboardAccess();
+    }
 
     public function toggleGrid():void {
       sender.toggleGrid();
@@ -70,9 +74,6 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.sendShape(e);
     }
 
-    public function checkIsWhiteboardOn():void {
-      sender.checkIsWhiteboardOn();
-    }
 
-	}
+  }
 }

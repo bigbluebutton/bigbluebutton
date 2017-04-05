@@ -1,4 +1,4 @@
-/**
+/**E
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
 * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
@@ -18,8 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import org.bigbluebutton.modules.whiteboard.models.Annotation;
-
 	/**
 	 * The Ellipse class. Extends the DrawObject 
 	 * @author dzgonjan
@@ -27,55 +25,46 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 */	
 	public class Ellipse extends DrawObject
 	{
-        public function Ellipse(id:String, type:String, status:String, userId:String)
-        {
-            super(id, type, status, userId);
-        }
-        
-
-        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		public function Ellipse(id:String, type:String, status:String, userId:String) {
+			super(id, type, status, userId);
+		}
+		
+		override protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {
 			this.graphics.clear();
-//            LogUtil.debug("Drawing ELLIPSE");
-
-            var ao:Object = a.annotation;
-            
-            
-            if(!ao.fill)
-                this.graphics.lineStyle(ao.thickness * zoom, ao.color, ao.transparency ? 0.6 : 1.0);
-            else this.graphics.lineStyle(ao.thickness * zoom, ao.color);
-            
-            var arrayEnd:Number = (ao.points as Array).length;
-            var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
-            var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
-            var width:Number = denormalize((ao.points as Array)[arrayEnd-2], parentWidth) - startX;
-            var height:Number = denormalize((ao.points as Array)[arrayEnd-1], parentHeight) - startY;
-            
-            if (ao.fill) this.graphics.beginFill(ao.fillColor, ao.transparency ? 0.6 : 1.0);
-			if (ao.circle) {
-                //calculate what how to draw circle in different directions
-                //from starting point
-                if(height < 0){
-                    if(width<0)
-    				    this.graphics.drawEllipse(startX, startY, width, width);
-                    else
-                        this.graphics.drawEllipse(startX, startY, width, -width);
-                }
-                else{
-                    if(width<0)
-                        this.graphics.drawEllipse(startX, startY, width, -width);
-                    else
-                        this.graphics.drawEllipse(startX, startY, width, width);
-                }
+			//LogUtil.debug("Drawing ELLIPSE");
+			
+			if(!_ao.fill)
+				this.graphics.lineStyle(_ao.thickness * zoom, _ao.color, _ao.transparency ? 0.6 : 1.0);
+			else this.graphics.lineStyle(_ao.thickness * zoom, _ao.color);
+			
+			var arrayEnd:Number = (_ao.points as Array).length;
+			var startX:Number = denormalize((_ao.points as Array)[0], parentWidth);
+			var startY:Number = denormalize((_ao.points as Array)[1], parentHeight);
+			var width:Number = denormalize((_ao.points as Array)[arrayEnd-2], parentWidth) - startX;
+			var height:Number = denormalize((_ao.points as Array)[arrayEnd-1], parentHeight) - startY;
+			
+			if (_ao.fill) this.graphics.beginFill(_ao.fillColor, _ao.transparency ? 0.6 : 1.0);
+			if (_ao.circle) {
+				//calculate what how to draw circle in different directions
+				//from starting point
+				if(height < 0){
+					if(width<0)
+						this.graphics.drawEllipse(startX, startY, width, width);
+					else
+						this.graphics.drawEllipse(startX, startY, width, -width);
+				}
+				else{
+					if(width<0)
+						this.graphics.drawEllipse(startX, startY, width, -width);
+					else
+						this.graphics.drawEllipse(startX, startY, width, width);
+				}
 
 
 			} else {
 				this.graphics.drawEllipse(startX, startY, width, height);
 			}
-            
-        }
-        
-        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            draw(a, parentWidth, parentHeight, zoom);
-        }
+			
+		}
 	}
 }

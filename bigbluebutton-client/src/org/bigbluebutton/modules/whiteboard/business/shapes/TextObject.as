@@ -26,6 +26,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   import flash.text.TextField;
   import flash.text.TextFieldType;
   import flash.text.TextFormat;
+  
+  import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
   public class TextObject extends TextField implements GraphicObject {
     public static const TYPE_NOT_EDITABLE:String = "dynamic";
@@ -117,6 +119,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       return (val*100.0)/side;
     }
     
+	public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {}
+	
+	public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {}
+	
     private function applyTextFormat(size:Number):void {
       var tf:TextFormat = new TextFormat();
       tf.size = size;

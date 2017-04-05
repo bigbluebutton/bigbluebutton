@@ -8,9 +8,7 @@ case class AnnotationVO(id: String, status: String, shapeType: String, shape: sc
 class WhiteboardModel {
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
-  private var _multiUser = false;
-
-  private var _enabled = true
+  private var _multiUser = false
 
   private def saveWhiteboard(wb: Whiteboard) {
     _whiteboards += wb.id -> wb
@@ -136,7 +134,7 @@ class WhiteboardModel {
     _multiUser = multiUser
   }
 
-  def isWhiteboardEnabled(): Boolean = {
-    _enabled
+  def getWhiteboardAccess(): Boolean = {
+    _multiUser
   }
 }

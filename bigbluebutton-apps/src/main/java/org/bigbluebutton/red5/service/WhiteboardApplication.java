@@ -112,10 +112,8 @@ public class WhiteboardApplication implements IApplication {
 		red5BBBInGW.modifyWhiteboardAccess(meetingID, requesterID, multiUser);
 	}
 
-	public void setIsWhiteboardEnabled(String meetingID, String requesterID) {
-		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
-		String replyTo = meetingID + "/" + requesterID; 
-		red5BBBInGW.isWhiteboardEnabled(meetingID, requesterID, replyTo);
+	public void getWhiteboardAccess(String meetingID, String requesterID) {
+		red5BBBInGW.getWhiteboardAccess(meetingID, requesterID);
 	}
 
 }

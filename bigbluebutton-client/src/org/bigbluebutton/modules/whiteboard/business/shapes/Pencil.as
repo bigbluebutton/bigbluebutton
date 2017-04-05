@@ -18,10 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Sprite;
-	
-	import org.bigbluebutton.modules.whiteboard.models.Annotation;
-
 	/**
 	 * The Pencil class. Extends a DrawObject 
 	 * @author dzgonjan
@@ -29,34 +25,27 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 */	
 	public class Pencil extends DrawObject
 	{
-		public function Pencil(id:String, type:String, status:String, userId:String)
-		{
+		public function Pencil(id:String, type:String, status:String, userId:String) {
 			super(id, type, status, userId);
 		}
 		
-        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		override protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {
 			this.graphics.clear();
-            var ao:Object = a.annotation;
-            
-            this.graphics.lineStyle(ao.thickness * zoom, ao.color);
-            
-            var graphicsCommands:Vector.<int> = new Vector.<int>();
-            graphicsCommands.push(1);
-            var coordinates:Vector.<Number> = new Vector.<Number>();
-            coordinates.push(denormalize((ao.points as Array)[0], parentWidth), denormalize((ao.points as Array)[1], parentHeight));
-            
-            for (var i:int = 2; i < (ao.points as Array).length; i += 2){
-                graphicsCommands.push(2);
-                coordinates.push(denormalize((ao.points as Array)[i], parentWidth), denormalize((ao.points as Array)[i+1], parentHeight));
-            }
-            
-            this.graphics.drawPath(graphicsCommands, coordinates);
-            this.alpha = 1;
-        }
-        
-        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            draw(a, parentWidth, parentHeight, zoom);
-        }
-        
+			
+			this.graphics.lineStyle(_ao.thickness * zoom, _ao.color);
+			
+			var graphicsCommands:Vector.<int> = new Vector.<int>();
+			graphicsCommands.push(1);
+			var coordinates:Vector.<Number> = new Vector.<Number>();
+			coordinates.push(denormalize((_ao.points as Array)[0], parentWidth), denormalize((_ao.points as Array)[1], parentHeight));
+			
+			for (var i:int = 2; i < (_ao.points as Array).length; i += 2){
+				graphicsCommands.push(2);
+				coordinates.push(denormalize((_ao.points as Array)[i], parentWidth), denormalize((_ao.points as Array)[i+1], parentHeight));
+			}
+			
+			this.graphics.drawPath(graphicsCommands, coordinates);
+			this.alpha = 1;
+		}
 	}
 }

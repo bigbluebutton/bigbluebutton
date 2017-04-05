@@ -43,8 +43,8 @@ package org.bigbluebutton.modules.whiteboard.services
         case "WhiteboardRequestAnnotationHistoryReply":
           handleRequestAnnotationHistoryReply(message);
           break;
-        case "WhiteboardIsWhiteboardEnabledReply":
-          handleIsWhiteboardEnabledReply(message);
+        case "WhiteboardGetWhiteboardAccessReply":
+          handleGetWhiteboardAccessReply(message);
           break;
         case "WhiteboardAccessModifiedCommand":
           handleWhiteboardAccessModifiedCommand(message);
@@ -85,6 +85,12 @@ package org.bigbluebutton.modules.whiteboard.services
       whiteboardModel.accessModified(map.multiUser);
     }
     
+    private function handleGetWhiteboardAccessReply(message:Object):void {
+      var map:Object = JSON.parse(message.msg);
+      
+      whiteboardModel.accessModified(map.multiUser);
+    }
+    
     private function handleNewAnnotationCommand(message:Object):void {
       var map:Object = JSON.parse(message.msg);
       var shape:Object = map.shape as Object;
@@ -94,10 +100,6 @@ package org.bigbluebutton.modules.whiteboard.services
       annotation.status = shape.status;
       annotation.userId = shape.userId;
       whiteboardModel.addAnnotation(annotation);
-    }
-
-    private function handleIsWhiteboardEnabledReply(message:Object):void {
-      var map:Object = JSON.parse(message.msg);
     }
 
     private function handleRequestAnnotationHistoryReply(message:Object):void {

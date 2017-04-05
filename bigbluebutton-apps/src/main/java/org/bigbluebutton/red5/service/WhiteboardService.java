@@ -129,10 +129,10 @@ public class WhiteboardService {
 		application.modifyWhiteboardAccess(meetingID, requesterID, multiUser);
 	}
 	
-	public void isWhiteboardEnabled() {
+	public void getWhiteboardAccess() {
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();		
-		application.setIsWhiteboardEnabled(meetingID, requesterID);
+		application.getWhiteboardAccess(meetingID, requesterID);
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

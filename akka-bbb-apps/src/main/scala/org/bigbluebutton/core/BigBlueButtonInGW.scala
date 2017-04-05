@@ -442,8 +442,8 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingID, new ModifyWhiteboardAccessRequest(meetingID, requesterID, multiUser)))
   }
 
-  def isWhiteboardEnabled(meetingID: String, requesterID: String, replyTo: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new IsWhiteboardEnabledRequest(meetingID, requesterID, replyTo)))
+  def getWhiteboardAccess(meetingID: String, requesterID: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new GetWhiteboardAccessRequest(meetingID, requesterID)))
   }
 
   /**

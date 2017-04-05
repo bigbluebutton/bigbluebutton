@@ -91,10 +91,11 @@ package org.bigbluebutton.modules.whiteboard
             break;
           case DrawObject.DRAW_UPDATE:
           case DrawObject.DRAW_END:
+			  var gobj:GraphicObject;
 			  for (var i:int = _annotationsList.length -1; i >= 0; i--) {
-				  dobj = _annotationsList[i] as DrawObject;
-				  if (dobj.id == o.id) {
-					  dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+				  gobj = _annotationsList[i] as GraphicObject;
+				  if (gobj != null && dobj.id == o.id) {
+					  gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
 					  return;
 				  }
 			  }
@@ -440,7 +441,10 @@ package org.bigbluebutton.modules.whiteboard
     private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
             var o:Annotation;
             if (gobj.type != DrawObject.TEXT) {
-                wbCanvas.removeGraphic(gobj as DisplayObject);
+                
+				gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+				/*
+				wbCanvas.removeGraphic(gobj as DisplayObject);
                 o = whiteboardModel.getAnnotation(gobj.id);
                 
                 if (o != null) {
@@ -451,6 +455,7 @@ package org.bigbluebutton.modules.whiteboard
                         _annotationsList[objIndex] = dobj;              
                     }          
                 }
+				*/
             } else if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
                 var origTobj:TextObject = gobj as TextObject;                
                 var an:Annotation = whiteboardModel.getAnnotation(origTobj.id);

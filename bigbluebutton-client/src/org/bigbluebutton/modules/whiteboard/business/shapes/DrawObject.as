@@ -57,6 +57,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         private var _status:String;
         private var _userId:String;
 		
+		protected var _ao:Object;
+		
 		/**
 		 * ID we can use to match the shape in the client's view
 		 * so we can use modify it; a unique identifier of each GraphicObject
@@ -102,14 +104,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return (val*100.0)/side;
 		}
         
-        public function makeGraphic(parentWidth:Number, parentHeight:Number):void {}
+        protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {}
 		
         public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            
+            _ao = a.annotation;
+            makeGraphic(parentWidth, parentHeight, zoom);
         }
         
-        public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            
+        public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+            makeGraphic(parentWidth, parentHeight, zoom);
         }
 	}
 }

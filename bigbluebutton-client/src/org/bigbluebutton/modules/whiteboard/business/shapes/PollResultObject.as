@@ -280,16 +280,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
     
     override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-      var ao:Object = a.annotation;
+      _ao = a.annotation;
 	  LOGGER.debug("RESULT = {0}", [jsonXify(a)]);
 
-      var arrayEnd:Number = (ao.points as Array).length;
-      var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
-      var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
-      var pwidth:Number = denormalize((ao.points as Array)[2], parentWidth);
-      var pheight:Number = denormalize((ao.points as Array)[3], parentHeight);
+      var arrayEnd:Number = (_ao.points as Array).length;
+      var startX:Number = denormalize((_ao.points as Array)[0], parentWidth);
+      var startY:Number = denormalize((_ao.points as Array)[1], parentHeight);
+      var pwidth:Number = denormalize((_ao.points as Array)[2], parentWidth);
+      var pheight:Number = denormalize((_ao.points as Array)[3], parentHeight);
            
-      var answers:Array = ao.result as Array;
+      var answers:Array = _ao.result as Array;
       var ans:Array = new Array();
       for (var j:int = 0; j < answers.length; j++) {
 	      var ar:Object = answers[j];
@@ -311,10 +311,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	  
 	  updateDisplayList(pwidth, pheight);
 	  
-    }
-    
-    override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-      draw(a, parentWidth, parentHeight, zoom);
     }
   }
 }
