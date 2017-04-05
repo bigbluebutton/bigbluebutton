@@ -10,6 +10,7 @@
 .left,
 .center {
   flex: 1;
+  justify-content: center;
 
   > * {
     margin: 0 $line-height-computed;
@@ -17,12 +18,10 @@
 }
 
 .left{
-  justify-content: center;
   position: absolute;
 }
 
 .center {
-  justify-content: center;
   align-items: center;
 }
 
