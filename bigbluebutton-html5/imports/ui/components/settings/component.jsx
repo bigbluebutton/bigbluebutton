@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Modal from '/imports/ui/components/modal/component';
+import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Modal from '/imports/ui/components/modal/component';
+import Modal from '/imports/ui/components/modal/simple/component';
 
 const intlMessages = defineMessages({
   title: {
