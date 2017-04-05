@@ -1,3 +1,4 @@
+import React from 'react';
 import AuthSingleton from '/imports/ui/services/auth/index.js';
 import Users from '/imports/api/users';
 import { joinListenOnly } from '/imports/api/phone';

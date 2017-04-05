@@ -12,10 +12,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.titlePublic',
   },
   unreadPlural: {
-    id: 'app.chatlistitem.unreadPlural',
+    id: 'app.userlist.chatlistitem.unreadPlural',
   },
   unreadSingular: {
-    id: 'app.chatlistitem.unreadSingular',
+    id: 'app.userlist.chatlistitem.unreadSingular',
   },
 });
 

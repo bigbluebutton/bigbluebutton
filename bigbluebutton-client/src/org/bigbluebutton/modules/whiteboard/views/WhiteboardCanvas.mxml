@@ -43,12 +43,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public var model:WhiteboardCanvasModel;	
             public var displayModel:WhiteboardCanvasDisplayModel;
-            
+			public var finishedTextEdit : Boolean;
+
 			public var textToolbar:WhiteboardTextToolbar;		
 			private var bbbCanvas:IBbbCanvas;
 			private var _xPosition:int;
 			private var _yPosition:int;
 			private var images:Images = new Images();
+
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
 			[Bindable] private var rectangle_icon:Class = images.square_icon;
@@ -100,12 +102,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function doMouseDown(event:Event):void {
-                displayModel.doMouseDown(this.mouseX, this.mouseY);
+                finishedTextEdit = displayModel.needToPublish();
+				displayModel.doMouseDown(this.mouseX, this.mouseY);
 				model.doMouseDown(this.mouseX, this.mouseY);
 				event.stopPropagation(); // we want to stop the bubbling so slide doesn't move
 				
 				stage.addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
-				stage.addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+				stage.addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);	
 			}
 			
 			private function doMouseMove(event:Event):void {
