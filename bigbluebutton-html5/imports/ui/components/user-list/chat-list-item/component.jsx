@@ -54,7 +54,6 @@ class ChatListItem extends Component {
     }
 
     return (
-      <span>
       <li className={cx(styles.chatListItem, linkClasses)}>
         <Link
           to={linkPath}
@@ -66,7 +65,7 @@ class ChatListItem extends Component {
               {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null }
             </div>
             {(chat.unreadCounter > 0) ?
-              <div 
+              <div
                 className={styles.unreadMessages}
                 aria-label={isSingleMessage
                   ? intl.formatMessage(intlMessages.unreadSingular, { count: chat.unreadCounter })
@@ -78,7 +77,6 @@ class ChatListItem extends Component {
               : null}
         </Link>
       </li>
-      </span>
     );
   }
 
