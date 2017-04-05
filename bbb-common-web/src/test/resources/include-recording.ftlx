@@ -3,11 +3,11 @@
 <#if r.getMeeting()??>
     <meetingID>${r.getMeeting().getId()?html}</meetingID>
     <externalMeetingID>${r.getMeeting().getExternalId()?html}</externalMeetingID>
-    <name><![CDATA[${r.getMeeting().getName()}]]></name>
+    <name>${r.getMeeting().getName()?html}</name>
     <isBreakout>${r.getMeeting().isBreakout()?c}</isBreakout>
 <#else>
     <meetingID>${r.getMeetingId()?html}</meetingID>
-    <name><![CDATA[${r.getMeetingName()}]]></name>
+    <name>${r.getMeetingName()?html}></name>
     <isBreakout>${r.isBreakout()?c}</isBreakout>
 </#if>
 
@@ -38,7 +38,7 @@
 <#assign m = r.getMeta().get()>
 <metadata>
     <#list m?keys as prop>
-        <${prop}><![CDATA[${(m[prop])!""}]]></${prop}>
+        <${(prop)?html}>${((m[prop])?html)!""}</${(prop)?html}>
     </#list>
 </metadata>
 
@@ -48,7 +48,12 @@
         <type>${pb.getFormat()}</type>
         <url>${pb.getLink()}</url>
         <processingTime>${pb.getProcessingTime()?c}</processingTime>
-        <length>${pb.getDuration()?c}</length>
+
+        <#if pb.getDuration() == 0>
+            <length>${r.calculateDuration()?c}</length>
+        <#else>
+            <length>${pb.calculateDuration()?c}</length>
+        </#if>
 
         <#if pb.getExtensions()??>
             <#if pb.getExtensions().getPreview()??>
@@ -57,11 +62,11 @@
                     <#if prev.getImages()??>
                         <#list prev.getImages()>
                             <images>
-                                    <#items as image>
-                                        <#if image??>
-                                            <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()}">${image.getValue()!"Link not found."}</image>
-                                        </#if>
-                                    </#items>
+                                <#items as image>
+                                    <#if image??>
+                                        <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()?html}">${image.getValue()!"Link not found."}</image>
+                                    </#if>
+                                </#items>
                             </images>
                         </#list>
                     </#if>

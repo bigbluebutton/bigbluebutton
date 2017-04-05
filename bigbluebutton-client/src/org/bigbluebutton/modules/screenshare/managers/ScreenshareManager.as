@@ -35,7 +35,6 @@ package org.bigbluebutton.modules.screenshare.managers {
     import org.bigbluebutton.modules.screenshare.services.ScreenshareService;
     import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
     import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
-    import org.bigbluebutton.main.api.JSLog;
     
     public class ScreenshareManager {
         private static const LOGGER:ILogger = getClassLogger(ScreenshareManager);
@@ -145,21 +144,19 @@ package org.bigbluebutton.modules.screenshare.managers {
             sharing = false;
         }
         
-        public function handleRequestStartSharingEvent():void {
+        public function handleRequestStartSharingEvent(force:Boolean = false):void {
             toolbarButtonManager.startedSharing();
             var option:ScreenshareOptions = new ScreenshareOptions();
             option.parseOptions();
 
-            if (option.tryWebRTCFirst && !BrowserCheck.isWebRTCSupported()) {
+            if (force || (option.tryWebRTCFirst && !BrowserCheck.isWebRTCSupported()) || !option.tryWebRTCFirst) {
               usingJava = true;
               publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), module.tunnel());
               sharing = true;
               service.requestShareToken();
             } else {
-              sharing = true;
+              sharing = false;
               usingJava = false;
-              publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), module.tunnel());
-              service.requestShareToken();
             }
         }
        
@@ -222,13 +219,11 @@ package org.bigbluebutton.modules.screenshare.managers {
 
 
         public function handleUseJavaModeCommand():void {
-          JSLog.warn("ScreenshareManager::handleUseJavaModeCommand", {});
-          usingJava = true;
-          handleStartSharingEvent();
+          // true to force Java desksharing to be used regardless of WebRTC settings
+          handleRequestStartSharingEvent(true);
         }
 
         public function handleDeskshareToolbarStopEvent():void {
-          JSLog.warn("ScreenshareManager::handleDeskshareToolbarStopEvent", {});
           toolbarButtonManager.stoppedSharing();
         }
     }
