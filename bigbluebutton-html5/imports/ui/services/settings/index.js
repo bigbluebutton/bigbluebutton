@@ -1,5 +1,5 @@
 import Storage from '/imports/ui/services/storage/session';
-import _ from 'underscore';
+import _ from 'lodash';
 
 const SETTINGS = [
   'application',
