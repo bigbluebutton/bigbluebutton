@@ -6,7 +6,6 @@ import ActionsDropdown from './actions-dropdown/component';
 import JoinAudioOptionsContainer from './audio-menu/container';
 import MuteAudioContainer from './mute-button/container';
 import JoinVideo from './video-button/component';
-import cx from 'classnames';
 
 export default class ActionsBar extends Component {
   constructor(props) {
@@ -18,13 +17,9 @@ export default class ActionsBar extends Component {
 
     let centerContent;
 
-    let positionClasses = {};
-    positionClasses[styles.relative] = !isUserPresenter;
-    positionClasses[styles.absolute] = isUserPresenter;
-
     if (isUserPresenter || !isUserPresenter) {
       centerContent = (
-        <div className={cx(positionClasses)}>
+        <div className={styles.center}>
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
             handleJoinAudio={this.props.handleOpenJoinAudio}
