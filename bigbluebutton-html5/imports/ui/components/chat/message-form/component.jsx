@@ -6,6 +6,7 @@ import styles from './styles';
 
 import MessageFormActions from './message-form-actions/component';
 import TextareaAutosize from 'react-autosize-textarea';
+import Button from '../../button/component';
 
 const propTypes = {
 };
@@ -42,6 +43,7 @@ class MessageForm extends Component {
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+
   }
 
   handleMessageKeyDown(e) {
@@ -104,9 +106,9 @@ class MessageForm extends Component {
         <TextareaAutosize
           className={styles.input}
           id="message-input"
-          placeholder={ intl.formatMessage(messages.inputPlaceholder, { name: chatName }) }
+          placeholder={intl.formatMessage(messages.inputPlaceholder, { name: chatName })}
           aria-controls={this.props.chatAreaId}
-          aria-label={ intl.formatMessage(messages.inputLabel, { name: chatTitle }) }
+          aria-label={intl.formatMessage(messages.inputLabel, { name: chatTitle })}
           autoCorrect="off"
           autoComplete="off"
           spellCheck="true"
@@ -115,13 +117,16 @@ class MessageForm extends Component {
           onChange={this.handleMessageChange}
           onKeyDown={this.handleMessageKeyDown}
         />
-        <input
-          ref="btnSubmit"
-          className={'sr-only'}
+        <Button
+          className={styles.sendButton}
+          aria-label={intl.formatMessage(messages.submitLabel)}
           type="submit"
           disabled={disabled}
-          value={ intl.formatMessage(messages.submitLabel) }
-        />
+          label={intl.formatMessage(messages.submitLabel)}
+          hideLabel={true}
+          icon={"right_arrow"}
+          onClick={function(){}}
+          />
       </form>
     );
   }
