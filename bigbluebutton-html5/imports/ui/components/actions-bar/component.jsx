@@ -12,13 +12,14 @@ export default class ActionsBar extends Component {
     super(props);
   }
 
-  renderCenterBtns() {
+  render() {
     const { isUserPresenter } = this.props;
 
-    let centerContent;
-
-    if (isUserPresenter || !isUserPresenter) {
-      centerContent = (
+    return (
+      <div className={styles.actionsbar}>
+        <div className={styles.left}>
+          <ActionsDropdown {...{isUserPresenter}}/>
+        </div>
         <div className={styles.center}>
           <MuteAudioContainer />
           <JoinAudioOptionsContainer
@@ -29,21 +30,6 @@ export default class ActionsBar extends Component {
           {/*<JoinVideo />*/}
           <EmojiContainer />
         </div>
-      );
-    }
-
-    return centerContent;
-  }
-
-  render() {
-    const { isUserPresenter } = this.props;
-
-    return (
-      <div className={styles.actionsbar}>
-        <div className={styles.left}>
-          <ActionsDropdown {...{isUserPresenter}}/>
-        </div>
-        {this.renderCenterBtns()}
       </div>
     );
   }
