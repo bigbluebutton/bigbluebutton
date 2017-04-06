@@ -25,3 +25,30 @@ app:
   basename: '/html5client'
 
   defaultLocale: 'en'
+  #default settings for session storage
+  defaultSettings:
+    application:
+      chatAudioNotifications: false
+      chatPushNotifications: false
+      fontSize: "16px"
+    audio:
+      inputDeviceId: undefined
+      outputDeviceId: undefined
+    video:
+      viewParticipantsWebcams: true
+    cc:
+      backgroundColor: "#FFFFFF"
+      fontColor: "#000000"
+      enabled: false
+      fontFamily: "Calibri"
+      fontSize: '16px'
+      # locale: undefined
+      takeOwnership: false
+    participants:
+      muteAll: false
+      lockAll: false
+      lockAll: false
+      microphone: false
+      publicChat: false
+      privateChat: false
+      layout: false
