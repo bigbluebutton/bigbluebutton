@@ -51,7 +51,7 @@ class EmojiMenu extends Component {
               icon="hand"
               label={intl.formatMessage(intlMessages.raiseLabel)}
               description={intl.formatMessage(intlMessages.raiseDesc)}
-              onClick={() => actions.setEmojiHandler('hand')}
+              onClick={() => actions.setEmojiHandler('raiseHand')}
             />
             <DropdownListItem
               icon="happy"
@@ -63,7 +63,7 @@ class EmojiMenu extends Component {
               icon="undecided"
               label={intl.formatMessage(intlMessages.undecidedLabel)}
               description={intl.formatMessage(intlMessages.undecidedDesc)}
-              onClick={() => actions.setEmojiHandler('undecided')}
+              onClick={() => actions.setEmojiHandler('neutral')}
             />
             <DropdownListItem
               icon="sad"
@@ -81,19 +81,19 @@ class EmojiMenu extends Component {
               icon="time"
               label={intl.formatMessage(intlMessages.awayLabel)}
               description={intl.formatMessage(intlMessages.awayDesc)}
-              onClick={() => actions.setEmojiHandler('time')}
+              onClick={() => actions.setEmojiHandler('away')}
             />
             <DropdownListItem
               icon="thumbs_up"
               label={intl.formatMessage(intlMessages.thumbsupLabel)}
               description={intl.formatMessage(intlMessages.thumbsupDesc)}
-              onClick={() => actions.setEmojiHandler('thumbs_up')}
+              onClick={() => actions.setEmojiHandler('thumbsUp')}
             />
             <DropdownListItem
               icon="thumbs_down"
               label={intl.formatMessage(intlMessages.thumbsdownLabel)}
               description={intl.formatMessage(intlMessages.thumbsdownDesc)}
-              onClick={() => actions.setEmojiHandler('thumbs_down')}
+              onClick={() => actions.setEmojiHandler('thumbsDown')}
             />
             <DropdownListItem
               icon="applause"
