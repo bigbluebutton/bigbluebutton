@@ -55,7 +55,7 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
         Assets.absoluteFilePath(`locales/${l.locale}.json`);
         availableLocales.push(l);
       } catch (e) {
-        Logger.info(`Locale file not available for ${l.locale}`, APP_CONFIG);
+        // Getting here means the locale is not available on the files.
       }
     });
   }
