@@ -489,6 +489,8 @@ def storePollResultShape(xml, shape)
   File.open(gpl_file, 'w') do |g|
     g.puts('reset')
     g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\" noenhanced")
+    g.puts('set lmargin 0.5')
+    g.puts('set rmargin 0.5')
     g.puts('unset key')
     g.puts('set style data boxes')
     g.puts('set style fill solid border -1')
