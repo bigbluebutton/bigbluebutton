@@ -14,6 +14,8 @@
   "app.chat.partnerDisconnected": "{name} has left the meeting",
   "app.chat.closeChatLabel": "Close {title}",
   "app.chat.moreMessages": "More messages below",
+  "app.userlist.chatlistitem.unreadSingular": "{count} New Message",
+  "app.userlist.chatlistitem.unreadPlural": "{count} New Messages",
   "app.chat.Label": "Chat",
   "app.media.Label": "Media",
   "app.presentation.presentationToolbar.prevSlideLabel": "Previous slide",
