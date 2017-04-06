@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.whiteboard.events
 		public var boardEnabled:Boolean;
 		public var annotationID:String;
 		public var pageID:String;
+		public var userId:String;
 		
 		public function WhiteboardUpdate(type:String)
 		{

@@ -105,7 +105,7 @@ trait PollApp {
         for {
           page <- presModel.getCurrentPage()
           pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
-          annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId)
+          annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id, msg.requesterId, -1)
         } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation))
 
         outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))

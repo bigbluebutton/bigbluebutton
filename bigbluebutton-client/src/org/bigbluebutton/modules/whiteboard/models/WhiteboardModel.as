@@ -24,10 +24,12 @@ package org.bigbluebutton.modules.whiteboard.models
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 
@@ -35,6 +37,8 @@ package org.bigbluebutton.modules.whiteboard.models
 	{
 		private static const LOGGER:ILogger = getClassLogger(WhiteboardModel);      
 		private var _whiteboards:ArrayCollection = new ArrayCollection();
+		
+		private var _multiUser:Boolean = false;
 
     private var _dispatcher:IEventDispatcher;
 
@@ -103,8 +107,17 @@ package org.bigbluebutton.modules.whiteboard.models
       _dispatcher.dispatchEvent(new WhiteboardShapesEvent(wb.id));
     }
         
-		public function removeAnnotation(id:String):void {
-			
+		public function removeAnnotation(wbId:String, shapeId:String):void {
+			LOGGER.debug("Removing annotation");
+			var wb:Whiteboard = getWhiteboard(wbId);
+			if (wb != null) {
+				var removedAnnotation:Annotation = wb.undo(shapeId);
+				if (removedAnnotation != null) {
+					var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION);
+					e.annotation = removedAnnotation;
+					_dispatcher.dispatchEvent(e);
+				}
+			}
 		}
 		
     public function getAnnotation(id:String):Annotation {
@@ -126,36 +139,35 @@ package org.bigbluebutton.modules.whiteboard.models
       // Just return an empty array.
       return new Array();
     }
-        
-		public function undo(wbId:String):void {
-      LOGGER.debug("Undoing whiteboard");
+		
+    public function clear(wbId:String, fullClear:Boolean, userId:String):void {
+      LOGGER.debug("Clearing whiteboard");
       var wb:Whiteboard = getWhiteboard(wbId);
       if (wb != null) {
-        wb.undo();
-        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION));
-      }
-      
-		}
-		
-		public function clear(wbId:String = null):void {
-      LOGGER.debug("Clearing whiteboard");
-      if (wbId != null) {
-        var wb:Whiteboard = getWhiteboard(wbId);
-        if (wb != null) {
-          wb.clear();
+        if (fullClear) {
+          wb.clearAll();
           _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
+        } else {
+          wb.clear(userId);
+          var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS);
+          event.userId = userId;
+          _dispatcher.dispatchEvent(event);
         }
-      } else {
-        _whiteboards.removeAll();
-        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
       }
-      
+    }
+    
+    public function clearAll():void {
+      _whiteboards.removeAll();
+      _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
     }
 
-
-		public function enable(enabled:Boolean):void {
-			
-		}
+    public function accessModified(multiUser:Boolean):void {
+      _multiUser = multiUser;
+      
+      var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFIED_WHITEBOARD_ACCESS);
+      event.multiUser = multiUser;
+      _dispatcher.dispatchEvent(event);
+   }
         
       
     public function getCurrentWhiteboardId():String {

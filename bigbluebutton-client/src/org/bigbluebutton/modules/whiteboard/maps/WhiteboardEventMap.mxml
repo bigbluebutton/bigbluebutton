@@ -23,36 +23,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ModuleStartedEvent;
-      import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
-      import org.bigbluebutton.modules.present.events.NavigationEvent;
-      import org.bigbluebutton.modules.present.events.PageLoadedEvent;
-      import org.bigbluebutton.modules.present.events.PresentationEvent;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
-      import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-      import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
-      import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-      import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
-      import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-      import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
-      import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
-      import org.bigbluebutton.modules.whiteboard.services.MessageReceiver;
-      import org.bigbluebutton.modules.whiteboard.services.MessageSender;
-      import org.bigbluebutton.modules.whiteboard.services.WhiteboardService;
-      import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ModuleStartedEvent;
+			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+			import org.bigbluebutton.modules.present.events.NavigationEvent;
+			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
+			import org.bigbluebutton.modules.present.events.PresentationEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+			import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
+			import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
+			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
+			import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
+			import org.bigbluebutton.modules.whiteboard.services.MessageReceiver;
+			import org.bigbluebutton.modules.whiteboard.services.MessageSender;
+			import org.bigbluebutton.modules.whiteboard.services.WhiteboardService;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 			
 		]]>
 	</mx:Script>
 	
 	
-	<EventHandlers type="{WhiteboardPresenterEvent.MODIFY_ENABLED}" >
-		<MethodInvoker generator="{WhiteboardService}" method="modifyEnabled" arguments="{event}" />
+	<EventHandlers type="{WhiteboardPresenterEvent.MODIFY_WHITEBOARD_ACCESS}" >
+		<MethodInvoker generator="{WhiteboardService}" method="modifyAccess" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{GetWhiteboardAccessCommand.GET_ACCESS}" >
+		<MethodInvoker generator="{WhiteboardService}" method="getWhiteboardAccess"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}" >
@@ -96,7 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
   
 	<EventHandlers type="{WhiteboardUpdate.CLEAR_ANNOTATIONS}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="clearAnnotations"/>
+		<MethodInvoker generator="{WhiteboardManager}" method="clearAnnotations" arguments="{event}"/>
 	</EventHandlers>
   
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}" >

@@ -17,20 +17,19 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			{a:"C", v:5},
 			{a:"D", v:8}];
 		
-		public function PollResult(id:String, type:String, status:String) {
-			super(id, type, status);
+		public function PollResult(id:String, type:String, status:String, userId:String) {
+			super(id, type, status, userId);
 			
 			_pollGraphic = new PollGraphic();
 			this.addChild(_pollGraphic);
 		}
 		
-		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-			var ao:Object = a.annotation;
-			LOGGER.debug("RESULT = {0}", [jsonXify(a)]);
-			_pollGraphic.x = denormalize((ao.points as Array)[0], parentWidth);
-			_pollGraphic.y = denormalize((ao.points as Array)[1], parentHeight);
-			_pollGraphic.width = denormalize((ao.points as Array)[2], parentWidth);
-			_pollGraphic.height = denormalize((ao.points as Array)[3], parentHeight);
+		override protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+			LOGGER.debug("RESULT = {0}", [jsonXify(_ao)]);
+			_pollGraphic.x = denormalize((_ao.points as Array)[0], parentWidth);
+			_pollGraphic.y = denormalize((_ao.points as Array)[1], parentHeight);
+			_pollGraphic.width = denormalize((_ao.points as Array)[2], parentWidth);
+			_pollGraphic.height = denormalize((_ao.points as Array)[3], parentHeight);
 			
 			_pollGraphic.x = 0;
 			_pollGraphic.y = 0;
@@ -44,7 +43,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			
 			
 			
-			var answers:Array = ao.result as Array;
+			var answers:Array = _ao.result as Array;
 			var ans:Array = new Array();
 			for (var j:int = 0; j < answers.length; j++) {
 				var ar:Object = answers[j];
@@ -54,10 +53,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			}
 			
 			_pollGraphic.data = sampledata;
-		}
-		
-		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-			draw(a, parentWidth, parentHeight, zoom);
 		}
 	}
 }
