@@ -48,6 +48,12 @@ export default class Settings extends Component {
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
+  componentWillMount() {
+    this.props.availableLocales.then(locales => {
+      this.setState({ availableLocales: locales });
+    });
+  }
+
   setHtmlFontSize(size) {
     document.getElementsByTagName('html')[0].style.fontSize = size;
   };
@@ -125,6 +131,7 @@ export default class Settings extends Component {
         </TabList>
         <TabPanel className={styles.tabPanel}>
           <Application
+            availableLocales={this.state.availableLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={this.state.current.application}
             />

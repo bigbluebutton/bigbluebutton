@@ -56,7 +56,17 @@ export default class ApplicationMenu extends BaseMenu {
     this.changeFontSize(availableFontSizes[fs]);
   };
 
+  handleSelectChange(fieldname, options, e) {
+    let obj = this.state;
+    obj.settings[fieldname] = e.target.value;
+    this.handleUpdateSettings('application', obj.settings);
+  }
+
   render() {
+    const {
+      availableLocales,
+    } = this.props;
+
     return (
       <div className={styles.tabContent}>
         <div className={styles.header}>
@@ -94,6 +104,35 @@ export default class ApplicationMenu extends BaseMenu {
                 icons={false}
                 defaultChecked={this.state.settings.chatPushNotifications}
                 onChange={() => this.handleToggle('chatPushNotifications')} />
+              </div>
+            </div>
+          </div>
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  Application Language
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                <select
+                  defaultValue={this.state.settings.locale}
+                  className={styles.select}
+                  onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}>
+                  <option>
+                    { availableLocales &&
+                      availableLocales.length ?
+                      'Choose language' :
+                      'No active locales' }
+                  </option>
+                {availableLocales ? availableLocales.map((locale, index) =>
+                  <option key={index} value={locale.locale}>
+                    {locale.name}
+                  </option>
+                ) : null }
+                </select>
               </div>
             </div>
           </div>

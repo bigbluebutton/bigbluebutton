@@ -8,6 +8,7 @@ import {
     getClosedCaptionLocales,
     getUserRoles,
     updateSettings,
+    getAvailableLocales,
   } from './service';
 
 class SettingsContainer extends Component {
@@ -27,6 +28,7 @@ export default createContainer(() => {
     participants: SettingsService.participants,
     updateSettings,
     locales: getClosedCaptionLocales(),
+    availableLocales: getAvailableLocales(),
     isModerator: getUserRoles() === 'MODERATOR',
   };
 }, SettingsContainer);

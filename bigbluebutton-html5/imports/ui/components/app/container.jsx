@@ -50,7 +50,7 @@ class AppContainer extends Component {
 
 const APP_CONFIG = Meteor.settings.public.app;
 
-const init = () => {
+const init = (state) => {
   if (APP_CONFIG.autoJoinAudio) {
     showModal(<AudioModalContainer />);
   }

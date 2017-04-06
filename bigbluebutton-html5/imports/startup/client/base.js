@@ -8,6 +8,7 @@ import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import Settings from '/imports/ui/services/settings';
 
 const BROWSER_LANGUAGE = window.navigator.userLanguage || window.navigator.language;
 
@@ -57,10 +58,11 @@ class Base extends Component {
 
   render() {
     const { updateLoadingState, updateErrorState } = this;
+    const { locale } = this.props;
     const stateControls = { updateLoadingState, updateErrorState };
 
     return (
-      <IntlStartup locale={BROWSER_LANGUAGE} baseControls={stateControls}>
+      <IntlStartup locale={locale || BROWSER_LANGUAGE} baseControls={stateControls}>
         {this.renderByState()}
       </IntlStartup>
     );
@@ -86,6 +88,7 @@ export default BaseContainer = createContainer(({ params }) => {
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials));
 
   return {
+    locale: Settings.application.locale,
     subscriptionsReady: subscriptionsHandlers.every(handler => handler.ready()),
   };
 }, Base);
