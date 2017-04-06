@@ -3,7 +3,6 @@ import _ from 'lodash';
 import Logger from './logger';
 import Redis from './redis';
 import locales from '../../utils/locales';
-import fs from 'fs';
 
 const availableLocales = [];
 
@@ -56,7 +55,7 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
         Assets.absoluteFilePath(`locales/${l.locale}.json`);
         availableLocales.push(l);
       } catch (e) {
-        // Nothing needs to be handled.
+        Logger.info(`Locale file not available for ${l.locale}`, APP_CONFIG);
       }
     });
   }
