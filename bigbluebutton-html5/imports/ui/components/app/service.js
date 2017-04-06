@@ -23,13 +23,13 @@ const clearModal = () => {
 };
 
 const getCaptionsStatus = () => {
-  const settings = Settings.cc;
-  return settings ? settings.cc : false;
+  const ccSettings = Settings.cc;
+  return ccSettings ? ccSettings.enabled : false;
 };
 
 const getFontSize = () => {
-  const settings = Settings.application;
-  return settings ? settings.fontSize : '16px';
+  const applicationSettings = Settings.application;
+  return applicationSettings ? applicationSettings.fontSize : '16px';
 };
 
 function meetingIsBreakout() {

@@ -39,10 +39,10 @@ app:
     cc:
       backgroundColor: "#FFFFFF"
       fontColor: "#000000"
-      closedCaptions: false
+      enabled: false
       fontFamily: "Calibri"
       fontSize: '16px'
-      locale: undefined
+      # locale: undefined
       takeOwnership: false
     participants:
       muteAll: false
