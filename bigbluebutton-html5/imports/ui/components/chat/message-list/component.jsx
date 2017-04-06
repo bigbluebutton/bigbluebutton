@@ -1,4 +1,3 @@
-
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
@@ -112,14 +111,27 @@ class MessageList extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if (this.props.chatId !== nextProps.chatId
-      || this.props.hasUnreadMessages !== nextProps.hasUnreadMessages
-      || this.props.messages.length !== nextProps.messages.length
-      || !_.isEqual(this.props.messages, nextProps.messages)) {
-      return true;
-    }
+    const {
+      chatId,
+      hasUnreadMessages,
+      partnerIsLoggedOut,
+    } = this.props;
 
-    return false;
+    const switchingCorrespondent = chatId !== nextProps.chatId;
+    const hasNewUnreadMessages = hasUnreadMessages !== nextProps.hasUnreadMessages;
+
+    // console.log('switchingCorrespondent=' + switchingCorrespondent);
+    // console.log('hasNewUnreadMessages=' + hasNewUnreadMessages);
+
+    // check if the messages include <user has left the meeting>
+    const lastMessageId = nextProps.messages[nextProps.messages.length - 1].id;
+    const userLeftIsDisplayed = lastMessageId.includes('partner-disconnected');
+
+    if (switchingCorrespondent || hasNewUnreadMessages) return true;
+
+    if (partnerIsLoggedOut && userLeftIsDisplayed) return false; // update leads to endless loop
+
+    return true;
   }
 
   render() {
