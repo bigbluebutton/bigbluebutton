@@ -81,7 +81,7 @@ function determineGlobalAlternateModifier()
 	//	modifier = "control+alt";
 	//}
 	else{
-		modifier = "control+shift";
+		modifier = "control+shift+";
 	}
 	return modifier;
 }

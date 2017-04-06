@@ -1,32 +1,25 @@
 <recording>
-    <id>32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780</id>
+    <id>3c97908bb2dc4f794914776d639405709479c3da-1490721543626</id>
     <state>published</state>
     <published>true</published>
-    <start_time>1489173065780</start_time>
-    <end_time>1489173199386</end_time>
-    <participants>10</participants>
-    <meeting id="f3ffe06acedf425565cc024c8ebe89a6552e8782-1489172964374" externalId="random-2810069" name="random-2810069" breakout="false"/>
-    <breakout parentMeetingId="f3ffe06acedf425565cc024c8ebe89a6552e8782-1489172964374" sequence="2" meetingId="f2041d123b6a4b994e7ad87ee9d348496a73472c-1489173065780"/>
-    <breakoutRooms>
-        <breakoutRoom>32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780</breakoutRoom>
-        <breakoutRoom>721d83a3907548734d4a505992ebb94ec1454a91-1489173065780</breakoutRoom>
-    </breakoutRooms>
+    <start_time>1490721543626</start_time>
+    <end_time>1490721560835</end_time>
+    <participants>1</participants>
+
     <meta>
-        <meetingId>f2041d123b6a4b994e7ad87ee9d348496a73472c-1489173065780</meetingId>
-        <meetingName>random-2810069 (Room - 2)</meetingName>
-        <isBreakout>true</isBreakout>
+        <meeting-name>grailserror</meeting-name>
+        <room-id>bn-19631b57</room-id>
+        <isBreakout>false</isBreakout>
+        <meetingName>grailserror</meetingName>
+        <gl-listed>false</gl-listed>
+        <gl-token>bn-19631b57-grailserror</gl-token>
+        <gl-webhooks-callback-url>http://localhost/b/rooms/bn-19631b57/grailserror/callback</gl-webhooks-callback-url>
+        <meetingId>77f6566f80654ce7dff9e14b2c01cbd99fb75abc</meetingId>
     </meta>
     <playback>
         <format>presentation</format>
-        <link>http://192.168.23.22/playback/presentation/0.9.0/playback.html?meetingId=32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780</link>
-        <processing_time>9841</processing_time>
-        <duration>126376</duration>
-        <extensions>
-            <preview>
-                <images>
-                    <image width="176" height="136" alt="Welcome to">http://192.168.23.22/presentation/32ee8bcccfad34f85c58a12f87fc4268130a4fd3-1489173065780/presentation/743dd59a958334b4cdcdaa302846d0c0eadcf9ff-1489173070800/thumbnails/thumb-1.png</image>
-                </images>
-            </preview>
-        </extensions>
+        <link>http://demo.bigbluebutton.org/playback/presentation/0.9.0/playback.html?meetingId=3c97908bb2dc4f794914776d639405709479c3da-1490721543626</link>
+        <processing_time>20772</processing_time>
+        <duration>9807</duration>
     </playback>
 </recording>

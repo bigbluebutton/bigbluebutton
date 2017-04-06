@@ -25,7 +25,8 @@ package org.bigbluebutton.modules.screenshare.model
 		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var baseTabIndex:int;
 		[Bindable] public var tryWebRTCFirst:Boolean = false;
-		[Bindable] public var chromeExtensionKey:String = null;
+		[Bindable] public var chromeExtensionLink:String = null;
+                [Bindable] public var chromeExtensionKey:String = null;
     [Bindable] public var helpUrl:String;
 
 		public function parseOptions():void {
@@ -43,9 +44,13 @@ package org.bigbluebutton.modules.screenshare.model
 				if (vxml.@tryWebRTCFirst != undefined) {
 					tryWebRTCFirst = (vxml.@tryWebRTCFirst.toString().toUpperCase() == "TRUE") ? true : false;
 				}
-				if (vxml.@chromeExtensionKey != undefined) {
-					chromeExtensionKey = vxml.@chromeExtensionKey.toString();
+				if (vxml.@chromeExtensionLink != undefined) {
+					chromeExtensionLink = vxml.@chromeExtensionLink.toString();
 				}
+				if (vxml.@chromeExtensionKey != undefined) {
+                                        chromeExtensionKey = vxml.@chromeExtensionKey.toString();
+                                }
+
         if (vxml.@help != undefined){
           helpUrl = vxml.@help; 
         }

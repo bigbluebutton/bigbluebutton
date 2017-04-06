@@ -10,8 +10,6 @@ import {
   getCaptionsStatus,
 } from './service';
 
-import { setDefaultSettings } from '../settings/service';
-
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
@@ -53,7 +51,6 @@ class AppContainer extends Component {
 const APP_CONFIG = Meteor.settings.public.app;
 
 const init = () => {
-  setDefaultSettings();
   if (APP_CONFIG.autoJoinAudio) {
     showModal(<AudioModalContainer />);
   }

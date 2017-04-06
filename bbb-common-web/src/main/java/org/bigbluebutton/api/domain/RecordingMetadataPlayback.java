@@ -9,9 +9,9 @@ public class RecordingMetadataPlayback {
   private String link;
 
   @JacksonXmlProperty(localName = "processing_time")
-  private Long processingTime;
+  private Long processingTime = 0L;
 
-  private Long duration;
+  private Long duration = 0L;
 
   private Extensions extensions;
 
@@ -45,6 +45,15 @@ public class RecordingMetadataPlayback {
 
   public Long getDuration() {
     return duration;
+  }
+
+  public Long calculateDuration() {
+    if (duration > 0) {
+      // convert to minutes
+      return duration / 60000;
+    } else {
+      return 0L;
+    }
   }
 
   public void setExtensions(Extensions extensions) {

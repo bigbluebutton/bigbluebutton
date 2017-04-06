@@ -235,7 +235,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function focusWindow(e:ShortcutEvent):void {
-				focusManager.setFocus(titleBarOverlay);
+				if (this.visible) {
+					focusManager.setFocus(titleBarOverlay);
+				}
 			}
 		]]>
 	</mx:Script>

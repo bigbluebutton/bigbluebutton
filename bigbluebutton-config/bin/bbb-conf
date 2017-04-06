@@ -154,7 +154,8 @@ else
         IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
 fi
 
-MEM=`free -m | grep Mem | awk '{ print $2}'`
+MEM=`grep MemTotal /proc/meminfo | awk '{print $2}'`
+
 
 
 #
@@ -286,7 +287,10 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5=bbb-html5
        fi
-       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer $HTML5
+       if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
+          WEBHOOKS=bbb-webhooks
+       fi
+       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	/etc/init.d/monit stop
 
@@ -328,7 +332,10 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5=bbb-html5
        fi
-       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5
+       if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
+          WEBHOOKS=bbb-webhooks
+       fi
+       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	$FREESWITCH_INIT_D start
 	
@@ -1367,7 +1374,7 @@ check_state() {
                 echo
         fi
 
-        if (( $MEM < 3940 )); then
+        if (( $MEM < 3940000 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
                 echo
