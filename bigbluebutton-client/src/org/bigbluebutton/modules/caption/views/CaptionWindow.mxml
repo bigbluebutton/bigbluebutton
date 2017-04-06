@@ -104,11 +104,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (UserManager.getInstance().getConference().amIModerator()) {
 					transcriptsCollection = new ArrayCollection();
 					
-					var names:Array = ResourceUtil.getInstance().localeNames;
-					var codes:Array = ResourceUtil.getInstance().localeCodes;
+					var locales:Array = ResourceUtil.getInstance().locales;
 					
-					for (var i:int=0; i<names.length; i++) {
-						transcriptsCollection.addItem({locale: names[i], localeCode: codes[i]});
+					for each(var item:* in locales) {
+						transcriptsCollection.addItem({locale: item.name, localeCode: item.code});
 					}
 				} else {
 					transcriptsCollection = t.transcriptCollection;

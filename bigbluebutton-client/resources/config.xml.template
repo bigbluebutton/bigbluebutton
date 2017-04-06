@@ -9,11 +9,12 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" />
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf?v=VERSION" />
+    <branding logo="logo.png" copyright="&#169; 2017 &lt;u&gt;&lt;a href=&quot;http://www.bigbluebutton.org&quot; target=&quot;_blank&quot;&gt;http://www.bigbluebutton.org&lt;/a&gt;&lt;/u&gt;" background="" toolbarColor="" toolbarColorAlphas="" />
     <shortcutKeys showButton="true" />
     <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true"
+            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="true"
             showRecordingNotification="true" logoutOnStopRecording="false"/>
     <meeting muteOnStart="false" />
     <breakoutRooms enabled="true" record="false" />
@@ -45,7 +46,7 @@
 		<module name="ScreenshareModule"
 			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
-			showButton="true"
+			showButton="false"
 			baseTabIndex="201"
 			help="http://HOST/client/help/screenshare-help.html"
 		/>
@@ -54,6 +55,7 @@
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
 			listenOnlyMode="true"
+			forceListenOnly="false"
 			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
@@ -111,6 +113,7 @@
 			dependsOn="UsersModule"
 			baseTabIndex="501"
 			maxFileSize="30"
+			enableDownload="true"
 		/>
 		
 		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
@@ -123,7 +126,18 @@
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
-			enableEdit="false"
+			enableEdit="true"
+		/>
+
+		<module name="SharedNotesModule" url="http://HOST/client/SharedNotesModule.swf?v=VERSION"
+			uri="rtmp://HOST/bigbluebutton"
+			refreshDelay="500"
+			enableMultipleNotes="true"
+			dependsOn="UsersModule"
+			position="bottom-left"
+			toolbarVisibleByDefault="false"
+			showToolbarButton="true"
+			fontSize="12"
 		/>
 
 <!--

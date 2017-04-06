@@ -62,9 +62,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				//remove the header if not needed to save space
 				hbHeader.includeInLayout = hbHeader.visible = lblName.visible || lblTime.visible;
 				
-				// adjust the name width so that "..." are added if it's too long
-				lblName.width = this.width - lblTime.width - 22;
-				
 				// If you remove this some of the chat messages will fail to render
 				validateNow();
 			}
@@ -79,7 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
   <mx:Canvas width="100%" id="hbHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-    <mx:Label id="lblName" text="{data.name}" visible="true" color="gray" textAlign="left" left="0"/>
+    <mx:Label id="lblName" text="{data.name}" visible="true" color="gray" textAlign="left" left="0" width="{this.width - lblTime.width - 22}"/>
     <mx:Text id="lblTime" htmlText="{data.time}" textAlign="right"
              visible="true" 
              color="gray" right="4" />

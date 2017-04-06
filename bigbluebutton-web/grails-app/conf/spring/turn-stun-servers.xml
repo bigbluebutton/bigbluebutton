@@ -32,6 +32,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="0" value="stun:stun2.example.com"/>
     </bean-->
 
+    <!--bean id="iceCandidate1" class="org.bigbluebutton.web.services.turn.RemoteIceCandidate">
+        <constructor-arg index="0" value="192.168.0.1"/>
+    </bean-->
+
     <!-- Turn servers are configured with a secret that's compatible with
          http://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
          as supported by the coturn and rfc5766-turn-server turn servers -->
@@ -62,6 +66,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <set>
                 <!--ref bean="turn1" /-->
                 <!--ref bean="turn2" /-->
+            </set>
+        </property>
+        <property name="remoteIceCandidates">
+            <set>
+                <!--ref bean="iceCandidate1" /-->
+                <!--ref bean="iceCandidate2" /-->
             </set>
         </property>
     </bean>

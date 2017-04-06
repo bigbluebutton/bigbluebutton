@@ -1,6 +1,8 @@
 package org.bigbluebutton.messages;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
 import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,12 +28,14 @@ public class CreateMeetingRequestTest {
         String moderatorPassword = "mp";
         long createTime = System.currentTimeMillis();
         String createDate = new Date(createTime).toString();
+    Map<String, String> metadata = new HashMap<String, String>();
+    metadata.put("meta_test", "test");
 
         CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(
                 meetingId, externalId, parentId, name, record, voiceConfId,
                 durationInMinutes, autoStartRecording, allowStartStopRecording,
                 webcamsOnlyForModerator, moderatorPassword, viewerPassword,
-                createTime, createDate, isBreakout, sequence);
+                createTime, createDate, isBreakout, sequence, metadata);
         CreateMeetingRequest msg = new CreateMeetingRequest(payload);
         Gson gson = new Gson();
         String json = gson.toJson(msg);

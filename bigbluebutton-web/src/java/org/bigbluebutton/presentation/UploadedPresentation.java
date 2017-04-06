@@ -30,6 +30,7 @@ public final class UploadedPresentation {
   private int numberOfPages = 0;
   private String conversionStatus;
   private final String baseUrl;
+  private boolean isDownloadable = false;
 
   public UploadedPresentation(String meetingId, String id, String name,
       String baseUrl) {
@@ -37,6 +38,7 @@ public final class UploadedPresentation {
     this.id = id;
     this.name = name;
     this.baseUrl = baseUrl;
+    this.isDownloadable = false;
   }
 
   public File getUploadedFile() {
@@ -85,5 +87,13 @@ public final class UploadedPresentation {
 
   public void setConversionStatus(String conversionStatus) {
     this.conversionStatus = conversionStatus;
+  }
+
+  public boolean isDownloadable() {
+    return isDownloadable;
+  }
+
+  public void setDownloadable() {
+    this.isDownloadable = true;
   }
 }

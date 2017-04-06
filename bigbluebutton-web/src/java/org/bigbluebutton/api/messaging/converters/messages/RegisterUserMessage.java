@@ -11,8 +11,9 @@ public class RegisterUserMessage {
 	public final String externUserID;
 	public final String authToken;
 	public final String avatarURL;
+	public final String guest;
 	
-	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL) {
+	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL, String guest) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
@@ -20,5 +21,6 @@ public class RegisterUserMessage {
 		this.externUserID = externUserID;	
 		this.authToken = authToken;
 		this.avatarURL = avatarURL;
+		this.guest = guest;
 	}
 }

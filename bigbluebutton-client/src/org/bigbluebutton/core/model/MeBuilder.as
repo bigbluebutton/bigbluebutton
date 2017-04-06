@@ -12,6 +12,7 @@ package org.bigbluebutton.core.model
     internal var logoutURL:String;
     internal var dialNumber:String;
     internal var role:String;
+    internal var guest:Boolean;
     internal var customData:Object;
     
     public function MeBuilder(id: String, name: String) {
@@ -56,6 +57,11 @@ package org.bigbluebutton.core.model
     
     public function withRole(value: String):MeBuilder {
       role = value;
+      return this;
+    }
+
+    public function withGuest(value: Boolean):MeBuilder {
+      guest = value;
       return this;
     }
     

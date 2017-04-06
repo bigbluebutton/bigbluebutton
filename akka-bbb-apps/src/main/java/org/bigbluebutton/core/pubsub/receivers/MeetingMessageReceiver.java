@@ -3,6 +3,7 @@ package org.bigbluebutton.core.pubsub.receivers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bigbluebutton.common.messages.ActivityResponseMessage;
 import org.bigbluebutton.common.messages.DestroyMeetingMessage;
 import org.bigbluebutton.common.messages.EndMeetingMessage;
 import org.bigbluebutton.common.messages.GetAllMeetingsRequest;
@@ -60,7 +61,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 					bbbGW.endMeeting(emm.meetingId);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage rum = (RegisterUserMessage) msg;
-					bbbGW.registerUser(rum.meetingID, rum.internalUserId, rum.fullname, rum.role, rum.externUserID, rum.authToken, rum.avatarURL);
+					bbbGW.registerUser(rum.meetingID, rum.internalUserId, rum.fullname, rum.role, rum.externUserID, rum.authToken, rum.avatarURL, rum.guest);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage dmm = (DestroyMeetingMessage) msg;
 					bbbGW.destroyMeeting(dmm.meetingId);
@@ -104,6 +105,9 @@ public class MeetingMessageReceiver implements MessageHandler {
 				else if (msg instanceof GetAllMeetingsRequest) {
 					GetAllMeetingsRequest gamr = (GetAllMeetingsRequest) msg;
 					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
+				} else if (msg instanceof ActivityResponseMessage) {
+					ActivityResponseMessage arm = (ActivityResponseMessage) msg;
+					bbbGW.activityResponse(arm.meetingId);
 				} else {
 					System.out.println("Unknown message: [" + message + "]");
 				}

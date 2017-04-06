@@ -64,4 +64,13 @@ object ChatMessageToJsonConverter {
     val header = Util.buildHeader(MessageNames.SEND_PRIVATE_CHAT_MESSAGE, None)
     Util.buildJson(header, payload)
   }
+
+  def clearPublicChatHistoryReplyToJson(msg: ClearPublicChatHistoryReply): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+
+    val header = Util.buildHeader(MessageNames.CLEAR_PUBLIC_CHAT_HISTORY_REPLY, None)
+    Util.buildJson(header, payload)
+  }
 }

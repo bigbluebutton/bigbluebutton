@@ -99,6 +99,16 @@ package org.bigbluebutton.core.model
 	      return new XML(config.layout.toXMLString());
 	    }
     	
+		public function get branding():Object{
+			var a:Object = new Object();
+			a.copyright = config.branding.@copyright;
+			a.logo = config.branding.@logo;
+			a.background = config.branding.@background;
+			a.toolbarColor = config.branding.@toolbarColor;
+			a.toolbarColorAlphas = config.branding.@toolbarColorAlphas;
+			return a
+		}
+
 		public function get meeting():XML {
 			return new XML(config.meeting.toXMLString());
 		}

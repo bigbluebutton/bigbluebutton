@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
   xmlns:mate="http://mate.asfusion.com/"
   width="100%" height="100%"
+  backgroundColor="white"
   horizontalScrollPolicy="off"
   verticalScrollPolicy="off"
   creationComplete="init()"

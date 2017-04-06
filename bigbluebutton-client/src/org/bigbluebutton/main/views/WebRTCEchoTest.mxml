@@ -55,31 +55,79 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCEchoTest);      
 			private static var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+
+			private static const TIMEOUT:Number = 60;
+			private static const CANCEL_BUTTON:Number = 55;
 			
 			private var dotTimer:Timer;
+
+			private var cancelTimer:Timer;
+			private var countdown:Number;
+
+			[Bindable]
+			private var cancelButtonLabel:String = ResourceUtil.getInstance().getString('bbb.micSettings.cancel');
+
 			private var userClosed:Boolean = false;
 			
 			override public function move(x:Number, y:Number):void {
 				return;
 			}
+			
+			private function onCancelClicked():void {
 
-            private function onCancelClicked():void {
-                if (dotTimer)
-                    dotTimer.stop();
-                PopUpUtil.removePopUp(this);
-            }
+				stopTimers();
+				PopUpUtil.removePopUp(this);
+			}
+			
+			private function onCreationComplete():void {
+				setCurrentState("connecting");
+				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connecting');
+				dotTimer = new Timer(200, 0);
+				dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
 
-            private function onCreationComplete():void {
-                setCurrentState("connecting");
-                lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connecting');
-                dotTimer = new Timer(200, 0);
-                dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
-                dotTimer.start();
+				cancelTimer = new Timer(1000, 0);
+				cancelTimer.addEventListener(TimerEvent.TIMER, timeout);
 
-                var testState:String = PhoneModel.getInstance().webRTCModel.state;
-                if (testState == Constants.DO_ECHO_TEST) {
-                    webRTCEchoTestStarted();
-                }
+				startTimers();
+
+				cancelButton.width = cancelButton.measureText(genCancelButtonLabel(TIMEOUT)).width
+						+ cancelButton.getStyle("paddingRight")
+						+ cancelButton.getStyle("paddingLeft")
+						+ 8; // 8 is magic number
+        
+        var testState:String = PhoneModel.getInstance().webRTCModel.state;
+        if (testState == Constants.DO_ECHO_TEST) {
+          webRTCEchoTestStarted();
+        }
+			}
+
+			private function startTimers():void {
+				cancelButton.visible = false;
+				if (!dotTimer.running) dotTimer.start();
+				if (!cancelTimer.running) {
+					countdown = TIMEOUT;
+					cancelTimer.start();
+				}
+			}
+
+			private function stopTimers():void {
+				if (dotTimer.running) dotTimer.stop();
+				if (cancelTimer.running) cancelTimer.stop();
+			}
+
+			private function genCancelButtonLabel(countdown:Number):String {
+				return cancelButtonLabel + " (" + countdown.toString() + ")";
+			}
+
+			private function timeout(e:TimerEvent):void {
+				if (countdown > 0) {
+					if (!cancelButton.visible && countdown < CANCEL_BUTTON)
+						cancelButton.visible = true;
+					cancelButton.label = genCancelButtonLabel(countdown);
+					countdown--;
+				} else {
+					noButtonClicked();
+				}
 			}
 			
 			private function dotAnimate(e:TimerEvent):void {
@@ -127,7 +175,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function webRTCEchoTestStarted():void {
         setCurrentState("started");
-        dotTimer.stop();        
+        stopTimers();
       }
       
 			private function handleWebRTCEchoTestEndedEvent(e:WebRTCEchoTestEvent):void {
@@ -137,7 +185,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function webRTCEchoTestEnded():void {
         setCurrentState("connecting");
         lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endedecho');
-        if (!dotTimer.running) dotTimer.start();
         
         if (!userClosed) {
           onCancelClicked();
@@ -153,19 +200,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleWebRTCEchoTestWaitingForICEEvent(e:WebRTCEchoTestEvent):void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.waitingforice');
-				if (!dotTimer.running) dotTimer.start();
+				startTimers();
 			}
 			
 			private function handleWebRTCEchoTestTransferringEvent(e:WebRTCEchoTestEvent):void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.transferring');
-				if (!dotTimer.running) dotTimer.start();
+				startTimers();
 			}
 			
 			private function handleWebRTCCallConnectingEvent(e:WebRTCCallEvent):void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connecting');
-				if (!dotTimer.running) dotTimer.start();
+				startTimers();
 			}
 			
 			private function handleWebRTCCallFailedEvent(e:WebRTCCallEvent):void {
@@ -175,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleWebRTCCallWaitingForICEEvent(e:WebRTCCallEvent):void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.waitingforice');
-				if (!dotTimer.running) dotTimer.start();
+				startTimers();
 			}
       
       private function webRTCCallStarted():void {
@@ -223,13 +270,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:states>
 		<mx:State name="connecting">
 			<mx:AddChild relativeTo="cnvTitle" position="after">
-				<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-					<mx:TextArea id="lblConnectMessage" editable="false" textAlign="right" borderSkin="{null}"
-								 width="{lblConnectMessageMock.width + 4}" height="{lblConnectDots.height}"
-								 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-					<mx:Text id="lblConnectMessageMock" visible="false" includeInLayout="false" styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-					<mx:Label id="lblConnectDots" width="20" textAlign="left" styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="" />
-				</mx:HBox>
+				<mx:VBox width="100%" height="100%" verticalAlign="middle">
+					<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+						<mx:TextArea id="lblConnectMessage"
+								editable="false"
+								textAlign="right"
+								borderSkin="{null}"
+								width="{lblConnectMessageMock.width + 10}"
+								height="{lblConnectDots.height}"
+								styleName="micSettingsWindowSpeakIntoMicLabelStyle"/>
+						<mx:Text id="lblConnectMessageMock"
+								visible="false"
+								includeInLayout="false"/>
+						<mx:Label id="lblConnectDots"
+								width="20"
+								textAlign="left"
+								styleName="micSettingsWindowSpeakIntoMicLabelStyle"
+								text=""/>
+					</mx:HBox>
+					<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right">
+						<mx:Button id="cancelButton"
+								label="{cancelButtonLabel}"
+								styleName="micSettingsWindowPlaySoundButtonStyle"
+								click="noButtonClicked()"
+								toolTip=""/>
+					</mx:HBox>
+				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>
 		

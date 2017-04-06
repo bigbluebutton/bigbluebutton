@@ -11,26 +11,15 @@ config.server = {}
 config.server.port = 3005
 
 # Callbacks will be triggered for all the events in this list and only for these events.
-config.hooks = {}
-config.hooks.events = [
-  { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_created_message" },
-  { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_destroyed_event" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" },
-  { channel: "bigbluebutton:from-rap", name: "sanity_started" },
-  { channel: "bigbluebutton:from-rap", name: "sanity_ended" },
-  { channel: "bigbluebutton:from-rap", name: "archive_started" },
-  { channel: "bigbluebutton:from-rap", name: "archive_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_archive_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_archive_ended" },
-  { channel: "bigbluebutton:from-rap", name: "process_started" },
-  { channel: "bigbluebutton:from-rap", name: "process_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_process_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_process_ended" },
-  { channel: "bigbluebutton:from-rap", name: "publish_started" },
-  { channel: "bigbluebutton:from-rap", name: "publish_ended" },
-  { channel: "bigbluebutton:from-rap", name: "post_publish_started" },
-  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" }
-]
+# You only need to specify it if you want events that are not used by default or
+# if you want to restrict the events used. See `config.coffee` for the default list.
+#
+# config.hooks = {}
+# config.hooks.events = [
+#   { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_created_message" },
+#   { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_destroyed_event" },
+#   { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_message" },
+#   { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" }
+# ]
 
 module.exports = config

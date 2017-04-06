@@ -111,6 +111,21 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case EndAllBreakoutRoomsRequest.NAME:
 						  bbbInGW.handleJsonMessage(message);
 						  break;
+					  case ChangeUserRoleMessage.CHANGE_USER_ROLE:
+						  processChangeUserRoleMessage(message);
+						  break;
+					  case GetGuestPolicyMessage.GET_GUEST_POLICY:
+						  processGetGuestPolicyMessage(message);
+						  break;
+					  case SetGuestPolicyMessage.SET_GUEST_POLICY:
+						  processSetGuestPolicyMessage(message);
+						  break;
+					  case RespondToGuestMessage.RESPOND_TO_GUEST:
+						  processRespondToGuestMessage(message);
+						  break;
+					  case LogoutEndMeetingRequestMessage.LOGOUT_END_MEETING_REQUEST_MESSAGE:
+						  processLogoutEndMeetingRequestMessage(message);
+						  break;
 					}
 				}
 			}
@@ -341,6 +356,41 @@ public class UsersMessageReceiver implements MessageHandler{
 		EjectUserFromVoiceRequestMessage msg = EjectUserFromVoiceRequestMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.ejectUserFromVoice(msg.meetingId, msg.userId, msg.requesterId);
+		}
+	}
+
+	private void processChangeUserRoleMessage(String message) {
+		ChangeUserRoleMessage msg = ChangeUserRoleMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.setUserRole(msg.meetingId, msg.userId, msg.role);
+		}
+	}
+
+	private void processGetGuestPolicyMessage(String message) {
+		GetGuestPolicyMessage msg = GetGuestPolicyMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.getGuestPolicy(msg.meetingId, msg.requesterId);
+		}
+	}
+
+	private void processSetGuestPolicyMessage(String message) {
+		SetGuestPolicyMessage msg = SetGuestPolicyMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.setGuestPolicy(msg.meetingId, msg.guestPolicy, msg.setBy);
+		}
+	}
+
+	private void processRespondToGuestMessage(String message) {
+		RespondToGuestMessage msg = RespondToGuestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.responseToGuest(msg.meetingId, msg.userId, msg.response, msg.requesterId);
+		}
+	}
+
+	private void processLogoutEndMeetingRequestMessage(String message) {
+		LogoutEndMeetingRequestMessage lemm = LogoutEndMeetingRequestMessage.fromJson(message);
+		if (lemm != null) {
+			bbbInGW.logoutEndMeeting(lemm.meetingId, lemm.userId);
 		}
 	}
 }

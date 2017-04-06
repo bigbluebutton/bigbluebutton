@@ -58,7 +58,9 @@ def process_archived_meetings(recording_dir)
       step_stop_time = BigBlueButton.monotonic_clock
       step_time = step_stop_time - step_start_time
 
-      IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
+      if BigBlueButton.dir_exists? "#{recording_dir}/process/#{process_type}/#{meeting_id}"
+        IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
+      end
 
       step_succeeded = (ret == 0 and File.exists?(processed_done))
 

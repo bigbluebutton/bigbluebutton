@@ -69,6 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="publishedDir" value="${publishedDir}"/>
     <property name="unpublishedDir" value="${unpublishedDir}"/>  
     <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
+    <!--property name="messagingService" ref="messagingService"/-->
   </bean>
   
   <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>

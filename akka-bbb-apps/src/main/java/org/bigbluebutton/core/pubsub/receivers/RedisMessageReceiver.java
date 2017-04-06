@@ -57,6 +57,9 @@ public class RedisMessageReceiver {
 		
 		CaptionMessageReceiver captionRx = new CaptionMessageReceiver(bbbGW);
 		receivers.add(captionRx);
+
+		SharedNotesMessageReceiver notesRx = new SharedNotesMessageReceiver(bbbGW);
+		receivers.add(notesRx);
 	}
 	
 	public void handleMessage(String pattern, String channel, String message) {

@@ -54,7 +54,9 @@ package org.bigbluebutton.main.model {
 		[Bindable]
 		public var logoutOnStopRecording:Boolean = false;
 		
-		
+		[Bindable]
+		public var showNetworkMonitor:Boolean = true;
+
 		public var defaultLayout:String = "Default";
 		
 		public function parseOptions():void {
@@ -106,6 +108,10 @@ package org.bigbluebutton.main.model {
 				
 				if (vxml.@logoutOnStopRecording != undefined) {
 					logoutOnStopRecording = (vxml.@logoutOnStopRecording.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+
+				if(vxml.@showNetworkMonitor != undefined){
+					showNetworkMonitor = (vxml.@showNetworkMonitor.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 			}
 		}
