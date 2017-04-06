@@ -113,8 +113,8 @@ public interface IBigBlueButtonInGW {
 	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId, String replyTo);
 	void clearWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
-	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
-	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
+	void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser);
+	void getWhiteboardAccess(String meetingID, String requesterID);
 	
 	// Caption
 	void sendCaptionHistory(String meetingID, String requesterID);

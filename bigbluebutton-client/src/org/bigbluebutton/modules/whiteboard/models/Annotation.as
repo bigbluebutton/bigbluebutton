@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.whiteboard.models
     private var _id:String = "undefined";		
     private var _status:String = AnnotationStatus.DRAW_START;
     private var _type:String = "undefined";
+    private var _userId:String = "undefined";
     private var _annotation:Object;
 
     public function Annotation(id:String, type:String, annotation:Object) {
@@ -52,6 +53,14 @@ package org.bigbluebutton.modules.whiteboard.models
 
     public function set status(s:String):void {
       _status = s;
+    }
+	
+    public function get userId():String {
+      return _userId;
+    }
+	
+    public function set userId(u:String):void {
+      _userId = u;
     }
     
     public function get whiteboardId():String {

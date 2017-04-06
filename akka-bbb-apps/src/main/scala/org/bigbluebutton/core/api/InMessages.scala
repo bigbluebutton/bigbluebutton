@@ -192,8 +192,8 @@ case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: Strin
 case class GetWhiteboardShapesRequest(meetingID: String, requesterID: String, whiteboardId: String, replyTo: String) extends InMessage
 case class ClearWhiteboardRequest(meetingID: String, requesterID: String, whiteboardId: String) extends InMessage
 case class UndoWhiteboardRequest(meetingID: String, requesterID: String, whiteboardId: String) extends InMessage
-case class EnableWhiteboardRequest(meetingID: String, requesterID: String, enable: Boolean) extends InMessage
-case class IsWhiteboardEnabledRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
+case class ModifyWhiteboardAccessRequest(meetingID: String, requesterID: String, multiUser: Boolean) extends InMessage
+case class GetWhiteboardAccessRequest(meetingID: String, requesterID: String) extends InMessage
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
 
 // Caption

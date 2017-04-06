@@ -95,7 +95,24 @@ package org.bigbluebutton.modules.whiteboard
             break;
           case DrawObject.DRAW_UPDATE:
           case DrawObject.DRAW_END:
-            if (_annotationsList.length > 0) {
+			  var gobj:GraphicObject;
+			  for (var i:int = _annotationsList.length -1; i >= 0; i--) {
+				  gobj = _annotationsList[i] as GraphicObject;
+				  if (gobj != null && dobj.id == o.id) {
+					  gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+					  return;
+				  }
+			  }
+			  
+			  dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
+			  if (dobj != null) {
+				  dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+				  wbCanvas.addGraphic(dobj);
+				  _annotationsList.push(dobj);              
+			  }
+			  
+            /*
+			  if (_annotationsList.length > 0) {
               var gobj:Object = _annotationsList.pop();
               if (gobj.id == o.id) {
                 // LogUtil.debug("Removing shape [" + gobj.id + "]");
@@ -111,6 +128,7 @@ package org.bigbluebutton.modules.whiteboard
               wbCanvas.addGraphic(dobj);
               _annotationsList.push(dobj);              
             }
+			  */
             break;
         }                   
       } else { 
@@ -122,20 +140,20 @@ package org.bigbluebutton.modules.whiteboard
     private function drawText(o:Annotation):void {    
       switch (o.status) {
         case TextObject.TEXT_CREATED:
-          if (isPresenter)
+          if (o.userId == UserManager.getInstance().getConference().getMyUserId())
             addPresenterText(o, true);
           else
             addNormalText(o);                            
           break;
         case TextObject.TEXT_UPDATED:
-          if (!isPresenter) {
+          if (o.userId != UserManager.getInstance().getConference().getMyUserId()) {
                         modifyText(o);
           }   
           break;
         case TextObject.TEXT_PUBLISHED:
           modifyText(o);
           // Inform others that we are done with listening for events and that they should re-listen for keyboard events. 
-          if (isPresenter) {
+          if (o.userId == UserManager.getInstance().getConference().getMyUserId()) {
             bindToKeyboardEvents(true);
             wbCanvas.stage.focus = null;
             currentlySelectedTextObject = null;
@@ -147,8 +165,6 @@ package org.bigbluebutton.modules.whiteboard
     /* adds a new TextObject that is suited for a presenter. For example, it will be made editable and the appropriate listeners will be registered so that
     the required events will be dispatched  */
     private function addPresenterText(o:Annotation, background:Boolean=false):void {
-      if (!isPresenter) return;
-            
             /**
             * We will not be listening for keyboard events to input texts. Tell others to not listen for these events. For example, the presentation module
             * listens for Keyboard.ENTER, Keyboard.SPACE to advance the slides. We don't want that while the presenter is typing texts.
@@ -158,6 +174,7 @@ package org.bigbluebutton.modules.whiteboard
             var tobj:TextObject = shapeFactory.makeTextObject(o);
             tobj.setGraphicID(o.id);
             tobj.status = o.status;
+            tobj.userId = o.userId;
       tobj.multiline = true;
       tobj.wordWrap = true;
             
@@ -186,6 +203,7 @@ package org.bigbluebutton.modules.whiteboard
             var tobj:TextObject = shapeFactory.makeTextObject(o);
             tobj.setGraphicID(o.id);
             tobj.status = o.status;
+            tobj.userId = o.userId;
       tobj.multiline = true;
       tobj.wordWrap = true;
       tobj.background = false;
@@ -279,17 +297,32 @@ package org.bigbluebutton.modules.whiteboard
     }
     
     public function clearBoard(event:WhiteboardUpdate = null):void {
-      var numGraphics:int = this._annotationsList.length;
-      for (var i:Number = 0; i < numGraphics; i++){
-        removeLastGraphic();
+      if (event && event.userId) {
+        for (var i:Number = _annotationsList.length-1; i >= 0; i--){
+          var gobj:GraphicObject = _annotationsList[i] as GraphicObject; // TextObject not a DrawObject might have to use GraphicObject
+          if (gobj.userId == event.userId) {
+            removeGraphic(_annotationsList[i].id);
+          }
+        }
+      } else {
+        var numGraphics:int = this._annotationsList.length;
+        for (var j:Number = 0; j < numGraphics; j++){
+          removeLastGraphic();
+        }
       }
       wbCanvas.textToolbar.visible = false;
     }
     
-    public function undoAnnotation(id:String):void {
-      /** We'll just remove the last annotation for now **/
+    public function undoAnnotation(annotation:Annotation):void {
       if (this._annotationsList.length > 0) {
-        removeLastGraphic();
+        if (annotation.type == DrawObject.TEXT) {
+          if (currentlySelectedTextObject && currentlySelectedTextObject.id == annotation.id) {
+            wbCanvas.textToolbar.visible = false;
+          }
+          removeText(annotation.id);
+        } else {
+          removeGraphic(annotation.id);
+        }
       }
     }
         
@@ -412,7 +445,10 @@ package org.bigbluebutton.modules.whiteboard
     private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
             var o:Annotation;
             if (gobj.type != DrawObject.TEXT) {
-                wbCanvas.removeGraphic(gobj as DisplayObject);
+                
+				gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+				/*
+				wbCanvas.removeGraphic(gobj as DisplayObject);
                 o = whiteboardModel.getAnnotation(gobj.id);
                 
                 if (o != null) {
@@ -423,6 +459,7 @@ package org.bigbluebutton.modules.whiteboard
                         _annotationsList[objIndex] = dobj;              
                     }          
                 }
+				*/
             } else if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
                 var origTobj:TextObject = gobj as TextObject;                
                 var an:Annotation = whiteboardModel.getAnnotation(origTobj.id);

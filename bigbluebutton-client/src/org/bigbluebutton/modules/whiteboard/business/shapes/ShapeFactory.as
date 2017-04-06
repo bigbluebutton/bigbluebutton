@@ -53,17 +53,17 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
     public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{
         if (a.type == DrawObject.PENCIL) {
-            return new Pencil(a.id, a.type, a.status);
+            return new Pencil(a.id, a.type, a.status, a.userId);
         } else if (a.type == DrawObject.RECTANGLE) {
-            return new Rectangle(a.id, a.type, a.status);
+            return new Rectangle(a.id, a.type, a.status, a.userId);
         } else if (a.type == DrawObject.ELLIPSE) {
-            return new Ellipse(a.id, a.type, a.status);
+            return new Ellipse(a.id, a.type, a.status, a.userId);
         }  else if (a.type == DrawObject.LINE) {
-            return new Line(a.id, a.type, a.status);
+            return new Line(a.id, a.type, a.status, a.userId);
         }  else if (a.type == DrawObject.TRIANGLE) {
-            return new Triangle(a.id, a.type, a.status);
+            return new Triangle(a.id, a.type, a.status, a.userId);
         }  else if (a.type == DrawObject.POLL) {
-            return new PollResultObject(a.id, a.type, a.status);
+            return new PollResultObject(a.id, a.type, a.status, a.userId);
         }
             
         return null;
