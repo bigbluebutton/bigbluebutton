@@ -18,7 +18,7 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:HBox
+<mx:Canvas
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:flc="flexlib.controls.*"
 	xmlns:mate="http://mate.asfusion.com/"
@@ -108,4 +108,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	<mx:Image id="audioStatus"/>
-</mx:HBox>
+</mx:Canvas>
