@@ -16,17 +16,14 @@ const defaultProps = {
 const messages = defineMessages({
   submitLabel: {
     id: 'app.chat.submitLabel',
-    defaultMessage: 'Send Message',
     description: 'Chat submit button label',
   },
   inputLabel: {
     id: 'app.chat.inputLabel',
-    defaultMessage: 'Message input for chat {name}',
     description: 'Chat message input label',
   },
   inputPlaceholder: {
     id: 'app.chat.inputPlaceholder',
-    defaultMessage: 'Message {name}',
     description: 'Chat message input placeholder',
   },
 });
