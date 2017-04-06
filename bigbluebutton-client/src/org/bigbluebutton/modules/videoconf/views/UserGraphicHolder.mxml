@@ -32,11 +32,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{PresenterStatusEvent.PRESENTER_NAME_CHANGE}" method="handlePresenterChangedEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserVoiceChangedEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceChangedEvent" />
+    <mate:Listener type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}" method="handleStoppedViewingWebcamEvent" />
 
     <mx:Script>
         <![CDATA[
             import com.asfusion.mate.events.Dispatcher;
-            
+
+            import mx.core.UIComponent;
+
             import org.bigbluebutton.common.Images;
             import org.bigbluebutton.core.EventConstants;
             import org.bigbluebutton.core.UsersUtil;
@@ -47,7 +50,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             import org.bigbluebutton.core.vo.LockSettingsVO;
             import org.bigbluebutton.main.events.BBBEvent;
             import org.bigbluebutton.main.events.PresenterStatusEvent;
+            import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
             import org.bigbluebutton.main.model.users.BBBUser;
+            import org.bigbluebutton.modules.videoconf.events.AddStaticComponent;
             import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
             import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -69,13 +74,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             private var _hideMuteBtnTimer:Timer;
 
+            private var _newParent:DisplayObjectContainer;
+            private var _oldParent:DisplayObjectContainer = null;
+            private var _oldW:Number = 100;
+            private var _oldH:Number = 100;
+
             protected function init():void {
                 _hideMuteBtnTimer = new Timer(500, 1);
                 _hideMuteBtnTimer.addEventListener(TimerEvent.TIMER, onHideMuteBtnTimerComplete);
             }
 
             protected function onCreationComplete():void {
-                closeBtn.tabIndex = videoOptions.baseTabIndex + 10;
+                _newParent = parent.parent.parent.parent;
+                fullScreenIcon.source = _images.full_screen_white;
+                closeIcon.source = _images.close_white;
             }
 
             public function set userId(value:String):void {
@@ -154,6 +166,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             public function shutdown():void {
+                if (isFullscreen()) onFullscreen();
                 video.shutdown();
             }
 
@@ -289,6 +302,68 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 muteBtnWrapper.visible = true;
             }
 
+            // Fullscreen video isn't a child of this module's wrapper so it must listen to it's close event
+            private function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
+                if (user) {
+                    if (user.userID == event.webcamUserID && video.streamName == event.streamName) {
+                        handleCloseFullscreenStream();
+                    }
+                }
+            }
+
+            private function handleCloseFullscreenStream():void {
+                if (isFullscreen()) {
+                    shutdown();
+                }
+            }
+
+            private function isFullscreen():Boolean {
+                return _oldParent != null;
+            }
+
+            protected function onFullscreen(event:MouseEvent = null):void {
+                if (isFullscreen()) {
+                    fullScreenIcon.source = _images.full_screen_white;
+                    var evt:AddStaticComponent = new AddStaticComponent(this);
+                    _dispatcher.dispatchEvent(evt);
+
+                    _oldParent = null;
+                    this.visible = true;
+                    this.includeInLayout = true;
+                    this.width = _oldW;
+                    this.height = _oldH;
+
+                    for(var i2:uint = 0; i2 < _newParent.numChildren; i2++) {
+                        if(_newParent.getChildAt(i2) != this) {
+                            _newParent.getChildAt(i2).visible = true;
+                            (_newParent.getChildAt(i2) as UIComponent).includeInLayout = true;
+                        }
+                    }
+                } else {
+                    fullScreenIcon.source = _images.full_screen_exit_white;
+                    _oldParent = this.parent;
+                    _oldW = this.width;
+                    _oldH = this.height;
+
+                    _newParent.addChildAt(this, 0);
+
+                    this.percentHeight = 100;
+                    this.percentWidth = 100;
+
+                    for(var i1:uint = 0; i1< _newParent.numChildren; i1++) {
+                        if(_newParent.getChildAt(i1) != this) {
+                            _newParent.getChildAt(i1).visible = false;
+                            (_newParent.getChildAt(i1) as UIComponent).includeInLayout = false;
+                        }
+                    }
+                }
+
+                if (event != null) {
+                    event.stopImmediatePropagation();
+                    event.stopPropagation();
+                }
+            }
+
         ]]>
     </mx:Script>
 
@@ -317,9 +392,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         minWidth="0"
                         truncateToFit="true"
                         styleName="videoToolbarLabelStyle" />
-                <mx:Box paddingRight="5">
-                    <mx:Button id="closeBtn" styleName="closeBtnFocus" buttonMode="true" click="shutdown()" 
-                               toolTip="{ResourceUtil.getInstance().getString('bbb.video.streamClose.toolTip', [_username])}" />
+                <mx:Box paddingRight="0">
+                    <mx:Image id="fullScreenIcon" buttonMode="true" click="onFullscreen(event)" />
+                </mx:Box>
+                <mx:Box paddingRight="3">
+                    <mx:Image id="closeIcon" buttonMode="true" click="shutdown()" />
                 </mx:Box>
             </mx:HBox>
             <mx:Box
