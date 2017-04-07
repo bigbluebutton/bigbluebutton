@@ -140,9 +140,14 @@ class UserListItem extends Component {
 
 
   componentDidUpdate(prevProps, prevState) {
-    const { isActionsOpen, dropdownVisible } = this.state;
+    this.checkDropdownDirection();
+  }
 
-    if (isActionsOpen && !dropdownVisible) {
+  /**
+   * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
+   */
+  checkDropdownDirection() {
+    if (this.isDropdownActivedByUser()) {
       const dropdown = findDOMNode(this.refs.dropdown);
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
@@ -153,15 +158,29 @@ class UserListItem extends Component {
         dropdownVisible: true,
       };
 
-      const isDropdownVisible = this.checkIfDropdownIsVisible(dropdownContent.offsetTop, dropdownContent.offsetHeight);
+      const isDropdownVisible =
+        this.checkIfDropdownIsVisible(dropdownContent.offsetTop, dropdownContent.offsetHeight);
 
       if (!isDropdownVisible) {
-        nextState.dropdownOffset = window.innerHeight - (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight - scrollContainer.scrollTop);
+        const offsetPageTop =
+          (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight - scrollContainer.scrollTop);
+          
+        nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
       }
 
       this.setState(nextState);
     }
+  }
+
+  /**
+  * Check if the dropdown is visible and is opened by the user
+  * 
+  * @return True if is visible and opened by the user.
+  */
+  isDropdownActivedByUser() {
+    const { isActionsOpen, dropdownVisible } = this.state;
+    return isActionsOpen && !dropdownVisible;
   }
 
   /**
@@ -188,7 +207,7 @@ class UserListItem extends Component {
       dropdownDirection: 'top',
     });
 
-    findDOMNode(this).parentElement.addEventListener('scroll', this.handleScroll, false);
+    scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
 
   onActionsHide() {
