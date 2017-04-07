@@ -19,47 +19,36 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 const intlMessages = defineMessages({
   optionsLabel: {
     id: 'app.navBar.settingsDropdown.optionsLabel',
-    defaultMessage: 'Options',
   },
   fullscreenLabel: {
     id: 'app.navBar.settingsDropdown.fullscreenLabel',
-    defaultMessage: 'Make fullscreen',
   },
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
-    defaultMessage: 'Open settings',
   },
   aboutLabel: {
     id: 'app.navBar.settingsDropdown.aboutLabel',
-    defaultMessage: 'About',
   },
   aboutDesc: {
     id: 'app.navBar.settingsDropdown.aboutDesc',
-    defaultMessage: 'About',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
-    defaultMessage: 'Logout',
   },
   fullscreenDesc: {
     id: 'app.navBar.settingsDropdown.fullscreenDesc',
-    defaultMessage: 'Make the settings menu fullscreen',
   },
   settingsDesc: {
     id: 'app.navBar.settingsDropdown.settingsDesc',
-    defaultMessage: 'Change the general settings',
   },
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
-    defaultMessage: 'Leave the meeting',
   },
   exitFullScreenDesc: {
     id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
-    defaultMessage: 'exit fullscreen mode',
   },
   exitFullScreenLabel: {
     id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
-    defaultMessage: 'Exit fullscreen',
   },
 });
 

@@ -33,6 +33,7 @@ class EmojiMenu extends Component {
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
+            aria-label={intl.formatMessage(intlMessages.changeStatusLabel)}
             icon="hand"
             ghost={false}
             circle={true}
@@ -118,107 +119,89 @@ class EmojiMenu extends Component {
 const intlMessages = defineMessages({
   statusTriggerLabel: {
     id: 'app.actionsBar.emojiMenu.statusTriggerLabel',
-    defaultMessage: 'Status',
   },
 
   // For away status
   awayLabel: {
     id: 'app.actionsBar.emojiMenu.awayLabel',
-    defaultMessage: 'Away',
   },
   awayDesc: {
     id: 'app.actionsBar.emojiMenu.awayDesc',
-    defaultMessage: 'Change your status to away',
   },
 
   // For raise hand status
   raiseLabel: {
     id: 'app.actionsBar.emojiMenu.raiseLabel',
-    defaultMessage: 'Raise',
   },
   raiseDesc: {
     id: 'app.actionsBar.emojiMenu.raiseDesc',
-    defaultMessage: 'Raise your hand to ask a question',
   },
 
   // For undecided status
   undecidedLabel: {
     id: 'app.actionsBar.emojiMenu.undecidedLabel',
-    defaultMessage: 'Undecided',
   },
   undecidedDesc: {
     id: 'app.actionsBar.emojiMenu.undecidedDesc',
-    defaultMessage: 'Change your status to undecided',
   },
 
   // For confused status
   confusedLabel: {
     id: 'app.actionsBar.emojiMenu.confusedLabel',
-    defaultMessage: 'Confused',
   },
   confusedDesc: {
     id: 'app.actionsBar.emojiMenu.confusedDesc',
-    defaultMessage: 'Change your status to confused',
   },
 
   // For sad status
   sadLabel: {
     id: 'app.actionsBar.emojiMenu.sadLabel',
-    defaultMessage: 'Sad',
   },
   sadDesc: {
     id: 'app.actionsBar.emojiMenu.sadDesc',
-    defaultMessage: 'Change your status to sad',
   },
 
   // For happy status
   happyLabel: {
     id: 'app.actionsBar.emojiMenu.happyLabel',
-    defaultMessage: 'Happy',
   },
   happyDesc: {
     id: 'app.actionsBar.emojiMenu.happyDesc',
-    defaultMessage: 'Change your status to happy',
   },
 
   // For confused status
   clearLabel: {
     id: 'app.actionsBar.emojiMenu.clearLabel',
-    defaultMessage: 'Clear',
   },
   clearDesc: {
     id: 'app.actionsBar.emojiMenu.clearDesc',
-    defaultMessage: 'Clear your status',
   },
 
   // For applause status
   applauseLabel: {
     id: 'app.actionsBar.emojiMenu.applauseLabel',
-    defaultMessage: 'Applause',
   },
   applauseDesc: {
     id: 'app.actionsBar.emojiMenu.applauseDesc',
-    defaultMessage: 'Change your status to applause',
   },
 
   // For thumbs up status
   thumbsupLabel: {
     id: 'app.actionsBar.emojiMenu.thumbsupLabel',
-    defaultMessage: 'Thumbs up',
   },
   thumbsupDesc: {
     id: 'app.actionsBar.emojiMenu.thumbsupDesc',
-    defaultMessage: 'Change your status to thumbs up',
   },
 
   // For thumbs-down status
   thumbsdownLabel: {
     id: 'app.actionsBar.emojiMenu.thumbsdownLabel',
-    defaultMessage: 'Thumbs down',
   },
   thumbsdownDesc: {
     id: 'app.actionsBar.emojiMenu.thumbsdownDesc',
-    defaultMessage: 'Change your status to thumbs down',
+  },
+  changeStatusLabel: {
+    id: 'app.actionsBar.changeStatusLabel'
   },
 });
 
