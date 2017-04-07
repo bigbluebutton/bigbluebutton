@@ -124,12 +124,13 @@ class MessageList extends Component {
     // console.log('hasNewUnreadMessages=' + hasNewUnreadMessages);
 
     // check if the messages include <user has left the meeting>
-    const lastMessageId = nextProps.messages[nextProps.messages.length - 1].id;
-    const userLeftIsDisplayed = lastMessageId.includes('partner-disconnected');
+    const lastMessage = nextProps.messages[nextProps.messages.length - 1];
+    if (lastMessage) {
+      const userLeftIsDisplayed = lastMessage.id.includes('partner-disconnected');
+      if (partnerIsLoggedOut && userLeftIsDisplayed) return false; // update leads to endless loop
+    }
 
     if (switchingCorrespondent || hasNewUnreadMessages) return true;
-
-    if (partnerIsLoggedOut && userLeftIsDisplayed) return false; // update leads to endless loop
 
     return true;
   }
