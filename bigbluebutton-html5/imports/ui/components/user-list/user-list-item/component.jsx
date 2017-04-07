@@ -138,40 +138,48 @@ class UserListItem extends Component {
     ]);
   }
 
+
   componentDidUpdate(prevProps, prevState) {
     const { isActionsOpen, dropdownVisible } = this.state;
 
-    console.log('CARAIO', isActionsOpen, dropdownVisible);
-    if(isActionsOpen && !dropdownVisible) {
-      const dropdown = findDOMNode(this.refs.dropdown);      
+    if (isActionsOpen && !dropdownVisible) {
+      const dropdown = findDOMNode(this.refs.dropdown);
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
-    const scrollContainer = dropdown.parentElement.parentElement;
+      const scrollContainer = dropdown.parentElement.parentElement;
 
       let nextState = {
         dropdownVisible: true,
       };
 
-      const isDropdownVisible = dropdownContent.offsetTop + dropdownContent.offsetHeight + scrollContainer.scrollTop< window.innerHeight;
+      const isDropdownVisible = this.checkIfDropdownIsVisible(dropdownContent.offsetTop, dropdownContent.offsetHeight);
 
-      //console.log('isVisible', dropdownContent.offsetTop, dropdownContent.offsetHeight, window.innerHeight);
-      
       if (!isDropdownVisible) {
-        //console.log('EU DEVERIA SER BOTTOM');
         nextState.dropdownOffset = window.innerHeight - (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight - scrollContainer.scrollTop);
         nextState.dropdownDirection = 'bottom';
       }
 
       this.setState(nextState);
-      //console.log(nextState)
     }
   }
+
+  /**
+   * Return true if the content fit on the screen, false otherwise.
+   * 
+   * @param {number} contentOffSetTop 
+   * @param {number} contentOffsetHeight
+   * @return True if the content fit on the screen, false otherwise.
+   */
+  checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
+    return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
+  }
+
 
   onActionsShow() {
     const dropdown = findDOMNode(this.refs.dropdown);
     const scrollContainer = dropdown.parentElement.parentElement;
-    const dropdownTrigger = dropdown.children[0];    
+    const dropdownTrigger = dropdown.children[0];
 
     this.setState({
       isActionsOpen: true,
