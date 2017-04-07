@@ -37,7 +37,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
   private val InactivityDeadline = FiniteDuration(getInactivityDeadline(), "seconds")
   private val InactivityTimeLeft = FiniteDuration(getInactivityTimeLeft(), "seconds")
-  private val MonitorFrequency = 30 seconds
+  private val MonitorFrequency = 10 seconds
   private var deadline = InactivityDeadline.fromNow
   private var inactivityWarning: Deadline = null
 
@@ -222,6 +222,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
         handleRequestAdditionalNotesSetRequest(msg)
       case msg: SharedNotesSyncNoteRequest =>
         handleSharedNotesSyncNoteRequest(msg)
+      case msg: ReconnectionTimeout =>
+        handleReconnectionTimeout(msg)
 
       case msg: EndMeeting => handleEndMeeting(msg)
       case StopMeetingActor => //exit
@@ -278,6 +280,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   def handleMonitor() {
     activity()
     numberOfWebUsers()
+    usersReconnecting()
   }
 
   private def numberOfWebUsers() {
@@ -300,6 +303,16 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       outGW.send(new InactivityWarning(mProps.meetingID, InactivityTimeLeft.toSeconds))
       // We add 5 seconds so clients will have enough time to process the message
       inactivityWarning = (InactivityTimeLeft + (5 seconds)).fromNow
+    }
+  }
+
+  private def usersReconnecting() {
+    usersModel.getUsers foreach { u =>
+      if (u.reconnectionStatus.reconnecting) {
+        if (u.reconnectionStatus.deadline.isOverdue()) {
+          self ! ReconnectionTimeout(mProps.meetingID, u.userID, u.reconnectionStatus.sessionId)
+        }
+      }
     }
   }
 

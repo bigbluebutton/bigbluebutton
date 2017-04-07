@@ -3,6 +3,7 @@ package org.bigbluebutton.core.api
 import java.lang.Boolean
 
 import scala.collection.mutable.Stack
+import scala.concurrent.duration.Deadline
 
 object Role extends Enumeration {
   type Role = Value
@@ -106,6 +107,11 @@ case class Voice(
   muted: Boolean,
   talking: Boolean)
 
+case class ReconnectionStatus(
+  sessionId: String,
+  reconnecting: Boolean,
+  deadline: Deadline)
+
 case class UserVO(
   userID: String,
   externUserID: String,
@@ -121,7 +127,8 @@ case class UserVO(
   phoneUser: Boolean,
   voiceUser: VoiceUser,
   listenOnly: Boolean,
-  joinedWeb: Boolean)
+  joinedWeb: Boolean,
+  reconnectionStatus: ReconnectionStatus)
 
 case class VoiceUser(
   userId: String,
