@@ -95,7 +95,7 @@ const reduceMessages = (previous, current, index, array) => {
   // Check if the last message is from the same user and time discrepancy
   // between the two messages exceeds window and then group current message
   // with the last one
-
+  return previous.concat(current);
   if (lastPayload.from_userid === currentPayload.from_userid
    && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content.push(current.content.pop());

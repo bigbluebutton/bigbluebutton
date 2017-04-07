@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { FormattedTime } from 'react-intl';
 import cx from 'classnames';
+import _ from 'lodash';
 
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Message from './message/component';
@@ -16,12 +17,62 @@ const propTypes = {
 const defaultProps = {
 };
 
+const eventsToBeBound = [
+  'scroll',
+  'resize',
+];
+
+const isElementInViewport = (el) => {
+  const rect = el.getBoundingClientRect();
+
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + 200 &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth) + 200
+  );
+};
+
 export default class MessageListItem extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      preventRender: false,
+    };
+
+    this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
+  }
+
+  handleMessageInViewport(e) {
+    window.requestAnimationFrame(() => {
+      const node = this.refs.item;
+      const scrollArea = document.getElementById(this.props.chatAreaId);
+
+      this.setState({ preventRender: !isElementInViewport(node) });
+    });
+  }
+
+  componentDidMount() {
+    const scrollArea = document.getElementById(this.props.chatAreaId);
+    eventsToBeBound.forEach(
+      e => scrollArea.addEventListener(e, this.handleMessageInViewport, false)
+    );
+  }
+
+  componentWillUnmount() {
+    const scrollArea = document.getElementById(this.props.chatAreaId);
+    eventsToBeBound.forEach(
+      e => scrollArea.removeEventListener(e, this.handleMessageInViewport, false)
+    );
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return !(this.state.preventRender && nextState.preventRender);
   }
 
   render() {
+    console.count('MESSAGE RENDER');
     const {
       user,
       messages,
@@ -36,7 +87,7 @@ export default class MessageListItem extends Component {
 
     return (
       <div className={styles.item}>
-        <div className={styles.avatar}>
+        <div className={styles.avatar} ref="item">
           <UserAvatar user={user} />
         </div>
         <div className={styles.content}>
@@ -74,7 +125,7 @@ export default class MessageListItem extends Component {
 
     return (
       <div className={cx(styles.item, styles.systemMessage)}>
-        <div className={styles.content}>
+        <div className={styles.content} ref="item">
           <div className={styles.messages}>
             {messages.map((message, i) => (
               <Message
