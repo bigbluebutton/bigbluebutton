@@ -1,5 +1,5 @@
 import React from 'react';
-import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
 import styles from '../styles.scss';
@@ -61,9 +61,7 @@ class AudioSettings extends React.Component {
             onClick={this.chooseAudio}
           />
           <div className={cx(styles.title, styles.chooseAudio)}>
-            <FormattedMessage
-              id="app.audio.audioSettings.titleLabel"
-            />
+            {intl.formatMessage(intlMessages.titleLabel)}
           </div>
         </div>
 
@@ -71,9 +69,7 @@ class AudioSettings extends React.Component {
 
           <div className={styles.row}>
             <div className={styles.audioNote}>
-              <FormattedMessage
-                  id="app.audio.audioSettings.descriptionLabel"
-              />
+              {intl.formatMessage(intlMessages.descriptionLabel)}
             </div>
           </div>
 
@@ -81,7 +77,7 @@ class AudioSettings extends React.Component {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
-                  Microphone source
+                  {intl.formatMessage(intlMessages.micSourceLabel)}
                 </label>
                 <DeviceSelector
                   value={this.state.inputDeviceId}
@@ -93,7 +89,7 @@ class AudioSettings extends React.Component {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
-                  Speaker source
+                  {intl.formatMessage(intlMessages.speakerSourceLabel)}
                 </label>
                 <DeviceSelector
                     value={this.state.outputDeviceId}
@@ -108,7 +104,7 @@ class AudioSettings extends React.Component {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
-                  Your audio stream volume
+                  {intl.formatMessage(intlMessages.streamVolumeLabel)}
                 </label>
                 <AudioStreamVolume
                   deviceId={this.state.inputDeviceId}
@@ -134,6 +130,21 @@ const intlMessages = defineMessages({
   backLabel: {
     id: 'app.audio.backLabel',
   },
+  titleLabel: {
+    id: 'app.audio.audioSettings.titleLabel',
+  },
+  descriptionLabel: {
+    id: 'app.audio.audioSettings.descriptionLabel',
+  },
+  micSourceLabel: {
+    id: 'app.audio.audioSettings.microphoneSourceLabel',
+  },
+  speakerSourceLabel: {
+    id: 'app.audio.audioSettings.speakerSourceLabel',
+  },
+  streamVolumeLabel: {
+    id: 'app.audio.audioSettings.microphoneStreamLabel',
+  }
 });
 
 export default injectIntl(AudioSettings);

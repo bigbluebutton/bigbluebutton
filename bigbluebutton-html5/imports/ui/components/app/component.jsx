@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import NotificationsBarContainer from '../notifications-bar/container';

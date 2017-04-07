@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '../styles.scss';
 import Button from '/imports/ui/components/button/component';
 import { clearModal } from '/imports/ui/components/app/service';
-import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 
 const intlMessages = defineMessages({
   microphoneLabel: {
@@ -13,7 +13,10 @@ const intlMessages = defineMessages({
   },
   closeLabel: {
     id: 'app.audioModal.closeLabel',
-  }
+  },
+  audioChoiceLabel: {
+    id: 'app.audioModal.audioChoiceLabel',
+  },
 });
 
 class JoinAudio extends React.Component {
@@ -54,11 +57,7 @@ class JoinAudio extends React.Component {
         </div>
 
         <div className={styles.title}>
-          <FormattedMessage
-              id="app.audioModal.audioChoiceLabel"
-              description="app.audioModal.audioChoiceDescription"
-              defaultMessage="How would you like to join the audio?"
-          />
+          {intl.formatMessage(intlMessages.audioChoiceLabel)}
         </div>
         <div className={styles.center}>
           <Button className={styles.audioBtn}
