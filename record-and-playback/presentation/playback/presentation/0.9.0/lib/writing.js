@@ -106,13 +106,13 @@ function getViewboxAtTime(time) {
 	}
 }
 
-function setSlideAspect(time, imageWidth, imageHeight)
-{
+function setSlideAspect(time, imageWidth, imageHeight) {
   var aspectAtTime = getAspectAtTime(time);
-  if(aspectAtTime != undefined && aspectAtTime != 0)
+  if (aspectAtTime != undefined && aspectAtTime != 0) {
     currentSlideAspect = aspectAtTime;
-  else
+  } else {
     currentSlideAspect = parseFloat((imageWidth/imageHeight));
+  }
 }
 
 function getAspectAtTime(time) {
@@ -847,7 +847,7 @@ function processSlideAspectTimes() {
   var key;
   var lastAspectValue = 0;
   for (key in vboxValues) {
-    if(vboxValues.hasOwnProperty(key)) {
+    if (vboxValues.hasOwnProperty(key)) {
       var start_timestamp = key.split(",")[0];
       var stop_timestamp = key.split(",")[1];
       var vboxWidth = parseFloat(vboxValues[key].split(" ")[2]);
@@ -860,43 +860,48 @@ function processSlideAspectTimes() {
 }
 
 function processAspectValue(vboxWidth, vboxHeight, time, lastAspectValue) {
-    if(time == "0.0") {
-      //a little hack 'cause function getImageAtTime with time = 0.0 returns the background image...
-      //we need the first slide instead
-      var imageId = "image1";
+  if (time == "0.0") {
+    //a little hack 'cause function getImageAtTime with time = 0.0 returns the background image...
+    //we need the first slide instead
+    var imageId = "image1";
+  }
+  else {
+    var imageId = getImageAtTime(time);
+  }
+
+  if (imageId !== undefined) {
+    var image;
+    if (svgobj.contentDocument) {
+      image = svgobj.contentDocument.getElementById(imageId);
     }
-    else
-      var imageId = getImageAtTime(time);
+    else {
+      image = svgobj.getSVGDocument('svgfile').getElementById(imageId);
+    }
 
-    if(imageId !== undefined) {
+    if (image) {
+      var imageWidth = parseFloat(image.getAttribute("width"));
+      var imageHeight = parseFloat(image.getAttribute("height"));
 
-        if(svgobj.contentDocument) var image = svgobj.contentDocument.getElementById(imageId);
-        else var image = svgobj.getSVGDocument('svgfile').getElementById(imageId);
-
-        if (image) {
-          var imageWidth = parseFloat(image.getAttribute("width"));
-          var imageHeight = parseFloat(image.getAttribute("height"));
-
-          //fit-to-width: returning vbox aspect
-          if(vboxWidth == imageWidth && vboxHeight < imageHeight)
-            return parseFloat(vboxWidth/vboxHeight);
-
-          //fit-to-page: returning image aspect
-          else if(vboxWidth == imageWidth && vboxHeight == imageHeight)
-            return parseFloat(imageWidth/imageHeight);
-
-          //if it's not fit-to-width neither fit-to-page we return the previous aspect
-          else return lastAspectValue;
-
-        } else {
-          console.log("processAspectValue: there is no image for the id = " + imageId);
-          return lastAspectValue;
-        }
-
+      //fit-to-width: returning vbox aspect
+      if(vboxWidth == imageWidth && vboxHeight < imageHeight) {
+        return parseFloat(vboxWidth/vboxHeight);
+      }
+      //fit-to-page: returning image aspect
+      else if(vboxWidth == imageWidth && vboxHeight == imageHeight) {
+        return parseFloat(imageWidth/imageHeight);
+      }
+      //if it's not fit-to-width neither fit-to-page we return the previous aspect
+      else {
+        return lastAspectValue;
+      }
     } else {
-      console.log("processAspectValue: imageId undefined");
+      console.log("processAspectValue: there is no image for the id = " + imageId);
       return lastAspectValue;
     }
+  } else {
+    console.log("processAspectValue: imageId undefined");
+    return lastAspectValue;
+  }
 }
 
 function getPresentationText() {
