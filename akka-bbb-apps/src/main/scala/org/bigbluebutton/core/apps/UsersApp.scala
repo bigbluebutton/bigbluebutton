@@ -394,7 +394,7 @@ trait UsersApp {
     if (usersModel.hasUser(msg.userID)) {
       val user = usersModel.removeUser(msg.userID)
       user foreach { u =>
-        if (u.voiceUser.joined && !u.reconnectionStatus.reconnecting) {
+        if ((u.voiceUser.joined || u.listenOnly) && !u.reconnectionStatus.reconnecting) {
           log.info("User left meeting, but that might mean that the user is reconnecting. Marking the user as potential reconnection, and remove him in a few seconds if he doesn't reconnect: mid=[" + msg.meetingID + "] uid=[" + u.userID + "]")
           val rs = new ReconnectionStatus(msg.sessionId, true, usersModel.getReconnectionDeadline)
           val uvo = u.copy(hasStream = false, webcamStreams = new ListSet[String](), reconnectionStatus = rs)
