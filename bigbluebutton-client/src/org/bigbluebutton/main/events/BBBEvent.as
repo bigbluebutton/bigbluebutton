@@ -54,6 +54,7 @@ package org.bigbluebutton.main.events {
 		public static const RECONNECT_DESKSHARE_SUCCEEDED_EVENT:String = "RECONNECT_DESKSHARE_SUCCEEDED_EVENT";
 
 		public static const CANCEL_RECONNECTION_EVENT:String = "CANCEL_RECONNECTION_EVENT";
+		public static const WEBRTC_MONITOR_UPDATE_EVENT:String = "WEBRTC_MONITOR_UPDATE_EVENT";
 
 		public var message:String;
 		public var payload:Object = new Object();
