@@ -19,31 +19,31 @@ const intlMessages = defineMessages({
   },
   audioNotifyLabel: {
     id: 'app.submenu.application.audioNotifyLabel',
-    description: '',
+    description: 'audio notification label',
   },
   pushNotifyLabel: {
     id: 'app.submenu.application.pushNotifyLabel',
-    description: '',
+    description: 'push notifiation label',
   },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
-    description: '',
+    description: 'label for font size ontrol',
   },
   increaseFontBtnLabel: {
     id: 'app.submenu.application.increaseFontBtnLabel',
-    description: '',
+    description: 'label for button to increase font size',
   },
   increaseFontBtnDesc: {
     id: 'app.submenu.application.increaseFontBtnDesc',
-    description: '',
+    description: 'adds descriptive context to increase font size button',
   },
   decreaseFontBtnLabel: {
     id: 'app.submenu.application.decreaseFontBtnLabel',
-    description: '',
+    description: 'label for button to reduce font size',
   },
   decreaseFontBtnDesc: {
     id: 'app.submenu.application.decreaseFontBtnDesc',
-    description: '',
+    description: 'adds descriptive context to decrease font size button',
   },
 });
 
