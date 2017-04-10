@@ -45,6 +45,8 @@ case class SetRecordingStatus(meetingID: String, userId: String, recording: Bool
 case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
 case class ActivityResponse(meetingID: String) extends InMessage
 case class LogoutEndMeeting(meetingID: String, userID: String) extends InMessage
+// same attributes as UserLeaving
+case class ReconnectionTimeout(meetingID: String, userID: String, sessionId: String) extends InMessage
 
 // Chat
 case class GetChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage

@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{PresenterStatusEvent.PRESENTER_NAME_CHANGE}" method="handlePresenterChangedEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserVoiceChangedEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceChangedEvent" />
+    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />
 
     <mx:Script>
         <![CDATA[
@@ -47,6 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             import org.bigbluebutton.core.vo.LockSettingsVO;
             import org.bigbluebutton.main.events.BBBEvent;
             import org.bigbluebutton.main.events.PresenterStatusEvent;
+            import org.bigbluebutton.main.events.UserJoinedEvent;
             import org.bigbluebutton.main.model.users.BBBUser;
             import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
             import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -76,6 +78,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             protected function onCreationComplete():void {
                 closeBtn.tabIndex = videoOptions.baseTabIndex + 10;
+            }
+
+            private function handleUserJoinedEvent(event:UserJoinedEvent):void {
+                // this is just to enforce the update of the BBBUser reference when the user reconnect
+                if (user && event.userID == user.userID) {
+                    userId = event.userID;
+                    setUserProperties();
+                }
             }
 
             public function set userId(value:String):void {
