@@ -21,7 +21,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 }
 
 .wrapper {
-  //position: relative;
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
