@@ -466,6 +466,7 @@ def storePollResultShape(xml, shape)
   result = JSON.load(shape.at_xpath('result').text)
   num_responders = shape.at_xpath('num_responders').text.to_i
   presentation = shape.at_xpath('presentation').text
+  max_num_votes = result.map{ |r| r['num_votes'] }.max
 
   $global_shape_count += 1
   $poll_result_count += 1
@@ -488,6 +489,8 @@ def storePollResultShape(xml, shape)
   File.open(gpl_file, 'w') do |g|
     g.puts('reset')
     g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\" noenhanced")
+    g.puts('set lmargin 0.5')
+    g.puts('set rmargin 0.5')
     g.puts('unset key')
     g.puts('set style data boxes')
     g.puts('set style fill solid border -1')
@@ -503,7 +506,7 @@ def storePollResultShape(xml, shape)
     end
     g.puts('set linetype 1 linewidth 1 linecolor rgb "black"')
     result.each do |r|
-      if r['num_votes'] == 0 or r['num_votes'].to_f / num_responders <= 0.5
+      if r['num_votes'] == 0 or r['num_votes'].to_f / max_num_votes <= 0.5
         g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} left rotate by 90 offset 0,character 0.5 front")
       else
         g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} right rotate by 90 offset 0,character -0.5 textcolor rgb \"white\" front")

@@ -61,3 +61,14 @@
     background-color: fade-out($color-gray-lighter, .75);
   }
 }
+
+.sendButton {
+  @extend .input;
+  border-left: 0px;
+  min-width: 1rem;
+  max-width: 2.5rem;
+
+  > [class*=" icon-bbb-"] {
+    color: $color-gray-light;
+  }
+}

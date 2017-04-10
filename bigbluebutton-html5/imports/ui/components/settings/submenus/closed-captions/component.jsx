@@ -28,7 +28,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
       settings: {
         backgroundColor: props.settings ? props.settings.backgroundColor : '#f3f6f9',
         fontColor: props.settings ? props.settings.fontColor : '#000000',
-        closedCaptions: props.settings ? props.settings.closedCaptions : false,
+        enabled: props.settings ? props.settings.enabled : false,
         fontFamily: props.settings ? props.settings.fontFamily : 'Calibri',
         fontSize: props.settings ? props.settings.fontSize : -1,
         locale: props.settings ? props.settings.locale : -1,
@@ -99,8 +99,8 @@ export default class ClosedCaptionsMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
-                defaultChecked={this.state.settings.closedCaptions}
-                onChange={() => this.handleToggle('closedCaptions')} />
+                defaultChecked={this.state.settings.enabled}
+                onChange={() => this.handleToggle('enabled')} />
               </div>
             </div>
           </div>

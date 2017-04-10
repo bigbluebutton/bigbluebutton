@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import styles from '../styles';
 import _ from 'lodash';
 import cx from 'classnames';
-
 import Icon from '/imports/ui/components/icon/component';
 
 const propTypes = {
@@ -29,9 +28,8 @@ export default class DropdownListItem extends Component {
   }
 
   render() {
-    const { label, description, children,
-      injectRef, tabIndex, onClick, onKeyDown,
-      className, style, } = this.props;
+    const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
+      className, style, separator, intl} = this.props;
 
     return (
       <li

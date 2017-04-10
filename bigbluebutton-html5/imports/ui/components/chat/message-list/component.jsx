@@ -14,7 +14,6 @@ const propTypes = {
 const intlMessages = defineMessages({
   moreMessages: {
     id: 'app.chat.moreMessages',
-    defaultMessage: 'More messages below',
     description: 'Chat message when the user has unread messages below the scroll',
   },
 });
