@@ -82,7 +82,6 @@ class UserList extends Component {
             <FormattedMessage
               id="app.userlist.messagesTitle"
               description="Title for the messages list"
-              defaultMessage="Messages"
             />
           </h3> : <hr className={styles.separator}></hr>
         }
@@ -127,7 +126,6 @@ class UserList extends Component {
             <FormattedMessage
               id="app.userlist.usersTitle"
               description="Title for the Users list"
-              defaultMessage="Users"
             />
             &nbsp;({users.length})
           </h3> : <hr className={styles.separator}></hr>

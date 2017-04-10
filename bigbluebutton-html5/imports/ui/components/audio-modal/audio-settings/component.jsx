@@ -129,21 +129,27 @@ class AudioSettings extends React.Component {
 const intlMessages = defineMessages({
   backLabel: {
     id: 'app.audio.backLabel',
+    description: 'audio settings back button label',
   },
   titleLabel: {
     id: 'app.audio.audioSettings.titleLabel',
+    description: 'audio setting title label',
   },
   descriptionLabel: {
     id: 'app.audio.audioSettings.descriptionLabel',
+    description: 'audio settings description label',
   },
   micSourceLabel: {
     id: 'app.audio.audioSettings.microphoneSourceLabel',
+    description: 'Label for mic source',
   },
   speakerSourceLabel: {
     id: 'app.audio.audioSettings.speakerSourceLabel',
+    description: 'Label for speaker source',
   },
   streamVolumeLabel: {
     id: 'app.audio.audioSettings.microphoneStreamLabel',
+    description: 'Label for stream volume',
   }
 });
 

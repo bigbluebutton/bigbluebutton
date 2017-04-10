@@ -7,16 +7,19 @@ import { defineMessages, injectIntl } from 'react-intl';
 const intlMessages = defineMessages({
   microphoneLabel: {
     id: 'app.audioModal.microphoneLabel',
+    description: 'Join mic audio button label',
   },
   listenOnlyLabel: {
     id: 'app.audioModal.listenOnlyLabel',
+    description: 'Join listen only audio button label',
   },
   closeLabel: {
     id: 'app.audioModal.closeLabel',
+    description: 'close audio modal button label',
   },
   audioChoiceLabel: {
     id: 'app.audioModal.audioChoiceLabel',
-  },
+  },description: 'Join audio modal title',
 });
 
 class JoinAudio extends React.Component {

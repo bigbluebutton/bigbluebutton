@@ -6,27 +6,27 @@ import Modal from '/imports/ui/components/modal/component';
 const intlMessages = defineMessages({
   title: {
     id: 'app.leaveConfirmation.title',
-    defaultMessage: 'Leave Session',
+    description: 'Leave session modal title',
   },
   message: {
     id: 'app.leaveConfirmation.message',
-    defaultMessage: 'Do you want to leave this meeting?',
+    description: 'message for leaving session',
   },
   confirmLabel: {
     id: 'app.leaveConfirmation.confirmLabel',
-    defaultMessage: 'Leave',
+    description: 'Confirmation button label',
   },
   confirmDesc: {
     id: 'app.leaveConfirmation.confirmDesc',
-    defaultMessage: 'Logs you out of the meeting',
+    description: 'Describes confirmLabel',
   },
   dismissLabel: {
     id: 'app.leaveConfirmation.dismissLabel',
-    defaultMessage: 'Cancel',
+    description: 'Dismiss button label',
   },
   dismissDesc: {
     id: 'app.leaveConfirmation.dismissDesc',
-    defaultMessage: 'Closes and rejects the leave confirmation',
+    description: 'Describes dismissLabel',
   },
 });
 

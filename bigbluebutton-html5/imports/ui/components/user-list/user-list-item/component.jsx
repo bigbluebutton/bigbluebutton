@@ -40,12 +40,10 @@ const messages = defineMessages({
   presenter: {
     id: 'app.userlist.presenter',
     description: 'Text for identifying presenter user',
-    defaultMessage: 'Presenter',
   },
   you: {
     id: 'app.userlist.you',
     description: 'Text for identifying your user',
-    defaultMessage: 'You',
   },
 });
 

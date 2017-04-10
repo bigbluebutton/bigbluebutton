@@ -11,30 +11,31 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 const intlMessages = defineMessages({
   actionsLabel: {
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
+    description: 'Actions button label',
   },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
-    defaultMessage: 'Upload a presentation',
+    description: 'Upload a presentation option label',
   },
   initPollLabel: {
     id: 'app.actionsBar.actionsDropdown.initPollLabel',
-    defaultMessage: 'Initiate a poll',
+    description: 'Initiate a poll option label',
   },
   desktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
-    defaultMessage: 'Share your screen',
+    description: 'Desktop Share option label',
   },
   presentationDesc: {
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
-    defaultMessage: 'Upload your presentation',
+    description: 'Describes presentationLabel',
   },
   initPollDesc: {
     id: 'app.actionsBar.actionsDropdown.initPollDesc',
-    defaultMessage: 'Initiate a poll',
+    description: 'Describes initPollLabel',
   },
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
-    defaultMessage: 'Share your screen with others',
+    description: 'Describes desktopShareLabel',
   },
 });
 

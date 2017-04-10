@@ -19,6 +19,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 const intlMessages = defineMessages({
   toggleUserListLabel: {
     id: 'app.navBar.userListToggleBtnLabel',
+    description: 'Toggle button label',
   },
 });
 

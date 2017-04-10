@@ -11,6 +11,7 @@ const ELEMENT_ID = 'chat-messages';
 const intlMessages = defineMessages({
   closeChatLabel: {
     id: 'app.chat.closeChatLabel',
+    description: 'aria-label for closing chat button',
   },
 });
 

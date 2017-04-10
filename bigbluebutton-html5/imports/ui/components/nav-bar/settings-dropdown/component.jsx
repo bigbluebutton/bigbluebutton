@@ -19,47 +19,47 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 const intlMessages = defineMessages({
   optionsLabel: {
     id: 'app.navBar.settingsDropdown.optionsLabel',
-    defaultMessage: 'Options',
+    description: 'Options button label',
   },
   fullscreenLabel: {
     id: 'app.navBar.settingsDropdown.fullscreenLabel',
-    defaultMessage: 'Make fullscreen',
+    description: 'Make fullscreen option label',
   },
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
-    defaultMessage: 'Open settings',
+    description: 'Open settings option label',
   },
   aboutLabel: {
     id: 'app.navBar.settingsDropdown.aboutLabel',
-    defaultMessage: 'About',
+    description: 'About option label',
   },
   aboutDesc: {
     id: 'app.navBar.settingsDropdown.aboutDesc',
-    defaultMessage: 'About',
+    description: 'Describes about option',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
-    defaultMessage: 'Logout',
+    description: 'Leave session button label',
   },
   fullscreenDesc: {
     id: 'app.navBar.settingsDropdown.fullscreenDesc',
-    defaultMessage: 'Make the settings menu fullscreen',
+    description: 'Describes fullscreen option',
   },
   settingsDesc: {
     id: 'app.navBar.settingsDropdown.settingsDesc',
-    defaultMessage: 'Change the general settings',
+    description: 'Describes settings option',
   },
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
-    defaultMessage: 'Leave the meeting',
+    description: 'Describes leave session option',
   },
   exitFullScreenDesc: {
     id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
-    defaultMessage: 'exit fullscreen mode',
+    description: 'Describes exit fullscreen option',
   },
   exitFullScreenLabel: {
     id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
-    defaultMessage: 'Exit fullscreen',
+    description: 'Exit fullscreen option label',
   },
 });
 
