@@ -21,7 +21,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 }
 
 .wrapper {
-  position: relative;
+  //position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -50,8 +50,6 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
     position: relative;
   }
 }
-
-
 
 .content {
   @extend %full-page;
@@ -98,6 +96,8 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .userList {
   @extend %full-page;
+  @extend %text-elipsis;
+
   z-index: 2;
   overflow: visible;
 
@@ -149,11 +149,13 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .media {
   @extend %full-page;
-  flex: 1;
-  order: 1;
+  flex: 1 100%;
+  order: 2;
 
   @include mq($small-only) {
     padding-bottom: $actionsbar-height;
+    margin-bottom: $actionsbar-height;
+    position: absolute;
   }
 }
 
@@ -164,6 +166,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 }
 
 .actionsbar {
+  flex: 1;
   padding: $bars-padding;
   position: relative;
   order: 3;
