@@ -142,7 +142,7 @@ const intlMessages = defineMessages({
   },
   undecidedDesc: {
     id: 'app.actionsBar.emojiMenu.undecidedDesc',
-    description: 'Describes undecidedLabel',
+    description: 'adds descriptive context to undecidedLabel',
   },
   confusedLabel: {
     id: 'app.actionsBar.emojiMenu.confusedLabel',
@@ -150,7 +150,7 @@ const intlMessages = defineMessages({
   },
   confusedDesc: {
     id: 'app.actionsBar.emojiMenu.confusedDesc',
-    description: 'Describes confusedLabel',
+    description: 'adds descriptive context to confusedLabel',
   },
   sadLabel: {
     id: 'app.actionsBar.emojiMenu.sadLabel',
@@ -158,7 +158,7 @@ const intlMessages = defineMessages({
   },
   sadDesc: {
     id: 'app.actionsBar.emojiMenu.sadDesc',
-    description: 'Describes sadLabel',
+    description: 'adds descriptive context to sadLabel',
   },
   happyLabel: {
     id: 'app.actionsBar.emojiMenu.happyLabel',
@@ -166,7 +166,7 @@ const intlMessages = defineMessages({
   },
   happyDesc: {
     id: 'app.actionsBar.emojiMenu.happyDesc',
-    description: 'Describes happyLabel',
+    description: 'adds descriptive context to happyLabel',
   },
   clearLabel: {
     id: 'app.actionsBar.emojiMenu.clearLabel',
@@ -174,7 +174,7 @@ const intlMessages = defineMessages({
   },
   clearDesc: {
     id: 'app.actionsBar.emojiMenu.clearDesc',
-    description: 'Describes clearLabel',
+    description: 'adds descriptive context to clearLabel',
   },
   applauseLabel: {
     id: 'app.actionsBar.emojiMenu.applauseLabel',
@@ -182,7 +182,7 @@ const intlMessages = defineMessages({
   },
   applauseDesc: {
     id: 'app.actionsBar.emojiMenu.applauseDesc',
-    description: 'Describes applauseLabel',
+    description: 'adds descriptive context to applauseLabel',
   },
   thumbsupLabel: {
     id: 'app.actionsBar.emojiMenu.thumbsupLabel',
@@ -190,7 +190,7 @@ const intlMessages = defineMessages({
   },
   thumbsupDesc: {
     id: 'app.actionsBar.emojiMenu.thumbsupDesc',
-    description: 'Describes thumbsupLabel',
+    description: 'adds descriptive context to thumbsupLabel',
   },
   thumbsdownLabel: {
     id: 'app.actionsBar.emojiMenu.thumbsdownLabel',
@@ -198,7 +198,7 @@ const intlMessages = defineMessages({
   },
   thumbsdownDesc: {
     id: 'app.actionsBar.emojiMenu.thumbsdownDesc',
-    description: 'Describes thumbsdownLabel',
+    description: 'adds descriptive context to thumbsdownLabel',
   },
   changeStatusLabel: {
     id: 'app.actionsBar.changeStatusLabel',

@@ -22,7 +22,7 @@ const intlMessages = defineMessages({
   },
   confirmDesc: {
     id: 'app.about.confirmDesc',
-    description: 'Description for confirmLabel',
+    description: 'adds descriptive context to confirmLabel',
   },
   dismissLabel: {
     id: 'app.about.dismissLabel',
@@ -30,7 +30,7 @@ const intlMessages = defineMessages({
   },
   dismissDesc: {
     id: 'app.about.dismissDesc',
-    description: 'Description for dissmissLabel',
+    description: 'adds descriptive context to dissmissLabel',
   },
 });
 
