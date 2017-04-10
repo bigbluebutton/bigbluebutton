@@ -7,11 +7,47 @@ import ReactDOM from 'react-dom';
 import cx from 'classnames';
 import styles from '../styles.scss';
 import Toggle from '/imports/ui/components/switch/component';
+import { defineMessages, injectIntl } from 'react-intl';
 
 const MIN_FONTSIZE = 0;
 const MAX_FONTSIZE = 4;
 
-export default class ApplicationMenu extends BaseMenu {
+const intlMessages = defineMessages({
+  applicationSectionTitle: {
+    id: 'app.submenu.application.applicationSectionTitle',
+    description: 'Application section title',
+  },
+  audioNotifyLabel: {
+    id: 'app.submenu.application.audioNotifyLabel',
+    description: '',
+  },
+  pushNotifyLabel: {
+    id: 'app.submenu.application.pushNotifyLabel',
+    description: '',
+  },
+  fontSizeControlLabel: {
+    id: 'app.submenu.application.fontSizeControlLabel',
+    description: '',
+  },
+  increaseFontBtnLabel: {
+    id: 'app.submenu.application.increaseFontBtnLabel',
+    description: '',
+  },
+  increaseFontBtnDesc: {
+    id: 'app.submenu.application.increaseFontBtnDesc',
+    description: '',
+  },
+  decreaseFontBtnLabel: {
+    id: 'app.submenu.application.decreaseFontBtnLabel',
+    description: '',
+  },
+  decreaseFontBtnDesc: {
+    id: 'app.submenu.application.decreaseFontBtnDesc',
+    description: '',
+  },
+});
+
+class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
 
@@ -57,22 +93,24 @@ export default class ApplicationMenu extends BaseMenu {
   };
 
   render() {
+    const { intl } = this.props;
+
     return (
       <div className={styles.tabContent}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Application</h3>
+          <h3 className={styles.title}>{intl.formatMessage(intlMessages.applicationSectionTitle)}</h3>
         </div>
         <div className={styles.form}>
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Audio notifications for chat
+                  {intl.formatMessage(intlMessages.audioNotifyLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} aria-label={intl.formatMessage(intlMessages.audioNotifyLabel)}>
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.chatAudioNotifications}
@@ -84,7 +122,7 @@ export default class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Push notifications for chat
+                  {intl.formatMessage(intlMessages.pushNotifyLabel)}
                 </label>
               </div>
             </div>
@@ -93,7 +131,7 @@ export default class ApplicationMenu extends BaseMenu {
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.chatPushNotifications}
-                onChange={() => this.handleToggle('chatPushNotifications')} />
+                onChange={() => this.handleToggle('chatPushNotifications')}/>
               </div>
             </div>
           </div>
@@ -102,7 +140,7 @@ export default class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Font size
+                  {intl.formatMessage(intlMessages.fontSizeControlLabel)}
                 </label>
               </div>
             </div>
@@ -124,9 +162,8 @@ export default class ApplicationMenu extends BaseMenu {
                       circle={true}
                       tabIndex='0'
                       hideLabel={true}
-                      label={'Increase Font'}
-                      aria-labelledby={'sizeUpLabel'}
-                      aria-describedby={'sizeUpDesc'}
+                      label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
+                      aria-describedby={""}
                     />
                     <div id='sizeUpLabel' hidden>Font size up</div>
                   </div>
@@ -138,11 +175,9 @@ export default class ApplicationMenu extends BaseMenu {
                       circle={true}
                       tabIndex='0'
                       hideLabel={true}
-                      label={'Decrease Font'}
-                      aria-labelledby={'sizeDownLabel'}
-                      aria-describedby={'sizeDownDesc'}
+                      label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
+                      aria-describedby={""}
                     />
-                    <div id='sizeUpDesc' hidden>Increases the font size of the application.</div>
                   </div>
                 </div>
               </div>
@@ -153,3 +188,5 @@ export default class ApplicationMenu extends BaseMenu {
     );
   }
 };
+
+export default injectIntl(ApplicationMenu);
