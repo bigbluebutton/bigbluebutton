@@ -503,15 +503,22 @@ TitleWindow {
 
 }
 
-.presentationUploadFileFormatHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
 	backgroundColor: #D4D4D4;
 	dropShadowEnabled: false;
 	paddingLeft: 10;
-	paddingRight: 10
+	paddingRight: 10;
 }
 
-.presentationUploadFileFormatHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
 	fontWeight: bold;
+}
+
+.audioBroswerHintBoxStyle {
+	paddingLeft: 5;
+	paddingRight: 5;
+	paddingBottom : 8;
+	paddingTop : 8;
 }
 
 .desktopShareViewStyle {
