@@ -4,6 +4,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
 import addChat from '/imports/api/chat/server/modifiers/addChat';
+import removeChat from '/imports/api/chat/server/modifiers/removeChat';
 
 export default function handleValidateAuthToken({ payload }) {
   const meetingId = payload.meeting_id;
@@ -40,6 +41,7 @@ export default function handleValidateAuthToken({ payload }) {
 
     if (numChanged) {
       if (validStatus) {
+        clearPastWelcomeMessage(meetingId, userId);
         addWelcomeChatMessage(meetingId, userId);
       }
 
@@ -50,6 +52,17 @@ export default function handleValidateAuthToken({ payload }) {
   return Users.update(selector, modifier, cb);
 };
 
+/**
+ * Prevent the chat message having multiple welcome message showing to user, removing the past ones.
+ * @param {string} meetingId 
+ * @param {string} userId 
+ */
+const clearPastWelcomeMessage = (meetingId, userId) => {
+  const APP_CONFIG = Meteor.settings.public.app;
+
+  return removeChat(meetingId, userId,APP_CONFIG.defaultWelcomeMessageFooter);
+};
+
 const addWelcomeChatMessage = (meetingId, userId) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -57,8 +70,8 @@ const addWelcomeChatMessage = (meetingId, userId) => {
   const Meeting = Meetings.findOne({ meetingId });
 
   let welcomeMessage = APP_CONFIG.defaultWelcomeMessage
-      .concat(APP_CONFIG.defaultWelcomeMessageFooter)
-      .replace(/%%CONFNAME%%/, Meeting.meetingName);
+    .concat(APP_CONFIG.defaultWelcomeMessageFooter)
+    .replace(/%%CONFNAME%%/, Meeting.meetingName);
 
   const message = {
     chat_type: CHAT_CONFIG.type_system,
