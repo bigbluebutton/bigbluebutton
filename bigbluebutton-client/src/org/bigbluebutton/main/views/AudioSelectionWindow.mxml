@@ -76,8 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vboxListen.percentWidth = 50;
 				}
 				
-				var browser:String = ExternalInterface.call("determineBrowser")[0];
-				if (browser != "Firefox" && browser == "Chrome") {
+				if (!JSAPI.getInstance().isWebRTCAvailable()) {
 					audioBrowserHint.visible = audioBrowserHint.includeInLayout = true;
 					this.height += 72;
 				}
