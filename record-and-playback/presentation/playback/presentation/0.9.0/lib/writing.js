@@ -418,6 +418,8 @@ function runPopcorn() {
                 } else {
                   shape.style.visibility = "hidden";
                 }
+              } else {
+                shape.style.visibility = "hidden";
               }
             } else if(time_s === t) { //for the shapes with the time specific to the current time
               // only makes visible the last drawing of a given shape
