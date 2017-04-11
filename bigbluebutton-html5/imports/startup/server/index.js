@@ -29,7 +29,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   let locales = [defaultLocale, localeRegion[0]];
 
   if (localeRegion.length > 1) {
-    locales.push(`${localeRegion[0]}_${localeRegion[1]}`);
+    locales.push(`${localeRegion[0]}_${localeRegion[1].toUpperCase()}`);
   }
 
   locales.forEach(locale => {
