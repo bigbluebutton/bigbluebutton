@@ -27,15 +27,15 @@ const intlMessages = defineMessages({
   },
   presentationDesc: {
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
-    description: 'Describes presentationLabel',
+    description: 'adds context to upload presentation option',
   },
   initPollDesc: {
     id: 'app.actionsBar.actionsDropdown.initPollDesc',
-    description: 'Describes initPollLabel',
+    description: 'adds context to init Poll option',
   },
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
-    description: 'Describes desktopShareLabel',
+    description: 'adds context to desktop share option',
   },
 });
 

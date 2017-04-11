@@ -19,7 +19,7 @@ const intlMessages = defineMessages({
   },
   confirmDesc: {
     id: 'app.breakoutJoinConfirmation.confirmDesc',
-    description: 'Describes confirmLabel',
+    description: 'adds context to confirm option',
   },
   dismissLabel: {
     id: 'app.breakoutJoinConfirmation.dismissLabel',
@@ -27,7 +27,7 @@ const intlMessages = defineMessages({
   },
   dismissDesc: {
     id: 'app.breakoutJoinConfirmation.dismissDesc',
-    description: 'Describes dismissLabel',
+    description: 'adds context to dismiss option',
   },
 });
 

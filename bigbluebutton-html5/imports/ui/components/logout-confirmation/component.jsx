@@ -18,7 +18,7 @@ const intlMessages = defineMessages({
   },
   confirmDesc: {
     id: 'app.leaveConfirmation.confirmDesc',
-    description: 'Describes confirmLabel',
+    description: 'adds context to confim option',
   },
   dismissLabel: {
     id: 'app.leaveConfirmation.dismissLabel',
@@ -26,7 +26,7 @@ const intlMessages = defineMessages({
   },
   dismissDesc: {
     id: 'app.leaveConfirmation.dismissDesc',
-    description: 'Describes dismissLabel',
+    description: 'adds context to dismiss option',
   },
 });
 

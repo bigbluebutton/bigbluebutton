@@ -19,7 +19,8 @@ const intlMessages = defineMessages({
   },
   audioChoiceLabel: {
     id: 'app.audioModal.audioChoiceLabel',
-  },description: 'Join audio modal title',
+    description: 'Join audio modal title',
+  },
 });
 
 class JoinAudio extends React.Component {
