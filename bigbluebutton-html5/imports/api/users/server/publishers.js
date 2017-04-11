@@ -44,10 +44,7 @@ Meteor.publish('users', function (credentials) {
   });
 
   const selector = {
-    meetingId,
-    'user.connection_status': {
-      $in: ['online', ''],
-    },
+    meetingId
   };
 
   const options = {

@@ -34,7 +34,7 @@ const mapUser = user => ({
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isPhoneUser: user.phone_user,
-  isLoggedOut: !user ? true : false,
+  isOnline:true
 });
 
 const mapOpenChats = chat => {
@@ -165,7 +165,7 @@ const userFindSorting = {
 
 const getUsers = () => {
   let users = Users
-  .find({}, userFindSorting)
+  .find({ "user.connection_status": 'online' }, userFindSorting)
   .fetch();
 
   return users

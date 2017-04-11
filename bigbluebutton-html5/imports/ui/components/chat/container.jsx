@@ -62,7 +62,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
     chatName = user.name;
 
-    if (user.isLoggedOut) {
+    if (!user.isOnline) {
       let time = Date.now();
       let id = `partner-disconnected-${time}`;
       let messagePartnerLoggedOut = {

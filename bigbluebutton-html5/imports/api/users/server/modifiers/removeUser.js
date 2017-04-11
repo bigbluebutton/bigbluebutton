@@ -17,7 +17,7 @@ export default function removeUser(meetingId, userId) {
 
   const User = Users.findOne(selector);
 
-  if (User && User.clientType !== CLIENT_TYPE_HTML) {
+  /*if (User && User.clientType !== CLIENT_TYPE_HTML) {
     const cb = (err, numChanged) => {
       if (err) {
         return Logger.error(`Removing user from collection: ${err}`);
@@ -29,7 +29,7 @@ export default function removeUser(meetingId, userId) {
     };
 
     return Users.remove(selector, cb);
-  }
+  }*/
 
   const modifier = {
     $set: {

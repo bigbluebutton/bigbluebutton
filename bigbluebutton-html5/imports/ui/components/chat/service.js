@@ -38,24 +38,11 @@ const mapUser = (user) => ({
   isModerator: user.role === 'MODERATOR',
   isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
+  isOnline : user.connection_status === 'online',
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isLocked: user.locked,
-  isLoggedOut: false,
-});
-
-const loggedOutUser = (userID, userName) => ({
-  id: userID,
-  name: userName,
-  emoji: {
-    status: 'none',
-  },
-  isPresenter: false,
-  isModerator: false,
-  isCurrent: false,
-  isVoiceUser: false,
-  isLoggedOut: true,
 });
 
 const mapMessage = (messagePayload) => {
@@ -97,7 +84,7 @@ const reduceMessages = (previous, current, index, array) => {
   // with the last one
 
   if (lastPayload.from_userid === currentPayload.from_userid
-   && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
+    && (currentPayload.from_time - lastPayload.from_time) <= GROUPING_MESSAGES_WINDOW) {
     lastMessage.content.push(current.content.pop());
     return previous;
   } else {
@@ -107,20 +94,18 @@ const reduceMessages = (previous, current, index, array) => {
 
 const getUser = (userID, userName) => {
   const user = Users.findOne({ userId: userID });
-  if (user) {
-    return mapUser(user.user);
-  } else {
-    return loggedOutUser(userID, userName);
-  }
+
+  return mapUser(user.user);
+
 };
 
 const getPublicMessages = () => {
   let publicMessages = Chats.find({
     'message.chat_type': { $in: [PUBLIC_CHAT_TYPE, SYSTEM_CHAT_TYPE] },
   }, {
-    sort: ['message.from_time'],
-  })
-  .fetch();
+      sort: ['message.from_time'],
+    })
+    .fetch();
 
   return publicMessages
     .reduce(reduceMessages, [])
@@ -135,8 +120,8 @@ const getPrivateMessages = (userID) => {
       { 'message.from_userid': userID },
     ],
   }, {
-    sort: ['message.from_time'],
-  }).fetch();
+      sort: ['message.from_time'],
+    }).fetch();
 
   return messages.reduce(reduceMessages, []).map(mapMessage);
 };
