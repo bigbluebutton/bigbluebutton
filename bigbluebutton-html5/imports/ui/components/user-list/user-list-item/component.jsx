@@ -121,7 +121,8 @@ class UserListItem extends Component {
     // if currentUser is a moderator, allow kicking other users
     let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
-    let allowedToSetPresenter = (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
+    let allowedToSetPresenter =
+      (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
 
     return _.compact([
       (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
@@ -164,6 +165,8 @@ class UserListItem extends Component {
 
     return (
       <li
+        role="button"
+        aria-haspopup="true"
         className={cx(styles.userListItem, userItemContentsStyle)}>
         {this.renderUserContents()}
       </li>
@@ -247,12 +250,12 @@ class UserListItem extends Component {
 
     return (
       <div className={styles.userName}>
-        <h3 className={styles.userNameMain}>
+        <span className={styles.userNameMain}>
           {user.name}
-        </h3>
-        <p className={styles.userNameSub}>
+        </span>
+        <span className={styles.userNameSub}>
           {userNameSub}
-        </p>
+        </span>
       </div>
     );
   }

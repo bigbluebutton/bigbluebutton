@@ -32,10 +32,8 @@ export default class UserAvatar extends Component {
 
     return (
       <div className={!user.isLoggedOut ? styles.userAvatar : styles.userLogout}
-           style={avatarStyles}>
-        <span>
-          {this.renderAvatarContent()}
-        </span>
+           style={avatarStyles} aria-hidden="true">
+        {this.renderAvatarContent()}
         {this.renderUserStatus()}
         {this.renderUserMediaStatus()}
       </div>
@@ -48,7 +46,28 @@ export default class UserAvatar extends Component {
     let content = user.name.slice(0, 2);
 
     if (user.emoji.status !== 'none') {
-      content = <Icon iconName={user.emoji.status}/>;
+      let iconEmoji = undefined;
+
+      switch (user.emoji.status) {
+        case 'thumbsUp':
+          iconEmoji = 'thumbs_up';
+          break;
+        case 'thumbsDown':
+          iconEmoji = 'thumbs_down';
+          break;
+        case 'raiseHand':
+          iconEmoji = 'hand';
+          break;
+        case 'away':
+          iconEmoji = 'time';
+          break;
+        case 'neutral':
+          iconEmoji = 'undecided';
+          break;
+        default:
+          iconEmoji = user.emoji.status;
+      }
+      content = <Icon iconName={iconEmoji}/>;
     }
 
     return content;

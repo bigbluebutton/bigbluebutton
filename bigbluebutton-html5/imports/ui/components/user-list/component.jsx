@@ -2,9 +2,8 @@ import React, { Component, PropTypes } from 'react';
 import { withRouter } from 'react-router';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import styles from './styles.scss';
-import { FormattedMessage } from 'react-intl';
 import cx from 'classnames';
-
+import { defineMessages, injectIntl } from 'react-intl';
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
 
@@ -43,16 +42,14 @@ class UserList extends Component {
   }
 
   renderHeader() {
+    const { intl } = this.props;
+
     return (
       <div className={styles.header}>
         {
           !this.state.compact ?
           <h2 className={styles.headerTitle}>
-            <FormattedMessage
-              id="app.userlist.participantsTitle"
-              description="Title for the Header"
-              defaultMessage="Participants"
-            />
+            {intl.formatMessage(intlMessages.participantsTitle)}
           </h2> : null
         }
       </div>
@@ -72,6 +69,7 @@ class UserList extends Component {
     const {
       openChats,
       openChat,
+      intl,
     } = this.props;
 
     return (
@@ -79,10 +77,7 @@ class UserList extends Component {
         {
           !this.state.compact ?
           <h3 className={styles.smallTitle}>
-            <FormattedMessage
-              id="app.userlist.messagesTitle"
-              description="Title for the messages list"
-            />
+            {intl.formatMessage(intlMessages.messagesTitle)}
           </h3> : <hr className={styles.separator}></hr>
         }
         <div className={styles.scrollableList}>
@@ -116,6 +111,7 @@ class UserList extends Component {
       userActions,
       compact,
       isBreakoutRoom,
+      intl,
     } = this.props;
 
     return (
@@ -123,10 +119,7 @@ class UserList extends Component {
         {
           !this.state.compact ?
           <h3 className={styles.smallTitle}>
-            <FormattedMessage
-              id="app.userlist.usersTitle"
-              description="Title for the Users list"
-            />
+            {intl.formatMessage(intlMessages.usersTitle)}
             &nbsp;({users.length})
           </h3> : <hr className={styles.separator}></hr>
         }
@@ -157,5 +150,20 @@ class UserList extends Component {
   }
 }
 
+const intlMessages = defineMessages({
+  usersTitle: {
+    id: 'app.userlist.usersTitle',
+    description: 'Title for the Header',
+  },
+  messagesTitle: {
+    id: 'app.userlist.messagesTitle',
+    description: 'Title for the messages list',
+  },
+  participantsTitle: {
+    id: 'app.userlist.participantsTitle',
+    description: 'Title for the Users list',
+  },
+});
+
 UserList.propTypes = propTypes;
-export default withRouter(UserList);
+export default withRouter(injectIntl(UserList));

@@ -1,4 +1,4 @@
-const EMOJI_STATUSES = ['time', 'hand', 'undecided', 'confused', 'sad',
-                          'happy', 'applause', 'thumbs_up', 'thumbs_down'];
+const EMOJI_STATUSES = ['away', 'raiseHand', 'neutral', 'confused', 'sad',
+                          'happy', 'applause', 'thumbsUp', 'thumbsDown'];
 
 export { EMOJI_STATUSES };

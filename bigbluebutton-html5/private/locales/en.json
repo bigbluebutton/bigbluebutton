@@ -58,6 +58,7 @@
   "app.about.confirmDesc": "OK",
   "app.about.dismissLabel": "Cancel",
   "app.about.dismissDesc": "Close about client information",
+  "app.actionsBar.changeStatusLabel": "Change Status",
   "app.actionsBar.muteLabel": "Mute",
   "app.actionsBar.camOffLabel": "Cam Off",
   "app.actionsBar.raiseLabel": "Raise",
