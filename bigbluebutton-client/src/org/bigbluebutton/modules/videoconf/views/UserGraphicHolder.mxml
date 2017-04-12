@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleUserVoiceChangedEvent" />
     <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceChangedEvent" />
     <mate:Listener type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}" method="handleStoppedViewingWebcamEvent" />
+    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent" />
 
     <mx:Script>
         <![CDATA[
@@ -51,6 +52,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             import org.bigbluebutton.main.events.BBBEvent;
             import org.bigbluebutton.main.events.PresenterStatusEvent;
             import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+            import org.bigbluebutton.main.events.UserJoinedEvent;
             import org.bigbluebutton.main.model.users.BBBUser;
             import org.bigbluebutton.modules.videoconf.events.AddStaticComponent;
             import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -88,6 +90,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 _newParent = parent.parent.parent.parent;
                 fullScreenIcon.source = _images.full_screen_white;
                 closeIcon.source = _images.close_white;
+            }
+
+            private function handleUserJoinedEvent(event:UserJoinedEvent):void {
+                // this is just to enforce the update of the BBBUser reference when the user reconnect
+                if (user && event.userID == user.userID) {
+                    userId = event.userID;
+                    setUserProperties();
+                }
             }
 
             public function set userId(value:String):void {

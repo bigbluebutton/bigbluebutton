@@ -106,6 +106,31 @@ function getViewboxAtTime(time) {
 	}
 }
 
+function setSlideAspect(time, imageWidth, imageHeight) {
+  var aspectAtTime = getAspectAtTime(time);
+  if (aspectAtTime != undefined && aspectAtTime != 0) {
+    currentSlideAspect = aspectAtTime;
+  } else {
+    currentSlideAspect = parseFloat((imageWidth/imageHeight));
+  }
+}
+
+function getAspectAtTime(time) {
+  var curr_t = parseFloat(time);
+  var key;
+  for (key in slideAspectValues) {
+    if(slideAspectValues.hasOwnProperty(key)) {
+      var arry = key.split(",");
+      if(arry[1] == "end") {
+        return slideAspectValues[key];
+      }
+      else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+        return slideAspectValues[key];
+      }
+    }
+  }
+}
+
 function getCursorAtTime(time) {
 	var coords = cursorValues[time];
 	if(coords) return coords.split(' ');
@@ -258,7 +283,6 @@ function runPopcorn() {
 
   var times_length = times.length; //get the length of the times array.
 
-  getPresentationText();
 
   // PROCESS PANZOOMS.XML
   console.log("** Getting panzooms.xml");
@@ -282,6 +306,7 @@ function runPopcorn() {
   	vboxValues[[panZoomArray[k].getAttribute("timestamp"), second_val]] = viewBoxes[k].childNodes[0].data;
   }
 
+  getPresentationText();
 
   // PROCESS CURSOR.XML
   console.log("** Getting cursor.xml");
@@ -463,10 +488,11 @@ function runPopcorn() {
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
 
           if (thisimg) {
-            var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
-            var imageHeight = parseInt(thisimg.getAttribute("height"), 10);
+            var imageWidth = parseFloat(thisimg.getAttribute("width"));
+            var imageHeight = parseFloat(thisimg.getAttribute("height"));
 
             setViewBox(t);
+            setSlideAspect(t,imageWidth,imageHeight);
 
             var cursorVal = getCursorAtTime(t);
             if (cursorVal != null && !$('#slide').hasClass('no-background')) {
@@ -622,6 +648,8 @@ var shapeId;
 var clearTimes = [];
 var main_shapes_ids = [];
 var vboxValues = {};
+var slideAspectValues = {};
+var currentSlideAspect = 0;
 var cursorValues = {};
 var imageAtTime = {};
 var slidePlainText = {}; //holds slide plain text for retrieval
@@ -810,6 +838,70 @@ function processPresentationText(response) {
   } else {
     setPresentationTextFromTxt(images);
   }
+
+  //at this point, we're sure that the array 'imageAtTime' is ready. Now, we need to set the aspects times to resize the slide div during the playback.
+  processSlideAspectTimes();
+}
+
+function processSlideAspectTimes() {
+  var key;
+  var lastAspectValue = 0;
+  for (key in vboxValues) {
+    if (vboxValues.hasOwnProperty(key)) {
+      var start_timestamp = key.split(",")[0];
+      var stop_timestamp = key.split(",")[1];
+      var vboxWidth = parseFloat(vboxValues[key].split(" ")[2]);
+      var vboxHeight = parseFloat(vboxValues[key].split(" ")[3]);
+      var aspectValue = processAspectValue(vboxWidth,vboxHeight,start_timestamp,lastAspectValue);
+      slideAspectValues[[start_timestamp, stop_timestamp]] = aspectValue;
+      lastAspectValue = aspectValue;
+    }
+  }
+}
+
+function processAspectValue(vboxWidth, vboxHeight, time, lastAspectValue) {
+  if (time == "0.0") {
+    //a little hack 'cause function getImageAtTime with time = 0.0 returns the background image...
+    //we need the first slide instead
+    var imageId = "image1";
+  }
+  else {
+    var imageId = getImageAtTime(time);
+  }
+
+  if (imageId !== undefined) {
+    var image;
+    if (svgobj.contentDocument) {
+      image = svgobj.contentDocument.getElementById(imageId);
+    }
+    else {
+      image = svgobj.getSVGDocument('svgfile').getElementById(imageId);
+    }
+
+    if (image) {
+      var imageWidth = parseFloat(image.getAttribute("width"));
+      var imageHeight = parseFloat(image.getAttribute("height"));
+
+      //fit-to-width: returning vbox aspect
+      if(vboxWidth == imageWidth && vboxHeight < imageHeight) {
+        return parseFloat(vboxWidth/vboxHeight);
+      }
+      //fit-to-page: returning image aspect
+      else if(vboxWidth == imageWidth && vboxHeight == imageHeight) {
+        return parseFloat(imageWidth/imageHeight);
+      }
+      //if it's not fit-to-width neither fit-to-page we return the previous aspect
+      else {
+        return lastAspectValue;
+      }
+    } else {
+      console.log("processAspectValue: there is no image for the id = " + imageId);
+      return lastAspectValue;
+    }
+  } else {
+    console.log("processAspectValue: imageId undefined");
+    return lastAspectValue;
+  }
 }
 
 function getPresentationText() {
@@ -867,16 +959,8 @@ window.onresize = function(event) {
 var resizeSlides = function() {
   if (currentImage) {
     var $slide = $("#slide");
-
-    var imageWidth = parseInt(currentImage.getAttribute("width"), 10);
-    var imageHeight = parseInt(currentImage.getAttribute("height"), 10);
-    var imgRect = currentImage.getBoundingClientRect();
-    var aspectRatio = imageWidth/imageHeight;
-    var max = aspectRatio * $slide.parent().outerHeight();
+    var max = currentSlideAspect * $slide.parent().outerHeight();
     $slide.css("max-width", max);
-
-    var height = $slide.parent().width() / aspectRatio;
-    $slide.css("max-height", height);
   }
 };
 
