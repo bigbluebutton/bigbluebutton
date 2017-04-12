@@ -70,10 +70,14 @@ package org.bigbluebutton.modules.whiteboard
        * Check if the presenter is starting a new text annotation without committing the last one.
        * If so, publish the last text annotation. 
        */
-      if (currentlySelectedTextObject != null && currentlySelectedTextObject.status != TextObject.TEXT_PUBLISHED) {
+      if (needToPublish()) {
         sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
       }
     }
+	
+	public function needToPublish() : Boolean {
+		return currentlySelectedTextObject != null && currentlySelectedTextObject.status != TextObject.TEXT_PUBLISHED;
+	}
     
     public function drawGraphic(event:WhiteboardUpdate):void{
       var o:Annotation = event.annotation;

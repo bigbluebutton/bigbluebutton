@@ -54,6 +54,9 @@ export default injectIntl(createContainer(({ params, intl }) => {
     messages = ChatService.getPrivateMessages(chatID);
   }
 
+  let user = ChatService.getUser(chatID, '{{NAME}}');
+  const partnerIsLoggedOut = user.isLoggedOut;
+
   if (messages && chatID !== PUBLIC_CHAT_KEY) {
     let userMessage = messages.find(m => m.sender !== null);
     let user = ChatService.getUser(chatID, '{{NAME}}');
@@ -62,7 +65,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
     chatName = user.name;
 
-    if (!user.isOnline) {
+    if (partnerIsLoggedOut && !user.isOnline) {
       let time = Date.now();
       let id = `partner-disconnected-${time}`;
       let messagePartnerLoggedOut = {
@@ -92,6 +95,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     messages,
     lastReadMessageTime,
     hasUnreadMessages,
+    partnerIsLoggedOut,
     isChatLocked,
     scrollPosition,
     actions: {

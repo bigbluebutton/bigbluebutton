@@ -12,51 +12,25 @@ export default class ActionsBar extends Component {
     super(props);
   }
 
-  renderForPresenter() {
-    return (
-      <div className={styles.actionsbar}>
-        <div className={styles.left}>
-          <ActionsDropdown />
-        </div>
-        <div className={styles.center}>
-          <MuteAudioContainer />
-          <JoinAudioOptionsContainer
-            handleJoinAudio={this.props.handleOpenJoinAudio}
-            handleCloseAudio={this.props.handleExitAudio}
-
-          />
-          {/*<JoinVideo />*/}
-          <EmojiContainer />
-        </div>
-        <div className={styles.hidden}>
-          <ActionsDropdown />
-        </div>
-      </div>
-    );
-  }
-
-  renderForUser() {
-    return (
-      <div className={styles.actionsbar}>
-        <div className={styles.center}>
-          <MuteAudioContainer />
-          <JoinAudioOptionsContainer
-            handleJoinAudio={this.props.handleOpenJoinAudio}
-            handleCloseAudio={this.props.handleExitAudio}
-
-          />
-          {/*<JoinVideo />*/}
-          <EmojiContainer />
-        </div>
-      </div>
-    );
-  }
-
   render() {
     const { isUserPresenter } = this.props;
 
-    return isUserPresenter ?
-      this.renderForPresenter() :
-      this.renderForUser();
+    return (
+      <div className={styles.actionsbar}>
+        <div className={styles.left}>
+          <ActionsDropdown {...{isUserPresenter}}/>
+        </div>
+        <div className={styles.center}>
+          <MuteAudioContainer />
+          <JoinAudioOptionsContainer
+            handleJoinAudio={this.props.handleOpenJoinAudio}
+            handleCloseAudio={this.props.handleExitAudio}
+
+          />
+          {/*<JoinVideo />*/}
+          <EmojiContainer />
+        </div>
+      </div>
+    );
   }
 }

@@ -86,7 +86,7 @@ trait UsersApp {
 
   def handleValidateAuthToken(msg: ValidateAuthToken) {
     log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-    usersModel.getRegisteredUserWithToken(msg.token) match {
+    usersModel.getRegisteredUserWithToken(msg.token, msg.userId) match {
       case Some(u) =>
         {
           val replyTo = mProps.meetingID + '/' + msg.userId
@@ -319,7 +319,7 @@ trait UsersApp {
   def handleUserJoin(msg: UserJoining): Unit = {
     log.debug("Received user joined meeting. metingId=" + mProps.meetingID + " userId=" + msg.userID)
 
-    val regUser = usersModel.getRegisteredUserWithToken(msg.authToken)
+    val regUser = usersModel.getRegisteredUserWithToken(msg.authToken, msg.userID)
     regUser foreach { ru =>
       log.debug("Found registered user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " ru=" + ru)
 

@@ -1,14 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
-
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import userListService from '../user-list/service';
 import ChatService from '../chat/service';
 import Service from './service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-
 import NavBar from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -29,6 +27,7 @@ class NavBarContainer extends Component {
 }
 
 export default withRouter(createContainer(({ location, router }) => {
+
   let meetingTitle;
   let meetingRecorded;
 
@@ -59,7 +58,10 @@ export default withRouter(createContainer(({ location, router }) => {
   const breakouts = Service.getBreakouts();
   const currentUserId = Auth.userID;
 
+  let isExpanded = location.pathname.indexOf('/users') !== -1;
+
   return {
+    isExpanded,
     breakouts,
     currentUserId,
     meetingId,

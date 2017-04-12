@@ -57,7 +57,7 @@ export default function userLeaving(credentials, userId) {
       }
     };
 
-    return Users.update(selector, modifier, cb);
+    Users.update(selector, modifier, cb);
   }
 
   let payload = {

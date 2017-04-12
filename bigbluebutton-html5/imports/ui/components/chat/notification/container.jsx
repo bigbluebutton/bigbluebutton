@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
-import SettingsService from '/imports/ui/components/settings/service';
+import Settings from '/imports/ui/services/settings';
 
 class ChatNotificationContainer extends Component {
   constructor(props) {
@@ -30,7 +30,7 @@ class ChatNotificationContainer extends Component {
 }
 
 export default createContainer(({ currentChatID }) => {
-  const AppSettings = SettingsService.getSettingsFor('application');
+  const AppSettings = Settings.application;
 
   const unreadMessagesCount = UserListService.getOpenChats()
                         .map(chat => chat.unreadCounter)
