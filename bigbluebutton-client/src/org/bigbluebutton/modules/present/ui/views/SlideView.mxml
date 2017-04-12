@@ -317,6 +317,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           slideModel.calculateViewportXY();
           slideModel.displayPresenterView();
           slideModel.printViewedRegion();
+          
+          zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionW) * SlideViewModel.HUNDRED_PERCENT;
+          
           fitSlideToLoader();          
         }        
       }
