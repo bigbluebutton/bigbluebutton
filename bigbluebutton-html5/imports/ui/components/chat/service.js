@@ -94,7 +94,9 @@ const reduceMessages = (previous, current, index, array) => {
 
 const getUser = (userID, userName) => {
   const user = Users.findOne({ userId: userID });
-
+  if(!user){
+    return null; 
+  }
   return mapUser(user.user);
 
 };
