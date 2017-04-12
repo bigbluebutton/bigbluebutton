@@ -418,6 +418,8 @@ function runPopcorn() {
                 } else {
                   shape.style.visibility = "hidden";
                 }
+              } else {
+                shape.style.visibility = "hidden";
               }
             } else if(time_s === t) { //for the shapes with the time specific to the current time
               // only makes visible the last drawing of a given shape
@@ -860,13 +862,14 @@ function processSlideAspectTimes() {
 }
 
 function processAspectValue(vboxWidth, vboxHeight, time, lastAspectValue) {
+  var imageId;
   if (time == "0.0") {
     //a little hack 'cause function getImageAtTime with time = 0.0 returns the background image...
     //we need the first slide instead
-    var imageId = "image1";
+    imageId = "image1";
   }
   else {
-    var imageId = getImageAtTime(time);
+    imageId = getImageAtTime(time);
   }
 
   if (imageId !== undefined) {
@@ -959,8 +962,10 @@ window.onresize = function(event) {
 var resizeSlides = function() {
   if (currentImage) {
     var $slide = $("#slide");
-    var max = currentSlideAspect * $slide.parent().outerHeight();
-    $slide.css("max-width", max);
+    var maxWidth = currentSlideAspect * $slide.parent().outerHeight();
+    $slide.css("max-width", maxWidth);
+    var maxHeight = $slide.parent().width() / currentSlideAspect;
+    $slide.css("max-height", maxHeight);
   }
 };
 
