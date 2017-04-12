@@ -69,10 +69,12 @@ class SettingsDropdown extends Component {
 
     let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullScreenIcon = 'fullscreen';
 
     if (isFullScreen) {
       fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
       fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
+      fullScreenIcon = 'exit_fullscreen';
     }
 
     return (
@@ -94,18 +96,19 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <DropdownListItem
-              icon="fullscreen"
+              icon={fullScreenIcon}
               label={fullScreenLabel}
               description={fullScreenDesc}
               onClick={this.props.handleToggleFullscreen}
             />
             <DropdownListItem
-              icon="more"
+              icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
               description={intl.formatMessage(intlMessages.settingsDesc)}
               onClick={openSettings.bind(this)}
             />
             <DropdownListItem
+              icon="about"
               label={intl.formatMessage(intlMessages.aboutLabel)}
               description={intl.formatMessage(intlMessages.aboutDesc)}
               onClick={openAbout.bind(this)}
