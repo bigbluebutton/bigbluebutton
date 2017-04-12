@@ -64,7 +64,6 @@ export default injectIntl(createContainer(({ params, intl }) => {
     if (messages && chatID !== PUBLIC_CHAT_KEY) {
       let userMessage = messages.find(m => m.sender !== null);
       let user = ChatService.getUser(chatID, '{{NAME}}');
-      // TODO: Find out how to get the name of the user when logged out
 
       title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
       chatName = user.name;
@@ -73,13 +72,13 @@ export default injectIntl(createContainer(({ params, intl }) => {
         let time = Date.now();
         let id = `partner-disconnected-${time}`;
         let messagePartnerLoggedOut = {
-          id: id,
+          id,
           content: [{
-            id: id,
+            id,
             text: intl.formatMessage(intlMessages.partnerDisconnected, { name: user.name }),
-            time: time,
+            time,
           },],
-          time: time,
+          time,
           sender: null,
         };
 

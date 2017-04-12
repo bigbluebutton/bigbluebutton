@@ -44,7 +44,7 @@ Meteor.publish('users', function (credentials) {
   });
 
   const selector = {
-    meetingId
+    meetingId,
   };
 
   const options = {

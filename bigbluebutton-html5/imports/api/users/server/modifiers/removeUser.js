@@ -17,20 +17,6 @@ export default function removeUser(meetingId, userId) {
 
   const User = Users.findOne(selector);
 
-  /*if (User && User.clientType !== CLIENT_TYPE_HTML) {
-    const cb = (err, numChanged) => {
-      if (err) {
-        return Logger.error(`Removing user from collection: ${err}`);
-      }
-
-      if (numChanged) {
-        return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
-      }
-    };
-
-    return Users.remove(selector, cb);
-  }*/
-
   const modifier = {
     $set: {
       'user.connection_status': 'offline',

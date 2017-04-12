@@ -38,7 +38,7 @@ const mapUser = (user) => ({
   isModerator: user.role === 'MODERATOR',
   isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
-  isOnline : user.connection_status === 'online',
+  isOnline: user.connection_status === 'online',
   isMuted: user.voiceUser.muted,
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
@@ -94,8 +94,8 @@ const reduceMessages = (previous, current, index, array) => {
 
 const getUser = (userID, userName) => {
   const user = Users.findOne({ userId: userID });
-  if(!user){
-    return null; 
+  if (!user) {
+    return null;
   }
   return mapUser(user.user);
 
