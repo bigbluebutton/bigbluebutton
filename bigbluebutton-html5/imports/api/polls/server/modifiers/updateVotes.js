@@ -29,7 +29,7 @@ export default function updateVotes(poll, meetingId, requesterId) {
 
   const modifier = {
     $set: {
-      requesterId,
+      requester: requesterId,
       poll: {
         answers: answers,
         num_responders: numResponders,
