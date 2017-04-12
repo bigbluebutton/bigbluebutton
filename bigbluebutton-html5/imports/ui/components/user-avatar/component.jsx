@@ -10,6 +10,7 @@ const propTypes = {
     isPresenter: React.PropTypes.bool.isRequired,
     isVoiceUser: React.PropTypes.bool.isRequired,
     isModerator: React.PropTypes.bool.isRequired,
+    isOnline: React.PropTypes.bool.isRequired,
     image: React.PropTypes.string,
   }).isRequired,
 };
@@ -23,7 +24,7 @@ export default class UserAvatar extends Component {
       user,
     } = this.props;
 
-    const avatarColor = !user.isLoggedOut ? generateColor(user.name) : '#fff';
+    const avatarColor = user.isOnline ? generateColor(user.name) : '#fff';
 
     let avatarStyles = {
       backgroundColor: avatarColor,
@@ -31,9 +32,11 @@ export default class UserAvatar extends Component {
     };
 
     return (
-      <div className={!user.isLoggedOut ? styles.userAvatar : styles.userLogout}
+      <div className={user.isOnline ? styles.userAvatar : styles.userLogout}
            style={avatarStyles} aria-hidden="true">
-        {this.renderAvatarContent()}
+        <span>
+          {this.renderAvatarContent()}
+        </span>
         {this.renderUserStatus()}
         {this.renderUserMediaStatus()}
       </div>
