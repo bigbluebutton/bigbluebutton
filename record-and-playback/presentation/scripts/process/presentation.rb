@@ -180,7 +180,8 @@ if not FileTest.directory?(target_dir)
     if !Dir["#{raw_archive_dir}/video/*"].empty?
       webcam_width = presentation_props['video_output_width']
       webcam_height = presentation_props['video_output_height']
-      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'])
+      processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
+      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'], processed_audio_file)
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? and presentation_props['include_deskshare']

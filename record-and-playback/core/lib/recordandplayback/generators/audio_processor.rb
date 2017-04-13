@@ -26,11 +26,16 @@ require File.expand_path('../../edl', __FILE__)
 
 module BigBlueButton
   class AudioProcessor
+
+    @audio_file = nil;
+
     # Process the raw recorded audio to ogg file.
     #   archive_dir - directory location of the raw archives. Assumes there is audio file and events.xml present.
     #   file_basename - the file name of the audio output. '.webm' and '.ogg' will be added
     #
     def self.process(archive_dir, file_basename)
+      BigBlueButton.logger.info("AudioProcessor.process: Processing audio...")
+
       audio_edl = BigBlueButton::AudioEvents.create_audio_edl(archive_dir)
       BigBlueButton::EDL::Audio.dump(audio_edl)
 
@@ -53,8 +58,14 @@ module BigBlueButton
       BigBlueButton::EDL.encode(@audio_file, nil, webm_format, file_basename)
     end
 
-    def self.get_processed_audio_file()
-      BigBlueButton.logger.info("AudioProcessor.process: returning processed audio")
+    def self.get_processed_audio_file(archive_dir, file_basename)
+      BigBlueButton.logger.info("AudioProcessor.get_processed_audio_file")
+
+      if(@audio_file == nil)
+        BigBlueButton.logger.info("AudioProcessor.get_processed_audio_file: audio_file is null. Did you forget to call the process method before this? Processing...")
+        process(archive_dir,file_basename)
+      end
+
       return @audio_file
     end
   end
