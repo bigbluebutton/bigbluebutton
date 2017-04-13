@@ -32,24 +32,30 @@ module BigBlueButton
     #
     def self.process(archive_dir, file_basename)
       audio_edl = BigBlueButton::AudioEvents.create_audio_edl(archive_dir)
+      BigBlueButton::EDL::Audio.dump(audio_edl)
 
       audio_dir = "#{archive_dir}/audio"
       events_xml = "#{archive_dir}/events.xml"
 
-      wav_file = BigBlueButton::EDL::Audio.render(audio_edl, "#{audio_dir}/recording")
+      @audio_file = BigBlueButton::EDL::Audio.render(audio_edl, "#{audio_dir}/recording")
 
       ogg_format = {
         :extension => 'ogg',
         :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '48K', '-f', 'ogg' ] ]
       }
-      BigBlueButton::EDL.encode(wav_file, nil, ogg_format, file_basename)
+      BigBlueButton::EDL.encode(@audio_file, nil, ogg_format, file_basename)
 
       webm_format = {
         :extension => 'webm',
         :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '48K', '-f', 'webm' ] ],
         :postprocess => [ [ 'mkclean', '--quiet', ':input', ':output' ] ]
       }
-      BigBlueButton::EDL.encode(wav_file, nil, webm_format, file_basename)
+      BigBlueButton::EDL.encode(@audio_file, nil, webm_format, file_basename)
+    end
+
+    def self.get_processed_audio_file()
+      BigBlueButton.logger.info("AudioProcessor.process: returning processed audio")
+      return @audio_file
     end
   end
 end
