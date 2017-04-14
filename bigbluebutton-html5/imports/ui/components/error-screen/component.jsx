@@ -6,19 +6,19 @@ import styles from './styles.scss';
 const intlMessages = defineMessages({
   500: {
     id: 'app.error.500',
-    description: '500 error message',
+    defaultMessage: 'Ops, something went wrong',
   },
   404: {
     id: 'app.error.404',
-    description: '404 error message',
+    defaultMessage: 'Not found',
   },
   401: {
     id: 'app.about.401',
-    description: '401 error message',
+    defaultMessage: 'Unauthorized',
   },
   403: {
     id: 'app.about.403',
-    description: '403 error message',
+    defaultMessage: 'Forbidden',
   },
 });
 
