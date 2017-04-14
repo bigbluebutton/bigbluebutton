@@ -43,11 +43,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.net.navigateToURL;
+			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.model.MeetingModel;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -110,8 +113,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				d.dispatchEvent(event);
 
 				this.enabled = false;
-
 				LOGGER.debug("RecordButton:doChangeRecordingStatus changing record status to {0}", [event.payload.recording]);
+				
+				if (!recordingFlag && getLayoutOptions().logoutOnStopRecording) {
+					LOGGER.debug("Using 'logoutOnStopRecording' option to logout user after stopping recording");
+					navigateToURL(new URLRequest(BBB.getLogoutURL()), "_self");
+				}
 			}
 
 			private function onRecordingStatusChanged(event:BBBEvent):void {
@@ -137,13 +144,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showRecordingNotification():void {
-				if (layoutOptions == null) {
-					layoutOptions = new LayoutOptions();
-					layoutOptions.parseOptions();
-				}
-
 				if (firstAudioJoin && this.visible && !this.selected 
-						&& layoutOptions.showRecordingNotification
+						&& getLayoutOptions().showRecordingNotification
 						&& UserManager.getInstance().getConference().amIModerator()
 						&& MeetingModel.getInstance().meeting.allowStartStopRecording) {
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
@@ -157,6 +159,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 					firstAudioJoin = false;
 				}
+			}
+			
+			private function getLayoutOptions() : LayoutOptions {
+				if (layoutOptions == null) {
+					layoutOptions = new LayoutOptions();
+					layoutOptions.parseOptions();
+				}
+				return layoutOptions;
 			}
 			
 			private function onRecordButtonMouseOver(event:MouseEvent):void {

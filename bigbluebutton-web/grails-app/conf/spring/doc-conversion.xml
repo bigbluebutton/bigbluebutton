@@ -31,7 +31,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="imageToSwfSlidesGenerationService" ref="imageToSwfSlidesGenerationService"/>
 	</bean>
 	
-	<bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"/>
+	<bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator"/>
+	
+	<bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService">
+		<property name="officeDocumentValidator" ref="officeDocumentValidator"/>
+	</bean>
 	
 	<bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.GhostscriptPageExtractor">
 		<property name="ghostscriptExec" value="${ghostScriptExec}"/>

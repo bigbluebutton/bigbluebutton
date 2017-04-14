@@ -21,6 +21,10 @@ package org.bigbluebutton.lib.main.views {
 			view.leftButton.addEventListener(MouseEvent.CLICK, leftButtonClickHandler);
 			view.rightButton.addEventListener(MouseEvent.CLICK, rightButtonClickHandler);
 			
+			setTitle();
+		}
+		
+		protected function setTitle():void {
 			view.titleLabel.text = conferenceParameters.meetingName;
 		}
 		

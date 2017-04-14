@@ -6,7 +6,7 @@ import cx from 'classnames';
 import Icon from '../icon/component';
 
 const SIZES = [
-  'lg', 'md', 'sm',
+  'jumbo', 'lg', 'md', 'sm',
 ];
 
 const COLORS = [
@@ -95,6 +95,7 @@ export default class Button extends BaseButton {
     } = this.props;
 
     let propClassNames = {};
+
     propClassNames[styles.button] = true;
     propClassNames[styles[size]] = true;
     propClassNames[styles[color]] = true;

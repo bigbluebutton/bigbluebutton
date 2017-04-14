@@ -1,28 +1,11 @@
-import { logger } from '/imports/startup/server/logger';
-import '/server/server';
-import { RedisPubSub } from '/imports/startup/server/RedisPubSub';
-import { EventQueue } from '/imports/startup/server/EventQueue';
-import { clearCollections } from '/imports/api/common/server/helpers';
+import { Meteor } from 'meteor/meteor';
+import _ from 'lodash';
+import Logger from './logger';
+import Redis from './redis';
 
-Meteor.startup(function () {
-  redisPubSub = new RedisPubSub();
-
-  clearCollections();
+Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
-
-  let determineConnectionType = function () {
-    let baseConnection = 'HTTP';
-    if (APP_CONFIG.httpsConnection) {
-      baseConnection += ('S');
-    }
-
-    return baseConnection;
-  };
-
-  logger.info(`server start. Connection type:${determineConnectionType()}`);
-  logger.info('APP_CONFIG=');
-  logger.info(APP_CONFIG);
-  logger.info('Running in environment type:' + Meteor.settings.runtime.env);
+  Logger.info(`SERVER STARTED. ENV=${Meteor.settings.runtime.env}`, APP_CONFIG);
 });
 
 WebApp.connectHandlers.use('/check', (req, res, next) => {
@@ -33,8 +16,35 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
   res.end(JSON.stringify(payload));
 });
 
-export const myQueue = new EventQueue();
+WebApp.connectHandlers.use('/locale', (req, res) => {
+  const APP_CONFIG = Meteor.settings.public.app;
 
-export const eventEmitter = new (Npm.require('events').EventEmitter);
+  let defaultLocale = APP_CONFIG.defaultLocale;
+  let localeRegion = _.snakeCase(req.query.locale).split('_');
+  let messages = {};
 
-export let redisPubSub = {};
+  let locales = [defaultLocale, localeRegion[0]];
+
+  if (localeRegion.length > 1) {
+    locales.push(`${localeRegion[0]}_${localeRegion[1]}`);
+  }
+
+  locales.forEach(locale => {
+    try {
+      const data = Assets.getText(`locales/${locale}.json`);
+      messages = Object.assign(messages, JSON.parse(data));
+    } catch (e) {
+      // console.error(e);
+      // We dont really care about those errors since they will be a parse error
+      // or a file not found which is ok
+    }
+  });
+
+  res.setHeader('Content-Type', 'application/json');
+  res.writeHead(200);
+  res.end(JSON.stringify(messages));
+});
+
+export const eventEmitter = Redis.emitter;
+
+export let redisPubSub = Redis;

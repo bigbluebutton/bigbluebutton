@@ -5,6 +5,19 @@ import styles from './styles.scss';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router';
 import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
+
+const intlMessages = defineMessages({
+  titlePublic: {
+    id: 'app.chat.titlePublic',
+  },
+  unreadPlural: {
+    id: 'app.userlist.chatlistitem.unreadPlural',
+  },
+  unreadSingular: {
+    id: 'app.userlist.chatlistitem.unreadSingular',
+  },
+});
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
@@ -26,25 +39,42 @@ class ChatListItem extends Component {
       chat,
       openChat,
       compact,
+      intl,
     } = this.props;
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
+    const isCurrentChat = chat.id === openChat;
+    let isSingleMessage = chat.unreadCounter === 1;
 
     let linkClasses = {};
-    linkClasses[styles.active] = chat.id === openChat;
+    linkClasses[styles.active] = isCurrentChat;
+
+    if (chat.name === 'Public Chat') {
+      chat.name = intl.formatMessage(intlMessages.titlePublic);
+    }
 
     return (
       <li className={cx(styles.chatListItem, linkClasses)}>
-        <Link to={linkPath} className={styles.chatListItemLink}>
-          {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
-          <div className={styles.chatName}>
-            {!compact ? <h3 className={styles.chatNameMain}>{chat.name}</h3> : null }
-          </div>
-          {(chat.unreadCounter > 0) ?
-            <div className={styles.unreadMessages}>
-              <p className={styles.unreadMessagesText}>{chat.unreadCounter}</p>
+        <Link
+          to={linkPath}
+          className={styles.chatListItemLink}
+          role="button"
+          aria-expanded={isCurrentChat}>
+            {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
+            <div className={styles.chatName}>
+              {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null }
             </div>
-            : null}
+            {(chat.unreadCounter > 0) ?
+              <div
+                className={styles.unreadMessages}
+                aria-label={isSingleMessage
+                  ? intl.formatMessage(intlMessages.unreadSingular, { count: chat.unreadCounter })
+                  : intl.formatMessage(intlMessages.unreadPlural, { count: chat.unreadCounter })}>
+                <div className={styles.unreadMessagesText} aria-hidden="true">
+                  {chat.unreadCounter}
+                </div>
+              </div>
+              : null}
         </Link>
       </li>
     );
@@ -66,4 +96,4 @@ class ChatListItem extends Component {
 ChatListItem.propTypes = propTypes;
 ChatListItem.defaultProps = defaultProps;
 
-export default withRouter(ChatListItem);
+export default withRouter(injectIntl(ChatListItem));

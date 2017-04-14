@@ -1,3 +1,4 @@
+// TODO: This file should be a `service.js` somewhere in the /ui folder
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
@@ -21,7 +22,7 @@ function amIListenOnly() {
 // Periodically check the status of the WebRTC call, when a call has been established attempt to
 // hangup, retry if a call is in progress, send the leave voice conference message to BBB
 
-function exitAudio(afterExitCall) {
+function exitAudio(afterExitCall = () => {}) {
   if (!MEDIA_CONFIG.useSIPAudio) {
     vertoExitAudio();
     return;
@@ -36,7 +37,7 @@ function exitAudio(afterExitCall) {
     triedHangup = false;
 
     // function to initiate call
-    const checkToHangupCall = (function (context, afterExitCall) {
+    const checkToHangupCall = ((context, afterExitCall = () => {}) => {
 
       // if an attempt to hang up the call is made when the current session is not yet finished,
       // the request has no effect
@@ -46,7 +47,7 @@ function exitAudio(afterExitCall) {
 
         // notify BBB-apps we are leaving the call call if we are listen only
         if (amIListenOnly()) {
-          callServer('listenOnlyRequestToggle', false);
+          callServer('listenOnlyToggle', false);
         }
 
         window.webrtc_hangup(hangupCallback);
@@ -100,13 +101,38 @@ function joinVoiceCallSIP(options) {
       return callback(result);
     };
 
-    callIntoConference(extension, function () {}, options.isListenOnly);
+    const m = Meetings.findOne();
+    const st = {
+      stun: m.stuns,
+      turn: m.turns,
+    };
+
+    callIntoConference(extension, function (audio) {
+      switch (audio.status) {
+        case 'failed':
+          let audioFailed = new CustomEvent('bbb.webrtc.failed', {
+            status: 'Failed' });
+          window.dispatchEvent(audioFailed);
+          break;
+        case 'mediafail':
+          let mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
+            status: 'MediaFailed' });
+          window.dispatchEvent(mediaFailed);
+          break;
+        case 'mediasuccess':
+        case 'started':
+          let connected = new CustomEvent('bbb.webrtc.connected', {
+            status: 'started' });
+          window.dispatchEvent(connected);
+          break;
+      }
+    }, options.isListenOnly, st);
     return;
   }
 }
 
 function joinListenOnly() {
-  callServer('listenOnlyRequestToggle', true);
+  callServer('listenOnlyToggle', true);
   if (MEDIA_CONFIG.useSIPAudio) {
     joinVoiceCallSIP({ isListenOnly: true });
   } else {

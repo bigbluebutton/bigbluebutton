@@ -45,25 +45,46 @@ export default injectIntl(createContainer(({ params, intl }) => {
 
   let messages = [];
   let isChatLocked = ChatService.isChatLocked(chatID);
+  let title = intl.formatMessage(intlMessages.titlePublic);
+  let chatName = title;
 
   if (chatID === PUBLIC_CHAT_KEY) {
     messages = ChatService.getPublicMessages();
-    title = intl.formatMessage(intlMessages.titlePublic);
   } else {
     messages = ChatService.getPrivateMessages(chatID);
-    let user = ChatService.getUser(chatID);
+  }
 
-    if (user) {
+  let user = ChatService.getUser(chatID, '{{NAME}}');
+
+  let partnerIsLoggedOut = false;
+
+  if (user) {
+    partnerIsLoggedOut = !user.isOnline;
+
+    if (messages && chatID !== PUBLIC_CHAT_KEY) {
+      let userMessage = messages.find(m => m.sender !== null);
+      let user = ChatService.getUser(chatID, '{{NAME}}');
+
       title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
-    } else {
-      // let partnerName = messages.find(m => m.user && m.user.id === chatID).map(m => m.user.name);
-      let partnerName = '{{NAME}}'; // placeholder until the server sends the name
-      messages.push({
-        content: [intl.formatMessage(intlMessages.partnerDisconnected, { name: partnerName })],
-        time: Date.now(),
-        sender: null,
-      });
-      isChatLocked = true;
+      chatName = user.name;
+
+      if (!user.isOnline) {
+        let time = Date.now();
+        let id = `partner-disconnected-${time}`;
+        let messagePartnerLoggedOut = {
+          id,
+          content: [{
+            id,
+            text: intl.formatMessage(intlMessages.partnerDisconnected, { name: user.name }),
+            time,
+          },],
+          time,
+          sender: null,
+        };
+
+        messages.push(messagePartnerLoggedOut);
+        isChatLocked = true;
+      }
     }
   }
 
@@ -73,13 +94,18 @@ export default injectIntl(createContainer(({ params, intl }) => {
 
   return {
     chatID,
+    chatName,
     title,
     messages,
     lastReadMessageTime,
     hasUnreadMessages,
+    partnerIsLoggedOut,
     isChatLocked,
     scrollPosition,
     actions: {
+
+      handleClosePrivateChat: chatID => ChatService.closePrivateChat(chatID),
+
       handleSendMessage: message => {
         let sentMessage = ChatService.sendMessage(chatID, message);
         ChatService.updateScrollPosition(chatID, null); //null so its scrolls to bottom

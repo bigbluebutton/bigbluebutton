@@ -34,10 +34,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.managers.PopUpManager;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.api.JSAPI;
@@ -77,6 +76,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vboxListen.percentWidth = 50;
 				}
 				
+				if (!JSAPI.getInstance().isWebRTCAvailable()) {
+					audioBrowserHint.visible = audioBrowserHint.includeInLayout = true;
+					this.height += 72;
+				}
+				
 				// If Puffin browser is deteted and version is less than 4.6
 				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
 					vruleListen.visible = vruleListen.includeInLayout = vboxMic.visible = vboxMic.includeInLayout = false;
@@ -99,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatcher.dispatchEvent(command);
 				}
 				
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function onListenClick():void {
@@ -109,7 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				command.mic = false;
 				dispatcher.dispatchEvent(command);
 				
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function onCancelClicked():void {
@@ -117,7 +121,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
 				
-				PopUpManager.removePopUp(this);
+				PopUpUtil.removePopUp(this);
 			}
 			
 			private function handleBecomePresenter(e:MadePresenterEvent):void {
@@ -140,6 +144,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 styleName="micSettingsWindowTitleStyle"
 						 width="100%" height="100%" />
 		</mx:HBox>
+		<mx:Box width="100%" height="56"
+				verticalAlign="middle" horizontalAlign="center"
+				verticalScrollPolicy="off" horizontalScrollPolicy="off"
+				visible="false" includeInLayout="false"
+				id="audioBrowserHint" styleName="audioBroswerHintBoxStyle">
+			<mx:Text width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.message')}" styleName="audioBroswerHintTextStyle"/>
+		</mx:Box>
 		<mx:HRule width="100%" />
 		<mx:HBox width="100%" height="100%">
 			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">

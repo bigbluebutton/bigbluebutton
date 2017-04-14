@@ -3,7 +3,7 @@
 				 xmlns:s="library://ns.adobe.com/flex/spark"
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
 				 xmlns:views="org.bigbluebutton.air.common.views.*"
-				 styleName="audioSettingsStyle">
+				 styleName="audioSettings">
 
 	<s:Scroller width="100%"
 				height="100%">
@@ -118,7 +118,7 @@
 			<s:Button id="continueToMeeting"
 					  width="90%"
 					  label="{resourceManager.getString('resources', 'audioSettings.continue')}"
-					  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+					  styleName="userSettingsButton logoutButton contentFontSize" />
 
 		</s:VGroup>
 	</s:Scroller>

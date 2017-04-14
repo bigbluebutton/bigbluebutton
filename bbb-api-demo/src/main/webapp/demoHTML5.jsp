@@ -35,9 +35,11 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <body>
 
+<p>You must have the BigBlueButton HTML5 client installed to use this API demo.</p>
+
 <%@ include file="bbb_api.jsp"%>
 
-<% 
+<%
 if (request.getParameterMap().isEmpty()) {
 	//
 	// Assume we want to create a meeting
@@ -47,29 +49,36 @@ if (request.getParameterMap().isEmpty()) {
 
 <h2>Join Meeting via HTML5 Client</h2>
 
-<FORM NAME="form1" METHOD="GET"> 
+<FORM NAME="form1" METHOD="GET">
 <table cellpadding="5" cellspacing="5" style="width: 400px; ">
 	<tbody>
 		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Full Name:</td>
-			<td style="width: 5px; ">
-				&nbsp;</td>
-			<td style="text-align: left ">
-				<input type="text" autofocus required name="username" /></td>
+			<td>&nbsp;</td>
+			<td style="text-align: right; ">Full Name:</td>
+			<td style="width: 5px; ">&nbsp;</td>
+			<td style="text-align: left "><input type="text" autofocus required name="username" /></td>
 		</tr>
+
 		<tr>
-			<td>
-				&nbsp;</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				<input type="submit" value="Join" /></td>
-		</tr>
+			<td>&nbsp;</td>
+			<td style="text-align: right; ">Meeting Name:</td>
+			<td style="width: 5px; ">&nbsp;</td>
+			<td style="text-align: left "><input type="text" required name="meetingname" value="Demo Meeting" /></td>
+		<tr>
+
+			<tr>
+				<td>&nbsp;</td>
+				<td style="text-align: right; ">Moderator Role:</td>
+				<td style="width: 5px; ">&nbsp;</td>
+				<td style="text-align: left "><input type=checkbox name=isModerator value="true"></td>
+			<tr>
+
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td><input type="submit" value="Join" /></td>
+		<tr>
 	</tbody>
 </table>
 <INPUT TYPE=hidden NAME=action VALUE="create">
@@ -84,10 +93,10 @@ if (request.getParameterMap().isEmpty()) {
 	//
 
 	String username = request.getParameter("username");
-	String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
-	// String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
+	String meetingname = request.getParameter("meetingname");
+	boolean isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
 
-	String joinURL = getJoinURLHTML5(request.getParameter("username"), "Demo Meeting", "false", null, null, null);
+	String joinURL = getJoinURLHTML5(username, meetingname, "false", null, null, null, isModerator);
 	Document doc = null;
 	doc = parseXml(getURL(joinURL));
 

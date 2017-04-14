@@ -19,6 +19,7 @@ const defaultProps = {
 export default class MessageListItem extends Component {
   constructor(props) {
     super(props);
+
   }
 
   render() {
@@ -41,8 +42,9 @@ export default class MessageListItem extends Component {
         </div>
         <div className={styles.content}>
           <div className={styles.meta}>
-            <div className={styles.name}>
+            <div className={user.isOnline ? styles.name : styles.logout}>
               <span>{user.name}</span>
+              {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
             </div>
             <time className={styles.time} dateTime={dateTime}>
               <FormattedTime value={dateTime}/>

@@ -286,19 +286,6 @@ generateThumbnails = function() {
   }
 }
 
-google_frame_warning = function(){
-  console.log("==Google frame warning");
-  var message = "To support this playback please install 'Google Chrome Frame', or use other browser: Firefox, Safari, Chrome, Opera";
-  var line = document.createElement("p");
-  var link = document.createElement("a");
-  line.appendChild(document.createTextNode(message));
-  link.setAttribute("href", "http://www.google.com/chromeframe")
-  link.setAttribute("target", "_blank")
-  link.appendChild(document.createTextNode("Install Google Chrome Frame"));
-  document.getElementById("chat").appendChild(line);
-  document.getElementById("chat").appendChild(link);
-}
-
 function checkUrl(url)
 {
   try {
@@ -422,6 +409,24 @@ load_spinner = function(){
   spinner = new Spinner(opts).spin(target);
 };
 
+var video_loaded_callbacks = [];
+var video_loaded = false;
+
+var notify_video_loaded = function() {
+  video_loaded = true;
+  for (i = 0; i < video_loaded_callbacks.length; i++) {
+    video_loaded_callbacks[i]();
+  }
+};
+window.await_video_loaded = function(callback) {
+  if (video_loaded) {
+    /* Video is already loaded, just immediately execute the callback */
+    callback();
+  } else {
+    video_loaded_callbacks.push(callback);
+  }
+}
+
 
 document.addEventListener("DOMContentLoaded", function() {
   console.log("==DOM content loaded");
@@ -429,9 +434,10 @@ document.addEventListener("DOMContentLoaded", function() {
   var appVersion = navigator.appVersion;
   var spinner;
 
-  if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
-    google_frame_warning();
-  }
+  load_spinner();
+  console.log("==Hide playback content");
+  $("#playback-content").css('visibility', 'hidden');
+
 
   if (checkUrl(RECORDINGS + '/video/webcams.webm') == true) {
     hasVideo = true;
@@ -443,10 +449,6 @@ document.addEventListener("DOMContentLoaded", function() {
     load_audio();
   }
 
-  load_spinner();
-  console.log("==Hide playback content");
-  $("#playback-content").css('visibility', 'hidden');
-
   //load up the acorn controls
   console.log("==Loading acorn media player ");
   $('#video').acornMediaPlayer({
@@ -456,6 +458,8 @@ document.addEventListener("DOMContentLoaded", function() {
   $('#video').on("swap", function() {
     swapVideoPresentation();
   });
+
+  notify_video_loaded();
 
   resizeComponents();
 }, false);
@@ -515,16 +519,14 @@ function swapVideoPresentation() {
   // if the cursor is currently being useful, he we'll be redrawn automatically soon
   showCursor(false);
 
-  // wait for the svg with the slides to be fully loaded and then set the current image
-  // as visible.
+  // wait for the svg with the slides to be fully loaded, then restore slides state and resize them
   function checkSVGLoaded() {
     var done = false;
     var svg = document.getElementsByTagName("object")[0];
     if (svg !== undefined && svg !== null && currentImage && svg.getSVGDocument('svgfile')) {
       var img = svg.getSVGDocument('svgfile').getElementById(currentImage.getAttribute("id"));
       if (img !== undefined && img !== null) {
-        img.style.visibility = "visible";
-        resizeSlides();
+        restoreSlidesState(img);
         done = true;
       }
     }
@@ -533,6 +535,46 @@ function swapVideoPresentation() {
     }
   }
   checkSVGLoaded();
+}
+
+function restoreSlidesState(img) {
+  //set the current image as visible
+  img.style.visibility = "visible";
+
+  resizeSlides();
+  restoreCanvas();
+
+  var isPaused = Popcorn("#video").paused();
+  if(isPaused) {
+    restoreViewBoxSize();
+    restoreCursor(img);
+  }
+}
+
+function restoreCanvas() {
+  var numCurrent = current_image.substr(5);
+  var currentCanvas;
+  if(svgobj.contentDocument) currentCanvas = svgobj.contentDocument.getElementById("canvas" + numCurrent);
+  else currentCanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + numCurrent);
+
+  if(currentCanvas !== null) {
+    currentCanvas.setAttribute("display", "");
+  }
+}
+
+function restoreViewBoxSize() {
+  var t = Popcorn("#video").currentTime().toFixed(1);
+  var vboxVal = getViewboxAtTime(t);
+  if(vboxVal !== undefined) {
+    setViewBox(vboxVal);
+  }
+}
+
+function restoreCursor(img) {
+    var imageWidth = parseInt(img.getAttribute("width"), 10);
+    var imageHeight = parseInt(img.getAttribute("height"), 10);
+    showCursor(true);
+    drawCursor(parseFloat(currentCursorVal[0]) / (imageWidth/2), parseFloat(currentCursorVal[1]) / (imageHeight/2), img);
 }
 
 // Manually resize some components we can't properly resize just using css.

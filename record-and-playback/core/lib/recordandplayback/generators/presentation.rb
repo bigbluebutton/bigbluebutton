@@ -77,11 +77,11 @@ module BigBlueButton
     # Gathers the text from the slide
     def self.get_text_from_slide(textfiles_dir, slide_num)
       text_from_slide = nil
-      if File.file?("#{textfiles_dir}/slide-#{slide_num}.txt")
+      begin
         text_from_slide = File.open("#{textfiles_dir}/slide-#{slide_num}.txt") {|f| f.readline}
-        unless text_from_slide == nil
-          text_from_slide = text_from_slide.strip
-        end
+        text_from_slide = text_from_slide.strip.encode(:xml => :text) unless text_from_slide == nil
+      rescue Exception => e
+        #do nothing
       end
       text_from_slide
     end
@@ -99,13 +99,16 @@ module BigBlueButton
         # Set textfile directory
         textfiles_dir = "#{process_dir}/presentation/#{presentation_id}/textfiles"
         # Set presentation hashmap to be returned
-        presentation[:id] = presentation_id
-        presentation[:filename] = presentation_filename
-        presentation[:slides] = {}
-        presentation[:slides][1] = { :alt => self.get_text_from_slide(textfiles_dir, 1) }
         unless presentation_filename == "default.pdf"
-          presentation[:slides][2] = { :alt => self.get_text_from_slide(textfiles_dir, 2) } if File.file?("#{textfiles_dir}/slide-2.txt")
-          presentation[:slides][3] = { :alt => self.get_text_from_slide(textfiles_dir, 3) } if File.file?("#{textfiles_dir}/slide-3.txt")
+          presentation[:id] = presentation_id
+          presentation[:filename] = presentation_filename
+          presentation[:slides] = {}
+          for i in 1..3
+            if File.file?("#{textfiles_dir}/slide-#{i}.txt")
+              text_from_slide = self.get_text_from_slide(textfiles_dir, i)
+              presentation[:slides][i] = { :alt => text_from_slide == nil ? '' : text_from_slide }
+            end
+          end
           # Break because something else than default.pdf was found
           break
         end

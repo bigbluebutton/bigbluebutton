@@ -18,19 +18,20 @@
 */
 package org.bigbluebutton.core.managers
 {
-  import com.asfusion.mate.events.Dispatcher; 
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.display.DisplayObject;
   import flash.events.TimerEvent;
   import flash.utils.Dictionary;
-  import flash.utils.Timer; 
+  import flash.utils.Timer;
+  
   import mx.collections.ArrayCollection;
   import mx.core.FlexGlobals;
-  import mx.core.IFlexDisplayObject;
-  import mx.managers.PopUpManager;  
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
@@ -52,7 +53,6 @@ package org.bigbluebutton.core.managers
     private var _reconnectTimer:Timer = new Timer(10000, 1);
     private var _reconnectTimeout:Timer = new Timer(15000, 1);
     private var _dispatcher:Dispatcher = new Dispatcher();
-    private var _popup:IFlexDisplayObject = null;
     private var _canceled:Boolean = false;
 
     public function ReconnectionManager() {
@@ -85,12 +85,9 @@ package org.bigbluebutton.core.managers
 
     public function onDisconnected(type:String, callback:Function, parameters:Array):void {
       if (!_canceled) {
-		var logData:Object = new Object();
-		logData.user = UsersUtil.getUserData();
+		var logData:Object = UsersUtil.initLogData();
 		logData.user.connection = type;
-		
-		JSLog.warn("Connection disconnected", logData);
-		
+        logData.tags = ["connection"];
 		logData.message = "Connection disconnected";
 		LOGGER.info(JSON.stringify(logData));
 		
@@ -100,8 +97,7 @@ package org.bigbluebutton.core.managers
         _connections[type] = obj;
 
         if (!_reconnectTimer.running) {
-          _popup = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ReconnectionPopup, true);
-          PopUpManager.centerPopUp(_popup);
+			PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, ReconnectionPopup, true);
 
           _reconnectTimer.reset();
           _reconnectTimer.start();
@@ -110,14 +106,9 @@ package org.bigbluebutton.core.managers
     }
 
     public function onConnectionAttemptFailed(type:String):void {
-      LOGGER.warn("onConnectionAttemptFailed, type={0}", [type]);
-	  
-	  var logData:Object = new Object();
-	  logData.user = UsersUtil.getUserData();
-	  logData.user.connection = type;
-	  
-	  JSLog.warn("Reconnect attempt on connection failed.", logData);
-	  
+	  var logData:Object = UsersUtil.initLogData();
+	  logData.user.connection = type; 
+      logData.tags = ["connection"];
 	  logData.message = "Reconnect attempt on connection failed.";
 	  LOGGER.info(JSON.stringify(logData));
 	  
@@ -150,18 +141,13 @@ package org.bigbluebutton.core.managers
     }
 
     public function onConnectionAttemptSucceeded(type:String):void {
-	  LOGGER.debug("onConnectionAttemptSucceeded, type={0}", [type]);
-	  var logData:Object = new Object();
-	  logData.user = UsersUtil.getUserData();
+	  var logData:Object = UsersUtil.initLogData();
 	  logData.user.connection = type;
-	  
-	  JSLog.warn("Reconnect succeeded.", logData);
-	  
+      logData.tags = ["connection"];
 	  logData.message = "Reconnect succeeded.";
 	  LOGGER.info(JSON.stringify(logData));
 	  
       dispatchReconnectionSucceededEvent(type);
-
       delete _connections[type];
       if (type == BIGBLUEBUTTON_CONNECTION) {
         reconnect();
@@ -173,11 +159,11 @@ package org.bigbluebutton.core.managers
 
         _dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT, 
           ResourceUtil.getInstance().getString('bbb.connection.reestablished'), 
-          msg));
+          msg, 'bbb.connection.reestablished'));
 
         _reconnectTimeout.reset();
-        removePopUp();
-      }
+		PopUpUtil.removePopUp(ReconnectionPopup);
+	  }
     }
 
     public function onCancelReconnection():void {
@@ -185,15 +171,8 @@ package org.bigbluebutton.core.managers
 
       for (var type:Object in _connections) delete _connections[type];
 
-      removePopUp();
-    }
-
-    private function removePopUp():void {
-      if (_popup != null) {
-        PopUpManager.removePopUp(_popup);
-        _popup = null;
-      }
-    }
+	  PopUpUtil.removePopUp(ReconnectionPopup);
+	}
 
     private function connectionReestablishedMessage():String {
       var msg:String = "";

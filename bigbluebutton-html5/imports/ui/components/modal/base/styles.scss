@@ -20,9 +20,12 @@
   }
 }
 
-.overlay {
+.transparentOverlay {
+  background: transparentize($color-gray-dark, .40) !important;
+}
+
+.overlay, .transparentOverlay {
   z-index: 1000;
-  //background: transparentize($color-white, .35);
   background: #fff;
   display: flex;
   align-items: center;

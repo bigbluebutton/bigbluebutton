@@ -1,0 +1,22 @@
+@import "../../stylesheets/variables/_all";
+
+.input {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.icon {
+  cursor: pointer;
+  font-size: 1.35rem;
+  color: $color-gray-light;
+}
+
+.checked {
+  color: $color-success;
+}

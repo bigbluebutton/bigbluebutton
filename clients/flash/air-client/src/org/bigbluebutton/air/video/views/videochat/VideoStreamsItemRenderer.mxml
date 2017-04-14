@@ -16,7 +16,7 @@
 					micOffIcon.visible = micOffIcon.includeInLayout = (obj.user.voiceJoined && obj.user.muted);
 					listenOnlyIcon.includeInLayout = !micIcon.visible;
 					listenOnlyIcon.visible = listenOnlyIcon.includeInLayout = (!obj.user.voiceJoined && obj.user.listenOnly);
-					micIcon.styleName = (obj.user.talking) ? "iconStyle speakingMicIconStyle" : "iconStyle micIconStyle";
+					micIcon.styleName = (obj.user.talking) ? "icon speakingMicIcon" : "icon micIcon";
 					presentationIcon.visible = obj.user.presenter;
 				}
 			}
@@ -30,7 +30,7 @@
 								paddingBottom="{getStyle('paddingBottom')}" />
 		</s:layout>
 		<s:Image id="presentationIcon"
-				 styleName="iconStyle presentationIconStyle"
+				 styleName="icon presentationIcon"
 				 height="100%" />
 		<s:Label id="title"
 				 width="60%"
@@ -38,16 +38,16 @@
 				 textAlign="center"
 				 styleName="videoStreamName contentFontSize" />
 		<s:Image id="cameraIcon"
-				 styleName="iconStyle cameraIconStyle"
+				 styleName="icon cameraIcon"
 				 height="100%" />
 		<s:Image id="micIcon"
-				 styleName="iconStyle micIconStyle"
+				 styleName="icon micIcon"
 				 height="100%" />
 		<s:Image id="micOffIcon"
-				 styleName="iconStyle micOffIconStyle"
+				 styleName="icon micOffIcon"
 				 height="100%" />
 		<s:Image id="listenOnlyIcon"
-				 styleName="iconStyle listenOnlyIconStyle"
+				 styleName="icon listenOnlyIcon"
 				 height="100%" />
 	</s:Group>
 </s:ItemRenderer>

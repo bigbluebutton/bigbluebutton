@@ -26,7 +26,7 @@ package org.bigbluebutton.lib.user.views
 			
 			_userLabel = new Label();
 			_userLabel.percentWidth = 100;
-			_userLabel.styleName = "contentStyle";
+			_userLabel.styleName = "content";
 			_userLabel.text = "Users";
 			addElement(_userLabel);
 			

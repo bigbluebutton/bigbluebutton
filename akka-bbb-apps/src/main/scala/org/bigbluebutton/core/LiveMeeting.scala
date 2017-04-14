@@ -2,14 +2,14 @@ package org.bigbluebutton.core
 
 import java.util.concurrent.TimeUnit
 
+import scala.concurrent.duration.Duration
+
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus.IncomingEventBus
 
 import akka.actor.ActorContext
 import akka.event.Logging
-import org.bigbluebutton.core.apps.CaptionApp
-import org.bigbluebutton.core.apps.CaptionModel
 
 class LiveMeeting(val mProps: MeetingProperties,
   val eventBus: IncomingEventBus,
@@ -56,7 +56,7 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (usersModel.numWebUsers == 0) {
+    if (usersModel.numWebUsers == 0 && !mProps.isBreakout) {
       meetingModel.lastWebUserLeft()
       log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
     }
@@ -114,15 +114,12 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def handleEndMeeting(msg: EndMeeting) {
+    // Broadcast users the meeting will end
+    outGW.send(new MeetingEnding(msg.meetingId))
+
     meetingModel.meetingHasEnded
 
-    /**
-     * Check if this meeting has breakout rooms. If so, we also need to end them.
-     */
-    handleEndAllBreakoutRooms(new EndAllBreakoutRooms(msg.meetingId))
-
     outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
-    outGW.send(new DisconnectAllUsers(msg.meetingId))
   }
 
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {

@@ -37,11 +37,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Playback;
-import org.bigbluebutton.api.domain.Recording;
-import org.bigbluebutton.api.domain.User;
-import org.bigbluebutton.api.domain.UserSession;
+
+import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
@@ -289,27 +286,56 @@ public class MeetingService implements MessageListener {
                 : Collections.unmodifiableCollection(sessions.values());
     }
 
-    public void createMeeting(Meeting m) {
-        handle(new CreateMeeting(m));
+    public  synchronized boolean createMeeting(Meeting m) {
+        String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
+        Meeting existing = getNotEndedMeetingWithId(internalMeetingId);
+        if (existing == null) {
+            meetings.put(m.getInternalId(), m);
+            handle(new CreateMeeting(m));
+            return true;
+        }
+
+        return false;
     }
 
     private void handleCreateMeeting(Meeting m) {
-        meetings.put(m.getInternalId(), m);
+        if (m.isBreakout()){
+            Meeting parent = meetings.get(m.getParentMeetingId());
+            parent.addBreakoutRoom(m.getExternalId());
+            if (parent.isRecord()) {
+                messagingService.addBreakoutRoom(parent.getInternalId(), m.getInternalId());
+            }
+        }
+
         if (m.isRecord()) {
             Map<String, String> metadata = new TreeMap<String, String>();
             metadata.putAll(m.getMetadata());
             // TODO: Need a better way to store these values for recordings
             metadata.put("meetingId", m.getExternalId());
             metadata.put("meetingName", m.getName());
+            metadata.put("isBreakout", m.isBreakout().toString());
 
             messagingService.recordMeetingInfo(m.getInternalId(), metadata);
+
+            if (m.isBreakout()) {
+                Map<String, String> breakoutMetadata = new TreeMap<String, String>();
+                breakoutMetadata.put("meetingId", m.getExternalId());
+                breakoutMetadata.put("sequence", m.getSequence().toString());
+                breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
+                messagingService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
+            }
         }
 
         Map<String, Object> logData = new HashMap<String, Object>();
         logData.put("meetingId", m.getInternalId());
         logData.put("externalMeetingId", m.getExternalId());
+        if (m.isBreakout()){
+            logData.put("sequence", m.getSequence());
+            logData.put("parentMeetingId", m.getParentMeetingId());
+        }
         logData.put("name", m.getName());
         logData.put("duration", m.getDuration());
+        logData.put("isBreakout", m.isBreakout());
         logData.put("record", m.isRecord());
         logData.put("event", "create_meeting");
         logData.put("description", "Create meeting.");
@@ -320,11 +346,12 @@ public class MeetingService implements MessageListener {
         log.info("Create meeting: data={}", logStr);
 
         messagingService.createMeeting(m.getInternalId(), m.getExternalId(),
-                m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration(),
-                m.getAutoStartRecording(), m.getAllowStartStopRecording(),
+                m.getParentMeetingId(), m.getName(), m.isRecord(),
+                m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(),
+                m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
                 m.getModeratorPassword(), m.getViewerPassword(),
                 m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
-                m.isBreakout());
+                m.isBreakout(), m.getSequence());
     }
 
     private String formatPrettyDate(Long timestamp) {
@@ -359,15 +386,9 @@ public class MeetingService implements MessageListener {
     public Meeting getMeeting(String meetingId) {
         if (meetingId == null)
             return null;
-        int dashes = meetingId.split("-", -1).length - 1;
         for (String key : meetings.keySet()) {
-            int keyDashes = key.split("-", -1).length - 1;
-            if (dashes == 2
-                    && key.equals(meetingId)
-                    || (dashes < 2 && keyDashes < 2 && key
-                            .startsWith(meetingId))) {
+            if (key.startsWith(meetingId))
                 return (Meeting) meetings.get(key);
-            }
         }
 
         return null;
@@ -401,17 +422,29 @@ public class MeetingService implements MessageListener {
         return null;
     }
 
+    public List<RecordingMetadata> getRecordingsMetadata(List<String> idList, List<String> states) {
+        List<RecordingMetadata> recsList = recordingService.getRecordingsMetadata(idList, states);
+        return recsList;
+    }
+
+
     public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
         List<Recording> recsList = recordingService.getRecordings(idList, states);
         Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
 
-    public Map<String, Recording> filterRecordingsByMetadata(
-            Map<String, Recording> recordings,
-            Map<String, String> metadataFilters) {
+    public List<RecordingMetadata> filterRecordingsByMetadata(List<RecordingMetadata> recsList,
+                                                             Map<String, String> metadataFilters) {
+        return recordingService.filterRecordingsByMetadata(recsList, metadataFilters);
+    }
+
+    public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings,
+                                                             Map<String, String> metadataFilters) {
         return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
     }
+
+
 
     public Map<String, Recording> reorderRecordings(List<Recording> olds) {
         Map<String, Recording> map = new HashMap<String, Recording>();
@@ -484,8 +517,7 @@ public class MeetingService implements MessageListener {
         }
     }
 
-    public void updateRecordings(List<String> idList,
-            Map<String, String> metaParams) {
+    public void updateRecordings(List<String> idList, Map<String, String> metaParams) {
         recordingService.updateMetaParams(idList, metaParams);
     }
 
@@ -515,20 +547,21 @@ public class MeetingService implements MessageListener {
     }
 
     private void processCreateBreakoutRoom(CreateBreakoutRoom message) {
-        Meeting parentMeeting = getMeeting(message.parentId);
+        Meeting parentMeeting = getMeeting(message.parentMeetingId);
         if (parentMeeting != null) {
 
             Map<String, String> params = new HashMap<String, String>();
             params.put("name", message.name);
-            params.put("breakoutId", message.breakoutId);
-            params.put("meetingID", message.parentId);
+            params.put("meetingID", message.meetingId);
+            params.put("parentMeetingID", message.parentMeetingId);
             params.put("isBreakout", "true");
+            params.put("sequence", message.sequence.toString());
             params.put("attendeePW", message.viewerPassword);
             params.put("moderatorPW", message.moderatorPassword);
             params.put("voiceBridge", message.voiceConfId);
             params.put("duration", message.durationInMinutes.toString());
             params.put("record", message.record.toString());
-            params.put("welcome", getMeeting(message.parentId)
+            params.put("welcome", getMeeting(message.parentMeetingId)
                     .getWelcomeMessageTemplate());
 
             Map<String, String> parentMeetingMetadata = parentMeeting
@@ -543,19 +576,20 @@ public class MeetingService implements MessageListener {
 
             Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 
-            handleCreateMeeting(breakout);
+            createMeeting(breakout);
 
-            presDownloadService.extractPage(message.parentId,
+            presDownloadService.extractPresentationPage(message.parentMeetingId,
                     message.sourcePresentationId,
                     message.sourcePresentationSlide, breakout.getInternalId());
         } else {
-            log.error("Failed to create breakout room " + message.breakoutId
-                    + ".Reason: Parent meeting not found.");
+            log.error(
+                    "Failed to create breakout room {}.Reason: Parent meeting {} not found.",
+                    message.meetingId, message.parentMeetingId);
         }
     }
 
     private void processEndBreakoutRoom(EndBreakoutRoom message) {
-        processEndMeeting(new EndMeeting(message.breakoutId));
+        processEndMeeting(new EndMeeting(message.breakoutMeetingId));
     }
 
     private void processEndMeeting(EndMeeting message) {
@@ -591,6 +625,9 @@ public class MeetingService implements MessageListener {
                 Map<String, Object> logData = new HashMap<String, Object>();
                 logData.put("meetingId", m.getInternalId());
                 logData.put("externalMeetingId", m.getExternalId());
+                if (m.isBreakout()) {
+                    logData.put("parentMeetingId", m.getParentMeetingId());
+                }
                 logData.put("name", m.getName());
                 logData.put("duration", m.getDuration());
                 logData.put("record", m.isRecord());
@@ -601,11 +638,14 @@ public class MeetingService implements MessageListener {
                 Gson gson = new Gson();
                 String logStr = gson.toJson(logData);
 
-                log.info("Meeting restarted: data={}", logStr);
+                log.info("Meeting started: data={}", logStr);
             } else {
                 Map<String, Object> logData = new HashMap<String, Object>();
                 logData.put("meetingId", m.getInternalId());
                 logData.put("externalMeetingId", m.getExternalId());
+                if (m.isBreakout()) {
+                    logData.put("parentMeetingId", m.getParentMeetingId());
+                }
                 logData.put("name", m.getName());
                 logData.put("duration", m.getDuration());
                 logData.put("record", m.isRecord());

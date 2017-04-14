@@ -40,7 +40,7 @@ package org.bigbluebutton.web.main.commands {
 			loginService.getConfigSuccessSignal.add(configSuccess);
 			loginService.getProfilesSuccessSignal.add(profilesSuccess);
 			loginService.loginFailureSignal.add(loginFailure);
-			loginService.login(urlRequest, url);
+			loginService.login(urlRequest, url, "token");
 		}
 		
 		protected function profilesSuccess(profiles:VideoProfileManager):void {

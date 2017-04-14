@@ -56,7 +56,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       ao["fontColor"] = _fontColor;
       ao["x"] = _x;
       ao["y"] = _y;
-	    ao["dataPoints"] = _x + "," + _y;
+      ao["dataPoints"] = _x + "," + _y;
       ao["fontSize"] = _fontSize;
       ao["calcedFontSize"] = _calcedFontSize;
       ao["textBoxWidth"] = _textBoxWidth;

@@ -33,9 +33,11 @@ package org.bigbluebutton.util.i18n
 	import mx.resources.ResourceManager;
 	import mx.utils.URLUtil;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.AppVersionEvent;
 
 	public class ResourceUtil extends EventDispatcher {
@@ -52,7 +54,7 @@ package org.bigbluebutton.util.i18n
 		
 		[Bindable] public var localeCodes:Array = new Array();
 		[Bindable] public var localeNames:Array = new Array();
-		[Bindable] public var localeIndex:Number;
+		[Bindable] public var localeIndex:int;
 		
 		private var eventDispatcher:IEventDispatcher;
 		private var resourceManager:IResourceManager;
@@ -104,8 +106,8 @@ package org.bigbluebutton.util.i18n
 			var locale:XML;
 						
 			for each(locale in list){
-				localeCodes.push(locale.@code);
-				localeNames.push(locale.@name);
+				localeCodes.push(locale.@code.toString());
+				localeNames.push(locale.@name.toString());
 			}							
 		}
 		
@@ -113,20 +115,8 @@ package org.bigbluebutton.util.i18n
 			return ExternalInterface.call("getLanguage");
 		}
 		
-		private function isPreferredLocaleAvailable(prefLocale:String):Boolean {
-			for (var i:Number = 0; i < localeCodes.length; i++){
-				if (prefLocale == localeCodes[i]) 
-					return true;
-			}
-			return false;
-		}
-		
 		private function getIndexForLocale(prefLocale:String):int {
-			for (var i:Number = 0; i < localeCodes.length; i++){
-				if (prefLocale == localeCodes[i]) 
-					return i;
-			}
-			return -1;
+			return localeCodes.indexOf(prefLocale);
 		}
 		
 		public function getPreferredLocaleName():String {
@@ -134,7 +124,7 @@ package org.bigbluebutton.util.i18n
 		}
 		
 		public function setPreferredLocale(locale:String):void {
-			if (isPreferredLocaleAvailable(locale)) {
+			if (localeCodes.indexOf(locale) > -1) {
 				preferredLocale = locale;
 			}else{
 				preferredLocale = MASTER_LOCALE;
@@ -177,16 +167,18 @@ package org.bigbluebutton.util.i18n
 			// Set the preferred locale and master as backup.
 			if (preferredLocale != MASTER_LOCALE) {
 				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
-				localeIndex = getIndexForLocale(preferredLocale);
 			} else {
 				if (preferredLocale != MASTER_LOCALE) {
-					LOGGER.debug("Failed to load locale [{0}].", [preferredLocale]);
+                    var logData:Object = UsersUtil.initLogData();
+                    logData.tags = ["locale"];
+                    logData.message = "Failed to load locale = " + preferredLocale;
+                    LOGGER.info(JSON.stringify(logData));
 				}
 	
 				resourceManager.localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
-				localeIndex = getIndexForLocale(preferredLocale);
 			}
+			localeIndex = getIndexForLocale(preferredLocale);
 			sendAppAndLocaleVersions();
 			update();
 		}
@@ -218,6 +210,7 @@ package org.bigbluebutton.util.i18n
 		[Bindable("change")]
 		public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
 			/**
+			 * @fixme: to be reviewed when all locales from transifex are updated (gtriki feb 7, 2017)
 			 * Get the translated string from the current locale. If empty, get the string from the master
 			 * locale. Locale chaining isn't working because mygengo actually puts the key and empty value
 			 * for untranslated strings into the locale file. So, when Flash does a lookup, it will see that
@@ -225,7 +218,7 @@ package org.bigbluebutton.util.i18n
 			 *    (ralam dec 15, 2011).
 			 */
 			var localeTxt:String = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, null);
-			if ((localeTxt == "") || (localeTxt == null)) {
+			if (StringUtils.isEmpty(localeTxt)) {
 				localeTxt = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
 			}
 			return localeTxt;

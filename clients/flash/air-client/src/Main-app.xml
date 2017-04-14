@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<application xmlns="http://ns.adobe.com/air/application/3.2">
+<application xmlns="http://ns.adobe.com/air/application/23.0">
 
-	<!-- Adobe AIR Application Descriptor File Template.
+<!-- Adobe AIR Application Descriptor File Template.
 
-		Specifies parameters for identifying, installing, and launching AIR applications.
+	Specifies parameters for identifying, installing, and launching AIR applications.
 
-		xmlns - The Adobe AIR namespace: http://ns.adobe.com/air/application/3.1
-				The last segment of the namespace specifies the version
-				of the AIR runtime required for this application to run.
-
-		minimumPatchLevel - The minimum patch level of the AIR runtime required to run
-				the application. Optional.
-	-->
+	xmlns - The Adobe AIR namespace: http://ns.adobe.com/air/application/3.5
+			The last segment of the namespace specifies the version 
+			of the AIR runtime required for this application to run.
+			
+	minimumPatchLevel - The minimum patch level of the AIR runtime required to run 
+			the application. Optional.
+-->
 
 	<!-- A universally unique application identifier. Must be unique across all AIR applications.
 	Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
-	<id>org.bigbluebutton.mobile</id>
+	<id>Main</id>
 
 	<!-- Used as the filename for the application. Required. -->
 	<filename>BigBlueButton</filename>
 
-	<!-- The name that is displayed in the AIR application installer.
+	<!-- The name that is displayed in the AIR application installer. 
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
 	<name>BigBlueButton</name>
-	<!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade.
+	
+	<!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade. 
 	Values can also be 1-part or 2-part. It is not necessary to have a 3-part value.
-	An updated version of application must have a versionNumber value higher than the previous version. Required for namespace >= 2.5 . -->
+	An updated version of application must have a versionNumber value higher than the previous version. Required for namespace >= 2.5 .
+    For iOS Apps, this represents build number. -->
 	<versionNumber>0.1.0</versionNumber>
-
-	<!-- Whether the application can be launched when the user clicks a link in a web browser. Optional. Default false. -->
-	<allowBrowserInvocation>true</allowBrowserInvocation>
-
-	<!-- A string value (such as "v1", "2.5", or "Alpha 1") that represents the version of the application, as it should be shown to users. Optional. -->
-	<!-- <versionLabel>Pre-alpha</versionLabel> -->
+		         
+	<!-- A string value (such as "v1", "2.5", or "Alpha 1") that represents the version of the application, as it should be shown to users. 
+     For iOS Apps, this represents application version number and format should be (<0-999>.<0-999>.<0-999>).
+     If this tag is not specified or the value is not according to the format, then this tag will be ignored 
+     and <versionNumber> will be used for application version number. Optional. -->
+	<!-- <versionLabel></versionLabel> -->
 
 	<!-- Description, displayed in the AIR application installer.
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
@@ -49,7 +51,7 @@
 		<!-- The main SWF or HTML file of the application. Required. -->
 		<!-- Note: In Flash Builder, the SWF reference is set automatically. -->
 		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>
-
+		
 		<!-- The title of the main window. Optional. -->
 		<!-- <title></title> -->
 
@@ -89,29 +91,35 @@
 		<!-- The window's initial maximum size, specified as a width/height pair in pixels, such as "1600 1200". Optional. -->
 		<!-- <maxSize></maxSize> -->
 
-		<!-- The initial aspect ratio of the app when launched (either "portrait" or "landscape"). Optional. Mobile only. Default is the natural orientation of the device -->
+        <!-- The aspect ratio of the app ("portrait" or "landscape" or "any"). Optional. Mobile only. Default is the natural orientation of the device -->
 
-		<!-- <aspectRatio></aspectRatio> -->
+        <!-- <aspectRatio></aspectRatio> -->
 
-		<!-- Whether the app will begin auto-orienting on launch. Optional. Mobile only. Default false -->
+        <!-- Whether the app will begin auto-orienting on launch. Optional. Mobile only. Default false -->
 
-		<!-- <autoOrients></autoOrients> -->
+        <!-- <autoOrients></autoOrients> -->
 
-		<!-- Whether the app launches in full screen. Optional. Mobile only. Default false -->
+        <!-- Whether the app launches in full screen. Optional. Mobile only. Default false -->
 
-		<!-- <fullScreen></fullScreen> -->
+        <!-- <fullScreen></fullScreen> -->
 
-		<!-- The render mode for the app (either auto, cpu, gpu, or direct). Optional. Default auto -->
+        <!-- The render mode for the app (either auto, cpu, gpu, or direct). Optional. Default auto -->
 
-		<!-- <renderMode></renderMode> -->
+        <!-- <renderMode></renderMode> -->
+
+        <!-- Whether the default direct mode rendering context allocates storage for depth and stencil buffers.  Optional.  Default false. -->
+        <!-- <depthAndStencil></depthAndStencil> -->
 
 		<!-- Whether or not to pan when a soft keyboard is raised or lowered (either "pan" or "none").  Optional.  Defaults "pan." -->
 		<!-- <softKeyboardBehavior></softKeyboardBehavior> -->
-		<autoOrients>true</autoOrients>
-		<fullScreen>false</fullScreen>
-		<visible>true</visible>
-		<softKeyboardBehavior>none</softKeyboardBehavior>
-	</initialWindow>
+
+		<!-- Display Resolution for the app (either "standard" or "high"). Optional, OSX-only. Default "standard" -->
+		<!-- <requestedDisplayResolution></requestedDisplayResolution> -->
+	<autoOrients>true</autoOrients>
+        <fullScreen>false</fullScreen>
+        <visible>true</visible>
+        <softKeyboardBehavior>none</softKeyboardBehavior>
+    </initialWindow>
 
 	<!-- We recommend omitting the supportedProfiles element, -->
 	<!-- which in turn permits your application to be deployed to all -->
@@ -119,6 +127,10 @@
 	<!-- (i.e., to only mobile devices) then add this element and list -->
 	<!-- only the profiles which your application does support. -->
 	<!-- <supportedProfiles>desktop extendedDesktop mobileDevice extendedMobileDevice</supportedProfiles> -->
+
+	<!-- Languages supported by application -->
+	<!-- Only these languages can be specified -->
+	<!-- <supportedLanguages>en de cs es fr it ja ko nl pl pt ru sv tr zh</supportedLanguages> -->
 
 	<!-- The subpath of the standard default installation location to use. Optional. -->
 	<!-- <installFolder></installFolder> -->
@@ -130,28 +142,35 @@
 	specify the path to a PNG file included in the AIR package. Optional. -->
 	<icon>
 		<!-- http://help.adobe.com/en_US/air/build/WSfffb011ac560372f2fea1812938a6e463-8000.html#WSfffb011ac560372f-6fd06f0f1293d3b33ea-7ffc -->
+		<image16x16></image16x16>
 		<image29x29>assets/icons/sizes/icon-29.png</image29x29>
 		<image32x32>assets/icons/sizes/icon-32.png</image32x32>
+		<image36x36>assets/icons/sizes/icon-36.png</image36x36>
 		<image40x40>assets/icons/sizes/icon-40.png</image40x40>
+		<image44x44>assets/icons/sizes/icon-44.png</image44x44>
 		<image48x48>assets/icons/sizes/icon-48.png</image48x48>
 		<image50x50>assets/icons/sizes/icon-50.png</image50x50>
 		<image57x57>assets/icons/sizes/icon-57.png</image57x57>
 		<image58x58>assets/icons/sizes/icon-58.png</image58x58>
 		<image60x60>assets/icons/sizes/icon-60.png</image60x60>
+		<image66x66>assets/icons/sizes/icon-66.png</image66x66>
 		<image72x72>assets/icons/sizes/icon-72.png</image72x72>
 		<image75x75>assets/icons/sizes/icon-75.png</image75x75>
 		<image76x76>assets/icons/sizes/icon-76.png</image76x76>
 		<image80x80>assets/icons/sizes/icon-80.png</image80x80>
 		<image87x87>assets/icons/sizes/icon-87.png</image87x87>
 		<image96x96>assets/icons/sizes/icon-96.png</image96x96>
-		<image114x114>assets/icons/sizes/icon-114.png</image114x114>
 		<image100x100>assets/icons/sizes/icon-100.png</image100x100>
+		<image114x114>assets/icons/sizes/icon-114.png</image114x114>
 		<image120x120>assets/icons/sizes/icon-120.png</image120x120>
+		<image128x128>assets/icons/sizes/icon-128.png</image128x128>
 		<image144x144>assets/icons/sizes/icon-144.png</image144x144>
 		<image152x152>assets/icons/sizes/icon-152.png</image152x152>
 		<image167x167>assets/icons/sizes/icon-167.png</image167x167>
 		<image180x180>assets/icons/sizes/icon-180.png</image180x180>
+		<image192x192>assets/icons/sizes/icon-192.png</image192x192>
 		<image512x512>assets/icons/sizes/icon-512.png</image512x512>
+		<image732x412>assets/icons/sizes/icon-732.png</image732x412>
 		<image1024x1024>assets/icons/sizes/icon-1024.png</image1024x1024>
 	</icon>
 
@@ -159,73 +178,79 @@
 	of the AIR file (true), or the default AIR application installer handles the update (false).
 	Optional. Default false. -->
 	<!-- <customUpdateUI></customUpdateUI> -->
-
+	
 	<!-- Whether the application can be launched when the user clicks a link in a web browser.
 	Optional. Default false. -->
-	<!-- <allowBrowserInvocation></allowBrowserInvocation> -->
+	<allowBrowserInvocation></allowBrowserInvocation>
 
 	<!-- Listing of file types for which the application can register. Optional. -->
 	<!-- <fileTypes> -->
 
-	<!-- Defines one file type. Optional. -->
-	<!-- <fileType> -->
+		<!-- Defines one file type. Optional. -->
+		<!-- <fileType> -->
 
-	<!-- The name that the system displays for the registered file type. Required. -->
-	<!-- <name></name> -->
+			<!-- The name that the system displays for the registered file type. Required. -->
+			<!-- <name></name> -->
 
-	<!-- The extension to register. Required. -->
-	<!-- <extension></extension> -->
-
-	<!-- The description of the file type. Optional. -->
-	<!-- <description></description> -->
-
-	<!-- The MIME content type. -->
-	<!-- <contentType></contentType> -->
-
-	<!-- The icon to display for the file type. Optional. -->
-	<!-- <icon>
-		<image16x16></image16x16>
-		<image32x32></image32x32>
-		<image48x48></image48x48>
-		<image128x128></image128x128>
-	</icon> -->
-
-	<!-- </fileType> -->
+			<!-- The extension to register. Required. -->
+			<!-- <extension></extension> -->
+			
+			<!-- The description of the file type. Optional. -->
+			<!-- <description></description> -->
+			
+			<!-- The MIME content type. -->
+			<!-- <contentType></contentType> -->
+			
+			<!-- The icon to display for the file type. Optional. -->
+			<!-- <icon>
+				<image16x16></image16x16>
+				<image32x32></image32x32>
+				<image48x48></image48x48>
+				<image128x128></image128x128>
+			</icon> -->
+			
+		<!-- </fileType> -->
 	<!-- </fileTypes> -->
 
-	<!-- iOS specific capabilities -->
+    <!-- iOS specific capabilities -->
 	<!-- <iPhone> -->
-	<!-- A list of plist key/value pairs to be added to the application Info.plist -->
-	<!-- <InfoAdditions>
-		<![CDATA[
-			<key>UIDeviceFamily</key>
-			<array>
-				<string>1</string>
-				<string>2</string>
-			</array>
-			<key>UIStatusBarStyle</key>
-			<string>UIStatusBarStyleBlackOpaque</string>
-			<key>UIRequiresPersistentWiFi</key>
-			<string>YES</string>
-		]]>
-	</InfoAdditions> -->
-	<!-- A list of plist key/value pairs to be added to the application Entitlements.plist -->
-	<!-- <Entitlements>
-		<![CDATA[
-			<key>keychain-access-groups</key>
-			<array>
-				<string></string>
-				<string></string>
-			</array>
-		]]>
-	</Entitlements> -->
+		<!-- A list of plist key/value pairs to be added to the application Info.plist -->
+		<!-- <InfoAdditions>
+            <![CDATA[
+                <key>UIDeviceFamily</key>
+                <array>
+                    <string>1</string>
+                    <string>2</string>
+                </array>
+                <key>UIStatusBarStyle</key>
+                <string>UIStatusBarStyleBlackOpaque</string>
+                <key>UIRequiresPersistentWiFi</key>
+                <string>YES</string>
+            ]]>
+        </InfoAdditions> -->
+        <!-- A list of plist key/value pairs to be added to the application Entitlements.plist -->
+		<!-- <Entitlements>
+            <![CDATA[
+                <key>keychain-access-groups</key>
+                <array>
+                    <string></string>
+                    <string></string>
+                </array>
+            ]]>
+        </Entitlements> -->
 	<!-- Display Resolution for the app (either "standard" or "high"). Optional. Default "standard" -->
 	<!-- <requestedDisplayResolution></requestedDisplayResolution> -->
+	<!-- Forcing Render Mode CPU for the devices mentioned. Optional  -->
+	<!-- <forceCPURenderModeForDevices></forceCPURenderModeForDevices> -->
+	<!-- File containing line separated list of external swf paths. These swfs won't be 
+	packaged inside the application and corresponding stripped swfs will be output in 
+	externalStrippedSwfs folder. -->
+	<!-- <externalSwfs></externalSwfs> -->
 	<!-- </iPhone> -->
 
 	<!-- Specify Android specific tags that get passed to AndroidManifest.xml file. -->
-	<!--<android> -->
-	<!--	<manifestAdditions>
+    <!--<android> -->
+    <!--	<manifestAdditions>
 		<![CDATA[
 			<manifest android:installLocation="auto">
 				<uses-permission android:name="android.permission.INTERNET"/>
@@ -240,13 +265,18 @@
 						</intent-filter>
 					</activity>
 				</application>
-			</manifest>
+            </manifest>
 		]]>
-		</manifestAdditions> -->
-	<!-- Color depth for the app (either "32bit" or "16bit"). Optional. Default 16bit before namespace 3.0, 32bit after -->
-	<!-- <colorDepth></colorDepth> -->
-	<!-- </android> -->
+        </manifestAdditions> -->
+	    <!-- Color depth for the app (either "32bit" or "16bit"). Optional. Default 16bit before namespace 3.0, 32bit after -->
+        <!-- <colorDepth></colorDepth> -->
+        <!-- Indicates if the app contains video or not. Necessary for ordering of video planes with graphics plane, especially in Jellybean - if you app does video this must be set to true - valid values are true or false -->
+        <!-- <containsVideo></containsVideo> -->
+        <!-- Indicates if webContents (HTML/CSS/JavaScript) can be inspected in browser. Optional . Default value is 'false' -->
+        <!-- <webContentsDebuggingEnabled></webContentsDebuggingEnabled> -->
+    <!-- </android> -->
 	<!-- End of the schema for adding the android specific tags in AndroidManifest.xml file -->
+
 
 	<android>
 		<colorDepth>16bit</colorDepth>
@@ -332,7 +362,7 @@
 		<requestedDisplayResolution>high</requestedDisplayResolution>
 	</iPhone>
 	
-<extensions>
+	<extensions>
         <extensionID>com.freshplanet.AirCapabilities</extensionID>
         <extensionID>com.juankpro.ane.LocalNotification</extensionID>
     </extensions>

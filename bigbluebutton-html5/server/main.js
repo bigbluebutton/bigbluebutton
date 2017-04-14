@@ -1,0 +1,15 @@
+import '/imports/startup/server';
+import '/imports/api/chat/server';
+import '/imports/api/cursor/server';
+import '/imports/api/deskshare/server';
+import '/imports/api/meetings/server';
+import '/imports/api/polls/server';
+import '/imports/api/breakouts/server';
+import '/imports/api/presentations/server';
+import '/imports/api/shapes/server';
+import '/imports/api/slides/server';
+import '/imports/api/captions/server';
+import '/imports/api/users/server';
+import '/imports/api/common/server/helpers';
+import '/imports/startup/server/logger';
+import '/imports/startup/server/userPermissions';

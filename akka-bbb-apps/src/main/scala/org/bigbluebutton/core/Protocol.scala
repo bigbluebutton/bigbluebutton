@@ -4,7 +4,7 @@ import spray.json.{ DefaultJsonProtocol, JsValue, JsString, DeserializationExcep
 import org.bigbluebutton.core.api._
 
 object UserMessagesProtocol extends DefaultJsonProtocol {
-  /*  
+  /*
   implicit object RoleJsonFormat extends JsonFormat[Role.RoleType] {
   	def write(obj: Role.RoleType): JsValue = JsString(obj.toString)
   	
@@ -24,7 +24,7 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val breakoutRoomInPayloadFormat = jsonFormat2(BreakoutRoomInPayload)
+  implicit val breakoutRoomInPayloadFormat = jsonFormat3(BreakoutRoomInPayload)
   implicit val createBreakoutRoomsFormat = jsonFormat4(CreateBreakoutRooms)
   implicit val breakoutRoomsListMessageFormat = jsonFormat1(BreakoutRoomsListMessage)
   implicit val requestBreakoutJoinURLInMessageFormat = jsonFormat3(RequestBreakoutJoinURLInMessage)
@@ -33,8 +33,7 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
   implicit val inMsgHeaderFormat = jsonFormat1(InMessageHeader)
   implicit val outMsgHeaderFormat = jsonFormat1(OutMsgHeader)
   implicit val outMsgEnvelopeHeaderFormat = jsonFormat2(OutMsgEnvelopeHeader)
-  implicit val createBreakoutRoomOutMsgPayloadFormat = jsonFormat10(CreateBreakoutRoomOutMsgPayload)
+  implicit val createBreakoutRoomOutMsgPayloadFormat = jsonFormat11(CreateBreakoutRoomOutMsgPayload)
   implicit val createBreakoutRoomOutMsgEnvelopePayloadFormat = jsonFormat2(CreateBreakoutRoomOutMsgEnvelopePayload)
   implicit val createBreakoutRoomOutMsgEnvelopeFormat = jsonFormat2(CreateBreakoutRoomOutMsgEnvelope)
-
 }

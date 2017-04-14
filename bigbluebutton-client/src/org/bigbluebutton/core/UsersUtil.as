@@ -25,7 +25,8 @@ package org.bigbluebutton.core
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.model.users.BBBUser;
-
+  import org.bigbluebutton.util.SessionTokenUtil;
+  
   public class UsersUtil
   {
     
@@ -70,18 +71,18 @@ package org.bigbluebutton.core
     return UserManager.getInstance().getConference().record;
   }
   
-    public static function amIPublishing():CameraSettingsVO {
-     return UserManager.getInstance().getConference().amIPublishing();
+    public static function amIPublishing():ArrayCollection {
+     return UserManager.getInstance().getConference().amIPublishing() as ArrayCollection;
     }
-    
-    public static function setIAmPublishing(publishing:Boolean):void {
-      UserManager.getInstance().getConference().setCamPublishing(publishing);
+
+    public static function addCameraSettings(camSettings:CameraSettingsVO):void {
+      UserManager.getInstance().getConference().addCameraSettings(camSettings);
     }
-    
-    public static function setCameraSettings(camSettings:CameraSettingsVO):void {
-      UserManager.getInstance().getConference().setCameraSettings(camSettings);
+
+    public static function removeCameraSettings(camIndex:int):void {
+      UserManager.getInstance().getConference().removeCameraSettings(camIndex);
     }
-    
+
     public static function hasWebcamStream(userID:String):Boolean {
       var u:BBBUser = getUser(userID);
       if (u != null) {
@@ -173,7 +174,10 @@ package org.bigbluebutton.core
       if (user != null) {
         return user.externUserID;
       }
-      LOGGER.warn("Could not find externUserID for userID [{0}]", [userID]);
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["user-util"];
+      logData.message = "Could not find externUserID for userID:".concat(userID);
+      LOGGER.warn(JSON.stringify(logData));
       return "";
     }
     
@@ -182,7 +186,10 @@ package org.bigbluebutton.core
       if (user != null) {
         return user.userID;
       }
-      LOGGER.warn("Could not find userID for externUserID [{0}]", [externUserID]);
+      var logData:Object = UsersUtil.initLogData();
+      logData.tags = ["user-util"];
+      logData.message = "Could not find userID for externUserID:".concat(externUserID);
+      LOGGER.warn(JSON.stringify(logData));
       return null;
     }    
     
@@ -194,7 +201,7 @@ package org.bigbluebutton.core
       return null;
     }
     
-    public static function getUserData():Object {
+    private static function getUserData():Object {
       var userData:Object = new Object();
       userData.meetingId = getInternalMeetingID();
       userData.externalMeetingId = getExternalMeetingID();
@@ -214,6 +221,21 @@ package org.bigbluebutton.core
 		}
 		return false;
 	}
+    
+    
+    public static function initLogData():Object {
+        var logData:Object = new Object();
+        if (getInternalMeetingID() != null) {
+            logData.user = UsersUtil.getUserData();
+        }
+        logData.sessionToken = getUserSession();
+        return logData;
+    }
+    
+    public static function getUserSession():String {
+        var sessionUtil:SessionTokenUtil = new SessionTokenUtil()
+        return sessionUtil.getSessionToken();
+    }
     
   }
 }

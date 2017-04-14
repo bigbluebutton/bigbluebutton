@@ -2,14 +2,19 @@ import Users from '/imports/api/users';
 import Chat from '/imports/api/chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
+import Storage from '/imports/ui/services/storage/session';
+import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
 import { callServer } from '/imports/ui/services/api';
+import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
-const EMOJI_STATUSES = ['raiseHand', 'happy', 'smile', 'neutral', 'sad', 'confused', 'away'];
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
+
+// session for closed chat list
+const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 /* TODO: Same map is done in the chat/service we should share this someway */
 
@@ -25,16 +30,18 @@ const mapUser = user => ({
   isCurrent: user.userid === Auth.userID,
   isVoiceUser: user.voiceUser.joined,
   isMuted: user.voiceUser.muted,
+  isTalking: user.voiceUser.talking,
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isPhoneUser: user.phone_user,
+  isOnline: true
 });
 
 const mapOpenChats = chat => {
   let currentUserId = Auth.userID;
   return chat.message.from_userid !== Auth.userID
-                                    ? chat.message.from_userid
-                                    : chat.message.to_userid;
+    ? chat.message.from_userid
+    : chat.message.to_userid;
 };
 
 const sortUsersByName = (a, b) => {
@@ -72,7 +79,7 @@ const sortUsersByEmoji = (a, b) => {
 
 const sortUsersByModerator = (a, b) => {
   if (a.isModerator && b.isModerator) {
-    return sortUsersByName(a, b);
+    return sortUsersByEmoji(a, b);
   } else if (a.isModerator) {
     return -1;
   } else if (b.isModerator) {
@@ -95,10 +102,10 @@ const sortUsersByPhoneUser = (a, b) => {
 };
 
 const sortUsers = (a, b) => {
-  let sort = sortUsersByEmoji(a, b);
+  let sort = sortUsersByModerator(a, b);
 
   if (sort === 0) {
-    sort = sortUsersByModerator(a, b);
+    sort = sortUsersByEmoji(a, b);
   }
 
   if (sort === 0) {
@@ -158,8 +165,8 @@ const userFindSorting = {
 
 const getUsers = () => {
   let users = Users
-  .find({}, userFindSorting)
-  .fetch();
+    .find({ "user.connection_status": 'online' }, userFindSorting)
+    .fetch();
 
   return users
     .map(u => u.user)
@@ -168,14 +175,14 @@ const getUsers = () => {
 };
 
 const getOpenChats = chatID => {
-  window.Users = Users;
 
   let openChats = Chat
-  .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
-  .fetch()
-  .map(mapOpenChats);
+    .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
+    .fetch()
+    .map(mapOpenChats);
 
   let currentUserId = Auth.userID;
+
   if (chatID) {
     openChats.push(chatID);
   }
@@ -183,23 +190,45 @@ const getOpenChats = chatID => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-  .find({ 'user.userid': { $in: openChats } })
-  .map(u => u.user)
-  .map(mapUser)
-  .map(op => {
-    op.unreadCounter = UnreadMessages.count(op.id);
-    return op;
+    .find({ 'user.userid': { $in: openChats } })
+    .map(u => u.user)
+    .map(mapUser)
+    .map(op => {
+      op.unreadCounter = UnreadMessages.count(op.id);
+      return op;
+    });
+
+  let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  let filteredChatList = [];
+
+  openChats.forEach((op) => {
+
+    // When a new private chat message is received, ensure the conversation view is restored.
+    if (op.unreadCounter > 0) {
+      if (_.indexOf(currentClosedChats, op.id) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.id));
+      }
+    }
+
+    // Compare openChats with session and push it into filteredChatList
+    // if one of the openChat is not in session.
+    // It will pass to openChats.
+    if (_.indexOf(currentClosedChats, op.id) < 0) {
+      filteredChatList.push(op);
+    }
   });
+
+  openChats = filteredChatList;
 
   openChats.push({
     id: 'public',
     name: 'Public Chat',
-    icon: 'group-chat',
+    icon: 'group_chat',
     unreadCounter: UnreadMessages.count('public_chat_userid'),
   });
 
   return openChats
-  .sort(sortChats);
+    .sort(sortChats);
 };
 
 getCurrentUser = () => {
@@ -217,23 +246,28 @@ const userActions = {
   },
   clearStatus: {
     label: 'Clear Status',
-    handler: user => console.log('missing clear status', user),
-    icon: 'clear-status',
+    handler: user => callServer('setEmojiStatus', user.id, 'none'),
+    icon: 'clear_status',
   },
   setPresenter: {
     label: 'Make Presenter',
-    handler: user => callServer('setUserPresenter', user.userid, user.name),
+    handler: user => callServer('assignPresenter', user.id),
     icon: 'presentation',
-  },
-  promote: {
-    label: 'Promote',
-    handler: user => console.log('missing promote', user),
-    icon: 'promote',
   },
   kick: {
     label: 'Kick User',
-    handler: user => callServer('kickUser', user.userid),
-    icon: 'kick-user',
+    handler: user => callServer('kickUser', user.id),
+    icon: 'circle_close',
+  },
+  mute: {
+    label: 'Mute Audio',
+    handler: user => callServer('muteUser', user.id),
+    icon: 'audio_off',
+  },
+  unmute: {
+    label: 'Unmute Audio',
+    handler: user => callServer('unmuteUser', user.id),
+    icon: 'audio_on',
   },
 };
 

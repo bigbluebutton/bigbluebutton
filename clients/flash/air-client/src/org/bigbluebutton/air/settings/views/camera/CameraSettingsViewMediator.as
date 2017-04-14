@@ -17,7 +17,7 @@ package org.bigbluebutton.air.settings.views.camera {
 	import spark.events.IndexChangeEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -38,7 +38,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var userUISession:IUserUISession;
+		public var userUISession:IUISession;
 		
 		[Inject]
 		public var shareCameraSignal:ShareCameraSignal;

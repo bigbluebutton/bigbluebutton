@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import Icon from '/imports/ui/components/icon/component';
 import styles from './styles.scss';
 import cx from 'classnames';
-import getColor from './color-generator';
+import generateColor from './color-generator';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -10,6 +10,7 @@ const propTypes = {
     isPresenter: React.PropTypes.bool.isRequired,
     isVoiceUser: React.PropTypes.bool.isRequired,
     isModerator: React.PropTypes.bool.isRequired,
+    isOnline: React.PropTypes.bool.isRequired,
     image: React.PropTypes.string,
   }).isRequired,
 };
@@ -23,12 +24,16 @@ export default class UserAvatar extends Component {
       user,
     } = this.props;
 
+    const avatarColor = user.isOnline ? generateColor(user.name) : '#fff';
+
     let avatarStyles = {
-      backgroundColor: getColor(user.name),
+      backgroundColor: avatarColor,
+      boxShadow: user.isTalking ? `0 0 .5rem ${avatarColor}` : 'none',
     };
 
     return (
-      <div className={styles.userAvatar} style={avatarStyles}>
+      <div className={user.isOnline ? styles.userAvatar : styles.userLogout}
+           style={avatarStyles} aria-hidden="true">
         <span>
           {this.renderAvatarContent()}
         </span>
@@ -44,7 +49,28 @@ export default class UserAvatar extends Component {
     let content = user.name.slice(0, 2);
 
     if (user.emoji.status !== 'none') {
-      content = <Icon iconName={user.emoji.status}/>;
+      let iconEmoji = undefined;
+
+      switch (user.emoji.status) {
+        case 'thumbsUp':
+          iconEmoji = 'thumbs_up';
+          break;
+        case 'thumbsDown':
+          iconEmoji = 'thumbs_down';
+          break;
+        case 'raiseHand':
+          iconEmoji = 'hand';
+          break;
+        case 'away':
+          iconEmoji = 'time';
+          break;
+        case 'neutral':
+          iconEmoji = 'undecided';
+          break;
+        default:
+          iconEmoji = user.emoji.status;
+      }
+      content = <Icon iconName={iconEmoji}/>;
     }
 
     return content;

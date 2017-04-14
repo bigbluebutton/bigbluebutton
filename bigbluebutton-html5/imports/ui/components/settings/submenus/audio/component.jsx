@@ -1,77 +1,99 @@
 import React from 'react';
-import Modal from 'react-modal';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
 import BaseMenu from '../base/component';
 import styles from '../styles.scss';
-import {joinListenOnly, joinMicrophone, exitAudio} from '/imports/api/phone';
+
+import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
+import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
+import AudioTestContainer from '/imports/ui/components/audio-test/container';
+import cx from 'classnames';
 
 export default class AudioMenu extends BaseMenu {
   constructor(props) {
     super(props);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleOutputChange = this.handleOutputChange.bind(this);
 
-    this.testAudio = this.testAudio.bind(this);
+    this.state = {
+      settingsName: 'audio',
+      settings: props.settings,
+    };
   }
 
-  testAudio() {
-
+  chooseAudio() {
+    this.props.changeMenu(this.props.JOIN_AUDIO);
   }
 
-  getContent() {
+  handleSelectChange(fieldname, options, e) {
+    let obj = this.state;
+    obj.settings[fieldname] = options[e.target.value];
+    this.setState(obj);
+    this.handleUpdateSettings('audio', obj);
+  }
+
+  handleInputChange(deviceId) {
+    let obj = this.state;
+    obj.settings.inputDeviceId = deviceId;
+    this.setState(obj);
+    this.handleUpdateSettings('audio', obj);
+  }
+
+  handleOutputChange(deviceId) {
+    let obj = this.state;
+    obj.settings.outputDeviceId = deviceId;
+    this.setState(obj);
+    this.handleUpdateSettings('audio', obj);
+  }
+
+  render() {
     return (
-      <div className={styles.full} role='presentation'>
-        <div className={styles.containerLeftHalf}>
-          <label htmlFor='microphone'>Microphone source</label>
+      <div>
+        <div className={styles.header}>
+          <h3 className={styles.title}>Audio</h3>
         </div>
-        <div className={styles.containerRightHalf}>
-          <label htmlFor='audioVolume'>Your audio stream volume</label>
-        </div>
-        <div className={styles.containerLeftHalfContent} role='presentation'>
-          <select id='microphone' defaultValue='0' tabIndex='7' role='listbox'
-            aria-labelledby='micLabel' aria-describedby='micDesc'>
-            <option value='0' disabled>Displace Audio</option>
-            <option value='1' role='option'>audio 1</option>
-            <option value='2' role='option'>audio 2</option>
-            <option value='3' role='option'>audio 3</option>
-          </select>
-          <div id='micLabel' hidden>Select microphone source</div>
-          <div id='micDesc' hidden>
-            Chooses a microphone source from the dropdown menu.</div>
-        </div>
-        <div className={styles.containerRightHalfContent}>
-          <input style={{ width: '90%' }} type='text' placeholder='volume bar placeholder'
-            tabIndex='-1' />
-        </div>
-        <div className={styles.containerLeftHalf}>
-          <label htmlFor='speaker'>Speaker source</label>
-        </div>
-        <div className={styles.containerRightHalf}><br/></div>
-        <div className={styles.containerLeftHalfContent} role='presentation'>
-          <select id='speaker' defaultValue='0' tabIndex='8' role='listbox'
-            aria-labelledby='spkrLabel' aria-describedby='spkrDesc'>
-            <option value='0' disabled>Displace Audio</option>
-            <option value='1' role='option'>audio 1</option>
-            <option value='2' role='option'>audio 2</option>
-            <option value='3' role='option'>audio 3</option>
-          </select>
-          <div id='spkrLabel' hidden>Select speaker source</div>
-          <div id='spkrDesc' hidden>
-            Chooses a speaker source from the dropdown menu.</div>
-        </div>
-        <div className={styles.containerRightHalfContent} role='presentation'>
-          <Button className={styles.testAudioBtn}
-            onClick={this.testAudio}
-            label={'Test Audio'}
-            color={'primary'}
-            ghost={true}
-            icon={'audio'}
-            tabIndex={9}
-            aria-labelledby={'testAudioLabel'}
-            aria-describedby={'testAudioDesc'}
-          />
-        <div id='testAudioLabel' hidden>Test audio</div>
-        <div id='testAudioDesc' hidden>
-          Previews the audio output of your microphone.</div>
+
+        <div className={styles.form}>
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  Microphone source
+                </label>
+                <DeviceSelector
+                  value={this.state.inputDeviceId}
+                  className={styles.select}
+                  kind="audioinput"
+                  onChange={this.handleInputChange} />
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  Your audio stream volume
+                </label>
+                <AudioStreamVolume
+                  deviceId={this.state.inputDeviceId}
+                  className={styles.audioMeter} />
+              </div>
+            </div>
+          </div>
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={cx(styles.label, styles.labelSmall)}>
+                  Speaker source
+                </label>
+                <DeviceSelector
+                  value={this.state.outputDeviceId}
+                  className={styles.select}
+                  kind="audiooutput"
+                  onChange={this.handleOutputChange} />
+                </div>
+            </div>
+            <div className={styles.col}>
+              <label className={styles.label}>&nbsp;</label>
+              <AudioTestContainer/>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -1,53 +1,43 @@
 package org.bigbluebutton.lib.main.views {
-	import mx.controls.Spacer;
-	
+
 	import spark.components.Button;
-	import spark.components.HGroup;
+	import spark.components.Group;
 	import spark.components.Label;
-	
-	public class TopToolbarBase extends HGroup {
+
+	public class TopToolbarBase extends Group {
 		private var _leftButton:Button;
-		
+
 		public function get leftButton():Button {
 			return _leftButton;
 		}
-		
+
 		private var _titleLabel:Label;
-		
+
 		public function get titleLabel():Label {
 			return _titleLabel;
 		}
-		
+
 		private var _rightButton:Button;
-		
+
 		public function get rightButton():Button {
 			return _rightButton;
 		}
-		
+
 		public function TopToolbarBase() {
 			super();
 			
-			horizontalAlign = "center";
-			verticalAlign = "middle";
-			
+			verticalCenter = 0;
+
 			_leftButton = new Button();
-			_leftButton.styleName = "participantsButtonStyle topButtonStyle";
+			_leftButton.styleName = "participantsButton topButton topLeftButton";
 			addElement(_leftButton);
-			
-			var s:Spacer = new Spacer();
-			s.percentWidth = 100;
-			addElement(s);
-			
+
 			_titleLabel = new Label();
-			_titleLabel.styleName = "titleLabelStyle";
+			_titleLabel.styleName = "titleLabel";
 			addElement(_titleLabel);
-			
-			s = new Spacer();
-			s.percentWidth = 100;
-			addElement(s);
-			
+
 			_rightButton = new Button();
-			_rightButton.styleName = "settingsButtonStyle topButtonStyle";
+			_rightButton.styleName = "settingsButton topButton topRightButton";
 			addElement(_rightButton);
 		}
 	}

@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import styles from './styles';
-
+import { defineMessages, injectIntl } from 'react-intl';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import Icon from '../icon/component';
 
 const ELEMENT_ID = 'chat-messages';
 
-export default class Chat extends Component {
+const intlMessages = defineMessages({
+  closeChatLabel: {
+    id: 'app.chat.closeChatLabel',
+  },
+});
+
+class Chat extends Component {
   constructor(props) {
     super(props);
   }
@@ -16,22 +22,41 @@ export default class Chat extends Component {
   render() {
     const {
       chatID,
+      chatName,
       title,
       messages,
       scrollPosition,
       hasUnreadMessages,
       lastReadMessageTime,
+      partnerIsLoggedOut,
       isChatLocked,
       actions,
+      intl,
     } = this.props;
 
     return (
       <section className={styles.chat}>
+
         <header className={styles.header}>
-          <Link className={styles.closeChat} to="/users">
-            <Icon iconName="left-arrow" /> {title}
-          </Link>
+          <div className={styles.title}>
+            <Link
+              to="/users"
+              role="button"
+              aria-label={intl.formatMessage(intlMessages.closeChatLabel, { title: title })}>
+                <Icon iconName="left_arrow"/> {title}
+            </Link>
+          </div>
+          <div className={styles.closeIcon}>
+            {
+              ((this.props.chatID == 'public') ?
+                null :
+                <Link to="/users">
+                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
+                </Link>)
+            }
+          </div>
         </header>
+
         <MessageList
           chatId={chatID}
           messages={messages}
@@ -41,14 +66,18 @@ export default class Chat extends Component {
           handleScrollUpdate={actions.handleScrollUpdate}
           handleReadMessage={actions.handleReadMessage}
           lastReadMessageTime={lastReadMessageTime}
+          partnerIsLoggedOut={partnerIsLoggedOut}
         />
         <MessageForm
           disabled={isChatLocked}
           chatAreaId={ELEMENT_ID}
           chatTitle={title}
+          chatName={chatName}
           handleSendMessage={actions.handleSendMessage}
         />
       </section>
     );
   }
 }
+
+export default injectIntl(Chat);

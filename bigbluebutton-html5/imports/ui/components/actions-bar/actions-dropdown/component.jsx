@@ -11,7 +11,6 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 const intlMessages = defineMessages({
   actionsLabel: {
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
-    defaultMessage: 'Actions',
   },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
@@ -51,13 +50,16 @@ class ActionsDropdown extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, isUserPresenter } = this.props;
+
+    if (!isUserPresenter) return null;
+
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
           <Button
             label={intl.formatMessage(intlMessages.actionsLabel)}
-            icon="circle-add"
+            icon="add"
             color="primary"
             size="lg"
             circle={true}

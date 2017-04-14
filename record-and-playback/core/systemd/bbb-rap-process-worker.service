@@ -1,0 +1,10 @@
+[Unit]
+Description=BigBlueButton recording and playback process worker
+ConditionPathExistsGlob=/var/bigbluebutton/recording/status/sanity/*.done
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bigbluebutton/core/scripts/rap-process-worker.rb
+WorkingDirectory=/usr/local/bigbluebutton/core/scripts
+User=tomcat7
+Slice=bbb_record_core.slice

@@ -168,6 +168,12 @@ package org.bigbluebutton.modules.screenshare.services.red5
 		private function netStatusHandler(event:NetStatusEvent):void {
 			LOGGER.debug("Connected to [" + getURI() + "]. [" + event.info.code + "]");
 
+			var logData:Object = {};
+			logData.type = "ConnectionStatusChanged";
+			logData.newStatus = event.info.code;
+			logData.connection = getURI();
+			LOGGER.info(JSON.stringify(logData));
+
 			if (retryTimer) {
 				retryCount = 0;
 				LOGGER.debug("Cancelling retry timer.");
@@ -211,7 +217,7 @@ package org.bigbluebutton.modules.screenshare.services.red5
 							LOGGER.debug(result);
 						},
 						function(status:String):void { // status - On error occurred
-					LOGGER.error(status);
+							LOGGER.error(status);
 						}
 					);
 
@@ -257,7 +263,8 @@ package org.bigbluebutton.modules.screenshare.services.red5
 				break;
 
 				case "NetConnection.Connect.NetworkChange":
-					LOGGER.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+					// LOGGER.info("Detected network change. User might be on a wireless and
+					// temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 
 				default :

@@ -50,12 +50,14 @@ package org.bigbluebutton.modules.screenshare.managers {
             if (shareWindow != null) shareWindow.stopSharing();
         }
         
-        public function startSharing(uri:String, room:String):void {
+        public function startSharing(uri:String, room:String, tunnel:Boolean):void {
             LOGGER.debug("DS:PublishWindowManager::opening desk share window");
-            shareWindow = new ScreensharePublishWindow();
-            shareWindow.initWindow(service.getConnection(), uri, room);
-            shareWindow.visible = true;
-            openWindow(shareWindow);
+            if (shareWindow == null) {
+              shareWindow = new ScreensharePublishWindow();
+              shareWindow.initWindow(service.getConnection(), uri, room, tunnel);
+              shareWindow.visible = true;
+              openWindow(shareWindow);
+            }
         }
         
         public function handleShareWindowCloseEvent():void {
@@ -72,6 +74,8 @@ package org.bigbluebutton.modules.screenshare.managers {
             var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
             event.window = window;
             globalDispatcher.dispatchEvent(event);
+            
+            shareWindow = null;
         }
     }
 }

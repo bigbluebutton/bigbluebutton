@@ -106,21 +106,25 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     Boolean captureFullScreen = false;
     String session = null;
     String codecOptions = null;
-    
-    if(args != null && args.length == 8) {
+    boolean useH264 = true;
+
+    if(args != null && args.length == 9) {
       System.out.println("Using passed args: length=[" + args.length + "]");
       url = args[0];
       serverUrl = args[1];
       meetingId = args[2];
       streamId = args[3];
       captureFullScreen = Boolean.parseBoolean(args[4]);
+      useH264 = false;
       
       System.out.println("Using passed args: [" + url + "] meetingId=[" + meetingId + "] streamId=[" + streamId + "] captureFullScreen=" + captureFullScreen);
       codecOptions = args[5];
 
       session = args[6];
 
-      String errorMessage = args[7];
+      useH264 = Boolean.parseBoolean(args[7]);
+
+      String errorMessage = args[8];
       
       if (! errorMessage.equalsIgnoreCase("NO_ERRORS")) {
         dsMain.displayJavaWarning(errorMessage);
@@ -147,7 +151,8 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
             .captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
             .quality(true).autoScale(0).codecOptions(codecOptions)
             .x(xValue).y(yValue).fullScreen(captureFullScreen).withURL(url)
-            .httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
+            .httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true)
+                .useH264(useH264).build();
 
         client.addClientListener(dsMain);
         client.start();
@@ -218,7 +223,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     try {
       System.out.println("Trigger stop client. " + exitReasonQ.remainingCapacity());
       exitReasonQ.put(reason);
-      System.out.println("Triggered stop client.");
+      System.out.println("Triggered stop client. reason=" + reason.getExitCode());
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

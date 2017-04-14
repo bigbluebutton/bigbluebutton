@@ -6,10 +6,6 @@
 	<firefoxLatestVersion>FIREFOX_VERSION</firefoxLatestVersion>
 	<downloadFilePath url="test_image.jpg"/>
 	<ports>
-		<port>
-			<name>Port 9123</name>
-			<number>9123</number>
-		</port>
 	</ports>
 	<rtmpapps>
 		<app>
@@ -17,8 +13,8 @@
 			<uri>rtmp://HOST/bigbluebutton</uri>
 		</app>
 		<app>
-			<name>RTMP deskShare app</name>
-			<uri>rtmp://HOST/deskShare</uri>
+			<name>RTMP screenshare app</name>
+			<uri>rtmp://HOST/screenshare</uri>
 		</app>
 		<app>
 			<name>RTMP video app</name>
@@ -33,8 +29,8 @@
 			<uri>rtmpt://HOST/bigbluebutton</uri>
 		</app>
 		<app>
-			<name>RTMPT deskShare app</name>
-			<uri>rtmpt://HOST/deskShare</uri>
+			<name>RTMPT screenshare app</name>
+			<uri>rtmpt://HOST/screenshare</uri>
 		</app>
 		<app>
 			<name>RTMPT video app</name>

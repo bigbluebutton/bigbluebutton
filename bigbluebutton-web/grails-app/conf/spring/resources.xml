@@ -56,11 +56,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
   
-  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService">
+  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService" destroy-method="stop">
     <property name="presentationDir" value="${presentationDir}"/>
     <property name="presentationBaseURL" value="${presentationBaseURL}"/>
    	<property name="pageExtractor" ref="pageExtractor"/>  
     <property name="documentConversionService" ref="documentConversionService"/>
+  	<property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
   </bean>
   
   <bean id="recordingService" class="org.bigbluebutton.api.RecordingService" >
@@ -95,6 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
     <property name="autoStartRecording" value="${autoStartRecording}"/>
     <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+    <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
     <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
     <property name="defaultConfigURL" value="${defaultConfigURL}"/>
   </bean>

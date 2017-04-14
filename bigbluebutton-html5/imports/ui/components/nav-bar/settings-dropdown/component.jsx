@@ -1,10 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
 import styles from '../styles';
 
 import { showModal } from '/imports/ui/components/app/service';
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
-import Settings from '/imports/ui/components/settings/component';
+import AboutContainer from '/imports/ui/components/about/container';
+import SettingsMenuContainer from '/imports/ui/components/settings/container';
 
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -17,61 +19,42 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 const intlMessages = defineMessages({
   optionsLabel: {
     id: 'app.navBar.settingsDropdown.optionsLabel',
-    defaultMessage: 'Options',
   },
   fullscreenLabel: {
     id: 'app.navBar.settingsDropdown.fullscreenLabel',
-    defaultMessage: 'Make fullscreen',
   },
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
-    defaultMessage: 'Open settings',
+  },
+  aboutLabel: {
+    id: 'app.navBar.settingsDropdown.aboutLabel',
+  },
+  aboutDesc: {
+    id: 'app.navBar.settingsDropdown.aboutDesc',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
-    defaultMessage: 'Logout',
   },
   fullscreenDesc: {
     id: 'app.navBar.settingsDropdown.fullscreenDesc',
-    defaultMessage: 'Make the settings menu fullscreen',
   },
   settingsDesc: {
     id: 'app.navBar.settingsDropdown.settingsDesc',
-    defaultMessage: 'Change the general settings',
   },
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
-    defaultMessage: 'Leave the meeting',
+  },
+  exitFullScreenDesc: {
+    id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
+  },
+  exitFullScreenLabel: {
+    id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
   },
 });
 
-const toggleFullScreen = () => {
-  let element = document.documentElement;
+const openSettings = () => showModal(<SettingsMenuContainer  />);
 
-  if (document.fullscreenEnabled
-    || document.mozFullScreenEnabled
-    || document.webkitFullscreenEnabled) {
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if (element.mozRequestFullScreen) {
-      element.mozRequestFullScreen();
-    } else if (element.webkitRequestFullscreen) {
-      element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) {
-      element.msRequestFullscreen();
-    }
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-      document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    }
-  }
-};
-
-const openSettings = () => showModal(<Settings />);
+const openAbout = () => showModal(<AboutContainer />);
 
 const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
 
@@ -81,7 +64,19 @@ class SettingsDropdown extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+
+    const { intl, isFullScreen } = this.props;
+
+    let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+    let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullScreenIcon = 'fullscreen';
+
+    if (isFullScreen) {
+      fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
+      fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
+      fullScreenIcon = 'exit_fullscreen';
+    }
+
     return (
       <Dropdown ref="dropdown">
         <DropdownTrigger>
@@ -91,7 +86,7 @@ class SettingsDropdown extends Component {
             ghost={true}
             circle={true}
             hideLabel={true}
-            className={styles.settingBtn}
+            className={cx(styles.btn, styles.btnSettings)}
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
@@ -101,16 +96,22 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <DropdownListItem
-              icon="fullscreen"
-              label={intl.formatMessage(intlMessages.fullscreenLabel)}
-              description={intl.formatMessage(intlMessages.fullscreenDesc)}
-              onClick={toggleFullScreen.bind(this)}
+              icon={fullScreenIcon}
+              label={fullScreenLabel}
+              description={fullScreenDesc}
+              onClick={this.props.handleToggleFullscreen}
             />
             <DropdownListItem
-              icon="more"
+              icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
               description={intl.formatMessage(intlMessages.settingsDesc)}
               onClick={openSettings.bind(this)}
+            />
+            <DropdownListItem
+              icon="about"
+              label={intl.formatMessage(intlMessages.aboutLabel)}
+              description={intl.formatMessage(intlMessages.aboutDesc)}
+              onClick={openAbout.bind(this)}
             />
             <DropdownListSeparator />
             <DropdownListItem

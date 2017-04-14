@@ -1,6 +1,7 @@
 
 var userID, callerIdName=null, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout, iceGatheringTimeout;
 var inEchoTest = true;
+var html5StunTurn = null;
 
 function webRTCCallback(message) {
 	switch (message.status) {
@@ -8,12 +9,15 @@ function webRTCCallback(message) {
 			if (message.errorcode !== 1004) {
 				message.cause = null;
 			}
+			monitorTracksStop();
 			BBB.webRTCCallFailed(inEchoTest, message.errorcode, message.cause);
 			break;
 		case 'ended':
+			monitorTracksStop();
 			BBB.webRTCCallEnded(inEchoTest);
 			break;
 		case 'started':
+			monitorTracksStart();
 			BBB.webRTCCallStarted(inEchoTest);
 			break;
 		case 'connecting':
@@ -37,12 +41,21 @@ function webRTCCallback(message) {
 	}
 }
 
-function callIntoConference(voiceBridge, callback, isListenOnly) {
+function callIntoConference(voiceBridge, callback, isListenOnly, stunTurn = null) {
 	// root of the call initiation process from the html5 client
 	// Flash will not pass in the listen only field. For html5 it is optional. Assume NOT listen only if no state passed
 	if (isListenOnly == null) {
 		isListenOnly = false;
 	}
+
+	// if additional stun configuration is passed, store the information
+	if (stunTurn != null) {
+		html5StunTurn = {
+			stunServers: stunTurn.stun,
+			turnServers: stunTurn.turn,
+		};
+	}
+
 	// reset callerIdName
 	callerIdName = null;
 	if (!callerIdName) {
@@ -144,6 +157,12 @@ function createUA(username, server, callback, makeCallFunc) {
 
 	console.log("Fetching STUN/TURN server info for user agent");
 
+	console.log(html5StunTurn);
+	if (html5StunTurn != null) {
+		createUAWithStuns(username, server, callback, html5StunTurn, makeCallFunc);
+		return;
+	}
+
   BBB.getSessionToken(function(sessionToken) {
   	$.ajax({
   		dataType: 'json',
@@ -178,7 +197,7 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 	 */
 	var configuration = {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
-		wsServers: 'ws://' + server + '/ws',
+		wsServers: ('https:' == document.location.protocol ? 'wss://' : 'ws://')  + server + '/ws',
 		displayName: username,
 		register: false,
 		traceSip: true,

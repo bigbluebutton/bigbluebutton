@@ -19,6 +19,7 @@
 # Author(s):
 #       Fred Dixon <ffdixon@bigbluebutton.org>
 #	Sebastian Schneider <seb.sschneider@gmail.com>
+#	Ghazi Triki <ghazi.nocturne@gmail.com>
 #
 # Changelog:
 #   2009-10-18 FFD  Inital Version   
@@ -53,6 +54,8 @@
 #   2016-02-28 FFD  Updates to support HTTPS configuration
 #   2016-05-28 FFD  Initial updates for 1.1-dev
 #   2016-08-15 GTR  Archive more logs with zip option and show more applications with status
+#   2016-10-17 GTR  Added redis to checked server components & added ownership check for video and freeswitch recording directories
+#   2017-04-08 FFD  Cleanup for 1.1-beta
 
 #set -x
 #set -e
@@ -116,7 +119,7 @@ if [ ! -f /var/www/bigbluebutton/client/conf/config.xml ]; then
 	echo "# BigBlueButton does not appear to be installed.  Could not"
 	echo "# locate:"
 	echo "#"
-	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+	echo "# /var/www/bigbluebutton/client/conf/config.xml"
 	exit 1
 fi
 
@@ -129,7 +132,7 @@ else
 fi
 
 #
-# We're going to give ^bigbluebutton.web.logoutURL a default value so bbb-conf does not give a warning
+# We're going to give ^bigbluebutton.web.logoutURL a default value (if undefined) so bbb-conf does not give a warning
 #
 if [ -f $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; then
 	if cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -q ^bigbluebutton.web.logoutURL=$; then
@@ -143,15 +146,20 @@ VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 # Determine IP so it works on multilingual installations
 #
 
-if [[ `sudo ifconfig` == *venet0:0* ]]; then
-	# IP detection for OpenVZ environment
-	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+if LANG=c ifconfig | grep -q 'venet0:0'; then
+        # IP detection for OpenVZ environment
+        echo "yes"
+        IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 else
-	# IP detection for regular environment
-	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
+        # IP detection for et* and en* networks
+        IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
 fi
 
-MEM=`free -m | grep Mem | awk '{ print $2}'`
+#
+# Calculate total memory on this server
+#
+MEM=`grep MemTotal /proc/meminfo | awk '{print $2}'`
+MEM=$((MEM/1000))
 
 
 #
@@ -209,13 +217,14 @@ usage() {
         echo
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
-        echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
+        echo "   --setip <IP/hostname>            Set IP/hostname for BigBlueButton"
         echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
+        echo "   --network                        View network connections on 80 and 1935 by IP address"
         echo "   --secret                         View the URL and shared secret for the server"
         echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
@@ -226,10 +235,6 @@ usage() {
         echo "   --clean                          Restart and clean all log files"
         echo "   --status                         Display running status of components"
         echo "   --zip                            Zip up log files for reporting an error"
-        echo
-        echo "Testing:"
-        echo "   --enablewebrtc                   Enables WebRTC audio in the server"
-        echo "   --disablewebrtc                  Disables WebRTC audio in the server"
 
         echo
 }
@@ -283,7 +288,10 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5=bbb-html5
        fi
-       systemctl stop red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.service bbb-record-core.timer $HTML5
+       if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
+          WEBHOOKS=bbb-webhooks
+       fi
+       systemctl stop red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	/etc/init.d/monit stop
 
@@ -325,7 +333,10 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           HTML5=bbb-html5
        fi
-       systemctl start red5 tomcat7 nginx freeswitch bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5
+       if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
+          WEBHOOKS=bbb-webhooks
+       fi
+       systemctl start red5 tomcat7 nginx freeswitch redis-server bbb-apps-akka bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
     else
 	$FREESWITCH_INIT_D start
 	
@@ -388,20 +399,55 @@ start_bigbluebutton () {
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
-        #if ! nc -z -w 1 127.0.0.1 9123 > /dev/null; then
-        #        while ! nc -z -w 1 127.0.0.1 9123 > /dev/null; do
-        #                echo -n "."
-        #                sleep 1
-        #        done
-        #fi
-
-	#sleep 5
-
         #if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
         #        echo "Startup unsuccessful: could not connect to http://$BBB_WEB/bigbluebutton/api"
         #        exit 1
 	#fi
     fi
+
+        #
+        # Look for Starting up context to be recently added to the log files
+        #
+        COUNT=0
+        while [ $COUNT -lt 20 ]; do
+          let COUNT=COUNT+1
+          if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
+            let COUNT=20
+          else
+            echo -n "."
+            sleep 1
+          fi
+        done
+
+
+	#
+	# All the log files exist, now check for the text "Starting up context"
+	#
+	COUNT=0
+	while [ $COUNT -lt 20 ]; do
+	  let COUNT=COUNT+1
+	  if [ -f $RED5_DIR/log/video.log ]; then
+	    if ! cat $RED5_DIR/log/video.log | tail -n100 | grep -q "Starting up context"; then
+	      echo -n "."
+	      sleep 1
+	    else
+	      let COUNT=20
+            fi
+	  fi
+	done
+
+	echo
+	BBB_APPS="sip video bigbluebutton screenshare-slf"
+	for bbb_app in $BBB_APPS ; do
+	        if [ -a $RED5_DIR/log/$bbb_app.log ]; then
+	                if ! grep -q "Starting up context" $RED5_DIR/log/$bbb_app.log; then
+	                        echo "#    $bbb_app may not have started properly"
+	                fi
+	        else
+	                echo "#    $RED5_DIR/log/$bbb_app.log not found"
+	        fi
+	done
+
 }
 
 display_bigbluebutton_status () {
@@ -417,6 +463,9 @@ display_bigbluebutton_status () {
     fi
 }
 
+#
+# Depreciated -- WebRTC is always enabled by default
+#
 enable_webrtc(){
 	# Set server ip address in FreeSWITCH
 	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  $FREESWITCH_VARS
@@ -495,12 +544,6 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
-	if [ "$1" = "--setup-samba" -o "$1" = "-setup-samba" ]; then
-		SAMBA=1
-		shift
-		continue
-	fi		
-
 	if [ "$1" = "--version" -o "$1" = "-version" -o "$1" = "-v" ]; then
 		VERSION=1
 		shift
@@ -548,18 +591,6 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
-	if [ "$1" = "--enablewebrtc" -o "$1" = "-enablewebrtc" ]; then
-		need_root
-		enable_webrtc
-		exit 0
-        fi
-
-	if [ "$1" = "--disablewebrtc" -o "$1" = "-disablewebrtc" ]; then
-		need_root
-		disable_webrtc
-		exit 0
-        fi
-
 	#
 	# all other parameters requires at least 1 argument
 	#
@@ -578,8 +609,8 @@ while [ $# -gt 0 ]; do
 	fi		
 	
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" -o "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
-		SALT="${2}"
-		if [ -z "$SALT" ]; then
+		SECRET="${2}"
+		if [ -z "$SECRET" ]; then
 			BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 			SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
 			echo
@@ -593,11 +624,11 @@ while [ $# -gt 0 ]; do
 	fi
 
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
-		if [ -z "$SALT" ]; then
-			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
-				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
-				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
+		if [ -z "$SECRET" ]; then
+			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
+				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
 				echo
 				echo "       URL: $LTI_URL"
 				echo "  Customer: $CUSTOMER"
@@ -630,28 +661,30 @@ fi
 
 
 #
-# Set Security Salt
-# - Legacy
+# Set Shared Secret
 #
 
-if [ $SALT ]; then
+if [ $SECRET ]; then
 	need_root
-	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
+	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SECRET
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
-		sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
+		sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
 	fi
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js ]; then
-		sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
+		sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
 	fi
 
         if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
-                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SALT\"/g" \
+                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
         fi
 
-	echo "Changed BigBlueButton's shared secret to $SALT"
+	echo "Changed BigBlueButton's shared secret to $SECRET"
+	echo 
+	echo "You must restart BigBlueButton for the changes to take effect"
+	echo "   sudo bbb-conf --restart"
 	echo
 fi
 
@@ -801,13 +834,13 @@ check_configuration() {
 		#
 		# Make sure the salt for the API matches the server
 		#
-		SALT_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-		SALT_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
+		SECRET_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+		SECRET_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
-		if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-			echo "# Warning: API Salt mismatch: "
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $SALT_PROPERTIES"
-			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp                                   = $SALT_DEMO"
+		if [ "$SECRET_PROPERTIES" != "$SECRET_DEMO" ]; then
+			echo "# Warning: API Shared Secret mismatch: "
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $SECRET_PROPERTIES"
+			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp                                   = $SECRET_DEMO"
 			echo 
 		fi
 
@@ -821,16 +854,16 @@ check_configuration() {
 		fi
 	fi
 
-	BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	BBB_SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
-		WEBHOOKS_SALT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
+		WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
 		
-		if [ "$BBB_SALT" != "$WEBHOOKS_SALT" ]; then
-			echo "# Warning: Webhooks API Salt mismatch: "
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties = $BBB_SALT"
-			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee                       = $WEBHOOKS_SALT"
+		if [ "$BBB_SECRET" != "$WEBHOOKS_SECRET" ]; then
+			echo "# Warning: Webhooks API Shared Secret mismatch: "
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties = $BBB_SECRET"
+			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee                       = $WEBHOOKS_SECRET"
 			echo
 		fi
 		
@@ -845,14 +878,14 @@ check_configuration() {
 		fi
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
-                BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+                LTI_SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
+                BBB_SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
-		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
+		if [ "$LTI_SECRET" != "$BBB_SECRET" ]; then
 			echo "# Warning: LTI shared secret (salt) mismatch:"
-			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties                      = $LTI_SALT"
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
+			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties                      = $LTI_SECRET"
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SECRET"
 			echo 
 		fi
 	fi
@@ -866,6 +899,15 @@ check_configuration() {
 			echo "#    $FREESWITCH_EXTERNAL"
 			echo 
 		fi
+                if grep ws-binding $FREESWITCH_EXTERNAL > /dev/null; then
+                        echo "# Warning: You have configured SSL, but FreeSWITCH is still listening"
+                        echo "# on port 5066.  You should edit "
+                        echo "#"
+                        echo "#    $FREESWITCH_EXTERNAL"
+                        echo "#"
+                        echo "# and remove the line that contains ws-binding."
+                        echo
+                fi
 	fi
 
 	if [ $DISTRIB_ID != "centos" ]; then
@@ -884,6 +926,18 @@ check_configuration() {
                 echo "# Warning: Detected the directory"
                 echo "#    /var/bigbluebutton/screenshare"
                 echo "# is not owned by red5"
+        fi
+		
+        if [ "$(ls -ld /usr/share/red5/webapps/video/streams | cut -d' ' -f3)" != "red5" ]; then
+                echo "# Warning: Detected the directory"
+                echo "#    /usr/share/red5/webapps/video/streams"
+                echo "# is not owned by red5"
+        fi
+		
+        if [ "$(ls -ld /var/freeswitch/meetings | cut -d' ' -f3)" != "freeswitch" ]; then
+                echo "# Warning: Detected the directory"
+                echo "#    /var/freeswitch/meetings"
+                echo "# is not owned by freeswitch"
         fi
 
         if [ "$(ls -ld /var/bigbluebutton | cut -d' ' -f3)" != $TOMCAT_USER ]; then
@@ -1026,21 +1080,18 @@ check_state() {
 	#
 	# Checking red5 apps log
 	#
-	COUNT=0
-	while [ $COUNT -lt 20 ]; do
-    	  let COUNT=COUNT+1
+
+        # Give the files a chance to be created (in case we got started with a clean)
+        COUNT=0
+        while [ $COUNT -lt 20 ]; do
+          let COUNT=COUNT+1
           if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
-            if [ $COUNT -gt 1 ]; then
-              sleep 5		# Looks like a clean restart -- give red5 a bit more time to startup 
-            fi
-	    let COUNT=20
+            let COUNT=20
           else
             echo -n "."
             sleep 1
           fi
-	done
-
-        echo -n " "
+        done
 
 	RED5_LOG_FILES="bigbluebutton red5 sip video screenshare-slf"
 	AVAIL_RED5_LOG=""
@@ -1054,35 +1105,38 @@ check_state() {
 	done
 
 	if [ "$UNAVAIL_RED5_LOG" != "" ]; then
+		echo "# Error: Red5 log files not found"
+		echo
 		echo "# Unavailable red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
+		echo
 	fi
 
+	#
+	# Check FreeSWITCH
+	#
+
+	if grep -q "Thread ended for mod_event_socket" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
+		echo
+		echo "# Error: Found text in freeswitch.log:"
+		echo "#"
+		echo "#    Thread ended for mod_event_socket"
+		echo "#"
+		echo "# FreeSWITCH may not be responding to requests on port 8021 (event socket layer)"
+		echo "# and users may have errors joining audio."
+		echo "#"
+	fi
 
 	#
-	# Check if any of the red5 BigBlueButton applications did not start properly
+	# Check FreeSWITCH
 	#
-	COUNT=0
-	while [ $COUNT -lt 20 ]; do
-    	  let COUNT=COUNT+1
-          if ! cat $RED5_DIR/log/bigbluebutton.log | tail -n10 | grep -q "Starting up context"; then
-            echo -n "."
-            sleep 1
-	  else
-	    let COUNT=20
-          fi
-	done
-        echo
 
-	BBB_APPS="sip video bigbluebutton screenshare-slf"
-	for bbb_app in $BBB_APPS ; do
-		if [ -a $RED5_DIR/log/$bbb_app.log ]; then
-			if cat $RED5_DIR/log/$bbb_app.log | tail -n1 | grep -q "Starting up context"; then
-				echo "#    $bbb_app did not start properly"
-			fi
-		else
-			echo "#    $RED5_DIR/log/$bbb_app.log not found"
-		fi
-	done
+	if ! echo "/quit" | /opt/freeswitch/bin/fs_cli - > /dev/null 2>&1; then
+		echo
+                echo "#"
+                echo "# Error: Unable to connect to the FreeSWITCH Event Socket Layer on port 8021"
+                echo "#"
+	fi
+
 
 	#
 	# Check for required external commands
@@ -1120,7 +1174,7 @@ check_state() {
 		# Checking if voice app registered successfully
 		#
         	if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
-                	echo "# Error: The voice application failed to register with the sip server."
+                	echo "# Warning: The voice application may not have registered with the sip server."
                 	echo "#   Try running: "
                 	echo "#"
                 	echo "#      sudo bbb-conf --clean"
@@ -1137,7 +1191,8 @@ check_state() {
         		echo 
 		fi
 	else
-		echo "# Error: /usr/share/red5/log/sip.log"
+		echo "# Error: The following log file was not found"
+		echo "#   /usr/share/red5/log/sip.log "
         	echo 
         fi
 
@@ -1155,7 +1210,7 @@ check_state() {
 	if [ -f $RED5_DIR/log/bigbluebutton.log ]; then
 		BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
 		if [ $BBB_RED5_LOG -lt 100 ]; then
-        		echo "#       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
+        		echo "#       Log file too short (less than 100 lines): $RED5_DIR/log/bigbluebutton.log (red5)"
 		fi
 	else
 		echo "#      No $RED5_DIR/log/bigbluebutton.log"
@@ -1304,7 +1359,6 @@ check_state() {
                 echo
 	fi
 
-	
 	if [ -f ${SERVLET_DIR}/demo/demo1.jsp ]; then
                 BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
@@ -1330,8 +1384,8 @@ check_state() {
 
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
 		echo "#"
 		echo "#    $LTI_URL"
@@ -1387,12 +1441,28 @@ check_state() {
           fi
         fi
 
+	if [ "$(cat /usr/share/bbb-apps-akka/conf/application.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
+	        BBB_WEB_IP=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+                echo "# Error: Detected that /usr/share/bbb-apps-akka/conf/application.conf has the default"
+                echo "# configuration values.  To update, run"
+                echo "#"
+                echo "#    sudo bbb-conf --setip $BBB_WEB_IP"
+                echo "#"
+	fi
+
+        if [ -z $(cat /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties | tr -d '\r' | sed -n "/useH264[ ]*=[ ]*/{s/useH264[ ]*=[ ]*//;p}") ]; then
+                echo "# Error: Detected there is no value set for useH264 in"
+                echo "#"
+                echo "#   /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
+                echo "#"
+        fi
+
 	exit 0
 }
 
 
 #
-# Print out the status of the current setup and look for bugs.
+# Print out the status of the current setup and look for configuration issues
 #
 if [ $CHECK ]; then
 	need_root
@@ -1431,11 +1501,16 @@ if [ $CHECK ]; then
 	echo "                              red5: $RED5_IP"
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
-	WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+        if grep -q ws-binding $FREESWITCH_EXTERNAL; then
+          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+        fi
+        if grep -q wss-binding $FREESWITCH_EXTERNAL; then
+          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="://;s/".*//;p}')
+        fi
 	echo
 	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
-	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
+	WEBRTC_ENABLED=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
 
 	echo
@@ -1443,7 +1518,7 @@ if [ $CHECK ]; then
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	echo "                       server name: $NGINX_IP"
 
-        PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl)
+        PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl | tr --delete '\n' | sed 's/\[/, \[/g' | sed 's/0$/0\n/g')
         echo "                              port: $PORT"
         if cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep ssl > /dev/null; then
           echo "                              port: 443 ssl"
@@ -1464,10 +1539,10 @@ if [ $CHECK ]; then
 		echo "                               url: $BBB_WEB_URL"
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
-		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
+		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
 	fi
 
@@ -1483,13 +1558,6 @@ if [ $CHECK ]; then
 	echo
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml (red5)"
 	echo "                  voice conference: $CONFERENCING_MODULE"
-
-	CAPTURE_VIDEO="$(cat /usr/share/red5/webapps/video/WEB-INF/red5-web.xml | sed -n '/recordVideoStream/{s/^.*="//g;s/"\/>//g;p}')"
-	echo "                     capture video: $CAPTURE_VIDEO"
-
-	# CAPTURE_DESKTOP="$(cat /usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml | grep -m 1 '<constructor-arg index="0" value'  | sed -n '/constructor-arg/{s/^.*="//g;s/"\/>//g;p}')"
-	# echo "                   capture desktop: $CAPTURE_DESKTOP"
-
 
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
 		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | grep -v '#' | sed -n '/^playback_host/{s/.*:[ ]*//;s/;//;p}' | tail -n 1)
@@ -1696,7 +1764,7 @@ if [ -n "$HOST" ]; then
                         /usr/share/bbb-apps-akka/conf/application.conf
                 sed -i  "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"${PROTOCOL_HTTP}:\/\/$HOST\/default.pdf\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
-		# XXX Temporary fix to ensure application.conf has the latest shared secret
+		# Fix to ensure application.conf has the latest shared secret
                 SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
                 sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
@@ -1713,15 +1781,15 @@ if [ -n "$HOST" ]; then
 	fi
 	
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
+		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties"
 		# We don't wat to guess on http/https as the lti endpoint may be a different BigBlueButton server
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
         	sed -i "s/bigbluebuttonURL=https:\/\/.*/bigbluebuttonURL=https:\/\/$HOST\/bigbluebutton/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
         	sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
 	fi
 
 
@@ -1752,7 +1820,7 @@ if [ -n "$HOST" ]; then
 		sed -i "s/rtmpt:\/\/\([^\"\/]*\)\//rtmpt:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
 	fi
 
-	echo "Restarting the bigbluebutton server ..."
+	echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 	stop_bigbluebutton
 	echo
 	start_bigbluebutton
@@ -1765,7 +1833,7 @@ if [ $RESTART ]; then
 	need_root
 	check_configuration
 	
-	echo "Restarting BigBlueButton ..."
+	echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
 	stop_bigbluebutton
 	start_bigbluebutton
@@ -1776,7 +1844,7 @@ if [ $CLEAN ]; then
 	need_root
 	check_configuration
 	
-	echo "Doing a restart of BigBlueButton and cleaning out all log files..."
+	echo "Restaring BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
 	stop_bigbluebutton
 
@@ -1784,8 +1852,7 @@ if [ $CLEAN ]; then
 	# Clean log files
 	#
 
-	echo 
-	echo "Cleaning Log Files"
+	echo " ... cleaning log files"
 	rm -f /var/log/bigbluebutton/bbb-web.log*
 	rm -f /var/log/bigbluebutton/*.log
 
@@ -1828,17 +1895,16 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-	netstat -ant | egrep ":1935|:9123|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+	netstat -ant | egrep ":1935|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
 	REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
 	if [ "$REMOTE" != "" ]; then
-        	echo -e "netstat\t\t\t80\t1935\t9123"
+        	echo -e "netstat\t\t\t80\t1935"
         	for IP in $REMOTE ; do
 			PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
-			PORT_9123=$(cat /tmp/t_net | grep :9123 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 			PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
-           	echo -e "$IP\t\t$PORT_80\t$PORT_1935\t$PORT_9123"
+           	echo -e "$IP\t\t$PORT_80\t$PORT_1935"
         	done
 	fi
 fi

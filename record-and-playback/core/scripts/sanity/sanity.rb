@@ -105,6 +105,22 @@ def check_webcam_files(raw_dir, meeting_id)
 end
 
 def check_deskshare_files(raw_dir, meeting_id)
+    meeting_dir = "#{raw_dir}/#{meeting_id}"
+
+    BigBlueButton.logger.info("Repairing red5 serialized streams")
+    cp="/usr/share/red5/red5-server.jar:/usr/share/red5/lib/*"
+    if File.directory?("#{meeting_dir}/deskshare")
+      FileUtils.cd("#{meeting_dir}/deskshare") do
+        Dir.glob("*.flv.ser").each do |ser|
+          BigBlueButton.logger.info("Repairing #{ser}")
+          ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
+          if ret != 0
+            BigBlueButton.logger.warn("Failed to repair #{ser}")
+          end
+        end
+      end
+    end
+
     desktops = BigBlueButton::Events.get_start_deskshare_events("#{raw_dir}/#{meeting_id}/events.xml")
     desktops.each do |desktop|
         raw_desktop_file = "#{raw_dir}/#{meeting_id}/deskshare/#{desktop[:stream]}"

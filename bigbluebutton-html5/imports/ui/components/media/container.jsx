@@ -3,13 +3,14 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Media from './component';
 import MediaService from './service';
 import Button from '../button/component';
-import WhiteboardContainer from '../whiteboard/container';
+import PresentationAreaContainer from '../presentation/container';
 import VideoDockContainer from '../video-dock/container';
-import DefaultContent from '../whiteboard/default-content/component';
+import DeskshareContainer from '../deskshare/container';
+import DefaultContent from '../presentation/default-content/component';
 
 const defaultProps = {
   overlay: null, //<VideoDockContainer/>,
-  content: <WhiteboardContainer/>,
+  content: <PresentationAreaContainer/>,
   defaultContent: <DefaultContent />,
 };
 
@@ -42,14 +43,8 @@ class MediaContainer extends Component {
   }
 
   render() {
-    /* an example of toggleLayout button
-        <Button
-          label="Toggle Layout"
-          style={{ position: 'absolute', top: '10px', left: '10px' }}
-          onClick={this.handleToggleLayout} />
-    */
     return (
-      <Media overlay={this.state.overlay} content={this.state.content}>
+      <Media {...this.props}>
         {this.props.children}
       </Media>
     );
@@ -59,6 +54,22 @@ class MediaContainer extends Component {
 MediaContainer.defaultProps = defaultProps;
 
 export default createContainer(() => {
-  const data = MediaService.getPresentationInfo();
+  let data = {};
+  data.currentPresentation = MediaService.getPresentationInfo();
+
+  data.content = <DefaultContent />;
+
+  if (MediaService.shouldShowWhiteboard()) {
+    data.content = <PresentationAreaContainer />;
+  }
+
+  if (MediaService.shouldShowDeskshare()) {
+    data.content = <DeskshareContainer />;
+  }
+
+  if (MediaService.shouldShowOverlay()) {
+    data.overlay = <VideoDockContainer />;
+  }
+
   return data;
 }, MediaContainer);

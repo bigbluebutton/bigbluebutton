@@ -1,4 +1,4 @@
-/**
+ /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
  *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
@@ -18,8 +18,11 @@
  */
 package org.bigbluebutton.main.model.users {
 	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
+	import mx.collections.SortField;
 	
 	import org.as3commons.lang.ArrayUtils;
 	import org.as3commons.lang.StringUtils;
@@ -28,8 +31,10 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
+	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	
 	public class Conference {
 		public var userEjectedFromMeeting:Boolean = false;
@@ -49,6 +54,8 @@ package org.bigbluebutton.main.model.users {
 		
 		public var isBreakout:Boolean;
 		
+		public var iAskedToLogout:Boolean
+		
 		[Bindable]
 		public var record:Boolean;
 		
@@ -56,7 +63,7 @@ package org.bigbluebutton.main.model.users {
 		
 		private var lockSettings:LockSettingsVO;
 		
-		private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
+		private var _myCamSettings:ArrayCollection = null;
 		
 		[Bindable]
 		private var me:BBBUser = null;
@@ -82,6 +89,7 @@ package org.bigbluebutton.main.model.users {
 			users.sort = sort;
 			users.refresh();
 			breakoutRooms = new ArrayCollection();
+			_myCamSettings = new ArrayCollection();
 		}
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
@@ -144,19 +152,28 @@ package org.bigbluebutton.main.model.users {
 			users.addItem(newuser);
 			users.refresh();
 		}
-		
-		public function setCamPublishing(publishing:Boolean):void {
-			_myCamSettings.isPublishing = publishing;
+
+		public function addCameraSettings(camSettings: CameraSettingsVO): void {
+			if(!_myCamSettings.contains(camSettings)) {
+				_myCamSettings.addItem(camSettings);
+			}
 		}
-		
-		public function setCameraSettings(camSettings:CameraSettingsVO):void {
-			_myCamSettings = camSettings;
+
+		public function removeCameraSettings(camIndex:int): void {
+			if (camIndex != -1) {
+				for(var i:int = 0; i < _myCamSettings.length; i++) {
+					if (_myCamSettings.getItemAt(i) != null && _myCamSettings.getItemAt(i).camIndex == camIndex) {
+						_myCamSettings.removeItemAt(i);
+						return;
+					}
+				}
+			}
 		}
-		
-		public function amIPublishing():CameraSettingsVO {
+
+		public function amIPublishing():ArrayCollection {
 			return _myCamSettings;
 		}
-		
+
 		public function setDefaultLayout(defaultLayout:String):void {
 			this.defaultLayout = defaultLayout;
 		}
@@ -196,8 +213,13 @@ package org.bigbluebutton.main.model.users {
 				}
 			}
 			return null;
-		}
-		
+        }
+
+        public function userIsModerator(userId:String):Boolean {
+            var user:BBBUser = getUser(userId);
+            return user != null && user.role == Role.MODERATOR;
+        }
+
 		public function getPresenter():BBBUser {
 			var p:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
@@ -275,6 +297,7 @@ package org.bigbluebutton.main.model.users {
 		
 		public function set amIPresenter(presenter:Boolean):void {
 			me.presenter = presenter;
+			applyLockSettings();
 		}
 		
 		[Bindable]
@@ -407,14 +430,19 @@ package org.bigbluebutton.main.model.users {
 			}
 			users.refresh();
 		}
-		
-		public function sharedWebcam(userId:String, stream:String):void {
-			var aUser:BBBUser = getUser(userId);
-			if (aUser != null) {
-				aUser.sharedWebcam(stream)
-			}
-			users.refresh();
-		}
+
+        public function sharedWebcam(userId:String, stream:String):void {
+            var webcamsOnlyForModerator:Boolean = MeetingModel.getInstance().meeting.webcamsOnlyForModerator;
+            if (!webcamsOnlyForModerator || 
+				(webcamsOnlyForModerator && (amIModerator() || userIsModerator(userId)))
+			) {
+                var aUser:BBBUser = getUser(userId);
+                if (aUser != null) {
+                    aUser.sharedWebcam(stream)
+                }
+                users.refresh();
+            }
+        }
 		
 		public function unsharedWebcam(userId:String, stream:String):void {
 			var aUser:BBBUser = getUser(userId);
@@ -534,59 +562,100 @@ package org.bigbluebutton.main.model.users {
 		
 		/* Breakout room feature */
 		public function addBreakoutRoom(newRoom:BreakoutRoom):void {
-			if (hasBreakoutRoom(newRoom.breakoutId)) {
-				removeBreakoutRoom(newRoom.breakoutId);
+			if (hasBreakoutRoom(newRoom.meetingId)) {
+				removeBreakoutRoom(newRoom.meetingId);
 			}
 			breakoutRooms.addItem(newRoom);
+			sortBreakoutRooms();
+        }
+
+        public function setLastBreakoutRoomInvitation(sequence:int):void {
+            var aRoom:BreakoutRoom;
+            for (var i:int = 0; i < breakoutRooms.length; i++) {
+                aRoom = breakoutRooms.getItemAt(i) as BreakoutRoom;
+                if (aRoom.sequence != sequence) {
+                    aRoom.invitedRecently = false;
+                } else {
+                    aRoom.invitedRecently = true;
+                }
+            }
+			sortBreakoutRooms();
+        }
+
+		private function sortBreakoutRooms() : void {
+			var sort:Sort = new Sort();
+			sort.fields = [new SortField("sequence", true, false, true)];
+			breakoutRooms.sort = sort;
 			breakoutRooms.refresh();
 		}
 
-		public function updateBreakoutRoomUsers(breakoutId:String, breakoutUsers:Array):void {
-			var room:Object = getBreakoutRoom(breakoutId);
+		public function updateBreakoutRoomUsers(breakoutMeetingId:String, breakoutUsers:Array):void {
+			var room:BreakoutRoom = getBreakoutRoom(breakoutMeetingId);
 			if (room != null) {
-				BreakoutRoom(room).users = new ArrayCollection(breakoutUsers);
-				var breakoutRoomNumber:String = StringUtils.substringAfterLast(breakoutId, "-");
+				room.users = new ArrayCollection(breakoutUsers);
 				var updateUsers:Array = [];
 				// Update users breakout rooms
-				var user : BBBUser;
+				var user:BBBUser;
 				for (var i:int = 0; i < breakoutUsers.length; i++) {
 					var userId:String = StringUtils.substringBeforeLast(breakoutUsers[i].id, "-");
 					user = getUser(userId);
 					if (user) {
-						user.addBreakoutRoom(breakoutRoomNumber)
+						user.addBreakoutRoom(room.sequence)
 					}
 					updateUsers.push(userId);
 				}
 				// Remove users breakout rooms if the users left the breakout rooms
 				for (var j:int = 0; j < users.length; j++) {
 					user = BBBUser(users.getItemAt(j));
-					if (updateUsers.indexOf(BBBUser(users.getItemAt(j)).userID) == -1 && ArrayUtils.contains(user.breakoutRooms, breakoutRoomNumber)) {
-						user.removeBreakoutRoom(breakoutRoomNumber);
+					if (updateUsers.indexOf(BBBUser(users.getItemAt(j)).userID) == -1 && ArrayUtils.contains(user.breakoutRooms, room.sequence)) {
+						user.removeBreakoutRoom(room.sequence);
 					}
 				}
 				users.refresh();
 			}
 		}
-		
+
 		/**
-		 * Returns a breakout room by its breakoutId
+		 * Returns a breakout room by its internal meeting ID
 		 */
-		public function getBreakoutRoom(breakoutId:String):BreakoutRoom {
-			var r:Object = getBreakoutRoomIndex(breakoutId);
+		public function getBreakoutRoom(breakoutMeetingId:String):BreakoutRoom {
+			var r:Object = getBreakoutRoomIndex(breakoutMeetingId);
 			if (r != null) {
 				return r.room as BreakoutRoom;
 			}
 			return null;
 		}
 		
-		/**
-		 * Finds the index of a breakout room by its breakoutId
-		 */
-		public function getBreakoutRoomIndex(breakoutId:String):Object {
+		public function getBreakoutRoomByExternalId(externalId:String):BreakoutRoom {
 			var aRoom:BreakoutRoom;
 			for (var i:int = 0; i < breakoutRooms.length; i++) {
 				aRoom = breakoutRooms.getItemAt(i) as BreakoutRoom;
-				if (aRoom.breakoutId == breakoutId) {
+				if (aRoom.externalMeetingId == externalId) {
+					return aRoom;
+				}
+			}
+			return null;
+		}
+		
+		public function getBreakoutRoomBySequence(sequence:int):BreakoutRoom {
+			var aRoom:BreakoutRoom;
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				aRoom = breakoutRooms.getItemAt(i) as BreakoutRoom;
+				if (aRoom.sequence == sequence) {
+					return aRoom;
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * Finds the index of a breakout room by its internal meeting ID
+		 */
+		public function getBreakoutRoomIndex(breakoutMeetingId:String):Object {
+			var aRoom:BreakoutRoom;
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				aRoom = breakoutRooms.getItemAt(i) as BreakoutRoom;
+				if (aRoom.meetingId == breakoutMeetingId) {
 					return {index: i, room: aRoom};
 				}
 			}
@@ -594,55 +663,59 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
 
-		public function removeBreakoutRoom(breakoutId:String):void {
-			var p:Object = getBreakoutRoomIndex(breakoutId);
-			if (p != null) {
-				breakoutRooms.removeItemAt(p.index);
-				breakoutRooms.refresh();
+		public function removeBreakoutRoom(breakoutMeetingId:String):void {
+			
+			// We need to switch the use back to the main audio confrence if he is in a breakout audio conference
+			if (isListeningToBreakoutRoom(breakoutMeetingId)) {
+				var dispatcher:Dispatcher = new Dispatcher();
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+				e.breakoutMeetingId = breakoutMeetingId;
+				e.listen = false;
+				dispatcher.dispatchEvent(e);
+			}
+			
+			var room:Object = getBreakoutRoomIndex(breakoutMeetingId);
+			if (room != null) {
+				breakoutRooms.removeItemAt(room.index);
+				sortBreakoutRooms();
 				if (breakoutRooms.length == 0) {
 					breakoutRoomsReady = false;
 				}
 				// Remove breakout room number display from users
 				for (var i:int; i < users.length; i++) {
-					var breakoutRoomNumber:String = StringUtils.substringAfterLast(breakoutId, "-");
-					if (ArrayUtils.contains(users[i].breakoutRooms, breakoutRoomNumber)) {
-						users[i].removeBreakoutRoom(breakoutRoomNumber);
+					if (ArrayUtils.contains(users[i].breakoutRooms, room.room.sequence)) {
+						users[i].removeBreakoutRoom(room.room.sequence);
 					}
 				}
 				users.refresh();
 			}
 		}
-		
-		public function hasBreakoutRoom(breakoutId:String):Boolean {
-			var p:Object = getBreakoutRoomIndex(breakoutId);
+
+		public function hasBreakoutRoom(breakoutMeetingId:String):Boolean {
+			var p:Object = getBreakoutRoomIndex(breakoutMeetingId);
 			if (p != null) {
 				return true;
 			}
 			return false;
 		}
 		
-		public function setBreakoutRoomInListen(listen:Boolean, breakoutId:String):void {
+		public function setBreakoutRoomInListen(listen:Boolean, breakoutMeetingId:String):void {
 			for (var i:int = 0; i < breakoutRooms.length; i++) {
 				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
 				if (listen == false) {
 					br.listenStatus = BreakoutRoom.NONE;
-				} else if (listen == true && br.breakoutId == breakoutId) {
+				} else if (listen == true && br.meetingId == breakoutMeetingId) {
 					br.listenStatus = BreakoutRoom.SELF;
 				} else {
 					br.listenStatus = BreakoutRoom.OTHER;
 				}
 			}
-		}
-		
-		public function getBreakoutRoomInListen() : BreakoutRoom {
-			for (var i:int = 0; i < breakoutRooms.length; i++) {
-				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
-				if (br.listenStatus == BreakoutRoom.SELF) {
-					return br;
-				}
-			}
-			return null;
-		}
+        }
+
+        public function isListeningToBreakoutRoom(breakoutMeetingId:String):Boolean {
+            var room:BreakoutRoom = getBreakoutRoom(breakoutMeetingId);
+            return room != null && room.listenStatus == BreakoutRoom.SELF;
+        }
 
 		public function resetBreakoutRooms():void {
 			for (var i:int = 0; i < breakoutRooms.length; i++) {

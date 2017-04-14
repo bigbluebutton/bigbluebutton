@@ -72,13 +72,14 @@ public class MeetingMessageHandler implements MessageHandler {
             CreateBreakoutRoomRequest msg = new Gson().fromJson(message, CreateBreakoutRoomRequest.class);
             for (MessageListener listener : listeners) {
               listener.handle(new CreateBreakoutRoom(
-                  msg.payload.breakoutId, 
-                  msg.payload.parentId,
-                  msg.payload.name, 
-                  msg.payload.voiceConfId, 
-                  msg.payload.viewerPassword, 
-                  msg.payload.moderatorPassword, 
-                  msg.payload.durationInMinutes, 
+                  msg.payload.breakoutMeetingId,
+                  msg.payload.parentMeetingId,
+                  msg.payload.name,
+                  msg.payload.sequence,
+                  msg.payload.voiceConfId,
+                  msg.payload.viewerPassword,
+                  msg.payload.moderatorPassword,
+                  msg.payload.durationInMinutes,
                   msg.payload.sourcePresentationId,
                   msg.payload.sourcePresentationSlide,
                   msg.payload.record
@@ -88,7 +89,7 @@ public class MeetingMessageHandler implements MessageHandler {
           }
           else if (EndBreakoutRoomRequest.NAME.equals(messageName)) {
             EndBreakoutRoomRequest msg = new Gson().fromJson(message, EndBreakoutRoomRequest.class);
-            log.info("Received an end breakout room request message for breakout meeting id=[{}]", msg.payload.meetingId);
+            log.info("Received end breakout room request message for breakout meeting id=[{}]", msg.payload.meetingId);
             for (MessageListener listener : listeners) {
               listener.handle(new EndBreakoutRoom(msg.payload.meetingId));
             }

@@ -23,15 +23,14 @@ package org.bigbluebutton.modules.users.views {
 	import flash.events.MouseEvent;
 	
 	import mx.containers.HBox;
-	import mx.containers.Tile;
 	import mx.containers.VBox;
 	import mx.controls.Button;
 	import mx.controls.Label;
 	import mx.core.ScrollPolicy;
 	import mx.events.FlexMouseEvent;
-	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.common.Images;
+	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -121,7 +120,7 @@ package org.bigbluebutton.modules.users.views {
 		 * Hides the menu
 		 */
 		public function hide():void {
-			PopUpManager.removePopUp(this);
+			PopUpUtil.removePopUp(this);
 		}
 	}
 }

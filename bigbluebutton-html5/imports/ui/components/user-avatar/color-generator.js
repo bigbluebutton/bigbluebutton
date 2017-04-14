@@ -99,8 +99,8 @@ const addShadeIfNoContrast = (rgb) => {
   return addShadeIfNoContrast(shadeColor(rgb, -25));
 };
 
-const getColor = (username) => {
-  let rgb = stringToPastelColour(username);
+const getColor = (str) => {
+  let rgb = stringToPastelColour(str);
   rgb = addShadeIfNoContrast(rgb);
   return 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
 };
