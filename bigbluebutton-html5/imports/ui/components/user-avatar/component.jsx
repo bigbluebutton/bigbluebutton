@@ -32,8 +32,8 @@ export default class UserAvatar extends Component {
 
     return (
       <div className={!user.isLoggedOut ? styles.userAvatar : styles.userLogout}
-           style={avatarStyles} aria-hidden="true">
-        {this.renderAvatarContent()}
+           style={avatarStyles}>
+        <div>{this.renderAvatarContent()}</div>
         {this.renderUserStatus()}
         {this.renderUserMediaStatus()}
       </div>
@@ -43,7 +43,7 @@ export default class UserAvatar extends Component {
   renderAvatarContent() {
     const user = this.props.user;
 
-    let content = user.name.slice(0, 2);
+    let content = <span aria-hidden="true">{user.name.slice(0, 2)}</span>;
 
     if (user.emoji.status !== 'none') {
       let iconEmoji = undefined;
@@ -67,7 +67,7 @@ export default class UserAvatar extends Component {
         default:
           iconEmoji = user.emoji.status;
       }
-      content = <Icon iconName={iconEmoji}/>;
+      content = <span aria-label={user.emoji.status}><Icon iconName={iconEmoji}/></span>;
     }
 
     return content;
