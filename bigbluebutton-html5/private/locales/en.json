@@ -13,6 +13,7 @@
   "app.chat.titlePrivate": "Private Chat with {name}",
   "app.chat.partnerDisconnected": "{name} has left the meeting",
   "app.chat.closeChatLabel": "Close {title}",
+  "app.chat.hideChatLabel": "Hide {title}",
   "app.chat.moreMessages": "More messages below",
   "app.userlist.chatlistitem.unreadSingular": "{count} New Message",
   "app.userlist.chatlistitem.unreadPlural": "{count} New Messages",

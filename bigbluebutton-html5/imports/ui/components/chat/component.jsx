@@ -13,6 +13,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.closeChatLabel',
     description: 'aria-label for closing chat button',
   },
+  hideChatLabel: {
+    id: 'app.chat.hideChatLabel',
+    description: 'aria-label for hiding chat button',
+  },
 });
 
 class Chat extends Component {
@@ -42,7 +46,7 @@ class Chat extends Component {
             <Link
               to="/users"
               role="button"
-              aria-label={intl.formatMessage(intlMessages.closeChatLabel, { title: title })}>
+              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { title: title })}>
                 <Icon iconName="left_arrow"/> {title}
             </Link>
           </div>
@@ -50,8 +54,11 @@ class Chat extends Component {
             {
               ((this.props.chatID == 'public') ?
                 null :
-                <Link to="/users">
-                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
+                <Link
+                  to="/users"
+                  role="button"
+                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { title: title })}>
+                    <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
                 </Link>)
             }
           </div>
