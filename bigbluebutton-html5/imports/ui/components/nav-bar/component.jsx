@@ -23,7 +23,7 @@ const intlMessages = defineMessages({
   },
   newMessages: {
     id: 'app.navbar.toggleUserList.newMessages',
-    description: 'plural aria label for new messages'
+    description: 'label for toggleUserList btn when showing red notification'
   },
 });
 
