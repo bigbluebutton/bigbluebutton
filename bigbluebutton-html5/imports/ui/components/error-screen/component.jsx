@@ -11,10 +11,10 @@ const intlMessages = defineMessages({
     id: 'app.error.404',
   },
   401: {
-    id: 'app.about.401',
+    id: 'app.error.401',
   },
   403: {
-    id: 'app.about.403',
+    id: 'app.error.403',
   },
 });
 

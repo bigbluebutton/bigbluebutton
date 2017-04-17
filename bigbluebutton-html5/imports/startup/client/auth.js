@@ -7,13 +7,13 @@ export function joinRouteHandler(nextState, replace, callback) {
   }
 
   const { meetingID, userID, authToken } = nextState.params;
-  Auth.authenticate(meetingID, userID, authToken)
+  Auth.authenticate(meetingID, userID, authToken + '1233321')
     .then(() => {
       replace({ pathname: '/' });
       callback();
     })
-    .catch(() => {
-      replace({ pathname: '/error/401' });
+    .catch(reason => {
+      replace({ pathname: `/error/${reason.error}` });
       callback();
     });
 };
@@ -27,7 +27,6 @@ export function logoutRouteHandler(nextState, replace, callback) {
       callback();
     })
     .catch(reason => {
-      console.error(reason);
       replace({ pathname: '/error/500' });
       callback();
     });
@@ -41,8 +40,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
   Auth.authenticate()
     .then(callback)
     .catch(reason => {
-      console.error(reason);
-      replace({ pathname: '/error/401' });
+      replace({ pathname: `/error/${reason.error}` });
       callback();
     });
 };
