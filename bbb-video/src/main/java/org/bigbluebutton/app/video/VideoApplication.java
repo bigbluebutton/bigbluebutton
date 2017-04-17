@@ -223,12 +223,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	String meetingId = conn.getScope().getName();
     	String streamId = stream.getPublishedName();
     	
-    	publisher.userSharedWebcamMessage(meetingId, userId, streamId);
-    	VideoStreamListener listener = new VideoStreamListener(conn.getScope(), stream, recordVideoStream, userId, packetTimeout);
-        listener.setEventRecordingService(recordingService);
-        stream.addStreamListener(listener); 
-        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
-        
         addH263PublishedStream(streamId);
         if (streamId.contains("/")) {
             if(VideoRotator.getDirection(streamId) != null) {
@@ -237,7 +231,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             }
         }
         else if (recordVideoStream) {
-	    	recordStream(stream);
+            recordStream(stream);
+            publisher.userSharedWebcamMessage(meetingId, userId, streamId);
+            VideoStreamListener listener = new VideoStreamListener(conn.getScope(), stream, recordVideoStream, userId, packetTimeout);
+            listener.setEventRecordingService(recordingService);
+            stream.addStreamListener(listener); 
+            streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
         }
     }
 
@@ -268,15 +267,22 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   		String meetingId = conn.getScope().getName();
   		String streamId = stream.getPublishedName();
   	
-  		publisher.userUnshareWebcamRequestMessage(meetingId, userId, streamId);
-
         IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
         if (listener != null) {
         	((VideoStreamListener) listener).streamStopped();
         	stream.removeStreamListener(listener);
         }
         
-      if (recordVideoStream) {        
+      if (streamId.contains("/")) {
+        removeH263ConverterIfNeeded(streamId);
+        if(videoRotators.containsKey(streamId)) {
+          // Stop rotator
+          videoRotators.remove(streamId).stop();
+        }
+        removeH263PublishedStream(streamId);
+      } else if (recordVideoStream) {
+        publisher.userUnshareWebcamRequestMessage(meetingId, userId, streamId);
+
         long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
         log.info("Stop recording event for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
         Map<String, String> event = new HashMap<String, String>();
@@ -288,13 +294,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         event.put("eventName", "StopWebcamShareEvent");
         recordingService.record(scopeName, event);    		
       }
-
-      removeH263ConverterIfNeeded(streamId);
-      if(videoRotators.containsKey(streamId)) {
-        // Stop rotator
-        videoRotators.remove(streamId).stop();
-      }
-      removeH263PublishedStream(streamId);
     }
     
     /**
