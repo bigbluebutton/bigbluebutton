@@ -46,6 +46,7 @@
   "app.navBar.settingsDropdown.exitFullScreenLabel": "Exit fullscreen",
   "app.navBar.settingsDropdown.exitFullScreenDesc": "Exit fullscreen mode",
   "app.navBar.userListToggleBtnLabel": "User List Toggle",
+  "app.navbar.toggleUserList.newMessages": "with new message notification",
   "app.leaveConfirmation.title": "Leave Session",
   "app.leaveConfirmation.message": "Do you want to leave this meeting?",
   "app.leaveConfirmation.confirmLabel": "Leave",
