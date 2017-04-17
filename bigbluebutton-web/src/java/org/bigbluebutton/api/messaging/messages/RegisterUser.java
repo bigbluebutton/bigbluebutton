@@ -1,5 +1,6 @@
 package org.bigbluebutton.api.messaging.messages;
 
+
 public class RegisterUser implements IMessage {
 
 	public final String meetingID;
@@ -9,9 +10,11 @@ public class RegisterUser implements IMessage {
 	public final String externUserID;
 	public final String authToken;
 	public final String avatarURL;
-	public final String guest;
+	public final Boolean guest;
+	public final Boolean authed;
 	
-	public RegisterUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL, String guest) {
+	public RegisterUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,
+						String authToken, String avatarURL, Boolean guest, Boolean authed) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
@@ -20,5 +23,6 @@ public class RegisterUser implements IMessage {
 		this.authToken = authToken;		
 		this.avatarURL = avatarURL;		
 		this.guest = guest;
+		this.authed = authed;
 	}
 }

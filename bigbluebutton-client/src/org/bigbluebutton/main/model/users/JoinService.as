@@ -133,6 +133,7 @@ package org.bigbluebutton.main.model.users
                 response.internalUserId = result.response.internalUserID;
                 response.role = result.response.role;
                 response.guest = result.response.guest;
+				response.authed = result.response.authed;
                 response.room = result.response.room;
                 response.authToken = result.response.authToken;
                 response.record = result.response.record;
@@ -171,7 +172,8 @@ package org.bigbluebutton.main.model.users
                                              .withExternalId(response.externUserID).withToken(response.authToken)
                                              .withLayout(response.defaultLayout).withWelcome(response.welcome)
                                              .withDialNumber(response.dialnumber).withRole(response.role)
-                                             .withCustomData(response.customData).withGuest(response.guest.toUpperCase() == "TRUE").build();
+                                             .withCustomData(response.customData).withGuest(response.guest)
+											 .withAuthed(response.authed).build();
                 
         MeetingModel.getInstance().meeting = new MeetingBuilder(response.conference, response.conferenceName)
                                              .withDefaultLayout(response.defaultLayout).withVoiceConf(response.voiceBridge)

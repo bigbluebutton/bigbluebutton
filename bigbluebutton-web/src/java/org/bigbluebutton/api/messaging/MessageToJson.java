@@ -6,28 +6,13 @@ import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
-import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeleteRecordingMessage;
 
 public class MessageToJson {
 
-	public static String registerUserToJson(RegisterUserMessage message) {
-		HashMap<String, Object> payload = new HashMap<String, Object>();
-		payload.put(Constants.MEETING_ID, message.meetingID);
-		payload.put(Constants.NAME, message.fullname);
-		payload.put(Constants.USER_ID, message.internalUserId);
-		payload.put(Constants.ROLE, message.role);
-		payload.put(Constants.EXT_USER_ID, message.externUserID);
-		payload.put(Constants.AUTH_TOKEN, message.authToken);
-		payload.put(Constants.AVATAR_URL, message.avatarURL);
-		payload.put(Constants.GUEST, message.guest);
-		
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(RegisterUserMessage.REGISTER_USER, message.VERSION, null);
 
-		return MessageBuilder.buildJson(header, payload);		
-	}
 	
 	public static String createMeetingMessageToJson(CreateMeetingMessage msg) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();

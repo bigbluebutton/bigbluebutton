@@ -121,7 +121,8 @@ trait UsersApp {
       log.info("Register user failed. Mmeeting has ended. meetingId=" + mProps.meetingID + " userId=" + msg.userID)
       sendMeetingHasEnded(msg.userID)
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.avatarURL, msg.guest, msg.guest)
+      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.avatarURL,
+        msg.guest, msg.authed, msg.guest)
       usersModel.addRegisteredUser(msg.authToken, regUser)
 
       log.info("Register user success. meetingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + regUser)

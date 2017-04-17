@@ -40,7 +40,8 @@ public interface MessagingService {
 	void endMeeting(String meetingId);
 	void send(String channel, String message);
 	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);
-	void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL, String guest);
+	void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,
+					  String authToken, String avatarURL, Boolean guest, Boolean authed);
 	void sendKeepAlive(String system, Long timestamp);
 	void sendStunTurnInfo(String meetingId, String internalUserId, Set<StunServer> stuns, Set<TurnEntry> turns);
 	void publishRecording(String recordId, String meetingId, String externalMeetingId, String format, boolean publish);

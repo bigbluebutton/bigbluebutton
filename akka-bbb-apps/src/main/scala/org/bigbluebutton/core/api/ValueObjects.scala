@@ -95,6 +95,7 @@ case class RegisteredUser(
   authToken: String,
   avatarURL: String,
   guest: Boolean,
+  authed: Boolean,
   waitingForAcceptance: Boolean)
 
 case class Voice(

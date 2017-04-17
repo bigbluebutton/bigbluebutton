@@ -24,7 +24,7 @@ dependencies {
     compile 'org.apache.poi:poi-ooxml:3.15'
 	compile 'com.zaxxer:nuprocess:1.1.0'
 
-	compile 'org.bigbluebutton:bbb-common-message:0.0.18-SNAPSHOT'
+	compile 'org.bigbluebutton:bbb-common-message:0.0.19-SNAPSHOT'
 	compile 'org.bigbluebutton:bbb-common-web:0.0.1-SNAPSHOT'
 
   // Logging

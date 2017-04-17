@@ -253,11 +253,14 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
-    String guest;
-    if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true")) {
-        guest = "true";
-    } else {
-        guest = "false";
+    Boolean guest = false;
+    if (!StringUtils.isEmpty(params.guest)) {
+      guest = Boolean.parseBoolean(params.guest)
+    }
+
+    Boolean authenticated = false;
+    if (!StringUtils.isEmpty(params.auth)) {
+      authenticated = Boolean.parseBoolean(params.auth)
     }
 
     // Do we have a name for the user joining? If none, complain.
@@ -451,6 +454,7 @@ class ApiController {
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
     us.guest = guest
+    us.authed = authenticated
     us.logoutUrl = meeting.getLogoutUrl();
     us.configXML = configxml;
 
@@ -468,7 +472,8 @@ class ApiController {
     meetingService.addUserSession(sessionToken, us);
 
     // Register user into the meeting.
-    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.avatarURL, us.guest)
+    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
+            us.authToken, us.avatarURL, us.guest, us.authed)
 
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
     // when maxUsers is set to 0, the validation is ignored

@@ -99,7 +99,7 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().setMyName(result.username);
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
-				UserManager.getInstance().getConference().setGuest(result.guest == "true");
+				UserManager.getInstance().getConference().setGuest(result.guest);
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
 				UserManager.getInstance().getConference().setMyCustomData(result.customdata);
 				UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
@@ -124,7 +124,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.isBreakout = result.isBreakout;
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
-				_conferenceParameters.guest = (result.guest.toUpperCase() == "TRUE");
+				_conferenceParameters.guest = (result.guest);
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
         _conferenceParameters.authToken = result.authToken;
