@@ -482,16 +482,8 @@ module BigBlueButton
     return t.getutc.strftime("%H:%M:%S.%L")
   end
   
-  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset)
+  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, processed_audio_file)
     BigBlueButton.logger.info("Processing webcam videos")
-
-    # Process audio
-    audio_edl = BigBlueButton::AudioEvents.create_audio_edl(
-      "#{temp_dir}/#{meeting_id}")
-    BigBlueButton::EDL::Audio.dump(audio_edl)
-
-    audio_file = BigBlueButton::EDL::Audio.render(
-      audio_edl, "#{target_dir}/webcams")
 
     # Process user video (camera)
     webcam_edl = BigBlueButton::Events.create_webcam_edl(
@@ -521,9 +513,10 @@ module BigBlueButton
         ]
       }
     ]
+
     formats.each do |format|
       filename = BigBlueButton::EDL::encode(
-        audio_file, user_video_file, format, "#{target_dir}/webcams", audio_offset)
+        processed_audio_file, user_video_file, format, "#{target_dir}/webcams", audio_offset)
     end
   end
 
