@@ -99,18 +99,23 @@ public class Pdf2SwfPageConverter implements PageConverter {
     log.debug("Pdf2Swf conversion duration: {} sec", (pdf2SwfEnd - pdf2SwfStart)/1000);
 
     File destFile = new File(dest);
-    if (pHandler.isConversionSuccessfull() && destFile.exists()
+    if (pHandler.isConversionSuccessful() && destFile.exists()
         && pHandler.numberOfPlacements() < placementsThreshold
         && pHandler.numberOfTextTags() < defineTextThreshold
         && pHandler.numberOfImageTags() < imageTagThreshold) {
       return true;
     } else {
+     // We need t delete the destination file as we are starting a new conversion process
+      if (destFile.exists()) {
+        destFile.delete();
+      }
+
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
       logData.put("page", page);
-      logData.put("convertSuccess", pHandler.isConversionSuccessfull());
+      logData.put("convertSuccess", pHandler.isConversionSuccessful());
       logData.put("fileExists", destFile.exists());
       logData.put("numObjectTags", pHandler.numberOfPlacements());
       logData.put("numTextTags", pHandler.numberOfTextTags());
@@ -203,7 +208,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       tempPdfPage.delete();
       tempPng.delete();
 
-      boolean doneSwf = pSwfHandler.isConversionSuccessfull();
+      boolean doneSwf = pSwfHandler.isConversionSuccessful();
 
       long convertEnd = System.currentTimeMillis();
 

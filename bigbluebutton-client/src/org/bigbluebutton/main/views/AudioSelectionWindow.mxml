@@ -76,6 +76,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vboxListen.percentWidth = 50;
 				}
 				
+				if (!JSAPI.getInstance().isWebRTCAvailable()) {
+					audioBrowserHint.visible = audioBrowserHint.includeInLayout = true;
+					this.height += 72;
+				}
+				
 				// If Puffin browser is deteted and version is less than 4.6
 				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
 					vruleListen.visible = vruleListen.includeInLayout = vboxMic.visible = vboxMic.includeInLayout = false;
@@ -139,6 +144,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						 styleName="micSettingsWindowTitleStyle"
 						 width="100%" height="100%" />
 		</mx:HBox>
+		<mx:Box width="100%" height="56"
+				verticalAlign="middle" horizontalAlign="center"
+				verticalScrollPolicy="off" horizontalScrollPolicy="off"
+				visible="false" includeInLayout="false"
+				id="audioBrowserHint" styleName="audioBroswerHintBoxStyle">
+			<mx:Text width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.message')}" styleName="audioBroswerHintTextStyle"/>
+		</mx:Box>
 		<mx:HRule width="100%" />
 		<mx:HBox width="100%" height="100%">
 			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center" verticalAlign="middle">

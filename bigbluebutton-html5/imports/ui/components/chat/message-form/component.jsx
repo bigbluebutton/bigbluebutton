@@ -123,7 +123,7 @@ class MessageForm extends Component {
           disabled={disabled}
           label={intl.formatMessage(messages.submitLabel)}
           hideLabel={true}
-          icon={"right_arrow"}
+          icon={"send"}
           onClick={()=>{}}
           />
       </form>
