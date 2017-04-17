@@ -43,7 +43,7 @@ public class Pdf2SwfPageConverterHandler extends AbstractPageConverterHandler {
   private static String IMAGE_TAG_PATTERN = "\\d+\\s" + IMAGE_TAG_OUTPUT;
 
   @Override
-  public Boolean isConversionSuccessfull() {
+  public Boolean isConversionSuccessful() {
     return !exitedWithError();
   }
 

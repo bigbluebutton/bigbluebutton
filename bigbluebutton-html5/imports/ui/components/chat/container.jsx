@@ -54,30 +54,37 @@ export default injectIntl(createContainer(({ params, intl }) => {
     messages = ChatService.getPrivateMessages(chatID);
   }
 
-  if (messages && chatID !== PUBLIC_CHAT_KEY) {
-    let userMessage = messages.find(m => m.sender !== null);
-    let user = ChatService.getUser(chatID, '{{NAME}}');
-    // TODO: Find out how to get the name of the user when logged out
+  let user = ChatService.getUser(chatID, '{{NAME}}');
 
-    title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
-    chatName = user.name;
+  let partnerIsLoggedOut = false;
 
-    if (user.isLoggedOut) {
-      let time = Date.now();
-      let id = `partner-disconnected-${time}`;
-      let messagePartnerLoggedOut = {
-        id: id,
-        content: [{
-          id: id,
-          text: intl.formatMessage(intlMessages.partnerDisconnected, { name: user.name }),
-          time: time,
-        },],
-        time: time,
-        sender: null,
-      };
+  if (user) {
+    partnerIsLoggedOut = !user.isOnline;
 
-      messages.push(messagePartnerLoggedOut);
-      isChatLocked = true;
+    if (messages && chatID !== PUBLIC_CHAT_KEY) {
+      let userMessage = messages.find(m => m.sender !== null);
+      let user = ChatService.getUser(chatID, '{{NAME}}');
+
+      title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
+      chatName = user.name;
+
+      if (!user.isOnline) {
+        let time = Date.now();
+        let id = `partner-disconnected-${time}`;
+        let messagePartnerLoggedOut = {
+          id,
+          content: [{
+            id,
+            text: intl.formatMessage(intlMessages.partnerDisconnected, { name: user.name }),
+            time,
+          },],
+          time,
+          sender: null,
+        };
+
+        messages.push(messagePartnerLoggedOut);
+        isChatLocked = true;
+      }
     }
   }
 
@@ -92,6 +99,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
     messages,
     lastReadMessageTime,
     hasUnreadMessages,
+    partnerIsLoggedOut,
     isChatLocked,
     scrollPosition,
     actions: {
