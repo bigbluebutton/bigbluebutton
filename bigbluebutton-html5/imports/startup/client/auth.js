@@ -7,7 +7,7 @@ export function joinRouteHandler(nextState, replace, callback) {
   }
 
   const { meetingID, userID, authToken } = nextState.params;
-  Auth.authenticate(meetingID, userID, authToken + '1233321')
+  Auth.authenticate(meetingID, userID, authToken)
     .then(() => {
       replace({ pathname: '/' });
       callback();
@@ -40,6 +40,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
   Auth.authenticate()
     .then(callback)
     .catch(reason => {
+      console.error(reason);
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });
