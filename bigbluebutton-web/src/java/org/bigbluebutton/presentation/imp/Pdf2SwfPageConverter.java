@@ -86,6 +86,13 @@ public class Pdf2SwfPageConverter implements PageConverter {
     long pdf2SwfEnd = System.currentTimeMillis();
     log.debug("Pdf2Swf conversion duration: {} sec",
         (pdf2SwfEnd - pdf2SwfStart) / 1000);
+    boolean timedOut = pdf2SwfEnd
+        - pdf2SwfStart >= Integer.parseInt(convTimeout.replaceFirst("s", ""))
+            * 1000;
+    boolean twiceTotalObjects = pHandler.numberOfPlacements()
+        + pHandler.numberOfTextTags()
+        + pHandler.numberOfImageTags() >= (placementsThreshold
+            + defineTextThreshold + imageTagThreshold) * 2;
 
     File destFile = new File(dest);
     if (pHandler.isConversionSuccessful() && destFile.exists()
@@ -131,10 +138,11 @@ public class Pdf2SwfPageConverter implements PageConverter {
       // Step 1: Convert a PDF page to PNG using a raw GhostScript command
       NuProcessBuilder pbPng = new NuProcessBuilder(Arrays.asList("timeout",
           convTimeout, GHOSTSCRIPT_EXEC, "-sDEVICE=png16m", "-dNOPAUSE",
-          "-dQUIET", "-dBATCH", "-r150", "-dGraphicsAlphaBits=4",
-          "-dTextAlphaBits=4", "-dFirstPage=" + page, "-dLastPage=" + page,
-          "-sOutputFile=" + tempPng.getAbsolutePath(), noPdfMarkWorkaround,
-          presentation.getAbsolutePath()));
+          "-dQUIET", "-dBATCH",
+          !timedOut && !twiceTotalObjects ? "-r150" : "-r72",
+          "-dGraphicsAlphaBits=4", "-dTextAlphaBits=4", "-dFirstPage=" + page,
+          "-dLastPage=" + page, "-sOutputFile=" + tempPng.getAbsolutePath(),
+          noPdfMarkWorkaround, presentation.getAbsolutePath()));
 
       Pdf2PngPageConverterHandler pbPngHandler = new Pdf2PngPageConverterHandler();
       pbPng.setProcessListener(pbPngHandler);
@@ -147,7 +155,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
       long gsEnd = System.currentTimeMillis();
       log.debug("Ghostscript conversion duration: {} sec",
-          (gsStart - gsEnd) / 1000);
+          (gsEnd - gsStart) / 1000);
 
       long png2swfStart = System.currentTimeMillis();
 
