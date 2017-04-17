@@ -7,21 +7,27 @@ import Modal from '/imports/ui/components/modal/component';
 const intlMessages = defineMessages({
   title: {
     id: 'app.breakoutJoinConfirmation.title',
+    description: 'Join breakout room title',
   },
   message: {
     id: 'app.breakoutJoinConfirmation.message',
+    description: 'Join breakout confim message',
   },
   confirmLabel: {
     id: 'app.breakoutJoinConfirmation.confirmLabel',
+    description: 'Join confirmation button label',
   },
   confirmDesc: {
     id: 'app.breakoutJoinConfirmation.confirmDesc',
+    description: 'adds context to confirm option',
   },
   dismissLabel: {
     id: 'app.breakoutJoinConfirmation.dismissLabel',
+    description: 'Cancel button label',
   },
   dismissDesc: {
     id: 'app.breakoutJoinConfirmation.dismissDesc',
+    description: 'adds context to dismiss option',
   },
 });
 

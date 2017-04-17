@@ -139,7 +139,8 @@ class MessageList extends Component {
         <div
           tabIndex="0"
           role="log"
-          aria-atomic="true"
+          aria-atomic="false"
+          aria-live="polite"
           aria-relevant="additions"
           ref="scrollArea"
           className={styles.messageList}

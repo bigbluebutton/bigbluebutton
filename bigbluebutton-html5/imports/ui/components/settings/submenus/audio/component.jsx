@@ -1,13 +1,28 @@
 import React from 'react';
 import BaseMenu from '../base/component';
 import styles from '../styles.scss';
-
+import { defineMessages, injectIntl } from 'react-intl';
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
 import AudioTestContainer from '/imports/ui/components/audio-test/container';
 import cx from 'classnames';
 
-export default class AudioMenu extends BaseMenu {
+const intlMessages = defineMessages({
+  micSource: {
+    id: 'app.submenu.audio.micSourceLabel',
+    description: 'Label for microphone source',
+  },
+  speakerSource: {
+    id: 'app.submenu.audio.speakerSourceLabel',
+    description: 'Label for speaker source',
+  },
+  streamVolume: {
+    id: 'app.submenu.audio.streamVolumeLabel',
+    description: 'Label for stream volume',
+  },
+});
+
+class AudioMenu extends BaseMenu {
   constructor(props) {
     super(props);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -45,6 +60,8 @@ export default class AudioMenu extends BaseMenu {
   }
 
   render() {
+    const { intl } = this.props;
+
     return (
       <div>
         <div className={styles.header}>
@@ -56,7 +73,7 @@ export default class AudioMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
-                  Microphone source
+                  {intl.formatMessage(intlMessages.micSource)}
                 </label>
                 <DeviceSelector
                   value={this.state.inputDeviceId}
@@ -68,7 +85,7 @@ export default class AudioMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
-                  Your audio stream volume
+                  {intl.formatMessage(intlMessages.streamVolume)}
                 </label>
                 <AudioStreamVolume
                   deviceId={this.state.inputDeviceId}
@@ -80,7 +97,7 @@ export default class AudioMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={cx(styles.label, styles.labelSmall)}>
-                  Speaker source
+                  {intl.formatMessage(intlMessages.speakerSource)}
                 </label>
                 <DeviceSelector
                   value={this.state.outputDeviceId}
@@ -99,3 +116,5 @@ export default class AudioMenu extends BaseMenu {
     );
   }
 };
+
+export default injectIntl(AudioMenu);

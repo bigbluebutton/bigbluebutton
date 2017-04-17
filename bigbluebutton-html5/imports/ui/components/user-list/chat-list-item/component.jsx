@@ -10,12 +10,15 @@ import { defineMessages, injectIntl } from 'react-intl';
 const intlMessages = defineMessages({
   titlePublic: {
     id: 'app.chat.titlePublic',
+    description: 'title for public chat',
   },
   unreadPlural: {
     id: 'app.userlist.chatlistitem.unreadPlural',
+    description: 'singular aria label for new message'
   },
   unreadSingular: {
     id: 'app.userlist.chatlistitem.unreadSingular',
+    description: 'plural aria label for new messages'
   },
 });
 

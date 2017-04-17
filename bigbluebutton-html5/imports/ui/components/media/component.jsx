@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './styles.scss';
-import { FormattedMessage, FormattedDate } from 'react-intl';
 
 const propTypes = {
   content: PropTypes.element.isRequired,
