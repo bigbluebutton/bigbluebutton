@@ -9,13 +9,9 @@ import Audio from '/imports/ui/components/audio-modal/component';
 let isUserPresenter = () => {
 
   // check if user is a presenter
-  let isPresenter = Users.findOne({
+  return Users.findOne({
     userId: AuthSingleton.userID,
   }).user.presenter;
-
-  return {
-    isUserPresenter: isPresenter,
-  };
 };
 
 const handleExitAudio = () => {

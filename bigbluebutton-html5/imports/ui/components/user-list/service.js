@@ -34,14 +34,14 @@ const mapUser = user => ({
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isPhoneUser: user.phone_user,
-  isLoggedOut: !user ? true : false,
+  isOnline: true
 });
 
 const mapOpenChats = chat => {
   let currentUserId = Auth.userID;
   return chat.message.from_userid !== Auth.userID
-                                    ? chat.message.from_userid
-                                    : chat.message.to_userid;
+    ? chat.message.from_userid
+    : chat.message.to_userid;
 };
 
 const sortUsersByName = (a, b) => {
@@ -165,21 +165,21 @@ const userFindSorting = {
 
 const getUsers = () => {
   let users = Users
-  .find({}, userFindSorting)
-  .fetch();
+    .find({ "user.connection_status": 'online' }, userFindSorting)
+    .fetch();
 
   return users
-  .map(u => u.user)
-  .map(mapUser)
-  .sort(sortUsers);
+    .map(u => u.user)
+    .map(mapUser)
+    .sort(sortUsers);
 };
 
 const getOpenChats = chatID => {
 
   let openChats = Chat
-  .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
-  .fetch()
-  .map(mapOpenChats);
+    .find({ 'message.chat_type': PRIVATE_CHAT_TYPE })
+    .fetch()
+    .map(mapOpenChats);
 
   let currentUserId = Auth.userID;
 
@@ -190,13 +190,13 @@ const getOpenChats = chatID => {
   openChats = _.uniq(openChats);
 
   openChats = Users
-  .find({ 'user.userid': { $in: openChats } })
-  .map(u => u.user)
-  .map(mapUser)
-  .map(op => {
-    op.unreadCounter = UnreadMessages.count(op.id);
-    return op;
-  });
+    .find({ 'user.userid': { $in: openChats } })
+    .map(u => u.user)
+    .map(mapUser)
+    .map(op => {
+      op.unreadCounter = UnreadMessages.count(op.id);
+      return op;
+    });
 
   let currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   let filteredChatList = [];
@@ -228,7 +228,7 @@ const getOpenChats = chatID => {
   });
 
   return openChats
-  .sort(sortChats);
+    .sort(sortChats);
 };
 
 getCurrentUser = () => {
@@ -261,12 +261,12 @@ const userActions = {
   },
   mute: {
     label: 'Mute Audio',
-    handler: user=> callServer('muteUser', user.id),
+    handler: user => callServer('muteUser', user.id),
     icon: 'audio_off',
   },
   unmute: {
     label: 'Unmute Audio',
-    handler: user=> callServer('unmuteUser', user.id),
+    handler: user => callServer('unmuteUser', user.id),
     icon: 'audio_on',
   },
 };

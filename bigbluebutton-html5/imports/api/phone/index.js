@@ -47,7 +47,7 @@ function exitAudio(afterExitCall = () => {}) {
 
         // notify BBB-apps we are leaving the call call if we are listen only
         if (amIListenOnly()) {
-          callServer('listenOnlyRequestToggle', false);
+          callServer('listenOnlyToggle', false);
         }
 
         window.webrtc_hangup(hangupCallback);
@@ -132,7 +132,7 @@ function joinVoiceCallSIP(options) {
 }
 
 function joinListenOnly() {
-  callServer('listenOnlyRequestToggle', true);
+  callServer('listenOnlyToggle', true);
   if (MEDIA_CONFIG.useSIPAudio) {
     joinVoiceCallSIP({ isListenOnly: true });
   } else {

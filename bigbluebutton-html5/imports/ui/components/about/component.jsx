@@ -5,11 +5,9 @@ import Modal from '/imports/ui/components/modal/component';
 const intlMessages = defineMessages({
   title: {
     id: 'app.about.title',
-    defaultMessage: 'About',
   },
   version: {
     id: 'app.about.version',
-    defaultMessage: 'Client Build:',
   },
   copyright: {
     id: 'app.about.copyright',
@@ -17,19 +15,15 @@ const intlMessages = defineMessages({
   },
   confirmLabel: {
     id: 'app.about.confirmLabel',
-    defaultMessage: 'OK',
   },
   confirmDesc: {
     id: 'app.about.confirmDesc',
-    defaultMessage: 'OK',
   },
   dismissLabel: {
     id: 'app.about.dismissLabel',
-    defaultMessage: 'Cancel',
   },
   dismissDesc: {
     id: 'app.about.dismissDesc',
-    defaultMessage: 'Close about client information',
   },
 });
 

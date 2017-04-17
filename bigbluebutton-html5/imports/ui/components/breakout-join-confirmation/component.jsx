@@ -7,27 +7,21 @@ import Modal from '/imports/ui/components/modal/component';
 const intlMessages = defineMessages({
   title: {
     id: 'app.breakoutJoinConfirmation.title',
-    defaultMessage: 'Join Breakout Room',
   },
   message: {
     id: 'app.breakoutJoinConfirmation.message',
-    defaultMessage: 'Do you want to join',
   },
   confirmLabel: {
     id: 'app.breakoutJoinConfirmation.confirmLabel',
-    defaultMessage: 'Join',
   },
   confirmDesc: {
     id: 'app.breakoutJoinConfirmation.confirmDesc',
-    defaultMessage: 'Join you to the Breakout Room',
   },
   dismissLabel: {
     id: 'app.breakoutJoinConfirmation.dismissLabel',
-    defaultMessage: 'Cancel',
   },
   dismissDesc: {
     id: 'app.breakoutJoinConfirmation.dismissDesc',
-    defaultMessage: 'Closes and rejects Joining the Breakout Room',
   },
 });
 
