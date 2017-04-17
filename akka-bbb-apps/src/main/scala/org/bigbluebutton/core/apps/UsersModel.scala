@@ -38,8 +38,21 @@ class UsersModel {
     regUsers += token -> regUser
   }
 
-  def getRegisteredUserWithToken(token: String): Option[RegisteredUser] = {
-    regUsers.get(token)
+  def getRegisteredUserWithToken(token: String, userId: String): Option[RegisteredUser] = {
+
+    def isSameUserId(ru: RegisteredUser, userId: String): Option[RegisteredUser] = {
+      if (userId.startsWith(ru.id)) {
+        Some(ru)
+      } else {
+        None
+      }
+    }
+
+    for {
+      ru <- regUsers.get(token)
+      user <- isSameUserId(ru, userId)
+    } yield user
+
   }
 
   def generateWebUserId: String = {

@@ -133,5 +133,4 @@ export default class SIPBridge extends BaseAudioBridge {
       }
     }, options.isListenOnly, st);
   }
-
 }

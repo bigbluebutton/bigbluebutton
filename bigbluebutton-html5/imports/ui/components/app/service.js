@@ -1,5 +1,6 @@
 import Breakouts from '/imports/api/breakouts';
-import SettingsService from '/imports/ui/components/settings/service';
+import Settings from '/imports/ui/services/settings';
+import Auth from '/imports/ui/services/auth/index.js';
 
 let currentModal = {
   component: null,
@@ -23,13 +24,13 @@ const clearModal = () => {
 };
 
 const getCaptionsStatus = () => {
-  const settings = SettingsService.getSettingsFor('cc');
-  return settings ? settings.closedCaptions : false;
+  const ccSettings = Settings.cc;
+  return ccSettings ? ccSettings.enabled : false;
 };
 
 const getFontSize = () => {
-  const settings = SettingsService.getSettingsFor('application');
-  return settings ? settings.fontSize : '16px';
+  const applicationSettings = Settings.application;
+  return applicationSettings ? applicationSettings.fontSize : '16px';
 };
 
 function meetingIsBreakout() {

@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio/audio-notification/container';
@@ -8,6 +8,21 @@ import ChatNotificationContainer from '../chat/notification/container';
 
 import styles from './styles';
 import cx from 'classnames';
+
+const intlMessages = defineMessages({
+  userListLabel: {
+    id: 'app.userlist.Label',
+  },
+  chatLabel: {
+    id: 'app.chat.Label',
+  },
+  mediaLabel: {
+    id: 'app.media.Label',
+  },
+  actionsbarLabel: {
+    id: 'app.actionsBar.Label',
+  },
+});
 
 const propTypes = {
   init: PropTypes.func.isRequired,
@@ -23,7 +38,7 @@ const defaultProps = {
   fontSize: '16px',
 };
 
-export default class App extends Component {
+class App extends Component {
   constructor(props) {
     super(props);
 
@@ -63,7 +78,7 @@ export default class App extends Component {
   }
 
   renderUserList() {
-    let { userList } = this.props;
+    let { userList, intl } = this.props;
     const { compactUserList } = this.state;
 
     if (!userList) return;
@@ -75,44 +90,55 @@ export default class App extends Component {
     });
 
     return (
-      <nav className={cx(styles.userList, userListStyle)}>
-        {userList}
+      <nav
+        className={cx(styles.userList, userListStyle)}
+        aria-label={intl.formatMessage(intlMessages.userListLabel)}>
+          {userList}
       </nav>
     );
   }
 
   renderChat() {
-    const { chat } = this.props;
+    const { chat, intl } = this.props;
 
     if (!chat) return null;
 
     return (
-      <section className={styles.chat} role="log">
-        {chat}
+      <section
+        className={styles.chat}
+        role="region"
+        aria-label={intl.formatMessage(intlMessages.chatLabel)}>
+          {chat}
       </section>
     );
   }
 
   renderMedia() {
-    const { media } = this.props;
+    const { media, intl } = this.props;
 
     if (!media) return null;
 
     return (
-      <section className={styles.media}>
-        {media}
+      <section
+        className={styles.media}
+        role="region"
+        aria-label={intl.formatMessage(intlMessages.mediaLabel)}>
+          {media}
       </section>
     );
   }
 
   renderActionsBar() {
-    const { actionsbar } = this.props;
+    const { actionsbar, intl } = this.props;
 
     if (!actionsbar) return null;
 
     return (
-      <section className={styles.actionsbar}>
-        {actionsbar}
+      <section
+        className={styles.actionsbar}
+        role="region"
+        aria-label={intl.formatMessage(intlMessages.actionsbarLabel)}>
+          {actionsbar}
       </section>
     );
   }
@@ -144,3 +170,4 @@ export default class App extends Component {
 
 App.propTypes = propTypes;
 App.defaultProps = defaultProps;
+export default injectIntl(App);

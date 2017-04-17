@@ -9,8 +9,6 @@ import {
   getCaptionsStatus,
 } from './service';
 
-import { setDefaultSettings } from '../settings/service';
-
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Breakouts from '/imports/api/breakouts';
@@ -46,10 +44,6 @@ class AppContainer extends Component {
       </App>
     );
   }
-};
-
-const init = () => {
-  setDefaultSettings();
 };
 
 export default withRouter(injectIntl(createContainer(({ router, intl, baseControls }) => {

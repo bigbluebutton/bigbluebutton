@@ -1,11 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Settings from './component';
+import SettingsService from '/imports/ui/services/settings';
+
 import {
-    getSettingsFor,
-    updateSettings,
     getClosedCaptionLocales,
     getUserRoles,
+    updateSettings,
   } from './service';
 
 class SettingsContainer extends Component {
@@ -18,11 +19,11 @@ class SettingsContainer extends Component {
 
 export default createContainer(() => {
   return {
-    audio: getSettingsFor('audio'),
-    video: getSettingsFor('video'),
-    application: getSettingsFor('application'),
-    cc: getSettingsFor('cc'),
-    participants: getSettingsFor('participants'),
+    audio: SettingsService.audio,
+    video: SettingsService.video,
+    application: SettingsService.application,
+    cc: SettingsService.cc,
+    participants: SettingsService.participants,
     updateSettings,
     locales: getClosedCaptionLocales(),
     isModerator: getUserRoles() === 'MODERATOR',

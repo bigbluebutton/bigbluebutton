@@ -4,6 +4,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
 import addChat from '/imports/api/chat/server/modifiers/addChat';
+import clearUserSystemMessages from '/imports/api/chat/server/modifiers/clearUserSystemMessages';
 
 export default function handleValidateAuthToken({ payload }) {
   const meetingId = payload.meeting_id;
@@ -40,6 +41,7 @@ export default function handleValidateAuthToken({ payload }) {
 
     if (numChanged) {
       if (validStatus) {
+        clearUserSystemMessages(meetingId, userId);
         addWelcomeChatMessage(meetingId, userId);
       }
 
@@ -57,8 +59,8 @@ const addWelcomeChatMessage = (meetingId, userId) => {
   const Meeting = Meetings.findOne({ meetingId });
 
   let welcomeMessage = APP_CONFIG.defaultWelcomeMessage
-      .concat(APP_CONFIG.defaultWelcomeMessageFooter)
-      .replace(/%%CONFNAME%%/, Meeting.meetingName);
+    .concat(APP_CONFIG.defaultWelcomeMessageFooter)
+    .replace(/%%CONFNAME%%/, Meeting.meetingName);
 
   const message = {
     chat_type: CHAT_CONFIG.type_system,

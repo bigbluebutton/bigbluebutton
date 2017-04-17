@@ -47,6 +47,15 @@ public class RecordingMetadataPlayback {
     return duration;
   }
 
+  public Long calculateDuration() {
+    if (duration > 0) {
+      // convert to minutes
+      return duration / 60000;
+    } else {
+      return 0L;
+    }
+  }
+
   public void setExtensions(Extensions extensions) {
     this.extensions = extensions;
   }

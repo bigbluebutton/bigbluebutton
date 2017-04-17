@@ -19,47 +19,36 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 const intlMessages = defineMessages({
   optionsLabel: {
     id: 'app.navBar.settingsDropdown.optionsLabel',
-    defaultMessage: 'Options',
   },
   fullscreenLabel: {
     id: 'app.navBar.settingsDropdown.fullscreenLabel',
-    defaultMessage: 'Make fullscreen',
   },
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
-    defaultMessage: 'Open settings',
   },
   aboutLabel: {
     id: 'app.navBar.settingsDropdown.aboutLabel',
-    defaultMessage: 'About',
   },
   aboutDesc: {
     id: 'app.navBar.settingsDropdown.aboutDesc',
-    defaultMessage: 'About',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
-    defaultMessage: 'Logout',
   },
   fullscreenDesc: {
     id: 'app.navBar.settingsDropdown.fullscreenDesc',
-    defaultMessage: 'Make the settings menu fullscreen',
   },
   settingsDesc: {
     id: 'app.navBar.settingsDropdown.settingsDesc',
-    defaultMessage: 'Change the general settings',
   },
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
-    defaultMessage: 'Leave the meeting',
   },
   exitFullScreenDesc: {
     id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
-    defaultMessage: 'exit fullscreen mode',
   },
   exitFullScreenLabel: {
     id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
-    defaultMessage: 'Exit fullscreen',
   },
 });
 
@@ -80,10 +69,12 @@ class SettingsDropdown extends Component {
 
     let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullScreenIcon = 'fullscreen';
 
     if (isFullScreen) {
       fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
       fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
+      fullScreenIcon = 'exit_fullscreen';
     }
 
     return (
@@ -105,18 +96,19 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <DropdownListItem
-              icon="fullscreen"
+              icon={fullScreenIcon}
               label={fullScreenLabel}
               description={fullScreenDesc}
               onClick={this.props.handleToggleFullscreen}
             />
             <DropdownListItem
-              icon="more"
+              icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
               description={intl.formatMessage(intlMessages.settingsDesc)}
               onClick={openSettings.bind(this)}
             />
             <DropdownListItem
+              icon="about"
               label={intl.formatMessage(intlMessages.aboutLabel)}
               description={intl.formatMessage(intlMessages.aboutDesc)}
               onClick={openAbout.bind(this)}

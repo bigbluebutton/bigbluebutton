@@ -6,6 +6,7 @@ import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-capt
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import Video from '/imports/ui/components/settings/submenus/video/component';
+import _ from 'lodash';
 
 import Icon from '../icon/component';
 import styles from './styles';
@@ -24,10 +25,10 @@ export default class Settings extends Component {
 
     this.state = {
       current: {
-        video,
-        application,
-        cc,
-        participants,
+        video: _.clone(video),
+        application: _.clone(application),
+        cc: _.clone(cc),
+        participants: _.clone(participants),
       },
       saved: {
         video: _.clone(video),
@@ -38,7 +39,7 @@ export default class Settings extends Component {
       selectedTab: 0,
     };
 
-    this.handleSettingsApply = props.updateSettings;
+    this.updateSettings = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
@@ -53,7 +54,7 @@ export default class Settings extends Component {
         title="Settings"
         confirm={{
           callback: (() => {
-            this.handleSettingsApply(this.state.current);
+            this.updateSettings(this.state.current);
           }),
           label: 'Save',
           description: 'Saves the changes and close the settings menu',
