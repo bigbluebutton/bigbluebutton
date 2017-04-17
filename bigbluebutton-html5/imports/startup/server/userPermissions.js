@@ -132,6 +132,7 @@ export function isAllowedTo(action, credentials) {
     null != user &&
     authToken === user.authToken &&
     user.validated &&
+    user.user.connection_status === 'online' &&
     'HTML5' === user.clientType &&
     null != user.user;
 

@@ -1,5 +1,6 @@
 import Breakouts from '/imports/api/breakouts';
 import Settings from '/imports/ui/services/settings';
+import Auth from '/imports/ui/services/auth/index.js';
 
 let currentModal = {
   component: null,

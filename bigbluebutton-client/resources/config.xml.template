@@ -62,6 +62,7 @@
 			enabledEchoCancel="true"
 			useWebRTCIfAvailable="true"
 			showPhoneOption="false"
+			showWebRTCStats="false"
 			echoTestApp="9196"
 			dependsOn="UsersModule"
 		/>

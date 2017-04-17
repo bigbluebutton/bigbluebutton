@@ -58,6 +58,7 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 					if (payload.has(Constants.MEETING_ID)
 							&& payload.has(Constants.NAME)
 							&& payload.has(Constants.ROLE)
+							&& payload.has(Constants.USER_ID)
 							&& payload.has(Constants.EXT_USER_ID)
 							&& payload.has(Constants.AUTH_TOKEN)
 							&& payload.has(Constants.GUEST)) {
@@ -65,13 +66,13 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String fullname = payload.get(Constants.NAME).getAsString();
 						String role = payload.get(Constants.ROLE).getAsString();
+						String userId = payload.get(Constants.USER_ID).getAsString();
 						String externUserID = payload.get(Constants.EXT_USER_ID).getAsString();
 						String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
 						String avatarURL = payload.get(Constants.AVATAR_URL).getAsString();
 						Boolean guest = payload.get(Constants.GUEST).getAsBoolean();
 
-						//use externalUserId twice - once for external, once for internal
-						return new RegisterUserMessage(meetingID, externUserID, fullname, role, externUserID, authToken, avatarURL, guest);
+						return new RegisterUserMessage(meetingID, userId, fullname, role, externUserID, authToken, avatarURL, guest);
 					}
 				}
 			}

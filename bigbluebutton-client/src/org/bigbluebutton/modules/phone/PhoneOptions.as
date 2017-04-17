@@ -57,6 +57,8 @@ package org.bigbluebutton.modules.phone
 
 		[Bindable]
 		public var forceListenOnly:Boolean = false;
+
+		public var showWebRTCStats:Boolean = false;
 		
 		public function PhoneOptions() {
 			parseOptions();
@@ -98,8 +100,13 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@showPhoneOption != undefined) {
 					showPhoneOption = (vxml.@showPhoneOption.toString().toUpperCase() == "TRUE");
 				}
+
 				if (vxml.@showMicrophoneHint != undefined) {
 					showMicrophoneHint = (vxml.@showMicrophoneHint.toString().toUpperCase() == "TRUE");
+				}
+
+				if (vxml.@showWebRTCStats != undefined) {
+					showWebRTCStats = (vxml.@showWebRTCStats.toString().toUpperCase() == "TRUE");
 				}
 			}
 		}		

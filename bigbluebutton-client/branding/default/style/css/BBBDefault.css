@@ -580,15 +580,22 @@ TitleWindow {
 
 }
 
-.presentationUploadFileFormatHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .audioBroswerHintBoxStyle {
 	backgroundColor: #D4D4D4;
 	dropShadowEnabled: false;
 	paddingLeft: 10;
-	paddingRight: 10
+	paddingRight: 10;
 }
 
-.presentationUploadFileFormatHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .audioBroswerHintTextStyle {
 	fontWeight: bold;
+}
+
+.audioBroswerHintBoxStyle {
+	paddingLeft: 5;
+	paddingRight: 5;
+	paddingBottom : 8;
+	paddingTop : 8;
 }
 
 .desktopShareViewStyle {
@@ -1144,6 +1151,13 @@ AlertForm {
   warningImage:   Embed(source='assets/images/status_warning.png');
   failImage:      Embed(source='assets/images/status_fail.png');
   refreshImage:   Embed(source='assets/images/status_refresh.png');
+}
+
+.webRTCAudioStatusStyle {
+  strongAudioStatus:        Embed(source='assets/images/strong_audio_status.png');
+  almostStrongAudioStatus:  Embed(source='assets/images/almost_strong_audio_status.png');
+  almostWeakAudioStatus:    Embed(source='assets/images/almost_weak_audio_status.png');
+  weakAudioStatus:          Embed(source='assets/images/weak_audio_status.png');
 }
 
 .warningButtonStyle {

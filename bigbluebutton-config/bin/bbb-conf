@@ -55,6 +55,7 @@
 #   2016-05-28 FFD  Initial updates for 1.1-dev
 #   2016-08-15 GTR  Archive more logs with zip option and show more applications with status
 #   2016-10-17 GTR  Added redis to checked server components & added ownership check for video and freeswitch recording directories
+#   2017-04-08 FFD  Cleanup for 1.1-beta
 
 #set -x
 #set -e
@@ -118,7 +119,7 @@ if [ ! -f /var/www/bigbluebutton/client/conf/config.xml ]; then
 	echo "# BigBlueButton does not appear to be installed.  Could not"
 	echo "# locate:"
 	echo "#"
-	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+	echo "# /var/www/bigbluebutton/client/conf/config.xml"
 	exit 1
 fi
 
@@ -131,7 +132,7 @@ else
 fi
 
 #
-# We're going to give ^bigbluebutton.web.logoutURL a default value so bbb-conf does not give a warning
+# We're going to give ^bigbluebutton.web.logoutURL a default value (if undefined) so bbb-conf does not give a warning
 #
 if [ -f $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; then
 	if cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -q ^bigbluebutton.web.logoutURL=$; then
@@ -154,8 +155,11 @@ else
         IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
 fi
 
+#
+# Calculate total memory on this server
+#
 MEM=`grep MemTotal /proc/meminfo | awk '{print $2}'`
-
+MEM=$((MEM/1000))
 
 
 #
@@ -213,13 +217,14 @@ usage() {
         echo
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
-        echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
+        echo "   --setip <IP/hostname>            Set IP/hostname for BigBlueButton"
         echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
+        echo "   --network                        View network connections on 80 and 1935 by IP address"
         echo "   --secret                         View the URL and shared secret for the server"
         echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
@@ -230,10 +235,6 @@ usage() {
         echo "   --clean                          Restart and clean all log files"
         echo "   --status                         Display running status of components"
         echo "   --zip                            Zip up log files for reporting an error"
-        echo
-        echo "Testing:"
-        echo "   --enablewebrtc                   Enables WebRTC audio in the server"
-        echo "   --disablewebrtc                  Disables WebRTC audio in the server"
 
         echo
 }
@@ -398,15 +399,6 @@ start_bigbluebutton () {
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
-        #if ! nc -z -w 1 127.0.0.1 9123 > /dev/null; then
-        #        while ! nc -z -w 1 127.0.0.1 9123 > /dev/null; do
-        #                echo -n "."
-        #                sleep 1
-        #        done
-        #fi
-
-	#sleep 5
-
         #if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
         #        echo "Startup unsuccessful: could not connect to http://$BBB_WEB/bigbluebutton/api"
         #        exit 1
@@ -471,6 +463,9 @@ display_bigbluebutton_status () {
     fi
 }
 
+#
+# Depreciated -- WebRTC is always enabled by default
+#
 enable_webrtc(){
 	# Set server ip address in FreeSWITCH
 	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  $FREESWITCH_VARS
@@ -549,12 +544,6 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
-	if [ "$1" = "--setup-samba" -o "$1" = "-setup-samba" ]; then
-		SAMBA=1
-		shift
-		continue
-	fi		
-
 	if [ "$1" = "--version" -o "$1" = "-version" -o "$1" = "-v" ]; then
 		VERSION=1
 		shift
@@ -602,18 +591,6 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
-	if [ "$1" = "--enablewebrtc" -o "$1" = "-enablewebrtc" ]; then
-		need_root
-		enable_webrtc
-		exit 0
-        fi
-
-	if [ "$1" = "--disablewebrtc" -o "$1" = "-disablewebrtc" ]; then
-		need_root
-		disable_webrtc
-		exit 0
-        fi
-
 	#
 	# all other parameters requires at least 1 argument
 	#
@@ -632,8 +609,8 @@ while [ $# -gt 0 ]; do
 	fi		
 	
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" -o "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
-		SALT="${2}"
-		if [ -z "$SALT" ]; then
+		SECRET="${2}"
+		if [ -z "$SECRET" ]; then
 			BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 			SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
 			echo
@@ -650,7 +627,7 @@ while [ $# -gt 0 ]; do
 	fi
 
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
-		if [ -z "$SALT" ]; then
+		if [ -z "$SECRET" ]; then
 			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
 				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
@@ -687,28 +664,30 @@ fi
 
 
 #
-# Set Security Salt
-# - Legacy
+# Set Shared Secret
 #
 
-if [ $SALT ]; then
+if [ $SECRET ]; then
 	need_root
-	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
+	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SECRET
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
-		sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
+		sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
 	fi
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js ]; then
-		sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
+		sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
 	fi
 
         if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
-                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SALT\"/g" \
+                sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
         fi
 
-	echo "Changed BigBlueButton's shared secret to $SALT"
+	echo "Changed BigBlueButton's shared secret to $SECRET"
+	echo 
+	echo "You must restart BigBlueButton for the changes to take effect"
+	echo "   sudo bbb-conf --restart"
 	echo
 fi
 
@@ -858,13 +837,13 @@ check_configuration() {
 		#
 		# Make sure the salt for the API matches the server
 		#
-		SALT_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-		SALT_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
+		SECRET_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+		SECRET_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
-		if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-			echo "# Warning: API Salt mismatch: "
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $SALT_PROPERTIES"
-			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp                                   = $SALT_DEMO"
+		if [ "$SECRET_PROPERTIES" != "$SECRET_DEMO" ]; then
+			echo "# Warning: API Shared Secret mismatch: "
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $SECRET_PROPERTIES"
+			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp                                   = $SECRET_DEMO"
 			echo 
 		fi
 
@@ -878,16 +857,16 @@ check_configuration() {
 		fi
 	fi
 
-	BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	BBB_SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
-		WEBHOOKS_SALT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
+		WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
 		
-		if [ "$BBB_SALT" != "$WEBHOOKS_SALT" ]; then
-			echo "# Warning: Webhooks API Salt mismatch: "
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties = $BBB_SALT"
-			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee                       = $WEBHOOKS_SALT"
+		if [ "$BBB_SECRET" != "$WEBHOOKS_SECRET" ]; then
+			echo "# Warning: Webhooks API Shared Secret mismatch: "
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties = $BBB_SECRET"
+			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee                       = $WEBHOOKS_SECRET"
 			echo
 		fi
 		
@@ -903,13 +882,13 @@ check_configuration() {
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
-                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
-                BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+                LTI_SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
+                BBB_SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
-		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
+		if [ "$LTI_SECRET" != "$BBB_SECRET" ]; then
 			echo "# Warning: LTI shared secret (salt) mismatch:"
-			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties                      = $LTI_SALT"
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
+			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties                      = $LTI_SECRET"
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SECRET"
 			echo 
 		fi
 	fi
@@ -1377,7 +1356,7 @@ check_state() {
                 echo
         fi
 
-        if (( $MEM < 3940000 )); then
+        if (( $MEM < 3940 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
                 echo
@@ -1788,7 +1767,7 @@ if [ -n "$HOST" ]; then
                         /usr/share/bbb-apps-akka/conf/application.conf
                 sed -i  "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"${PROTOCOL_HTTP}:\/\/$HOST\/default.pdf\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
-		# XXX Temporary fix to ensure application.conf has the latest shared secret
+		# Fix to ensure application.conf has the latest shared secret
                 SECRET=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
                 sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                         /usr/share/bbb-apps-akka/conf/application.conf
@@ -1919,17 +1898,16 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-	netstat -ant | egrep ":1935|:9123|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+	netstat -ant | egrep ":1935|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
 	REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
 	if [ "$REMOTE" != "" ]; then
-        	echo -e "netstat\t\t\t80\t1935\t9123"
+        	echo -e "netstat\t\t\t80\t1935"
         	for IP in $REMOTE ; do
 			PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
-			PORT_9123=$(cat /tmp/t_net | grep :9123 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 			PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
-           	echo -e "$IP\t\t$PORT_80\t$PORT_1935\t$PORT_9123"
+           	echo -e "$IP\t\t$PORT_80\t$PORT_1935"
         	done
 	fi
 fi

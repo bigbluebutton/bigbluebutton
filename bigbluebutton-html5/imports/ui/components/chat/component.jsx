@@ -28,6 +28,7 @@ class Chat extends Component {
       scrollPosition,
       hasUnreadMessages,
       lastReadMessageTime,
+      partnerIsLoggedOut,
       isChatLocked,
       actions,
       intl,
@@ -65,6 +66,7 @@ class Chat extends Component {
           handleScrollUpdate={actions.handleScrollUpdate}
           handleReadMessage={actions.handleReadMessage}
           lastReadMessageTime={lastReadMessageTime}
+          partnerIsLoggedOut={partnerIsLoggedOut}
         />
         <MessageForm
           disabled={isChatLocked}
