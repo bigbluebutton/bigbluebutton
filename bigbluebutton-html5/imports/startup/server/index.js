@@ -21,9 +21,8 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
-
   let defaultLocale = APP_CONFIG.defaultLocale;
-  let localeRegion = _.snakeCase(req.query.locale).split('_');
+  let localeRegion = req.query.locale.split('-');
   let messages = {};
 
   let locales = [defaultLocale, localeRegion[0]];
