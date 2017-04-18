@@ -33,7 +33,12 @@ export default class DropdownList extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { activeItemIndex } = this.state;
+    let { activeItemIndex } = this.state;
+
+    if (activeItemIndex === null) {
+      activeItemIndex = 0;
+    }
+
     const activeRef = this.childrenRefs[activeItemIndex];
 
     if (activeRef) {

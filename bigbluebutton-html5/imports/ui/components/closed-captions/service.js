@@ -1,13 +1,13 @@
 import Captions from '/imports/api/captions';
 import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage/session';
+import Settings from '/imports/ui/services/settings';
 
 let getCCData = () => {
   const meetingID = Auth.meetingID;
 
-  const ccSettings = Storage.getItem('settings_cc');
+  const ccSettings = Settings.cc;
 
-  let CCEnabled = ccSettings.closedCaptions;
+  let CCEnabled = ccSettings.enabled;
 
   //associative array that keeps locales with arrays of string objects related to those locales
   let captions = [];

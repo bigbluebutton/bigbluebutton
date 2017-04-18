@@ -19,6 +19,7 @@ const defaultProps = {
 export default class MessageListItem extends Component {
   constructor(props) {
     super(props);
+
   }
 
   render() {
@@ -41,9 +42,9 @@ export default class MessageListItem extends Component {
         </div>
         <div className={styles.content}>
           <div className={styles.meta}>
-            <div className={!user.isLoggedOut ? styles.name : styles.logout}>
+            <div className={user.isOnline ? styles.name : styles.logout} aria-label={user.name}>
               <span>{user.name}</span>
-              {user.isLoggedOut ? <span className={styles.offline}>(offline)</span> : null}
+              {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
             </div>
             <time className={styles.time} dateTime={dateTime}>
               <FormattedTime value={dateTime}/>

@@ -504,7 +504,15 @@
         swfObj.webRTCMediaFail();
       }
     }
-    
+
+    BBB.webRTCMonitorUpdate = function(result) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCMonitorUpdate(result);
+      }
+    }
+
+
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
     BBB.isSwfClientReady = function() {
       return swfReady;
@@ -657,4 +665,3 @@
 
     window.BBB = BBB;
 })(this);
-

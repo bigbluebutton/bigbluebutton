@@ -16,13 +16,15 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   check(requesterUserId, String);
   check(isJoining, Boolean);
 
+  let EVENT_NAME = undefined;
+
   if (isJoining) {
-    let EVENT_NAME = 'user_connected_to_global_audio';
+    EVENT_NAME = 'user_connected_to_global_audio';
     if (!isAllowedTo('joinListenOnly', credentials)) {
       throw new Meteor.Error('not-allowed', `You are not allowed to joinListenOnly`);
     }
   } else {
-    let EVENT_NAME = 'user_disconnected_from_global_audio';
+    EVENT_NAME = 'user_disconnected_from_global_audio';
     if (!isAllowedTo('leaveListenOnly', credentials)) {
       throw new Meteor.Error('not-allowed', `You are not allowed to leaveListenOnly`);
     }
@@ -40,6 +42,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
     meetingId,
     userId: requesterUserId,
   });
+
   if (!User) {
     throw new Meteor.Error(
       'user-not-found', `You need a valid user to be able to toggle audio`);

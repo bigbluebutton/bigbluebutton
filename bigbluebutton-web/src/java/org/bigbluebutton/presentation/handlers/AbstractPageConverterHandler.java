@@ -86,7 +86,7 @@ public abstract class AbstractPageConverterHandler extends
     return stderrBuilder.indexOf(value) > -1;
   }
 
-  public Boolean isConversionSuccessfull() {
+  public Boolean isConversionSuccessful() {
     return !exitedWithError();
   }
 }

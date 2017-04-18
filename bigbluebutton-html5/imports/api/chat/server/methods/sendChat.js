@@ -54,7 +54,7 @@ export default function sendChat(credentials, message) {
   }
 
   if (!isAllowedTo(actionName, credentials)
-      && message.from_userid !== requesterUserId) {
+    && message.from_userid !== requesterUserId) {
     throw new Meteor.Error('not-allowed', `You are not allowed to sendChat`);
   }
 

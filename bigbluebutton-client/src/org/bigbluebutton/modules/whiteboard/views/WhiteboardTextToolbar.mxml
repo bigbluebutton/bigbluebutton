@@ -249,7 +249,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}		
 		]]>
 	</mx:Script>
-	
 
 	<mx:ColorPicker width="20" height="20"  change="setTextColor(event)" id="ctextpik" selectedColor="0x000000"
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textColorPicker')}"/>

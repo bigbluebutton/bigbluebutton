@@ -31,8 +31,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.screenshare.events.ModuleEvent;
 			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
+			import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
 			import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCShareWindowEvent;
+                        import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.WebRTCViewWindowEvent;
@@ -41,7 +43,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
 			import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
 			import org.bigbluebutton.modules.screenshare.events.StartedViewingEvent;
-			import org.bigbluebutton.modules.screenshare.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
 			import org.bigbluebutton.modules.screenshare.services.red5.WebRTCConnectionEvent;
 		]]>
@@ -94,8 +95,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStreamStopEvent" arguments="{event}"/>
 	</EventHandlers>
 	
-	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
-		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStreamStartedEvent" arguments="{event}"/>
+	<EventHandlers type="{ShareStartedEvent.SHARE_STATED}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleScreenShareStartedEvent" arguments="{event}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{IsSharingScreenEvent.IS_SCREENSHARING}">
@@ -105,6 +106,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{WebRTCShareWindowEvent.CLOSE}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleShareWindowCloseEvent"/>
 	</EventHandlers>
+
+	<EventHandlers type="{ShareWindowEvent.CLOSE}">
+                <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleRequestStopSharingEvent"/>
+        </EventHandlers>
 
 	<EventHandlers type="{WebRTCConnectionEvent.SUCCESS}">
     <MethodInvoker generator="{WebRTCDeskshareManager}" method="handleConnectionSuccessEvent"/>

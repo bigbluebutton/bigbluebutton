@@ -1,20 +1,44 @@
 import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-
+import { defineMessages, injectIntl } from 'react-intl';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
 import Audio from '/imports/ui/components/settings/submenus/audio/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import Video from '/imports/ui/components/settings/submenus/video/component';
+import _ from 'lodash';
 
 import Icon from '../icon/component';
 import styles from './styles';
 
+const intlMessages = defineMessages({
+  appTabLabel: {
+    id: 'app.settings.applicationTab.label',
+    description: 'label for application tab',
+  },
+  audioTabLabel: {
+    id: 'app.settings.audioTab.label',
+    description: 'label for audio tab',
+  },
+  videoTabLabel: {
+    id: 'app.settings.videoTab.label',
+    description: 'label for video tab',
+  },
+  closecaptionTabLabel: {
+    id: 'app.settings.closedcaptionTab.label',
+    description: 'label for closed-captions tab',
+  },
+  usersTabLabel: {
+    id: 'app.settings.usersTab.label',
+    description: 'label for participants tab',
+  },
+});
+
 const propTypes = {
 };
 
-export default class Settings extends Component {
+class Settings extends Component {
   constructor(props) {
     super(props);
 
@@ -26,11 +50,11 @@ export default class Settings extends Component {
 
     this.state = {
       current: {
-        audio,
-        video,
-        application,
-        cc,
-        participants,
+        audio: _.clone(audio),
+        video: _.clone(video),
+        application: _.clone(application),
+        cc: _.clone(cc),
+        participants: _.clone(participants),
       },
       saved: {
         audio: _.clone(audio),
@@ -42,7 +66,7 @@ export default class Settings extends Component {
       selectedTab: 0,
     };
 
-    this.handleSettingsApply = props.updateSettings;
+    this.updateSettings = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
@@ -57,7 +81,7 @@ export default class Settings extends Component {
         title="Settings"
         confirm={{
           callback: (() => {
-            this.handleSettingsApply(this.state.current);
+            this.updateSettings(this.state.current);
           }),
           label: 'Save',
           description: 'Saves the changes and close the settings menu',
@@ -90,6 +114,7 @@ export default class Settings extends Component {
   renderModalContent() {
     const {
       isModerator,
+      intl,
     } = this.props;
 
     return (
@@ -97,28 +122,29 @@ export default class Settings extends Component {
         className={styles.tabs}
         onSelect={this.handleSelectTab}
         selectedIndex={this.state.selectedTab}
+        role="presentation"
       >
         <TabList className={styles.tabList}>
-          <Tab className={styles.tabSelector}>
+          <Tab className={styles.tabSelector} aria-labelledby="appTab">
             <Icon iconName='application' className={styles.icon}/>
-            Application
+            <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
-          <Tab className={styles.tabSelector}>
+          <Tab className={styles.tabSelector} aria-labelledby="audioTab">
             <Icon iconName='unmute' className={styles.icon}/>
-            <span>Audio</span>
+            <span id="audioTab">{intl.formatMessage(intlMessages.audioTabLabel)}</span>
           </Tab>
-          <Tab className={styles.tabSelector}>
+          <Tab className={styles.tabSelector} aria-labelledby="videoTab">
             <Icon iconName='video' className={styles.icon}/>
-            Video
+            <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span>
           </Tab>
-          <Tab className={styles.tabSelector}>
+          <Tab className={styles.tabSelector} aria-labelledby="ccTab">
             <Icon iconName='user' className={styles.icon}/>
-            Closed Captions
+            <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
           </Tab>
           { isModerator ?
-            <Tab className={styles.tabSelector}>
+            <Tab className={styles.tabSelector} aria-labelledby="usersTab">
               <Icon iconName='user' className={styles.icon}/>
-              Participants
+              <span id="usersTab">{intl.formatMessage(intlMessages.usersTabLabel)}</span>
             </Tab>
             : null }
         </TabList>
@@ -158,3 +184,4 @@ export default class Settings extends Component {
 }
 
 Settings.propTypes = propTypes;
+export default injectIntl(Settings);

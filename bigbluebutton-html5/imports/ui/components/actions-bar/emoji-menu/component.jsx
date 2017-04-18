@@ -33,6 +33,7 @@ class EmojiMenu extends Component {
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
+            aria-label={intl.formatMessage(intlMessages.changeStatusLabel)}
             icon="hand"
             ghost={false}
             circle={true}
@@ -51,7 +52,7 @@ class EmojiMenu extends Component {
               icon="hand"
               label={intl.formatMessage(intlMessages.raiseLabel)}
               description={intl.formatMessage(intlMessages.raiseDesc)}
-              onClick={() => actions.setEmojiHandler('hand')}
+              onClick={() => actions.setEmojiHandler('raiseHand')}
             />
             <DropdownListItem
               icon="happy"
@@ -63,7 +64,7 @@ class EmojiMenu extends Component {
               icon="undecided"
               label={intl.formatMessage(intlMessages.undecidedLabel)}
               description={intl.formatMessage(intlMessages.undecidedDesc)}
-              onClick={() => actions.setEmojiHandler('undecided')}
+              onClick={() => actions.setEmojiHandler('neutral')}
             />
             <DropdownListItem
               icon="sad"
@@ -81,19 +82,19 @@ class EmojiMenu extends Component {
               icon="time"
               label={intl.formatMessage(intlMessages.awayLabel)}
               description={intl.formatMessage(intlMessages.awayDesc)}
-              onClick={() => actions.setEmojiHandler('time')}
+              onClick={() => actions.setEmojiHandler('away')}
             />
             <DropdownListItem
               icon="thumbs_up"
               label={intl.formatMessage(intlMessages.thumbsupLabel)}
               description={intl.formatMessage(intlMessages.thumbsupDesc)}
-              onClick={() => actions.setEmojiHandler('thumbs_up')}
+              onClick={() => actions.setEmojiHandler('thumbsUp')}
             />
             <DropdownListItem
               icon="thumbs_down"
               label={intl.formatMessage(intlMessages.thumbsdownLabel)}
               description={intl.formatMessage(intlMessages.thumbsdownDesc)}
-              onClick={() => actions.setEmojiHandler('thumbs_down')}
+              onClick={() => actions.setEmojiHandler('thumbsDown')}
             />
             <DropdownListItem
               icon="applause"
@@ -101,7 +102,7 @@ class EmojiMenu extends Component {
               description={intl.formatMessage(intlMessages.applauseDesc)}
               onClick={() => actions.setEmojiHandler('applause')}
             />
-            <DropdownListSeparator/>
+            <DropdownListSeparator />
             <DropdownListItem
               icon="clear_status"
               label={intl.formatMessage(intlMessages.clearLabel)}
@@ -118,107 +119,91 @@ class EmojiMenu extends Component {
 const intlMessages = defineMessages({
   statusTriggerLabel: {
     id: 'app.actionsBar.emojiMenu.statusTriggerLabel',
-    defaultMessage: 'Status',
+    description: 'Emoji status button label',
   },
-
-  // For away status
   awayLabel: {
     id: 'app.actionsBar.emojiMenu.awayLabel',
-    defaultMessage: 'Away',
+    description: 'Away emoji label',
   },
   awayDesc: {
     id: 'app.actionsBar.emojiMenu.awayDesc',
-    defaultMessage: 'Change your status to away',
+    description: 'adds context to away option',
   },
-
-  // For raise hand status
   raiseLabel: {
     id: 'app.actionsBar.emojiMenu.raiseLabel',
-    defaultMessage: 'Raise',
+    description: 'raise hand emoji label',
   },
   raiseDesc: {
     id: 'app.actionsBar.emojiMenu.raiseDesc',
-    defaultMessage: 'Raise your hand to ask a question',
+    description: 'adds context to raise hand option',
   },
-
-  // For undecided status
   undecidedLabel: {
     id: 'app.actionsBar.emojiMenu.undecidedLabel',
-    defaultMessage: 'Undecided',
+    description: 'undecided emoji label',
   },
   undecidedDesc: {
     id: 'app.actionsBar.emojiMenu.undecidedDesc',
-    defaultMessage: 'Change your status to undecided',
+    description: 'adds context to undecided option',
   },
-
-  // For confused status
   confusedLabel: {
     id: 'app.actionsBar.emojiMenu.confusedLabel',
-    defaultMessage: 'Confused',
+    description: 'confused emoji label',
   },
   confusedDesc: {
     id: 'app.actionsBar.emojiMenu.confusedDesc',
-    defaultMessage: 'Change your status to confused',
+    description: 'adds context to confused option',
   },
-
-  // For sad status
   sadLabel: {
     id: 'app.actionsBar.emojiMenu.sadLabel',
-    defaultMessage: 'Sad',
+    description: 'sad emoji label',
   },
   sadDesc: {
     id: 'app.actionsBar.emojiMenu.sadDesc',
-    defaultMessage: 'Change your status to sad',
+    description: 'adds context to sad option',
   },
-
-  // For happy status
   happyLabel: {
     id: 'app.actionsBar.emojiMenu.happyLabel',
-    defaultMessage: 'Happy',
+    description: 'happy emoji label',
   },
   happyDesc: {
     id: 'app.actionsBar.emojiMenu.happyDesc',
-    defaultMessage: 'Change your status to happy',
+    description: 'adds context to happy option',
   },
-
-  // For confused status
   clearLabel: {
     id: 'app.actionsBar.emojiMenu.clearLabel',
-    defaultMessage: 'Clear',
+    description: 'confused emoji label',
   },
   clearDesc: {
     id: 'app.actionsBar.emojiMenu.clearDesc',
-    defaultMessage: 'Clear your status',
+    description: 'adds context to clear status option',
   },
-
-  // For applause status
   applauseLabel: {
     id: 'app.actionsBar.emojiMenu.applauseLabel',
-    defaultMessage: 'Applause',
+    description: 'applause emoji label',
   },
   applauseDesc: {
     id: 'app.actionsBar.emojiMenu.applauseDesc',
-    defaultMessage: 'Change your status to applause',
+    description: 'adds context to applause option',
   },
-
-  // For thumbs up status
   thumbsupLabel: {
     id: 'app.actionsBar.emojiMenu.thumbsupLabel',
-    defaultMessage: 'Thumbs up',
+    description: 'thumbs up emoji label',
   },
   thumbsupDesc: {
     id: 'app.actionsBar.emojiMenu.thumbsupDesc',
-    defaultMessage: 'Change your status to thumbs up',
+    description: 'adds context to thumbs up option',
   },
-
-  // For thumbs-down status
   thumbsdownLabel: {
     id: 'app.actionsBar.emojiMenu.thumbsdownLabel',
-    defaultMessage: 'Thumbs down',
+    description: 'thumbs down emoji label',
   },
   thumbsdownDesc: {
     id: 'app.actionsBar.emojiMenu.thumbsdownDesc',
-    defaultMessage: 'Change your status to thumbs down',
+    description: 'adds context to thumbs down option',
+  },
+  changeStatusLabel: {
+    id: 'app.actionsBar.changeStatusLabel',
+    description: 'Aria-label for emoji status button',
   },
 });
 
