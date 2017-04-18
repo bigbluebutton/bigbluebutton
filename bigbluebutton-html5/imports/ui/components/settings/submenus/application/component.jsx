@@ -59,7 +59,6 @@ export default class ApplicationMenu extends BaseMenu {
   handleSelectChange(fieldname, options, e) {
     let obj = this.state;
     obj.settings[fieldname] = e.target.value.toLowerCase().replace('_', '-');
-    console.log(e.target.value, e.target.value.toLowerCase().replace('_', '-'));
     this.handleUpdateSettings('application', obj.settings);
   }
 
