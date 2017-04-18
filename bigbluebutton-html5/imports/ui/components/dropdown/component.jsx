@@ -12,6 +12,7 @@ const FOCUSABLE_CHILDREN = `[tabindex]:not([tabindex="-1"]), a, input, button`;
 const intlMessages = defineMessages({
   close: {
     id: 'app.dropdown.close',
+    description: 'Close button label',
   },
 });
 
