@@ -14,6 +14,8 @@ class Auth {
       value: false,
       tracker: new Tracker.Dependency,
     };
+
+    this._addObserverToReconnection();
   }
 
   get meetingID() {
@@ -113,6 +115,24 @@ class Auth {
         if (!subscription.ready()) return;
 
         resolve(c);
+      });
+    });
+  }
+
+  /**
+   * Add an observer to keep tracking whatever the user need an reconection.
+   * 
+   * It track when the user lost connection or reopen a closed tab.
+   * 
+   * @return {Promise}
+   */
+  _addObserverToReconnection() {
+    return new Promise((resolve, reject) => {
+      Tracker.autorun((c) => {
+        if (Meteor.status().connected) {
+          this.authenticate();
+        }
+        resolve();
       });
     });
   }
