@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { withModalBase } from '../base/component';
+import ModalBase, { withModalState } from '../base/component';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
 import cx from 'classnames';
@@ -14,46 +14,53 @@ const propTypes = {
 };
 
 const defaultProps = {
+  shouldCloseOnOverlayClick: true,
   overlayClassName: styles.overlay,
   dismiss: {
-    label: 'Close',
-    description: 'Closes the modal',
+    label: 'Cancel',
+    description: 'Disregards changes and closes the modal',
   },
 };
 
 class ModalSimple extends Component {
-  handleAction(name) {
-    const action = this.props[name];
-    this.props.close(action.callback);
+  handleDismiss() {
+    this.props.modalHide(this.props.dismiss.callback);
   }
 
   render() {
     const {
       title,
       dismiss,
+      className,
+      modalisOpen,
+      ...otherProps,
     } = this.props;
 
     return (
-      <div>
+      <ModalBase
+        isOpen={modalisOpen}
+        className={cx(className, styles.modal)}
+        onRequestClose={this.handleDismiss.bind(this)}
+        contentLabel={title}
+        {...otherProps}
+      >
         <header className={styles.header}>
           <h1 className={styles.title}>{title}</h1>
-          <div className={styles.actions}>
-            <Button
-              className={styles.dismiss}
-              onClick={() => this.props.hide(dismiss.callback)}
-              label={dismiss.label}
-              aria-describedby={'modalDismissDescription'}
-              icon={'close'}
-              size={'lg'}
-              hideLabel={true}
-              tabIndex={0} />
-          </div>
+          <Button
+            className={styles.dismiss}
+            label={dismiss.label}
+            icon={'close'}
+            circle={true}
+            hideLabel={true}
+            onClick={this.handleDismiss.bind(this)}
+            aria-describedby={'modalDismissDescription'}
+            tabIndex={0} />
         </header>
         <div className={styles.content}>
           {this.props.children}
         </div>
-        <div id="modalDismissDescription" hidden>{dismiss.description}</div>
-      </div>
+        <div id="modalConfirmDescription" hidden>{confirm.description}</div>
+      </ModalBase>
     );
   }
 };
@@ -61,4 +68,4 @@ class ModalSimple extends Component {
 ModalSimple.propTypes = propTypes;
 ModalSimple.defaultProps = defaultProps;
 
-export default withModalBase(ModalSimple);
+export default withModalState(ModalSimple);

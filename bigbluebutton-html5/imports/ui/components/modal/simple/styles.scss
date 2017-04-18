@@ -1,9 +1,9 @@
 @import "../../../stylesheets/variables/_all";
+@import "../base/styles";
 
 .modal {
   display: flex;
   flex-direction: column;
-  align-self: flex-start;
   padding: ($line-height-computed / 2) $line-height-computed;
 }
 
@@ -16,16 +16,9 @@
 
 .header {
   display: flex;
-  padding: $line-height-computed 0;
+  padding: ($line-height-computed / 2) 0;
   border-bottom: $border-size solid $color-gray-lighter;
   flex-shrink: 0;
-}
-
-.actions {
-  flex: 0 1 35%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .title {
@@ -36,9 +29,16 @@
 }
 
 .dismiss {
-  flex: 0 1 48%;
+  flex: 0;
+  > span:first-child {
+    border-color: transparent;
+    background-color: transparent;
+
+    > i { color: $color-text; }
+  }
 }
 
 .overlay {
+  @extend .overlay;
   background-color: rgba(0, 0, 0, .5);
 }

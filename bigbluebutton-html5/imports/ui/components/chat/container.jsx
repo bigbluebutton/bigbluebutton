@@ -41,6 +41,7 @@ class ChatContainer extends Component {
 }
 
 export default injectIntl(createContainer(({ params, intl }) => {
+  console.log('james');
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
 
   let messages = [];
@@ -61,7 +62,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
 
     title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
     chatName = user.name;
-
+    console.log('james');
     if (user.isLoggedOut) {
       let time = Date.now();
       let id = `partner-disconnected-${time}`;

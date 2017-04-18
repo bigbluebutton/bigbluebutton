@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
 
+import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio-notification/container';
 import ChatNotificationContainer from '../chat/notification/container';
@@ -17,7 +18,6 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  modal: PropTypes.element,
 };
 
 const defaultProps = {
@@ -135,7 +135,7 @@ export default class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
-        {modal}
+        <ModalContainer />
         <audio id="remote-media" autoPlay="autoplay"></audio>
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>

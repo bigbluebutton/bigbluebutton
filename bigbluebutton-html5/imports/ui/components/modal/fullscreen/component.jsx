@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { withModalBase } from '../base/component';
+import ModalBase, { withModalState } from '../base/component';
 import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
 import cx from 'classnames';
@@ -33,18 +33,26 @@ const defaultProps = {
 class ModalFullscreen extends Component {
   handleAction(name) {
     const action = this.props[name];
-    this.props.hide(action.callback);
+    this.props.modalHide(action.callback);
   }
 
   render() {
     const {
       title,
-      dismiss,
       confirm,
+      dismiss,
+      className,
+      modalisOpen,
+      ...otherProps,
     } = this.props;
 
     return (
-      <div>
+      <ModalBase
+        isOpen={modalisOpen}
+        className={cx(className, styles.modal)}
+        contentLabel={title}
+        {...otherProps}
+      >
         <header className={styles.header}>
           <h1 className={styles.title}>{title}</h1>
           <div className={styles.actions}>
@@ -68,7 +76,7 @@ class ModalFullscreen extends Component {
         </div>
         <div id="modalDismissDescription" hidden>{dismiss.description}</div>
         <div id="modalConfirmDescription" hidden>{confirm.description}</div>
-      </div>
+      </ModalBase>
     );
   }
 };
@@ -76,4 +84,4 @@ class ModalFullscreen extends Component {
 ModalFullscreen.propTypes = propTypes;
 ModalFullscreen.defaultProps = defaultProps;
 
-export default withModalBase(ModalFullscreen);
+export default withModalState(ModalFullscreen);
