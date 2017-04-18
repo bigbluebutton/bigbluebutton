@@ -353,7 +353,7 @@ public class MeetingService implements MessageListener {
                 m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
                 m.getModeratorPassword(), m.getViewerPassword(),
                 m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
-                m.isBreakout(), m.getSequence(), m.getMetadata());
+                m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy());
     }
 
     private String formatPrettyDate(Long timestamp) {

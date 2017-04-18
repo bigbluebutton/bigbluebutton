@@ -385,7 +385,7 @@ trait UsersApp {
        */
       val waitingForAcceptance = ru.guest && meetingModel.getGuestPolicy() == GuestPolicy.ASK_MODERATOR && ru.waitingForAcceptance
       val uvo = new UserVO(msg.userID, ru.externId, ru.name,
-        ru.role, ru.guest, waitingForAcceptance = waitingForAcceptance, emojiStatus = "none", presenter = false,
+        ru.role, ru.guest, ru.authed, waitingForAcceptance = waitingForAcceptance, emojiStatus = "none", presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
         webcamStreams = new ListSet[String](), phoneUser = false, vu,
         listenOnly = vu.listenOnly, avatarURL = vu.avatarURL, joinedWeb = true)
@@ -475,7 +475,7 @@ trait UsersApp {
          * So we call him "phoneUser".
          */
         val uvo = new UserVO(webUserId, msg.externUserId, msg.callerIdName,
-          Role.VIEWER, guest = false, waitingForAcceptance = false, emojiStatus = "none", presenter = false,
+          Role.VIEWER, guest = false, authed = false, waitingForAcceptance = false, emojiStatus = "none", presenter = false,
           hasStream = false, locked = getInitialLockStatus(Role.VIEWER),
           webcamStreams = new ListSet[String](),
           phoneUser = !msg.listenOnly, vu, listenOnly = msg.listenOnly, avatarURL = msg.avatarURL, joinedWeb = false)

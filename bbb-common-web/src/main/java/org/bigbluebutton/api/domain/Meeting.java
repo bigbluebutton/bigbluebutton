@@ -55,6 +55,7 @@ public class Meeting {
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
+	private String guestPolicy;
 	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
@@ -88,6 +89,7 @@ public class Meeting {
         metadata = builder.metadata;
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
+        guestPolicy = builder.guestPolicy;
 
         userCustomData = new HashMap<String, Object>();
 
@@ -250,6 +252,10 @@ public class Meeting {
 
 	public String getDefaultAvatarURL() {
 		return defaultAvatarURL;
+	}
+
+	public String getGuestPolicy() {
+    	return guestPolicy;
 	}
 	
 	public String getLogoutUrl() {
@@ -421,6 +427,7 @@ public class Meeting {
     	private String defaultAvatarURL;
     	private long createdTime;
     	private boolean isBreakout;
+    	private String guestPolicy;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -517,6 +524,11 @@ public class Meeting {
     		metadata = m;
     		return this;
     	}
+
+    	public Builder withGuestPolicy(String policy) {
+    		guestPolicy = policy;
+    		return  this;
+		}
     
     	public Meeting build() {
     		return new Meeting(this);

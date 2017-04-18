@@ -55,6 +55,14 @@ class BigBlueButtonInGW(
       }
 
       case msg: CreateMeetingRequest => {
+        val policy = msg.payload.guestPolicy.toUpperCase() match {
+          case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
+          case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
+          case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
+          //default
+          case undef => GuestPolicy.ASK_MODERATOR
+        }
+
         val mProps = new MeetingProperties(
           msg.payload.id,
           msg.payload.externalId,
@@ -74,7 +82,9 @@ class BigBlueButtonInGW(
           red5DeskShareIP, red5DeskShareApp,
           msg.payload.isBreakout,
           msg.payload.sequence,
-          msg.payload.metadata)
+          msg.payload.metadata,
+          policy
+        )
 
         eventBus.publish(BigBlueButtonEvent("meeting-manager", new CreateMeeting(msg.payload.id, mProps)))
       }
@@ -146,7 +156,7 @@ class BigBlueButtonInGW(
   }
 
   def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String,
-                   authToken: String, avatarURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean): Unit = {
+    authToken: String, avatarURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean): Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
     eventBus.publish(BigBlueButtonEvent(meetingID, new RegisterUser(meetingID, userID, name, userRole,
       extUserID, authToken, avatarURL, guest, authed)))

@@ -38,7 +38,8 @@ public class User {
 	private Boolean voiceJoined = false;
 	private List<String> streams;
 	
-	public User(String internalUserId, String externalUserId, String fullname, String role, String avatarURL, Boolean guest, Boolean waitingForAcceptance) {
+	public User(String internalUserId, String externalUserId, String fullname, String role, String avatarURL,
+				Boolean guest, Boolean waitingForAcceptance) {
 		this.internalUserId = internalUserId;
 		this.externalUserId = externalUserId;
 		this.fullname = fullname;

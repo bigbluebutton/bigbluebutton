@@ -36,7 +36,8 @@ public interface MessagingService {
             String voiceBridge, Integer duration, Boolean autoStartRecording,
             Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
             String moderatorPass, String viewerPass, Long createTime,
-            String createDate, Boolean isBreakout, Integer sequence, Map<String, String> metadata);
+            String createDate, Boolean isBreakout, Integer sequence,
+					   Map<String, String> metadata, String guestPolicy);
 	void endMeeting(String meetingId);
 	void send(String channel, String message);
 	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);

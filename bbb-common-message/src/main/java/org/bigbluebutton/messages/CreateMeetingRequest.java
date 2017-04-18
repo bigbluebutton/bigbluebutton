@@ -33,6 +33,7 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
         public final Boolean isBreakout;
         public final Integer sequence;
         public final Map<String, String> metadata;
+        public final String guestPolicy;
 
         public CreateMeetingRequestPayload(String id, String externalId,
                 String parentId, String name, Boolean record,
@@ -40,7 +41,7 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
                 Boolean autoStartRecording, Boolean allowStartStopRecording,
                 Boolean webcamsOnlyForModerator, String moderatorPass,
                 String viewerPass, Long createTime, String createDate,
-                Boolean isBreakout, Integer sequence, Map<String, String> metadata) {
+                Boolean isBreakout, Integer sequence, Map<String, String> metadata, String guestPolicy) {
             this.id = id;
             this.externalId = externalId;
             this.parentId = parentId;
@@ -58,6 +59,7 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
             this.isBreakout = isBreakout;
             this.sequence = sequence;
             this.metadata = metadata;
+            this.guestPolicy = guestPolicy;
         }
     }
 }

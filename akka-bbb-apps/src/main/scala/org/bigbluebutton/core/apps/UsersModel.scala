@@ -175,7 +175,8 @@ class UsersModel {
   def updateRegUser(uvo: UserVO) {
     getRegisteredUserWithUserID(uvo.userID) match {
       case Some(ru) => {
-        val regUser = new RegisteredUser(uvo.userID, uvo.externUserID, uvo.name, uvo.role, ru.authToken, uvo.avatarURL, uvo.guest, uvo.waitingForAcceptance)
+        val regUser = new RegisteredUser(uvo.userID, uvo.externUserID, uvo.name, uvo.role, ru.authToken,
+          uvo.avatarURL, uvo.guest, uvo.authed, uvo.waitingForAcceptance)
         regUsers -= ru.authToken
         regUsers += ru.authToken -> regUser
       }

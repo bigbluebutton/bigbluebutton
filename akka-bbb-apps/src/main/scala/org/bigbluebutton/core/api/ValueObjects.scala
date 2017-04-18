@@ -114,6 +114,7 @@ case class UserVO(
   name: String,
   role: Role.Role,
   guest: Boolean,
+  authed: Boolean,
   waitingForAcceptance: Boolean,
   emojiStatus: String,
   presenter: Boolean,

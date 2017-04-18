@@ -65,6 +65,7 @@ public class ParamsProcessorUtil {
     private String defaultClientUrl;
     private String defaultAvatarURL;
     private String defaultConfigURL;
+    private String defaultGuestPolicy;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
@@ -388,6 +389,11 @@ public class ParamsProcessorUtil {
                         internalMeetingId);
             }
         }
+
+        String guestPolicy = defaultGuestPolicy;
+        if (!StringUtils.isEmpty(params.get("guestPolicy"))) {
+        	guestPolicy = params.get("guestPolicy");
+		}
         
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
@@ -433,6 +439,7 @@ public class ParamsProcessorUtil {
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
+				.withGuestPolicy(guestPolicy)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -789,6 +796,10 @@ public class ParamsProcessorUtil {
 	
 	public void setdefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
+	}
+
+	public void setDefaultGuestPolicy(String guestPolicy) {
+		this.defaultGuestPolicy =  guestPolicy;
 	}
 
 	public ArrayList<String> decodeIds(String encodeid) {

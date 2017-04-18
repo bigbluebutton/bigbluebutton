@@ -241,6 +241,8 @@ class MeetingActor(val mProps: MeetingProperties,
   val captionModel = new CaptionModel()
   val notesModel = new SharedNotesModel()
 
+  meetingModel.setGuestPolicy(mProps.guestPolicy)
+
   // We extract the meeting handlers into this class so it is
   // easy to test.
   val liveMeeting = new LiveMeeting(mProps, eventBus, outGW,

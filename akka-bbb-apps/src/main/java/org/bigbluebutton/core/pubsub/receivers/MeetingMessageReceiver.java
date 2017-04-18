@@ -53,7 +53,8 @@ public class MeetingMessageReceiver implements MessageHandler {
 						Gson gson = new Gson();
 						RegisterUserMessage msg = gson.fromJson(message, RegisterUserMessage.class);
 						bbbGW.registerUser(msg.payload.meetingId, msg.payload.userId, msg.payload.name, msg.payload.role,
-								msg.payload.extUserId, msg.payload.authToken, msg.payload.avatarUrl, msg.payload.guest);
+								msg.payload.extUserId, msg.payload.authToken, msg.payload.avatarUrl, msg.payload.guest,
+						msg.payload.authed);
 					}
 				}
 			}
