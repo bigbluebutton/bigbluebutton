@@ -23,8 +23,8 @@ let getUserData = () => {
   };
 };
 
-const updateCursor = (testArgument) => {
-  callServer('publishCursorUpdate', testArgument);
+const updateCursor = (coordinates) => {
+  callServer('publishCursorUpdate', coordinates);
 };
 
 export default {
