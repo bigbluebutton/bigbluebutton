@@ -1,10 +1,6 @@
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
 import BaseAudioBridge from './base';
 
-import {callServer} from '/imports/ui/services/api';
-import { getVoiceBridge } from '/imports/ui/components/audio/service';
+import { callServer } from '/imports/ui/services/api';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const MEDIA_CONFIG = Meteor.settings.public.media;
@@ -12,14 +8,9 @@ const MEDIA_CONFIG = Meteor.settings.public.media;
 let triedHangup = false;
 
 export default class SIPBridge extends BaseAudioBridge {
-  constructor() {
+  constructor(userData) {
     super();
-  }
-
-  // TODO this should be done outside the file (via callback?)
-  _amIListenOnly() {
-    const userId = Auth.userID;
-    return Users.findOne({ userId }).user.listenOnly;
+    this.userData = userData;
   }
 
   joinListenOnly() {
@@ -53,7 +44,7 @@ export default class SIPBridge extends BaseAudioBridge {
         console.log('Attempting to hangup on WebRTC call');
 
         // notify BBB-apps we are leaving the call call if we are listen only
-        if (this._amIListenOnly()) {
+        if (userData.listenOnly) {
           callServer('listenOnlyToggle', false);
         }
 
@@ -82,7 +73,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
   // join the conference. If listen only send the request to the server
   _joinVoiceCallSIP(options) {
-    const extension = getVoiceBridge();
+    const extension = this.userData.voiceBridge;
     console.log(options);
 
     // create voice call params
@@ -90,13 +81,17 @@ export default class SIPBridge extends BaseAudioBridge {
       console.log('Beginning WebRTC Conference Call');
     };
 
+    const {
+      userId,
+      username,
+    } = this.userData;
+
     window.BBB = {};
     window.BBB.getMyUserInfo = function (callback) {
-      const uid = Auth.userID;
       const result = {
-        myUserID: uid,
-        myUsername: Users.findOne({ userId: uid }).user.name,
-        myInternalUserID: uid,
+        myUserID: userId,
+        myUsername: username,
+        myInternalUserID: userId,
         myAvatarURL: null,
         myRole: 'getMyRole',
         amIPresenter: 'false',
@@ -106,10 +101,9 @@ export default class SIPBridge extends BaseAudioBridge {
       return callback(result);
     };
 
-    const m = Meetings.findOne();
-    const st = {
-      stun: m.stuns,
-      turn: m.turns,
+    const stunsAndTurns = {
+      stun: this.userData.stuns,
+      turn: this.userData.turns,
     };
 
     callIntoConference(extension, function (audio) {
@@ -131,6 +125,6 @@ export default class SIPBridge extends BaseAudioBridge {
           window.dispatchEvent(connected);
           break;
       }
-    }, options.isListenOnly, st);
+    }, options.isListenOnly, stunsAndTurns);
   }
 }

@@ -5,14 +5,13 @@ import SIPBridge from '../bridge/sip';
 
 // manages audio calls and audio bridges
 export default class AudioManager {
-  constructor() {
+  constructor(userData) {
     const MEDIA_CONFIG = Meteor.settings.public.media;
-    const audioBridge = MEDIA_CONFIG.useSIPAudio ? new SIPBridge() : new VertoBridge();
+    const audioBridge = MEDIA_CONFIG.useSIPAudio ? new SIPBridge(userData) : new VertoBridge(userData);
     if (!(audioBridge instanceof BaseAudioBridge)) {
       throw 'Audio Bridge not compatible';
     }
 
-    console.log('audio manager constructor');
     this.bridge = audioBridge;
   }
 
