@@ -28,6 +28,7 @@ class AudioTest extends React.Component {
 const intlMessages = defineMessages({
   playSoundLabel: {
     id: 'app.audio.playSoundLabel',
+    description: 'Play sound button label',
   },
 });
 

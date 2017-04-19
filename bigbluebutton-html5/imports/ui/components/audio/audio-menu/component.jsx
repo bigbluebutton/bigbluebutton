@@ -7,10 +7,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 const intlMessages = defineMessages({
   joinAudio: {
     id: 'app.audio.joinAudio',
+    description: 'Join audio button label'
   },
   leaveAudio: {
     id: 'app.audio.leaveAudio',
-    defaultMessage: 'Leave Audio',
+    description: 'Leave audio button label',
   },
 });
 

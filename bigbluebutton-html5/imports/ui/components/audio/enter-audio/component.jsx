@@ -28,6 +28,7 @@ class EnterAudio extends React.Component {
 const intlMessages = defineMessages({
   enterSessionLabel: {
     id: 'app.audio.enterSessionLabel',
+    description: 'enter session button label',
   },
 });
 

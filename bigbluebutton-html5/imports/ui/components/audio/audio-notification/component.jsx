@@ -20,6 +20,7 @@ const defaultProps = {
 const intlMessages = defineMessages({
   closeLabel: {
     id: 'app.audioNotification.closeLabel',
+    description: 'Audio notification dismiss label',
   },
 });
 
