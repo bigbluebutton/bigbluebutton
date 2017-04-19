@@ -8,6 +8,8 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PollingContainer from '/imports/ui/components/polling/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/component';
+import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
+
 
 export default class PresentationArea extends React.Component {
   constructor(props) {
@@ -179,6 +181,17 @@ export default class PresentationArea extends React.Component {
     }
   }
 
+  renderWhiteboardToolbar() {
+    console.log('rendering the whiteboard toolbar');
+    let adjustedSizes = this.calculateSize();
+
+    return (
+      <WhiteboardToolbarContainer
+        height={adjustedSizes.height}
+      />
+    );
+  }
+
   render() {
     return (
       <div className={styles.presentationContainer}>
@@ -188,6 +201,9 @@ export default class PresentationArea extends React.Component {
           >
             {this.state.showSlide ?
               this.renderPresentationArea()
+            : null }
+            {this.props.userIsPresenter ?
+              this.renderWhiteboardToolbar()
             : null }
           </div>
         <PollingContainer />
