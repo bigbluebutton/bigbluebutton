@@ -5,7 +5,7 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
 import { showModal } from '/imports/ui/components/app/service';
-import AudioManager from '/imports/api/audio/client/manager'
+import AudioManager from '/imports/api/audio/client/manager';
 
 const handleJoinAudio = () => {
   const handleJoinListenOnly = () => joinListenOnly();

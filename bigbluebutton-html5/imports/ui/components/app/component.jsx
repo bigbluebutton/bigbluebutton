@@ -16,15 +16,15 @@ const intlMessages = defineMessages({
   },
   chatLabel: {
     id: 'app.chat.Label',
-    description: 'Aria-label for Chat Section'
+    description: 'Aria-label for Chat Section',
   },
   mediaLabel: {
     id: 'app.media.Label',
-    description: 'Aria-label for Media Section'
+    description: 'Aria-label for Media Section',
   },
   actionsbarLabel: {
     id: 'app.actionsBar.Label',
-    description: 'Aria-label for ActionsBar Section'
+    description: 'Aria-label for ActionsBar Section',
   },
 });
 

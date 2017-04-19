@@ -163,7 +163,7 @@ class ApplicationMenu extends BaseMenu {
                       tabIndex='0'
                       hideLabel={true}
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
-                      aria-describedby={""}
+                      aria-describedby={''}
                     />
                     <div id='sizeUpLabel' hidden>Font size up</div>
                   </div>
@@ -176,7 +176,7 @@ class ApplicationMenu extends BaseMenu {
                       tabIndex='0'
                       hideLabel={true}
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
-                      aria-describedby={""}
+                      aria-describedby={''}
                     />
                   </div>
                 </div>

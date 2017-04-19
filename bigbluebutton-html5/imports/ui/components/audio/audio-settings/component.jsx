@@ -112,7 +112,7 @@ class AudioSettings extends React.Component {
               </div>
             </div>
             <div className={styles.col}>
-              <label className={styles.label}>&nbsp;</label>
+              <label className={styles.label}> </label>
               <AudioTestContainer/>
             </div>
           </div>
@@ -150,7 +150,7 @@ const intlMessages = defineMessages({
   streamVolumeLabel: {
     id: 'app.audio.audioSettings.microphoneStreamLabel',
     description: 'Label for stream volume',
-  }
+  },
 });
 
 export default injectIntl(AudioSettings);

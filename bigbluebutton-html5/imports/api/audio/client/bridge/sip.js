@@ -110,18 +110,18 @@ export default class SIPBridge extends BaseAudioBridge {
       switch (audio.status) {
         case 'failed':
           let audioFailed = new CustomEvent('bbb.webrtc.failed', {
-            status: 'Failed' });
+            status: 'Failed', });
           window.dispatchEvent(audioFailed);
           break;
         case 'mediafail':
           let mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
-            status: 'MediaFailed' });
+            status: 'MediaFailed', });
           window.dispatchEvent(mediaFailed);
           break;
         case 'mediasuccess':
         case 'started':
           let connected = new CustomEvent('bbb.webrtc.connected', {
-            status: 'started' });
+            status: 'started', });
           window.dispatchEvent(connected);
           break;
       }
