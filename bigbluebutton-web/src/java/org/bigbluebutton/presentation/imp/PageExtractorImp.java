@@ -25,9 +25,8 @@ import org.bigbluebutton.presentation.PageExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GhostscriptPageExtractor implements PageExtractor {
-  private static Logger log = LoggerFactory
-      .getLogger(GhostscriptPageExtractor.class);
+public class PageExtractorImp implements PageExtractor {
+  private static Logger log = LoggerFactory.getLogger(PageExtractorImp.class);
 
   private String SPACE = " ";
 

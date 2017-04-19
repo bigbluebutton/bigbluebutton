@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
 public class TextFileCreatorImp implements TextFileCreator {
   private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
 
-  private String IMAGEMAGICK_DIR;
-
   @Override
   public boolean createTextFiles(UploadedPresentation pres) {
     boolean success = false;
@@ -91,9 +89,8 @@ public class TextFileCreatorImp implements TextFileCreator {
       dest = textfilesDir.getAbsolutePath() + File.separator + "slide-";
       // sudo apt-get install xpdf-utils
       for (int i = 1; i <= pres.getNumberOfPages(); i++) {
-        COMMAND = IMAGEMAGICK_DIR + File.separator
-            + "pdftotext -raw -nopgbrk -enc UTF-8 -f " + i + " -l " + i + " "
-            + source + " " + dest + i + ".txt";
+        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + i + " -l " + i
+            + " " + source + " " + dest + i + ".txt";
         boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
         if (!done) {
           success = false;
@@ -117,10 +114,6 @@ public class TextFileCreatorImp implements TextFileCreator {
     for (int i = 0; i < files.length; i++) {
       files[i].delete();
     }
-  }
-
-  public void setImageMagickDir(String imageMagickDir) {
-    IMAGEMAGICK_DIR = imageMagickDir;
   }
 
 }

@@ -36,7 +36,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="officeDocumentValidator" ref="officeDocumentValidator"/>
 	</bean>
 	
-	<bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.GhostscriptPageExtractor"/>
+	<bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>
 
 	<bean id="png2SwfConverter" class="org.bigbluebutton.presentation.imp.Png2SwfPageConverter">
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
@@ -68,9 +68,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
 	</bean>
 	
-	<bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">
-		<property name="imageMagickDir" value="${imageMagickDir}"/>
-	</bean>
+	<bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp"/>
 
 	<bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
 	    <property name="imageMagickDir" value="${imageMagickDir}"/>
