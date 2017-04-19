@@ -21,8 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-			">  
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">  
 			
 	<bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
 		<property name="messagingService" ref="messagingService"/>
@@ -37,15 +36,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="officeDocumentValidator" ref="officeDocumentValidator"/>
 	</bean>
 	
-	<bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.GhostscriptPageExtractor">
-		<property name="ghostscriptExec" value="${ghostScriptExec}"/>
-		<property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>
-	</bean>
-	
-	<bean id="imageMagickPageConverter" class="org.bigbluebutton.presentation.imp.ImageMagickPageConverter">
-		<property name="imageMagickDir" value="${imageMagickDir}"/>
-	</bean>
-		
+	<bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.GhostscriptPageExtractor"/>
+
 	<bean id="png2SwfConverter" class="org.bigbluebutton.presentation.imp.Png2SwfPageConverter">
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
 	</bean>
@@ -64,19 +56,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="pdf2SwfPageConverter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter">
-		<property name="ghostscriptExec" value="${ghostScriptExec}"/>
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
 		<property name="fontsDir" value="${fontsDir}"/>
-		<property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>
 		<property name="placementsThreshold" value="${placementsThreshold}"/>
 		<property name="defineTextThreshold" value="${defineTextThreshold}"/>
 		<property name="imageTagThreshold" value="${imageTagThreshold}"/>
-	</bean>
-	
-	<bean id="imageConvSvc" class="org.bigbluebutton.presentation.imp.PdfPageToImageConversionService">
-		<property name="pageExtractor" ref="pageExtractor"/>
-		<property name="pdfToImageConverter" ref="imageMagickPageConverter"/>
-		<property name="imageToSwfConverter" ref="png2SwfConverter"/>
 	</bean>
 	
 	<bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
@@ -98,7 +82,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   <constructor-arg index="0" value="${numConversionThreads}"/>
 		<property name="counterService" ref="pageCounterService"/>
 		<property name="pageConverter" ref="pdf2SwfPageConverter"/>
-		<property name="pdfPageToImageConversionService" ref="imageConvSvc"/>
 		<property name="thumbnailCreator" ref="thumbCreator"/>
 		<property name="textFileCreator" ref="textFileCreator"/>
 		<property name="svgImageCreator" ref="svgImageCreator"/>

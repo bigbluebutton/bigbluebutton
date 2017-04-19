@@ -26,35 +26,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GhostscriptPageExtractor implements PageExtractor {
-    private static Logger log = LoggerFactory
-            .getLogger(GhostscriptPageExtractor.class);
+  private static Logger log = LoggerFactory
+      .getLogger(GhostscriptPageExtractor.class);
 
-    private String GHOSTSCRIPT_EXEC;
-    private String noPdfMarkWorkaround;
-    private String SPACE = " ";
+  private String SPACE = " ";
 
-    public boolean extractPage(File presentationFile, File output, int page) {
-        String OPTIONS = "-sDEVICE=pdfwrite -dNOPAUSE -dQUIET -dBATCH";
-        String FIRST_PAGE = "-dFirstPage=" + page;
-        String LAST_PAGE = "-dLastPage=" + page;
-        String DESTINATION = output.getAbsolutePath();
-        String OUTPUT_FILE = "-sOutputFile=" + DESTINATION;
+  public boolean extractPage(File presentationFile, File output, int page) {
+    String COMMAND = "pdfseparate -f " + page + " -l " + page + SPACE
+        + presentationFile.getAbsolutePath() + SPACE + output.getAbsolutePath();
 
-        // extract that specific page and create a temp-pdf(only one page) with
-        // GhostScript
-        String COMMAND = GHOSTSCRIPT_EXEC + SPACE + OPTIONS + SPACE
-                + FIRST_PAGE + SPACE + LAST_PAGE + SPACE + OUTPUT_FILE + SPACE
-                + noPdfMarkWorkaround + SPACE
-                + presentationFile.getAbsolutePath();
-
-        return new ExternalProcessExecutor().exec(COMMAND, 60000);
-    }
-
-    public void setGhostscriptExec(String exec) {
-        GHOSTSCRIPT_EXEC = exec;
-    }
-
-    public void setNoPdfMarkWorkaround(String noPdfMarkWorkaround) {
-        this.noPdfMarkWorkaround = noPdfMarkWorkaround;
-    }
+    log.info("Extracting page {} for document {}", page,
+        presentationFile.getAbsolutePath());
+    return new ExternalProcessExecutor().exec(COMMAND, 60000);
+  }
 }

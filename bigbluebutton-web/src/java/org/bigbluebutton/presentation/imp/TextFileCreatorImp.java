@@ -32,90 +32,95 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TextFileCreatorImp implements TextFileCreator {
-	private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
-	
-	private String IMAGEMAGICK_DIR;
-	
-	@Override
-	public boolean createTextFiles(UploadedPresentation pres) {
-		boolean success = false;
-		File textfilesDir = determineTextfilesDirectory(pres.getUploadedFile());
-		if (! textfilesDir.exists())
-			textfilesDir.mkdir();
-		
-		cleanDirectory(textfilesDir);
-		
-		try {
-			success = generateTextFiles(textfilesDir, pres);
-	    } catch (InterruptedException e) {
-	    	log.warn("Interrupted Exception while generating thumbnails.");
-	        success = false;
-	    }
-	    
-	    //TODO: in case that it doesn't generated the textfile, we should create a textfile with some message
-	    // createUnavailableTextFile
-		
-		return success;
-	}
+  private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
 
-	private boolean generateTextFiles(File textfilesDir, UploadedPresentation pres) throws InterruptedException {
-	 	boolean success = true;
-		String source = pres.getUploadedFile().getAbsolutePath();
-	 	String dest;
-	 	String COMMAND = "";
-	 	
-	 	if(SupportedFileTypes.isImageFile(pres.getFileType())){
-	 		dest = textfilesDir.getAbsolutePath() + File.separator + "slide-1.txt";
-	 		String text = "No text could be retrieved for the slide";
-	 		 
-            File file = new File(dest);
-            Writer writer = null;
-			try {
-				writer = new BufferedWriter(new FileWriter(file));
-				writer.write(text);
-			} catch (IOException e) {
-				log.error("Error: " + e.getMessage());
-				success = false;
-			} finally {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					log.error("Error: " + e.getMessage());
-					success = false;
-				}
-			}
-            
-	 	}else{
-	 		dest = textfilesDir.getAbsolutePath() + File.separator + "slide-";
-	 		// sudo apt-get install xpdf-utils
-	 		for( int i = 1; i <= pres.getNumberOfPages(); i++){
-	 			COMMAND = IMAGEMAGICK_DIR + "/pdftotext -raw -nopgbrk -f "+ i +" -l " + i + " " + source + " " + dest + i + ".txt";
-	 			boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
-	 			if (!done) {
-	 				success = false;
-	 		 		log.warn("Failed to create textfiles: " + COMMAND);
-	 		 		break;
-	 		 	}
-	 		}
-	 		
-	 	}
+  private String IMAGEMAGICK_DIR;
 
-		return success;		
-	}
-	
-	private File determineTextfilesDirectory(File presentationFile) {
-		return new File(presentationFile.getParent() + File.separatorChar + "textfiles");
-	}
-	
-	private void cleanDirectory(File directory) {	
-		File[] files = directory.listFiles();				
-		for (int i = 0; i < files.length; i++) {
-			files[i].delete();
-		}
-	}
+  @Override
+  public boolean createTextFiles(UploadedPresentation pres) {
+    boolean success = false;
+    File textfilesDir = determineTextfilesDirectory(pres.getUploadedFile());
+    if (!textfilesDir.exists())
+      textfilesDir.mkdir();
 
-	public void setImageMagickDir(String imageMagickDir) {
-		IMAGEMAGICK_DIR = imageMagickDir;
-	}
+    cleanDirectory(textfilesDir);
+
+    try {
+      success = generateTextFiles(textfilesDir, pres);
+    } catch (InterruptedException e) {
+      log.warn("Interrupted Exception while generating thumbnails.");
+      success = false;
+    }
+
+    // TODO: in case that it doesn't generated the textfile, we should create a
+    // textfile with some message
+    // createUnavailableTextFile
+
+    return success;
+  }
+
+  private boolean generateTextFiles(File textfilesDir,
+      UploadedPresentation pres) throws InterruptedException {
+    boolean success = true;
+    String source = pres.getUploadedFile().getAbsolutePath();
+    String dest;
+    String COMMAND = "";
+
+    if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+      dest = textfilesDir.getAbsolutePath() + File.separator + "slide-1.txt";
+      String text = "No text could be retrieved for the slide";
+
+      File file = new File(dest);
+      Writer writer = null;
+      try {
+        writer = new BufferedWriter(new FileWriter(file));
+        writer.write(text);
+      } catch (IOException e) {
+        log.error("Error: " + e.getMessage());
+        success = false;
+      } finally {
+        try {
+          writer.close();
+        } catch (IOException e) {
+          log.error("Error: " + e.getMessage());
+          success = false;
+        }
+      }
+
+    } else {
+      dest = textfilesDir.getAbsolutePath() + File.separator + "slide-";
+      // sudo apt-get install xpdf-utils
+      for (int i = 1; i <= pres.getNumberOfPages(); i++) {
+        COMMAND = IMAGEMAGICK_DIR + File.separator
+            + "pdftotext -raw -nopgbrk -enc UTF-8 -f " + i + " -l " + i + " "
+            + source + " " + dest + i + ".txt";
+        boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+        if (!done) {
+          success = false;
+          log.warn("Failed to create textfiles: " + COMMAND);
+          break;
+        }
+      }
+
+    }
+
+    return success;
+  }
+
+  private File determineTextfilesDirectory(File presentationFile) {
+    return new File(
+        presentationFile.getParent() + File.separatorChar + "textfiles");
+  }
+
+  private void cleanDirectory(File directory) {
+    File[] files = directory.listFiles();
+    for (int i = 0; i < files.length; i++) {
+      files[i].delete();
+    }
+  }
+
+  public void setImageMagickDir(String imageMagickDir) {
+    IMAGEMAGICK_DIR = imageMagickDir;
+  }
 
 }
