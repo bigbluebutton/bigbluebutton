@@ -1,5 +1,5 @@
 import Deskshare from '/imports/api/deskshare';
-import VertoBridge from '/imports/api/audio/client/bridge/verto';
+import VertoBridge from '/imports/api/deskshare/client/bridge/verto';
 import Auth from '/imports/ui/services/auth';
 
 const vertoBridge = new VertoBridge();

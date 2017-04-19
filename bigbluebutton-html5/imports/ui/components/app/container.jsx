@@ -46,6 +46,10 @@ class AppContainer extends Component {
   }
 };
 
+const init = () => {
+  // TODO
+};
+
 export default withRouter(injectIntl(createContainer(({ router, intl, baseControls }) => {
   // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({

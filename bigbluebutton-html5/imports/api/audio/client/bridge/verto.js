@@ -3,16 +3,17 @@ import Auth from '/imports/ui/services/auth';
 import { getVoiceBridge } from '/imports/ui/components/audio/service';
 import BaseAudioBridge from './base';
 
-export default class VertoBridge extends BaseAudioBridge {
-  constructor() {
-    super();
-  }
+const createVertoUserName = () => {
+  const userId = Auth.userID;
+  const uName = Users.findOne({ userId }).user.name;
+  return 'FreeSWITCH User - ' + encodeURIComponent(uName);
+};
 
-  createVertoUserName() {
-    const userId = Auth.userID;
-    const uName = Users.findOne({ userId }).user.name;
-    const conferenceUsername = 'FreeSWITCH User - ' + encodeURIComponent(uName);
-    return conferenceUsername;
+export default class VertoBridge extends BaseAudioBridge {
+  constructor(userId, username) {
+    super();
+    this.vertoUsername = 'FreeSWITCH User - ' + encodeURIComponent(username);
+    console.log('vertoUsername=' + this.vertoUsername);
   }
 
   exitAudio() {
@@ -23,7 +24,7 @@ export default class VertoBridge extends BaseAudioBridge {
     window.vertoJoinListenOnly(
       'remote-media',
       getVoiceBridge(),
-      this.createVertoUserName(),
+      createVertoUserName(),
       null,
     );
   }
@@ -32,18 +33,7 @@ export default class VertoBridge extends BaseAudioBridge {
     window.vertoJoinMicrophone(
       'remote-media',
       getVoiceBridge(),
-      this.createVertoUserName(),
-      null,
-    );
-  }
-
-  vertoWatchVideo() {
-    window.vertoWatchVideo(
-      'deskshareVideo',
-      getVoiceBridge(),
-      this.createVertoUserName(),
-      null,
-      null,
+      createVertoUserName(),
       null,
     );
   }
