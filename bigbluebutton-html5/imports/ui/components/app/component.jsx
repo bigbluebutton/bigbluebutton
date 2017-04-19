@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -13,15 +12,19 @@ import cx from 'classnames';
 const intlMessages = defineMessages({
   userListLabel: {
     id: 'app.userlist.Label',
+    description: 'Aria-label for Userlist Nav',
   },
   chatLabel: {
     id: 'app.chat.Label',
+    description: 'Aria-label for Chat Section'
   },
   mediaLabel: {
     id: 'app.media.Label',
+    description: 'Aria-label for Media Section'
   },
   actionsbarLabel: {
     id: 'app.actionsBar.Label',
+    description: 'Aria-label for ActionsBar Section'
   },
 });
 
