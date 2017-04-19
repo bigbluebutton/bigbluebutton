@@ -29,8 +29,13 @@ const updateSettings = (obj) => {
   Settings.save();
 };
 
+const getAvailableLocales = () => {
+  return fetch('/html5client/locales').then(locales => locales.json());
+};
+
 export {
   getClosedCaptionLocales,
   getUserRoles,
   updateSettings,
+  getAvailableLocales,
 };
