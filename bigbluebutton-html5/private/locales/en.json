@@ -15,7 +15,7 @@
   "app.chat.closeChatLabel": "Close {title}",
   "app.chat.hideChatLabel": "Hide {title}",
   "app.chat.moreMessages": "More messages below",
-  "app.dropdown.list.titleContextLabel": "available options",
+  "app.userlist.menuTitleContext": "available options",
   "app.userlist.chatlistitem.unreadSingular": "{count} New Message",
   "app.userlist.chatlistitem.unreadPlural": "{count} New Messages",
   "app.chat.Label": "Chat",

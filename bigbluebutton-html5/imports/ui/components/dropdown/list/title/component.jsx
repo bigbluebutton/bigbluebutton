@@ -1,26 +1,22 @@
 import React, { Component, PropTypes } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
 import styles from '../styles';
 
-const intlMessages = defineMessages({
-  titleContextLabel: {
-    id: 'app.dropdown.list.titleContextLabel',
-    description: 'adds context to dropdown list title',
-  },
-});
+const propTypes = {
+  description: PropTypes.string,
+};
 
-class DropdownListTitle extends Component {
+export default class DropdownListTitle extends Component {
 
   render() {
-    const { label, intl } = this.props;
+    const { intl, description } = this.props;
 
     return (
       <div>
-        <li className={styles.actionsHeader} aria-labelledby="labelContext">{label}</li>
-        <div id="labelContext" aria-label={intl.formatMessage(intlMessages.titleContextLabel)}></div>
+        <li className={styles.title} aria-labelledby="labelContext">{this.props.children}</li>
+        <div id="labelContext" aria-label={description}></div>
       </div>
     );
   }
 }
 
-export default injectIntl(DropdownListTitle);
+DropdownListTitle.propTypes = propTypes;

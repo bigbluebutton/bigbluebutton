@@ -46,6 +46,10 @@ const messages = defineMessages({
     id: 'app.userlist.you',
     description: 'Text for identifying your user',
   },
+  menuTitleContext: {
+    id: 'app.userlist.menuTitleContext',
+    description: 'adds context to userListItem menu title',
+  }
 });
 
 const userActionsTransition = {
@@ -243,6 +247,7 @@ class UserListItem extends Component {
   renderUserContents() {
     const {
       user,
+      intl,
     } = this.props;
 
     let actions = this.getAvailableActions();
@@ -281,7 +286,10 @@ class UserListItem extends Component {
           <DropdownList>
             {
               [
-                (<DropdownListTitle label={user.name} />),
+                (<DropdownListTitle
+                    description={intl.formatMessage(messages.menuTitleContext)}>
+                      {user.name}
+                 </DropdownListTitle>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
             }
