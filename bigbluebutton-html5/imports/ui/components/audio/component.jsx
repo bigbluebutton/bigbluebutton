@@ -11,10 +11,9 @@ export default class Audio extends Component {
   }
 
   render() {
-    // console.log(this.props);
     return (
-      <div>
-      </div>
+      <audio id="remote-media" autoPlay="autoplay">
+      </audio>
     );
   }
 }

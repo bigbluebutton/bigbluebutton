@@ -6,32 +6,26 @@ import { showModal } from '../app/service';
 import AudioModalContainer from './audio-modal/container'
 
 class AudioContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentWillMount() {
-    const APP_CONFIG = Meteor.settings.public.app;
-
-    if (APP_CONFIG.autoJoinAudio) {
+    if (this.props.showJoinAudio) {
       showModal(<AudioModalContainer />);
     }
   }
 
   render() {
     return (
-      <audio id="remote-media" autoPlay="autoplay">
-        <Audio
-          {...this.props}>
-          {this.props.children}
-        </Audio>
-      </audio>
+      <Audio
+        {...this.props}>
+        {this.props.children}
+      </Audio>
     );
   }
 }
 
 export default createContainer(() => {
+  const APP_CONFIG = Meteor.settings.public.app;
 
   return {
+    showJoinAudio: APP_CONFIG.autoJoinAudio,
   };
 }, AudioContainer);
