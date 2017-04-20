@@ -1,9 +1,9 @@
-package org.bigbluebutton.core
+package org.bigbluebutton.core.running
 
 import akka.actor.ActorRef
 import akka.actor.ActorContext
-import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.bus._
+import org.bigbluebutton.core.{ MeetingActor, MeetingProperties, OutMessageGateway }
 
 object RunningMeeting {
   def apply(mProps: MeetingProperties, outGW: OutMessageGateway,
