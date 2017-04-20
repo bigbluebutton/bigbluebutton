@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.zaxxer.nuprocess.NuAbstractProcessHandler;
 import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 
@@ -85,6 +84,14 @@ public class Pdf2SwfPageConverter implements PageConverter {
     log.debug("Pdf2Swf conversion duration: {} sec",
         (pdf2SwfEnd - pdf2SwfStart) / 1000);
 
+    boolean timedOut = pdf2SwfEnd
+        - pdf2SwfStart >= Integer.parseInt(convTimeout.replaceFirst("s", ""))
+            * 1000;
+    boolean twiceTotalObjects = pHandler.numberOfPlacements()
+        + pHandler.numberOfTextTags()
+        + pHandler.numberOfImageTags() >= (placementsThreshold
+            + defineTextThreshold + imageTagThreshold) * 2;
+
     File destFile = new File(dest);
     if (pHandler.isConversionSuccessful() && destFile.exists()
         && pHandler.numberOfPlacements() < placementsThreshold
@@ -123,14 +130,15 @@ public class Pdf2SwfPageConverter implements PageConverter {
         log.error("Unable to create temporary files");
       }
 
-      long gsStart = System.currentTimeMillis();
+      long pdfStart = System.currentTimeMillis();
 
       // Step 1: Convert a PDF page to PNG using a raw pdftocairo
-      NuProcessBuilder pbPng = new NuProcessBuilder(Arrays.asList("timeout",
-          convTimeout, "pdftocairo", "-png", "-singlefile", "-r", "150", "-f",
-          String.valueOf(page), "-l", String.valueOf(page),
-          presentation.getAbsolutePath(), tempPng.getAbsolutePath().substring(0,
-              tempPng.getAbsolutePath().lastIndexOf('.'))));
+      NuProcessBuilder pbPng = new NuProcessBuilder(
+          Arrays.asList("timeout", convTimeout, "pdftocairo", "-png",
+              "-singlefile", "-r", timedOut || twiceTotalObjects ? "72" : "150",
+              "-f", String.valueOf(page), "-l", String.valueOf(page),
+              presentation.getAbsolutePath(), tempPng.getAbsolutePath()
+                  .substring(0, tempPng.getAbsolutePath().lastIndexOf('.'))));
 
       Pdf2PngPageConverterHandler pbPngHandler = new Pdf2PngPageConverterHandler();
       pbPng.setProcessListener(pbPngHandler);
@@ -141,9 +149,9 @@ public class Pdf2SwfPageConverter implements PageConverter {
         log.error(e.getMessage());
       }
 
-      long gsEnd = System.currentTimeMillis();
+      long pdfEnd = System.currentTimeMillis();
       log.debug("pdftocairo conversion duration: {} sec",
-          (gsEnd - gsStart) / 1000);
+          (pdfEnd - pdfStart) / 1000);
 
       long png2swfStart = System.currentTimeMillis();
 
@@ -183,7 +191,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
       logStr = gson.toJson(logData);
 
-      log.debug("Problem page conversion duration: {} sec",
+      log.debug("Problem page conversion overall duration: {} sec",
           (convertEnd - convertStart) / 1000);
 
       if (doneSwf && destFile.exists()) {
