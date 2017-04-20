@@ -5,14 +5,14 @@ import org.bigbluebutton.core.api._
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
 // import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import com.google.gson.Gson
 import java.util.ArrayList
 import org.bigbluebutton.core.OutMessageGateway
 
 trait PollApp {
-  this: LiveMeeting =>
+  this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
@@ -23,8 +23,8 @@ trait PollApp {
   def handleGetCurrentPollRequest(msg: GetCurrentPollRequest) {
 
     val poll = for {
-      page <- presModel.getCurrentPage()
-      curPoll <- pollModel.getRunningPollThatStartsWith(page.id)
+      page <- liveMeeting.presModel.getCurrentPage()
+      curPoll <- liveMeeting.pollModel.getRunningPollThatStartsWith(page.id)
     } yield curPoll
 
     poll match {
@@ -42,7 +42,7 @@ trait PollApp {
   }
 
   def handleRespondToPollRequest(msg: RespondToPollRequest) {
-    pollModel.getSimplePollResult(msg.pollId) match {
+    liveMeeting.pollModel.getSimplePollResult(msg.pollId) match {
       case Some(poll) => {
         handleRespondToPoll(poll, msg)
       }
@@ -53,9 +53,9 @@ trait PollApp {
   }
 
   def handleHidePollResultRequest(msg: HidePollResultRequest) {
-    pollModel.getPoll(msg.pollId) match {
+    liveMeeting.pollModel.getPoll(msg.pollId) match {
       case Some(poll) => {
-        pollModel.hidePollResult(msg.pollId)
+        liveMeeting.pollModel.hidePollResult(msg.pollId)
         outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId))
       }
       case None => {
@@ -98,13 +98,13 @@ trait PollApp {
   }
 
   def handleShowPollResultRequest(msg: ShowPollResultRequest) {
-    pollModel.getSimplePollResult(msg.pollId) match {
+    liveMeeting.pollModel.getSimplePollResult(msg.pollId) match {
       case Some(poll) => {
-        pollModel.showPollResult(poll.id)
+        liveMeeting.pollModel.showPollResult(poll.id)
         val shape = pollResultToWhiteboardShape(poll, msg)
 
         for {
-          page <- presModel.getCurrentPage()
+          page <- liveMeeting.presModel.getCurrentPage()
           pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
           annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId)
         } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation))
@@ -120,13 +120,13 @@ trait PollApp {
 
   def handleStopPollRequest(msg: StopPollRequest) {
     val cpoll = for {
-      page <- presModel.getCurrentPage()
-      curPoll <- pollModel.getRunningPollThatStartsWith(page.id)
+      page <- liveMeeting.presModel.getCurrentPage()
+      curPoll <- liveMeeting.pollModel.getRunningPollThatStartsWith(page.id)
     } yield curPoll
 
     cpoll match {
       case Some(poll) => {
-        pollModel.stopPoll(poll.id)
+        liveMeeting.pollModel.stopPoll(poll.id)
         outGW.send(new PollStoppedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, poll.id))
       }
       case None => {
@@ -138,18 +138,18 @@ trait PollApp {
   def handleStartCustomPollRequest(msg: StartCustomPollRequest) {
     log.debug("Received StartCustomPollRequest for pollType=[" + msg.pollType + "]")
 
-    presModel.getCurrentPage() foreach { page =>
+    liveMeeting.presModel.getCurrentPage() foreach { page =>
       val pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
 
       val pollId = pageId + "/" + System.currentTimeMillis()
       log.debug("handleStartCustomPollRequest: new pollId = " + pollId);
 
-      val numRespondents = usersModel.numUsers() - 1 // subtract the presenter
-      PollFactory.createPoll(pollId, msg.pollType, numRespondents, Some(msg.answers)) foreach (poll => pollModel.addPoll(poll))
+      val numRespondents = liveMeeting.usersModel.numUsers() - 1 // subtract the presenter
+      PollFactory.createPoll(pollId, msg.pollType, numRespondents, Some(msg.answers)) foreach (poll => liveMeeting.pollModel.addPoll(poll))
 
-      pollModel.getSimplePoll(pollId) match {
+      liveMeeting.pollModel.getSimplePoll(pollId) match {
         case Some(poll) => {
-          pollModel.startPoll(poll.id)
+          liveMeeting.pollModel.startPoll(poll.id)
           outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, poll))
         }
         case None => {
@@ -162,18 +162,18 @@ trait PollApp {
   def handleStartPollRequest(msg: StartPollRequest) {
     log.debug("Received StartPollRequest for pollType=[" + msg.pollType + "]")
 
-    presModel.getCurrentPage() foreach { page =>
+    liveMeeting.presModel.getCurrentPage() foreach { page =>
       val pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
 
       val pollId = pageId + "/" + System.currentTimeMillis()
       log.debug("handleStartPollRequest: new pollId = " + pollId);
 
-      val numRespondents = usersModel.numUsers() - 1 // subtract the presenter
-      PollFactory.createPoll(pollId, msg.pollType, numRespondents, None) foreach (poll => pollModel.addPoll(poll))
+      val numRespondents = liveMeeting.usersModel.numUsers() - 1 // subtract the presenter
+      PollFactory.createPoll(pollId, msg.pollType, numRespondents, None) foreach (poll => liveMeeting.pollModel.addPoll(poll))
 
-      pollModel.getSimplePoll(pollId) match {
+      liveMeeting.pollModel.getSimplePoll(pollId) match {
         case Some(poll) => {
-          pollModel.startPoll(poll.id)
+          liveMeeting.pollModel.startPoll(poll.id)
           outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, poll))
         }
         case None => {
@@ -196,9 +196,9 @@ trait PollApp {
            * (ralam june 23, 2015)
            */
           val questionId = 0
-          pollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder)
-          usersModel.getCurrentPresenter foreach { cp =>
-            pollModel.getSimplePollResult(poll.id) foreach { updatedPoll =>
+          liveMeeting.pollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder)
+          liveMeeting.usersModel.getCurrentPresenter foreach { cp =>
+            liveMeeting.pollModel.getSimplePollResult(poll.id) foreach { updatedPoll =>
               outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.userID, msg.pollId, updatedPoll))
             }
 

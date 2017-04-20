@@ -3,10 +3,10 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import com.google.gson.Gson
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
 
 trait PresentationApp {
-  this: LiveMeeting =>
+  this: MeetingActor =>
 
   val outGW: OutMessageGateway
 
@@ -16,7 +16,7 @@ trait PresentationApp {
     val pres = msg.presentations
 
     msg.presentations.foreach(presentation => {
-      presModel.addPresentation(presentation)
+      liveMeeting.presModel.addPresentation(presentation)
 
       sharePresentation(presentation.id, true)
     })
@@ -51,7 +51,7 @@ trait PresentationApp {
 
   def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) {
 
-    presModel.addPresentation(msg.presentation)
+    liveMeeting.presModel.addPresentation(msg.presentation)
 
     outGW.send(new PresentationConversionDone(mProps.meetingID, mProps.recorded, msg.messageKey,
       msg.code, msg.presentation))
@@ -60,9 +60,9 @@ trait PresentationApp {
   }
 
   def handleRemovePresentation(msg: RemovePresentation) {
-    val curPres = presModel.getCurrentPresentation
+    val curPres = liveMeeting.presModel.getCurrentPresentation
 
-    val removedPresentation = presModel.remove(msg.presentationID)
+    val removedPresentation = liveMeeting.presModel.remove(msg.presentationID)
 
     curPres foreach (cp => {
       if (cp.id == msg.presentationID) {
@@ -75,9 +75,9 @@ trait PresentationApp {
   }
 
   def handleGetPresentationInfo(msg: GetPresentationInfo) {
-    val curPresenter = usersModel.getCurrentPresenterInfo();
+    val curPresenter = liveMeeting.usersModel.getCurrentPresenterInfo();
     val presenter = new CurrentPresenter(curPresenter.presenterID, curPresenter.presenterName, curPresenter.assignedBy)
-    val presentations = presModel.getPresentations
+    val presentations = liveMeeting.presModel.getPresentations
     val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
     outGW.send(new GetPresentationInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, presentationInfo, msg.replyTo))
   }
@@ -94,17 +94,17 @@ trait PresentationApp {
     val width = if (msg.widthRatio <= 100) msg.widthRatio else 100
     val height = if (msg.heightRatio <= 100) msg.heightRatio else 100
 
-    val page = presModel.resizePage(xOffset, yOffset, width, height);
+    val page = liveMeeting.presModel.resizePage(xOffset, yOffset, width, height);
     page foreach (p => outGW.send(new ResizeAndMoveSlideOutMsg(mProps.meetingID, mProps.recorded, p)))
   }
 
   def handleGotoSlide(msg: GotoSlide) {
-    presModel.changePage(msg.page) foreach { page =>
+    liveMeeting.presModel.changePage(msg.page) foreach { page =>
       log.debug("Switching page for meeting=[{}] page=[{}]", msg.meetingID, page.num);
       outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
     }
 
-    usersModel.getCurrentPresenter() foreach { pres =>
+    liveMeeting.usersModel.getCurrentPresenter() foreach { pres =>
       handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.userID))
     }
 
@@ -115,12 +115,12 @@ trait PresentationApp {
   }
 
   def sharePresentation(presentationID: String, share: Boolean) {
-    val pres = presModel.sharePresentation(presentationID)
+    val pres = liveMeeting.presModel.sharePresentation(presentationID)
 
     pres foreach { p =>
       outGW.send(new SharePresentationOutMsg(mProps.meetingID, mProps.recorded, p))
 
-      presModel.getCurrentPage(p) foreach { page =>
+      liveMeeting.presModel.getCurrentPage(p) foreach { page =>
         outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
       }
     }
@@ -128,8 +128,8 @@ trait PresentationApp {
   }
 
   def handleGetSlideInfo(msg: GetSlideInfo) {
-    presModel.getCurrentPresentation foreach { pres =>
-      presModel.getCurrentPage(pres) foreach { page =>
+    liveMeeting.presModel.getCurrentPresentation foreach { pres =>
+      liveMeeting.presModel.getCurrentPage(pres) foreach { page =>
         outGW.send(new GetSlideInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, page, msg.replyTo))
       }
     }
@@ -137,7 +137,7 @@ trait PresentationApp {
   }
 
   def printPresentations() {
-    presModel.getPresentations foreach { pres =>
+    liveMeeting.presModel.getPresentations foreach { pres =>
       println("presentation id=[" + pres.id + "] current=[" + pres.current + "]")
       pres.pages.values foreach { page =>
         println("page id=[" + page.id + "] current=[" + page.current + "]")

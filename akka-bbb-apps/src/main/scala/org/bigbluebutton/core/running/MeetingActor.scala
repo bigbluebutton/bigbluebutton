@@ -16,13 +16,16 @@ object MeetingActor {
   def props(mProps: MeetingProperties,
     eventBus: IncomingEventBus,
     outGW: OutMessageGateway, liveMeeting: LiveMeeting): Props =
-    Props(classOf[MeetingActor], mProps, eventBus, outGW)
+    Props(classOf[MeetingActor], mProps, eventBus, outGW, liveMeeting)
 }
 
 class MeetingActor(val mProps: MeetingProperties,
   val eventBus: IncomingEventBus,
   val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
-    extends Actor with ActorLogging {
+    extends Actor with ActorLogging
+    with UsersApp with PresentationApp
+    with LayoutApp with ChatApp with WhiteboardApp with PollApp
+    with BreakoutRoomApp with CaptionApp with SharedNotesApp {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -46,116 +49,288 @@ class MeetingActor(val mProps: MeetingProperties,
   eventBus.subscribe(actorMonitor, mProps.deskshareBridge)
 
   def receive = {
-    case msg: ActivityResponse => liveMeeting.handleActivityResponse(msg)
-    case msg: MonitorNumberOfUsers => liveMeeting.handleMonitorNumberOfWebUsers(msg)
-    case msg: ValidateAuthToken => liveMeeting.handleValidateAuthToken(msg)
-    case msg: RegisterUser => liveMeeting.handleRegisterUser(msg)
-    case msg: UserJoinedVoiceConfMessage => liveMeeting.handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage => liveMeeting.handleUserLeftVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage => liveMeeting.handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage => liveMeeting.handleUserTalkingInVoiceConfMessage(msg)
-    case msg: VoiceConfRecordingStartedMessage => liveMeeting.handleVoiceConfRecordingStartedMessage(msg)
-    case msg: UserJoining => liveMeeting.handleUserJoin(msg)
-    case msg: UserLeaving => liveMeeting.handleUserLeft(msg)
-    case msg: AssignPresenter => liveMeeting.handleAssignPresenter(msg)
-    case msg: AllowUserToShareDesktop => liveMeeting.handleAllowUserToShareDesktop(msg)
-    case msg: GetUsers => liveMeeting.handleGetUsers(msg)
-    case msg: ChangeUserStatus => liveMeeting.handleChangeUserStatus(msg)
-    case msg: EjectUserFromMeeting => liveMeeting.handleEjectUserFromMeeting(msg)
-    case msg: UserEmojiStatus => liveMeeting.handleUserEmojiStatus(msg)
-    case msg: UserShareWebcam => liveMeeting.handleUserShareWebcam(msg)
-    case msg: UserUnshareWebcam => liveMeeting.handleUserunshareWebcam(msg)
-    case msg: MuteMeetingRequest => liveMeeting.handleMuteMeetingRequest(msg)
-    case msg: MuteAllExceptPresenterRequest => liveMeeting.handleMuteAllExceptPresenterRequest(msg)
-    case msg: IsMeetingMutedRequest => liveMeeting.handleIsMeetingMutedRequest(msg)
-    case msg: MuteUserRequest => liveMeeting.handleMuteUserRequest(msg)
-    case msg: EjectUserFromVoiceRequest => liveMeeting.handleEjectUserRequest(msg)
-    case msg: TransferUserToMeetingRequest => liveMeeting.handleTransferUserToMeeting(msg)
-    case msg: SetLockSettings => liveMeeting.handleSetLockSettings(msg)
-    case msg: GetLockSettings => liveMeeting.handleGetLockSettings(msg)
-    case msg: LockUserRequest => liveMeeting.handleLockUserRequest(msg)
-    case msg: InitLockSettings => liveMeeting.handleInitLockSettings(msg)
-    case msg: InitAudioSettings => liveMeeting.handleInitAudioSettings(msg)
-    case msg: GetChatHistoryRequest => liveMeeting.handleGetChatHistoryRequest(msg)
-    case msg: SendPublicMessageRequest => liveMeeting.handleSendPublicMessageRequest(msg)
-    case msg: SendPrivateMessageRequest => liveMeeting.handleSendPrivateMessageRequest(msg)
-    case msg: UserConnectedToGlobalAudio => liveMeeting.handleUserConnectedToGlobalAudio(msg)
-    case msg: UserDisconnectedFromGlobalAudio => liveMeeting.handleUserDisconnectedFromGlobalAudio(msg)
-    case msg: GetCurrentLayoutRequest => liveMeeting.handleGetCurrentLayoutRequest(msg)
-    case msg: BroadcastLayoutRequest => liveMeeting.handleBroadcastLayoutRequest(msg)
-    case msg: InitializeMeeting => liveMeeting.handleInitializeMeeting(msg)
-    case msg: ClearPresentation => liveMeeting.handleClearPresentation(msg)
-    case msg: PresentationConversionUpdate => liveMeeting.handlePresentationConversionUpdate(msg)
-    case msg: PresentationPageCountError => liveMeeting.handlePresentationPageCountError(msg)
-    case msg: PresentationSlideGenerated => liveMeeting.handlePresentationSlideGenerated(msg)
-    case msg: PresentationConversionCompleted => liveMeeting.handlePresentationConversionCompleted(msg)
-    case msg: RemovePresentation => liveMeeting.handleRemovePresentation(msg)
-    case msg: GetPresentationInfo => liveMeeting.handleGetPresentationInfo(msg)
-    case msg: SendCursorUpdate => liveMeeting.handleSendCursorUpdate(msg)
-    case msg: ResizeAndMoveSlide => liveMeeting.handleResizeAndMoveSlide(msg)
-    case msg: GotoSlide => liveMeeting.handleGotoSlide(msg)
-    case msg: SharePresentation => liveMeeting.handleSharePresentation(msg)
-    case msg: GetSlideInfo => liveMeeting.handleGetSlideInfo(msg)
-    case msg: PreuploadedPresentations => liveMeeting.handlePreuploadedPresentations(msg)
-    case msg: SendWhiteboardAnnotationRequest => liveMeeting.handleSendWhiteboardAnnotationRequest(msg)
-    case msg: GetWhiteboardShapesRequest => liveMeeting.handleGetWhiteboardShapesRequest(msg)
-    case msg: ClearWhiteboardRequest => liveMeeting.handleClearWhiteboardRequest(msg)
-    case msg: UndoWhiteboardRequest => liveMeeting.handleUndoWhiteboardRequest(msg)
-    case msg: EnableWhiteboardRequest => liveMeeting.handleEnableWhiteboardRequest(msg)
-    case msg: IsWhiteboardEnabledRequest => liveMeeting.handleIsWhiteboardEnabledRequest(msg)
-    case msg: SetRecordingStatus => liveMeeting.handleSetRecordingStatus(msg)
-    case msg: GetRecordingStatus => liveMeeting.handleGetRecordingStatus(msg)
-    case msg: StartCustomPollRequest => liveMeeting.handleStartCustomPollRequest(msg)
-    case msg: StartPollRequest => liveMeeting.handleStartPollRequest(msg)
-    case msg: StopPollRequest => liveMeeting.handleStopPollRequest(msg)
-    case msg: ShowPollResultRequest => liveMeeting.handleShowPollResultRequest(msg)
-    case msg: HidePollResultRequest => liveMeeting.handleHidePollResultRequest(msg)
-    case msg: RespondToPollRequest => liveMeeting.handleRespondToPollRequest(msg)
-    case msg: GetPollRequest => liveMeeting.handleGetPollRequest(msg)
-    case msg: GetCurrentPollRequest => liveMeeting.handleGetCurrentPollRequest(msg)
-    case msg: ChangeUserRole => liveMeeting.handleChangeUserRole(msg)
-    case msg: LogoutEndMeeting => liveMeeting.handleLogoutEndMeeting(msg)
-    case msg: ClearPublicChatHistoryRequest => liveMeeting.handleClearPublicChatHistoryRequest(msg)
+    case msg: ActivityResponse => handleActivityResponse(msg)
+    case msg: MonitorNumberOfUsers => handleMonitorNumberOfWebUsers(msg)
+    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
+    case msg: RegisterUser => handleRegisterUser(msg)
+    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
+    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
+    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
+    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
+    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
+    case msg: UserJoining => handleUserJoin(msg)
+    case msg: UserLeaving => handleUserLeft(msg)
+    case msg: AssignPresenter => handleAssignPresenter(msg)
+    case msg: AllowUserToShareDesktop => handleAllowUserToShareDesktop(msg)
+    case msg: GetUsers => handleGetUsers(msg)
+    case msg: ChangeUserStatus => handleChangeUserStatus(msg)
+    case msg: EjectUserFromMeeting => handleEjectUserFromMeeting(msg)
+    case msg: UserEmojiStatus => handleUserEmojiStatus(msg)
+    case msg: UserShareWebcam => handleUserShareWebcam(msg)
+    case msg: UserUnshareWebcam => handleUserunshareWebcam(msg)
+    case msg: MuteMeetingRequest => handleMuteMeetingRequest(msg)
+    case msg: MuteAllExceptPresenterRequest => handleMuteAllExceptPresenterRequest(msg)
+    case msg: IsMeetingMutedRequest => handleIsMeetingMutedRequest(msg)
+    case msg: MuteUserRequest => handleMuteUserRequest(msg)
+    case msg: EjectUserFromVoiceRequest => handleEjectUserRequest(msg)
+    case msg: TransferUserToMeetingRequest => handleTransferUserToMeeting(msg)
+    case msg: SetLockSettings => handleSetLockSettings(msg)
+    case msg: GetLockSettings => handleGetLockSettings(msg)
+    case msg: LockUserRequest => handleLockUserRequest(msg)
+    case msg: InitLockSettings => handleInitLockSettings(msg)
+    case msg: InitAudioSettings => handleInitAudioSettings(msg)
+    case msg: GetChatHistoryRequest => handleGetChatHistoryRequest(msg)
+    case msg: SendPublicMessageRequest => handleSendPublicMessageRequest(msg)
+    case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
+    case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
+    case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
+    case msg: GetCurrentLayoutRequest => handleGetCurrentLayoutRequest(msg)
+    case msg: BroadcastLayoutRequest => handleBroadcastLayoutRequest(msg)
+    case msg: InitializeMeeting => handleInitializeMeeting(msg)
+    case msg: ClearPresentation => handleClearPresentation(msg)
+    case msg: PresentationConversionUpdate => handlePresentationConversionUpdate(msg)
+    case msg: PresentationPageCountError => handlePresentationPageCountError(msg)
+    case msg: PresentationSlideGenerated => handlePresentationSlideGenerated(msg)
+    case msg: PresentationConversionCompleted => handlePresentationConversionCompleted(msg)
+    case msg: RemovePresentation => handleRemovePresentation(msg)
+    case msg: GetPresentationInfo => handleGetPresentationInfo(msg)
+    case msg: SendCursorUpdate => handleSendCursorUpdate(msg)
+    case msg: ResizeAndMoveSlide => handleResizeAndMoveSlide(msg)
+    case msg: GotoSlide => handleGotoSlide(msg)
+    case msg: SharePresentation => handleSharePresentation(msg)
+    case msg: GetSlideInfo => handleGetSlideInfo(msg)
+    case msg: PreuploadedPresentations => handlePreuploadedPresentations(msg)
+    case msg: SendWhiteboardAnnotationRequest => handleSendWhiteboardAnnotationRequest(msg)
+    case msg: GetWhiteboardShapesRequest => handleGetWhiteboardShapesRequest(msg)
+    case msg: ClearWhiteboardRequest => handleClearWhiteboardRequest(msg)
+    case msg: UndoWhiteboardRequest => handleUndoWhiteboardRequest(msg)
+    case msg: EnableWhiteboardRequest => handleEnableWhiteboardRequest(msg)
+    case msg: IsWhiteboardEnabledRequest => handleIsWhiteboardEnabledRequest(msg)
+    case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
+    case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
+    case msg: StartCustomPollRequest => handleStartCustomPollRequest(msg)
+    case msg: StartPollRequest => handleStartPollRequest(msg)
+    case msg: StopPollRequest => handleStopPollRequest(msg)
+    case msg: ShowPollResultRequest => handleShowPollResultRequest(msg)
+    case msg: HidePollResultRequest => handleHidePollResultRequest(msg)
+    case msg: RespondToPollRequest => handleRespondToPollRequest(msg)
+    case msg: GetPollRequest => handleGetPollRequest(msg)
+    case msg: GetCurrentPollRequest => handleGetCurrentPollRequest(msg)
+    case msg: ChangeUserRole => handleChangeUserRole(msg)
+    case msg: LogoutEndMeeting => handleLogoutEndMeeting(msg)
+    case msg: ClearPublicChatHistoryRequest => handleClearPublicChatHistoryRequest(msg)
 
     // Breakout rooms
-    case msg: BreakoutRoomsListMessage => liveMeeting.handleBreakoutRoomsList(msg)
-    case msg: CreateBreakoutRooms => liveMeeting.handleCreateBreakoutRooms(msg)
-    case msg: BreakoutRoomCreated => liveMeeting.handleBreakoutRoomCreated(msg)
-    case msg: BreakoutRoomEnded => liveMeeting.handleBreakoutRoomEnded(msg)
-    case msg: RequestBreakoutJoinURLInMessage => liveMeeting.handleRequestBreakoutJoinURL(msg)
-    case msg: BreakoutRoomUsersUpdate => liveMeeting.handleBreakoutRoomUsersUpdate(msg)
-    case msg: SendBreakoutUsersUpdate => liveMeeting.handleSendBreakoutUsersUpdate(msg)
-    case msg: EndAllBreakoutRooms => liveMeeting.handleEndAllBreakoutRooms(msg)
+    case msg: BreakoutRoomsListMessage => handleBreakoutRoomsList(msg)
+    case msg: CreateBreakoutRooms => handleCreateBreakoutRooms(msg)
+    case msg: BreakoutRoomCreated => handleBreakoutRoomCreated(msg)
+    case msg: BreakoutRoomEnded => handleBreakoutRoomEnded(msg)
+    case msg: RequestBreakoutJoinURLInMessage => handleRequestBreakoutJoinURL(msg)
+    case msg: BreakoutRoomUsersUpdate => handleBreakoutRoomUsersUpdate(msg)
+    case msg: SendBreakoutUsersUpdate => handleSendBreakoutUsersUpdate(msg)
+    case msg: EndAllBreakoutRooms => handleEndAllBreakoutRooms(msg)
 
-    case msg: ExtendMeetingDuration => liveMeeting.handleExtendMeetingDuration(msg)
-    case msg: SendTimeRemainingUpdate => liveMeeting.handleSendTimeRemainingUpdate(msg)
-    case msg: EndMeeting => liveMeeting.handleEndMeeting(msg)
+    case msg: ExtendMeetingDuration => handleExtendMeetingDuration(msg)
+    case msg: SendTimeRemainingUpdate => handleSendTimeRemainingUpdate(msg)
+    case msg: EndMeeting => handleEndMeeting(msg)
 
     // Closed Caption
-    case msg: SendCaptionHistoryRequest => liveMeeting.handleSendCaptionHistoryRequest(msg)
-    case msg: UpdateCaptionOwnerRequest => liveMeeting.handleUpdateCaptionOwnerRequest(msg)
-    case msg: EditCaptionHistoryRequest => liveMeeting.handleEditCaptionHistoryRequest(msg)
+    case msg: SendCaptionHistoryRequest => handleSendCaptionHistoryRequest(msg)
+    case msg: UpdateCaptionOwnerRequest => handleUpdateCaptionOwnerRequest(msg)
+    case msg: EditCaptionHistoryRequest => handleEditCaptionHistoryRequest(msg)
 
-    case msg: DeskShareStartedRequest => liveMeeting.handleDeskShareStartedRequest(msg)
-    case msg: DeskShareStoppedRequest => liveMeeting.handleDeskShareStoppedRequest(msg)
-    case msg: DeskShareRTMPBroadcastStartedRequest => liveMeeting.handleDeskShareRTMPBroadcastStartedRequest(msg)
-    case msg: DeskShareRTMPBroadcastStoppedRequest => liveMeeting.handleDeskShareRTMPBroadcastStoppedRequest(msg)
-    case msg: DeskShareGetDeskShareInfoRequest => liveMeeting.handleDeskShareGetDeskShareInfoRequest(msg)
+    case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
+    case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
 
     // Guest
-    case msg: GetGuestPolicy => liveMeeting.handleGetGuestPolicy(msg)
-    case msg: SetGuestPolicy => liveMeeting.handleSetGuestPolicy(msg)
-    case msg: RespondToGuest => liveMeeting.handleRespondToGuest(msg)
+    case msg: GetGuestPolicy => handleGetGuestPolicy(msg)
+    case msg: SetGuestPolicy => handleSetGuestPolicy(msg)
+    case msg: RespondToGuest => handleRespondToGuest(msg)
 
     // Shared Notes
-    case msg: PatchDocumentRequest => liveMeeting.handlePatchDocumentRequest(msg)
-    case msg: GetCurrentDocumentRequest => liveMeeting.handleGetCurrentDocumentRequest(msg)
-    case msg: CreateAdditionalNotesRequest => liveMeeting.handleCreateAdditionalNotesRequest(msg)
-    case msg: DestroyAdditionalNotesRequest => liveMeeting.handleDestroyAdditionalNotesRequest(msg)
-    case msg: RequestAdditionalNotesSetRequest => liveMeeting.handleRequestAdditionalNotesSetRequest(msg)
-    case msg: SharedNotesSyncNoteRequest => liveMeeting.handleSharedNotesSyncNoteRequest(msg)
+    case msg: PatchDocumentRequest => handlePatchDocumentRequest(msg)
+    case msg: GetCurrentDocumentRequest => handleGetCurrentDocumentRequest(msg)
+    case msg: CreateAdditionalNotesRequest => handleCreateAdditionalNotesRequest(msg)
+    case msg: DestroyAdditionalNotesRequest => handleDestroyAdditionalNotesRequest(msg)
+    case msg: RequestAdditionalNotesSetRequest => handleRequestAdditionalNotesSetRequest(msg)
+    case msg: SharedNotesSyncNoteRequest => handleSharedNotesSyncNoteRequest(msg)
 
     case _ => // do nothing
+  }
+
+  def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {
+    log.info("handleDeskShareRTMPBroadcastStoppedRequest: isBroadcastingRTMP=" + liveMeeting.meetingModel
+      .isBroadcastingRTMP() + " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
+
+    // only valid if currently broadcasting
+    if (liveMeeting.meetingModel.isBroadcastingRTMP()) {
+      log.info("STOP broadcast ALLOWED when isBroadcastingRTMP=true")
+      liveMeeting.meetingModel.broadcastingRTMPStopped()
+
+      // notify viewers that RTMP broadcast stopped
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
+        msg.videoWidth, msg.videoHeight, false))
+    } else {
+      log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
+    }
+  }
+
+  def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
+
+    log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
+      + liveMeeting.meetingModel.isBroadcastingRTMP() + " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
+    if (liveMeeting.meetingModel.isBroadcastingRTMP()) {
+      // if the meeting has an ongoing WebRTC Deskshare session, send a notification
+      outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, liveMeeting.meetingModel.getRTMPBroadcastingUrl(),
+        liveMeeting.meetingModel.getDesktopShareVideoWidth(), liveMeeting.meetingModel.getDesktopShareVideoHeight(), true))
+    }
+  }
+
+  def handleGetGuestPolicy(msg: GetGuestPolicy) {
+    outGW.send(new GetGuestPolicyReply(msg.meetingID, mProps.recorded, msg.requesterID, liveMeeting.meetingModel.getGuestPolicy().toString()))
+  }
+
+  def handleSetGuestPolicy(msg: SetGuestPolicy) {
+    liveMeeting.meetingModel.setGuestPolicy(msg.policy)
+    liveMeeting.meetingModel.setGuestPolicySetBy(msg.setBy)
+    outGW.send(new GuestPolicyChanged(msg.meetingID, mProps.recorded, liveMeeting.meetingModel.getGuestPolicy().toString()))
+  }
+
+  def handleLogoutEndMeeting(msg: LogoutEndMeeting) {
+    if (liveMeeting.usersModel.isModerator(msg.userID)) {
+      handleEndMeeting(EndMeeting(mProps.meetingID))
+    }
+  }
+
+  def handleActivityResponse(msg: ActivityResponse) {
+    log.info("User endorsed that meeting {} is active", mProps.meetingID)
+    outGW.send(new MeetingIsActive(mProps.meetingID))
+  }
+
+  def handleEndMeeting(msg: EndMeeting) {
+    // Broadcast users the meeting will end
+    outGW.send(new MeetingEnding(msg.meetingId))
+
+    liveMeeting.meetingModel.meetingHasEnded
+
+    outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
+  }
+
+  def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
+    liveMeeting.usersModel.getCurrentPresenter() match {
+      case Some(curPres) => {
+        val allowed = msg.userID equals (curPres.userID)
+        outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
+      }
+      case None => // do nothing
+    }
+  }
+
+  def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
+    if (msg.recording) {
+      liveMeeting.meetingModel.setVoiceRecordingFilename(msg.recordStream)
+      outGW.send(new VoiceRecordingStarted(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
+    } else {
+      liveMeeting.meetingModel.setVoiceRecordingFilename("")
+      outGW.send(new VoiceRecordingStopped(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
+    }
+  }
+
+  def handleSetRecordingStatus(msg: SetRecordingStatus) {
+    log.info("Change recording status. meetingId=" + mProps.meetingID + " recording=" + msg.recording)
+    if (mProps.allowStartStopRecording && liveMeeting.meetingModel.isRecording() != msg.recording) {
+      if (msg.recording) {
+        liveMeeting.meetingModel.recordingStarted()
+      } else {
+        liveMeeting.meetingModel.recordingStopped()
+      }
+
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, msg.userId, msg.recording))
+    }
+  }
+
+  // WebRTC Desktop Sharing
+
+  def handleDeskShareStartedRequest(msg: DeskShareStartedRequest): Unit = {
+    log.info("handleDeskShareStartedRequest: dsStarted=" + liveMeeting.meetingModel.getDeskShareStarted())
+
+    if (!liveMeeting.meetingModel.getDeskShareStarted()) {
+      val timestamp = System.currentTimeMillis().toString
+      val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp +
+        "/" + mProps.meetingID + "/" + mProps.meetingID + "-" + timestamp
+      log.info("handleDeskShareStartedRequest: streamPath=" + streamPath)
+
+      // Tell FreeSwitch to broadcast to RTMP
+      outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath))
+
+      liveMeeting.meetingModel.setDeskShareStarted(true)
+    }
+  }
+
+  def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest): Unit = {
+    log.info("handleDeskShareStoppedRequest: dsStarted=" + liveMeeting.meetingModel.getDeskShareStarted() +
+      " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
+
+    // Tell FreeSwitch to stop broadcasting to RTMP
+    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, liveMeeting.meetingModel.getRTMPBroadcastingUrl()))
+
+    liveMeeting.meetingModel.setDeskShareStarted(false)
+  }
+
+  def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest): Unit = {
+    log.info("handleDeskShareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" + liveMeeting.meetingModel.isBroadcastingRTMP() +
+      " URL:" + liveMeeting.meetingModel.getRTMPBroadcastingUrl())
+
+    // only valid if not broadcasting yet
+    if (!liveMeeting.meetingModel.isBroadcastingRTMP()) {
+      liveMeeting.meetingModel.setRTMPBroadcastingUrl(msg.streamname)
+      liveMeeting.meetingModel.broadcastingRTMPStarted()
+      liveMeeting.meetingModel.setDesktopShareVideoWidth(msg.videoWidth)
+      liveMeeting.meetingModel.setDesktopShareVideoHeight(msg.videoHeight)
+      log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
+
+      // Notify viewers in the meeting that there's an rtmp stream to view
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname, msg.videoWidth, msg.videoHeight, true))
+    } else {
+      log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
+    }
+  }
+
+  def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
+    if (liveMeeting.usersModel.numWebUsers == 0 && liveMeeting.meetingModel.lastWebUserLeftOn > 0) {
+      if (liveMeeting.timeNowInMinutes - liveMeeting.meetingModel.lastWebUserLeftOn > 2) {
+        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
+        outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+      }
+    }
+  }
+
+  def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate) {
+    if (mProps.duration > 0) {
+      val endMeetingTime = liveMeeting.meetingModel.startedOn + (mProps.duration * 60)
+      val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
+      outGW.send(new MeetingTimeRemainingUpdate(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+    }
+    if (!mProps.isBreakout && liveMeeting.breakoutModel.getRooms().length > 0) {
+      val room = liveMeeting.breakoutModel.getRooms()(0);
+      val endMeetingTime = liveMeeting.meetingModel.breakoutRoomsStartedOn + (liveMeeting.meetingModel.breakoutRoomsdurationInMinutes * 60)
+      val timeRemaining = endMeetingTime - liveMeeting.timeNowInSeconds
+      outGW.send(new BreakoutRoomsTimeRemainingUpdateOutMessage(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+    } else if (liveMeeting.meetingModel.breakoutRoomsStartedOn != 0) {
+      liveMeeting.meetingModel.breakoutRoomsdurationInMinutes = 0;
+      liveMeeting.meetingModel.breakoutRoomsStartedOn = 0;
+    }
+  }
+
+  def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {
+
+  }
+
+  def handleGetRecordingStatus(msg: GetRecordingStatus) {
+    outGW.send(new GetRecordingStatusReply(mProps.meetingID, mProps.recorded, msg.userId, liveMeeting.meetingModel.isRecording().booleanValue()))
   }
 
 }
