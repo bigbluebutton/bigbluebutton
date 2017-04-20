@@ -46,9 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
 	</bean>
 		
-	<bean id="pageCounter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageCounter">
-		<property name="swfToolsDir" value="${swfToolsDir}"/>
-	</bean>
+	<bean id="pageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter"/>
 		
 	<bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
 		<property name="pageCounter" ref="pageCounter"/>

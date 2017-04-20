@@ -93,7 +93,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
             + defineTextThreshold + imageTagThreshold) * 2;
 
     File destFile = new File(dest);
-    if (pHandler.isConversionSuccessful() && destFile.exists()
+    if (pHandler.isCommandSuccessful() && destFile.exists()
         && pHandler.numberOfPlacements() < placementsThreshold
         && pHandler.numberOfTextTags() < defineTextThreshold
         && pHandler.numberOfImageTags() < imageTagThreshold) {
@@ -110,7 +110,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
       logData.put("page", page);
-      logData.put("convertSuccess", pHandler.isConversionSuccessful());
+      logData.put("convertSuccess", pHandler.isCommandSuccessful());
       logData.put("fileExists", destFile.exists());
       logData.put("numObjectTags", pHandler.numberOfPlacements());
       logData.put("numTextTags", pHandler.numberOfTextTags());
@@ -178,7 +178,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       // conversion
       tempPng.delete();
 
-      boolean doneSwf = pSwfHandler.isConversionSuccessful();
+      boolean doneSwf = pSwfHandler.isCommandSuccessful();
 
       long convertEnd = System.currentTimeMillis();
 
