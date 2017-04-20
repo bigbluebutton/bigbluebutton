@@ -2,12 +2,12 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.api.Presenter
-import org.bigbluebutton.core.models.{ RegisteredUser, Roles, UserVO }
+import org.bigbluebutton.core.models._
 
 class UsersModel {
-  private var uservos = new collection.immutable.HashMap[String, UserVO]
+  private var uservos = new Users
 
-  private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
+  private var regUsers = new RegisteredUsers
 
   /* When reconnecting SIP global audio, users may receive the connection message
    * before the disconnection message.
@@ -30,7 +30,7 @@ class UsersModel {
   }
 
   def addRegisteredUser(token: String, regUser: RegisteredUser) {
-    regUsers += token -> regUser
+    regUsers.save(regUser)
   }
 
   def getRegisteredUserWithToken(token: String, userId: String): Option[RegisteredUser] = {
@@ -44,7 +44,7 @@ class UsersModel {
     }
 
     for {
-      ru <- regUsers.get(token)
+      ru <- RegisteredUsers.findWithToken(token, regUsers.toVector)
       user <- isSameUserId(ru, userId)
     } yield user
 
@@ -56,127 +56,108 @@ class UsersModel {
   }
 
   def addUser(uvo: UserVO) {
-    uservos += uvo.id -> uvo
+    uservos.save(uvo)
   }
 
   def removeUser(userId: String): Option[UserVO] = {
-    val user = uservos get (userId)
-    user foreach (u => uservos -= userId)
+    val user = Users.findWithId(userId, uservos.toVector)
+    user foreach (u => uservos.remove(userId))
 
     user
   }
 
   def hasSessionId(sessionId: String): Boolean = {
-    uservos.contains(sessionId)
+    Users.hasSessionId(sessionId, uservos.toVector)
   }
 
   def hasUser(userID: String): Boolean = {
-    uservos.contains(userID)
+    Users.hasUserWithId(userID, uservos.toVector)
   }
 
   def numUsers(): Int = {
-    uservos.size
+    Users.numUsers(uservos.toVector)
   }
 
   def numWebUsers(): Int = {
-    uservos.values filter (u => u.phoneUser == false) size
+    Users.numWebUsers(uservos.toVector)
   }
 
   def numUsersInVoiceConference: Int = {
-    val joinedUsers = uservos.values filter (u => u.voiceUser.joined)
-    joinedUsers.size
+    Users.numUsersInVoiceConference(uservos.toVector)
   }
 
   def getUserWithExternalId(userID: String): Option[UserVO] = {
-    uservos.values find (u => u.externalId == userID)
+    Users.findWithExtId(userID, uservos.toVector)
   }
 
   def getUserWithVoiceUserId(voiceUserId: String): Option[UserVO] = {
-    uservos.values find (u => u.voiceUser.userId == voiceUserId)
+    Users.getUserWithVoiceUserId(voiceUserId, uservos.toVector)
   }
 
   def getUser(userID: String): Option[UserVO] = {
-    uservos.values find (u => u.id == userID)
+    Users.findWithId(userID, uservos.toVector)
   }
 
   def getUsers(): Array[UserVO] = {
-    uservos.values toArray
+    uservos.toVector.toArray
   }
 
   def numModerators(): Int = {
-    getModerators.length
+    Users.numModerators(uservos.toVector)
   }
 
   def findAModerator(): Option[UserVO] = {
-    uservos.values find (u => u.role == Roles.MODERATOR_ROLE)
+    Users.findAModerator(uservos.toVector)
   }
 
   def noPresenter(): Boolean = {
-    !getCurrentPresenter().isDefined
+    Users.hasNoPresenter(uservos.toVector)
   }
 
   def getCurrentPresenter(): Option[UserVO] = {
-    uservos.values find (u => u.presenter == true)
+    Users.getCurrentPresenter(uservos.toVector)
   }
 
   def unbecomePresenter(userID: String) = {
-    uservos.get(userID) match {
-      case Some(u) => {
-        val nu = u.copy(presenter = false)
-        uservos += nu.id -> nu
-      }
-      case None => // do nothing	
-    }
+    for {
+      u <- Users.findWithId(userID, uservos.toVector)
+      user = Users.unbecomePresenter(u)
+    } yield uservos.save(user)
   }
 
   def becomePresenter(userID: String) = {
-    uservos.get(userID) match {
-      case Some(u) => {
-        val nu = u.copy(presenter = true)
-        uservos += nu.id -> nu
-      }
-      case None => // do nothing	
-    }
+    for {
+      u <- Users.findWithId(userID, uservos.toVector)
+      user = Users.becomePresenter(u)
+    } yield uservos.save(user)
   }
 
   def getModerators(): Array[UserVO] = {
-    uservos.values filter (u => u.role == Roles.MODERATOR_ROLE) toArray
+    Users.findModerators(uservos.toVector).toArray
   }
 
   def getViewers(): Array[UserVO] = {
-    uservos.values filter (u => u.role == Roles.VIEWER_ROLE) toArray
+    Users.findViewers(uservos.toVector).toArray
   }
 
   def isModerator(userId: String): Boolean = {
-    uservos.get(userId) match {
-      case Some(user) => return user.role == Roles.MODERATOR_ROLE && !user.waitingForAcceptance
-      case None => return false
-    }
+    Users.isModerator(userId, uservos.toVector)
   }
 
   def getRegisteredUserWithUserID(userID: String): Option[RegisteredUser] = {
-    regUsers.values find (ru => userID contains ru.id)
+    RegisteredUsers.findWithUserId(userID, regUsers.toVector)
   }
 
   def removeRegUser(userID: String) {
-    getRegisteredUserWithUserID(userID) match {
-      case Some(ru) => {
-        regUsers -= ru.authToken
-      }
-      case None =>
-    }
+    regUsers.delete(userID)
   }
 
   def updateRegUser(uvo: UserVO) {
-    getRegisteredUserWithUserID(uvo.id) match {
-      case Some(ru) => {
-        val regUser = new RegisteredUser(uvo.id, uvo.externalId, uvo.name, uvo.role, ru.authToken,
-          uvo.avatarURL, uvo.guest, uvo.authed, uvo.waitingForAcceptance)
-        regUsers -= ru.authToken
-        regUsers += ru.authToken -> regUser
-      }
-      case None =>
-    }
+    for {
+      ru <- RegisteredUsers.findWithUserId(uvo.id, regUsers.toVector)
+      regUser = new RegisteredUser(uvo.id, uvo.externalId, uvo.name, uvo.role, ru.authToken,
+        uvo.avatarURL, uvo.guest, uvo.authed, uvo.waitingForAcceptance)
+    } yield regUsers.save(regUser)
   }
 
   def addGlobalAudioConnection(userID: String): Boolean = {

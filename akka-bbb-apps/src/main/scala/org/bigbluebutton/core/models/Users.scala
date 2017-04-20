@@ -31,7 +31,12 @@ object Users {
   def getCurrentPresenter(users: Vector[UserVO]): Option[UserVO] = users find (u => u.presenter == true)
   def unbecomePresenter(user: UserVO): UserVO = user.copy(presenter = false)
   def becomePresenter(user: UserVO) = user.copy(presenter = true)
-
+  def isModerator(id: String, users: Vector[UserVO]): Boolean = {
+    Users.findWithId(id, users) match {
+      case Some(user) => return user.role == Roles.MODERATOR_ROLE && !user.waitingForAcceptance
+      case None => return false
+    }
+  }
   def generateWebUserId(users: Vector[UserVO]): String = {
     val webUserId = RandomStringGenerator.randomAlphanumericString(6)
     if (!hasUserWithId(webUserId, users)) webUserId else generateWebUserId(users)
