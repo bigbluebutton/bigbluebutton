@@ -15,13 +15,13 @@ import scala.concurrent.duration._
 object MeetingActor {
   def props(mProps: MeetingProperties,
     eventBus: IncomingEventBus,
-    outGW: OutMessageGateway): Props =
+    outGW: OutMessageGateway, liveMeeting: LiveMeeting): Props =
     Props(classOf[MeetingActor], mProps, eventBus, outGW)
 }
 
 class MeetingActor(val mProps: MeetingProperties,
   val eventBus: IncomingEventBus,
-  val outGW: OutMessageGateway)
+  val outGW: OutMessageGateway, val liveMeeting: LiveMeeting)
     extends Actor with ActorLogging {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -33,25 +33,6 @@ class MeetingActor(val mProps: MeetingProperties,
       Resume
     }
   }
-
-  val chatModel = new ChatModel()
-  val layoutModel = new LayoutModel()
-  val meetingModel = new MeetingModel()
-  val usersModel = new UsersModel()
-  val pollModel = new PollModel()
-  val wbModel = new WhiteboardModel()
-  val presModel = new PresentationModel()
-  val breakoutModel = new BreakoutRoomModel()
-  val captionModel = new CaptionModel()
-  val notesModel = new SharedNotesModel()
-
-  meetingModel.setGuestPolicy(mProps.guestPolicy)
-
-  // We extract the meeting handlers into this class so it is
-  // easy to test.
-  val liveMeeting = new LiveMeeting(mProps, eventBus, outGW,
-    chatModel, layoutModel, meetingModel, usersModel, pollModel,
-    wbModel, presModel, breakoutModel, captionModel, notesModel)
 
   /**
    * Put the internal message injector into another actor so this
