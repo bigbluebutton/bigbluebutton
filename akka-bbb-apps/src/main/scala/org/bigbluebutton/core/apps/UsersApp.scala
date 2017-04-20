@@ -241,7 +241,7 @@ trait UsersApp {
       val uvo = user.copy(role = msg.role)
       liveMeeting.usersModel.addUser(uvo)
       liveMeeting.usersModel.updateRegUser(uvo)
-      val userRole = if (msg.role == Role.MODERATOR) "MODERATOR" else "VIEWER"
+      val userRole = if (msg.role == Roles.MODERATOR_ROLE) "MODERATOR" else "VIEWER"
       outGW.send(new UserRoleChange(mProps.meetingID, mProps.recorded, msg.userID, userRole))
     }
   }
@@ -402,7 +402,7 @@ trait UsersApp {
         if (!waitingForAcceptance) {
           // Become presenter if the only moderator
           if ((liveMeeting.usersModel.numModerators == 1) || (liveMeeting.usersModel.noPresenter())) {
-            if (ru.role == Role.MODERATOR) {
+            if (ru.role == Roles.MODERATOR_ROLE) {
               assignNewPresenter(msg.userID, ru.name, msg.userID)
             }
           }

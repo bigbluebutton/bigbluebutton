@@ -1,9 +1,8 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.api.Role._
 import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.api.Presenter
-import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
+import org.bigbluebutton.core.models.{ RegisteredUser, Roles, UserVO }
 
 class UsersModel {
   private var uservos = new collection.immutable.HashMap[String, UserVO]
@@ -109,7 +108,7 @@ class UsersModel {
   }
 
   def findAModerator(): Option[UserVO] = {
-    uservos.values find (u => u.role == MODERATOR)
+    uservos.values find (u => u.role == Roles.MODERATOR_ROLE)
   }
 
   def noPresenter(): Boolean = {
@@ -141,16 +140,16 @@ class UsersModel {
   }
 
   def getModerators(): Array[UserVO] = {
-    uservos.values filter (u => u.role == MODERATOR) toArray
+    uservos.values filter (u => u.role == Roles.MODERATOR_ROLE) toArray
   }
 
   def getViewers(): Array[UserVO] = {
-    uservos.values filter (u => u.role == VIEWER) toArray
+    uservos.values filter (u => u.role == Roles.VIEWER_ROLE) toArray
   }
 
   def isModerator(userId: String): Boolean = {
     uservos.get(userId) match {
-      case Some(user) => return user.role == MODERATOR && !user.waitingForAcceptance
+      case Some(user) => return user.role == Roles.MODERATOR_ROLE && !user.waitingForAcceptance
       case None => return false
     }
   }

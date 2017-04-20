@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.core.api.Role._
 import org.bigbluebutton.core.api.GuestPolicy._
 import org.bigbluebutton.core.api.SharedNotesOperation._
 import org.bigbluebutton.core.apps.AnnotationVO

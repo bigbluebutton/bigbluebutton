@@ -4,12 +4,6 @@ import java.lang.Boolean
 
 import scala.collection.mutable.Stack
 
-object Role extends Enumeration {
-  type Role = Value
-  val MODERATOR = Value("MODERATOR")
-  val VIEWER = Value("VIEWER")
-}
-
 object Metadata extends Enumeration {
   type Metadata = String
   val INACTIVITY_DEADLINE = "inactivity-deadline"
