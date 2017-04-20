@@ -40,7 +40,7 @@ class Chat extends Component {
     } = this.props;
 
     return (
-      <section className={styles.chat}>
+      <div className={styles.chat}>
 
         <header className={styles.header}>
           <div className={styles.title}>
@@ -83,7 +83,7 @@ class Chat extends Component {
           chatName={chatName}
           handleSendMessage={actions.handleSendMessage}
         />
-      </section>
+      </div>
     );
   }
 }
