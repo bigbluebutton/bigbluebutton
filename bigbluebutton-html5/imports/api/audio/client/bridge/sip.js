@@ -44,7 +44,7 @@ export default class SIPBridge extends BaseAudioBridge {
         console.log('Attempting to hangup on WebRTC call');
 
         // notify BBB-apps we are leaving the call call if we are listen only
-        if (userData.listenOnly) {
+        if (this.userData.listenOnly) {
           callServer('listenOnlyToggle', false);
         }
 
