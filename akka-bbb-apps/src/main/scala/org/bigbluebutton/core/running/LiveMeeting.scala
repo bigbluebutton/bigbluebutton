@@ -1,15 +1,12 @@
-package org.bigbluebutton.core
+package org.bigbluebutton.core.running
 
 import java.util.concurrent.TimeUnit
-
-import scala.concurrent.duration.Duration
-
+import akka.event.Logging
+import akka.actor.ActorContext
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus.IncomingEventBus
-
-import akka.actor.ActorContext
-import akka.event.Logging
+import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
 
 class LiveMeeting(val mProps: MeetingProperties,
   val eventBus: IncomingEventBus,
