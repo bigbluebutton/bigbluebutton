@@ -105,7 +105,7 @@ trait PresentationApp {
     }
 
     liveMeeting.usersModel.getCurrentPresenter() foreach { pres =>
-      handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.userID))
+      handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.id))
     }
 
   }

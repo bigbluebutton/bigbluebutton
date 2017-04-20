@@ -188,7 +188,7 @@ trait PollApp {
     if (hasUser(msg.requesterId)) {
       getUser(msg.requesterId) match {
         case Some(user) => {
-          val responder = new Responder(user.userID, user.name)
+          val responder = new Responder(user.id, user.name)
           /*
            * Hardcode to zero as we are assuming the poll has only one question. 
            * Our data model supports multiple question polls but for this
@@ -199,7 +199,7 @@ trait PollApp {
           liveMeeting.pollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder)
           liveMeeting.usersModel.getCurrentPresenter foreach { cp =>
             liveMeeting.pollModel.getSimplePollResult(poll.id) foreach { updatedPoll =>
-              outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.userID, msg.pollId, updatedPoll))
+              outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.id, msg.pollId, updatedPoll))
             }
 
           }

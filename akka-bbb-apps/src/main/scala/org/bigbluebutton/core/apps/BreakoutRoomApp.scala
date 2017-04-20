@@ -119,7 +119,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
     val users = liveMeeting.usersModel.getUsers().toVector
-    val breakoutUsers = users map { u => new BreakoutUser(u.externUserID, u.name) }
+    val breakoutUsers = users map { u => new BreakoutUser(u.externalId, u.name) }
     eventBus.publish(BigBlueButtonEvent(mProps.parentMeetingID,
       new BreakoutRoomUsersUpdate(mProps.parentMeetingID, mProps.meetingID, breakoutUsers)))
   }
@@ -142,7 +142,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     liveMeeting.usersModel.getUser(msg.userId) match {
       case Some(u) => {
         if (u.voiceUser.joined) {
-          log.info("Transferring user userId=" + u.userID + " from voiceBridge=" + mProps.voiceBridge + " to targetVoiceConf=" + targetVoiceBridge)
+          log.info("Transferring user userId=" + u.id + " from voiceBridge=" + mProps.voiceBridge + " to targetVoiceConf=" + targetVoiceBridge)
           outGW.send(new TransferUserToMeeting(mProps.voiceBridge, targetVoiceBridge, u.voiceUser.userId))
         }
       }

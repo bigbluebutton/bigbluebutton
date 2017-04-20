@@ -2,8 +2,10 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
+
 import scala.collection.JavaConversions._
 import java.util.ArrayList
+
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
@@ -11,6 +13,7 @@ import akka.actor.ActorSystem
 import org.bigbluebutton.core.apps.AnnotationVO
 import akka.pattern.{ ask, pipe }
 import akka.util.Timeout
+
 import scala.concurrent.duration._
 import scala.util.Success
 import scala.util.Failure
@@ -21,6 +24,7 @@ import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
 import org.bigbluebutton.messages.payload._
 import akka.event.Logging
+import org.bigbluebutton.core.models.Roles
 import spray.json.JsonParser
 
 class BigBlueButtonInGW(
@@ -157,7 +161,7 @@ class BigBlueButtonInGW(
 
   def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String,
     authToken: String, avatarURL: String, guest: java.lang.Boolean, authed: java.lang.Boolean): Unit = {
-    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
+    val userRole = if (role == "MODERATOR") Roles.MODERATOR_ROLE else Roles.VIEWER_ROLE
     eventBus.publish(BigBlueButtonEvent(meetingID, new RegisterUser(meetingID, userID, name, userRole,
       extUserID, authToken, avatarURL, guest, authed)))
   }
@@ -257,7 +261,7 @@ class BigBlueButtonInGW(
   }
 
   def setUserRole(meetingID: String, userID: String, role: String) {
-    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
+    val userRole = if (role == "MODERATOR") Roles.MODERATOR_ROLE else Roles.VIEWER_ROLE
     eventBus.publish(BigBlueButtonEvent(meetingID, new ChangeUserRole(meetingID, userID, userRole)))
   }
 

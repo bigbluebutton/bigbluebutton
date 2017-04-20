@@ -4,11 +4,11 @@ import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.CurrentPresentationInfo
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.apps.Page
-import org.bigbluebutton.core.MeetingProperties
 import org.bigbluebutton.core.apps.PollVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
 import org.bigbluebutton.core.apps.BreakoutUser
+import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
 
 case class VoiceRecordingStarted(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
 case class VoiceRecordingStopped(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage

@@ -76,7 +76,7 @@ case class GetLockSettings(meetingID: String, userId: String) extends InMessage
 
 case class ValidateAuthToken(meetingID: String, userId: String, token: String,
   correlationId: String, sessionId: String) extends InMessage
-case class RegisterUser(meetingID: String, userID: String, name: String, role: Role,
+case class RegisterUser(meetingID: String, userID: String, name: String, role: String,
   extUserID: String, authToken: String, avatarURL: String, guest: Boolean, authed: Boolean) extends InMessage
 case class UserJoining(meetingID: String, userID: String, authToken: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
@@ -86,7 +86,7 @@ case class EjectUserFromMeeting(meetingID: String, userId: String, ejectedBy: St
 case class UserShareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class UserUnshareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class ChangeUserStatus(meetingID: String, userID: String, status: String, value: Object) extends InMessage
-case class ChangeUserRole(meetingID: String, userID: String, role: Role) extends InMessage
+case class ChangeUserRole(meetingID: String, userID: String, role: String) extends InMessage
 case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
 case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
 case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage

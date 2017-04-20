@@ -1,13 +1,9 @@
 package org.bigbluebutton.core.apps
 
-import scala.collection.mutable.HashMap
-import org.bigbluebutton.core.api.UserVO
 import org.bigbluebutton.core.api.Role._
-import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.api.VoiceUser
 import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.api.Presenter
-import org.bigbluebutton.core.api.RegisteredUser
+import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
 
 class UsersModel {
   private var uservos = new collection.immutable.HashMap[String, UserVO]
@@ -61,7 +57,7 @@ class UsersModel {
   }
 
   def addUser(uvo: UserVO) {
-    uservos += uvo.userID -> uvo
+    uservos += uvo.id -> uvo
   }
 
   def removeUser(userId: String): Option[UserVO] = {
@@ -93,7 +89,7 @@ class UsersModel {
   }
 
   def getUserWithExternalId(userID: String): Option[UserVO] = {
-    uservos.values find (u => u.externUserID == userID)
+    uservos.values find (u => u.externalId == userID)
   }
 
   def getUserWithVoiceUserId(voiceUserId: String): Option[UserVO] = {
@@ -101,7 +97,7 @@ class UsersModel {
   }
 
   def getUser(userID: String): Option[UserVO] = {
-    uservos.values find (u => u.userID == userID)
+    uservos.values find (u => u.id == userID)
   }
 
   def getUsers(): Array[UserVO] = {
@@ -128,7 +124,7 @@ class UsersModel {
     uservos.get(userID) match {
       case Some(u) => {
         val nu = u.copy(presenter = false)
-        uservos += nu.userID -> nu
+        uservos += nu.id -> nu
       }
       case None => // do nothing	
     }
@@ -138,7 +134,7 @@ class UsersModel {
     uservos.get(userID) match {
       case Some(u) => {
         val nu = u.copy(presenter = true)
-        uservos += nu.userID -> nu
+        uservos += nu.id -> nu
       }
       case None => // do nothing	
     }
@@ -173,9 +169,9 @@ class UsersModel {
   }
 
   def updateRegUser(uvo: UserVO) {
-    getRegisteredUserWithUserID(uvo.userID) match {
+    getRegisteredUserWithUserID(uvo.id) match {
       case Some(ru) => {
-        val regUser = new RegisteredUser(uvo.userID, uvo.externUserID, uvo.name, uvo.role, ru.authToken,
+        val regUser = new RegisteredUser(uvo.id, uvo.externalId, uvo.name, uvo.role, ru.authToken,
           uvo.avatarURL, uvo.guest, uvo.authed, uvo.waitingForAcceptance)
         regUsers -= ru.authToken
         regUsers += ru.authToken -> regUser

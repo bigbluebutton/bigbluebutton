@@ -222,7 +222,7 @@ class MeetingActor(val mProps: MeetingProperties,
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
     liveMeeting.usersModel.getCurrentPresenter() match {
       case Some(curPres) => {
-        val allowed = msg.userID equals (curPres.userID)
+        val allowed = msg.userID equals (curPres.id)
         outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
       }
       case None => // do nothing

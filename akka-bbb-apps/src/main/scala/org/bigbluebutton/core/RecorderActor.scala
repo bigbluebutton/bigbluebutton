@@ -221,8 +221,8 @@ class RecorderActor(val recorder: RecorderApplication)
     if (msg.recorded) {
       val ev = new ParticipantJoinRecordEvent();
       ev.setTimestamp(TimestampGenerator.generateTimestamp);
-      ev.setUserId(msg.user.userID);
-      ev.setExternalUserId(msg.user.externUserID);
+      ev.setUserId(msg.user.id);
+      ev.setExternalUserId(msg.user.externalId);
       ev.setName(msg.user.name);
       ev.setMeetingId(msg.meetingID);
       ev.setRole(msg.user.role.toString());
@@ -274,7 +274,7 @@ class RecorderActor(val recorder: RecorderApplication)
       evt.setMeetingId(msg.meetingID);
       evt.setTimestamp(TimestampGenerator.generateTimestamp);
       evt.setBridge(msg.confNum);
-      evt.setParticipant(msg.user.userID);
+      evt.setParticipant(msg.user.id);
       evt.setTalking(msg.user.voiceUser.talking);
 
       recorder.record(msg.meetingID, evt);
@@ -324,7 +324,7 @@ class RecorderActor(val recorder: RecorderApplication)
     if (msg.recorded) {
       val ev = new ParticipantLeftRecordEvent();
       ev.setTimestamp(TimestampGenerator.generateTimestamp);
-      ev.setUserId(msg.user.userID);
+      ev.setUserId(msg.user.id);
       ev.setMeetingId(msg.meetingID);
 
       recorder.record(msg.meetingID, ev);
