@@ -22,7 +22,7 @@ const init = () => {
   const Meeting = Meetings.findOne(); //TODO test this with Breakouts
   const turns = Meeting.turns;
   const stuns = Meeting.stuns;
-  const voiceBridge = Meeting.voiceBridge;
+  const voiceBridge = Meeting.voiceConf;
 
   const userData = {
     userId,
