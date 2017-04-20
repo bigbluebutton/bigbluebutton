@@ -1,20 +1,50 @@
 import Auth from '/imports/ui/services/auth';
+import { check } from 'meteor/check';
+import Notifications from '/imports/api/notification';
 
-/* TODO: Will be pretty sweet if we return a promise from the callServer function */
-function callServer(name) {
-  if (!name || !(typeof (name) === 'string' || name instanceof String) || name.length === 0 ||
-    !name.trim() || /^\s*$/.test(name)) {
-    console.error(`serverCall: invalid function name '${name}'`);
-    return false;
-  }
+/**
+ * Send the request to the server via Meteor.call and don't treat errors.
+ * 
+ * @param {string} name 
+ * @param {any} args 
+ * @see https://docs.meteor.com/api/methods.html#Meteor-call
+ * @return {Promise}
+ */
+function callServer(name, ...args) {
+  check(name, String);
 
   const credentials = Auth.credentials;
 
-  // slice off the first element. That is the function name but we already have that.
-  const args = Array.prototype.slice.call(arguments, 1);
-  Meteor.call(name, credentials, ...args);
+  return new Promise((resolve, reject) => {
+    Meteor.call(name, credentials, ...args, (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result);
+      }
+    });
+  });
 };
 
-export {
+/**
+ * Send the request to the server via Meteor.call and treat the error to a default callback.
+ * 
+ * @param {string} name 
+ * @param {any} args 
+ * @see https://docs.meteor.com/api/methods.html#Meteor-call
+ * @return {Promise}
+ */
+function treated(name, ...args) {
+  return callServer(name, ...args).catch((e) => {Notifications.insert({name:`Error while executing ${name}`}); throw e });
+};
+
+const API = {
   callServer,
+  treated
+};
+
+export default API;
+
+export {
+  callServer, treated
 };
