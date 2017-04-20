@@ -32,7 +32,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class AudioMenu extends BaseMenu {
+class VideoMenu extends BaseMenu {
   constructor(props) {
     super(props);
 
@@ -101,4 +101,4 @@ class AudioMenu extends BaseMenu {
   }
 };
 
-export default injectIntl(AudioMenu);
+export default injectIntl(VideoMenu);

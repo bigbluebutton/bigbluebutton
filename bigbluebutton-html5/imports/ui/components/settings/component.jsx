@@ -3,7 +3,6 @@ import Modal from '/imports/ui/components/modal/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { defineMessages, injectIntl } from 'react-intl';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
-import Audio from '/imports/ui/components/settings/submenus/audio/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import Video from '/imports/ui/components/settings/submenus/video/component';
@@ -42,7 +41,6 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
-    const audio = props.audio;
     const video = props.video;
     const application = props.application;
     const cc = props.cc;
@@ -50,14 +48,12 @@ class Settings extends Component {
 
     this.state = {
       current: {
-        audio: _.clone(audio),
         video: _.clone(video),
         application: _.clone(application),
         cc: _.clone(cc),
         participants: _.clone(participants),
       },
       saved: {
-        audio: _.clone(audio),
         video: _.clone(video),
         application: _.clone(application),
         cc: _.clone(cc),
@@ -135,10 +131,6 @@ class Settings extends Component {
             <Icon iconName='application' className={styles.icon}/>
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
-          <Tab className={styles.tabSelector} aria-labelledby="audioTab">
-            <Icon iconName='unmute' className={styles.icon}/>
-            <span id="audioTab">{intl.formatMessage(intlMessages.audioTabLabel)}</span>
-          </Tab>
           <Tab className={styles.tabSelector} aria-labelledby="videoTab">
             <Icon iconName='video' className={styles.icon}/>
             <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span>
@@ -160,11 +152,6 @@ class Settings extends Component {
             handleUpdateSettings={this.handleUpdateSettings}
             settings={this.state.current.application}
             />
-        </TabPanel>
-        <TabPanel className={styles.tabPanel}>
-          <Audio
-            settings={this.state.current.audio}
-            handleUpdateSettings={this.handleUpdateSettings}/>
         </TabPanel>
         <TabPanel className={styles.tabPanel}>
           <Video

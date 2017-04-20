@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import ActionsBar from './component';
 import Service from './service';
+import { exitAudio, handleJoinAudio } from '../audio/service';
 
 class ActionsBarContainer extends Component {
   constructor(props) {
@@ -20,8 +21,8 @@ class ActionsBarContainer extends Component {
 
 export default createContainer(() => {
   const isPresenter = Service.isUserPresenter();
-  const handleExitAudio = () => Service.handleExitAudio();
-  const handleOpenJoinAudio = () => Service.handleJoinAudio();
+  const handleExitAudio = () => exitAudio();
+  const handleOpenJoinAudio = () => handleJoinAudio();
 
   return {
     isUserPresenter: isPresenter,
