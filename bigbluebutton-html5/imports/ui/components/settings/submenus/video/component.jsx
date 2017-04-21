@@ -87,7 +87,9 @@ class VideoMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div
+                className={cx(styles.formElement, styles.pullContentRight)}
+                aria-label={intl.formatMessage(intlMessages.participantsCamLabel)}>
               <Toggle
                 icons={false}
                 defaultChecked={this.state.viewParticipantsWebcams}
