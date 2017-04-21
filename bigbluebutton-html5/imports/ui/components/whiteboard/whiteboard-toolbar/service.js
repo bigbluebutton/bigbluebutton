@@ -4,11 +4,11 @@ const undoAnnotation = () => {
   callServer('undoAnnotation');
 };
 
-// const clearWhiteboard = () => {
-//   callServer('clearWhiteboard');
-// };
+const clearWhiteboard = () => {
+  callServer('clearWhiteboard');
+};
 
 export default {
   undoAnnotation,
-  // clearWhiteboard,
+  clearWhiteboard,
 };

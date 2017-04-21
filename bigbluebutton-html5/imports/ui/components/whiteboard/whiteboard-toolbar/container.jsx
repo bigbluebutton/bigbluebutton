@@ -17,5 +17,5 @@ class WhiteboardToolbarContainer extends React.Component {
 
 export default createContainer(() => ({
   undoAnnotation: WhiteboardToolbarService.undoAnnotation,
-  // clearWhiteboard: PresentationOverlayService.clearWhiteboard,
+  clearWhiteboard: WhiteboardToolbarService.clearWhiteboard,
 }), WhiteboardToolbarContainer);

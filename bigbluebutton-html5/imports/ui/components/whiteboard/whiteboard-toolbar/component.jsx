@@ -18,7 +18,7 @@ export default class WhiteboardToolbar extends Component {
     this.displaySubMenu = this.displaySubMenu.bind(this);
     this.closeSubMenu = this.closeSubMenu.bind(this);
     this.handleUndo = this.handleUndo.bind(this);
-    this.handleRemoveAll = this.handleRemoveAll.bind(this);
+    this.handleClearAll = this.handleClearAll.bind(this);
     this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
     this.handleThicknessChange = this.handleThicknessChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
@@ -54,8 +54,8 @@ export default class WhiteboardToolbar extends Component {
     this.props.undoAnnotation();
   }
 
-  handleRemoveAll() {
-    console.log('handle clear all annotations action');
+  handleClearAll() {
+    this.props.clearWhiteboard();
   }
 
   handleAnnotationChange(annotation) {
@@ -259,7 +259,7 @@ export default class WhiteboardToolbar extends Component {
               color={'default'}
               icon={'circle_close'}
               size={'md'}
-              onClick={this.handleRemoveAll}
+              onClick={this.handleClearAll}
               className={cx(styles.toolbarButton, styles.notActive)}
             />
           </div>
