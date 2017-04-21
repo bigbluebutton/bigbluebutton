@@ -27,7 +27,7 @@ trait UsersApp {
 
     val user = Users.findWithId(msg.userid, liveMeeting.users.toVector)
     user foreach { u =>
-      if (liveMeeting.usersModel.addGlobalAudioConnection(msg.userid)) {
+      if (liveMeeting.addGlobalAudioConnection(msg.userid)) {
         val vu = u.voiceUser.copy(joined = false, talking = false)
         val uvo = u.copy(listenOnly = true, voiceUser = vu)
         liveMeeting.users.save(uvo)
@@ -42,7 +42,7 @@ trait UsersApp {
 
     val user = Users.findWithId(msg.userid, liveMeeting.users.toVector)
     user foreach { u =>
-      if (liveMeeting.usersModel.removeGlobalAudioConnection(msg.userid)) {
+      if (liveMeeting.removeGlobalAudioConnection(msg.userid)) {
         if (!u.joinedWeb) {
           val userLeaving = liveMeeting.users.remove(u.id)
           log.info("Not web user. Send user left message. meetingId=" + mProps.meetingID + " userId=" + u.id + " user=" + u)
@@ -487,8 +487,8 @@ trait UsersApp {
 
   def startRecordingVoiceConference() {
     if (Users.numUsersInVoiceConference(liveMeeting.users.toVector) == 1 &&
-      mProps.recorded && !liveMeeting.usersModel.isVoiceRecording) {
-      liveMeeting.usersModel.startRecordingVoice()
+      mProps.recorded && !liveMeeting.isVoiceRecording) {
+      liveMeeting.startRecordingVoice()
       log.info("Send START RECORDING voice conf. meetingId=" + mProps.meetingID + " voice conf=" + mProps.voiceBridge)
       outGW.send(new StartRecordingVoiceConf(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
     }
@@ -557,8 +557,8 @@ trait UsersApp {
 
   def stopRecordingVoiceConference() {
     if (Users.numUsersInVoiceConference(liveMeeting.users.toVector) == 0 &&
-      mProps.recorded && liveMeeting.usersModel.isVoiceRecording) {
-      liveMeeting.usersModel.stopRecordingVoice()
+      mProps.recorded && liveMeeting.isVoiceRecording) {
+      liveMeeting.stopRecordingVoice()
       log.info("Send STOP RECORDING voice conf. meetingId=" + mProps.meetingID + " voice conf=" + mProps.voiceBridge)
       outGW.send(new StopRecordingVoiceConf(mProps.meetingID, mProps.recorded,
         mProps.voiceBridge, liveMeeting.meetingModel.getVoiceRecordingFilename()))
@@ -635,7 +635,7 @@ trait UsersApp {
       Users.findWithId(newPresenterID, liveMeeting.users.toVector) match {
         case Some(newPres) => {
           Users.becomePresenter(newPres.id, liveMeeting.users)
-          liveMeeting.usersModel.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
+          liveMeeting.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
           outGW.send(new PresenterAssigned(mProps.meetingID, mProps.recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
           outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, newPresenterID, "presenter", true: java.lang.Boolean))
         }
