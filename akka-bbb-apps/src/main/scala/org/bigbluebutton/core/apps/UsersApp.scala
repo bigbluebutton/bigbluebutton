@@ -393,9 +393,12 @@ trait UsersApp {
           // Become presenter if the only moderator
           if ((Users.numModerators(liveMeeting.users.toVector) == 1) || (Users.hasNoPresenter(liveMeeting.users.toVector))) {
             if (ru.role == Roles.MODERATOR_ROLE) {
+              log.info("Assigning presenter to lone moderator. metingId=" + mProps.meetingID + " userId=" + uvo.id)
               assignNewPresenter(msg.userID, ru.name, msg.userID)
             }
           }
+        } else {
+          log.info("User waiting for acceptance. metingId=" + mProps.meetingID + " userId=" + uvo.id)
         }
         liveMeeting.webUserJoined
         startRecordingIfAutoStart()
@@ -622,26 +625,23 @@ trait UsersApp {
     // Stop poll if one is running as presenter left.
     handleStopPollRequest(StopPollRequest(mProps.meetingID, assignedBy))
 
-    if (Users.hasUserWithId(newPresenterID, liveMeeting.users.toVector)) {
-
-      Users.getCurrentPresenter(liveMeeting.users.toVector) match {
-        case Some(curPres) => {
-          Users.unbecomePresenter(curPres.id, liveMeeting.users)
-          outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, curPres.id, "presenter", false: java.lang.Boolean))
-        }
-        case None => // do nothing
+    def removePresenterRightsToCurrentPresenter(): Unit = {
+      for {
+        curPres <- Users.getCurrentPresenter(liveMeeting.users.toVector)
+      } yield {
+        Users.unbecomePresenter(curPres.id, liveMeeting.users)
+        outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, curPres.id, "presenter", false: java.lang.Boolean))
       }
+    }
 
-      Users.findWithId(newPresenterID, liveMeeting.users.toVector) match {
-        case Some(newPres) => {
-          Users.becomePresenter(newPres.id, liveMeeting.users)
-          liveMeeting.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
-          outGW.send(new PresenterAssigned(mProps.meetingID, mProps.recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
-          outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, newPresenterID, "presenter", true: java.lang.Boolean))
-        }
-        case None => // do nothing
-      }
-
+    for {
+      newPres <- Users.findWithId(newPresenterID, liveMeeting.users.toVector)
+    } yield {
+      removePresenterRightsToCurrentPresenter()
+      Users.becomePresenter(newPres.id, liveMeeting.users)
+      liveMeeting.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
+      outGW.send(new PresenterAssigned(mProps.meetingID, mProps.recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
+      outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, newPresenterID, "presenter", true: java.lang.Boolean))
     }
   }
 
