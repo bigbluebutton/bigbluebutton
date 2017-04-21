@@ -42,7 +42,7 @@ export default class MessageListItem extends Component {
         </div>
         <div className={styles.content}>
           <div className={styles.meta}>
-            <div className={user.isOnline ? styles.name : styles.logout}>
+            <div className={user.isOnline ? styles.name : styles.logout} aria-label={user.name}>
               <span>{user.name}</span>
               {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
             </div>

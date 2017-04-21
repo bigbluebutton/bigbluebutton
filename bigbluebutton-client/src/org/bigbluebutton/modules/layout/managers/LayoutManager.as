@@ -374,13 +374,13 @@ package org.bigbluebutton.modules.layout.managers
     
     public function handleLayoutLockedEvent(e: LayoutLockedEvent):void {
       _locked = e.locked;
-      checkWindowsPermissions();
+      checkPermissionsOverAllWindows();
     }
 
     public function lockSettingsChanged():void {
       var myUser:BBBUser = UserManager.getInstance().getConference().getMyUser();
       _locked = myUser.lockedLayout;
-      checkWindowsPermissions();
+      checkPermissionsOverAllWindows();
     }
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
@@ -392,22 +392,32 @@ package org.bigbluebutton.modules.layout.managers
 		public function remoteLockLayout():void {
 			//trace(LOG + " remote lock received");
 			_locked = true;
-			checkWindowsPermissions();
+			checkPermissionsOverAllWindows();
 		}
 		
     public function remoteSyncLayout(event:RemoteSyncLayoutEvent):void {
-      checkWindowsPermissions();
+      //trace(LOG + " remote lock received");
+      
+      checkPermissionsOverAllWindows();
     }
     
 		public function remoteUnlockLayout():void {
 			//trace(LOG + " remote unlock received");
 			_locked = false;
-			checkWindowsPermissions();
+			checkPermissionsOverAllWindows();
 		}
 		
-		private function checkWindowsPermissions():void {
+		private function checkPermissionsOverWindow(window:MDIWindow):void {
+			if (UsersUtil.amIModerator()) return;
+			if (window != null && !LayoutDefinition.ignoreWindow(window)) {
+				(window as CustomMdiWindow).unlocked = !_locked;
+			}
+		}
+
+		private function checkPermissionsOverAllWindows():void {
+			if (UsersUtil.amIModerator()) return;
 			for each (var window:MDIWindow in _canvas.windowManager.windowList) {
-				checkSingleWindowPermissions(window);
+				checkPermissionsOverWindow(window);
 			}
 		}
 

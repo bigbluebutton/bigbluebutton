@@ -19,6 +19,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 const intlMessages = defineMessages({
   toggleUserListLabel: {
     id: 'app.navBar.userListToggleBtnLabel',
+    description: 'Toggle button label',
+  },
+  newMessages: {
+    id: 'app.navbar.toggleUserList.newMessages',
+    description: 'label for toggleUserList btn when showing red notification'
   },
 });
 
@@ -72,6 +77,8 @@ class NavBar extends Component {
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
 
+
+
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
@@ -84,7 +91,11 @@ class NavBar extends Component {
             icon={'user'}
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
+            aria-describedby="newMessage"
           />
+          <div
+            id="newMessage"
+            aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}/>
         </div>
         <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}

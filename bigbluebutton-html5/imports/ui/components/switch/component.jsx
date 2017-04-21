@@ -38,7 +38,8 @@ export default class Switch extends Toggle {
 
         <input
           {...inputProps}
-          ref={ref => { this.input = ref }}
+          ref={ref => { this.input = ref; }}
+
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           className='react-toggle-screenreader-only'

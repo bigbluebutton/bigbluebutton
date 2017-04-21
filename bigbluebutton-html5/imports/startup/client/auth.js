@@ -12,8 +12,8 @@ export function joinRouteHandler(nextState, replace, callback) {
       replace({ pathname: '/' });
       callback();
     })
-    .catch(() => {
-      replace({ pathname: '/error/401' });
+    .catch(reason => {
+      replace({ pathname: `/error/${reason.error}` });
       callback();
     });
 };
@@ -27,7 +27,6 @@ export function logoutRouteHandler(nextState, replace, callback) {
       callback();
     })
     .catch(reason => {
-      console.error(reason);
       replace({ pathname: '/error/500' });
       callback();
     });
@@ -42,7 +41,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
     .then(callback)
     .catch(reason => {
       console.error(reason);
-      replace({ pathname: '/error/401' });
+      replace({ pathname: `/error/${reason.error}` });
       callback();
     });
 };

@@ -5,7 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 
 import {
   getModal,
-  showModal,
   getFontSize,
   getCaptionsStatus,
 } from './service';
@@ -18,7 +17,6 @@ import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import AudioModalContainer  from '../audio-modal/container';
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
 const defaultProps = {
@@ -48,12 +46,8 @@ class AppContainer extends Component {
   }
 };
 
-const APP_CONFIG = Meteor.settings.public.app;
-
 const init = () => {
-  if (APP_CONFIG.autoJoinAudio) {
-    showModal(<AudioModalContainer />);
-  }
+  // TODO
 };
 
 export default withRouter(injectIntl(createContainer(({ router, intl, baseControls }) => {
