@@ -115,7 +115,7 @@ trait UsersApp {
     if (liveMeeting.meetingModel.hasMeetingEnded()) {
       // Check first if the meeting has ended and the user refreshed the client to re-connect.
       log.info("Register user failed. Mmeeting has ended. meetingId=" + mProps.meetingID + " userId=" + msg.userID)
-      liveMeeting.sendMeetingHasEnded(msg.userID)
+      sendMeetingHasEnded(msg.userID)
     } else {
       val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.avatarURL,
         msg.guest, msg.authed, msg.guest)
@@ -398,7 +398,7 @@ trait UsersApp {
           }
         }
         liveMeeting.webUserJoined
-        liveMeeting.startRecordingIfAutoStart()
+        startRecordingIfAutoStart()
       }
     }
   }
@@ -428,7 +428,7 @@ trait UsersApp {
       }
 
       liveMeeting.startCheckingIfWeNeedToEndVoiceConf()
-      liveMeeting.stopAutoStartedRecording()
+      stopAutoStartedRecording()
     }
   }
 

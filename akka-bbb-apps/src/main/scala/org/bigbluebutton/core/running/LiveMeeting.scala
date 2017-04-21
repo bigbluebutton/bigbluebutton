@@ -12,7 +12,6 @@ import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGatew
 
 class LiveMeeting(val mProps: MeetingProperties,
     val eventBus: IncomingEventBus,
-    val outGW: OutMessageGateway,
     val chatModel: ChatModel,
     val layoutModel: LayoutModel,
     val meetingModel: MeetingModel,
@@ -66,24 +65,6 @@ class LiveMeeting(val mProps: MeetingProperties,
     usersModel.isVoiceRecording
   }
 
-  def startRecordingIfAutoStart() {
-    if (mProps.recorded && !meetingModel.isRecording() &&
-      mProps.autoStartRecording && Users.numWebUsers(users.toVector) == 1) {
-      log.info("Auto start recording. meetingId={}", mProps.meetingID)
-      meetingModel.recordingStarted()
-      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
-    }
-  }
-
-  def stopAutoStartedRecording() {
-    if (mProps.recorded && meetingModel.isRecording() &&
-      mProps.autoStartRecording && Users.numWebUsers(users.toVector) == 0) {
-      log.info("Last web user left. Auto stopping recording. meetingId={}", mProps.meetingID)
-      meetingModel.recordingStopped()
-      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
-    }
-  }
-
   def startCheckingIfWeNeedToEndVoiceConf() {
     if (Users.numWebUsers(users.toVector) == 0 && !mProps.isBreakout) {
       meetingModel.lastWebUserLeft()
@@ -105,11 +86,6 @@ class LiveMeeting(val mProps: MeetingProperties,
 
   def timeNowInSeconds(): Long = {
     TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
-  }
-
-  def sendMeetingHasEnded(userId: String) {
-    outGW.send(new MeetingHasEnded(mProps.meetingID, userId))
-    outGW.send(new DisconnectUser(mProps.meetingID, userId))
   }
 
   def lockLayout(lock: Boolean) {

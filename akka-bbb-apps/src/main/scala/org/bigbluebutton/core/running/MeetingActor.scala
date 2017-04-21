@@ -336,4 +336,26 @@ class MeetingActor(val mProps: MeetingProperties,
     outGW.send(new GetRecordingStatusReply(mProps.meetingID, mProps.recorded, msg.userId, liveMeeting.meetingModel.isRecording().booleanValue()))
   }
 
+  def startRecordingIfAutoStart() {
+    if (mProps.recorded && !liveMeeting.meetingModel.isRecording() &&
+      mProps.autoStartRecording && Users.numWebUsers(liveMeeting.users.toVector) == 1) {
+      log.info("Auto start recording. meetingId={}", mProps.meetingID)
+      liveMeeting.meetingModel.recordingStarted()
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", liveMeeting.meetingModel.isRecording()))
+    }
+  }
+
+  def stopAutoStartedRecording() {
+    if (mProps.recorded && liveMeeting.meetingModel.isRecording() &&
+      mProps.autoStartRecording && Users.numWebUsers(liveMeeting.users.toVector) == 0) {
+      log.info("Last web user left. Auto stopping recording. meetingId={}", mProps.meetingID)
+      liveMeeting.meetingModel.recordingStopped()
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", liveMeeting.meetingModel.isRecording()))
+    }
+  }
+
+  def sendMeetingHasEnded(userId: String) {
+    outGW.send(new MeetingHasEnded(mProps.meetingID, userId))
+    outGW.send(new DisconnectUser(mProps.meetingID, userId))
+  }
 }
