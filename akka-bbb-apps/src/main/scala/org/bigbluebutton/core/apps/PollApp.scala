@@ -25,7 +25,7 @@ trait PollApp {
 
     val poll = for {
       page <- liveMeeting.presModel.getCurrentPage()
-      curPoll <- liveMeeting.pollModel.getRunningPollThatStartsWith(page.id)
+      curPoll <- PollModel.getRunningPollThatStartsWith(page.id, liveMeeting.pollModel)
     } yield curPoll
 
     poll match {
@@ -43,25 +43,17 @@ trait PollApp {
   }
 
   def handleRespondToPollRequest(msg: RespondToPollRequest) {
-    liveMeeting.pollModel.getSimplePollResult(msg.pollId) match {
-      case Some(poll) => {
-        handleRespondToPoll(poll, msg)
-      }
-      case None => {
-
-      }
-    }
+    for {
+      poll <- PollModel.getSimplePollResult(msg.pollId, liveMeeting.pollModel)
+    } yield handleRespondToPoll(poll, msg)
   }
 
   def handleHidePollResultRequest(msg: HidePollResultRequest) {
-    liveMeeting.pollModel.getPoll(msg.pollId) match {
-      case Some(poll) => {
-        liveMeeting.pollModel.hidePollResult(msg.pollId)
-        outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId))
-      }
-      case None => {
-
-      }
+    for {
+      poll <- PollModel.getPoll(msg.pollId, liveMeeting.pollModel)
+    } yield {
+      PollModel.hidePollResult(msg.pollId, liveMeeting.pollModel)
+      outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId))
     }
   }
 
@@ -99,117 +91,107 @@ trait PollApp {
   }
 
   def handleShowPollResultRequest(msg: ShowPollResultRequest) {
-    liveMeeting.pollModel.getSimplePollResult(msg.pollId) match {
-      case Some(poll) => {
-        liveMeeting.pollModel.showPollResult(poll.id)
-        val shape = pollResultToWhiteboardShape(poll, msg)
+    def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Unit = {
+      for {
+        page <- liveMeeting.presModel.getCurrentPage()
+        pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
+        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId)
+      } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation))
+    }
 
-        for {
-          page <- liveMeeting.presModel.getCurrentPage()
-          pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
-          annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId)
-        } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation))
-
-        outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
-
-      }
-      case None => {
-
-      }
+    for {
+      poll <- PollModel.getSimplePollResult(msg.pollId, liveMeeting.pollModel)
+      shape = pollResultToWhiteboardShape(poll, msg)
+    } yield {
+      send(poll, shape)
+      PollModel.showPollResult(msg.pollId, liveMeeting.pollModel)
+      outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
     }
   }
 
   def handleStopPollRequest(msg: StopPollRequest) {
-    val cpoll = for {
+    for {
       page <- liveMeeting.presModel.getCurrentPage()
-      curPoll <- liveMeeting.pollModel.getRunningPollThatStartsWith(page.id)
-    } yield curPoll
-
-    cpoll match {
-      case Some(poll) => {
-        liveMeeting.pollModel.stopPoll(poll.id)
-        outGW.send(new PollStoppedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, poll.id))
-      }
-      case None => {
-
-      }
+      curPoll <- PollModel.getRunningPollThatStartsWith(page.id, liveMeeting.pollModel)
+    } yield {
+      PollModel.stopPoll(curPoll.id, liveMeeting.pollModel)
+      outGW.send(new PollStoppedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, curPoll.id))
     }
   }
 
   def handleStartCustomPollRequest(msg: StartCustomPollRequest) {
     log.debug("Received StartCustomPollRequest for pollType=[" + msg.pollType + "]")
 
-    liveMeeting.presModel.getCurrentPage() foreach { page =>
-      val pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
-
-      val pollId = pageId + "/" + System.currentTimeMillis()
-      log.debug("handleStartCustomPollRequest: new pollId = " + pollId);
-
-      val numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
-      PollFactory.createPoll(pollId, msg.pollType, numRespondents, Some(msg.answers)) foreach (poll => liveMeeting.pollModel.addPoll(poll))
-
-      liveMeeting.pollModel.getSimplePoll(pollId) match {
-        case Some(poll) => {
-          liveMeeting.pollModel.startPoll(poll.id)
-          outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, poll))
-        }
-        case None => {
-
-        }
+    def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
+      for {
+        poll <- PollFactory.createPoll(pollId, msg.pollType, numRespondents, Some(msg.answers))
+      } yield {
+        PollModel.addPoll(poll, liveMeeting.pollModel)
+        poll
       }
+    }
+
+    for {
+      page <- liveMeeting.presModel.getCurrentPage()
+      pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
+      pollId = pageId + "/" + System.currentTimeMillis()
+      numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
+      poll <- createPoll(pollId, numRespondents)
+      simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
+    } yield {
+      PollModel.startPoll(poll.id, liveMeeting.pollModel)
+      outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, simplePoll))
     }
   }
 
   def handleStartPollRequest(msg: StartPollRequest) {
     log.debug("Received StartPollRequest for pollType=[" + msg.pollType + "]")
-
-    liveMeeting.presModel.getCurrentPage() foreach { page =>
-      val pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
-
-      val pollId = pageId + "/" + System.currentTimeMillis()
-      log.debug("handleStartPollRequest: new pollId = " + pollId);
-
-      val numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
-      PollFactory.createPoll(pollId, msg.pollType, numRespondents, None) foreach (poll => liveMeeting.pollModel.addPoll(poll))
-
-      liveMeeting.pollModel.getSimplePoll(pollId) match {
-        case Some(poll) => {
-          liveMeeting.pollModel.startPoll(poll.id)
-          outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, poll))
-        }
-        case None => {
-
-        }
+    def createPoll(pollId: String, numRespondents: Int): Option[Poll] = {
+      for {
+        poll <- PollFactory.createPoll(pollId, msg.pollType, numRespondents, None)
+      } yield {
+        PollModel.addPoll(poll, liveMeeting.pollModel)
+        poll
       }
+    }
+
+    for {
+      page <- liveMeeting.presModel.getCurrentPage()
+      pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id
+      pollId = pageId + "/" + System.currentTimeMillis()
+      numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
+      poll <- createPoll(pollId, numRespondents)
+      simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
+    } yield {
+      PollModel.startPoll(poll.id, liveMeeting.pollModel)
+      outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, simplePoll))
     }
 
   }
 
   private def handleRespondToPoll(poll: SimplePollResultOutVO, msg: RespondToPollRequest) {
-    if (hasUser(msg.requesterId)) {
-      getUser(msg.requesterId) match {
-        case Some(user) => {
-          val responder = new Responder(user.id, user.name)
-          /*
-           * Hardcode to zero as we are assuming the poll has only one question. 
-           * Our data model supports multiple question polls but for this
-           * release, we only have a simple poll which has one question per poll.
-           * (ralam june 23, 2015)
-           */
-          val questionId = 0
-          liveMeeting.pollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder)
-          Users.getCurrentPresenter(liveMeeting.users.toVector) foreach { cp =>
-            liveMeeting.pollModel.getSimplePollResult(poll.id) foreach { updatedPoll =>
-              outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.id, msg.pollId, updatedPoll))
-            }
+    /*
+   * Hardcode to zero as we are assuming the poll has only one question.
+   * Our data model supports multiple question polls but for this
+   * release, we only have a simple poll which has one question per poll.
+   * (ralam june 23, 2015)
+   */
+    val questionId = 0
 
-          }
+    def storePollResult(responder: Responder): Option[SimplePollResultOutVO] = {
+      PollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder, liveMeeting.pollModel)
+      for {
+        updatedPoll <- PollModel.getSimplePollResult(poll.id, liveMeeting.pollModel)
+      } yield updatedPoll
 
-        }
-        case None => {
-
-        }
-      }
     }
+
+    for {
+      user <- Users.findWithId(msg.requesterId, liveMeeting.users.toVector)
+      responder = new Responder(user.id, user.name)
+      updatedPoll <- storePollResult(responder)
+      curPres <- Users.getCurrentPresenter(liveMeeting.users.toVector)
+    } yield outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, curPres.id, msg.pollId, updatedPoll))
+
   }
 }

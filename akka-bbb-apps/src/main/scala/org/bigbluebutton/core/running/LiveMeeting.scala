@@ -6,9 +6,8 @@ import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.bus.IncomingEventBus
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
-import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
+import org.bigbluebutton.core.{ MeetingModel, MeetingProperties }
 
 class LiveMeeting(val mProps: MeetingProperties,
     val chatModel: ChatModel,
