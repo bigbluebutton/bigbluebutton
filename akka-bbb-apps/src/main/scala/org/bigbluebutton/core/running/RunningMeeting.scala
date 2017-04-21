@@ -33,7 +33,7 @@ class RunningMeeting(val mProps: MeetingProperties, val outGW: OutMessageGateway
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
-  val liveMeeting = new LiveMeeting(mProps, eventBus,
+  val liveMeeting = new LiveMeeting(mProps,
     chatModel, layoutModel, meetingModel, usersModel, users, registeredUsers, pollModel,
     wbModel, presModel, breakoutModel, captionModel, notesModel)
 

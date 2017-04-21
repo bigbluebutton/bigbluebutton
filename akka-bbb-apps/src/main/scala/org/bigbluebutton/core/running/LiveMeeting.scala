@@ -11,7 +11,6 @@ import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
 
 class LiveMeeting(val mProps: MeetingProperties,
-    val eventBus: IncomingEventBus,
     val chatModel: ChatModel,
     val layoutModel: LayoutModel,
     val meetingModel: MeetingModel,
