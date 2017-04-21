@@ -13,7 +13,7 @@ trait WhiteboardApp {
   val outGW: OutMessageGateway
 
   def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
-    val shape = msg.annotation
+    var shape = msg.annotation
     val status = shape.status
     val shapeType = shape.shapeType
     val wbId = shape.wbId
@@ -26,19 +26,24 @@ trait WhiteboardApp {
     if (WhiteboardKeyUtil.TEXT_CREATED_STATUS == status || WhiteboardKeyUtil.DRAW_START_STATUS == status) {
       //      println("Received textcreated status")
       wbModel.addAnnotation(wbId, userId, shape)
-    } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == status) {
-      wbModel.updateAnnotation(wbId, userId, shape)
-    } else if (WhiteboardKeyUtil.DRAW_END_STATUS == status) {
-      wbModel.updateAnnotation(wbId, userId, shape)
-    } else if (WhiteboardKeyUtil.TEXT_TYPE == shapeType) {
-      //	    println("Received [" + shapeType +"] modify text status")
-      wbModel.modifyText(wbId, userId, shape)
+    } else if (WhiteboardKeyUtil.TEXT_EDITED_STATUS == status || WhiteboardKeyUtil.DRAW_UPDATE_STATUS == status) {
+      if (WhiteboardKeyUtil.PENCIL_TYPE == shapeType) {
+        wbModel.updateAnnotationPencil(wbId, userId, shape)
+      } else {
+        wbModel.updateAnnotation(wbId, userId, shape)
+      }
+    } else if (WhiteboardKeyUtil.TEXT_PUBLISHED_STATUS == status || WhiteboardKeyUtil.DRAW_END_STATUS == status) {
+      if (WhiteboardKeyUtil.PENCIL_TYPE == shapeType) {
+        shape = wbModel.endAnnotationPencil(wbId, userId, shape)
+      } else {
+        wbModel.updateAnnotation(wbId, userId, shape)
+      }
     } else {
       //	    println("Received UNKNOWN whiteboard shape!!!!. status=[" + status + "], shapeType=[" + shapeType + "]")
     }
     if (wbModel.hasWhiteboard(wbId)) {
       //        println("WhiteboardApp::handleSendWhiteboardAnnotationRequest - num shapes [" + wb.shapes.length + "]")
-      outGW.send(new SendWhiteboardAnnotationEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wbId, msg.annotation))
+      outGW.send(new SendWhiteboardAnnotationEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wbId, shape))
     }
 
   }

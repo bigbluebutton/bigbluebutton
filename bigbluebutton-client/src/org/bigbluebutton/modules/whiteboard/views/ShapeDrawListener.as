@@ -29,25 +29,24 @@ package org.bigbluebutton.modules.whiteboard.views
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
   
-  public class PencilDrawListener implements IDrawListener
+  public class ShapeDrawListener implements IDrawListener
   {
     private var _drawStatus:String = DrawObject.DRAW_START;
-    private var _isDrawing:Boolean = false;; 
+    private var _isDrawing:Boolean = false; 
     private var _segment:Array = new Array();
     private var _wbCanvas:WhiteboardCanvas;
     private var _sendFrequency:int;
     private var _shapeFactory:ShapeFactory;
     private var _ctrlKeyDown:Boolean = false;
-		private var _idGenerator:AnnotationIDGenerator;
-		private var _curID:String;
-		private var _wbModel:WhiteboardModel;
+    private var _idGenerator:AnnotationIDGenerator;
+    private var _curID:String;
+    private var _wbModel:WhiteboardModel;
         
-    public function PencilDrawListener(idGenerator:AnnotationIDGenerator, 
+    public function ShapeDrawListener(idGenerator:AnnotationIDGenerator, 
                                        wbCanvas:WhiteboardCanvas, 
                                        sendShapeFrequency:int, 
                                        shapeFactory:ShapeFactory, 
-                                       wbModel:WhiteboardModel)
-    {
+                                       wbModel:WhiteboardModel) {
       _idGenerator = idGenerator;
       _wbCanvas = wbCanvas;
       _sendFrequency = sendShapeFrequency;
@@ -56,8 +55,10 @@ package org.bigbluebutton.modules.whiteboard.views
     }
     
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
-      //if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
-      if (tool.toolType == DrawObject.PENCIL) {
+      if (tool.toolType == DrawObject.RECTANGLE || 
+		  tool.toolType == DrawObject.TRIANGLE || 
+		  tool.toolType == DrawObject.ELLIPSE || 
+		  tool.toolType == DrawObject.LINE) {
         _isDrawing = true;
         _drawStatus = DrawObject.DRAW_START;
         
@@ -65,31 +66,30 @@ package org.bigbluebutton.modules.whiteboard.views
         // remove the specific shape when a mouse up occurs.
         _curID = _idGenerator.generateID();
         
-        //normalize points as we get them to avoid shape drift
-        var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
-		
+//        LogUtil.debug("* START count = [" + objCount + "] id=[" + _curID + "]"); 
+        
+		//normalize points as we get them to avoid shape drift
+		var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
+        
         _segment = new Array();
         _segment.push(np.x);
         _segment.push(np.y);
-		
-        sendShapeToServer(DrawObject.DRAW_START, tool);
       } 
     }
         
     public function ctrlKeyDown(down:Boolean):void {
       _ctrlKeyDown = down;
     }
-    
+
     public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         if (_isDrawing){
-
-          //normalize points as we get them to avoid shape drift
-          var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
-          
-          _segment = new Array();
-          _segment.push(np.x);
-          _segment.push(np.y);
+			
+			//normalize points as we get them to avoid shape drift
+			var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
+			
+          _segment[2] = np.x;
+          _segment[3] = np.y;
           
           sendShapeToServer(DrawObject.DRAW_UPDATE, tool);
         }
@@ -105,9 +105,7 @@ package org.bigbluebutton.modules.whiteboard.views
             * shape to the viewers.
             */
           _isDrawing = false;
-          _segment = new Array();
-          _segment.push(_wbCanvas.width);
-          _segment.push(_wbCanvas.height);
+          
           sendShapeToServer(DrawObject.DRAW_END, tool);
         } /* (_isDrawing) */                
       }
@@ -126,7 +124,6 @@ package org.bigbluebutton.modules.whiteboard.views
       dobj.id = _curID;
       
       var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
-      
       if (an != null) {
         _wbCanvas.sendGraphicToServer(an, WhiteboardDrawEvent.SEND_SHAPE);
       }

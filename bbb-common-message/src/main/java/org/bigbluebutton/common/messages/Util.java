@@ -288,6 +288,21 @@ public class Util {
 					pointsArray.add(pf);
 				}
 			}
+      
+			//the final pencil annotation has a commands property
+			if (annotationElement.has("commands")) {
+				JsonArray commandsJsonArray = annotationElement.get("commands").getAsJsonArray();
+				ArrayList<Integer> commandsArray = new ArrayList<Integer>();
+				Iterator<JsonElement> commandIter = commandsJsonArray.iterator();
+				while (commandIter.hasNext()){
+					JsonElement p = commandIter.next();
+					Integer ci = p.getAsInt();
+					if (ci != null) {
+						commandsArray.add(ci);
+					}
+				}
+				finalAnnotation.put("commands", commandsArray);
+			}
 
 			finalAnnotation.put("transparency", transparency);
 			finalAnnotation.put(Constants.ID, id);

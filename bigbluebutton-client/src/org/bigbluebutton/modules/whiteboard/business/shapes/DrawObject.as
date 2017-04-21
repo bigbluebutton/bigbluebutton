@@ -58,6 +58,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         private var _userId:String;
 		
 		protected var _ao:Object;
+		protected var _zoom:Number;
+		protected var _parentWidth:Number;
+		protected var _parentHeight:Number;
 		
 		/**
 		 * ID we can use to match the shape in the client's view
@@ -103,16 +106,29 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function normalize(val:Number, side:Number):Number {
 			return (val*100.0)/side;
 		}
-        
-        protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {}
+		
+		protected function makeGraphic():void {}
 		
         public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            _ao = a.annotation;
-            makeGraphic(parentWidth, parentHeight, zoom);
-        }
-        
-        public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            makeGraphic(parentWidth, parentHeight, zoom);
-        }
+			_ao = a.annotation;
+			_parentWidth = parentWidth;
+			_parentHeight = parentHeight;
+			_zoom = zoom;
+			
+			makeGraphic();
+		}
+		
+		public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+			_parentWidth = parentWidth;
+			_parentHeight = parentHeight;
+			_zoom = zoom;
+			makeGraphic();
+		}
+		
+		public function updateAnnotation(a:Annotation):void {
+			_ao = a.annotation;
+			
+			makeGraphic();
+		}
 	}
 }

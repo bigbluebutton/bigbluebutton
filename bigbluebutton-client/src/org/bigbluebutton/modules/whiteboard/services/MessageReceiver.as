@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
@@ -95,7 +96,7 @@ package org.bigbluebutton.modules.whiteboard.services
       var map:Object = JSON.parse(message.msg);
       var shape:Object = map.shape as Object;
       var an:Object = shape.shape as Object;
-      
+	  
       var annotation:Annotation = new Annotation(shape.id, shape.type, an);
       annotation.status = shape.status;
       annotation.userId = shape.userId;

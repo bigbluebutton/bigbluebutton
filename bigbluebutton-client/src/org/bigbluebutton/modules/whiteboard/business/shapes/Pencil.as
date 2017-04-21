@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+
 	/**
 	 * The Pencil class. Extends a DrawObject 
 	 * @author dzgonjan
@@ -29,23 +31,102 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			super(id, type, status, userId);
 		}
 		
-		override protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		override protected function makeGraphic():void {
+			if (status == DrawObject.DRAW_END && (_ao.points.length > 2)) {
+				drawFinishedLine();
+			} else {
+				drawSimpleLine();
+			}
+		}
+		
+		private function drawSimpleLine():void {
 			this.graphics.clear();
 			
-			this.graphics.lineStyle(_ao.thickness * zoom, _ao.color);
+			this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
 			
-			var graphicsCommands:Vector.<int> = new Vector.<int>();
-			graphicsCommands.push(1);
-			var coordinates:Vector.<Number> = new Vector.<Number>();
-			coordinates.push(denormalize((_ao.points as Array)[0], parentWidth), denormalize((_ao.points as Array)[1], parentHeight));
+			var points:Array = _ao.points as Array;
 			
-			for (var i:int = 2; i < (_ao.points as Array).length; i += 2){
-				graphicsCommands.push(2);
-				coordinates.push(denormalize((_ao.points as Array)[i], parentWidth), denormalize((_ao.points as Array)[i+1], parentHeight));
+			if (points.length > 2) {
+				var graphicsCommands:Vector.<int> = new Vector.<int>();
+				graphicsCommands.push(1);
+				var coordinates:Vector.<Number> = new Vector.<Number>();
+				coordinates.push(denormalize(points[0], _parentWidth), denormalize(points[1], _parentHeight));
+				
+				for (var i:int = 2; i < points.length; i += 2){
+					if (i%2 == 0) graphicsCommands.push(2);
+					coordinates.push(denormalize(points[i], _parentWidth), denormalize(points[i+1], _parentHeight));
+				}
+				
+				if ((coordinates.length/2-1)%2 != 0)
+					coordinates.push(denormalize(points[points.length-2], _parentWidth), denormalize(points[points.length-1], _parentHeight));
+				
+				this.graphics.drawPath(graphicsCommands, coordinates);
+			} else {
+				this.graphics.lineStyle(1, _ao.color);
+				this.graphics.beginFill(_ao.color);
+				var diameter:Number = _ao.thickness * _zoom;
+				this.graphics.drawEllipse(denormalize(points[0], _parentWidth)-diameter/2, denormalize(points[1], _parentHeight)-diameter/2, diameter, diameter);
+				this.graphics.endFill();
+				
+				//setup for the next line command
+				graphics.moveTo(denormalize(points[0], _parentWidth), denormalize(points[1], _parentHeight));
 			}
 			
-			this.graphics.drawPath(graphicsCommands, coordinates);
 			this.alpha = 1;
+		}
+		
+		private function drawFinishedLine():void {
+			graphics.clear();
+			
+			graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
+			
+			var commands:Array = _ao.commands as Array;
+			var points:Array = _ao.points as Array;
+			
+			var graphicsCommands:Vector.<int> = new Vector.<int>();
+			var coordinates:Vector.<Number> = new Vector.<Number>();
+			
+			for (var i:int=0, j:int=0; i<commands.length && j<points.length; i++){
+				switch (commands[i]) {
+					case 1: // MOVE_TO
+						graphicsCommands.push(1);
+						coordinates.push(denormalize(points[j++], _parentWidth), denormalize(points[j++], _parentHeight));
+						break;
+					case 2: // LINE_TO
+						graphicsCommands.push(2);
+						coordinates.push(denormalize(points[j++], _parentWidth), denormalize(points[j++], _parentHeight));
+						break;
+					case 3: // Q_CURVE_TO
+						graphicsCommands.push(3);
+						coordinates.push(denormalize(points[j++], _parentWidth), denormalize(points[j++], _parentHeight));
+						coordinates.push(denormalize(points[j++], _parentWidth), denormalize(points[j++], _parentHeight));
+						break;
+					case 4: // C_CURVE_TO
+						graphicsCommands.push(6);
+						coordinates.push(denormalize(points[j++], _parentWidth), denormalize(points[j++], _parentHeight));
+						coordinates.push(denormalize(points[j++], _parentWidth), denormalize(points[j++], _parentHeight));
+						coordinates.push(denormalize(points[j++], _parentWidth), denormalize(points[j++], _parentHeight));
+						break;
+				}
+			}
+			
+			graphics.drawPath(graphicsCommands, coordinates);
+		}
+		
+		override public function updateAnnotation(a:Annotation):void {
+			status = a.status;
+			
+			if (status == DrawObject.DRAW_UPDATE) {
+				var newPoints:Array = a.annotation.points;
+				
+				_ao = a.annotation;
+				
+				graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
+				graphics.lineTo(denormalize(newPoints[newPoints.length-2], _parentWidth), denormalize(newPoints[newPoints.length-1], _parentHeight));
+			} else {
+				_ao = a.annotation;
+				makeGraphic();
+			}
 		}
 	}
 }

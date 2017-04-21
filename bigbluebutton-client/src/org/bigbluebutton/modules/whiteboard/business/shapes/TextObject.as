@@ -78,7 +78,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       _textBoxHeight = boxHeight;
       this.textSize = textSize;
       _calcedFontSize = calcedFontSize;
-	  
+	  trace("width="+boxWidth+" height="+boxHeight+" x="+x+" y="+y);
 	  this.mouseEnabled = false;
 	  this.mouseWheelEnabled = false;
     }  
@@ -120,6 +120,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
     
 	public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {}
+	
+	public function updateAnnotation(a:Annotation):void {}
 	
 	public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {}
 	
@@ -189,17 +191,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
       this.width = denormalize(_textBoxWidth, parentWidth);
       this.height = denormalize(_textBoxHeight, parentHeight);
-    }
-        
-    public function getProperties():Array {
-      var props:Array = new Array();
-      props.push(this.text);
-      props.push(this.textColor);
-      props.push(this.backgroundColor);
-      props.push(this.background);
-      props.push(this.x);
-      props.push(this.y);
-      return props;
     }
     
     public function makeEditable(editable:Boolean):void {
