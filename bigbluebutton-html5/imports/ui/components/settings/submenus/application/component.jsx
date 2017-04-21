@@ -45,6 +45,22 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.decreaseFontBtnDesc',
     description: 'adds descriptive context to decrease font size button',
   },
+  languageLabel: {
+    id: 'app.submenu.application.languageLabel',
+    description: 'displayed label for changing application locale',
+  },
+  ariaLanguageLabel: {
+    id: 'app.submenu.application.ariaLanguageLabel',
+    description: 'aria label for locale change section',
+  },
+  languageOptionLabel:  {
+    id: 'app.submenu.application.languageOptionLabel',
+    description: 'default change language option when locales are available',
+  },
+  noLocaleOptionLabel: {
+    id: 'app.submenu.application.noLocaleOptionLabel',
+    description: 'default change language option when no locales available',
+  },
 });
 
 class ApplicationMenu extends BaseMenu {
@@ -133,14 +149,15 @@ class ApplicationMenu extends BaseMenu {
           </div>
           <div className={styles.row}>
             <div className={styles.col}>
-              <div className={styles.formElement}>
+              <div className={styles.formElement} >
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.pushNotifyLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}
+              aria-label={intl.formatMessage(intlMessages.pushNotifyLabel)}>
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.chatPushNotifications}
@@ -152,12 +169,13 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Application Language
+                  {intl.formatMessage(intlMessages.languageLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}
+              aria-labelledby="changeLangLabel">
                 <select
                   defaultValue={this.state.settings.locale}
                   className={styles.select}
@@ -165,8 +183,8 @@ class ApplicationMenu extends BaseMenu {
                   <option>
                     { availableLocales &&
                       availableLocales.length ?
-                      'Choose language' :
-                      'No active locales' }
+                      intl.formatMessage(intlMessages.languageOptionLabel) :
+                      intl.formatMessage(intlMessages.noLocaleOptionLabel) }
                   </option>
                 {availableLocales ? availableLocales.map((locale, index) =>
                   <option key={index} value={locale.locale}>
@@ -175,6 +193,7 @@ class ApplicationMenu extends BaseMenu {
                 ) : null }
                 </select>
               </div>
+              <div id="changeLangLabel" aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}></div>
             </div>
           </div>
           <hr className={styles.separator}/>
@@ -202,12 +221,9 @@ class ApplicationMenu extends BaseMenu {
                       color={'success'}
                       icon={'add'}
                       circle={true}
-                      tabIndex='0'
                       hideLabel={true}
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
-                      aria-describedby={''}
                     />
-                    <div id='sizeUpLabel' hidden>Font size up</div>
                   </div>
                   <div className={styles.col}>
                     <Button
@@ -215,10 +231,8 @@ class ApplicationMenu extends BaseMenu {
                       color={'success'}
                       icon={'substract'}
                       circle={true}
-                      tabIndex='0'
                       hideLabel={true}
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
-                      aria-describedby={''}
                     />
                   </div>
                 </div>
