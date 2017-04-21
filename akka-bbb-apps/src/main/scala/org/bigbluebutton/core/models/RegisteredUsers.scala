@@ -14,6 +14,29 @@ object RegisteredUsers {
   def findWithUserId(id: String, users: Vector[RegisteredUser]): Option[RegisteredUser] = {
     users.find(ru => id == ru.id)
   }
+
+  def getRegisteredUserWithToken(token: String, userId: String, regUsers: Vector[RegisteredUser]): Option[RegisteredUser] = {
+    def isSameUserId(ru: RegisteredUser, userId: String): Option[RegisteredUser] = {
+      if (userId.startsWith(ru.id)) {
+        Some(ru)
+      } else {
+        None
+      }
+    }
+
+    for {
+      ru <- RegisteredUsers.findWithToken(token, regUsers)
+      user <- isSameUserId(ru, userId)
+    } yield user
+  }
+
+  def updateRegUser(uvo: UserVO, regUsers: RegisteredUsers) {
+    for {
+      ru <- RegisteredUsers.findWithUserId(uvo.id, regUsers.toVector)
+      regUser = new RegisteredUser(uvo.id, uvo.externalId, uvo.name, uvo.role, ru.authToken,
+        uvo.avatarURL, uvo.guest, uvo.authed, uvo.waitingForAcceptance)
+    } yield regUsers.save(regUser)
+  }
 }
 
 class RegisteredUsers {

@@ -29,8 +29,21 @@ object Users {
   def numModerators(users: Vector[UserVO]): Int = findModerators(users).length
   def findAModerator(users: Vector[UserVO]): Option[UserVO] = users find (u => u.role == Roles.MODERATOR_ROLE)
   def getCurrentPresenter(users: Vector[UserVO]): Option[UserVO] = users find (u => u.presenter == true)
-  def unbecomePresenter(user: UserVO): UserVO = user.copy(presenter = false)
-  def becomePresenter(user: UserVO) = user.copy(presenter = true)
+
+  def unbecomePresenter(userID: String, users: Users) = {
+    for {
+      u <- Users.findWithId(userID, users.toVector)
+      user = u.copy(presenter = false)
+    } yield users.save(user)
+  }
+
+  def becomePresenter(userID: String, users: Users) = {
+    for {
+      u <- Users.findWithId(userID, users.toVector)
+      user = u.copy(presenter = true)
+    } yield users.save(user)
+  }
+
   def isModerator(id: String, users: Vector[UserVO]): Boolean = {
     Users.findWithId(id, users) match {
       case Some(user) => return user.role == Roles.MODERATOR_ROLE && !user.waitingForAcceptance

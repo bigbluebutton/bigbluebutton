@@ -4,6 +4,7 @@ import akka.actor.ActorRef
 import akka.actor.ActorContext
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
 
 object RunningMeeting {
@@ -25,13 +26,15 @@ class RunningMeeting(val mProps: MeetingProperties, val outGW: OutMessageGateway
   val breakoutModel = new BreakoutRoomModel()
   val captionModel = new CaptionModel()
   val notesModel = new SharedNotesModel()
+  val users = new Users
+  val registeredUsers = new RegisteredUsers
 
   meetingModel.setGuestPolicy(mProps.guestPolicy)
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
   val liveMeeting = new LiveMeeting(mProps, eventBus, outGW,
-    chatModel, layoutModel, meetingModel, usersModel, pollModel,
+    chatModel, layoutModel, meetingModel, usersModel, users, registeredUsers, pollModel,
     wbModel, presModel, breakoutModel, captionModel, notesModel)
 
   val actorRef = context.actorOf(MeetingActor.props(mProps, eventBus, outGW, liveMeeting), mProps.meetingID)

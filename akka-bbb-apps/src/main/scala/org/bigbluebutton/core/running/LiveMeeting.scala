@@ -7,6 +7,7 @@ import akka.event.Logging
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties, OutMessageGateway }
 
 class LiveMeeting(val mProps: MeetingProperties,
@@ -16,6 +17,8 @@ class LiveMeeting(val mProps: MeetingProperties,
     val layoutModel: LayoutModel,
     val meetingModel: MeetingModel,
     val usersModel: UsersModel,
+    val users: Users,
+    val registeredUsers: RegisteredUsers,
     val pollModel: PollModel,
     val wbModel: WhiteboardModel,
     val presModel: PresentationModel,
@@ -30,13 +33,14 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def webUserJoined() {
-    if (usersModel.numWebUsers > 0) {
+    if (Users.numWebUsers(users.toVector) > 0) {
       meetingModel.resetLastWebUserLeftOn()
     }
   }
 
   def startRecordingIfAutoStart() {
-    if (mProps.recorded && !meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 1) {
+    if (mProps.recorded && !meetingModel.isRecording() &&
+      mProps.autoStartRecording && Users.numWebUsers(users.toVector) == 1) {
       log.info("Auto start recording. meetingId={}", mProps.meetingID)
       meetingModel.recordingStarted()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
@@ -44,7 +48,8 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def stopAutoStartedRecording() {
-    if (mProps.recorded && meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 0) {
+    if (mProps.recorded && meetingModel.isRecording() &&
+      mProps.autoStartRecording && Users.numWebUsers(users.toVector) == 0) {
       log.info("Last web user left. Auto stopping recording. meetingId={}", mProps.meetingID)
       meetingModel.recordingStopped()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
@@ -52,7 +57,7 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (usersModel.numWebUsers == 0 && !mProps.isBreakout) {
+    if (Users.numWebUsers(users.toVector) == 0 && !mProps.isBreakout) {
       meetingModel.lastWebUserLeft()
       log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
     }

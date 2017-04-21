@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import com.google.gson.Gson
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.models.Users
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
 
 trait PresentationApp {
@@ -104,7 +105,7 @@ trait PresentationApp {
       outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
     }
 
-    liveMeeting.usersModel.getCurrentPresenter() foreach { pres =>
+    Users.getCurrentPresenter(liveMeeting.users.toVector) foreach { pres =>
       handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.id))
     }
 

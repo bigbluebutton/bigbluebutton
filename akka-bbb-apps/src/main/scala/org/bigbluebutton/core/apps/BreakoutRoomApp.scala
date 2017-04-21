@@ -10,6 +10,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.models.Users
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
 
 trait BreakoutRoomApp extends SystemConfiguration {
@@ -61,7 +62,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {
     log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId)
     for {
-      user <- liveMeeting.usersModel.getUser(userId)
+      user <- Users.findWithId(userId, liveMeeting.users.toVector)
       apiCall = "join"
       params = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true, externalMeetingId, mProps.moderatorPass)
       // We generate a first url with redirect -> true
@@ -118,7 +119,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
-    val users = liveMeeting.usersModel.getUsers().toVector
+    val users = liveMeeting.users.toVector
     val breakoutUsers = users map { u => new BreakoutUser(u.externalId, u.name) }
     eventBus.publish(BigBlueButtonEvent(mProps.parentMeetingID,
       new BreakoutRoomUsersUpdate(mProps.parentMeetingID, mProps.meetingID, breakoutUsers)))
@@ -139,7 +140,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
       targetVoiceBridge = mProps.voiceBridge.dropRight(1)
     }
     // We check the user from the mode
-    liveMeeting.usersModel.getUser(msg.userId) match {
+    Users.findWithId(msg.userId, liveMeeting.users.toVector) match {
       case Some(u) => {
         if (u.voiceUser.joined) {
           log.info("Transferring user userId=" + u.id + " from voiceBridge=" + mProps.voiceBridge + " to targetVoiceConf=" + targetVoiceBridge)

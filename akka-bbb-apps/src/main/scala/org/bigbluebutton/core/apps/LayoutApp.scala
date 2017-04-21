@@ -48,14 +48,14 @@ trait LayoutApp {
   def affectedUsers(): Array[UserVO] = {
     if (liveMeeting.layoutModel.doesLayoutApplyToViewersOnly()) {
       val au = ArrayBuffer[UserVO]()
-      liveMeeting.usersModel.getUsers foreach { u =>
+      liveMeeting.users.toVector foreach { u =>
         if (!u.presenter && u.role != Roles.MODERATOR_ROLE) {
           au += u
         }
       }
       au.toArray
     } else {
-      liveMeeting.usersModel.getUsers
+      liveMeeting.users.toVector.toArray
     }
 
   }

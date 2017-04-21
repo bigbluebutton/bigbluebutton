@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
+
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.Props
@@ -10,6 +11,8 @@ import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
+import org.bigbluebutton.core.models.Users
+
 import scala.concurrent.duration._
 
 object MeetingActor {
@@ -200,7 +203,7 @@ class MeetingActor(val mProps: MeetingProperties,
   }
 
   def handleLogoutEndMeeting(msg: LogoutEndMeeting) {
-    if (liveMeeting.usersModel.isModerator(msg.userID)) {
+    if (Users.isModerator(msg.userID, liveMeeting.users.toVector)) {
       handleEndMeeting(EndMeeting(mProps.meetingID))
     }
   }
@@ -220,7 +223,7 @@ class MeetingActor(val mProps: MeetingProperties,
   }
 
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
-    liveMeeting.usersModel.getCurrentPresenter() match {
+    Users.getCurrentPresenter(liveMeeting.users.toVector) match {
       case Some(curPres) => {
         val allowed = msg.userID equals (curPres.id)
         outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
@@ -300,7 +303,7 @@ class MeetingActor(val mProps: MeetingProperties,
   }
 
   def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
-    if (liveMeeting.usersModel.numWebUsers == 0 && liveMeeting.meetingModel.lastWebUserLeftOn > 0) {
+    if (Users.numWebUsers(liveMeeting.users.toVector) == 0 && liveMeeting.meetingModel.lastWebUserLeftOn > 0) {
       if (liveMeeting.timeNowInMinutes - liveMeeting.meetingModel.lastWebUserLeftOn > 2) {
         log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))

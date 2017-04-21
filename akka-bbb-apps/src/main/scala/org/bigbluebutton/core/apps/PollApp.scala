@@ -5,6 +5,7 @@ import org.bigbluebutton.core.api._
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
+import org.bigbluebutton.core.models.Users
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
 // import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import com.google.gson.Gson
@@ -144,7 +145,7 @@ trait PollApp {
       val pollId = pageId + "/" + System.currentTimeMillis()
       log.debug("handleStartCustomPollRequest: new pollId = " + pollId);
 
-      val numRespondents = liveMeeting.usersModel.numUsers() - 1 // subtract the presenter
+      val numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
       PollFactory.createPoll(pollId, msg.pollType, numRespondents, Some(msg.answers)) foreach (poll => liveMeeting.pollModel.addPoll(poll))
 
       liveMeeting.pollModel.getSimplePoll(pollId) match {
@@ -168,7 +169,7 @@ trait PollApp {
       val pollId = pageId + "/" + System.currentTimeMillis()
       log.debug("handleStartPollRequest: new pollId = " + pollId);
 
-      val numRespondents = liveMeeting.usersModel.numUsers() - 1 // subtract the presenter
+      val numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
       PollFactory.createPoll(pollId, msg.pollType, numRespondents, None) foreach (poll => liveMeeting.pollModel.addPoll(poll))
 
       liveMeeting.pollModel.getSimplePoll(pollId) match {
@@ -197,7 +198,7 @@ trait PollApp {
            */
           val questionId = 0
           liveMeeting.pollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder)
-          liveMeeting.usersModel.getCurrentPresenter foreach { cp =>
+          Users.getCurrentPresenter(liveMeeting.users.toVector) foreach { cp =>
             liveMeeting.pollModel.getSimplePollResult(poll.id) foreach { updatedPoll =>
               outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.id, msg.pollId, updatedPoll))
             }
