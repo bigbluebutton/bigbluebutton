@@ -145,7 +145,7 @@ class ClosedCaptionsMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} aria-label={intl.formatMessage(intlMessages.closedCaptionsLabel)}>
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.enabled}
@@ -162,7 +162,7 @@ class ClosedCaptionsMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} aria-label={intl.formatMessage(intlMessages.takeOwnershipLabel)}>
                 <Checkbox
                   onChange={() => this.handleToggle('takeOwnership')}
                   checked={this.state.settings.takeOwnership}/>
@@ -178,7 +178,7 @@ class ClosedCaptionsMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} aria-label={intl.formatMessage(intlMessages.languageLabel)}>
                 <select
                   defaultValue={locales ? locales.indexOf(this.state.settings.locale) : -1}
                   className={styles.select}
@@ -208,7 +208,7 @@ class ClosedCaptionsMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} aria-label={intl.formatMessage(intlMessages.fontFamilyLabel)}>
                 <select
                   defaultValue={FONT_FAMILIES.indexOf(this.state.settings.fontFamily)}
                   onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
@@ -235,7 +235,7 @@ class ClosedCaptionsMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} aria-label={intl.formatMessage(intlMessages.fontSizeLabel)}>
                 <select
                   defaultValue={FONT_SIZES.indexOf(this.state.settings.fontSize)}
                   onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
@@ -262,7 +262,7 @@ class ClosedCaptionsMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} aria-label={intl.formatMessage(intlMessages.backgroundColorLabel)}>
               <div
                 tabIndex='12'
                 className={ styles.swatch }
@@ -302,7 +302,7 @@ class ClosedCaptionsMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} aria-label={intl.formatMessage(intlMessages.fontColorLabel)}>
               <div
                 tabIndex='12'
                 className={ styles.swatch }
