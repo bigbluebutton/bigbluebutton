@@ -15,9 +15,9 @@ export default class SettingsDropdownContainer extends Component {
 
   componentDidMount() {
     const fullscreenChangedEvents = ['fullscreenchange',
-                                    'webkitfullscreenchange',
-                                    'mozfullscreenchange',
-                                    'MSFullscreenChange', ];
+                                     'webkitfullscreenchange',
+                                     'mozfullscreenchange',
+                                     'MSFullscreenChange', ];
 
     fullscreenChangedEvents.forEach(event =>
       document.addEventListener(event, this.handleFullscreenChange));
@@ -25,19 +25,21 @@ export default class SettingsDropdownContainer extends Component {
 
   componentWillUnmount() {
     const fullscreenChangedEvents = ['fullscreenchange',
-                                    'webkitfullscreenchange',
-                                    'mozfullscreenchange',
-                                    'MSFullscreenChange', ];
+                                     'webkitfullscreenchange',
+                                     'mozfullscreenchange',
+                                     'MSFullscreenChange', ];
 
     fullscreenChangedEvents.forEach(event =>
       document.removeEventListener(event, this.fullScreenToggleCallback));
   }
 
   handleFullscreenChange() {
-    if (screen.height - 1 <= window.innerHeight) {
-      // browser is probably in fullscreen
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
       this.setState({ isFullScreen: true });
-    }else {
+    } else {
       this.setState({ isFullScreen: false });
     }
   }
