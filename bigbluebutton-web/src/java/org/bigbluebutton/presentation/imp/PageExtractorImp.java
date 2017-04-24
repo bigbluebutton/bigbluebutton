@@ -21,34 +21,21 @@ package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
 
-import org.bigbluebutton.presentation.PageConverter;
-import org.bigbluebutton.presentation.UploadedPresentation;
+import org.bigbluebutton.presentation.PageExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImageMagickPageConverter implements PageConverter {
-  private static Logger log = LoggerFactory.getLogger(ImageMagickPageConverter.class);
+public class PageExtractorImp implements PageExtractor {
+  private static Logger log = LoggerFactory.getLogger(PageExtractorImp.class);
 
-  private String IMAGEMAGICK_DIR;
+  private String SPACE = " ";
 
-  public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres){
+  public boolean extractPage(File presentationFile, File output, int page) {
+    String COMMAND = "pdfseparate -f " + page + " -l " + page + SPACE
+        + presentationFile.getAbsolutePath() + SPACE + output.getAbsolutePath();
 
-    String COMMAND = IMAGEMAGICK_DIR + "/convert -depth 8 " + presentationFile.getAbsolutePath() + " " + output.getAbsolutePath();          
-
-    boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);            
-
-    if (done && output.exists()) {
-      return true;		
-    } else {
-      log.warn("Failed to convert: " + output.getAbsolutePath() + " does not exist.");
-      return false;
-    }
-
-  }
-
-  public void setImageMagickDir(String dir) {
-    IMAGEMAGICK_DIR = dir;
+    log.info("Extracting page {} for document {}", page,
+        presentationFile.getAbsolutePath());
+    return new ExternalProcessExecutor().exec(COMMAND, 60000);
   }
 }
-
-

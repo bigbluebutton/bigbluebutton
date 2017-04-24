@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
 import com.zaxxer.nuprocess.NuAbstractProcessHandler;
 import com.zaxxer.nuprocess.NuProcess;
 
-public abstract class AbstractPageConverterHandler extends
+public abstract class AbstractCommandHandler extends
     NuAbstractProcessHandler {
 
   private static Logger log = LoggerFactory
-      .getLogger(AbstractPageConverterHandler.class);
+      .getLogger(AbstractCommandHandler.class);
 
   protected NuProcess nuProcess;
   protected int exitCode;
@@ -86,7 +86,7 @@ public abstract class AbstractPageConverterHandler extends
     return stderrBuilder.indexOf(value) > -1;
   }
 
-  public Boolean isConversionSuccessful() {
+  public Boolean isCommandSuccessful() {
     return !exitedWithError();
   }
 }
