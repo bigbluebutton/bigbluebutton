@@ -280,6 +280,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
 			private function showToolbar():void {
 				_hideToolbarTimer.reset();
+				if (fadeOut.isPlaying) {
+					fadeOut.end();
+				}
 				showWhiteboardToolbar = true;
 			}
 
@@ -289,6 +292,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onHideToolbarTimerComplete(event:TimerEvent):void {
+				if (fadeIn.isPlaying) {
+					fadeIn.end();
+				}
 				showWhiteboardToolbar = false;
 			}
 
