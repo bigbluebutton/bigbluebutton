@@ -125,10 +125,10 @@ public class KeepAliveService implements MessageListener {
   	
   private void processPing(KeepAlivePing msg) {
 	  service.sendKeepAlive(SYSTEM, System.currentTimeMillis());
-	  Boolean akkaAppsIsAvalable = available;
+	  Boolean akkaAppsIsAvailable = available;
 
 	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 30000)) {
-	  	if (akkaAppsIsAvalable) {
+	  	if (akkaAppsIsAvailable) {
 			log.error("BBB Web pubsub error!");
 			// BBB-Apps has gone down. Mark it as unavailable. (ralam - april 29, 2014)
 			available = false;
