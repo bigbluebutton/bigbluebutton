@@ -153,9 +153,10 @@
 }
 
 .dropdownContent {
+  @extend %text-elipsis;
   cursor: default;
   min-width: 10vw;
-  width: 20rem;
+  max-width: 100%;
 }
 
 .actionsHeader {
