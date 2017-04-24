@@ -211,7 +211,7 @@ export default class WhiteboardToolbar extends Component {
               className={styles.toolbarButton}
               customSvgIcon={
                 <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
-                  <circle shapeRendering="geometricPrecision" cx="50%" cy="50%" r={this.state.thicknessSelected} fill={this.state.colorSelected} stroke="black" stroke-width="1"/>
+                  <circle shapeRendering="geometricPrecision" cx="50%" cy="50%" r={this.state.thicknessSelected} fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
                 </svg>
               }
             />
@@ -231,7 +231,7 @@ export default class WhiteboardToolbar extends Component {
               className={styles.toolbarButton}
               customSvgIcon={
               <svg className={styles.customSvgIcon}>
-                <rect x="25%" y="25%" width="50%" height="50%" fill={this.state.colorSelected} stroke="black" stroke-width="1"/>
+                <rect x="25%" y="25%" width="50%" height="50%" fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
               </svg>
             }
             />
