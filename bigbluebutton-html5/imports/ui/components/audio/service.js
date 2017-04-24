@@ -17,7 +17,6 @@ const init = () => {
   const userId = Auth.userID;
   const User = Users.findOne({ userId });
   const username = User.user.name;
-  const listenOnly = User.user.listenOnly;
 
   const Meeting = Meetings.findOne(); //TODO test this with Breakouts
   const turns = Meeting.turns;
@@ -27,7 +26,6 @@ const init = () => {
   const userData = {
     userId,
     username,
-    listenOnly,
     turns,
     stuns,
     voiceBridge,
