@@ -13,7 +13,7 @@ export default class VertoBridge extends BaseAudioBridge {
     this.vertoUsername = 'FreeSWITCH User - ' + encodeURIComponent(username);
   }
 
-  exitAudio() {
+  exitAudio(listenOnly) {
     window.vertoExitAudio();
   }
 
