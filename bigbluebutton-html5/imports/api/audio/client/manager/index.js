@@ -1,4 +1,3 @@
-import { callServer } from '/imports/ui/services/api';
 import BaseAudioBridge from '../bridge/base';
 import VertoBridge from '../bridge/verto';
 import SIPBridge from '../bridge/sip';
@@ -13,15 +12,16 @@ export default class AudioManager {
     }
 
     this.bridge = audioBridge;
+    this.isListenOnly = false;
   }
 
   exitAudio () {
-    this.bridge.exitAudio();
+    this.bridge.exitAudio(this.isListenOnly);
   }
 
   joinAudio(listenOnly) {
     if (listenOnly) {
-      callServer('listenOnlyToggle', true);
+      this.isListenOnly = true;
       this.bridge.joinListenOnly();
     } else {
       this.bridge.joinMicrophone();
