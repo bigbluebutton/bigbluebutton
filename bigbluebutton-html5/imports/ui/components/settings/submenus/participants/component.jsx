@@ -8,8 +8,89 @@ import cx from 'classnames';
 import styles from '../styles.scss';
 import Toggle from '/imports/ui/components/switch/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
+import { defineMessages, injectIntl } from 'react-intl';
 
-export default class ApplicationMenu extends BaseMenu {
+
+const intlMessages = defineMessages({
+  participantsTitle: {
+    id: 'app.userlist.participantsTitle',
+    description: 'heading label for participants submenu',
+  },
+  muteAllLabel: {
+    id: 'app.submenu.participants.muteAllLabel',
+    description: 'label for participants submenu mute section',
+  },
+  lockAllLabel: {
+    id: 'app.submenu.participants.lockAllLabel',
+    description: 'label for participants submenu lock section',
+  },
+  lockItemLabel: {
+    id: 'app.submenu.participants.lockItemLabel',
+    description: 'aria label for locking options',
+  },
+  lockCamDesc: {
+    id: 'app.submenu.participants.lockCamDesc',
+    description: 'aria description for option to lock webcam',
+  },
+  lockMicDesc: {
+    id: 'app.submenu.participants.lockMicDesc',
+    description: 'aria description for option to lock mic',
+  },
+  lockPublicChatDesc: {
+    id: 'app.submenu.participants.lockPublicChatDesc',
+    description: 'aria description for option to lock public chat',
+  },
+  lockPrivateChatDesc: {
+    id: 'app.submenu.participants.lockPrivateChatDesc',
+    description: 'aria description for option to lock private chat',
+  },
+  lockLayoutDesc: {
+    id: 'app.submenu.participants.lockLayoutDesc',
+    description: 'aria description for option to lock layout',
+  },
+  lockMicAriaLabel: {
+    id: 'app.submenu.participants.lockMicAriaLabel',
+    description: '',
+  },
+  lockCamAriaLabel: {
+    id: 'app.submenu.participants.lockCamAriaLabel',
+    description: '',
+  },
+  lockPublicChatAriaLabel: {
+    id: 'app.submenu.participants.lockPublicChatAriaLabel',
+    description: '',
+  },
+  lockPrivateChatAriaLabel: {
+    id: 'app.submenu.participants.lockPrivateChatAriaLabel',
+    description: '',
+  },
+  lockLayoutAriaLabel: {
+    id: 'app.submenu.participants.lockLayoutAriaLabel',
+    description: '',
+  },
+  lockMicLabel: {
+    id: 'app.submenu.participants.lockMicLabel',
+    description: '',
+  },
+  lockCamLabel: {
+    id: 'app.submenu.participants.lockCamLabel',
+    description: '',
+  },
+  lockPublicChatLabel: {
+    id: 'app.submenu.participants.lockPublicChatLabel',
+    description: '',
+  },
+  lockPrivateChatLabel: {
+    id: 'app.submenu.participants.lockPrivateChatLabel',
+    description: '',
+  },
+  lockLayoutLabel: {
+    id: 'app.submenu.participants.lockLayoutLabel',
+    description: '',
+  },
+});
+
+class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
 
@@ -21,71 +102,81 @@ export default class ApplicationMenu extends BaseMenu {
   }
 
   getLockItems() {
+
+    const { intl } = this.props;
+
     return [
       {
         key: 'webcam',
-        label: 'Webcam',
+        label: intl.formatMessage(intlMessages.lockCamLabel),
         ariaLabelledBy: 'webcamLabel',
         ariaDescribedBy: 'webcamDesc',
-        ariaLabel: 'Webcam lock',
-        ariaDesc: 'Disables the webcam for all locked participants.',
+        ariaLabel: intl.formatMessage(intlMessages.lockCamAriaLabel),
+        ariaDesc: intl.formatMessage(intlMessages.lockCamDesc),
       },
       {
         key: 'microphone',
-        label: 'Microphone',
+        label: intl.formatMessage(intlMessages.lockMicLabel),
         ariaLabelledBy: 'micLabel',
         ariaDescribedBy: 'micDesc',
-        ariaLabel: 'Microphone lock',
-        ariaDesc: 'Disables the microphone for all locked participants.',
+        ariaLabel: intl.formatMessage(intlMessages.lockMicAriaLabel),
+        ariaDesc: intl.formatMessage(intlMessages.lockMicDesc),
       },
       {
         key: 'publicChat',
         ariaLabelledBy: 'pubChatLabel',
         ariaDescribedBy: 'pubChatDesc',
-        ariaLabel: 'Public chat lock',
-        ariaDesc: 'Disables public chat for all locked participants.',
-        label: 'Public Chat',
+        ariaLabel: intl.formatMessage(intlMessages.lockPublicChatAriaLabel),
+        ariaDesc: intl.formatMessage(intlMessages.lockPublicChatDesc),
+        label: intl.formatMessage(intlMessages.lockPublicChatLabel),
       },
       {
         key: 'privateChat',
-        label: 'Private Chat',
+        label: intl.formatMessage(intlMessages.lockPrivateChatLabel),
         ariaLabelledBy: 'privChatLabel',
         ariaDescribedBy: 'privChatDesc',
-        ariaLabel: 'Private chat lock',
-        ariaDesc: 'Disables private chat for all locked participants.',
+        ariaLabel: intl.formatMessage(intlMessages.lockPrivateChatAriaLabel),
+        ariaDesc: intl.formatMessage(intlMessages.lockPrivateChatDesc),
       },
       {
         key: 'layout',
         ariaLabelledBy: 'layoutLabel',
         ariaDescribedBy: 'layoutDesc',
-        ariaLabel: 'Layout lock',
-        ariaDesc: 'Locks layout for all locked participants.',
-        label: 'Layout',
+        ariaLabel: intl.formatMessage(intlMessages.lockLayoutAriaLabel),
+        ariaDesc: intl.formatMessage(intlMessages.lockLayoutDesc),
+        label: intl.formatMessage(intlMessages.lockLayoutLabel),
       },
     ];
   }
 
   render() {
+
+    const { intl } = this.props;
+
     return (
       <div className={styles.tabContent}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Participants</h3>
+          <h3 className={styles.title}>{intl.formatMessage(intlMessages.participantsTitle)}</h3>
         </div>
         <div className={styles.form}>
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Mute all except the presenter
+                  {intl.formatMessage(intlMessages.muteAllLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div
+                className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.muteAll}
-                onChange={() => this.handleToggle('muteAll')} />
+                onChange={() => this.handleToggle('muteAll')}
+                ariaLabelledBy={'muteLabel'}
+                ariaLabel={intl.formatMessage(intlMessages.muteAllLabel)}
+                />
               </div>
             </div>
           </div>
@@ -93,7 +184,7 @@ export default class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Lock all participants
+                  {intl.formatMessage(intlMessages.lockAllLabel)}
                 </label>
               </div>
             </div>
@@ -103,6 +194,8 @@ export default class ApplicationMenu extends BaseMenu {
                 icons={false}
                 defaultChecked={this.state.settings.lockAll}
                 onChange={() => this.handleToggle('lockAll')}
+                ariaLabelledBy={'lockLabel'}
+                ariaLabel={intl.formatMessage(intlMessages.lockAllLabel)}
                  />
               </div>
             </div>
@@ -114,6 +207,7 @@ export default class ApplicationMenu extends BaseMenu {
   }
 
   renderLockItem({ label, key, ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy }, i) {
+
     return (
       <div key={i} className={cx(styles.row, styles.spacedLeft)}>
         <div className={styles.col}>
@@ -124,7 +218,8 @@ export default class ApplicationMenu extends BaseMenu {
           </div>
         </div>
         <div className={styles.col}>
-          <div className={cx(styles.formElement, styles.pullContentRight)}>
+          <div
+            className={cx(styles.formElement, styles.pullContentRight)}>
             <Checkbox
               onChange={() => this.handleToggle(key)}
               checked={this.state.settings[key]}
@@ -139,3 +234,5 @@ export default class ApplicationMenu extends BaseMenu {
     );
   }
 };
+
+export default injectIntl(ApplicationMenu);
