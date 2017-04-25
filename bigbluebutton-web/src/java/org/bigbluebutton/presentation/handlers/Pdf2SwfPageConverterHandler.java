@@ -26,11 +26,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * The default command output the anlayse looks like the following: </br> 20
- * DEBUG Using</br> 60 VERBOSE Updating font</br> 80 VERBOSE Drawing
+ * The default command output the anlayse looks like the following: </br>
+ * 20 DEBUG Using</br>
+ * 60 VERBOSE Updating font</br>
+ * 80 VERBOSE Drawing
  *
  */
-public class Pdf2SwfPageConverterHandler extends AbstractPageConverterHandler {
+public class Pdf2SwfPageConverterHandler extends AbstractCommandHandler {
 
   private static Logger log = LoggerFactory
       .getLogger(Pdf2SwfPageConverterHandler.class);
@@ -41,11 +43,6 @@ public class Pdf2SwfPageConverterHandler extends AbstractPageConverterHandler {
   private static String PLACEMENT_PATTERN = "\\d+\\s" + PLACEMENT_OUTPUT;
   private static String TEXT_TAG_PATTERN = "\\d+\\s" + TEXT_TAG_OUTPUT;
   private static String IMAGE_TAG_PATTERN = "\\d+\\s" + IMAGE_TAG_OUTPUT;
-
-  @Override
-  public Boolean isConversionSuccessful() {
-    return !exitedWithError();
-  }
 
   /**
    * 

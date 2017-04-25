@@ -33,7 +33,7 @@ public class Jpeg2SwfPageConverter implements PageConverter {
 	
 	public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres){
 		
-        String COMMAND = SWFTOOLS_DIR + "/jpeg2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath();
+        String COMMAND = SWFTOOLS_DIR + File.separator + "jpeg2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath();
         
         boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);          
 		
