@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.core.util.RandomStringGenerator
+import com.softwaremill.quicklens._
 
 object Roles {
   val MODERATOR_ROLE = "MODERATOR"
@@ -33,14 +34,14 @@ object Users {
   def unbecomePresenter(userID: String, users: Users) = {
     for {
       u <- Users.findWithId(userID, users.toVector)
-      user = u.copy(presenter = false)
+      user = modify(u)(_.presenter).setTo(false)
     } yield users.save(user)
   }
 
   def becomePresenter(userID: String, users: Users) = {
     for {
       u <- Users.findWithId(userID, users.toVector)
-      user = u.copy(presenter = true)
+      user = modify(u)(_.presenter).setTo(true)
     } yield users.save(user)
   }
 
@@ -56,6 +57,18 @@ object Users {
   }
 
   def usersWhoAreNotPresenter(users: Vector[UserVO]): Vector[UserVO] = users filter (u => u.presenter == false)
+
+  def setListenOnly(userId: String, users: Users): Option[UserVO] = {
+    for {
+      u <- Users.findWithId(userId, users.toVector)
+      vu = u.modify(_.voiceUser.joined).setTo(false)
+        .modify(_.voiceUser.talking).setTo(false)
+        .modify(_.listenOnly).setTo(true)
+    } yield {
+      users.save(vu)
+      vu
+    }
+  }
 }
 
 class Users {

@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.ListSet
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.GuestPolicy
@@ -14,25 +12,18 @@ trait UsersApp {
 
   val outGW: OutMessageGateway
 
-  def hasUser(userID: String): Boolean = {
-    Users.hasUserWithId(userID, liveMeeting.users.toVector)
-  }
-
-  def getUser(userID: String): Option[UserVO] = {
-    Users.findWithId(userID, liveMeeting.users.toVector)
-  }
-
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
     log.info("Handling UserConnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + msg.userid)
 
     val user = Users.findWithId(msg.userid, liveMeeting.users.toVector)
     user foreach { u =>
       if (liveMeeting.addGlobalAudioConnection(msg.userid)) {
-        val vu = u.voiceUser.copy(joined = false, talking = false)
-        val uvo = u.copy(listenOnly = true, voiceUser = vu)
-        liveMeeting.users.save(uvo)
-        log.info("UserConnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + uvo.id + " user=" + uvo)
-        outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.id, uvo.listenOnly))
+        for {
+          uvo <- Users.setListenOnly(msg.userid, liveMeeting.users)
+        } yield {
+          log.info("UserConnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + uvo.id + " user=" + uvo)
+          outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.id, uvo.listenOnly))
+        }
       }
     }
   }
