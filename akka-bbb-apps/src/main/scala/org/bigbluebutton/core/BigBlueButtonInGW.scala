@@ -26,6 +26,7 @@ import org.bigbluebutton.messages.payload._
 import akka.event.Logging
 import org.bigbluebutton.core.models.Roles
 import spray.json.JsonParser
+import collection.JavaConverters._
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
@@ -86,7 +87,7 @@ class BigBlueButtonInGW(
           red5DeskShareIP, red5DeskShareApp,
           msg.payload.isBreakout,
           msg.payload.sequence,
-          msg.payload.metadata,
+          mapAsScalaMap(msg.payload.metadata).toMap, // Convert to scala immutable map
           policy
         )
 

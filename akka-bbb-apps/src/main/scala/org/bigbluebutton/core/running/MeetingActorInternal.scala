@@ -145,10 +145,10 @@ class MeetingActorInternal(val mProps: MeetingProperties,
     }
   }
 
-  def getMetadata(key: String, metadata: java.util.Map[String, String]): Option[Object] = {
+  def getMetadata(key: String, metadata: collection.immutable.Map[String, String]): Option[Object] = {
     var value: Option[String] = None
-    if (metadata.containsKey(key)) {
-      value = Some(metadata.get(key))
+    if (metadata.contains(key)) {
+      value = metadata.get(key)
     }
 
     value match {
