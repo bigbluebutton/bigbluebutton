@@ -26,67 +26,67 @@ const intlMessages = defineMessages({
   },
   lockItemLabel: {
     id: 'app.submenu.participants.lockItemLabel',
-    description: 'aria label for locking options',
+    description: 'label for locking option',
   },
   lockCamDesc: {
     id: 'app.submenu.participants.lockCamDesc',
-    description: 'aria description for option to lock webcam',
+    description: 'lock webcam description',
   },
   lockMicDesc: {
     id: 'app.submenu.participants.lockMicDesc',
-    description: 'aria description for option to lock mic',
+    description: 'lock Mic description',
   },
   lockPublicChatDesc: {
     id: 'app.submenu.participants.lockPublicChatDesc',
-    description: 'aria description for option to lock public chat',
+    description: 'lock public chat description',
   },
   lockPrivateChatDesc: {
     id: 'app.submenu.participants.lockPrivateChatDesc',
-    description: 'aria description for option to lock private chat',
+    description: 'lock private chat description',
   },
   lockLayoutDesc: {
     id: 'app.submenu.participants.lockLayoutDesc',
-    description: 'aria description for option to lock layout',
+    description: 'lock layout description',
   },
   lockMicAriaLabel: {
     id: 'app.submenu.participants.lockMicAriaLabel',
-    description: '',
+    description: 'lock mic aria lable ',
   },
   lockCamAriaLabel: {
     id: 'app.submenu.participants.lockCamAriaLabel',
-    description: '',
+    description: 'lock webcam aria label',
   },
   lockPublicChatAriaLabel: {
     id: 'app.submenu.participants.lockPublicChatAriaLabel',
-    description: '',
+    description: 'lock public chat aria label',
   },
   lockPrivateChatAriaLabel: {
     id: 'app.submenu.participants.lockPrivateChatAriaLabel',
-    description: '',
+    description: 'lock private chat aria label',
   },
   lockLayoutAriaLabel: {
     id: 'app.submenu.participants.lockLayoutAriaLabel',
-    description: '',
+    description: 'lock layout aria label',
   },
   lockMicLabel: {
     id: 'app.submenu.participants.lockMicLabel',
-    description: '',
+    description: 'lock mic visible label',
   },
   lockCamLabel: {
     id: 'app.submenu.participants.lockCamLabel',
-    description: '',
+    description: 'lock webcam visible label',
   },
   lockPublicChatLabel: {
     id: 'app.submenu.participants.lockPublicChatLabel',
-    description: '',
+    description: 'lock public chat visible label',
   },
   lockPrivateChatLabel: {
     id: 'app.submenu.participants.lockPrivateChatLabel',
-    description: '',
+    description: 'lock private chat visible label',
   },
   lockLayoutLabel: {
     id: 'app.submenu.participants.lockLayoutLabel',
-    description: '',
+    description: 'lock layout visible lable',
   },
 });
 
