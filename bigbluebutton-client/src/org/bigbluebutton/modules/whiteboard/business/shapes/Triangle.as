@@ -24,19 +24,19 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			super(id, type, status, userId);
 		}
 		
-		override protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		override protected function makeGraphic():void {
 			this.graphics.clear();
 //			LogUtil.debug("Drawing TRIANGLE");
 			
 			if (!_ao.fill)
-				this.graphics.lineStyle(_ao.thickness * zoom, _ao.color, _ao.transparency ? 0.6 : 1.0);
-			else this.graphics.lineStyle(_ao.thickness * zoom, _ao.color);
+				this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color, _ao.transparency ? 0.6 : 1.0);
+			else this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
 			
 			var arrayEnd:Number = (_ao.points as Array).length;
-			var startX:Number = denormalize((_ao.points as Array)[0], parentWidth);
-			var startY:Number = denormalize((_ao.points as Array)[1], parentHeight);
-			var triangleWidth:Number = denormalize((_ao.points as Array)[arrayEnd-2], parentWidth) - startX;
-			var triangleHeight:Number = denormalize((_ao.points as Array)[arrayEnd-1], parentHeight) - startY;
+			var startX:Number = denormalize((_ao.points as Array)[0], _parentWidth);
+			var startY:Number = denormalize((_ao.points as Array)[1], _parentHeight);
+			var triangleWidth:Number = denormalize((_ao.points as Array)[arrayEnd-2], _parentWidth) - startX;
+			var triangleHeight:Number = denormalize((_ao.points as Array)[arrayEnd-1], _parentHeight) - startY;
 			
 //			LogUtil.debug(startX + " " + startY + " " + triangleWidth + " " + triangleHeight);
 			

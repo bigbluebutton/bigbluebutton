@@ -8,6 +8,8 @@ public class WhiteboardKeyUtil {
 	public static final String TRIANGLE_TYPE = "triangle";
 	public static final String LINE_TYPE = "line";
 	public static final String TEXT_CREATED_STATUS = "textCreated";
+	public static final String TEXT_EDITED_STATUS = "textEdited";
+	public static final String TEXT_PUBLISHED_STATUS = "textPublished";
 	public static final String DRAW_START_STATUS = "DRAW_START";
   public static final String DRAW_UPDATE_STATUS = "DRAW_UPDATE";
 	public static final String DRAW_END_STATUS = "DRAW_END";

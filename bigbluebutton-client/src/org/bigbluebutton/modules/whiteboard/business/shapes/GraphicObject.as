@@ -33,6 +33,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void;
 		
+		function updateAnnotation(a:Annotation):void;
+		
 		function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void;
 		
 	}

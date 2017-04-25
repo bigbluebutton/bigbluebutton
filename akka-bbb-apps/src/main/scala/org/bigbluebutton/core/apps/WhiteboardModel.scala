@@ -1,5 +1,10 @@
 package org.bigbluebutton.core.apps
 
+import java.util.ArrayList;
+
+import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
+import org.bigbluebutton.core.util.jhotdraw.PathData
+
 import scala.collection.immutable.List
 import scala.collection.immutable.HashMap
 
@@ -56,17 +61,84 @@ class WhiteboardModel {
     }
   }
 
-  private def modifyTextInPage(wb: Whiteboard, userId: String, shape: AnnotationVO) = {
-    //  val removedLastText = wb.shapes.dropRight(1)
-    //  val addedNewText = removedLastText :+ shape
-    //  val newWb = wb.copy(shapes = addedNewText)
-    //  saveWhiteboard(newWb)
+  def updateAnnotationPencil(wbId: String, userId: String, shape: AnnotationVO) {
+    val wb = getWhiteboard(wbId)
+    val usersShapes = getShapesByUserId(wb, userId)
+
+    //not empty and head id equals shape id
+    if (!usersShapes.isEmpty && usersShapes.head.id == shape.id) {
+      val oldShape = usersShapes.head
+      var oldPoints: ArrayList[Float] = new ArrayList[Float]()
+      oldShape.shape.get("points").foreach(a => {
+        a match {
+          case a2: ArrayList[Any] => oldPoints = a2.asInstanceOf[ArrayList[Float]]
+        }
+      }) //oldPoints = a.asInstanceOf[ArrayList[Float]])
+      var newPoints: ArrayList[Float] = new ArrayList[Float]()
+      shape.shape.get("points").foreach(a => {
+        a match {
+          case a2: ArrayList[Any] => newPoints = a2.asInstanceOf[ArrayList[Float]]
+        }
+      }) //newPoints = a.asInstanceOf[ArrayList[Float]])
+      oldPoints.addAll(newPoints)
+      val updatedShapeData = shape.shape + ("points" -> oldPoints.asInstanceOf[Object])
+      val updatedShape = shape.copy(position = oldShape.position, shape = updatedShapeData)
+
+      val newShapesMap = wb.shapesMap + (userId -> (updatedShape :: usersShapes.tail))
+      //println("Shape has position [" + usersShapes.head.position + "]")
+      val newWb = wb.copy(shapesMap = newShapesMap)
+      //println("Updating shape on page [" + wb.id + "]. After numShapes=[" + getShapesByUserId(wb, userId).length + "].")
+      saveWhiteboard(newWb)
+    } else {
+      addAnnotation(wbId, userId, shape)
+    }
   }
 
-  def modifyText(wbId: String, userId: String, shape: AnnotationVO) {
-    //getWhiteboard(wbId) foreach { wb =>
-    //modifyTextInPage(wb, userId, shape)
-    //}
+  def endAnnotationPencil(wbId: String, userId: String, shape: AnnotationVO): AnnotationVO = {
+    var rtnAnnotation: AnnotationVO = shape
+
+    val wb = getWhiteboard(wbId)
+    val usersShapes = getShapesByUserId(wb, userId)
+
+    //not empty and head id equals shape id
+    //println("!usersShapes.isEmpty: " + (!usersShapes.isEmpty) + ", usersShapes.head.id == shape.id: " + (usersShapes.head.id == shape.id));
+    if (!usersShapes.isEmpty && usersShapes.head.id == shape.id) {
+      var dimensions: ArrayList[java.lang.Float] = new ArrayList[java.lang.Float]()
+      shape.shape.get("points").foreach(d => {
+        d match {
+          case d2: ArrayList[Any] => dimensions = d2.asInstanceOf[ArrayList[java.lang.Float]]
+        }
+      })
+
+      //println("dimensions.size(): " + dimensions.size());
+      if (dimensions.size() == 2) {
+        val oldShape = usersShapes.head
+        var oldPoints: ArrayList[java.lang.Float] = new ArrayList[java.lang.Float]()
+        oldShape.shape.get("points").foreach(a => {
+          a match {
+            case a2: ArrayList[Any] => oldPoints = a2.asInstanceOf[ArrayList[java.lang.Float]]
+          }
+        })
+
+        //println("oldPoints.size(): " + oldPoints.size());
+
+        val pathData = BezierWrapper.lineSimplifyAndCurve(oldPoints, dimensions.get(0).toInt, dimensions.get(1).toInt)
+        //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
+
+        val updatedShapeData = shape.shape + ("points" -> pathData.points.asInstanceOf[Object]) + ("commands" -> pathData.commands.asInstanceOf[Object])
+        val updatedShape = shape.copy(position = oldShape.position, shape = updatedShapeData)
+
+        val newShapesMap = wb.shapesMap + (userId -> (updatedShape :: usersShapes.tail))
+        //println("Shape has position [" + usersShapes.head.position + "]")
+        val newWb = wb.copy(shapesMap = newShapesMap)
+        //println("Updating shape on page [" + wb.id + "]. After numShapes=[" + getShapesByUserId(wb, userId).length + "].")
+        saveWhiteboard(newWb)
+
+        rtnAnnotation = updatedShape
+      }
+    }
+
+    rtnAnnotation
   }
 
   def getHistory(wbId: String): Array[AnnotationVO] = {

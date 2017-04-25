@@ -24,16 +24,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			super(id, type, status, userId);
 		}
 		
-		override protected function makeGraphic(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		override protected function makeGraphic():void {
 			this.graphics.clear();
 //			LogUtil.debug("Drawing LINE");
 			
-			this.graphics.lineStyle(_ao.thickness * zoom, _ao.color);
+			this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
 			var arrayEnd:Number = (_ao.points as Array).length;
-			var startX:Number = denormalize((_ao.points as Array)[0], parentWidth);
-			var startY:Number = denormalize((_ao.points as Array)[1], parentHeight);
-			var endX:Number = denormalize((_ao.points as Array)[arrayEnd-2], parentWidth);
-			var endY:Number = denormalize((_ao.points as Array)[arrayEnd-1], parentHeight);
+			var startX:Number = denormalize((_ao.points as Array)[0], _parentWidth);
+			var startY:Number = denormalize((_ao.points as Array)[1], _parentHeight);
+			var endX:Number = denormalize((_ao.points as Array)[arrayEnd-2], _parentWidth);
+			var endY:Number = denormalize((_ao.points as Array)[arrayEnd-1], _parentHeight);
 			this.alpha = 1;
 			this.x = startX;
 			this.y = startY;

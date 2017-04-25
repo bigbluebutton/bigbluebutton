@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+  import flash.geom.Point;
+  
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   
@@ -86,14 +88,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         }
             
     public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawAnnotation {
-      var normSegment:Array = new Array();
-      for (var i:int = 0; i < segment.length; i += 2) {
-        normSegment[i] = normalize(segment[i] , _parentWidth);
-        normSegment[i+1] = normalize(segment[i+1], _parentHeight);
-      }
-      return createAnnotation(type, normSegment, color, thickness, fill, fillColor, transparency);
+      return createAnnotation(type, segment, color, thickness, fill, fillColor, transparency);
     }
-        
+    
+    public function normalizePoint(x:Number, y:Number):Point {
+      return new Point(normalize(x, _parentWidth), normalize(y, _parentHeight));
+    }
+    
     public function createTextObject(txt:String, txtColor:uint, x:Number, y:Number, tbWidth:Number, tbHeight:Number, textSize:Number):TextDrawAnnotation {               
       var tobj:TextDrawAnnotation = new TextDrawAnnotation(txt, txtColor, normalize(x , _parentWidth), normalize(y, _parentHeight), 
                                                       normalize(tbWidth , _parentWidth), normalize(tbHeight , _parentHeight), 

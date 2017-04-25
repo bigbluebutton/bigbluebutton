@@ -95,40 +95,21 @@ package org.bigbluebutton.modules.whiteboard
             break;
           case DrawObject.DRAW_UPDATE:
           case DrawObject.DRAW_END:
-			  var gobj:GraphicObject;
-			  for (var i:int = _annotationsList.length -1; i >= 0; i--) {
-				  gobj = _annotationsList[i] as GraphicObject;
-				  if (gobj != null && dobj.id == o.id) {
-					  gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
-					  return;
-				  }
-			  }
-			  
-			  dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
-			  if (dobj != null) {
-				  dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
-				  wbCanvas.addGraphic(dobj);
-				  _annotationsList.push(dobj);              
-			  }
-			  
-            /*
-			  if (_annotationsList.length > 0) {
-              var gobj:Object = _annotationsList.pop();
-              if (gobj.id == o.id) {
-                // LogUtil.debug("Removing shape [" + gobj.id + "]");
-                wbCanvas.removeGraphic(gobj as DisplayObject);
-              } else { // no DRAW_START event was thrown for o so place gobj back on the top
-                _annotationsList.push(gobj);
-              }              
+            var gobj:GraphicObject;
+            for (var i:int = _annotationsList.length -1; i >= 0; i--) {
+              gobj = _annotationsList[i] as GraphicObject;
+              if (gobj != null && gobj.id == o.id) {
+              gobj.updateAnnotation(o);
+                return;
+              }
             }
-                 
+            
             dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
             if (dobj != null) {
               dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
               wbCanvas.addGraphic(dobj);
               _annotationsList.push(dobj);              
             }
-			  */
             break;
         }                   
       } else { 
@@ -137,9 +118,11 @@ package org.bigbluebutton.modules.whiteboard
     }
                    
     // Draws a TextObject when/if it is received from the server
-    private function drawText(o:Annotation):void {    
+    private function drawText(o:Annotation):void {
+      trace("Text status="+o.status);
       switch (o.status) {
         case TextObject.TEXT_CREATED:
+          trace("new text, userid="+o.userId+" my id="+UserManager.getInstance().getConference().getMyUserId());
           if (o.userId == UserManager.getInstance().getConference().getMyUserId())
             addPresenterText(o, true);
           else
@@ -299,7 +282,7 @@ package org.bigbluebutton.modules.whiteboard
     public function clearBoard(event:WhiteboardUpdate = null):void {
       if (event && event.userId) {
         for (var i:Number = _annotationsList.length-1; i >= 0; i--){
-          var gobj:GraphicObject = _annotationsList[i] as GraphicObject; // TextObject not a DrawObject might have to use GraphicObject
+          var gobj:GraphicObject = _annotationsList[i] as GraphicObject;
           if (gobj.userId == event.userId) {
             removeGraphic(_annotationsList[i].id);
           }
@@ -421,45 +404,13 @@ package org.bigbluebutton.modules.whiteboard
       }
       wbCanvas.textToolbar.visible = false;
     }
-        
-    /* called when a user is made presenter, automatically make all the textfields currently on the page editable, so that they can edit it. */
-    public function makeTextObjectsEditable(e:MadePresenterEvent):void {
-//      var texts:Array = getAllTexts();
-//      for(var i:int = 0; i < texts.length; i++) {
-//        (texts[i] as TextObject).makeEditable(true);
-//        (texts[i] as TextObject).registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
-//      }
-    }
-    
-    /* when a user is made viewer, automatically make all the textfields currently on the page uneditable, so that they cannot edit it any
-       further and so that only the presenter can edit it.
-    */
-    public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
-//      var texts:Array = getAllTexts();
-//      for(var i:int = 0; i < texts.length; i++) {
-//        (texts[i] as TextObject).makeEditable(false);
-//        (texts[i] as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
-//      }
-    }
   
     private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
             var o:Annotation;
             if (gobj.type != DrawObject.TEXT) {
                 
 				gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
-				/*
-				wbCanvas.removeGraphic(gobj as DisplayObject);
-                o = whiteboardModel.getAnnotation(gobj.id);
-                
-                if (o != null) {
-                    var dobj:DrawObject = shapeFactory.makeDrawObject(o, whiteboardModel);  
-                    if (dobj != null) {
-                        dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
-                        wbCanvas.addGraphic(dobj);
-                        _annotationsList[objIndex] = dobj;              
-                    }          
-                }
-				*/
+
             } else if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
                 var origTobj:TextObject = gobj as TextObject;                
                 var an:Annotation = whiteboardModel.getAnnotation(origTobj.id);
