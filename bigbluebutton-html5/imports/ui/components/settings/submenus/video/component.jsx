@@ -54,7 +54,9 @@ class VideoMenu extends BaseMenu {
         <div className={styles.form}>
           <div className={styles.row}>
             <div className={styles.col}>
-              <div className={styles.formElement}>
+              <div
+                className={styles.formElement}
+                aria-label={intl.formatMessage(intlMessages.videoSourceLabel)}>
                 <label className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.videoSourceLabel)}
                 </label>
@@ -66,7 +68,9 @@ class VideoMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={styles.formElement}>
+              <div
+                className={styles.formElement}
+                aria-label={intl.formatMessage(intlMessages.videoQualityLabel)}>
                 <label className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.videoQualityLabel)}
                 </label>
@@ -87,13 +91,13 @@ class VideoMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div
-                className={cx(styles.formElement, styles.pullContentRight)}
-                aria-label={intl.formatMessage(intlMessages.participantsCamLabel)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
                 defaultChecked={this.state.viewParticipantsWebcams}
-                onChange={() => this.handleToggle('viewParticipantsWebcams')} />
+                onChange={() => this.handleToggle('viewParticipantsWebcams')}
+                ariaLabelledBy={'viewCamLabel'}
+                ariaLabel={intl.formatMessage(intlMessages.participantsCamLabel)} />
               </div>
             </div>
           </div>

@@ -137,13 +137,13 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div
-                className={cx(styles.formElement, styles.pullContentRight)}
-                aria-label={intl.formatMessage(intlMessages.audioNotifyLabel)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.chatAudioNotifications}
-                onChange={() => this.handleToggle('chatAudioNotifications')} />
+                onChange={() => this.handleToggle('chatAudioNotifications')}
+                ariaLabelledBy={'audioNotify'}
+                ariaLabel={intl.formatMessage(intlMessages.audioNotifyLabel)} />
               </div>
             </div>
           </div>
@@ -156,12 +156,13 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}
-              aria-label={intl.formatMessage(intlMessages.pushNotifyLabel)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.chatPushNotifications}
-                onChange={() => this.handleToggle('chatPushNotifications')}/>
+                onChange={() => this.handleToggle('chatPushNotifications')}
+                ariaLabelledBy={'pushNotify'}
+                ariaLabel={intl.formatMessage(intlMessages.pushNotifyLabel)}/>
               </div>
             </div>
           </div>
