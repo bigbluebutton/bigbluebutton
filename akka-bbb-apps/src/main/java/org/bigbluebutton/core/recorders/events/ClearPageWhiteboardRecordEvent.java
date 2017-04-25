@@ -25,4 +25,8 @@ public class ClearPageWhiteboardRecordEvent extends
 		super();
 		setEvent("ClearPageEvent");
 	}
+	
+	public void setFullClear(Boolean fullClear) {
+		eventMap.put("fullClear", fullClear.toString());
+	}
 }

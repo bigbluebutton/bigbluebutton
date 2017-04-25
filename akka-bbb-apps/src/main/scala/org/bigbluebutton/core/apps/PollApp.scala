@@ -1,13 +1,10 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-
-import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.models.Users
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
-// import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.core.running.{ MeetingActor }
 import com.google.gson.Gson
 import java.util.ArrayList
 import org.bigbluebutton.core.OutMessageGateway
@@ -95,7 +92,7 @@ trait PollApp {
       for {
         page <- liveMeeting.presModel.getCurrentPage()
         pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
-        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId)
+        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id, msg.requesterId, -1)
       } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation))
     }
 
