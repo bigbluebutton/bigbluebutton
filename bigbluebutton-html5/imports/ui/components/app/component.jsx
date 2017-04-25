@@ -1,27 +1,30 @@
 import React, { Component, PropTypes } from 'react';
-import { FormattedMessage } from 'react-intl';
-import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
+
 import NotificationsBarContainer from '../notifications-bar/container';
-import AudioNotificationContainer from '../audio-notification/container';
+import AudioNotificationContainer from '../audio/audio-notification/container';
+import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
 
-import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
 
 const intlMessages = defineMessages({
   userListLabel: {
     id: 'app.userlist.Label',
+    description: 'Aria-label for Userlist Nav',
   },
   chatLabel: {
     id: 'app.chat.Label',
+    description: 'Aria-label for Chat Section',
   },
   mediaLabel: {
     id: 'app.media.Label',
+    description: 'Aria-label for Media Section',
   },
   actionsbarLabel: {
     id: 'app.actionsBar.Label',
+    description: 'Aria-label for ActionsBar Section',
   },
 });
 
@@ -162,7 +165,7 @@ class App extends Component {
           {this.renderSidebar()}
         </section>
         {modal}
-        <audio id="remote-media" autoPlay="autoplay"></audio>
+        <AudioContainer />
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );

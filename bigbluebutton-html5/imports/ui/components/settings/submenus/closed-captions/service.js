@@ -18,7 +18,7 @@ getClosedCaptionSettings = () => {
   ccSettings.locales = locales;
 
   return ccSettings;
-}
+};
 
 export default {
   getClosedCaptionSettings,

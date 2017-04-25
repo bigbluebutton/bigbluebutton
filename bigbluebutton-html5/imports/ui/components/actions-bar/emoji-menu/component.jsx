@@ -119,89 +119,91 @@ class EmojiMenu extends Component {
 const intlMessages = defineMessages({
   statusTriggerLabel: {
     id: 'app.actionsBar.emojiMenu.statusTriggerLabel',
+    description: 'Emoji status button label',
   },
-
-  // For away status
   awayLabel: {
     id: 'app.actionsBar.emojiMenu.awayLabel',
+    description: 'Away emoji label',
   },
   awayDesc: {
     id: 'app.actionsBar.emojiMenu.awayDesc',
+    description: 'adds context to away option',
   },
-
-  // For raise hand status
   raiseLabel: {
     id: 'app.actionsBar.emojiMenu.raiseLabel',
+    description: 'raise hand emoji label',
   },
   raiseDesc: {
     id: 'app.actionsBar.emojiMenu.raiseDesc',
+    description: 'adds context to raise hand option',
   },
-
-  // For undecided status
   undecidedLabel: {
     id: 'app.actionsBar.emojiMenu.undecidedLabel',
+    description: 'undecided emoji label',
   },
   undecidedDesc: {
     id: 'app.actionsBar.emojiMenu.undecidedDesc',
+    description: 'adds context to undecided option',
   },
-
-  // For confused status
   confusedLabel: {
     id: 'app.actionsBar.emojiMenu.confusedLabel',
+    description: 'confused emoji label',
   },
   confusedDesc: {
     id: 'app.actionsBar.emojiMenu.confusedDesc',
+    description: 'adds context to confused option',
   },
-
-  // For sad status
   sadLabel: {
     id: 'app.actionsBar.emojiMenu.sadLabel',
+    description: 'sad emoji label',
   },
   sadDesc: {
     id: 'app.actionsBar.emojiMenu.sadDesc',
+    description: 'adds context to sad option',
   },
-
-  // For happy status
   happyLabel: {
     id: 'app.actionsBar.emojiMenu.happyLabel',
+    description: 'happy emoji label',
   },
   happyDesc: {
     id: 'app.actionsBar.emojiMenu.happyDesc',
+    description: 'adds context to happy option',
   },
-
-  // For confused status
   clearLabel: {
     id: 'app.actionsBar.emojiMenu.clearLabel',
+    description: 'confused emoji label',
   },
   clearDesc: {
     id: 'app.actionsBar.emojiMenu.clearDesc',
+    description: 'adds context to clear status option',
   },
-
-  // For applause status
   applauseLabel: {
     id: 'app.actionsBar.emojiMenu.applauseLabel',
+    description: 'applause emoji label',
   },
   applauseDesc: {
     id: 'app.actionsBar.emojiMenu.applauseDesc',
+    description: 'adds context to applause option',
   },
-
-  // For thumbs up status
   thumbsupLabel: {
     id: 'app.actionsBar.emojiMenu.thumbsupLabel',
+    description: 'thumbs up emoji label',
   },
   thumbsupDesc: {
     id: 'app.actionsBar.emojiMenu.thumbsupDesc',
+    description: 'adds context to thumbs up option',
   },
-
-  // For thumbs-down status
   thumbsdownLabel: {
     id: 'app.actionsBar.emojiMenu.thumbsdownLabel',
+    description: 'thumbs down emoji label',
   },
   thumbsdownDesc: {
     id: 'app.actionsBar.emojiMenu.thumbsdownDesc',
+    description: 'adds context to thumbs down option',
   },
   changeStatusLabel: {
-    id: 'app.actionsBar.changeStatusLabel'
+    id: 'app.actionsBar.changeStatusLabel',
+    description: 'Aria-label for emoji status button',
   },
 });
 

@@ -5,7 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 
 import {
   getModal,
-  showModal,
   getFontSize,
   getCaptionsStatus,
 } from './service';
@@ -48,12 +47,8 @@ class AppContainer extends Component {
   }
 };
 
-const APP_CONFIG = Meteor.settings.public.app;
-
 const init = () => {
-  if (APP_CONFIG.autoJoinAudio) {
-    showModal(<AudioModalContainer />);
-  }
+  // TODO
 };
 
 export default withRouter(injectIntl(createContainer(({ router, intl, baseControls }) => {

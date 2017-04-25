@@ -43,7 +43,7 @@ export default function userLeaving(credentials, userId) {
   if (User.validated) {
     const modifier = {
       $set: {
-        validated: false,
+        validated: null,
       },
     };
 
