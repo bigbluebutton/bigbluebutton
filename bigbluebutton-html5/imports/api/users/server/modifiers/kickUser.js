@@ -19,7 +19,7 @@ export default function kickUser(meetingId, userId) {
 
   const modifier = {
     $set: {
-      'user.kicked':true,
+      'user.kicked': true,
       'user.connection_status': 'offline',
       'user.voiceUser.talking': false,
       'user.voiceUser.joined': false,
@@ -35,7 +35,7 @@ export default function kickUser(meetingId, userId) {
     }
 
     if (numChanged) {
-      return Logger.info(`Kicked ${CLIENT_TYPE_HTML} user id=${userId} meeting=${meetingId}`);
+      return Logger.info(`Kicked user id=${userId} meeting=${meetingId}`);
     }
   };
 

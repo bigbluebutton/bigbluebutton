@@ -55,16 +55,14 @@ export default withRouter(injectIntl(createContainer(({ router, intl, baseContro
   // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
     changed(id, fields) {
-      if (fields.user) {
-        if (fields.user.kicked) {
-          Auth.clearCredentials()
-            .then(() => {
-              router.push('/error/403');
-              baseControls.updateErrorState(
-                intl.formatMessage(intlMessages.kickedMessage),
-              );
-            });
-        }
+      if (fields.user && fields.user.kicked) {
+        Auth.clearCredentials()
+          .then(() => {
+            router.push('/error/403');
+            baseControls.updateErrorState(
+              intl.formatMessage(intlMessages.kickedMessage),
+            );
+          });
       }
     },
   });
