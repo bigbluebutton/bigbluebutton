@@ -664,7 +664,7 @@ def processSlideEvents
       # Is this a new image or one previously viewed?
       if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
         # If it is, add it to the list with all the data.
-        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end]]
+        $slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end], $presentation_name, slide_number]
         $global_slide_count = $global_slide_count + 1
       else
         # If not, append new in and out times to the old entry
@@ -728,15 +728,27 @@ def processShapesAndClears
             $shapeCreationTime = ( translateTimestamp($shapeTimestamp) / 1000 ).round(1)
             orig_shapeCreationTime = ( $shapeTimestamp.to_f / 1000 ).round(1)
             in_this_image = false
-            index = 0
-            numOfTimes = $val[0].length
 
-            # Check if the current shape is to be drawn in this particular image
-            while((in_this_image == false) && (index < numOfTimes)) do
-              if((($val[4][index].to_f)..($val[5][index].to_f)) === orig_shapeCreationTime) # is the shape within the certain time of the image
+            # Check if the current shape is to be drawn in the current image
+            presentation = shape.at_xpath(".//presentation")
+            pageNumber = shape.at_xpath(".//pageNumber")
+            if presentation and pageNumber
+              # If we have the presentation and page number available, match
+              # against that.
+              if presentation.text() == $val[6] and pageNumber.text().to_i == $val[7]
                 in_this_image = true
               end
-              index+=1
+            else
+              # Otherwise check if the shape is within one of the time ranges
+              # when the current image is visible
+              index = 0
+              numOfTimes = $val[0].length
+              while((in_this_image == false) && (index < numOfTimes)) do
+                if((($val[4][index].to_f)..($val[5][index].to_f)) === orig_shapeCreationTime)
+                  in_this_image = true
+                end
+                index+=1
+              end
             end
 
             if(in_this_image)
