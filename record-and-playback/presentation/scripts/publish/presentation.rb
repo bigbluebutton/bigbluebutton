@@ -502,7 +502,13 @@ def storeTextShape
     $xml.switch do
       $xml.foreignObject(:color => "##{$colour_hex}", :width => width, :height => height, :x => "#{$originX}", :y => "#{$originY}") do
         $xml.p(:xmlns => "http://www.w3.org/1999/xhtml", :style => "margin-top: 0; margin-bottom: 0;") do
-          $xml.text($textValue)
+          lines = $textValue.split("\n")
+          lines.each_with_index do |line, index|
+            $xml.text(line)
+            if index + 1 < lines.size
+              $xml.br
+            end
+          end
         end
       end
     end
