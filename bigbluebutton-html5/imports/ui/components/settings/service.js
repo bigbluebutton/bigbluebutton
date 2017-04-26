@@ -4,6 +4,8 @@ import Auth from '/imports/ui/services/auth';
 import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
 
+const APP_CONFIG = Meteor.settings.public.app;
+
 const getClosedCaptionLocales = () => {
   //list of unique locales in the Captions Collection
   const locales = _.uniq(Captions.find({}, {
@@ -24,6 +26,10 @@ const getUserRoles = () => {
   return user.role;
 };
 
+const getModeratorRole = () => {
+  return APP_CONFIG.allowHTML5Moderator && getUserRoles() === 'MODERATOR';
+};
+
 const updateSettings = (obj) => {
   Object.keys(obj).forEach(k => Settings[k] = obj[k]);
   Settings.save();
@@ -35,7 +41,7 @@ const getAvailableLocales = () => {
 
 export {
   getClosedCaptionLocales,
-  getUserRoles,
+  getModeratorRole,
   updateSettings,
   getAvailableLocales,
 };

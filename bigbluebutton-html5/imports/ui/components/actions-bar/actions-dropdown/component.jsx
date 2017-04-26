@@ -53,7 +53,8 @@ class ActionsDropdown extends Component {
   render() {
     const { intl, isUserPresenter } = this.props;
 
-    if (!isUserPresenter) return null;
+    // if (!isUserPresenter) return null;
+    return null; // temporarily disabling the functionality
 
     return (
       <Dropdown ref="dropdown">

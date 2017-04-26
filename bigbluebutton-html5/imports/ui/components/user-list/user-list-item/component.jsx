@@ -16,6 +16,7 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
+import { getModeratorRole } from '/imports/ui/components/settings/service';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -120,17 +121,18 @@ class UserListItem extends Component {
       unmute,
     } = userActions;
 
-    const hasAuthority = currentUser.isModerator || user.isCurrent;
+    const currentUserIsModerator = currentUser.isModerator && getModeratorRole();
+    const hasAuthority = currentUserIsModerator || user.isCurrent;
     let allowedToChatPrivately = !user.isCurrent;
     let allowedToMuteAudio = hasAuthority && user.isVoiceUser && user.isMuted;
     let allowedToUnmuteAudio = hasAuthority && user.isVoiceUser && !user.isMuted;
-    let allowedToResetStatus = hasAuthority && user.emoji.status != 'none';
+    let allowedToResetStatus = hasAuthority && user.emoji.status !== 'none';
 
     // if currentUser is a moderator, allow kicking other users
-    let allowedToKick = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+    let allowedToKick = currentUserIsModerator && !user.isCurrent && !isBreakoutRoom;
 
     let allowedToSetPresenter =
-      (currentUser.isModerator || currentUser.isPresenter) && !user.isPresenter;
+      (currentUserIsModerator || currentUser.isPresenter) && !user.isPresenter;
 
     return _.compact([
       (allowedToChatPrivately ? this.renderUserAction(openChat, router, user) : null),
