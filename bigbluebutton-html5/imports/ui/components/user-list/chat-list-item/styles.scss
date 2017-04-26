@@ -54,6 +54,8 @@
 
 .chatNameMain {
   @extend %no-margin;
+  @extend %text-elipsis;
+
   font-size: 0.95rem;
   font-weight: 400;
   margin-left: $sm-padding-x;

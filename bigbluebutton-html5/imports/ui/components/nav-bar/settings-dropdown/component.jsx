@@ -63,7 +63,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const openSettings = () => showModal(<SettingsMenuContainer  />);
+const openSettings = () => showModal(<SettingsMenuContainer />);
 
 const openAbout = () => showModal(<AboutContainer />);
 

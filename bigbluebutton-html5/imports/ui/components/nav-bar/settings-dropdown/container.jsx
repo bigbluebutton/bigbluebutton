@@ -34,10 +34,12 @@ export default class SettingsDropdownContainer extends Component {
   }
 
   handleFullscreenChange() {
-    if (screen.height - 1 <= window.innerHeight) {
-      // browser is probably in fullscreen
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
       this.setState({ isFullScreen: true });
-    }else {
+    } else {
       this.setState({ isFullScreen: false });
     }
   }
