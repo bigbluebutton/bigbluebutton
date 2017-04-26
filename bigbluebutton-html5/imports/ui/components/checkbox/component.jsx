@@ -18,7 +18,7 @@ export default class Checkbox extends Component {
 
   render() {
 
-    const { ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy  } = this.props;
+    const { ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy, } = this.props;
 
     return (
       <div className={styles.container}>

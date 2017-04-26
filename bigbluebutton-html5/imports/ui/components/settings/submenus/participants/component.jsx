@@ -10,7 +10,6 @@ import Toggle from '/imports/ui/components/switch/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
 import { defineMessages, injectIntl } from 'react-intl';
 
-
 const intlMessages = defineMessages({
   participantsTitle: {
     id: 'app.userlist.participantsTitle',

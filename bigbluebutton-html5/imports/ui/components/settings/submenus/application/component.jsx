@@ -129,7 +129,7 @@ class ApplicationMenu extends BaseMenu {
         </div>
         <div className={styles.form}>
           <div className={styles.row}>
-            <div className={styles.col}>
+            <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.audioNotifyLabel)}
@@ -138,12 +138,12 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
-              <Toggle
-                icons={false}
-                defaultChecked={this.state.settings.chatAudioNotifications}
-                onChange={() => this.handleToggle('chatAudioNotifications')}
-                ariaLabelledBy={'audioNotify'}
-                ariaLabel={intl.formatMessage(intlMessages.audioNotifyLabel)} />
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.settings.chatAudioNotifications}
+                  onChange={() => this.handleToggle('chatAudioNotifications')}
+                  ariaLabelledBy={'audioNotify'}
+                  ariaLabel={intl.formatMessage(intlMessages.audioNotifyLabel)} />
               </div>
             </div>
           </div>
@@ -157,12 +157,12 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentRight)}>
-              <Toggle
-                icons={false}
-                defaultChecked={this.state.settings.chatPushNotifications}
-                onChange={() => this.handleToggle('chatPushNotifications')}
-                ariaLabelledBy={'pushNotify'}
-                ariaLabel={intl.formatMessage(intlMessages.pushNotifyLabel)}/>
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.settings.chatPushNotifications}
+                  onChange={() => this.handleToggle('chatPushNotifications')}
+                  ariaLabelledBy={'pushNotify'}
+                  ariaLabel={intl.formatMessage(intlMessages.pushNotifyLabel)}/>
               </div>
             </div>
           </div>

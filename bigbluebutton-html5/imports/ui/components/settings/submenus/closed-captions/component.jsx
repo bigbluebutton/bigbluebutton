@@ -221,7 +221,9 @@ class ClosedCaptionsMenu extends BaseMenu {
                   defaultValue={FONT_FAMILIES.indexOf(this.state.settings.fontFamily)}
                   onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
                   className={styles.select}>
-                  <option value='-1' disabled>{intl.formatMessage(intlMessages.fontFamilyOptionLabel)}</option>
+                  <option value='-1' disabled>
+                    {intl.formatMessage(intlMessages.fontFamilyOptionLabel)}
+                  </option>
                   {
                     FONT_FAMILIES.map((family, index) =>
                       <option key={index} value={index}>
@@ -250,7 +252,9 @@ class ClosedCaptionsMenu extends BaseMenu {
                     defaultValue={FONT_SIZES.indexOf(this.state.settings.fontSize)}
                     onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
                     className={styles.select}>
-                    <option value='-1' disabled>{intl.formatMessage(intlMessages.fontSizeOptionLabel)}</option>
+                    <option value='-1' disabled>
+                      {intl.formatMessage(intlMessages.fontSizeOptionLabel)}
+                    </option>
                     {
                       FONT_SIZES.map((size, index) =>
                         <option key={index} value={index}>
@@ -283,14 +287,12 @@ class ClosedCaptionsMenu extends BaseMenu {
                     className={styles.swatchInner}
                     style={ { background: this.state.settings.backgroundColor } }>
                   </div>
-
                 </div>
                 { this.state.displayBackgroundColorPicker ?
                   <div className={styles.colorPickerPopover}>
                     <div
                       className={styles.colorPickerOverlay}
-                      onClick={ this.handleCloseColorPicker.bind(this) }
-                    >
+                      onClick={ this.handleCloseColorPicker.bind(this) }>
                     </div>
                     <GithubPicker
                       onChange={this.handleColorChange.bind(this, 'backgroundColor')}
@@ -325,7 +327,6 @@ class ClosedCaptionsMenu extends BaseMenu {
                     className={styles.swatchInner}
                     style={ { background: this.state.settings.fontColor } }>
                   </div>
-
                 </div>
                 { this.state.displayFontColorPicker ?
                   <div className={styles.colorPickerPopover}>

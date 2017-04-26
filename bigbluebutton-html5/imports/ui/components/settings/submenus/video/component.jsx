@@ -63,7 +63,9 @@ class VideoMenu extends BaseMenu {
                 <select
                   defaultValue='-1'
                   className={styles.select}>
-                  <option value='-1' disabled>{intl.formatMessage(intlMessages.videoOptionLabel)}</option>
+                  <option value='-1' disabled>
+                    {intl.formatMessage(intlMessages.videoOptionLabel)}
+                  </option>
                 </select>
               </div>
             </div>
@@ -77,7 +79,9 @@ class VideoMenu extends BaseMenu {
                 <select
                   defaultValue='-1'
                   className={styles.select}>
-                  <option value='-1' disabled>{intl.formatMessage(intlMessages.qualityOptionLabel)}</option>
+                  <option value='-1' disabled>
+                    {intl.formatMessage(intlMessages.qualityOptionLabel)}
+                  </option>
                 </select>
               </div>
             </div>
