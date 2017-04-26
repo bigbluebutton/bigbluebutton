@@ -132,7 +132,7 @@ trait PollApp {
       page <- liveMeeting.presModel.getCurrentPage()
       pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
       pollId = pageId + "/" + System.currentTimeMillis()
-      numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
+      numRespondents = Users.numUsers(liveMeeting.users) - 1 // subtract the presenter
       poll <- createPoll(pollId, numRespondents)
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
@@ -156,7 +156,7 @@ trait PollApp {
       page <- liveMeeting.presModel.getCurrentPage()
       pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id
       pollId = pageId + "/" + System.currentTimeMillis()
-      numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
+      numRespondents = Users.numUsers(liveMeeting.users) - 1 // subtract the presenter
       poll <- createPoll(pollId, numRespondents)
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
@@ -184,10 +184,10 @@ trait PollApp {
     }
 
     for {
-      user <- Users.findWithId(msg.requesterId, liveMeeting.users.toVector)
+      user <- Users.findWithId(msg.requesterId, liveMeeting.users)
       responder = new Responder(user.id, user.name)
       updatedPoll <- storePollResult(responder)
-      curPres <- Users.getCurrentPresenter(liveMeeting.users.toVector)
+      curPres <- Users.getCurrentPresenter(liveMeeting.users)
     } yield outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, curPres.id, msg.pollId, updatedPoll))
 
   }

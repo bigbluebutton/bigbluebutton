@@ -30,7 +30,7 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def webUserJoined() {
-    if (Users.numWebUsers(users.toVector) > 0) {
+    if (Users.numWebUsers(users) > 0) {
       meetingModel.resetLastWebUserLeftOn()
     }
   }
@@ -64,7 +64,7 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (Users.numWebUsers(users.toVector) == 0 && !mProps.isBreakout) {
+    if (Users.numWebUsers(users) == 0 && !mProps.isBreakout) {
       meetingModel.lastWebUserLeft()
       log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
     }

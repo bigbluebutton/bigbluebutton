@@ -203,7 +203,7 @@ class MeetingActor(val mProps: MeetingProperties,
   }
 
   def handleLogoutEndMeeting(msg: LogoutEndMeeting) {
-    if (Users.isModerator(msg.userID, liveMeeting.users.toVector)) {
+    if (Users.isModerator(msg.userID, liveMeeting.users)) {
       handleEndMeeting(EndMeeting(mProps.meetingID))
     }
   }
@@ -223,7 +223,7 @@ class MeetingActor(val mProps: MeetingProperties,
   }
 
   def handleAllowUserToShareDesktop(msg: AllowUserToShareDesktop): Unit = {
-    Users.getCurrentPresenter(liveMeeting.users.toVector) match {
+    Users.getCurrentPresenter(liveMeeting.users) match {
       case Some(curPres) => {
         val allowed = msg.userID equals (curPres.id)
         outGW.send(AllowUserToShareDesktopOut(msg.meetingID, msg.userID, allowed))
@@ -303,7 +303,7 @@ class MeetingActor(val mProps: MeetingProperties,
   }
 
   def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
-    if (Users.numWebUsers(liveMeeting.users.toVector) == 0 && liveMeeting.meetingModel.lastWebUserLeftOn > 0) {
+    if (Users.numWebUsers(liveMeeting.users) == 0 && liveMeeting.meetingModel.lastWebUserLeftOn > 0) {
       if (liveMeeting.timeNowInMinutes - liveMeeting.meetingModel.lastWebUserLeftOn > 2) {
         log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
@@ -338,7 +338,7 @@ class MeetingActor(val mProps: MeetingProperties,
 
   def startRecordingIfAutoStart() {
     if (mProps.recorded && !liveMeeting.meetingModel.isRecording() &&
-      mProps.autoStartRecording && Users.numWebUsers(liveMeeting.users.toVector) == 1) {
+      mProps.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 1) {
       log.info("Auto start recording. meetingId={}", mProps.meetingID)
       liveMeeting.meetingModel.recordingStarted()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", liveMeeting.meetingModel.isRecording()))
@@ -347,7 +347,7 @@ class MeetingActor(val mProps: MeetingProperties,
 
   def stopAutoStartedRecording() {
     if (mProps.recorded && liveMeeting.meetingModel.isRecording() &&
-      mProps.autoStartRecording && Users.numWebUsers(liveMeeting.users.toVector) == 0) {
+      mProps.autoStartRecording && Users.numWebUsers(liveMeeting.users) == 0) {
       log.info("Last web user left. Auto stopping recording. meetingId={}", mProps.meetingID)
       liveMeeting.meetingModel.recordingStopped()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", liveMeeting.meetingModel.isRecording()))
