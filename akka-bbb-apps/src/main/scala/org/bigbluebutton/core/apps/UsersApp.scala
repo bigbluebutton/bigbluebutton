@@ -82,7 +82,7 @@ trait UsersApp {
 
   def handleValidateAuthToken(msg: ValidateAuthToken) {
     log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-    RegisteredUsers.getRegisteredUserWithToken(msg.token, msg.userId, liveMeeting.registeredUsers.toVector) match {
+    RegisteredUsers.getRegisteredUserWithToken(msg.token, msg.userId, liveMeeting.registeredUsers) match {
       case Some(u) =>
         val replyTo = mProps.meetingID + '/' + msg.userId
 
@@ -105,9 +105,8 @@ trait UsersApp {
       log.info("Register user failed. Mmeeting has ended. meetingId=" + mProps.meetingID + " userId=" + msg.userID)
       sendMeetingHasEnded(msg.userID)
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.avatarURL,
-        msg.guest, msg.authed, msg.guest)
-      liveMeeting.registeredUsers.save(regUser)
+      val regUser = RegisteredUsers.create(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken,
+        msg.avatarURL, msg.guest, msg.authed, msg.guest, liveMeeting.registeredUsers)
 
       log.info("Register user success. meetingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + regUser)
       outGW.send(new UserRegistered(mProps.meetingID, mProps.recorded, regUser))
@@ -252,7 +251,7 @@ trait UsersApp {
         outGW.send(new EjectVoiceUser(mProps.meetingID, mProps.recorded,
           msg.ejectedBy, msg.userId, mProps.voiceBridge, user.voiceUser.userId))
       }
-      liveMeeting.registeredUsers.delete(msg.userId)
+      RegisteredUsers.remove(msg.userId, liveMeeting.registeredUsers)
       makeSurePresenterIsAssigned(user)
 
       log.info("Ejecting user from meeting.  meetingId=" + mProps.meetingID + " userId=" + msg.userId)
@@ -328,7 +327,7 @@ trait UsersApp {
       }
     }
 
-    val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.authToken, msg.userID, liveMeeting.registeredUsers.toVector)
+    val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.authToken, msg.userID, liveMeeting.registeredUsers)
     regUser foreach { ru =>
       log.debug("Found registered user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " ru=" + ru)
 
