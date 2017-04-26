@@ -80,7 +80,7 @@ class Auth {
     }
 
     return new Promise((resolve, reject) => {
-      callServer('userLogout', () => {
+      callServer('userLogout').then(() => {
         this.fetchLogoutUrl()
           .then(this.clearCredentials)
           .then(resolve);

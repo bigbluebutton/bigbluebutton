@@ -1,6 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { check } from 'meteor/check';
-import Notifications from '/imports/api/notification';
+import NotificationService from '/imports/ui/services/notification/notificationService';
 
 /**
  * Send the request to the server via Meteor.call and don't treat errors.
@@ -35,7 +35,7 @@ function callServer(name, ...args) {
  * @return {Promise}
  */
 function treated(name, ...args) {
-  return callServer(name, ...args).catch((e) => {Notifications.insert({name:`Error while executing ${name}`}); throw e });
+  return callServer(name, ...args).catch((e) => {NotificationService.add({notification:`Error while executing ${name}`}); throw e });
 };
 
 const API = {
