@@ -15,8 +15,6 @@ class Auth {
       value: false,
       tracker: new Tracker.Dependency,
     };
-
-    this._addObserverToReconnection();
   }
 
   get meetingID() {
@@ -64,6 +62,12 @@ class Auth {
     };
   }
 
+  set(meetingId, requesterUserId, requesterToken) {
+    this.meetingID = meetingId;
+    this.userID = requesterUserId;
+    this.token = requesterToken;
+  }
+
   set credentials(value) {
     throw 'Credentials are read-only';
   }
@@ -91,14 +95,8 @@ class Auth {
     });
   };
 
-  authenticate(meetingID, userID, token) {
-    if (arguments.length) {
-      this.meetingID = meetingID;
-      this.userID = userID;
-      this.token = token;
-    }
-
-    if (this.loggedIn) return Promise.resolve();
+  authenticate(force) {
+    if (this.loggedIn && !force) return Promise.resolve();
 
     return this._subscribeToCurrentUser()
       .then(this._addObserverToValidatedField.bind(this));
@@ -121,25 +119,6 @@ class Auth {
         if (!subscription.ready()) return;
 
         resolve(c);
-      });
-    });
-  }
-
-  /**
-   * Add an observer to keep tracking whatever the user need an reconection.
-   * 
-   * It track when the user lost connection or reopen a closed tab.
-   * 
-   * @return {Promise}
-   */
-  _addObserverToReconnection() {
-    return new Promise((resolve, reject) => {
-      Tracker.autorun((c) => {
-        if (Meteor.status().connected) {
-          this._subscribeToCurrentUser()
-            .then(this._addObserverToValidatedField.bind(this));
-        }
-        resolve();
       });
     });
   }
