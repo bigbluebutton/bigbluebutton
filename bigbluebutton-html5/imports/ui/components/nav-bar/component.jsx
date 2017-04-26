@@ -115,7 +115,7 @@ class NavBar extends Component {
       presentationTitle,
     } = this.props;
 
-    if (isBreakoutRoom || breakouts.length === 0) {
+    if (isBreakoutRoom || !breakouts.length) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
