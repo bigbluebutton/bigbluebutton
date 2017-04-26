@@ -735,7 +735,9 @@ def processShapesAndClears
             if presentation and pageNumber
               # If we have the presentation and page number available, match
               # against that.
-              if presentation.text() == $val[6] and pageNumber.text().to_i == $val[7]
+              pageNumber = pageNumber.text().to_i
+              pageNumber -= 1 unless $version_atleast_0_9_0
+              if presentation.text() == $val[6] and pageNumber == $val[7]
                 in_this_image = true
               end
             else
