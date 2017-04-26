@@ -10,7 +10,7 @@ import NotificationService from '/imports/ui/services/notification/notificationS
  * @see https://docs.meteor.com/api/methods.html#Meteor-call
  * @return {Promise}
  */
-function callServer(name, ...args) {
+function makeCall(name, ...args) {
   check(name, String);
 
   const credentials = Auth.credentials;
@@ -34,17 +34,17 @@ function callServer(name, ...args) {
  * @see https://docs.meteor.com/api/methods.html#Meteor-call
  * @return {Promise}
  */
-function treated(name, ...args) {
-  return callServer(name, ...args).catch((e) => {NotificationService.add({notification:`Error while executing ${name}`}); throw e });
+function call(name, ...args) {
+  return makeCall(name, ...args).catch((e) => {NotificationService.add({notification:`Error while executing ${name}`}); throw e });
 };
 
 const API = {
-  callServer,
-  treated
+  makeCall,
+  call
 };
 
 export default API;
 
 export {
-  callServer, treated
+  makeCall, call
 };

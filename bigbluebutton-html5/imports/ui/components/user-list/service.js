@@ -5,7 +5,7 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
 
-import { callServer } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -246,27 +246,27 @@ const userActions = {
   },
   clearStatus: {
     label: 'Clear Status',
-    handler: user => callServer('setEmojiStatus', user.id, 'none'),
+    handler: user => makeCall('setEmojiStatus', user.id, 'none'),
     icon: 'clear_status',
   },
   setPresenter: {
     label: 'Make Presenter',
-    handler: user => callServer('assignPresenter', user.id),
+    handler: user => makeCall('assignPresenter', user.id),
     icon: 'presentation',
   },
   kick: {
     label: 'Kick User',
-    handler: user => callServer('kickUser', user.id),
+    handler: user => makeCall('kickUser', user.id),
     icon: 'circle_close',
   },
   mute: {
     label: 'Mute Audio',
-    handler: user => callServer('muteUser', user.id),
+    handler: user => makeCall('muteUser', user.id),
     icon: 'audio_off',
   },
   unmute: {
     label: 'Unmute Audio',
-    handler: user => callServer('unmuteUser', user.id),
+    handler: user => makeCall('unmuteUser', user.id),
     icon: 'audio_on',
   },
 };
