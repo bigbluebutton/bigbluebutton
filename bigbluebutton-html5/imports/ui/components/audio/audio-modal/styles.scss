@@ -1,0 +1,164 @@
+@import "../../../stylesheets/variables/_all";
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 2rem;
+}
+
+.closeBtn {
+  background-color: #FFFFFF;
+  border: none;
+  display: flex;
+  justify-content: flex-end;
+  i {
+    color: $color-gray-light;
+  }
+}
+
+Button.audioBtn {
+  i{
+    color: #3c5764;
+  }
+}
+
+// Modifies the audio button icon colour
+Button.audioBtn span:first-child {
+  color: #1b3c4b;
+  background-color: #f1f8ff;
+  box-shadow: none;
+  border: 5px solid  #f1f8ff;
+}
+
+// When hovering over a button of class audioBtn, change the border colour of first span-child
+Button.audioBtn:hover span:first-child {
+  border: 5px solid $color-primary;
+  background-color: #f1f8ff;
+}
+
+// Modifies the button label text
+Button.audioBtn span:last-child {
+  color: black;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+Button.audioBtn:first-of-type {
+  margin-right: 5%;
+}
+
+Button.audioBtn:last-of-type {
+  margin-left: 5%;
+}
+
+.inner {
+  padding: 1em;
+  min-height: 20rem;
+}
+
+.backBtn {
+  border: none;
+  i {
+    color: $color-primary;
+  }
+}
+
+.topRow {
+  align-items: center;
+  display: flex;
+}
+
+.audioNote {
+  color: $color-text;
+  display: inline-block;
+  font-size: 0.9rem;
+}
+
+.title {
+  text-align: center;
+  margin: auto;
+  color: black;
+  font-weight: 400;
+  font-size: 1.3rem;
+}
+
+.form {
+  display: flex;
+  flex-flow: column;
+  padding: 2em;
+}
+
+.row {
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.col {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+  margin-right: 1rem;
+
+  &:last-child {
+    margin-right: 0;
+    padding-right: 0.1rem;
+    padding-left: 4rem;
+  }
+}
+
+.labelSmall {
+  color: black;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.formElement {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+}
+
+.select {
+  background-color: #fff;
+  border: 0;
+  border-bottom: 0.1rem solid $color-gray-lighter;
+  color: $color-gray-light;
+  width: 100%;
+  // appearance: none;
+  height: 1.75rem;
+}
+
+.audioMeter {
+  width: 100%;
+}
+
+.pullContentRight {
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: row;
+}
+
+.verticalLine {
+  color: #f3f6f9;
+  border-left: 1px solid;
+  height: 5rem;
+}
+
+.enterAudio {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 2rem;
+}
+
+.chooseAudio {
+  position:absolute;
+  left:50%;
+  transform: translate(-50%, 0);
+}
+

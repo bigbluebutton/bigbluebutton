@@ -15,6 +15,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.moreMessages',
     description: 'Chat message when the user has unread messages below the scroll',
   },
+  emptyLogLabel: {
+    id: 'app.chat.emptyLogLabel',
+    description: 'aria-label used when chat log is empty',
+  }
 });
 
 class MessageList extends Component {
@@ -132,19 +136,20 @@ class MessageList extends Component {
   }
 
   render() {
-    const { messages } = this.props;
+    const { messages, intl } = this.props;
 
     return (
       <div className={styles.messageListWrapper}>
         <div
-          tabIndex="0"
           role="log"
-          aria-atomic="false"
-          aria-live="polite"
-          aria-relevant="additions"
+          tabIndex="0"
           ref="scrollArea"
-          className={styles.messageList}
           id={this.props.id}
+          className={styles.messageList}
+          aria-live="polite"
+          aria-atomic="false"
+          aria-relevant="additions"
+          aria-label={intl.formatMessage(intlMessages.emptyLogLabel)}
         >
           {messages.map((message) => (
             <MessageListItem

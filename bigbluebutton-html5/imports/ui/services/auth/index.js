@@ -95,6 +95,8 @@ class Auth {
       this.token = token;
     }
 
+    if (this.loggedIn) return Promise.resolve();
+
     return this._subscribeToCurrentUser()
       .then(this._addObserverToValidatedField.bind(this));
   }
@@ -106,8 +108,11 @@ class Auth {
       Tracker.autorun((c) => {
         setTimeout(() => {
           c.stop();
-          reject('Authentication subscription timeout.');
-        }, 2000);
+          reject({
+            error: 500,
+            description: 'Authentication subscription timeout.',
+          });
+        }, 5000);
 
         const subscription = Meteor.subscribe('current-user', credentials);
         if (!subscription.ready()) return;
@@ -120,9 +125,14 @@ class Auth {
   _addObserverToValidatedField(prevComp) {
     return new Promise((resolve, reject) => {
       const validationTimeout = setTimeout(() => {
+        clearTimeout(validationTimeout);
+        prevComp.stop();
         this.clearCredentials();
-        reject('Authentication timeout.');
-      }, 2500);
+        reject({
+          error: 500,
+          description: 'Authentication timeout.',
+        });
+      }, 5000);
 
       const didValidate = () => {
         this.loggedIn = true;
@@ -135,15 +145,8 @@ class Auth {
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const query = Users.find(selector);
 
-        if (query.count() && query.fetch()[0].validated) {
-          c.stop();
-          didValidate();
-        }
-
         const handle = query.observeChanges({
           changed: (id, fields) => {
-            if (id !== this.userID) return;
-
             if (fields.validated === true) {
               c.stop();
               didValidate();
@@ -152,7 +155,10 @@ class Auth {
             if (fields.validated === false) {
               c.stop();
               this.clearCredentials();
-              reject('Authentication failed.');
+              reject({
+                error: 401,
+                description: 'Authentication failed.',
+              });
             }
           },
         });

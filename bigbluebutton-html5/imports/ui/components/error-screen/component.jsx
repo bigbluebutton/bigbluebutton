@@ -13,12 +13,10 @@ const intlMessages = defineMessages({
     defaultMessage: 'Not found',
   },
   401: {
-    id: 'app.about.401',
-    defaultMessage: 'Unauthorized',
+    id: 'app.error.401',
   },
   403: {
-    id: 'app.about.403',
-    defaultMessage: 'Forbidden',
+    id: 'app.error.403',
   },
 });
 

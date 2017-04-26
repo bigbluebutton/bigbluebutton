@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.bigbluebutton.presentation.imp.PdfPageToImageConversionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,6 @@ public class PdfToSwfSlide {
   private UploadedPresentation pres;
   private int page;
   private PageConverter pdfToSwfConverter;
-  private PdfPageToImageConversionService imageConvertService;
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
 
@@ -49,41 +47,22 @@ public class PdfToSwfSlide {
     this.page = page;
   }
 
-  public PdfToSwfSlide createSlide() {		
+  public PdfToSwfSlide createSlide() {
     File presentationFile = pres.getUploadedFile();
-    slide = new File(presentationFile.getParent() + File.separatorChar + "slide-" + page + ".swf");
-    if (! pdfToSwfConverter.convert(presentationFile, slide, page, pres)) {
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", pres.getMeetingId());
-      logData.put("presId", pres.getId());
-      logData.put("filename", pres.getName());
-      logData.put("page", page);
-      logData.put("size(KB)", slide.length()/1024);
-
-      Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
-
-      log.warn("Failed to convert slide: data={}", logStr);
-
-      imageConvertService.convertPageAsAnImage(presentationFile, slide, page, pres);
-    } 
+    slide = new File(presentationFile.getParent() + File.separatorChar
+        + "slide-" + page + ".swf");
+    pdfToSwfConverter.convert(presentationFile, slide, page, pres);
 
     // If all fails, generate a blank slide.
     if (!slide.exists()) {
-      log.warn("Failed to create slide. Creating blank slide for " + slide.getAbsolutePath());
+      log.warn("Failed to create slide. Creating blank slide for "
+          + slide.getAbsolutePath());
       generateBlankSlide();
     }
 
     done = true;
 
     return this;
-  }
-
-  private boolean slideMayHaveTooManyObjects(File slide) {
-    // If the resulting swf file is greater than 500K, it probably contains a lot of objects
-    // that it becomes very slow to render on the client. Take an image snapshot instead and
-    // use it to generate the SWF file. (ralam Sept 2, 2009)
-    return slide.length() > MAX_SWF_FILE_SIZE;
   }
 
   public void generateBlankSlide() {
@@ -95,7 +74,7 @@ public class PdfToSwfSlide {
       logData.put("page", page);
 
       Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
+      String logStr = gson.toJson(logData);
 
       log.warn("Creating blank slide: data={}", logStr);
 
@@ -108,10 +87,10 @@ public class PdfToSwfSlide {
       logData.put("page", page);
 
       Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
+      String logStr = gson.toJson(logData);
 
       log.warn("Failed to create blank slide: data={}", logStr);
-    }		
+    }
   }
 
   private void copyBlankSlide(File slide) {
@@ -124,10 +103,6 @@ public class PdfToSwfSlide {
 
   public void setPageConverter(PageConverter converter) {
     this.pdfToSwfConverter = converter;
-  }
-
-  public void setPdfPageToImageConversionService(PdfPageToImageConversionService service) {
-    this.imageConvertService = service;
   }
 
   public void setBlankSlide(String blankSlide) {

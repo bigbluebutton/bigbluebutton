@@ -127,7 +127,7 @@ class ClosedCaptionsMenu extends BaseMenu {
   render() {
     const {
       locales,
-      intl
+      intl,
     } = this.props;
 
     return (

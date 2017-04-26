@@ -15,6 +15,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -45,6 +46,10 @@ const messages = defineMessages({
     id: 'app.userlist.you',
     description: 'Text for identifying your user',
   },
+  menuTitleContext: {
+    id: 'app.userlist.menuTitleContext',
+    description: 'adds context to userListItem menu title',
+  }
 });
 
 const userActionsTransition = {
@@ -163,7 +168,7 @@ class UserListItem extends Component {
       if (!isDropdownVisible) {
         const offsetPageTop =
           (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight - scrollContainer.scrollTop);
-          
+
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
       }
@@ -174,7 +179,7 @@ class UserListItem extends Component {
 
   /**
   * Check if the dropdown is visible and is opened by the user
-  * 
+  *
   * @return True if is visible and opened by the user.
   */
   isDropdownActivedByUser() {
@@ -184,8 +189,8 @@ class UserListItem extends Component {
 
   /**
    * Return true if the content fit on the screen, false otherwise.
-   * 
-   * @param {number} contentOffSetTop 
+   *
+   * @param {number} contentOffSetTop
    * @param {number} contentOffsetHeight
    * @return True if the content fit on the screen, false otherwise.
    */
@@ -231,6 +236,8 @@ class UserListItem extends Component {
       <li
         role="button"
         aria-haspopup="true"
+        aria-live="assertive"
+        aria-relevant="additions"
         className={cx(styles.userListItem, userItemContentsStyle)}>
         {this.renderUserContents()}
       </li>
@@ -240,6 +247,7 @@ class UserListItem extends Component {
   renderUserContents() {
     const {
       user,
+      intl,
     } = this.props;
 
     let actions = this.getAvailableActions();
@@ -278,12 +286,10 @@ class UserListItem extends Component {
           <DropdownList>
             {
               [
-                (<DropdownListItem
-                  className={styles.actionsHeader}
-                  key={_.uniqueId('action-header')}
-                  label={user.name}
-                  style={{ fontWeight: 600 }}
-                  defaultMessage={user.name} />),
+                (<DropdownListTitle
+                    description={intl.formatMessage(messages.menuTitleContext)}>
+                      {user.name}
+                 </DropdownListTitle>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
             }

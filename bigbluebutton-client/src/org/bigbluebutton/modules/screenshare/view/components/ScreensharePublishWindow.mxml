@@ -20,11 +20,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<dspub:MDIWindow 
+<common:CustomMdiWindow
   xmlns:mx="http://www.adobe.com/2006/mxml" 
   implements="org.bigbluebutton.common.IBbbModuleWindow"
   xmlns:mate="http://mate.asfusion.com/"
-  xmlns:dspub="flexlib.mdi.containers.*"
   xmlns:common="org.bigbluebutton.common.*"
   backgroundColor="#C0C0C0"
   initialize="init()"
@@ -615,4 +614,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Button id="cancelBtn" click="closeWindow()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
     <mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" />
   </mx:ControlBar>
-</dspub:MDIWindow>
+</common:CustomMdiWindow>
