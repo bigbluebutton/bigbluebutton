@@ -22,6 +22,8 @@ package org.bigbluebutton.lib.settings.views.lock {
 		
 		private var _layoutCheckbox:CheckBox;
 		
+		private var _containers:Array;
+		
 		public function get webcamCheckbox():CheckBox {
 			return _webcamCheckbox;
 		}
@@ -49,6 +51,8 @@ package org.bigbluebutton.lib.settings.views.lock {
 		public function LockSettingsViewBase() {
 			super();
 			
+			_containers = [];
+			
 			// Audio title
 			var _audioTitle:Label = new Label();
 			_audioTitle.text = "Audio Control";
@@ -61,6 +65,7 @@ package org.bigbluebutton.lib.settings.views.lock {
 			muteGroup.percentWidth = 100;
 			muteGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(muteGroup);
+			_containers.push(muteGroup);
 			
 			var muteLabel:Label = new Label();
 			muteLabel.text = "Mute all expect the presenter";
@@ -82,6 +87,7 @@ package org.bigbluebutton.lib.settings.views.lock {
 			lockGroup.percentWidth = 100;
 			lockGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(lockGroup);
+			_containers.push(lockGroup);
 			
 			var lockLabel:Label = new Label();
 			lockLabel.text = "Lock all participants";
@@ -96,6 +102,7 @@ package org.bigbluebutton.lib.settings.views.lock {
 			webcamGroup.percentWidth = 100;
 			webcamGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(webcamGroup);
+			_containers.push(webcamGroup);
 			
 			var webcamLabel:Label = new Label();
 			webcamLabel.text = "Webcam";
@@ -110,6 +117,7 @@ package org.bigbluebutton.lib.settings.views.lock {
 			microphoneGroup.percentWidth = 100;
 			microphoneGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(microphoneGroup);
+			_containers.push(microphoneGroup);
 			
 			var microphoneLabel:Label = new Label();
 			microphoneLabel.text = "Microphone";
@@ -124,6 +132,7 @@ package org.bigbluebutton.lib.settings.views.lock {
 			publicChatGroup.percentWidth = 100;
 			publicChatGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(publicChatGroup);
+			_containers.push(publicChatGroup);
 			
 			var publicChatLabel:Label = new Label();
 			publicChatLabel.text = "Public chat";
@@ -138,6 +147,7 @@ package org.bigbluebutton.lib.settings.views.lock {
 			privateChatGroup.percentWidth = 100;
 			privateChatGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(privateChatGroup);
+			_containers.push(privateChatGroup);
 			
 			var privateChatLabel:Label = new Label();
 			privateChatLabel.text = "Private chat";
@@ -152,6 +162,7 @@ package org.bigbluebutton.lib.settings.views.lock {
 			layoutGroup.percentWidth = 100;
 			layoutGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(layoutGroup);
+			_containers.push(layoutGroup);
 			
 			var layoutLabel:Label = new Label();
 			layoutLabel.text = "Layout";
@@ -165,13 +176,9 @@ package org.bigbluebutton.lib.settings.views.lock {
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
 			
-			_muteToggle.parent["padding"] = getStyle("padding");
-			_lockToggle.parent["padding"] = getStyle("padding");
-			_webcamCheckbox.parent["padding"] = getStyle("padding");
-			_microphoneCheckbox.parent["padding"] = getStyle("padding");
-			_publicChatCheckbox.parent["padding"] = getStyle("padding");
-			_privateChatCheckbox.parent["padding"] = getStyle("padding");
-			_layoutCheckbox.parent["padding"] = getStyle("padding");
+			for (var i:int = 0; i < _containers.length; i++) {
+				_containers[i]["padding"] = getStyle("padding");
+			}
 		}
 	}
 }

@@ -26,6 +26,8 @@ package org.bigbluebutton.lib.settings.views.chat {
 		
 		private var _audioSeparator:Line;
 		
+		private var _containers:Array;
+		
 		public function get audioToggle():ToggleButtonBase {
 			return _audioToggle;
 		}
@@ -43,6 +45,8 @@ package org.bigbluebutton.lib.settings.views.chat {
 			
 			gap = 0;
 			
+			_containers = [];
+			
 			_title = new Label();
 			_title.text = "Session Settings";
 			_title.percentWidth = 100;
@@ -54,6 +58,7 @@ package org.bigbluebutton.lib.settings.views.chat {
 			audioGroup.percentWidth = 100;
 			audioGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(audioGroup);
+			_containers.push(audioGroup);
 			
 			var microphoneLabel:Label = new Label();
 			microphoneLabel.text = "Audio notifications for chat";
@@ -72,6 +77,7 @@ package org.bigbluebutton.lib.settings.views.chat {
 			notificationGroup.percentWidth = 100;
 			notificationGroup.verticalAlign = VerticalAlign.MIDDLE;
 			addElement(notificationGroup);
+			_containers.push(notificationGroup);
 			
 			var audioLabel:Label = new Label();
 			audioLabel.text = "Push notifications for chat";
@@ -110,6 +116,7 @@ package org.bigbluebutton.lib.settings.views.chat {
 			_increaseFontSizeButton = new Button();
 			_increaseFontSizeButton.styleName = "icon-circle-add settingsIcon";
 			fontSizeGroup.addElement(_increaseFontSizeButton);
+			_containers.push(fontSizeGroup);
 			
 			_decreaseFontSizeButton = new Button();
 			_decreaseFontSizeButton.styleName = "icon-circle-minus settingsIcon";
@@ -119,9 +126,9 @@ package org.bigbluebutton.lib.settings.views.chat {
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
 			
-			_audioToggle.parent["padding"] = getStyle("padding");
-			_pushToggle.parent["padding"] = getStyle("padding");
-			_fontSizeLabel.parent["padding"] = getStyle("padding");
+			for (var i:int = 0; i < _containers.length; i++) {
+				_containers[i]["padding"] = getStyle("padding");
+			}
 			
 			_microphoneSeparator.stroke = new SolidColorStroke(getStyle("separatorColor"));
 			_audioSeparator.stroke = new SolidColorStroke(getStyle("separatorColor"));
