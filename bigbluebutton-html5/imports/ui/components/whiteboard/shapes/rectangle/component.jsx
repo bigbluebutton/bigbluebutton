@@ -47,8 +47,6 @@ export default class RectangleDrawComponent extends React.Component {
         y={results.y}
         width={results.width}
         height={results.height}
-        rx="1"
-        ry="1"
         fill="none"
         stroke={ShapeHelpers.formatColor(this.props.shape.color)}
         strokeWidth={this.props.shape.thickness}
