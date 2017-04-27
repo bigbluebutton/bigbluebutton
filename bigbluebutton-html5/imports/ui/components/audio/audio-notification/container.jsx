@@ -6,11 +6,11 @@ import AudioNotification from './component';
 const intlMessages = defineMessages({
   audioFailed: {
     id: 'app.audioNotification.audioFailedMessage',
-    description: 'The audio could not connect, Try again',
+    description: 'The audio could not connect',
   },
   mediaFailed: {
     id: 'app.audioNotification.mediaFailedMessage',
-    description: 'Could not access getUserMicMedia, Try again',
+    description: 'Could not access getUserMicMedia',
   },
 });
 
