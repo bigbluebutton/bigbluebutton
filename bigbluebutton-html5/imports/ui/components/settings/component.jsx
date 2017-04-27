@@ -131,10 +131,10 @@ class Settings extends Component {
             <Icon iconName='application' className={styles.icon}/>
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
-          <Tab className={styles.tabSelector} aria-labelledby="videoTab">
-            <Icon iconName='video' className={styles.icon}/>
-            <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span>
-          </Tab>
+          {/*<Tab className={styles.tabSelector} aria-labelledby="videoTab">*/}
+            {/*<Icon iconName='video' className={styles.icon}/>*/}
+            {/*<span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span>*/}
+          {/*</Tab>*/}
           <Tab className={styles.tabSelector} aria-labelledby="ccTab">
             <Icon iconName='user' className={styles.icon}/>
             <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
@@ -153,12 +153,12 @@ class Settings extends Component {
             settings={this.state.current.application}
             />
         </TabPanel>
-        <TabPanel className={styles.tabPanel}>
-          <Video
-            handleUpdateSettings={this.handleUpdateSettings}
-            settings={this.state.current.video}
-            />
-        </TabPanel>
+        {/*<TabPanel className={styles.tabPanel}>*/}
+          {/*<Video*/}
+            {/*handleUpdateSettings={this.handleUpdateSettings}*/}
+            {/*settings={this.state.current.video}*/}
+            {/*/>*/}
+        {/*</TabPanel>*/}
         <TabPanel className={styles.tabPanel}>
           <ClosedCaptions
             settings={this.state.current.cc}

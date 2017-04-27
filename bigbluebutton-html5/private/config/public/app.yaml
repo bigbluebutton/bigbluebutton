@@ -15,7 +15,7 @@ app:
   # Default global variables
   appName: "BigBlueButton HTML5 Client"
   bbbServerVersion: "1.1-beta"
-  copyright: "©2016 BigBlueButton Inc."
+  copyright: "©2017 BigBlueButton Inc."
   html5ClientBuild: "HTML5_CLIENT_VERSION"
   defaultWelcomeMessage: Welcome to %%CONFNAME%%!<br /><br />For help on using BigBlueButton see these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial videos</u></a>.<br /><br />To join the audio bridge click the gear icon (upper-right hand corner).  Use a headset to avoid causing background noise for others.<br /><br /><br />
   lockOnJoin: true
@@ -53,3 +53,7 @@ app:
       publicChat: false
       privateChat: false
       layout: false
+
+  # The initial client version has limited moderator capabilities
+  # The following flag disables moderator-only features
+  allowHTML5Moderator: false
