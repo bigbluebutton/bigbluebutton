@@ -16,14 +16,14 @@ export default class Slide extends React.Component {
             <rect
               x="1"
               y="1"
-              width={this.props.paperWidth-2}
-              height={this.props.paperHeight-2}
+              width={this.props.currentSlide.slide.width-2}
+              height={this.props.currentSlide.slide.height-2}
               fill="white"
             >
             </rect>
             <image x="0" y="0"
-              width={this.props.paperWidth}
-              height={this.props.paperHeight}
+              width={this.props.currentSlide.slide.width}
+              height={this.props.currentSlide.slide.height}
               xlinkHref={this.props.currentSlide.slide.img_uri}
               strokeWidth="0.8"
               style={{ WebkitTapHighlightColor: 'transparent' }}

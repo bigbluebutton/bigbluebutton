@@ -26,13 +26,28 @@ export default class PresentationArea extends React.Component {
   }
 
   componentDidMount() {
-    var fn = setTimeout(this.handleResize.bind(this), 0);
+    //scale the whiteboard wrapper after the initial load (whiteboardSizeAvailable is rendered)
+    //var fn = setTimeout(this.handleResize.bind(this), 0);
+
+    //adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
     window.addEventListener('resize', () => {
       setTimeout(this.handleResize.bind(this), 0);
     });
+
+    //determining the paperWidth and paperHeight (available space for the svg) on the initial load
+    if(this.props.userIsPresenter) {
+      var clientHeight = this.refs.whiteboardSizeAvailable.clientHeight;
+      var clientWidth = this.refs.whiteboardSizeAvailable.clientWidth;
+    } else {
+      var clientHeight = this.refs.presentationPaper.clientHeight;
+      var clientWidth = this.refs.presentationPaper.clientWidth;
+    }
+
+    //setting the state of the paperWidth and paperheight (available space for the svg)
+    //and set the showSlide to true to start rendering the slide
     this.setState({
-      paperHeight: this.refs.presentationPaper.parentNode.clientHeight,
-      paperWidth: this.refs.presentationPaper.parentNode.clientWidth,
+      paperHeight: clientHeight,
+      paperWidth: clientWidth,
       showSlide: true,
     });
   }
@@ -73,21 +88,46 @@ export default class PresentationArea extends React.Component {
   }
 
   handleResize() {
+    //if a user is a presenter - this means there is a whiteboardToolBar on the right
+    //and we have to get the width/height of the whiteboardSizeAvailable
+    //(inner hidden div with absolute position)
+    if(this.props.userIsPresenter) {
+      var clientHeight = this.refs.whiteboardSizeAvailable.clientHeight;
+      var clientWidth = this.refs.whiteboardSizeAvailable.clientWidth;
+    //user is not a presenter - we can get the sizes of the presentationPaper
+    //direct parent of the svg wrapper
+    } else {
+      var clientHeight = this.refs.presentationPaper.clientHeight;
+      var clientWidth = this.refs.presentationPaper.clientWidth;
+    }
+
+    //updating the size of the space available for the slide
     this.setState({
-      paperHeight: this.refs.presentationPaper.clientHeight,
-      paperWidth: this.refs.presentationPaper.clientWidth,
+      paperHeight: clientHeight,
+      paperWidth: clientWidth,
     });
   }
 
-  renderPresentationArea() {
+  //returns a ref to the svg element, which is required by a WhiteboardOverlay
+  //to transform screen coordinates to svg coordinate system
+  getSvgRef() {
+    const { svggroup } = this.refs;
+    return svggroup;
+  }
 
+  //renders the whole presentation area
+  renderPresentationArea() {
     if (this.props.currentSlide) {
+      //to control the size of the svg wrapper manually
+      //and adjust cursor's thickness, so that svg didn't scale it automatically
       let adjustedSizes = this.calculateSize();
+
       let slideObj = this.props.currentSlide.slide;
-      let x = -slideObj.x_offset * 2 * adjustedSizes.width / 100;
-      let y = -slideObj.y_offset * 2 * adjustedSizes.height / 100;
-      let viewBoxWidth = adjustedSizes.width * slideObj.width_ratio / 100;
-      let viewBoxHeight = adjustedSizes.height * slideObj.height_ratio / 100;
+      let x = -slideObj.x_offset * 2 * slideObj.width / 100;
+      let y = -slideObj.y_offset * 2 * slideObj.height / 100;
+      let viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
+      let viewBoxHeight = slideObj.height * slideObj.height_ratio / 100;
+
       return (
         <div
           style={{
@@ -114,6 +154,9 @@ export default class PresentationArea extends React.Component {
           transitionLeaveTimeout={400}
         >
           <svg
+            width={slideObj.width}
+            height={slideObj.height}
+            ref="svggroup"
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
@@ -129,12 +172,10 @@ export default class PresentationArea extends React.Component {
               <Slide
                 id="slideComponent"
                 currentSlide={this.props.currentSlide}
-                paperWidth={adjustedSizes.width}
-                paperHeight={adjustedSizes.height}
               />
               <ShapeGroupContainer
-                width = {adjustedSizes.width}
-                height = {adjustedSizes.height}
+                width = {slideObj.width}
+                height = {slideObj.height}
                 whiteboardId = {slideObj.id}
               />
               {this.props.cursor ?
@@ -143,9 +184,10 @@ export default class PresentationArea extends React.Component {
                 viewBoxHeight={viewBoxHeight}
                 viewBoxX={x}
                 viewBoxY={y}
-                widthRatio={slideObj.width_ratio}
                 cursorX={this.props.cursor.x}
                 cursorY={this.props.cursor.y}
+                widthRatio={slideObj.width_ratio}
+                physicalWidthRatio={adjustedSizes.width / slideObj.width}
                 />
               : null }
             </g>
@@ -156,7 +198,7 @@ export default class PresentationArea extends React.Component {
                 vbwidth={viewBoxWidth}
                 vbheight={viewBoxHeight}
               >
-                <WhiteboardOverlayContainer />
+                <WhiteboardOverlayContainer getSvgRef={this.getSvgRef.bind(this)}/>
               </PresentationOverlayContainer>
             : null }
           </svg>
@@ -182,7 +224,6 @@ export default class PresentationArea extends React.Component {
   }
 
   renderWhiteboardToolbar() {
-    console.log('rendering the whiteboard toolbar');
     let adjustedSizes = this.calculateSize();
 
     return (
@@ -199,6 +240,7 @@ export default class PresentationArea extends React.Component {
             ref="presentationPaper"
             className={styles.presentationPaper}
           >
+            <div ref="whiteboardSizeAvailable" className={styles.whiteboardSizeAvailable}/>
             {this.state.showSlide ?
               this.renderPresentationArea()
             : null }

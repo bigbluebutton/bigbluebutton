@@ -9,7 +9,7 @@ export default class PresentationOverlay extends React.Component {
       offsetX: 0,
       offsetY: 0,
 
-      //last updated coordinated
+      //last updated coordinates
       lastOffsetX: 0,
       lastOffsetY: 0,
 
@@ -23,6 +23,8 @@ export default class PresentationOverlay extends React.Component {
   }
 
   mouseMoveHandler(event) {
+    // if(event.stopPropagation) event.stopPropagation();
+    // if(event.preventDefault) event.preventDefault();
     console.log('mouseMove');
     console.log(event.nativeEvent.offsetX);
     console.log(event.nativeEvent.offsetY);
