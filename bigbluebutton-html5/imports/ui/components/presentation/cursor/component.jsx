@@ -14,14 +14,17 @@ const propTypes = {
   //y Position of the view box
   viewBoxY: PropTypes.number.isRequired,
 
-  //Slide to view box width ratio
-  widthRatio: PropTypes.number.isRequired,
-
   //Defines the cursor x position
   cursorX: PropTypes.number.isRequired,
 
   //Defines the cursor y position
   cursorY: PropTypes.number.isRequired,
+
+  //Slide to view box width ratio
+  widthRatio: PropTypes.number.isRequired,
+
+  //Slide physical size to original size ratio
+  physicalWidthRatio: PropTypes.number.isRequired,
 
   /**
    * Defines the cursor fill colour
@@ -45,11 +48,10 @@ export default class Cursor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      cx: 0,
-      cy: 0,
-      finalRadius: 5,
-      fill: 'red',
-    }
+      prevData: undefined,
+      currentData: undefined,
+      defaultRadius: 5,
+    };
   }
 
   componentWillMount() {
@@ -57,6 +59,7 @@ export default class Cursor extends Component {
     this.setState({
       currentData: calculatedData,
       prevData: calculatedData,
+      defaultRadius: calculatedData.finalRadius,
     });
   }
 
@@ -69,9 +72,11 @@ export default class Cursor extends Component {
   }
 
   componentDidUpdate() {
-    const { cursor } = this.refs;
-    var node = findDOMNode(cursor);
-    node.beginElement();
+    const { cursorCoordinates, cursorRadius } = this.refs;
+    var node1 = findDOMNode(cursorCoordinates);
+    var node2 = findDOMNode(cursorRadius);
+    node1.beginElement();
+    node2.beginElement();
   }
 
   calculatePositionAndRadius(propsObj) {
@@ -80,7 +85,8 @@ export default class Cursor extends Component {
       cx: (propsObj.cursorX * propsObj.viewBoxWidth) + propsObj.viewBoxX,
       cy: (propsObj.cursorY * propsObj.viewBoxHeight) + propsObj.viewBoxY,
       //Adjust the radius of the cursor according to zoom
-      finalRadius: propsObj.radius * propsObj.widthRatio / 100,
+      //and divide it by the physicalWidth ratio, so that svg scaling wasn't applied to the cursor
+      finalRadius: (propsObj.radius * propsObj.widthRatio / 100) / this.props.physicalWidthRatio,
       fill: propsObj.fill,
     }
   }
@@ -93,17 +99,28 @@ export default class Cursor extends Component {
 
     return (
       <circle
-        r={currentData.finalRadius}
+        r={this.state.defaultRadius}
         fill={currentData.fill}
       >
         <animateTransform
-          ref="cursor"
+          ref="cursorCoordinates"
           attributeName="transform"
           type="translate"
           from={prevData.cx + " " + prevData.cy}
           to={currentData.cx + " " + currentData.cy}
           begin={'indefinite'}
           dur="0.1s"
+          repeatCount="0"
+          fill="freeze"
+        />
+        <animate
+          ref="cursorRadius"
+          attributeName="r"
+          attributeType="XML"
+          from={prevData.finalRadius}
+          to={currentData.finalRadius}
+          begin={'indefinite'}
+          dur="0.2s"
           repeatCount="0"
           fill="freeze"
         />
