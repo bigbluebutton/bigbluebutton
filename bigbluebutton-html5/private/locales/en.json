@@ -149,7 +149,7 @@
   "app.actionsBar.emojiMenu.thumbsupDesc": "Change your status to thumbs up",
   "app.actionsBar.emojiMenu.thumbsdownLabel": "Thumbs down",
   "app.actionsBar.emojiMenu.thumbsdownDesc": "Change your status to thumbs down",
-  "app.audioNotification.audioFailedMessage": "Your audio connection failed to connect. Try again.",
+  "app.audioNotification.audioFailedMessage": "Your audio connection failed to connect.",
   "app.audioNotification.mediaFailedMessage": "getUserMicMedia failed, Only secure origins are allowed",
   "app.audioNotification.closeLabel": "Close",
   "app.breakoutJoinConfirmation.title": "Join Breakout Room",
