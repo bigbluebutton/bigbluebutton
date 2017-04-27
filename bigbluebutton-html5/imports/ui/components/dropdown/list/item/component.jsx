@@ -19,7 +19,7 @@ export default class DropdownListItem extends Component {
 
   renderDefault() {
     let children = [];
-    const { icon, label } = this.props;
+    const { icon, label, } = this.props;
 
     return [
       (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon}/> : null),
@@ -29,7 +29,7 @@ export default class DropdownListItem extends Component {
 
   render() {
     const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style, separator, intl} = this.props;
+      className, style, separator, intl, } = this.props;
 
     return (
       <li

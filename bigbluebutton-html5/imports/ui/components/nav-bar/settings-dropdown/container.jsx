@@ -15,9 +15,9 @@ export default class SettingsDropdownContainer extends Component {
 
   componentDidMount() {
     const fullscreenChangedEvents = ['fullscreenchange',
-                                     'webkitfullscreenchange',
-                                     'mozfullscreenchange',
-                                     'MSFullscreenChange', ];
+                                    'webkitfullscreenchange',
+                                    'mozfullscreenchange',
+                                    'MSFullscreenChange',];
 
     fullscreenChangedEvents.forEach(event =>
       document.addEventListener(event, this.handleFullscreenChange));
@@ -25,9 +25,9 @@ export default class SettingsDropdownContainer extends Component {
 
   componentWillUnmount() {
     const fullscreenChangedEvents = ['fullscreenchange',
-                                     'webkitfullscreenchange',
-                                     'mozfullscreenchange',
-                                     'MSFullscreenChange', ];
+                                    'webkitfullscreenchange',
+                                    'mozfullscreenchange',
+                                    'MSFullscreenChange',];
 
     fullscreenChangedEvents.forEach(event =>
       document.removeEventListener(event, this.fullScreenToggleCallback));
