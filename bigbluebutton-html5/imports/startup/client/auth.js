@@ -1,5 +1,8 @@
 import Auth from '/imports/ui/services/auth';
 
+// disconnected and trying to open a new connection
+const STATUS_CONNECTING = 'connecting';
+
 export function joinRouteHandler(nextState, replace, callback) {
   if (!nextState || !nextState.params.authToken) {
     replace({ pathname: '/error/404' });
@@ -46,16 +49,11 @@ function _addReconnectObservable() {
   let lastStatus = null;
 
   Tracker.autorun(() => {
-    console.log("Meteor status", Meteor.status());
-    console.log("lastStatus status", lastStatus);
 
-    if (shouldAuthenticate(Meteor.status(),lastStatus)) {
-      console.log("Autenticando...");
+    lastStatus = updateStatus(Meteor.status(), lastStatus);
+
+    if (shouldAuthenticate(Meteor.status(), lastStatus)) {
       Auth.authenticate(true);
-      lastStatus = Meteor.status().status;
-    }
-
-    if (shouldUpateStatus(Meteor.status(), lastStatus)) {
       lastStatus = Meteor.status().status;
     }
   });
@@ -66,8 +64,8 @@ function _addReconnectObservable() {
  * @param {Object} status 
  * @param {String} lastStatus 
  */
-export function shouldAuthenticate(status, lastStatus){
-  return lastStatus != null && lastStatus === "connecting" && status.connected;
+export function shouldAuthenticate(status, lastStatus) {
+  return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
 }
 
 /**
@@ -75,6 +73,6 @@ export function shouldAuthenticate(status, lastStatus){
  * @param {Object} status 
  * @param {string} lastStatus 
  */
-export function shouldUpateStatus(status, lastStatus) {
-  return status.retryCount > 0 && lastStatus !== "connecting";
+export function updateStatus(status, lastStatus) {
+  return status.retryCount > 0 && lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
 }
