@@ -121,29 +121,25 @@ trait UsersApp {
 
   def handleMuteUserRequest(msg: MuteUserRequest) {
     log.info("Received mute user request. meetingId=" + mProps.meetingID + " userId=" + msg.userID + " mute=" + msg.mute)
-    Users.findWithId(msg.userID, liveMeeting.users) match {
-      case Some(u) => {
-        log.info("Send mute user request. meetingId=" + mProps.meetingID + " userId=" + u.id + " user=" + u)
-        outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded,
-          msg.requesterID, u.id, mProps.voiceBridge,
-          u.voiceUser.userId, msg.mute))
-      }
-      case None => {
-        log.info("Could not find user to mute.  meetingId=" + mProps.meetingID + " userId=" + msg.userID)
-      }
+    for {
+      u <- Users.findWithId(msg.userID, liveMeeting.users)
+    } yield {
+      log.info("Send mute user request. meetingId=" + mProps.meetingID + " userId=" + u.id + " user=" + u)
+      outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded,
+        msg.requesterID, u.id, mProps.voiceBridge, u.voiceUser.userId, msg.mute))
     }
   }
 
   def handleEjectUserRequest(msg: EjectUserFromVoiceRequest) {
     log.info("Received eject user request. meetingId=" + msg.meetingID + " userId=" + msg.userId)
-    Users.findWithId(msg.userId, liveMeeting.users) match {
-      case Some(u) => {
-        if (u.voiceUser.joined) {
-          log.info("Ejecting user from voice.  meetingId=" + mProps.meetingID + " userId=" + u.id)
-          outGW.send(new EjectVoiceUser(mProps.meetingID, mProps.recorded, msg.ejectedBy, u.id, mProps.voiceBridge, u.voiceUser.userId))
-        }
+
+    for {
+      u <- Users.findWithId(msg.userId, liveMeeting.users)
+    } yield {
+      if (u.voiceUser.joined) {
+        log.info("Ejecting user from voice.  meetingId=" + mProps.meetingID + " userId=" + u.id)
+        outGW.send(new EjectVoiceUser(mProps.meetingID, mProps.recorded, msg.ejectedBy, u.id, mProps.voiceBridge, u.voiceUser.userId))
       }
-      case None => // do nothing
     }
   }
 

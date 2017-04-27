@@ -28,7 +28,7 @@ class MeetingActor(val mProps: MeetingProperties,
     extends Actor with ActorLogging
     with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with BreakoutRoomApp with CaptionApp with SharedNotesApp {
+    with BreakoutRoomApp with CaptionApp with SharedNotesApp with PermisssionCheck {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
