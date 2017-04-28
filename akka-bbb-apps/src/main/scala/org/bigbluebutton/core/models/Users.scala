@@ -252,6 +252,8 @@ class Users {
   }
 }
 
+case class UserIdAndName(id: String, name: String)
+
 case class UserVO(
   id: String,
   externalId: String,
