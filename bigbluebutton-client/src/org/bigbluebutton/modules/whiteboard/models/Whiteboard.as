@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.whiteboard.models
           annotation.annotation.points = a.annotation.points.concat(annotation.annotation.points);
         }
         a.annotation = annotation.annotation;
+        a.status = annotation.status;
       } else {
         addAnnotation(annotation);
       }
