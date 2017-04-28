@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import { logClient } from '/imports/ui/services/api';
 
 export function joinRouteHandler(nextState, replace, callback) {
   if (!nextState || !nextState.params.authToken) {
@@ -7,12 +8,14 @@ export function joinRouteHandler(nextState, replace, callback) {
   }
 
   const { meetingID, userID, authToken } = nextState.params;
+
   Auth.authenticate(meetingID, userID, authToken)
     .then(() => {
       replace({ pathname: '/' });
       callback();
     })
     .catch(reason => {
+      logClient("info", { error: reason, method: "joinRouteHandler" });
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });
@@ -37,10 +40,12 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
     callback();
   }
 
+  const { meetingID, userID, authToken } = nextState.params;
+
   Auth.authenticate()
     .then(callback)
     .catch(reason => {
-      console.error(reason);
+      logClient("info", { error: reason, method: "authenticatedRouteHandler" });
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });

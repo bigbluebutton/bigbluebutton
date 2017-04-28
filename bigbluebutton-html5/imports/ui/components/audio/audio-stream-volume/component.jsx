@@ -102,7 +102,7 @@ class AudioStreamVolume extends Component {
   }
 
   handleError(error) {
-    console.error(error);
+    logClient("info", { error: reason, method: "handleError" });
   }
 
   render() {
