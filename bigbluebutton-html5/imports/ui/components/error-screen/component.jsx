@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withRouter } from 'react-router';
 import Button from '/imports/ui/components/button/component'
 
 import styles from './styles.scss';
@@ -64,8 +63,7 @@ class ErrorScreen extends Component {
           {children}
         </div>
         <div className={styles.content}>
-        <Button size={"sm"} label={intl.formatMessage(intlMessages.leave)} onClick={this.onClick}>
-        </Button>
+          <Button size={"sm"} label={intl.formatMessage(intlMessages.leave)} onClick={this.onClick}/>
         </div>
       </div>
     );
