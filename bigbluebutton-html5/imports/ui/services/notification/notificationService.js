@@ -4,28 +4,28 @@ class NotificationService {
 
     /**
      * Database to be transacted
-     * @param {Object} database 
+     * @param {Object} database
      */
     constructor(database) {
         this.database = database;
     }
 
     /**
-     * @param {string} notificationID 
+     * @param {string} notificationID
      */
     get(notificationID) {
         this.database.findById(notificationID);
     }
 
     /**
-     * @param {Object} notification 
+     * @param {Object} notification
      */
     add(notification) {
         this.database.add(notification);
     }
 
     /**
-     * @param {string} notificationID 
+     * @param {string} notificationID
      */
     remove(notificationID) {
         this.database.remove(notificationID);
@@ -36,6 +36,6 @@ let NotificationServiceSingleton = new NotificationService(db);
 
 export {
     NotificationService
-}
+};
 
 export default NotificationServiceSingleton;

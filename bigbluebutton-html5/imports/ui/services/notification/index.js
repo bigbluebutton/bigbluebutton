@@ -17,11 +17,7 @@ function remove(notificationId) {
     collection.remove({ notificationId });
 }
 
-const NotificationCollection = {
-    findById,
-    add,
-    remove,
-}
+const NotificationCollection = {findById, add, remove,};
 
 export default NotificationCollection;
 
@@ -29,4 +25,4 @@ export {
     findById,
     add,
     remove,
-}
+};
