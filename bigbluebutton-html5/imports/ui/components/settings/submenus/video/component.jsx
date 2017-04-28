@@ -32,7 +32,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class AudioMenu extends BaseMenu {
+class VideoMenu extends BaseMenu {
   constructor(props) {
     super(props);
 
@@ -54,26 +54,34 @@ class AudioMenu extends BaseMenu {
         <div className={styles.form}>
           <div className={styles.row}>
             <div className={styles.col}>
-              <div className={styles.formElement}>
+              <div
+                className={styles.formElement}
+                aria-label={intl.formatMessage(intlMessages.videoSourceLabel)}>
                 <label className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.videoSourceLabel)}
                 </label>
                 <select
                   defaultValue='-1'
                   className={styles.select}>
-                  <option value='-1' disabled>{intl.formatMessage(intlMessages.videoOptionLabel)}</option>
+                  <option value='-1' disabled>
+                    {intl.formatMessage(intlMessages.videoOptionLabel)}
+                  </option>
                 </select>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={styles.formElement}>
+              <div
+                className={styles.formElement}
+                aria-label={intl.formatMessage(intlMessages.videoQualityLabel)}>
                 <label className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.videoQualityLabel)}
                 </label>
                 <select
                   defaultValue='-1'
                   className={styles.select}>
-                  <option value='-1' disabled>{intl.formatMessage(intlMessages.qualityOptionLabel)}</option>
+                  <option value='-1' disabled>
+                    {intl.formatMessage(intlMessages.qualityOptionLabel)}
+                  </option>
                 </select>
               </div>
             </div>
@@ -91,7 +99,9 @@ class AudioMenu extends BaseMenu {
               <Toggle
                 icons={false}
                 defaultChecked={this.state.viewParticipantsWebcams}
-                onChange={() => this.handleToggle('viewParticipantsWebcams')} />
+                onChange={() => this.handleToggle('viewParticipantsWebcams')}
+                ariaLabelledBy={'viewCamLabel'}
+                ariaLabel={intl.formatMessage(intlMessages.participantsCamLabel)} />
               </div>
             </div>
           </div>
@@ -101,4 +111,4 @@ class AudioMenu extends BaseMenu {
   }
 };
 
-export default injectIntl(AudioMenu);
+export default injectIntl(VideoMenu);

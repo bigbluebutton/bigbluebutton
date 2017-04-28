@@ -32,132 +32,142 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ThumbnailCreatorImp implements ThumbnailCreator {
-	private static Logger log = LoggerFactory.getLogger(ThumbnailCreatorImp.class);
-	
-	private static final Pattern PAGE_NUMBER_PATTERN = Pattern.compile("(.+-thumb)-([0-9]+)(.png)");
-	
-	private String IMAGEMAGICK_DIR;
-	private String BLANK_THUMBNAIL;
-	
-	private static String TEMP_THUMB_NAME = "temp-thumb";
-	
-	public boolean createThumbnails(UploadedPresentation pres){
-		boolean success = false;
-	 	File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
-	 	
-	 	if (! thumbsDir.exists())
-	 		thumbsDir.mkdir();
-	 		
-	 	cleanDirectory(thumbsDir);
-	 	
-		try {
-			success = generateThumbnails(thumbsDir, pres);
-	    } catch (InterruptedException e) {
-	    	log.warn("Interrupted Exception while generating thumbnails.");
-	        success = false;
-	    }
-	    
-	    // Create blank thumbnails for pages that failed to generate a thumbnail.
-	    createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
-	    
-	    renameThumbnails(thumbsDir);
-	    
-	    return true;
-	}
+  private static Logger log = LoggerFactory
+      .getLogger(ThumbnailCreatorImp.class);
 
-	private boolean generateThumbnails(File thumbsDir, UploadedPresentation pres) throws InterruptedException {
-	 	String source = pres.getUploadedFile().getAbsolutePath();
-	 	String dest;
-	 	String COMMAND = "";
-	 	if(SupportedFileTypes.isImageFile(pres.getFileType())){
-	 		dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + ".png";
-	 		COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 " + source + " " + dest;
-	 	}else{
-	 		dest = thumbsDir.getAbsolutePath() + File.separator + "thumb-";
-	 		COMMAND = IMAGEMAGICK_DIR + "/gs -q -sDEVICE=pngalpha -dBATCH -dNOPAUSE -dNOPROMPT -dDOINTERPOLATE -dPDFFitPage -r16 -sOutputFile=" + dest +"%d.png " + source;
-	 	}
+  private static final Pattern PAGE_NUMBER_PATTERN = Pattern
+      .compile("(.+-thumb)-([0-9]+)(.png)");
 
-	 	boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+  private String IMAGEMAGICK_DIR;
+  private String BLANK_THUMBNAIL;
 
-	 	if (done) {
-	 		return true;
-	 	} else {
-			log.warn("Failed to create thumbnails: " + COMMAND);
-	 	}
+  private static String TEMP_THUMB_NAME = "temp-thumb";
 
-		return false;
-	}
+  public boolean createThumbnails(UploadedPresentation pres) {
+    boolean success = false;
+    File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
 
-	private File determineThumbnailDirectory(File presentationFile) {
-		return new File(presentationFile.getParent() + File.separatorChar + "thumbnails");
-	}
+    if (!thumbsDir.exists())
+      thumbsDir.mkdir();
 
-	private void renameThumbnails(File dir) {
-		/*
-		 * If more than 1 file, filename like 'temp-thumb-X.png' else filename is 'temp-thumb.png'
-		 */
-		if (dir.list().length > 1) {
-			File[] files = dir.listFiles();
-			Matcher matcher;
-			for (int i = 0; i < files.length; i++) {
-				matcher = PAGE_NUMBER_PATTERN.matcher(files[i].getAbsolutePath());
-	    		if (matcher.matches()) {
-	    			// Path should be something like 'c:/temp/bigluebutton/presname/thumbnails/temp-thumb-1.png'
-	    			// Extract the page number. There should be 4 matches.
-	    			// 0. c:/temp/bigluebutton/presname/thumbnails/temp-thumb-1.png
-					// 1. c:/temp/bigluebutton/presname/thumbnails/temp-thumb
-					// 2. 1 ---> what we are interested in
-					// 3. .png
-	    			// We are interested in the second match.
-				    int pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
-				    String newFilename = "thumb-" + (pageNum + 1) + ".png";
-				    File renamedFile = new File(dir.getAbsolutePath() + File.separator + newFilename);
-				    files[i].renameTo(renamedFile);
-	    		}
-			}
-		} else if (dir.list().length == 1) {
-			File oldFilename = new File(dir.getAbsolutePath() + File.separator + dir.list()[0]);
-			String newFilename = "thumb-1.png";
-			File renamedFile = new File(oldFilename.getParent() + File.separator + newFilename);
-			oldFilename.renameTo(renamedFile);
-		}
-	}
-	
-	private void createBlankThumbnails(File thumbsDir, int pageCount) {
-		File[] thumbs = thumbsDir.listFiles();
-		
-		if (thumbs.length != pageCount) {
-			for (int i = 0; i < pageCount; i++) {
-				File thumb = new File(thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + "-" + i + ".png");
-				if (! thumb.exists()) {
-					log.info("Copying blank thumbnail for slide " + i);
-					copyBlankThumbnail(thumb);
-				}
-			}
-		}
-	}
+    cleanDirectory(thumbsDir);
 
-	private void copyBlankThumbnail(File thumb) {
-		try {
-			FileUtils.copyFile(new File(BLANK_THUMBNAIL), thumb);
-		} catch (IOException e) {
-			log.error("IOException while copying blank thumbnail.");
-		}
-	}
+    try {
+      success = generateThumbnails(thumbsDir, pres);
+    } catch (InterruptedException e) {
+      log.warn("Interrupted Exception while generating thumbnails.");
+      success = false;
+    }
 
-	private void cleanDirectory(File directory) {
-		File[] files = directory.listFiles();
-		for (int i = 0; i < files.length; i++) {
-			files[i].delete();
-		}
-	}
+    // Create blank thumbnails for pages that failed to generate a thumbnail.
+    createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
 
-	public void setImageMagickDir(String imageMagickDir) {
-		IMAGEMAGICK_DIR = imageMagickDir;
-	}
+    renameThumbnails(thumbsDir);
 
-	public void setBlankThumbnail(String blankThumbnail) {
-		BLANK_THUMBNAIL = blankThumbnail;
-	}
+    return success;
+  }
+
+  private boolean generateThumbnails(File thumbsDir, UploadedPresentation pres)
+      throws InterruptedException {
+    String source = pres.getUploadedFile().getAbsolutePath();
+    String dest;
+    String COMMAND = "";
+    dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME;
+    if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+      COMMAND = IMAGEMAGICK_DIR + File.separator + "convert -thumbnail 150x150 "
+          + source + " " + dest + ".png";
+    } else {
+      COMMAND = "pdftocairo -png -scale-to 150 " + source + " " + dest;
+    }
+
+    boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+
+    if (done) {
+      return true;
+    } else {
+      log.warn("Failed to create thumbnails: " + COMMAND);
+    }
+
+    return false;
+  }
+
+  private File determineThumbnailDirectory(File presentationFile) {
+    return new File(
+        presentationFile.getParent() + File.separatorChar + "thumbnails");
+  }
+
+  private void renameThumbnails(File dir) {
+    /*
+     * If more than 1 file, filename like 'temp-thumb-X.png' else filename is
+     * 'temp-thumb.png'
+     */
+    if (dir.list().length > 1) {
+      File[] files = dir.listFiles();
+      Matcher matcher;
+      for (int i = 0; i < files.length; i++) {
+        matcher = PAGE_NUMBER_PATTERN.matcher(files[i].getAbsolutePath());
+        if (matcher.matches()) {
+          // Path should be something like
+          // 'c:/temp/bigluebutton/presname/thumbnails/temp-thumb-1.png'
+          // Extract the page number. There should be 4 matches.
+          // 0. c:/temp/bigluebutton/presname/thumbnails/temp-thumb-1.png
+          // 1. c:/temp/bigluebutton/presname/thumbnails/temp-thumb
+          // 2. 1 ---> what we are interested in
+          // 3. .png
+          // We are interested in the second match.
+          int pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
+          String newFilename = "thumb-" + (pageNum) + ".png";
+          File renamedFile = new File(
+              dir.getAbsolutePath() + File.separator + newFilename);
+          files[i].renameTo(renamedFile);
+        }
+      }
+    } else if (dir.list().length == 1) {
+      File oldFilename = new File(
+          dir.getAbsolutePath() + File.separator + dir.list()[0]);
+      String newFilename = "thumb-1.png";
+      File renamedFile = new File(
+          oldFilename.getParent() + File.separator + newFilename);
+      oldFilename.renameTo(renamedFile);
+    }
+  }
+
+  private void createBlankThumbnails(File thumbsDir, int pageCount) {
+    File[] thumbs = thumbsDir.listFiles();
+
+    if (thumbs.length != pageCount) {
+      for (int i = 0; i < pageCount; i++) {
+        File thumb = new File(thumbsDir.getAbsolutePath() + File.separator
+            + TEMP_THUMB_NAME + "-" + i + ".png");
+        if (!thumb.exists()) {
+          log.info("Copying blank thumbnail for slide " + i);
+          copyBlankThumbnail(thumb);
+        }
+      }
+    }
+  }
+
+  private void copyBlankThumbnail(File thumb) {
+    try {
+      FileUtils.copyFile(new File(BLANK_THUMBNAIL), thumb);
+    } catch (IOException e) {
+      log.error("IOException while copying blank thumbnail.");
+    }
+  }
+
+  private void cleanDirectory(File directory) {
+    File[] files = directory.listFiles();
+    for (int i = 0; i < files.length; i++) {
+      files[i].delete();
+    }
+  }
+
+  public void setImageMagickDir(String imageMagickDir) {
+    IMAGEMAGICK_DIR = imageMagickDir;
+  }
+
+  public void setBlankThumbnail(String blankThumbnail) {
+    BLANK_THUMBNAIL = blankThumbnail;
+  }
 
 }

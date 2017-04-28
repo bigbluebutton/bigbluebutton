@@ -20,7 +20,8 @@
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*"
+<common:CustomMdiWindow
+           xmlns:common="org.bigbluebutton.common.*"
            xmlns:mx="http://www.adobe.com/2006/mxml"
 		   width="600"
            height="400"
@@ -366,4 +367,4 @@
                    toolTip="{    btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.screenshareView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.screenshareView.actualSize')    }"
                    tabIndex="{    baseIndex + 4    }" />
     </mx:HBox>
-</MDIWindow>
+</common:CustomMdiWindow>

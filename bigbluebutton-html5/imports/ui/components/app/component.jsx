@@ -1,13 +1,15 @@
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+
 import _ from 'lodash';
 
 import ModalContainer from '../modal/container';
+
 import NotificationsBarContainer from '../notifications-bar/container';
-import AudioNotificationContainer from '../audio-notification/container';
+import AudioNotificationContainer from '../audio/audio-notification/container';
+import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
 
-import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
 
@@ -166,7 +168,7 @@ class App extends Component {
           {this.renderSidebar()}
         </section>
         <ModalContainer />
-        <audio id="remote-media" autoPlay="autoplay"></audio>
+        <AudioContainer />
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );
