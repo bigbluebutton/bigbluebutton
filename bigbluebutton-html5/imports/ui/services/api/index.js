@@ -15,9 +15,8 @@ function callServer(name) {
   Meteor.call(name, credentials, ...args);
 };
 
-function logClient(logLevel) {
+function logClient() {
   const credentials = Auth.credentials;
-  check(logLevel, String);
   const args = Array.prototype.slice.call(arguments, 0);
   const userInfo = window.navigator;
 
@@ -32,7 +31,15 @@ function logClient(logLevel) {
     }
   });
 
-  Meteor.call('logClient', logLevel, credentials, ...args);
+  const logTypeInformed = arguments.length > 1;
+  const outputLog = logTypeInformed ? Array.prototype.slice.call(args, 1) : args;
+  console.log("Client log: ", outputLog);
+
+  Meteor.call('logClient',
+    logTypeInformed ? args[0] : "info",
+    credentials,
+    outputLog
+  );
 };
 
 export {
