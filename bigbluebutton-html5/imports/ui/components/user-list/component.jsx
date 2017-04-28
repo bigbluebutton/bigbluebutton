@@ -108,11 +108,44 @@ class UserList extends Component {
     const {
       users,
       currentUser,
-      userActions,
-      compact,
       isBreakoutRoom,
       intl,
+      callServer,
     } = this.props;
+
+    const userActions = {
+      openChat: {
+        label: intl.formatMessage(intlMessages.ChatLabel),
+        handler: (router, user) => router.push(`/users/chat/${user.id}`),
+        icon: 'chat',
+      },
+      clearStatus: {
+        label: intl.formatMessage(intlMessages.ClearStatusLabel),
+        handler: user => callServer('setEmojiStatus', user.id, 'none'),
+        icon: 'clear_status',
+      },
+      setPresenter: {
+        label: intl.formatMessage(intlMessages.MakePresenterLabel),
+        handler: user => callServer('assignPresenter', user.id),
+        icon: 'presentation',
+      },
+      kick: {
+        label: intl.formatMessage(intlMessages.KickUserLabel),
+        handler: user => callServer('kickUser', user.id),
+        icon: 'circle_close',
+      },
+      mute: {
+        label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
+        handler: user => callServer('muteUser', user.id),
+        icon: 'audio_off',
+      },
+      unmute: {
+        label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
+        handler: user => callServer('unmuteUser', user.id),
+        icon: 'audio_on',
+      },
+    };
+
 
     return (
       <div className={styles.participants}>
@@ -162,6 +195,30 @@ const intlMessages = defineMessages({
   participantsTitle: {
     id: 'app.userlist.participantsTitle',
     description: 'Title for the Users list',
+  },
+  ChatLabel: {
+    id: 'app.userlist.menu.chat.label',
+    description: 'Save the changes and close the settings menu',
+  },
+  ClearStatusLabel: {
+    id: 'app.userlist.menu.clearStatus.label',
+    description: 'Clear the emoji status of this user',
+  },
+  MakePresenterLabel: {
+    id: 'app.userlist.menu.makePresenter.label',
+    description: 'Set this user to be the presenter in this meeting',
+  },
+  KickUserLabel: {
+    id: 'app.userlist.menu.kickUser.label',
+    description: 'Forcefully remove this user from the meeting',
+  },
+  MuteUserAudioLabel: {
+    id: 'app.userlist.menu.muteUserAudio.label',
+    description: 'Forcefully mute this user',
+  },
+  UnmuteUserAudioLabel: {
+    id: 'app.userlist.menu.unmuteUserAudio.label',
+    description: 'Forcefully unmute this user',
   },
 });
 
