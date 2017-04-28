@@ -70,7 +70,6 @@ class MessageList extends Component {
   }
 
   componentWillUpdate(nextProps) {
-
     if (this.props.chatId !== nextProps.chatId) {
       this.shouldScrollBottom = false;
       return;
@@ -83,7 +82,8 @@ class MessageList extends Component {
     //Compare with <1 to account for the chance scrollArea.scrollTop is a float
     //value in some browsers.
     this.shouldScrollBottom = position === scrollArea.scrollHeight ||
-                              (scrollArea.scrollHeight - position < 1);
+                              (scrollArea.scrollHeight - position < 1) ||
+                              nextProps.scrollPosition === null;
   }
 
   componentDidUpdate(prevProps) {
@@ -114,6 +114,7 @@ class MessageList extends Component {
     if (this.props.chatId !== nextProps.chatId
       || this.props.hasUnreadMessages !== nextProps.hasUnreadMessages
       || this.props.messages.length !== nextProps.messages.length
+      || this.props.scrollPosition !== nextProps.scrollPosition
       || !_.isEqual(this.props.messages, nextProps.messages)) {
       return true;
     }

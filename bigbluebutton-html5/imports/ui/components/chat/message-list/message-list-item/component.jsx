@@ -24,12 +24,12 @@ const eventsToBeBound = [
 
 const isElementInViewport = (el) => {
   const rect = el.getBoundingClientRect();
+  const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+  const prefetchHeight = 125;
 
   return (
-    rect.top >= 0 &&
-    rect.left >= 0 &&
-    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + 200 &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth) + 200
+    rect.top >= -(prefetchHeight) &&
+    rect.bottom <= clientHeight + prefetchHeight
   );
 };
 
@@ -38,17 +38,16 @@ export default class MessageListItem extends Component {
     super(props);
 
     this.state = {
-      preventRender: false,
+      pendingChanges: false,
+      preventRender: true,
     };
 
     this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
   }
 
-  handleMessageInViewport(e) {
+  handleMessageInViewport() {
     window.requestAnimationFrame(() => {
       const node = this.refs.item;
-      const scrollArea = document.getElementById(this.props.chatAreaId);
-
       this.setState({ preventRender: !isElementInViewport(node) });
     });
   }
@@ -58,6 +57,8 @@ export default class MessageListItem extends Component {
     eventsToBeBound.forEach(
       e => scrollArea.addEventListener(e, this.handleMessageInViewport, false)
     );
+
+    this.handleMessageInViewport();
   }
 
   componentWillUnmount() {
@@ -67,12 +68,26 @@ export default class MessageListItem extends Component {
     );
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.preventRender && !this.state.preventRender && this.state.pendingChanges) {
+      this.setState({ pendingChanges: false });
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.state.pendingChanges) return;
+
+    const hasNewMessage = this.props.messages.length !== nextProps.messages.length;
+    const hasUserChanged = !_.isEqual(this.props.user, nextProps.user);
+
+    this.setState({ pendingChanges: hasNewMessage || hasUserChanged });
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
-    return !(this.state.preventRender && nextState.preventRender);
+    return !nextState.preventRender && nextState.pendingChanges;
   }
 
   render() {
-    console.count('MESSAGE RENDER');
     const {
       user,
       messages,
@@ -86,32 +101,34 @@ export default class MessageListItem extends Component {
     }
 
     return (
-      <div className={styles.item}>
-        <div className={styles.avatar} ref="item">
-          <UserAvatar user={user} />
-        </div>
-        <div className={styles.content}>
-          <div className={styles.meta}>
-            <div className={!user.isLoggedOut ? styles.name : styles.logout}>
-              <span>{user.name}</span>
-              {user.isLoggedOut ? <span className={styles.offline}>(offline)</span> : null}
-            </div>
-            <time className={styles.time} dateTime={dateTime}>
-              <FormattedTime value={dateTime}/>
-            </time>
+      <div  className={styles.item}>
+        <div className={styles.wrapper} ref="item">
+          <div className={styles.avatar}>
+            <UserAvatar user={user} />
           </div>
-          <div className={styles.messages}>
-            {messages.map((message, i) => (
-              <Message
-                className={styles.message}
-                key={message.id}
-                text={message.text}
-                time={message.time}
-                chatAreaId={this.props.chatAreaId}
-                lastReadMessageTime={this.props.lastReadMessageTime}
-                handleReadMessage={this.props.handleReadMessage}
-              />
-            ))}
+          <div className={styles.content}>
+            <div className={styles.meta}>
+              <div className={!user.isLoggedOut ? styles.name : styles.logout}>
+                <span>{user.name}</span>
+                {user.isLoggedOut ? <span className={styles.offline}>(offline)</span> : null}
+              </div>
+              <time className={styles.time} dateTime={dateTime}>
+                <FormattedTime value={dateTime}/>
+              </time>
+            </div>
+            <div className={styles.messages}>
+              {messages.map((message, i) => (
+                <Message
+                  className={styles.message}
+                  key={message.id}
+                  text={message.text}
+                  time={message.time}
+                  chatAreaId={this.props.chatAreaId}
+                  lastReadMessageTime={this.props.lastReadMessageTime}
+                  handleReadMessage={this.props.handleReadMessage}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
