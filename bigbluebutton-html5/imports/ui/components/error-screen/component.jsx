@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { withRouter } from 'react-router';
+import Button from '/imports/ui/components/button/component'
 
 import styles from './styles.scss';
 
@@ -18,6 +20,10 @@ const intlMessages = defineMessages({
   403: {
     id: 'app.error.403',
   },
+  leave: {
+    id: 'app.leaveConfirmation.confirmLabel',
+    description: 'aria-label for leaving',
+  },
 });
 
 const propTypes = {
@@ -32,6 +38,11 @@ const defaultProps = {
 };
 
 class ErrorScreen extends Component {
+
+  onClick() {
+    window.location = window.location.origin;
+  }
+
   render() {
     const { intl, code, children } = this.props;
 
@@ -51,6 +62,10 @@ class ErrorScreen extends Component {
         </h1>
         <div className={styles.content}>
           {children}
+        </div>
+        <div className={styles.content}>
+        <Button size={"sm"} label={intl.formatMessage(intlMessages.leave)} onClick={this.onClick}>
+        </Button>
         </div>
       </div>
     );
