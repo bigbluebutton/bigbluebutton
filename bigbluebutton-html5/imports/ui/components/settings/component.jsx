@@ -32,6 +32,18 @@ const intlMessages = defineMessages({
     id: 'app.settings.usersTab.label',
     description: 'label for participants tab',
   },
+  SettingsLabel: {
+    id: 'app.settings.main.label',
+    description: 'General settings label',
+  },
+  CancelLabel: {
+    id: 'app.settings.main.cancel.label',
+    description: 'Discard the changes and close the settings menu',
+  },
+  SaveLabel: {
+    id: 'app.settings.main.save.label',
+    description: 'Save the changes and close the settings menu',
+  },
 });
 
 const propTypes = {
@@ -78,23 +90,23 @@ class Settings extends Component {
   };
 
   render() {
+    const intl = this.props.intl;
+
     return (
       <Modal
-        title="Settings"
+        title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: (() => {
             this.updateSettings(this.state.current);
           }),
-          label: 'Save',
-          description: 'Saves the changes and close the settings menu',
+          label: intl.formatMessage(intlMessages.SaveLabel),
         }}
         dismiss={{
           callback: (() => {
 
             this.setHtmlFontSize(this.state.saved.application.fontSize);
           }),
-          label: 'Cancel',
-          description: 'Discart the changes and close the settings menu',
+          label: intl.formatMessage(intlMessages.CancelLabel),
         }}>
           {this.renderModalContent()}
       </Modal>
