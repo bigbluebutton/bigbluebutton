@@ -65,6 +65,7 @@
   "app.about.dismissDesc": "Close about client information",
   "app.actionsBar.changeStatusLabel": "Change Status",
   "app.actionsBar.muteLabel": "Mute",
+  "app.actionsBar.unmuteLabel": "Unmute",
   "app.actionsBar.camOffLabel": "Cam Off",
   "app.actionsBar.raiseLabel": "Raise",
   "app.actionsBar.Label": "Actions Bar",
