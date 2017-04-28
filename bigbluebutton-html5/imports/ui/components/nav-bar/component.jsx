@@ -15,7 +15,6 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { defineMessages, injectIntl } from 'react-intl';
 
-
 const intlMessages = defineMessages({
   toggleUserListLabel: {
     id: 'app.navBar.userListToggleBtnLabel',
@@ -23,7 +22,7 @@ const intlMessages = defineMessages({
   },
   newMessages: {
     id: 'app.navbar.toggleUserList.newMessages',
-    description: 'label for toggleUserList btn when showing red notification'
+    description: 'label for toggleUserList btn when showing red notification',
   },
 });
 
@@ -77,8 +76,6 @@ class NavBar extends Component {
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
 
-
-
     return (
       <div className={styles.navbar}>
         <div className={styles.left}>
@@ -115,7 +112,7 @@ class NavBar extends Component {
       presentationTitle,
     } = this.props;
 
-    if (isBreakoutRoom) {
+    if (isBreakoutRoom || !breakouts.length) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );
