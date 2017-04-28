@@ -32,6 +32,26 @@ const intlMessages = defineMessages({
     id: 'app.settings.usersTab.label',
     description: 'label for participants tab',
   },
+  SettingsLabel: {
+    id: 'app.settings.main.label',
+    description: 'General settings label',
+  },
+  CancelLabel: {
+    id: 'app.settings.main.cancel.label',
+    description: 'Discard the changes and close the settings menu',
+  },
+  CancelLabelDesc: {
+    id: 'app.settings.main.cancel.label.description',
+    description: 'Settings modal cancel button description',
+  },
+  SaveLabel: {
+    id: 'app.settings.main.save.label',
+    description: 'Save the changes and close the settings menu',
+  },
+  SaveLabelDesc: {
+    id: 'app.settings.main.save.label.description',
+    description: 'Settings modal save button label',
+  },
 });
 
 const propTypes = {
@@ -78,23 +98,24 @@ class Settings extends Component {
   };
 
   render() {
+    const intl = this.props.intl;
+
     return (
       <Modal
-        title="Settings"
+        title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: (() => {
             this.updateSettings(this.state.current);
           }),
-          label: 'Save',
-          description: 'Saves the changes and close the settings menu',
+          label: intl.formatMessage(intlMessages.SaveLabel),
+          description: intl.formatMessage(intlMessages.SaveLabelDesc),
         }}
         dismiss={{
           callback: (() => {
-
             this.setHtmlFontSize(this.state.saved.application.fontSize);
           }),
-          label: 'Cancel',
-          description: 'Discart the changes and close the settings menu',
+          label: intl.formatMessage(intlMessages.CancelLabel),
+          description: intl.formatMessage(intlMessages.CancelLabelDesc),
         }}>
           {this.renderModalContent()}
       </Modal>
