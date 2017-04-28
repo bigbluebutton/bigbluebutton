@@ -10,7 +10,7 @@ import '/imports/api/shapes/server';
 import '/imports/api/slides/server';
 import '/imports/api/captions/server';
 import '/imports/api/users/server';
-import '/imports/api/errors/server';
+import '/imports/api/logClient/server';
 import '/imports/api/common/server/helpers';
 import '/imports/startup/server/logger';
 import '/imports/startup/server/userPermissions';
