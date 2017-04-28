@@ -494,20 +494,21 @@ def storeTextShape
   else
     $text_count = $text_count + 1
   end
-  font_size_factor = 1.7
-  width_extra_percent = -0.7
-  height_extra_percent = 1
-  width = ( ($textBoxWidth.to_f + width_extra_percent) / 100.0) * $vbox_width
-  height = ( ($textBoxHeight.to_f + height_extra_percent ) / 100.0) * $vbox_height
-  y_gap = -30.0
-  x_gap = 5.0
-  $textFontSize_pixels = $textFontSize.to_f * font_size_factor
+  width = (($textBoxWidth.to_f)/100.0)*$vbox_width
+  height = (($textBoxHeight.to_f)/100.0)*$vbox_height
+  $textFontSize_pixels = (($textCalcedFontSize.to_f*$vbox_height)/100)
   $global_shape_count += 1
   $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "word-wrap: break-word; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
     $xml.switch do
-      $xml.foreignObject(  :color => "##{$colour_hex}", :width => width, :height => height, :x => "#{((($shapeDataPoints[0].to_f)/100)*$vbox_width) + x_gap}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
-        $xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
-          $xml.text($textValue)
+      $xml.foreignObject(:color => "##{$colour_hex}", :width => width, :height => height, :x => "#{$originX}", :y => "#{$originY}") do
+        $xml.p(:xmlns => "http://www.w3.org/1999/xhtml", :style => "margin-top: 0; margin-bottom: 0;") do
+          lines = $textValue.split("\n")
+          lines.each_with_index do |line, index|
+            $xml.text(line)
+            if index + 1 < lines.size
+              $xml.br
+            end
+          end
         end
       end
     end
@@ -855,6 +856,7 @@ def processShapesAndClears
                   $textValue = shape.xpath(".//text")[0].text()
                   $textFontType = "Arial"
                   $textFontSize = shape.xpath(".//fontSize")[0].text()
+                  $textCalcedFontSize = shape.xpath(".//calcedFontSize")[0].text()
                   colour = shape.xpath(".//fontColor")[0].text()
                 when 'poll_result'
                   # Just hand the 'shape' xml object to the poll rendering code.
