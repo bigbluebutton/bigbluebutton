@@ -6,7 +6,6 @@ import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
-import { callServer } from '/imports/ui/services/api';
 
 const propTypes = {
   openChats: PropTypes.array.isRequired,
@@ -111,6 +110,7 @@ class UserList extends Component {
       currentUser,
       isBreakoutRoom,
       intl,
+      callServer,
     } = this.props;
 
     const userActions = {
