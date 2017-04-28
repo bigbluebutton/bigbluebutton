@@ -53,6 +53,7 @@ export default class ModalBase extends Component {
       overlayClassName={styleOverlay}
       portalClassName={styles.portal}
       isOpen={isOpen}
+      contentLabel="modal"
       onAfterOpen={this.handleAfterOpen}
       onRequestClose={this.handleRequestClose}>
         {this.props.children}

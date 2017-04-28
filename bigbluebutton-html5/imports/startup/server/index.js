@@ -2,6 +2,9 @@ import { Meteor } from 'meteor/meteor';
 import _ from 'lodash';
 import Logger from './logger';
 import Redis from './redis';
+import locales from '../../utils/locales';
+
+const availableLocales = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -18,15 +21,14 @@ WebApp.connectHandlers.use('/check', (req, res, next) => {
 
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
-
   let defaultLocale = APP_CONFIG.defaultLocale;
-  let localeRegion = _.snakeCase(req.query.locale).split('_');
+  let localeRegion = req.query.locale.split('-');
   let messages = {};
 
   let locales = [defaultLocale, localeRegion[0]];
 
   if (localeRegion.length > 1) {
-    locales.push(`${localeRegion[0]}_${localeRegion[1]}`);
+    locales.push(`${localeRegion[0]}_${localeRegion[1].toUpperCase()}`);
   }
 
   locales.forEach(locale => {
@@ -43,6 +45,23 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
   res.end(JSON.stringify(messages));
+});
+
+WebApp.connectHandlers.use('/locales', (req, res) => {
+  if (!availableLocales.length) {
+    locales.forEach(l => {
+      try {
+        Assets.absoluteFilePath(`locales/${l.locale}.json`);
+        availableLocales.push(l);
+      } catch (e) {
+        // Getting here means the locale is not available on the files.
+      }
+    });
+  }
+
+  res.setHeader('Content-Type', 'application/json');
+  res.writeHead(200);
+  res.end(JSON.stringify(availableLocales));
 });
 
 export const eventEmitter = Redis.emitter;

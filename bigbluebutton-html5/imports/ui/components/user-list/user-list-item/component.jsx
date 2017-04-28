@@ -15,6 +15,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
 
 const propTypes = {
   user: React.PropTypes.shape({
@@ -45,6 +46,10 @@ const messages = defineMessages({
     id: 'app.userlist.you',
     description: 'Text for identifying your user',
   },
+  menuTitleContext: {
+    id: 'app.userlist.menuTitleContext',
+    description: 'adds context to userListItem menu title',
+  }
 });
 
 const userActionsTransition = {
@@ -81,6 +86,9 @@ class UserListItem extends Component {
 
     this.state = {
       isActionsOpen: false,
+      dropdownOffset: 0,
+      dropdownDirection: 'top',
+      dropdownVisible: false,
     };
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -134,21 +142,82 @@ class UserListItem extends Component {
     ]);
   }
 
+
+  componentDidUpdate(prevProps, prevState) {
+    this.checkDropdownDirection();
+  }
+
+  /**
+   * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
+   */
+  checkDropdownDirection() {
+    if (this.isDropdownActivedByUser()) {
+      const dropdown = findDOMNode(this.refs.dropdown);
+      const dropdownTrigger = dropdown.children[0];
+      const dropdownContent = dropdown.children[1];
+
+      const scrollContainer = dropdown.parentElement.parentElement;
+
+      let nextState = {
+        dropdownVisible: true,
+      };
+
+      const isDropdownVisible =
+        this.checkIfDropdownIsVisible(dropdownContent.offsetTop, dropdownContent.offsetHeight);
+
+      if (!isDropdownVisible) {
+        const offsetPageTop =
+          (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight - scrollContainer.scrollTop);
+
+        nextState.dropdownOffset = window.innerHeight - offsetPageTop;
+        nextState.dropdownDirection = 'bottom';
+      }
+
+      this.setState(nextState);
+    }
+  }
+
+  /**
+  * Check if the dropdown is visible and is opened by the user
+  *
+  * @return True if is visible and opened by the user.
+  */
+  isDropdownActivedByUser() {
+    const { isActionsOpen, dropdownVisible } = this.state;
+    return isActionsOpen && !dropdownVisible;
+  }
+
+  /**
+   * Return true if the content fit on the screen, false otherwise.
+   *
+   * @param {number} contentOffSetTop
+   * @param {number} contentOffsetHeight
+   * @return True if the content fit on the screen, false otherwise.
+   */
+  checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
+    return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
+  }
+
+
   onActionsShow() {
     const dropdown = findDOMNode(this.refs.dropdown);
+    const scrollContainer = dropdown.parentElement.parentElement;
+    const dropdownTrigger = dropdown.children[0];
+
     this.setState({
-      contentTop: `${dropdown.offsetTop - dropdown.parentElement.parentElement.scrollTop}px`,
       isActionsOpen: true,
-      active: true,
+      dropdownVisible: false,
+      dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
+      dropdownDirection: 'top',
     });
 
-    findDOMNode(this).parentElement.addEventListener('scroll', this.handleScroll, false);
+    scrollContainer.addEventListener('scroll', this.handleScroll, false);
   }
 
   onActionsHide() {
     this.setState({
-      active: false,
       isActionsOpen: false,
+      dropdownVisible: false,
     });
 
     findDOMNode(this).parentElement.removeEventListener('scroll', this.handleScroll, false);
@@ -161,12 +230,14 @@ class UserListItem extends Component {
 
     let userItemContentsStyle = {};
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
-    userItemContentsStyle[styles.active] = this.state.active;
+    userItemContentsStyle[styles.active] = this.state.isActionsOpen;
 
     return (
       <li
         role="button"
         aria-haspopup="true"
+        aria-live="assertive"
+        aria-relevant="additions"
         className={cx(styles.userListItem, userItemContentsStyle)}>
         {this.renderUserContents()}
       </li>
@@ -176,12 +247,13 @@ class UserListItem extends Component {
   renderUserContents() {
     const {
       user,
+      intl,
     } = this.props;
 
     let actions = this.getAvailableActions();
     let contents = (
       <div tabIndex={0} className={styles.userItemContents}>
-        <UserAvatar user={user}/>
+        <UserAvatar user={user} />
         {this.renderUserName()}
         {this.renderUserIcons()}
       </div>
@@ -191,10 +263,12 @@ class UserListItem extends Component {
       return contents;
     }
 
+    const { dropdownOffset, dropdownDirection, dropdownVisible, } = this.state;
+
     return (
       <Dropdown
-        isOpen={this.state.isActionsOpen}
         ref="dropdown"
+        isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={styles.dropdown}>
@@ -203,20 +277,19 @@ class UserListItem extends Component {
         </DropdownTrigger>
         <DropdownContent
           style={{
-            top: this.state.contentTop,
+            visibility: dropdownVisible ? 'visible' : 'hidden',
+            [dropdownDirection]: `${dropdownOffset}px`,
           }}
           className={styles.dropdownContent}
-          placement="right top">
+          placement={`right ${dropdownDirection}`}>
 
           <DropdownList>
             {
               [
-                (<DropdownListItem
-                  className={styles.actionsHeader}
-                  key={_.uniqueId('action-header')}
-                  label={user.name}
-                  style={{ fontWeight: 600 }}
-                  defaultMessage={user.name}/>),
+                (<DropdownListTitle
+                    description={intl.formatMessage(messages.menuTitleContext)}>
+                      {user.name}
+                 </DropdownListTitle>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
               ].concat(actions)
             }
@@ -295,16 +368,16 @@ class UserListItem extends Component {
         {
           user.isSharingWebcam ?
             <span className={styles.userIconsContainer}>
-              <Icon iconName='video'/>
+              <Icon iconName='video' />
             </span>
             : null
         }
         {
           audioChatIcon ?
-          <span className={cx(audioIconClassnames)}>
-            <Icon iconName={audioChatIcon}/>
-          </span>
-          : null
+            <span className={cx(audioIconClassnames)}>
+              <Icon iconName={audioChatIcon} />
+            </span>
+            : null
         }
       </div>
     );

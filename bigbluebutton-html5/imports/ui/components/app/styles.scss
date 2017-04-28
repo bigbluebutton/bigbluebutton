@@ -96,6 +96,8 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .userList {
   @extend %full-page;
+  @extend %text-elipsis;
+
   z-index: 2;
   overflow: visible;
 

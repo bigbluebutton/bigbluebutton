@@ -19,40 +19,51 @@ import DropdownListSeparator from '/imports/ui/components/dropdown/list/separato
 const intlMessages = defineMessages({
   optionsLabel: {
     id: 'app.navBar.settingsDropdown.optionsLabel',
+    description: 'Options button label',
   },
   fullscreenLabel: {
     id: 'app.navBar.settingsDropdown.fullscreenLabel',
+    description: 'Make fullscreen option label',
   },
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
+    description: 'Open settings option label',
   },
   aboutLabel: {
     id: 'app.navBar.settingsDropdown.aboutLabel',
+    description: 'About option label',
   },
   aboutDesc: {
     id: 'app.navBar.settingsDropdown.aboutDesc',
+    description: 'Describes about option',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
+    description: 'Leave session button label',
   },
   fullscreenDesc: {
     id: 'app.navBar.settingsDropdown.fullscreenDesc',
+    description: 'Describes fullscreen option',
   },
   settingsDesc: {
     id: 'app.navBar.settingsDropdown.settingsDesc',
+    description: 'Describes settings option',
   },
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
+    description: 'Describes leave session option',
   },
   exitFullScreenDesc: {
     id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
+    description: 'Describes exit fullscreen option',
   },
   exitFullScreenLabel: {
     id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
+    description: 'Exit fullscreen option label',
   },
 });
 
-const openSettings = () => showModal(<SettingsMenuContainer  />);
+const openSettings = () => showModal(<SettingsMenuContainer />);
 
 const openAbout = () => showModal(<AboutContainer />);
 
@@ -69,10 +80,12 @@ class SettingsDropdown extends Component {
 
     let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullScreenIcon = 'fullscreen';
 
     if (isFullScreen) {
       fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
       fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
+      fullScreenIcon = 'exit_fullscreen';
     }
 
     return (
@@ -94,18 +107,19 @@ class SettingsDropdown extends Component {
         <DropdownContent placement="bottom right">
           <DropdownList>
             <DropdownListItem
-              icon="fullscreen"
+              icon={fullScreenIcon}
               label={fullScreenLabel}
               description={fullScreenDesc}
               onClick={this.props.handleToggleFullscreen}
             />
             <DropdownListItem
-              icon="more"
+              icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
               description={intl.formatMessage(intlMessages.settingsDesc)}
               onClick={openSettings.bind(this)}
             />
             <DropdownListItem
+              icon="about"
               label={intl.formatMessage(intlMessages.aboutLabel)}
               description={intl.formatMessage(intlMessages.aboutDesc)}
               onClick={openAbout.bind(this)}

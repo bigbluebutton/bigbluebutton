@@ -15,10 +15,14 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { defineMessages, injectIntl } from 'react-intl';
 
-
 const intlMessages = defineMessages({
   toggleUserListLabel: {
     id: 'app.navBar.userListToggleBtnLabel',
+    description: 'Toggle button label',
+  },
+  newMessages: {
+    id: 'app.navbar.toggleUserList.newMessages',
+    description: 'label for toggleUserList btn when showing red notification',
   },
 });
 
@@ -84,7 +88,11 @@ class NavBar extends Component {
             icon={'user'}
             className={cx(toggleBtnClasses)}
             aria-expanded={isExpanded}
+            aria-describedby="newMessage"
           />
+          <div
+            id="newMessage"
+            aria-label={hasUnreadMessages ? intl.formatMessage(intlMessages.newMessages) : null}/>
         </div>
         <div className={styles.center} role="banner">
           {this.renderPresentationTitle()}
@@ -104,7 +112,7 @@ class NavBar extends Component {
       presentationTitle,
     } = this.props;
 
-    if (isBreakoutRoom) {
+    if (isBreakoutRoom || !breakouts.length) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
       );

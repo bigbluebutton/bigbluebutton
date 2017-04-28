@@ -11,6 +11,11 @@ const ELEMENT_ID = 'chat-messages';
 const intlMessages = defineMessages({
   closeChatLabel: {
     id: 'app.chat.closeChatLabel',
+    description: 'aria-label for closing chat button',
+  },
+  hideChatLabel: {
+    id: 'app.chat.hideChatLabel',
+    description: 'aria-label for hiding chat button',
   },
 });
 
@@ -28,20 +33,21 @@ class Chat extends Component {
       scrollPosition,
       hasUnreadMessages,
       lastReadMessageTime,
+      partnerIsLoggedOut,
       isChatLocked,
       actions,
       intl,
     } = this.props;
 
     return (
-      <section className={styles.chat}>
+      <div className={styles.chat}>
 
         <header className={styles.header}>
           <div className={styles.title}>
             <Link
               to="/users"
               role="button"
-              aria-label={intl.formatMessage(intlMessages.closeChatLabel, { title: title })}>
+              aria-label={intl.formatMessage(intlMessages.hideChatLabel, { title: title })}>
                 <Icon iconName="left_arrow"/> {title}
             </Link>
           </div>
@@ -49,8 +55,11 @@ class Chat extends Component {
             {
               ((this.props.chatID == 'public') ?
                 null :
-                <Link to="/users">
-                  <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
+                <Link
+                  to="/users"
+                  role="button"
+                  aria-label={intl.formatMessage(intlMessages.closeChatLabel, { title: title })}>
+                    <Icon iconName="close" onClick={() => actions.handleClosePrivateChat(chatID)}/>
                 </Link>)
             }
           </div>
@@ -65,6 +74,7 @@ class Chat extends Component {
           handleScrollUpdate={actions.handleScrollUpdate}
           handleReadMessage={actions.handleReadMessage}
           lastReadMessageTime={lastReadMessageTime}
+          partnerIsLoggedOut={partnerIsLoggedOut}
         />
         <MessageForm
           disabled={isChatLocked}
@@ -73,7 +83,7 @@ class Chat extends Component {
           chatName={chatName}
           handleSendMessage={actions.handleSendMessage}
         />
-      </section>
+      </div>
     );
   }
 }

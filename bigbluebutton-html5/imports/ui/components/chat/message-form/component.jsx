@@ -45,7 +45,7 @@ class MessageForm extends Component {
 
   handleMessageKeyDown(e) {
 
-    //TODO Prevent send message pressing enter on mobile and/or virtual keyboard    
+    //TODO Prevent send message pressing enter on mobile and/or virtual keyboard
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
 
@@ -123,7 +123,7 @@ class MessageForm extends Component {
           disabled={disabled}
           label={intl.formatMessage(messages.submitLabel)}
           hideLabel={true}
-          icon={"right_arrow"}
+          icon={"send"}
           onClick={()=>{}}
           />
       </form>

@@ -5,7 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 
 import {
   getModal,
-  showModal,
   getFontSize,
   getCaptionsStatus,
 } from './service';
@@ -18,7 +17,7 @@ import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import AudioModalContainer  from '../audio-modal/container';
+import AudioModalContainer from '../audio/audio-modal/container';
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
 const defaultProps = {
@@ -48,25 +47,23 @@ class AppContainer extends Component {
   }
 };
 
-const APP_CONFIG = Meteor.settings.public.app;
-
 const init = () => {
-  if (APP_CONFIG.autoJoinAudio) {
-    showModal(<AudioModalContainer />);
-  }
+  // TODO
 };
 
 export default withRouter(injectIntl(createContainer(({ router, intl, baseControls }) => {
   // Check if user is kicked out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
-    removed() {
-      Auth.clearCredentials()
-        .then(() => {
-          router.push('/error/403');
-          baseControls.updateErrorState(
-            intl.formatMessage(intlMessages.kickedMessage),
-          );
-        });
+    changed(id, fields) {
+      if (fields.user && fields.user.kicked) {
+        Auth.clearCredentials()
+          .then(() => {
+            router.push('/error/403');
+            baseControls.updateErrorState(
+              intl.formatMessage(intlMessages.kickedMessage),
+            );
+          });
+      }
     },
   });
 

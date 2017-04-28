@@ -6,6 +6,7 @@ import BaseMenu from '../base/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
 import { GithubPicker } from 'react-color';
+import { defineMessages, injectIntl } from 'react-intl';
 
 //an array of font-families
 const FONT_FAMILIES = ['Arial', 'Calibri', 'Time New Roman', 'Sans-serif'];
@@ -20,7 +21,54 @@ const COLORS =  [
                   '#8800FF', '#FF00FF',
                 ];
 
-export default class ClosedCaptionsMenu extends BaseMenu {
+const intlMessages = defineMessages({
+  closedCaptionsLabel: {
+    id: 'app.submenu.closedCaptions.closedCaptionsLabel',
+    description: 'Closed Captions label',
+  },
+  takeOwnershipLabel: {
+    id: 'app.submenu.closedCaptions.takeOwnershipLabel',
+    description: 'Take ownership label',
+  },
+  languageLabel: {
+    id: 'app.submenu.closedCaptions.languageLabel',
+    description: 'Language label',
+  },
+  localeOptionLabel: {
+    id: 'app.submenu.closedCaptions.localeOptionLabel',
+    description: 'Label for active locales',
+  },
+  noLocaleOptionLabel: {
+    id: 'app.submenu.closedCaptions.noLocaleOptionLabel',
+    description: 'Label for no active locales',
+  },
+  fontFamilyLabel: {
+    id: 'app.submenu.closedCaptions.fontFamilyLabel',
+    description: 'Label for type of Font family',
+  },
+  fontFamilyOptionLabel: {
+    id: 'app.submenu.closedCaptions.fontFamilyOptionLabel',
+    description: 'Font-family default choice option',
+  },
+  fontSizeLabel: {
+    id: 'app.submenu.closedCaptions.fontSizeLabel',
+    description: 'Font size label',
+  },
+  fontSizeOptionLabel: {
+    id: 'app.submenu.closedCaptions.fontSizeOptionLabel',
+    description: 'Choose Font size default option label',
+  },
+  backgroundColorLabel: {
+    id: 'app.submenu.closedCaptions.backgroundColorLabel',
+    description: 'Background color label',
+  },
+  fontColorLabel: {
+    id: 'app.submenu.closedCaptions.fontColorLabel',
+    description: 'Font color label',
+  },
+});
+
+class ClosedCaptionsMenu extends BaseMenu {
   constructor(props) {
     super(props);
     this.state = {
@@ -79,28 +127,31 @@ export default class ClosedCaptionsMenu extends BaseMenu {
   render() {
     const {
       locales,
+      intl,
     } = this.props;
 
     return (
       <div className={styles.tabContent}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Closed Captions</h3>
+          <h3 className={styles.title}>{intl.formatMessage(intlMessages.closedCaptionsLabel)}</h3>
         </div>
         <div className={styles.form}>
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Closed captions
+                  {intl.formatMessage(intlMessages.closedCaptionsLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div className={cx(styles.formElement, styles.pullContentRight)} >
               <Toggle
                 icons={false}
                 defaultChecked={this.state.settings.enabled}
-                onChange={() => this.handleToggle('enabled')} />
+                onChange={() => this.handleToggle('enabled')}
+                ariaLabelledBy={'closedCaptions'}
+                ariaLabel={intl.formatMessage(intlMessages.closedCaptionsLabel)} />
               </div>
             </div>
           </div>
@@ -108,7 +159,7 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Take ownership
+                  {intl.formatMessage(intlMessages.takeOwnershipLabel)}
                 </label>
               </div>
             </div>
@@ -116,7 +167,9 @@ export default class ClosedCaptionsMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Checkbox
                   onChange={() => this.handleToggle('takeOwnership')}
-                  checked={this.state.settings.takeOwnership}/>
+                  checked={this.state.settings.takeOwnership}
+                  ariaLabelledBy={'takeOwnership'}
+                  ariaLabel={intl.formatMessage(intlMessages.takeOwnershipLabel)}/>
               </div>
             </div>
           </div>
@@ -124,12 +177,14 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Language
+                  {intl.formatMessage(intlMessages.languageLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div
+                className={cx(styles.formElement, styles.pullContentRight)}
+                aria-label={intl.formatMessage(intlMessages.languageLabel)}>
                 <select
                   defaultValue={locales ? locales.indexOf(this.state.settings.locale) : -1}
                   className={styles.select}
@@ -137,8 +192,8 @@ export default class ClosedCaptionsMenu extends BaseMenu {
                 <option>
                   { this.props.locales &&
                     this.props.locales.length ?
-                    'Choose language' :
-                    'No active locales' }
+                    intl.formatMessage(intlMessages.localeOptionLabel) :
+                    intl.formatMessage(intlMessages.noLocaleOptionLabel) }
                 </option>
                 {this.props.locales ? this.props.locales.map((locale, index) =>
                   <option key={index} value={index}>
@@ -154,17 +209,21 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Font family
+                  {intl.formatMessage(intlMessages.fontFamilyLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+              <div
+                className={cx(styles.formElement, styles.pullContentRight)}
+                aria-label={intl.formatMessage(intlMessages.fontFamilyLabel)}>
                 <select
                   defaultValue={FONT_FAMILIES.indexOf(this.state.settings.fontFamily)}
                   onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
                   className={styles.select}>
-                  <option value='-1' disabled>Choose Font-family</option>
+                  <option value='-1' disabled>
+                    {intl.formatMessage(intlMessages.fontFamilyOptionLabel)}
+                  </option>
                   {
                     FONT_FAMILIES.map((family, index) =>
                       <option key={index} value={index}>
@@ -181,25 +240,29 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Font size
+                  {intl.formatMessage(intlMessages.fontSizeLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <select
-                  defaultValue={FONT_SIZES.indexOf(this.state.settings.fontSize)}
-                  onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
-                  className={styles.select}>
-                  <option value='-1' disabled>Choose Font-size</option>
-                  {
-                    FONT_SIZES.map((size, index) =>
-                      <option key={index} value={index}>
-                        {size}
-                      </option>
-                    )
-                  }
-                </select>
+              <div
+                className={cx(styles.formElement, styles.pullContentRight)}
+                aria-label={intl.formatMessage(intlMessages.fontSizeLabel)}>
+                  <select
+                    defaultValue={FONT_SIZES.indexOf(this.state.settings.fontSize)}
+                    onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
+                    className={styles.select}>
+                    <option value='-1' disabled>
+                      {intl.formatMessage(intlMessages.fontSizeOptionLabel)}
+                    </option>
+                    {
+                      FONT_SIZES.map((size, index) =>
+                        <option key={index} value={index}>
+                          {size}
+                        </option>
+                      )
+                    }
+                  </select>
               </div>
             </div>
           </div>
@@ -208,28 +271,28 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Background color
+                  {intl.formatMessage(intlMessages.backgroundColorLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
               <div
-                tabIndex='12'
-                className={ styles.swatch }
-                onClick={ this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker') }>
+                className={cx(styles.formElement, styles.pullContentRight)}
+                aria-label={intl.formatMessage(intlMessages.backgroundColorLabel)}>
                 <div
-                  className={styles.swatchInner}
-                  style={ { background: this.state.settings.backgroundColor } }>
+                  tabIndex='12'
+                  className={ styles.swatch }
+                  onClick={ this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker') }>
+                  <div
+                    className={styles.swatchInner}
+                    style={ { background: this.state.settings.backgroundColor } }>
+                  </div>
                 </div>
-
-              </div>
                 { this.state.displayBackgroundColorPicker ?
                   <div className={styles.colorPickerPopover}>
                     <div
                       className={styles.colorPickerOverlay}
-                      onClick={ this.handleCloseColorPicker.bind(this) }
-                    >
+                      onClick={ this.handleCloseColorPicker.bind(this) }>
                     </div>
                     <GithubPicker
                       onChange={this.handleColorChange.bind(this, 'backgroundColor')}
@@ -248,22 +311,23 @@ export default class ClosedCaptionsMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  Font color
+                  {intl.formatMessage(intlMessages.fontColorLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
               <div
-                tabIndex='12'
-                className={ styles.swatch }
-                onClick={ this.handleColorPickerClick.bind(this, 'displayFontColorPicker') }>
+                className={cx(styles.formElement, styles.pullContentRight)}
+                aria-label={intl.formatMessage(intlMessages.fontColorLabel)}>
                 <div
-                  className={styles.swatchInner}
-                  style={ { background: this.state.settings.fontColor } }>
+                  tabIndex='12'
+                  className={ styles.swatch }
+                  onClick={ this.handleColorPickerClick.bind(this, 'displayFontColorPicker') }>
+                  <div
+                    className={styles.swatchInner}
+                    style={ { background: this.state.settings.fontColor } }>
+                  </div>
                 </div>
-
-              </div>
                 { this.state.displayFontColorPicker ?
                   <div className={styles.colorPickerPopover}>
                     <div
@@ -298,3 +362,5 @@ export default class ClosedCaptionsMenu extends BaseMenu {
     );
   }
 };
+
+export default injectIntl(ClosedCaptionsMenu);

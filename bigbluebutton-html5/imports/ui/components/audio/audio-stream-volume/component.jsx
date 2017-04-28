@@ -9,8 +9,8 @@ const propTypes = {
 
 const defaultProps = {
   low: 0,
-  optimum: .05,
-  high: .3,
+  optimum: 0.05,
+  high: 0.3,
   deviceId: undefined,
 };
 

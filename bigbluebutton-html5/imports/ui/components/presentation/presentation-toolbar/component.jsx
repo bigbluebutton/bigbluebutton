@@ -7,9 +7,11 @@ import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 const intlMessages = defineMessages({
   previousSlideLabel: {
     id: 'app.presentation.presentationToolbar.prevSlideLabel',
+    description: 'Previous slide button label',
   },
   nextSlideLabel: {
     id: 'app.presentation.presentationToolbar.nextSlideLabel',
+    description: 'Next slide button label',
   },
 });
 
