@@ -58,6 +58,11 @@ package org.bigbluebutton.modules.whiteboard.views
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       //if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
       if (tool.toolType == DrawObject.PENCIL) {
+        if (_isDrawing) {
+          onMouseUp(mouseX, mouseY, tool);
+          return;
+        }
+		
         _isDrawing = true;
         _drawStatus = DrawObject.DRAW_START;
         

@@ -56,9 +56,14 @@ package org.bigbluebutton.modules.whiteboard.views
     
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.toolType == DrawObject.RECTANGLE || 
-		  tool.toolType == DrawObject.TRIANGLE || 
-		  tool.toolType == DrawObject.ELLIPSE || 
-		  tool.toolType == DrawObject.LINE) {
+          tool.toolType == DrawObject.TRIANGLE || 
+          tool.toolType == DrawObject.ELLIPSE || 
+          tool.toolType == DrawObject.LINE) {
+        if (_isDrawing) { //means we missed the UP
+          onMouseUp(mouseX, mouseY, tool);
+          return;
+        }
+        
         _isDrawing = true;
         _drawStatus = DrawObject.DRAW_START;
         
