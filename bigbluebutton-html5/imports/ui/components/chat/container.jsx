@@ -107,9 +107,8 @@ export default injectIntl(createContainer(({ params, intl }) => {
       handleClosePrivateChat: chatID => ChatService.closePrivateChat(chatID),
 
       handleSendMessage: message => {
+        ChatService.updateScrollPosition(chatID, null);
         let sentMessage = ChatService.sendMessage(chatID, message);
-        ChatService.updateScrollPosition(chatID, null); //null so its scrolls to bottom
-        // ChatService.updateUnreadMessage(chatID, sentMessage.from_time);
       },
 
       handleScrollUpdate: position => ChatService.updateScrollPosition(chatID, position),

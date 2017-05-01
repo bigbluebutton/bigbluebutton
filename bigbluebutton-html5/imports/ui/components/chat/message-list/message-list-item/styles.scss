@@ -1,15 +1,18 @@
 @import "../../../../stylesheets/variables/_all";
 
 .item {
-  display: flex;
-  flex-flow: row;
-  flex: 1;
-  margin-bottom: $line-height-computed;
   font-size: $font-size-base * .90;
+  margin-bottom: $line-height-computed;
 
   &:last-child {
     margin-bottom: 0 !important;
   }
+}
+
+.wrapper {
+  display: flex;
+  flex-flow: row;
+  flex: 1;
 }
 
 .systemMessage {
