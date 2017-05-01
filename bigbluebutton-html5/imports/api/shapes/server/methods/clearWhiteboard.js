@@ -17,7 +17,7 @@ export default function clearWhiteboard(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  if (!isAllowedTo('undoAnnotation', credentials)) {
+  if (!isAllowedTo('clearWhiteboard', credentials)) {
     throw new Meteor.Error('not-allowed', `You are not allowed to clear all annotations`);
   }
 

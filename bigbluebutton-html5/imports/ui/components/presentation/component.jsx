@@ -7,7 +7,7 @@ import styles from './styles.scss';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PollingContainer from '/imports/ui/components/polling/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
-import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/component';
+import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 
 
@@ -198,7 +198,14 @@ export default class PresentationArea extends React.Component {
                 vbwidth={viewBoxWidth}
                 vbheight={viewBoxHeight}
               >
-                <WhiteboardOverlayContainer getSvgRef={this.getSvgRef.bind(this)}/>
+                <WhiteboardOverlayContainer
+                  getSvgRef={this.getSvgRef.bind(this)}
+                  whiteboardId = {slideObj.id}
+                  slideWidth={slideObj.width}
+                  slideHeight={slideObj.height}
+                  viewBoxX={x}
+                  viewBoxY={y}
+                />
               </PresentationOverlayContainer>
             : null }
           </svg>

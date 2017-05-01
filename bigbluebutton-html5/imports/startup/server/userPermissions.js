@@ -11,6 +11,8 @@ const presenter = {
 
   //whiteboard
   moveCursor: true,
+  sendAnnotation: true,
+  clearWhiteboard: true,
   undoAnnotation: true,
 
   setPresenter: true,
