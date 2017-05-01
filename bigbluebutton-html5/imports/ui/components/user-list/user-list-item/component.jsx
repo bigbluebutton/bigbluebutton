@@ -286,8 +286,10 @@ class UserListItem extends Component {
           <DropdownList>
             {
               [
+                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
                 (<DropdownListTitle
-                    description={intl.formatMessage(messages.menuTitleContext)}>
+                    description={intl.formatMessage(messages.menuTitleContext)}
+                    key={_.uniqueId('dropdown-list-title')}>
                       {user.name}
                  </DropdownListTitle>),
                 (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
