@@ -282,7 +282,9 @@ class ClosedCaptionsMenu extends BaseMenu {
                 <div
                   tabIndex='0'
                   className={ styles.swatch }
-                  onClick={ this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker') }>
+                  onClick={
+                    this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')
+                  }>
                   <div
                     className={styles.swatchInner}
                     style={ { background: this.state.settings.backgroundColor } }>

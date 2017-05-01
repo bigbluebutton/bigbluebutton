@@ -49,7 +49,7 @@ const messages = defineMessages({
   menuTitleContext: {
     id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
-  }
+  },
 });
 
 const userActionsTransition = {
@@ -142,7 +142,6 @@ class UserListItem extends Component {
     ]);
   }
 
-
   componentDidUpdate(prevProps, prevState) {
     this.checkDropdownDirection();
   }
@@ -197,7 +196,6 @@ class UserListItem extends Component {
   checkIfDropdownIsVisible(contentOffSetTop, contentOffsetHeight) {
     return (contentOffSetTop + contentOffsetHeight) < window.innerHeight;
   }
-
 
   onActionsShow() {
     const dropdown = findDOMNode(this.refs.dropdown);
