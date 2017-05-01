@@ -4,13 +4,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
-import { showModal } from '/imports/ui/components/app/service';
 import AudioManager from '/imports/api/audio/client/manager';
-
-const handleJoinAudio = () => {
-  const handleJoinListenOnly = () => joinListenOnly();
-  return showModal(<AudioModal handleJoinListenOnly={handleJoinListenOnly} />);
-};
 
 let audioManager = undefined;
 const init = () => {
@@ -40,7 +34,6 @@ let joinMicrophone = () => audioManager.joinAudio(false);
 
 export {
   init,
-  handleJoinAudio,
   exitAudio,
   joinListenOnly,
   joinMicrophone,

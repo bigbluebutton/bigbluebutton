@@ -1,10 +1,19 @@
 @import "../../../stylesheets/variables/_all";
+@import "../../modal/simple/styles";
+
+.overlay {
+  @extend .overlay;
+}
+
+.modal {
+  @extend .modal;
+}
 
 .center {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 2rem;
+  padding: 2rem 0;
 }
 
 .closeBtn {
@@ -52,11 +61,6 @@ Button.audioBtn:last-of-type {
   margin-left: 5%;
 }
 
-.inner {
-  padding: 1em;
-  min-height: 20rem;
-}
-
 .backBtn {
   border: none;
   i {
@@ -81,6 +85,7 @@ Button.audioBtn:last-of-type {
   color: black;
   font-weight: 400;
   font-size: 1.3rem;
+  display: block;
 }
 
 .form {
@@ -161,4 +166,3 @@ Button.audioBtn:last-of-type {
   left:50%;
   transform: translate(-50%, 0);
 }
-

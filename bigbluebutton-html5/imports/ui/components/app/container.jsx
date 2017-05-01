@@ -8,7 +8,6 @@ import {
   getCaptionsStatus,
 } from './service';
 
-import { setDefaultSettings } from '../settings/service';
 import { withModalMounter } from '../modal/service';
 
 import Auth from '/imports/ui/services/auth';
@@ -19,7 +18,7 @@ import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import AudioModalContainer from '../audio/audio-modal/container';
+import AudioModalContainer from '../audio/audio-modal/component';
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
 const defaultProps = {
@@ -76,7 +75,6 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
     const APP_CONFIG = Meteor.settings.public.app;
 
     const init = () => {
-      setDefaultSettings();
       if (APP_CONFIG.autoJoinAudio) {
         mountModal(<AudioModalContainer />);
       }
