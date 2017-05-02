@@ -213,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else if(toolType == DrawObject.TRIANGLE) {
 					CursorManager.setCursor(triangle_icon);
 				} else if(toolType == DrawObject.PENCIL) {
-					CursorManager.setCursor(pencil_icon, 2, -1, -21);
+					CursorManager.setCursor(pencil_icon, 2, -2, -22);
 				} else if(toolType == DrawObject.LINE) {
 					CursorManager.setCursor(line_icon);
 				} else if(toolType == DrawObject.HIGHLIGHTER) {
