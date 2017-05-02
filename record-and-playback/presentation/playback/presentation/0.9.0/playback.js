@@ -18,6 +18,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 */
 
+
 goToSlide = function(time) {
   var pop = Popcorn("#video");
   pop.currentTime(time);
@@ -119,7 +120,7 @@ replaceTimeOnUrl = function(secs) {
 
 var params = getUrlParameters();
 var MEETINGID = params['meetingId'];
-var RECORDINGS = "/presentation/" + MEETINGID;
+var RECORDINGS = getFullUrl();
 var SLIDES_XML = RECORDINGS + '/slides_new.xml';
 var SHAPES_SVG = RECORDINGS + '/shapes.svg';
 var hasVideo = false;
@@ -128,7 +129,7 @@ var hasVideo = false;
  * Sets the title attribute in a thumbnail.
  */
 setTitleOnThumbnail = function($thumb) {
-  var src = $thumb.attr("src")
+  var src = $thumb.attr("src");
   if (src !== undefined) {
     var num = "?";
     var name = "undefined";
@@ -138,7 +139,7 @@ setTitleOnThumbnail = function($thumb) {
     if (match) { name = match[1]; }
     $thumb.attr("title", name + " (" + num + ")");
   }
-}
+};
 
 /*
  * Associates several events on a thumbnail, e.g. click to change slide,
@@ -229,7 +230,12 @@ generateThumbnails = function() {
 
     if (!$(element).attr("xlink:href"))
       continue;
-    var src = RECORDINGS + "/" + element.getAttribute("xlink:href");
+
+    var src = element.getAttribute("xlink:href");
+    // if it's a full url, leave it as it is
+    if (!src.match(/^http[s]?:\/\//)) {
+      src = RECORDINGS + '/' + src;
+    }
     if (src.match(/\/presentation\/.*slide-.*\.png/)) {
       var timeInList = xmlList[i].getAttribute("in").split(" ");
       var timeOutList = xmlList[i].getAttribute("out").split(" ");
@@ -286,10 +292,9 @@ generateThumbnails = function() {
   }
 }
 
-function checkUrl(url)
-{
+function checkUrl(url) {
   try {
-    console.log("==Checking Url",url)
+    console.log("==Checking Url",url);
     var http = new XMLHttpRequest();
     http.open('HEAD', url, false);
     http.send();
@@ -438,7 +443,6 @@ document.addEventListener("DOMContentLoaded", function() {
   console.log("==Hide playback content");
   $("#playback-content").css('visibility', 'hidden');
 
-
   if (checkUrl(RECORDINGS + '/video/webcams.webm') == true) {
     hasVideo = true;
     $("#audio-area").attr("style", "display:none;");
@@ -554,8 +558,8 @@ function restoreSlidesState(img) {
 function restoreCanvas() {
   var numCurrent = current_image.substr(5);
   var currentCanvas;
-  if(svgobj.contentDocument) currentCanvas = svgobj.contentDocument.getElementById("canvas" + numCurrent);
-  else currentCanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + numCurrent);
+
+  currentCanvas = getSVGFile().getElementById("canvas" + numCurrent);
 
   if(currentCanvas !== null) {
     currentCanvas.setAttribute("display", "");

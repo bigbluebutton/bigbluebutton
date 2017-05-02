@@ -27,13 +27,31 @@ function getUrlParameters() {
     return map;
 }
 
+function getFullUrl() {
+  var params = getUrlParameters();
+  var url = 'presentation/' + MEETINGID;
+  if (params.host) {
+    var host = params.host;
+    if (!host.match(/\/$/)) {
+      host = host + '/';
+    }
+    url = host + url;
+    if (!url.match(/^http/)) {
+      url = 'http://' + url;
+    }
+  } else {
+    url = '/' + url;
+  }
+  return url;
+}
+
 // - - - END OF GLOBAL VARIABLES - - - //
 
 // - - - START OF JAVASCRIPT FUNCTIONS - - - //
 
 // Draw the cursor at a specific point
 function drawCursor(scaledX, scaledY, img) {
-  var containerObj = $("#slide > object");
+  var containerObj = $("#slide > div");
 
   // the offsets of the image inside its parent
   // Note: this block is only necessary if we let the svg do the resizing
@@ -77,8 +95,7 @@ function showCursor(show) {
 };
 
 function setViewBox(val) {
-  if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
-  else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
+  svgfile = getSVGFile();
 	svgfile.setAttribute('viewBox', val);
 }
 
@@ -130,8 +147,7 @@ function runPopcorn() {
 
   getMetadata();
 
-  if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
-  else svgfile = svgobj.getSVGDocument('svgfile');
+  svgfile = getSVGFile();
 
   //making the object for requesting the read of the XML files.
   if (window.XMLHttpRequest) {
@@ -282,8 +298,7 @@ function runPopcorn() {
       var shape = null;
       for (var i = 0; i < shapes_in_time.length; i++) {
         var id = shapes_in_time[i];
-        if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(id);
-        else shape = svgobj.getSVGDocument('svgfile').getElementById(id);
+        shape = getSVGFile().getElementById(id);
 
         if (shape !== null) { //if there is actually a new shape to be displayed
           shape = shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
@@ -311,8 +326,7 @@ function runPopcorn() {
             var time_s = array[i].getAttribute("timestamp");
             var time_f = parseFloat(time_s);
 
-            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(array[i].getAttribute("id"));
-            else shape = svgobj.getSVGDocument('svgfile').getElementById(array[i].getAttribute("id"));
+            shape = getSVGFile().getElementById(array[i].getAttribute("id"));
 
             if(shape != null) {
                 var shape_i = shape.getAttribute("shape");
@@ -354,20 +368,9 @@ function runPopcorn() {
           var imageYOffset = 0;
 
           if(current_image && (current_image !== next_image) && (next_image !== undefined)){	//changing slide image
-            if(svgobj.contentDocument) {
-              var img = svgobj.contentDocument.getElementById(current_image);
-              if (img) {
-                img.style.visibility = "hidden";
-              }
-              var ni = svgobj.contentDocument.getElementById(next_image);
-            }
-            else {
-              var img = svgobj.getSVGDocument('svgfile').getElementById(current_image);
-              if (img) {
-                img.style.visibility = "hidden";
-              }
-              var ni = svgobj.getSVGDocument('svgfile').getElementById(next_image);
-            }
+            var img = getSVGFile().getElementById(current_image);
+            img.style.visibility = "hidden";
+            var ni = getSVGFile().getElementById(next_image);
             document.getElementById("slideText").innerHTML = ""; //destroy old plain text
 
             ni.style.visibility = "visible";
@@ -383,15 +386,13 @@ function runPopcorn() {
             var num_current = current_image.substr(5);
             var num_next = next_image.substr(5);
 
-            if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
-            else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
+            currentcanvas = getSVGFile().getElementById("canvas" + num_current);
 
             if(currentcanvas !== null) {
               currentcanvas.setAttribute("display", "none");
             }
 
-            if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
-            else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
+            nextcanvas = getSVGFile().getElementById("canvas" + num_next);
 
             if((nextcanvas !== undefined) && (nextcanvas != null)) {
               nextcanvas.setAttribute("display", "");
@@ -400,8 +401,7 @@ function runPopcorn() {
             current_image = next_image;
           }
 
-          if(svgobj.contentDocument) var thisimg = svgobj.contentDocument.getElementById(current_image);
-          else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
+          thisimg = getSVGFile().getElementById(current_image);
 
           if (thisimg) {
             var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
@@ -507,9 +507,7 @@ var cursorShownAt = 0;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
-// var HOST = window.location.host;
-// var url = "http://" + HOST + "/presentation/" + MEETINGID;
-var url = "/presentation/" + MEETINGID;
+var url = getFullUrl();
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
@@ -518,10 +516,28 @@ var metadata_xml = url + '/metadata.xml';
 var firstLoad = true;
 var svjobjLoaded = false;
 
-var svgobj = document.createElement('object');
-svgobj.setAttribute('data', shapes_svg);
-svgobj.setAttribute('height', '100%');
-svgobj.setAttribute('width', '100%');
+var svgobj = null;
+var ajax = new XMLHttpRequest();
+ajax.open("GET", shapes_svg, true);
+ajax.send();
+ajax.onload = function(e) {
+  svgobj = document.createElement('div');
+  svgobj.setAttribute('height', '100%');
+  svgobj.setAttribute('width', '100%');
+  svgobj.innerHTML = ajax.responseText;
+
+  // update the links inside of the presentation to include the full URL
+  $(svgobj).find('image').each(function() {
+    var href = $(this).attr('xlink:href');
+    href = url + '/' + href;
+    $(this).attr('xlink:href', href);
+  });
+
+  document.getElementById('slide').appendChild(svgobj);
+
+  window.await_video_loaded(setupWriting);
+};
+
 
 var setupWriting = function() {
   runPopcorn();
@@ -532,18 +548,7 @@ var setupWriting = function() {
   p.currentTime(defineStartTime());
 
   removeLoadingScreen();
-}
-
-svgobj.addEventListener('load', function() {
-  console.log("got svgobj 'load' event");
-
-  if (svjobjLoaded) {
-    return;
-  }
-  svjobjLoaded = true;
-
-  window.await_video_loaded(setupWriting);
-}, false);
+};
 
 // Fetches the metadata associated with the recording and uses it to configure
 // the playback page
@@ -575,8 +580,6 @@ var getMetadata = function() {
     }
   }
 };
-
-document.getElementById('slide').appendChild(svgobj);
 
 var currentImage;
 
@@ -611,4 +614,8 @@ var resizeSlides = function() {
     var height = $slide.parent().width() / aspectRatio;
     $slide.css("max-height", height);
   }
+};
+
+var getSVGFile = function() {
+  return $('svg')[0];
 };
