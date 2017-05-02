@@ -10,7 +10,11 @@ export default class Audio extends Component {
 
   componentWillMount() {
     if (this.props.showJoinAudio) {
-      showModal(<AudioModalContainer />);
+      // window.inAudio = window.inAudio || false;
+      if(!window.inAudio) {
+        showModal(<AudioModalContainer />);
+        window.inAudio = true;
+      }
     }
   }
 
