@@ -81,14 +81,14 @@ main|TopToolbarAIR {
 }
 
 participants|ParticipantsViewBase, users|UsersViewBase {
-	backgroundColor : PropertyReference("athensGrey");
-	color : PropertyReference("tuna");
+	backgroundColor : PropertyReference("grey100");
+	color : PropertyReference("blue900");
 }
 
 settings|SettingsViewBase, audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase, camera|CameraSettingsViewBase {
-	color            : PropertyReference("regentGrey");
-	headerBackground : PropertyReference("shakespeare");
-	separatorColor   : PropertyReference("lightGrey");
+	color            : PropertyReference("grey700");
+	headerBackground : PropertyReference("blue500");
+	separatorColor   : PropertyReference("grey200");
 }
 
 participants|ParticipantsViewBase s|List{
@@ -96,12 +96,12 @@ participants|ParticipantsViewBase s|List{
 }
 
 libChat|ChatViewBase {
-	inputBackgroundColor : PropertyReference("athensGrey");
-	inputBorderColor     : PropertyReference("athensGreyDark");
+	inputBackgroundColor : PropertyReference("grey100");
+	inputBorderColor     : PropertyReference("grey300");
 }
 
 s|ToggleSwitch {
-	accentColor : PropertyReference("shamrock");
+	accentColor : PropertyReference("green500");
 	color       : PropertyReference("white");
 	skinClass   : ClassReference("org.bigbluebutton.air.common.views.skins.MobileToggleSwitchSkin");
 }
@@ -116,16 +116,16 @@ s|CheckBox {
 }
 
 .sectionTitle {
-	backgroundColor : PropertyReference("athensGrey");
-	color           : PropertyReference("regentGrey");
+	backgroundColor : PropertyReference("grey100");
+	color           : PropertyReference("grey700");
 }
 
 .participantTitle {
-	color : PropertyReference("tuna");
+	color : PropertyReference("blue900");
 }
 
 .participantStatus {
-	color : PropertyReference("regentGrey");
+	color : PropertyReference("grey700");
 }
 
 libChat|NewMessagesIndicator {
@@ -136,17 +136,17 @@ libChat|NewMessagesIndicator {
 }
 
 libChat|ChatItemRenderer {
-	color     : PropertyReference("regentGrey");
-	nameColor : PropertyReference("tuna");
+	color     : PropertyReference("grey700");
+	nameColor : PropertyReference("blue900");
 }
 
 users|UserItemRenderer {
-	color    : PropertyReference("regentGrey");
+	color    : PropertyReference("grey700");
 }
 
 settings|SettingsItemRenderer {
-	color     : PropertyReference("tuna");
-	iconColor : PropertyReference("regentGrey");
+	color     : PropertyReference("blue900");
+	iconColor : PropertyReference("grey700");
 }
 
 .subViewContent {
@@ -166,9 +166,9 @@ settings|SettingsItemRenderer {
 .actionButton {
 	color                   : PropertyReference("white");
 	cornerRadius            : 5;
-	backgroundColor         : PropertyReference("shakespeare");
+	backgroundColor         : PropertyReference("blue500");
 	borderColor             : PropertyReference("white");
-	selectedBackgroundColor : PropertyReference("tuna");
+	selectedBackgroundColor : PropertyReference("blue900");
 	skinClass               : ClassReference("org.bigbluebutton.lib.main.views.skins.ActionButtonSkin");
 }
 
@@ -179,11 +179,11 @@ settings|SettingsItemRenderer {
 }
 
 .settingsIcon {
-	iconColor  : PropertyReference("regentGrey");
+	iconColor  : PropertyReference("grey700");
 }
 
 .chatIcon {
-	color : PropertyReference("regentGrey");
+	color : PropertyReference("grey700");
 }
 
 .menuButton {
@@ -196,8 +196,8 @@ settings|SettingsItemRenderer {
 }
 
 .participantIcon {
-	color       : PropertyReference("regentGrey");
-	circleColor : PropertyReference("regentGrey");
+	color       : PropertyReference("grey700");
+	circleColor : PropertyReference("grey700");
 }
 
 .participantIconSettings {
@@ -206,9 +206,9 @@ settings|SettingsItemRenderer {
 }
 
 .sendButton {
-	color       : PropertyReference("shakespeare");
+	color       : PropertyReference("blue500");
 	fontFamily  : BBBIcons;
-	borderColor : PropertyReference("shakespeare");
+	borderColor : PropertyReference("blue500");
 	skinClass   : ClassReference("org.bigbluebutton.lib.chat.views.skins.SendButtonSkin");
 }
 
@@ -223,5 +223,5 @@ settings|SettingsItemRenderer {
 }
 
 .leaveLabel {
-	color : PropertyReference("shakespeare");
+	color : PropertyReference("blue500");
 }
