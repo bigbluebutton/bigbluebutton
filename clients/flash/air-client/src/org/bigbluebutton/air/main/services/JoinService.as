@@ -90,12 +90,13 @@ package org.bigbluebutton.air.main.services {
 					 */
 					var xml:XML = new XML(data);
 					var code:String = xml.returncode.toString();
+					var sessionToken:String;
 					switch (code) {
 						case XML_RETURN_CODE_FAILED:
 							onFailure(xml.messageKey);
 							break;
 						case XML_RETURN_CODE_SUCCESS:
-							var sessionToken:String = xml.auth_token.toString();
+							sessionToken = xml.auth_token.toString();
 							successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 							break;
 						default:
@@ -114,7 +115,7 @@ package org.bigbluebutton.air.main.services {
 					}
 					infoIndex = responseUrl.indexOf(TOKEN_QUERY_PARAM);
 					if (infoIndex != -1) {
-						var sessionToken:String = responseUrl.substring(infoIndex + TOKEN_QUERY_PARAM.length);
+						sessionToken = responseUrl.substring(infoIndex + TOKEN_QUERY_PARAM.length);
 						successSignal.dispatch(urlRequest, responseUrl, sessionToken);
 						return;
 					}

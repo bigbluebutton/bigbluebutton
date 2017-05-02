@@ -1,0 +1,7 @@
+<Graphic version="2.0" xmlns="http://ns.adobe.com/fxg/2008" viewHeight="32" viewWidth="32">
+  <Ellipse width="22" height="22" x="2" y="2">
+    <stroke>
+      <SolidColorStroke color="#36CC84" alpha="1" weight="1"/>
+    </stroke>
+  </Ellipse>
+</Graphic>

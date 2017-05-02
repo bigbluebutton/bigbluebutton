@@ -50,6 +50,7 @@ package org.bigbluebutton.lib.presentation.views {
 			if (_currentPresentation != null && _currentSlideNum >= 0) {
 				_currentSlide = _currentPresentation.getSlideAt(_currentSlideNum);
 				if (_currentSlide != null) {
+					// @fixme: needs to be improved as the view is sometimes null
 					if (_currentSlide.loaded && view != null) {
 						view.setSlide(_currentSlide);
 					} else {

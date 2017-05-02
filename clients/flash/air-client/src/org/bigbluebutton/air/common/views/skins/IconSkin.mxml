@@ -6,6 +6,18 @@
 		[HostComponent("spark.components.Image")]
 	</fx:Metadata>
 
+	<fx:Script>
+		<![CDATA[
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				imageDisplay.height = getStyle("height");
+				imageDisplay.width = getStyle("width");
+				imageDisplay.source = getStyle("backgroundImage");
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+		]]>
+	</fx:Script>
+
 	<!-- states -->
 	<s:states>
 		<s:State name="disabled" />
@@ -20,9 +32,6 @@
 	name=imageDisplay, type=spark.primitives.BitmapImage, required=true
 	-->
 	<s:BitmapImage id="imageDisplay"
-				   height="{getStyle('height')}"
-				   width="{getStyle('width')}"
-				   source="{getStyle('backgroundImage')}"
 				   horizontalCenter="0"
 				   verticalCenter="0" />
 </s:Skin>
