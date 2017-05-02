@@ -146,7 +146,6 @@ class UserList extends Component {
       },
     };
 
-
     return (
       <div className={styles.participants}>
         {
