@@ -5,7 +5,7 @@ import SettingsService from '/imports/ui/services/settings';
 
 import {
     getClosedCaptionLocales,
-    getUserRoles,
+    getModeratorRole,
     updateSettings,
     getAvailableLocales,
   } from './service';
@@ -28,6 +28,6 @@ export default createContainer(() => {
     updateSettings,
     locales: getClosedCaptionLocales(),
     availableLocales: getAvailableLocales(),
-    isModerator: getUserRoles() === 'MODERATOR',
+    isModerator: getModeratorRole(),
   };
 }, SettingsContainer);
