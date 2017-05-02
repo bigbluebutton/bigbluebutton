@@ -46,7 +46,7 @@ class DeviceSelector extends Component {
   }
 
   handleEnumerateDevicesError(error) {
-    logClient("error",{ error: reason, method: "handleEnumerateDevicesError" });
+    logClient("error", { error: reason, method: "handleEnumerateDevicesError" });
   }
 
   handleSelectChange(event) {
