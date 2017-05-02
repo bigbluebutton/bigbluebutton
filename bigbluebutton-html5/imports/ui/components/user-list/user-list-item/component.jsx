@@ -236,7 +236,8 @@ class UserListItem extends Component {
         aria-haspopup="true"
         aria-live="assertive"
         aria-relevant="additions"
-        className={cx(styles.userListItem, userItemContentsStyle)}>
+        className={cx(styles.userListItem, userItemContentsStyle)}
+        tabIndex="-1">
         {this.renderUserContents()}
       </li>
     );
@@ -250,7 +251,7 @@ class UserListItem extends Component {
 
     let actions = this.getAvailableActions();
     let contents = (
-      <div tabIndex={0} className={styles.userItemContents}>
+      <div className={styles.userItemContents}>
         <UserAvatar user={user} />
         {this.renderUserName()}
         {this.renderUserIcons()}
@@ -269,7 +270,8 @@ class UserListItem extends Component {
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={styles.dropdown}>
+        className={styles.dropdown}
+        autoFocus={false}>
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
@@ -394,6 +396,7 @@ class UserListItem extends Component {
         label={action.label}
         defaultMessage={action.label}
         onClick={action.handler.bind(this, ...parameters)}
+        ref={"test"}
       />
     );
 

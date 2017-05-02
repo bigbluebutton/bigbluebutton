@@ -89,9 +89,15 @@ class Dropdown extends Component {
   }
 
   handleHide() {
+
+    const { autoFocus } = this.props;
+
     this.setState({ isOpen: false }, this.handleStateCallback);
-    const triggerElement = findDOMNode(this.refs.trigger);
-    triggerElement.focus();
+
+    if (autoFocus) {
+      const triggerElement = findDOMNode(this.refs.trigger);
+      triggerElement.focus();
+    }
   }
 
   componentDidMount () {
