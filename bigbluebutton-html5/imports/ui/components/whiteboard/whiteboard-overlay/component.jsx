@@ -1,5 +1,7 @@
 import React, { PropTypes } from 'react';
+import styles from './styles.scss';
 import { findDOMNode } from 'react-dom';
+import cx from 'classnames';
 
 export default class WhiteboardOverlay extends React.Component {
   constructor(props) {
@@ -16,7 +18,7 @@ export default class WhiteboardOverlay extends React.Component {
       currentShapeId: undefined,
       count: 0,
 
-      toolSelected: "Ellipse",
+      toolSelected: "Rectangle",
     };
 
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
@@ -230,8 +232,21 @@ export default class WhiteboardOverlay extends React.Component {
   }
 
   render() {
+    let toolSelected = this.state.toolSelected;
     return (
-      <div style={{ width: '100%', height: '100%' }} onMouseDown={this.mouseDownHandler}/>
+      <div
+        className={
+          cx(
+            toolSelected == "Pencil" ? styles.pencil : '',
+            toolSelected == "Triangle" ? styles.triangle : '',
+            toolSelected == "Rectangle" ? styles.rectangle : '',
+            toolSelected == "Ellipse" ? styles.ellipse : '',
+            toolSelected == "Line" ? styles.line : ''
+          )
+        }
+        style={{ width: '100%', height: '100%' }}
+        onMouseDown={this.mouseDownHandler}
+      />
     );
   }
 }
