@@ -646,7 +646,8 @@ window.getMyScreenConstraints = function(theCallback, extensionId) {
     getStream: true,
     sources: [
       "window",
-      "screen"
+      "screen",
+      "tab"
     ]},
     function(response) {
       console.log(response);

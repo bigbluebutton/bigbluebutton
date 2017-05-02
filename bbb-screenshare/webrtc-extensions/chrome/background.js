@@ -18,7 +18,7 @@
  */
 
 function getSourceId(sender, callback) {
-  var presetSources = ["screen", "window"];
+  var presetSources = ["screen", "window", "tab"];
   var sourcesToUse = sender.sources || presetSources;
   var tab = sender.tab;
 
