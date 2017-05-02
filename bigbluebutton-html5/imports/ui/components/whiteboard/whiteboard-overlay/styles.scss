@@ -1,10 +1,10 @@
 
 .pencil {
-  cursor: url('/html5client/resources/images/whiteboard-cursor/pencil.png') 1 17, default;
+  cursor: url('/html5client/resources/images/whiteboard-cursor/pencil.png') 2 22, default;
 }
 
 .triangle {
-  cursor: url('/html5client/resources/images/whiteboard-cursor/triangle.png') 7.5 0, default;
+  cursor: url('/html5client/resources/images/whiteboard-cursor/triangle.png'), default;
 }
 
 .rectangle {
@@ -16,5 +16,9 @@
 }
 
 .line {
-  cursor: url('/html5client/resources/images/whiteboard-cursor/line.png') 1 17, default;
+  cursor: url('/html5client/resources/images/whiteboard-cursor/line.png'), default;
+}
+
+.text {
+  cursor: url('/html5client/resources/images/whiteboard-cursor/text.png'), default;
 }

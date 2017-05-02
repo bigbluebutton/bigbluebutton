@@ -18,7 +18,7 @@ export default class WhiteboardOverlay extends React.Component {
       currentShapeId: undefined,
       count: 0,
 
-      toolSelected: "Rectangle",
+      toolSelected: "Pencil",
     };
 
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
@@ -241,7 +241,8 @@ export default class WhiteboardOverlay extends React.Component {
             toolSelected == "Triangle" ? styles.triangle : '',
             toolSelected == "Rectangle" ? styles.rectangle : '',
             toolSelected == "Ellipse" ? styles.ellipse : '',
-            toolSelected == "Line" ? styles.line : ''
+            toolSelected == "Line" ? styles.line : '',
+            toolSelected ==  "Text" ? styles.text : ''
           )
         }
         style={{ width: '100%', height: '100%' }}
