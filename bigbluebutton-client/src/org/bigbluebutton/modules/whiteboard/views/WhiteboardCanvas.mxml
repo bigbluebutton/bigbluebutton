@@ -211,16 +211,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else if(toolType == DrawObject.RECTANGLE) {
 					CursorManager.setCursor(rectangle_icon);
 				} else if(toolType == DrawObject.TRIANGLE) {
-					CursorManager.setCursor(triangle_icon, 2, -7, 0);
+					CursorManager.setCursor(triangle_icon);
 				} else if(toolType == DrawObject.PENCIL) {
-					CursorManager.setCursor(pencil_icon, 2, 0, -16);
+					CursorManager.setCursor(pencil_icon, 2, -2, -22);
 				} else if(toolType == DrawObject.LINE) {
-					CursorManager.setCursor(line_icon, 2, 0, -14);
+					CursorManager.setCursor(line_icon);
 				} else if(toolType == DrawObject.HIGHLIGHTER) {
 					CursorManager.setCursor(highlighter_icon);
 				} else if(toolType == DrawObject.ERASER) {
 					CursorManager.setCursor(eraser_icon);
-				} else if(toolType == TextObject.TEXT_TOOL) {
+				} else if(toolType == DrawObject.TEXT) {
 					CursorManager.setCursor(text_icon);
 //				} else if(toolType == SelectObject.SELECT_TOOL) {
 //					CursorManager.setCursor(select_icon);

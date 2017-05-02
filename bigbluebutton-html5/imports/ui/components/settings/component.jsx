@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import Modal from '/imports/ui/components/modal/component';
+import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { defineMessages, injectIntl } from 'react-intl';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
-import Audio from '/imports/ui/components/settings/submenus/audio/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
 import Video from '/imports/ui/components/settings/submenus/video/component';
@@ -33,6 +32,26 @@ const intlMessages = defineMessages({
     id: 'app.settings.usersTab.label',
     description: 'label for participants tab',
   },
+  SettingsLabel: {
+    id: 'app.settings.main.label',
+    description: 'General settings label',
+  },
+  CancelLabel: {
+    id: 'app.settings.main.cancel.label',
+    description: 'Discard the changes and close the settings menu',
+  },
+  CancelLabelDesc: {
+    id: 'app.settings.main.cancel.label.description',
+    description: 'Settings modal cancel button description',
+  },
+  SaveLabel: {
+    id: 'app.settings.main.save.label',
+    description: 'Save the changes and close the settings menu',
+  },
+  SaveLabelDesc: {
+    id: 'app.settings.main.save.label.description',
+    description: 'Settings modal save button label',
+  },
 });
 
 const propTypes = {
@@ -42,7 +61,6 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
-    const audio = props.audio;
     const video = props.video;
     const application = props.application;
     const cc = props.cc;
@@ -50,14 +68,12 @@ class Settings extends Component {
 
     this.state = {
       current: {
-        audio: _.clone(audio),
         video: _.clone(video),
         application: _.clone(application),
         cc: _.clone(cc),
         participants: _.clone(participants),
       },
       saved: {
-        audio: _.clone(audio),
         video: _.clone(video),
         application: _.clone(application),
         cc: _.clone(cc),
@@ -82,23 +98,24 @@ class Settings extends Component {
   };
 
   render() {
+    const intl = this.props.intl;
+
     return (
       <Modal
-        title="Settings"
+        title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: (() => {
             this.updateSettings(this.state.current);
           }),
-          label: 'Save',
-          description: 'Saves the changes and close the settings menu',
+          label: intl.formatMessage(intlMessages.SaveLabel),
+          description: intl.formatMessage(intlMessages.SaveLabelDesc),
         }}
         dismiss={{
           callback: (() => {
-
             this.setHtmlFontSize(this.state.saved.application.fontSize);
           }),
-          label: 'Cancel',
-          description: 'Discart the changes and close the settings menu',
+          label: intl.formatMessage(intlMessages.CancelLabel),
+          description: intl.formatMessage(intlMessages.CancelLabelDesc),
         }}>
           {this.renderModalContent()}
       </Modal>
@@ -135,14 +152,10 @@ class Settings extends Component {
             <Icon iconName='application' className={styles.icon}/>
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Tab>
-          <Tab className={styles.tabSelector} aria-labelledby="audioTab">
-            <Icon iconName='unmute' className={styles.icon}/>
-            <span id="audioTab">{intl.formatMessage(intlMessages.audioTabLabel)}</span>
-          </Tab>
-          <Tab className={styles.tabSelector} aria-labelledby="videoTab">
-            <Icon iconName='video' className={styles.icon}/>
-            <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span>
-          </Tab>
+          {/*<Tab className={styles.tabSelector} aria-labelledby="videoTab">*/}
+            {/*<Icon iconName='video' className={styles.icon}/>*/}
+            {/*<span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span>*/}
+          {/*</Tab>*/}
           <Tab className={styles.tabSelector} aria-labelledby="ccTab">
             <Icon iconName='user' className={styles.icon}/>
             <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
@@ -161,17 +174,12 @@ class Settings extends Component {
             settings={this.state.current.application}
             />
         </TabPanel>
-        <TabPanel className={styles.tabPanel}>
-          <Audio
-            settings={this.state.current.audio}
-            handleUpdateSettings={this.handleUpdateSettings}/>
-        </TabPanel>
-        <TabPanel className={styles.tabPanel}>
-          <Video
-            handleUpdateSettings={this.handleUpdateSettings}
-            settings={this.state.current.video}
-            />
-        </TabPanel>
+        {/*<TabPanel className={styles.tabPanel}>*/}
+          {/*<Video*/}
+            {/*handleUpdateSettings={this.handleUpdateSettings}*/}
+            {/*settings={this.state.current.video}*/}
+            {/*/>*/}
+        {/*</TabPanel>*/}
         <TabPanel className={styles.tabPanel}>
           <ClosedCaptions
             settings={this.state.current.cc}

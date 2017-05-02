@@ -1,5 +1,4 @@
-package org.bigbluebutton.lib.presentation.views
-{
+package org.bigbluebutton.lib.presentation.views {
 	import flash.system.ApplicationDomain;
 	import flash.system.LoaderContext;
 	
@@ -10,8 +9,7 @@ package org.bigbluebutton.lib.presentation.views
 	
 	import spark.components.Group;
 	
-	public class PresentationViewBase extends Group
-	{
+	public class PresentationViewBase extends Group {
 		private var _viewport:Group;
 		
 		public function get viewport():Group {
@@ -30,8 +28,7 @@ package org.bigbluebutton.lib.presentation.views
 			return _wbCanvas;
 		}
 		
-		public function PresentationViewBase()
-		{
+		public function PresentationViewBase() {
 			super();
 			
 			_viewport = new Group();

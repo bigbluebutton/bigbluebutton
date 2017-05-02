@@ -13,25 +13,15 @@
 	<fx:Script>
 		<![CDATA[
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-				var cr:Number = getStyle("cornerRadius");
-				
-				if (cornerRadius != cr) {
-					cornerRadius = cr;
-					border.bottomRightRadiusX = cornerRadius;
-					border.topRightRadiusX = cornerRadius;
-				}
+				border.width = border.height = getStyle("diameter");
 				
 				borderStroke.color = getStyle("borderColor");
 				borderStroke.weight = getStyle("borderWeight");
 				
-				labelDisplay.setStyle("color", getStyle("color"));
-				labelDisplay.setStyle("fontFamily", getStyle("fontFamily"));
-				labelDisplay.setStyle("fontSize", getStyle("fontSize"));
+				labelDisplay.text = getStyle("icon");
 				
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
 			}
-			
-			private var cornerRadius:Number = 2;
 		]]>
 	</fx:Script>
 
@@ -45,15 +35,11 @@
 
 	<!-- layer 7: border - put on top of the fill so it doesn't disappear when scale is less than 1 -->
 	<!--- @private -->
-	<s:Rect id="border"
-			left="0"
-			right="0"
-			top="0"
-			bottom="0">
+	<s:Ellipse id="border">
 		<s:stroke>
 			<s:SolidColorStroke id="borderStroke" />
 		</s:stroke>
-	</s:Rect>
+	</s:Ellipse>
 
 	<!-- layer 8: text -->
 	<!--- @copy spark.components.supportClasses.ButtonBase#labelDisplay  -->

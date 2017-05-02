@@ -1,11 +1,15 @@
 import React, { Component, PropTypes } from 'react';
-import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
+
+import _ from 'lodash';
+
+import ModalContainer from '../modal/container';
+
 import NotificationsBarContainer from '../notifications-bar/container';
-import AudioNotificationContainer from '../audio-notification/container';
+import AudioNotificationContainer from '../audio/audio-notification/container';
+import AudioContainer from '../audio/container';
 import ChatNotificationContainer from '../chat/notification/container';
 
-import Button from '../button/component';
 import styles from './styles';
 import cx from 'classnames';
 
@@ -16,15 +20,15 @@ const intlMessages = defineMessages({
   },
   chatLabel: {
     id: 'app.chat.Label',
-    description: 'Aria-label for Chat Section'
+    description: 'Aria-label for Chat Section',
   },
   mediaLabel: {
     id: 'app.media.Label',
-    description: 'Aria-label for Media Section'
+    description: 'Aria-label for Media Section',
   },
   actionsbarLabel: {
     id: 'app.actionsBar.Label',
-    description: 'Aria-label for ActionsBar Section'
+    description: 'Aria-label for ActionsBar Section',
   },
 });
 
@@ -35,7 +39,6 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  modal: PropTypes.element,
 };
 
 const defaultProps = {
@@ -164,8 +167,8 @@ class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
-        {modal}
-        <audio id="remote-media" autoPlay="autoplay"></audio>
+        <ModalContainer />
+        <AudioContainer />
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>
     );

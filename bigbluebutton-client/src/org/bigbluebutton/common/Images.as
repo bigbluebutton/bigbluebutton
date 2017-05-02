@@ -166,7 +166,7 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/pencil.png")]
         public var pencil_icon:Class;
 
-        [Embed(source="assets/images/shape_square.png")]
+        [Embed(source="assets/images/square.png")]
         public var square_icon:Class;
 
         [Embed(source="assets/images/undo.png")]
