@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Modal from '/imports/ui/components/modal/component';
+import Modal from '/imports/ui/components/modal/simple/component';
 
 const intlMessages = defineMessages({
   title: {
@@ -35,29 +35,13 @@ const intlMessages = defineMessages({
 });
 
 class AboutComponent extends Component {
-  constructor(props) {
-    super(props);
-
-    this.handleAboutComponent = this.handleAboutComponent.bind(this);
-  }
-
-  handleAboutComponent() {
-    console.log("TODO");
-  }
-
   render() {
     const { intl, clientBuild, copyright } = this.props;
 
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
-        confirm={{
-          callback: this.handleAboutComponent,
-          label: intl.formatMessage(intlMessages.confirmLabel),
-          description: intl.formatMessage(intlMessages.confirmDesc),
-        }}
         dismiss={{
-          callback: this.handleAboutComponent,
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}>

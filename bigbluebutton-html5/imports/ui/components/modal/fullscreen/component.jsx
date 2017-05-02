@@ -1,12 +1,10 @@
 import React, { Component, PropTypes } from 'react';
-import { clearModal } from '/imports/ui/components/app/service';
-import ModalBase from './base/component';
-import Button from '../button/component';
+import ModalBase, { withModalState } from '../base/component';
+import Button from '/imports/ui/components/button/component';
 import styles from './styles.scss';
 import cx from 'classnames';
 
 const propTypes = {
-  isOpen: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   confirm: PropTypes.shape({
     callback: PropTypes.func.isRequired,
@@ -21,7 +19,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  isOpen: true,
+  shouldCloseOnOverlayClick: false,
   confirm: {
     label: 'Done',
     description: 'Saves changes and closes the modal',
@@ -32,57 +30,28 @@ const defaultProps = {
   },
 };
 
-export default class Modal extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isOpen: this.props.isOpen,
-    };
-
-    this.handleDismiss = this.handleDismiss.bind(this);
-    this.handleConfirm = this.handleConfirm.bind(this);
-  }
-
-  handleDismiss() {
-    const { dismiss } = this.props;
-    if (dismiss && dismiss.callback) {
-      dismiss.callback(...arguments);
-    }
-
-    this.setState({ isOpen: false });
-    clearModal();
-  }
-
-  handleConfirm() {
-    const { confirm } = this.props;
-    confirm.callback(...arguments);
-    this.setState({ isOpen: false });
-    clearModal();
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.isOpen !== this.props.isOpen
-      && this.state.isOpen !== this.props.isOpen) {
-      this.setState({ isOpen: this.props.isOpen });
-    }
+class ModalFullscreen extends Component {
+  handleAction(name) {
+    const action = this.props[name];
+    this.props.modalHide(action.callback);
   }
 
   render() {
     const {
       title,
-      dismiss,
       confirm,
+      dismiss,
+      className,
+      modalisOpen,
+      ...otherProps,
     } = this.props;
-
-    const { isOpen } = this.state;
 
     return (
       <ModalBase
-        className={styles.modal}
-        isOpen={isOpen}
-        onHide={dismiss.callback}
-        onShow={this.props.onShow}
+        isOpen={modalisOpen}
+        className={cx(className, styles.modal)}
+        contentLabel={title}
+        {...otherProps}
       >
         <header className={styles.header}>
           <h1 className={styles.title}>{title}</h1>
@@ -90,14 +59,14 @@ export default class Modal extends Component {
             <Button
               className={styles.dismiss}
               label={dismiss.label}
-              onClick={this.handleDismiss}
+              onClick={this.handleAction.bind(this, 'dismiss')}
               aria-describedby={'modalDismissDescription'}
               tabIndex={0} />
             <Button
               color={'primary'}
               className={styles.confirm}
               label={confirm.label}
-              onClick={this.handleConfirm}
+              onClick={this.handleAction.bind(this, 'confirm')}
               aria-describedby={'modalConfirmDescription'}
               tabIndex={0} />
           </div>
@@ -112,5 +81,7 @@ export default class Modal extends Component {
   }
 };
 
-Modal.propTypes = propTypes;
-Modal.defaultProps = defaultProps;
+ModalFullscreen.propTypes = propTypes;
+ModalFullscreen.defaultProps = defaultProps;
+
+export default withModalState(ModalFullscreen);
