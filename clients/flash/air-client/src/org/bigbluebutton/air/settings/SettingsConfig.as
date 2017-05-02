@@ -1,10 +1,6 @@
 package org.bigbluebutton.air.settings {
 	
 	import org.bigbluebutton.air.settings.views.SettingsViewMediatorAIR;
-	import org.bigbluebutton.air.settings.views.TopToolbarMediatorSettings;
-	import org.bigbluebutton.air.settings.views.TopToolbarMediatorSubSettings;
-	import org.bigbluebutton.air.settings.views.TopToolbarSettings;
-	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewBaseAIR;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewMediatorAIR;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewBaseAIR;
@@ -14,7 +10,6 @@ package org.bigbluebutton.air.settings {
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewMediatorAIR;
 	import org.bigbluebutton.lib.main.commands.SaveLockSettingsCommand;
 	import org.bigbluebutton.lib.main.commands.SaveLockSettingsSignal;
-	import org.bigbluebutton.lib.main.views.TopToolbarBase;
 	import org.bigbluebutton.lib.settings.views.SettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.audio.AudioSettingsViewBase;
 	import org.bigbluebutton.lib.settings.views.camera.CameraSettingsViewBase;
@@ -51,8 +46,6 @@ package org.bigbluebutton.air.settings {
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(CameraSettingsViewBase, CameraSettingsViewBaseAIR)).toMediator(CameraSettingsViewMediatorAIR);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(ChatSettingsViewBase, ChatSettingsViewBaseAIR)).toMediator(ChatSettingsViewMediatorBase);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(LockSettingsViewBase, LockSettingsViewBaseAIR)).toMediator(LockSettingsViewMediatorAIR);
-			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarSettings)).toMediator(TopToolbarMediatorSettings);
-			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarSubSettings)).toMediator(TopToolbarMediatorSubSettings);
 		}
 		
 		/**
