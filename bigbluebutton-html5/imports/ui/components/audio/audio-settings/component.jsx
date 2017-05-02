@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import { clearModal } from '/imports/ui/components/app/service';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import styles from '../audio-modal/styles.scss';
 
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
@@ -41,7 +41,7 @@ class AudioSettings extends React.Component {
 
   handleClose() {
     this.setState({ isOpen: false });
-    clearModal();
+    this.props.mountModal(null);
   }
 
   render() {
@@ -153,4 +153,4 @@ const intlMessages = defineMessages({
   },
 });
 
-export default injectIntl(AudioSettings);
+export default withModalMounter(injectIntl(AudioSettings));

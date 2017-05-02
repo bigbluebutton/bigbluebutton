@@ -25,9 +25,9 @@ class ActionsBarContainer extends Component {
 export default withModalMounter(createContainer(({ mountModal }) => {
   const isPresenter = Service.isUserPresenter();
 
-  const handleExitAudio = () => AudioService.handleExitAudio();
+  const handleExitAudio = () => AudioService.exitAudio();
   const handleOpenJoinAudio = () =>
-    mountModal(<AudioModal handleJoinListenOnly={AudioService.handleJoinAudio} />);
+    mountModal(<AudioModal handleJoinListenOnly={AudioService.joinListenOnly} />);
 
   return {
     isUserPresenter: isPresenter,

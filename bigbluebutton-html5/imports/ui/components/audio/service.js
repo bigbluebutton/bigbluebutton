@@ -32,7 +32,7 @@ let exitAudio = () => audioManager.exitAudio();
 let joinListenOnly = () => audioManager.joinAudio(true);
 let joinMicrophone = () => audioManager.joinAudio(false);
 
-export {
+export default {
   init,
   exitAudio,
   joinListenOnly,

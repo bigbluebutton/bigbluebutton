@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { clearModal } from '/imports/ui/components/app/service';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import { exitAudio } from '../audio/service';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 
@@ -39,13 +39,16 @@ class BreakoutJoinConfirmation extends Component {
   }
 
   handleJoinBreakoutConfirmation() {
-    const { breakoutURL } = this.props;
+    const {
+      breakoutURL,
+      mountModal,
+    } = this.props;
 
     // leave main room's audio when joining a breakout room
     exitAudio();
 
     window.open(breakoutURL);
-    clearModal();
+    mountModal(null);
   }
 
   render() {
@@ -68,4 +71,4 @@ class BreakoutJoinConfirmation extends Component {
   }
 };
 
-export default injectIntl(BreakoutJoinConfirmation);
+export default withModalMounter(injectIntl(BreakoutJoinConfirmation));

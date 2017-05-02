@@ -41,7 +41,6 @@ class ChatContainer extends Component {
 }
 
 export default injectIntl(createContainer(({ params, intl }) => {
-  console.log('james');
   const chatID = params.chatID || PUBLIC_CHAT_KEY;
 
   let messages = [];
