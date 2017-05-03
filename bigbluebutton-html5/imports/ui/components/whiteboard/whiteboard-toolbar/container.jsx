@@ -18,4 +18,5 @@ class WhiteboardToolbarContainer extends React.Component {
 export default createContainer(() => ({
   undoAnnotation: WhiteboardToolbarService.undoAnnotation,
   clearWhiteboard: WhiteboardToolbarService.clearWhiteboard,
+  setWhiteboardToolbarValues: WhiteboardToolbarService.setWhiteboardToolbarValues,
 }), WhiteboardToolbarContainer);

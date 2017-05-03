@@ -8,10 +8,21 @@ export default class WhiteboardToolbar extends Component {
     super(props);
 
     this.state = {
+      //a variable to control which list is currently open
       currentSubmenuOpen: '',
-      annotationSelected: 'hand',
+
+      //variables to keep current selected draw settings
+      annotationSelected: {
+        icon: 'hand',
+        sessionValue: 'Hand',
+      },
       thicknessSelected: 6,
       colorSelected: '#000000',
+
+      //lists of tools/thickness/colors are not direct children of main toolbar buttons
+      //and we want the list to close when onBlur fires at the main toolbar button
+      //(click anywhere on the screen) thus we have to control the blur manually by disabling it
+      //when you hover over the buttons in the list and enabling when the mouse leaves the list
       onBlurEnabled: true,
     };
 
@@ -26,6 +37,13 @@ export default class WhiteboardToolbar extends Component {
     this.enableOnBlur = this.enableOnBlur.bind(this);
   }
 
+  componentWillMount() {
+
+    //setting default or resetting current drawing settings in the session
+    const { annotationSelected, thicknessSelected, colorSelected } = this.state;
+    this.props.setWhiteboardToolbarValues(annotationSelected.sessionValue, thicknessSelected, colorSelected);
+  }
+
   componentDidMount() {
     //to let the whiteboard know that the presentation area's size has changed
     window.dispatchEvent(new Event('resize'));
@@ -36,12 +54,14 @@ export default class WhiteboardToolbar extends Component {
     window.dispatchEvent(new Event('resize'));
   }
 
+  //open a submenu
   displaySubMenu(listName) {
     this.setState({
       currentSubmenuOpen: this.state.currentSubmenuOpen == listName ? '' : listName,
     });
   }
 
+  //close a current submenu (fires onBlur only, when you click anywhere on the screen)
   closeSubMenu() {
     if(this.state.onBlurEnabled) {
       this.setState({
@@ -50,15 +70,22 @@ export default class WhiteboardToolbar extends Component {
     }
   }
 
+  //undo annotation
   handleUndo() {
     this.props.undoAnnotation();
   }
 
+  //clear all annotations
   handleClearAll() {
     this.props.clearWhiteboard();
   }
 
+  //changes a current selected annotation both in the state and in the session
+  //and closes the annotation list
   handleAnnotationChange(annotation) {
+    const { thicknessSelected, colorSelected } = this.state;
+    this.props.setWhiteboardToolbarValues(annotation.sessionValue, thicknessSelected, colorSelected);
+
     this.setState({
       annotationSelected: annotation,
       onBlurEnabled: true,
@@ -66,15 +93,24 @@ export default class WhiteboardToolbar extends Component {
     });
   }
 
-  handleThicknessChange(radius) {
+  //changes a current selected thickness both in the state and in the session
+  //and closes the thickness list
+  handleThicknessChange(thickness) {
+    const { annotationSelected, colorSelected } = this.state;
+    this.props.setWhiteboardToolbarValues(annotationSelected.sessionValue, thickness, colorSelected);
+
     this.setState({
-      thicknessSelected: radius,
+      thicknessSelected: thickness,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
     });
   }
 
+  //changes a current selected color both in the state and in the session
+  //and closes the color list
   handleColorChange(color) {
+    const { annotationSelected, thicknessSelected } = this.state;
+    this.props.setWhiteboardToolbarValues(annotationSelected.sessionValue, thicknessSelected, color);
     this.setState({
       colorSelected: color,
       onBlurEnabled: true,
@@ -82,12 +118,14 @@ export default class WhiteboardToolbar extends Component {
     });
   }
 
+  //disabling onBlur flag when mouse is over the items in the lists
   disableOnBlur() {
     this.setState({
       onBlurEnabled: false,
     });
   }
 
+  //enabling the onBlur flag when the mouse leaving the lists
   enableOnBlur() {
     this.setState({
       onBlurEnabled: true,
@@ -98,22 +136,19 @@ export default class WhiteboardToolbar extends Component {
 
     return (
       <div className={cx(styles.annotationList, styles.toolbarList)}>
-        { this.props.annotations? this.props.annotations.map((annotation) =>
+        { this.props.annotations? this.props.annotations.map((annotation, index) =>
           <Button
             label="Annotation"
             hideLabel={true}
             color={'default'}
-            icon={annotation}
+            icon={annotation.icon}
             size={'md'}
-            className={cx(styles.toolbarListButton, this.state.annotationSelected == annotation ? styles.selectedListButton : '')}
+            className={cx(styles.toolbarListButton, this.state.annotationSelected.sessionValue == annotation.sessionValue ? styles.selectedListButton : '')}
             onClick={this.handleAnnotationChange.bind(null, annotation)}
             onMouseEnter={this.disableOnBlur}
             onMouseLeave={this.enableOnBlur}
-            key={annotation}
+            key={index}
             role="button"
-            aria-labelledby={`${annotation}Label`}
-            aria-describedby={`${annotation}Descrip`}
-
           />
         ) : null}
       </div>
@@ -189,11 +224,11 @@ export default class WhiteboardToolbar extends Component {
               hideLabel={true}
               role="button"
               color={'default'}
-              icon={this.state.annotationSelected}
+              icon={this.state.annotationSelected.icon}
               size={'md'}
               onClick={this.displaySubMenu.bind(null, "annotationList")}
               onBlur={this.closeSubMenu}
-              className={styles.toolbarButton}
+              className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "annotationList" ? '' : styles.notActive)}
             />
             {this.state.currentSubmenuOpen == "annotationList" ?
               this.renderAnnotationList()
@@ -208,7 +243,7 @@ export default class WhiteboardToolbar extends Component {
               size={'md'}
               onClick={this.displaySubMenu.bind(null, "thicknessList")}
               onBlur={this.closeSubMenu}
-              className={styles.toolbarButton}
+              className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "thicknessList" ? '' : styles.notActive)}
               customSvgIcon={
                 <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
                   <circle shapeRendering="geometricPrecision" cx="50%" cy="50%" r={this.state.thicknessSelected} fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
@@ -228,7 +263,7 @@ export default class WhiteboardToolbar extends Component {
               size={'md'}
               onClick={this.displaySubMenu.bind(null, "colorList")}
               onBlur={this.closeSubMenu}
-              className={styles.toolbarButton}
+              className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "colorList" ? '' : styles.notActive)}
               customSvgIcon={
               <svg className={styles.customSvgIcon}>
                 <rect x="25%" y="25%" width="50%" height="50%" fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
@@ -275,7 +310,15 @@ const defaultProps = {
       '#00FFFF', '#0088FF', '#0000FF', '#8800FF', '#FF00FF', '#C0C0C0'
   ],
   thicknessRadiuses: [14, 12, 10, 8, 6, 4, 2],
-  annotations: ['text_tool', 'linte_tool', 'circle_tool', 'triangle_tool', 'rectangle_tool', 'pen_tool', 'hand'],
+  annotations: [
+    {icon: 'text_tool', sessionValue: "Text"},
+    {icon: 'linte_tool', sessionValue:"Line"},
+    {icon: 'circle_tool', sessionValue: "Ellipse"},
+    {icon: 'triangle_tool', sessionValue: "Triangle"},
+    {icon: 'rectangle_tool', sessionValue: "Rectangle"},
+    {icon: 'pen_tool', sessionValue: "Pencil"},
+    {icon: 'hand', sessionValue: "Hand"}
+  ],
 };
 
 WhiteboardToolbar.defaultProps = defaultProps;

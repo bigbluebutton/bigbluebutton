@@ -17,4 +17,5 @@ class WhiteboardOverlayContainer extends React.Component {
 
 export default createContainer(() => ({
   sendAnnotation: WhiteboardOverlayService.sendAnnotation,
+  drawSettings: WhiteboardOverlayService.getWhiteboardToolbarValues(),
 }), WhiteboardOverlayContainer);

@@ -17,8 +17,6 @@ export default class WhiteboardOverlay extends React.Component {
 
       currentShapeId: undefined,
       count: 0,
-
-      toolSelected: "Pencil",
     };
 
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
@@ -29,9 +27,11 @@ export default class WhiteboardOverlay extends React.Component {
   //main mouse down handler
   //calls a mouseDown<AnnotationName> handler based on the tool selected
   mouseDownHandler(event) {
-    window.addEventListener('mouseup', this.mouseUpHandler);
-    window.addEventListener('mousemove', this.mouseMoveHandler, true);
-    this["mouseDown" +this.state.toolSelected](event);
+    if(this.props.drawSettings.tool) {
+      window.addEventListener('mouseup', this.mouseUpHandler);
+      window.addEventListener('mousemove', this.mouseMoveHandler, true);
+      this["mouseDown" + this.props.drawSettings.tool](event);
+    }
   }
 
   //main mouse up handler
@@ -39,13 +39,13 @@ export default class WhiteboardOverlay extends React.Component {
   mouseUpHandler(event) {
     window.removeEventListener('mouseup', this.mouseUpHandler);
     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
-    this["mouseUp" + this.state.toolSelected](event);
+    this["mouseUp" + this.props.drawSettings.tool](event);
   }
 
   //main mouse move handler
   //calls a mouseMove<AnnotationName> handler based on the tool selected
   mouseMoveHandler(event) {
-    this["mouseMove" + this.state.toolSelected](event);
+    this["mouseMove" + this.props.drawSettings.tool](event);
   }
 
   mouseDownLine(event) {
@@ -125,7 +125,7 @@ export default class WhiteboardOverlay extends React.Component {
     transformedSvgPoint.x = transformedSvgPoint.x / this.props.slideWidth * 100;
     transformedSvgPoint.y = transformedSvgPoint.y / this.props.slideHeight * 100;
 
-    this["handleDraw" + this.state.toolSelected](this.state.initialCoordinates, transformedSvgPoint, "DRAW_UPDATE", this.state.currentShapeId);
+    this["handleDraw" + this.props.drawSettings.tool](this.state.initialCoordinates, transformedSvgPoint, "DRAW_UPDATE", this.state.currentShapeId);
   }
 
   mouseUpLine(event) {
@@ -164,7 +164,7 @@ export default class WhiteboardOverlay extends React.Component {
     transformedSvgPoint.x = transformedSvgPoint.x / this.props.slideWidth * 100;
     transformedSvgPoint.y = transformedSvgPoint.y / this.props.slideHeight * 100;
 
-    this["handleDraw" + this.state.toolSelected](this.state.initialCoordinates, transformedSvgPoint, "DRAW_END", this.state.currentShapeId);
+    this["handleDraw" + this.props.drawSettings.tool](this.state.initialCoordinates, transformedSvgPoint, "DRAW_END", this.state.currentShapeId);
     this.setState({
       initialCoordinates: {
         x: undefined,
@@ -232,17 +232,17 @@ export default class WhiteboardOverlay extends React.Component {
   }
 
   render() {
-    let toolSelected = this.state.toolSelected;
+    let tool = this.props.drawSettings.tool;
     return (
       <div
         className={
           cx(
-            toolSelected == "Pencil" ? styles.pencil : '',
-            toolSelected == "Triangle" ? styles.triangle : '',
-            toolSelected == "Rectangle" ? styles.rectangle : '',
-            toolSelected == "Ellipse" ? styles.ellipse : '',
-            toolSelected == "Line" ? styles.line : '',
-            toolSelected ==  "Text" ? styles.text : ''
+            tool == "Pencil" ? styles.pencil : '',
+            tool == "Triangle" ? styles.triangle : '',
+            tool == "Rectangle" ? styles.rectangle : '',
+            tool == "Ellipse" ? styles.ellipse : '',
+            tool == "Line" ? styles.line : '',
+            tool ==  "Text" ? styles.text : ''
           )
         }
         style={{ width: '100%', height: '100%' }}
