@@ -196,5 +196,6 @@
   "app.error.500": "Ops, something went wrong",
   "app.error.404": "Not found",
   "app.error.401": "Unauthorized",
-  "app.error.403": "Forbidden"
+  "app.error.403": "Forbidden",
+  "app.error.leaveLabel": "Log in again"
 }

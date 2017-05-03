@@ -110,7 +110,7 @@ class UserList extends Component {
       currentUser,
       isBreakoutRoom,
       intl,
-      callServer,
+      makeCall,
     } = this.props;
 
     const userActions = {
@@ -121,27 +121,27 @@ class UserList extends Component {
       },
       clearStatus: {
         label: intl.formatMessage(intlMessages.ClearStatusLabel),
-        handler: user => callServer('setEmojiStatus', user.id, 'none'),
+        handler: user => makeCall('setEmojiStatus', user.id, 'none'),
         icon: 'clear_status',
       },
       setPresenter: {
         label: intl.formatMessage(intlMessages.MakePresenterLabel),
-        handler: user => callServer('assignPresenter', user.id),
+        handler: user => makeCall('assignPresenter', user.id),
         icon: 'presentation',
       },
       kick: {
         label: intl.formatMessage(intlMessages.KickUserLabel),
-        handler: user => callServer('kickUser', user.id),
+        handler: user => makeCall('kickUser', user.id),
         icon: 'circle_close',
       },
       mute: {
         label: intl.formatMessage(intlMessages.MuteUserAudioLabel),
-        handler: user => callServer('muteUser', user.id),
+        handler: user => makeCall('muteUser', user.id),
         icon: 'audio_off',
       },
       unmute: {
         label: intl.formatMessage(intlMessages.UnmuteUserAudioLabel),
-        handler: user => callServer('unmuteUser', user.id),
+        handler: user => makeCall('unmuteUser', user.id),
         icon: 'audio_on',
       },
     };
