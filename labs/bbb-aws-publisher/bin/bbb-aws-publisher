@@ -16,45 +16,8 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
-source /etc/bigbluebutton/bigbluebutton-release
-
 EXEC_CMD='/usr/local/bin/bundle exec ruby /usr/share/bbb-aws-publisher/s3.rb'
 USER=tomcat7
 
-usage() {
-        echo "BigBlueButton AWS Publisher (BigBlueButton Version $BIGBLUEBUTTON_RELEASE)"
-        echo
-        echo "   bbb-aws-publisher [commands]"
-        echo
-        echo "   --upload [options]                     Upload all recordings to S3"
-        echo "      options:"
-        echo "         -k, --keep-local                 Keep the local recordings after uploading them [default=false]"
-        echo "         -i, --invalidate-cache           Invalidate cache when uploading new recording files to S3. Set it when using CloudFront. [default=false]"
-        echo "         -r, --remote-playback            Update playback links in the metadata to point to the playback page hosted in S3 [default=false]"
-        echo "         -s, --disable-sync               Disable resync of permissions for previously uploaded files [default=false]"
-        echo
-        echo "   --upload-playback                      Upload the playback files to S3"
-        echo
-}
-
-if [ $# -eq 0 ]; then
-        usage
-        exit 1
-fi
-
-# Parse the parameters
-if [ $# -gt 0 ]; then
-        if [ "$1" = "-upload" -o "$1" = "--upload" ]; then
-                shift
-                sudo -u $USER $EXEC_CMD upload "$@"
-        elif [ "$1" = "-upload-playback" -o "$1" = "--upload-playback" ]; then
-                shift
-                sudo -u $USER $EXEC_CMD upload-playback "$@"
-        else
-                usage
-                exit 1
-        fi
-else
-        usage
-        exit 1
-fi
+ENV_VARS=`env | grep "^BBB_AWS_.*"`
+sudo -u $USER $ENV_VARS $EXEC_CMD "$@"

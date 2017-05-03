@@ -160,14 +160,14 @@ module BigBlueButtonAwsRecorder
 
         # set acl for any existing object
         # acts like a resync, if old recordings were changed, update their permissions on s3
-        if $opts[:disable_resync]
-          local_success = true
-        else
+        if isset('BBB_AWS_RESYNC')
           local_success = set_acl(bucket_name, prefix, set_public)
+        else
+          local_success = true
         end
         local_success &= compare_and_push(prefix, "#{published_dir}/#{prefix}", published_dir, bucket_name, set_public)
 
-        if $opts[:remote_playback]
+        if isset('BBB_AWS_REMOTE_PLAYBACK')
           # update the playback links in the metadata file to use the new domain
           metadata_updated = update_metadata_link(metadata_file)
           if metadata_updated
@@ -183,7 +183,7 @@ module BigBlueButtonAwsRecorder
           end
         end
 
-        if !$opts[:keep_local] && local_success
+        if !isset('BBB_AWS_KEEP_LOCAL') && local_success
           Dir.glob("#{published_dir}/#{prefix}/**/*").each do |file|
             next if File.basename(file).include?("metadata.xml")
             BigBlueButtonAwsRecorder.logger.info "Removing local file: #{file}"
@@ -373,7 +373,7 @@ module BigBlueButtonAwsRecorder
     end
 
     def invalidate_cache(bucket_name, keys)
-      return unless $opts[:invalidate_cache]
+      return if !isset('BBB_AWS_INVALIDATE_CACHE')
 
       return if keys.length == 0
       distribution_id = get_distribution_id(bucket_name)
@@ -413,6 +413,10 @@ def path_to_timestamp(r)
   record_id_to_timestamp(path_to_record_id(r))
 end
 
+def isset(name)
+  ENV[name] && ENV[name] != '0' && ENV[name].strip != ''
+end
+
 Dotenv.load(
   File.join(File.dirname(__FILE__), '.env.local'),
   File.join(File.dirname(__FILE__), '.env')
@@ -429,39 +433,18 @@ s3_bucket = ENV['BBB_AWS_BUCKET']
 $media_url = ENV['BBB_AWS_MEDIA_URL']
 $playback_dir = ENV['BBB_AWS_PLAYBACK_DIR']
 
-SUB_COMMANDS = %w(upload upload-playback watch)
-Trollop::options do
-  banner "Host BigBlueButton recordings on Amazon's S3"
-  stop_on SUB_COMMANDS
+$opts = Trollop::options do
+  banner "BigBlueButton AWS Publisher: Host recordings on Amazon's S3"
+  opt :upload, "Upload available recordings to S3", short: '-u'
+  opt :upload_playback, "Upload playback files to S3", short: '-p'
+  opt :watch, "Watch redis for changes to automatically upload and update recordings", short: '-w'
 end
 
-$cmd = ARGV.shift # get the subcommand
-$opts =
-  case $cmd
-  when "upload"
-    Trollop::options do
-      opt :keep_local, "Keep local files after uploading them.", short: '-k'
-      opt :disable_resync, "Disable resync of permissions for previously uploaded files.", short: '-s'
-      opt :invalidate_cache, "Invalidate cache when uploading new recording files to S3. Set it when using CloudFront.", short: '-i'
-      opt :remote_playback, "Update playback links in the metadata to point to the playback page hosted in S3.", short: '-r'
-      opt :debug, "Send log to STDOUT instead of the log file", short: '-d'
-    end
-  when "upload-playback"
-    Trollop::options do
-      opt :debug, "Send log to STDOUT instead of the log file", short: '-d'
-    end
-  when "watch"
-    Trollop::options do
-      opt :debug, "Send log to STDOUT instead of the log file", short: '-d'
-    end
-  else
-    Trollop::die "Unknown subcommand. Use one of: #{SUB_COMMANDS.inspect}"
-  end
-
 $opts.delete(:help)
-puts "Executing '#{$cmd}' on #{s3_bucket} (#{aws_region}) with #{$opts}"
+selected = $opts.reject{ |k,v| !v || k.match(/_given$/) }.keys[0]
+puts "Executing '#{selected}' on #{s3_bucket} (#{aws_region})"
 
-if $opts[:debug]
+if isset('BBB_AWS_DEBUG')
   logger = Logger.new(STDOUT)
   logger.level = Logger::DEBUG
   BigBlueButtonAwsRecorder.logger = logger
@@ -480,12 +463,12 @@ rescue Exception => e
 end
 
 # update playbacks on the bucket
-if $cmd == 'upload-playback'
+if $opts[:upload_playback]
   $publisher.upload_playbacks($playback_dir, s3_bucket)
 end
 
 # upload existing recordings
-if $cmd == 'upload'
+if $opts[:upload]
   def collect_values(hashes)
     {}.tap{ |r| hashes.each{ |h| h.each{ |k,v| (r[k]||=[]) << v } } }
   end
@@ -502,7 +485,7 @@ if $cmd == 'upload'
   end
 end
 
-if $cmd == 'watch'
+if $opts[:watch]
   RECORDINGS_CHANNEL = "bigbluebutton:from-rap"
   $redis_pubsub = Redis.new(:host => redis_host, :port => redis_port)
   $redis_publisher = Redis.new(:host => redis_host, :port => redis_port)
