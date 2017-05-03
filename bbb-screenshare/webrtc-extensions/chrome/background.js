@@ -17,9 +17,10 @@
  *
  */
 
-function getSourceId(sender, callback) {
+function getSourceId(sender, callback, request) {
   var presetSources = ["screen", "window", "tab"];
-  var sourcesToUse = sender.sources || presetSources;
+  var sourcesToUse = request.sources || presetSources;
+  
   var tab = sender.tab;
 
   // https://bugs.chromium.org/p/chromium/issues/detail?id=425344
@@ -46,7 +47,7 @@ chrome.runtime.onMessageExternal.addListener(
       callback({ version: chrome.runtime.getManifest().version });
       return false;
     } else if(request.getStream) {
-      getSourceId(sender, callback);
+      getSourceId(sender, callback, request);
       return true;
     } else {
       callback({ error: 'malformed request', request });
