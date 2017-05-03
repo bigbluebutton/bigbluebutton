@@ -25,6 +25,8 @@ const init = () => {
     voiceBridge,
   };
 
+  console.log(userData);
+
   audioManager = new AudioManager(userData);
 };
 
