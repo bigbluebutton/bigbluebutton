@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
     id: 'app.error.403',
   },
   leave: {
-    id: 'app.leaveConfirmation.confirmLabel',
+    id: 'app.error.leaveLabel',
     description: 'aria-label for leaving',
   },
 });
