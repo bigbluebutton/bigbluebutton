@@ -10,7 +10,7 @@ ExecStart=/usr/local/bin/bundle exec ruby /usr/share/bbb-aws-publisher/s3.rb wat
 
 Restart=always
 RestartSec=60
-User=bigbluebutton
+User=tomcat7
 
 [Install]
 WantedBy=multi-user.target
