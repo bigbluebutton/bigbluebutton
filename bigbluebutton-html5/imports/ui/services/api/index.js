@@ -4,7 +4,7 @@ import NotificationService from '/imports/ui/services/notification/notificationS
 
 /**
  * Send the request to the server via Meteor.call and don't treat errors.
- * 
+ *
  * @param {string} name
  * @param {any} args
  * @see https://docs.meteor.com/api/methods.html#Meteor-call
@@ -28,7 +28,7 @@ function makeCall(name, ...args) {
 
 /**
  * Send the request to the server via Meteor.call and treat the error to a default callback.
- * 
+ *
  * @param {string} name
  * @param {any} args
  * @see https://docs.meteor.com/api/methods.html#Meteor-call
@@ -41,13 +41,49 @@ function call(name, ...args) {
   });
 };
 
+/**
+ * Log the error to the client and to the server.
+ *
+ * @example
+ * @code{ logClient({error:"Error caused by blabla"}) }
+ */
+function logClient() {
+  const credentials = Auth.credentials;
+  const args = Array.prototype.slice.call(arguments, 0);
+  const userInfo = window.navigator;
+
+  args.push({
+    systemProps: {
+      language: userInfo.language,
+      userAgent: userInfo.userAgent,
+      screenSize: { width: screen.width, height: screen.height },
+      windowSize: { width: window.innerWidth, height: window.innerHeight },
+      bbbVersion: Meteor.settings.public.app.bbbServerVersion,
+      location: window.location.href,
+    },
+  });
+
+  const logTypeInformed = arguments.length > 1;
+  const outputLog = logTypeInformed ? Array.prototype.slice.call(args, 1) : args;
+  console.warn('Client log:', outputLog);
+
+  Meteor.call('logClient',
+    logTypeInformed ? args[0] : 'info',
+    credentials,
+    outputLog
+  );
+};
+
 const API = {
+  logClient,
   makeCall,
-  call
+  call,
 };
 
 export default API;
 
 export {
-  makeCall, call
+  makeCall,
+  call,
+  logClient,
 };
