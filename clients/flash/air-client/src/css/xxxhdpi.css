@@ -1,8 +1,169 @@
 @namespace s "library://ns.adobe.com/flex/spark";
+
 @namespace main "org.bigbluebutton.air.main.views.*";
 
+@namespace mainviews "org.bigbluebutton.lib.main.views.*";
+
+@namespace skins "org.bigbluebutton.lib.main.views.skins.*";
+
+@namespace views "org.bigbluebutton.air.common.views.*";
+
+@namespace libChat "org.bigbluebutton.lib.chat.views.*";
+
+@namespace users "org.bigbluebutton.lib.user.views.*";
+
+@namespace settings "org.bigbluebutton.lib.settings.views.*";
+
+@namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
+
+@namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
+
+@namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
+
+@namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
+
 @media (application-dpi: 640) {
-	main|LoadingScreen {
-		fontSize        : 64;
-	}
+    main|LoadingScreen {
+        fontSize: 68;
+    }
+
+    main|TopToolbarAIR {
+        height: 160;
+    }
+
+    views|NoTabView {
+        toolbarHeight: 160;
+    }
+
+    main|MainView {
+        menuHeight: 320;
+    }
+
+    mainviews|MenuButtonsBase {
+        bottom: 70;
+        top: 28;
+        gap: 90;
+    }
+
+    skins|MenuButtonSkin {
+        fontSize: 48;
+        iconSize: 72;
+        labelPadding: 24;
+    }
+
+    libChat|NewMessagesIndicator {
+        cornerRadius: 52;
+        labelPadding: 60;
+    }
+
+    libChat|ChatItemRenderer {
+        padding: 60;
+        fontSize: 68;
+        nameFontSize: 68;
+        timeFontSize: 48;
+    }
+
+    settings|SettingsViewBase, camera|CameraSettingsViewBase {
+        groupsPadding: 80;
+    }
+
+    audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
+        padding: 60;
+    }
+
+    settings|SettingsItemRenderer {
+        fontSize: 68;
+        iconSize: 88;
+        padding: 64;
+    }
+
+    libChat|ChatViewBase {
+        inputPadding: 52;
+    }
+
+    users|UserItemRenderer {
+        iconSize: 88;
+    }
+
+    s|ToggleSwitch {
+        fontSize: 48;
+    }
+
+    .icon {
+        fontSize: 40;
+    }
+
+    .sendButton {
+        borderWeight: 4;
+        diameter: 80;
+    }
+
+    .titleLabel {
+        fontSize: 68;
+        left: 180;
+        right: 180;
+    }
+
+    .topButton {
+        fontSize: 88;
+    }
+
+    .saveButton {
+        fontSize: 48;
+    }
+
+    .topLeftButton {
+        left: 60;
+    }
+
+    .topRightButton {
+        right: 60;
+    }
+
+    .actionButton {
+        fontSize: 42;
+    }
+
+    .participantItem {
+        fontSize: 68;
+        padding: 60;
+    }
+
+    .participantIcon {
+        diameter: 88;
+        fontSize: 36;
+        circleStroke: 4;
+    }
+
+    .participantIconSettings {
+        diameter: 248;
+        fontSize: 104;
+        circleStroke: 4;
+    }
+
+    .sectionTitle {
+        paddingTop: 32;
+        paddingBottom: 32;
+        paddingLeft: 60;
+        fontSize: 56;
+    }
+
+    .participantStatus {
+        fontSize: 60;
+    }
+
+    .chatIcon, .settingsIcon {
+        fontSize: 88;
+    }
+
+    .chatRoomItem {
+        fontSize: 68;
+        padding: 60;
+    }
+
+    .sendButton {
+        fontSize: 40;
+        borderWeight: 4;
+        cornerRadius: 8;
+    }
 }
