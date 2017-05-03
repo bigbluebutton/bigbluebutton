@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
 import styles from './styles.scss';
-import { showModal } from '/imports/ui/components/app/service';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
@@ -13,6 +12,7 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 
 const intlMessages = defineMessages({
@@ -38,10 +38,10 @@ const defaultProps = {
   beingRecorded: false,
 };
 
-const openBreakoutJoinConfirmation = (breakoutURL, breakoutName) =>
-          showModal(<BreakoutJoinConfirmation
-                        breakoutURL={breakoutURL}
-                        breakoutName={breakoutName}/>);
+const openBreakoutJoinConfirmation = (breakoutURL, breakoutName, mountModal) =>
+  mountModal(<BreakoutJoinConfirmation
+             breakoutURL={breakoutURL}
+             breakoutName={breakoutName}/>);
 
 class NavBar extends Component {
   constructor(props) {
@@ -64,8 +64,12 @@ class NavBar extends Component {
   }
 
   inviteUserToBreakout(breakout, breakoutURL) {
+    const {
+      mountModal,
+    } = this.props;
+
     this.setState({ didSendBreakoutInvite: true }, () => {
-      openBreakoutJoinConfirmation.call(this, breakoutURL, breakout.name);
+      openBreakoutJoinConfirmation.call(this, breakoutURL, breakout.name, mountModal);
     });
   }
 
@@ -164,6 +168,7 @@ class NavBar extends Component {
   renderBreakoutItem(breakout) {
     const {
       getBreakoutJoinURL,
+      mountModal,
     } = this.props;
 
     const breakoutName = breakout.name;
@@ -174,7 +179,7 @@ class NavBar extends Component {
         className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName)}
+        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName, mountModal)}
       />
     );
   }
@@ -182,4 +187,4 @@ class NavBar extends Component {
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-export default injectIntl(NavBar);
+export default withModalMounter(injectIntl(NavBar));

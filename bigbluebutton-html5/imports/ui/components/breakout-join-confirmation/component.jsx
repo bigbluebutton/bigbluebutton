@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import { exitAudio } from '../audio/service';
+import AudioService from '../audio/service';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 
 const intlMessages = defineMessages({
@@ -45,7 +45,7 @@ class BreakoutJoinConfirmation extends Component {
     } = this.props;
 
     // leave main room's audio when joining a breakout room
-    exitAudio();
+    AudioService.exitAudio();
 
     window.open(breakoutURL);
     mountModal(null);
