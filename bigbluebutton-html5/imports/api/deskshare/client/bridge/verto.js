@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { getVoiceBridge } from '/imports/ui/components/audio/service';
+//import { getVoiceBridge } from '/imports/ui/components/audio/service';
 
 // TODO pass info in constructor instead of importing ^^
 const createVertoUserName = () => {
@@ -10,13 +10,14 @@ const createVertoUserName = () => {
 };
 
 export default class VertoDeskshareBridge {
-  constructor() {
+  constructor(userData) {
+    this.userData = userData;
   }
 
   vertoWatchVideo() {
     window.vertoWatchVideo(
       'deskshareVideo',
-      getVoiceBridge(),
+      this.userData.voiceBridge,
       createVertoUserName(),
       null,
       null,
