@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '../audio-modal/styles.scss';
 import Button from '/imports/ui/components/button/component';
-import { clearModal } from '/imports/ui/components/app/service';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 
 const intlMessages = defineMessages({
@@ -33,8 +33,8 @@ class JoinAudio extends React.Component {
   }
 
   handleClose() {
-    this.setState({ isOpen: false });
-    clearModal();
+    /* TODO: Refactor this to the outer component (audio-modal/container) */
+    this.props.mountModal(null);
   }
 
   openAudio() {
@@ -87,4 +87,4 @@ class JoinAudio extends React.Component {
   }
 };
 
-export default injectIntl(JoinAudio);
+export default withModalMounter(injectIntl(JoinAudio));

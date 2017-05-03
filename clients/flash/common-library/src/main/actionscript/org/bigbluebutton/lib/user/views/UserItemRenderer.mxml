@@ -12,10 +12,15 @@
 		<s:State name="selected" />
 	</s:states>
 
+	<fx:Metadata>
+		[Style(name="iconSize", inherit="no", type="Number")]
+	</fx:Metadata>
+
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.lib.user.events.UserItemSelectedEvent;
 			import org.bigbluebutton.lib.user.models.User;
+			import org.bigbluebutton.lib.user.utils.UserUtils;
 			
 			private function onClick():void {
 				sendSelectedEvent();
@@ -31,6 +36,25 @@
 				}
 			}
 			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				wrapperGroup.padding = getStyle("padding");
+				wrapperGroup.gap = getStyle("padding") / 4;
+				
+				labelDisplay.setStyle("paddingLeft", getStyle("padding"));
+				labelDisplay.setStyle("paddingRight", getStyle("padding"));
+				
+				cameraIcon.text = cameraIcon.getStyle("icon");
+				cameraIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				audioIcon.text = audioIcon.getStyle("icon");
+				audioIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				lockIcon.text = lockIcon.getStyle("icon");
+				lockIcon.setStyle("fontSize", getStyle("iconSize"));
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
@@ -38,16 +62,16 @@
 					
 					if (obj.voiceJoined) {
 						if (obj.muted) {
-							audioIcon.text = "\ue91c";
+							audioIcon.styleName = "icon icon-audio-off";
 						} else if (obj.talking) {
-							audioIcon.text = "\ue901";
+							audioIcon.styleName = "icon icon-audio-close";
 						} else {
-							audioIcon.text = "\ue91b";
+							audioIcon.styleName = "icon icon-audio-on";
 						}
 					} else if (obj.listenOnly) {
-						audioIcon.text = "\ue90d";
+						audioIcon.styleName = "icon icon-listen";
 					} else {
-						audioIcon.text = " ";
+						audioIcon.styleName = "";
 					}
 					
 					lockIcon.visible = obj.locked;
@@ -58,7 +82,7 @@
 						labelDisplay.text = obj.name;
 					}
 					
-					participantIcon.setFirstLetters(obj.name);
+					participantIcon.displayInitials = UserUtils.getInitials(obj.name);
 					
 					if (obj.presenter) {
 						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;
@@ -70,30 +94,26 @@
 			}
 		]]>
 	</fx:Script>
-	<s:Group width="100%"
-			 height="{getStyle('itemHeight')}">
-		<s:layout>
-			<s:HorizontalLayout verticalAlign="middle" />
-		</s:layout>
+	<s:VGroup id="wrapperGroup"
+			  width="100%">
+		<s:HGroup width="100%"
+				  verticalAlign="middle">
 
-		<common:ParticipantIcon id="participantIcon" />
+			<common:ParticipantIcon id="participantIcon" />
 
-		<s:Group width="100%">
-			<s:layout>
-				<s:VerticalLayout gap="0" />
-			</s:layout>
 			<s:Label id="labelDisplay"
-					 styleName="participantName" />
-			<s:Label id="subLabelDisplay"
-					 styleName="participantStatus" />
-		</s:Group>
-		<s:Label id="cameraIcon"
-				 text="&#xe921;"
-				 styleName="icon" />
-		<s:Label id="audioIcon"
-				 styleName="icon" />
-		<s:Label id="lockIcon"
-				 text="&#xe927;"
-				 styleName="icon" />
-	</s:Group>
+					 width="100%"
+					 styleName="participantTitle" />
+			<s:Label id="cameraIcon"
+					 styleName="icon icon-video" />
+			<s:Label id="audioIcon"
+					 styleName="icon icon-audio-on" />
+			<s:Label id="lockIcon"
+					 styleName="icon icon-lock" />
+		</s:HGroup>
+		<s:Label id="subLabelDisplay"
+				 styleName="participantStatus"
+				 paddingLeft="{labelDisplay.x + getStyle('padding')}" />
+	</s:VGroup>
+
 </s:ItemRenderer>

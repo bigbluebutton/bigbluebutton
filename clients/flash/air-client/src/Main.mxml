@@ -6,6 +6,7 @@
 			   styleName="mainshell"
 			   xmlns:main="org.bigbluebutton.air.main.views.*">
 	<fx:Style source="../../shared/assets/css/common.css" />
+	<fx:Style source="../../shared/assets/css/bbb-icons.css" />
 	<fx:Style source="Default.css" />
 	<fx:Style source="css/ldpi.css" />
 	<fx:Style source="css/mdpi.css" />
@@ -20,16 +21,10 @@
 
 	<fx:Script>
 		<![CDATA[
-			include "../../shared/ColorPalette.as"
-			
-			import com.adobe.utils.LocaleUtil;
-			
 			import mx.events.FlexEvent;
-			import mx.resources.ResourceManager;
 			
 			import org.bigbluebutton.air.AppConfig;
 			import org.bigbluebutton.air.chat.ChatConfig;
-			import org.bigbluebutton.air.deskshare.DeskshareConfig;
 			import org.bigbluebutton.air.main.MainConfig;
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
 			import org.bigbluebutton.air.participants.ParticipantsConfig;
@@ -46,6 +41,8 @@
 			import robotlegs.bender.framework.api.IContext;
 			import robotlegs.bender.framework.api.LogLevel;
 			import robotlegs.bender.framework.impl.Context;
+
+			include "../../shared/ColorPalette.as"
 			
 			protected var context:IContext;
 			
@@ -63,11 +60,17 @@
 			 * Sets up the Robotlegs context.
 			 */
 			private function setupContext():void {
-				context = new Context().install(MVCSBundle, SignalCommandMapExtension).configure(AppConfig).
-					
-					configure(MainConfig).configure(PresentationConfig).configure(WhiteboardConfig).configure(VideoConfig).configure(VoiceConfig).configure(ParticipantsConfig).configure(UsersConfig).configure(ChatConfig)
-					//.configure(DeskshareConfig).configure(SettingsConfig)
-					
+				context = new Context().install(MVCSBundle, SignalCommandMapExtension)
+					.configure(AppConfig)
+					.configure(MainConfig)
+					.configure(SettingsConfig)
+					.configure(PresentationConfig)
+					.configure(WhiteboardConfig)
+					.configure(VideoConfig)
+					.configure(VoiceConfig)
+					.configure(ParticipantsConfig)
+					.configure(UsersConfig)
+					.configure(ChatConfig)
 					.configure(new ContextView(this));
 				// If you wish to change the log level then uncomment the line below and set 
 				// the logLevel to the value you desire. The default logLevel is DEBUG, which 
