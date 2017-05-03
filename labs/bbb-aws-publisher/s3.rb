@@ -413,7 +413,10 @@ def path_to_timestamp(r)
   record_id_to_timestamp(path_to_record_id(r))
 end
 
-Dotenv.load('.env.local', '.env')
+Dotenv.load(
+  File.join(File.dirname(__FILE__), '.env.local'),
+  File.join(File.dirname(__FILE__), '.env')
+)
 redis_host = ENV['BBB_AWS_REDIS_HOST']
 redis_port = ENV['BBB_AWS_REDIS_PORT']
 published_dir = ENV['BBB_AWS_PUBLISHED_DIR']
@@ -463,7 +466,8 @@ if $opts[:debug]
   logger.level = Logger::DEBUG
   BigBlueButtonAwsRecorder.logger = logger
 else
-  logger = Logger.new(log_file,'daily' )
+  FileUtils.mkdir_p File.dirname(log_file)
+  logger = Logger.new(log_file, 'daily')
   logger.level = Logger::INFO
   BigBlueButtonAwsRecorder.logger = logger
 end

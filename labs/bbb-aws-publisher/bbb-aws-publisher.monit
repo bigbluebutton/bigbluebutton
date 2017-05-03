@@ -1,3 +1,0 @@
-check process bbb-aws-publisher with pidfile /var/run/bbb-aws-publisher.pid
-    start program = "/etc/init.d/bbb-aws-publisher start" with timeout 60 seconds
-    stop program = "/etc/init.d/bbb-aws-publisher stop"

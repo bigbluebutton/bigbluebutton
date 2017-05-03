@@ -1,0 +1,16 @@
+[Unit]
+Description=BigBlueButton Apps (Akka)
+Requires=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/share/bbb-aws-publisher
+Environment=BUNDLE_GEMFILE=/usr/share/bbb-aws-publisher/Gemfile
+ExecStart=/usr/local/bin/bundle exec ruby /usr/share/bbb-aws-publisher/s3.rb watch
+
+Restart=always
+RestartSec=60
+User=bigbluebutton
+
+[Install]
+WantedBy=multi-user.target
