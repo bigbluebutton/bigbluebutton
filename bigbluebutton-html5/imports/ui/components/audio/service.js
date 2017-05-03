@@ -16,6 +16,7 @@ const init = () => {
   const turns = Meeting.turns;
   const stuns = Meeting.stuns;
   const voiceBridge = Meeting.voiceConf;
+  const microphoneLockEnforced = Meeting.roomLockSettings.disableMic;
 
   const userData = {
     userId,
@@ -23,6 +24,7 @@ const init = () => {
     turns,
     stuns,
     voiceBridge,
+    microphoneLockEnforced,
   };
 
   audioManager = new AudioManager(userData);
