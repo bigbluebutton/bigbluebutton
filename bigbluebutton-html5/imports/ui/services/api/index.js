@@ -75,6 +75,7 @@ function logClient() {
 };
 
 const API = {
+  logClient,
   makeCall,
   call,
 };
