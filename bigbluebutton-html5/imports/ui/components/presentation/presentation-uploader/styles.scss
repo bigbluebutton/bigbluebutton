@@ -1,4 +1,9 @@
-@import "../../stylesheets/variables/_all";
+@import "../../../stylesheets/variables/_all";
+@import "../../../stylesheets/mixins/_scrollable";
+
+.fileList {
+  @include scrollbox-vertical();
+}
 
 .table {
   width: 100%;

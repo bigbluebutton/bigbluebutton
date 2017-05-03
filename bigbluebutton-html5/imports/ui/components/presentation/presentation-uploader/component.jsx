@@ -1,17 +1,13 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl, FormattedDate } from 'react-intl';
-import update from 'react-addons-update';
-import Modal from '/imports/ui/components/modal/component';
+import update from 'immutability-helper';
+import ModalFullscreen from '/imports/ui/components/modal/component';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
+import Checkbox from '/imports/ui/components/checkbox/component';
 import Dropzone from 'react-dropzone';
 import styles from './styles.scss';
 import cx from 'classnames';
-
-import SUPPORTED_FILE_MIMES from '/imports/utils/supportedFileMimeTypes';
-
-const FILE_SIZE_MIN = 0;
-const FILE_SIZE_MAX = Infinity;
 
 const intlMessages = defineMessages({
   title: {
@@ -56,6 +52,7 @@ class PresentationUploder extends Component {
 
     this.state = {
       presentations: props.presentations,
+      isProcessing: false,
     };
 
     this.handleConfirm = this.handleConfirm.bind(this);
@@ -67,6 +64,13 @@ class PresentationUploder extends Component {
 
   handleConfirm() {
     const { presentations }  = this.state;
+
+    this.setState({ isProcessing: true });
+
+    return this.props.handleSave(presentations)
+      .then(() => {
+        this.setState({ isProcessing: false });
+      });
   }
 
   handleDismiss() {
@@ -75,6 +79,8 @@ class PresentationUploder extends Component {
 
   handleFiledrop(files) {
     let presentationsToUpload = files.map(file => ({
+      id: file.name,
+      file: file,
       filename: file.name,
       uploadedAt: new Date(),
       isCurrent: false,
@@ -126,24 +132,27 @@ class PresentationUploder extends Component {
 
   render() {
     const { intl } = this.props;
+    const { isProcessing }  = this.state;
 
     return (
-      <Modal
+      <ModalFullscreen
         title={intl.formatMessage(intlMessages.title)}
         confirm={{
           callback: this.handleConfirm,
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
+          disabled: isProcessing,
         }}
         dismiss={{
           callback: this.handleDismiss,
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
+          disabled: isProcessing,
         }}>
         <p>{intl.formatMessage(intlMessages.message)}</p>
         {this.renderPresentationList()}
         {this.renderDropzone()}
-      </Modal>
+      </ModalFullscreen>
     );
   }
 
@@ -154,15 +163,19 @@ class PresentationUploder extends Component {
       .sort((a, b) => a.uploadedAt.getTime() - b.uploadedAt.getTime());
 
     return (
-      <table className={styles.table}>
-        <tbody>
-        { presentationsSorted.map(item => this.renderPresentationItem(item))}
-        </tbody>
-      </table>
+      <div className={styles.fileList}>
+        <table className={styles.table}>
+          <tbody>
+          { presentationsSorted.map(item => this.renderPresentationItem(item))}
+          </tbody>
+        </table>
+      </div>
     );
   }
 
   renderPresentationItem(item) {
+    const { isProcessing }  = this.state;
+
     let itemClassName = {};
 
     itemClassName[styles.tableItemNew] = !item.isUploaded && !item.isProcessed;
@@ -171,11 +184,11 @@ class PresentationUploder extends Component {
 
     return (
       <tr
-        key={item._id}
+        key={item.id}
         className={cx(itemClassName)}
       >
         <td className={styles.tableItemIcon}>
-          <Icon iconName={'undecided'}/>
+          <Icon iconName={'file'}/>
         </td>
         <th className={styles.tableItemName}>
           <span>{item.filename}</span>
@@ -198,13 +211,15 @@ class PresentationUploder extends Component {
           }
         </td>
         <td className={styles.tableItemActions}>
-          <ButtonBase onClick={() => this.handleCurrentChange(item)}>
-            <Icon iconName={!item.isCurrent ? 'circle' : 'check'}/>
-          </ButtonBase>
+          <Checkbox
+            disabled={isProcessing}
+            checked={item.isCurrent}
+            onChange={() => this.handleCurrentChange(item)}
+          />
           <ButtonBase
-            disabled={item.isCurrent || item.filename === 'default.pdf'}
+            disabled={isProcessing || item.isCurrent || item.filename === 'default.pdf'}
             onClick={() => this.handleRemove(item)}>
-            <Icon iconName={'circle-minus'}/>
+            <Icon iconName={'close'}/>
           </ButtonBase>
         </td>
       </tr>
@@ -212,18 +227,24 @@ class PresentationUploder extends Component {
   }
 
   renderDropzone() {
-    const { intl } = this.props;
+    const {
+      intl,
+      fileSizeMin,
+      fileSizeMax,
+      fileValidMimeTypes,
+    } = this.props;
 
     return (
       <Dropzone
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
         rejectClassName={styles.dropzoneReject}
-        accept={SUPPORTED_FILE_MIMES.join()}
-        minSize={FILE_SIZE_MIN}
-        maxSize={FILE_SIZE_MAX}
+        accept={fileValidMimeTypes.join()}
+        minSize={fileSizeMin}
+        maxSize={fileSizeMax}
         disablePreview={true}
         onDrop={this.handleFiledrop}
+        onDragStart={this.handleDragStart}
       >
         <Icon className={styles.dropzoneIcon} iconName={'undecided'}/>
         <p className={styles.dropzoneMessage}>

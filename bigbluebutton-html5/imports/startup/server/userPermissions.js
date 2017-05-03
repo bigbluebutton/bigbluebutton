@@ -9,6 +9,9 @@ const presenter = {
   subscribePoll: true,
   subscribeAnswers: true,
 
+  // presentation
+  removePresentation: true,
+  sharePresentation: true,
 };
 
 // holds the values for whether the moderator user is allowed to perform an action (true)
