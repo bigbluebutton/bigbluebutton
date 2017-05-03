@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { defineMessages, injectIntl } from 'react-intl';
+import { withModalMounter } from '../modal/service';
 import ClosedCaptions from '/imports/ui/components/settings/submenus/closed-captions/component';
 import Application from '/imports/ui/components/settings/submenus/application/container';
 import Participants from '/imports/ui/components/settings/submenus/participants/component';
@@ -105,6 +106,7 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: (() => {
+            this.props.mountModal(null);
             this.updateSettings(this.state.current);
           }),
           label: intl.formatMessage(intlMessages.SaveLabel),
@@ -199,4 +201,4 @@ class Settings extends Component {
 }
 
 Settings.propTypes = propTypes;
-export default injectIntl(Settings);
+export default withModalMounter(injectIntl(Settings));
