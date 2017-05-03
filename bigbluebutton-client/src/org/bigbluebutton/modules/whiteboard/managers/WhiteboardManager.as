@@ -66,12 +66,11 @@ package org.bigbluebutton.modules.whiteboard.managers
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
       highlighterCanvas.displayModel = displayModel;
-      displayModel.whiteboardModel = whiteboardModel;
       model.whiteboardModel = whiteboardModel
                 
 		  model.wbCanvas = highlighterCanvas;
-      displayModel.wbCanvas = highlighterCanvas;
-            
+			displayModel.setDependencies(highlighterCanvas, whiteboardModel);
+			
 			if (highlighterToolbar != null) return;
             
 			highlighterToolbar = new WhiteboardToolbar();

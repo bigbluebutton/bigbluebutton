@@ -63,12 +63,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected var _parentHeight:Number;
 		
 		/**
-		 * ID we can use to match the shape in the client's view
-		 * so we can use modify it; a unique identifier of each GraphicObject
-		 */
-		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
-		
-		/**
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
@@ -83,7 +77,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             return _id;
         }
         
-        public function get type():String {
+        public function get toolType():String {
             return _type;
         }
         

@@ -38,11 +38,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{WhiteboardPresenterEvent.MODIFIED_WHITEBOARD_ACCESS}" method="whiteboardAccessModified" />
   <mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
   <mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
-  <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
-  <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
   <mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
   <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
-  <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
   <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
   <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
   <mate:Listener type="{PresenterStatusEvent.ANNOTATIONS_PERMISSION_CHANGE}" method="handleEnableAnnotations" />
@@ -83,13 +80,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-		import org.bigbluebutton.modules.present.events.NavigationEvent;
 		import org.bigbluebutton.modules.present.events.UploadEvent;
 		import org.bigbluebutton.modules.present.model.Presenter;
 		import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 		import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 		import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-		import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 		import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -98,24 +93,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
-			[Bindable] private var hand_icon:Class = images.hand_icon;
-			[Bindable] private var pencil_icon:Class = images.pencil_icon;
-			[Bindable] private var undo_icon:Class = images.undo_icon;
-			[Bindable] private var delete_icon:Class = images.delete_icon;
-			[Bindable] private var rectangle_icon:Class = images.square_icon;
-			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
-			[Bindable] private var scribble_icon:Class = images.scribble_icon;
-			[Bindable] private var text_icon:Class = images.text_icon;            
-			[Bindable] private var triangle_icon:Class = images.triangle_icon;
-			[Bindable] private var line_icon:Class = images.line_icon;
-			[Bindable] private var fill_icon:Class = images.fill_icon;
-			[Bindable] private var transparency_icon:Class = images.transparency_icon;
-			[Bindable] private var eraser_icon:Class = images.eraser_icon;
-			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
-			[Bindable] private var select_icon:Class = images.select_icon;
-			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
 			[Bindable] public var wbOptions:WhiteboardOptions = new WhiteboardOptions();
 			
@@ -194,10 +173,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 canvas.changeColor(e);
 			}
 			
-			protected function changeFillColor(e:Event):void {
-				canvas.changeFillColor(e);
-			}
-			
 			protected function changeThickness(e:Event):void {
 				canvas.changeThickness(e);
 			}
@@ -210,14 +185,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFY_WHITEBOARD_ACCESS);
 				event.multiUser = !multiUser;
 				dispatcher.dispatchEvent(event);
-			}
-			
-			protected function toggleFill():void {
-				canvas.toggleFill();
-			}
-			
-			protected function toggleTransparency():void {
-				canvas.toggleTransparency();
 			}
 						
 			private function presenterMode(e:MadePresenterEvent):void {
@@ -330,12 +297,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                checkVisibility();
            }
            
-           private function handleSlideChange(e:NavigationEvent):void {
-               slideLoaded = false;
-               // don't switch the toolbar button on slide change
-               checkVisibility();
-           }
-           
            private function handlePresentationSwitch(e:UploadEvent):void {
                slideLoaded = false;
                if (panzoomBtn) {
@@ -343,14 +304,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                }
                checkVisibility();
            }
-           
-      private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
-        var gobj:GraphicObject = event.data;
-      }
-            
-      private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
-		var gobj:GraphicObject = event.data;
-      }
       
       private function toolbarAllowed():Boolean {
         return (multiUser? true : isPresenter);

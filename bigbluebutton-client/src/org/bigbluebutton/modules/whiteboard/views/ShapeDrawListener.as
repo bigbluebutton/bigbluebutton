@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _idGenerator:AnnotationIDGenerator;
     private var _curID:String;
     private var _wbModel:WhiteboardModel;
+    private var _wbId:String = null;
         
     public function ShapeDrawListener(idGenerator:AnnotationIDGenerator, 
                                        wbCanvas:WhiteboardCanvas, 
@@ -66,6 +67,8 @@ package org.bigbluebutton.modules.whiteboard.views
         
         _isDrawing = true;
         _drawStatus = DrawObject.DRAW_START;
+        
+        _wbId = _wbModel.getCurrentWhiteboardId();
         
         // Generate a shape id so we can match the mouse down and up events. Then we can
         // remove the specific shape when a mouse up occurs.
@@ -129,8 +132,13 @@ package org.bigbluebutton.modules.whiteboard.views
       dobj.id = _curID;
       
       var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
+      
+      if (_wbId != null) {
+        an.annotation["whiteboardId"] = _wbId;
+      }
+      
       if (an != null) {
-        _wbCanvas.sendGraphicToServer(an, WhiteboardDrawEvent.SEND_SHAPE);
+        _wbCanvas.sendGraphicToServer(an);
       }
             			
     }

@@ -28,7 +28,6 @@ package org.bigbluebutton.modules.whiteboard.models
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
@@ -59,8 +58,7 @@ package org.bigbluebutton.modules.whiteboard.models
 		public function addAnnotation(annotation:Annotation):void {
      // LOGGER.debug("*** Adding annotation [{0},{1},{2}] ****", [annotation.id, annotation.type, annotation.status]);
       var wb:Whiteboard;
-      if (annotation.status == DrawObject.DRAW_START || annotation.type == DrawObject.POLL
-		  || annotation.status == TextObject.TEXT_CREATED) {
+      if (annotation.status == DrawObject.DRAW_START || annotation.type == DrawObject.POLL) {
         wb = getWhiteboard(annotation.whiteboardId);
         if (wb != null) {
           wb.addAnnotation(annotation);
