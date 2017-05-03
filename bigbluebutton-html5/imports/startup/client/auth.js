@@ -40,7 +40,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
   Auth.authenticate()
     .then(callback)
     .catch(reason => {
-      logClient("error", { error: reason, method: "authenticatedRouteHandler" });
+      logClient('error', { error: reason, method: 'authenticatedRouteHandler' });
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });
