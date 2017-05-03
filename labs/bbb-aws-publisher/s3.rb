@@ -108,23 +108,27 @@ module BigBlueButtonAwsRecorder
     end
 
     def get_modified_link(link)
-      uri = URI.parse(link)
-      "#{get_media_url}#{uri.request_uri}"
+      parsed = URI.parse(link)
+      url  = get_media_url
+      url += parsed.path
+      url += '?' + parsed.query if parsed.query
+      url += '#' + parsed.fragment if parsed.fragment
+      url
     end
 
     private
 
     def compare_and_push(remote_prefix, local_dir, local_prefix, bucket_name, set_public)
       success = true
+
       local_md5 = load_local_md5sums(local_dir)
       remote_md5 = load_remote_md5sums(bucket_name, "#{remote_prefix}/MD5SUMS")
       modified_files = Hash[*(local_md5.to_a - remote_md5.to_a).flatten].keys
       updated_md5 = remote_md5.merge(local_md5)
+
       # we might avoid to record the file again if it's the same as local_md5
       record_md5sums_file(local_dir, updated_md5)
-      if updated_md5 != remote_md5
-        modified_files = modified_files + [ "MD5SUMS" ]
-      end
+      modified_files = modified_files + [ "MD5SUMS" ] if updated_md5 != remote_md5
 
       if modified_files.empty?
         BigBlueButtonAwsRecorder.logger.info "No need to push files to AWS"
