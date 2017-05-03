@@ -4,7 +4,7 @@ import styles from './styles.scss';
 import JoinAudio from '../join-audio/component';
 import AudioSettings from '../audio-settings/component';
 
-export default class Audio extends React.Component {
+export default class AudioModal extends React.Component {
   constructor(props) {
     super(props);
 
@@ -23,35 +23,30 @@ export default class Audio extends React.Component {
     this.submenus.push({ componentName: AudioSettings, });
   }
 
-  changeMenu(i) {
+  handleSubmenuChange(i) {
     this.setState({ activeSubmenu: i });
   }
 
-  createMenu() {
-    const curr = this.state.activeSubmenu === undefined ? 0 : this.state.activeSubmenu;
+  renderSubmenu(key) {
+    const curr = this.state.activeSubmenu ? 0 : this.state.activeSubmenu;
 
     let props = {
-      changeMenu: this.changeMenu.bind(this),
+      changeMenu: this.handleSubmenuChange.bind(this),
       JOIN_AUDIO: this.JOIN_AUDIO,
       AUDIO_SETTINGS: this.AUDIO_SETTINGS,
       LISTEN_ONLY: this.LISTEN_ONLY,
       handleJoinListenOnly: this.props.handleJoinListenOnly,
     };
 
-    const Submenu = this.submenus[curr].componentName;
+    const Submenu = this.submenus[key].componentName;
     return <Submenu {...props}/>;
   }
 
   render() {
     return (
-      <ModalBase
-        isTransparent={true}
-        isOpen={true}
-        onHide={null}
-        onShow={null}
-        className={styles.inner}>
+      <ModalBase overlayClassName={styles.overlay} className={styles.modal}>
         <div>
-          {this.createMenu()}
+          {this.renderSubmenu(this.state.activeSubmenu)}
         </div>
       </ModalBase>
     );

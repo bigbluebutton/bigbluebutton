@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
-import Modal from '/imports/ui/components/modal/component';
+import Modal from '/imports/ui/components/modal/fullscreen/component';
 
 const intlMessages = defineMessages({
   title: {

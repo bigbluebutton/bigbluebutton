@@ -18,8 +18,10 @@
 }
 
 .title {
+  @extend %text-elipsis;
   color: $color-gray;
   font-weight: 600;
+  width: 100%;
 }
 
 .separator {
