@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import { logClient } from '/imports/ui/services/api';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -39,7 +40,7 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
   Auth.authenticate()
     .then(callback)
     .catch(reason => {
-      console.error(reason);
+      logClient("error", { error: reason, method: "authenticatedRouteHandler" });
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });
