@@ -13,6 +13,7 @@ require 'nokogiri'
 require 'stringio'
 require 'trollop'
 require 'pp'
+require 'dotenv'
 
 module BigBlueButtonAwsRecorder
   # Logs information about its progress.
@@ -412,19 +413,18 @@ def path_to_timestamp(r)
   record_id_to_timestamp(path_to_record_id(r))
 end
 
-# load s3.yml from the same directory as the script
-props = YAML::load(File.open("#{File.dirname(File.expand_path(__FILE__))}/s3.yml"))
-redis_host = props['redis_host']
-redis_port = props['redis_port']
-published_dir = props['published_dir']
-unpublished_dir = props['unpublished_dir']
-log_dir = props['log_dir']
-aws_key = ENV['AWS_KEY'] || props['aws_key']
-aws_secret = ENV['AWS_SECRET'] || props['aws_secret']
-aws_region = ENV['AWS_REGION'] || props['aws_region']
-s3_bucket = ENV['S3_BUCKET'] || props['s3_bucket']
-$media_url = ENV['MEDIA_URL'] || props['media_url']
-$playback_dir = props['playback_dir']
+Dotenv.load('.env.local', '.env')
+redis_host = ENV['BBB_AWS_REDIS_HOST']
+redis_port = ENV['BBB_AWS_REDIS_PORT']
+published_dir = ENV['BBB_AWS_PUBLISHED_DIR']
+unpublished_dir = ENV['BBB_AWS_UNPUBLISHED_DIR']
+log_file = ENV['BBB_AWS_LOG_FILE']
+aws_key = ENV['BBB_AWS_KEY']
+aws_secret = ENV['BBB_AWS_SECRET']
+aws_region = ENV['BBB_AWS_REGION']
+s3_bucket = ENV['BBB_AWS_BUCKET']
+$media_url = ENV['BBB_AWS_MEDIA_URL']
+$playback_dir = ENV['BBB_AWS_PLAYBACK_DIR']
 
 SUB_COMMANDS = %w(upload upload-playback watch)
 Trollop::options do
@@ -463,7 +463,7 @@ if $opts[:debug]
   logger.level = Logger::DEBUG
   BigBlueButtonAwsRecorder.logger = logger
 else
-  logger = Logger.new("#{log_dir}/bbb-aws-recorder.log",'daily' )
+  logger = Logger.new(log_file,'daily' )
   logger.level = Logger::INFO
   BigBlueButtonAwsRecorder.logger = logger
 end
