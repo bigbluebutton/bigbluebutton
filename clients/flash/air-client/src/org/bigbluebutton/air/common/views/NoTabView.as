@@ -1,5 +1,9 @@
 package org.bigbluebutton.air.common.views {
 	
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.ui.Keyboard;
+	
 	import spark.components.View;
 	
 	import org.bigbluebutton.air.main.views.TopToolbarAIR;
@@ -22,6 +26,12 @@ package org.bigbluebutton.air.common.views {
 		 * Override this method in subclasses to be notified of rotation changes
 		 */
 		public function rotationHandler(rotation:String):void {
+		}
+		
+		public function triggerLeftMenuTap(event:KeyboardEvent):void {
+			if (_topToolbar.leftButton && _topToolbar.leftButton.visible && event.keyCode == Keyboard.BACK) {
+				_topToolbar.leftButton.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+			}
 		}
 		
 		protected function createToolbar():TopToolbarAIR {
