@@ -1,7 +1,6 @@
 #!/bin/bash
 # Install bc binayr to use this command line tool `sudo apt-get install bc`
 # Then install cssbeautify-cli node.js library `sudo npm install -g cssbeautify-cli`
-# npm install -g perfectionist --save
 # Resolution arrays declaration
 declare -a files=("ldpi" "mdpi" "hdpi" "xxhdpi" "xxxhdpi")
 declare -a resolutions=("120" "160" "240" "480" "640")
@@ -18,8 +17,9 @@ do
 		# Find any digit that matches the regex
         if [[ $line =~ $regex ]]
         then
-			# Replace the match
+			# Calculate the new value
             res_value=$(echo "scale=1; ${BASH_REMATCH[3]}*${ratios[$i]}" | bc -l)
+			# Replace the matched regex
             echo $line | sed "s/${BASH_REMATCH[3]}/${res_value}/g" >> src/css/tmp.css
         else
 			# Or write the line as it is
