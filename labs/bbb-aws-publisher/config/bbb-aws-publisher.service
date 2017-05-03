@@ -5,12 +5,10 @@ Requires=network.target
 [Service]
 Type=simple
 WorkingDirectory=/usr/share/bbb-aws-publisher
-Environment=BUNDLE_GEMFILE=/usr/share/bbb-aws-publisher/Gemfile
-ExecStart=/usr/local/bin/bundle exec ruby /usr/share/bbb-aws-publisher/s3.rb watch
-
+ExecStart=/usr/bin/bbb-aws-publisher --watch
 Restart=always
 RestartSec=60
-User=tomcat7
+User=root
 
 [Install]
 WantedBy=multi-user.target

@@ -18,6 +18,7 @@
 
 EXEC_CMD='/usr/local/bin/bundle exec ruby /usr/share/bbb-aws-publisher/s3.rb'
 USER=tomcat7
+GEMFILE_PATH=/usr/share/bbb-aws-publisher/Gemfile
 
 ENV_VARS=`env | grep "^BBB_AWS_.*"`
-sudo -u $USER $ENV_VARS $EXEC_CMD "$@"
+sudo -u $USER $ENV_VARS BUNDLE_GEMFILE=$GEMFILE_PATH $EXEC_CMD "$@"

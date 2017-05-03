@@ -440,9 +440,9 @@ $opts = Trollop::options do
   opt :watch, "Watch redis for changes to automatically upload and update recordings", short: '-w'
 end
 
-$opts.delete(:help)
-selected = $opts.reject{ |k,v| !v || k.match(/_given$/) }.keys[0]
-puts "Executing '#{selected}' on #{s3_bucket} (#{aws_region})"
+$cmd = $opts.reject{ |k,v| !v || k.match(/_given$/) }.keys[0]
+$cmd = :watch if $cmd.nil?
+puts "Executing '#{$cmd}' on #{s3_bucket} (#{aws_region})"
 
 if isset('BBB_AWS_DEBUG')
   logger = Logger.new(STDOUT)
@@ -463,12 +463,12 @@ rescue Exception => e
 end
 
 # update playbacks on the bucket
-if $opts[:upload_playback]
+if $cmd == :upload_playback
   $publisher.upload_playbacks($playback_dir, s3_bucket)
 end
 
 # upload existing recordings
-if $opts[:upload]
+if $cmd == :upload
   def collect_values(hashes)
     {}.tap{ |r| hashes.each{ |h| h.each{ |k,v| (r[k]||=[]) << v } } }
   end
@@ -485,7 +485,7 @@ if $opts[:upload]
   end
 end
 
-if $opts[:watch]
+if $cmd == :watch
   RECORDINGS_CHANNEL = "bigbluebutton:from-rap"
   $redis_pubsub = Redis.new(:host => redis_host, :port => redis_port)
   $redis_publisher = Redis.new(:host => redis_host, :port => redis_port)
