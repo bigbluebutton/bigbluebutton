@@ -6,7 +6,7 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 
-import { callServer } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -192,7 +192,7 @@ const sendMessage = (receiverID, message) => {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
   }
 
-  callServer('sendChat', messagePayload);
+  makeCall('sendChat', messagePayload);
 
   return messagePayload;
 };

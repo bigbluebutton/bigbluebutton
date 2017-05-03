@@ -1,6 +1,6 @@
 import BaseAudioBridge from './base';
 
-import { callServer } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const MEDIA_CONFIG = Meteor.settings.public.media;
@@ -14,7 +14,7 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   joinListenOnly() {
-    callServer('listenOnlyToggle', true);
+    makeCall('listenOnlyToggle', true);
     this._joinVoiceCallSIP({ isListenOnly: true });
   }
 
@@ -31,7 +31,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
       // notify BBB-apps we are leaving the call if we are in listen only mode
       if (isListenOnly) {
-        callServer('listenOnlyToggle', false);
+        makeCall('listenOnlyToggle', false);
       }
     };
 
