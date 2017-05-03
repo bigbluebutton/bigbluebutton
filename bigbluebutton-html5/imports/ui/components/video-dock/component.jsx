@@ -89,6 +89,7 @@ export default class VideoDock extends Component {
     let options = {
       localVideo: videoInput,
       remoteVideo: videoOutput,
+      mediaConstraints : { audio: false, video: true },
       onicecandidate : onIceCandidate
     }
 
