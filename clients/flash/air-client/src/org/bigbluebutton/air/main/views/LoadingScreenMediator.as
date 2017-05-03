@@ -41,7 +41,8 @@ package org.bigbluebutton.air.main.views {
 			if (Capabilities.isDebugger) {
 				//var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=AIR&meetingID=Demo+Meeting&password=mp&redirect=false&checksum=3fdf56e9915c1031c3ea012b4ec8823cedd7c272";
 				//var url:String = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=User+2021828&meetingID=Demo+Meeting&password=ap&redirect=true&checksum=8751963df96437c7d435eac8124e4fb3ec147115";
-				var url:String = "bigbluebutton://192.168.247.140/bigbluebutton/api/join?fullName=User+2995759&meetingID=Demo+Meeting&password=mp&redirect=true&checksum=0142ce580ef64b5b30c5551319d9fffc9d75925d";
+				//var url:String = "bigbluebutton://bbb.riadvice.com/bigbluebutton/api/join?fullName=User+6571157&meetingID=Mobile+Meeting&password=mp&redirect=true&checksum=ed779570bbfa11a2e857ffb36eda5184d70bc6ca";
+				var url:String = "bigbluebutton://dev.bigbluebutton.org/bigbluebutton/api/join?fullName=AIR+Client&meetingID=Demo+Meeting&password=ap&redirect=true&checksum=f1671c5e125522f69da92e46353cc6c75df4b31d";
 				joinRoom(url);
 			}
 		}
