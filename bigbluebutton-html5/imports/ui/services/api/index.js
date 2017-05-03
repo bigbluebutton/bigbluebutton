@@ -75,6 +75,7 @@ function logClient() {
 };
 
 const API = {
+  logClient,
   makeCall,
   call
 };
@@ -82,5 +83,5 @@ const API = {
 export default API;
 
 export {
-  makeCall, call
+  makeCall, call, logClient
 };
