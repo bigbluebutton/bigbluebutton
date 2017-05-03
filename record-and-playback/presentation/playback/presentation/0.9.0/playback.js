@@ -119,8 +119,11 @@ replaceTimeOnUrl = function(secs) {
 }
 
 var params = getUrlParameters();
-var MEETINGID = params['meetingId'];
-var RECORDINGS = getFullUrl();
+var metadata_xml = '/presentation/' + MEETINGID + '/metadata.xml';
+var metadata = getMetadata();
+var media_url = getMediaUrl(metadata);
+var MEETINGID = params.meetingId;
+var RECORDINGS = getFullUrl(media_url);
 var SLIDES_XML = RECORDINGS + '/slides_new.xml';
 var SHAPES_SVG = RECORDINGS + '/shapes.svg';
 var hasVideo = false;

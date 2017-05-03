@@ -103,9 +103,13 @@ module BigBlueButtonAwsRecorder
       success
     end
 
+    def get_media_url
+      $media_url
+    end
+
     def get_modified_link(link)
       uri = URI.parse(link)
-      "#{$playback_protocol}://#{$playback_host}#{uri.request_uri}"
+      "#{get_media_url}#{uri.request_uri}"
     end
 
     private
@@ -162,7 +166,14 @@ module BigBlueButtonAwsRecorder
           # update the playback links in the metadata file to use the new domain
           metadata_updated = update_metadata_link(metadata_file)
           if metadata_updated
-            BigBlueButtonAwsRecorder.logger.info "Metadata updated"
+            BigBlueButtonAwsRecorder.logger.info "Metadata updated with links to remote playback"
+            local_success &= compare_and_push(prefix, "#{published_dir}/#{prefix}", published_dir, bucket_name, set_public)
+          end
+        else
+          # add an attribute to the metadata with the domain where the files are at
+          metadata_updated = add_media_url_to_metadata(metadata_file)
+          if metadata_updated
+            BigBlueButtonAwsRecorder.logger.info "Metadata updated with 'media_url'"
             local_success &= compare_and_push(prefix, "#{published_dir}/#{prefix}", published_dir, bucket_name, set_public)
           end
         end
@@ -195,6 +206,32 @@ module BigBlueButtonAwsRecorder
         false
       else
         doc.at('link').content = new_link
+
+        metadata_xml = File.new(metadata_file,"w")
+        metadata_xml.write(doc.to_xml(:indent => 2))
+        metadata_xml.close
+        true
+      end
+    end
+
+    def add_media_url_to_metadata(metadata_file)
+      FileUtils.cp(metadata_file, "#{metadata_file}.orig") if ! File.exists?("#{metadata_file}.orig")
+      doc = nil
+      begin
+        doc = Nokogiri::XML(open(metadata_file).read)
+      rescue Exception => e
+        BigBlueButtonAwsRecorder.logger.error "Something went wrong: #{$!}"
+        raise e
+      end
+
+      if !doc.at('media_url')
+        media_url_node = "  <media_url></media_url>\n"
+        doc.root.add_child(media_url_node)
+      end
+
+      new_url = get_media_url
+      if doc.at('media_url').content != new_url
+        doc.at('media_url').content = new_url
 
         metadata_xml = File.new(metadata_file,"w")
         metadata_xml.write(doc.to_xml(:indent => 2))
@@ -382,8 +419,7 @@ aws_key = ENV['AWS_KEY'] || props['aws_key']
 aws_secret = ENV['AWS_SECRET'] || props['aws_secret']
 aws_region = ENV['AWS_REGION'] || props['aws_region']
 s3_bucket = ENV['S3_BUCKET'] || props['s3_bucket']
-$playback_host = props['playback_host']
-$playback_protocol = props['playback_protocol']
+$media_url = ENV['MEDIA_URL'] || props['media_url']
 $playback_dir = props['playback_dir']
 
 SUB_COMMANDS = %w(upload upload-playback watch)

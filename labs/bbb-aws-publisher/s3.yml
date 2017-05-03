@@ -1,13 +1,16 @@
+# AWS configuration
 aws_key:
 aws_secret:
 aws_region: # sa-east-1
 s3_bucket: recordings
 
-published_dir: /var/bigbluebutton/published
-unpublished_dir: /var/bigbluebutton/unpublished
+# the full domain of your Amazon bucket
+media_url: http://rec-example.bigbluebutton.org
+
+# app
 log_dir: /var/log/bigbluebutton
 redis_host: 127.0.0.1
 redis_port: 6379
-playback_host: rec-dev.bigbluebutton.org
-playback_protocol: http
+published_dir: /var/bigbluebutton/published
+unpublished_dir: /var/bigbluebutton/unpublished
 playback_dir: /var/bigbluebutton/playback

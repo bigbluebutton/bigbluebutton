@@ -27,15 +27,23 @@ function getUrlParameters() {
     return map;
 }
 
-function getFullUrl() {
-  var params = getUrlParameters();
+function getMediaUrl(metadata) {
+  var media_url = metadata.getElementsByTagName("media_url");
+  if (media_url) {
+    return media_url[0].textContent;
+  } else {
+    return null;
+  }
+}
+
+function getFullUrl(media_url) {
+  // var params = getUrlParameters();
   var url = 'presentation/' + MEETINGID;
-  if (params.host) {
-    var host = params.host;
-    if (!host.match(/\/$/)) {
-      host = host + '/';
+  if (media_url) {
+    if (!media_url.match(/\/$/)) {
+      media_url = media_url + '/';
     }
-    url = host + url;
+    url = media_url + url;
     if (!url.match(/^http/)) {
       url = 'http://' + url;
     }
@@ -44,6 +52,40 @@ function getFullUrl() {
   }
   return url;
 }
+
+// Fetches the metadata associated with the recording and uses it to configure
+// the playback page
+var getMetadata = function() {
+  var xmlhttp;
+  if (window.XMLHttpRequest) {// code for IE7, Firefox, Chrome, Opera, Safari
+    xmlhttp = new XMLHttpRequest();
+  } else {// code for IE6, IE5
+    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.open("GET", metadata_xml, false);
+  xmlhttp.send(null);
+
+  var xmlDoc;
+  if (xmlhttp.responseXML)
+    xmlDoc = xmlhttp.responseXML;
+  else {
+    var parser = new DOMParser();
+    xmlDoc = parser.parseFromString(xmlhttp.responseText, "application/xml");
+  }
+
+  var metadata = xmlDoc.getElementsByTagName("meta");
+  if (metadata.length > 0) {
+    metadata = metadata[0];
+
+    var meetingName = metadata.getElementsByTagName("meetingName");
+    if (meetingName.length > 0) {
+      $("#recording-title").text(meetingName[0].textContent);
+      $("#recording-title").attr("title", meetingName[0].textContent);
+    }
+  }
+
+  return xmlDoc;
+};
 
 // - - - END OF GLOBAL VARIABLES - - - //
 
@@ -144,8 +186,6 @@ function removeSlideChangeAttribute() {
 
 function runPopcorn() {
   console.log("** Running popcorn");
-
-  getMetadata();
 
   svgfile = getSVGFile();
 
@@ -507,11 +547,13 @@ var cursorShownAt = 0;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
-var url = getFullUrl();
+var metadata_xml = '/presentation/' + MEETINGID + '/metadata.xml';
+var metadata = getMetadata();
+var media_url = getMediaUrl(metadata);
+var url = getFullUrl(media_url);
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
-var metadata_xml = url + '/metadata.xml';
 
 var firstLoad = true;
 var svjobjLoaded = false;
@@ -548,37 +590,6 @@ var setupWriting = function() {
   p.currentTime(defineStartTime());
 
   removeLoadingScreen();
-};
-
-// Fetches the metadata associated with the recording and uses it to configure
-// the playback page
-var getMetadata = function() {
-  var xmlhttp;
-  if (window.XMLHttpRequest) {// code for IE7, Firefox, Chrome, Opera, Safari
-    xmlhttp = new XMLHttpRequest();
-  } else {// code for IE6, IE5
-    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-  }
-  xmlhttp.open("GET", metadata_xml, false);
-  xmlhttp.send(null);
-
-  if (xmlhttp.responseXML)
-    var xmlDoc = xmlhttp.responseXML;
-  else {
-    var parser = new DOMParser();
-    var xmlDoc = parser.parseFromString(xmlhttp.responseText, "application/xml");
-  }
-
-  var metadata = xmlDoc.getElementsByTagName("meta");
-  if (metadata.length > 0) {
-    metadata = metadata[0];
-
-    var meetingName = metadata.getElementsByTagName("meetingName");
-    if (meetingName.length > 0) {
-      $("#recording-title").text(meetingName[0].textContent);
-      $("#recording-title").attr("title", meetingName[0].textContent);
-    }
-  }
 };
 
 var currentImage;
