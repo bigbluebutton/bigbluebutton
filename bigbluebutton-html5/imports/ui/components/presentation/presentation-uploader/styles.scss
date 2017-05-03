@@ -3,6 +3,7 @@
 
 .fileList {
   @include scrollbox-vertical();
+  max-height: 50vh;
 }
 
 .table {
@@ -73,6 +74,16 @@
 
 .tableItemNew {
   background-color: transparentize($color-primary, .95);
+}
+
+.itemAction {
+  display: inline-block;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.35rem;
+  color: $color-gray-light;
+  padding: 0;
 }
 
 .dropzone {

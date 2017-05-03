@@ -1,7 +1,7 @@
 import Presentations from '/imports/api/presentations';
 import Auth from '/imports/ui/services/auth';
 
-import { makeCall } from '/imports/ui/services/api';
+import { call } from '/imports/ui/services/api';
 
 const getPresentations = () =>
   Presentations
@@ -32,20 +32,28 @@ const uploadPresentation = (file, meetingID, endpoint) => {
   });
 };
 
-const removePresentation = (presentationID) => {
-  return makeCall('removePresentation');
-};
+const uploadPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =>
+  Promise.all(
+    presentationsToUpload
+      .map(p => uploadPresentation(p.file, meetingID, uploadEndpoint))
+  );
+
+const removePresentation = presentationID => call('removePresentation', presentationID);
+
+const removePresentations = presentationsToRemove =>
+  Promise.all(presentationsToRemove.map(p => removePresentation(p.id)));
 
 const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
   const presentationsToUpload = newState.filter(_ => !oldState.includes(_));
-  const presentationsToDelete = oldState.filter(_ => !newState.includes(_));
+  const presentationsToRemove = oldState.filter(_ => !newState.includes(_));
+  const currentPresentation = newState.find(_ => _.isCurrent);
+
   return new Promise((resolve, reject) =>
-    Promise.resolve().then(
-      Promise.all(presentationsToUpload.map(p =>
-        uploadPresentation(p.file, Auth.meetingID, uploadEndpoint)))
-    ).then(
-      Promise.all(presentationsToDelete.map(p => removePresentation(p.filename)))
-    ).then(() => makeCall('sharePresentation'))
+    uploadPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
+    .then(removePresentations.bind(null, presentationsToRemove))
+    .then(call.bind(null, 'sharePresentation', currentPresentation.id, true))
+    .then(resolve)
+    .catch(reject)
   );
 };
 

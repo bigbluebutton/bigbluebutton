@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl, FormattedDate } from 'react-intl';
 import update from 'immutability-helper';
-import ModalFullscreen from '/imports/ui/components/modal/component';
+import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
@@ -83,13 +83,18 @@ class PresentationUploder extends Component {
       file: file,
       filename: file.name,
       uploadedAt: new Date(),
-      isCurrent: false,
+      isCurrent: true,
       isUploaded: false,
       isProcessed: false,
     }));
 
     this.setState(({ presentations }) => ({
-      presentations: presentations.concat(presentationsToUpload),
+      presentations: presentations
+        .map(p => {
+          p.isCurrent = false;
+          return p;
+        })
+        .concat(presentationsToUpload),
     }));
   }
 
@@ -174,13 +179,15 @@ class PresentationUploder extends Component {
   }
 
   renderPresentationItem(item) {
-    const { isProcessing }  = this.state;
+    const { isProcessing, presentations }  = this.state;
 
     let itemClassName = {};
 
     itemClassName[styles.tableItemNew] = !item.isUploaded && !item.isProcessed;
     itemClassName[styles.tableItemUploading] = item.isUploading;
     itemClassName[styles.tableItemProcessing] = item.isProcessing;
+
+    const hideActions = isProcessing || presentations.some(_ => !_.isUploaded);
 
     return (
       <tr
@@ -210,18 +217,23 @@ class PresentationUploder extends Component {
             )
           }
         </td>
-        <td className={styles.tableItemActions}>
-          <Checkbox
-            disabled={isProcessing}
-            checked={item.isCurrent}
-            onChange={() => this.handleCurrentChange(item)}
-          />
-          <ButtonBase
-            disabled={isProcessing || item.isCurrent || item.filename === 'default.pdf'}
-            onClick={() => this.handleRemove(item)}>
-            <Icon iconName={'close'}/>
-          </ButtonBase>
-        </td>
+        {hideActions ? null : (
+          <td className={styles.tableItemActions}>
+            <Checkbox
+              ariaLabel={'Set as current presentation'}
+              className={styles.itemAction}
+              checked={item.isCurrent}
+              onChange={() => this.handleCurrentChange(item)}
+            />
+            <ButtonBase
+              className={styles.itemAction}
+              label={'Remove presentation'}
+              disabled={isProcessing || item.isCurrent || item.filename === 'default.pdf'}
+              onClick={() => this.handleRemove(item)}>
+              <Icon iconName={'close'}/>
+            </ButtonBase>
+          </td>
+        )}
       </tr>
     );
   }
@@ -234,8 +246,11 @@ class PresentationUploder extends Component {
       fileValidMimeTypes,
     } = this.props;
 
+    // TODO: Change the multiple prop when the endpoint supports multiple files
+
     return (
       <Dropzone
+        multiple={false}
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
         rejectClassName={styles.dropzoneReject}

@@ -29,7 +29,7 @@ export default function removePresentation(credentials, presentationId) {
   }
 
   let payload = {
-    meeting_id: currentPoll.meetingId,
+    meeting_id: meetingId,
     presentation_id: presentationId,
   };
 

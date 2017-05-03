@@ -19,7 +19,7 @@ export default function sharePresentation(credentials, presentationId, shouldSha
   check(shouldShare, Boolean);
 
   let payload = {
-    meeting_id: currentPoll.meetingId,
+    meeting_id: meetingId,
     presentation_id: presentationId,
     share: shouldShare,
   };

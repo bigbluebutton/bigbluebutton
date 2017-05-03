@@ -9,16 +9,19 @@ import ListSeparator from './separator/component';
 import ListTitle from './title/component';
 
 const propTypes = {
-  children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
-    if (propValue[key].type !== ListItem &&
-        propValue[key].type !== ListSeparator &&
-        propValue[key].type !== ListTitle) {
-      return new Error(
-        'Invalid prop `' + propFullName + '` supplied to' +
-        ' `' + componentName + '`. Validation failed.'
-      );
-    }
-  }),
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
+      if (propValue[key].type !== ListItem &&
+          propValue[key].type !== ListSeparator &&
+          propValue[key].type !== ListTitle) {
+        return new Error(
+          'Invalid prop `' + propFullName + '` supplied to' +
+          ' `' + componentName + '`. Validation failed.'
+        );
+      }
+    }),
+     PropTypes.element,
+  ]).isRequired,
 };
 
 export default class DropdownList extends Component {

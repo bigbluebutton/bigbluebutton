@@ -13,22 +13,25 @@ export default class Checkbox extends Component {
   }
 
   handleChange() {
-    this.onChange();
+    if (!this.props.disabled)
+      this.onChange();
   }
 
   render() {
-
-    const { ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy, } = this.props;
+    const { className, ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy, disabled } = this.props;
 
     return (
-      <div className={styles.container}>
+      <div className={cx({
+        [styles.disabled]: !!disabled,
+      }, styles.container, className)}>
         <input
           type='checkbox'
           onChange={this.handleChange}
           checked={this.props.checked}
           className={styles.input}
           aria-labelledby={ariaLabelledBy}
-          aria-describedby={ariaDescribedBy}/>
+          aria-describedby={ariaDescribedBy}
+          disabled={disabled} />
         <div onClick={this.handleChange}>
           { this.props.checked ?
             <Icon iconName='check' className={cx(styles.icon, styles.checked)}/> :
