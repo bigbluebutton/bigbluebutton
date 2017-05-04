@@ -122,11 +122,29 @@ export default class PresentationArea extends React.Component {
       //and adjust cursor's thickness, so that svg didn't scale it automatically
       let adjustedSizes = this.calculateSize();
 
+      //a reference to the slide object
       let slideObj = this.props.currentSlide.slide;
-      let x = -slideObj.x_offset * 2 * slideObj.width / 100;
-      let y = -slideObj.y_offset * 2 * slideObj.height / 100;
-      let viewBoxWidth = slideObj.width * slideObj.width_ratio / 100;
-      let viewBoxHeight = slideObj.height * slideObj.height_ratio / 100;
+
+      //calculating the coordinate system for the svg; we set it based on the slide's width/height ratio
+      //the longest value becomes '1000' and the second is calculated accordingly to keep the ratio
+      //if we don't do it, then the shapes' thickness changes with the slides' resolution
+      //1000 makes html5 shapes' thickness approximately match
+      //Flash client's shapes' thickness in a default view (full screen window) at this point.
+      let svgWidth;
+      let svgHeight;
+      if(slideObj.width > slideObj.height) {
+        svgWidth = 1000;
+        svgHeight = 1000 / (slideObj.width / slideObj.height);
+      } else {
+        svgHeight = 1000;
+        svgWidth = 1000 / (slideObj.height / slideObj.width);
+      }
+
+      //calculating viewBox and offsets for the current presentation
+      let x = -slideObj.x_offset * 2 * svgWidth / 100;
+      let y = -slideObj.y_offset * 2 * svgHeight / 100;
+      let viewBoxWidth = svgWidth * slideObj.width_ratio / 100;
+      let viewBoxHeight = svgHeight * slideObj.height_ratio / 100;
 
       return (
         <div
@@ -154,8 +172,8 @@ export default class PresentationArea extends React.Component {
           transitionLeaveTimeout={400}
         >
           <svg
-            width={slideObj.width}
-            height={slideObj.height}
+            width={svgWidth}
+            height={svgHeight}
             ref="svggroup"
             viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
             version="1.1"
@@ -171,12 +189,15 @@ export default class PresentationArea extends React.Component {
             <g clipPath="url(#viewBox)">
               <Slide
                 id="slideComponent"
-                currentSlide={this.props.currentSlide}
+                slideHref={this.props.currentSlide.slide.img_uri}
+                svgWidth={svgWidth}
+                svgHeight={svgHeight}
               />
               <ShapeGroupContainer
-                width = {slideObj.width}
-                height = {slideObj.height}
+                width={svgWidth}
+                height={svgHeight}
                 whiteboardId = {slideObj.id}
+
               />
               {this.props.cursor ?
                 <Cursor
@@ -187,7 +208,7 @@ export default class PresentationArea extends React.Component {
                 cursorX={this.props.cursor.x}
                 cursorY={this.props.cursor.y}
                 widthRatio={slideObj.width_ratio}
-                physicalWidthRatio={adjustedSizes.width / slideObj.width}
+                physicalWidthRatio={adjustedSizes.width / svgWidth}
                 />
               : null }
             </g>
@@ -201,8 +222,8 @@ export default class PresentationArea extends React.Component {
                 <WhiteboardOverlayContainer
                   getSvgRef={this.getSvgRef.bind(this)}
                   whiteboardId = {slideObj.id}
-                  slideWidth={slideObj.width}
-                  slideHeight={slideObj.height}
+                  slideWidth={svgWidth}
+                  slideHeight={svgHeight}
                   viewBoxX={x}
                   viewBoxY={y}
                 />
