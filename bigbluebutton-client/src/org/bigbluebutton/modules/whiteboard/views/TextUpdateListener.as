@@ -11,6 +11,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
 	public class TextUpdateListener {
@@ -36,12 +37,12 @@ package org.bigbluebutton.modules.whiteboard.views {
 			 * If so, publish the last text annotation. 
 			 */
 			if (needToPublish()) {
-				sendTextToServer(DrawObject.DRAW_END, _currentTextObject);
+				sendTextToServer(AnnotationStatus.DRAW_END, _currentTextObject);
 			}
 		}
 		
 		private function needToPublish():Boolean {
-			return _currentTextObject != null && _currentTextObject.status != DrawObject.DRAW_END;
+			return _currentTextObject != null && _currentTextObject.status != AnnotationStatus.DRAW_END;
 		}
 		
 		public function isEditingText():Boolean {
@@ -73,7 +74,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		private function textObjTextChangeListener(event:Event):void {
 			// The text is being edited. Notify others to update the text.
-			var sendStatus:String = DrawObject.DRAW_UPDATE;
+			var sendStatus:String = AnnotationStatus.DRAW_UPDATE;
 			var tf:TextObject = event.target as TextObject;  
 			sendTextToServer(sendStatus, tf);  
 		}
@@ -81,7 +82,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private function textObjKeyDownListener(event:KeyboardEvent):void {
 			// check for special conditions
 			if (event.keyCode  == Keyboard.DELETE || event.keyCode  == Keyboard.BACKSPACE || event.keyCode  == Keyboard.ENTER) {
-				var sendStatus:String = DrawObject.DRAW_UPDATE;
+				var sendStatus:String = AnnotationStatus.DRAW_UPDATE;
 				var tobj:TextObject = event.target as TextObject;
 				sendTextToServer(sendStatus, tobj);
 			}
@@ -99,7 +100,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function sendTextToServer(status:String, tobj:TextObject):void {
-			if (status == DrawObject.DRAW_END) {
+			if (status == AnnotationStatus.DRAW_END) {
 				tobj.deregisterListeners(textObjLostFocusListener, textObjTextChangeListener, textObjKeyDownListener);
 				_currentTextObject = null;
 				_whiteboardCanvas.textToolbar.syncPropsWith(null);

@@ -34,7 +34,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
-			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
@@ -82,10 +81,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{WhiteboardDrawEvent.UNDO}" >
 		<MethodInvoker generator="{WhiteboardService}" method="undoGraphic" />
 	</EventHandlers>
-	
-	<EventHandlers type="{ToggleGridEvent.TOGGLE_GRID}" >
-		<MethodInvoker generator="{WhiteboardService}" method="toggleGrid" />
-	</EventHandlers>
 					
 	<EventHandlers type="{WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="positionToolbar" arguments="{event}" />
@@ -105,10 +100,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<EventHandlers type="{WhiteboardUpdate.UNDO_ANNOTATION}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="undoAnnotation" arguments="{event}" />
-	</EventHandlers>
-  
-	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="toggleGrid"  arguments="{event}" />
 	</EventHandlers>
   
 	<EventHandlers type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" >

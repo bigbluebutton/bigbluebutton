@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
 
 	/**
 	 * The Pencil class. Extends a DrawObject 
@@ -32,7 +33,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override protected function makeGraphic():void {
-			if (status == DrawObject.DRAW_END && (_ao.points.length > 2)) {
+			if (status == AnnotationStatus.DRAW_END && (_ao.points.length > 2)) {
 				drawFinishedLine();
 			} else {
 				drawSimpleLine();
@@ -116,7 +117,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		override public function updateAnnotation(a:Annotation):void {
 			status = a.status;
 			
-			if (status == DrawObject.DRAW_UPDATE) {
+			if (status == AnnotationStatus.DRAW_UPDATE) {
 				var newPoints:Array = a.annotation.points;
 				
 				_ao = a.annotation;

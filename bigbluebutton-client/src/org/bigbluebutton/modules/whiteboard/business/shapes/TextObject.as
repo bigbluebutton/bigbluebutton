@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 	
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
 	
 	public class TextObject extends TextField implements GraphicObject {
 		private var _id:String;
@@ -55,7 +56,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			wordWrap = true;
 			
 			//determine editability
-			makeEditable(userId == UserManager.getInstance().getConference().getMyUserId() && status != DrawObject.DRAW_END);
+			makeEditable(userId == UserManager.getInstance().getConference().getMyUserId() && status != AnnotationStatus.DRAW_END);
 		}
 		
 		public function get id():String {
@@ -100,7 +101,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			_ao = a.annotation;
 			_status = _ao.status;
 			
-			if (_status == DrawObject.DRAW_END) {
+			if (_status == AnnotationStatus.DRAW_END) {
 				makeEditable(false);
 			}
 			

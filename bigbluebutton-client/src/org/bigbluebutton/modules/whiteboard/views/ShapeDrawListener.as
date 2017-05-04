@@ -26,12 +26,14 @@ package org.bigbluebutton.modules.whiteboard.views
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
+  import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
   
   public class ShapeDrawListener implements IDrawListener
   {
-    private var _drawStatus:String = DrawObject.DRAW_START;
+    private var _drawStatus:String = AnnotationStatus.DRAW_START;
     private var _isDrawing:Boolean = false; 
     private var _segment:Array = new Array();
     private var _wbCanvas:WhiteboardCanvas;
@@ -56,17 +58,17 @@ package org.bigbluebutton.modules.whiteboard.views
     }
     
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
-      if (tool.toolType == DrawObject.RECTANGLE || 
-          tool.toolType == DrawObject.TRIANGLE || 
-          tool.toolType == DrawObject.ELLIPSE || 
-          tool.toolType == DrawObject.LINE) {
+      if (tool.toolType == AnnotationType.RECTANGLE || 
+          tool.toolType == AnnotationType.TRIANGLE || 
+          tool.toolType == AnnotationType.ELLIPSE || 
+          tool.toolType == AnnotationType.LINE) {
         if (_isDrawing) { //means we missed the UP
           onMouseUp(mouseX, mouseY, tool);
           return;
         }
         
         _isDrawing = true;
-        _drawStatus = DrawObject.DRAW_START;
+        _drawStatus = AnnotationStatus.DRAW_START;
         
         _wbId = _wbModel.getCurrentWhiteboardId();
         
@@ -99,7 +101,7 @@ package org.bigbluebutton.modules.whiteboard.views
           _segment[2] = np.x;
           _segment[3] = np.y;
           
-          sendShapeToServer(DrawObject.DRAW_UPDATE, tool);
+          sendShapeToServer(AnnotationStatus.DRAW_UPDATE, tool);
         }
       }
     }
@@ -114,7 +116,7 @@ package org.bigbluebutton.modules.whiteboard.views
             */
           _isDrawing = false;
           
-          sendShapeToServer(DrawObject.DRAW_END, tool);
+          sendShapeToServer(AnnotationStatus.DRAW_END, tool);
         } /* (_isDrawing) */                
       }
     }

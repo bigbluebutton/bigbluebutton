@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   import flash.geom.Point;
   
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   
   /**
@@ -54,19 +55,19 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
         
     public function makeGraphicObject(a:Annotation, whiteboardModel:WhiteboardModel):GraphicObject{
-        if (a.type == DrawObject.PENCIL) {
+        if (a.type == AnnotationType.PENCIL) {
             return new Pencil(a.id, a.type, a.status, a.userId);
-        } else if (a.type == DrawObject.RECTANGLE) {
+        } else if (a.type == AnnotationType.RECTANGLE) {
             return new Rectangle(a.id, a.type, a.status, a.userId);
-        } else if (a.type == DrawObject.ELLIPSE) {
+        } else if (a.type == AnnotationType.ELLIPSE) {
             return new Ellipse(a.id, a.type, a.status, a.userId);
-        }  else if (a.type == DrawObject.LINE) {
+        }  else if (a.type == AnnotationType.LINE) {
             return new Line(a.id, a.type, a.status, a.userId);
-        }  else if (a.type == DrawObject.TRIANGLE) {
+        }  else if (a.type == AnnotationType.TRIANGLE) {
             return new Triangle(a.id, a.type, a.status, a.userId);
-        }  else if (a.type == DrawObject.POLL) {
+        }  else if (a.type == AnnotationType.POLL) {
             return new PollResultObject(a.id, a.type, a.status, a.userId);
-        } else if (a.type == DrawObject.TEXT) {
+        } else if (a.type == AnnotationType.TEXT) {
             return new TextObject(a.id, a.type, a.status, a.userId);
         }
         
@@ -74,15 +75,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
         
     private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
-            if (type == DrawObject.PENCIL){
+            if (type == AnnotationType.PENCIL){
                 return new PencilDrawAnnotation(shape, color, thickness, trans);
-            } else if (type == DrawObject.RECTANGLE){
+            } else if (type == AnnotationType.RECTANGLE){
         return new RectangleAnnotation(shape, color, thickness, trans);
-      } else if (type == DrawObject.ELLIPSE){
+      } else if (type == AnnotationType.ELLIPSE){
         return new EllipseAnnotation(shape, color, thickness, trans);
-      } else if (type == DrawObject.LINE){
+      } else if (type == AnnotationType.LINE){
         return new LineAnnotation(shape, color, thickness, trans);
-      } else if (type == DrawObject.TRIANGLE){
+      } else if (type == AnnotationType.TRIANGLE){
         return new TriangleAnnotation(shape, color, thickness, trans);
       }
             

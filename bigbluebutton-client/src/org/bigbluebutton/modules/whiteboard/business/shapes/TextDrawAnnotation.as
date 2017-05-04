@@ -19,11 +19,12 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class TextDrawAnnotation extends DrawAnnotation
   {
-    private var _type:String = DrawObject.TEXT;
+    private var _type:String = AnnotationType.TEXT;
     private var _text:String;
     private var _textBoxWidth:Number = 0;
     private var _textBoxHeight:Number = 0;
@@ -49,7 +50,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
     override public function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation {
       var ao:Object = new Object();
-      ao["type"] = DrawObject.TEXT;
+      ao["type"] = AnnotationType.TEXT;
       ao["id"] = _id;
       ao["status"] = _status;  
       ao["text"] = _text;
@@ -67,7 +68,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         ao["whiteboardId"] = wbId;
       }
             
-      return new Annotation(_id, DrawObject.TEXT, ao);
+      return new Annotation(_id, AnnotationType.TEXT, ao);
     }
   }
 }
