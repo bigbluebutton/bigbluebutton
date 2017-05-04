@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.whiteboard.views
 {
+  import flash.geom.Point;
+  
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
@@ -30,16 +32,18 @@ package org.bigbluebutton.modules.whiteboard.views
   public class PencilDrawListener implements IDrawListener
   {
     private var _drawStatus:String = DrawObject.DRAW_START;
-    private var _isDrawing:Boolean; 
+    private var _isDrawing:Boolean = false;; 
     private var _segment:Array = new Array();
     private var _wbCanvas:WhiteboardCanvas;
     private var _sendFrequency:int;
     private var _shapeFactory:ShapeFactory;
     private var _ctrlKeyDown:Boolean = false;
-		private var _idGenerator:AnnotationIDGenerator;
-		private var _curID:String;
-		private var _wbModel:WhiteboardModel;
-        
+    private var _idGenerator:AnnotationIDGenerator;
+    private var _curID:String;
+    private var _wbModel:WhiteboardModel;
+    private var _wbId:String = null;
+    
+    
     public function PencilDrawListener(idGenerator:AnnotationIDGenerator, 
                                        wbCanvas:WhiteboardCanvas, 
                                        sendShapeFrequency:int, 
@@ -53,58 +57,55 @@ package org.bigbluebutton.modules.whiteboard.views
       _wbModel = wbModel;
     }
     
-    private var objCount:Number = 0;
-    
-    public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
-    {
-      if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
+    public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
+      //if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
+      if (tool.toolType == DrawObject.PENCIL) {
+        if (_isDrawing) {
+          onMouseUp(mouseX, mouseY, tool);
+          return;
+        }
+		
         _isDrawing = true;
         _drawStatus = DrawObject.DRAW_START;
+        
+        _wbId = _wbModel.getCurrentWhiteboardId();
         
         // Generate a shape id so we can match the mouse down and up events. Then we can
         // remove the specific shape when a mouse up occurs.
         _curID = _idGenerator.generateID();
         
-//        LogUtil.debug("* START count = [" + objCount + "] id=[" + _curID + "]"); 
-        
-        
-        _segment = new Array();               
-        _segment.push(mouseX);
-        _segment.push(mouseY);
+        //normalize points as we get them to avoid shape drift
+        var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
+		
+        _segment = new Array();
+        _segment.push(np.x);
+        _segment.push(np.y);
+		
+        sendShapeToServer(DrawObject.DRAW_START, tool);
       } 
     }
         
     public function ctrlKeyDown(down:Boolean):void {
       _ctrlKeyDown = down;
     }
-
-    // Store the mouse's last x and y position
-    private var _lastMouseX:Number = 0;
-    private var _lastMouseY:Number = 0;
     
-    public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
-    {
+    public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         if (_isDrawing){
 
-          // Throttle the mouse position to prevent us from overloading the server
-//          if ( (Math.abs(mouseX - _lastMouseX) < 3) && (Math.abs(mouseY - _lastMouseY) < 3) ) {
-//            return;
-//          }
-          _lastMouseX = mouseX;
-          _lastMouseY = mouseY;
+          //normalize points as we get them to avoid shape drift
+          var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
           
-          _segment.push(mouseX);
-          _segment.push(mouseY);
-          if (_segment.length > _sendFrequency) {
-            sendShapeToServer(_drawStatus, tool);
-          }	
+          _segment = new Array();
+          _segment.push(np.x);
+          _segment.push(np.y);
+          
+          sendShapeToServer(DrawObject.DRAW_UPDATE, tool);
         }
       }
     }
 
-    public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
-    {
+    public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         if (_isDrawing) {
           /**
@@ -113,24 +114,10 @@ package org.bigbluebutton.modules.whiteboard.views
             * shape to the viewers.
             */
           _isDrawing = false;
-
-          // check to make sure unnecessary data is not sent ex. a single click when the rectangle tool is selected
-          // is hardly classifiable as a rectangle, and should not be sent to the server
-          if (tool.toolType == DrawObject.RECTANGLE || 
-              tool.toolType == DrawObject.ELLIPSE || 
-              tool.toolType == DrawObject.TRIANGLE) {		
-            
-            var x:Number = _segment[0];
-            var y:Number = _segment[1];
-            var width:Number = _segment[_segment.length-2]-x;
-            var height:Number = _segment[_segment.length-1]-y;
-
-            if (!(Math.abs(width) <= 2 && Math.abs(height) <=2)) {
-              sendShapeToServer(DrawObject.DRAW_END, tool);
-           }
-          } else {
-            sendShapeToServer(DrawObject.DRAW_END, tool);
-          } /* (tool.toolType */					
+          _segment = new Array();
+          _segment.push(_wbCanvas.width);
+          _segment.push(_wbCanvas.height);
+          sendShapeToServer(DrawObject.DRAW_END, tool);
         } /* (_isDrawing) */                
       }
     }
@@ -143,50 +130,18 @@ package org.bigbluebutton.modules.whiteboard.views
                        
       var dobj:DrawAnnotation = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, 
                                                   tool.fillOn, tool.fillColor, tool.transparencyOn);
-            
-      /** PENCIL is a special case as each segment is a separate shape 
-      *   Force the status to always DRAW_START to generate unique ids.
-      * **/
-      if (tool.toolType == DrawObject.PENCIL) {
-          status = DrawObject.DRAW_START;
-          _curID = _idGenerator.generateID();
+      
+      dobj.status = status;
+      dobj.id = _curID;
+      
+      var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
+      
+      if (_wbId != null) {
+        an.annotation["whiteboardId"] = _wbId;
       }
       
-      switch (status) {
-        case DrawObject.DRAW_START:
-          dobj.status = DrawObject.DRAW_START;
-          dobj.id = _curID;
-//          LogUtil.debug("START count = [" + objCount + "] id=[" + _curID + "]");
-          _drawStatus = DrawObject.DRAW_UPDATE;
-          break;
-        case DrawObject.DRAW_UPDATE:
-          dobj.status = DrawObject.DRAW_UPDATE;
-          dobj.id = _curID;
-//          LogUtil.debug("UPDATE count = [" + objCount + "] id=[" + _curID + "]");
-          break;
-        case DrawObject.DRAW_END:
-          dobj.status = DrawObject.DRAW_END;
-          dobj.id = _curID;
-          _drawStatus = DrawObject.DRAW_START;
-          
-//          LogUtil.debug("END count = [" + objCount + "] id=[" + _curID + "]"); 
-//          objCount++;
-          
-          break;
-      }
-            
-      /** PENCIL is a special case as each segment is a separate shape **/
-      if (tool.toolType == DrawObject.PENCIL) {
-        dobj.status = DrawObject.DRAW_START;
-        _drawStatus = DrawObject.DRAW_START;
-        _segment = new Array();	
-        var xy:Array = _wbCanvas.getMouseXY();
-        _segment.push(xy[0], xy[1]);
-      }
-           
-      var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
       if (an != null) {
-        _wbCanvas.sendGraphicToServer(an, WhiteboardDrawEvent.SEND_SHAPE);
+        _wbCanvas.sendGraphicToServer(an);
       }
             			
     }

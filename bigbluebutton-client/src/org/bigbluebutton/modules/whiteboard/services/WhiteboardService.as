@@ -38,8 +38,12 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.requestAnnotationHistory(cmd.whiteboardId);
     }
     
-    public function modifyEnabled(e:WhiteboardPresenterEvent):void {
-      sender.modifyEnabled(e);
+    public function modifyAccess(e:WhiteboardPresenterEvent):void {
+      sender.modifyAccess(e);
+    }
+    
+    public function getWhiteboardAccess():void {
+      sender.getWhiteboardAccess();
     }
 
     public function toggleGrid():void {
@@ -62,17 +66,10 @@ package org.bigbluebutton.modules.whiteboard.services
       }
     }
 
-    public function sendText(e:WhiteboardDrawEvent):void {
-      sender.sendText(e);
-    }
-
     public function sendShape(e:WhiteboardDrawEvent):void {
       sender.sendShape(e);
     }
 
-    public function checkIsWhiteboardOn():void {
-      sender.checkIsWhiteboardOn();
-    }
 
-	}
+  }
 }

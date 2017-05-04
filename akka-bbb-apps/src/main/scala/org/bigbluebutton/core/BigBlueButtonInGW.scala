@@ -2,30 +2,17 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
-
 import scala.collection.JavaConversions._
-import java.util.ArrayList
-
-import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
 import akka.actor.ActorSystem
 import org.bigbluebutton.core.apps.AnnotationVO
-import akka.pattern.{ ask, pipe }
-import akka.util.Timeout
-
-import scala.concurrent.duration._
-import scala.util.Success
-import scala.util.Failure
-import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
-import org.bigbluebutton.messages.payload._
 import akka.event.Logging
 import org.bigbluebutton.core.models.Roles
-import spray.json.JsonParser
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
@@ -42,20 +29,13 @@ class BigBlueButtonInGW(
     message match {
       case msg: StartCustomPollRequestMessage => {
         eventBus.publish(
-          BigBlueButtonEvent(
-            msg.payload.meetingId,
-            new StartCustomPollRequest(
-              msg.payload.meetingId,
-              msg.payload.requesterId,
-              msg.payload.pollId,
-              msg.payload.pollType,
-              msg.payload.answers)))
+          BigBlueButtonEvent(msg.payload.meetingId,
+            new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId,
+              msg.payload.pollId, msg.payload.pollType, msg.payload.answers)))
       }
       case msg: PubSubPingMessage => {
         eventBus.publish(
-          BigBlueButtonEvent(
-            "meeting-manager",
-            new PubSubPing(msg.payload.system, msg.payload.timestamp)))
+          BigBlueButtonEvent("meeting-manager", new PubSubPing(msg.payload.system, msg.payload.timestamp)))
       }
 
       case msg: CreateMeetingRequest => {
@@ -86,7 +66,7 @@ class BigBlueButtonInGW(
           red5DeskShareIP, red5DeskShareApp,
           msg.payload.isBreakout,
           msg.payload.sequence,
-          msg.payload.metadata,
+          mapAsScalaMap(msg.payload.metadata).toMap, // Convert to scala immutable map
           policy
         )
 
@@ -459,7 +439,7 @@ class BigBlueButtonInGW(
    * Message Interface for Whiteboard
    * *****************************************************************
    */
-  private def buildAnnotation(annotation: scala.collection.mutable.Map[String, Object]): Option[AnnotationVO] = {
+  private def buildAnnotation(annotation: scala.collection.mutable.Map[String, Object], userId: String): Option[AnnotationVO] = {
     var shape: Option[AnnotationVO] = None
 
     val id = annotation.getOrElse("id", null).asInstanceOf[String]
@@ -469,7 +449,7 @@ class BigBlueButtonInGW(
     //    println("** GOT ANNOTATION status[" + status + "] shape=[" + shapeType + "]");
 
     if (id != null && shapeType != null && status != null && wbId != null) {
-      shape = Some(new AnnotationVO(id, status, shapeType, annotation.toMap, wbId))
+      shape = Some(new AnnotationVO(id, status, shapeType, annotation.toMap, wbId, userId, -1))
     }
 
     shape
@@ -478,7 +458,7 @@ class BigBlueButtonInGW(
   def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: java.util.Map[String, Object]) {
     val ann: scala.collection.mutable.Map[String, Object] = mapAsScalaMap(annotation)
 
-    buildAnnotation(ann) match {
+    buildAnnotation(ann, requesterID) match {
       case Some(shape) => {
         eventBus.publish(BigBlueButtonEvent(meetingID, new SendWhiteboardAnnotationRequest(meetingID, requesterID, shape)))
       }
@@ -498,12 +478,12 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingID, new UndoWhiteboardRequest(meetingID, requesterID, whiteboardId)))
   }
 
-  def enableWhiteboard(meetingID: String, requesterID: String, enable: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new EnableWhiteboardRequest(meetingID, requesterID, enable)))
+  def modifyWhiteboardAccess(meetingID: String, requesterID: String, multiUser: java.lang.Boolean) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new ModifyWhiteboardAccessRequest(meetingID, requesterID, multiUser)))
   }
 
-  def isWhiteboardEnabled(meetingID: String, requesterID: String, replyTo: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new IsWhiteboardEnabledRequest(meetingID, requesterID, replyTo)))
+  def getWhiteboardAccess(meetingID: String, requesterID: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new GetWhiteboardAccessRequest(meetingID, requesterID)))
   }
 
   /**

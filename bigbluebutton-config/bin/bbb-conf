@@ -152,7 +152,7 @@ if LANG=c ifconfig | grep -q 'venet0:0'; then
         IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
 else
         # IP detection for et* and en* networks
-        IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
+        IP=$(echo "$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^et.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')$(LANG=c ifconfig  | awk -v RS="" '{gsub (/\n[ ]*inet /," ")}1' | grep ^en.* | grep addr: | head -n1 | sed 's/.*addr://g' | sed 's/ .*//g')" | head -n1)
 fi
 
 #
@@ -286,7 +286,7 @@ stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5=bbb-html5
+          HTML5="mongod bbb-html5"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
@@ -331,7 +331,7 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5=bbb-html5
+          HTML5="mongod bbb-html5"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
@@ -806,11 +806,6 @@ check_configuration() {
 			echo "# ImageMagick's convert is not installed in $VARFolder"
 	fi
 
-	VARFolder=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep ghostScriptExec | cut -d= -f2)
-	if [ ! -x $VARFolder ]; then
-			echo "# Ghostscript is not installd in $VARFolder"
-	fi
-
 	#
 	# Check if the IP resolves to a different host
 	#
@@ -1144,7 +1139,7 @@ check_state() {
 	#
 	# Check for required external commands
 	#
-	COMMANDS="ruby gem ghostscript pdf2swf"
+	COMMANDS="ruby gem pdftocairo pdf2swf"
 	for cmd in $COMMANDS ; do
 		if ! which $cmd > /dev/null 2>&1; then
 			echo "#    $cmd command not found"
@@ -1340,21 +1335,6 @@ check_state() {
                         echo
 		fi
 	fi
-
-        if grep -q removeMeetingWhenEnded=false $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties; then
-                echo "# Warning: In"
-                echo "#"
-                echo "#    $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
-                echo "#"
-                echo "# detected the setting"
-                echo "#"
-                echo "#    removeMeetingWhenEnded=false"
-                echo "#"
-                echo "# You should set this value to true.  It enables bbb-web to immediately purge a meeting from"
-		echo "# memory when receiving an end API call.  Otherwise, users must wait about 2 minutes"
-		echo "# request before creating a meeting with the same meetingID but with different parameters."
-                echo
-        fi
 
         if (( $MEM < 3940 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"

@@ -4,8 +4,6 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
-
-import { callServer } from '/imports/ui/services/api';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -39,7 +37,7 @@ const mapUser = user => ({
 
 const mapOpenChats = chat => {
   let currentUserId = Auth.userID;
-  return chat.message.from_userid !== Auth.userID
+  return chat.message.from_userid !== currentUserId
     ? chat.message.from_userid
     : chat.message.to_userid;
 };
@@ -238,42 +236,8 @@ getCurrentUser = () => {
   return (currentUser) ? mapUser(currentUser.user) : null;
 };
 
-const userActions = {
-  openChat: {
-    label: 'Chat',
-    handler: (router, user) => router.push(`/users/chat/${user.id}`),
-    icon: 'chat',
-  },
-  clearStatus: {
-    label: 'Clear Status',
-    handler: user => callServer('setEmojiStatus', user.id, 'none'),
-    icon: 'clear_status',
-  },
-  setPresenter: {
-    label: 'Make Presenter',
-    handler: user => callServer('assignPresenter', user.id),
-    icon: 'presentation',
-  },
-  kick: {
-    label: 'Kick User',
-    handler: user => callServer('kickUser', user.id),
-    icon: 'circle_close',
-  },
-  mute: {
-    label: 'Mute Audio',
-    handler: user => callServer('muteUser', user.id),
-    icon: 'audio_off',
-  },
-  unmute: {
-    label: 'Unmute Audio',
-    handler: user => callServer('unmuteUser', user.id),
-    icon: 'audio_on',
-  },
-};
-
 export default {
   getUsers,
   getOpenChats,
   getCurrentUser,
-  userActions,
 };

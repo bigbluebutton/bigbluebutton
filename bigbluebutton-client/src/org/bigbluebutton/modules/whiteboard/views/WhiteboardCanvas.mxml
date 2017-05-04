@@ -24,26 +24,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.managers.CursorManager;
-      
-      import org.bigbluebutton.common.IBbbCanvas;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
-      import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-      import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-      import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-      import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
-      import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-      import org.bigbluebutton.modules.whiteboard.models.Annotation;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.managers.CursorManager;
+			
+			import org.bigbluebutton.common.IBbbCanvas;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
+			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
+			import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
+			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			
 			public var model:WhiteboardCanvasModel;	
             public var displayModel:WhiteboardCanvasDisplayModel;
-			public var finishedTextEdit : Boolean;
 
 			public var textToolbar:WhiteboardTextToolbar;		
 			private var bbbCanvas:IBbbCanvas;
@@ -51,15 +50,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _yPosition:int;
 			private var images:Images = new Images();
 
-			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
 			[Bindable] private var rectangle_icon:Class = images.square_icon;
 			[Bindable] private var triangle_icon:Class = images.triangle_icon;
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var line_icon:Class = images.line_icon;
 			[Bindable] private var text_icon:Class = images.text_icon;
-			[Bindable] private var eraser_icon:Class = images.eraser_icon;
-			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
 			private var toolType:String = DrawObject.PENCIL;
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
@@ -72,6 +68,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function queryForAnnotationHistory(webId:String):void {
          var dispatcher:Dispatcher = new Dispatcher();
          dispatcher.dispatchEvent(new GetWhiteboardShapesCommand(webId));
+      }
+      
+      public function queryForWhiteboardAccess():void {
+          var dispatcher:Dispatcher = new Dispatcher();
+          dispatcher.dispatchEvent(new GetWhiteboardAccessCommand());
       }
 			
       public function registerForMouseEvents():void {
@@ -102,9 +103,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function doMouseDown(event:Event):void {
-                finishedTextEdit = displayModel.needToPublish();
-				displayModel.doMouseDown(this.mouseX, this.mouseY);
 				model.doMouseDown(this.mouseX, this.mouseY);
+				displayModel.doMouseDown(this.mouseX, this.mouseY);
 				event.stopPropagation(); // we want to stop the bubbling so slide doesn't move
 				
 				stage.addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
@@ -114,21 +114,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function doMouseMove(event:Event):void {
 				model.doMouseMove(Math.min(Math.max(parent.mouseX, 0), parent.width-2) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-2) - this.y);
 			}
-			
-			
-			public function setShape(s:String):void {
-//                LogUtil.debug("SET SHAPE [" + s + "]");
-//				model.setShape(s);
-			}
 				
 			public function changeColor(e:Event):void {
 				model.changeColor(e.target.selectedColor);
 			}
-	
+			
+			public function isEditingText():Boolean {
+				return displayModel.isEditingText();
+			}
 
-			public function sendGraphicToServer(gobj:Annotation, type:String):void {
+			public function sendGraphicToServer(gobj:Annotation):void {
  //               LogUtil.debug("DISPATCHING SEND sendGraphicToServer [" + type + "]");
-				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(type);
+				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.annotation = gobj;
                 var dispatcher:Dispatcher = new Dispatcher();
                 dispatcher.dispatchEvent(event);					
@@ -145,20 +142,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				toolType = s;
 			}
 			
-			public function changeFillColor(e:Event):void {
-//				model.changeFillColor(e.target.selectedColor);
-			}
-			
 			public function changeThickness(e:Event):void {
 				model.changeThickness(e.target.value);
-			}
-			
-			public function toggleFill():void {
-//				model.toggleFill();
-			}
-			
-			public function toggleTransparency():void {
-//				model.toggleTransparency();
 			}
 			
 			public function get xPosition():int {
@@ -175,19 +160,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function set yPosition(y:int):void {
 				_yPosition = y;
-			}
-			
-			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
-//                LogUtil.debug("modifying text size = " + textSize);
-				displayModel.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
-			}
-			
-			public function makeTextObjectsEditable(e:MadePresenterEvent):void {
-//				model.makeTextObjectsEditable(e);
-			}
-			
-			public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
-//				model.makeTextObjectsUneditable(e);
 			}
 			
 			private function setWhiteboardVisibility():void {
@@ -211,16 +183,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else if(toolType == DrawObject.RECTANGLE) {
 					CursorManager.setCursor(rectangle_icon);
 				} else if(toolType == DrawObject.TRIANGLE) {
-					CursorManager.setCursor(triangle_icon, 2, -7, 0);
+					CursorManager.setCursor(triangle_icon);
 				} else if(toolType == DrawObject.PENCIL) {
-					CursorManager.setCursor(pencil_icon, 2, 0, -16);
+					CursorManager.setCursor(pencil_icon, 2, -2, -22);
 				} else if(toolType == DrawObject.LINE) {
-					CursorManager.setCursor(line_icon, 2, 0, -14);
-				} else if(toolType == DrawObject.HIGHLIGHTER) {
-					CursorManager.setCursor(highlighter_icon);
-				} else if(toolType == DrawObject.ERASER) {
-					CursorManager.setCursor(eraser_icon);
-				} else if(toolType == TextObject.TEXT_TOOL) {
+					CursorManager.setCursor(line_icon);
+				} else if(toolType == DrawObject.TEXT) {
 					CursorManager.setCursor(text_icon);
 //				} else if(toolType == SelectObject.SELECT_TOOL) {
 //					CursorManager.setCursor(select_icon);
@@ -261,6 +229,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var webId:String = model.whiteboardModel.getCurrentWhiteboardId();
           if (webId != null) {
             queryForAnnotationHistory(webId);
+            queryForWhiteboardAccess();
           }        
         }
                     

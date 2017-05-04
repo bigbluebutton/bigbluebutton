@@ -23,6 +23,7 @@ package org.bigbluebutton.air.main.commands {
 			uiSession.popPage();
 			
 			uiSession.setLoading(false, "Loading Finished");
+			// fixme: this view is already loaded in onLoadingChange of LoadScreenMadiator class
 			uiSession.pushPage(PageEnum.MAIN);
 	//		displayAudioSettings();
 	//		if (userSession.videoAutoStart && !userSession.skipCamSettingsCheck) {

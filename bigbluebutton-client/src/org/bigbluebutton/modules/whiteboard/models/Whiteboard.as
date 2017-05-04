@@ -1,6 +1,8 @@
 package org.bigbluebutton.modules.whiteboard.models
 {
   import mx.collections.ArrayCollection;
+  
+  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 
   public class Whiteboard
   {
@@ -22,20 +24,37 @@ package org.bigbluebutton.modules.whiteboard.models
     public function updateAnnotation(annotation:Annotation):void {
       var a:Annotation = getAnnotation(annotation.id);
       if (a != null) {
+        if (annotation.type == DrawObject.PENCIL && annotation.status == DrawObject.DRAW_UPDATE) {
+          annotation.annotation.points = a.annotation.points.concat(annotation.annotation.points);
+        }
         a.annotation = annotation.annotation;
+        a.status = annotation.status;
       } else {
         addAnnotation(annotation);
       }
     }
     
-    public function undo():void {
-      _annotations.removeItemAt(_annotations.length - 1);
+    public function undo(id:String):Annotation {
+      for (var i:int = _annotations.length-1; i >= 0; i--) {
+        if ((_annotations.getItemAt(i) as Annotation).id == id) {
+          return (_annotations.removeItemAt(i) as Annotation);
+        }
+      }
+      return null;
     }
     
-    public function clear():void {
+    public function clearAll():void {
       _annotations.removeAll();
     }
-       
+    
+    public function clear(userId:String):void {
+      for (var i:int = _annotations.length-1; i >= 0; i--) {
+        if ((_annotations.getItemAt(i) as Annotation).userId == userId) {
+          _annotations.removeItemAt(i);
+        }
+      }
+    }
+    
     public function getAnnotations():Array {
       var a:Array = new Array();
       for (var i:int = 0; i < _annotations.length; i++) {
@@ -45,7 +64,7 @@ package org.bigbluebutton.modules.whiteboard.models
     }
     
     public function getAnnotation(id:String):Annotation {
-      for (var i:int = 0; i < _annotations.length; i++) {
+      for (var i:int = _annotations.length-1; i >= 0; i--) {
         if ((_annotations.getItemAt(i) as Annotation).id == id) {
           return _annotations.getItemAt(i) as Annotation;
         }

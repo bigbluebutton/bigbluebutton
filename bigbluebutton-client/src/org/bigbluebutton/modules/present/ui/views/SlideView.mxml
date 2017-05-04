@@ -47,6 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.Sort;
 			import mx.collections.SortField;
 			import mx.containers.Canvas;
+			import mx.managers.CursorManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -184,6 +185,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				prevMouseY = this.mouseY;
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				Mouse.cursor = MouseCursor.HAND;
 			}
 			
 			/**
@@ -206,6 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Triggered when the presenter releases the mouse button.
 			 */		
 			private function onMouseUp(e:MouseEvent):void{		
+				Mouse.cursor = MouseCursor.AUTO;
 				stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			}
@@ -317,6 +320,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           slideModel.calculateViewportXY();
           slideModel.displayPresenterView();
           slideModel.printViewedRegion();
+          
+          zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionW) * SlideViewModel.HUNDRED_PERCENT;
+          
           fitSlideToLoader();          
         }        
       }

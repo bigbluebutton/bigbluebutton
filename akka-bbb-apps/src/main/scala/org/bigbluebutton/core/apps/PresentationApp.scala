@@ -105,7 +105,7 @@ trait PresentationApp {
       outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
     }
 
-    Users.getCurrentPresenter(liveMeeting.users.toVector) foreach { pres =>
+    Users.getCurrentPresenter(liveMeeting.users) foreach { pres =>
       handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.id))
     }
 

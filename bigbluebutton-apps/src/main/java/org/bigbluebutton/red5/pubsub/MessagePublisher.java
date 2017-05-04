@@ -283,13 +283,13 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
-	public void enableWhiteboard(String meetingID, String requesterID, Boolean enable) {
-		EnableWhiteboardRequestMessage msg = new EnableWhiteboardRequestMessage(meetingID, requesterID, enable);
+	public void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser) {
+		ModifyWhiteboardAccessRequestMessage msg = new ModifyWhiteboardAccessRequestMessage(meetingID, requesterID, multiUser);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
-	public void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo) {
-		IsWhiteboardEnabledRequestMessage msg = new IsWhiteboardEnabledRequestMessage(meetingID, requesterID, replyTo);
+	public void getWhiteboardAccess(String meetingID, String requesterID) {
+		GetWhiteboardAccessRequestMessage msg = new GetWhiteboardAccessRequestMessage(meetingID, requesterID);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
