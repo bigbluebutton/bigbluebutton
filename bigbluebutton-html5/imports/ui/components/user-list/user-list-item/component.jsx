@@ -230,17 +230,74 @@ class UserListItem extends Component {
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
     userItemContentsStyle[styles.active] = this.state.isActionsOpen;
 
-    return (
-      <li
-        role="button"
-        aria-haspopup="true"
-        aria-live="assertive"
-        aria-relevant="additions"
-        className={cx(styles.userListItem, userItemContentsStyle)}
-        tabIndex="-1">
-        {this.renderUserContents()}
-      </li>
+    const {
+      user,
+      intl,
+    } = this.props;
+
+    let actions = this.getAvailableActions();
+    let contents = (
+      <div className={styles.userItemContents}>
+        <UserAvatar user={user} />
+        {this.renderUserName()}
+        {this.renderUserIcons()}
+      </div>
     );
+
+    if (!actions.length) {
+      return contents;
+    }
+
+    const { dropdownOffset, dropdownDirection, dropdownVisible, } = this.state;
+
+    return (
+      <Dropdown
+        ref="dropdown"
+        isOpen={this.state.isActionsOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+        className={styles.dropdown}
+        autoFocus={false}
+        id="dropdown">
+        <DropdownTrigger>
+          {contents}
+        </DropdownTrigger>
+        <DropdownContent
+          style={{
+            visibility: dropdownVisible ? 'visible' : 'hidden',
+            [dropdownDirection]: `${dropdownOffset}px`,
+          }}
+          className={styles.dropdownContent}
+          placement={`right ${dropdownDirection}`}>
+
+          <DropdownList>
+            {
+              [
+                (<DropdownListTitle
+                    description={intl.formatMessage(messages.menuTitleContext)}
+                    key={_.uniqueId('dropdown-list-title')}>
+                      {user.name}
+                 </DropdownListTitle>),
+                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
+              ].concat(actions)
+            }
+          </DropdownList>
+        </DropdownContent>
+      </Dropdown>
+    );
+
+    //return
+     //(
+      //<li
+      //  role="button"
+      //  aria-haspopup="true"
+      //  aria-live="assertive"
+      //  aria-relevant="additions"
+      //  className={cx(styles.userListItem, userItemContentsStyle)}
+      //  tabIndex="-1">
+      //  this.renderUserContents();
+    //  </li>
+    //;
   }
 
   renderUserContents() {
@@ -271,7 +328,8 @@ class UserListItem extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={styles.dropdown}
-        autoFocus={false}>
+        autoFocus={false}
+        id="dropdown">
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>

@@ -48,7 +48,7 @@ export default class DropdownTrigger extends Component {
       onClick: this.handleClick,
       onKeyDown: this.handleKeyDown,
       'aria-haspopup': true,
-      tabIndex: '0',
+      tabIndex: '-1',
       style: style,
       className: cx(children.props.className, className),
     });
