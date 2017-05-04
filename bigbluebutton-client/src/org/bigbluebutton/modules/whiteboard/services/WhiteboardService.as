@@ -66,10 +66,6 @@ package org.bigbluebutton.modules.whiteboard.services
       }
     }
 
-    public function sendText(e:WhiteboardDrawEvent):void {
-      sender.sendText(e);
-    }
-
     public function sendShape(e:WhiteboardDrawEvent):void {
       sender.sendShape(e);
     }

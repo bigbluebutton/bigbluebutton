@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _idGenerator:AnnotationIDGenerator;
     private var _curID:String;
     private var _wbModel:WhiteboardModel;
+    private var _wbId:String = null;
         
     public function ShapeDrawListener(idGenerator:AnnotationIDGenerator, 
                                        wbCanvas:WhiteboardCanvas, 
@@ -56,11 +57,18 @@ package org.bigbluebutton.modules.whiteboard.views
     
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.toolType == DrawObject.RECTANGLE || 
-		  tool.toolType == DrawObject.TRIANGLE || 
-		  tool.toolType == DrawObject.ELLIPSE || 
-		  tool.toolType == DrawObject.LINE) {
+          tool.toolType == DrawObject.TRIANGLE || 
+          tool.toolType == DrawObject.ELLIPSE || 
+          tool.toolType == DrawObject.LINE) {
+        if (_isDrawing) { //means we missed the UP
+          onMouseUp(mouseX, mouseY, tool);
+          return;
+        }
+        
         _isDrawing = true;
         _drawStatus = DrawObject.DRAW_START;
+        
+        _wbId = _wbModel.getCurrentWhiteboardId();
         
         // Generate a shape id so we can match the mouse down and up events. Then we can
         // remove the specific shape when a mouse up occurs.
@@ -124,8 +132,13 @@ package org.bigbluebutton.modules.whiteboard.views
       dobj.id = _curID;
       
       var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
+      
+      if (_wbId != null) {
+        an.annotation["whiteboardId"] = _wbId;
+      }
+      
       if (an != null) {
-        _wbCanvas.sendGraphicToServer(an, WhiteboardDrawEvent.SEND_SHAPE);
+        _wbCanvas.sendGraphicToServer(an);
       }
             			
     }

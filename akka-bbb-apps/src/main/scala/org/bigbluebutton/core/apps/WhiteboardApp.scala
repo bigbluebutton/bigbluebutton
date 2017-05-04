@@ -23,16 +23,15 @@ trait WhiteboardApp {
 
     //    println("Received whiteboard shape. status=[" + status + "], shapeType=[" + shapeType + "]")
 
-    if (WhiteboardKeyUtil.TEXT_CREATED_STATUS == status || WhiteboardKeyUtil.DRAW_START_STATUS == status) {
-      //      println("Received textcreated status")
+    if (WhiteboardKeyUtil.DRAW_START_STATUS == status) {
       liveMeeting.wbModel.addAnnotation(wbId, userId, shape)
-    } else if (WhiteboardKeyUtil.TEXT_EDITED_STATUS == status || WhiteboardKeyUtil.DRAW_UPDATE_STATUS == status) {
+    } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == status) {
       if (WhiteboardKeyUtil.PENCIL_TYPE == shapeType) {
         liveMeeting.wbModel.updateAnnotationPencil(wbId, userId, shape)
       } else {
         liveMeeting.wbModel.updateAnnotation(wbId, userId, shape)
       }
-    } else if (WhiteboardKeyUtil.TEXT_PUBLISHED_STATUS == status || WhiteboardKeyUtil.DRAW_END_STATUS == status) {
+    } else if (WhiteboardKeyUtil.DRAW_END_STATUS == status) {
       if (WhiteboardKeyUtil.PENCIL_TYPE == shapeType) {
         shape = liveMeeting.wbModel.endAnnotationPencil(wbId, userId, shape)
       } else {

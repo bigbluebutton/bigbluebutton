@@ -21,11 +21,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
 	public interface GraphicObject {
-		function get type():String;
+		function get toolType():String;
 		
 		function get id():String;
 		
 		function get userId():String;
+		
+		function get status():String;
 				
 		function denormalize(val:Number, side:Number):Number;
 		

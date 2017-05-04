@@ -124,24 +124,6 @@ package org.bigbluebutton.modules.whiteboard.services
                 msg
             );
         }
-        
-		/**
-		 * Sends a TextObject to the Shared Object on the red5 server, and then triggers an update across all clients
-		 * @param shape The shape sent to the SharedObject
-		 * 
-		 */		
-		public function sendText(e:WhiteboardDrawEvent):void{
-            var _nc:ConnectionManager = BBB.initConnectionManager();
-            _nc.sendMessage("whiteboard.sendAnnotation",               
-                function(result:String):void { // On successful result
-//                    LogUtil.debug(result); 
-                },	                   
-                function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-                },
-                e.annotation.annotation
-            );
-        }		
 
 		/**
 		 * Sends a shape to the Shared Object on the red5 server, and then triggers an update across all clients
