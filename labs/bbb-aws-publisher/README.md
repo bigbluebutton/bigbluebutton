@@ -15,29 +15,10 @@ to host the playback page also on S3 with the media.
 Setup
 -----
 
-First create an acount on [AWS](https://aws.amazon.com) and create a bucket on S3.
 
-Go to the "Properties" tab in your bucket and enable "Static website hosting", so that the objects
-can be accessed via URL.
+## Install the application
 
-To allow the files on S3 to be accessed by other domains (for when the playback page is hosted with
-BigBlueButton), your bucket needs the proper CORS configuration.
-Go to "Permissions", then "CORS configuration" and use the following configuration:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-<CORSRule>
-    <AllowedOrigin>*</AllowedOrigin>
-    <AllowedMethod>GET</AllowedMethod>
-    <AllowedMethod>HEAD</AllowedMethod>
-    <MaxAgeSeconds>3000</MaxAgeSeconds>
-    <AllowedHeader>*</AllowedHeader>
-</CORSRule>
-</CORSConfiguration>
-```
-
-To install the application, sign into your server and run:
+Sign into your server and run:
 
 ```bash
 cd ~
@@ -64,6 +45,37 @@ chown tomcat7:tomcat7 /var/log/bbb-aws-publisher/.env.local
 You will need the configure at least your AWS credentials. See `/usr/share/bbb-aws-publisher/.env`
 for all available options. Copy the ones you need to `.env.local` and change their value.
 
+## Setup your S3 bucket
+
+You can either do it manually or using `bbb-aws-publisher`:
+
+```bash
+sudo bbb-aws-publisher --setup-bucket
+```
+
+To do it manually, go to your acount on [AWS](https://aws.amazon.com) and create a bucket on S3.
+
+Go to the "Properties" tab in your bucket and enable "Static website hosting", so that the objects
+can be accessed via URL.
+
+To allow the files on S3 to be accessed by other domains (for when the playback page is hosted with BigBlueButton), your bucket needs the proper CORS configuration.
+Go to "Permissions", then "CORS configuration" and use the following configuration:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+<CORSRule>
+    <AllowedOrigin>*</AllowedOrigin>
+    <AllowedMethod>GET</AllowedMethod>
+    <AllowedMethod>HEAD</AllowedMethod>
+    <MaxAgeSeconds>3000</MaxAgeSeconds>
+    <AllowedHeader>*</AllowedHeader>
+</CORSRule>
+</CORSConfiguration>
+```
+
+## Try it
+
 Test it with:
 
 ```bash
@@ -73,6 +85,7 @@ BBB_AWS_DEBUG=1 bbb-aws-publisher --watch
 If it doesn't break nor tell you that your AWS credentials are wrong, you're good to go.
 
 For more information, the logfile is at `/var/log/bigbluebutton/bbb-aws-recorder.log`.
+
 
 Configuration
 =============

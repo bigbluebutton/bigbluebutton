@@ -156,6 +156,45 @@ module BigBlueButtonAwsRecorder
       end
     end
 
+    def setup_bucket(bucket_name)
+      if !@s3.bucket(bucket_name).exists?
+        BigBlueButtonAwsRecorder.logger.info "Creating the bucket #{bucket_name}"
+        @s3.create_bucket(bucket: bucket_name)
+      else
+        BigBlueButtonAwsRecorder.logger.info "THe bucket #{bucket_name} already exists"
+      end
+
+      bucket = @s3.bucket(bucket_name)
+
+      # configure the bucket as a website
+      BigBlueButtonAwsRecorder.logger.info "Enabling website hosting for the bucket"
+      bucket.website.put(
+        website_configuration: {
+          index_document: {
+            suffix: "index.html"
+          },
+          error_document: {
+            key: "error.html"
+          }
+        }
+      )
+
+      # set CORS configurations to allow cross-domain requests
+      BigBlueButtonAwsRecorder.logger.info "Setting CORS configurations on thhe bucket"
+      cors_configuration = {
+        cors_rules: [
+          {
+            allowed_methods: ["GET", "HEAD"],
+            allowed_origins: ["*"],
+            allowed_headers: ["*"],
+          },
+        ]
+      }
+      bucket.cors.put(
+        cors_configuration: cors_configuration
+      )
+    end
+
     private
 
     def compare_and_push(remote_prefix, local_dir, local_prefix, bucket_name, set_public)
@@ -459,6 +498,7 @@ $opts = Trollop::options do
   opt :upload, "Upload available recordings to S3", short: '-u'
   opt :upload_playback, "Upload playback files to S3", short: '-p'
   opt :watch, "Watch redis for changes to automatically upload and update recordings", short: '-w'
+  opt :setup_bucket, "Create a bucket on S3 and set its permissions", short: '-b'
 end
 
 $cmd = $opts.reject{ |k,v| !v || k.match(/_given$/) }.keys[0]
@@ -481,6 +521,11 @@ begin
 rescue Exception => e
   BigBlueButtonAwsRecorder.logger.info "Failed to create the AWS publisher, verify your AWS settings"
   exit 1
+end
+
+# creates and updates the bucket
+if $cmd == :setup_bucket
+  $publisher.setup_bucket(s3_bucket)
 end
 
 # update playbacks on the bucket
