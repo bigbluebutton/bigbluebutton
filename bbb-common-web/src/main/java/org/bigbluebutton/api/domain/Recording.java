@@ -37,6 +37,7 @@ public class Recording {
 	private String numParticipants;
 	private Map<String, String> metadata = new TreeMap<String, String>();
 	private List<Playback> playbacks=new ArrayList<Playback>();
+	private String mediaUrl;
 	
 	//TODO: 
 	private String state;
@@ -185,7 +186,15 @@ public class Recording {
 	public void setPlaybacks(List<Playback> playbacks) {
 		this.playbacks = playbacks;
 	}
+
+	public String getMediaUrl() {
+		return mediaUrl;
+	}
 	
+	public void setMediaUrl(String value) {
+		this.mediaUrl = value;
+	}
+
 	/* We used to have an old date format in the recordings 
 	 * e.g.: Thu Mar 04 14:05:56 UTC 2010
 	 * Now, we have a new one which it's a long string
@@ -229,5 +238,6 @@ public class Recording {
 		<contributor>Blindside</contributor>
 		<language>en_US</language>
 	</meta>
+	<media_url>http://my-recordings.bigbluebutton.org</media_url>
 </recording>
 */

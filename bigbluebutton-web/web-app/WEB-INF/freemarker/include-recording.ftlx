@@ -75,3 +75,7 @@
         </#if>
     </format>
 </playback>
+
+<#if r.getMediaUrl()?? && r.getMediaUrl() != "">
+    <mediaURL>${r.getMediaUrl()}</mediaURL>
+</#if>
