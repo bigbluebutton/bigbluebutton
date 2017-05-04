@@ -37,17 +37,20 @@ class UserList extends Component {
   }
 
   rovingIndex(...Args) {
-    const {users} = this.props;
+    const {users, openChats} = this.props;
 
     let list;
     let items;
+    let count;
 
     if (Args[1] === 'users'){
        list = findDOMNode(this.refs.usersList);
        items = findDOMNode(this.refs.userItems);
+       count = users.length;
     }else if(Args[1] === 'messages'){
        list = findDOMNode(this.refs.msgList);
        items = findDOMNode(this.refs.msgItems);
+       count = openChats.length;
     }
 
     if (Args[0].keyCode === 13) {
@@ -57,13 +60,11 @@ class UserList extends Component {
 
     if (Args[0].keyCode === 40) {
       let active = document.activeElement;
-      if (this.j <= users.length - 1) {
-        console.log("J value : " + this.j);
+      if (this.j <= count - 1) {
         active.tabIndex = -1;
         items.childNodes[this.j].tabIndex = 0;
         let newFocus = items.childNodes[this.j];
         this.j++;
-        console.log(this.j);
         newFocus.focus();
       }else{
         this.j = 0;
@@ -82,7 +83,7 @@ class UserList extends Component {
         let newFocus = items.childNodes[this.j];
         newFocus.focus();
       }else if (this.j <= 0) {
-        this.j = users.length;
+        this.j = count;
         active.tabIndex = -1;
         list.tabIndex = 0;
         list.focus();
