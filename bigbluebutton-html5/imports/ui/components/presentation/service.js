@@ -21,8 +21,6 @@ const getCurrentSlide = () => {
   });
 };
 
-const getCurrentCursor = () => Cursor.findOne({});
-
 const isPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID, });
 
@@ -36,6 +34,5 @@ const isPresenter = () => {
 export default {
   getCurrentPresentation,
   getCurrentSlide,
-  getCurrentCursor,
   isPresenter,
 };

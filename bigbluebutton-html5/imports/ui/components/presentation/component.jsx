@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import ShapeGroupContainer from '../whiteboard/shape-group/container.jsx';
-import Cursor from './cursor/component.jsx';
+import CursorContainer from './cursor/container.jsx';
 import PresentationToolbarContainer from './presentation-toolbar/container.jsx';
 import Slide from './slide/component.jsx';
 import styles from './styles.scss';
@@ -117,6 +117,7 @@ export default class PresentationArea extends React.Component {
 
   //renders the whole presentation area
   renderPresentationArea() {
+
     if (this.props.currentSlide) {
       //to control the size of the svg wrapper manually
       //and adjust cursor's thickness, so that svg didn't scale it automatically
@@ -199,18 +200,14 @@ export default class PresentationArea extends React.Component {
                 whiteboardId = {slideObj.id}
 
               />
-              {this.props.cursor ?
-                <Cursor
+              <CursorContainer
                 viewBoxWidth={viewBoxWidth}
                 viewBoxHeight={viewBoxHeight}
                 viewBoxX={x}
                 viewBoxY={y}
-                cursorX={this.props.cursor.x}
-                cursorY={this.props.cursor.y}
                 widthRatio={slideObj.width_ratio}
                 physicalWidthRatio={adjustedSizes.width / svgWidth}
-                />
-              : null }
+              />
             </g>
             {this.props.userIsPresenter ?
               <PresentationOverlayContainer

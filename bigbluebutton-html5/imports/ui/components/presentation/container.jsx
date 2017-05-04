@@ -19,6 +19,5 @@ class PresentationAreaContainer extends Component {
 
 export default createContainer(() => ({
   currentSlide: PresentationAreaService.getCurrentSlide(),
-  cursor: PresentationAreaService.getCurrentCursor(),
   userIsPresenter: PresentationAreaService.isPresenter(),
 }), PresentationAreaContainer);
