@@ -1,0 +1,146 @@
+bbb-aws-publisher
+=================
+
+This is a utility to upload and host recordings to Amazon's S3. It can run as a service,
+listening for events on redis and uploading/updating the recordings automatically, or as a standalone
+command that will scan the local recordings and upload/update them.
+
+It deals with publishing, unpublishing and deleting of recordings by setting proper permissions in
+the files in S3.
+
+By default, the playback page is hosted on BigBlueButton and the media on S3. There's also an option
+to host the playback page also on S3 with the media.
+
+
+Setup
+-----
+
+First create an acount on [AWS](https://aws.amazon.com) and create a bucket on S3.
+
+Go to the "Properties" tab in your bucket and enable "Static website hosting", so that the objects
+can be accessed via URL.
+
+To allow the files on S3 to be accessed by other domains (for when the playback page is hosted with
+BigBlueButton), your bucket needs the proper CORS configuration.
+Go to "Permissions", then "CORS configuration" and use the following configuration:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+<CORSRule>
+    <AllowedOrigin>*</AllowedOrigin>
+    <AllowedMethod>GET</AllowedMethod>
+    <AllowedMethod>HEAD</AllowedMethod>
+    <MaxAgeSeconds>3000</MaxAgeSeconds>
+    <AllowedHeader>*</AllowedHeader>
+</CORSRule>
+</CORSConfiguration>
+```
+
+To install the application, sign into your server and run:
+
+```bash
+cd ~
+git clone https://github.com/bigbluebutton/bigbluebutton.git
+cd bigbluebutton/labs/bbb-aws-publisher/
+bundle package --all
+cd ..
+sudo cp -r bbb-aws-publisher /usr/share/
+chown tomcat7:tomcat7 /var/log/bbb-aws-publisher
+sudo mkdir /var/log/bbb-aws-publisher
+chown tomcat7:tomcat7 /var/log/bbb-aws-publisher
+sudo ln -s /usr/share/bbb-aws-publisher/bin/bbb-aws-publisher /usr/bin/bbb-aws-publisher
+sudo chmod +x /usr/bin/bbb-aws-publisher
+```
+
+Create a local configuration file and edit it with your information:
+
+```bash
+sudo touch /usr/share/bbb-aws-publisher/.env.local
+sudo vim /usr/share/bbb-aws-publisher/.env.local
+chown tomcat7:tomcat7 /var/log/bbb-aws-publisher/.env.local
+```
+
+You will need the configure at least your AWS credentials. See `/usr/share/bbb-aws-publisher/.env`
+for all available options. Copy the ones you need to `.env.local` and change their value.
+
+Test it with:
+
+```bash
+BBB_AWS_DEBUG=1 bbb-aws-publisher --watch
+```
+
+If it doesn't break nor tell you that your AWS credentials are wrong, you're good to go.
+
+For more information, the logfile is at `/var/log/bigbluebutton/bbb-aws-recorder.log`.
+
+Configuration
+=============
+
+The application reads its configurations in the following order:
+
+* Environment variables
+* Variables in `.env.local`
+* Variables in `.env`
+
+So environment variables override all others, while `.env.local` takes precedence over `.env`.
+Do not change `.env`, use always `.env.local.` or environment variables.
+
+If you're running the application as a service, just edit `.env.local` with your configurations.
+
+If you're running the application as a standalone application, it's sometimes easier to provide
+the options via environment variables, but you can also edit `.env.local`.
+
+
+Running as a service
+====================
+
+```bash
+sudo cp /usr/share/bbb-aws-publisher/config/bbb-aws-publisher.service /usr/lib/systemd/system/
+```
+
+Start the service:
+
+```bash
+sudo systemctl start bbb-aws-publisher.service
+```
+
+
+Running as standalone application
+=================================
+
+To run a one-time command use the utility `bbb-aws-publisher`.
+
+
+## Upload the playback files
+
+```bash
+sudo bbb-aws-publisher --upload-playback
+```
+
+## Upload recordings
+
+```bash
+sudo bbb-aws-publisher --upload
+```
+
+## Run the watch/daemon mode (listen to redis and react to events)
+
+```bash
+sudo bbb-aws-publisher --watch
+```
+
+## Other use cases
+
+### Upload recordings but keep the local ones for backup
+
+```bash
+sudo bbb-aws-publisher --upload BBB_AWS_KEEP_FILES=1
+```
+
+### Move both the playback page and the media files to S3
+
+```bash
+sudo bbb-aws-publisher --upload-playback
+sudo bbb-aws-publisher --upload BBB_AWS_REMOTE_PLAYBACK=1
+```
