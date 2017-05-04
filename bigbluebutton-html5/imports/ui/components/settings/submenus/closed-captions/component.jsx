@@ -1,5 +1,4 @@
 import React from 'react';
-import Modal from 'react-modal';
 import styles from '../styles';
 import cx from 'classnames';
 import BaseMenu from '../base/component';
@@ -155,210 +154,213 @@ class ClosedCaptionsMenu extends BaseMenu {
               </div>
             </div>
           </div>
-          <div className={cx(styles.row, styles.spacedLeft)}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.takeOwnershipLabel)}
-                </label>
+          { this.state.settings.enabled ?
+            <div>
+              <div className={cx(styles.row, styles.spacedLeft)}>
+                <div className={styles.col}>
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.takeOwnershipLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Checkbox
+                      onChange={() => this.handleToggle('takeOwnership')}
+                      checked={this.state.settings.takeOwnership}
+                      ariaLabelledBy={'takeOwnership'}
+                      ariaLabel={intl.formatMessage(intlMessages.takeOwnershipLabel)}/>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Checkbox
-                  onChange={() => this.handleToggle('takeOwnership')}
-                  checked={this.state.settings.takeOwnership}
-                  ariaLabelledBy={'takeOwnership'}
-                  ariaLabel={intl.formatMessage(intlMessages.takeOwnershipLabel)}/>
-              </div>
-            </div>
-          </div>
-          <div className={cx(styles.row, styles.spacedLeft)}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.languageLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div
-                className={cx(styles.formElement, styles.pullContentRight)}
-                aria-label={intl.formatMessage(intlMessages.languageLabel)}>
-                <select
-                  defaultValue={locales ? locales.indexOf(this.state.settings.locale) : -1}
-                  className={styles.select}
-                  onChange={this.handleSelectChange.bind(this, 'locale', this.props.locales)}>
-                <option>
-                  { this.props.locales &&
-                    this.props.locales.length ?
-                    intl.formatMessage(intlMessages.localeOptionLabel) :
-                    intl.formatMessage(intlMessages.noLocaleOptionLabel) }
-                </option>
-                {this.props.locales ? this.props.locales.map((locale, index) =>
-                  <option key={index} value={index}>
-                    {locale}
-                  </option>
-                ) : null }
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className={cx(styles.row, styles.spacedLeft)}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.fontFamilyLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div
-                className={cx(styles.formElement, styles.pullContentRight)}
-                aria-label={intl.formatMessage(intlMessages.fontFamilyLabel)}>
-                <select
-                  defaultValue={FONT_FAMILIES.indexOf(this.state.settings.fontFamily)}
-                  onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
-                  className={styles.select}>
-                  <option value='-1' disabled>
-                    {intl.formatMessage(intlMessages.fontFamilyOptionLabel)}
-                  </option>
-                  {
-                    FONT_FAMILIES.map((family, index) =>
-                      <option key={index} value={index}>
-                        {family}
+              <div className={cx(styles.row, styles.spacedLeft)}>
+                <div className={styles.col}>
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.languageLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div
+                    className={cx(styles.formElement, styles.pullContentRight)}
+                    aria-label={intl.formatMessage(intlMessages.languageLabel)}>
+                    <select
+                      defaultValue={locales ? locales.indexOf(this.state.settings.locale) : -1}
+                      className={styles.select}
+                        onChange={this.handleSelectChange.bind(this, 'locale', this.props.locales)}>
+                      <option>
+                        { this.props.locales &&
+                          this.props.locales.length ?
+                          intl.formatMessage(intlMessages.localeOptionLabel) :
+                          intl.formatMessage(intlMessages.noLocaleOptionLabel) }
                       </option>
-                    )
-                  }
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className={cx(styles.row, styles.spacedLeft)}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.fontSizeLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div
-                className={cx(styles.formElement, styles.pullContentRight)}
-                aria-label={intl.formatMessage(intlMessages.fontSizeLabel)}>
-                  <select
-                    defaultValue={FONT_SIZES.indexOf(this.state.settings.fontSize)}
-                    onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
-                    className={styles.select}>
-                    <option value='-1' disabled>
-                      {intl.formatMessage(intlMessages.fontSizeOptionLabel)}
-                    </option>
-                    {
-                      FONT_SIZES.map((size, index) =>
+                      {this.props.locales ? this.props.locales.map((locale, index) =>
                         <option key={index} value={index}>
-                          {size}
+                          {locale}
                         </option>
-                      )
-                    }
-                  </select>
-              </div>
-            </div>
-          </div>
-
-          <div className={cx(styles.row, styles.spacedLeft)}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.backgroundColorLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div
-                className={cx(styles.formElement, styles.pullContentRight)}
-                aria-label={intl.formatMessage(intlMessages.backgroundColorLabel)}>
-                <div
-                  tabIndex='0'
-                  className={ styles.swatch }
-                  onClick={
-                    this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')
-                  }>
-                  <div
-                    className={styles.swatchInner}
-                    style={ { background: this.state.settings.backgroundColor } }>
+                      ) : null }
+                    </select>
                   </div>
                 </div>
-                { this.state.displayBackgroundColorPicker ?
-                  <div className={styles.colorPickerPopover}>
-                    <div
-                      className={styles.colorPickerOverlay}
-                      onClick={ this.handleCloseColorPicker.bind(this) }>
-                    </div>
-                    <GithubPicker
-                      onChange={this.handleColorChange.bind(this, 'backgroundColor')}
-                      color={this.state.settings.backgroundColor}
-                      colors={COLORS}
-                      width={'140px'}
-                      triangle={'top-right'}
-                    />
-                  </div>
-                : null }
               </div>
-            </div>
-          </div>
 
-          <div className={cx(styles.row, styles.spacedLeft)}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.fontColorLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div
-                className={cx(styles.formElement, styles.pullContentRight)}
-                aria-label={intl.formatMessage(intlMessages.fontColorLabel)}>
-                <div
-                  tabIndex='0'
-                  className={ styles.swatch }
-                  onClick={ this.handleColorPickerClick.bind(this, 'displayFontColorPicker') }>
-                  <div
-                    className={styles.swatchInner}
-                    style={ { background: this.state.settings.fontColor } }>
+              <div className={cx(styles.row, styles.spacedLeft)}>
+                <div className={styles.col}>
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.fontFamilyLabel)}
+                    </label>
                   </div>
                 </div>
-                { this.state.displayFontColorPicker ?
-                  <div className={styles.colorPickerPopover}>
-                    <div
-                      className={styles.colorPickerOverlay}
-                      onClick={ this.handleCloseColorPicker.bind(this) }
-                    >
-                    </div>
-                    <GithubPicker
-                      onChange={this.handleColorChange.bind(this, 'fontColor')}
-                      color={this.state.settings.fontColor}
-                      colors={COLORS}
-                      width={'140px'}
-                      triangle={'top-right'}
-                    />
+                <div className={styles.col}>
+                  <div
+                    className={cx(styles.formElement, styles.pullContentRight)}
+                    aria-label={intl.formatMessage(intlMessages.fontFamilyLabel)}>
+                    <select
+                      defaultValue={FONT_FAMILIES.indexOf(this.state.settings.fontFamily)}
+                      onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
+                      className={styles.select}>
+                      <option value='-1' disabled>
+                        {intl.formatMessage(intlMessages.fontFamilyOptionLabel)}
+                      </option>
+                      {
+                        FONT_FAMILIES.map((family, index) =>
+                          <option key={index} value={index}>
+                            {family}
+                          </option>
+                        )
+                      }
+                    </select>
                   </div>
-                : null }
+                </div>
+              </div>
+
+              <div className={cx(styles.row, styles.spacedLeft)}>
+                <div className={styles.col}>
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.fontSizeLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div
+                    className={cx(styles.formElement, styles.pullContentRight)}
+                    aria-label={intl.formatMessage(intlMessages.fontSizeLabel)}>
+                      <select
+                        defaultValue={FONT_SIZES.indexOf(this.state.settings.fontSize)}
+                        onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
+                        className={styles.select}>
+                        <option value='-1' disabled>
+                          {intl.formatMessage(intlMessages.fontSizeOptionLabel)}
+                        </option>
+                        {
+                          FONT_SIZES.map((size, index) =>
+                            <option key={index} value={index}>
+                              {size}
+                            </option>
+                          )
+                        }
+                      </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className={cx(styles.row, styles.spacedLeft)}>
+                <div className={styles.col}>
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.backgroundColorLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div
+                    className={cx(styles.formElement, styles.pullContentRight)}
+                    aria-label={intl.formatMessage(intlMessages.backgroundColorLabel)}>
+                    <div
+                      tabIndex='0'
+                      className={ styles.swatch }
+                      onClick={
+                        this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')
+                      }>
+                      <div
+                        className={styles.swatchInner}
+                        style={ { background: this.state.settings.backgroundColor } }>
+                      </div>
+                    </div>
+                    { this.state.displayBackgroundColorPicker ?
+                      <div className={styles.colorPickerPopover}>
+                        <div
+                          className={styles.colorPickerOverlay}
+                          onClick={ this.handleCloseColorPicker.bind(this) }>
+                        </div>
+                        <GithubPicker
+                          onChange={this.handleColorChange.bind(this, 'backgroundColor')}
+                          color={this.state.settings.backgroundColor}
+                          colors={COLORS}
+                          width={'140px'}
+                          triangle={'top-right'}
+                        />
+                      </div>
+                    : null }
+                  </div>
+                </div>
+              </div>
+
+              <div className={cx(styles.row, styles.spacedLeft)}>
+                <div className={styles.col}>
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.fontColorLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div
+                    className={cx(styles.formElement, styles.pullContentRight)}
+                    aria-label={intl.formatMessage(intlMessages.fontColorLabel)}>
+                    <div
+                      tabIndex='0'
+                      className={ styles.swatch }
+                      onClick={ this.handleColorPickerClick.bind(this, 'displayFontColorPicker') }>
+                      <div
+                        className={styles.swatchInner}
+                        style={ { background: this.state.settings.fontColor } }>
+                      </div>
+                    </div>
+                    { this.state.displayFontColorPicker ?
+                      <div className={styles.colorPickerPopover}>
+                        <div
+                          className={styles.colorPickerOverlay}
+                          onClick={ this.handleCloseColorPicker.bind(this) }
+                        >
+                        </div>
+                        <GithubPicker
+                          onChange={this.handleColorChange.bind(this, 'fontColor')}
+                          color={this.state.settings.fontColor}
+                          colors={COLORS}
+                          width={'140px'}
+                          triangle={'top-right'}
+                        />
+                      </div>
+                    : null }
+                  </div>
+                </div>
+              </div>
+              <div
+                className={cx(styles.ccPreviewBox, styles.spacedLeft)}
+                role='presentation'
+                style={ { background: this.state.settings.backgroundColor } }>
+                <span style={this.getPreviewStyle()}>
+                  Etiam porta sem malesuada magna mollis euis-mod.
+                  Donec ullamcorper nulla non metus auctor fringilla.
+                </span>
               </div>
             </div>
-          </div>
-
-          <div
-            className={cx(styles.ccPreviewBox, styles.spacedLeft)}
-            role='presentation'
-            style={ { background: this.state.settings.backgroundColor } }>
-            <span style={this.getPreviewStyle()}>
-              Etiam porta sem malesuada magna mollis euis-mod.
-              Donec ullamcorper nulla non metus auctor fringilla.
-            </span>
-          </div>
+          : null }
         </div>
       </div>
     );
