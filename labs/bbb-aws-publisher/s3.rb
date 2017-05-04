@@ -117,6 +117,43 @@ module BigBlueButtonAwsRecorder
       url
     end
 
+    def get_metadata_path(record_id, published_dir, format)
+      prefixes = get_prefixes(record_id, published_dir, [format])
+      "#{published_dir}/#{prefixes[0]}/metadata.xml"
+    end
+
+    def get_available_formats
+      Dir.glob("/usr/local/bigbluebutton/core/scripts/publish/*.rb").map{ |file| File.basename(file, ".rb") }
+    end
+
+    def get_published_formats(record_id)
+      Dir.glob("/var/bigbluebutton/recording/status/published/#{record_id}-*.done").map{ |file| File.basename(file, ".done").gsub(/^\w+-\d+-/, "") }
+    end
+
+    def update_metadata_link(metadata_file)
+      FileUtils.cp(metadata_file, "#{metadata_file}.orig") if ! File.exists?("#{metadata_file}.orig")
+      doc = nil
+      begin
+        BigBlueButtonAwsRecorder.logger.info "Reading the metadata file #{metadata_file}"
+        doc = Nokogiri::XML(open(metadata_file).read)
+      rescue Exception => e
+        BigBlueButtonAwsRecorder.logger.error "Something went wrong: #{$!}"
+        raise e
+      end
+      old_link = doc.at('link').content
+      new_link = get_modified_link(doc.at('link').content)
+      if new_link == old_link
+        false
+      else
+        doc.at('link').content = new_link
+
+        metadata_xml = File.new(metadata_file,"w")
+        metadata_xml.write(doc.to_xml(:indent => 2))
+        metadata_xml.close
+        true
+      end
+    end
+
     private
 
     def compare_and_push(remote_prefix, local_dir, local_prefix, bucket_name, set_public)
@@ -194,29 +231,6 @@ module BigBlueButtonAwsRecorder
       end
       BigBlueButtonAwsRecorder.logger.info "Recording #{record_id} #{set_public ? "published" : "unpublished"} successfully" if success
       success
-    end
-
-    def update_metadata_link(metadata_file)
-      FileUtils.cp(metadata_file, "#{metadata_file}.orig") if ! File.exists?("#{metadata_file}.orig")
-      doc = nil
-      begin
-        doc = Nokogiri::XML(open(metadata_file).read)
-      rescue Exception => e
-        BigBlueButtonAwsRecorder.logger.error "Something went wrong: #{$!}"
-        raise e
-      end
-      old_link = doc.at('link').content
-      new_link = get_modified_link(doc.at('link').content)
-      if new_link == old_link
-        false
-      else
-        doc.at('link').content = new_link
-
-        metadata_xml = File.new(metadata_file,"w")
-        metadata_xml.write(doc.to_xml(:indent => 2))
-        metadata_xml.close
-        true
-      end
     end
 
     def add_media_url_to_metadata(metadata_file)
@@ -504,30 +518,34 @@ if $cmd == :watch
           record_id = data['payload']['meeting_id']
           format = data['payload']['workflow']
           if success
-            link = data['payload']['playback']['link']
-            modified_link = $publisher.get_modified_link(link)
-            if link == modified_link
+
+            metadata_file = $publisher.get_metadata_path(record_id, published_dir, format)
+            updated_link = $publisher.update_metadata_link(metadata_file)
+
+            # if the link didn't update it means this is the event we published on redis,
+            # so don't treat it
+            if !updated_link
               BigBlueButtonAwsRecorder.logger.info "Published back to redis for record_id #{record_id}, format #{format}"
             else
-              formats = Dir.glob("/usr/local/bigbluebutton/core/scripts/publish/*.rb").map{ |file| File.basename(file, ".rb") }
-              published_formats = Dir.glob("/var/bigbluebutton/recording/status/published/#{record_id}-*.done").map{ |file| File.basename(file, ".done").gsub(/^\w+-\d+-/, "") }
+              formats = $publisher.get_available_formats
+              published_formats = $publisher.get_published_formats(record_id)
+
+              # wait for all formats to be published
               if (formats - published_formats).empty?
                 BigBlueButtonAwsRecorder.logger.info "Complete set of formats published for record_id #{record_id}"
                 published_formats.each do |format|
                   $publisher.publish(record_id, published_dir, s3_bucket, [ format ])
+
                   if ! queued_events[record_id].nil? and ! queued_events[record_id][format].nil?
+                    # publish the event again on redis because the link changed and some apps might
+                    # need to know about this update
                     $redis_publisher.publish RECORDINGS_CHANNEL, queued_events[record_id][format].to_json
                   end
                 end
                 queued_events.delete(record_id)
                 BigBlueButtonAwsRecorder.logger.debug "Complete queued events:\n#{PP.pp(queued_events, "")}"
               else
-                data['payload']['playback']['link'] = modified_link
-                obj = {
-                  format => data
-                }
-                queued_events[record_id] = {} if queued_events[record_id].nil?
-                queued_events[record_id].merge!(obj)
+                queued_events[record_id] = data
                 BigBlueButtonAwsRecorder.logger.info "Waiting for the complete set of formats to publish #{record_id}, just published format #{format}"
                 BigBlueButtonAwsRecorder.logger.debug "Complete queued events:\n#{PP.pp(queued_events, "")}"
               end
