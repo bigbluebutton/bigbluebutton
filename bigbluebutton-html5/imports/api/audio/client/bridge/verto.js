@@ -1,4 +1,3 @@
-import { getVoiceBridge } from '/imports/ui/components/audio/service';
 import BaseAudioBridge from './base';
 
 export default class VertoBridge extends BaseAudioBridge {
