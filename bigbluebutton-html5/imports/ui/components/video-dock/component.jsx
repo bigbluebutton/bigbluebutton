@@ -9,7 +9,8 @@ export default class VideoDock extends Component {
     super(props);
 
     this.state = {
-      ws: new ReconnectingWebSocket('wss://10.46.52.212:8443/html5video'),
+      // Set a valid kurento application server socket in the settings
+      ws: new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl),
       webRtcPeers: {},
     };
 
@@ -42,7 +43,7 @@ export default class VideoDock extends Component {
           break;
 
         case 'playStop':
-          this.handlePlayStop();
+          this.handlePlayStop(parsedMessage);
 
           break;
 
@@ -68,7 +69,7 @@ export default class VideoDock extends Component {
     });
   }
 
-  start(id, shareWebcam, videoInput, videoOutput) {
+  start(id, shareWebcam, videoInput) {
 
     let that = this;
 
@@ -87,17 +88,25 @@ export default class VideoDock extends Component {
     };
 
     let options = {
-      localVideo: videoInput,
-      remoteVideo: videoOutput,
       mediaConstraints : { audio: false, video: true },
       onicecandidate : onIceCandidate
     }
 
     let peerObj;
     if (shareWebcam) {
+      options.localVideo = videoInput;
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
     } else {
+
       peerObj = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
+
+      options.remoteVideo = document.createElement('video');
+      options.remoteVideo.id = 'video-elem-' + id;
+      options.remoteVideo.width = 120;
+      options.remoteVideo.height = 90;
+      options.remoteVideo.autoplay = true;
+
+      document.getElementById('webcamArea').appendChild(options.remoteVideo);
     }
 
     this.state.webRtcPeers[id] = peerObj(options, function(error) {
@@ -126,11 +135,11 @@ export default class VideoDock extends Component {
   }
 
   shareWebcam() {
-    this.start(this.state.id, true, this.refs.videoInput, this.refs.videoOutput);
+    this.start(this.state.id, true, this.refs.videoInput);
   }
 
   receiveWebcam() {
-    this.start(this.state.id, false, this.refs.videoInput, this.refs.videoOutput);
+    this.start(this.state.id, false, this.refs.videoInput);
   }
 
   startResponse(message) {
@@ -169,6 +178,25 @@ export default class VideoDock extends Component {
 
   handlePlayStop(message) {
     console.log("Handle play stop <--------------------");
+
+    let id = message.cameraId;
+    let webRtcPeer = this.state.webRtcPeers[id];
+
+    if (webRtcPeer) {
+      console.log('Stopping WebRTC peer');
+
+      webRtcPeer.dispose();
+      delete this.state.webRtcPeers[id];
+    } else {
+      console.log('NO WEBRTC PEER TO STOP?');
+    }
+
+    let videoTag = document.getElementById('video-elem-' + id);
+    if (videoTag) {
+      document.getElementById('webcamArea').removeChild(videoTag);
+    }
+
+    this.sendMessage({id: 'stop', cameraId: id});
   }
 
   handlePlayStart(message) {
@@ -190,8 +218,11 @@ export default class VideoDock extends Component {
         <input type="button" id="receiveWebcam" value="Receive" onClick={this.receiveWebcam} />
         <input type="text" id="webcamId" onChange={this.handleIdChange} />
 
-        <video id="videoInput" autoPlay width="120px" height="90px"  ref="videoInput"></video>
-        <video id="videoOutput" autoPlay width="120px" height="90px" ref="videoOutput"></video>
+        <div id="webcamArea">
+
+        </div>
+
+        <video id="shareWebcamVideo" width="0px" height="0px" ref="videoInput"></video>
       </div>
     );
   }

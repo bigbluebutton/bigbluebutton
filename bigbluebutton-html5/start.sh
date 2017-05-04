@@ -1,5 +1,7 @@
 #!/bin/bash
 
+npm --prefix ../labs/kurento-html5-video install ../labs/kurento-html5-video &
+
 # Change to start meteor in production or development mode
 ENVIRONMENT_TYPE=development
 

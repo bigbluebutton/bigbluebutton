@@ -98,6 +98,19 @@ function Video(_ws, _id, _shared) {
             _webRtcEndpoint.addIceCandidate(candidate);
           }
 
+          var flowInOut = function(event) {
+            console.log(' [=] ' + event.type + ' for endpoint ' + id);
+
+            if (event.state === 'NOT_FLOWING') {
+              ws.sendMessage({ id : 'playStop', cameraId : id });
+            } else if (event.state === 'FLOWING') {
+              ws.sendMessage({ id : 'playStart', cameraId : id });
+            }
+          };
+
+          _webRtcEndpoint.on('MediaFlowInStateChange', flowInOut);
+          _webRtcEndpoint.on('MediaFlowOutStateChange', flowInOut);
+
           connectMediaElements(_webRtcEndpoint, function(error) {
 
             if (error) {
@@ -112,17 +125,6 @@ function Video(_ws, _id, _shared) {
 
             // Store our endpoint
             webRtcEndpoint = _webRtcEndpoint;
-
-            _webRtcEndpoint.on('MediaStateChanged', function(event) {
-              console.log('  [webrtc] MediaStateChanged from [' + event.oldState + ']' + ' to [' + event.newState + '], mediaSourceId = ' + id);
-
-              if (event.newState === 'CONNECTED') {
-                ws.sendMessage({ id : 'playStart', cameraId : id });
-              } else {
-                ws.sendMessage({ id : 'playStop', cameraId : id });
-              }
-
-            });
 
             _webRtcEndpoint.on('OnIceCandidate', function(event) {
               var candidate = kurento.getComplexType('IceCandidate')(event.candidate);
