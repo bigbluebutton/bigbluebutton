@@ -34,25 +34,28 @@ class UserList extends Component {
 
     this.rovingIndex = this.rovingIndex.bind(this);
     this.j = 0;
-    this.msg = false;
-    this.use = false;
   }
 
-  componentDidUpdate() {
-  }
-
-  rovingIndex(event) {
+  rovingIndex(...Args) {
     const {users} = this.props;
 
-    let list = findDOMNode(this.refs.usersList);
-    let items = findDOMNode(this.refs.users);
+    let list;
+    let items;
 
-    if (event.keyCode === 13) {
+    if (Args[1] === 'users'){
+       list = findDOMNode(this.refs.usersList);
+       items = findDOMNode(this.refs.userItems);
+    }else if(Args[1] === 'messages'){
+       list = findDOMNode(this.refs.msgList);
+       items = findDOMNode(this.refs.msgItems);
+    }
+
+    if (Args[0].keyCode === 13) {
       let active = document.activeElement;
       active.firstChild.click();
     }
 
-    if (event.keyCode === 40) {
+    if (Args[0].keyCode === 40) {
       let active = document.activeElement;
       if (this.j <= users.length - 1) {
         console.log("J value : " + this.j);
@@ -70,7 +73,7 @@ class UserList extends Component {
       }
     }
 
-    if (event.keyCode === 38) {
+    if (Args[0].keyCode === 38) {
       let active = document.activeElement;
       if (this.j > 0) {
         this.j--;
@@ -89,101 +92,16 @@ class UserList extends Component {
   }
 
   componentDidMount() {
+    let _this = this;
 
     if (!this.state.compact) {
-      let messageList = findDOMNode(this.refs.messages);
-      let messageItems = findDOMNode(this.refs.msgs);
-      let ItemsCount = messageItems.childElementCount;
-      let i = ItemsCount;
-      let testing = "HI";
-
-      this.refs.messagesList.addEventListener("keypress", this.rovingIndex.call(this, testing));
-
-      this.refs.usersList.addEventListener("keypress", this.rovingIndex);
-
-      //////////////////////////////////////////
-      /////////////////////////////////////////
-/*
-      userList.addEventListener("keypress", function(e){
-
-        if (e.keyCode === 13) {
-          let active = document.activeElement;
-          active.firstChild.click();
-        }
-
-        if (e.keyCode === 40) {
-          let active = document.activeElement;
-          if (j <= usersCount - 1) {
-            active.tabIndex = -1;
-            userItems.childNodes[j].tabIndex = 0;
-            let newFocus = userItems.childNodes[j];
-            newFocus.focus();
-            j++;
-          }else{
-            j = 0;
-            active.tabIndex = -1;
-            userList.tabIndex = 0;
-            userList.focus();
-          }
-        }
-
-        if (e.keyCode === 38) {
-          let active = document.activeElement;
-
-          if (j > 0) {
-            j--;
-            active.tabIndex = -1;
-            userItems.childNodes[j].tabIndex = 0;
-            let newFocus = userItems.childNodes[j];
-            newFocus.focus();
-          }else if (j <= 0) {
-            j = usersCount;
-            active.tabIndex = -1;
-            userList.tabIndex = 0;
-            userList.focus();
-          }
-        }
-
+      this.refs.msgList.addEventListener("keypress", function(event) {
+        _this.rovingIndex.call(this, event, "messages");
       });
 
-      /////////////////////////////////////////
-      /////////////////////////////////////////
-
-      messageList.addEventListener("keypress", function(e){
-        if (e.keyCode === 40) {
-          let active = document.activeElement;
-          if (i <= ItemsCount - 1) {
-            active.tabIndex = -1;
-            messageItems.childNodes[i].tabIndex = 0;
-            let newFocus = messageItems.childNodes[i];
-            newFocus.focus();
-            i++;
-          }else{
-            i = 0;
-            active.tabIndex = -1;
-            messageList.tabIndex = 0;
-            messageList.focus();
-          }
-        }
-
-        if (e.keyCode === 38) {
-          let active = document.activeElement;
-
-          if (i > 0) {
-            i--;
-            active.tabIndex = -1;
-            messageItems.childNodes[i].tabIndex = 0;
-            let newFocus = messageItems.childNodes[i];
-            newFocus.focus();
-          }else if (i <= 0) {
-            i = ItemsCount;
-            active.tabIndex = -1;
-            messageList.tabIndex = 0;
-            messageList.focus();
-          }
-        }
-
-      }); */
+      this.refs.usersList.addEventListener("keypress", function(event) {
+        _this.rovingIndex.call(this, event, "users");
+      });
     }
   }
 
@@ -235,7 +153,7 @@ class UserList extends Component {
             {intl.formatMessage(intlMessages.messagesTitle)}
           </h3> : <hr className={styles.separator}></hr>
         }
-        <div className={styles.scrollableList} tabIndex={0} ref="messagesList" id="messageWrap">
+        <div className={styles.scrollableList} tabIndex={0} ref={'msgList'} id="messageWrap">
           <ReactCSSTransitionGroup
             transitionName={listTransition}
             transitionAppear={true}
@@ -245,7 +163,7 @@ class UserList extends Component {
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
             component="ul"
-            className={cx(styles.chatsList, styles.scrollableList)} ref="msgs">
+            className={cx(styles.chatsList, styles.scrollableList)} ref={'msgItems'}>
               {openChats.map(chat => (
                 <ChatListItem
                   compact={this.state.compact}
@@ -311,7 +229,7 @@ class UserList extends Component {
             &nbsp;({users.length})
           </h3> : <hr className={styles.separator}></hr>
         }
-        <div className={styles.scrollableList} tabIndex={0} ref="usersList" id="usersWrap">
+        <div className={styles.scrollableList} tabIndex={0} ref={'usersList'} id="usersWrap">
         <ReactCSSTransitionGroup
           transitionName={listTransition}
           transitionAppear={true}
@@ -321,7 +239,7 @@ class UserList extends Component {
           transitionEnterTimeout={0}
           transitionLeaveTimeout={0}
           component="ul"
-          className={cx(styles.participantsList, styles.scrollableList)} ref="users">
+          className={cx(styles.participantsList, styles.scrollableList)} ref={'userItems'}>
           {
             users.map(user => (
             <UserListItem
