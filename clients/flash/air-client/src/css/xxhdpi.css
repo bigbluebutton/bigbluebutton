@@ -77,6 +77,11 @@
         padding: 48.0;
     }
 
+    camera|CameraProfileItemRenderer {
+        fontSize: 51.0;
+        padding: 48.0;
+    }
+
     libChat|ChatViewBase {
         inputPadding: 39.0;
     }
