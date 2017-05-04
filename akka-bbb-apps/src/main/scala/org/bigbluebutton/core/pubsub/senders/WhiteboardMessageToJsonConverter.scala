@@ -13,6 +13,7 @@ object WhiteboardMessageToJsonConverter {
     res += "status" -> shape.status
     res += "shape_type" -> shape.shapeType
     res += "wb_id" -> shape.wbId
+    res += "user_id" -> shape.userId
 
     val shapeMap = new scala.collection.mutable.HashMap[String, Any]()
     shapeMap += "whiteboardId" -> shape.wbId
@@ -57,6 +58,7 @@ object WhiteboardMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
+    payload.put(Constants.FULL_CLEAR, msg.fullClear)
 
     val header = Util.buildHeader(MessageNames.WHITEBOARD_CLEARED, None)
     Util.buildJson(header, payload)
@@ -73,23 +75,23 @@ object WhiteboardMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def whiteboardEnabledEventToJson(msg: WhiteboardEnabledEvent): String = {
+  def modifiedWhiteboardAccessEventToJson(msg: ModifiedWhiteboardAccessEvent): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.ENABLE, msg.enable)
+    payload.put(Constants.MULTI_USER, msg.multiUser)
 
-    val header = Util.buildHeader(MessageNames.WHITEBOARD_ENABLED, None)
+    val header = Util.buildHeader(MessageNames.MODIFIED_WHITEBOARD_ACCESS, None)
     Util.buildJson(header, payload)
   }
 
-  def isWhiteboardEnabledReplyToJson(msg: IsWhiteboardEnabledReply): String = {
+  def getWhiteboardAccessReplyToJson(msg: GetWhiteboardAccessReply): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.ENABLE, msg.enabled)
+    payload.put(Constants.MULTI_USER, msg.multiUser)
 
-    val header = Util.buildHeader(MessageNames.IS_WHITEBOARD_ENABLED_REPLY, Some(msg.replyTo))
+    val header = Util.buildHeader(MessageNames.GET_WHITEBOARD_ACCESS_REPLY, Some(msg.requesterID))
     Util.buildJson(header, payload)
   }
 }

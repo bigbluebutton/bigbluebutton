@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.zaxxer.nuprocess.NuAbstractProcessHandler;
 import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 
@@ -44,10 +43,8 @@ public class Pdf2SwfPageConverter implements PageConverter {
   private static Logger log = LoggerFactory
       .getLogger(Pdf2SwfPageConverter.class);
 
-  private String GHOSTSCRIPT_EXEC;
   private String SWFTOOLS_DIR;
   private String fontsDir;
-  private String noPdfMarkWorkaround;
   private long placementsThreshold;
   private long defineTextThreshold;
   private long imageTagThreshold;
@@ -86,6 +83,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
     long pdf2SwfEnd = System.currentTimeMillis();
     log.debug("Pdf2Swf conversion duration: {} sec",
         (pdf2SwfEnd - pdf2SwfStart) / 1000);
+
     boolean timedOut = pdf2SwfEnd
         - pdf2SwfStart >= Integer.parseInt(convTimeout.replaceFirst("s", ""))
             * 1000;
@@ -95,7 +93,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
             + defineTextThreshold + imageTagThreshold) * 2;
 
     File destFile = new File(dest);
-    if (pHandler.isConversionSuccessful() && destFile.exists()
+    if (pHandler.isCommandSuccessful() && destFile.exists()
         && pHandler.numberOfPlacements() < placementsThreshold
         && pHandler.numberOfTextTags() < defineTextThreshold
         && pHandler.numberOfImageTags() < imageTagThreshold) {
@@ -112,7 +110,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
       logData.put("page", page);
-      logData.put("convertSuccess", pHandler.isConversionSuccessful());
+      logData.put("convertSuccess", pHandler.isCommandSuccessful());
       logData.put("fileExists", destFile.exists());
       logData.put("numObjectTags", pHandler.numberOfPlacements());
       logData.put("numTextTags", pHandler.numberOfTextTags());
@@ -122,7 +120,6 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
       log.warn("Potential problem with generated SWF: data={}", logStr);
 
-      File tempPdfPage = null;
       File tempPng = null;
       String basePresentationame = FilenameUtils
           .getBaseName(presentation.getName());
@@ -133,16 +130,15 @@ public class Pdf2SwfPageConverter implements PageConverter {
         log.error("Unable to create temporary files");
       }
 
-      long gsStart = System.currentTimeMillis();
+      long pdfStart = System.currentTimeMillis();
 
-      // Step 1: Convert a PDF page to PNG using a raw GhostScript command
-      NuProcessBuilder pbPng = new NuProcessBuilder(Arrays.asList("timeout",
-          convTimeout, GHOSTSCRIPT_EXEC, "-sDEVICE=png16m", "-dNOPAUSE",
-          "-dQUIET", "-dBATCH",
-          !timedOut && !twiceTotalObjects ? "-r150" : "-r72",
-          "-dGraphicsAlphaBits=4", "-dTextAlphaBits=4", "-dFirstPage=" + page,
-          "-dLastPage=" + page, "-sOutputFile=" + tempPng.getAbsolutePath(),
-          noPdfMarkWorkaround, presentation.getAbsolutePath()));
+      // Step 1: Convert a PDF page to PNG using a raw pdftocairo
+      NuProcessBuilder pbPng = new NuProcessBuilder(
+          Arrays.asList("timeout", convTimeout, "pdftocairo", "-png",
+              "-singlefile", "-r", timedOut || twiceTotalObjects ? "72" : "150",
+              "-f", String.valueOf(page), "-l", String.valueOf(page),
+              presentation.getAbsolutePath(), tempPng.getAbsolutePath()
+                  .substring(0, tempPng.getAbsolutePath().lastIndexOf('.'))));
 
       Pdf2PngPageConverterHandler pbPngHandler = new Pdf2PngPageConverterHandler();
       pbPng.setProcessListener(pbPngHandler);
@@ -153,13 +149,14 @@ public class Pdf2SwfPageConverter implements PageConverter {
         log.error(e.getMessage());
       }
 
-      long gsEnd = System.currentTimeMillis();
-      log.debug("Ghostscript conversion duration: {} sec",
-          (gsEnd - gsStart) / 1000);
+      long pdfEnd = System.currentTimeMillis();
+      log.debug("pdftocairo conversion duration: {} sec",
+          (pdfEnd - pdfStart) / 1000);
 
       long png2swfStart = System.currentTimeMillis();
 
       // Step 2: Convert a PNG image to SWF
+      // We need to update the file path as pdftocairo adds "-page.png"
       source = tempPng.getAbsolutePath();
       NuProcessBuilder pbSwf = new NuProcessBuilder(
           Arrays.asList("timeout", convTimeout,
@@ -174,14 +171,14 @@ public class Pdf2SwfPageConverter implements PageConverter {
       }
 
       long png2swfEnd = System.currentTimeMillis();
-      log.debug("ImageMagick conversion duration: {} sec",
+      log.debug("SwfTools conversion duration: {} sec",
           (png2swfEnd - png2swfStart) / 1000);
 
       // Delete the temporary PNG and PDF files after finishing the image
       // conversion
       tempPng.delete();
 
-      boolean doneSwf = pSwfHandler.isConversionSuccessful();
+      boolean doneSwf = pSwfHandler.isCommandSuccessful();
 
       long convertEnd = System.currentTimeMillis();
 
@@ -194,7 +191,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
       logStr = gson.toJson(logData);
 
-      log.debug("Problem page conversion duration: {} sec",
+      log.debug("Problem page conversion overall duration: {} sec",
           (convertEnd - convertStart) / 1000);
 
       if (doneSwf && destFile.exists()) {
@@ -225,13 +222,4 @@ public class Pdf2SwfPageConverter implements PageConverter {
   public void setImageTagThreshold(long threshold) {
     imageTagThreshold = threshold;
   }
-
-  public void setGhostscriptExec(String exec) {
-    GHOSTSCRIPT_EXEC = exec;
-  }
-
-  public void setNoPdfMarkWorkaround(String noPdfMarkWorkaround) {
-    this.noPdfMarkWorkaround = noPdfMarkWorkaround;
-  }
-
 }

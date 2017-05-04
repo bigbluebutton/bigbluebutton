@@ -65,6 +65,8 @@ libraryDependencies ++= {
   )
 }
 
+libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.8"
+
 seq(Revolver.settings: _*)
 
 scalariformSettings

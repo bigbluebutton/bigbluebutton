@@ -54,31 +54,35 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				
         private var _id:String;
         private var _type:String;
-        
         private var _status:String;
+        private var _userId:String;
 		
-		/**
-		 * ID we can use to match the shape in the client's view
-		 * so we can use modify it; a unique identifier of each GraphicObject
-		 */
-		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
+		protected var _ao:Object;
+		protected var _zoom:Number;
+		protected var _parentWidth:Number;
+		protected var _parentHeight:Number;
 		
 		/**
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
-		public function DrawObject(id:String, type:String, status:String) {
+		public function DrawObject(id:String, type:String, status:String, userId:String) {
             _id = id;
             _type = type;
             _status = status;
+            _userId = userId;
 		}
 		
         public function get id():String {
             return _id;
         }
         
-        public function get type():String {
+        public function get toolType():String {
             return _type;
+        }
+        
+        public function get userId():String {
+            return _userId;
         }
         
         public function get status():String {
@@ -96,15 +100,29 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function normalize(val:Number, side:Number):Number {
 			return (val*100.0)/side;
 		}
-        
-        public function makeGraphic(parentWidth:Number, parentHeight:Number):void {}
+		
+		protected function makeGraphic():void {}
 		
         public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            
-        }
-        
-        public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-            
-        }
+			_ao = a.annotation;
+			_parentWidth = parentWidth;
+			_parentHeight = parentHeight;
+			_zoom = zoom;
+			
+			makeGraphic();
+		}
+		
+		public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+			_parentWidth = parentWidth;
+			_parentHeight = parentHeight;
+			_zoom = zoom;
+			makeGraphic();
+		}
+		
+		public function updateAnnotation(a:Annotation):void {
+			_ao = a.annotation;
+			
+			makeGraphic();
+		}
 	}
 }

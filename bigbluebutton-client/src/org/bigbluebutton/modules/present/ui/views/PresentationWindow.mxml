@@ -48,7 +48,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
 	<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
-  	<mate:Listener type="{NavigationEvent.BIND_KEYBOARD_EVENT}" method="bindToKeyboardEvents" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
@@ -113,7 +112,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
-			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -193,7 +191,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				thumbY = this.height - 160;
                 
-				bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				resourcesChanged();
 				
@@ -206,7 +203,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         t.addEventListener(TimerEvent.TIMER, addWhiteboardToolbar);
         t.start();
         
-        presenterTabs.addEventListener(MouseEvent.CLICK, onSelectTabEvent, true);
+        presenterTabs.addEventListener(Event.CHANGE, onSelectTabEvent, true);
 
         if (UsersUtil.amIPresenter()) {
           becomePresenter();
@@ -327,44 +324,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           currentSlideHeight = event.slideHeight;		
           fitSlideToWindowMaintainingAspectRatio();          
         }			
-			}
-			
-      private function bindToKeyboardEvents(event:NavigationEvent):void {
-         if (event.bindToKeyboard) {
-			 LOGGER.debug("******************************************** Binding to keyboard events ********************");
-             bindKeyboardEvents();
-         } else {
-			 LOGGER.debug("********************************************* Unbinding to keyboard events *****************");
-             unbindKeyboardEvents();
-         }
-      }
-            
-      private function unbindKeyboardEvents():void {
-        stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-      }
-
-      private function bindKeyboardEvents():void {
-        stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-      }
-            
-			// Maybe there's a problem in here too?
-			private function onKeyUp(event:KeyboardEvent):void {	
-                /*if (event.shiftKey && event.ctrlKey) {
-                    switch (event.keyCode) {
-                        case Keyboard.LEFT:
-                        case Keyboard.UP:
-                        case Keyboard.PAGE_UP:			
-                            gotoPreviousSlide();		
-                            break;
-                        case Keyboard.DOWN:
-                        case Keyboard.RIGHT: 
-                        case Keyboard.SPACE:
-                        case Keyboard.PAGE_DOWN:
-                        case Keyboard.ENTER:
-                            gotoNextSlide();
-                            break; 
-                    }                    
-                }*/
 			}
 			
 			public function getPrefferedPosition():String{
@@ -936,7 +895,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				onSelectTab();
 			}
 
-			private function onSelectTabEvent(event:MouseEvent):void {
+			private function onSelectTabEvent(event:Event):void {
 				onSelectTab();
 			}
 

@@ -2,9 +2,6 @@ package org.bigbluebutton.lib.chat.models {
 	
 	import mx.collections.ArrayCollection;
 	
-	import org.osflash.signals.ISignal;
-	import org.osflash.signals.Signal;
-	
 	public class ChatMessagesSession implements IChatMessagesSession {
 		
 		private var _chats:ArrayCollection;

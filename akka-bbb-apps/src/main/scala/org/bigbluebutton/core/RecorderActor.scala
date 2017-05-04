@@ -411,7 +411,7 @@ class RecorderActor(val recorder: RecorderApplication)
 
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
     if (msg.recorded) {
-      if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.TEXT_CREATED_STATUS)) {
+      if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.DRAW_START_STATUS)) {
 
         val event = new ModifyTextWhiteboardRecordEvent()
         event.setMeetingId(msg.meetingID)

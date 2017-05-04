@@ -1,6 +1,6 @@
 import BaseAudioBridge from './base';
 
-import { callServer } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const MEDIA_CONFIG = Meteor.settings.public.media;
@@ -14,7 +14,7 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   joinListenOnly() {
-    callServer('listenOnlyToggle', true);
+    makeCall('listenOnlyToggle', true);
     this._joinVoiceCallSIP({ isListenOnly: true });
   }
 
@@ -24,30 +24,26 @@ export default class SIPBridge extends BaseAudioBridge {
 
   // Periodically check the status of the WebRTC call, when a call has been established attempt to
   // hangup, retry if a call is in progress, send the leave voice conference message to BBB
-  exitAudio(afterExitCall = () => {}) {
-    // To be called when the hangup is initiated
+  exitAudio(isListenOnly, afterExitCall = () => {}) {
+    // To be called when the hangup is confirmed
     const hangupCallback = function () {
-      console.log('Exiting Voice Conference');
+      console.log('Exited Voice Conference, listenOnly=' + isListenOnly);
+
+      // notify BBB-apps we are leaving the call if we are in listen only mode
+      if (isListenOnly) {
+        makeCall('listenOnlyToggle', false);
+      }
     };
 
-    // Checks periodically until a call is established so we can successfully end the call
-    // clean state
+    // Checks periodically until a call is established so we can successfully end the call clean state
     triedHangup = false;
 
     // function to initiate call
     const checkToHangupCall = ((context, afterExitCall = () => {}) => {
-
       // if an attempt to hang up the call is made when the current session is not yet finished,
-      // the request has no effect
-      // keep track in the session if we haven't tried a hangup
+      // the request has no effect keep track in the session if we haven't tried a hangup
       if (window.getCallStatus() != null && !triedHangup) {
         console.log('Attempting to hangup on WebRTC call');
-
-        // notify BBB-apps we are leaving the call call if we are listen only
-        if (this.userData.listenOnly) {
-          callServer('listenOnlyToggle', false);
-        }
-
         window.webrtc_hangup(hangupCallback);
 
         // we have hung up, prevent retries

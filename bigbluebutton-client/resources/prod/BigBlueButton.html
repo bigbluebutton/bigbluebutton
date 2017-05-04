@@ -68,8 +68,10 @@
       // In Chrome 56 Google started blocking Flash by default so we force the SWF to 
       // be loaded in the DOM rather than relying on the SWFObject code to detect 
       // Flash because it can't.
+      // Edge 15 also hides the fact that Flash is available so adding a hack for that too.
       var browserInfo = determineBrowser();
-      if (browserInfo && browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) {
+      if (browserInfo && ((browserInfo[0] === "Chrome" && !navigator.userAgent.match(/android/ig)) ||
+                          (browserInfo[0] === "Edge" && browserInfo[1] >= 15))) {
         // Added a sort of callback idea because when this script runs "content" doesn't exist yet
         var fillContent = function(){
           var content = document.getElementById("content");
@@ -115,9 +117,7 @@
     <script src="lib/jquery.cookie.js" language="javascript"></script>
     <!--<script src="lib/jquery.dataTables.min.js" language="javascript"></script>-->
 
-    <script src="lib/jquery.FSRTC.js" language="javascript"></script>
-    <script src="lib/jquery.jsonrpcclient.js" language="javascript"></script>
-    <script src="lib/jquery.verto.js" language="javascript"></script>
+    <script src="lib/verto-min.js" language="javascript"></script>
     <script src="lib/verto_extension.js" language="javascript"></script>
 
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>

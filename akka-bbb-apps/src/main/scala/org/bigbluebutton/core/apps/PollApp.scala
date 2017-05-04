@@ -1,13 +1,10 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-
-import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.models.Users
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
-// import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.core.running.{ MeetingActor }
 import com.google.gson.Gson
 import java.util.ArrayList
 import org.bigbluebutton.core.OutMessageGateway
@@ -95,7 +92,7 @@ trait PollApp {
       for {
         page <- liveMeeting.presModel.getCurrentPage()
         pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
-        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, pageId)
+        annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id, msg.requesterId, -1)
       } handleSendWhiteboardAnnotationRequest(new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation))
     }
 
@@ -135,7 +132,7 @@ trait PollApp {
       page <- liveMeeting.presModel.getCurrentPage()
       pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id;
       pollId = pageId + "/" + System.currentTimeMillis()
-      numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
+      numRespondents = Users.numUsers(liveMeeting.users) - 1 // subtract the presenter
       poll <- createPoll(pollId, numRespondents)
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
@@ -159,7 +156,7 @@ trait PollApp {
       page <- liveMeeting.presModel.getCurrentPage()
       pageId = if (msg.pollId.contains("deskshare")) "deskshare" else page.id
       pollId = pageId + "/" + System.currentTimeMillis()
-      numRespondents = Users.numUsers(liveMeeting.users.toVector) - 1 // subtract the presenter
+      numRespondents = Users.numUsers(liveMeeting.users) - 1 // subtract the presenter
       poll <- createPoll(pollId, numRespondents)
       simplePoll <- PollModel.getSimplePoll(pollId, liveMeeting.pollModel)
     } yield {
@@ -187,10 +184,10 @@ trait PollApp {
     }
 
     for {
-      user <- Users.findWithId(msg.requesterId, liveMeeting.users.toVector)
+      user <- Users.findWithId(msg.requesterId, liveMeeting.users)
       responder = new Responder(user.id, user.name)
       updatedPoll <- storePollResult(responder)
-      curPres <- Users.getCurrentPresenter(liveMeeting.users.toVector)
+      curPres <- Users.getCurrentPresenter(liveMeeting.users)
     } yield outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, curPres.id, msg.pollId, updatedPoll))
 
   }

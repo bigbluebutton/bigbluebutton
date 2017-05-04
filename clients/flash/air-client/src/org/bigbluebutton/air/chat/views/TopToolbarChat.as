@@ -1,12 +1,12 @@
 package org.bigbluebutton.air.chat.views {
-	import org.bigbluebutton.lib.main.views.TopToolbarBase;
+	import org.bigbluebutton.air.main.views.TopToolbarAIR;
 	
-	public class TopToolbarChat extends TopToolbarBase {
+	public class TopToolbarChat extends TopToolbarAIR {
 		public function TopToolbarChat() {
 			super();
 			
-			leftButton.styleName = "backButton topButton";
-			rightButton.styleName = "presentationButton topButton";
+			leftButton.styleName = "icon-left-arrow topButton topLeftButton";
+			rightButton.styleName = "icon-presentation topButton topRightButton";
 		}
 	}
 }

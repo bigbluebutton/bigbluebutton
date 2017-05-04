@@ -28,7 +28,7 @@ export default function removeUser(meetingId, userId) {
       'user.validated': false,
       'user.emoji_status': 'none',
       'user.presenter': false,
-      'user.role': "VIEWER",
+      'user.role': 'VIEWER',
     },
   };
 

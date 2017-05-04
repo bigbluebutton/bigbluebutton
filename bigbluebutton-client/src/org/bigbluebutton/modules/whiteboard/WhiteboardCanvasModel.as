@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.whiteboard
   import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;
   import org.bigbluebutton.modules.whiteboard.views.IDrawListener;
   import org.bigbluebutton.modules.whiteboard.views.PencilDrawListener;
+  import org.bigbluebutton.modules.whiteboard.views.ShapeDrawListener;
   import org.bigbluebutton.modules.whiteboard.views.TextDrawListener;
   import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
   import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
@@ -54,6 +55,7 @@ package org.bigbluebutton.modules.whiteboard
     public function set wbCanvas(canvas:WhiteboardCanvas):void {
       _wbCanvas = canvas;
       drawListeners.push(new PencilDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
+      drawListeners.push(new ShapeDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
       drawListeners.push(new TextDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
     }
         

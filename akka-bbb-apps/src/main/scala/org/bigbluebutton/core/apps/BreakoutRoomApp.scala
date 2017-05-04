@@ -62,7 +62,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {
     log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId)
     for {
-      user <- Users.findWithId(userId, liveMeeting.users.toVector)
+      user <- Users.findWithId(userId, liveMeeting.users)
       apiCall = "join"
       params = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true, externalMeetingId, mProps.moderatorPass)
       // We generate a first url with redirect -> true
@@ -119,7 +119,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
-    val users = liveMeeting.users.toVector
+    val users = Users.getUsers(liveMeeting.users)
     val breakoutUsers = users map { u => new BreakoutUser(u.externalId, u.name) }
     eventBus.publish(BigBlueButtonEvent(mProps.parentMeetingID,
       new BreakoutRoomUsersUpdate(mProps.parentMeetingID, mProps.meetingID, breakoutUsers)))
@@ -140,7 +140,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
       targetVoiceBridge = mProps.voiceBridge.dropRight(1)
     }
     // We check the user from the mode
-    Users.findWithId(msg.userId, liveMeeting.users.toVector) match {
+    Users.findWithId(msg.userId, liveMeeting.users) match {
       case Some(u) => {
         if (u.voiceUser.joined) {
           log.info("Transferring user userId=" + u.id + " from voiceBridge=" + mProps.voiceBridge + " to targetVoiceConf=" + targetVoiceBridge)

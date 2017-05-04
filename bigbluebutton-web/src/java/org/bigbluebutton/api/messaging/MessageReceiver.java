@@ -45,8 +45,10 @@ public class MessageReceiver {
 			    		} catch(JedisConnectionException ex) {
 			    			log.warn("Exception on Jedis connection. Resubscribing to pubsub.");
 			    			start();
-			    		}			    		 
-			    	}
+			    		} catch (Exception e) {
+							log.error("Error resubscribing to channels: " + e.getMessage());
+						}
+					}
 			    }
 			};
 			msgReceiverExec.execute(messageReceiver);
