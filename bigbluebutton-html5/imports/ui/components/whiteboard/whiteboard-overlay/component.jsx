@@ -48,6 +48,10 @@ export default class WhiteboardOverlay extends React.Component {
     this["mouseMove" + this.props.drawSettings.tool](event);
   }
 
+  mouseDownHand(event) {
+
+  }
+
   mouseDownLine(event) {
     this.commonMouseDown(event);
   }
@@ -78,7 +82,7 @@ export default class WhiteboardOverlay extends React.Component {
     let x = (event.nativeEvent.offsetX + this.props.viewBoxX) / this.props.slideWidth * 100;
     let y = (event.nativeEvent.offsetY + this.props.viewBoxY) / this.props.slideHeight * 100;
     let id = (this.state.count + 1) + "-" + new Date().getTime();
-    this.handleDrawLine({x: x, y: y}, {x: x, y: y}, "DRAW_START", id);
+    this["handleDraw" + this.props.drawSettings.tool]({x: x, y: y}, {x: x, y: y}, "DRAW_START", id);
     this.setState({
       initialCoordinates: {
         x: x,
@@ -87,6 +91,10 @@ export default class WhiteboardOverlay extends React.Component {
       count: this.state.count + 1,
       currentShapeId: id,
     });
+  }
+
+  mouseMoveHand(event){
+
   }
 
   mouseMoveLine(event) {
@@ -126,6 +134,10 @@ export default class WhiteboardOverlay extends React.Component {
     transformedSvgPoint.y = transformedSvgPoint.y / this.props.slideHeight * 100;
 
     this["handleDraw" + this.props.drawSettings.tool](this.state.initialCoordinates, transformedSvgPoint, "DRAW_UPDATE", this.state.currentShapeId);
+  }
+
+  mouseUpHand(event) {
+
   }
 
   mouseUpLine(event) {
@@ -210,10 +222,10 @@ export default class WhiteboardOverlay extends React.Component {
           endPoint.x,
           endPoint.y,
         ],
-        color: 0,
+        color: this.props.drawSettings.color,
         transparency: false,
         status: status,
-        thickness: 1,
+        thickness: this.props.drawSettings.thickness,
         status: status,
         id: id,
         whiteboardId: this.props.whiteboardId,

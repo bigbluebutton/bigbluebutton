@@ -16,7 +16,10 @@ export default class WhiteboardToolbar extends Component {
         icon: 'hand',
         sessionValue: 'Hand',
       },
-      thicknessSelected: 6,
+      thicknessSelected: {
+        iconRadius: 6,
+        sessionRadius: 6,
+      },
       colorSelected: '#000000',
 
       //lists of tools/thickness/colors are not direct children of main toolbar buttons
@@ -41,7 +44,11 @@ export default class WhiteboardToolbar extends Component {
 
     //setting default or resetting current drawing settings in the session
     const { annotationSelected, thicknessSelected, colorSelected } = this.state;
-    this.props.setWhiteboardToolbarValues(annotationSelected.sessionValue, thicknessSelected, colorSelected);
+    this.props.setWhiteboardToolbarValues(
+      annotationSelected.sessionValue,
+      thicknessSelected.sessionRadius,
+      this.HEXToINTColor(colorSelected),
+    );
   }
 
   componentDidMount() {
@@ -84,7 +91,11 @@ export default class WhiteboardToolbar extends Component {
   //and closes the annotation list
   handleAnnotationChange(annotation) {
     const { thicknessSelected, colorSelected } = this.state;
-    this.props.setWhiteboardToolbarValues(annotation.sessionValue, thicknessSelected, colorSelected);
+    this.props.setWhiteboardToolbarValues(
+      annotation.sessionValue,
+      thicknessSelected.sessionRadius,
+      this.HEXToINTColor(colorSelected),
+    );
 
     this.setState({
       annotationSelected: annotation,
@@ -95,12 +106,16 @@ export default class WhiteboardToolbar extends Component {
 
   //changes a current selected thickness both in the state and in the session
   //and closes the thickness list
-  handleThicknessChange(thickness) {
+  handleThicknessChange(thicknessObj) {
     const { annotationSelected, colorSelected } = this.state;
-    this.props.setWhiteboardToolbarValues(annotationSelected.sessionValue, thickness, colorSelected);
+    this.props.setWhiteboardToolbarValues(
+      annotationSelected.sessionValue,
+      thicknessObj.sessionRadius,
+      this.HEXToINTColor(colorSelected),
+    );
 
     this.setState({
-      thicknessSelected: thickness,
+      thicknessSelected: thicknessObj,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
     });
@@ -110,12 +125,22 @@ export default class WhiteboardToolbar extends Component {
   //and closes the color list
   handleColorChange(color) {
     const { annotationSelected, thicknessSelected } = this.state;
-    this.props.setWhiteboardToolbarValues(annotationSelected.sessionValue, thicknessSelected, color);
+    this.props.setWhiteboardToolbarValues(
+      annotationSelected.sessionValue,
+      thicknessSelected.sessionRadius,
+      this.HEXToINTColor(color),
+    );
     this.setState({
       colorSelected: color,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
     });
+  }
+
+  HEXToINTColor(hexColor) {
+    var _rrggbb = hexColor.slice(1);
+    var rrggbb = _rrggbb.substr(0, 2) + _rrggbb.substr(2, 2) + _rrggbb.substr(4, 2);
+    return parseInt(rrggbb, 16);
   }
 
   //disabling onBlur flag when mouse is over the items in the lists
@@ -143,7 +168,7 @@ export default class WhiteboardToolbar extends Component {
             color={'default'}
             icon={annotation.icon}
             size={'md'}
-            className={cx(styles.toolbarListButton, this.state.annotationSelected.sessionValue == annotation.sessionValue ? styles.selectedListButton : '')}
+            className={cx(styles.toolbarListButton, this.state.annotationSelected.sessionValue == annotation.sessionRadius ? styles.selectedListButton : '')}
             onClick={this.handleAnnotationChange.bind(null, annotation)}
             onMouseEnter={this.disableOnBlur}
             onMouseLeave={this.enableOnBlur}
@@ -159,25 +184,22 @@ export default class WhiteboardToolbar extends Component {
 
     return (
       <div className={cx(styles.thicknessList, styles.toolbarList)}>
-        {this.props.thicknessRadiuses ? this.props.thicknessRadiuses.map((radius) =>
+        {this.props.thicknessRadiuses ? this.props.thicknessRadiuses.map((thicknessObj, index) =>
           <Button
             label="Radius"
             hideLabel={true}
             color={'default'}
             size={'md'}
-            className={cx(styles.toolbarListButton, this.state.thicknessSelected == radius ? styles.selectedListButton : '')}
-            onClick={this.handleThicknessChange.bind(null, radius)}
+            className={cx(styles.toolbarListButton, this.state.thicknessSelected.sessionRadius == thicknessObj.sessionRadius ? styles.selectedListButton : '')}
+            onClick={this.handleThicknessChange.bind(null, thicknessObj)}
             onMouseEnter={this.disableOnBlur}
             onMouseLeave={this.enableOnBlur}
             customSvgIcon={
               <svg className={styles.customSvgIcon}>
-                <circle cx="50%" cy="50%" r={radius} fill="#F3F6F9"/>
+                <circle cx="50%" cy="50%" r={thicknessObj.iconRadius} fill="#F3F6F9"/>
               </svg>
             }
-            key={radius}
-            role="button"
-            aria-labelledby={`${radius}Label`}
-            aria-describedby={`${radius}Descrip`}
+            key={index}
           />
         ) : null}
       </div>
@@ -246,7 +268,7 @@ export default class WhiteboardToolbar extends Component {
               className={cx(styles.toolbarButton, this.state.currentSubmenuOpen == "thicknessList" ? '' : styles.notActive)}
               customSvgIcon={
                 <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
-                  <circle shapeRendering="geometricPrecision" cx="50%" cy="50%" r={this.state.thicknessSelected} fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
+                  <circle shapeRendering="geometricPrecision" cx="50%" cy="50%" r={this.state.thicknessSelected.iconRadius} fill={this.state.colorSelected} stroke="black" strokeWidth="1"/>
                 </svg>
               }
             />
@@ -309,7 +331,15 @@ const defaultProps = {
       '#000000', '#FFFFFF', '#FF0000', '#FF8800', '#CCFF00','#00FF00',
       '#00FFFF', '#0088FF', '#0000FF', '#8800FF', '#FF00FF', '#C0C0C0'
   ],
-  thicknessRadiuses: [14, 12, 10, 8, 6, 4, 2],
+  thicknessRadiuses: [
+    {iconRadius: 14, sessionRadius: 30},
+    {iconRadius: 12, sessionRadius: 22},
+    {iconRadius: 10, sessionRadius: 15},
+    {iconRadius: 8, sessionRadius: 10},
+    {iconRadius: 6, sessionRadius:6},
+    {iconRadius: 4, sessionRadius: 3},
+    {iconRadius: 2, sessionRadius: 1}
+  ],
   annotations: [
     {icon: 'text_tool', sessionValue: "Text"},
     {icon: 'linte_tool', sessionValue:"Line"},

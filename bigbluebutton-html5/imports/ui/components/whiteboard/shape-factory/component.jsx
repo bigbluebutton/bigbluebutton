@@ -18,8 +18,6 @@ export default class WhiteboardShapeModel extends React.Component {
       return (
         <Component
           shape={this.props.shape.shape}
-          widthRatio={this.props.widthRatio}
-          heightRatio={this.props.heightRatio}
           slideWidth={this.props.slideWidth}
           slideHeight={this.props.slideHeight}
         />
