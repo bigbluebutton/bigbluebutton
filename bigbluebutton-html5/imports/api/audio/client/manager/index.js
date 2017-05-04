@@ -13,6 +13,7 @@ export default class AudioManager {
 
     this.bridge = audioBridge;
     this.isListenOnly = false;
+    this.microphoneLockEnforced = userData.microphoneLockEnforced;
   }
 
   exitAudio () {
@@ -20,7 +21,7 @@ export default class AudioManager {
   }
 
   joinAudio(listenOnly) {
-    if (listenOnly) {
+    if (listenOnly || this.microphoneLockEnforced) {
       this.isListenOnly = true;
       this.bridge.joinListenOnly();
     } else {

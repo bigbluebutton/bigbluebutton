@@ -3,7 +3,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import styles from '../styles';
 
-import { showModal } from '/imports/ui/components/app/service';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+
 import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
@@ -63,20 +64,13 @@ const intlMessages = defineMessages({
   },
 });
 
-const openSettings = () => showModal(<SettingsMenuContainer />);
-
-const openAbout = () => showModal(<AboutContainer />);
-
-const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
-
 class SettingsDropdown extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
-
-    const { intl, isFullScreen } = this.props;
+    const { intl, mountModal, isFullScreen } = this.props;
 
     let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
@@ -116,20 +110,20 @@ class SettingsDropdown extends Component {
               icon="settings"
               label={intl.formatMessage(intlMessages.settingsLabel)}
               description={intl.formatMessage(intlMessages.settingsDesc)}
-              onClick={openSettings.bind(this)}
+              onClick={() => mountModal(<SettingsMenuContainer />)}
             />
             <DropdownListItem
               icon="about"
               label={intl.formatMessage(intlMessages.aboutLabel)}
               description={intl.formatMessage(intlMessages.aboutDesc)}
-              onClick={openAbout.bind(this)}
+              onClick={() => mountModal(<AboutContainer />)}
             />
             <DropdownListSeparator />
             <DropdownListItem
               icon="logout"
               label={intl.formatMessage(intlMessages.leaveSessionLabel)}
               description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-              onClick={openLogoutConfirmation.bind(this)}
+              onClick={() => mountModal(<LogoutConfirmation />)}
             />
           </DropdownList>
         </DropdownContent>
@@ -138,4 +132,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default injectIntl(SettingsDropdown);
+export default withModalMounter(injectIntl(SettingsDropdown));

@@ -4,10 +4,11 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 
 import {
-  getModal,
   getFontSize,
   getCaptionsStatus,
 } from './service';
+
+import { withModalMounter } from '../modal/service';
 
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
@@ -17,7 +18,7 @@ import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
-import AudioModalContainer from '../audio/audio-modal/container';
+import AudioModalContainer from '../audio/audio-modal/component';
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 
 const defaultProps = {
@@ -47,39 +48,43 @@ class AppContainer extends Component {
   }
 };
 
-const init = () => {
-  // TODO
-};
+export default withRouter(injectIntl(withModalMounter(createContainer((
+  { router, intl, mountModal, baseControls }) => {
+    // Check if user is kicked out of the session
+    Users.find({ userId: Auth.userID }).observeChanges({
+      changed(id, fields) {
+        if (fields.user && fields.user.kicked) {
+          Auth.clearCredentials()
+            .then(() => {
+              router.push('/error/403');
+              baseControls.updateErrorState(
+                intl.formatMessage(intlMessages.kickedMessage),
+              );
+            });
+        }
+      },
+    });
 
-export default withRouter(injectIntl(createContainer(({ router, intl, baseControls }) => {
-  // Check if user is kicked out of the session
-  Users.find({ userId: Auth.userID }).observeChanges({
-    changed(id, fields) {
-      if (fields.user && fields.user.kicked) {
-        Auth.clearCredentials()
-          .then(() => {
-            router.push('/error/403');
-            baseControls.updateErrorState(
-              intl.formatMessage(intlMessages.kickedMessage),
-            );
-          });
+    // Close the widow when the current breakout room ends
+    Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
+      removed(old) {
+        Auth.clearCredentials().then(window.close);
+      },
+    });
+
+    const APP_CONFIG = Meteor.settings.public.app;
+
+    const init = () => {
+      if (APP_CONFIG.autoJoinAudio) {
+        mountModal(<AudioModalContainer />);
       }
-    },
-  });
+    };
 
-  // Close the widow when the current breakout room ends
-  Breakouts.find({ breakoutMeetingId: Auth.meetingID }).observeChanges({
-    removed(old) {
-      Auth.clearCredentials().then(window.close);
-    },
-  });
-
-  return {
-    init,
-    sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
-    modal: getModal(),
-    fontSize: getFontSize(),
-  };
-}, AppContainer)));
+    return {
+      init,
+      sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
+      fontSize: getFontSize(),
+    };
+  }, AppContainer))));
 
 AppContainer.defaultProps = defaultProps;

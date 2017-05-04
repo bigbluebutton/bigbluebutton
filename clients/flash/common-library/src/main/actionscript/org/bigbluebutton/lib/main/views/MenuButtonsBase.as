@@ -33,21 +33,21 @@ package org.bigbluebutton.lib.main.views {
 			_micButton.percentWidth = 100;
 			_micButton.percentHeight = 100;
 			_micButton.label = "Mic on";
-			_micButton.styleName = "micOnButton menuButton";
+			_micButton.styleName = "icon-unmute menuButton";
 			addElement(_micButton);
 			
 			_camButton = new Button();
 			_camButton.percentWidth = 100;
 			_camButton.percentHeight = 100;
 			_camButton.label = "Cam on";
-			_camButton.styleName = "camOnButton menuButton";
+			_camButton.styleName = "icon-video menuButton";
 			addElement(_camButton);
 			
 			_statusButton = new Button();
 			_statusButton.percentWidth = 100;
 			_statusButton.percentHeight = 100;
 			_statusButton.label = "Status";
-			_statusButton.styleName = "handStatusButton menuButton";
+			_statusButton.styleName = "icon-hand menuButton";
 			addElement(_statusButton);
 		}
 		

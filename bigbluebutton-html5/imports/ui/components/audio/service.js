@@ -4,13 +4,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
-import { showModal } from '/imports/ui/components/app/service';
 import AudioManager from '/imports/api/audio/client/manager';
-
-const handleJoinAudio = () => {
-  const handleJoinListenOnly = () => joinListenOnly();
-  return showModal(<AudioModal handleJoinListenOnly={handleJoinListenOnly} />);
-};
 
 let audioManager = undefined;
 const init = () => {
@@ -22,6 +16,7 @@ const init = () => {
   const turns = Meeting.turns;
   const stuns = Meeting.stuns;
   const voiceBridge = Meeting.voiceConf;
+  const microphoneLockEnforced = Meeting.roomLockSettings.disableMic;
 
   const userData = {
     userId,
@@ -29,6 +24,7 @@ const init = () => {
     turns,
     stuns,
     voiceBridge,
+    microphoneLockEnforced,
   };
 
   audioManager = new AudioManager(userData);
@@ -38,9 +34,8 @@ let exitAudio = () => audioManager.exitAudio();
 let joinListenOnly = () => audioManager.joinAudio(true);
 let joinMicrophone = () => audioManager.joinAudio(false);
 
-export {
+export default {
   init,
-  handleJoinAudio,
   exitAudio,
   joinListenOnly,
   joinMicrophone,

@@ -1,4 +1,4 @@
-import { callServer } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
 import Polls from '/imports/api/polls';
 
 let mapPolls = function () {
@@ -17,7 +17,7 @@ let mapPolls = function () {
     pollExists: true,
     amIRequester: amIRequester,
     handleVote: function (pollId, answerId) {
-      callServer('publishVote', pollId, answerId.id);
+      makeCall('publishVote', pollId, answerId.id);
     },
   };
 };

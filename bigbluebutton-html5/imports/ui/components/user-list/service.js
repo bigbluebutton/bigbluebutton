@@ -4,7 +4,6 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
-
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
