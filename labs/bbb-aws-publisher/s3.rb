@@ -48,12 +48,12 @@ module BigBlueButtonAwsRecorder
       @distribution_id = Hash.new
     end
 
-    def publish(record_id, published_dir, bucket_name, formats = nil)
-      publish_helper(record_id, published_dir, bucket_name, true, formats)
+    def publish(record_id, dir, bucket_name, formats = nil)
+      publish_helper(record_id, dir, bucket_name, true, formats)
     end
 
-    def unpublish(record_id, published_dir, bucket_name, formats = nil)
-      publish_helper(record_id, published_dir, bucket_name, false, formats)
+    def unpublish(record_id, dir, bucket_name, formats = nil)
+      publish_helper(record_id, dir, bucket_name, false, formats)
     end
 
     def delete(record_id, published_dir, bucket_name)
@@ -70,23 +70,25 @@ module BigBlueButtonAwsRecorder
             key: obj.key
           }
         end
-      end
-      keys.each_slice(1000) do |keys_slice|
-        output = @s3.bucket(bucket_name).delete_objects({
-          delete: {
-            objects: keys_slice
+
+        output = @s3.bucket(bucket_name).delete_objects(
+          {
+            delete: {
+              objects: keys
+            }
           }
-        })
-        local_success = output.deleted.length == keys_slice.length && output.errors.length == 0
+        )
+        local_success = output.deleted.length == keys.length && output.errors.length == 0
         if local_success
-          BigBlueButtonAwsRecorder.logger.info "Successfully deleted #{keys_slice.length} objects"
+          BigBlueButtonAwsRecorder.logger.info "Successfully deleted #{keys.length} objects"
         else
-          BigBlueButtonAwsRecorder.logger.error "Failed to delete #{output.errors.length} of #{keys_slice.length}"
+          BigBlueButtonAwsRecorder.logger.error "Failed to delete #{output.errors.length} of #{keys.length}"
         end
         invalidate_cache_list << "#{prefix}/*" if output.deleted.length > 0
         success &= local_success
       end
-      invalidate_cache(bucket_name, invalidate_cache_list.uniq)
+
+      invalidate_cache(bucket_name, invalidate_cache_list)
       BigBlueButtonAwsRecorder.logger.info "Recording #{record_id} deleted successfully" if success
       success
     end
@@ -193,7 +195,11 @@ module BigBlueButtonAwsRecorder
 
         # update link on the metadata file
         metadata_file = "#{published_dir}/#{prefix}/metadata.xml"
-        next if ! File.exists?(metadata_file)
+        BigBlueButtonAwsRecorder.logger.info "Reading #{metadata_file}"
+        if ! File.exists?(metadata_file)
+          BigBlueButtonAwsRecorder.logger.info "No metadata found, going to next format..."
+          next
+        end
 
         # set acl for any existing object
         # acts like a resync, if old recordings were changed, update their permissions on s3
@@ -439,6 +445,7 @@ redis_host = ENV['BBB_AWS_REDIS_HOST']
 redis_port = ENV['BBB_AWS_REDIS_PORT']
 published_dir = ENV['BBB_AWS_PUBLISHED_DIR']
 unpublished_dir = ENV['BBB_AWS_UNPUBLISHED_DIR']
+deleted_dir = ENV['BBB_AWS_DELETED_DIR']
 log_file = ENV['BBB_AWS_LOG_FILE']
 aws_key = ENV['BBB_AWS_KEY']
 aws_secret = ENV['BBB_AWS_SECRET']
@@ -561,7 +568,11 @@ if $cmd == :watch
           $publisher.unpublish(record_id, unpublished_dir, s3_bucket)
         when "deleted"
           record_id = data['payload']['meeting_id']
-          $publisher.delete(record_id, published_dir, s3_bucket)
+          if isset('BBB_AWS_KEEP_DELETED')
+            $publisher.unpublish(record_id, deleted_dir, s3_bucket)
+          else
+            $publisher.delete(record_id, published_dir, s3_bucket)
+          end
         end
       rescue Exception => e
         BigBlueButtonAwsRecorder.logger.error "Something went wrong: #{$!}"
