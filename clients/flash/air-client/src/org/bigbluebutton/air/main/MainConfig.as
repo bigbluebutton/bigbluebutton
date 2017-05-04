@@ -50,7 +50,6 @@ package org.bigbluebutton.air.main {
 			   mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
 			   mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
 			 */
-			
 			mediatorMap.map(LoadingScreen).toMediator(LoadingScreenMediator);
 			mediatorMap.map(PagesNavigatorView).toMediator(PagesNavigatorViewMediator);
 			mediatorMap.mapMatcher(new TypeMatcher().allOf(TopToolbarBase, TopToolbarAIR)).toMediator(TopToolbarMediatorAIR);

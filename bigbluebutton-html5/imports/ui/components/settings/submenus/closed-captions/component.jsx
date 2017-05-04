@@ -280,9 +280,11 @@ class ClosedCaptionsMenu extends BaseMenu {
                 className={cx(styles.formElement, styles.pullContentRight)}
                 aria-label={intl.formatMessage(intlMessages.backgroundColorLabel)}>
                 <div
-                  tabIndex='12'
+                  tabIndex='0'
                   className={ styles.swatch }
-                  onClick={ this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker') }>
+                  onClick={
+                    this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')
+                  }>
                   <div
                     className={styles.swatchInner}
                     style={ { background: this.state.settings.backgroundColor } }>
@@ -320,7 +322,7 @@ class ClosedCaptionsMenu extends BaseMenu {
                 className={cx(styles.formElement, styles.pullContentRight)}
                 aria-label={intl.formatMessage(intlMessages.fontColorLabel)}>
                 <div
-                  tabIndex='12'
+                  tabIndex='0'
                   className={ styles.swatch }
                   onClick={ this.handleColorPickerClick.bind(this, 'displayFontColorPicker') }>
                   <div

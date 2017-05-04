@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { logClient } from '/imports/ui/services/api';
 
 const propTypes = {
   low: PropTypes.number,
@@ -102,7 +103,7 @@ class AudioStreamVolume extends Component {
   }
 
   handleError(error) {
-    console.error(error);
+    logClient('error', { error, method: 'handleError' });
   }
 
   render() {

@@ -1,10 +1,28 @@
 package org.bigbluebutton.air.main.views {
+	import mx.graphics.SolidColor;
+	
+	import spark.primitives.Rect;
+	
 	import org.bigbluebutton.lib.main.views.TopToolbarBase;
 	
 	public class TopToolbarAIR extends TopToolbarBase {
+		
+		private var _background:Rect;
+		
 		public function TopToolbarAIR() {
-			// don't actually need to do anything, but have to subclass so that there isn't mediator confusion, 
-			// see http://knowledge.robotlegs.org/discussions/robotlegs-2/11567-inherited-mediators-mapping
+			super();
+			
+			_background = new Rect();
+			_background.percentHeight = 100;
+			_background.percentWidth = 100;
+			_background.fill = new SolidColor();
+			addElementAt(_background, 0);
+		}
+		
+		override protected function updateDisplayList(w:Number, h:Number):void {
+			super.updateDisplayList(w, h);
+			
+			SolidColor(_background.fill).color = getStyle("backgroundColor");
 		}
 	}
 }

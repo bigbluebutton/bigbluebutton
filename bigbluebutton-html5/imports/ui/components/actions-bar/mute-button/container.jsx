@@ -1,6 +1,6 @@
 import React from 'react';
-import {createContainer} from 'meteor/react-meteor-data';
-import {callServer} from '/imports/ui/services/api';
+import { createContainer } from 'meteor/react-meteor-data';
+import { makeCall } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
 import Users from '/imports/api/users/index';
 import Auth from '/imports/ui/services/auth/index';
@@ -21,14 +21,14 @@ export default createContainer((params) => {
   const isInAudio = user.voiceUser.joined;
   const isTalking = user.voiceUser.talking;
 
-  let callback = () => {};
+  let callback = () => { };
 
   if (isInAudio && !isMuted) {
-    callback = () => callServer('muteUser', userId);
+    callback = () => makeCall('muteUser', userId);
   }
 
   if (isInAudio && isMuted) {
-    callback = () => callServer('unmuteUser', userId);
+    callback = () => makeCall('unmuteUser', userId);
   }
 
   const data = {

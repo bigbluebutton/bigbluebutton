@@ -23,7 +23,6 @@ export default class ActionsBar extends Component {
           <JoinAudioOptionsContainer
             handleJoinAudio={this.props.handleOpenJoinAudio}
             handleCloseAudio={this.props.handleExitAudio}
-
           />
           {/*<JoinVideo />*/}
           <EmojiContainer />

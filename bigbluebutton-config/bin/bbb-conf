@@ -286,7 +286,7 @@ stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5=bbb-html5
+          HTML5="mongod bbb-html5"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
@@ -331,7 +331,7 @@ start_bigbluebutton () {
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          HTML5=bbb-html5
+          HTML5="mongod bbb-html5"
        fi
        if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
           WEBHOOKS=bbb-webhooks
@@ -806,11 +806,6 @@ check_configuration() {
 			echo "# ImageMagick's convert is not installed in $VARFolder"
 	fi
 
-	VARFolder=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep ghostScriptExec | cut -d= -f2)
-	if [ ! -x $VARFolder ]; then
-			echo "# Ghostscript is not installd in $VARFolder"
-	fi
-
 	#
 	# Check if the IP resolves to a different host
 	#
@@ -1144,7 +1139,7 @@ check_state() {
 	#
 	# Check for required external commands
 	#
-	COMMANDS="ruby gem ghostscript pdf2swf"
+	COMMANDS="ruby gem pdftocairo pdf2swf"
 	for cmd in $COMMANDS ; do
 		if ! which $cmd > /dev/null 2>&1; then
 			echo "#    $cmd command not found"

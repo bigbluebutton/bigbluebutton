@@ -1,61 +1,26 @@
 import React, { Component, PropTypes } from 'react';
 import ReactModal from 'react-modal';
 import styles from './styles.scss';
-import cx from 'classnames';
 
 const propTypes = {
+  overlayClassName: PropTypes.string.isRequired,
+  portalClassName: PropTypes.string.isRequired,
+  contentLabel: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  onShow: PropTypes.func,
-  onHide: PropTypes.func,
-  isTransparent: PropTypes.bool
 };
 
 const defaultProps = {
-  isOpen: false,
+  className: styles.modal,
+  overlayClassName: styles.overlay,
+  portalClassName: styles.portal,
+  contentLabel: 'Modal',
+  isOpen: true,
 };
 
 export default class ModalBase extends Component {
-  constructor(props) {
-    super(props);
-
-    this.handleAfterOpen = this.handleAfterOpen.bind(this);
-    this.handleRequestClose = this.handleRequestClose.bind(this);
-  }
-
-  handleAfterOpen() {
-    const { onShow } = this.props;
-    if (onShow) {
-      onShow.call(this, ...arguments);
-    }
-  }
-
-  handleRequestClose() {
-    const { onHide } = this.props;
-    if (onHide) {
-      onHide.call(this, ...arguments);
-    }
-  }
-
   render() {
-    const {
-      isOpen,
-      onShow,
-      onHide,
-      className,
-      isTransparent,
-    } = this.props;
-
-    let styleOverlay = (isTransparent) ? styles.transparentOverlay : styles.overlay;
-
     return (
-      <ReactModal
-      className={cx(styles.modal, className)}
-      overlayClassName={styleOverlay}
-      portalClassName={styles.portal}
-      isOpen={isOpen}
-      contentLabel="modal"
-      onAfterOpen={this.handleAfterOpen}
-      onRequestClose={this.handleRequestClose}>
+      <ReactModal {...this.props}>
         {this.props.children}
       </ReactModal>
     );
@@ -64,3 +29,34 @@ export default class ModalBase extends Component {
 
 ModalBase.propTypes = propTypes;
 ModalBase.defaultProps = defaultProps;
+
+export const withModalState = (ComponentToWrap) =>
+  class ModalStateWrapper extends Component {
+    constructor(props) {
+      super(props);
+
+      this.state = {
+        isOpen: true,
+      };
+
+      this.hide = this.hide.bind(this);
+      this.show = this.show.bind(this);
+    }
+
+    hide(cb) {
+      this.setState({ isOpen: false }, cb);
+    }
+
+    show(cb) {
+      this.setState({ isOpen: false }, cb);
+    }
+
+    render() {
+      return <ComponentToWrap
+        {...this.props}
+        modalHide={this.hide}
+        modalShow={this.show}
+        modalisOpen={this.state.isOpen}
+      />;
+    }
+  };

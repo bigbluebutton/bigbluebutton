@@ -16,7 +16,8 @@ Verto = function (
 
   this.outgoingBandwidth = "default";
   this.incomingBandwidth = "default";
-  this.sessid = $.verto.genUUID();
+  // this.sessid = $.verto.genUUID();
+  this.sessid = Math.random().toString();
 
   this.renderTag = 'remote-media';
 
@@ -646,7 +647,8 @@ window.getMyScreenConstraints = function(theCallback, extensionId) {
     getStream: true,
     sources: [
       "window",
-      "screen"
+      "screen",
+      "tab"
     ]},
     function(response) {
       console.log(response);
