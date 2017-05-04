@@ -40,6 +40,7 @@ case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingId: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
+case class UpdateMeetingExpireMonitor(meetingID: String, hasUser: Boolean) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////// 
 // Breakout room

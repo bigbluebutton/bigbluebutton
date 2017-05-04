@@ -53,7 +53,7 @@ class MeetingActor(val mProps: MeetingProperties,
 
   def receive = {
     case msg: ActivityResponse => handleActivityResponse(msg)
-    case msg: MonitorNumberOfUsers => handleMonitorNumberOfWebUsers(msg)
+    case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: RegisterUser => handleRegisterUser(msg)
     case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
@@ -302,13 +302,24 @@ class MeetingActor(val mProps: MeetingProperties,
     }
   }
 
-  def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
+  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsers) {
+    monitorNumberOfWebUsers()
+    monitorNumberOfUsers()
+  }
+
+  def monitorNumberOfWebUsers() {
     if (Users.numWebUsers(liveMeeting.users) == 0 && liveMeeting.meetingModel.lastWebUserLeftOn > 0) {
       if (liveMeeting.timeNowInMinutes - liveMeeting.meetingModel.lastWebUserLeftOn > 2) {
         log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
       }
     }
+  }
+
+  def monitorNumberOfUsers() {
+    val hasUsers = Users.numUsers(liveMeeting.users) != 0
+    // TODO: We could use a better control over this message to send it just when it really matters :)
+    eventBus.publish(BigBlueButtonEvent(mProps.meetingID, UpdateMeetingExpireMonitor(mProps.meetingID, hasUsers)))
   }
 
   def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate) {

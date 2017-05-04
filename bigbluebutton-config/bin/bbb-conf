@@ -1341,21 +1341,6 @@ check_state() {
 		fi
 	fi
 
-        if grep -q removeMeetingWhenEnded=false $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties; then
-                echo "# Warning: In"
-                echo "#"
-                echo "#    $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
-                echo "#"
-                echo "# detected the setting"
-                echo "#"
-                echo "#    removeMeetingWhenEnded=false"
-                echo "#"
-                echo "# You should set this value to true.  It enables bbb-web to immediately purge a meeting from"
-		echo "# memory when receiving an end API call.  Otherwise, users must wait about 2 minutes"
-		echo "# request before creating a meeting with the same meetingID but with different parameters."
-                echo
-        fi
-
         if (( $MEM < 3940 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
