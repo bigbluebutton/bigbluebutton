@@ -153,7 +153,7 @@ class UserList extends Component {
             {intl.formatMessage(intlMessages.messagesTitle)}
           </h3> : <hr className={styles.separator}></hr>
         }
-        <div className={styles.scrollableList} tabIndex={0} ref={'msgList'} id="messageWrap">
+        <div className={styles.scrollableList} tabIndex={0} ref={'msgList'}>
           <ReactCSSTransitionGroup
             transitionName={listTransition}
             transitionAppear={true}
@@ -229,7 +229,7 @@ class UserList extends Component {
             &nbsp;({users.length})
           </h3> : <hr className={styles.separator}></hr>
         }
-        <div className={styles.scrollableList} tabIndex={0} ref={'usersList'} id="usersWrap">
+        <div className={styles.scrollableList} tabIndex={0} ref={'usersList'}>
         <ReactCSSTransitionGroup
           transitionName={listTransition}
           transitionAppear={true}
