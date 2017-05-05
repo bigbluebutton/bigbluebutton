@@ -3,6 +3,94 @@ import styles from './styles.scss';
 import { FormattedMessage, FormattedDate } from 'react-intl';
 import DeskshareContainer from '/imports/ui/components/deskshare/container.jsx';
 
+function adjustVideos(centerVideos) {
+
+  let _minContentAspectRatio = 4 / 3.0;
+
+  function calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows, numChildren) {
+    let obj = calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows);
+    obj.occupiedArea = obj.width * obj.height * numChildren;
+    obj.numColumns = numColumns;
+    obj.numRows = numRows;
+    obj.cellAspectRatio = _minContentAspectRatio;
+    return obj;
+  }
+
+  function calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows) {
+    let obj = {
+      width: Math.floor(canvasWidth / numColumns),
+      height: Math.floor(canvasHeight / numRows)
+    };
+
+    if (obj.width / obj.height > _minContentAspectRatio) {
+      obj.width = Math.min(Math.floor(obj.height * _minContentAspectRatio), Math.floor(canvasWidth / numColumns));
+    } else {
+      obj.height = Math.min(Math.floor(obj.width / _minContentAspectRatio), Math.floor(canvasHeight / numRows));
+    }
+    return obj;
+  }
+
+  function findBestConfiguration(canvasWidth, canvasHeight, numChildrenInCanvas) {
+
+    let bestConfiguration = {
+      occupiedArea: 0
+    };
+
+    for (let cols = 1; cols <= numChildrenInCanvas; cols++) {
+      let rows = Math.floor(numChildrenInCanvas / cols);
+
+      // That's a small HACK, different from the original algorithm
+      // Sometimes numChildren will be bigger than cols*rows, this means that this configuration
+      // can't show all the videos and shouldn't be considered. So we just increment the number of rows
+      // and get a configuration which shows all the videos albeit with a few missing slots in the end.
+      //   For example: with numChildren == 8 the loop will generate cols == 3 and rows == 2
+      //   cols * rows is 6 so we bump rows to 3 and then cols*rows is 9 which is bigger than 8
+      if (numChildrenInCanvas > cols * rows) {
+        rows += 1;
+      }
+
+      let currentConfiguration = calculateOccupiedArea(canvasWidth, canvasHeight, cols, rows, numChildrenInCanvas);
+
+      if (currentConfiguration.occupiedArea > bestConfiguration.occupiedArea) {
+        bestConfiguration = currentConfiguration;
+      }
+    }
+
+    return bestConfiguration;
+  };
+
+  // http://stackoverflow.com/a/3437825/414642
+  let e = $('#webcamArea').parent();
+  let x = e.outerWidth();
+  let y = e.outerHeight();
+
+  let videos = $('video:visible');
+
+  let best = findBestConfiguration(x, y, videos.length);
+
+  videos.each(function(i) {
+    let row = Math.floor(i / best.numColumns);
+    let col = Math.floor(i % best.numColumns);
+
+    // Free width space remaining to the right and below of the videos
+    let remX = (x - best.width*best.numColumns);
+    let remY = (y - best.height*best.numRows);
+
+    // Center videos
+    let top = ((best.height)*row) + remY/2;
+    let left = ((best.width)*col) + remX/2;
+
+    let videoTop = 'top: ' + top + 'px;';
+    let videoLeft = 'left: ' + left + 'px;';
+
+    $(this).attr('style', videoTop + videoLeft);
+  });
+
+  videos.attr('width', best.width);
+  videos.attr('height', best.height);
+
+}
+
 export default class VideoDock extends Component {
 
   constructor(props) {
@@ -23,7 +111,7 @@ export default class VideoDock extends Component {
     let ws = this.state.ws;
 
     ws.addEventListener("message", (msg) => {
-      var parsedMessage = JSON.parse(msg.data);
+      let parsedMessage = JSON.parse(msg.data);
 
       console.debug('Received message new ws message: ');
       console.debug(parsedMessage);
@@ -167,7 +255,7 @@ export default class VideoDock extends Component {
   sendMessage(message) {
     let ws = this.state.ws;
 
-    var jsonMessage = JSON.stringify(message);
+    let jsonMessage = JSON.stringify(message);
     console.log('Sending message: ' + jsonMessage);
     ws.send(jsonMessage, function(error) {
       if(error) {
@@ -201,6 +289,8 @@ export default class VideoDock extends Component {
 
   handlePlayStart(message) {
     console.log("Handle play start <===================");
+
+    adjustVideos(true);
   }
 
   handleError(message) {
@@ -213,16 +303,17 @@ export default class VideoDock extends Component {
 
   render() {
     return (
-      <div>
-        <input type="button" id="shareWebcam" value="Share" onClick={this.shareWebcam} />
-        <input type="button" id="receiveWebcam" value="Receive" onClick={this.receiveWebcam} />
-        <input type="text" id="webcamId" onChange={this.handleIdChange} />
+      <div className={styles.videoDock}>
 
-        <div id="webcamArea">
-
+        <div className={styles.secretButtons}>
+          <input type="button" id="shareWebcam" value="Share" onClick={this.shareWebcam} />
+          <input type="button" id="receiveWebcam" value="Receive" onClick={this.receiveWebcam} />
+          <input type="text" id="webcamId" onChange={this.handleIdChange} />
         </div>
 
-        <video id="shareWebcamVideo" width="0px" height="0px" ref="videoInput"></video>
+        <div id="webcamArea"></div>
+
+        <video id="shareWebcamVideo" className={styles.sharedWebcamVideo} ref="videoInput"></video>
       </div>
     );
   }
