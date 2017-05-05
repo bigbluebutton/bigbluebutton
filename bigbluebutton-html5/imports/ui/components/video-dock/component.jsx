@@ -102,9 +102,11 @@ export default class VideoDock extends Component {
       webRtcPeers: {},
     };
 
+    this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
+    this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
+
     this.handleIdChange = this.handleIdChange.bind(this);
     this.shareWebcam = this.shareWebcam.bind(this);
-    this.receiveWebcam = this.receiveWebcam.bind(this);
   }
 
   componentDidMount() {
@@ -222,12 +224,8 @@ export default class VideoDock extends Component {
 
   }
 
-  shareWebcam() {
-    this.start(this.state.id, true, this.refs.videoInput);
-  }
-
-  receiveWebcam() {
-    this.start(this.state.id, false, this.refs.videoInput);
+  shareWebcam(id, share) {
+    this.start(id, share, this.refs.videoInput);
   }
 
   startResponse(message) {
@@ -303,18 +301,34 @@ export default class VideoDock extends Component {
 
   render() {
     return (
-      <div className={styles.videoDock}>
 
+      <div className={styles.videoDock}>
         <div className={styles.secretButtons}>
-          <input type="button" id="shareWebcam" value="Share" onClick={this.shareWebcam} />
-          <input type="button" id="receiveWebcam" value="Receive" onClick={this.receiveWebcam} />
-          <input type="text" id="webcamId" onChange={this.handleIdChange} />
-        </div>
+        <button type="button" onClick={this.sendUserShareWebcam} > Share Webcam </button>
+        <button type="button" onClick={this.sendUserUnshareWebcam} > Unshare Webcam </button>
+      </div>
 
         <div id="webcamArea"></div>
 
         <video id="shareWebcamVideo" className={styles.sharedWebcamVideo} ref="videoInput"></video>
       </div>
     );
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+
+      const { users } = this.props;
+      const nextUsers = nextProps.users;
+
+      if (users && users[0] && nextUsers && nextUsers[0]) {
+        if (users[0].user.has_stream != nextUsers[0].user.has_stream) {
+          console.log('User ' + (nextUsers[0].user.has_stream ? '':'un') + 'shared webcam ' + users[0].user.userid);
+
+          this.shareWebcam(users[0].user.userid, nextUsers[0].user.has_stream);
+
+          return true;
+        }
+      }
+      return false;
   }
 }

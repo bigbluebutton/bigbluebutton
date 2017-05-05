@@ -2,6 +2,14 @@
 @namespace main "org.bigbluebutton.air.main.views.*";
 @namespace mainviews "org.bigbluebutton.lib.main.views.*";
 @namespace skins "org.bigbluebutton.lib.main.views.skins.*";
+@namespace views "org.bigbluebutton.air.common.views.*";
+@namespace libChat "org.bigbluebutton.lib.chat.views.*";
+@namespace users "org.bigbluebutton.lib.user.views.*";
+@namespace settings "org.bigbluebutton.lib.settings.views.*";
+@namespace audio "org.bigbluebutton.lib.settings.views.audio.*";
+@namespace chat "org.bigbluebutton.lib.settings.views.chat.*";
+@namespace lock "org.bigbluebutton.lib.settings.views.lock.*";
+@namespace camera "org.bigbluebutton.lib.settings.views.camera.*";
 
 @media (application-dpi: 320) {
 	main|LoadingScreen {
@@ -12,9 +20,12 @@
 		height : 80;
 	}
 	
-	main|MainView {
-		menuHeight    : 160;
+	views|NoTabView {
 		toolbarHeight : 80;
+	}
+	
+	main|MainView {
+		menuHeight : 160;
 	}
 	
 	mainviews|MenuButtonsBase {
@@ -29,18 +40,65 @@
 		labelPadding : 12;
 	}
 	
-	.titleLabel
-	{
+	libChat|NewMessagesIndicator {
+		cornerRadius : 26;
+		labelPadding : 30;
+	}
+	
+	libChat|ChatItemRenderer {
+		padding      : 30;
+		fontSize     : 34;
+		nameFontSize : 34;
+		timeFontSize : 24;
+	}
+	
+	settings|SettingsViewBase, camera|CameraSettingsViewBase {
+		groupsPadding : 40;
+	}
+	
+	audio|AudioSettingsViewBase, chat|ChatSettingsViewBase, lock|LockSettingsViewBase {
+		padding: 30;
+	}
+	
+	settings|SettingsItemRenderer {
+		fontSize : 34;
+		iconSize : 44;
+		padding  : 32;
+	}
+	
+	libChat|ChatViewBase {
+		inputPadding : 26;
+	}
+	
+	users|UserItemRenderer {
+		iconSize : 44;
+	}
+	
+	s|ToggleSwitch {
+		fontSize : 24;
+	}
+	
+	.icon {
+		fontSize : 20;
+	}
+	
+	.sendButton {
+		borderWeight : 2;
+		diameter     : 40;
+	}
+	
+	.titleLabel {
 		fontSize : 34;
 		left     : 90;
 		right    : 90;
-		top      : 25;
 	}
 	
-	.topButton
-	{
-		iconSize : 30;
-		top      : 25;
+	.topButton {
+		fontSize : 44;
+	}
+	
+	.saveButton {
+		fontSize : 24;
 	}
 	
 	.topLeftButton {
@@ -51,33 +109,50 @@
 		right : 30;
 	}
 	
-	.participantIcon
-	{
-		width    : 32;
-		height   : 32;
-		fontSize : 12;
+	.actionButton {
+		fontSize : 21;
 	}
 	
-	.chatMessage
-	{
-		nameFontSize : 16;
-		timeFontSize : 16;
+	.participantItem {
+		fontSize : 34;
+		padding  : 30;
 	}
 	
-	.sendButton
-	{
+	.participantIcon {
+		diameter     : 44;
+		fontSize     : 18;
+		circleStroke : 2;
+	}
+	
+	.participantIconSettings {
+		diameter     : 124;
+		fontSize     : 52;
+		circleStroke : 2;
+	}
+	
+	.sectionTitle {
+		paddingTop    : 16;
+		paddingBottom : 16;
+		paddingLeft   : 30;
+		fontSize      : 28;
+	}
+	
+	.participantStatus {
+		fontSize : 30;
+	}
+	
+	.chatIcon, .settingsIcon {
+		fontSize : 44;
+	}
+	
+	.chatRoomItem {
+		fontSize : 34;
+		padding  : 30;
+	}
+	
+	.sendButton {
 		fontSize     : 20;
 		borderWeight : 2;
 		cornerRadius : 4;
-	}
-	
-	.content
-	{
-		fontSize : 14;
-	}
-	
-	.icon
-	{
-		fontSize : 20;
 	}
 }

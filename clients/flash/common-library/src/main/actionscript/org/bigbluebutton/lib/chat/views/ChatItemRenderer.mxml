@@ -3,14 +3,26 @@
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:views="org.bigbluebutton.lib.common.views.*"
-				width="100%"
-				styleName="chatMessage">
+				width="100%">
 
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
 			
 			import org.bigbluebutton.lib.chat.models.ChatMessage;
+			import org.bigbluebutton.lib.user.utils.UserUtils;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				wrapperGroup.padding = getStyle("padding");
+				titleGroup.gap = getStyle("padding");
+				
+				username.setStyle("color", getStyle("nameColor"));
+				username.setStyle("fontSize", getStyle("nameFontSize"));
+				
+				time.setStyle("fontSize", getStyle("timeFontSize"));
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
 			
 			override public function set data(obj:Object):void {
 				super.data = obj;
@@ -25,19 +37,19 @@
 					var sameUser:Boolean = (m.lastSenderId == m.senderId);
 					var sameTime:Boolean = (m.lastTime == m.time);
 					if (sameUser && sameTime) {
-						nameTimeGroup.includeInLayout = false;
-						nameTimeGroup.visible = false;
+						username.includeInLayout = time.includeInLayout = false;
+						username.visible = time.visible = false;
 						participantIcon.visible = false;
 					} else {
-						nameTimeGroup.includeInLayout = true;
-						nameTimeGroup.visible = true;
+						username.includeInLayout = time.includeInLayout = true;
+						username.visible = time.visible = true;
 						if (m.name == " ") {
 							participantIcon.visible = false;
 							username.visible = false;
 							username.includeInLayout = false;
 						} else {
 							username.text = m.name;
-							participantIcon.setFirstLetters(m.name);
+							participantIcon.displayInitials = UserUtils.getInitials(m.name);
 							participantIcon.visible = true;
 							username.visible = true;
 							username.includeInLayout = true;
@@ -59,36 +71,21 @@
 			}
 		]]>
 	</fx:Script>
-	<s:states>
-		<s:State name="others_state" />
-		<s:State name="me_state" />
-	</s:states>
-	<s:VGroup width="100%">
-		<s:HGroup width="100%">
-			<views:ParticipantIcon id="participantIcon"
-								   height="100%" />
-			<s:VGroup width="100%">
-				<s:Spacer height="10%" />
-				<s:Group id="nameTimeGroup"
-						 width="100%"
-						 height="100%">
-					<s:layout>
-						<s:HorizontalLayout verticalAlign="bottom" />
-					</s:layout>
-					<s:Label id="username"
-							 visible="true"
-							 fontSize="{getStyle('nameFontSize')}" />
-					<s:Label id="time"
-							 fontSize="{getStyle('timeFontSize')}" />
-				</s:Group>
-				<s:HGroup width="100%">
-					<s:RichEditableText editable="false"
-										selectable="false"
-										id="message"
-										width="100%"
-										styleName="content" />
-				</s:HGroup>
-			</s:VGroup>
+
+	<s:VGroup id="wrapperGroup"
+			  width="100%">
+		<s:HGroup id="titleGroup"
+				  width="100%"
+				  verticalAlign="middle">
+			<views:ParticipantIcon id="participantIcon" />
+			<s:Label id="username"
+					 visible="true" />
+			<s:Label id="time" />
 		</s:HGroup>
+		<s:RichEditableText id="message"
+							paddingLeft="{participantIcon.width + getStyle('padding')}"
+							editable="false"
+							selectable="false"
+							width="100%" />
 	</s:VGroup>
 </s:ItemRenderer>

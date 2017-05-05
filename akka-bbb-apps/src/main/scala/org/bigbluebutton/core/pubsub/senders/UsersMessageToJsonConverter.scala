@@ -213,6 +213,16 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
+  def userSharedHtml5WebcamToJson(msg: UserSharedHtml5Webcam): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.USER_ID, msg.userID)
+
+    val header = Util.buildHeader(MessageNames.USER_SHARED_HTML5_WEBCAM, None)
+    Util.buildJson(header, payload)
+  }
+
   def userUnsharedWebcamToJson(msg: UserUnsharedWebcam): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -221,6 +231,16 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.STREAM, msg.stream)
 
     val header = Util.buildHeader(MessageNames.USER_UNSHARED_WEBCAM, None)
+    Util.buildJson(header, payload)
+  }
+
+  def userUnsharedHtml5WebcamToJson(msg: UserUnsharedHtml5Webcam): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.USER_ID, msg.userID)
+
+    val header = Util.buildHeader(MessageNames.USER_UNSHARED_HTML5_WEBCAM, None)
     Util.buildJson(header, payload)
   }
 

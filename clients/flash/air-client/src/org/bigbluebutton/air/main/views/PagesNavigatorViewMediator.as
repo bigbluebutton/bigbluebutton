@@ -40,6 +40,7 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationEnum.APPEAR, transition:ViewTransitionBase = null):void {
+			//@fixme pageName is sometimes null, it should never happen
 			trace("PagesNavigatorViewMediator request change page to: " + pageName);
 			switch (animation) {
 				case TransitionAnimationEnum.APPEAR:  {

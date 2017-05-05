@@ -230,6 +230,14 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingId, new UserUnshareWebcam(meetingId, userId, stream)))
   }
 
+  def shareHtml5Webcam(meetingId: String, userId: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new UserShareHtml5Webcam(meetingId, userId)))
+  }
+
+  def unshareHtml5Webcam(meetingId: String, userId: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new UserUnshareHtml5Webcam(meetingId, userId)))
+  }
+
   def setUserStatus(meetingID: String, userID: String, status: String, value: Object) {
     eventBus.publish(BigBlueButtonEvent(meetingID, new ChangeUserStatus(meetingID, userID, status, value)))
   }
