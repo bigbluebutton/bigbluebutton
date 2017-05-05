@@ -488,7 +488,7 @@ package org.bigbluebutton.modules.whiteboard
         private function maintainFocusToTextBox(event:FocusEvent):void {
 			// In some scenarios, quickly creating multiple text zones will make
 			// the focus to indefinitely witch between two TextObject instances 
-			if (currentlySelectedTextObject is TextObject) {
+			if (currentlySelectedTextObject is TextObject && currentlySelectedTextObject != tf) {
 				publishText();
 			}
             var tf:TextObject = event.currentTarget as TextObject;
