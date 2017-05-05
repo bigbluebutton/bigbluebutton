@@ -7,6 +7,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
 import { findDOMNode } from 'react-dom';
+import KEY_CODES from '/imports/utils/keyCodes';
 
 const propTypes = {
   openChats: PropTypes.array.isRequired,
@@ -33,11 +34,22 @@ class UserList extends Component {
     };
 
     this.rovingIndex = this.rovingIndex.bind(this);
-    this.j = 0;
+    this.counter = 1;
   }
 
   rovingIndex(...Args) {
     const {users, openChats} = this.props;
+    let active = document.activeElement;
+
+    function focusList() {
+      console.log("WORKING");
+      //console.log("count  : " + count);
+      console.log("counter  : " + this.counter);
+      active.tabIndex = -1;
+      list.tabIndex = 0;
+      this.counter = 0;
+      list.focus();
+    }
 
     let list;
     let items;
@@ -53,43 +65,70 @@ class UserList extends Component {
        count = openChats.length;
     }
 
-    if (Args[0].keyCode === 13) {
-      let active = document.activeElement;
-      active.firstChild.click();
+    if (Args[0].keyCode === KEY_CODES.ENTER
+        || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
+        || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
+      //active.firstChild.click();
+      console.log(items.childNodes[-1]);
     }
 
-    if (Args[0].keyCode === 40) {
-      let active = document.activeElement;
-      if (this.j <= count - 1) {
+    if (Args[0].keyCode === KEY_CODES.ESCAPE) {
+      focusList();
+      //active.tabIndex = -1;
+      //list.tabIndex = 0;
+      //this.counter = 0;
+      //list.focus();
+    }
+
+    if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
+      if (this.counter < count) {
         active.tabIndex = -1;
-        items.childNodes[this.j].tabIndex = 0;
-        let newFocus = items.childNodes[this.j];
-        this.j++;
+        items.childNodes[this.counter].tabIndex = 0;
+        let newFocus = items.childNodes[this.counter];
+        this.counter++;
+        newFocus.focus();
+        console.log("count  : " + count);
+        console.log("counter  : " + this.counter);
+      }else if(this.counter === 'undefined'){
+        active.tabIndex = -1;
+        this.counter = 1;
+        items.childNodes[this.counter].tabIndex = 0;
+        let newFocus = items.childNodes[this.counter];
         newFocus.focus();
       }else{
-        this.j = 0;
-        active.tabIndex = -1;
-        list.tabIndex = 0;
-        list.focus();
+        //this.counter = 0;
+        //active.tabIndex = -1;
+        //list.tabIndex = 0;
+        //list.focus();
+        focusList();
       }
     }
 
-    if (Args[0].keyCode === 38) {
-      let active = document.activeElement;
-      if (this.j > 0) {
-        this.j--;
+    if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
+      if (this.counter > 0) {
+        this.counter--;
         active.tabIndex = -1;
-        items.childNodes[this.j].tabIndex = 0;
-        let newFocus = items.childNodes[this.j];
+        items.childNodes[this.counter].tabIndex = 0;
+        let newFocus = items.childNodes[this.counter];
         newFocus.focus();
-      }else if (this.j <= 0) {
-        this.j = count;
-        active.tabIndex = -1;
-        list.tabIndex = 0;
-        list.focus();
-      }
-    }
 
+        console.log("count  : " + count);
+        console.log("counter  : " + this.counter);
+      }else if(this.counter == 0){
+        focusList();
+        this.counter = count;
+        items.childNodes[this.counter].tabIndex = 0;
+        let newFocus = items.childNodes[this.counter];
+        newFocus.focus();
+      }else{
+        //this.counter = count;
+        //active.tabIndex = -1;
+        //list.tabIndex = 0;
+        //list.focus();
+        focusList();
+      }
+
+    }
   }
 
   componentDidMount() {
@@ -104,6 +143,11 @@ class UserList extends Component {
         _this.rovingIndex.call(this, event, "users");
       });
     }
+  }
+
+  componentWillUnmount() {
+    this.refs.msgList.removeEventListener("keypress", function(event){});
+    this.refs.usersList.removeEventListener("keypress", function(event){});
   }
 
   render() {
