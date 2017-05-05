@@ -34,26 +34,22 @@ class UserList extends Component {
     };
 
     this.rovingIndex = this.rovingIndex.bind(this);
-    this.counter = 1;
+    this.counter = -1;
   }
 
   rovingIndex(...Args) {
     const {users, openChats} = this.props;
     let active = document.activeElement;
-
-    function focusList() {
-      console.log("WORKING");
-      //console.log("count  : " + count);
-      console.log("counter  : " + this.counter);
-      active.tabIndex = -1;
-      list.tabIndex = 0;
-      this.counter = 0;
-      list.focus();
-    }
-
     let list;
     let items;
     let count;
+
+    function focusList() {
+      active.tabIndex = -1;
+      this.counter = 0;
+      list.tabIndex = 0;
+      list.focus();
+    }
 
     if (Args[1] === 'users'){
        list = findDOMNode(this.refs.usersList);
@@ -65,19 +61,20 @@ class UserList extends Component {
        count = openChats.length;
     }
 
+    if(this.counter === -1){
+      list.tabIndex = 0;
+      this.counter = 0;
+      list.focus();
+    }
+
     if (Args[0].keyCode === KEY_CODES.ENTER
         || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
         || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
-      //active.firstChild.click();
-      console.log(items.childNodes[-1]);
+      active.firstChild.click();
     }
 
     if (Args[0].keyCode === KEY_CODES.ESCAPE) {
       focusList();
-      //active.tabIndex = -1;
-      //list.tabIndex = 0;
-      //this.counter = 0;
-      //list.focus();
     }
 
     if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
@@ -87,47 +84,39 @@ class UserList extends Component {
         let newFocus = items.childNodes[this.counter];
         this.counter++;
         newFocus.focus();
-        console.log("count  : " + count);
-        console.log("counter  : " + this.counter);
-      }else if(this.counter === 'undefined'){
+      }else if(this.counter === count){
+        active.tabIndex = -1;
+        this.counter = -1;
+        list.tabIndex = 0;
+        list.focus();
+      }else if(this.counter === 0) {
         active.tabIndex = -1;
         this.counter = 1;
         items.childNodes[this.counter].tabIndex = 0;
         let newFocus = items.childNodes[this.counter];
         newFocus.focus();
-      }else{
-        //this.counter = 0;
-        //active.tabIndex = -1;
-        //list.tabIndex = 0;
-        //list.focus();
-        focusList();
       }
     }
 
     if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
-      if (this.counter > 0) {
-        this.counter--;
+      if (this.counter < count && this.counter !== 0) {
         active.tabIndex = -1;
+        this.counter--;
         items.childNodes[this.counter].tabIndex = 0;
         let newFocus = items.childNodes[this.counter];
         newFocus.focus();
-
-        console.log("count  : " + count);
-        console.log("counter  : " + this.counter);
-      }else if(this.counter == 0){
-        focusList();
+      }else if(this.counter === 0){
+        active.tabIndex = -1;
         this.counter = count;
+        list.tabIndex = 0;
+        list.focus();
+      }else if (this.counter === count){
+        active.tabIndex = -1;
+        this.counter = count - 1;
         items.childNodes[this.counter].tabIndex = 0;
         let newFocus = items.childNodes[this.counter];
         newFocus.focus();
-      }else{
-        //this.counter = count;
-        //active.tabIndex = -1;
-        //list.tabIndex = 0;
-        //list.focus();
-        focusList();
       }
-
     }
   }
 
