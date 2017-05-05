@@ -113,6 +113,9 @@ const viewer = function (meetingId, userId) {
 
     //captions
     subscribeCaptions: true,
+
+    //video
+    joinVideo: true
   };
 };
 

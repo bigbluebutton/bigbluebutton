@@ -51,6 +51,12 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case UserUnshareWebcamRequestMessage.USER_UNSHARE_WEBCAM_REQUEST:
 						  processUserUnshareWebcamRequestMessage(message);
 						  break;
+						case UserShareHtml5WebcamRequestMessage.USER_SHARE_HTML5_WEBCAM_REQUEST:
+						  processUserShareHtml5WebcamRequestMessage(message);
+						  break;
+						case UserUnshareHtml5WebcamRequestMessage.USER_UNSHARE_HTML5_WEBCAM_REQUEST:
+						  processUserUnshareHtml5WebcamRequestMessage(message);
+						break;
 					  case SetUserStatusRequestMessage.SET_USER_STATUS_REQUEST:
 						  processSetUserStatusRequestMessage(message);
 						  break;
@@ -229,6 +235,20 @@ public class UsersMessageReceiver implements MessageHandler{
 		UserShareWebcamRequestMessage msg = UserShareWebcamRequestMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.shareWebcam(msg.meetingId, msg.userId, msg.stream);
+		}
+	}
+
+	private void processUserShareHtml5WebcamRequestMessage(String message) {
+		UserShareHtml5WebcamRequestMessage msg = UserShareHtml5WebcamRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.shareHtml5Webcam(msg.meetingId, msg.userId);
+		}
+	}
+
+	private void processUserUnshareHtml5WebcamRequestMessage(String message) {
+		UserUnshareHtml5WebcamRequestMessage msg = UserUnshareHtml5WebcamRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.unshareHtml5Webcam(msg.meetingId, msg.userId);
 		}
 	}
 	

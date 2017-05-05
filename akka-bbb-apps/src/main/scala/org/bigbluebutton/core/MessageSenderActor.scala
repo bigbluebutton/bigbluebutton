@@ -101,7 +101,9 @@ class MessageSenderActor(val service: MessageSender)
     case msg: UserJoined => handleUserJoined(msg)
     case msg: UserChangedEmojiStatus => handleChangedUserEmojiStatus(msg)
     case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
+    case msg: UserSharedHtml5Webcam => handleUserSharedHtml5Webcam(msg)
     case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
+    case msg: UserUnsharedHtml5Webcam => handleUserUnsharedHtml5Webcam(msg)
     case msg: UserStatusChange => handleUserStatusChange(msg)
     case msg: UserVoiceMuted => handleUserVoiceMuted(msg)
     case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
@@ -592,8 +594,18 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
+  private def handleUserSharedHtml5Webcam(msg: UserSharedHtml5Webcam) {
+    val json = UsersMessageToJsonConverter.userSharedHtml5WebcamToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
   private def handleUserUnsharedWebcam(msg: UserUnsharedWebcam) {
     val json = UsersMessageToJsonConverter.userUnsharedWebcamToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleUserUnsharedHtml5Webcam(msg: UserUnsharedHtml5Webcam) {
+    val json = UsersMessageToJsonConverter.userUnsharedHtml5WebcamToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 

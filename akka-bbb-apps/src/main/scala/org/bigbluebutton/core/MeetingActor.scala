@@ -112,6 +112,8 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: UserEmojiStatus => liveMeeting.handleUserEmojiStatus(msg)
     case msg: UserShareWebcam => liveMeeting.handleUserShareWebcam(msg)
     case msg: UserUnshareWebcam => liveMeeting.handleUserunshareWebcam(msg)
+    case msg: UserShareHtml5Webcam => liveMeeting.handleUserShareHtml5Webcam(msg)
+    case msg: UserUnshareHtml5Webcam => liveMeeting.handleUserUnshareHtml5Webcam(msg)
     case msg: MuteMeetingRequest => liveMeeting.handleMuteMeetingRequest(msg)
     case msg: MuteAllExceptPresenterRequest => liveMeeting.handleMuteAllExceptPresenterRequest(msg)
     case msg: IsMeetingMutedRequest => liveMeeting.handleIsMeetingMutedRequest(msg)

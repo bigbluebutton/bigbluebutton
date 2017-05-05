@@ -292,6 +292,14 @@ trait UsersApp {
     }
   }
 
+  def handleUserShareHtml5Webcam(msg: UserShareHtml5Webcam) {
+    usersModel.getUser(msg.userId) foreach { user =>
+      val uvo = user.copy(hasStream = true)
+      log.info("User shared html5 webcam. meetingId = " + mProps.meetingID + " userId=" + uvo.userID)
+      outGW.send(new UserSharedHtml5Webcam(mProps.meetingID, mProps.recorded, uvo.userID))
+    }
+  }
+
   def handleUserunshareWebcam(msg: UserUnshareWebcam) {
     usersModel.getUser(msg.userId) foreach { user =>
       val streamName = user.webcamStreams find (w => w == msg.stream) foreach { streamName =>
@@ -303,6 +311,14 @@ trait UsersApp {
         outGW.send(new UserUnsharedWebcam(mProps.meetingID, mProps.recorded, uvo.userID, msg.stream))
       }
 
+    }
+  }
+
+  def handleUserUnshareHtml5Webcam(msg: UserUnshareHtml5Webcam) {
+    usersModel.getUser(msg.userId) foreach { user =>
+      val uvo = user.copy(hasStream = false)
+      log.info("User unshared html5 webcam. meetingId = " + mProps.meetingID + " userId=" + uvo.userID)
+      outGW.send(new UserUnsharedHtml5Webcam(mProps.meetingID, mProps.recorded, uvo.userID))
     }
   }
 

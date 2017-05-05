@@ -64,6 +64,8 @@ case class UserChangedEmojiStatus(meetingID: String, recorded: Boolean, emojiSta
 case class UserListeningOnly(meetingID: String, recorded: Boolean, userID: String, listenOnly: Boolean) extends IOutMessage
 case class UserSharedWebcam(meetingID: String, recorded: Boolean, userID: String, stream: String) extends IOutMessage
 case class UserUnsharedWebcam(meetingID: String, recorded: Boolean, userID: String, stream: String) extends IOutMessage
+case class UserSharedHtml5Webcam(meetingID: String, recorded: Boolean, userID: String) extends IOutMessage
+case class UserUnsharedHtml5Webcam(meetingID: String, recorded: Boolean, userID: String) extends IOutMessage
 case class UserStatusChange(meetingID: String, recorded: Boolean, userID: String, status: String, value: Object) extends IOutMessage
 case class GetUsersInVoiceConference(meetingID: String, recorded: Boolean, voiceConfId: String) extends IOutMessage
 case class MuteVoiceUser(meetingID: String, recorded: Boolean, requesterID: String,
