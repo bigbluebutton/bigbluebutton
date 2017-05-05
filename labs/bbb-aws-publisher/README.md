@@ -118,28 +118,41 @@ Start the service:
 sudo systemctl start bbb-aws-publisher.service
 ```
 
-
 Running as standalone application
 =================================
 
 To run a one-time command use the utility `bbb-aws-publisher`.
 
-## Upload recordings
+## Synchronize recordings
+
+This will upload, publish, unpublish and delete recordings on S3 according to
+the metadata files stored locally.
+
+You can run it once or set it in a cronjob file so that it runs periodically
+to sychronize the recordings throughout the day.
 
 ```bash
 sudo bbb-aws-publisher --resync
-```
-
-## Run the watch/daemon mode (listen to redis and react to events)
-
-```bash
-sudo bbb-aws-publisher --watch
 ```
 
 ## Upload the playback files
 
 ```bash
 sudo bbb-aws-publisher --upload-playback
+```
+
+## Setup the bucket
+
+This will create and setup a bucket on Amazon S3.
+
+```bash
+sudo bbb-aws-publisher --upload-playback
+```
+
+## Run the watch/daemon mode (listen to redis and react to events)
+
+```bash
+sudo bbb-aws-publisher --watch
 ```
 
 ## Other use cases
