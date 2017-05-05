@@ -1,9 +1,16 @@
 @import "../../../stylesheets/variables/_all";
 @import "../../../stylesheets/mixins/_scrollable";
 
+$item-height: 1rem;
+
+@keyframes bar-stripes {
+  from { background-position: $item-height 0; }
+  to { background-position: 0 0; }
+}
+
 .fileList {
   @include scrollbox-vertical();
-  max-height: 50vh;
+  max-height: 35vh;
 }
 
 .table {
@@ -50,11 +57,16 @@
 
 .tableItemIcon,
 .tableItemActions,
-.tableItemTime {
+.tableItemStatus {
   width: 1%;
 }
 
+.tableItemIcon > i {
+  font-size: 1.35rem;
+}
+
 .tableItemName {
+  height: $item-height;
   width: auto;
   position: relative;
 
@@ -72,8 +84,39 @@
   }
 }
 
+.tableItemStatus {
+  text-align: right;
+}
+
 .tableItemNew {
   background-color: transparentize($color-primary, .95);
+}
+
+.tableItemUploading {
+  background-color: transparentize($color-primary, .75);
+}
+
+.tableItemProcessing {
+  background-color: transparentize($color-success, .75);
+}
+
+.tableItemError {
+  background-color: transparentize($color-danger, .75);
+}
+
+.tableItemUploading,
+.tableItemProcessing {
+  background-image: linear-gradient(45deg,
+    rgba(255, 255, 255, .15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, .15) 50%,
+    rgba(255, 255, 255, .15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: $item-height $item-height;
+  animation: bar-stripes 1s linear infinite;
 }
 
 .itemAction {
@@ -84,6 +127,13 @@
   font-size: 1.35rem;
   color: $color-gray-light;
   padding: 0;
+  transition: all .25s;
+}
+
+.itemActionRemove {
+  &:focus, &:hover {
+    color: $color-danger;
+  }
 }
 
 .dropzone {
@@ -109,7 +159,7 @@
 }
 
 .dropzoneIcon {
-  font-size: $font-size-large * 2;
+  font-size: $font-size-large * 3;
 }
 
 .dropzoneMessage {

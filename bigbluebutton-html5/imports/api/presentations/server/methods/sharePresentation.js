@@ -1,6 +1,7 @@
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import RedisPubSub from '/imports/startup/server/redis';
 import { check } from 'meteor/check';
+import Presentations from '/imports/api/presentations';
 
 export default function sharePresentation(credentials, presentationId, shouldShare = true) {
   const REDIS_CONFIG = Meteor.settings.redis;
@@ -17,6 +18,13 @@ export default function sharePresentation(credentials, presentationId, shouldSha
   check(requesterUserId, String);
   check(presentationId, String);
   check(shouldShare, Boolean);
+
+  const currentPresentation = Presentations.findOne({
+    meetingId: meetingId,
+    'presentation.id': presentationId,
+  });
+
+  if (currentPresentation && currentPresentation.presentation.id === presentationId) return;
 
   let payload = {
     meeting_id: meetingId,

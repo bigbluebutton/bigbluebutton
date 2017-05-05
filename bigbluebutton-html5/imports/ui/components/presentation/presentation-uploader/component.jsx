@@ -9,6 +9,8 @@ import Dropzone from 'react-dropzone';
 import styles from './styles.scss';
 import cx from 'classnames';
 
+const DEFAULT_FILENAME = 'default.pdf';
+
 const intlMessages = defineMessages({
   title: {
     id: 'app.presentationUploder.title',
@@ -44,15 +46,42 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.browseFilesLabel',
     defaultMessage: 'or browse for files',
   },
+  fileToUpload: {
+    id: 'app.presentationUploder.fileToUpload',
+    defaultMessage: 'To be uploaded...',
+  },
+  genericError: {
+    id: 'app.presentationUploder.conversion.genericError',
+    defaultMessage: 'Ops, something went wrong.',
+  },
+  conversionProcessingSlides: {
+    id: 'app.presentationUploder.conversion.conversionProcessingSlides',
+    defaultMessage: 'Processing page {current} of {total}',
+  },
+  genericConversionStatus: {
+    id: 'app.presentationUploder.conversion.genericConversionStatus',
+    defaultMessage: 'Converting file...',
+  },
+  GENERATING_THUMBNAIL: {
+    id: 'app.presentationUploder.conversion.generatingThumbnail',
+    defaultMessage: 'Generating thumbnails...',
+  },
+  GENERATED_SLIDE: {
+    id: 'app.presentationUploder.conversion.generatedSlides',
+    defaultMessage: 'Slides generated...',
+  },
 });
 
-class PresentationUploder extends Component {
+const isProcessingOrUploading = _ => !_.isProcessed || !_.isUploaded;
+
+class PresentationUploader extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       presentations: props.presentations,
-      isProcessing: false,
+      preventClosing: false,
+      disableActions: false,
     };
 
     this.handleConfirm = this.handleConfirm.bind(this);
@@ -62,19 +91,38 @@ class PresentationUploder extends Component {
     this.handleRemove = this.handleRemove.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    const presentationStateUpdated =
+      this.state.presentations.map(p =>
+        nextProps.presentations.find(_ => _.filename === p.filename));
+
+    const stillBusy = presentationStateUpdated.some(isProcessingOrUploading);
+
+    this.setState({
+      presentations: presentationStateUpdated,
+      preventClosing: stillBusy,
+      disableActions: stillBusy,
+    });
+  }
+
   handleConfirm() {
     const { presentations }  = this.state;
 
-    this.setState({ isProcessing: true });
+    this.setState({
+      disableActions: true,
+      preventClosing: true,
+    });
 
-    return this.props.handleSave(presentations)
-      .then(() => {
-        this.setState({ isProcessing: false });
-      });
+    return this.props.handleSave(presentations);
   }
 
   handleDismiss() {
-    // we dont actually need to do anything, yay :D
+    return new Promise(resolve => {
+      this.setState({
+        preventClosing: false,
+        disableActions: false,
+      }, resolve);
+    });
   }
 
   handleFiledrop(files) {
@@ -86,6 +134,7 @@ class PresentationUploder extends Component {
       isCurrent: true,
       isUploaded: false,
       isProcessed: false,
+      conversion: { done: false, error: false, },
     }));
 
     this.setState(({ presentations }) => ({
@@ -127,6 +176,12 @@ class PresentationUploder extends Component {
   handleRemove(item) {
     const { presentations }  = this.state;
     const toRemoveIndex = presentations.indexOf(item);
+    const toRemove = presentations[toRemoveIndex];
+
+    if (toRemove.isCurrent) {
+      const defaultPresentation = presentations.find(_ => _.filename === DEFAULT_FILENAME);
+      this.handleCurrentChange(defaultPresentation);
+    }
 
     this.setState({
       presentations: update(presentations, {
@@ -136,23 +191,24 @@ class PresentationUploder extends Component {
   }
 
   render() {
-    const { intl } = this.props;
-    const { isProcessing }  = this.state;
+    const { intl, presentations } = this.props;
+    const { preventClosing, disableActions }  = this.state;
 
     return (
       <ModalFullscreen
         title={intl.formatMessage(intlMessages.title)}
+        preventClosing={preventClosing}
         confirm={{
           callback: this.handleConfirm,
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
-          disabled: isProcessing,
+          disabled: disableActions,
         }}
         dismiss={{
           callback: this.handleDismiss,
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
-          disabled: isProcessing,
+          disabled: disableActions,
         }}>
         <p>{intl.formatMessage(intlMessages.message)}</p>
         {this.renderPresentationList()}
@@ -165,7 +221,8 @@ class PresentationUploder extends Component {
     const { presentations }  = this.state;
 
     let presentationsSorted = presentations
-      .sort((a, b) => a.uploadedAt.getTime() - b.uploadedAt.getTime());
+      .sort((a, b) => a.uploadedAt.getTime() - b.uploadedAt.getTime())
+      .sort((a, b) => b.filename === DEFAULT_FILENAME);
 
     return (
       <div className={styles.fileList}>
@@ -178,16 +235,57 @@ class PresentationUploder extends Component {
     );
   }
 
+  renderPresentationItemStatus(item) {
+    const { intl }  = this.props;
+
+    if (!item.isUploaded)
+      return intl.formatMessage(intlMessages.fileToUpload);
+
+    if (!item.isProcessed && item.conversion.error) {
+      const errorMessage = intlMessages[status] || intlMessages.genericError;
+      return intl.formatMessage(errorMessage);
+    }
+
+    if (!item.isProcessed && !item.conversion.error) {
+      if(item.conversion.pages_completed < item.conversion.num_pages) {
+        return intl.formatMessage(intlMessages.conversionProcessingSlides, {
+          current: item.conversion.pages_completed,
+          total: item.conversion.num_pages,
+        });
+      }
+
+      const conversionStatusMessage =
+        intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
+      return intl.formatMessage(conversionStatusMessage);
+    }
+
+    return (
+      <time dateTime={item.uploadedAt}>
+        <FormattedDate
+          value={item.uploadedAt}
+          day="2-digit"
+          month="2-digit"
+          year="numeric"
+          hour="2-digit"
+          minute="2-digit"
+        />
+      </time>
+    );
+  }
+
   renderPresentationItem(item) {
-    const { isProcessing, presentations }  = this.state;
+    const { disableActions, presentations }  = this.state;
 
     let itemClassName = {};
 
-    itemClassName[styles.tableItemNew] = !item.isUploaded && !item.isProcessed;
-    itemClassName[styles.tableItemUploading] = item.isUploading;
-    itemClassName[styles.tableItemProcessing] = item.isProcessing;
+    itemClassName[styles.tableItemNew] = item.id === item.filename;
+    itemClassName[styles.tableItemUploading] = false;
+    itemClassName[styles.tableItemProcessing] = !item.isProcessed && item.isUploaded;
+    itemClassName[styles.tableItemError] = item.conversion.error || false;
 
-    const hideActions = isProcessing || presentations.some(_ => !_.isUploaded);
+    const hideRemove = (item.isCurrent && item.isUploaded) || item.filename === DEFAULT_FILENAME;
+    const hasSomeFileNotUploaded = presentations.some(_ => !_.isUploaded);
+    const disableCheck = hasSomeFileNotUploaded;
 
     return (
       <tr
@@ -200,38 +298,26 @@ class PresentationUploder extends Component {
         <th className={styles.tableItemName}>
           <span>{item.filename}</span>
         </th>
-        <td className={styles.tableItemTime}>
-          {
-            !item.isUploaded ? 'To be uploaded...'
-            : (
-              <time dateTime={item.uploadedAt}>
-                <FormattedDate
-                  value={item.uploadedAt}
-                  day="2-digit"
-                  month="2-digit"
-                  year="numeric"
-                  hour="2-digit"
-                  minute="2-digit"
-                />
-              </time>
-            )
-          }
+        <td className={styles.tableItemStatus}>
+          {this.renderPresentationItemStatus(item)}
         </td>
-        {hideActions ? null : (
+        {disableActions ? null : (
           <td className={styles.tableItemActions}>
             <Checkbox
+              disabled={disableCheck}
               ariaLabel={'Set as current presentation'}
               className={styles.itemAction}
               checked={item.isCurrent}
               onChange={() => this.handleCurrentChange(item)}
             />
-            <ButtonBase
-              className={styles.itemAction}
-              label={'Remove presentation'}
-              disabled={isProcessing || item.isCurrent || item.filename === 'default.pdf'}
-              onClick={() => this.handleRemove(item)}>
-              <Icon iconName={'close'}/>
-            </ButtonBase>
+            { hideRemove ? null : (
+              <ButtonBase
+                className={cx(styles.itemAction, styles.itemActionRemove)}
+                label={'Remove presentation'}
+                onClick={() => this.handleRemove(item)}>
+                <Icon iconName={'delete'}/>
+              </ButtonBase>
+            )}
           </td>
         )}
       </tr>
@@ -246,7 +332,12 @@ class PresentationUploder extends Component {
       fileValidMimeTypes,
     } = this.props;
 
+    const { disableActions } = this.state;
+
     // TODO: Change the multiple prop when the endpoint supports multiple files
+    const hasSomeFileNotUploaded = this.state.presentations.some(_ => !_.isUploaded);
+
+    if (hasSomeFileNotUploaded || disableActions) return null;
 
     return (
       <Dropzone
@@ -259,9 +350,8 @@ class PresentationUploder extends Component {
         maxSize={fileSizeMax}
         disablePreview={true}
         onDrop={this.handleFiledrop}
-        onDragStart={this.handleDragStart}
       >
-        <Icon className={styles.dropzoneIcon} iconName={'undecided'}/>
+        <Icon className={styles.dropzoneIcon} iconName={'upload'}/>
         <p className={styles.dropzoneMessage}>
           {intl.formatMessage(intlMessages.dropzoneLabel)}&nbsp;
           <span className={styles.dropzoneLink}>
@@ -273,4 +363,4 @@ class PresentationUploder extends Component {
   }
 };
 
-export default injectIntl(PresentationUploder);
+export default injectIntl(PresentationUploader);

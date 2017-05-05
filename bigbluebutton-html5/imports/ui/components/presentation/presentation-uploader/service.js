@@ -11,10 +11,11 @@ const getPresentations = () =>
       _id: p._id,
       id: p.presentation.id,
       filename: p.presentation.name,
-      uploadedAt: new Date(),
+      uploadedAt: p.upload ? p.upload.date : new Date(),
       isCurrent: p.presentation.current,
       isUploaded: true,
-      isProcessed: true,
+      isProcessed: p.conversion.done,
+      conversion: p.conversion,
     }));
 
 const uploadPresentation = (file, meetingID, endpoint) => {
@@ -26,6 +27,7 @@ const uploadPresentation = (file, meetingID, endpoint) => {
   data.append('room', meetingID);
 
   /* TODO: Should we do the request on the html5 server instead of the client? */
+  /* TODO: Upload progress */
   return fetch(endpoint, {
     method: 'POST',
     body: data,
@@ -49,8 +51,8 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
   const currentPresentation = newState.find(_ => _.isCurrent);
 
   return new Promise((resolve, reject) =>
-    uploadPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
-    .then(removePresentations.bind(null, presentationsToRemove))
+    removePresentations(presentationsToRemove)
+    .then(uploadPresentations.bind(null, presentationsToUpload, Auth.meetingID, uploadEndpoint))
     .then(call.bind(null, 'sharePresentation', currentPresentation.id, true))
     .then(resolve)
     .catch(reject)

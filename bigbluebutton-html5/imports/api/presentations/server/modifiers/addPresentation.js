@@ -29,6 +29,9 @@ export default function addPresentation(meetingId, presentation) {
       'presentation.id': presentation.id,
       'presentation.name': presentation.name,
       'presentation.current': presentation.current,
+      'conversion.error': false,
+      'conversion.done': true,
+      'upload.date': new Date(),
     },
   };
 
