@@ -6,8 +6,6 @@ const FS_PASSWORD = Meteor.settings.public.media.fsPassword;
 
 export default class IOSBridge extends BaseAudioBridge {
   constructor(userData) {
-    console.log('IOSBridge constructor');
-
     super();
 
     const {
@@ -22,33 +20,61 @@ export default class IOSBridge extends BaseAudioBridge {
       fsPassword: FS_PASSWORD,
       fsVoiceBridgeNumber: voiceBridge,
       sessId: userId + Date.now(),
-      callerIdName: username,
-      callerIdNumber: `${username}@bbb`,
+      callerIdName: `${userId}-bbbID-${username}`,
+      callerIdNumber: voiceBridge,
       isListenOnly: null,
     };
-
-    this.joinListenOnly();
+    console.log('created a IOSBridge for audio', this.options);
   }
 
   joinListenOnly() {
-    this.options.isListenOnly = true;
-    this._joinVoiceCallIOS();
+    console.log('joinListenOnly');
+    makeCall('listenOnlyToggle', true);
+    this._joinVoiceCallIOS(true);
   }
 
   joinMicrophone() {
-    this.options.isListenOnly = false;
-    this._joinVoiceCallIOS();
+    console.log('joinMicrophone');
+    this._joinVoiceCallIOS(false);
   }
 
   exitAudio(isListenOnly, afterExitCall = () => {}) {
+    console.log('Exiting audio from iOS Bridge');
+    if (isListenOnly) {
+      makeCall('listenOnlyToggle', false);
+    }
+
+    const message = {
+      method: 'hangup',
+    };
+
+    this._sendMessageToSwift(message);
     return false;
   }
 
+  _joinVoiceCallIOS(isListenOnly) {
+    console.log('Joining audio using the iOS Bridge');
+    console.log('listenOnly', isListenOnly);
 
-  _joinVoiceCallIOS() {
-    this.options.method = 'call';
+    const options = this.options;
 
-    // window.webkit.messageHandlers.bbb.postMessage(JSON.stringify(this.options))
-    console.log('joining audio using the iOS bridge', this.options);
+    let message = {
+      method: 'call',
+      fsWebSocketUrl: options.fsWebSocketUrl,
+      fsLogin: options.fsLogin,
+      fsPassword: options.fsPassword,
+      fsVoiceBridgeNumber: options.fsVoiceBridgeNumber,
+      sessId: options.sessId,
+      callerIdName: options.callerIdName,
+      callerIdNumber: options.callerIdNumber,
+      isListenOnly,
+    };
+
+    this._sendMessageToSwift(message);
+  }
+
+  _sendMessageToSwift(message) {
+    console.log('Sending message to swift', message);
+    window.webkit.messageHandlers.bbb.postMessage(JSON.stringify(message));
   }
 }

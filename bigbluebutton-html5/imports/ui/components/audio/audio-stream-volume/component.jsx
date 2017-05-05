@@ -50,14 +50,32 @@ class AudioStreamVolume extends Component {
   }
 
   componentWillUnmount() {
+    if (window.navigator.userAgent === 'bbb-webrtc-ios') {
+      window.webkit.messageHandlers.bbb
+            .postMessage(JSON.stringify({ method: 'requestMicrophoneLevelStop' }));
+    }
+
     this.closeAudioContext();
   }
 
   createAudioContext() {
-    this.audioContext = new AudioContext();
-    this.scriptProcessor = this.audioContext.createScriptProcessor(2048, 1, 1);
-    this.scriptProcessor.onaudioprocess = this.handleAudioProcess;
-    this.source = null;
+
+    if (window.navigator.userAgent === 'bbb-webrtc-ios') {
+      window.webkit.messageHandlers.bbb
+            .postMessage(JSON.stringify({ method: 'requestMicrophoneLevelStart' }));
+      window.addEventListener('audioInputChange',
+        (e) => {
+          this.setState((prevState) => ({
+            instant: parseFloat(e.detail.message),
+            slow: parseFloat(e.detail.message),
+          }));
+        });
+    } else {
+      this.audioContext = new AudioContext();
+      this.scriptProcessor = this.audioContext.createScriptProcessor(2048, 1, 1);
+      this.scriptProcessor.onaudioprocess = this.handleAudioProcess;
+      this.source = null;
+    }
 
     let constraints = {
       audio: true,
