@@ -20,12 +20,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<common:CustomMdiWindow
+<mx:Canvas
   xmlns:mx="http://www.adobe.com/2006/mxml" 
   xmlns:mate="http://mate.asfusion.com/"
   xmlns:common="org.bigbluebutton.common.*"
   creationComplete="onCreationComplete()"	
-  xmlns:dspub="org.bigbluebutton.common.*"
   verticalScrollPolicy="off" horizontalScrollPolicy="off"
   width="700" height="350">
   
@@ -618,4 +617,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Button id="cancelBtn" click="onCancelButtonClick()" visible="false" includeInLayout="false" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.cancelButton.label')}" />
     <!--mx:Button id="stopBtn" visible="false" includeInLayout="false" click="close()" label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.stopButton.label')}" /-->
   </mx:ControlBar>
-</common:CustomMdiWindow>
+</mx:Canvas>
