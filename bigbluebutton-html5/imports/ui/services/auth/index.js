@@ -114,8 +114,10 @@ class Auth {
             description: 'Authentication subscription timeout.',
           });
         }, 5000);
-
-        const subscription = Meteor.subscribe('current-user', credentials);
+        window.me = Users.find().fetch();
+        window.UsersCollection = Users;
+	
+const subscription = Meteor.subscribe('current-user', credentials);
         if (!subscription.ready()) return;
 
         resolve(c);

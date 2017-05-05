@@ -7,10 +7,11 @@ export default class VertoBridge extends BaseAudioBridge {
     const {
       username,
       voiceBridge,
+      userId,
     } = userData;
 
     this.voiceBridge = voiceBridge;
-    this.vertoUsername = 'FreeSWITCH User - ' + encodeURIComponent(username);
+    this.vertoUsername = `${userId}-bbbID-${username}`;
   }
 
   exitAudio(listenOnly) {

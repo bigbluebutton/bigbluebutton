@@ -11,8 +11,7 @@ export default function updateVoiceUser(meetingId, userId, voiceUser) {
     meetingId,
     userId,
   };
-
-  Logger.error(`voiceuser= ${JSON.stringify(voiceUser)}`);
+Logger.error(`voiceuser= ${JSON.stringify(voiceUser}`);
   const modifier = {
     $set: {
       'user.voiceUser.talking': voiceUser.talking,

@@ -73,7 +73,7 @@ class RedisPubSub {
     const messagesWeIgnore = this.config.ignoredMessages || [];
 
     if (!messagesWeIgnore.includes(eventName)) {
-      this._debug(`${eventName} added to queue`);
+      this._debug(`${eventName} added to queue ${JSON.stringify(message)}`);
 
       //Logger.info(`QUEUE | PROGRESS ${this.queue.progress()}% | LENGTH ${this.queue.length()}}`);
 

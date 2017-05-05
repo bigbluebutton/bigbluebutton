@@ -22,12 +22,13 @@ export default class IOSBridge extends BaseAudioBridge {
       fsPassword: FS_PASSWORD,
       fsVoiceBridgeNumber: voiceBridge,
       sessId: userId + Date.now(),
-      callerIdName: username,
-      callerIdNumber: `${username}@bbb`,
+      // callerIdName: username,
+      callerIdName: `${userId}-bbbID-${username}`,
+      callerIdNumber: voiceBridge,
       isListenOnly: null,
     };
 
-    this.joinListenOnly();
+    // this.joinListenOnly();
   }
 
   joinListenOnly() {
@@ -48,7 +49,8 @@ export default class IOSBridge extends BaseAudioBridge {
   _joinVoiceCallIOS() {
     this.options.method = 'call';
 
-    // window.webkit.messageHandlers.bbb.postMessage(JSON.stringify(this.options))
+    window.webkit.messageHandlers.bbb.postMessage(JSON.stringify(this.options))
     console.log('joining audio using the iOS bridge', this.options);
+    console.log('Tiago, aqui esta o log, estou te mandando esse treco', this.options);
   }
 }
