@@ -124,17 +124,10 @@ Running as standalone application
 
 To run a one-time command use the utility `bbb-aws-publisher`.
 
-
-## Upload the playback files
-
-```bash
-sudo bbb-aws-publisher --upload-playback
-```
-
 ## Upload recordings
 
 ```bash
-sudo bbb-aws-publisher --upload
+sudo bbb-aws-publisher --resync
 ```
 
 ## Run the watch/daemon mode (listen to redis and react to events)
@@ -143,17 +136,29 @@ sudo bbb-aws-publisher --upload
 sudo bbb-aws-publisher --watch
 ```
 
+## Upload the playback files
+
+```bash
+sudo bbb-aws-publisher --upload-playback
+```
+
 ## Other use cases
 
 ### Upload recordings but keep the local ones for backup
 
 ```bash
-sudo bbb-aws-publisher --upload BBB_AWS_KEEP_FILES=1
+sudo bbb-aws-publisher --resync BBB_AWS_KEEP_FILES=1
+```
+
+To also not delete from S3 recordings deleted locally:
+
+```bash
+sudo bbb-aws-publisher --resync BBB_AWS_KEEP_FILES=1 BBB_AWS_KEEP_DELETED=1
 ```
 
 ### Move both the playback page and the media files to S3
 
 ```bash
 sudo bbb-aws-publisher --upload-playback
-sudo bbb-aws-publisher --upload BBB_AWS_REMOTE_PLAYBACK=1
+sudo bbb-aws-publisher --resync BBB_AWS_REMOTE_PLAYBACK=1
 ```

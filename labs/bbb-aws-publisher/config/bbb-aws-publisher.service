@@ -1,5 +1,5 @@
 [Unit]
-Description=BigBlueButton Apps (Akka)
+Description=BigBlueButton AWS Publisher
 Requires=network.target
 
 [Service]

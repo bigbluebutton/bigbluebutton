@@ -132,6 +132,22 @@ module BigBlueButtonAwsRecorder
       Dir.glob("/var/bigbluebutton/recording/status/published/#{record_id}-*.done").map{ |file| File.basename(file, ".done").gsub(/^\w+-\d+-/, "") }
     end
 
+    def get_list_of_recordings(dir)
+      list = Dir.glob("#{dir}/*/*")
+
+      # reject directories not in the format we expect
+      list = list.reject{ |path| /\w+-\d+/.match(File.basename(path)).nil? }
+
+      # sort so older recordings are in the beginning
+      list = list.sort{ |a,b| path_to_timestamp(a) <=> path_to_timestamp(b) }
+
+      # map to an array in the format {"c164f71bef6ea47bd91519b54c134efb4da0d935-1480953600847"=>"presentation"}
+      list = list.collect{ |path| { File.basename(path) => File.basename(File.dirname(path)) } }
+
+      # map to an array in the format {"c164f71bef6ea47bd91519b54c134efb4da0d935-1480953600847"=>["presentation"]
+      {}.tap{ |r| list.each{ |h| h.each{ |k,v| (r[k]||=[]) << v } } }
+    end
+
     def update_metadata_link(metadata_file)
       FileUtils.cp(metadata_file, "#{metadata_file}.orig") if ! File.exists?("#{metadata_file}.orig")
       doc = nil
@@ -495,9 +511,9 @@ $playback_dir = ENV['BBB_AWS_PLAYBACK_DIR']
 
 $opts = Trollop::options do
   banner "BigBlueButton AWS Publisher: Host recordings on Amazon's S3"
-  opt :upload, "Upload available recordings to S3", short: '-u'
-  opt :upload_playback, "Upload playback files to S3", short: '-p'
+  opt :resync, "Resynchronize recordings on S3 (upload, publish, unpublish and delete according to local metadata)", short: '-r'
   opt :watch, "Watch redis for changes to automatically upload and update recordings", short: '-w'
+  opt :upload_playback, "Upload playback files to S3", short: '-p'
   opt :setup_bucket, "Create a bucket on S3 and set its permissions", short: '-b'
 end
 
@@ -533,20 +549,28 @@ if $cmd == :upload_playback
   $publisher.upload_playbacks($playback_dir, s3_bucket)
 end
 
-# upload existing recordings
-if $cmd == :upload
-  def collect_values(hashes)
-    {}.tap{ |r| hashes.each{ |h| h.each{ |k,v| (r[k]||=[]) << v } } }
+# sychronize recordings
+if $cmd == :resync
+  to_delete = $publisher.get_list_of_recordings(deleted_dir)
+  to_delete.each_with_index do |(record_id, formats), index|
+    if isset('BBB_AWS_KEEP_DELETED')
+      BigBlueButtonAwsRecorder.logger.info "Unpublishing deleted recording #{index + 1} of #{to_delete.size}"
+      $publisher.unpublish(record_id, deleted_dir, s3_bucket, formats)
+    else
+      BigBlueButtonAwsRecorder.logger.info "Deleting recording #{index + 1} of #{to_delete.size}"
+      $publisher.delete(record_id, deleted_dir, s3_bucket)
+    end
   end
 
-  to_publish = collect_values(Dir.glob("#{published_dir}/*/*").reject{ |path| /\w+-\d+/.match(File.basename(path)).nil? }.sort{ |a,b| path_to_timestamp(a) <=> path_to_timestamp(b) }.collect{ |path| { File.basename(path) => File.basename(File.dirname(path)) } })
+  to_publish = $publisher.get_list_of_recordings(published_dir)
   to_publish.each_with_index do |(record_id, formats), index|
-    BigBlueButtonAwsRecorder.logger.info "Processing #{index + 1} of #{to_publish.size}"
+    BigBlueButtonAwsRecorder.logger.info "Publishing #{index + 1} of #{to_publish.size}"
     $publisher.publish(record_id, published_dir, s3_bucket, formats)
   end
-  to_unpublish = collect_values(Dir.glob("#{unpublished_dir}/*/*").reject{ |path| /\w+-\d+/.match(File.basename(path)).nil? }.sort{ |a,b| path_to_timestamp(a) <=> path_to_timestamp(b) }.collect{ |path| { File.basename(path) => File.basename(File.dirname(path)) } })
+
+  to_unpublish = $publisher.get_list_of_recordings(unpublished_dir)
   to_unpublish.each_with_index do |(record_id, formats), index|
-    BigBlueButtonAwsRecorder.logger.info "Processing #{index + 1} of #{to_unpublish.size}"
+    BigBlueButtonAwsRecorder.logger.info "Unpublishing #{index + 1} of #{to_unpublish.size}"
     $publisher.unpublish(record_id, unpublished_dir, s3_bucket, formats)
   end
 end
