@@ -1,0 +1,2 @@
+kurento:
+  wsUrl: 'wss://HOST/html5video'
