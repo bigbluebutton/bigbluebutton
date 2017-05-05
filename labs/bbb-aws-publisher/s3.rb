@@ -71,6 +71,11 @@ module BigBlueButtonAwsRecorder
           }
         end
 
+        if keys.empty?
+          BigBlueButtonAwsRecorder.logger.info "No files to delete for #{record_id} at #{published_dir}"
+          return true
+        end
+
         output = @s3.bucket(bucket_name).delete_objects(
           {
             delete: {
@@ -155,20 +160,21 @@ module BigBlueButtonAwsRecorder
         BigBlueButtonAwsRecorder.logger.info "Reading the metadata file #{metadata_file}"
         doc = Nokogiri::XML(open(metadata_file).read)
       rescue Exception => e
-        BigBlueButtonAwsRecorder.logger.error "Something went wrong: #{$!}"
-        raise e
+        BigBlueButtonAwsRecorder.logger.error "Error parsing metadata file, skipping. #{e.inspect}"
+        return false
       end
+
       old_link = doc.at('link').content
       new_link = get_modified_link(doc.at('link').content)
-      if new_link == old_link
-        false
-      else
+      if new_link != old_link
         doc.at('link').content = new_link
 
         metadata_xml = File.new(metadata_file,"w")
         metadata_xml.write(doc.to_xml(:indent => 2))
         metadata_xml.close
         true
+      else
+        false
       end
     end
 
@@ -300,8 +306,8 @@ module BigBlueButtonAwsRecorder
       begin
         doc = Nokogiri::XML(open(metadata_file).read)
       rescue Exception => e
-        BigBlueButtonAwsRecorder.logger.error "Something went wrong: #{$!}"
-        raise e
+        BigBlueButtonAwsRecorder.logger.error "Error parsing metadata file, skipping. #{e.inspect}"
+        return false
       end
 
       if !doc.at('media_url')
@@ -317,6 +323,8 @@ module BigBlueButtonAwsRecorder
         metadata_xml.write(doc.to_xml(:indent => 2))
         metadata_xml.close
         true
+      else
+        false
       end
     end
 
@@ -601,7 +609,7 @@ if $cmd == :watch
             # if the link didn't update it means this is the event we published on redis,
             # so don't treat it
             if !updated_link
-              BigBlueButtonAwsRecorder.logger.info "Published back to redis for record_id #{record_id}, format #{format}"
+              BigBlueButtonAwsRecorder.logger.info "Got event published back to redis for record_id #{record_id}, format #{format}, ignoring"
             else
               formats = $publisher.get_available_formats
               published_formats = $publisher.get_published_formats(record_id)
