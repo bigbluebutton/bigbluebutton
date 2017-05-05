@@ -127,6 +127,7 @@ class ClosedCaptionsMenu extends BaseMenu {
     const {
       locales,
       intl,
+      isModerator,
     } = this.props;
 
     return (
@@ -156,24 +157,26 @@ class ClosedCaptionsMenu extends BaseMenu {
           </div>
           { this.state.settings.enabled ?
             <div>
-              <div className={cx(styles.row, styles.spacedLeft)}>
-                <div className={styles.col}>
-                  <div className={styles.formElement}>
-                    <label className={styles.label}>
-                      {intl.formatMessage(intlMessages.takeOwnershipLabel)}
-                    </label>
+              { isModerator ?
+                <div className={cx(styles.row, styles.spacedLeft)}>
+                  <div className={styles.col}>
+                    <div className={styles.formElement}>
+                      <label className={styles.label}>
+                        {intl.formatMessage(intlMessages.takeOwnershipLabel)}
+                      </label>
+                    </div>
+                  </div>
+                  <div className={styles.col}>
+                    <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      <Checkbox
+                        onChange={() => this.handleToggle('takeOwnership')}
+                        checked={this.state.settings.takeOwnership}
+                        ariaLabelledBy={'takeOwnership'}
+                        ariaLabel={intl.formatMessage(intlMessages.takeOwnershipLabel)}/>
+                    </div>
                   </div>
                 </div>
-                <div className={styles.col}>
-                  <div className={cx(styles.formElement, styles.pullContentRight)}>
-                    <Checkbox
-                      onChange={() => this.handleToggle('takeOwnership')}
-                      checked={this.state.settings.takeOwnership}
-                      ariaLabelledBy={'takeOwnership'}
-                      ariaLabel={intl.formatMessage(intlMessages.takeOwnershipLabel)}/>
-                  </div>
-                </div>
-              </div>
+              : null }
               <div className={cx(styles.row, styles.spacedLeft)}>
                 <div className={styles.col}>
                   <div className={styles.formElement}>
