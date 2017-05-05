@@ -1,1 +1,2 @@
-kurentoUrl: "ws://kurento:8888/kurento"
+kurentoUrl: "wss://HOST/kurento"
+acceptSelfSignedCertificate: false

@@ -8,6 +8,10 @@ const kurento = require('kurento-client');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 
+if (config.get('acceptSelfSignedCertificate')) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED=0;
+}
+
 var kurentoClient = null;
 
 function getKurentoClient(callback) {

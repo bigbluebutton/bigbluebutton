@@ -8,14 +8,10 @@ var cookieParser = require('cookie-parser')
 var express = require('express');
 var session = require('express-session')
 var ws = require('./lib/websocket');
-var https = require('https');
+var http = require('http');
 var fs = require('fs');
 
 var Video = require('./lib/video');
-
-var options = {
-  key:  fs.readFileSync('keys/server.key'), cert: fs.readFileSync('keys/server.crt')
-};
 
 // Global variables
 var app = express();
@@ -35,7 +31,7 @@ app.use(sessionHandler);
 /*
  * Server startup
  */
-var server = https.createServer(options, app).listen(8443, function() {
+var server = http.createServer(app).listen(3002, function() {
   console.log(' [*] Running bbb-html5 kurento video service.');
 });
 
