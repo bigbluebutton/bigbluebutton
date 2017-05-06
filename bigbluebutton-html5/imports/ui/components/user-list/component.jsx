@@ -74,6 +74,7 @@ class UserList extends Component {
     }
 
     if (Args[0].keyCode === KEY_CODES.ESCAPE) {
+      active.tabIndex = -1;
       focusList();
     }
 
@@ -135,8 +136,8 @@ class UserList extends Component {
   }
 
   componentWillUnmount() {
-    this.refs.msgList.removeEventListener("keypress", function(event){});
-    this.refs.usersList.removeEventListener("keypress", function(event){});
+    this.refs.msgList.removeEventListener("keypress", function(event){}, false);
+    this.refs.usersList.removeEventListener("keypress", function(event){}, false);
   }
 
   render() {

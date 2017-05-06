@@ -237,10 +237,12 @@ class UserListItem extends Component {
 
     let actions = this.getAvailableActions();
     let contents = (
-      <div className={styles.userItemContents}>
+      <div className={cx(styles.userListItem, userItemContentsStyle)}>
+      <div className={styles.userItemContents} >
         <UserAvatar user={user} />
         {this.renderUserName()}
         {this.renderUserIcons()}
+      </div>
       </div>
     );
 
@@ -285,19 +287,6 @@ class UserListItem extends Component {
         </DropdownContent>
       </Dropdown>
     );
-
-    //return
-     //(
-      //<li
-      //  role="button"
-      //  aria-haspopup="true"
-      //  aria-live="assertive"
-      //  aria-relevant="additions"
-      //  className={cx(styles.userListItem, userItemContentsStyle)}
-      //  tabIndex="-1">
-      //  this.renderUserContents();
-    //  </li>
-    //;
   }
 
   renderUserContents() {

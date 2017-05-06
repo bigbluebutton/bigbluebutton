@@ -60,10 +60,11 @@ class ChatListItem extends Component {
     return (
         <Link
           to={linkPath}
-          className={styles.chatListItemLink}
+          className={cx(styles.chatListItem, linkClasses)}
           role="button"
           aria-expanded={isCurrentChat}
           tabIndex={tabIndex}>
+            <div className={styles.chatListItemLink}>
             {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
             <div className={styles.chatName}>
               {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null }
@@ -79,6 +80,7 @@ class ChatListItem extends Component {
                 </div>
               </div>
               : null}
+              </div>
         </Link>
     );
   }
