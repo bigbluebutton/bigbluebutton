@@ -60,30 +60,30 @@ export default class DropdownList extends Component {
       return event.currentTarget.click();
     }
 
-    //let nextActiveItemIndex = null;
+    let nextActiveItemIndex = null;
 
-    //if (KEY_CODES.ARROW_UP === event.which) {
-    //  nextActiveItemIndex = activeItemIndex - 1;
-    //}
+    if (KEY_CODES.ARROW_UP === event.which) {
+      nextActiveItemIndex = activeItemIndex - 1;
+    }
 
-    //if (KEY_CODES.ARROW_DOWN === event.which) {
-    //  nextActiveItemIndex = activeItemIndex + 1;
-    //}
+    if (KEY_CODES.ARROW_DOWN === event.which) {
+      nextActiveItemIndex = activeItemIndex + 1;
+    }
 
-    //if (nextActiveItemIndex > (this.childrenRefs.length - 1)) {
-    //  nextActiveItemIndex = 0;
-    //}
+    if (nextActiveItemIndex > (this.childrenRefs.length - 1)) {
+      nextActiveItemIndex = 0;
+    }
 
-    //if (nextActiveItemIndex < 0) {
-    //  nextActiveItemIndex = this.childrenRefs.length - 1;
-    //}
+    if (nextActiveItemIndex < 0) {
+      nextActiveItemIndex = this.childrenRefs.length - 1;
+    }
 
-    //if ([KEY_CODES.TAB, KEY_CODES.ESCAPE].includes(event.which)) {
-    //  nextActiveItemIndex = 0;
-    //  dropdownHide();
-    //}
+    if ([KEY_CODES.ESCAPE].includes(event.which)) {
+      nextActiveItemIndex = 0;
+      dropdownHide();
+    }
 
-    //this.setState({ activeItemIndex: nextActiveItemIndex });
+    this.setState({ activeItemIndex: nextActiveItemIndex });
 
     if (typeof callback === 'function') {
       callback(event);

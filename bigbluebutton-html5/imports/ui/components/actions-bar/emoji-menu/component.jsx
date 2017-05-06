@@ -18,7 +18,94 @@ const propTypes = {
 class EmojiMenu extends Component {
   constructor(props) {
     super(props);
+
+  //  this.rovingIndex = this.rovingIndex.bind(this);
   }
+/*
+  rovingIndex(...Args) {
+    const {users, openChats} = this.props;
+    let active = document.activeElement;
+    let list;
+    let items;
+    let count;
+
+    function focusList() {
+      active.tabIndex = -1;
+      this.counter = 0;
+      list.tabIndex = 0;
+      list.focus();
+    }
+
+    if (Args[1] === 'users'){
+       list = findDOMNode(this.refs.usersList);
+       items = findDOMNode(this.refs.userItems);
+       count = users.length;
+    }else if(Args[1] === 'messages'){
+       list = findDOMNode(this.refs.msgList);
+       items = findDOMNode(this.refs.msgItems);
+       count = openChats.length;
+    }
+
+    if(this.counter === -1 || this.counter > count){
+      active.tabIndex = -1;
+      list.tabIndex = 0;
+      this.counter = 0;
+      list.focus();
+    }
+
+    if (Args[0].keyCode === KEY_CODES.ENTER
+        || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
+        || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
+      active.firstChild.click();
+    }
+
+    if (Args[0].keyCode === KEY_CODES.ESCAPE) {
+      active.tabIndex = -1;
+      focusList();
+    }
+
+    if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
+      if (this.counter < count) {
+        active.tabIndex = -1;
+        items.childNodes[this.counter].tabIndex = 0;
+        let newFocus = items.childNodes[this.counter];
+        this.counter++;
+        newFocus.focus();
+      }else if(this.counter === count){
+        active.tabIndex = -1;
+        this.counter = -1;
+        list.tabIndex = 0;
+        list.focus();
+      }else if(this.counter === 0) {
+        active.tabIndex = -1;
+        this.counter = 1;
+        items.childNodes[this.counter].tabIndex = 0;
+        let newFocus = items.childNodes[this.counter];
+        newFocus.focus();
+      }
+    }
+
+    if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
+      if (this.counter < count && this.counter !== 0) {
+        active.tabIndex = -1;
+        this.counter--;
+        items.childNodes[this.counter].tabIndex = 0;
+        let newFocus = items.childNodes[this.counter];
+        newFocus.focus();
+      }else if(this.counter === 0){
+        active.tabIndex = -1;
+        this.counter = count;
+        list.tabIndex = 0;
+        list.focus();
+      }else if (this.counter === count){
+        active.tabIndex = -1;
+        this.counter = count - 1;
+        items.childNodes[this.counter].tabIndex = 0;
+        let newFocus = items.childNodes[this.counter];
+        newFocus.focus();
+      }
+    }
+  } */
 
   render() {
     const {
@@ -29,7 +116,7 @@ class EmojiMenu extends Component {
 
     return (
       <Dropdown ref="dropdown" autoFocus={true}>
-        <DropdownTrigger>
+        <DropdownTrigger placeInTabOrder={true}>
           <Button
             role="button"
             label={intl.formatMessage(intlMessages.statusTriggerLabel)}
@@ -51,60 +138,69 @@ class EmojiMenu extends Component {
           </Button>
         </DropdownTrigger>
         <DropdownContent placement="top left">
-          <DropdownList>
+          <DropdownList ref={'dropdown'}>
             <DropdownListItem
               icon="hand"
               label={intl.formatMessage(intlMessages.raiseLabel)}
               description={intl.formatMessage(intlMessages.raiseDesc)}
               onClick={() => actions.setEmojiHandler('raiseHand')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="happy"
               label={intl.formatMessage(intlMessages.happyLabel)}
               description={intl.formatMessage(intlMessages.happyDesc)}
               onClick={() => actions.setEmojiHandler('happy')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="undecided"
               label={intl.formatMessage(intlMessages.undecidedLabel)}
               description={intl.formatMessage(intlMessages.undecidedDesc)}
               onClick={() => actions.setEmojiHandler('neutral')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="sad"
               label={intl.formatMessage(intlMessages.sadLabel)}
               description={intl.formatMessage(intlMessages.sadDesc)}
               onClick={() => actions.setEmojiHandler('sad')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="confused"
               label={intl.formatMessage(intlMessages.confusedLabel)}
               description={intl.formatMessage(intlMessages.confusedDesc)}
               onClick={() => actions.setEmojiHandler('confused')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="time"
               label={intl.formatMessage(intlMessages.awayLabel)}
               description={intl.formatMessage(intlMessages.awayDesc)}
               onClick={() => actions.setEmojiHandler('away')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="thumbs_up"
               label={intl.formatMessage(intlMessages.thumbsupLabel)}
               description={intl.formatMessage(intlMessages.thumbsupDesc)}
               onClick={() => actions.setEmojiHandler('thumbsUp')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="thumbs_down"
               label={intl.formatMessage(intlMessages.thumbsdownLabel)}
               description={intl.formatMessage(intlMessages.thumbsdownDesc)}
               onClick={() => actions.setEmojiHandler('thumbsDown')}
+              tabIndex={-1}
             />
             <DropdownListItem
               icon="applause"
               label={intl.formatMessage(intlMessages.applauseLabel)}
               description={intl.formatMessage(intlMessages.applauseDesc)}
               onClick={() => actions.setEmojiHandler('applause')}
+              tabIndex={-1}
             />
             <DropdownListSeparator />
             <DropdownListItem
@@ -112,6 +208,7 @@ class EmojiMenu extends Component {
               label={intl.formatMessage(intlMessages.clearLabel)}
               description={intl.formatMessage(intlMessages.clearDesc)}
               onClick={() => actions.setEmojiHandler('none')}
+              tabIndex={-1}
             />
           </DropdownList>
         </DropdownContent>

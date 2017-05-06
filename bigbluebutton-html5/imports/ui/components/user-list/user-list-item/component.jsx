@@ -238,7 +238,7 @@ class UserListItem extends Component {
     let actions = this.getAvailableActions();
     let contents = (
       <div className={cx(styles.userListItem, userItemContentsStyle)}>
-      <div className={styles.userItemContents} >
+      <div className={styles.userItemContents}>
         <UserAvatar user={user} />
         {this.renderUserName()}
         {this.renderUserIcons()}
@@ -444,6 +444,7 @@ class UserListItem extends Component {
         defaultMessage={action.label}
         onClick={action.handler.bind(this, ...parameters)}
         ref={"test"}
+        placeInTabOrder={true}
       />
     );
 

@@ -61,7 +61,8 @@ class UserList extends Component {
        count = openChats.length;
     }
 
-    if(this.counter === -1){
+    if(this.counter === -1 || this.counter > count){
+      active.tabIndex = -1;
       list.tabIndex = 0;
       this.counter = 0;
       list.focus();
