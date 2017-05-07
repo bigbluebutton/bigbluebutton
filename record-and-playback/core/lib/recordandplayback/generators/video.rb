@@ -254,6 +254,10 @@ module BigBlueButton
     FFMPEG::Movie.new(video).frame_rate
   end
 
+  def self.is_video_valid?(video)
+    FFMPEG::Movie.new(video).valid?
+  end
+
   MAX_VID_WIDTH = 640
   MAX_VID_HEIGHT = 480
   

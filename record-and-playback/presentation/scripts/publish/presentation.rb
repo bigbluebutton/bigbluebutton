@@ -992,6 +992,10 @@ def processDeskshareEvents
         start_timestamp = (translateTimestamp(event[:start_timestamp].to_f) / 1000).round(1)
         stop_timestamp = (translateTimestamp(event[:stop_timestamp].to_f) / 1000).round(1)
         if (start_timestamp != stop_timestamp)
+          if BigBlueButton.is_video_valid?(event[:stream])
+            BigBlueButton.logger.warn("#{event[:stream]} is not a valid video file, skipping...")
+            next
+          end
           video_width, video_height = getDeskshareVideoDimension(event[:stream])
           $xml.event(:start_timestamp => start_timestamp,
                      :stop_timestamp => stop_timestamp,
