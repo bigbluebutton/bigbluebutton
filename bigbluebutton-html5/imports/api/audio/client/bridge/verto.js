@@ -1,16 +1,16 @@
-import { getVoiceBridge } from '/imports/ui/components/audio/service';
 import BaseAudioBridge from './base';
 
 export default class VertoBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
     const {
+      userId,
       username,
       voiceBridge,
     } = userData;
 
     this.voiceBridge = voiceBridge;
-    this.vertoUsername = 'FreeSWITCH User - ' + encodeURIComponent(username);
+    this.vertoUsername = `${userId}-bbbID-${username}`;
   }
 
   exitAudio(listenOnly) {

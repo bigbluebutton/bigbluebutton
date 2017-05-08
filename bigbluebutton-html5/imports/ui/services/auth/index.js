@@ -6,6 +6,8 @@ import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 
+const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
+
 class Auth {
   constructor() {
     this._meetingID = Storage.getItem('meetingID');
@@ -133,7 +135,7 @@ class Auth {
           error: 500,
           description: 'Authentication timeout.',
         });
-      }, 5000);
+      }, CONNECTION_TIMEOUT);
 
       const didValidate = () => {
         this.loggedIn = true;
