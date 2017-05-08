@@ -30,7 +30,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
@@ -124,10 +123,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 		
 		public function undoAnnotation(event:WhiteboardUpdate):void {
 			displayModel.undoAnnotation(event.annotation);
-		}
-		
-		public function toggleGrid(event:ToggleGridEvent = null):void {
-	//		model.toggleGrid();
 		}
 			
 		public function enableWhiteboard(e:WhiteboardButtonEvent):void {

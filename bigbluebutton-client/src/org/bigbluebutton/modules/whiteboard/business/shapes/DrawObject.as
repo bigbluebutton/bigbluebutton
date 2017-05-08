@@ -35,23 +35,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * 
 	 */	
 	public class DrawObject extends Sprite implements GraphicObject {
-		public static const PENCIL:String = "pencil";
-		public static const HIGHLIGHTER:String = "highlighter";
-		public static const ERASER:String = "eraser";
-		public static const RECTANGLE:String = "rectangle";
-		public static const ELLIPSE:String = "ellipse";
-        public static const TEXT:String = "text";      
-		public static const TRIANGLE:String = "triangle";
-		public static const LINE:String = "line";	
-		public static const POLL:String = "poll_result";
-				
-		/**
-		 * Status = [START, UPDATE, END]
-		 */ 
-		public static const DRAW_UPDATE:String = "DRAW_UPDATE";
-		public static const DRAW_END:String = "DRAW_END";
-		public static const DRAW_START:String = "DRAW_START";
-				
         private var _id:String;
         private var _type:String;
         private var _status:String;
@@ -113,10 +96,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
-			_parentWidth = parentWidth;
-			_parentHeight = parentHeight;
-			_zoom = zoom;
-			makeGraphic();
+			// in some cases (like moving the window around) a redraw is called with identical information as previous values
+			if (_parentWidth != parentWidth || _parentHeight != parentHeight || _zoom != zoom) {
+				_parentWidth = parentWidth;
+				_parentHeight = parentHeight;
+				_zoom = zoom;
+				makeGraphic();
+			}
 		}
 		
 		public function updateAnnotation(a:Annotation):void {

@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.whiteboard.models
     public function updateAnnotation(annotation:Annotation):void {
       var a:Annotation = getAnnotation(annotation.id);
       if (a != null) {
-        if (annotation.type == DrawObject.PENCIL && annotation.status == DrawObject.DRAW_UPDATE) {
+        if (annotation.type == AnnotationType.PENCIL && annotation.status == AnnotationStatus.DRAW_UPDATE) {
           annotation.annotation.points = a.annotation.points.concat(annotation.annotation.points);
         }
         a.annotation = annotation.annotation;

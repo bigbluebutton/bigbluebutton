@@ -26,12 +26,14 @@ package org.bigbluebutton.modules.whiteboard.views
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
+  import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
   
   public class PencilDrawListener implements IDrawListener
   {
-    private var _drawStatus:String = DrawObject.DRAW_START;
+    private var _drawStatus:String = AnnotationStatus.DRAW_START;
     private var _isDrawing:Boolean = false;; 
     private var _segment:Array = new Array();
     private var _wbCanvas:WhiteboardCanvas;
@@ -59,14 +61,14 @@ package org.bigbluebutton.modules.whiteboard.views
     
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       //if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
-      if (tool.toolType == DrawObject.PENCIL) {
+      if (tool.toolType == AnnotationType.PENCIL) {
         if (_isDrawing) {
           onMouseUp(mouseX, mouseY, tool);
           return;
         }
 		
         _isDrawing = true;
-        _drawStatus = DrawObject.DRAW_START;
+        _drawStatus = AnnotationStatus.DRAW_START;
         
         _wbId = _wbModel.getCurrentWhiteboardId();
         
@@ -81,7 +83,7 @@ package org.bigbluebutton.modules.whiteboard.views
         _segment.push(np.x);
         _segment.push(np.y);
 		
-        sendShapeToServer(DrawObject.DRAW_START, tool);
+        sendShapeToServer(AnnotationStatus.DRAW_START, tool);
       } 
     }
         
@@ -100,7 +102,7 @@ package org.bigbluebutton.modules.whiteboard.views
           _segment.push(np.x);
           _segment.push(np.y);
           
-          sendShapeToServer(DrawObject.DRAW_UPDATE, tool);
+          sendShapeToServer(AnnotationStatus.DRAW_UPDATE, tool);
         }
       }
     }
@@ -117,7 +119,7 @@ package org.bigbluebutton.modules.whiteboard.views
           _segment = new Array();
           _segment.push(_wbCanvas.width);
           _segment.push(_wbCanvas.height);
-          sendShapeToServer(DrawObject.DRAW_END, tool);
+          sendShapeToServer(AnnotationStatus.DRAW_END, tool);
         } /* (_isDrawing) */                
       }
     }

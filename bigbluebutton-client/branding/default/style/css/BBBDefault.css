@@ -231,7 +231,7 @@ DataGrid {
 .whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
 .whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
 .whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle,
-.chatClearButtonStyle
+.chatClearButtonStyle, .multiUserWhiteboardOnButtonStyle, .multiUserWhiteboardOffButtonStyle
 {
   textIndent: 0;
   paddingLeft: 0;
@@ -248,6 +248,16 @@ DataGrid {
   themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
+}
+
+.multiUserWhiteboardOnButtonStyle 
+{
+	icon: Embed('assets/images/multiuserwhiteboardon.png');
+}
+
+.multiUserWhiteboardOffButtonStyle 
+{
+	icon: Embed('assets/images/multiuserwhiteboardoff.png');
 }
 
 .whiteboardUndoButtonStyle 

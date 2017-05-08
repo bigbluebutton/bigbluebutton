@@ -19,11 +19,12 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
 	public class TriangleAnnotation extends DrawAnnotation
 	{
-		private var _type:String = DrawObject.TRIANGLE;
+		private var _type:String = AnnotationType.TRIANGLE;
 		private var _shape:Array;
 		private var _color:uint;
 		private var _fillColor:uint;

@@ -40,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.models.Annotation;
+			import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 			
 			public var model:WhiteboardCanvasModel;	
             public var displayModel:WhiteboardCanvasDisplayModel;
@@ -56,7 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var line_icon:Class = images.line_icon;
 			[Bindable] private var text_icon:Class = images.text_icon;
-			private var toolType:String = DrawObject.PENCIL;
+			private var toolType:String = AnnotationType.PENCIL;
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
           
@@ -178,17 +179,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function setCursor(toolType:String):void {
-				if(toolType == DrawObject.ELLIPSE) {
+				if(toolType == AnnotationType.ELLIPSE) {
 					CursorManager.setCursor(ellipse_icon);
-				} else if(toolType == DrawObject.RECTANGLE) {
+				} else if(toolType == AnnotationType.RECTANGLE) {
 					CursorManager.setCursor(rectangle_icon);
-				} else if(toolType == DrawObject.TRIANGLE) {
+				} else if(toolType == AnnotationType.TRIANGLE) {
 					CursorManager.setCursor(triangle_icon);
-				} else if(toolType == DrawObject.PENCIL) {
+				} else if(toolType == AnnotationType.PENCIL) {
 					CursorManager.setCursor(pencil_icon, 2, -2, -22);
-				} else if(toolType == DrawObject.LINE) {
+				} else if(toolType == AnnotationType.LINE) {
 					CursorManager.setCursor(line_icon);
-				} else if(toolType == DrawObject.TEXT) {
+				} else if(toolType == AnnotationType.TEXT) {
 					CursorManager.setCursor(text_icon);
 //				} else if(toolType == SelectObject.SELECT_TOOL) {
 //					CursorManager.setCursor(select_icon);
