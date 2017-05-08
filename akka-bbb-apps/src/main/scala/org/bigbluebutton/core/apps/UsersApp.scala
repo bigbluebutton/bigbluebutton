@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-import scala.collection.immutable.ListSet
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.models._
@@ -84,7 +83,6 @@ trait UsersApp {
     log.info("Got ValidateAuthToken message. meetingId=" + msg.meetingID + " userId=" + msg.userId)
     RegisteredUsers.getRegisteredUserWithToken(msg.token, msg.userId, liveMeeting.registeredUsers) match {
       case Some(u) =>
-        val replyTo = mProps.meetingID + '/' + msg.userId
 
         //send the reply
         outGW.send(new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, true, msg.correlationId))
@@ -338,7 +336,7 @@ trait UsersApp {
            * If user is not joined through the web (perhaps reconnecting).
            * Send a user left event to clear up user list of all clients.
            */
-          val user = Users.userLeft(w.id, liveMeeting.users)
+          Users.userLeft(w.id, liveMeeting.users)
           outGW.send(new UserLeft(msg.meetingID, mProps.recorded, w))
         }
       }
@@ -412,7 +410,7 @@ trait UsersApp {
   def handleUserJoinedVoiceFromPhone(msg: UserJoinedVoiceConfMessage) = {
     log.info("User joining from phone.  meetingId=" + mProps.meetingID + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
 
-    val user = Users.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users) match {
+    Users.getUserWithVoiceUserId(msg.voiceUserId, liveMeeting.users) match {
       case Some(user) => {
         log.info("Voice user=" + msg.voiceUserId + " is already in conf="
           + mProps.voiceBridge + ". Must be duplicate message. meetigId=" + mProps.meetingID)

@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.{ MeetingActor }
 
 trait SharedNotesApp {
   this: MeetingActor =>

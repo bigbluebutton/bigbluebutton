@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.api.Presenter
-import org.bigbluebutton.core.models._
 
 class UsersModel {
   //  private var uservos = new Users
@@ -15,8 +13,6 @@ class UsersModel {
    */
   private var globalAudioConnectionCounter = new collection.immutable.HashMap[String, Integer]
 
-  private var locked = false
-  private var meetingMuted = false
   private var recordingVoice = false
 
   private var currentPresenter = new Presenter("system", "system", "system")

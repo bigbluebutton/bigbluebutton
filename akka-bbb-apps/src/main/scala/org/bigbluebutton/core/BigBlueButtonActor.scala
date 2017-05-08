@@ -4,7 +4,6 @@ import java.io.{ PrintWriter, StringWriter }
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
-import akka.pattern.{ ask, pipe }
 import akka.util.Timeout
 
 import scala.concurrent.duration._
@@ -166,7 +165,7 @@ class BigBlueButtonActor(val system: ActorSystem,
       case None => {
         log.info("Create meeting request. meetingId={}", msg.mProps.meetingID)
 
-        var m = RunningMeeting(msg.mProps, outGW, eventBus)
+        val m = RunningMeeting(msg.mProps, outGW, eventBus)
 
         /** Subscribe to meeting and voice events. **/
         eventBus.subscribe(m.actorRef, m.mProps.meetingID)
@@ -190,7 +189,7 @@ class BigBlueButtonActor(val system: ActorSystem,
   private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
     val len = meetings.keys.size
     var currPosition = len - 1
-    var resultArray: Array[MeetingInfo] = new Array[MeetingInfo](len)
+    val resultArray: Array[MeetingInfo] = new Array[MeetingInfo](len)
 
     meetings.values.foreach(m => {
       val id = m.mProps.meetingID

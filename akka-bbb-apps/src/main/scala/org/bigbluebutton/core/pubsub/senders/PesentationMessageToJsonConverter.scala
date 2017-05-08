@@ -3,7 +3,6 @@ package org.bigbluebutton.core.pubsub.senders
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.apps.Page
-import collection.JavaConverters._
 import scala.collection.JavaConversions._
 
 object PesentationMessageToJsonConverter {

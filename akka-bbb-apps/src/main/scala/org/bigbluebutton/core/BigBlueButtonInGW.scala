@@ -157,8 +157,8 @@ class BigBlueButtonInGW(
     val disablePrivChat = s.getOrElse("disablePrivateChat", false)
     val disablePubChat = s.getOrElse("disablePublicChat", false)
     val lockedLayout = s.getOrElse("lockedLayout", false)
-    var lockOnJoin = s.getOrElse("lockOnJoin", false)
-    var lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
+    val lockOnJoin = s.getOrElse("lockOnJoin", false)
+    val lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
 
     val permissions = new Permissions(disableCam = disableCam,
       disableMic = disableMic,
@@ -331,22 +331,21 @@ class BigBlueButtonInGW(
 
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.HashMap[String, Page] = {
     var pages = new scala.collection.immutable.HashMap[String, Page]
-    val baseUrl =
-      for (i <- 1 to numPages) {
-        val id = presId + "/" + i
-        val num = i;
-        val current = if (i == 1) true else false
-        val thumbnail = presBaseUrl + "/thumbnail/" + i
-        val swfUri = presBaseUrl + "/slide/" + i
+    for (i <- 1 to numPages) {
+      val id = presId + "/" + i
+      val num = i;
+      val current = if (i == 1) true else false
+      val thumbnail = presBaseUrl + "/thumbnail/" + i
+      val swfUri = presBaseUrl + "/slide/" + i
 
-        val txtUri = presBaseUrl + "/textfiles/" + i
-        val svgUri = presBaseUrl + "/svg/" + i
+      val txtUri = presBaseUrl + "/textfiles/" + i
+      val svgUri = presBaseUrl + "/svg/" + i
 
-        val p = new Page(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
-          txtUri = txtUri, svgUri = svgUri,
-          current = current)
-        pages += (p.id -> p)
-      }
+      val p = new Page(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
+        txtUri = txtUri, svgUri = svgUri,
+        current = current)
+      pages += (p.id -> p)
+    }
 
     pages
   }

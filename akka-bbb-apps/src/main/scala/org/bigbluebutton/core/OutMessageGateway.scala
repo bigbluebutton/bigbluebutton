@@ -1,7 +1,5 @@
 package org.bigbluebutton.core
 
-import akka.actor.ActorRef
-import akka.actor.ActorContext
 import org.bigbluebutton.core.bus.OutgoingEventBus
 import org.bigbluebutton.core.bus.BigBlueButtonOutMessage
 import org.bigbluebutton.core.api.IOutMessage

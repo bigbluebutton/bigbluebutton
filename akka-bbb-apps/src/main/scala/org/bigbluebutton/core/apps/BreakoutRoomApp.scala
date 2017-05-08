@@ -11,7 +11,7 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
 import org.bigbluebutton.core.models.Users
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.{ MeetingActor }
 
 trait BreakoutRoomApp extends SystemConfiguration {
   this: MeetingActor =>
@@ -174,7 +174,7 @@ object BreakoutRoomsUtil {
   }
 
   def createJoinURL(webAPI: String, apiCall: String, baseString: String, checksum: String): String = {
-    var apiURL = if (webAPI.endsWith("/")) webAPI else webAPI.concat("/")
+    val apiURL = if (webAPI.endsWith("/")) webAPI else webAPI.concat("/")
     apiURL.concat(apiCall).concat("?").concat(baseString).concat("&checksum=").concat(checksum)
   }
 

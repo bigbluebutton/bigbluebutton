@@ -8,8 +8,6 @@ import java.net.InetSocketAddress
 import redis.actors.RedisSubscriberActor
 import redis.api.pubsub.{ PMessage, Message }
 import scala.concurrent.duration._
-import akka.actor.ActorRef
-import akka.actor.actorRef2Scala
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
 import redis.api.servers.ClientSetname
@@ -28,9 +26,8 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(
-      new InetSocketAddress(redisHost, redisPort),
-      channels, patterns) {
+    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
+      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -51,7 +48,7 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: Str
   }
 
   def onPMessage(pmessage: PMessage) {
-    //log.debug(s"RECEIVED:\n $pmessage \n")
-    msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data)
+    log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
+    msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data.utf8String)
   }
 }

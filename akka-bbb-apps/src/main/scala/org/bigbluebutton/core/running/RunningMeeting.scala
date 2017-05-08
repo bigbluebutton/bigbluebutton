@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.running
 
-import akka.actor.ActorRef
 import akka.actor.ActorContext
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._

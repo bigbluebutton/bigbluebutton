@@ -2,7 +2,6 @@ package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.api._
-import com.google.gson.Gson
 import scala.collection.JavaConverters._
 
 object SharedNotesMessageToJsonConverter {

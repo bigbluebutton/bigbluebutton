@@ -1,13 +1,11 @@
 package org.bigbluebutton.core
 
 import akka.actor.Actor
-import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
 import java.io.{ PrintWriter, StringWriter }
-import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
@@ -37,7 +35,6 @@ import org.bigbluebutton.core.recorders.events.AddShapeWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.DeskShareStartRTMPRecordEvent
 import org.bigbluebutton.core.recorders.events.DeskShareStopRTMPRecordEvent
 import org.bigbluebutton.core.recorders.events.DeskShareNotifyViewersRTMPRecordEvent
-// import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.recorders.events.ModifyTextWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.EditCaptionHistoryRecordEvent

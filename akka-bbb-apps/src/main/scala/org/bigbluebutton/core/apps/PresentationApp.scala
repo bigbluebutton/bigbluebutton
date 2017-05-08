@@ -1,10 +1,9 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-import com.google.gson.Gson
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Users
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
+import org.bigbluebutton.core.running.{ MeetingActor }
 
 trait PresentationApp {
   this: MeetingActor =>

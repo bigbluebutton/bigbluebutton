@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-
-import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.running.{ MeetingActor }
 
@@ -12,7 +10,7 @@ trait CaptionApp {
   val outGW: OutMessageGateway
 
   def handleSendCaptionHistoryRequest(msg: SendCaptionHistoryRequest) {
-    var history = liveMeeting.captionModel.getHistory()
+    val history = liveMeeting.captionModel.getHistory()
     //println("Caption history requested " + history)
     outGW.send(new SendCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, history))
   }
