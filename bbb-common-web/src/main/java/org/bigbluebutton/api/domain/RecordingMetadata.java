@@ -35,6 +35,7 @@ public class RecordingMetadata {
    </preview>
    </extensions>
    </playback>
+   <media_url>http://my-recordings.bigbluebutton.org</media_url>
    </recording>
    */
 
@@ -70,6 +71,9 @@ public class RecordingMetadata {
   private Metadata meta;
 
   private RecordingMetadataPlayback playback;
+
+  @JacksonXmlProperty(localName = "media_url")
+  private String mediaUrl;
 
   public void setId(String id) {
     this.id = id;
@@ -134,6 +138,14 @@ public class RecordingMetadata {
 
   public String getEndTime() {
     return endTime;
+  }
+
+  public void setMediaUrl(String mediaUrl) {
+    this.mediaUrl = mediaUrl;
+  }
+
+  public String getMediaUrl() {
+    return mediaUrl;
   }
 
   public void setParticipants(int participants) {

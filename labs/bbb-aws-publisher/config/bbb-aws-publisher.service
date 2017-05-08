@@ -1,0 +1,14 @@
+[Unit]
+Description=BigBlueButton AWS Publisher
+Requires=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/share/bbb-aws-publisher
+ExecStart=/usr/bin/bbb-aws-publisher --watch
+Restart=always
+RestartSec=60
+User=root
+
+[Install]
+WantedBy=multi-user.target

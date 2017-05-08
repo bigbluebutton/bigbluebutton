@@ -1,0 +1,7 @@
+source "http://rubygems.org"
+
+gem "aws-sdk"
+gem "redis"
+gem "nokogiri"
+gem "trollop"
+gem "dotenv"
