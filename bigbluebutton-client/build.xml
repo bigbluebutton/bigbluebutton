@@ -459,7 +459,7 @@
 			file="MconfLive.html"
 			height="100%"
 			width="100%"
-			bgcolor="grey"
+			bgcolor="white"
 			application="BBB"
 			swf="BigBlueButton"
 			version-major="10"

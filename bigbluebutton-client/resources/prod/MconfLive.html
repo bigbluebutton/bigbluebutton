@@ -44,7 +44,7 @@
       var flashvars = {};
       var params = {};
       params.quality = "high";
-      params.bgcolor = "#869ca7";
+      params.bgcolor = "#FFFFFF";
       params.allowfullscreen = "true";
       params.allowfullscreeninteractive = "true";
       if (ffHangWorkaround()) {
@@ -73,7 +73,7 @@
         var fillContent = function(){
           var content = document.getElementById("content");
           if (content) {
-            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#869ca7"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
+            content.innerHTML = '<object type="application/x-shockwave-flash" id="BigBlueButton" name="BigBlueButton" tabindex="0" data="BigBlueButton.swf?v=VERSION" style="position: relative; top: 0.5px;" width="100%" height="100%" align="middle"><param name="quality" value="high"><param name="bgcolor" value="#FFFFFF"><param name="allowfullscreen" value="true"><param name="wmode" value="window"><param name="allowscriptaccess" value="true"><param name="seamlesstabbing" value="true"></object>';
           }
         };
       } else {
