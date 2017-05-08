@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject extends Sprite implements GraphicObject {
+	public class DrawObject extends Shape implements GraphicObject {
         private var _id:String;
         private var _type:String;
         private var _status:String;
