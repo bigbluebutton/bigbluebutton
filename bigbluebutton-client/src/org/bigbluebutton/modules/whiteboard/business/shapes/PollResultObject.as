@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+  import flash.display.CapsStyle;
+  import flash.display.JointStyle;
   import flash.display.Sprite;
   import flash.text.TextField;
   import flash.text.TextFormat;
@@ -39,6 +41,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     private var _userId:String;
     
     protected var _ao:Object;
+    protected var _zoom:Number;
     protected var _parentWidth:Number;
     protected var _parentHeight:Number
     
@@ -117,6 +120,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var localWidth:Number = denormalize((_ao.points as Array)[2], _parentWidth);
         var localHeight:Number = denormalize((_ao.points as Array)[3], _parentHeight);
         
+        var lineWidth:Number = 2 * _zoom;
+        
         this.x = startX;
         this.y = startY;
         
@@ -131,7 +136,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var graphWidth:int = localWidth - calcMargin*2;
         var graphHeight:int = localHeight - calcMargin*2;
         
-        graphics.lineStyle(2, colFill);
+        graphics.lineStyle(lineWidth, colFill, 1.0, true, "normal", CapsStyle.NONE, JointStyle.MITER);
         graphics.beginFill(bgFill, 1.0);
         graphics.drawRect(calcMargin, calcMargin, graphWidth, graphHeight);
         graphics.endFill();
@@ -159,13 +164,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var percentText:TextField;
         var answerArray:Array = new Array();
         var percentArray:Array = new Array();
-        var minFontSize:int = 30;
+        var minFontSize:int = 30 * _zoom;
         var currFontSize:int;
         
         //var startingLabelWidth:Number = Math.min(labelWidthPercent*graphWidth, labelMaxWidthInPixels);
-		var startingLabelWidth:Number = labelWidthPercent*graphWidth;
-		
-        graphics.lineStyle(2, colFill);
+        var startingLabelWidth:Number = labelWidthPercent*graphWidth;
+        
+        graphics.lineStyle(lineWidth, colFill, 1.0, true, "normal", CapsStyle.NONE, JointStyle.MITER);
         graphics.beginFill(colFill, 1.0);
         for (var j:int=0, vp:int=extraVPixels, ry:int=graphY, curRowHeight:int=0; j<_data.length; j++) {
           ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
@@ -320,7 +325,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       _data = ans;
       makeTextFields((answers != null ? answers.length*3 : 0));
     }
-	
+    
     public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
       _ao = a.annotation;
       _parentWidth = parentWidth;
@@ -331,17 +336,18 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
     
     public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
-		// in some cases (like moving the window around) a redraw is called with identical information as previous values
-		if (_parentWidth != parentWidth || _parentHeight != parentHeight) {
-			_parentWidth = parentWidth;
-			_parentHeight = parentHeight;
-			makeGraphic();
-		}
+      // in some cases (like moving the window around) a redraw is called with identical information as previous values
+      if (_parentWidth != parentWidth || _parentHeight != parentHeight || _zoom != zoom) {
+        _parentWidth = parentWidth;
+        _parentHeight = parentHeight;
+        _zoom = zoom;
+        makeGraphic();
+      }
     }
     
     public function updateAnnotation(a:Annotation):void {
       _ao = a.annotation;
-	  
+      
       createAnswerArray();
       makeGraphic();
     }
