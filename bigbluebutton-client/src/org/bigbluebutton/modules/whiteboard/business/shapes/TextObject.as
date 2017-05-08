@@ -94,6 +94,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			_zoom = zoom;
 			_fontSize = _ao.fontSize;
 			
+			if (_status == AnnotationStatus.DRAW_END) {
+				makeEditable(false);
+			}
+			
 			makeGraphic();
 		}
 	
@@ -128,7 +132,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			
 			if (!_editable) {
 				text = _ao.text;
-				textColor = _ao.textColor;
+				textColor = _ao.fontColor;
 			}
 		}
 		

@@ -50,6 +50,9 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		public function newTextObject(tobj:TextObject):void {
+			if (_currentTextObject != null) {
+				canvasMouseDown();
+			}
 			_currentTextObject = tobj;
 			_whiteboardId = _whiteboardModel.getCurrentWhiteboardId();
 			_whiteboardCanvas.textToolbar.syncPropsWith(_currentTextObject);

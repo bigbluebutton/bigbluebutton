@@ -96,10 +96,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
-			_parentWidth = parentWidth;
-			_parentHeight = parentHeight;
-			_zoom = zoom;
-			makeGraphic();
+			// in some cases (like moving the window around) a redraw is called with identical information as previous values
+			if (_parentWidth != parentWidth || _parentHeight != parentHeight || _zoom != zoom) {
+				_parentWidth = parentWidth;
+				_parentHeight = parentHeight;
+				_zoom = zoom;
+				makeGraphic();
+			}
 		}
 		
 		public function updateAnnotation(a:Annotation):void {

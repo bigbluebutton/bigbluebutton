@@ -242,10 +242,11 @@ package org.bigbluebutton.modules.whiteboard
                         _annotationsList.push(gobj);
                     }
                 }  
-                
+                /*
                 for (var ij:int = 0; ij < this._annotationsList.length; ij++){
                     redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
                 }
+				*/
             }
         }
     

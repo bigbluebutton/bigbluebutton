@@ -374,5 +374,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="30"/>
-	<mx:Button id="multiUserBtn" click="changeMultiUser()" label="{multiUser ? 'M' : 'P'}" />
+	<mx:Button id="multiUserBtn" click="changeMultiUser()" width="30" height="30" styleName="{multiUser ? 'multiUserWhiteboardOnButtonStyle' : 'multiUserWhiteboardOffButtonStyle'}"/> 
 </mx:VBox>
