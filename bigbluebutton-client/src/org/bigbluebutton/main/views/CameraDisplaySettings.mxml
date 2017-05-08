@@ -48,9 +48,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		private var images:Images = new Images();
 		
-		[Bindable] 
-		private var cancelIcon:Class = images.control_play;
-		
 		[Bindable]
 		public var _videoProfiles:ArrayCollection = new ArrayCollection();
 		public var selectedVideoProfile:VideoProfile;

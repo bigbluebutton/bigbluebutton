@@ -43,9 +43,6 @@ package org.bigbluebutton.common
     [Embed(source="assets/images/webcam_new_20.png")]
     public var webcam_new_20:Class;
 
-	[Embed(source="assets/images/sound_new.png")]
-	public var sound_new:Class;
-
 	[Embed(source="assets/images/moderator_20db.png")]
 	public var moderator:Class;
 
@@ -67,12 +64,6 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/square.png")]
         public var square_icon:Class;
 
-        [Embed(source="assets/images/undo.png")]
-        public var undo_icon:Class;
-
-        [Embed(source="assets/images/hand.png")]
-        public var hand_icon:Class;
-
         [Embed(source="assets/images/text.png")]
         public var text_icon:Class;
 
@@ -88,23 +79,8 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/BBBlogo.png")]
         public var bbb_logo:Class;
 
-        [Embed(source="assets/images/magnifier.png")]
-        public var magnifier:Class;
-
-        [Embed(source="assets/images/magnifier_reset.png")]
-        public var mag_reset:Class;
-
-        [Embed(source="assets/images/control_play_blue.png")]
-        public var control_play:Class;
-
-        [Embed(source="assets/images/shape_move_front.png")]
-        public var layout:Class;
-
 		[Embed(source="assets/images/table.png")]
 		public var table:Class;
-
-		[Embed(source="assets/images/trash.png")]
-		public var delete_icon:Class;
 
         [Embed(source="assets/images/add.png")]
         public var add:Class;

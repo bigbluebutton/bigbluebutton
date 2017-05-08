@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.whiteboard.views {
     import org.bigbluebutton.modules.whiteboard.business.shapes.TextDrawAnnotation;
     import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
     import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+    import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
     import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
     import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
 
@@ -122,12 +123,12 @@ package org.bigbluebutton.modules.whiteboard.views {
 
                 var tobj:TextDrawAnnotation = _shapeFactory.createTextAnnotation("", 0x000000, Math.min(_mouseXDown, _mouseXMove), Math.min(_mouseYDown, _mouseYMove), tbWidth, tbHeight, 18);
 
-                sendTextToServer(DrawObject.DRAW_START, tobj);
+                sendTextToServer(AnnotationStatus.DRAW_START, tobj);
             }
         }
 
         private function sendTextToServer(status:String, tobj:TextDrawAnnotation):void {
-            if (status == DrawObject.DRAW_START) {
+            if (status == AnnotationStatus.DRAW_START) {
                 _curID = _idGenerator.generateID();
             }
             tobj.status = status;

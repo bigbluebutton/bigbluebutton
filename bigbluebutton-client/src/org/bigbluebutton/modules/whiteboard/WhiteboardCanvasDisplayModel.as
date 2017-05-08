@@ -38,6 +38,8 @@ package org.bigbluebutton.modules.whiteboard
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
+  import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.TextUpdateListener;
   import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
@@ -80,11 +82,11 @@ package org.bigbluebutton.modules.whiteboard
       //  LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
       var gobj:GraphicObject;
       switch (o.status) {
-        case DrawObject.DRAW_START:
+        case AnnotationStatus.DRAW_START:
           createGraphic(o);
           break;
-        case DrawObject.DRAW_UPDATE:
-        case DrawObject.DRAW_END:
+        case AnnotationStatus.DRAW_UPDATE:
+        case AnnotationStatus.DRAW_END:
           for (var i:int = _annotationsList.length -1; i >= 0; i--) {
             gobj = _annotationsList[i] as GraphicObject;
             if (gobj != null && gobj.id == o.id) {
@@ -105,8 +107,8 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.addGraphic(gobj as DisplayObject);
 			_annotationsList.push(gobj);
 			
-			if (o.type == DrawObject.TEXT && 
-				o.status != DrawObject.DRAW_END && 
+			if (o.type == AnnotationType.TEXT && 
+				o.status != AnnotationStatus.DRAW_END && 
 				o.userId == UserManager.getInstance().getConference().getMyUserId()) {
 				textUpdateListener.newTextObject(gobj as TextObject);
 			}
@@ -240,10 +242,11 @@ package org.bigbluebutton.modules.whiteboard
                         _annotationsList.push(gobj);
                     }
                 }  
-                
+                /*
                 for (var ij:int = 0; ij < this._annotationsList.length; ij++){
                     redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
                 }
+				*/
             }
         }
     
