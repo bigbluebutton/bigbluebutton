@@ -706,7 +706,7 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleUserJoined(msg: UserJoined) {
     val json = UsersMessageToJsonConverter.userJoinedToJson(msg)
-    println("************** Publishing [" + json + "] *******************")
+    //println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 

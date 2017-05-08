@@ -48,7 +48,7 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: Str
   }
 
   def onPMessage(pmessage: PMessage) {
-    log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
+    //log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
     msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data.utf8String)
   }
 }
