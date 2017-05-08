@@ -1,6 +1,10 @@
 import React, { Component, PropTypes } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 
+import _ from 'lodash';
+
+import ModalContainer from '../modal/container';
+
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioNotificationContainer from '../audio/audio-notification/container';
 import AudioContainer from '../audio/container';
@@ -35,7 +39,6 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  modal: PropTypes.element,
 };
 
 const defaultProps = {
@@ -164,7 +167,7 @@ class App extends Component {
           </div>
           {this.renderSidebar()}
         </section>
-        {modal}
+        <ModalContainer />
         <AudioContainer />
         <ChatNotificationContainer currentChatID={params.chatID} />
       </main>

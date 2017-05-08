@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import { joinListenOnly, joinMicrophone } from '../service';
-import { clearModal } from '/imports/ui/components/app/service';
+import AudioService from '../service';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import EnterAudio from './component';
 
-export default class EnterAudioContainer extends Component {
+class EnterAudioContainer extends Component {
   constructor(props) {
     super(props);
   }
@@ -12,11 +12,12 @@ export default class EnterAudioContainer extends Component {
   render() {
     const {
       isFullAudio,
+      mountModal,
     } = this.props;
 
     let handleJoin = () => {
-      clearModal();
-      return isFullAudio ? joinMicrophone() : joinListenOnly();
+      mountModal(null);
+      return isFullAudio ? AudioService.joinMicrophone() : AudioService.joinListenOnly();
     };
 
     return (
@@ -24,3 +25,5 @@ export default class EnterAudioContainer extends Component {
     );
   }
 }
+
+export default withModalMounter(EnterAudioContainer);

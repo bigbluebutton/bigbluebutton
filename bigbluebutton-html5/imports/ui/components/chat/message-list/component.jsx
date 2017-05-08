@@ -18,7 +18,7 @@ const intlMessages = defineMessages({
   emptyLogLabel: {
     id: 'app.chat.emptyLogLabel',
     description: 'aria-label used when chat log is empty',
-  }
+  },
 });
 
 class MessageList extends Component {
@@ -73,7 +73,6 @@ class MessageList extends Component {
   }
 
   componentWillUpdate(nextProps) {
-
     if (this.props.chatId !== nextProps.chatId) {
       this.shouldScrollBottom = false;
       return;
@@ -86,7 +85,8 @@ class MessageList extends Component {
     //Compare with <1 to account for the chance scrollArea.scrollTop is a float
     //value in some browsers.
     this.shouldScrollBottom = position === scrollArea.scrollHeight ||
-                              (scrollArea.scrollHeight - position < 1);
+                              (scrollArea.scrollHeight - position < 1) ||
+                              nextProps.scrollPosition === null;
   }
 
   componentDidUpdate(prevProps) {

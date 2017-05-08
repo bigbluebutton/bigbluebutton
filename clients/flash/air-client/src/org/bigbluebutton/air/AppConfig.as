@@ -5,7 +5,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.air.main.commands.DisconnectUserCommandAIR;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.main.models.UISession;
-	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
 	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.ChatMessageService;
@@ -33,19 +32,12 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.services.ILoginService;
 	import org.bigbluebutton.lib.main.services.LoginService;
-	import org.bigbluebutton.lib.presentation.commands.LoadSlideCommand;
-	import org.bigbluebutton.lib.presentation.commands.LoadSlideSignal;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
 	import org.bigbluebutton.lib.presentation.services.PresentationService;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.user.services.UsersService;
-	import org.bigbluebutton.lib.video.commands.CameraQualityCommand;
-	import org.bigbluebutton.lib.video.commands.CameraQualitySignal;
-	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.video.services.VideoConnection;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
 	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;

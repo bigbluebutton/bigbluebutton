@@ -1,9 +1,5 @@
 package org.bigbluebutton.air.voice {
 	
-	import org.bigbluebutton.air.voice.views.IMicButton;
-	import org.bigbluebutton.air.voice.views.MicButtonMediator;
-	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteCommand;
-	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	

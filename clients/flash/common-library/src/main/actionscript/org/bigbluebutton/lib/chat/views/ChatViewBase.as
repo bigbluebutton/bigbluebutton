@@ -1,6 +1,6 @@
 package org.bigbluebutton.lib.chat.views {
 	import mx.core.ClassFactory;
-	import mx.core.ScrollPolicy;
+	import mx.graphics.SolidColor;
 	
 	import spark.components.Button;
 	import spark.components.Group;
@@ -9,6 +9,8 @@ package org.bigbluebutton.lib.chat.views {
 	import spark.components.Scroller;
 	import spark.components.TextInput;
 	import spark.components.VGroup;
+	import spark.layouts.VerticalAlign;
+	import spark.primitives.Rect;
 	
 	public class ChatViewBase extends VGroup {
 		private var _chatList:List;
@@ -18,6 +20,8 @@ package org.bigbluebutton.lib.chat.views {
 		}
 		
 		private var _inputGroup:HGroup;
+		
+		private var _inputBackground:Rect;
 		
 		private var _sendButton:Button;
 		
@@ -39,7 +43,7 @@ package org.bigbluebutton.lib.chat.views {
 			scroller.percentHeight = 100;
 			scroller.setStyle("horizontalScrollPolicy", "off");
 			
-			var sGroup:VGroup = new VGroup();
+			var sGroup:Group = new Group();
 			sGroup.percentWidth = 100;
 			sGroup.percentHeight = 100;
 			sGroup.setStyle("horizontalScrollPolicy", "off");
@@ -55,11 +59,25 @@ package org.bigbluebutton.lib.chat.views {
 			
 			addElement(scroller);
 			
+			var group:Group = new Group();
+			group.percentWidth = 100;
+			
+			_inputBackground = new Rect();
+			_inputBackground.percentHeight = 100;
+			_inputBackground.percentWidth = 100;
+			_inputBackground.fill = new SolidColor();
+			
+			group.addElement(_inputBackground);
+			
 			_inputGroup = new HGroup();
+			_inputGroup.verticalAlign = VerticalAlign.MIDDLE;
 			_inputGroup.percentWidth = 100;
-			_inputGroup.verticalAlign = "middle";
-			_inputGroup.horizontalAlign = "center";
-			_inputGroup.gap = 0;
+			group.addElement(_inputGroup);
+			
+			_sendButton = new Button();
+			_sendButton.styleName = "sendButton icon icon-plus";
+			//enabled="{inputMessage0.text!=''}"
+			_inputGroup.addElement(_sendButton);
 			
 			_textInput = new TextInput();
 			_textInput.percentWidth = 100;
@@ -68,20 +86,14 @@ package org.bigbluebutton.lib.chat.views {
 			_textInput.styleName = "messageInput";
 			_inputGroup.addElement(_textInput);
 			
-			_sendButton = new Button();
-			_sendButton.percentHeight = 100;
-			_sendButton.label = "\ue90b";
-			//enabled="{inputMessage0.text!=''}"
-			_sendButton.styleName = "sendButton";
-			_inputGroup.addElement(_sendButton);
-			
-			addElement(_inputGroup);
+			addElement(group);
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
-			_inputGroup.height = getStyle('chatInputTextHeight');
-			_sendButton.width = getStyle('btnWidth');
-			
+			SolidColor(_inputBackground.fill).color = getStyle("inputBackgroundColor");
+			SolidColor(_inputBackground.fill).color = getStyle("inputBorderColor");
+			_inputGroup.gap = getStyle("inputPadding");
+			_inputGroup.padding = getStyle("inputPadding");
 			super.updateDisplayList(w, h);
 		}
 	}

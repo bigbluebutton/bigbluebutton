@@ -142,36 +142,34 @@
 	specify the path to a PNG file included in the AIR package. Optional. -->
 	<icon>
 		<!-- http://help.adobe.com/en_US/air/build/WSfffb011ac560372f2fea1812938a6e463-8000.html#WSfffb011ac560372f-6fd06f0f1293d3b33ea-7ffc -->
-		<image16x16></image16x16>
-		<image29x29>assets/icons/sizes/icon-29.png</image29x29>
-		<image32x32>assets/icons/sizes/icon-32.png</image32x32>
-		<image36x36>assets/icons/sizes/icon-36.png</image36x36>
-		<image40x40>assets/icons/sizes/icon-40.png</image40x40>
-		<image44x44>assets/icons/sizes/icon-44.png</image44x44>
-		<image48x48>assets/icons/sizes/icon-48.png</image48x48>
-		<image50x50>assets/icons/sizes/icon-50.png</image50x50>
-		<image57x57>assets/icons/sizes/icon-57.png</image57x57>
-		<image58x58>assets/icons/sizes/icon-58.png</image58x58>
-		<image60x60>assets/icons/sizes/icon-60.png</image60x60>
-		<image66x66>assets/icons/sizes/icon-66.png</image66x66>
-		<image72x72>assets/icons/sizes/icon-72.png</image72x72>
-		<image75x75>assets/icons/sizes/icon-75.png</image75x75>
-		<image76x76>assets/icons/sizes/icon-76.png</image76x76>
-		<image80x80>assets/icons/sizes/icon-80.png</image80x80>
-		<image87x87>assets/icons/sizes/icon-87.png</image87x87>
-		<image96x96>assets/icons/sizes/icon-96.png</image96x96>
-		<image100x100>assets/icons/sizes/icon-100.png</image100x100>
-		<image114x114>assets/icons/sizes/icon-114.png</image114x114>
-		<image120x120>assets/icons/sizes/icon-120.png</image120x120>
-		<image128x128>assets/icons/sizes/icon-128.png</image128x128>
-		<image144x144>assets/icons/sizes/icon-144.png</image144x144>
-		<image152x152>assets/icons/sizes/icon-152.png</image152x152>
-		<image167x167>assets/icons/sizes/icon-167.png</image167x167>
-		<image180x180>assets/icons/sizes/icon-180.png</image180x180>
-		<image192x192>assets/icons/sizes/icon-192.png</image192x192>
-		<image512x512>assets/icons/sizes/icon-512.png</image512x512>
-		<image732x412>assets/icons/sizes/icon-732.png</image732x412>
-		<image1024x1024>assets/icons/sizes/icon-1024.png</image1024x1024>
+		<image29x29>assets/icons/icon-29.png</image29x29>
+		<image36x36>assets/icons/icon-36.png</image36x36>
+		<image40x40>assets/icons/icon-40.png</image40x40>
+		<image44x44>assets/icons/icon-44.png</image44x44>
+		<image48x48>assets/icons/icon-48.png</image48x48>
+		<image50x50>assets/icons/icon-50.png</image50x50>
+		<image57x57>assets/icons/icon-57.png</image57x57>
+		<image58x58>assets/icons/icon-58.png</image58x58>
+		<image60x60>assets/icons/icon-60.png</image60x60>
+		<image66x66>assets/icons/icon-66.png</image66x66>
+		<image72x72>assets/icons/icon-72.png</image72x72>
+		<image75x75>assets/icons/icon-75.png</image75x75>
+		<image76x76>assets/icons/icon-76.png</image76x76>
+		<image80x80>assets/icons/icon-80.png</image80x80>
+		<image87x87>assets/icons/icon-87.png</image87x87>
+		<image96x96>assets/icons/icon-96.png</image96x96>
+		<image100x100>assets/icons/icon-100.png</image100x100>
+		<image114x114>assets/icons/icon-114.png</image114x114>
+		<image120x120>assets/icons/icon-120.png</image120x120>
+		<image128x128>assets/icons/icon-128.png</image128x128>
+		<image144x144>assets/icons/icon-144.png</image144x144>
+		<image152x152>assets/icons/icon-152.png</image152x152>
+		<image167x167>assets/icons/icon-167.png</image167x167>
+		<image180x180>assets/icons/icon-180.png</image180x180>
+		<image192x192>assets/icons/icon-192.png</image192x192>
+		<image512x512>assets/icons/icon-512.png</image512x512>
+		<image732x412>assets/icons/icon-732.png</image732x412>
+		<image1024x1024>assets/icons/icon-1024.png</image1024x1024>
 	</icon>
 
 	<!-- Whether the application handles the update when a user double-clicks an update version
@@ -181,7 +179,7 @@
 	
 	<!-- Whether the application can be launched when the user clicks a link in a web browser.
 	Optional. Default false. -->
-	<allowBrowserInvocation></allowBrowserInvocation>
+	<allowBrowserInvocation>true</allowBrowserInvocation>
 
 	<!-- Listing of file types for which the application can register. Optional. -->
 	<!-- <fileTypes> -->

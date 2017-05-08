@@ -55,11 +55,32 @@ class MeetingActorInternal(val mProps: MeetingProperties,
     time
   }
 
+  private def getExpireNeverJoined(): Int = {
+    val time = expireNeverJoined
+    log.debug("ExpireNeverJoined: {} seconds", time)
+    time
+  }
+
+  private def getExpireLastUserLeft(): Int = {
+    val time = expireLastUserLeft
+    log.debug("ExpireLastUserLeft: {} seconds", time)
+    time
+  }
+
+  private val MonitorFrequency = 10 seconds
+
   private val InactivityDeadline = FiniteDuration(getInactivityDeadline(), "seconds")
   private val InactivityTimeLeft = FiniteDuration(getInactivityTimeLeft(), "seconds")
-  private val MonitorFrequency = 10 seconds
-  private var deadline = InactivityDeadline.fromNow
+  private var inactivity = InactivityDeadline.fromNow
   private var inactivityWarning: Deadline = null
+
+  private val ExpireMeetingDuration = FiniteDuration(mProps.duration, "minutes")
+  private val ExpireMeetingNeverJoined = FiniteDuration(getExpireNeverJoined(), "seconds")
+  private val ExpireMeetingLastUserLeft = FiniteDuration(getExpireLastUserLeft(), "seconds")
+  private var meetingExpire = ExpireMeetingNeverJoined.fromNow
+  // Zero minutes means the meeting has no duration control
+  private var meetingDuration: Deadline = if (ExpireMeetingDuration > (0 minutes)) ExpireMeetingDuration.fromNow else null
+
   context.system.scheduler.schedule(5 seconds, MonitorFrequency, self, "Monitor")
 
   // Query to get voice conference users
@@ -74,12 +95,14 @@ class MeetingActorInternal(val mProps: MeetingProperties,
 
   def receive = {
     case "Monitor" => handleMonitor()
+    case msg: UpdateMeetingExpireMonitor => handleUpdateMeetingExpireMonitor(msg)
     case msg: Object => handleMessage(msg)
   }
 
   def handleMonitor() {
     handleMonitorActivity()
     handleMonitorNumberOfWebUsers()
+    handleMonitorExpiration()
   }
 
   def handleMessage(msg: Object) {
@@ -102,12 +125,12 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   }
 
   private def handleMonitorActivity() {
-    if (deadline.isOverdue() && inactivityWarning != null && inactivityWarning.isOverdue()) {
+    if (inactivity.isOverdue() && inactivityWarning != null && inactivityWarning.isOverdue()) {
       log.info("Closing meeting {} due to inactivity for {} seconds", mProps.meetingID, InactivityDeadline.toSeconds)
       updateInactivityMonitors()
       eventBus.publish(BigBlueButtonEvent(mProps.meetingID, EndMeeting(mProps.meetingID)))
       // Or else make sure to send only one warning message
-    } else if (deadline.isOverdue() && inactivityWarning == null) {
+    } else if (inactivity.isOverdue() && inactivityWarning == null) {
       log.info("Sending inactivity warning to meeting {}", mProps.meetingID)
       outGW.send(new InactivityWarning(mProps.meetingID, InactivityTimeLeft.toSeconds))
       // We add 5 seconds so clients will have enough time to process the message
@@ -115,8 +138,38 @@ class MeetingActorInternal(val mProps: MeetingProperties,
     }
   }
 
+  private def handleMonitorExpiration() {
+    if (meetingExpire != null && meetingExpire.isOverdue()) {
+      // User related meeting expiration methods
+      log.debug("Meeting {} expired. No users", mProps.meetingID)
+      meetingExpire = null
+      eventBus.publish(BigBlueButtonEvent(mProps.meetingID, EndMeeting(mProps.meetingID)))
+    } else if (meetingDuration != null && meetingDuration.isOverdue()) {
+      // Default meeting duration
+      meetingDuration = null
+      log.debug("Meeting {} expired. Reached it's fixed duration of {}", mProps.meetingID, ExpireMeetingDuration.toString())
+      eventBus.publish(BigBlueButtonEvent(mProps.meetingID, EndMeeting(mProps.meetingID)))
+    }
+  }
+
+  private def handleUpdateMeetingExpireMonitor(msg: UpdateMeetingExpireMonitor) {
+    if (msg.hasUser) {
+      if (meetingExpire != null) {
+        // User joined. Forget about this expiration for now
+        log.debug("Meeting has users. Stopping expiration for meeting {}", mProps.meetingID)
+        meetingExpire = null
+      }
+    } else {
+      if (meetingExpire == null) {
+        // User list is empty. Start this meeting expiration method
+        log.debug("Meeting has no users. Starting {} expiration for meeting {}", ExpireMeetingLastUserLeft.toString(), mProps.meetingID)
+        meetingExpire = ExpireMeetingLastUserLeft.fromNow
+      }
+    }
+  }
+
   private def updateInactivityMonitors() {
-    deadline = InactivityDeadline.fromNow
+    inactivity = InactivityDeadline.fromNow
     inactivityWarning = null
   }
 
@@ -145,10 +198,10 @@ class MeetingActorInternal(val mProps: MeetingProperties,
     }
   }
 
-  def getMetadata(key: String, metadata: java.util.Map[String, String]): Option[Object] = {
+  def getMetadata(key: String, metadata: collection.immutable.Map[String, String]): Option[Object] = {
     var value: Option[String] = None
-    if (metadata.containsKey(key)) {
-      value = Some(metadata.get(key))
+    if (metadata.contains(key)) {
+      value = metadata.get(key)
     }
 
     value match {

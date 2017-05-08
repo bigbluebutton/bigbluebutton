@@ -11,7 +11,7 @@ const intlMessages = defineMessages({
   },
   nextSlideLabel: {
     id: 'app.presentation.presentationToolbar.nextSlideLabel',
-    description: 'Next slide button label'
+    description: 'Next slide button label',
   },
 });
 
