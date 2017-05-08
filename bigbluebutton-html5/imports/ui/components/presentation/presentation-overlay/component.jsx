@@ -23,11 +23,13 @@ export default class PresentationOverlay extends React.Component {
   }
 
   mouseMoveHandler(event) {
-    // if(event.stopPropagation) event.stopPropagation();
-    // if(event.preventDefault) event.preventDefault();
-    console.log('mouseMove');
-    console.log(event.nativeEvent.offsetX);
-    console.log(event.nativeEvent.offsetY);
+    //for the case where you change settings in one of the lists (which are displayed on the slide)
+    //the mouse starts pointing to the slide right away and mouseEnter doesn't fire
+    //so we call it manually here
+    if(!this.state.intervalId) {
+      this.mouseEnterHandler();
+    }
+
     this.setState({
       lastOffsetX: event.nativeEvent.offsetX,
       lastOffsetY: event.nativeEvent.offsetY,
@@ -55,6 +57,7 @@ export default class PresentationOverlay extends React.Component {
 
   mouseOutHandler(event) {
     clearInterval(this.state.intervalId);
+    this.setState({ intervalId: 0 });
   }
 
   render() {
