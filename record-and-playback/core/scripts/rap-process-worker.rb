@@ -58,7 +58,6 @@ def process_archived_meetings(recording_dir)
       step_stop_time = BigBlueButton.monotonic_clock
       step_time = step_stop_time - step_start_time
 
-      IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
 
       step_succeeded = (ret == 0 and File.exists?(processed_done))
 
@@ -70,6 +69,7 @@ def process_archived_meetings(recording_dir)
       if step_succeeded
         BigBlueButton.logger.info("Process format #{process_type} succeeded for #{meeting_id}")
         BigBlueButton.logger.info("Process took #{step_time}ms")
+        IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
       else
         BigBlueButton.logger.info("Process format #{process_type} failed for #{meeting_id}")
         BigBlueButton.logger.info("Process took #{step_time}ms")
