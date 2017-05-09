@@ -416,8 +416,12 @@ class BigBlueButtonInGW(
    * *****************************************************************
    */
 
-  def getChatHistory(meetingID: String, requesterID: String, replyTo: String) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new GetChatHistoryRequest(meetingID, requesterID, replyTo)))
+  def getAllChatHistory(meetingID: String, requesterID: String, replyTo: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new GetAllChatHistoryRequest(meetingID, requesterID, replyTo)))
+  }
+
+  def getChatHistory(meetingID: String, requesterID: String, replyTo: String, chatId: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new GetChatHistoryRequest(meetingID, requesterID, replyTo, chatId)))
   }
 
   def sendPublicMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {

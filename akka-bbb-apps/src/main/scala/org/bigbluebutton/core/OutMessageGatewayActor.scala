@@ -6,7 +6,10 @@ import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
 import java.io.{ PrintWriter, StringWriter }
+
 import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.recorder.RecorderActor
+
 import scala.concurrent.duration._
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 

@@ -1,29 +1,25 @@
 package org.bigbluebutton.core.running
 
 import java.util.concurrent.TimeUnit
-
-import akka.actor.ActorContext
-import akka.event.Logging
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties }
 
 class LiveMeeting(val mProps: MeetingProperties,
-    val chatModel: ChatModel,
-    val layoutModel: LayoutModel,
-    val meetingModel: MeetingModel,
-    private val usersModel: UsersModel,
-    val users: Users,
-    val registeredUsers: RegisteredUsers,
-    val pollModel: PollModel,
-    val wbModel: WhiteboardModel,
-    val presModel: PresentationModel,
-    val breakoutModel: BreakoutRoomModel,
-    val captionModel: CaptionModel,
-    val notesModel: SharedNotesModel)(implicit val context: ActorContext) {
-
-  val log = Logging(context.system, getClass)
+  val chatModel: ChatModel,
+  val layoutModel: LayoutModel,
+  val meetingModel: MeetingModel,
+  private val usersModel: UsersModel,
+  val users: Users,
+  val registeredUsers: RegisteredUsers,
+  val pollModel: PollModel,
+  val wbModel: WhiteboardModel,
+  val presModel: PresentationModel,
+  val breakoutModel: BreakoutRoomModel,
+  val captionModel: CaptionModel,
+  val notesModel: SharedNotesModel)
+    extends ChatModelTrait {
 
   def hasMeetingEnded(): Boolean = {
     meetingModel.hasMeetingEnded()
@@ -66,7 +62,6 @@ class LiveMeeting(val mProps: MeetingProperties,
   def startCheckingIfWeNeedToEndVoiceConf() {
     if (Users.numWebUsers(users) == 0 && !mProps.isBreakout) {
       meetingModel.lastWebUserLeft()
-      log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
     }
   }
 

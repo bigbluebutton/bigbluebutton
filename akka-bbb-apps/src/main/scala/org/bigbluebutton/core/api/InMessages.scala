@@ -103,7 +103,8 @@ case class LogoutEndMeeting(meetingID: String, userID: String) extends InMessage
 // Chat
 /////////////////////////////////////////////////////////////////////////////////
 
-case class GetChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
+case class GetAllChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
+case class GetChatHistoryRequest(meetingID: String, requesterID: String, replyTo: String, chatId: String) extends InMessage
 case class SendPublicMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
 case class SendPrivateMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
 case class ClearPublicChatHistoryRequest(meetingID: String, requesterID: String) extends InMessage

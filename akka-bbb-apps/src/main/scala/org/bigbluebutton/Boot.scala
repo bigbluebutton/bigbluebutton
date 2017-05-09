@@ -1,8 +1,7 @@
 package org.bigbluebutton
 
-import akka.event.{ Logging }
-import akka.actor.{ ActorSystem }
-
+import akka.event.Logging
+import akka.actor.ActorSystem
 import org.bigbluebutton.endpoint.redis.RedisPublisher
 import org.bigbluebutton.endpoint.redis.KeepAliveRedisPublisher
 import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
@@ -10,12 +9,12 @@ import org.bigbluebutton.core.BigBlueButtonInGW
 import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.MessageSenderActor
-import org.bigbluebutton.core.RecorderActor
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
 import org.bigbluebutton.core.service.recorder.RedisDispatcher
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.JsonMessageSenderActor
+import org.bigbluebutton.core.recorder.RecorderActor
 
 object Boot extends App with SystemConfiguration {
 

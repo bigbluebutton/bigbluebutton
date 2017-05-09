@@ -211,7 +211,7 @@ class BigBlueButtonActor(val system: ActorSystem,
       eventBus.publish(BigBlueButtonEvent(id, new GetPresentationInfo(id, html5clientRequesterID, html5clientRequesterID)))
 
       //send chat history
-      eventBus.publish(BigBlueButtonEvent(id, new GetChatHistoryRequest(id, html5clientRequesterID, html5clientRequesterID)))
+      eventBus.publish(BigBlueButtonEvent(id, new GetAllChatHistoryRequest(id, html5clientRequesterID, html5clientRequesterID)))
 
       //send lock settings
       eventBus.publish(BigBlueButtonEvent(id, new GetLockSettings(id, html5clientRequesterID)))

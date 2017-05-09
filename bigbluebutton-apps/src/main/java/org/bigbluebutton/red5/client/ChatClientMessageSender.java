@@ -1,20 +1,19 @@
 package org.bigbluebutton.red5.client;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.bigbluebutton.common.messages.ClearPublicChatHistoryReplyMessage;
 import org.bigbluebutton.common.messages.GetChatHistoryReplyMessage;
 import org.bigbluebutton.common.messages.SendPrivateChatMessage;
 import org.bigbluebutton.common.messages.SendPublicChatMessage;
-import org.bigbluebutton.common.messages.ClearPublicChatHistoryReplyMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
 import org.bigbluebutton.red5.service.ChatKeyUtil;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatClientMessageSender {
 	private ConnectionInvokerService service;

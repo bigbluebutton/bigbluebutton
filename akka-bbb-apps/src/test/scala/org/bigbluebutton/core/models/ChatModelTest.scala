@@ -1,17 +1,23 @@
 package org.bigbluebutton.core.models
 
-import org.scalatest._
-import org.bigbluebutton.core.UnitSpec
-import scala.collection.mutable.Stack
+import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.{ AppsTestFixtures, UnitSpec }
+import scala.collection.immutable.List
 
-class ChatModelTest extends UnitSpec {
+class ChatModelTest extends UnitSpec with AppsTestFixtures {
+
+  val liveMeeting = new LiveMeeting(mProps,
+    chatModel, layoutModel, meetingModel, usersModel, users, registeredUsers, pollModel,
+    wbModel, presModel, breakoutModel, captionModel, notesModel)
 
   "A Stack" should "pop values in last-in-first-out order" in {
-    val stack = new Stack[Int]
-    stack.push(1)
-    stack.push(2)
-    assert(stack.pop() === 2)
-    assert(stack.pop() === 1)
+    var stack = List[Int]()
+    stack = stack :+ 1
+    stack = stack :+ 2
+    assert(stack.length === 2)
+    stack = stack.dropRight(1)
+    assert(stack.length === 1)
+    assert(stack.contains(1))
   }
 
 }

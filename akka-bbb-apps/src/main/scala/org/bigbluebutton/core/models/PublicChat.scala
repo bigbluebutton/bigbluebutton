@@ -37,9 +37,12 @@ class PublicChats {
 }
 
 object PublicChat {
-
   def append(chat: PublicChat, msg: PublicChatMessage): PublicChatMessage = {
     chat.append(msg)
+  }
+
+  def getMessages(chat: PublicChat): Vector[PublicChatMessage] = {
+    chat.toVector
   }
 }
 

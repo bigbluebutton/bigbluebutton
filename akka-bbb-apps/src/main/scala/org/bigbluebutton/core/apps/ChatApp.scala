@@ -1,12 +1,13 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.running.{ MeetingActor }
+import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.{ MeetingProperties, OutMessageGateway }
 
 trait ChatApp {
-  this: MeetingActor =>
 
+  val mProps: MeetingProperties
+  val liveMeeting: LiveMeeting
   val outGW: OutMessageGateway
 
   def handleGetChatHistoryRequest(msg: GetChatHistoryRequest) {
@@ -15,14 +16,14 @@ trait ChatApp {
   }
 
   def handleSendPublicMessageRequest(msg: SendPublicMessageRequest) {
-    liveMeeting.chatModel.addNewChatMessage(msg.message.toMap)
-    val pubMsg = msg.message.toMap
+    liveMeeting.chatModel.addNewChatMessage(msg.message)
+    val pubMsg = msg.message
 
     outGW.send(new SendPublicMessageEvent(mProps.meetingID, mProps.recorded, msg.requesterID, pubMsg))
   }
 
   def handleSendPrivateMessageRequest(msg: SendPrivateMessageRequest) {
-    val privMsg = msg.message.toMap
+    val privMsg = msg.message
     outGW.send(new SendPrivateMessageEvent(mProps.meetingID, mProps.recorded, msg.requesterID, privMsg))
   }
 

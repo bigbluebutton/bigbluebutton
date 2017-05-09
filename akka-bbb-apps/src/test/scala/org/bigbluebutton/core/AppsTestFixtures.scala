@@ -1,6 +1,8 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.core.api.GuestPolicy
+import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 
 trait AppsTestFixtures {
 
@@ -33,4 +35,20 @@ trait AppsTestFixtures {
     moderatorPassword, viewerPassword,
     createTime, createDate, red5DeskShareIP, red5DeskShareApp,
     isBreakout, sequence, metadata, GuestPolicy.ALWAYS_ACCEPT)
+
+  val chatModel = new ChatModel()
+  val layoutModel = new LayoutModel()
+  val meetingModel = new MeetingModel()
+  val usersModel = new UsersModel()
+  val pollModel = new PollModel()
+  val wbModel = new WhiteboardModel()
+  val presModel = new PresentationModel()
+  val breakoutModel = new BreakoutRoomModel()
+  val captionModel = new CaptionModel()
+  val notesModel = new SharedNotesModel()
+  val users = new Users
+  val registeredUsers = new RegisteredUsers
+
+  meetingModel.setGuestPolicy(mProps.guestPolicy)
+
 }
