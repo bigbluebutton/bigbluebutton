@@ -7,6 +7,10 @@ export default class PencilDrawComponent extends React.Component {
     super(props);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.shape.version != nextProps.shape.version;
+  }
+
   getCoordinates() {
     let i = 2;
     let path = '';

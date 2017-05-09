@@ -6,6 +6,10 @@ export default class RectangleDrawComponent extends React.Component {
     super(props);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.shape.version != nextProps.shape.version;
+  }
+
   getCoordinates() {
     //x1 and y1 are the coordinates of the top left corner of the shape
     //x2 and y2 are the coordinates of the bottom right corner of the shape

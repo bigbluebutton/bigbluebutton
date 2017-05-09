@@ -6,6 +6,10 @@ export default class TextDrawComponent extends React.Component {
     super(props);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.shape.version != nextProps.shape.version;
+  }
+
   getCoordinates() {
     let x = this.props.shape.x / 100 * this.props.slideWidth;
     let y = this.props.shape.y / 100 * this.props.slideHeight;

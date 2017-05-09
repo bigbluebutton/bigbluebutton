@@ -51,7 +51,13 @@ export default class PollDrawComponent extends React.Component {
     };
   }
 
+  //this might have to be changed if we want to reuse it for a presenter's poll popup
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.state.prepareToDisplay == true;
+  }
+
   componentWillMount() {
+
     //in this part we retrieve the props and perform initial calculations for the state
     //calculating only the parts which have to be done just once and don't require
     //rendering / rerendering the text objects
