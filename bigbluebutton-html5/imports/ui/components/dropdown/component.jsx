@@ -83,9 +83,6 @@ class Dropdown extends Component {
 
   handleShow() {
     this.setState({ isOpen: true }, this.handleStateCallback);
-
-    const contentElement = findDOMNode(this.refs.content);
-    contentElement.querySelector(FOCUSABLE_CHILDREN).focus();
   }
 
   handleHide() {
