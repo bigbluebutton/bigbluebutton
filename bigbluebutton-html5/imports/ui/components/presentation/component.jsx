@@ -118,7 +118,8 @@ export default class PresentationArea extends React.Component {
   //renders the whole presentation area
   renderPresentationArea() {
 
-    if (this.props.currentSlide) {
+    //sometimes tomcat publishes the link to the slide, but the actual file is not accessible (why?)
+    if (this.props.currentSlide && this.props.currentSlide.slide.width && this.props.currentSlide.slide.height) {
       //to control the size of the svg wrapper manually
       //and adjust cursor's thickness, so that svg didn't scale it automatically
       let adjustedSizes = this.calculateSize();
