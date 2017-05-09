@@ -69,12 +69,15 @@ libraryDependencies += "com.google.code.gson" % "gson" % "2.8.0"
 libraryDependencies += "redis.clients" % "jedis" % "2.9.0"
 libraryDependencies += "joda-time" % "joda-time" % "2.9.9"
 libraryDependencies += "io.spray" % "spray-json_2.12" % "1.3.3"
-libraryDependencies += "org.pegdown" % "pegdown" % "1.6.0"
+
+
+// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala_2.12
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"
 
 
 
-
-
+// For generating test reports
+libraryDependencies += "org.pegdown" % "pegdown" % "1.6.0" % "test"
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.12
 libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.12" % "2.5.1" % "test"
 
@@ -83,7 +86,6 @@ libraryDependencies += "org.scalactic" % "scalactic_2.12" % "3.0.3" % "test"
 
 // https://mvnrepository.com/artifact/org.scalatest/scalatest_2.12
 libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.3" % "test"
-
 
 libraryDependencies += "org.mockito" % "mockito-core" % "2.7.22" % "test"
 

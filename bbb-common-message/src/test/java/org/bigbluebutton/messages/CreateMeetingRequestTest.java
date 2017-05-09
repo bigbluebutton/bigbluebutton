@@ -35,7 +35,7 @@ public class CreateMeetingRequestTest {
                 meetingId, externalId, parentId, name, record, voiceConfId,
                 durationInMinutes, autoStartRecording, allowStartStopRecording,
                 webcamsOnlyForModerator, moderatorPassword, viewerPassword,
-                createTime, createDate, isBreakout, sequence, metadata);
+                createTime, createDate, isBreakout, sequence, metadata, "ALWAYS_ALLOW");
         CreateMeetingRequest msg = new CreateMeetingRequest(payload);
         Gson gson = new Gson();
         String json = gson.toJson(msg);
