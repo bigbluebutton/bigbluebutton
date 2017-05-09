@@ -13,13 +13,13 @@ export default class SIPBridge extends BaseAudioBridge {
     this.userData = userData;
   }
 
-  joinListenOnly() {
+  joinListenOnly(callbackFromManager) {
     makeCall('listenOnlyToggle', true);
-    this._joinVoiceCallSIP({ isListenOnly: true });
+    this._joinVoiceCallSIP({ isListenOnly: true }, callbackFromManager);
   }
 
-  joinMicrophone() {
-    this._joinVoiceCallSIP({ isListenOnly: false });
+  joinMicrophone(callbackFromManager) {
+    this._joinVoiceCallSIP({ isListenOnly: false }, callbackFromManager);
   }
 
   // Periodically check the status of the WebRTC call, when a call has been established attempt to
@@ -68,7 +68,7 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   // join the conference. If listen only send the request to the server
-  _joinVoiceCallSIP(options) {
+  _joinVoiceCallSIP(options, callbackFromManager) {
     const extension = this.userData.voiceBridge;
     console.log(options);
 
@@ -102,25 +102,6 @@ export default class SIPBridge extends BaseAudioBridge {
       turn: this.userData.turns,
     };
 
-    callIntoConference(extension, function (audio) {
-      switch (audio.status) {
-        case 'failed':
-          let audioFailed = new CustomEvent('bbb.webrtc.failed', {
-            status: 'Failed', });
-          window.dispatchEvent(audioFailed);
-          break;
-        case 'mediafail':
-          let mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
-            status: 'MediaFailed', });
-          window.dispatchEvent(mediaFailed);
-          break;
-        case 'mediasuccess':
-        case 'started':
-          let connected = new CustomEvent('bbb.webrtc.connected', {
-            status: 'started', });
-          window.dispatchEvent(connected);
-          break;
-      }
-    }, options.isListenOnly, stunsAndTurns);
+    callIntoConference(extension, callbackFromManager, options.isListenOnly, stunsAndTurns);
   }
 }

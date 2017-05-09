@@ -14,6 +14,27 @@ export default class AudioManager {
     this.bridge = audioBridge;
     this.isListenOnly = false;
     this.microphoneLockEnforced = userData.microphoneLockEnforced;
+
+    callbackToAudioBridge = function (audio) {
+      switch (audio.status) {
+        case 'failed':
+          let audioFailed = new CustomEvent('bbb.webrtc.failed', {
+            status: 'Failed', });
+          window.dispatchEvent(audioFailed);
+          break;
+        case 'mediafail':
+          let mediaFailed = new CustomEvent('bbb.webrtc.mediaFailed', {
+            status: 'MediaFailed', });
+          window.dispatchEvent(mediaFailed);
+          break;
+        case 'mediasuccess':
+        case 'started':
+          let connected = new CustomEvent('bbb.webrtc.connected', {
+            status: 'started', });
+          window.dispatchEvent(connected);
+          break;
+      }
+    };
   }
 
   exitAudio () {
@@ -23,9 +44,9 @@ export default class AudioManager {
   joinAudio(listenOnly) {
     if (listenOnly || this.microphoneLockEnforced) {
       this.isListenOnly = true;
-      this.bridge.joinListenOnly();
+      this.bridge.joinListenOnly(callbackToAudioBridge);
     } else {
-      this.bridge.joinMicrophone();
+      this.bridge.joinMicrophone(callbackToAudioBridge);
     }
   }
 
