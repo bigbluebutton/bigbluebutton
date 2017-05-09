@@ -201,16 +201,23 @@ function Video(_ws, _id, _shared) {
 
   this.stop = function() {
 
-    if (!mediaPipelines[id]) {
-      console.log("PLEASE DONT TRY STOPPING THINGS TWICE");
-    }
-
     console.log(' [stop] Releasing webrtc endpoint for ' + id);
-    webRtcEndpoint.release();
+
+    if (webRtcEndpoint) {
+      webRtcEndpoint.release();
+      webRtcEndpoint = null;
+    } else {
+      console.log(" [webRtcEndpoint] PLEASE DONT TRY STOPPING THINGS TWICE");
+    }
 
     if (shared) {
       console.log(' [stop] Webcam is shared, releasing ' + id);
-      mediaPipelines[id].release();
+
+      if (mediaPipelines[id]) {
+        mediaPipelines[id].release();
+      } else {
+        console.log(" [mediaPipeline] PLEASE DONT TRY STOPPING THINGS TWICE");
+      }
 
       delete mediaPipelines[id];
       delete sharedWebcams[id];
