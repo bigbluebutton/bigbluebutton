@@ -63,6 +63,9 @@
       attributes.align = "middle";
       attributes.tabIndex = 0;
       
+      // Do not auto hide show the altFlash div
+      swfobject.switchOffAutoHideShow();
+
       // In Chrome 56 Google started blocking Flash by default so we force the SWF to 
       // be loaded in the DOM rather than relying on the SWFObject code to detect 
       // Flash because it can't.
@@ -146,6 +149,8 @@
         });
         
         if (fillContent) fillContent();
+        
+        if (delayAltFlashVisibilty) delayAltFlashVisibilty();
       };
 
       function html5() {
@@ -192,7 +197,7 @@
     <div id="accessibile-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="visually-hidden">0 %</div>
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="content">
-      <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
+      <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; display: none;">
         <h3>You need Adobe Flash installed and enabled in order to use this client.</h3>
         <br/>
         <div style="width:50%; margin-left: auto; margin-right: auto; ">
