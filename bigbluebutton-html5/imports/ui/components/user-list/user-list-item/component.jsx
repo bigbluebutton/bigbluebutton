@@ -259,8 +259,7 @@ class UserListItem extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={styles.dropdown}
-        autoFocus={false}
-        id="dropdown">
+        autoFocus={false}>
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
@@ -317,8 +316,7 @@ class UserListItem extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={styles.dropdown}
-        autoFocus={false}
-        id="dropdown">
+        autoFocus={false}>
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
@@ -443,7 +441,6 @@ class UserListItem extends Component {
         label={action.label}
         defaultMessage={action.label}
         onClick={action.handler.bind(this, ...parameters)}
-        ref={"test"}
         placeInTabOrder={true}
       />
     );
