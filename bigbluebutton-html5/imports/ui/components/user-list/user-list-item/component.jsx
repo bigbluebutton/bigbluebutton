@@ -46,6 +46,10 @@ const messages = defineMessages({
     id: 'app.userlist.you',
     description: 'Text for identifying your user',
   },
+  locked: {
+    id: 'app.userlist.locked',
+    description: 'Text for identifying locked user',
+  },
   menuTitleContext: {
     id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
@@ -310,6 +314,7 @@ class UserListItem extends Component {
     }
 
     let userNameSub = [];
+
     if (user.isPresenter) {
       userNameSub.push(intl.formatMessage(messages.presenter));
     }
@@ -327,20 +332,25 @@ class UserListItem extends Component {
         </span>
         <span className={styles.userNameSub}>
           {userNameSub}
+          {(user.isLocked) ?
+            <span> {(user.isCurrent? " | " : null)}
+              <Icon iconName='lock' />
+              {intl.formatMessage(messages.locked)}
+            </span>: null}
         </span>
       </div>
     );
   }
 
-  renderUserIcons() {
-    const {
-      user,
-      compact,
-    } = this.props;
+    renderUserIcons() {
+      const {
+        user,
+        compact,
+      } = this.props;
 
-    if (compact) {
-      return;
-    }
+      if (compact) {
+        return;
+      }
 
     let audioChatIcon = null;
 
