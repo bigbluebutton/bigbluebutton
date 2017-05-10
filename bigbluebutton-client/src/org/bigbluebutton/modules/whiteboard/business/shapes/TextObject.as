@@ -124,7 +124,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			x = denormalize(_ao.x, _parentWidth);
 			y = denormalize(_ao.y, _parentHeight);
 			
-			var fontSize:Number = denormalize(_ao.calcedFontSize * _zoom, _parentHeight);
+			var fontSize:Number = denormalize(_ao.calcedFontSize, _parentHeight);
 			applyTextFormat(fontSize);
  
 			width = denormalize(_ao.textBoxWidth, _parentWidth);
