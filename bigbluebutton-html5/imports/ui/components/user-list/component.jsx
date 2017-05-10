@@ -61,6 +61,16 @@ class UserList extends Component {
         element.childNodes[this.counter].focus();
         this.counter++;
         break;
+      case 'up':
+        this.counter--;
+        element.childNodes[this.counter].tabIndex = 0;
+        element.childNodes[this.counter].focus();
+        break;
+      case 'upLoopUp':
+      case 'upLoopDown':
+        this.counter = count - 1;
+        select();
+        break;
       case 'downLoopDown':
         this.counter = -1;
         select();
@@ -68,20 +78,6 @@ class UserList extends Component {
       case 'downLoopUp':
         this.counter = 1;
         select();
-        break;
-      case 'up':
-        this.counter--;
-        element.childNodes[this.counter].tabIndex = 0;
-        element.childNodes[this.counter].focus();
-        break;
-      case 'upLoopUp':
-        this.counter = count - 1;
-        select();
-        break;
-      case 'upLoopDown':
-        this.counter = count - 1;
-        element.childNodes[this.counter].tabIndex = 0;
-        element.childNodes[this.counter].focus();
         break;
     }
   }
