@@ -342,15 +342,15 @@ class UserListItem extends Component {
     );
   }
 
-    renderUserIcons() {
-      const {
-        user,
-        compact,
-      } = this.props;
+  renderUserIcons() {
+    const {
+      user,
+      compact,
+    } = this.props;
 
-      if (compact) {
-        return;
-      }
+    if (compact) {
+      return;
+    }
 
     let audioChatIcon = null;
 
