@@ -50,7 +50,7 @@ export default function handleLockedStatusChange({ payload }) {
         muteToggle(credentials, userId, true);
       }
 
-      return Logger.info(`Assigned locked status '${isLocked ? 'locked' : 'unlocked'}' id=${newPresenterId} meeting=${meetingId}`);
+      return Logger.info(`Assigned locked status '${isLocked ? 'locked' : 'unlocked'}' id=${userId} meeting=${meetingId}`);
     }
   };
 
