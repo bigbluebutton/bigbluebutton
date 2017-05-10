@@ -26,7 +26,7 @@ import java.util.Map;
 public class ConversionUpdateMessage {
 	private Map<String, Object> message = new HashMap<String, Object>();
 	
-	private ConversionUpdateMessage(MessageBuilder builder) {
+	private ConversionUpdateMessage(ConversionUpdateMessage.MessageBuilder builder) {
 		message = builder.message;
 	}
 	

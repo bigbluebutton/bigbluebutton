@@ -4,7 +4,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.11.7"
+scalaVersion  := "2.12.2"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -25,11 +25,13 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
-val scalaV = "2.11.7"
+val scalaV = "2.12.2"
 
 libraryDependencies +=  "org.scala-lang"    %   "scala-compiler"      % scalaV
 libraryDependencies +=  "org.scala-lang"    %   "scala-library"       % scalaV
 libraryDependencies +=  "org.scala-lang"    %   "scala-reflect"       % scalaV
+
+libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
 
 libraryDependencies += "redis.clients" % "jedis" % "2.7.2"
 libraryDependencies += "com.google.code.gson" % "gson" % "2.5"
@@ -48,7 +50,7 @@ libraryDependencies += "org.openoffice" % "juh" % "3.2.1"
 libraryDependencies += "org.openoffice" % "jurt" % "3.2.1"
 
 libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.15"
-libraryDependencies += "org.bigbluebutton" % "bbb-common-message" % "0.0.19-SNAPSHOT"
+
 libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.5"
 
 // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient

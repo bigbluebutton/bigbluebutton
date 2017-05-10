@@ -28,7 +28,7 @@ public class CountingPageException extends Exception {
 	
 	public enum ExceptionType {PAGE_COUNT_EXCEPTION, PAGE_EXCEEDED_EXCEPTION};
 	
-	public CountingPageException(ExceptionType type, int pageCount, int maxNumberOfPages) {
+	public CountingPageException(CountingPageException.ExceptionType type, int pageCount, int maxNumberOfPages) {
 		super("Exception while trying to determine number of pages.");
 		this.pageCount = pageCount;
 		this.maxNumberOfPages = maxNumberOfPages;
@@ -39,7 +39,7 @@ public class CountingPageException extends Exception {
 		return maxNumberOfPages;
 	}
 
-	public ExceptionType getExceptionType() {
+	public CountingPageException.ExceptionType getExceptionType() {
 		return exceptionType;
 	}
 

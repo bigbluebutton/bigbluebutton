@@ -63,7 +63,7 @@ public class Meeting {
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList();
 	
-    public Meeting(Builder builder) {
+    public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;

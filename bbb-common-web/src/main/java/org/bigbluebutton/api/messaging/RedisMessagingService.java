@@ -37,7 +37,8 @@ import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
 import org.bigbluebutton.messages.CreateMeetingRequest;
-import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
+import org.bigbluebutton.messages.CreateMeetingRequestPayload;
+import org.bigbluebutton.messages.RegisterUserMessagePayload;
 import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class RedisMessagingService implements MessagingService {
 	
 	public void registerUser(String meetingID, String internalUserId, String fullname, String role,
 							 String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed) {
-		RegisterUserMessage.Payload payload = new RegisterUserMessage.Payload(meetingID, internalUserId, fullname, role, externUserID,
+		RegisterUserMessagePayload payload = new RegisterUserMessagePayload(meetingID, internalUserId, fullname, role, externUserID,
 				authToken, avatarURL, guest, authed);
 		RegisterUserMessage msg = new RegisterUserMessage(payload);
 

@@ -30,13 +30,14 @@ import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
+import org.bigbluebutton.api.pub.IPublisherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KeepAliveService implements MessageListener {
 	private static Logger log = LoggerFactory.getLogger(KeepAliveService.class);
 	private final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
-	private MessagingService service;
+	private IPublisherService service;
 	private long runEvery = 10000;
 	private int maxLives = 5;
 	private KeepAliveTask task = new KeepAliveTask();
@@ -69,7 +70,7 @@ public class KeepAliveService implements MessageListener {
 		runEvery = v * 1000;
 	}
 
-	public void setMessagingService(MessagingService service){
+	public void setPublisherService(IPublisherService service){
 		this.service = service;
 	}
 	

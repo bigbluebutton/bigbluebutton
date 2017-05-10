@@ -60,6 +60,7 @@ import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.pub.IPublisherService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
@@ -90,6 +91,7 @@ public class MeetingService implements MessageListener {
 
     private RecordingService recordingService;
     private MessagingService messagingService;
+    private IPublisherService publisherService;
     private RegisteredUserCleanupTimerTask registeredUserCleaner;
     private StunTurnService stunTurnService;
 
@@ -190,7 +192,7 @@ public class MeetingService implements MessageListener {
     }
 
     private void destroyMeeting(String meetingID) {
-        messagingService.destroyMeeting(meetingID);
+        publisherService.destroyMeeting(meetingID);
     }
 
     public Collection<Meeting> getMeetings() {
@@ -262,7 +264,7 @@ public class MeetingService implements MessageListener {
 
         log.info("Create meeting: data={}", logStr);
 
-        messagingService.createMeeting(m.getInternalId(), m.getExternalId(),
+        publisherService.createMeeting(m.getInternalId(), m.getExternalId(),
                 m.getParentMeetingId(), m.getName(), m.isRecord(),
                 m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(),
                 m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
@@ -280,7 +282,7 @@ public class MeetingService implements MessageListener {
     }
 
     private void processRegisterUser(RegisterUser message) {
-        messagingService.registerUser(message.meetingID,
+        publisherService.registerUser(message.meetingID,
                 message.internalUserId, message.fullname, message.role,
                 message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
     }
@@ -459,12 +461,6 @@ public class MeetingService implements MessageListener {
         messagingService.send(channel, message);
     }
 
-    public void createdPolls(String meetingId, String title, String question,
-            String questionType, ArrayList<String> answers) {
-        messagingService.sendPolls(meetingId, title, question, questionType,
-                answers);
-    }
-
     public void endMeeting(String meetingId) {
         handle(new EndMeeting(meetingId));
     }
@@ -516,7 +512,7 @@ public class MeetingService implements MessageListener {
     }
 
     private void processEndMeeting(EndMeeting message) {
-        messagingService.endMeeting(message.meetingId);
+        publisherService.endMeeting(message.meetingId);
     }
 
     private void processRemoveEndedMeeting(MeetingEnded message) {
@@ -754,7 +750,7 @@ public class MeetingService implements MessageListener {
             log.info("a org.bigbluebutton.web.services.turn: " + t.url + "username/pass=" + t.username + '/'
                     + t.password);
         }
-        messagingService.sendStunTurnInfo(message.meetingId,
+        publisherService.sendStunTurnInfo(message.meetingId,
                 message.internalUserId, stuns, turns);
     }
 
@@ -917,6 +913,10 @@ public class MeetingService implements MessageListener {
 
     public void setMessagingService(MessagingService mess) {
         messagingService = mess;
+    }
+
+    public void setPublisherService(IPublisherService mess) {
+        publisherService = mess;
     }
 
     public void setRegisteredUserCleanupTimerTask(

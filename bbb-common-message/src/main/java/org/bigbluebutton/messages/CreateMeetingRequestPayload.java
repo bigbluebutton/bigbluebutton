@@ -2,7 +2,7 @@ package org.bigbluebutton.messages;
 
 import java.util.Map;
 
-class CreateMeetingRequestPayload {
+public class CreateMeetingRequestPayload {
     public final String id;
     public final String externalId;
     public final String parentId;

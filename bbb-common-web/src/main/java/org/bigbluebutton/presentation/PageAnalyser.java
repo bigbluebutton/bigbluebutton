@@ -25,7 +25,7 @@ public interface PageAnalyser {
   /**
    * 
    * @param output
-   *          a {@link File} to analyse
+   *          a File to analyse
    * @return true if the file has been parsed without any error
    */
   public boolean analyse(File output);
