@@ -751,7 +751,7 @@ public class MeetingService implements MessageListener {
         log.info("\nhere are the (" + turns.size()
                 + ") turns for internalUserId:" + message.internalUserId);
         for (TurnEntry t : turns) {
-            log.info("a turn: " + t.url + "username/pass=" + t.username + '/'
+            log.info("a org.bigbluebutton.web.services.turn: " + t.url + "username/pass=" + t.username + '/'
                     + t.password);
         }
         messagingService.sendStunTurnInfo(message.meetingId,

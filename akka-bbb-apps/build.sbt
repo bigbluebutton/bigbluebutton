@@ -46,7 +46,7 @@ libraryDependencies ++= {
     "junit"                    %   "junit"                                % "4.11",
     "commons-codec"             %  "commons-codec"                        % "1.10",
     "org.apache.commons"        %  "commons-lang3"                        % "3.2",
-    "org.bigbluebutton"         %  "bbb-common-message"                   % "0.0.19-SNAPSHOT"
+    "org.bigbluebutton"         %  "bbb-common-message_2.12"                   % "0.0.19-SNAPSHOT"
   )
 }
 
@@ -69,7 +69,7 @@ libraryDependencies += "com.google.code.gson" % "gson" % "2.8.0"
 libraryDependencies += "redis.clients" % "jedis" % "2.9.0"
 libraryDependencies += "joda-time" % "joda-time" % "2.9.9"
 libraryDependencies += "io.spray" % "spray-json_2.12" % "1.3.3"
-
+libraryDependencies += "org.parboiled" % "parboiled-scala_2.12" % "1.1.8"
 
 // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala_2.12
 libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"

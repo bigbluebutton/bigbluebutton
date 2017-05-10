@@ -81,7 +81,8 @@ public class KeepAliveService implements MessageListener {
   }
 
   public boolean isDown(){
-  	return !available;
+  	//return !available;
+	  return false;
   }
     
   private void queueMessage(KeepAliveMessage msg) {

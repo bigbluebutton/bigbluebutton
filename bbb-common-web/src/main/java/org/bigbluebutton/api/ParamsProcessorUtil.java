@@ -35,15 +35,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 public class ParamsProcessorUtil {
     private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
@@ -480,25 +485,44 @@ public class ParamsProcessorUtil {
 	}
 	
 	private String getConfig(String url) {
-		HttpClient client = new HttpClient();
-		GetMethod get = new GetMethod(url);
 		String configXML = "";
+
+		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
-			int status = client.executeMethod(get);
-			if (status == 200) {
-				configXML = get.getResponseBodyAsString();
-			} else {
-				return null;
-			}
-			
-		} catch (HttpException e) {
-			return null;
-		} catch (IOException e) {
-			return null;
+			HttpGet httpget = new HttpGet(url);
+
+			System.out.println("Executing request " + httpget.getRequestLine());
+
+			// Create a custom response handler
+			ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+				@Override
+				public String handleResponse(
+						final HttpResponse response) throws ClientProtocolException, IOException {
+					int status = response.getStatusLine().getStatusCode();
+					if (status >= 200 && status < 300) {
+						HttpEntity entity = response.getEntity();
+						return entity != null ? EntityUtils.toString(entity) : null;
+					} else {
+						throw new ClientProtocolException("Unexpected response status: " + status);
+					}
+				}
+			};
+
+			String responseBody = httpclient.execute(httpget, responseHandler);
+			System.out.println("----------------------------------------");
+			System.out.println(responseBody);
+			configXML = responseBody;
+		} catch(IOException ex) {
+			// IOException
 		} finally {
-			get.releaseConnection();
+			try {
+				httpclient.close();
+			} catch(IOException ex) {
+				// do nothing
+			}
 		}
-		  		  
+
 		return configXML;
 	  }
 	

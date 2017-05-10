@@ -31,22 +31,40 @@ libraryDependencies +=  "org.scala-lang"    %   "scala-compiler"      % scalaV
 libraryDependencies +=  "org.scala-lang"    %   "scala-library"       % scalaV
 libraryDependencies +=  "org.scala-lang"    %   "scala-reflect"       % scalaV
 
+libraryDependencies += "redis.clients" % "jedis" % "2.7.2"
+libraryDependencies += "com.google.code.gson" % "gson" % "2.5"
+
 // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.5"
-
-
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
+
+libraryDependencies += "org.apache.commons" % "commons-pool2" % "2.3"
+libraryDependencies += "commons-io" % "commons-io" % "2.4"
+libraryDependencies += "com.zaxxer" % "nuprocess" % "1.1.0"
+libraryDependencies += "com.artofsolving" % "jodconverter" % "2.2.1"
+libraryDependencies += "org.openoffice" % "unoil" % "3.2.1"
+libraryDependencies += "org.openoffice" % "ridl" % "3.2.1"
+libraryDependencies += "org.openoffice" % "juh" % "3.2.1"
+libraryDependencies += "org.openoffice" % "jurt" % "3.2.1"
+
+libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.15"
+libraryDependencies += "org.bigbluebutton" % "bbb-common-message" % "0.0.19-SNAPSHOT"
+libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.5"
+
+// https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+libraryDependencies += "org.apache.httpcomponents" % "httpclient" % "4.5.3"
+// https://mvnrepository.com/artifact/org.apache.httpcomponents/httpasyncclient
+libraryDependencies += "org.apache.httpcomponents" % "httpasyncclient" % "4.1.3"
+
 libraryDependencies += "org.freemarker" % "freemarker" % "2.3.23"
 libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % "2.6.3"
 // https://mvnrepository.com/artifact/org.codehaus.woodstox/woodstox-core-asl
 libraryDependencies += "org.codehaus.woodstox" % "woodstox-core-asl" % "4.4.1"
 
-libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.5"
 
 libraryDependencies += "org.pegdown" % "pegdown" % "1.4.0" % "test"
 libraryDependencies += "junit" % "junit" % "4.12" % "test"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
-
 // https://mvnrepository.com/artifact/org.mockito/mockito-core
 libraryDependencies += "org.mockito" % "mockito-core" % "2.7.12" % "test"
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1" % "test"

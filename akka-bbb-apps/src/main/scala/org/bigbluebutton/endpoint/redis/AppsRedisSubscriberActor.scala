@@ -5,25 +5,29 @@ import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
 import java.io.{ PrintWriter, StringWriter }
 import java.net.InetSocketAddress
+
 import redis.actors.RedisSubscriberActor
-import redis.api.pubsub.{ PMessage, Message }
+import redis.api.pubsub.{ Message, PMessage }
+
 import scala.concurrent.duration._
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.bus.{ IncomingJsonMessage, IncomingJsonMessageBus, ReceivedJsonMessage }
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
 import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
-  val channels = Seq("time")
+  val TO_AKKA_APPS = "bbb:to-akka-apps"
+  val channels = Seq("time", TO_AKKA_APPS)
   val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
 
-  def props(msgReceiver: RedisMessageReceiver): Props =
-    Props(classOf[AppsRedisSubscriberActor], msgReceiver,
+  def props(msgReceiver: RedisMessageReceiver, jsonMsgBus: IncomingJsonMessageBus): Props =
+    Props(classOf[AppsRedisSubscriberActor], msgReceiver, jsonMsgBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: String,
+class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
@@ -39,6 +43,8 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: Str
     }
   }
 
+  val TO_AKKA_APPS = "bbb:to-akka-apps"
+
   // Set the name of this client to be able to distinguish when doing
   // CLIENT LIST on redis-cli
   write(ClientSetname("BbbAppsAkkaSub").encodedRequest)
@@ -49,6 +55,10 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: Str
 
   def onPMessage(pmessage: PMessage) {
     //log.debug(s"RECEIVED:\n ${pmessage.data.utf8String} \n")
+    if (pmessage.channel == TO_AKKA_APPS) {
+      val receivedJsonMessage = new ReceivedJsonMessage(pmessage.channel, pmessage.data.utf8String)
+      jsonMsgBus.publish(IncomingJsonMessage("incoming-json-message", receivedJsonMessage))
+    }
     msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data.utf8String)
   }
 }

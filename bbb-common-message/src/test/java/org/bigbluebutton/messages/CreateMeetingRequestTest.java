@@ -3,7 +3,7 @@ package org.bigbluebutton.messages;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
-import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
+import org.bigbluebutton.messages.CreateMeetingRequestPayload;
 import org.junit.Assert;
 import org.junit.Test;
 

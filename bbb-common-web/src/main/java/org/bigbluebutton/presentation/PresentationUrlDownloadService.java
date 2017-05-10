@@ -10,12 +10,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.Future;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.nio.client.methods.ZeroCopyConsumer;
+import org.apache.http.nio.client.methods.ZeroCopyPost;
+import org.apache.http.nio.client.methods.HttpAsyncMethods;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
@@ -216,28 +221,44 @@ public class PresentationUrlDownloadService {
 
         String finalUrl = followRedirect(meetingId, urlString, 0, urlString);
 
-        if (finalUrl == null)
-            return false;
+        if (finalUrl == null) return false;
 
         boolean success = false;
-        GetMethod method = new GetMethod(finalUrl);
-        HttpClient client = new HttpClient();
+
+        CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
         try {
-            int statusCode = client.executeMethod(method);
-            if (statusCode == HttpStatus.SC_OK) {
-                FileUtils.copyInputStreamToFile(
-                        method.getResponseBodyAsStream(), new File(filename));
-                log.info("Downloaded presentation at [{}]", finalUrl);
-                success = true;
-            }
-        } catch (HttpException e) {
-            log.error("HttpException while downloading presentation at [{}]",
-                    finalUrl);
-        } catch (IOException e) {
-            log.error("IOException while downloading presentation at [{}]",
-                    finalUrl);
+            httpclient.start();
+            File download = new File(filename);
+            ZeroCopyConsumer<File> consumer = new ZeroCopyConsumer<File>(download) {
+                @Override
+                protected File process(
+                        final HttpResponse response,
+                        final File file,
+                        final ContentType contentType) throws Exception {
+                    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                        throw new ClientProtocolException("Upload failed: " + response.getStatusLine());
+                    }
+                    return file;
+                }
+
+            };
+            Future<File> future = httpclient.execute(HttpAsyncMethods.createGet(finalUrl), consumer, null);
+            File result = future.get();
+            System.out.println("Response file length: " + result.length());
+            System.out.println("Shutting down");
+            success = result.exists();
+        } catch (java.lang.InterruptedException ex) {
+
+        } catch (java.util.concurrent.ExecutionException ex) {
+
+        } catch (java.io.FileNotFoundException ex) {
+
         } finally {
-            method.releaseConnection();
+            try {
+                httpclient.close();
+            } catch (java.io.IOException ex) {
+
+            }
         }
 
         return success;

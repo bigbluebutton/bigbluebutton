@@ -12,29 +12,10 @@ repositories {
   mavenLocal()
 }
 
-dependencies {   
-  //redis
-    compile 'redis.clients:jedis:2.7.2'
-    compile 'org.apache.commons:commons-pool2:2.3'
-
-	compile 'commons-io:commons-io:2.4'
-    compile 'commons-codec:commons-codec:1.10'
-    compile 'com.google.code.gson:gson:1.7.1'
-	compile 'commons-httpclient:commons-httpclient:3.1'
-    compile 'org.apache.poi:poi-ooxml:3.15'
-	compile 'com.zaxxer:nuprocess:1.1.0'
-
+dependencies {
 	compile 'org.bigbluebutton:bbb-common-message:0.0.19-SNAPSHOT'
 	compile 'org.bigbluebutton:bbb-common-web:0.0.1-SNAPSHOT'
 
-  // Logging
-  // Commenting out as it results in build failure (ralam - may 11, 2014)
-  //compile 'ch.qos.logback:logback-core:1.0.9@jar'
-  //compile 'ch.qos.logback:logback-classic:1.0.9@jar'
-  //compile 'org.slf4j:log4j-over-slf4j:1.7.2@jar'
-  //compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
-  //compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
-  //compile 'org.slf4j:slf4j-api:1.7.2@jar'
 
   // XML creation speedup
   compile 'org.freemarker:freemarker:2.3.23'
@@ -42,25 +23,6 @@ dependencies {
 	//junit
 	compile 'junit:junit:4.8.2'
 
-	// Logging
-/**** UNCOMMENT WHEN you want to run gradle test
-	compile 'ch.qos.logback:logback-core:1.0.13@jar'
-	compile 'ch.qos.logback:logback-classic:1.0.13@jar'
-	compile 'org.slf4j:log4j-over-slf4j:1.7.5@jar'
-	compile 'org.slf4j:jcl-over-slf4j:1.7.5@jar'
-	compile 'org.slf4j:jul-to-slf4j:1.7.5@jar'
-	compile 'org.slf4j:slf4j-api:1.7.5@jar'
-	compile 'org.apache.commons:commons-lang3:3.1'
-	compile 'com.artofsolving:jodconverter:2.2.1'
-
-	compile 'org.apache.geronimo.specs:geronimo-j2ee-connector_1.5_spec:1.0'
-	compile 'org.openoffice:unoil:3.2.1'
-	compile 'org.openoffice:ridl:3.2.1'
-	compile 'org.openoffice:juh:3.2.1'
-	compile 'org.openoffice:jurt:3.2.1'
-	compile 'org.codehaus.groovy:groovy-all:1.6.3'
-****/
-	
 	// Testing
 	testCompile 'org.testng:testng:5.8@jar'
 	testCompile 'org.easymock:easymock:2.4@jar'
