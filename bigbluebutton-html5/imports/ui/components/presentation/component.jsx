@@ -254,6 +254,7 @@ export default class PresentationArea extends React.Component {
 
     return (
       <WhiteboardToolbarContainer
+        whiteboardId={this.props.currentSlide.slide.id}
         height={adjustedSizes.height}
       />
     );

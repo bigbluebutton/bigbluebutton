@@ -79,12 +79,12 @@ export default class WhiteboardToolbar extends Component {
 
   //undo annotation
   handleUndo() {
-    this.props.undoAnnotation();
+    this.props.undoAnnotation(this.props.whiteboardId);
   }
 
   //clear all annotations
   handleClearAll() {
-    this.props.clearWhiteboard();
+    this.props.clearWhiteboard(this.props.whiteboardId);
   }
 
   //changes a current selected annotation both in the state and in the session

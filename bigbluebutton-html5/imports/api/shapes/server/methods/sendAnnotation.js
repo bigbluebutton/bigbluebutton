@@ -15,6 +15,19 @@ export default function sendAnnotation(credentials, payload) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
+  // check(payload, {
+  //   annotation: {
+  //     type: String,
+  //     points: [Number],
+  //     color: Number,
+  //     transparency: Boolean,
+  //     status: String,
+  //     thickness: Number,
+  //     id: String,
+  //     whiteboardId: String,
+  //   },
+  //   whiteboard_id: String,
+  // });
 
   if (!isAllowedTo('sendAnnotation', credentials)) {
     throw new Meteor.Error('not-allowed', `You are not allowed to send the annotation`);
