@@ -47,6 +47,12 @@ class UserList extends Component {
   }
 
   focusListItem(active, direction, element, count) {
+
+    function select() {
+      element.tabIndex = 0;
+      element.focus();
+    }
+
     active.tabIndex = -1;
 
     switch (direction) {
@@ -57,13 +63,11 @@ class UserList extends Component {
         break;
       case 'downLoopDown':
         this.counter = -1;
-        element.tabIndex = 0;
-        element.focus();
+        select();
         break;
       case 'downLoopUp':
         this.counter = 1;
-        element.tabIndex = 0;
-        element.focus();
+        select();
         break;
       case 'up':
         this.counter--;
@@ -72,8 +76,7 @@ class UserList extends Component {
         break;
       case 'upLoopUp':
         this.counter = count - 1;
-        element.tabIndex = 0;
-        element.focus();
+        select();
         break;
       case 'upLoopDown':
         this.counter = count - 1;
@@ -101,7 +104,6 @@ class UserList extends Component {
         items = findDOMNode(this.refs.msgItems);
         count = openChats.length;
         break;
-      default:
     }
 
     if (Args[0].keyCode === KEY_CODES.ESCAPE
