@@ -34,7 +34,53 @@ class UserList extends Component {
     };
 
     this.rovingIndex = this.rovingIndex.bind(this);
+    this.focusList = this.focusList.bind(this);
+    this.focusListItem = this.focusListItem.bind(this);
     this.counter = -1;
+  }
+
+  focusList(activeElement, list) {
+    activeElement.tabIndex = -1;
+    this.counter = 0;
+    list.tabIndex = 0;
+    list.focus();
+  }
+
+  focusListItem(active, direction, element, count) {
+    active.tabIndex = -1;
+
+    switch (direction) {
+      case 'down':
+        element.childNodes[this.counter].tabIndex = 0;
+        element.childNodes[this.counter].focus();
+        this.counter++;
+        break;
+      case 'downLoopDown':
+        this.counter = -1;
+        element.tabIndex = 0;
+        element.focus();
+        break;
+      case 'downLoopUp':
+        this.counter = 1;
+        element.tabIndex = 0;
+        element.focus();
+        break;
+      case 'up':
+        this.counter--;
+        element.childNodes[this.counter].tabIndex = 0;
+        element.childNodes[this.counter].focus();
+        break;
+      case 'upLoopUp':
+        this.counter = count - 1;
+        element.tabIndex = 0;
+        element.focus();
+        break;
+      case 'upLoopDown':
+        this.counter = count - 1;
+        element.childNodes[this.counter].tabIndex = 0;
+        element.childNodes[this.counter].focus();
+        break;
+    }
   }
 
   rovingIndex(...Args) {
@@ -44,28 +90,24 @@ class UserList extends Component {
     let items;
     let count;
 
-    function focusList() {
-      active.tabIndex = -1;
-      this.counter = 0;
-      list.tabIndex = 0;
-      list.focus();
+    switch (Args[1]) {
+      case 'users':
+        list = findDOMNode(this.refs.usersList);
+        items = findDOMNode(this.refs.userItems);
+        count = users.length;
+        break;
+      case 'messages':
+        list = findDOMNode(this.refs.msgList);
+        items = findDOMNode(this.refs.msgItems);
+        count = openChats.length;
+        break;
+      default:
     }
 
-    if (Args[1] === 'users'){
-       list = findDOMNode(this.refs.usersList);
-       items = findDOMNode(this.refs.userItems);
-       count = users.length;
-    }else if(Args[1] === 'messages'){
-       list = findDOMNode(this.refs.msgList);
-       items = findDOMNode(this.refs.msgItems);
-       count = openChats.length;
-    }
-
-    if(this.counter === -1 || this.counter > count){
-      active.tabIndex = -1;
-      list.tabIndex = 0;
-      this.counter = 0;
-      list.focus();
+    if (Args[0].keyCode === KEY_CODES.ESCAPE
+      || this.counter === -1
+      || this.counter > count) {
+      this.focusList(active, list);
     }
 
     if (Args[0].keyCode === KEY_CODES.ENTER
@@ -74,50 +116,23 @@ class UserList extends Component {
       active.firstChild.click();
     }
 
-    if (Args[0].keyCode === KEY_CODES.ESCAPE) {
-      active.tabIndex = -1;
-      focusList();
-    }
-
     if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
       if (this.counter < count) {
-        active.tabIndex = -1;
-        items.childNodes[this.counter].tabIndex = 0;
-        let newFocus = items.childNodes[this.counter];
-        this.counter++;
-        newFocus.focus();
-      }else if(this.counter === count){
-        active.tabIndex = -1;
-        this.counter = -1;
-        list.tabIndex = 0;
-        list.focus();
-      }else if(this.counter === 0) {
-        active.tabIndex = -1;
-        this.counter = 1;
-        items.childNodes[this.counter].tabIndex = 0;
-        let newFocus = items.childNodes[this.counter];
-        newFocus.focus();
+        this.focusListItem(active, "down", items);
+      }else if (this.counter === count) {
+        this.focusListItem(active, "downLoopDown", list);
+      }else if (this.counter === 0) {
+        this.focusListItem(active, "downLoopUp", list);
       }
     }
 
     if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
       if (this.counter < count && this.counter !== 0) {
-        active.tabIndex = -1;
-        this.counter--;
-        items.childNodes[this.counter].tabIndex = 0;
-        let newFocus = items.childNodes[this.counter];
-        newFocus.focus();
-      }else if(this.counter === 0){
-        active.tabIndex = -1;
-        this.counter = count;
-        list.tabIndex = 0;
-        list.focus();
-      }else if (this.counter === count){
-        active.tabIndex = -1;
-        this.counter = count - 1;
-        items.childNodes[this.counter].tabIndex = 0;
-        let newFocus = items.childNodes[this.counter];
-        newFocus.focus();
+        this.focusListItem(active, "up", items);
+      }else if (this.counter === 0) {
+        this.focusListItem(active, "upLoopUp", list, count);
+      }else if (this.counter === count) {
+        this.focusListItem(active, "upLoopDown", list, count);
       }
     }
   }
