@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <locales>
-	<locale code="ar_SY" name="Arabic (Syria)"/>
+	<locale code="ar" name="Arabic"/>
 	<locale code="az_AZ" name="Azerbaijani"/>
 	<locale code="eu_EU" name="Basque" />
 	<locale code="bn_BN" name="Bengali" />
@@ -50,5 +50,5 @@
 	<locale code="tr_TR" name="Turkish"/>
 	<locale code="uk_UA" name="Ukrainian"/>
 	<locale code="vi_VN" name="Vietnamese"/>
-        <locale code="cy_GB" name="Welsh"/>
+    <locale code="cy_GB" name="Welsh"/>
 </locales>
