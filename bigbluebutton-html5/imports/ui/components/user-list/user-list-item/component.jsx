@@ -238,11 +238,11 @@ class UserListItem extends Component {
     let actions = this.getAvailableActions();
     let contents = (
       <div className={cx(styles.userListItem, userItemContentsStyle)}>
-      <div className={styles.userItemContents}>
-        <UserAvatar user={user} />
-        {this.renderUserName()}
-        {this.renderUserIcons()}
-      </div>
+        <div className={styles.userItemContents}>
+          <UserAvatar user={user} />
+          {this.renderUserName()}
+          {this.renderUserIcons()}
+        </div>
       </div>
     );
 
@@ -259,7 +259,10 @@ class UserListItem extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={styles.dropdown}
-        autoFocus={false}>
+        autoFocus={false}
+        hasPopup="true"
+        ariaLive="assertive"
+        ariaRelevant="additions">
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
