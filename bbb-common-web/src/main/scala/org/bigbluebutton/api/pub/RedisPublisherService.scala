@@ -1,10 +1,12 @@
 package org.bigbluebutton.api.pub
 
 import java.util
+
+import org.bigbluebutton.api.messaging.MessageSender
 import org.bigbluebutton.web.services.turn.{StunServer, TurnEntry}
 
 
-class RedisPublisherService extends IPublisherService {
+class RedisPublisherService(sender: MessageSender) extends IPublisherService {
   def destroyMeeting (meetingId: String):Unit = {
 
   }
