@@ -65,10 +65,6 @@ package org.bigbluebutton.modules.whiteboard.views {
             _wbModel = wbModel;
         }
 
-        public function ctrlKeyDown(down:Boolean):void {
-            // Ignore
-        }
-
         public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
             if (tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
                 _mouseXDown = _mouseXMove = mouseX;

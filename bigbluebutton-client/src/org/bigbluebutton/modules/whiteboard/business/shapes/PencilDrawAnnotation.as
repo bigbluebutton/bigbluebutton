@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _transparent = trans;
         }
                
-        override public function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation {
+        override public function createAnnotation(wbModel:WhiteboardModel):Annotation {
             var ao:Object = new Object();
             ao["type"] = _type;
             ao["points"] = _shape;

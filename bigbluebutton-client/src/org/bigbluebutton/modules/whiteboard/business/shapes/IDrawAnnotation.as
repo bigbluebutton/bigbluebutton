@@ -23,6 +23,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
     public interface IDrawAnnotation
     {
-        function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation;
+        function createAnnotation(wbModel:WhiteboardModel):Annotation;
     }
 }

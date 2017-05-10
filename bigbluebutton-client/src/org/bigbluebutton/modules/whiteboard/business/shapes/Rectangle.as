@@ -18,6 +18,9 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import flash.display.CapsStyle;
+	import flash.display.JointStyle;
+
 	/**
 	 * The Rectangle class. Extends a DrawObject 
 	 * @author dzgonjan
@@ -32,9 +35,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		override protected function makeGraphic():void {
 			this.graphics.clear();
 //			LogUtil.debug("Drawing RECTANGLE");
-			if (!_ao.fill)
-				this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color, _ao.transparency ? 0.6 : 1.0);
-			else this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
+			this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color, _ao.transparency ? 0.6 : 1.0, false, "normal", CapsStyle.NONE, JointStyle.MITER);
 			
 			var arrayEnd:Number = (_ao.points as Array).length;
 			var startX:Number = denormalize((_ao.points as Array)[0], _parentWidth);
@@ -44,27 +45,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			
 			if (_ao.fill) this.graphics.beginFill(_ao.fillColor, _ao.transparency ? 0.6 : 1.0);
 			
-			if (_ao.square) {
-			//calculate what how to draw square in different directions
-			//from starting point	
-				if(height < 0){
-					if(width<0)
-						this.graphics.drawRect(startX, startY, width, width);
-					else
-						this.graphics.drawRect(startX, startY, width, -width);
-				}
-				else{
-					if(width<0)
-						this.graphics.drawRect(startX, startY, width, -width);
-					else
-						this.graphics.drawRect(startX, startY, width, width);
-				}
-
-
-			} else {
-				this.graphics.drawRect(startX, startY, width, height);
-			}
-			
+			this.graphics.drawRect(startX, startY, width, height);
 		}
 	}
 }

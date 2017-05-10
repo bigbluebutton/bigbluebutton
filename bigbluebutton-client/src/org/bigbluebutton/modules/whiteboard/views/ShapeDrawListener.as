@@ -39,7 +39,6 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _wbCanvas:WhiteboardCanvas;
     private var _sendFrequency:int;
     private var _shapeFactory:ShapeFactory;
-    private var _ctrlKeyDown:Boolean = false;
     private var _idGenerator:AnnotationIDGenerator;
     private var _curID:String;
     private var _wbModel:WhiteboardModel;
@@ -78,26 +77,22 @@ package org.bigbluebutton.modules.whiteboard.views
         
 //        LogUtil.debug("* START count = [" + objCount + "] id=[" + _curID + "]"); 
         
-		//normalize points as we get them to avoid shape drift
-		var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
+        //normalize points as we get them to avoid shape drift
+        var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
         
         _segment = new Array();
         _segment.push(np.x);
         _segment.push(np.y);
       } 
     }
-        
-    public function ctrlKeyDown(down:Boolean):void {
-      _ctrlKeyDown = down;
-    }
 
     public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         if (_isDrawing){
-			
-			//normalize points as we get them to avoid shape drift
-			var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
-			
+          
+          //normalize points as we get them to avoid shape drift
+          var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
+          
           _segment[2] = np.x;
           _segment[3] = np.y;
           
@@ -133,7 +128,7 @@ package org.bigbluebutton.modules.whiteboard.views
       dobj.status = status;
       dobj.id = _curID;
       
-      var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
+      var an:Annotation = dobj.createAnnotation(_wbModel);
       
       if (_wbId != null) {
         an.annotation["whiteboardId"] = _wbId;
@@ -142,7 +137,6 @@ package org.bigbluebutton.modules.whiteboard.views
       if (an != null) {
         _wbCanvas.sendGraphicToServer(an);
       }
-            			
     }
   }
 }

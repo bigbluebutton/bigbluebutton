@@ -39,7 +39,6 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _wbCanvas:WhiteboardCanvas;
     private var _sendFrequency:int;
     private var _shapeFactory:ShapeFactory;
-    private var _ctrlKeyDown:Boolean = false;
     private var _idGenerator:AnnotationIDGenerator;
     private var _curID:String;
     private var _wbModel:WhiteboardModel;
@@ -85,10 +84,6 @@ package org.bigbluebutton.modules.whiteboard.views
 		
         sendShapeToServer(AnnotationStatus.DRAW_START, tool);
       } 
-    }
-        
-    public function ctrlKeyDown(down:Boolean):void {
-      _ctrlKeyDown = down;
     }
     
     public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
@@ -136,7 +131,7 @@ package org.bigbluebutton.modules.whiteboard.views
       dobj.status = status;
       dobj.id = _curID;
       
-      var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
+      var an:Annotation = dobj.createAnnotation(_wbModel);
       
       if (_wbId != null) {
         an.annotation["whiteboardId"] = _wbId;

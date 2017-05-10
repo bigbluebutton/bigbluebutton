@@ -48,7 +48,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       _calcedFontSize = calcedFontSize;
     }
         
-    override public function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation {
+    override public function createAnnotation(wbModel:WhiteboardModel):Annotation {
       var ao:Object = new Object();
       ao["type"] = AnnotationType.TEXT;
       ao["id"] = _id;

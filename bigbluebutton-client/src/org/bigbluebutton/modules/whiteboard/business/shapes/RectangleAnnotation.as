@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return shape;
 		}
 		
-		override public function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation {
+		override public function createAnnotation(wbModel:WhiteboardModel):Annotation {
 			var ao:Object = new Object();
 			ao["type"] = _type;
 			ao["points"] = optimize(_shape);
@@ -64,12 +64,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			ao["id"] = _id;
 			ao["status"] = _status;
 			ao["transparency"] = _transparent;
-			
-			if (ctrlKeyPressed) {
-				ao["square"] = true;
-			} else {
-				ao["square"] = false;
-			}
 			
       var wbId:String = wbModel.getCurrentWhiteboardId();
       if (wbId != null) {
