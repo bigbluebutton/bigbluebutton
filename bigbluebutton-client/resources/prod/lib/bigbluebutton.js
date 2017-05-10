@@ -27,8 +27,8 @@ navigator.sayswho= (function(){
 
 function delayAltFlashVisibilty() {
 	setTimeout(function() {
-		if ($('#altFlash')[0] != undefined) {
-			$('#altFlash')[0].show();
+		if ($('#altFlash').length > 0) {
+			$('#altFlash').show();
 		}
 	}, 2000);
 }
