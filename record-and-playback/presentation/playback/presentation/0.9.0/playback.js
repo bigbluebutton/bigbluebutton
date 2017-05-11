@@ -288,15 +288,15 @@ generateThumbnails = function() {
 
 function checkUrl(url)
 {
+  console.log("==Checking Url",url);
+  var http = new XMLHttpRequest();
+  http.open('HEAD', url, false);
   try {
-    console.log("==Checking Url",url)
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
     http.send();
-    return http.status==200;
-  } catch (e) {
+  } catch(e) {
     return false;
   }
+  return http.status == 200 || http.status == 206;
 }
 
 load_video = function(){
