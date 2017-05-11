@@ -13,7 +13,6 @@ repositories {
 }
 
 dependencies {
-	compile 'org.bigbluebutton:bbb-common-message:0.0.19-SNAPSHOT'
 	compile 'org.bigbluebutton:bbb-common-web:0.0.1-SNAPSHOT'
 
 
