@@ -89,10 +89,23 @@ class Auth {
     }
 
     return new Promise((resolve, reject) => {
-      makeCall('userLogout').then(() => {
-        this.fetchLogoutUrl()
+      const credentialsSnapshot = {
+        meetingId: this.meetingID,
+        requesterUserId: this.userID,
+        requesterToken: this.token,
+      };
+
+      // make sure users who did not connect are not added to the meeting
+      // do **not** use the custom call - it relies on expired data
+      Meteor.call('userLogout', credentialsSnapshot, (error, result) => {
+        if (error) {
+          console.error('error=', error);
+        } else {
+          console.log('result=', result);
+          this.fetchLogoutUrl()
           .then(this.clearCredentials)
           .then(resolve);
+        }
       });
     });
   };
@@ -109,6 +122,15 @@ class Auth {
 
     return new Promise((resolve, reject) => {
       Tracker.autorun((c) => {
+        if (!(credentials.meetingId && credentials.requesterToken && credentials.requesterUserId)) {
+          debugger;
+          reject({
+            error: 500,
+            description: 'Authentication subscription failed due to missing credentials.',
+          });
+          return;
+        }
+
         setTimeout(() => {
           c.stop();
           reject({
