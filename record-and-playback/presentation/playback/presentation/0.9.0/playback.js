@@ -554,8 +554,7 @@ function restoreSlidesState(img) {
 function restoreCanvas() {
   var numCurrent = current_image.substr(5);
   var currentCanvas;
-  if(svgobj.contentDocument) currentCanvas = svgobj.contentDocument.getElementById("canvas" + numCurrent);
-  else currentCanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + numCurrent);
+  currentCanvas = getSVGElementById("canvas" + numCurrent);
 
   if(currentCanvas !== null) {
     currentCanvas.setAttribute("display", "");

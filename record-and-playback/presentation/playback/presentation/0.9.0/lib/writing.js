@@ -76,9 +76,23 @@ function showCursor(show) {
   }
 };
 
+function getSVGElementById(id) {
+  var element = null;
+  if (svgobj.contentDocument) {
+    element = svgobj.contentDocument.getElementById(id);
+  } else {
+    var svgDocument = svgobj.getSVGDocument('svgfile');
+    if (svgDocument) {
+      element = svgDocument.getElementById(id);
+    } else {
+      console.warn("Couldn't load the SVG file");
+    }
+  }
+  return element;
+}
+
 function setViewBox(val) {
-  if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
-  else svgfile = svgobj.getSVGDocument('svgfile').getElementById("svgfile");
+  svgfile = getSVGElementById("svgfile");
 	svgfile.setAttribute('viewBox', val);
 }
 
@@ -130,8 +144,7 @@ function runPopcorn() {
 
   getMetadata();
 
-  if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
-  else svgfile = svgobj.getSVGDocument('svgfile');
+  svgfile = getSVGElementById("svgfile");
 
   //making the object for requesting the read of the XML files.
   if (window.XMLHttpRequest) {
@@ -282,8 +295,7 @@ function runPopcorn() {
       var shape = null;
       for (var i = 0; i < shapes_in_time.length; i++) {
         var id = shapes_in_time[i];
-        if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(id);
-        else shape = svgobj.getSVGDocument('svgfile').getElementById(id);
+        shape = getSVGElementById(id);
 
         if (shape !== null) { //if there is actually a new shape to be displayed
           shape = shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
@@ -311,8 +323,7 @@ function runPopcorn() {
             var time_s = array[i].getAttribute("timestamp");
             var time_f = parseFloat(time_s);
 
-            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(array[i].getAttribute("id"));
-            else shape = svgobj.getSVGDocument('svgfile').getElementById(array[i].getAttribute("id"));
+            shape = getSVGElementById(array[i].getAttribute("id"));
 
             if(shape != null) {
                 var shape_i = shape.getAttribute("shape");
@@ -354,23 +365,18 @@ function runPopcorn() {
           var imageYOffset = 0;
 
           if(current_image && (current_image !== next_image) && (next_image !== undefined)){	//changing slide image
-            if(svgobj.contentDocument) {
-              var img = svgobj.contentDocument.getElementById(current_image);
-              if (img) {
-                img.style.visibility = "hidden";
-              }
-              var ni = svgobj.contentDocument.getElementById(next_image);
+            var img = getSVGElementById(current_image);
+            var ni = getSVGElementById(next_image);
+            if (img) {
+              img.style.visibility = "hidden";
             }
-            else {
-              var img = svgobj.getSVGDocument('svgfile').getElementById(current_image);
-              if (img) {
-                img.style.visibility = "hidden";
-              }
-              var ni = svgobj.getSVGDocument('svgfile').getElementById(next_image);
-            }
+
             document.getElementById("slideText").innerHTML = ""; //destroy old plain text
 
-            ni.style.visibility = "visible";
+            if (ni) {
+              ni.style.visibility = "visible";
+            }
+
             document.getElementById("slideText").innerHTML = slidePlainText[next_image] + next_image; //set new plain text
 
             if ($("#accEnabled").is(':checked')) {
@@ -383,15 +389,13 @@ function runPopcorn() {
             var num_current = current_image.substr(5);
             var num_next = next_image.substr(5);
 
-            if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
-            else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
+            currentcanvas = getSVGElementById("canvas" + num_current);
 
             if(currentcanvas !== null) {
               currentcanvas.setAttribute("display", "none");
             }
 
-            if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
-            else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
+            nextcanvas = getSVGElementById("canvas" + num_next);
 
             if((nextcanvas !== undefined) && (nextcanvas != null)) {
               nextcanvas.setAttribute("display", "");
@@ -400,8 +404,7 @@ function runPopcorn() {
             current_image = next_image;
           }
 
-          if(svgobj.contentDocument) var thisimg = svgobj.contentDocument.getElementById(current_image);
-          else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
+          thisimg = getSVGElementById(current_image);
 
           if (thisimg) {
             var imageWidth = parseInt(thisimg.getAttribute("width"), 10);
