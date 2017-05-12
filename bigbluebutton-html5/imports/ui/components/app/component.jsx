@@ -75,9 +75,9 @@ class App extends Component {
     if (!sidebar) return null;
 
     return (
-      <aside className={styles.sidebar}>
+      <div className={styles.sidebar}>
         {sidebar}
-      </aside>
+      </div>
     );
   }
 
@@ -128,6 +128,7 @@ class App extends Component {
         role="region"
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}>
           {media}
+          {this.renderSidebar()}
       </section>
     );
   }
@@ -162,7 +163,6 @@ class App extends Component {
             {this.renderMedia()}
             {this.renderActionsBar()}
           </div>
-          {this.renderSidebar()}
         </section>
         <ModalContainer />
         <AudioContainer />

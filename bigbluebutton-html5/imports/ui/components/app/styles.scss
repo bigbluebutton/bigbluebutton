@@ -137,25 +137,30 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   }
 }
 
-.sidebar {
-  @extend %full-page;
-  z-index: 4;
-
-  @include mq($medium-up) {
-    flex: 0 15vw;
-    order: 2;
-  }
-}
-
 .media {
   @extend %full-page;
   flex: 1 100%;
   order: 2;
 
+  flex-direction: row;
+  position: relative;
+
   @include mq($small-only) {
     padding-bottom: $actionsbar-height;
     margin-bottom: $actionsbar-height;
-    position: relative;
+  }
+
+  @include mq($portrait) {
+    flex-direction: column;
+  }
+}
+
+.sidebar {
+  position: relative;
+
+  @include mq($medium-up) {
+    max-height: 100%;
+    flex: 0 15vw;
   }
 }
 
