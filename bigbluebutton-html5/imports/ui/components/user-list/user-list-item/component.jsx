@@ -50,6 +50,14 @@ const messages = defineMessages({
     id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
   },
+  userItemStatusAriaLabel: {
+    id: 'app.userlist.useritem.status.arialabel',
+    description: 'adds aria label for user and status',
+  },
+  userItemAriaLabel: {
+    id: 'app.userlist.useritem.nostatus.arialabel',
+    description: 'aria label for user',
+  },
 });
 
 const userActionsTransition = {
@@ -235,10 +243,27 @@ class UserListItem extends Component {
       intl,
     } = this.props;
 
+    let you = (user.isCurrent) ? intl.formatMessage(messages.you) : null;
+
+    let presenter = (user.isPresenter)
+      ? intl.formatMessage(messages.presenter)
+      : null;
+
+    let userAriaLabel = (user.emoji.status === 'none')
+      ? intl.formatMessage(messages.userItemAriaLabel,
+          {username: user.name, presenter: presenter, you: you})
+      : intl.formatMessage(messages.userItemStatusAriaLabel,
+          { username: user.name,
+            presenter: presenter,
+            you: you,
+            status: user.emoji.status });
+
     let actions = this.getAvailableActions();
     let contents = (
-      <div className={cx(styles.userListItem, userItemContentsStyle)}>
-        <div className={styles.userItemContents}>
+      <div
+        className={cx(styles.userListItem, userItemContentsStyle)}
+        aria-label={userAriaLabel}>
+        <div className={styles.userItemContents} aria-hidden="true">
           <UserAvatar user={user} />
           {this.renderUserName()}
           {this.renderUserIcons()}

@@ -170,9 +170,9 @@ class UserList extends Component {
       <div className={styles.header}>
         {
           !this.state.compact ?
-          <h2 className={styles.headerTitle}>
+          <div className={styles.headerTitle} role="banner">
             {intl.formatMessage(intlMessages.participantsTitle)}
-          </h2> : null
+          </div> : null
         }
       </div>
     );
@@ -198,9 +198,9 @@ class UserList extends Component {
       <div className={styles.messages}>
         {
           !this.state.compact ?
-          <h3 className={styles.smallTitle}>
+          <div className={styles.smallTitle} role="banner">
             {intl.formatMessage(intlMessages.messagesTitle)}
-          </h3> : <hr className={styles.separator}></hr>
+          </div> : <hr className={styles.separator}></hr>
         }
         <div
           tabIndex={0}
@@ -214,7 +214,7 @@ class UserList extends Component {
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
-            component="ul"
+            component="div"
             className={cx(styles.chatsList, styles.scrollableList)}>
             <div ref={(r) => this._msgItems = r}>
               {openChats.map(chat => (
@@ -278,10 +278,10 @@ class UserList extends Component {
       <div className={styles.participants}>
         {
           !this.state.compact ?
-          <h3 className={styles.smallTitle}>
+          <div className={styles.smallTitle} role="banner">
             {intl.formatMessage(intlMessages.usersTitle)}
             &nbsp;({users.length})
-          </h3> : <hr className={styles.separator}></hr>
+          </div> : <hr className={styles.separator}></hr>
         }
         <div
           className={styles.scrollableList}
@@ -295,7 +295,7 @@ class UserList extends Component {
             transitionAppearTimeout={0}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}
-            component="ul"
+            component="div"
             className={cx(styles.participantsList, styles.scrollableList)}>
             <div ref={(r) => this._userItems = r}>
               {
