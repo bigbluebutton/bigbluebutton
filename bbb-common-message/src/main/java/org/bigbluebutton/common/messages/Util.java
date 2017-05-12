@@ -274,7 +274,7 @@ public class Util {
 			int color = annotationElement.get("color").getAsInt();
 			String status = annotationElement.get(Constants.STATUS).getAsString();
 			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
-			int thickness = annotationElement.get("thickness").getAsInt();
+			Float thickness = annotationElement.get("thickness").getAsFloat();
 			String type = annotationElement.get("type").getAsString();
 
 			JsonArray pointsJsonArray = annotationElement.get("points").getAsJsonArray();

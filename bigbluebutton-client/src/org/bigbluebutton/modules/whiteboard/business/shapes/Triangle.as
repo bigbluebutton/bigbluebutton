@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.graphics.clear();
 //			LogUtil.debug("Drawing TRIANGLE");
 			
-			this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color, _ao.transparency ? 0.6 : 1.0, false, "normal", CapsStyle.NONE, JointStyle.MITER, 8);
+			this.graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color, _ao.transparency ? 0.6 : 1.0, false, "normal", CapsStyle.NONE, JointStyle.MITER, 8);
 			
 			var arrayEnd:Number = (_ao.points as Array).length;
 			var startX:Number = denormalize((_ao.points as Array)[0], _parentWidth);

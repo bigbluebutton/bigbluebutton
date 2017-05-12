@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		private function drawSimpleLine():void {
 			this.graphics.clear();
 			
-			this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
+			this.graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color);
 			
 			var points:Array = _ao.points as Array;
 			
@@ -79,7 +79,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		private function drawFinishedLine():void {
 			graphics.clear();
 			
-			graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
+			graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color);
 			
 			var commands:Array = _ao.commands as Array;
 			var points:Array = _ao.points as Array;
@@ -122,7 +122,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				
 				_ao = a.annotation;
 				
-				graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
+				graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color);
 				graphics.lineTo(denormalize(newPoints[newPoints.length-2], _parentWidth), denormalize(newPoints[newPoints.length-1], _parentHeight));
 			} else {
 				_ao = a.annotation;

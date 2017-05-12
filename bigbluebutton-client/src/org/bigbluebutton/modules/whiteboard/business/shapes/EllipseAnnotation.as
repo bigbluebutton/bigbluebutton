@@ -28,11 +28,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		private var _shape:Array;
 		private var _color:uint;
 		private var _fillColor:uint;
-		private var _thickness:uint;
+		private var _thickness:Number;
 		private var _fill:Boolean;
 		private var _transparent:Boolean;
 		
-		public function EllipseAnnotation(segment:Array, color:uint, thickness:uint, trans:Boolean)
+		public function EllipseAnnotation(segment:Array, color:uint, thickness:Number, trans:Boolean)
 		{
 			_shape = segment;
 			_color = color;

@@ -33,9 +33,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.graphics.clear();
 			//LogUtil.debug("Drawing ELLIPSE");
 			
-			if(!_ao.fill)
-				this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color, _ao.transparency ? 0.6 : 1.0);
-			else this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
+			this.graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color);
 			
 			var arrayEnd:Number = (_ao.points as Array).length;
 			var startX:Number = denormalize((_ao.points as Array)[0], _parentWidth);
@@ -44,26 +42,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var height:Number = denormalize((_ao.points as Array)[arrayEnd-1], _parentHeight) - startY;
 			
 			if (_ao.fill) this.graphics.beginFill(_ao.fillColor, _ao.transparency ? 0.6 : 1.0);
-			if (_ao.circle) {
-				//calculate what how to draw circle in different directions
-				//from starting point
-				if(height < 0){
-					if(width<0)
-						this.graphics.drawEllipse(startX, startY, width, width);
-					else
-						this.graphics.drawEllipse(startX, startY, width, -width);
-				}
-				else{
-					if(width<0)
-						this.graphics.drawEllipse(startX, startY, width, -width);
-					else
-						this.graphics.drawEllipse(startX, startY, width, width);
-				}
 
-
-			} else {
-				this.graphics.drawEllipse(startX, startY, width, height);
-			}
+			this.graphics.drawEllipse(startX, startY, width, height);
 			
 		}
 	}
