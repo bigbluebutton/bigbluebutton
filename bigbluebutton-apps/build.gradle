@@ -64,6 +64,7 @@ dependencies {
    providedCompile 'org.apache.commons:commons-lang3:3.2'
 
   compile 'org.bigbluebutton:bbb-common-message:0.0.19-SNAPSHOT'
+  compile 'org.bigbluebutton:bbb-apps-common:0.0.1-SNAPSHOT'
 }
 
 test {
