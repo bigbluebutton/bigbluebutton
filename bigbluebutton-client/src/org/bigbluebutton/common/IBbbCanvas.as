@@ -33,7 +33,7 @@ package org.bigbluebutton.common
 		function doesContain(child:DisplayObject):Boolean;
 		function acceptOverlayCanvas(overlay:IBbbCanvas):void;
 		function moveCanvas(x:Number, y:Number):void;
-		function zoomCanvas(width:Number, height:Number, zoom:Number):void;
+		function zoomCanvas(width:Number, height:Number):void;
 		function showCanvas(show:Boolean):void;
 	}
 }

@@ -243,10 +243,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				addRawChild(child);
 			}
 			
-			public function zoomCanvas(width:Number, height:Number, zoom:Number):void {
+			public function zoomCanvas(width:Number, height:Number):void {
 				this.width = width;
 				this.height = height;	
-				displayModel.zoomCanvas(width, height, zoom);
+				displayModel.zoomCanvas(width, height);
                 model.zoomCanvas(width, height);
 				textToolbar.adjustForZoom(width, height);
 			}

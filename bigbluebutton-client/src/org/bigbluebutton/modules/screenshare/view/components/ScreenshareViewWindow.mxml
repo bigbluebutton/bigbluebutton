@@ -264,9 +264,7 @@
 				if (video != null && whiteboardCanvas != null && videoHolder != null) {
 					whiteboardCanvas.moveCanvas(videoWithWarnings.x, videoWithWarnings.y);
 
-					var zoomPercentage:Number = (videoWithWarnings.width / videoWidth)*100;
-					if(zoomPercentage > 0)
-						whiteboardCanvas.zoomCanvas(videoWithWarnings.width, videoWithWarnings.height, zoomPercentage);
+					whiteboardCanvas.zoomCanvas(videoWithWarnings.width, videoWithWarnings.height);
 
 					LOGGER.debug("Whiteboard canvas overlay dimensions updated");
 				}
@@ -372,7 +370,7 @@
 				LOGGER.debug("ScreenshareViewWindow: moveCanvas");
 			}
 
-			public function zoomCanvas(width:Number, height:Number, zoom:Number):void {
+			public function zoomCanvas(width:Number, height:Number):void {
 				LOGGER.debug("ScreenshareViewWindow: zoomCanvas");
 			}
 

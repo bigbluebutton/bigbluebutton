@@ -41,7 +41,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     private var _userId:String;
     
     protected var _ao:Object;
-    protected var _zoom:Number;
     protected var _parentWidth:Number;
     protected var _parentHeight:Number
     
@@ -326,7 +325,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       makeTextFields((answers != null ? answers.length*3 : 0));
     }
     
-    public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+    public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
       _ao = a.annotation;
       _parentWidth = parentWidth;
       _parentHeight = parentHeight;
@@ -335,12 +334,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       makeGraphic();
     }
     
-    public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+    public function redraw(parentWidth:Number, parentHeight:Number):void {
       // in some cases (like moving the window around) a redraw is called with identical information as previous values
-      if (_parentWidth != parentWidth || _parentHeight != parentHeight || _zoom != zoom) {
+      if (_parentWidth != parentWidth || _parentHeight != parentHeight) {
         _parentWidth = parentWidth;
         _parentHeight = parentHeight;
-        _zoom = zoom;
         makeGraphic();
       }
     }

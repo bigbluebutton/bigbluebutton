@@ -59,8 +59,6 @@ package org.bigbluebutton.modules.whiteboard
     private var bbbCanvas:IBbbCanvas;
     private var width:Number;
     private var height:Number;
-            
-	private var zoomPercentage:Number = 1;
 	
 	public function setDependencies(whiteboardCanvas:WhiteboardCanvas, whiteboardModel:WhiteboardModel):void {
 		wbCanvas = whiteboardCanvas;
@@ -103,7 +101,7 @@ package org.bigbluebutton.modules.whiteboard
 	public function createGraphic(o:Annotation):void {
 		var gobj:GraphicObject = shapeFactory.makeGraphicObject(o, whiteboardModel);
 		if (gobj != null) {
-			gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+			gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
 			wbCanvas.addGraphic(gobj as DisplayObject);
 			_annotationsList.push(gobj);
 			
@@ -182,7 +180,7 @@ package org.bigbluebutton.modules.whiteboard
         var an:Annotation = annotations[i] as Annotation;
         var gobj:GraphicObject = shapeFactory.makeGraphicObject(an, whiteboardModel);
         if (gobj != null) {
-          gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+          gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
           wbCanvas.addGraphic(gobj as DisplayObject);
           _annotationsList.push(gobj);
         }
@@ -237,7 +235,7 @@ package org.bigbluebutton.modules.whiteboard
                     // LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
                     var gobj:GraphicObject = shapeFactory.makeGraphicObject(an, whiteboardModel);
                     if (gobj != null) {
-                        gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+                        gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
                         wbCanvas.addGraphic(gobj as DisplayObject);
                         _annotationsList.push(gobj);
                     }
@@ -250,8 +248,7 @@ package org.bigbluebutton.modules.whiteboard
             }
         }
     
-    public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
-	    zoomPercentage = zoom / 100;
+    public function zoomCanvas(width:Number, height:Number):void{
       shapeFactory.setParentDim(width, height);  
       this.width = width;
       this.height = height;
@@ -262,7 +259,7 @@ package org.bigbluebutton.modules.whiteboard
     }
   
     private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
-      gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+      gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight);
     }
     
     public function isPageEmpty():Boolean {
