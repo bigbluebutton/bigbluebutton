@@ -72,16 +72,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
       },
     });
 
-    const APP_CONFIG = Meteor.settings.public.app;
-
-    const init = () => {
-      if (APP_CONFIG.autoJoinAudio) {
-        mountModal(<AudioModalContainer />);
-      }
-    };
-
     return {
-      init,
       sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
       fontSize: getFontSize(),
     };
