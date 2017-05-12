@@ -105,6 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.addChild(whiteboardCanvasHolder);
 				whiteboardCanvasHolder.x = 0;
 				whiteboardCanvasHolder.y = 0;
+				whiteboardCanvasHolder.clipContent = true;
 				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
 				
