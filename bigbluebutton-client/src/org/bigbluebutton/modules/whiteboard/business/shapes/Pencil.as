@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			} else {
 				this.graphics.lineStyle(1, _ao.color);
 				this.graphics.beginFill(_ao.color);
-				var diameter:Number = _ao.thickness * _zoom;
+				var diameter:Number = denormalize(_ao.thickness, _parentWidth);
 				this.graphics.drawEllipse(denormalize(points[0], _parentWidth)-diameter/2, denormalize(points[1], _parentHeight)-diameter/2, diameter, diameter);
 				this.graphics.endFill();
 				

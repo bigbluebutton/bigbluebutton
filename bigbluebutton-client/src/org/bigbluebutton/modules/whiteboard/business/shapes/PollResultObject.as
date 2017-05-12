@@ -120,7 +120,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var localWidth:Number = denormalize((_ao.points as Array)[2], _parentWidth);
         var localHeight:Number = denormalize((_ao.points as Array)[3], _parentHeight);
         
-        var lineWidth:Number = 2 * _zoom;
+        var lineWidth:Number = 0.008 * localWidth;
         
         this.x = startX;
         this.y = startY;
@@ -164,7 +164,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var percentText:TextField;
         var answerArray:Array = new Array();
         var percentArray:Array = new Array();
-        var minFontSize:int = 30 * _zoom;
+        var minFontSize:int = avgRowHeight + vpadding;
         var currFontSize:int;
         
         //var startingLabelWidth:Number = Math.min(labelWidthPercent*graphWidth, labelMaxWidthInPixels);
