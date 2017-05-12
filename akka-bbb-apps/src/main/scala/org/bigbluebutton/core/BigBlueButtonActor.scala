@@ -17,12 +17,14 @@ import org.bigbluebutton.core.running.RunningMeeting
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
     eventBus: IncomingEventBus,
+    bbbMsgBus: BbbMsgRouterEventBus,
     outGW: OutMessageGateway): Props =
-    Props(classOf[BigBlueButtonActor], system, eventBus, outGW)
+    Props(classOf[BigBlueButtonActor], system, eventBus, bbbMsgBus, outGW)
 }
 
 class BigBlueButtonActor(val system: ActorSystem,
-    eventBus: IncomingEventBus, outGW: OutMessageGateway) extends Actor with ActorLogging {
+    eventBus: IncomingEventBus, bbbMsgBus: BbbMsgRouterEventBus,
+    outGW: OutMessageGateway) extends Actor with ActorLogging with SystemConfiguration {
 
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
@@ -37,6 +39,14 @@ class BigBlueButtonActor(val system: ActorSystem,
       log.error(sw.toString())
       Resume
     }
+  }
+
+  override def preStart() {
+    bbbMsgBus.subscribe(self, meetingManagerChannel)
+  }
+
+  override def postStop() {
+    bbbMsgBus.unsubscribe(self, meetingManagerChannel)
   }
 
   def receive = {

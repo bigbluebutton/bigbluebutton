@@ -3,11 +3,14 @@ package org.bigbluebutton.common2.util
 import com.fasterxml.jackson.databind.{ DeserializationFeature, ObjectMapper }
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
+import com.fasterxml.jackson.annotation.JsonInclude
 
 object JsonUtil {
   val mapper = new ObjectMapper() with ScalaObjectMapper
   mapper.registerModule(DefaultScalaModule)
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+  mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
   def toJson(value: Map[Symbol, Any]): String = {
     toJson(value map { case (k, v) => k.name -> v })

@@ -3,8 +3,12 @@ package org.bigbluebutton.api.pub
 import java.util
 
 import org.bigbluebutton.api.messaging.MessageSender
+import org.bigbluebutton.common.messages.MessagingConstants
+import org.bigbluebutton.common2.messages.{CreateMeetingReq, CreateMeetingReqBody, Header}
+import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.web.services.turn.{StunServer, TurnEntry}
 
+import scala.collection.JavaConverters._
 
 class RedisPublisherService(sender: MessageSender) extends IPublisherService {
   def destroyMeeting (meetingId: String):Unit = {
@@ -17,6 +21,18 @@ class RedisPublisherService(sender: MessageSender) extends IPublisherService {
                     viewerPass: String, createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean, sequence: java.lang.Integer,
                     metadata: util.Map[String, String], guestPolicy: String): Unit = {
 
+    val body: CreateMeetingReqBody = new CreateMeetingReqBody(meetingId, extMeetingId, parentMeetingId,
+    meetingName, recorded.booleanValue(), voiceBridge, duration, autoStartRecording.booleanValue(),
+    allowStartStopRecording.booleanValue(), webcamsOnlyForModerator.booleanValue(), moderatorPass,
+    viewerPass, createTime, createDate, isBreakout.booleanValue(), sequence,
+      mapAsScalaMapConverter(metadata).asScala.toMap, guestPolicy)
+
+    val header: Header = new Header("CreateMeetingReq")
+    val msg: CreateMeetingReq = new CreateMeetingReq(header, body)
+
+    val json = JsonUtil.toJson(msg)
+    println(json)
+    sender.send("bbb:to-akka-apps", json)
   }
 
   def endMeeting(meetingId: String): Unit = {

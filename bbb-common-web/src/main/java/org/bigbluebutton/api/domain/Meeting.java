@@ -30,7 +30,7 @@ public class Meeting {
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;
-	private String parentMeetingId;
+	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
 	private Integer duration = 0;	 
 	private long createdTime = 0;

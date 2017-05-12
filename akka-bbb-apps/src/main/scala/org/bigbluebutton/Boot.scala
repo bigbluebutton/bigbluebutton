@@ -25,8 +25,8 @@ object Boot extends App with SystemConfiguration {
 
   val eventBus = new IncomingEventBus
   val outgoingEventBus = new OutgoingEventBus
-
-  val outGW = new OutMessageGateway(outgoingEventBus)
+  val outBus2 = new OutEventBus2
+  val outGW = new OutMessageGateway(outgoingEventBus, outBus2)
 
   val redisPublisher = new RedisPublisher(system)
   val msgSender = new MessageSender(redisPublisher)
@@ -39,15 +39,17 @@ object Boot extends App with SystemConfiguration {
   val recorderActor = system.actorOf(RecorderActor.props(recorderApp), "recorderActor")
   val newMessageSenderActor = system.actorOf(JsonMessageSenderActor.props(msgSender), "newMessageSenderActor")
 
-  outgoingEventBus.subscribe(messageSenderActor, "outgoingMessageChannel")
-  outgoingEventBus.subscribe(recorderActor, "outgoingMessageChannel")
-  outgoingEventBus.subscribe(newMessageSenderActor, "outgoingMessageChannel")
+  outgoingEventBus.subscribe(messageSenderActor, outMessageChannel)
+  outgoingEventBus.subscribe(recorderActor, outMessageChannel)
+  outgoingEventBus.subscribe(newMessageSenderActor, outMessageChannel)
+  val incomingJsonMessageBus = new IncomingJsonMessageBus
 
-  val bbbInGW = new BigBlueButtonInGW(system, eventBus, outGW, red5DeskShareIP, red5DeskShareApp)
+  val bbbMsgBus = new BbbMsgRouterEventBus
+
+  val bbbInGW = new BigBlueButtonInGW(system, eventBus, bbbMsgBus, outGW, red5DeskShareIP, red5DeskShareApp)
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
-  val incomingJsonMessageBus = new IncomingJsonMessageBus
-  val redisMessageHandlerActor = system.actorOf(ReceivedJsonMsgHandlerActor.props(eventBus, incomingJsonMessageBus))
+  val redisMessageHandlerActor = system.actorOf(ReceivedJsonMsgHandlerActor.props(bbbMsgBus, incomingJsonMessageBus))
   incomingJsonMessageBus.subscribe(redisMessageHandlerActor, "incoming-json-message")
 
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver, incomingJsonMessageBus), "redis-subscriber")

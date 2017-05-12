@@ -17,12 +17,13 @@ import org.bigbluebutton.core.models.Roles
 class BigBlueButtonInGW(
     val system: ActorSystem,
     eventBus: IncomingEventBus,
+    bbbMsgBus: BbbMsgRouterEventBus,
     outGW: OutMessageGateway,
     val red5DeskShareIP: String,
     val red5DeskShareApp: String) extends IBigBlueButtonInGW {
 
   val log = Logging(system, getClass)
-  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, outGW), "bigbluebutton-actor")
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW), "bigbluebutton-actor")
   eventBus.subscribe(bbbActor, "meeting-manager")
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {

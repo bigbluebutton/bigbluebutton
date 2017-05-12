@@ -271,6 +271,15 @@ public class MeetingService implements MessageListener {
                 m.getModeratorPassword(), m.getViewerPassword(),
                 m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
                 m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy());
+
+        messagingService.createMeeting(m.getInternalId(), m.getExternalId(),
+          m.getParentMeetingId(), m.getName(), m.isRecord(),
+          m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(),
+          m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
+          m.getModeratorPassword(), m.getViewerPassword(),
+          m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
+          m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy());
+
     }
 
     private String formatPrettyDate(Long timestamp) {

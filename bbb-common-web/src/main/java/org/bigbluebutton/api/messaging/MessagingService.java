@@ -29,4 +29,11 @@ public interface MessagingService {
 	void send(String channel, String message);
 	void publishRecording(String recordId, String meetingId, String externalMeetingId, String format, boolean publish);
 	void deleteRecording(String recordId, String meetingId, String externalMeetingId, String format);
+	void createMeeting(String meetingID, String externalMeetingID,
+										 String parentMeetingID, String meetingName, Boolean recorded,
+										 String voiceBridge, Integer duration, Boolean autoStartRecording,
+										 Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
+										 String moderatorPass, String viewerPass, Long createTime,
+										 String createDate, Boolean isBreakout, Integer sequence,
+										 Map<String, String> metadata, String guestPolicy);
 }
