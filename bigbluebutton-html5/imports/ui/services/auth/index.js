@@ -4,7 +4,7 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
-import { makeCall } from '/imports/ui/services/api';
+import { makeCall, logClient } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -99,9 +99,8 @@ class Auth {
       // do **not** use the custom call - it relies on expired data
       Meteor.call('userLogout', credentialsSnapshot, (error, result) => {
         if (error) {
-          console.error('error=', error);
+          logClient('error', { error, method: 'userLogout', credentialsSnapshot });
         } else {
-          console.log('result=', result);
           this.fetchLogoutUrl()
           .then(this.clearCredentials)
           .then(resolve);
@@ -123,7 +122,6 @@ class Auth {
     return new Promise((resolve, reject) => {
       Tracker.autorun((c) => {
         if (!(credentials.meetingId && credentials.requesterToken && credentials.requesterUserId)) {
-          debugger;
           reject({
             error: 500,
             description: 'Authentication subscription failed due to missing credentials.',
