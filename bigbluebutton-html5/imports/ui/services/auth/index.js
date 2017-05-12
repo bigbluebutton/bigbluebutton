@@ -4,7 +4,9 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
-import { callServer } from '/imports/ui/services/api';
+import { makeCall } from '/imports/ui/services/api';
+
+const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
 class Auth {
   constructor() {
@@ -87,7 +89,7 @@ class Auth {
     }
 
     return new Promise((resolve, reject) => {
-      callServer('userLogout', () => {
+      makeCall('userLogout').then(() => {
         this.fetchLogoutUrl()
           .then(this.clearCredentials)
           .then(resolve);
@@ -133,7 +135,7 @@ class Auth {
           error: 500,
           description: 'Authentication timeout.',
         });
-      }, 5000);
+      }, CONNECTION_TIMEOUT);
 
       const didValidate = () => {
         this.loggedIn = true;
@@ -166,7 +168,7 @@ class Auth {
       });
 
       const credentials = this.credentials;
-      callServer('validateAuthToken', credentials);
+      makeCall('validateAuthToken', credentials);
     });
   }
 

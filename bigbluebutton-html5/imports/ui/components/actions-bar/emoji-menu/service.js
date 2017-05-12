@@ -1,6 +1,6 @@
 import Auth from '/imports/ui/services/auth/index.js';
 import Users from '/imports/api/users';
-import { callServer } from '/imports/ui/services/api/index.js';
+import { makeCall } from '/imports/ui/services/api/index.js';
 
 let getEmojiData = () => {
 
@@ -22,7 +22,7 @@ let getEmojiData = () => {
 
 // Below doesn't even need to receieve credentials
 const setEmoji = (toRaiseUserId, status) => {
-  callServer('setEmojiStatus', toRaiseUserId, status);
+  makeCall('setEmojiStatus', toRaiseUserId, status);
 };
 
 export default {

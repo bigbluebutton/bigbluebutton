@@ -5,6 +5,7 @@
   "app.userlist.messagesTitle": "Messages",
   "app.userlist.presenter": "Presenter",
   "app.userlist.you": "You",
+  "app.userlist.locked": "Locked",
   "app.userlist.Label": "User List",
   "app.chat.submitLabel": "Send Message",
   "app.chat.inputLabel": "Message input for chat {name}",
@@ -198,5 +199,6 @@
   "app.error.500": "Ops, something went wrong",
   "app.error.404": "Not found",
   "app.error.401": "Unauthorized",
-  "app.error.403": "Forbidden"
+  "app.error.403": "Forbidden",
+  "app.error.leaveLabel": "Log in again"
 }

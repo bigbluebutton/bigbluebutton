@@ -4,7 +4,6 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses.js';
-
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -33,7 +32,8 @@ const mapUser = user => ({
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isPhoneUser: user.phone_user,
-  isOnline: user.connection_status === 'online'
+  isOnline: user.connection_status === 'online',
+  isLocked: user.locked,
 });
 
 const mapOpenChats = chat => {

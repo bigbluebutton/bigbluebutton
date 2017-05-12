@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import { logClient } from '/imports/ui/services/api';
 
 // disconnected and trying to open a new connection
 const STATUS_CONNECTING = 'connecting';
@@ -30,6 +31,12 @@ export function logoutRouteHandler(nextState, replace, callback) {
 };
 
 export function authenticatedRouteHandler(nextState, replace, callback) {
+  const credentialsSnapshot = {
+    meetingId: Auth.meetingID,
+    requesterUserId: Auth.userID,
+    requesterToken: Auth.token,
+  };
+
   if (Auth.loggedIn) {
     callback();
   }
@@ -39,7 +46,16 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
   Auth.authenticate()
     .then(callback)
     .catch(reason => {
-      console.error(reason);
+      logClient('error', { error: reason, method: 'authenticatedRouteHandler', credentialsSnapshot });
+
+      // make sure users who did not connect are not added to the meeting
+      // do **not** use the custom call - it relies on expired data
+      Meteor.call('userLogout', credentialsSnapshot, (error, result) => {
+        if (error) {
+          console.error('error');
+        }
+      });
+
       replace({ pathname: `/error/${reason.error}` });
       callback();
     });

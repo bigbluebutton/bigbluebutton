@@ -93,8 +93,17 @@ if (request.getParameterMap().isEmpty()) {
 	//
 
 	String username = request.getParameter("username");
-	String meetingname = request.getParameter("meetingname");
-	boolean isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
+
+	// set defaults and overwrite them if custom values exist
+	String meetingname = "Demo Meeting";
+	if (request.getParameter("meetingname") != null) {
+		meetingname =  request.getParameter("meetingname");
+	}
+
+	boolean isModerator = false;
+	if (request.getParameter("isModerator") != null) {
+		isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
+	}
 
 	String joinURL = getJoinURLHTML5(username, meetingname, "false", null, null, null, isModerator);
 	Document doc = null;
