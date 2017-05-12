@@ -28,8 +28,8 @@ export default function userLeaving(credentials, userId) {
 
   const User = Users.findOne(selector);
   if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to toggle audio`);
+    Logger.warn(`Could not find ${userId} in ${meetingId}: cannot complete userLeaving action`);
+    return;
   }
 
   if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
