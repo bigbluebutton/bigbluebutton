@@ -3,7 +3,7 @@ package org.bigbluebutton.core.bus
 import akka.actor.ActorRef
 import akka.event.{ EventBus, LookupClassification }
 
-case class ReceivedJsonMessage(name: String, data: String);
+case class ReceivedJsonMessage(name: String, data: String)
 case class IncomingJsonMessage(val topic: String, val payload: ReceivedJsonMessage)
 
 class IncomingJsonMessageBus extends EventBus with LookupClassification {

@@ -30,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
@@ -46,7 +45,7 @@ import com.google.gson.Gson;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-public class ConnectionInvokerService {
+public class ConnectionInvokerService implements IConnectionInvokerService {
   private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
 
   private final String CONN = "RED5-";
