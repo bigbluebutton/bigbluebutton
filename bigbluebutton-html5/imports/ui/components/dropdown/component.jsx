@@ -130,8 +130,8 @@ class Dropdown extends Component {
       className,
       style, intl,
       hasPopup,
-      ariaLive, 
-      ariaRelevant
+      ariaLive,
+      ariaRelevant,
     } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);

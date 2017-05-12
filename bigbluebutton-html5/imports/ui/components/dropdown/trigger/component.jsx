@@ -41,7 +41,7 @@ export default class DropdownTrigger extends Component {
   }
 
   render() {
-    const { children, style, className, placeInTabOrder} = this.props;
+    const { children, style, className, placeInTabOrder, } = this.props;
     const TriggerComponent = React.Children.only(children);
 
     let index = (placeInTabOrder) ? '0' : '-1';

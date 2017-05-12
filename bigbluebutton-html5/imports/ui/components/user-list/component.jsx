@@ -83,7 +83,8 @@ class UserList extends Component {
   }
 
   rovingIndex(...Args) {
-    const {users, openChats} = this.props;
+    const { users, openChats } = this.props;
+
     let active = document.activeElement;
     let list;
     let items;
@@ -116,21 +117,21 @@ class UserList extends Component {
 
     if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
       if (this.counter < count) {
-        this.focusListItem(active, "down", items);
+        this.focusListItem(active, 'down', items);
       }else if (this.counter === count) {
-        this.focusListItem(active, "downLoopDown", list);
+        this.focusListItem(active, 'downLoopDown', list);
       }else if (this.counter === 0) {
-        this.focusListItem(active, "downLoopUp", list);
+        this.focusListItem(active, 'downLoopUp', list);
       }
     }
 
     if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
       if (this.counter < count && this.counter !== 0) {
-        this.focusListItem(active, "up", items);
+        this.focusListItem(active, 'up', items);
       }else if (this.counter === 0) {
-        this.focusListItem(active, "upLoopUp", list, count);
+        this.focusListItem(active, 'upLoopUp', list, count);
       }else if (this.counter === count) {
-        this.focusListItem(active, "upLoopDown", list, count);
+        this.focusListItem(active, 'upLoopDown', list, count);
       }
     }
   }
@@ -139,19 +140,20 @@ class UserList extends Component {
     let _this = this;
 
     if (!this.state.compact) {
-      this._msgsList.addEventListener("keypress", function(event) {
-        _this.rovingIndex.call(this, event, "messages");
+      this._msgsList.addEventListener('keypress', function (event) {
+        _this.rovingIndex.call(this, event, 'messages');
       });
 
-      this._usersList.addEventListener("keypress", function(event) {
-        _this.rovingIndex.call(this, event, "users");
+      this._usersList.addEventListener('keypress', function (event) {
+        _this.rovingIndex.call(this, event, 'users');
       });
     }
   }
 
   componentWillUnmount() {
-    this._msgsList.removeEventListener("keypress", function(event){}, false);
-    this._usersList.removeEventListener("keypress", function(event){}, false);
+    this._msgsList.removeEventListener('keypress', function (event) {}, false);
+
+    this._usersList.removeEventListener('keypress', function (event) {}, false);
   }
 
   render() {

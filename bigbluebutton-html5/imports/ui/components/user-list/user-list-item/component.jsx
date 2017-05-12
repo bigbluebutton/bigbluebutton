@@ -255,12 +255,12 @@ class UserListItem extends Component {
 
     let userAriaLabel = (user.emoji.status === 'none')
       ? intl.formatMessage(messages.userItemAriaLabel,
-          {username: user.name, presenter: presenter, you: you})
+          { username: user.name, presenter: presenter, you: you, })
       : intl.formatMessage(messages.userItemStatusAriaLabel,
           { username: user.name,
             presenter: presenter,
             you: you,
-            status: user.emoji.status });
+            status: user.emoji.status, });
 
     let actions = this.getAvailableActions();
     let contents = (
@@ -408,10 +408,10 @@ class UserListItem extends Component {
         <span className={styles.userNameSub}>
           {userNameSub}
           {(user.isLocked) ?
-            <span> {(user.isCurrent? " | " : null)}
+            <span> {user.isCurrent ? ' | ' : null}
               <Icon iconName='lock' />
               {intl.formatMessage(messages.locked)}
-            </span>: null}
+            </span> : null}
         </span>
       </div>
     );
