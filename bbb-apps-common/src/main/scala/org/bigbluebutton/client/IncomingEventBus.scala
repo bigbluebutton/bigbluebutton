@@ -1,13 +1,12 @@
-package org.bigbluebutton.core.bus
+package org.bigbluebutton.client
 
 import akka.actor.ActorRef
-import akka.event.{ EventBus, LookupClassification }
+import akka.event.{EventBus, LookupClassification}
 
-case class ReceivedJsonMessage(name: String, data: String)
-case class IncomingJsonMessage(val topic: String, val payload: ReceivedJsonMessage)
+case class BigBlueButtonEvent(val topic: String, val payload: String)
 
-class IncomingJsonMessageBus extends EventBus with LookupClassification {
-  type Event = IncomingJsonMessage
+class IncomingEventBus extends EventBus with LookupClassification {
+  type Event = BigBlueButtonEvent
   type Classifier = String
   type Subscriber = ActorRef
 
@@ -23,7 +22,7 @@ class IncomingJsonMessageBus extends EventBus with LookupClassification {
   // must define a full order over the subscribers, expressed as expected from
   // `java.lang.Comparable.compare`
   override protected def compareSubscribers(a: Subscriber, b: Subscriber): Int =
-    a.compareTo(b)
+  a.compareTo(b)
 
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)
