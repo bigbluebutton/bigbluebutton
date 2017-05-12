@@ -33,6 +33,10 @@
   flex: 1;
   margin: 0;
   font-weight: 400;
+
+  @include mq($small-only) {
+    font-size: x-large;
+  }
 }
 
 %btn {
