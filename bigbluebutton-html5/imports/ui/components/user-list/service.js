@@ -32,7 +32,8 @@ const mapUser = user => ({
   isListenOnly: user.listenOnly,
   isSharingWebcam: user.webcam_stream.length,
   isPhoneUser: user.phone_user,
-  isOnline: user.connection_status === 'online'
+  isOnline: user.connection_status === 'online',
+  isLocked: user.locked,
 });
 
 const mapOpenChats = chat => {

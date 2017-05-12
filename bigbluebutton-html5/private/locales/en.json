@@ -5,6 +5,7 @@
   "app.userlist.messagesTitle": "Messages",
   "app.userlist.presenter": "Presenter",
   "app.userlist.you": "You",
+  "app.userlist.locked": "Locked",
   "app.userlist.Label": "User List",
   "app.chat.submitLabel": "Send Message",
   "app.chat.inputLabel": "Message input for chat {name}",
