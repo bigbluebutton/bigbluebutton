@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
+import org.bigbluebutton.client.IClientInGW;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
@@ -44,6 +44,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 	private ConnectionInvokerService connInvokerService;
 	private MessagePublisher red5InGW;
+	private IClientInGW clientInGW;
 
 	private final UserConnectionMapper userConnections = new UserConnectionMapper();
 
@@ -342,6 +343,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	
 	public void setRed5Publisher(MessagePublisher red5InGW) {
 		this.red5InGW = red5InGW;
+	}
+
+	public void setClientInGW(IClientInGW clientInGW) {
+		this.clientInGW = clientInGW;
 	}
 	
 }

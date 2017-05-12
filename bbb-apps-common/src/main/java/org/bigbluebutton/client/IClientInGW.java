@@ -2,7 +2,8 @@ package org.bigbluebutton.client;
 
 
 public interface IClientInGW {
-
-    void handleMessageFromClient(String json);
+    void connect(ConnInfo connInfo);
+    void disconnect(ConnInfo connInfo);
+    void handleMessageFromClient(ConnInfo connInfo, String json);
 }
 
