@@ -37,20 +37,23 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
+    "chai": "^3.5.0",
     "grunt": "^0.4.5",
     "grunt-concurrent": "~2.2.1",
     "grunt-contrib-watch": "~1.0.0",
     "grunt-force-task": "~2.0.0",
     "grunt-jscs": "~2.8.0",
+    "grunt-newer": "~1.2.0",
     "grunt-shell": "~1.2.1",
     "jscs": "~2.11.0",
     "load-grunt-tasks": "~3.4.1",
-    "grunt-newer": "~1.2.0",
     "postcss-modules-extract-imports": "1.0.0",
     "postcss-modules-local-by-default": "1.0.0",
     "postcss-modules-scope": "1.0.0",
     "postcss-modules-values": "1.1.1",
-    "postcss-nested": "1.0.0"
+    "postcss-nested": "1.0.0",
+    "wdio-jasmine-framework": "^0.3.1",
+    "webdriverio": "^4.8.0"
   },
   "cssModules": {
     "extensions": [
