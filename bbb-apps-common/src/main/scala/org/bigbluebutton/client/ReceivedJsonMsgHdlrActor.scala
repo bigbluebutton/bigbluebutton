@@ -7,9 +7,8 @@ object ReceivedJsonMsgHdlrActor {
     Props(classOf[ReceivedJsonMsgHdlrActor], eventBus, incomingJsonMessageBus)
 }
 
-class ReceivedJsonMsgHdlrActor(
-                                   val eventBus: IncomingEventBus,
-                                   val incomingJsonMessageBus: IncomingJsonMsgBus)
+class ReceivedJsonMsgHdlrActor(val eventBus: IncomingEventBus,
+                               val incomingJsonMessageBus: IncomingJsonMsgBus)
   extends Actor with ActorLogging {
 
   def receive = {

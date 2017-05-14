@@ -2,7 +2,11 @@ package org.bigbluebutton.common2.util
 
 import org.bigbluebutton.common2.UnitSpec2
 import org.bigbluebutton.common2.messages.{Header, ValidateAuthTokenReq, ValidateAuthTokenReqBody}
+
 import scala.collection.immutable.List
+
+import com.fasterxml.jackson.databind.JsonNode
+
 
 case class Person(name: String, age: Int)
 case class Group(name: String, persons: Seq[Person], leader: Person)
@@ -70,13 +74,17 @@ class JsonUtilTest extends UnitSpec2 {
         |        "userId": "uId",
         |        "token": "myToken",
         |        "replyTo": "replyHere",
-        |        "sessionId2": "mySessionId"
+        |        "sessionId": "mySessionId"
         |    }
         |}
       """.stripMargin
 
-    val finalMsg = JsonUtil.fromJson[ValidateAuthTokenReq](jsonMsg)
-    println(finalMsg)
+    val finalMsg = JsonUtil.fromJson[FooNode](jsonMsg)
+    val finalMsg2 = JsonUtil.fromJson[ValidateAuthTokenReq](JsonUtil.toJson(finalMsg))
+
+    println(finalMsg2)
 
   }
 }
+
+case class FooNode(header: Header, body: JsonNode)

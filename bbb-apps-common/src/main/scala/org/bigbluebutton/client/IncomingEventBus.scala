@@ -2,11 +2,12 @@ package org.bigbluebutton.client
 
 import akka.actor.ActorRef
 import akka.event.{EventBus, LookupClassification}
+import org.bigbluebutton.common2.messages.BbbMsg
 
-case class BigBlueButtonEvent(val topic: String, val payload: String)
+case class MessageFromAkkaApps(val topic: String, val payload: BbbMsg)
 
 class IncomingEventBus extends EventBus with LookupClassification {
-  type Event = BigBlueButtonEvent
+  type Event = MessageFromAkkaApps
   type Classifier = String
   type Subscriber = ActorRef
 
