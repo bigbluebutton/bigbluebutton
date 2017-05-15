@@ -6,7 +6,6 @@ import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import UserListItem from './user-list-item/component.jsx';
 import ChatListItem from './chat-list-item/component.jsx';
-import { findDOMNode } from 'react-dom';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const propTypes = {

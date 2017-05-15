@@ -29,7 +29,7 @@ class EmojiMenu extends Component {
    } = this.props;
 
     return (
-      <Dropdown ref="dropdown" autoFocus={true}>
+      <Dropdown autoFocus={true}>
         <DropdownTrigger placeInTabOrder={true}>
           <Button
             role="button"
@@ -52,7 +52,7 @@ class EmojiMenu extends Component {
           </Button>
         </DropdownTrigger>
         <DropdownContent placement="top left">
-          <DropdownList ref={'dropdown'}>
+          <DropdownList>
             <DropdownListItem
               icon="hand"
               label={intl.formatMessage(intlMessages.raiseLabel)}

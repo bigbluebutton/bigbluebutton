@@ -83,7 +83,7 @@ class SettingsDropdown extends Component {
     }
 
     return (
-      <Dropdown ref="dropdown" autoFocus={true}>
+      <Dropdown autoFocus={true}>
         <DropdownTrigger placeInTabOrder={true}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
