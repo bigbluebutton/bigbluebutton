@@ -111,6 +111,7 @@ class UserList extends Component {
       isBreakoutRoom,
       intl,
       makeCall,
+      meeting,
     } = this.props;
 
     const userActions = {
@@ -174,6 +175,7 @@ class UserList extends Component {
               user={user}
               currentUser={currentUser}
               userActions={userActions}
+              meeting={meeting}
             />
           ))}
         </ReactCSSTransitionGroup>

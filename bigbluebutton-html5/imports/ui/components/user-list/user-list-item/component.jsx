@@ -307,6 +307,7 @@ class UserListItem extends Component {
       user,
       intl,
       compact,
+      meeting,
     } = this.props;
 
     if (compact) {
@@ -325,6 +326,15 @@ class UserListItem extends Component {
 
     userNameSub = userNameSub.join(' ');
 
+    const { lockOnJoin, disablePrivateChat, disableCam, disableMic, lockedLayout, disablePublicChat, lockOnJoinConfigurable } = meeting.roomLockSettings;
+
+    //Here we have the following:
+    //if there is any disable, we need to check if the user is unlock
+    //else, we only care about the disables states.
+    let userLocked = (lockOnJoin || disablePrivateChat || disableCam || disableMic || lockedLayout || disablePublicChat || lockOnJoinConfigurable);
+
+    userLocked = userLocked ? user.isLocked && userLocked : userLocked;
+
     return (
       <div className={styles.userName}>
         <span className={styles.userNameMain}>
@@ -332,7 +342,7 @@ class UserListItem extends Component {
         </span>
         <span className={styles.userNameSub}>
           {userNameSub}
-          {(user.isLocked) ?
+          {(userLocked) ?
             <span> {(user.isCurrent? " | " : null)}
               <Icon iconName='lock' />
               {intl.formatMessage(messages.locked)}
