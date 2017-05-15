@@ -4,9 +4,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.bigbluebutton.red5.client.IReceivedOldMessageHandler;
 
-
-public class ReceivedMessageHandler {
+public class ReceivedMessageHandler implements  IReceivedOldMessageHandler{
 
 	private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
 	

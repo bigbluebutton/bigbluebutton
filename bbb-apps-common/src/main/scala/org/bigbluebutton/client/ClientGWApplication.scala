@@ -5,7 +5,8 @@ import org.bigbluebutton.red5.client.messaging.IConnectionInvokerService
 
 import scala.concurrent.duration._
 
-class ClientGWApplication(val connectionInvokerGW: IConnectionInvokerService) {
+class ClientGWApplication(val connectionInvokerGW: IConnectionInvokerService,
+                         val oldMessageReceivedGW: OldMessageReceivedGW) {
 
   implicit val system = ActorSystem("bbb-apps-common")
   implicit val timeout = akka.util.Timeout(3 seconds)

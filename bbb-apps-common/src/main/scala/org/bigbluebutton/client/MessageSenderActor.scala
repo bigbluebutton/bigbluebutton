@@ -11,8 +11,7 @@ object MessageSenderActor {
     Props(classOf[MessageSenderActor], msgSender)
 }
 
-class MessageSenderActor(val service: MessageSender)
-  extends Actor with ActorLogging {
+class MessageSenderActor(val service: MessageSender) extends Actor with ActorLogging {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {

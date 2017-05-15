@@ -23,7 +23,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	private PresentationClientMessageSender presentationMessageSender;
 	private WhiteboardClientMessageSender whiteboardMessageSender;
 	private DeskShareMessageSender deskShareMessageSender;
-	private BbbAppsIsKeepAliveHandler bbbAppsIsKeepAliveHandler;
+	//private BbbAppsIsKeepAliveHandler bbbAppsIsKeepAliveHandler;
 	private PollingClientMessageSender pollingMessageSender;
 	private CaptionClientMessageSender captionMessageSender;
 	private SharedNotesClientMessageSender sharedNotesMessageSender;
@@ -42,7 +42,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	}
 	
 	public void setBbbAppsIsKeepAliveHandler(BbbAppsIsKeepAliveHandler handler) {
-		bbbAppsIsKeepAliveHandler = handler;
+		//bbbAppsIsKeepAliveHandler = handler;
 	}
 	
 	@Override
@@ -59,7 +59,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_WHITEBOARD_CHANNEL)) {
 			whiteboardMessageSender.handleWhiteboardMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SYSTEM_CHANNEL)) {
-			bbbAppsIsKeepAliveHandler.handleKeepAliveMessage(message);
+			//bbbAppsIsKeepAliveHandler.handleKeepAliveMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_DESK_SHARE_CHANNEL)) {
 			deskShareMessageSender.handleDeskShareMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_POLLING_CHANNEL)) {
