@@ -19,15 +19,12 @@
 package org.bigbluebutton.red5.service;
 
 import java.util.Map;
-
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
-import org.slf4j.Logger;
 
 public class WhiteboardService {
-	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardService.class, "bigbluebutton");
+
 	private WhiteboardApplication application;
 	
 	 private final static String TYPE = "type";
@@ -36,7 +33,6 @@ public class WhiteboardService {
 	 private final static String WB_ID = "whiteboardId";
 	
 	public void setWhiteboardApplication(WhiteboardApplication a){
-		log.debug("Setting whiteboard application instance");
 		this.application = a;
 	}
 		
@@ -82,7 +78,6 @@ public class WhiteboardService {
 	}*/
 	
 	public void requestAnnotationHistory(Map<String, Object> message) {
-		log.info("WhiteboardApplication - requestAnnotationHistory");
 		
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
@@ -93,7 +88,6 @@ public class WhiteboardService {
 	}
 		
 	public void clear(Map<String, Object> message) {
-		log.info("WhiteboardApplication - Clearing board");
 
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
@@ -104,7 +98,6 @@ public class WhiteboardService {
 	}
 	
 	public void undo(Map<String, Object> message) {
-		log.info("WhiteboardApplication - Deleting last graphic");
 		
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
@@ -115,12 +108,11 @@ public class WhiteboardService {
 	}
 	
 	public void toggleGrid() {
-		log.info("WhiteboardApplication - Toggling grid mode");
+
 		//application.toggleGrid();
 	}
 		
 	public void modifyWhiteboardAccess(Map<String, Object> message) {
-		log.info("WhiteboardApplication - Setting whiteboard multi user access: " + (Boolean)message.get("multiUser"));
 
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();

@@ -2,7 +2,7 @@ package org.bigbluebutton.client
 
 
 
-class ClientInGW extends IClientInGW {
+class ClientInGW(val clientGWApplication: ClientGWApplication) extends IClientInGW {
 
   def connect(connInfo: ConnInfo): Unit = {
 
@@ -13,6 +13,10 @@ class ClientInGW extends IClientInGW {
   }
 
   def handleMessageFromClient(connInfo: ConnInfo, json: String): Unit = {
+
+  }
+
+  def send(channel: String, json: String): Unit = {
 
   }
 }

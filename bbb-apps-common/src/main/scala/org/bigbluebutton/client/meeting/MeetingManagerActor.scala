@@ -16,9 +16,9 @@ object MeetingManagerActor {
 class MeetingManagerActor extends Actor with ActorLogging {
 
   def receive = {
-    case msg: Connect => handleConnectMessage(msg)
-    case msg: Disconnect => handleDisconnectMessage(msg)
-    case msg: MessageFromClient => handleMessageFromClient(msg)
+    case msg: Connect => //handleConnectMessage(msg)
+    case msg: Disconnect => //handleDisconnectMessage(msg)
+    case msg: MessageFromClient => //handleMessageFromClient(msg)
   }
 
 

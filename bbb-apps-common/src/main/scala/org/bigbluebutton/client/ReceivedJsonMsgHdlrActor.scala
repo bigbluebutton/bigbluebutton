@@ -2,6 +2,7 @@ package org.bigbluebutton.client
 
 import akka.actor.{ Actor, ActorLogging, Props }
 
+
 object ReceivedJsonMsgHdlrActor {
   def props(eventBus: IncomingEventBus, incomingJsonMessageBus: IncomingJsonMsgBus): Props =
     Props(classOf[ReceivedJsonMsgHdlrActor], eventBus, incomingJsonMessageBus)
@@ -9,14 +10,11 @@ object ReceivedJsonMsgHdlrActor {
 
 class ReceivedJsonMsgHdlrActor(val eventBus: IncomingEventBus,
                                val incomingJsonMessageBus: IncomingJsonMsgBus)
-  extends Actor with ActorLogging {
+  extends Actor with ActorLogging with RxJsonMsgHdlrTrait {
 
   def receive = {
-    case msg: ReceivedJsonMessage =>
-    //    JsonMsgUnmarshaller.decode(msg.data) match {
-    //      case Some(m) => handleReceivedJsonMsg(m)
-    //      case None => log.warning("Invalid JSON message. {}", msg.data)
-    //    }
+    case msg: ReceivedJsonMessage => handleReceivedJsonMessage(msg)
+
 
     case _ => // do nothing
   }

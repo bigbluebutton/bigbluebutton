@@ -56,6 +56,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
 
+    <bean id="clientInGW" class="org.bigbluebutton.client.ClientInGW" >
+        <constructor-arg index="0" ref="clientGWApp"/>
+    </bean>
+
+    <bean id="clientGWApp" class="org.bigbluebutton.client.ClientGWApplication" destroy-method="shutdown">
+        <constructor-arg index="0" ref="connInvokerService"/>
+    </bean>
+
     <bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService"
                 init-method="start" destroy-method="stop"/>
 
@@ -121,7 +129,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
     
     <bean id="red5Publisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
-        <property name="messageSender" ref="red5RedisSender"/>
+        <property name="messageSender" ref="clientInGW"/>
     </bean>
 
     <bean id="redisPubSubMessageHandler" class="org.bigbluebutton.red5.pubsub.redis.RedisPubSubMessageHandler">
@@ -132,7 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="bbbAppsIsAliveMonitorService" class="org.bigbluebutton.red5.monitoring.BbbAppsIsAliveMonitorService"
                 init-method="start" destroy-method="stop">
         <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
-        <property name="messageSender" ref="red5RedisSender"/>
+        <property name="messageSender" ref="clientInGW"/>
     </bean>
 
     <bean id="bbbAppsIsKeepAliveHandler" class="org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler">

@@ -13,15 +13,11 @@ import org.bigbluebutton.common.messages.PubSubPingMessage;
 import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
 import org.bigbluebutton.red5.client.messaging.IConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DisconnectAllMessage;
-import org.bigbluebutton.red5.pubsub.redis.MessageSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.bigbluebutton.client.IClientInGW;
 import com.google.gson.Gson;
 
 public class BbbAppsIsAliveMonitorService {
-	private static Logger log = LoggerFactory.getLogger(BbbAppsIsAliveMonitorService.class);
-	
+
 	private static final Executor msgSenderExec = Executors.newFixedThreadPool(1);
 	private static final Executor runExec = Executors.newFixedThreadPool(1);
 	
@@ -34,11 +30,11 @@ public class BbbAppsIsAliveMonitorService {
 	private IConnectionInvokerService service;
 	private Long lastKeepAliveMessage = 0L;
 	
-	private MessageSender sender;
+	private IClientInGW sender;
 	
 	private final String SYSTEM_NAME = "BbbAppsRed5";
 	
-	public void setMessageSender(MessageSender sender) {
+	public void setMessageSender(IClientInGW sender) {
 		this.sender = sender;
 	}
 	
@@ -110,7 +106,7 @@ public class BbbAppsIsAliveMonitorService {
 	  Long now = System.currentTimeMillis();
 
 	  if (lastKeepAliveMessage != 0 && (now - lastKeepAliveMessage > 30000)) {
-		  log.error("BBB Apps Red5 pubsub error!");
+		 // log.error("BBB Apps Red5 pubsub error!");
 		  service.sendMessage(new DisconnectAllMessage());
 	  }
   }

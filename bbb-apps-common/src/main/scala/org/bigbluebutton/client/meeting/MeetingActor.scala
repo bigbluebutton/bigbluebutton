@@ -10,8 +10,8 @@ object MeetingActor {
 class MeetingActor(val meetingId: String) extends Actor with ActorLogging {
 
   def receive = {
-    case msg: Connect => handleConnect(msg)
-    case msg: Disconnect => handleDisconnect(msg)
-    case msg: MessageFromClient => handleMessageFromClient(msg)
+    case msg: Connect => //handleConnect(msg)
+    case msg: Disconnect => //handleDisconnect(msg)
+    case msg: MessageFromClient => //handleMessageFromClient(msg)
   }
 }

@@ -1,9 +1,12 @@
 package org.bigbluebutton.common2.messages
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.JsonNode
 
 
 sealed trait BbbMsg
+
+case class BbbServerMsg(envelope: Envelope, jsonNode: JsonNode)
 
 case class Envelope(name: String, routing: collection.immutable.Map[String, String])
 

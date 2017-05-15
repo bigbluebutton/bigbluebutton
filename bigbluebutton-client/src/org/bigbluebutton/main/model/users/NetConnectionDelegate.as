@@ -128,12 +128,23 @@ package org.bigbluebutton.main.model.users
         private function validateToken():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
           
-            var message:Object = new Object();
-            message["userId"] = confParams.internalUserID;
-            message["authToken"] = confParams.authToken;
+			var header:Object = new Object();
+			header.name = "validateAuthToken";
+			
+			var body:Object = new Object();
+			body.userId = confParams.internalUserID;
+			body.authToken = confParams.authToken;
+			
+            //var message:Object = new Object();
+            //message["userId"] = confParams.internalUserID;
+            //message["authToken"] = confParams.authToken;
+			
+			var message:Object = new Object();
+			message.header = header;
+			message.body = body;
                     
             sendMessage(
-                "validateToken",// Remote function name
+                "onMessageFromClient",// Remote function name
                 // result - On successful result
                 function(result:Object):void { 
               
@@ -145,7 +156,7 @@ package org.bigbluebutton.main.model.users
                         LOGGER.error(x + " : " + status[x]);
                     } 
                 },
-                message
+                JSON.stringify(message)
             ); //_netConnection.call      
             
             _validateTokenTimer = new Timer(10000, 1);
@@ -292,7 +303,7 @@ package org.bigbluebutton.main.model.users
                                         confParams.room, confParams.voicebridge, 
                                         confParams.record, confParams.externUserID,
                                         confParams.internalUserID, confParams.muteOnStart,
-                                        confParams.lockSettings, confParams.guest);
+                                        confParams.lockSettings, confParams.guest, confParams.authToken);
                    
             } catch(e:ArgumentError) {
                 // Invalid parameters.

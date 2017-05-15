@@ -26,13 +26,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util 
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
-
+<!--
     <bean id="red5RedisSender" class="org.bigbluebutton.red5.pubsub.redis.MessageSender" 
                     init-method="start" destroy-method="stop">
       <property name="host" value="${redis.host}" />
       <property name="port" value="${redis.port}" />
     </bean>
-
+-->
     <bean id="red5RedisReceiver" class="org.bigbluebutton.red5.pubsub.redis.MessageReceiver" 
                     init-method="start" destroy-method="stop">
       <property name="messageHandler"> <ref local="red5RedisHandler"/> </property>

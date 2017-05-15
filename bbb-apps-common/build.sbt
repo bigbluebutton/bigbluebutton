@@ -89,10 +89,10 @@ seq(Revolver.settings: _*)
 
 // Build pure Java lib (i.e. without scala)
 // Do not append Scala versions to the generated artifacts
-crossPaths := false
+//crossPaths := false
 
 // This forbids including Scala related libraries into the dependency
-autoScalaLibrary := false
+//autoScalaLibrary := false
 
 /***************************
 * When developing, change the version above to x.x.x-SNAPSHOT then use the file resolver to

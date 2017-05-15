@@ -1,14 +1,17 @@
 package org.bigbluebutton.client.meeting
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, Props}
 
+object UserActor {
+  def props(userId: String): Props = Props(classOf[UserActor], userId)
+}
 
 class UserActor(val userId: String) extends Actor with ActorLogging {
 
   def receive = {
-    case msg: Connect => handleConnect(msg)
-    case msg: Disconnect => handleDisconnect(msg)
-    case msg: MessageFromClient => handleMessageFromClient(msg)
+    case msg: Connect => //handleConnect(msg)
+    case msg: Disconnect => //handleDisconnect(msg)
+    case msg: MessageFromClient => //handleMessageFromClient(msg)
 
   }
 }
@@ -31,11 +34,8 @@ class Connections {
   }
 
   private def remove(id: String): Option[Connection] = {
-    for {
-      conn <- conns.get(id)
-      conns -= id
-    } yield {
-      conn
-    }
+    val conn = conns.get(id)
+    conn foreach { c =>  conns -= id }
+    conn
   }
 }
