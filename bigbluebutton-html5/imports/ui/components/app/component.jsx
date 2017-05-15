@@ -75,8 +75,20 @@ class App extends Component {
     if (!sidebar) return null;
 
     return (
-      <div className={styles.sidebar}>
+      <aside className={styles.sidebar}>
         {sidebar}
+      </aside>
+    );
+  }
+
+  renderClosedCaption() {
+    const { closedCaption } = this.props;
+
+    if (!closedCaption) return null;
+
+    return (
+      <div className={styles.closedCaptionBox}>
+        {closedCaption}
       </div>
     );
   }
@@ -128,7 +140,7 @@ class App extends Component {
         role="region"
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}>
           {media}
-          {this.renderSidebar()}
+          {this.renderClosedCaption()}
       </section>
     );
   }
@@ -163,6 +175,7 @@ class App extends Component {
             {this.renderMedia()}
             {this.renderActionsBar()}
           </div>
+          {this.renderSidebar()}
         </section>
         <ModalContainer />
         <AudioContainer />

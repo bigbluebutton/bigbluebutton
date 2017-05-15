@@ -73,7 +73,8 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
     });
 
     return {
-      sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
+      closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
+      sidebar: null,
       fontSize: getFontSize(),
     };
   }, AppContainer))));
