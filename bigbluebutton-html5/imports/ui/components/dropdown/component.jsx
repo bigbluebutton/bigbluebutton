@@ -90,8 +90,6 @@ class Dropdown extends Component {
 
   handleHide() {
     this.setState({ isOpen: false }, this.handleStateCallback);
-    const triggerElement = findDOMNode(this.refs.trigger);
-    triggerElement.focus();
   }
 
   componentDidMount () {
