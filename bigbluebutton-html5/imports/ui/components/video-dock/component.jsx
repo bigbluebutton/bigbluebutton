@@ -105,7 +105,7 @@ export default class VideoDock extends Component {
     this.sendUserShareWebcam = props.sendUserShareWebcam.bind(this);
     this.sendUserUnshareWebcam = props.sendUserUnshareWebcam.bind(this);
 
-    this.handleIdChange = this.handleIdChange.bind(this);
+    this.unshareWebcam = this.unshareWebcam.bind(this);
     this.shareWebcam = this.shareWebcam.bind(this);
   }
 
@@ -224,8 +224,35 @@ export default class VideoDock extends Component {
 
   }
 
-  shareWebcam(id, share) {
-    this.start(id, share, this.refs.videoInput);
+  stop(id) {
+    let webRtcPeer = this.state.webRtcPeers[id];
+
+    if (webRtcPeer) {
+      console.log('Stopping WebRTC peer');
+
+      webRtcPeer.dispose();
+      delete this.state.webRtcPeers[id];
+    } else {
+      console.log('NO WEBRTC PEER TO STOP?');
+    }
+
+    let videoTag = document.getElementById('video-elem-' + id);
+    if (videoTag) {
+      document.getElementById('webcamArea').removeChild(videoTag);
+    }
+
+    this.sendMessage({id: 'stop', cameraId: id});
+  }
+
+  shareWebcam() {
+    const { users } = this.props;
+    let id = users[0].user.userid;
+
+    this.start(id, true, this.refs.videoInput);
+  }
+
+  unshareWebcam() {
+    this.sendUserUnshareWebcam();
   }
 
   startResponse(message) {
@@ -248,6 +275,8 @@ export default class VideoDock extends Component {
         return console.error(error);
       }
     });
+
+    this.sendUserShareWebcam();
   }
 
   sendMessage(message) {
@@ -265,24 +294,7 @@ export default class VideoDock extends Component {
   handlePlayStop(message) {
     console.log("Handle play stop <--------------------");
 
-    let id = message.cameraId;
-    let webRtcPeer = this.state.webRtcPeers[id];
-
-    if (webRtcPeer) {
-      console.log('Stopping WebRTC peer');
-
-      webRtcPeer.dispose();
-      delete this.state.webRtcPeers[id];
-    } else {
-      console.log('NO WEBRTC PEER TO STOP?');
-    }
-
-    let videoTag = document.getElementById('video-elem-' + id);
-    if (videoTag) {
-      document.getElementById('webcamArea').removeChild(videoTag);
-    }
-
-    this.sendMessage({id: 'stop', cameraId: id});
+    this.stop(message.cameraId);
   }
 
   handlePlayStart(message) {
@@ -295,17 +307,13 @@ export default class VideoDock extends Component {
     console.log(" Handle error ---------------------> " + message.message)
   }
 
-  handleIdChange(e) {
-    this.setState({ id: e.target.value });
-  }
-
   render() {
     return (
 
       <div className={styles.videoDock}>
         <div className={styles.secretButtons}>
-        <button type="button" onClick={this.sendUserShareWebcam} > Share Webcam </button>
-        <button type="button" onClick={this.sendUserUnshareWebcam} > Unshare Webcam </button>
+        <button type="button" onClick={this.shareWebcam} > Share Webcam </button>
+        <button type="button" onClick={this.unshareWebcam} > Unshare Webcam </button>
       </div>
 
         <div id="webcamArea"></div>
@@ -320,15 +328,32 @@ export default class VideoDock extends Component {
       const { users } = this.props;
       const nextUsers = nextProps.users;
 
-      if (users && users[0] && nextUsers && nextUsers[0]) {
-        if (users[0].user.has_stream != nextUsers[0].user.has_stream) {
-          console.log('User ' + (nextUsers[0].user.has_stream ? '':'un') + 'shared webcam ' + users[0].user.userid);
+      if (users) {
 
-          this.shareWebcam(users[0].user.userid, nextUsers[0].user.has_stream);
+        let suc = false;
 
-          return true;
+        for (let i=0; i < users.length; i++) {
+          if (users && users[i] && users[i].user &&
+              nextUsers && nextUsers[i] && nextUsers[i].user) {
+
+            if (users[i].user.has_stream != nextUsers[i].user.has_stream) {
+
+              console.log('User ' + (nextUsers[i].user.has_stream ? '':'un') + 'shared webcam ' + users[i].user.userid);
+
+              if (nextUsers[i].user.has_stream) {
+                this.start(users[i].user.userid, false, this.refs.videoInput);
+              } else {
+                this.stop(users[i].user.userid);
+              }
+
+              suc = suc || true;
+            }
+          }
         }
+
+        return true;
       }
+
       return false;
   }
 }
