@@ -38,6 +38,7 @@ export default class TextDrawComponent extends React.Component {
       fontStretch: 'normal',
       lineHeight: 'normal',
       fontFamily: 'Arial',
+      whiteSpace: 'pre-wrap',
       wordWrap: 'break-word',
       wordBreak: 'normal',
       textAlign: 'left',

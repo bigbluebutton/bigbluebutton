@@ -240,6 +240,7 @@ class UserList extends Component {
       isBreakoutRoom,
       intl,
       makeCall,
+      meeting,
     } = this.props;
 
     const userActions = {
