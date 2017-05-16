@@ -7,7 +7,7 @@ object User {
     new User(userId)(context)
 }
 
-class User(var userId: String)(implicit val context: ActorContext) {
+class User(val userId: String)(implicit val context: ActorContext) {
 
   val actorRef = context.actorOf(UserActor.props(userId), userId)
 }

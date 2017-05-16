@@ -1,13 +1,18 @@
-package org.bigbluebutton.client
+package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
 import akka.event.{EventBus, LookupClassification}
+import org.bigbluebutton.client.ConnInfo
 
-case class ReceivedJsonMessage(name: String, data: String)
-case class IncomingJsonMessage(val topic: String, val payload: ReceivedJsonMessage)
 
-class IncomingJsonMsgBus extends EventBus with LookupClassification {
-  type Event = IncomingJsonMessage
+sealed trait FromConnectionMsg
+case class ConnectMsg(connInfo: ConnInfo) extends FromConnectionMsg
+case class DisconnectMsg(connInfo: ConnInfo) extends FromConnectionMsg
+case class MsgFromClientMsg(connInfo: ConnInfo, json: String) extends FromConnectionMsg
+case class MsgFromClientBusMsg(val topic: String, val payload: FromConnectionMsg)
+
+class MsgFromClientEventBus extends EventBus with LookupClassification {
+  type Event = MsgFromClientBusMsg
   type Classifier = String
   type Subscriber = ActorRef
 
@@ -28,5 +33,4 @@ class IncomingJsonMsgBus extends EventBus with LookupClassification {
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)
   override protected def mapSize: Int = 128
-
 }

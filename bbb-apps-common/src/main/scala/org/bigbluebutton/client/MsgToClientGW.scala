@@ -6,7 +6,7 @@ sealed trait SystemMessage
 case class DisconnectConnection(connId: String) extends SystemMessage
 case class DisconnectAllConnections(scope: String) extends SystemMessage
 
-class ConnectionInvokerGW(val connInvokerService: IConnectionInvokerService) {
+class MsgToClientGW(val connInvokerService: IConnectionInvokerService) {
 
   def sendMessageToClient(connId: String, json: String): Unit = {
 

@@ -4,14 +4,14 @@ import java.io.{PrintWriter, StringWriter}
 import scala.concurrent.duration._
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props}
 import akka.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.client.bus.JsonMsgToSendToAkkaApps
 import org.bigbluebutton.client.endpoint.redis.MessageSender
 
 object MessageSenderActor {
-  def props(msgSender: MessageSender): Props =
-    Props(classOf[MessageSenderActor], msgSender)
+  def props(msgSender: MessageSender): Props =  Props(classOf[MessageSenderActor], msgSender)
 }
 
-class MessageSenderActor(val service: MessageSender) extends Actor with ActorLogging {
+class MessageSenderActor(msgSender: MessageSender) extends Actor with ActorLogging {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -24,7 +24,7 @@ class MessageSenderActor(val service: MessageSender) extends Actor with ActorLog
   }
 
   def receive = {
-    case msg: String => println(msg)
+    case msg: JsonMsgToSendToAkkaApps => msgSender.send(msg.channel, msg.json)
   }
 
 }

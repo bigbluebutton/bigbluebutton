@@ -11,6 +11,8 @@ case class BbbServerMsg(envelope: Envelope, jsonNode: JsonNode)
 case class Envelope(name: String, routing: collection.immutable.Map[String, String])
 
 case class Header(name: String)
+case class HeaderAndBody(header: Header, body: JsonNode)
+
 case class AkkaAppsCheckAliveReqBody(timestamp: Long)
 case class AkkaAppsCheckAliveReqMsg(header: Header, body: AkkaAppsCheckAliveReqBody)
 case class AkkaAppsCheckAliveReq(envelope: Envelope, msg: AkkaAppsCheckAliveReqMsg) extends BbbMsg

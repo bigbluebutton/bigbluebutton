@@ -11,6 +11,7 @@ import redis.api.pubsub.{Message, PMessage}
 
 import scala.concurrent.duration._
 import org.bigbluebutton.client._
+import org.bigbluebutton.client.bus.{JsonMsgFromAkkaApps, JsonMsgFromAkkaAppsBus, JsonMsgFromAkkaAppsEvent}
 import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
@@ -18,17 +19,17 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   val channels = Seq("time", redisSubChannel)
   val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
 
-  def props(jsonMsgBus: IncomingJsonMsgBus, oldMessageEventBus: OldMessageEventBus): Props =
+  def props(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus): Props =
     Props(classOf[AppsRedisSubscriberActor], jsonMsgBus, oldMessageEventBus,
       redisHost, redisPort,
       channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMsgBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
-  redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
+class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
+                               redisPort: Int,
+                               channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) {
+      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -47,8 +48,8 @@ class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMsgBus, oldMessageEventBu
 
   def onMessage(message: Message) {
     log.error(s"SHOULD NOT BE RECEIVING: $message")
-    val receivedJsonMessage = new ReceivedJsonMessage(message.channel, message.data.utf8String)
-    jsonMsgBus.publish(IncomingJsonMessage("incoming-json-message", receivedJsonMessage))
+    val receivedJsonMessage = new JsonMsgFromAkkaApps(message.channel, message.data.utf8String)
+    jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
   }
 
   def onPMessage(pmessage: PMessage) {
@@ -56,6 +57,6 @@ class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMsgBus, oldMessageEventBu
     val receivedJsonMessage = new OldReceivedJsonMessage(pmessage.patternMatched,
       pmessage.channel, pmessage.data.utf8String)
 
-    oldMessageEventBus.publish(OldIncomingJsonMessage("old-msg", receivedJsonMessage))
+    oldMessageEventBus.publish(OldIncomingJsonMessage(fromAkkaAppsOldJsonChannel, receivedJsonMessage))
   }
 }
