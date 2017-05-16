@@ -16,7 +16,7 @@ class AudioTestContainer extends Component {
   }
 }
 
-export default createContainer(() => {
+export default createContainer(function () {
   return {
     handlePlayAudioSample: () => {
       const snd = new Audio('resources/sounds/audioSample.mp3');

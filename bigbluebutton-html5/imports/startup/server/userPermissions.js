@@ -129,21 +129,21 @@ export function isAllowedTo(action, credentials) {
   });
 
   const allowedToInitiateRequest =
-    null != user &&
+    user != null &&
     authToken === user.authToken &&
     user.validated &&
     user.user.connection_status === 'online' &&
-    'HTML5' === user.clientType &&
-    null != user.user;
+    user.clientType === 'HTML5' &&
+    user.user != null;
 
   if (allowedToInitiateRequest) {
     let result = false;
 
     // check role specific actions
-    if ('MODERATOR' === user.user.role) {
+    if (user.user.role === 'MODERATOR') {
       logger.debug('user permissions moderator case');
       result = result || moderator[action];
-    } else if ('VIEWER' === user.user.role) {
+    } else if (user.user.role === 'VIEWER') {
       logger.debug('user permissions viewer case');
       result = result || viewer(meetingId, userId)[action];
     }

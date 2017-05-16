@@ -46,7 +46,10 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
   Auth.authenticate()
     .then(callback)
     .catch(reason => {
-      logClient('error', { error: reason, method: 'authenticatedRouteHandler', credentialsSnapshot });
+      logClient('error', {
+        error: reason,
+        method: 'authenticatedRouteHandler',
+        credentialsSnapshot, });
 
       // make sure users who did not connect are not added to the meeting
       // do **not** use the custom call - it relies on expired data
@@ -77,8 +80,8 @@ function _addReconnectObservable() {
 
 /**
  * Check if should revalidate the auth
- * @param {Object} status 
- * @param {String} lastStatus 
+ * @param {Object} status
+ * @param {String} lastStatus
  */
 export function shouldAuthenticate(status, lastStatus) {
   return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
@@ -86,8 +89,8 @@ export function shouldAuthenticate(status, lastStatus) {
 
 /**
  * Check if the isn't the first connection try, preventing to authenticate on login.
- * @param {Object} status 
- * @param {string} lastStatus 
+ * @param {Object} status
+ * @param {string} lastStatus
  */
 export function updateStatus(status, lastStatus) {
   return status.retryCount > 0 && lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;

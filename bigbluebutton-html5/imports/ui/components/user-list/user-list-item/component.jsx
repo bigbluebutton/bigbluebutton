@@ -333,10 +333,10 @@ class UserListItem extends Component {
         <span className={styles.userNameSub}>
           {userNameSub}
           {(user.isLocked) ?
-            <span> {(user.isCurrent? " | " : null)}
+            <span> {(user.isCurrent ? ' | ' : null)}
               <Icon iconName='lock' />
               {intl.formatMessage(messages.locked)}
-            </span>: null}
+            </span> : null}
         </span>
       </div>
     );

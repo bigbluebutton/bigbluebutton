@@ -164,7 +164,7 @@ const userFindSorting = {
 
 const getUsers = () => {
   let users = Users
-    .find({ "user.connection_status": 'online' }, userFindSorting)
+    .find({ 'user.connection_status': 'online' }, userFindSorting)
     .fetch();
 
   return users
