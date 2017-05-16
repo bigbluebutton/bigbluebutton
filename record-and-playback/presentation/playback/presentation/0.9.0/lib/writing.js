@@ -188,14 +188,6 @@ function isThereDeskshareVideo() {
   }
 }
 
-function resyncVideos() {
-  if (!isThereDeskshareVideo()) return;
-  var currentTime = Popcorn('#video').currentTime();
-  var currentDeskshareVideoTime = Popcorn("#deskshare-video").currentTime();
-  if (Math.abs(currentTime - currentDeskshareVideoTime) >= 0.1)
-    Popcorn("#deskshare-video").currentTime(currentTime);
-}
-
 function handlePresentationAreaContent(time) {
   var meetingDuration = parseFloat(new Popcorn("#video").duration().toFixed(1));
   if(time >= meetingDuration)
@@ -214,7 +206,6 @@ function handlePresentationAreaContent(time) {
     sharingDesktop = false;
   }
 
-  resyncVideos();
   resizeDeshareVideo();
 }
 
@@ -467,7 +458,8 @@ function runPopcorn() {
       start: 1, // start time
       end: p.duration(),
       onFrame: function(options) {
-        if (!p.paused() || p.seeking()) {
+        if ( (!p.paused() || p.seeking()) && (p.currentTime() - lastFrameTime >= 0.1) ) {
+          lastFrameTime = p.currentTime();
           var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
 
           updateShapes(t);
@@ -653,6 +645,8 @@ function defineStartTime() {
   console.log("Start time: " + temp_start_time);
   return temp_start_time;
 }
+
+var lastFrameTime = 0.0;
 
 var deskshare_image = null;
 var current_image = "image0";

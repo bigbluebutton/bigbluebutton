@@ -113,6 +113,7 @@ var RECORDINGS = "/presentation/" + MEETINGID;
 var SLIDES_XML = RECORDINGS + '/slides_new.xml';
 var SHAPES_SVG = RECORDINGS + '/shapes.svg';
 var hasVideo = false;
+var syncing = false;
 
 /*
  * Sets the title attribute in a thumbnail.
@@ -379,11 +380,68 @@ load_deskshare_video = function () {
    $('#video').on("play", function() {
        Popcorn('#deskshare-video').play();
    });
+
    $('#video').on("pause", function() {
        Popcorn('#deskshare-video').pause();
+
+       //here we sync medias
+       //setting currentTime on deskshare video will fire a 'canplaythrough' event after the seeking is done.
+       Popcorn("#deskshare-video").currentTime(Popcorn('#video').currentTime());
+   });
+
+   Popcorn("#deskshare-video").on("canplayall", function() {
+      //when deskshare video is ready for the first time, sync times
+      Popcorn("#deskshare-video").currentTime(Popcorn('#video').currentTime());
+   });
+
+   Popcorn("#deskshare-video").on("canplaythrough", function() {
+      console.log("deskshare-video: canplaythrough event");
+
+      if(syncing) {
+         syncing = false;
+         if(Popcorn("#video").media.readyState == 4)
+            Popcorn('#video').play();
+         else console.log("deskshare-video canplaythrough | Not resuming playback: main media source not ready");
+      }
+   });
+
+   Popcorn("#deskshare-video").on("waiting", function() {
+      //must sync deskshare video
+      console.log("deskshare-video: waiting event | CURRENT time = " + secondsToHHMMSS(Math.ceil(Popcorn("#deskshare-video").currentTime())) + " | LOADED time = " + getLoadedVideoTime("#deskshare-video"));
+      resync();
+   });
+
+   Popcorn("#video").on("waiting", function() {
+      //must sync video
+      console.log("video: waiting event | CURRENT time = " + secondsToHHMMSS(Math.ceil(Popcorn("#video").currentTime())) + " | LOADED time = " + getLoadedVideoTime("#video"));
+      resync();
    });
 
    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'deskshare'}));
+}
+
+function resync() {
+    syncing = true;
+    if(!Popcorn('#video').paused() && !Popcorn('#video').seeking())
+        Popcorn("#video").pause();
+    else console.log("resync | main video seeking or already paused");
+}
+
+function getLoadedVideoTime(videoTag) {
+  if($(videoTag)[0].buffered.length > 0) {
+     var range = 0;
+     var deskshareVideoBuffer = $(videoTag)[0].buffered;
+     var currentTime = Popcorn(videoTag).currentTime();
+
+     while(range < $(videoTag)[0].buffered.length && !(deskshareVideoBuffer.start(range) <= currentTime && currentTime <= deskshareVideoBuffer.end(range))) {
+        range += 1;
+     }
+
+     if(range < deskshareVideoBuffer.length) {
+        var secondsLoaded = Math.ceil($(videoTag)[0].buffered.end(range));
+        return secondsToHHMMSS(secondsLoaded);
+     } else return 0;
+  } else return 0;
 }
 
 load_script = function(file){
