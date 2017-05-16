@@ -307,6 +307,7 @@ class UserListItem extends Component {
       user,
       intl,
       compact,
+      meeting,
     } = this.props;
 
     if (compact) {
@@ -325,6 +326,8 @@ class UserListItem extends Component {
 
     userNameSub = userNameSub.join(' ');
 
+    const { disablePrivateChat, disableCam, disableMic, lockedLayout, disablePublicChat } = meeting.roomLockSettings;
+
     return (
       <div className={styles.userName}>
         <span className={styles.userNameMain}>
@@ -332,7 +335,7 @@ class UserListItem extends Component {
         </span>
         <span className={styles.userNameSub}>
           {userNameSub}
-          {(user.isLocked) ?
+          {(user.isLocked && (disablePrivateChat || disableCam || disableMic || lockedLayout || disablePublicChat)) ?
             <span> {(user.isCurrent? " | " : null)}
               <Icon iconName='lock' />
               {intl.formatMessage(messages.locked)}
