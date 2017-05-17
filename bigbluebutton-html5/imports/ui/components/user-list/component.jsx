@@ -309,6 +309,7 @@ class UserList extends Component {
                   user={user}
                   currentUser={currentUser}
                   userActions={userActions}
+                  meeting={meeting}
                 />))
               }
             </div>
