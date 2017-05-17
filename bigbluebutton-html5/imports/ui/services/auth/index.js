@@ -122,11 +122,10 @@ class Auth {
     return new Promise((resolve, reject) => {
       Tracker.autorun((c) => {
         if (!(credentials.meetingId && credentials.requesterToken && credentials.requesterUserId)) {
-          reject({
+          return reject({
             error: 500,
             description: 'Authentication subscription failed due to missing credentials.',
           });
-          return;
         }
 
         setTimeout(() => {
