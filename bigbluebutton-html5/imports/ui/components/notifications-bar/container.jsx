@@ -37,12 +37,12 @@ const intlMessages = defineMessages({
   },
   waitingMessage: {
     id: 'app.waitingMessage',
-    defaultMessage: 'Disconnected. Trying to reconnect in {seconds} seconds...',
+    defaultMessage: 'Disconnected. Trying to reconnect in {0} seconds...',
     description: 'Message when the client is trying to reconnect to the server',
   },
   breakoutTimeRemaining: {
     id: 'app.breakoutTimeRemainingMessage',
-    defaultMessage: 'Breakout Room time remaining: {time}',
+    defaultMessage: 'Breakout Room time remaining: {0}',
     description: 'Message that tells how much time is remaining for the breakout room',
   },
   breakoutWillClose: {
@@ -146,7 +146,7 @@ export default injectIntl(createContainer(({ intl }) => {
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = intl.formatMessage(
           intlMessages.waitingMessage,
-          { seconds: getRetrySeconds() }
+          { 0: getRetrySeconds() }
         );
         break;
     }
