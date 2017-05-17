@@ -11,7 +11,6 @@ import ChatService from './service';
 const intlMessages = defineMessages({
   titlePublic: {
     id: 'app.chat.titlePublic',
-    defaultMessage: 'Public Chat',
     description: 'Public chat title',
   },
   titlePrivate: {
