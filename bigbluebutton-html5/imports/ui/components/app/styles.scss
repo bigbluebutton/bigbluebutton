@@ -175,8 +175,6 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
       flex-basis: 10%;
       margin-top: 3%;
     }
-    @include mq($medium-only) {
-    }
   }
 }
 
