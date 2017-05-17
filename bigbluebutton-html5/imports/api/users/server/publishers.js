@@ -40,7 +40,12 @@ Meteor.publish('users', function (credentials) {
   }
 
   this.onStop(() => {
-    userLeaving(credentials, requesterUserId);
+    try {
+      userLeaving(credentials, requesterUserId);
+    }
+    catch(e) {
+      Logger.error(`Exception while executing userLeaving: ${e}`);
+    }
   });
 
   const selector = {
