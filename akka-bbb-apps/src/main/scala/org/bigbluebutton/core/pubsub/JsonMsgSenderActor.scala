@@ -2,7 +2,7 @@ package org.bigbluebutton.core.pubsub
 
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.core.MessageSender
-import org.bigbluebutton.common2.messages.MeetingCreatedEvt
+//import org.bigbluebutton.common2.messages.MeetingCreatedEvt
 
 object JsonMsgSenderActor {
   def props(msgSender: MessageSender): Props =
@@ -13,6 +13,7 @@ class JsonMsgSenderActor(val service: MessageSender)
     extends Actor with ActorLogging {
 
   def receive = {
-    case msg: MeetingCreatedEvt => println(msg)
+    //  case msg: MeetingCreatedEvt => println(msg)
+    case msg: String => println(msg)
   }
 }

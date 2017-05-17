@@ -10,7 +10,8 @@ trait SystemConfiguration {
   lazy val redisPort = Try(config.getInt("redis.port")).getOrElse(6379)
   lazy val redisPassword = Try(config.getString("redis.password")).getOrElse("")
 
-  lazy val redisSubChannel = Try(config.getString("redis.subChannel")).getOrElse("FROM-AKKA-APPS")
+  lazy val toAkkaAppsRedisChannel = Try(config.getString("redis.toAkkaAppsRedisChannel")).getOrElse("to-akka-apps-redis-channel")
+  lazy val fromAkkaAppsRedisChannel = Try(config.getString("redis.fromAkkaAppsRedisChannel")).getOrElse("from-akka-apps-redis-channel")
   lazy val meetingManagerChannel = Try(config.getString("eventBus.meetingManagerChannel")).getOrElse("FOOOOOOOOO")
   lazy val fromAkkaAppsChannel = Try(config.getString("eventBus.fromAkkaAppsChannel")).getOrElse("from-akka-apps-channel")
   lazy val toAkkaAppsChannel = Try(config.getString("eventBus.toAkkaAppsChannel")).getOrElse("to-akka-apps-channel")

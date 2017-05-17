@@ -20,19 +20,19 @@ class ClientGWApplication(val connectionInvokerGW: IConnectionInvokerService,
   private val msgFromClientEventBus = new MsgFromClientEventBus
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
   private val msgFromAkkaAppsEventBus = new MsgFromAkkaAppsEventBus
+  private val msgToAkkaAppsEventBus = new MsgToAkkaAppsEventBus
+  private val msgToClientEventBus = new MsgToClientEventBus
 
   private val redisPublisher = new RedisPublisher(system)
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
 
   private val messageSenderActorRef = system.actorOf(
-    MessageSenderActor.props(msgSender),
-    "messageSenderActor")
+    MessageSenderActor.props(msgSender), "messageSenderActor")
 
   jsonMsgToAkkaAppsBus.subscribe(messageSenderActorRef, toAkkaAppsJsonChannel)
 
   private val meetingManagerActorRef = system.actorOf(
-    MeetingManagerActor.props(),
-    "meetingManagerActor")
+    MeetingManagerActor.props(msgToAkkaAppsEventBus, msgToClientEventBus), "meetingManagerActor")
 
   msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
   msgFromClientEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
@@ -40,21 +40,34 @@ class ClientGWApplication(val connectionInvokerGW: IConnectionInvokerService,
   private val receivedJsonMsgBus = new JsonMsgFromAkkaAppsBus
   private val oldMessageEventBus = new OldMessageEventBus
 
+  private val msgToAkkaAppsToJsonActor = system.actorOf(
+    MsgToAkkaAppsToJsonActor.props(jsonMsgToAkkaAppsBus), "msgToAkkaAppsToJsonActor")
+
+  msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
+
+  private val msgToClientJsonActor = system.actorOf(
+    MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor")
+
+  msgToClientEventBus.subscribe(msgToClientJsonActor, toClientChannel)
+
   private val appsRedisSubscriberActor = system.actorOf(
-    AppsRedisSubscriberActor.props(receivedJsonMsgBus,oldMessageEventBus),
-    "appsRedisSubscriberActor")
+    AppsRedisSubscriberActor.props(receivedJsonMsgBus,oldMessageEventBus), "appsRedisSubscriberActor")
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
-    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus),
-    "receivedJsonMsgHdlrActor")
+    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")
 
   receivedJsonMsgBus.subscribe(receivedJsonMsgHdlrActor, fromAkkaAppsJsonChannel)
 
   private val oldMessageJsonReceiverActor = system.actorOf(
-    OldMessageJsonReceiverActor.props(oldMessageReceivedGW),
-    "oldMessageJsonReceiverActor")
+    OldMessageJsonReceiverActor.props(oldMessageReceivedGW), "oldMessageJsonReceiverActor")
 
   oldMessageEventBus.subscribe(oldMessageJsonReceiverActor, fromAkkaAppsOldJsonChannel)
+
+
+  /**
+    *
+    * External Interface for Gateway
+    */
 
   def connect(connInfo: ConnInfo): Unit = {
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new ConnectMsg(connInfo)))

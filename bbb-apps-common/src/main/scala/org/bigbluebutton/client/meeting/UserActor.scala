@@ -87,8 +87,7 @@ class UserActor(val userId: String,
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {
-      val json = JsonUtil.toJson(msg.jsonNode)
-      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, json)))
+      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, msg)))
     }
   }
 
@@ -107,7 +106,7 @@ class UserActor(val userId: String,
       conn <- Connections.findActiveConnection(conns)
     } yield {
       val json = JsonUtil.toJson(msg.jsonNode)
-      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, SystemMsgToClient(meetingId, conn.connId, json)))
+      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, SystemMsgToClient(meetingId, conn.connId, msg)))
     }
   }
 }

@@ -16,8 +16,8 @@ import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
-  val channels = Seq("time", redisSubChannel)
-  val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
+  val channels = Seq(fromAkkaAppsRedisChannel)
+  val patterns = Seq("bigbluebutton:from-bbb-apps:*")
 
   def props(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus): Props =
     Props(classOf[AppsRedisSubscriberActor], jsonMsgBus, oldMessageEventBus,
