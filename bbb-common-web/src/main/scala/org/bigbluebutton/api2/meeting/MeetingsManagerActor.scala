@@ -1,5 +1,8 @@
 package org.bigbluebutton.api2.meeting
 
+import akka.actor.{Actor, ActorLogging, Props}
+import org.bigbluebutton.api2.bus.MsgToAkkaAppsEventBus
+
 
 sealed trait ApiMsg
 case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,
@@ -14,9 +17,13 @@ case class MeetingDestoyedMsg() extends ApiMsg
 case class MeetingStartedMsg() extends ApiMsg
 
 object MeetingsManagerActor {
-
+  def props(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus): Props =
+    Props(classOf[MeetingsManagerActor], msgToAkkaAppsEventBus)
 }
 
-class MeetingsManagerActor {
+class MeetingsManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus) extends Actor with ActorLogging {
 
+  def receive = {
+
+  }
 }

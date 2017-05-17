@@ -4,10 +4,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.bigbluebutton.api.IReceivedOldMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReceivedMessageHandler {
+public class ReceivedMessageHandler implements IReceivedOldMessageHandler {
 	private static Logger log = LoggerFactory.getLogger(ReceivedMessageHandler.class);
 	
 	private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
