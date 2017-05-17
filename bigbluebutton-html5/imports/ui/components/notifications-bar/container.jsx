@@ -27,15 +27,15 @@ const STATUS_OFFLINE = 'offline';
 const intlMessages = defineMessages({
   failedMessage: {
     id: 'app.failedMessage',
-    description: 'Message when the client is trying to connect to the server',
+    description: 'Notification for connecting to server problems',
   },
   connectingMessage: {
     id: 'app.connectingMessage',
-    description: 'Message when the client is trying to connect to the server',
+    description: 'Notification message for when client is connecting to server',
   },
   waitingMessage: {
     id: 'app.waitingMessage',
-    description: 'Message when the client is trying to reconnect to the server',
+    description: 'Notification message for disconnection with reconnection counter',
   },
   breakoutTimeRemaining: {
     id: 'app.breakoutTimeRemainingMessage',
