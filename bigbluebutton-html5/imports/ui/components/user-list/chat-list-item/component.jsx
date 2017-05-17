@@ -43,6 +43,7 @@ class ChatListItem extends Component {
       openChat,
       compact,
       intl,
+      tabIndex,
     } = this.props;
 
     const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
@@ -57,12 +58,13 @@ class ChatListItem extends Component {
     }
 
     return (
-      <li className={cx(styles.chatListItem, linkClasses)}>
         <Link
           to={linkPath}
-          className={styles.chatListItemLink}
+          className={cx(styles.chatListItem, linkClasses)}
           role="button"
-          aria-expanded={isCurrentChat}>
+          aria-expanded={isCurrentChat}
+          tabIndex={tabIndex}>
+            <div className={styles.chatListItemLink}>
             {chat.icon ? this.renderChatIcon() : this.renderChatAvatar()}
             <div className={styles.chatName}>
               {!compact ? <span className={styles.chatNameMain}>{chat.name}</span> : null }
@@ -78,8 +80,8 @@ class ChatListItem extends Component {
                 </div>
               </div>
               : null}
+              </div>
         </Link>
-      </li>
     );
   }
 
