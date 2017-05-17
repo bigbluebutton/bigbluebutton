@@ -150,7 +150,6 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 .media {
   @extend %full-page;
   flex: 1 100%;
-  order: 2;
 
   flex-direction: row;
   position: relative;
@@ -162,10 +161,6 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
   @include mq($portrait) {
     flex-direction: column;
-
-    @include mq($small-up) {
-      min-height: 60%;
-    }
   }
 }
 
@@ -178,10 +173,9 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
     @include mq($small-up) {
       flex-basis: 10%;
-    }
-
-    @include mq($medium-only) {
       margin-top: 3%;
+    }
+    @include mq($medium-only) {
     }
   }
 }
