@@ -12,9 +12,7 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, SharedNotesApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, SharedNotesModel }
-import org.bigbluebutton.core.apps.PresentationModel
+import org.bigbluebutton.core.apps._
 
 object MeetingActor {
   def props(mProps: MeetingProperties, outGW: OutMessageGateway): Props =
@@ -24,7 +22,7 @@ object MeetingActor {
 class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     extends Actor with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with SharedNotesApp with ActorLogging with SystemConfiguration {
+    with SharedNotesApp with VideoApp with ActorLogging with SystemConfiguration {
 
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
@@ -34,6 +32,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
   val notesModel = new SharedNotesModel()
+  val videoModel = new VideoModel()
 
   private val InactivityDeadline = FiniteDuration(getInactivityDeadline(), "seconds")
   private val InactivityTimeLeft = FiniteDuration(getInactivityTimeLeft(), "seconds")
