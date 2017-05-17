@@ -29,14 +29,16 @@ export default class DropdownListItem extends Component {
 
   render() {
     const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style, separator, intl, } = this.props;
+      className, style, separator, intl, placeInTabOrder, } = this.props;
+
+    let index = (placeInTabOrder) ? 0 : -1;
 
     return (
       <li
         ref={injectRef}
         onClick={onClick}
         onKeyDown={onKeyDown}
-        tabIndex={tabIndex}
+        tabIndex={index}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}
         className={cx(styles.item, className)}

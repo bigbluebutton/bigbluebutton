@@ -43,7 +43,7 @@ export default function addShape(meetingId, whiteboardId, shape) {
         'shape.shape.id': shape.shape.id,
         'shape.shape.y': shape.shape.y,
         'shape.shape.calcedFontSize': shape.shape.calcedFontSize,
-        'shape.shape.text': shape.shape.text,
+        'shape.shape.text': shape.shape.text.replace(/[\r]/g, '\n'),
       });
       break;
 
