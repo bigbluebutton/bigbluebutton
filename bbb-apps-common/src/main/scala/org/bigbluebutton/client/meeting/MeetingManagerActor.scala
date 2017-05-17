@@ -29,6 +29,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
   }
 
   def handleConnectMsg(msg: ConnectMsg): Unit = {
+    log.debug("Received ConnectMSg " + msg)
      MeetingManager.findWithMeetingId(meetingMgr, msg.connInfo.meetingId) match {
        case Some(m) => m.actorRef forward(msg)
        case None =>

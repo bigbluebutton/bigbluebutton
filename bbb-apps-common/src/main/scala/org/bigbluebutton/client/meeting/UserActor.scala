@@ -34,6 +34,7 @@ class UserActor(val userId: String,
   }
 
   def handleConnectMsg(msg: ConnectMsg): Unit = {
+    log.debug("Received ConnectMsg " + msg)
     Connections.findWithId(conns, msg.connInfo.connId) match {
       case Some(m) => log.warning("Connect message on same connection id. " + JsonUtil.toJson(msg.connInfo))
       case None =>
@@ -48,6 +49,7 @@ class UserActor(val userId: String,
   }
 
   def handleDisconnectMsg(msg: DisconnectMsg): Unit = {
+    log.debug("Received DisconnectMsg " + msg)
     for {
       m <- Connections.findWithId(conns, msg.connInfo.connId)
     } yield {
@@ -56,6 +58,8 @@ class UserActor(val userId: String,
   }
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
+    log.debug("Received MsgFromClientMsg " + msg)
+
     val headerAndBody = JsonUtil.fromJson[HeaderAndBody](msg.json)
     val meta = collection.immutable.HashMap[String, String](
       "meetingId" -> msg.connInfo.meetingId,
@@ -68,6 +72,7 @@ class UserActor(val userId: String,
   }
 
   def handleBbbServerMsg(msg: BbbServerMsg): Unit = {
+    log.debug("Received BbbServerMsg " + msg)
     for {
       msgType <- msg.envelope.routing.get("msgType")
     } yield {

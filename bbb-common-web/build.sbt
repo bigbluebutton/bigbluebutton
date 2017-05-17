@@ -26,10 +26,22 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 val scalaV = "2.12.2"
+val akkaVersion  = "2.5.1"
 
-libraryDependencies +=  "org.scala-lang"    %   "scala-compiler"      % scalaV
-libraryDependencies +=  "org.scala-lang"    %   "scala-library"       % scalaV
-libraryDependencies +=  "org.scala-lang"    %   "scala-reflect"       % scalaV
+// https://mvnrepository.com/artifact/org.scala-lang/scala-library
+libraryDependencies += "org.scala-lang" % "scala-library" % scalaV
+// https://mvnrepository.com/artifact/org.scala-lang/scala-compiler
+libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaV
+
+// https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.12
+libraryDependencies += "com.typesafe.akka" % "akka-actor_2.12" % akkaVersion
+// https://mvnrepository.com/artifact/com.typesafe.akka/akka-slf4j_2.12
+libraryDependencies += "com.typesafe.akka" % "akka-slf4j_2.12" % akkaVersion
+
+// https://mvnrepository.com/artifact/com.github.etaty/rediscala_2.12
+libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
+
+libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.8"
 
 libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
 
@@ -63,7 +75,6 @@ libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-
 // https://mvnrepository.com/artifact/org.codehaus.woodstox/woodstox-core-asl
 libraryDependencies += "org.codehaus.woodstox" % "woodstox-core-asl" % "4.4.1"
 
-
 libraryDependencies += "org.pegdown" % "pegdown" % "1.4.0" % "test"
 libraryDependencies += "junit" % "junit" % "4.12" % "test"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
@@ -71,6 +82,10 @@ libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 libraryDependencies += "org.mockito" % "mockito-core" % "2.7.12" % "test"
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1" % "test"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+
+// https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.12
+libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.12" % akkaVersion % "test"
+
 
 seq(Revolver.settings: _*)
 
