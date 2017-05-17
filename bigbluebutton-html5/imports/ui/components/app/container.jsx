@@ -31,7 +31,6 @@ const intlMessages = defineMessages({
   kickedMessage: {
     id: 'app.error.kicked',
     description: 'Message when the user is kicked out of the meeting',
-    defaultMessage: 'You have been kicked out of the meeting',
   },
 });
 
