@@ -491,46 +491,16 @@ package org.bigbluebutton.main.model.users {
 				lockOnJoin:Boolean,
 				lockOnJoinConfigurable:Boolean;
 			var lockConfig:XML;
-			var viedoConfig:XML;
-			var phoneConfig:XML;
-			var presenterOnlyShareVideo:Boolean;
-			var presenterOnlyShareAudio:Boolean;
 			if (config != null) {
 				lockConfig = config.lock;
-				viedoConfig = BBB.getConfigForModule("VideoconfModule");
-				phoneConfig = BBB.getConfigForModule("PhoneModule");
-				if (viedoConfig.@presenterShareOnly != undefined) {
-					presenterOnlyShareVideo = (viedoConfig.@presenterShareOnly.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (phoneConfig.@presenterShareOnly != undefined) {
-					presenterOnlyShareAudio = (phoneConfig.@presenterShareOnly.toString().toUpperCase() == "TRUE");
-				}
 			}
 			try {
-				lockOnJoin = (lockConfig.@lockOnJoin.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				lockOnJoin = true; //If not set, default to true
-			}
-			try {
-				// For retro-compatibilty if presenterShareOnly if video config is true it rules the lockOnJoin and disableCam lock options
-				if (presenterOnlyShareVideo) {
-					lockOnJoin = true;
-					disableCam = true;
-				}
-				else {
-					disableCam = (lockConfig.@disableCamForLockedUsers.toUpperCase() == "TRUE");
-				}
+				disableCam = (lockConfig.@disableCamForLockedUsers.toUpperCase() == "TRUE");
 			} catch (e:Error) {
 				disableCam = false; //If not set, default to false
 			}
 			try {
-				// For retro-compatibilty if presenterShareOnly if phone config is true it rules the lockOnJoin and disableMic lock options
-				if (presenterOnlyShareVideo) {
-					lockOnJoin = true;
-					disableMic = true;
-				} else {
-					disableMic = (lockConfig.@disableMicForLockedUsers.toUpperCase() == "TRUE");
-				}
+				disableMic = (lockConfig.@disableMicForLockedUsers.toUpperCase() == "TRUE");
 			} catch (e:Error) {
 				disableMic = false; //If not set, default to false
 			}
@@ -548,6 +518,11 @@ package org.bigbluebutton.main.model.users {
 				lockedLayout = (lockConfig.@lockLayoutForLockedUsers.toUpperCase() == "TRUE");
 			} catch (e:Error) {
 				lockedLayout = false; //If not set, default to false
+			}
+			try {
+				lockOnJoin = (lockConfig.@lockOnJoin.toUpperCase() == "TRUE");
+			} catch (e:Error) {
+				lockOnJoin = true; //If not set, default to true
 			}
 			try {
 				lockOnJoinConfigurable = (lockConfig.@lockOnJoinConfigurable.toUpperCase() == "TRUE");
