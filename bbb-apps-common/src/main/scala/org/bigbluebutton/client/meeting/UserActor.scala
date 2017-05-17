@@ -1,23 +1,31 @@
 package org.bigbluebutton.client.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
-import org.bigbluebutton.client.bus.{ConnectMsg, DisconnectMsg, MsgFromClientMsg}
-import org.bigbluebutton.common2.messages.BbbServerMsg
+import org.bigbluebutton.client.SystemConfiguration
+import org.bigbluebutton.client.bus._
+import org.bigbluebutton.common2.messages.{BbbServerMsg, Envelope, HeaderAndBody}
 import org.bigbluebutton.common2.util.JsonUtil
-import com.softwaremill.quicklens._
 
 object UserActor {
-  def props(userId: String): Props = Props(classOf[UserActor], userId)
+  def props(userId: String,
+            msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
+            meetingId: String,
+            msgToClientEventBus: MsgToClientEventBus): Props =
+    Props(classOf[UserActor], userId, msgToAkkaAppsEventBus, meetingId, msgToClientEventBus)
 }
 
-class UserActor(val userId: String) extends Actor with ActorLogging {
+class UserActor(val userId: String,
+                msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
+                meetingId: String,
+                msgToClientEventBus: MsgToClientEventBus)
+  extends Actor with ActorLogging with SystemConfiguration {
 
   private val conns = new Connections
 
   def receive = {
-    case msg: ConnectMsg => //handleConnect(msg)
-    case msg: DisconnectMsg => //handleDisconnect(msg)
-    case msg: MsgFromClientMsg => //handleMessageFromClient(msg)
+    case msg: ConnectMsg => handleConnectMsg(msg)
+    case msg: DisconnectMsg => handleDisconnectMsg(msg)
+    case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
     case msg: BbbServerMsg => handleBbbServerMsg(msg)
   }
 
@@ -48,11 +56,15 @@ class UserActor(val userId: String) extends Actor with ActorLogging {
   }
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
-    for {
-      m <- UsersManager.findWithId(userMgr, msg.connInfo.meetingId)
-    } yield {
-      m.actorRef forward(msg)
-    }
+    val headerAndBody = JsonUtil.fromJson[HeaderAndBody](msg.json)
+    val meta = collection.immutable.HashMap[String, String](
+      "meetingId" -> msg.connInfo.meetingId,
+      "userId" -> msg.connInfo.userId
+    )
+
+    val envelope = new Envelope(headerAndBody.header.name, meta)
+    val akkaMsg = BbbServerMsg(envelope, JsonUtil.toJsonNode(msg.json))
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
   }
 
   def handleBbbServerMsg(msg: BbbServerMsg): Unit = {
@@ -73,10 +85,10 @@ class UserActor(val userId: String) extends Actor with ActorLogging {
 
   private def forwardToUser(msg: BbbServerMsg): Unit = {
     for {
-      userId <- msg.envelope.routing.get("userId")
-      m <- UsersManager.findWithId(userMgr, userId)
+      conn <- Connections.findActiveConnection(conns)
     } yield {
-      m.actorRef forward(msg)
+      val json = JsonUtil.toJson(msg.jsonNode)
+      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, DirectMsgToClient(meetingId, conn.connId, json)))
     }
   }
 
@@ -91,8 +103,12 @@ class UserActor(val userId: String) extends Actor with ActorLogging {
   }
 
   def handleSystemMessage(msg: BbbServerMsg): Unit = {
-    // In case we want to handle specific messages. We can do it here.
-    forwardToUser(msg)
+    for {
+      conn <- Connections.findActiveConnection(conns)
+    } yield {
+      val json = JsonUtil.toJson(msg.jsonNode)
+      msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, SystemMsgToClient(meetingId, conn.connId, json)))
+    }
   }
 }
 

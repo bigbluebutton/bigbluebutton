@@ -2,16 +2,12 @@ package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
 import akka.event.{EventBus, LookupClassification}
+import org.bigbluebutton.common2.messages.BbbServerMsg
 
-sealed trait ToConnectionMsg
-case class BroadcastMsgToMeeting(meetingId: String, json: String) extends ToConnectionMsg
-case class DirectMsgToClient(meetingId: String, connId: String, json: String) extends ToConnectionMsg
-case class SystemMsgToClient(meetingId: String, connId: String, json: String) extends ToConnectionMsg
+case class MsgToAkkaApps(val topic: String, val payload: BbbServerMsg)
 
-case class MsgToClientBusMsg(val topic: String, payload: ToConnectionMsg)
-
-class MsgToClientEventBus extends EventBus with LookupClassification {
-  type Event = MsgToClientBusMsg
+class MsgToAkkaAppsEventBus extends EventBus with LookupClassification {
+  type Event = MsgToAkkaApps
   type Classifier = String
   type Subscriber = ActorRef
 
@@ -32,5 +28,4 @@ class MsgToClientEventBus extends EventBus with LookupClassification {
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)
   override protected def mapSize: Int = 128
-
 }
