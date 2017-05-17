@@ -71,8 +71,8 @@ class ChatListItem extends Component {
               <div
                 className={styles.unreadMessages}
                 aria-label={isSingleMessage
-                  ? intl.formatMessage(intlMessages.unreadSingular, { count: chat.unreadCounter })
-                  : intl.formatMessage(intlMessages.unreadPlural, { count: chat.unreadCounter })}>
+                  ? intl.formatMessage(intlMessages.unreadSingular, { 0: chat.unreadCounter })
+                  : intl.formatMessage(intlMessages.unreadPlural, { 0: chat.unreadCounter })}>
                 <div className={styles.unreadMessagesText} aria-hidden="true">
                   {chat.unreadCounter}
                 </div>

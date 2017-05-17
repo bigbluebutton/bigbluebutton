@@ -11,17 +11,14 @@ import ChatService from './service';
 const intlMessages = defineMessages({
   titlePublic: {
     id: 'app.chat.titlePublic',
-    defaultMessage: 'Public Chat',
     description: 'Public chat title',
   },
   titlePrivate: {
     id: 'app.chat.titlePrivate',
-    defaultMessage: 'Private Chat with {name}',
     description: 'Private chat title',
   },
   partnerDisconnected: {
     id: 'app.chat.partnerDisconnected',
-    defaultMessage: '{name} has left the meeting',
     description: 'System chat message when the private chat partnet disconnect from the meeting',
   },
 });
@@ -65,7 +62,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
       let userMessage = messages.find(m => m.sender !== null);
       let user = ChatService.getUser(chatID, '{{NAME}}');
 
-      title = intl.formatMessage(intlMessages.titlePrivate, { name: user.name });
+      title = intl.formatMessage(intlMessages.titlePrivate, { 0: user.name });
       chatName = user.name;
 
       if (!user.isOnline) {
@@ -75,7 +72,7 @@ export default injectIntl(createContainer(({ params, intl }) => {
           id,
           content: [{
             id,
-            text: intl.formatMessage(intlMessages.partnerDisconnected, { name: user.name }),
+            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: user.name }),
             time,
           },],
           time,
