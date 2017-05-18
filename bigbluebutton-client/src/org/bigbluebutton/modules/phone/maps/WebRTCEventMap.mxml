@@ -26,8 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.main.events.MadePresenterEvent;
+
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
@@ -116,7 +115,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{WebRTCCallManager}" method="handleLeaveVoiceConferenceCommand"/>
   </EventHandlers> 
   
-  <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">        
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleBecomeViewer"/>
-  </EventHandlers>
 </EventMap>
