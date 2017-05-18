@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.Options;
-	import org.bigbluebutton.modules.phone.PhoneOptions;
+	import org.bigbluebutton.modules.phone.models.PhoneOptions;
 	import org.bigbluebutton.modules.phone.events.FlashMicAccessAllowedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashMicAccessDeniedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashMicUnavailableEvent;

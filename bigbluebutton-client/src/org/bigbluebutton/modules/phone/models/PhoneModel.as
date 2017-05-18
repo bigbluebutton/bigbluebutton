@@ -1,8 +1,7 @@
-package org.bigbluebutton.modules.phone
+package org.bigbluebutton.modules.phone.models
 {
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.modules.phone.models.WebRTCModel;
 
   public class PhoneModel
   {

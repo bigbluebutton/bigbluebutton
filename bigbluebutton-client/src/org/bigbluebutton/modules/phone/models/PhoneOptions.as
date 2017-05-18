@@ -16,7 +16,7 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.phone {
+package org.bigbluebutton.modules.phone.models {
 	import org.bigbluebutton.core.Options;
 
 	public class PhoneOptions extends Options {

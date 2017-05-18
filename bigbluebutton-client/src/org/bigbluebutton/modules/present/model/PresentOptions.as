@@ -16,7 +16,7 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.present.ui.views {
+package org.bigbluebutton.modules.present.model {
 	import org.bigbluebutton.core.Options;
 
 	public class PresentOptions extends Options {

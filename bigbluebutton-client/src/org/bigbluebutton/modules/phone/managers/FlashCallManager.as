@@ -14,7 +14,7 @@
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.VoiceConfEvent;
-  import org.bigbluebutton.modules.phone.PhoneOptions;
+  import org.bigbluebutton.modules.phone.models.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestFailedEvent;

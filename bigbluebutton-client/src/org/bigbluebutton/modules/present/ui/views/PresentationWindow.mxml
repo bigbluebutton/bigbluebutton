@@ -40,8 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresentation])}"
 	xmlns:views="org.bigbluebutton.modules.present.ui.views.*" 
-	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
-	>
+	xmlns:poll="org.bigbluebutton.modules.polling.views.*">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
@@ -102,6 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.model.Page;
+			import org.bigbluebutton.modules.present.model.PresentOptions;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
