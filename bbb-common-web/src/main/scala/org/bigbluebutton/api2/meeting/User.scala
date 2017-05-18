@@ -1,5 +1,7 @@
 package org.bigbluebutton.api2.meeting
 
+import java.util.Map
+
 /**
   * Created by ralam on 2017-05-17.
   *
@@ -15,4 +17,6 @@ package org.bigbluebutton.api2.meeting
   * private var voiceJoined: Boolean = false
   * private var streams: List[String] = null
   */
-case class User()
+case class User(internalUserId: String, externalUserId: String, fullname: String, role: String, avatarURL: String,
+                guest: Boolean, waitingForAcceptance: Boolean, status: collection.immutable.Map[String, String],
+               streams: Set[String])

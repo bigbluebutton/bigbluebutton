@@ -30,7 +30,7 @@ case class UsersProp(maxUsers: Int,
                      webcamsOnlyForModerator: Boolean,
                      guestPolicy: String,
                      userHasJoined: Boolean,
-                     userCustomData: collection.immutable.Map[String, AnyRef],
+                     userCustomData: collection.immutable.Map[String, String],
                      users: collection.immutable.Map[String, User],
                      registeredUsers: collection.immutable.Map[String, Long])
 class MeetingProps {
