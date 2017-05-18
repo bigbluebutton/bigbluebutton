@@ -146,7 +146,7 @@ sudo bbb-aws-publisher --upload-playback
 This will create and setup a bucket on Amazon S3.
 
 ```bash
-sudo bbb-aws-publisher --upload-playback
+sudo bbb-aws-publisher --setup-bucket
 ```
 
 ## Run the watch/daemon mode (listen to redis and react to events)
