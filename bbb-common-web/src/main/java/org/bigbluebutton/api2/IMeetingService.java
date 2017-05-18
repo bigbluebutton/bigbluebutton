@@ -1,14 +1,10 @@
 package org.bigbluebutton.api2;
 
 import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Recording;
-import org.bigbluebutton.api.domain.RecordingMetadata;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.messages.*;
-import org.bigbluebutton.api2.domain.ConfigProps;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public interface IMeetingService {
