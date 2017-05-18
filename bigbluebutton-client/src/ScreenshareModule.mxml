@@ -31,10 +31,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
+      
       import org.as3commons.logging.api.ILogger;
       import org.as3commons.logging.api.getClassLogger;
       import org.bigbluebutton.modules.screenshare.events.ModuleEvent;
-      import org.bigbluebutton.modules.screenshare.maps.ScreenshareEventMap;
       
       private static const LOGGER:ILogger = getClassLogger(ScreenshareModule);
       

@@ -73,6 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -136,9 +137,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable]
 			private var chatListHeight:Number = 100;
 			
-			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
+			[Bindable] public var chatOptions:ChatOptions;	
       
-			private function onCreationComplete():void {    
+			private function onCreationComplete():void {
+				chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 				bindToHeightToDetermineHeightOfMessageList();
 				
 				addContextMenuItems();

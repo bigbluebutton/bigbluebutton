@@ -11,6 +11,7 @@
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.common.Media;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.modules.phone.PhoneOptions;
@@ -76,7 +77,7 @@
     }
         
     private function initConnectionManager():void {
-      options = new PhoneOptions();
+      options = Options.getOptions(PhoneOptions) as PhoneOptions;
       var uid:String = String(Math.floor(new Date().getTime()));
       var uname:String = encodeURIComponent(UsersUtil.getMyUserID() + "-bbbID-" + UsersUtil.getMyUsername()); 
       connectionManager.setup(uid, UsersUtil.getMyUserID(), uname , UsersUtil.getInternalMeetingID(), options.uri);

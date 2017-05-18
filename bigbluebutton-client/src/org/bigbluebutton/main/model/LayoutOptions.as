@@ -17,98 +17,47 @@
  *
  */
 package org.bigbluebutton.main.model {
-	import org.bigbluebutton.core.BBB;
-	
-	public class LayoutOptions {
-		
+	import org.bigbluebutton.core.Options;
+
+	public class LayoutOptions extends Options {
+
 		[Bindable]
 		public var showDebugWindow:Boolean = true;
-		
+
 		[Bindable]
 		public var showLogButton:Boolean = true;
-		
+
 		[Bindable]
 		public var showToolbar:Boolean = true;
-		
+
 		[Bindable]
 		public var showFooter:Boolean = true;
-		
+
 		[Bindable]
 		public var showMeetingName:Boolean = true;
-		
+
 		[Bindable]
 		public var showHelpButton:Boolean = true;
-		
+
 		[Bindable]
 		public var showLogoutWindow:Boolean = true;
-		
+
 		[Bindable]
 		public var showLayoutTools:Boolean = true;
-		
+
 		[Bindable]
 		public var confirmLogout:Boolean = true;
-		
+
 		[Bindable]
 		public var showRecordingNotification:Boolean = true;
-		
+
 		[Bindable]
 		public var logoutOnStopRecording:Boolean = false;
-		
-		
+
 		public var defaultLayout:String = "Default";
-		
-		public function parseOptions():void {
-			var vxml:XML = BBB.getConfigManager().config.layout;
-			if (vxml != null) {
-				if (vxml.@showDebugWindow != undefined) {
-					showDebugWindow = (vxml.@showDebugWindow.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@showLogButton != undefined) {
-					showLogButton = (vxml.@showLogButton.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@showToolbar != undefined) {
-					showToolbar = (vxml.@showToolbar.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@confirmLogout != undefined) {
-					confirmLogout = (vxml.@confirmLogout.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@showFooter != undefined) {
-					showFooter = (vxml.@showFooter.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@showMeetingName != undefined) {
-					showMeetingName = (vxml.@showMeetingName.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@showHelpButton != undefined) {
-					showHelpButton = (vxml.@showHelpButton.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@showLogoutWindow != undefined) {
-					showLogoutWindow = (vxml.@showLogoutWindow.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@defaultLayout != undefined) {
-					defaultLayout = vxml.@defaultLayout.toString();
-				}
-				
-				if (vxml.@showLayoutTools != undefined) {
-					showLayoutTools = (vxml.@showLayoutTools.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@showRecordingNotification != undefined) {
-					showRecordingNotification = (vxml.@showRecordingNotification.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				
-				if (vxml.@logoutOnStopRecording != undefined) {
-					logoutOnStopRecording = (vxml.@logoutOnStopRecording.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-			}
+
+		public function LayoutOptions() {
+			name = "layout";
 		}
-	
 	}
 }

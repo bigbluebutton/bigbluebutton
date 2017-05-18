@@ -35,23 +35,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <mx:Script>
         <![CDATA[
-            import com.asfusion.mate.events.Dispatcher;
-            
-            import org.bigbluebutton.common.Images;
-            import org.bigbluebutton.core.EventConstants;
-            import org.bigbluebutton.core.UsersUtil;
-            import org.bigbluebutton.core.events.CoreEvent;
-            import org.bigbluebutton.core.events.VoiceConfEvent;
-            import org.bigbluebutton.core.managers.UserManager;
-            import org.bigbluebutton.core.model.VideoProfile;
-            import org.bigbluebutton.core.vo.LockSettingsVO;
-            import org.bigbluebutton.main.events.BBBEvent;
-            import org.bigbluebutton.main.events.PresenterStatusEvent;
-            import org.bigbluebutton.main.model.users.BBBUser;
-            import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-            import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.model.VideoProfile;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.PresenterStatusEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-            private var videoOptions:VideoConfOptions = new VideoConfOptions();
+            private var videoOptions:VideoConfOptions;
             
             [Bindable]
             private var _rolledOverMuteBtn:Boolean = false;
@@ -72,6 +72,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             protected function init():void {
                 _hideMuteBtnTimer = new Timer(500, 1);
                 _hideMuteBtnTimer.addEventListener(TimerEvent.TIMER, onHideMuteBtnTimerComplete);
+				videoOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
             }
 
             protected function onCreationComplete():void {

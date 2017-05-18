@@ -100,6 +100,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -178,8 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			public function initOptions(e:Event):void {
 				UserManager.getInstance().getConference().configLockSettings();
-				layoutOptions = new LayoutOptions();
-				layoutOptions.parseOptions();
+				layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;

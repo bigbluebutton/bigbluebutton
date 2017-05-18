@@ -43,14 +43,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.media.Sound;
 			
 			import mx.controls.Button;
+			import mx.core.INavigatorContent;
 			
 			import flexlib.controls.tabBarClasses.SuperTab;
 			import flexlib.events.SuperTabEvent;
 			
-			import mx.controls.Button;
-			import mx.core.INavigatorContent;
-			
 			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.CoreEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -85,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			// Initialization
 			private function init():void {
-				chatOptions = new ChatOptions();
+				chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 				noticeLabel = ResourceUtil.getInstance().getString('bbb.chat.chatTabs.accessibleNotice');
 				// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
 			}

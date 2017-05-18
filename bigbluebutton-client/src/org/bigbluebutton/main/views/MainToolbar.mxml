@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -74,7 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showHelpBtn:Boolean = false;
 			[Bindable] private var showToolbar:Boolean = false;
-			[Bindable] public var toolbarOptions:LayoutOptions = new LayoutOptions();		
+			[Bindable] public var toolbarOptions:LayoutOptions;		
 			[Bindable] private var numButtons:int;
 			
 			private var logoutAlert:Alert; 
@@ -90,6 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var xml:XML;
 			
 			private function init():void{
+				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
@@ -128,8 +130,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        }
 								
 			public function displayToolbar():void{
-				toolbarOptions = new LayoutOptions();
-				toolbarOptions.parseOptions();	
 				if (toolbarOptions.showToolbar) {
 					showToolbar = true;
 				} else {

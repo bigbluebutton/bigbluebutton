@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.core.Options;
 			import com.asfusion.mate.events.Dispatcher;
 		        import flash.external.ExternalInterface;
 			import mx.core.UIComponent;
@@ -146,7 +147,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function init():void {
-				dsOptions = new ScreenshareOptions();
+				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 				dsOptions.parseOptions();
 			}
 

@@ -18,22 +18,22 @@
  */
 package org.bigbluebutton.modules.users.model {
 
-	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 
-	public class UsersOptions {
-		
+	public class UsersOptions extends Options {
+
 		[Bindable]
 		public var windowVisible:Boolean = true;
-		
+
 		[Bindable]
 		public var position:String = "top-left";
-		
+
 		[Bindable]
 		public var baseTabIndex:int = 301;
-		
+
 		[Bindable]
 		public var allowKickUser:Boolean = true;
-		
+
 		[Bindable]
 		public var enableEmojiStatus:Boolean = true;
 
@@ -41,25 +41,7 @@ package org.bigbluebutton.modules.users.model {
 		public var enableSettingsButton:Boolean = true;
 
 		public function UsersOptions() {
-			var vxml:XML = BBB.getConfigForModule("UsersModule");
-			if (vxml != null) {
-				windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
-			}
-			if (vxml.@position != undefined) {
-				position = vxml.@position.toString();
-			}
-			if (vxml.@baseTabIndex != undefined) {
-				baseTabIndex = vxml.@baseTabIndex;
-			}
-			if (vxml.@allowKickUser != undefined) {
-				allowKickUser = (vxml.@allowKickUser.toString().toUpperCase() == "TRUE") ? true : false;
-			}
-			if (vxml.@enableEmojiStatus != undefined) {
-				enableEmojiStatus = (vxml.@enableEmojiStatus.toString().toUpperCase() == "TRUE") ? true : false;
-			}
-			if (vxml.@enableSettingsButton != undefined) {
-				enableSettingsButton = (vxml.@enableSettingsButton.toString().toUpperCase() == "TRUE") ? true : false;
-			}
+			name = "UsersModule";
 		}
 
 	}

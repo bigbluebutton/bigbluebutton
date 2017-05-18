@@ -36,12 +36,13 @@ package org.bigbluebutton.modules.layout.managers
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.model.LayoutOptions;
-  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
+  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
@@ -171,8 +172,7 @@ package org.bigbluebutton.modules.layout.managers
     }
     
 		public function applyDefaultLayout():void {         
-      var layoutOptions:LayoutOptions = new LayoutOptions();
-      layoutOptions.parseOptions();
+      var layoutOptions:LayoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
       var defaultLayout:LayoutDefinition = _layoutModel.getLayout(layoutOptions.defaultLayout);
            
       var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();

@@ -17,24 +17,18 @@
  *
  */
 package org.bigbluebutton.modules.users.model {
-	import org.bigbluebutton.core.BBB;
-	
-	public class BreakoutRoomsOptions {
-		
+	import org.bigbluebutton.core.Options;
+
+	public class BreakoutRoomsOptions extends Options {
+
 		[Bindable]
 		public var enabled:Boolean = true;
-		
+
 		[Bindable]
 		public var record:Boolean = true;
-		
+
 		public function BreakoutRoomsOptions() {
-			var lxml:XML = BBB.getConfigManager().config.breakoutRooms;
-			if (lxml.@enabled != undefined) {
-				enabled = (lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
-			}
-			if (lxml.@record != undefined) {
-				record = (lxml.@record.toString().toUpperCase() == "TRUE") ? true : false;
-			}
+			name = "breakoutRooms";
 		}
 	}
 }

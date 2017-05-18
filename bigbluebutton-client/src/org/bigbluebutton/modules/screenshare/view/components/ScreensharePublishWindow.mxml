@@ -47,32 +47,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.managers.ReconnectionManager;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
-      import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
-      import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
-      import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
-      import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
-      import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
-      import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
-      import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
-      import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-      import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-      import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-      import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-      import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.common.events.LocaleChangeEvent;
+		import org.bigbluebutton.core.Options;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.core.managers.ReconnectionManager;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.MadePresenterEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
+		import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
+		import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+		import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
+		import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
+		import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
+		import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+		import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
+		import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+		import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
       
@@ -111,7 +112,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var shareTypeProvider:Array;
       
       private function init():void {
-        dsOptions = new ScreenshareOptions();
+        dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
         baseIndex = dsOptions.baseTabIndex;
       }
       
@@ -464,9 +465,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onHelpButtonClicked():void {
-        var option:ScreenshareOptions = new ScreenshareOptions();
-        option.parseOptions();
-        var DEFAULT_HELP_URL:String = option.helpUrl;
+        var DEFAULT_HELP_URL:String = dsOptions.help;
         LOGGER.debug("onHelpButtonClicked - " + DEFAULT_HELP_URL);
         navigateToURL(new URLRequest(DEFAULT_HELP_URL), "_blank")
       }

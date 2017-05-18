@@ -71,7 +71,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
@@ -81,6 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -147,7 +147,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 			
 			private function init():void{
-				presentOptions = new PresentOptions();
+				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 			}
 			
 			private function onCreationComplete():void{

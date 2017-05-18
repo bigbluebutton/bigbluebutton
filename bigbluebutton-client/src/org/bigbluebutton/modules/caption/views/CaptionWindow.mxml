@@ -43,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flexlib.controls.tabBarClasses.SuperTab;
 			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -65,10 +66,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var optionsTab:OptionsTab;
 			private var textTab:TextTab;
 			
-			private var captionOptions:CaptionOptions = new CaptionOptions();
+			private var captionOptions:CaptionOptions;
 			
 			override protected function createChildren():void {
 				super.createChildren();
+				
+				captionOptions = Options.getOptions(CaptionOptions) as CaptionOptions;
 				
 				optionsTab = new OptionsTab();
 				optionsTab.setChangeCallback(optionChange);

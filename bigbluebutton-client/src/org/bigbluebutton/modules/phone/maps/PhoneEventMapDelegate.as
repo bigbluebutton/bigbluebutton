@@ -20,9 +20,10 @@
 
 package org.bigbluebutton.modules.phone.maps
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
-	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
 	
@@ -35,7 +36,7 @@ package org.bigbluebutton.modules.phone.maps
 		public function PhoneEventMapDelegate() {
 			phoneButton = new ToolbarButton();
 			globalDispatcher = new Dispatcher();
-			phoneOptions = new PhoneOptions();
+			phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
 		}
 
 		public function addToolbarButton():void {

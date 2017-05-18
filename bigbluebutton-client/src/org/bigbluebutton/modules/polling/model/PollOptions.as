@@ -1,23 +1,16 @@
-package org.bigbluebutton.modules.polling.model
-{
-	import org.bigbluebutton.core.BBB;
-	public class PollOptions
-	{
-		[Bindable] public var baseTabIndex:int;
-		
+package org.bigbluebutton.modules.polling.model {
+	import org.bigbluebutton.core.Options;
+
+	public class PollOptions extends Options {
+
+		[Bindable]
+		public var baseTabIndex:int = 50;
+
 		public function PollOptions() {
-			var vxml:XML = 	BBB.getConfigForModule("PollingModule");
-			if (vxml != null) {
-				if (vxml.@baseTabIndex != undefined) {
-					baseTabIndex = vxml.@baseTabIndex;
-				}
-				else{
-					baseTabIndex = 50;
-				}
-			}
+			name = "PollingModule";
 		}
-		
-		public function getBaseIndex():int{
+
+		public function getBaseIndex():int {
 			return baseTabIndex;
 		}
 	}

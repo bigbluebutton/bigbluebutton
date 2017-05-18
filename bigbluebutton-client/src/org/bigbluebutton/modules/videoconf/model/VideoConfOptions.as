@@ -16,12 +16,11 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.videoconf.model
-{
-	import org.bigbluebutton.core.BBB;
+package org.bigbluebutton.modules.videoconf.model {
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.main.api.JSAPI;
 
-	public class VideoConfOptions {
+	public class VideoConfOptions extends Options {
 		public var uri:String = "rtmp://localhost/video";
 
 		[Bindable]
@@ -58,7 +57,7 @@ package org.bigbluebutton.modules.videoconf.model
 		public var filterDivisor:Number = 4;
 
 		[Bindable]
-		public var baseTabIndex:int;
+		public var baseTabIndex:int = 101;
 
 		[Bindable]
 		public var controlsForPresenter:Boolean = false;
@@ -82,93 +81,17 @@ package org.bigbluebutton.modules.videoconf.model
 		public var priorityRatio:Number = 2 / 3;
 
 		public function VideoConfOptions() {
-			parseOptions();
+			name = "VideoconfModule";
 		}
 
-		public function parseOptions():void {
+		override protected function handleExtraData():void {
 			var browserInfo:Array = JSAPI.getInstance().getBrowserInfo();
 
-			var vxml:XML = BBB.getConfigForModule("VideoconfModule");
-			if (vxml != null) {
-				if (vxml.@uri != undefined) {
-					uri = vxml.@uri.toString();
-				}
-				if (vxml.@showCloseButton != undefined) {
-					showCloseButton = (vxml.@showCloseButton.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@showButton != undefined) {
-					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
-					// If we are using Puffin browser
-					if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
-						showButton = false;
-					}
-				}
-				if (vxml.@autoStart != undefined) {
-					autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@publishWindowVisible != undefined) {
-					publishWindowVisible = (vxml.@publishWindowVisible.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@controlsForPresenter != undefined) {
-					controlsForPresenter = (vxml.@controlsForPresenter.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@viewerWindowMaxed != undefined) {
-					viewerWindowMaxed = (vxml.@viewerWindowMaxed.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@skipCamSettingsCheck != undefined) {
-					skipCamSettingsCheck = (vxml.@skipCamSettingsCheck.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@viewerWindowLocation != undefined) {
-					viewerWindowLocation = vxml.@viewerWindowLocation.toString().toUpperCase();
-				}
-				if (vxml.@viewerWindowLocation != undefined) {
-					viewerWindowLocation = vxml.@viewerWindowLocation.toString().toUpperCase();
-				}
-				if (vxml.@smoothVideo != undefined) {
-					smoothVideo = (vxml.@smoothVideo.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@applyConvolutionFilter != undefined) {
-					applyConvolutionFilter = (vxml.@applyConvolutionFilter.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-				if (vxml.@convolutionFilter != undefined) {
-					var f:Array = vxml.@convolutionFilter.split(",");
-					var fint:Array = new Array();
-					for (var i:int = 0; i < f.length; i++) {
-						convolutionFilter[i] = Number(f[i]);
-					}
-				}
-				if (vxml.@filterBias != undefined) {
-					filterBias = Number(vxml.@filterBias.toString());
-				}
-				if (vxml.@filterDivisor != undefined) {
-					filterDivisor = Number(vxml.@filterDivisor.toString());
-				}
-
-				if (vxml.@baseTabIndex != undefined) {
-					baseTabIndex = vxml.@baseTabIndex;
-				} else {
-					baseTabIndex = 101;
-				}
-
-				if (vxml.@displayAvatar != undefined) {
-					displayAvatar = (vxml.@displayAvatar.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-
-				if (vxml.@focusTalking != undefined) {
-					focusTalking = (vxml.@focusTalking.toString().toUpperCase() == "TRUE") ? true : false;
-				}
-
-				if (vxml.@glowColor != undefined) {
-					glowColor = vxml.@glowColor.toString();
-				}
-
-				if (vxml.@glowBlurSize != undefined) {
-					glowBlurSize = Number(vxml.@glowBlurSize.toString());
-				}
-				if (vxml.@priorityRatio != undefined) {
-					priorityRatio = Number(vxml.@priorityRatio.toString());
-				}
+			// If we are using Puffin browser
+			if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
+				showButton = false;
 			}
 		}
+
 	}
 }

@@ -71,6 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.MadePresenterEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
@@ -123,7 +124,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
 			
 			private function init():void{
-				wbOptions = new WhiteboardOptions();
+				wbOptions = Options.getOptions(WhiteboardOptions) as WhiteboardOptions;
 			}
 			
       private function onCreationComplete():void {
