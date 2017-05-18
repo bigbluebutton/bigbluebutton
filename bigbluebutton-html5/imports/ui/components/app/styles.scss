@@ -150,6 +150,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 .media {
   @extend %full-page;
   flex: 1 100%;
+  order: 2;
 
   flex-direction: row;
   position: relative;
