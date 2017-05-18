@@ -166,15 +166,11 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
 
 .closedCaptionBox {
   position: relative;
-  flex-basis: 12%;
+  flex-basis: 15vw;
+  order: 2;
 
   @include mq($portrait) {
     min-height: 35%;
-
-    @include mq($small-up) {
-      flex-basis: 10%;
-      margin-top: 3%;
-    }
   }
 }
 
