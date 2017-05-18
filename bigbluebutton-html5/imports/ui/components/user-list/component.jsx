@@ -84,8 +84,6 @@ class UserList extends Component {
   rovingIndex(event, listType) {
     const { users, openChats } = this.props;
 
-    //console.log(Args);
-
     let active = document.activeElement;
     let list;
     let items;

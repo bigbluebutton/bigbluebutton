@@ -58,7 +58,7 @@ class ActionsDropdown extends Component {
 
     return (
       <Dropdown ref="dropdown">
-        <DropdownTrigger>
+        <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="add"

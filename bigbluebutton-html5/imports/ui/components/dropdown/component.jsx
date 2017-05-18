@@ -51,6 +51,7 @@ const propTypes = {
 
 const defaultProps = {
   isOpen: false,
+  autoFocus: false,
 };
 
 class Dropdown extends Component {
@@ -128,10 +129,9 @@ class Dropdown extends Component {
     const {
       children,
       className,
-      style, intl,
-      hasPopup,
-      ariaLive,
-      ariaRelevant,
+      style,
+      intl,
+      ...otherProps,
     } = this.props;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
@@ -154,11 +154,11 @@ class Dropdown extends Component {
 
     return (
       <div
-      style={style}
-      className={cx(styles.dropdown, className)}
-      aria-live={ariaLive}
-      aria-relevant={ariaRelevant}
-      aria-haspopup={hasPopup}>
+        style={style}
+        className={cx(styles.dropdown, className)}
+        aria-live={otherProps['aria-live']}
+        aria-relevant={otherProps['aria-relevant']}
+        aria-haspopup={otherProps['aria-haspopup']}>
         {trigger}
         {content}
         { this.state.isOpen ?

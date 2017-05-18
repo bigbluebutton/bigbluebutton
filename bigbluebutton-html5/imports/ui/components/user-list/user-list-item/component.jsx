@@ -289,9 +289,9 @@ class UserListItem extends Component {
         onHide={this.onActionsHide}
         className={styles.dropdown}
         autoFocus={false}
-        hasPopup="true"
-        ariaLive="assertive"
-        ariaRelevant="additions">
+        aria-haspopup="true"
+        aria-live="assertive"
+        aria-relevant="additions">
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
