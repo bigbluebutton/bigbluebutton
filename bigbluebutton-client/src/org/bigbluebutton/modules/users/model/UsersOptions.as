@@ -23,12 +23,6 @@ package org.bigbluebutton.modules.users.model {
 	public class UsersOptions extends Options {
 
 		[Bindable]
-		public var windowVisible:Boolean = true;
-
-		[Bindable]
-		public var position:String = "top-left";
-
-		[Bindable]
 		public var baseTabIndex:int = 301;
 
 		[Bindable]

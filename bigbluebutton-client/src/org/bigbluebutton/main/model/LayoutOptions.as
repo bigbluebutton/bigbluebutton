@@ -22,9 +22,6 @@ package org.bigbluebutton.main.model {
 	public class LayoutOptions extends Options {
 
 		[Bindable]
-		public var showDebugWindow:Boolean = true;
-
-		[Bindable]
 		public var showLogButton:Boolean = true;
 
 		[Bindable]

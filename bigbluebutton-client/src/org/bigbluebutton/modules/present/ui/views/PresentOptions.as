@@ -22,6 +22,9 @@ package org.bigbluebutton.modules.present.ui.views {
 	public class PresentOptions extends Options {
 
 		[Bindable]
+		public var showPresentWindow:Boolean = true;
+
+		[Bindable]
 		public var showWindowControls:Boolean = true;
 
 		[Bindable]

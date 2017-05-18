@@ -27,22 +27,7 @@ package org.bigbluebutton.modules.videoconf.model {
 		public var autoStart:Boolean = false;
 
 		[Bindable]
-		public var showCloseButton:Boolean = true;
-
-		[Bindable]
 		public var showButton:Boolean = true;
-
-		[Bindable]
-		public var publishWindowVisible:Boolean = true;
-
-		[Bindable]
-		public var viewerWindowMaxed:Boolean = false;
-
-		[Bindable]
-		public var viewerWindowLocation:String = "middle";
-
-		[Bindable]
-		public var smoothVideo:Boolean = false;
 
 		[Bindable]
 		public var applyConvolutionFilter:Boolean = false;
@@ -60,22 +45,10 @@ package org.bigbluebutton.modules.videoconf.model {
 		public var baseTabIndex:int = 101;
 
 		[Bindable]
-		public var controlsForPresenter:Boolean = false;
-
-		[Bindable]
 		public var displayAvatar:Boolean = false;
 
 		[Bindable]
-		public var focusTalking:Boolean = false;
-
-		[Bindable]
 		public var skipCamSettingsCheck:Boolean = false;
-
-		[Bindable]
-		public var glowColor:String = "0x4A931D";
-
-		[Bindable]
-		public var glowBlurSize:Number = 30.0;
 
 		[Bindable]
 		public var priorityRatio:Number = 2 / 3;
