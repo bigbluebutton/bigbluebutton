@@ -46,8 +46,9 @@ class EmojiMenu extends Component {
             // even after the DropdownTrigger inject an onClick handler
             onClick={() => null}>
             <div id="currentStatus" hidden>
-              {intl.formatMessage(intlMessages.currentStatusDesc,
-                { 0: userEmojiStatus })}
+              {
+                intl.formatMessage(intlMessages.currentStatusDesc, { 0: userEmojiStatus })
+              }
             </div>
           </Button>
         </DropdownTrigger>

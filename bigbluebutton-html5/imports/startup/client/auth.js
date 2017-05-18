@@ -49,7 +49,8 @@ export function authenticatedRouteHandler(nextState, replace, callback) {
       logClient('error', {
         error: reason,
         method: 'authenticatedRouteHandler',
-        credentialsSnapshot, });
+        credentialsSnapshot,
+      });
 
       // make sure users who did not connect are not added to the meeting
       // do **not** use the custom call - it relies on expired data

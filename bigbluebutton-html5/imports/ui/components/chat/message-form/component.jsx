@@ -124,9 +124,8 @@ class MessageForm extends Component {
           label={intl.formatMessage(messages.submitLabel)}
           hideLabel={true}
           icon={'send'}
-          onClick={()=> {}}
-
-          />
+          onClick={this.handleMessageKeyDown({ keyCode: 13 })}
+        />
       </form>
     );
   }
