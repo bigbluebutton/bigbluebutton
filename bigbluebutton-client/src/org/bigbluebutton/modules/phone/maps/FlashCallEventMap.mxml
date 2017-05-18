@@ -27,7 +27,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
-			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
@@ -117,10 +116,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{FlashCallManager}" method="handleUseFlashModeCommand"/>
   </EventHandlers>   
   
-  <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">        
-    <MethodInvoker generator="{FlashCallManager}" method="handleBecomeViewer"/>
-  </EventHandlers>
-
   <EventHandlers type="{BBBEvent.RECONNECT_SIP_SUCCEEDED_EVENT}">
     <MethodInvoker generator="{FlashCallManager}" method="handleReconnectSIPSucceededEvent"/>
   </EventHandlers>
