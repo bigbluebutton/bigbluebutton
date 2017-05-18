@@ -81,15 +81,17 @@ class UserList extends Component {
     }
   }
 
-  rovingIndex(...Args) {
+  rovingIndex(event, listType) {
     const { users, openChats } = this.props;
+
+    //console.log(Args);
 
     let active = document.activeElement;
     let list;
     let items;
     let count;
 
-    switch (Args[1]) {
+    switch (listType) {
       case 'users':
         list = this._usersList;
         items = this._userItems;
@@ -102,19 +104,19 @@ class UserList extends Component {
         break;
     }
 
-    if (Args[0].keyCode === KEY_CODES.ESCAPE
+    if (event.keyCode === KEY_CODES.ESCAPE
       || this.counter === -1
       || this.counter > count) {
       this.focusList(active, list);
     }
 
-    if (Args[0].keyCode === KEY_CODES.ENTER
-        || Args[0].keyCode === KEY_CODES.ARROW_RIGHT
-        || Args[0].keyCode === KEY_CODES.ARROW_LEFT) {
+    if (event.keyCode === KEY_CODES.ENTER
+        || event.keyCode === KEY_CODES.ARROW_RIGHT
+        || event.keyCode === KEY_CODES.ARROW_LEFT) {
       active.firstChild.click();
     }
 
-    if (Args[0].keyCode === KEY_CODES.ARROW_DOWN) {
+    if (event.keyCode === KEY_CODES.ARROW_DOWN) {
       if (this.counter < count) {
         this.focusListItem(active, 'down', items);
       }else if (this.counter === count) {
@@ -124,7 +126,7 @@ class UserList extends Component {
       }
     }
 
-    if (Args[0].keyCode === KEY_CODES.ARROW_UP) {
+    if (event.keyCode === KEY_CODES.ARROW_UP) {
       if (this.counter < count && this.counter !== 0) {
         this.focusListItem(active, 'up', items);
       }else if (this.counter === 0) {
