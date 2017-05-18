@@ -458,9 +458,10 @@ function runPopcorn() {
       start: 1, // start time
       end: p.duration(),
       onFrame: function(options) {
-        if ( (!p.paused() || p.seeking()) && (p.currentTime() - lastFrameTime >= 0.1) ) {
-          lastFrameTime = p.currentTime();
-          var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
+        var currentTime = p.currentTime();
+        if ( (!p.paused() || p.seeking()) && (Math.abs(currentTime - lastFrameTime) >= 0.1) ) {
+          lastFrameTime = currentTime;
+          var t = currentTime.toFixed(1); //get the time and round to 1 decimal place
 
           updateShapes(t);
 
@@ -734,8 +735,12 @@ function initPopcorn() {
   firstLoad = false;
   generateThumbnails();
 
-  var p = Popcorn("#video");
-  p.currentTime(defineStartTime());
+  var startTime = defineStartTime();
+  console.log("** startTime = " + startTime);
+
+  Popcorn("#video").currentTime(startTime);
+  if(isThereDeskshareVideo())
+    Popcorn("#deskshare-video").currentTime(startTime);
 }
 
 svgobj.addEventListener('load', function() {
