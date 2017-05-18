@@ -39,7 +39,17 @@ import org.bigbluebutton.transcode.api.TranscodingFinishedUnsuccessfully;
 
 public class VideoTranscoder extends UntypedActor implements ProcessMonitorObserver {
 
-    public static enum Type{TRANSCODE_RTP_TO_RTMP, TRANSCODE_RTMP_TO_RTP,TRANSCODE_FILE_TO_RTP, TRANSCODE_FILE_TO_RTMP, PROBE_RTMP};
+    public static enum Type{
+        TRANSCODE_RTP_TO_RTMP,
+        TRANSCODE_RTMP_TO_RTP,
+        TRANSCODE_FILE_TO_RTP,
+        TRANSCODE_FILE_TO_RTMP,
+        TRANSCODE_H264_TO_H263,
+        TRANSCODE_ROTATE_RIGHT,
+        TRANSCODE_ROTATE_LEFT,
+        TRANSCODE_ROTATE_UPSIDE_DOWN,
+        PROBE_RTMP
+    };
     public static enum Status{RUNNING, STOPPED, UPDATING}
     public static final String VIDEO_CONF_LOGO_PATH = FFmpegUtils.videoconfLogoPath;
     public static final String FFMPEG_PATH = FFmpegUtils.ffmpegPath;
@@ -72,6 +82,7 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
     private String localVideoPort;
     private String remoteVideoPort;
     private String sdpPath;
+    private String sourceModule;
     private VideoTranscoderObserver observer;
     private String globalVideoWidth = "640";// get this from properties (Stored in FFmpegUtils)
     private String globalVideoHeight = "480";// get this from properties
@@ -162,6 +173,51 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
                     this.voiceBridge = params.get(Constants.VOICE_CONF);
                     this.callername  = params.get(Constants.CALLERNAME);
+                    break;
+
+                case Constants.TRANSCODE_H264_TO_H263:
+                    this.type = Type.TRANSCODE_H264_TO_H263;
+                    this.sourceModule = params.get(Constants.MODULE);
+                    this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
+                    this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
+                    this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
+                    this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
+                    this.voiceBridge = params.get(Constants.VOICE_CONF);
+                    this.callername  = params.get(Constants.CALLERNAME);
+                    this.videoStreamName = params.get(Constants.INPUT);
+                    break;
+
+                case Constants.TRANSCODE_ROTATE_RIGHT:
+                    this.type = Type.TRANSCODE_ROTATE_RIGHT;
+                    this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
+                    this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
+                    this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
+                    this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
+                    this.voiceBridge = params.get(Constants.VOICE_CONF);
+                    this.callername  = params.get(Constants.CALLERNAME);
+                    this.videoStreamName = params.get(Constants.INPUT);
+                    break;
+
+                case Constants.TRANSCODE_ROTATE_LEFT:
+                    this.type = Type.TRANSCODE_ROTATE_LEFT;
+                    this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
+                    this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
+                    this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
+                    this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
+                    this.voiceBridge = params.get(Constants.VOICE_CONF);
+                    this.callername  = params.get(Constants.CALLERNAME);
+                    this.videoStreamName = params.get(Constants.INPUT);
+                    break;
+
+                case Constants.TRANSCODE_ROTATE_UPSIDE_DOWN:
+                    this.type = Type.TRANSCODE_ROTATE_UPSIDE_DOWN;
+                    this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
+                    this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
+                    this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
+                    this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
+                    this.voiceBridge = params.get(Constants.VOICE_CONF);
+                    this.callername  = params.get(Constants.CALLERNAME);
+                    this.videoStreamName = params.get(Constants.INPUT);
                     break;
 
                 case Constants.PROBE_RTMP:
@@ -336,6 +392,96 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                 ffmpeg.setOutput(outputLive);
                 ffmpeg.setCodec("libopenh264");
                 ffmpeg.setProfile("baseline");
+                command = ffmpeg.getFFmpegCommand(true);
+                break;
+
+            case TRANSCODE_H264_TO_H263:
+                if(!areH264ToH263ParametersValid()) {
+                    System.out.println("  > ***TRANSCODER WILL NOT START: H264 to H263 parameters are invalid");
+                    return false;
+                }
+
+                switch(sourceModule) {
+                    case FFmpegUtils.VIDEO_MODULE:
+                        input = "rtmp://" + sourceIp + "/" + sourceModule + "/" + meetingId + "/" + videoStreamName + " live=1";
+                        output = "rtmp://" + destinationIp + "/" + sourceModule + "/" + meetingId + "/" + FFmpegUtils.H263PREFIX + "/" + videoStreamName;
+                        break;
+                    case FFmpegUtils.DESKSHARE_MODULE:
+                        input = "rtmp://" + sourceIp + "/" + sourceModule + "/" + meetingId + " live=1";
+                        output = "rtmp://" + destinationIp + "/" + sourceModule + "/" + FFmpegUtils.H263PREFIX + "/" + meetingId;
+                        break;
+                    default:
+                        System.out.println("  > ***TRANSCODER WILL NOT START: Unrecognized module: " + sourceModule);
+                }
+
+                ffmpeg = new FFmpegCommand();
+                ffmpeg.setFFmpegPath(FFMPEG_PATH);
+                ffmpeg.setInput(input);
+                ffmpeg.setCodec("flv1"); // Sorensen H263
+                ffmpeg.setFormat("flv");
+                ffmpeg.setOutput(output);
+                ffmpeg.setLoglevel("quiet");
+                ffmpeg.setAnalyzeDuration("10000"); // 10ms
+                command = ffmpeg.getFFmpegCommand(true);
+                break;
+
+            case TRANSCODE_ROTATE_RIGHT:
+                if(!areRotateParametersValid()) {
+                    System.out.println("  > ***TRANSCODER WILL NOT START: Rotate parameters are invalid");
+                    return false;
+                }
+
+                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_RIGHT + "/" + videoStreamName + " live=1";
+                output = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName;
+
+                ffmpeg = new FFmpegCommand();
+                ffmpeg.setFFmpegPath(FFMPEG_PATH);
+                ffmpeg.setInput(input);
+                ffmpeg.setFormat("flv");
+                ffmpeg.setOutput(output);
+                ffmpeg.setLoglevel("warning");
+                ffmpeg.setRotation(FFmpegUtils.ROTATE_RIGHT);
+                ffmpeg.setAnalyzeDuration("10000"); // 10ms
+                command = ffmpeg.getFFmpegCommand(true);
+                break;
+
+            case TRANSCODE_ROTATE_LEFT:
+                if(!areRotateParametersValid()) {
+                    System.out.println("  > ***TRANSCODER WILL NOT START: Rotate parameters are invalid");
+                    return false;
+                }
+
+                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_LEFT + "/" + videoStreamName + " live=1";
+                output = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName;
+
+                ffmpeg = new FFmpegCommand();
+                ffmpeg.setFFmpegPath(FFMPEG_PATH);
+                ffmpeg.setInput(input);
+                ffmpeg.setFormat("flv");
+                ffmpeg.setOutput(output);
+                ffmpeg.setLoglevel("warning");
+                ffmpeg.setRotation(FFmpegUtils.ROTATE_LEFT);
+                ffmpeg.setAnalyzeDuration("10000"); // 10ms
+                command = ffmpeg.getFFmpegCommand(true);
+                break;
+
+            case TRANSCODE_ROTATE_UPSIDE_DOWN:
+                if(!areRotateParametersValid()) {
+                    System.out.println("  > ***TRANSCODER WILL NOT START: Rotate parameters are invalid");
+                    return false;
+                }
+
+                input = "rtmp://" + sourceIp + "/video/" + meetingId + "/" + FFmpegUtils.ROTATE_UPSIDE_DOWN + "/" + videoStreamName + " live=1";
+                output = "rtmp://" + destinationIp + "/video/" + meetingId + "/" + videoStreamName;
+
+                ffmpeg = new FFmpegCommand();
+                ffmpeg.setFFmpegPath(FFMPEG_PATH);
+                ffmpeg.setInput(input);
+                ffmpeg.setFormat("flv");
+                ffmpeg.setOutput(output);
+                ffmpeg.setLoglevel("warning");
+                ffmpeg.setRotation(FFmpegUtils.ROTATE_UPSIDE_DOWN);
+                ffmpeg.setAnalyzeDuration("10000"); // 10ms
                 command = ffmpeg.getFFmpegCommand(true);
                 break;
 
@@ -578,6 +724,15 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
         return true;
     }
 
+    public boolean areRotateParametersValid() {
+        // TODO: Check parameters
+        return true;
+    }
+
+    public boolean areH264ToH263ParametersValid() {
+        // TODO: Check parameters
+        return true;
+    }
 
     public boolean areRtmpToRtpParametersValid() {
         //log.debug("Checking Rtmp to Rtp Transcoder Parameters...");
@@ -711,6 +866,18 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
             case Constants.TRANSCODE_FILE_TO_RTMP:
                 this.type = Type.TRANSCODE_FILE_TO_RTMP;
                 break;
+            case Constants.TRANSCODE_H264_TO_H263:
+                this.type = Type.TRANSCODE_H264_TO_H263;
+                break;
+            case Constants.TRANSCODE_ROTATE_RIGHT:
+                this.type = Type.TRANSCODE_ROTATE_RIGHT;
+                break;
+            case Constants.TRANSCODE_ROTATE_LEFT:
+                this.type = Type.TRANSCODE_ROTATE_LEFT;
+                break;
+            case Constants.TRANSCODE_ROTATE_UPSIDE_DOWN:
+                this.type = Type.TRANSCODE_ROTATE_UPSIDE_DOWN;
+                break;
             default:
                 return;
         }
@@ -726,6 +893,14 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                 return Constants.TRANSCODE_FILE_TO_RTP;
             case TRANSCODE_FILE_TO_RTMP:
                 return Constants.TRANSCODE_FILE_TO_RTMP;
+            case TRANSCODE_H264_TO_H263:
+                return Constants.TRANSCODE_H264_TO_H263;
+            case TRANSCODE_ROTATE_RIGHT:
+                return Constants.TRANSCODE_ROTATE_RIGHT;
+            case TRANSCODE_ROTATE_LEFT:
+                return Constants.TRANSCODE_ROTATE_LEFT;
+            case TRANSCODE_ROTATE_UPSIDE_DOWN:
+                return Constants.TRANSCODE_ROTATE_UPSIDE_DOWN;
             default:
                 return "UNKNOWN";
         }

@@ -153,5 +153,10 @@ public class Constants {
   public static final String TRANSCODE_RTMP_TO_RTP           = "transcode_rtmp_to_rtp";
   public static final String TRANSCODE_FILE_TO_RTP           = "transcode_file_to_rtp";
   public static final String TRANSCODE_FILE_TO_RTMP          = "transcode_file_to_rtmp";
+  public static final String TRANSCODE_H264_TO_H263          = "transcode_h264_to_h263";
+  public static final String TRANSCODE_ROTATE_RIGHT          = "transcode_rotate_right";
+  public static final String TRANSCODE_ROTATE_LEFT           = "transcode_rotate_left";
+  public static final String TRANSCODE_ROTATE_UPSIDE_DOWN    = "transcode_rotate_upside_down";
+  public static final String MODULE                          = "module";
   public static final String PROBE_RTMP                      = "probe_rtmp";
 }

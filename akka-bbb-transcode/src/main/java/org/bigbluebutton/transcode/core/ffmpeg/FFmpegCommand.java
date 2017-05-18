@@ -171,6 +171,20 @@ public class FFmpegCommand {
         this.loop = arg;
     }
 
+    public void setRotation(String arg) {
+        switch (arg) {
+            case FFmpegUtils.ROTATE_LEFT:
+                this.args.put("-vf", "transpose=2");
+                break;
+            case FFmpegUtils.ROTATE_RIGHT:
+                this.args.put("-vf", "transpose=1");
+                break;
+            case FFmpegUtils.ROTATE_UPSIDE_DOWN:
+                this.args.put("-vf", "transpose=2,transpose=2");
+                break;
+        }
+    }
+
     /**
      * Set ignore loop (valid for GIFs input, only)
      * 0: means that input GIF will loop indefinitely
