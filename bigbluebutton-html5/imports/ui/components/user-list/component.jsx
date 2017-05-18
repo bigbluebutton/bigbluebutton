@@ -136,16 +136,12 @@ class UserList extends Component {
   }
 
   componentDidMount() {
-    let _this = this;
-
     if (!this.state.compact) {
-      this._msgsList.addEventListener('keypress', function (event) {
-        _this.rovingIndex.call(this, event, 'messages');
-      });
+      this._msgsList.addEventListener('keypress',
+        event=>this.rovingIndex(event, "messages"));
 
-      this._usersList.addEventListener('keypress', function (event) {
-        _this.rovingIndex.call(this, event, 'users');
-      });
+      this._usersList.addEventListener('keypress',
+        event=>this.rovingIndex(event, "users"));
     }
   }
 
