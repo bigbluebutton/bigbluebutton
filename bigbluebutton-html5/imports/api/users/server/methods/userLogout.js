@@ -13,8 +13,7 @@ export default function userLogout(credentials) {
 
   try {
     userLeaving(credentials, requesterUserId);
-  }
-  catch(e) {
+  } catch(e) {
     Logger.error(`Exception while executing userLeaving: ${e}`);
   }
 };

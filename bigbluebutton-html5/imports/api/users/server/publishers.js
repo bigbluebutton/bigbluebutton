@@ -42,8 +42,7 @@ Meteor.publish('users', function (credentials) {
   this.onStop(() => {
     try {
       userLeaving(credentials, requesterUserId);
-    }
-    catch(e) {
+    } catch(e) {
       Logger.error(`Exception while executing userLeaving: ${e}`);
     }
   });
