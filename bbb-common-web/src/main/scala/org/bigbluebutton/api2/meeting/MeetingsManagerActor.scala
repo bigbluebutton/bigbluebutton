@@ -51,4 +51,7 @@ class MeetingsManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus) extends
     case msg: CreateMeetingMsg => handleCreateMeeting(msg)
   }
 
+  def handleCreateMeeting(msg: CreateMeetingMsg): Unit = {
+
+  }
 }

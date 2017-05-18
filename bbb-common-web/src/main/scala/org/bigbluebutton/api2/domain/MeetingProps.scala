@@ -19,5 +19,5 @@ case class VoiceProp(telVoice: String, webVoice: String, dialNumber: String)
 
 case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String, userHasJoined: Boolean)
 
-case class Meeting2(meetingProp: MeetingProp, durationProps: DurationProps, password: PasswordProp,
+case class Meeting2x(meetingProp: MeetingProp, durationProps: DurationProps, password: PasswordProp,
                    recordProp: RecordProp, welcomeProp: WelcomeProp, voiceProp: VoiceProp, usersProp: UsersProp)

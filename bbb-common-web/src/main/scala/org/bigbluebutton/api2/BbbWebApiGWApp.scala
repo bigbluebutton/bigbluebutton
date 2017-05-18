@@ -3,6 +3,7 @@ package org.bigbluebutton.api2
 import akka.actor.ActorSystem
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.{AppsRedisSubscriberActor, MessageSender, RedisPublisher}
+import org.bigbluebutton.api2.meeting.MeetingsManagerActor
 
 import scala.concurrent.duration._
 
@@ -25,7 +26,7 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends Sys
   private val msgToAkkaAppsEventBus = new MsgToAkkaAppsEventBus
 
   private val meetingManagerActorRef = system.actorOf(
-    MeetingManagerActor.props(msgToAkkaAppsEventBus), "meetingManagerActor")
+    MeetingsManagerActor.props(msgToAkkaAppsEventBus), "meetingManagerActor")
   msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
 
   private val appsRedisSubscriberActor = system.actorOf(

@@ -92,3 +92,36 @@ class Configs {
     config
   }
 }
+
+case class UserCustomData(userId: String, data: collection.immutable.Map[String, String])
+
+object UsersCustomData {
+  def findWithId(users: UsersCustomData, id: String): Option[UserCustomData] = {
+    users.toVector.find(u => u.userId == id)
+  }
+
+  def add(users: UsersCustomData, user: UserCustomData): UserCustomData = {
+    users.save(user)
+  }
+
+  def remove(users: UsersCustomData, id: String): Option[UserCustomData] = {
+    users.remove(id)
+  }
+}
+
+class UsersCustomData {
+  private var users = new collection.immutable.HashMap[String, UserCustomData]
+
+  private def toVector: Vector[UserCustomData] = users.values.toVector
+
+  private def save(user: UserCustomData): UserCustomData = {
+    users += user.userId -> user
+    user
+  }
+
+  private def remove(id: String): Option[UserCustomData] = {
+    val user = users.get(id)
+    user foreach (u => users -= id)
+    user
+  }
+}

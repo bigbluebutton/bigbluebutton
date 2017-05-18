@@ -13,7 +13,7 @@ object MeetingActor {
 class MeetingActor extends Actor with ActorLogging {
 
   def receive = {
-
+    case msg: String => println(msg)
   }
 }
 
