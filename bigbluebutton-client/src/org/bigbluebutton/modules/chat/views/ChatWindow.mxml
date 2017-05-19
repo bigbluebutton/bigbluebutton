@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -56,7 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var chatOptions:ChatOptions;
 			
 			public function getPrefferedPosition():String{
-				return chatOptions.position;
+				return MainCanvas.TOP_RIGHT;
 			} 
 			
 			private function onCreationComplete():void {

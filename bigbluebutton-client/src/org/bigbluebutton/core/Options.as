@@ -30,9 +30,9 @@ package org.bigbluebutton.core {
 
 		private static const storage:Dictionary = new Dictionary(true);
 
-		protected var name:String;
+		private static const parsedOptions:Dictionary = new Dictionary(true);
 
-		protected var parsed:Boolean;
+		protected var name:String;
 
 		public static function getOptions(clazz:Class):Options {
 			var options:Options;
@@ -46,8 +46,12 @@ package org.bigbluebutton.core {
 			return options;
 		}
 
+		public static function isParsed(optionName:String):Boolean {
+			return parsedOptions[optionName] != undefined;
+		}
+
 		public function parseOptions():void {
-			if (!parsed) {
+			if (Options.parsedOptions[name] == undefined) {
 				readOptions();
 			}
 		}
@@ -96,13 +100,13 @@ package org.bigbluebutton.core {
 								}
 								break;
 							default:
-								throw new Error("Cannot read undefined property");
+								throw new Error("Cannot parse undefined property type");
 								break;
 						}
 					}
 				}
 				handleExtraData();
-				parsed = true;
+				Options.parsedOptions[name] = true;
 			}
 		}
 

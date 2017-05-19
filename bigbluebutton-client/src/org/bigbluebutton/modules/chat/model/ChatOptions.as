@@ -29,9 +29,6 @@ package org.bigbluebutton.modules.chat.model {
 		public var fontSize:String = "12";
 
 		[Bindable]
-		public var position:String = "top-right";
-
-		[Bindable]
 		public var baseTabIndex:int = 801;
 
 		[Bindable]

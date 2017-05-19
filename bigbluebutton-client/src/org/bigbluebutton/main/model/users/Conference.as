@@ -488,46 +488,32 @@ package org.bigbluebutton.main.model.users {
 				disablePrivateChat:Boolean,
 				disablePublicChat:Boolean,
 				lockedLayout:Boolean,
-				lockOnJoin:Boolean,
+				lockOnJoin:Boolean = true,
 				lockOnJoinConfigurable:Boolean;
 			var lockConfig:XML;
 			if (config != null) {
 				lockConfig = config.lock;
 			}
-			try {
+			if (lockConfig.@disableCamForLockedUsers.length() > 0 ) {
 				disableCam = (lockConfig.@disableCamForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				disableCam = false; //If not set, default to false
 			}
-			try {
+			if (lockConfig.@disableMicForLockedUsers.length() > 0 ) {
 				disableMic = (lockConfig.@disableMicForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				disableMic = false; //If not set, default to false
 			}
-			try {
+			if (lockConfig.@disablePrivateChatForLockedUsers.length() > 0 ) {
 				disablePrivateChat = (lockConfig.@disablePrivateChatForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				disablePrivateChat = false; //If not set, default to false
 			}
-			try {
+			if (lockConfig.@disablePublicChatForLockedUsers.length() > 0 ) {
 				disablePublicChat = (lockConfig.@disablePublicChatForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				disablePublicChat = false; //If not set, default to false
 			}
-			try {
+			if (lockConfig.@lockLayoutForLockedUsers.length() > 0 ) {
 				lockedLayout = (lockConfig.@lockLayoutForLockedUsers.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				lockedLayout = false; //If not set, default to false
 			}
-			try {
+			if (lockConfig.@lockOnJoin.length() > 0 ) {
 				lockOnJoin = (lockConfig.@lockOnJoin.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				lockOnJoin = true; //If not set, default to true
 			}
-			try {
+			if (lockConfig.@lockOnJoinConfigurable.length() > 0 ) {
 				lockOnJoinConfigurable = (lockConfig.@lockOnJoinConfigurable.toUpperCase() == "TRUE");
-			} catch (e:Error) {
-				lockOnJoinConfigurable = false; //If not set, default to false
 			}
 			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout, lockOnJoin, lockOnJoinConfigurable);
 			setLockSettings(lockSettings);

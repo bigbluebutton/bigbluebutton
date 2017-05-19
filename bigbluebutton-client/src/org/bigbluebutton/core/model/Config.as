@@ -95,12 +95,20 @@ package org.bigbluebutton.core.model
 			return new XML(config.browserVersions.toXMLString());
 		}
 
+		public function get layout():XML {
+			return new XML(config.layout.toXMLString());
+		}
+		
 		public function get meeting():XML {
 			return new XML(config.meeting.toXMLString());
 		}
-
+		
 		public function get logging():XML {
 			return new XML(config.logging.toXMLString());
+		}
+		
+		public function get breakoutRooms():XML {
+			return new XML(config.breakoutRooms.toXMLString());
 		}
 		
 		public function get lock():XML {

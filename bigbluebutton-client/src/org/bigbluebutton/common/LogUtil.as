@@ -87,19 +87,19 @@ package org.bigbluebutton.common {
 				logTarget = new TraceTarget();
 			} else {
 				var lxml:XML = BBB.getConfigManager().config.logging;
-				if (lxml.@enabled != undefined) {
-					loggingEnabled = (lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
+				if (lxml.@enabled.length() > 0 ) {
+					loggingEnabled = (lxml.@enabled.toString().toUpperCase() == "TRUE");
 				}
-				if (lxml.@target != undefined) {
+				if (lxml.@target.length() > 0 ) {
 					loggingTargetName = lxml.@target.toString().toLowerCase();
 				}
-				if (lxml.@level != undefined) {
+				if (lxml.@level.length() > 0 ) {
 					logLevel = String(lxml.@level).toUpperCase();
 				}
-				if (lxml.@format != undefined) {
+				if (lxml.@format.length() > 0 ) {
 					logFormat = lxml.@format.toString();
 				}
-				if (lxml.@logPattern != undefined) {
+				if (lxml.@logPattern.length() > 0 ) {
 					logPattern = lxml.@logPattern.toString();
 				}
 				if (loggingEnabled) {
