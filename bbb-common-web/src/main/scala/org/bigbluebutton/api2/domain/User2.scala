@@ -5,7 +5,7 @@ case class VoiceUser(id: String, callerId: CallerId, status: String, vid: String
 
 case class User2(intId: String, extId: String, name: String, role: String, avatarURL: String,
                  guest: Boolean, waitingForAcceptance: Boolean, status: Vector[String],
-                 streams: Set[String], customData: UserCustomData)
+                 streams: Set[String], customData: UserCustomData, voiceUser: VoiceUser, webcamStreams: Vector[String])
 
 object Users {
   def findWithId(users: Users, id: String): Option[User2] = {

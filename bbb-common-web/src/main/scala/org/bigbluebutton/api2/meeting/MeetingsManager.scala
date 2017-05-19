@@ -2,8 +2,13 @@ package org.bigbluebutton.api2.meeting
 
 
 object MeetingsManager {
+
   def findWithId(mgr: MeetingsManager, id: String): Option[RunningMeeting] = {
     mgr.toVector.find(m => m.meetingId == id)
+  }
+
+  def findMeetingThatStartsWith(mgr: MeetingsManager, id: String): Option[RunningMeeting] = {
+    mgr.toVector.find(m => m.meetingId.startsWith(id))
   }
 
   def add(mgr: MeetingsManager, meeting: RunningMeeting): RunningMeeting = {

@@ -23,7 +23,7 @@ class RecordingMetadataReaderHelperTest extends UnitSpec {
 
     val playback: RecordingMetadataPlayback = mapper.readValue(reader, classOf[RecordingMetadataPlayback])
 
-    println("***** FOOO =" + mapper.writeValueAsString(playback))
+    //println("***** FOOO =" + mapper.writeValueAsString(playback))
 
     assert(playback.getDuration == 545949)
 
@@ -44,7 +44,7 @@ class RecordingMetadataReaderHelperTest extends UnitSpec {
 
     val recMeta: RecordingMetadata = mapper.readValue(reader, classOf[RecordingMetadata])
 
-    println("***** FOOO =" + mapper.writeValueAsString(recMeta))
+    //println("***** FOOO =" + mapper.writeValueAsString(recMeta))
 
     //assert(recMeta.getPlayback.getDuration == 126376)
     assert(true)

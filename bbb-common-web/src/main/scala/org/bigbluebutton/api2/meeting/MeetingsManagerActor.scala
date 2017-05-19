@@ -1,8 +1,11 @@
 package org.bigbluebutton.api2.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
+import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api2.bus.MsgToAkkaAppsEventBus
+import org.bigbluebutton.api2.domain.DefaultProps
+import org.bigbluebutton.api2.util.Util2
 import org.bigbluebutton.common.messages.UserJoinedVoiceMessage
 
 
@@ -12,7 +15,6 @@ case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,
                                  viewerPassword: String, moderatorPassword: String, duration: Int,
                                  sourcePresentationId: String, sourcePresentationSlide: Int,
                                  record: Boolean) extends ApiMsg
-case class CreateMeetingMsg() extends ApiMsg
 case class EndBreakoutRoomMsg() extends ApiMsg
 case class KeepAliveReply() extends ApiMsg
 case class MeetingDestoyedMsg() extends ApiMsg
@@ -26,7 +28,9 @@ case class RemoveUserSession(token: String)
 case object PurgeRegisteredUsers
 case class GetMeetings()
 case class GetSessions()
-case class CreateMeeting(m: Meeting)
+
+case class CreateMeetingMsg(defaultProps: DefaultProps)
+
 case class GetMeeting(meetingId: String)
 case class GetMeetingsWithId(meetingId: String)
 case class GetNotEndedMeetingWithId(meetingId: String)
@@ -47,11 +51,39 @@ object MeetingsManagerActor {
 
 class MeetingsManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus) extends Actor with ActorLogging {
 
+  private val manager = new MeetingsManager
+
   def receive = {
     case msg: CreateMeetingMsg => handleCreateMeeting(msg)
   }
 
   def handleCreateMeeting(msg: CreateMeetingMsg): Unit = {
+    for {
+      mid <- Util2.getFirstPartOfMeetingId(msg.defaultProps.meetingProp.intId)
+    } yield {
+      MeetingsManager.findMeetingThatStartsWith(manager, mid) match {
+        case Some(m) => replyWithDuplicateMeeting()
+        case None => createNewMeeting()
+          sendCreateMeetingRequestToAkkaApps()
+          replyWithCreatedMeeting()
+      }
+    }
+  }
+
+  def sendCreateMeetingRequestToAkkaApps(): Unit = {
 
   }
+
+  def replyWithDuplicateMeeting(): Unit = {
+
+  }
+
+  def createNewMeeting(): Unit = {
+
+  }
+
+  def replyWithCreatedMeeting(): Unit = {
+
+  }
+
 }
