@@ -74,9 +74,9 @@ public class VideoRotator {
 	/**
 	 * Get the rotate direction from the streamName string.
 	 * @param streamName Name of the stream with rotate direction
-	 * @return FFmpegCommand.ROTATE for the given direction if present, null otherwise
+	 * @return String for the given direction if present, null otherwise
 	 */
-	public static FFmpegCommand.ROTATE getDirection(String streamName) {
+	public static String getDirection(String streamName) {
 		int index = streamName.lastIndexOf("/");
 		String parts[] =  {
 				streamName.substring(0, index),
@@ -85,11 +85,11 @@ public class VideoRotator {
 
 		switch(parts[0]) {
 			case ROTATE_LEFT:
-				return FFmpegCommand.ROTATE.LEFT;
+				return ROTATE_LEFT;
 			case ROTATE_RIGHT:
-				return FFmpegCommand.ROTATE.RIGHT;
+				return ROTATE_RIGHT;
 			case ROTATE_UPSIDE_DOWN:
-				return FFmpegCommand.ROTATE.UPSIDE_DOWN;
+				return ROTATE_UPSIDE_DOWN;
 			default:
 				return null;
 		}

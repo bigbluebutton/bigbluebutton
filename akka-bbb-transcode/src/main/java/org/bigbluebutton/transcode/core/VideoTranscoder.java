@@ -179,44 +179,28 @@ public class VideoTranscoder extends UntypedActor implements ProcessMonitorObser
                     this.type = Type.TRANSCODE_H264_TO_H263;
                     this.sourceModule = params.get(Constants.MODULE);
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
-                    this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
-                    this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
-                    this.voiceBridge = params.get(Constants.VOICE_CONF);
-                    this.callername  = params.get(Constants.CALLERNAME);
                     this.videoStreamName = params.get(Constants.INPUT);
                     break;
 
                 case Constants.TRANSCODE_ROTATE_RIGHT:
                     this.type = Type.TRANSCODE_ROTATE_RIGHT;
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
-                    this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
-                    this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
-                    this.voiceBridge = params.get(Constants.VOICE_CONF);
-                    this.callername  = params.get(Constants.CALLERNAME);
                     this.videoStreamName = params.get(Constants.INPUT);
                     break;
 
                 case Constants.TRANSCODE_ROTATE_LEFT:
                     this.type = Type.TRANSCODE_ROTATE_LEFT;
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
-                    this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
-                    this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
-                    this.voiceBridge = params.get(Constants.VOICE_CONF);
-                    this.callername  = params.get(Constants.CALLERNAME);
                     this.videoStreamName = params.get(Constants.INPUT);
                     break;
 
                 case Constants.TRANSCODE_ROTATE_UPSIDE_DOWN:
                     this.type = Type.TRANSCODE_ROTATE_UPSIDE_DOWN;
                     this.sourceIp = params.get(Constants.LOCAL_IP_ADDRESS);
-                    this.localVideoPort = params.get(Constants.LOCAL_VIDEO_PORT);
-                    this.remoteVideoPort = params.get(Constants.REMOTE_VIDEO_PORT);
                     this.destinationIp = params.get(Constants.DESTINATION_IP_ADDRESS);
-                    this.voiceBridge = params.get(Constants.VOICE_CONF);
-                    this.callername  = params.get(Constants.CALLERNAME);
                     this.videoStreamName = params.get(Constants.INPUT);
                     break;
 

@@ -213,6 +213,28 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
     }
 
+    private void requestRotateVideoTranscode(IBroadcastStream stream) {
+        IConnection conn = Red5.getConnectionLocal();
+        String userId = getUserId();
+        String meetingId = conn.getScope().getName();
+        String streamId = stream.getPublishedName();
+        String ipAddress = conn.getHost();
+
+        switch (VideoRotator.getDirection(streamId)) {
+            case VideoRotator.ROTATE_RIGHT:
+                publisher.startRotateRightTranscodeRequest(meetingId, userId, streamId, ipAddress);
+                break;
+            case VideoRotator.ROTATE_LEFT:
+                publisher.startRotateLeftTranscodeRequest(meetingId, userId, streamId, ipAddress);
+                break;
+            case VideoRotator.ROTATE_UPSIDE_DOWN:
+                publisher.startRotateUpsideDownTranscodeRequest(meetingId, userId, streamId, ipAddress);
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public void streamBroadcastStart(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
@@ -226,8 +248,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         addH263PublishedStream(streamId);
         if (streamId.contains("/")) {
             if(VideoRotator.getDirection(streamId) != null) {
-                VideoRotator rotator = new VideoRotator(streamId);
-                videoRotators.put(streamId, rotator);
+//                VideoRotator rotator = new VideoRotator(streamId);
+                videoRotators.put(streamId, null);
+                requestRotateVideoTranscode(stream);
             }
         }
         else if (recordVideoStream) {
@@ -277,7 +300,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         removeH263ConverterIfNeeded(streamId);
         if(videoRotators.containsKey(streamId)) {
           // Stop rotator
-          videoRotators.remove(streamId).stop();
+          videoRotators.remove(streamId);
+          // TODO: Call transcode and end video
         }
         removeH263PublishedStream(streamId);
       } else if (recordVideoStream) {
