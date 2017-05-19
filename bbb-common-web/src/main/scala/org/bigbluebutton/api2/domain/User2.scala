@@ -1,8 +1,11 @@
 package org.bigbluebutton.api2.domain
 
+case class CallerId(name: String, number: String)
+case class VoiceUser(id: String, callerId: CallerId, status: String, vid: String, wid: String, callingWith: String)
+
 case class User2(intId: String, extId: String, name: String, role: String, avatarURL: String,
                  guest: Boolean, waitingForAcceptance: Boolean, status: Vector[String],
-                 streams: Set[String])
+                 streams: Set[String], customData: UserCustomData)
 
 object Users {
   def findWithId(users: Users, id: String): Option[User2] = {
