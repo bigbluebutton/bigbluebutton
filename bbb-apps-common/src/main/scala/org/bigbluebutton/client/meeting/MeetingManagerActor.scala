@@ -2,7 +2,7 @@ package org.bigbluebutton.client.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages.{BbbCoreWithEvelopeMsg}
+import org.bigbluebutton.common2.messages.{BbbCommonEnvJsNodeMsg}
 
 
 object MeetingManagerActor {
@@ -20,7 +20,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
     case msg: ConnectMsg => handleConnectMsg(msg)
     case msg: DisconnectMsg => handleDisconnectMsg(msg)
     case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
-    case msg: BbbCoreWithEvelopeMsg => handleBbbServerMsg(msg)
+    case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
       // TODO we should monitor meeting lifecycle so we can remove when meeting ends.
   }
 
@@ -55,7 +55,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
     }
   }
 
-  def handleBbbServerMsg(msg: BbbCoreWithEvelopeMsg): Unit = {
+  def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
     for {
       msgType <- msg.envelope.routing.get("msgType")
     } yield {
@@ -63,7 +63,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
     }
   }
 
-  def handleServerMsg(msgType: String, msg: BbbCoreWithEvelopeMsg): Unit = {
+  def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
     msgType match {
       case "direct" => handleDirectMessage(msg)
       case "broadcast" => handleBroadcastMessage(msg)
@@ -71,7 +71,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
     }
   }
 
-  private def forwardToMeeting(msg: BbbCoreWithEvelopeMsg): Unit = {
+  private def forwardToMeeting(msg: BbbCommonEnvJsNodeMsg): Unit = {
     for {
       meetingId <- msg.envelope.routing.get("meetingId")
       m <- MeetingManager.findWithMeetingId(meetingMgr, meetingId)
@@ -80,17 +80,17 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
     }
   }
 
-  def handleDirectMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
+  def handleDirectMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific message. We can do it here.
     forwardToMeeting(msg)
   }
 
-  def handleBroadcastMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
+  def handleBroadcastMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific message. We can do it here.
     forwardToMeeting(msg)
   }
 
-  def handleSystemMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
+  def handleSystemMessage(msg: BbbCommonEnvJsNodeMsg): Unit = {
     // In case we want to handle specific message. We can do it here.
     forwardToMeeting(msg)
   }

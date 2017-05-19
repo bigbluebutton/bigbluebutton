@@ -2,7 +2,7 @@ package org.bigbluebutton.api2.bus
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.api2.SystemConfiguration
-import org.bigbluebutton.common2.messages.BbbCoreWithEvelopeMsg
+import org.bigbluebutton.common2.messages.BbbCommonEnvJsNodeMsg
 import org.bigbluebutton.common2.util.JsonUtil
 
 
@@ -22,7 +22,7 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
   }
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
-    val serverMsg = JsonUtil.fromJson[BbbCoreWithEvelopeMsg](msg.data)
+    val serverMsg = JsonUtil.fromJson[BbbCommonEnvJsNodeMsg](msg.data)
     msgFromAkkaAppsEventBus.publish(MsgFromAkkaApps(fromAkkaAppsChannel, serverMsg))
   }
 }

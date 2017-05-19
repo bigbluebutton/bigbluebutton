@@ -2,9 +2,9 @@ package org.bigbluebutton.api2.bus
 
 import akka.actor.ActorRef
 import akka.event.{EventBus, LookupClassification}
-import org.bigbluebutton.common2.messages.BbbCoreWithEvelopeMsg
+import org.bigbluebutton.common2.messages.BbbCommonEnvCoreMsg
 
-case class MsgToAkkaApps(val topic: String, val payload: BbbCoreWithEvelopeMsg)
+case class MsgToAkkaApps(val topic: String, val payload: BbbCommonEnvCoreMsg)
 
 class MsgToAkkaAppsEventBus extends EventBus with LookupClassification {
   type Event = MsgToAkkaApps

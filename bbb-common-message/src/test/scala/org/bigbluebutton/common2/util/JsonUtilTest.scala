@@ -1,7 +1,7 @@
 package org.bigbluebutton.common2.util
 
 import org.bigbluebutton.common2.UnitSpec2
-import org.bigbluebutton.common2.messages.{Header, ValidateAuthTokenReq, ValidateAuthTokenReqBody}
+import org.bigbluebutton.common2.messages.{BbbCoreHeader, ValidateAuthTokenReq, ValidateAuthTokenReqBody}
 
 import scala.collection.immutable.List
 
@@ -50,7 +50,7 @@ class JsonUtilTest extends UnitSpec2 {
   }
 
   "JsonUtil" should "unmarshall a ValidateAuthTokenReq" in {
-    val header: Header = new Header("foo")
+    val header: BbbCoreHeader = new BbbCoreHeader("foo")
     val body: ValidateAuthTokenReqBody = new ValidateAuthTokenReqBody(meetingId = "mId", userId = "uId", token = "myToken",
       replyTo = "replyHere", sessionId = "mySessionId")
     val msg: ValidateAuthTokenReq = new ValidateAuthTokenReq(header, body)
@@ -87,4 +87,4 @@ class JsonUtilTest extends UnitSpec2 {
   }
 }
 
-case class FooNode(header: Header, body: JsonNode)
+case class FooNode(header: BbbCoreHeader, body: JsonNode)

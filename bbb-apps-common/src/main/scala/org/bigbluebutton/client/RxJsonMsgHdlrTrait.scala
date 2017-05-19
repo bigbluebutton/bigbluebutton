@@ -2,12 +2,12 @@ package org.bigbluebutton.client
 
 import org.bigbluebutton.client.bus.JsonMsgFromAkkaApps
 import org.bigbluebutton.common2.util.JsonUtil
-import org.bigbluebutton.common2.messages.BbbCoreWithEvelopeMsg
+import org.bigbluebutton.common2.messages.BbbCommonEnvJsNodeMsg
 
 trait RxJsonMsgHdlrTrait {
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
-    val serverMsg = JsonUtil.fromJson[BbbCoreWithEvelopeMsg](msg.data)
+    val serverMsg = JsonUtil.fromJson[BbbCommonEnvJsNodeMsg](msg.data)
 
   }
 }
