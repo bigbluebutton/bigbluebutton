@@ -24,3 +24,11 @@ navigator.sayswho= (function(){
     if(M && (tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
     return M;
 })();
+
+function delayAltFlashVisibilty() {
+	setTimeout(function() {
+		if ($('#altFlash').length > 0) {
+			$('#altFlash').show();
+		}
+	}, 2000);
+}
