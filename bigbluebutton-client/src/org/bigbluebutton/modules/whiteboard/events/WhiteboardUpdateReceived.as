@@ -20,16 +20,23 @@ package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 	
-	public class WhiteboardPresenterEvent extends Event
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	
+	public class WhiteboardUpdateReceived extends Event
 	{
-		public static const MODIFY_WHITEBOARD_ACCESS:String = "MODIFY_WHITEBOARD_ACCESS_EVENT";
-		public static const MODIFIED_WHITEBOARD_ACCESS:String = "MODIFIED_WHITEBOARD_ACCESS_EVENT";
+		public static const NEW_ANNOTATION:String = "boardUpdated";
+		public static const UNDO_ANNOTATION:String = "WhiteboardUndoAnnotationEvent";
+		public static const CLEAR_ANNOTATIONS:String = "WhiteboardClearAnnotationEvent";
+		public static const RECEIVED_ANNOTATION_HISTORY:String = "WhiteboardReceivedAnnotationHistoryEvent";
+        
+		public var annotation:Annotation;
+		public var annotationID:String;
+		public var wbId:String;
+		public var userId:String;
 		
-		public var multiUser:Boolean;
-		
-		public function WhiteboardPresenterEvent(type:String)
+		public function WhiteboardUpdateReceived(type:String)
 		{
-			super(type, false, false);
+			super(type, true, false);
 		}
 
 	}

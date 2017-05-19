@@ -34,6 +34,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _status = s;
         }
         
-        public function createAnnotation(wbModel:WhiteboardModel):Annotation {return null}
+        public function createAnnotation(wbId:String):Annotation {return null}
     }
 }

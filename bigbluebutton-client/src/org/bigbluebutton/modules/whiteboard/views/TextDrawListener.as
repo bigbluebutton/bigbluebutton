@@ -29,8 +29,6 @@ package org.bigbluebutton.modules.whiteboard.views {
     public class TextDrawListener implements IDrawListener {
         private var _wbCanvas:WhiteboardCanvas;
 
-        private var _sendFrequency:int;
-
         private var _shapeFactory:ShapeFactory;
 
         private var _mouseXDown:Number = 0;
@@ -53,19 +51,17 @@ package org.bigbluebutton.modules.whiteboard.views {
 
         private var _curID:String;
 
+        private var _wbId:String;
+
         private var feedback:RectangleFeedbackTextBox = new RectangleFeedbackTextBox();
 
-        private var _wbModel:WhiteboardModel;
-
-        public function TextDrawListener(idGenerator:AnnotationIDGenerator, wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory, wbModel:WhiteboardModel) {
+        public function TextDrawListener(idGenerator:AnnotationIDGenerator, wbCanvas:WhiteboardCanvas, shapeFactory:ShapeFactory) {
             _idGenerator = idGenerator;
             _wbCanvas = wbCanvas;
-            _sendFrequency = sendShapeFrequency;
             _shapeFactory = shapeFactory;
-            _wbModel = wbModel;
         }
 
-        public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
+        public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool, wbId:String):void {
             if (tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
                 _mouseXDown = _mouseXMove = mouseX;
                 _mouseYDown = _mouseYMove = mouseY;
@@ -75,10 +71,12 @@ package org.bigbluebutton.modules.whiteboard.views {
                 // even if the user has mousedDown yet.
                 _mousedDown = true;
                 
+                _wbId = wbId;
+                
                 // Need to check whether we were editing on mouse down because the edit will be finished by the time mouse up happens
                 _wasEditing = _wbCanvas.isEditingText();
                 
-                _wbCanvas.addRawChild(feedback);
+                _wbCanvas.addGraphic(feedback);
             }
         }
 
@@ -98,7 +96,7 @@ package org.bigbluebutton.modules.whiteboard.views {
             if (tool.graphicType == WhiteboardConstants.TYPE_TEXT && _mousedDown) {
                 feedback.clear();
                 if (_wbCanvas.contains(feedback)) {
-                    _wbCanvas.removeRawChild(feedback);
+                    _wbCanvas.removeGraphic(feedback);
                 }
 
                 _mousedDown = false;
@@ -130,7 +128,7 @@ package org.bigbluebutton.modules.whiteboard.views {
             tobj.status = status;
             tobj.id = _curID;
 
-            _wbCanvas.sendGraphicToServer(tobj.createAnnotation(_wbModel));
+            _wbCanvas.sendGraphicToServer(tobj.createAnnotation(_wbId));
         }
     }
 }

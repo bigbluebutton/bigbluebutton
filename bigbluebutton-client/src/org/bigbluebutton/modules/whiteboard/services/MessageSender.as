@@ -23,13 +23,13 @@ package org.bigbluebutton.modules.whiteboard.services
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 
 	public class MessageSender
 	{	
 		private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
-		public function modifyAccess(e:WhiteboardPresenterEvent):void {
+		public function modifyAccess(e:WhiteboardAccessEvent):void {
 //			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
 			var message:Object = new Object();
 			message["multiUser"] = e.multiUser;

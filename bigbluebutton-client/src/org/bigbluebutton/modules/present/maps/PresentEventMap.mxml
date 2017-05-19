@@ -25,8 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-      import org.bigbluebutton.modules.present.api.PresentationAPI;
       import org.bigbluebutton.modules.present.business.PresentProxy;
       import org.bigbluebutton.modules.present.commands.ChangePageCommand;
       import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
@@ -34,34 +32,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.commands.GoToPageCommand;
       import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
       import org.bigbluebutton.modules.present.commands.UploadFileCommand;
-      import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+      import org.bigbluebutton.modules.present.events.DownloadEvent;
       import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
       import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-      import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
-      import org.bigbluebutton.modules.present.events.PresentationEvent;
       import org.bigbluebutton.modules.present.events.PresenterCommands;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-      import org.bigbluebutton.modules.present.events.DownloadEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
-      import org.bigbluebutton.modules.present.services.PresentationService;
-      import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-      import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
-
-			private var apiInstance:PresentationAPI;
-			
-			private function createAPI():void{
-				apiInstance = PresentationAPI.getInstance();
-			}
 		]]>
 	</mx:Script>
 	
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<ObjectBuilder generator="{PresentManager}" cache="global" />
 		<ObjectBuilder generator="{PresentProxy}" cache="global" />
-    
-		<InlineInvoker method="createAPI" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
@@ -120,10 +104,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{PresenterCommands.ZOOM}" >
 		<MethodInvoker generator="{PresentProxy}" method="zoomSlide" arguments="{event}" />
 	</EventHandlers>
-
-  <EventHandlers type="{GetCurrentPresentationInfo.GET_CURRENT_PRESENTATION_INFO}" >
-    <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
-  </EventHandlers>
 
   <EventHandlers type="{GetListOfPresentationsRequest.GET_LIST_OF_PRESENTATIONS}" >
     <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" />

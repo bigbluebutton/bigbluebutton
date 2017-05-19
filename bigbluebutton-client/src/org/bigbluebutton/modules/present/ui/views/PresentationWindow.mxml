@@ -27,20 +27,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:code="http://code.google.com/p/flexlib/" 
 	xmlns:containers="flexlib.containers.*"
 	xmlns:mate="http://mate.asfusion.com/"
+	xmlns:views="org.bigbluebutton.modules.present.ui.views.*" 
+	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
 	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
 	showControls="true" resize="resizeHandler()"
   	styleNameFocus="presentationWindowStyleFocus"
   	styleNameNoFocus="presentationWindowStyleNoFocus"
-	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	implements="org.bigbluebutton.common.IBbbModuleWindow,org.bigbluebutton.modules.whiteboard.views.IWhiteboardReceiver"
 	initialize="init()"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{ResourceUtil.getInstance().getString('bbb.presentation.title')}"
-	xmlns:views="org.bigbluebutton.modules.present.ui.views.*" 
-	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
 	>
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -50,7 +50,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
-	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
 	<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
 	<mate:Listener type="{ShortcutEvent.PREVIOUS_SLIDE}" method="remotePrevious" />
@@ -75,31 +74,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
 			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.PresenterStatusEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
-			import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
-			import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
-			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
-			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
 			import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
@@ -109,18 +103,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
-			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.DownloadEvent;
+			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.model.Page;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
+			import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
+			import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
+			import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
+			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
+			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
+			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              		
 			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
@@ -174,9 +176,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var noticeSoundClass:Class;
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 
-			private var whiteboardOverlay:IBbbCanvas = null;
+			private var whiteboardOverlay:WhiteboardCanvas = null;
 			private var screenshareView:ScreenshareViewWindow = null;
-			private var whiteboardAdded:Boolean = false;
 			
 			private function init():void{
 				presentOptions = new PresentOptions();
@@ -199,8 +200,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				hotkeyCapture();
                 
         //Necessary now because of module loading race conditions
-        var t:Timer = new Timer(2000, 1);
-        t.addEventListener(TimerEvent.TIMER, addWhiteboardToolbar);
+        var t:Timer = new Timer(5000, 1);
+        t.addEventListener(TimerEvent.TIMER, requestWhiteboardCanvas);
         t.start();
         
         presenterTabs.addEventListener(Event.CHANGE, onSelectTabEvent, true);
@@ -214,15 +215,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         setPollMenuData();
       }
 			
-      private function addWhiteboardToolbar(event:TimerEvent):void {
-        LOGGER.debug("Sending event to add whiteboard canvas.");
-         callLater(fitSlideToWindowMaintainingAspectRatio);
-         // Tell the WhiteboardManager to add the toolbar
-         var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
-         e.window = this;
-         dispatchEvent(e);
-      }
-            
+			private function requestWhiteboardCanvas(event:TimerEvent):void {
+				LOGGER.debug("Sending event to add whiteboard canvas.");
+				callLater(fitSlideToWindowMaintainingAspectRatio);
+				
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(new RequestNewCanvasEvent(this));
+			}
+			
 			private function hotkeyCapture():void{
 			    LOGGER.debug("Entering hotkeyCapture");
 			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
@@ -508,19 +508,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function showThumbnails():void{
         slideView.thumbnailView.visible = !slideView.thumbnailView.visible;
       }
-      
-      private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
-        LOGGER.debug("OVERLAYING WHITEBOARD CANVAS");
-        whiteboardOverlay = e.canvas;
-      }
 
-      private function addWhiteboardCanvasToSlideView(e:PageLoadedEvent):void{
-        if(!whiteboardAdded && whiteboardOverlay != null) {
+      private function addWhiteboardCanvasToSlideView(e:PageLoadedEvent = null):void{
+        if(whiteboardOverlay != null) {
            LOGGER.debug("addWhiteboardCanvasToSlideView: Adding whiteboard canvas to SlideView");
            changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
-           whiteboardOverlay.acceptOverlayCanvas(slideView);
            slideView.acceptOverlayCanvas(whiteboardOverlay);
-           whiteboardAdded = true;
+           if (screenshareView) {
+             screenshareView.removeOverlayCanvas();
+           }
         } else LOGGER.debug("addWhiteboardCanvasToSlideView: NOT adding whiteboard canvas to Slide View.");
       }
 					
@@ -922,9 +918,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				if (whiteboardOverlay != null) {
-					changeWhiteboardPageOnly(PresentationModel.getInstance().getCurrentPage().id);
-					slideView.acceptOverlayCanvas(whiteboardOverlay);
-					whiteboardOverlay.acceptOverlayCanvas(slideView);
+					this.addWhiteboardCanvasToSlideView();
 				}
 
 				if(!presenterTabs.getTabAt(PRESENTATION_TAB_INDEX).visible) {
@@ -970,12 +964,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					LOGGER.debug("Adding whiteboard layer to Deskshare View Canvas");
 					changeWhiteboardPageOnly("deskshare");
 					screenshareView.acceptOverlayCanvas(whiteboardOverlay);
-					whiteboardOverlay.acceptOverlayCanvas(screenshareView);
+					slideView.removeOverlayCanvas();
 					if(UsersUtil.amIPresenter()) {
 						annotationsPermissionChanged(true);
 					}
-					if(!whiteboardAdded)
-						whiteboardAdded = true;
 				} else {
 					LOGGER.debug("openScreenshareViewTab: whiteboard overlay or desktop view canvas is null!");
 				}
@@ -991,10 +983,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function changeWhiteboardPageOnly(whiteboardId:String):void {
-				LOGGER.debug("Dispatching whiteboard page changed event. Id: " + whiteboardId);
-				var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.CHANGE_PAGE);
-				e.pageID = whiteboardId;
-				dispatchEvent(e);
+				if (whiteboardOverlay) {
+					LOGGER.debug("Telling the WhiteboardCanvas to switch ids. Id: " + whiteboardId);
+					whiteboardOverlay.displayWhiteboardById(whiteboardId);
+				} else {
+					LOGGER.debug("No WhiteboardCanvas overlayed cannot switch ids. Id: " + whiteboardId);
+				}
 			}
 
 			private function stopSharing():void {
@@ -1102,6 +1096,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				paused = true;
 				screenshareTab.label = ResourceUtil.getInstance().getString('bbb.screensharePublish.restart.label');
 				dispatchEvent(new RequestToPauseSharing());
+			}
+			
+			public function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void {
+				var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
+				addUIEvent.component = wt;
+				globalDispatcher.dispatchEvent(addUIEvent);
+				wt.positionToolbar(this);
+				
+				var addTextToolbarEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
+				addTextToolbarEvent.component = wtt;
+				globalDispatcher.dispatchEvent(addTextToolbarEvent);
+				wtt.positionToolbar(this);
+			}
+			
+			public function receiveCanvas(wc:WhiteboardCanvas):void {
+				whiteboardOverlay = wc;
 			}
 		]]>
 	</mx:Script>

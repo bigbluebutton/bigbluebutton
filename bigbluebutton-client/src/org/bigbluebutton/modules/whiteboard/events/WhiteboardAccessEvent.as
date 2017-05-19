@@ -16,24 +16,22 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.common
+package org.bigbluebutton.modules.whiteboard.events
 {
-	import flash.display.DisplayObject;
+	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-	
-	/**
-	 * An interface currently used to interface the Whiteboard module with the Presentation module in a decoupled sort of way.
-	 * 
-	 */	
-	public interface IBbbCanvas
+	public class WhiteboardAccessEvent extends Event
 	{
-		function addRawChild(child:DisplayObject):void;
-		function removeRawChild(child:DisplayObject):void;
-		function doesContain(child:DisplayObject):Boolean;
-		function acceptOverlayCanvas(overlay:IBbbCanvas):void;
-		function moveCanvas(x:Number, y:Number):void;
-		function zoomCanvas(width:Number, height:Number):void;
-		function showCanvas(show:Boolean):void;
+		public static const MODIFY_WHITEBOARD_ACCESS:String = "MODIFY_WHITEBOARD_ACCESS_EVENT";
+		public static const MODIFIED_WHITEBOARD_ACCESS:String = "MODIFIED_WHITEBOARD_ACCESS_EVENT";
+		
+		public var multiUser:Boolean;
+		public var whiteboardId:String;
+		
+		public function WhiteboardAccessEvent(type:String)
+		{
+			super(type, false, false);
+		}
+
 	}
 }

@@ -16,18 +16,15 @@ package org.bigbluebutton.modules.whiteboard.views {
 
 	public class TextUpdateListener {
 		private var _whiteboardCanvas:WhiteboardCanvas;
-		private var _whiteboardModel:WhiteboardModel;
 		private var _shapeFactory:ShapeFactory;
 		
 		private var _currentTextObject:TextObject;
-		private var _whiteboardId:String;
 		
 		public function TextUpdateListener() {
 		}
 		
-		public function setDependencies(whiteboardCanvas:WhiteboardCanvas, whiteboardModel:WhiteboardModel, shapeFactory:ShapeFactory):void {
+		public function setDependencies(whiteboardCanvas:WhiteboardCanvas, shapeFactory:ShapeFactory):void {
 			_whiteboardCanvas = whiteboardCanvas;
-			_whiteboardModel = whiteboardModel;
 			_shapeFactory = shapeFactory;
 		}
 		
@@ -54,8 +51,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 				canvasMouseDown();
 			}
 			_currentTextObject = tobj;
-			_whiteboardId = _whiteboardModel.getCurrentWhiteboardId();
-			_whiteboardCanvas.textToolbar.syncPropsWith(_currentTextObject);
+			_whiteboardCanvas.textToolbarSyncProxy(_currentTextObject);
 			_whiteboardCanvas.stage.focus = tobj;
 			tobj.registerListeners(textObjLostFocusListener, textObjTextChangeListener, textObjKeyDownListener);
 		}
@@ -63,7 +59,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 		public function removedTextObject(tobj:TextObject):void {
 			if (tobj == _currentTextObject) {
 				_currentTextObject = null;
-				_whiteboardCanvas.textToolbar.syncPropsWith(null);
+				_whiteboardCanvas.textToolbarSyncProxy(null);
 				tobj.deregisterListeners(textObjLostFocusListener, textObjTextChangeListener, textObjKeyDownListener);
 			}
 		}
@@ -106,7 +102,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			if (status == AnnotationStatus.DRAW_END) {
 				tobj.deregisterListeners(textObjLostFocusListener, textObjTextChangeListener, textObjKeyDownListener);
 				_currentTextObject = null;
-				_whiteboardCanvas.textToolbar.syncPropsWith(null);
+				_whiteboardCanvas.textToolbarSyncProxy(null);
 			}
 			
 			//      LogUtil.debug("SENDING TEXT: [" + tobj.textSize + "]");
@@ -115,11 +111,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 			tda.status = status;
 			tda.id = tobj.id;
 			
-			var an:Annotation = tda.createAnnotation(_whiteboardModel);
-			
-			if (_whiteboardId != null) {
-				an.annotation["whiteboardId"] = _whiteboardId;
-			}
+			var an:Annotation = tda.createAnnotation(tobj.whiteboardId);
 			
 			_whiteboardCanvas.sendGraphicToServer(an);
 		}

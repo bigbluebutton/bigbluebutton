@@ -20,6 +20,8 @@ package org.bigbluebutton.modules.whiteboard
 {
   import flash.events.KeyboardEvent;
   
+  import mx.containers.Canvas;
+  
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
@@ -35,7 +37,6 @@ package org.bigbluebutton.modules.whiteboard
     * Class responsible for handling actions from presenter and sending annotations to the server.
     */
   public class WhiteboardCanvasModel {
-    public var whiteboardModel:WhiteboardModel;
     private var _wbCanvas:WhiteboardCanvas;	      
     private var drawListeners:Array = new Array();
     private var wbTool:WhiteboardTool = new WhiteboardTool();
@@ -52,11 +53,12 @@ package org.bigbluebutton.modules.whiteboard
     private var width:Number;
     private var height:Number;
         
-    public function set wbCanvas(canvas:WhiteboardCanvas):void {
+    public function setDependencies(canvas:WhiteboardCanvas, displayModel:WhiteboardCanvasDisplayModel):void {
       _wbCanvas = canvas;
-      drawListeners.push(new PencilDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
-      drawListeners.push(new ShapeDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
-      drawListeners.push(new TextDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
+      
+      drawListeners.push(new PencilDrawListener(idGenerator, _wbCanvas, shapeFactory));
+      drawListeners.push(new ShapeDrawListener(idGenerator, _wbCanvas, shapeFactory));
+      drawListeners.push(new TextDrawListener(idGenerator, _wbCanvas, shapeFactory));
     }
         
     public function zoomCanvas(width:Number, height:Number):void {
@@ -80,10 +82,10 @@ package org.bigbluebutton.modules.whiteboard
       }
     }
 
-    public function doMouseDown(mouseX:Number, mouseY:Number):void {
+    public function doMouseDown(mouseX:Number, mouseY:Number, wbId:String):void {
       // LogUtil.debug("*** CanvasModel doMouseDown");
       for (var ob:int = 0; ob < drawListeners.length; ob++) {
-        (drawListeners[ob] as IDrawListener).onMouseDown(mouseX, mouseY, wbTool);
+        (drawListeners[ob] as IDrawListener).onMouseDown(mouseX, mouseY, wbTool, wbId);
       }
     }
 

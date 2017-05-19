@@ -78,6 +78,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			return _fontSize;
 		}
 		
+		public function get whiteboardId():String {
+			return _ao.whiteboardId;
+		}
+		
 		public function denormalize(val:Number, side:Number):Number {
 			return (val*side)/100.0;
 		}

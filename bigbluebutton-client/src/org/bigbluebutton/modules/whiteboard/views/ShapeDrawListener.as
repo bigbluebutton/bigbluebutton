@@ -21,14 +21,11 @@ package org.bigbluebutton.modules.whiteboard.views
   import flash.geom.Point;
   
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
-  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
   
   public class ShapeDrawListener implements IDrawListener
@@ -37,26 +34,20 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _isDrawing:Boolean = false; 
     private var _segment:Array = new Array();
     private var _wbCanvas:WhiteboardCanvas;
-    private var _sendFrequency:int;
     private var _shapeFactory:ShapeFactory;
     private var _idGenerator:AnnotationIDGenerator;
     private var _curID:String;
-    private var _wbModel:WhiteboardModel;
     private var _wbId:String = null;
         
     public function ShapeDrawListener(idGenerator:AnnotationIDGenerator, 
                                        wbCanvas:WhiteboardCanvas, 
-                                       sendShapeFrequency:int, 
-                                       shapeFactory:ShapeFactory, 
-                                       wbModel:WhiteboardModel) {
+                                       shapeFactory:ShapeFactory) {
       _idGenerator = idGenerator;
       _wbCanvas = wbCanvas;
-      _sendFrequency = sendShapeFrequency;
       _shapeFactory = shapeFactory;
-      _wbModel = wbModel;
     }
     
-    public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
+    public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool, wbId:String):void {
       if (tool.toolType == AnnotationType.RECTANGLE || 
           tool.toolType == AnnotationType.TRIANGLE || 
           tool.toolType == AnnotationType.ELLIPSE || 
@@ -69,7 +60,7 @@ package org.bigbluebutton.modules.whiteboard.views
         _isDrawing = true;
         _drawStatus = AnnotationStatus.DRAW_START;
         
-        _wbId = _wbModel.getCurrentWhiteboardId();
+        _wbId = wbId;
         
         // Generate a shape id so we can match the mouse down and up events. Then we can
         // remove the specific shape when a mouse up occurs.
@@ -128,11 +119,7 @@ package org.bigbluebutton.modules.whiteboard.views
       dobj.status = status;
       dobj.id = _curID;
       
-      var an:Annotation = dobj.createAnnotation(_wbModel);
-      
-      if (_wbId != null) {
-        an.annotation["whiteboardId"] = _wbId;
-      }
+      var an:Annotation = dobj.createAnnotation(_wbId);
       
       if (an != null) {
         _wbCanvas.sendGraphicToServer(an);

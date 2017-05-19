@@ -18,6 +18,7 @@
  */
 package org.bigbluebutton.modules.whiteboard.models
 {
+	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	
 	import mx.collections.ArrayCollection;
@@ -28,11 +29,12 @@ package org.bigbluebutton.modules.whiteboard.models
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 
-	public class WhiteboardModel
+	public class WhiteboardModel extends EventDispatcher
 	{
 		private static const LOGGER:ILogger = getClassLogger(WhiteboardModel);      
 		private var _whiteboards:ArrayCollection = new ArrayCollection();
@@ -40,69 +42,63 @@ package org.bigbluebutton.modules.whiteboard.models
 		private var _multiUser:Boolean = false;
 
     private var _dispatcher:IEventDispatcher;
-
-    private var currentWhiteboardId:String;
         
     public function WhiteboardModel(dispatcher:IEventDispatcher) {
       _dispatcher = dispatcher;
     }		
 		
-    private function getWhiteboard(id:String):Whiteboard {
-       for (var i:int = 0; i < _whiteboards.length; i++) {
-         var wb:Whiteboard = _whiteboards.getItemAt(i) as Whiteboard;
-         if (wb.id == id) return wb;
-       }
-       return null;
+    private function getWhiteboard(id:String, requestHistory:Boolean=true):Whiteboard {
+      var wb:Whiteboard;
+      
+      for (var i:int = 0; i < _whiteboards.length; i++) {
+        wb = _whiteboards.getItemAt(i) as Whiteboard;
+        if (wb.id == id) return wb;
+      }
+      
+      wb = new Whiteboard(id);
+      _whiteboards.addItem(wb);
+      
+      if (requestHistory) {
+        _dispatcher.dispatchEvent(new GetWhiteboardShapesCommand(id));
+      }
+      
+      return wb;
     }
     
-		public function addAnnotation(annotation:Annotation):void {
-     // LOGGER.debug("*** Adding annotation [{0},{1},{2}] ****", [annotation.id, annotation.type, annotation.status]);
-      var wb:Whiteboard;
+    public function addAnnotation(annotation:Annotation):void {
+      // LOGGER.debug("*** Adding annotation [{0},{1},{2}] ****", [annotation.id, annotation.type, annotation.status]);
+      var wb:Whiteboard = getWhiteboard(annotation.whiteboardId);;
       if (annotation.status == AnnotationStatus.DRAW_START || annotation.type == AnnotationType.POLL) {
-        wb = getWhiteboard(annotation.whiteboardId);
-        if (wb != null) {
-          wb.addAnnotation(annotation);
-        } else {
-          wb = new Whiteboard(annotation.whiteboardId);
-          wb.addAnnotation(annotation);
-          _whiteboards.addItem(wb);
-        }         
-       } else {
-         wb = getWhiteboard(annotation.whiteboardId);
-         if (wb != null) {
-           wb.updateAnnotation(annotation);
-         }
-       }
-			 
+        wb.addAnnotation(annotation);
+      } else {
+        wb.updateAnnotation(annotation);
+      }
       // LOGGER.debug("*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
-       var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
-       event.annotation = annotation;
-       _dispatcher.dispatchEvent(event);
-//       trace(LOG + "*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
-		}
+      var event:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.NEW_ANNOTATION);
+      event.annotation = annotation;
+      dispatchEvent(event);
+    }
 		
     private function addShapes(wb:Whiteboard, shapes:Array):void {
       for (var i:int = 0; i < shapes.length; i++) {
         var an:Annotation = shapes[i] as Annotation;
-        wb.addAnnotation(an);
+        wb.addAnnotationAt(an, i);
       }  
     }
     
     
     public function addAnnotationFromHistory(whiteboardId:String, annotation:Array):void {                
       //LOGGER.debug("addAnnotationFromHistory: wb id=[{0}]", [whiteboardId]);
-      var wb:Whiteboard = getWhiteboard(whiteboardId);
-      if (wb != null) {
-       // LOGGER.debug("Whiteboard is already present. Adding shapes.");
+      var wb:Whiteboard = getWhiteboard(whiteboardId, false);
+      if (wb != null && !wb.historyLoaded) {
+        // LOGGER.debug("Whiteboard is already present. Adding shapes.");
         addShapes(wb, annotation);
-      } else {
-       // LOGGER.debug("Whiteboard is NOT present. Creating WB and adding shapes.");
-        wb = new Whiteboard(whiteboardId);
-        addShapes(wb, annotation);
-        _whiteboards.addItem(wb);
-      } 
-
-      _dispatcher.dispatchEvent(new WhiteboardShapesEvent(wb.id));
+        wb.historyLoaded = true;
+        
+        var e:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.RECEIVED_ANNOTATION_HISTORY);
+        e.wbId = wb.id;
+        dispatchEvent(e);
+      }
     }
         
 		public function removeAnnotation(wbId:String, shapeId:String):void {
@@ -111,23 +107,12 @@ package org.bigbluebutton.modules.whiteboard.models
 			if (wb != null) {
 				var removedAnnotation:Annotation = wb.undo(shapeId);
 				if (removedAnnotation != null) {
-					var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION);
+					var e:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.UNDO_ANNOTATION);
 					e.annotation = removedAnnotation;
-					_dispatcher.dispatchEvent(e);
+					dispatchEvent(e);
 				}
 			}
 		}
-		
-    public function getAnnotation(id:String):Annotation {
-      var wbId:String = getCurrentWhiteboardId();
-      if (wbId != null) {
-        var wb:Whiteboard = getWhiteboard(wbId);
-        if (wb != null) {
-          return wb.getAnnotation(id);
-        }        
-      }
-      return null;
-    }
         
     public function getAnnotations(wbId:String):Array {
       var wb:Whiteboard = getWhiteboard(wbId);
@@ -142,48 +127,33 @@ package org.bigbluebutton.modules.whiteboard.models
       LOGGER.debug("Clearing whiteboard");
       var wb:Whiteboard = getWhiteboard(wbId);
       if (wb != null) {
+        var event:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.CLEAR_ANNOTATIONS);
+        event.wbId = wbId;
         if (fullClear) {
           wb.clearAll();
-          _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
         } else {
           wb.clear(userId);
-          var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS);
           event.userId = userId;
-          _dispatcher.dispatchEvent(event);
         }
+        dispatchEvent(event);
       }
     }
     
     public function clearAll():void {
       _whiteboards.removeAll();
-      _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
+      
+      var event:WhiteboardUpdateReceived = new WhiteboardUpdateReceived(WhiteboardUpdateReceived.CLEAR_ANNOTATIONS);
+      event.wbId = "all";
+      dispatchEvent(event);
     }
 
     public function accessModified(multiUser:Boolean):void {
       _multiUser = multiUser;
       
-      var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFIED_WHITEBOARD_ACCESS);
+      var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFIED_WHITEBOARD_ACCESS);
       event.multiUser = multiUser;
-      _dispatcher.dispatchEvent(event);
+      dispatchEvent(event);
    }
-        
-      
-    public function getCurrentWhiteboardId():String {
-      if(currentWhiteboardId)
-        return currentWhiteboardId;
-
-      return null;
-    }
-    
-    public function setCurrentWhiteboardId(whiteboardId:String):void {
-      currentWhiteboardId = whiteboardId;
-      LOGGER.debug("currentWhiteboardId set to: " + currentWhiteboardId);
-      LOGGER.debug("(current page id: " + PresentationModel.getInstance().getCurrentPage().id + ")");
-    }
-
-    public function isOverlayingDeskshare():Boolean {
-      return (currentWhiteboardId && currentWhiteboardId == "deskshare");
-    }
 
 	}
 }
