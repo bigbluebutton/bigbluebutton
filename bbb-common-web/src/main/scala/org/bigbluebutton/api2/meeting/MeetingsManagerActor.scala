@@ -6,6 +6,7 @@ import org.bigbluebutton.api2.bus.MsgToAkkaAppsEventBus
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.api2.util.Util2
 import org.bigbluebutton.common.messages.UserJoinedVoiceMessage
+import org.bigbluebutton.common2.messages.MeetingCreatedEvtMsg
 
 
 sealed trait ApiMsg
@@ -49,12 +50,15 @@ object MeetingsManagerActor {
 }
 
 class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
-  extends Actor with ActorLogging with ToAkkaAppsSendersTrait {
+  extends Actor with ActorLogging
+    with ToAkkaAppsSendersTrait
+    with FromAkkaAppsHandlersTrait {
 
   private val manager = new MeetingsManager
 
   def receive = {
     case msg: CreateMeetingMsg => handleCreateMeeting(msg)
+    case msg: MeetingCreatedEvtMsg => handleMeetingCreatedEvtMsg(msg)
   }
 
   def handleCreateMeeting(msg: CreateMeetingMsg): Unit = {
