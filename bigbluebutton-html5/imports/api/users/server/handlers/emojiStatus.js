@@ -29,8 +29,8 @@ export default function handleEmojiStatus({ payload }) {
     }
 
     if (numChanged) {
-      return Logger.info(
-        `Assigned user emoji status '${status}' id=${userId} meeting=${meetingId}`
+      return Logger.info('Assigned user emoji status'
+        + status + ' id=' + userId + ' meeting=' + meetingId
       );
     }
   };
