@@ -145,15 +145,6 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private function displayToolbarButton():void {
       button.isPresenter = true;
-
-      if (options.presenterShareOnly) {
-        if (UsersUtil.amIPresenter()) {
-          button.isPresenter = true;
-        } else {
-          button.isPresenter = false;
-        }
-      }
-
     }
 
     private function addToolbarButton():void{
@@ -457,9 +448,6 @@ package org.bigbluebutton.modules.videoconf.maps
       if (options.showButton){
         LOGGER.debug("****************** Switching to viewer. Show video button?=[{0}]", [UsersUtil.amIPresenter()]);
         displayToolbarButton();
-        if (_myCamSettings.length > 0 && options.presenterShareOnly) {
-          stopBroadcasting();
-        }
       }
     }
 
