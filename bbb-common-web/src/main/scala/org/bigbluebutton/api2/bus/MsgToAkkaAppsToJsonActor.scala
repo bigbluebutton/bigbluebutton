@@ -1,7 +1,7 @@
-package org.bigbluebutton.client
+package org.bigbluebutton.api2.bus
 
 import akka.actor.{Actor, ActorLogging, Props}
-import org.bigbluebutton.client.bus.{JsonMsgToAkkaAppsBus, JsonMsgToAkkaAppsBusMsg, JsonMsgToSendToAkkaApps}
+import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.common2.messages.BbbCoreWithEvelopeMsg
 import org.bigbluebutton.common2.util.JsonUtil
 
@@ -10,6 +10,7 @@ object MsgToAkkaAppsToJsonActor {
     Props(classOf[MsgToAkkaAppsToJsonActor], jsonMsgToAkkaAppsBus)
 
 }
+
 class MsgToAkkaAppsToJsonActor(jsonMsgToAkkaAppsBus: JsonMsgToAkkaAppsBus)
   extends Actor with ActorLogging with SystemConfiguration {
 

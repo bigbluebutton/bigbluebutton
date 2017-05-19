@@ -3,7 +3,7 @@ package org.bigbluebutton.client.meeting
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.SystemConfiguration
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages.{BbbServerMsg, Envelope, HeaderAndBody}
+import org.bigbluebutton.common2.messages.{BbbCoreWithEvelopeMsg, Envelope, HeaderAndBody}
 import org.bigbluebutton.common2.util.JsonUtil
 
 object UserActor {
@@ -26,7 +26,7 @@ class UserActor(val userId: String,
     case msg: ConnectMsg => handleConnectMsg(msg)
     case msg: DisconnectMsg => handleDisconnectMsg(msg)
     case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
-    case msg: BbbServerMsg => handleBbbServerMsg(msg)
+    case msg: BbbCoreWithEvelopeMsg => handleBbbServerMsg(msg)
   }
 
   private def createConnection(id: String, sessionId: String, active: Boolean): Connection = {
@@ -67,11 +67,11 @@ class UserActor(val userId: String,
     )
 
     val envelope = new Envelope(headerAndBody.header.name, meta)
-    val akkaMsg = BbbServerMsg(envelope, JsonUtil.toJsonNode(msg.json))
+    val akkaMsg = BbbCoreWithEvelopeMsg(envelope, JsonUtil.toJsonNode(msg.json))
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
   }
 
-  def handleBbbServerMsg(msg: BbbServerMsg): Unit = {
+  def handleBbbServerMsg(msg: BbbCoreWithEvelopeMsg): Unit = {
     log.debug("Received BbbServerMsg " + msg)
     for {
       msgType <- msg.envelope.routing.get("msgType")
@@ -80,7 +80,7 @@ class UserActor(val userId: String,
     }
   }
 
-  def handleServerMsg(msgType: String, msg: BbbServerMsg): Unit = {
+  def handleServerMsg(msgType: String, msg: BbbCoreWithEvelopeMsg): Unit = {
     msgType match {
       case "direct" => handleDirectMessage(msg)
       case "broadcast" => handleBroadcastMessage(msg)
@@ -88,7 +88,7 @@ class UserActor(val userId: String,
     }
   }
 
-  private def forwardToUser(msg: BbbServerMsg): Unit = {
+  private def forwardToUser(msg: BbbCoreWithEvelopeMsg): Unit = {
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {
@@ -96,17 +96,17 @@ class UserActor(val userId: String,
     }
   }
 
-  def handleDirectMessage(msg: BbbServerMsg): Unit = {
+  def handleDirectMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
     forwardToUser(msg)
   }
 
-  def handleBroadcastMessage(msg: BbbServerMsg): Unit = {
+  def handleBroadcastMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
     forwardToUser(msg)
   }
 
-  def handleSystemMessage(msg: BbbServerMsg): Unit = {
+  def handleSystemMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {

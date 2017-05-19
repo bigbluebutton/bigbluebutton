@@ -1,10 +1,9 @@
 package org.bigbluebutton.api2.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
-import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api2.bus.MsgToAkkaAppsEventBus
-import org.bigbluebutton.api2.domain.DefaultProps
+import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.api2.util.Util2
 import org.bigbluebutton.common.messages.UserJoinedVoiceMessage
 
@@ -49,7 +48,8 @@ object MeetingsManagerActor {
     Props(classOf[MeetingsManagerActor], msgToAkkaAppsEventBus)
 }
 
-class MeetingsManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus) extends Actor with ActorLogging {
+class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
+  extends Actor with ActorLogging with ToAkkaAppsSendersTrait {
 
   private val manager = new MeetingsManager
 
@@ -70,9 +70,7 @@ class MeetingsManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus) extends
     }
   }
 
-  def sendCreateMeetingRequestToAkkaApps(): Unit = {
 
-  }
 
   def replyWithDuplicateMeeting(): Unit = {
 

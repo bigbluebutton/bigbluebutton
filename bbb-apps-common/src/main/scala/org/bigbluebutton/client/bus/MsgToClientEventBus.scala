@@ -2,12 +2,12 @@ package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
 import akka.event.{EventBus, LookupClassification}
-import org.bigbluebutton.common2.messages.BbbServerMsg
+import org.bigbluebutton.common2.messages.BbbCoreWithEvelopeMsg
 
 sealed trait ToConnectionMsg
-case class BroadcastMsgToMeeting(meetingId: String, data: BbbServerMsg) extends ToConnectionMsg
-case class DirectMsgToClient(meetingId: String, connId: String, data: BbbServerMsg) extends ToConnectionMsg
-case class SystemMsgToClient(meetingId: String, connId: String, data: BbbServerMsg) extends ToConnectionMsg
+case class BroadcastMsgToMeeting(meetingId: String, data: BbbCoreWithEvelopeMsg) extends ToConnectionMsg
+case class DirectMsgToClient(meetingId: String, connId: String, data: BbbCoreWithEvelopeMsg) extends ToConnectionMsg
+case class SystemMsgToClient(meetingId: String, connId: String, data: BbbCoreWithEvelopeMsg) extends ToConnectionMsg
 
 case class MsgToClientBusMsg(val topic: String, payload: ToConnectionMsg)
 

@@ -2,7 +2,7 @@ package org.bigbluebutton.client.meeting
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.client.bus._
-import org.bigbluebutton.common2.messages.BbbServerMsg
+import org.bigbluebutton.common2.messages.BbbCoreWithEvelopeMsg
 
 object MeetingActor {
   def props(meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
@@ -19,7 +19,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
     case msg: ConnectMsg => handleConnectMsg(msg)
     case msg: DisconnectMsg => handleDisconnectMsg(msg)
     case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
-    case msg: BbbServerMsg => handleBbbServerMsg(msg)
+    case msg: BbbCoreWithEvelopeMsg => handleBbbServerMsg(msg)
       // TODO: Should keep track of user lifecycle so we can remove when user leaves the meeting.
   }
 
@@ -53,7 +53,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
     }
   }
 
-  def handleBbbServerMsg(msg: BbbServerMsg): Unit = {
+  def handleBbbServerMsg(msg: BbbCoreWithEvelopeMsg): Unit = {
     for {
       msgType <- msg.envelope.routing.get("msgType")
     } yield {
@@ -61,7 +61,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
     }
   }
 
-  def handleServerMsg(msgType: String, msg: BbbServerMsg): Unit = {
+  def handleServerMsg(msgType: String, msg: BbbCoreWithEvelopeMsg): Unit = {
     msgType match {
       case "direct" => handleDirectMessage(msg)
       case "broadcast" => handleBroadcastMessage(msg)
@@ -69,7 +69,7 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
     }
   }
 
-  private def forwardToUser(msg: BbbServerMsg): Unit = {
+  private def forwardToUser(msg: BbbCoreWithEvelopeMsg): Unit = {
     for {
       userId <- msg.envelope.routing.get("userId")
       m <- UsersManager.findWithId(userMgr, userId)
@@ -78,17 +78,17 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
     }
   }
 
-  def handleDirectMessage(msg: BbbServerMsg): Unit = {
+  def handleDirectMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
     forwardToUser(msg)
   }
 
-  def handleBroadcastMessage(msg: BbbServerMsg): Unit = {
+  def handleBroadcastMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
     forwardToUser(msg)
   }
 
-  def handleSystemMessage(msg: BbbServerMsg): Unit = {
+  def handleSystemMessage(msg: BbbCoreWithEvelopeMsg): Unit = {
     // In case we want to handle specific messages. We can do it here.
     forwardToUser(msg)
   }

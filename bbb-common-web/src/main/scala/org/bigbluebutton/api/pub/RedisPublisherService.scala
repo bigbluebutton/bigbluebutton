@@ -21,18 +21,7 @@ class RedisPublisherService(sender: MessageSender) extends IPublisherService {
                     viewerPass: String, createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean, sequence: java.lang.Integer,
                     metadata: util.Map[String, String], guestPolicy: String): Unit = {
 
-    val body: CreateMeetingReqBody = new CreateMeetingReqBody(meetingId, extMeetingId, parentMeetingId,
-    meetingName, recorded.booleanValue(), voiceBridge, duration, autoStartRecording.booleanValue(),
-    allowStartStopRecording.booleanValue(), webcamsOnlyForModerator.booleanValue(), moderatorPass,
-    viewerPass, createTime, createDate, isBreakout.booleanValue(), sequence,
-      mapAsScalaMapConverter(metadata).asScala.toMap, guestPolicy)
-
-    val header: Header = new Header("CreateMeetingReq")
-    val msg: CreateMeetingReq = new CreateMeetingReq(header, body)
-
-    val json = JsonUtil.toJson(msg)
-    println(json)
-    sender.send("bbb:to-akka-apps", json)
+  
   }
 
   def endMeeting(meetingId: String): Unit = {

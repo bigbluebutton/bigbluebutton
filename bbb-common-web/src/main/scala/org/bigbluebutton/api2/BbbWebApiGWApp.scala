@@ -29,6 +29,11 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends Sys
     MeetingsManagerActor.props(msgToAkkaAppsEventBus), "meetingManagerActor")
   msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
 
+  private val msgToAkkaAppsToJsonActor = system.actorOf(
+    MsgToAkkaAppsToJsonActor.props(jsonMsgToAkkaAppsBus), "msgToAkkaAppsToJsonActor")
+
+  msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
+
   private val appsRedisSubscriberActor = system.actorOf(
     AppsRedisSubscriberActor.props(receivedJsonMsgBus,oldMessageEventBus), "appsRedisSubscriberActor")
 
