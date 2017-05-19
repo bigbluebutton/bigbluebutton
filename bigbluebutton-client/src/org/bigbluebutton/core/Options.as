@@ -63,7 +63,7 @@ package org.bigbluebutton.core {
 				if (StringUtils.endsWith(name, "Module")) {
 					vxml = BBB.getConfigForModule(name);
 				} else {
-					vxml = config[name];
+					vxml = config.getOptionsFor(name);
 				}
 			}
 			if (vxml != null) {
