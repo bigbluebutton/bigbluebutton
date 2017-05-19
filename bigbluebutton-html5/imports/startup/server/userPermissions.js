@@ -135,7 +135,7 @@ export function isAllowedTo(action, credentials) {
     user.user &&
     user.user.connection_status === 'online';
 
-  const listOfSafeActions = new Array('logoutSelf');
+  const listOfSafeActions = ['logoutSelf'];
 
   const requestIsSafe = listOfSafeActions.includes(action);
 
