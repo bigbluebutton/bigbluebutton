@@ -15,6 +15,8 @@ export default class WhiteboardOverlay extends React.Component {
         y: undefined,
       },
 
+      pencilCoordinates: [],
+
       currentShapeId: undefined,
       count: 0,
     };
@@ -69,7 +71,18 @@ export default class WhiteboardOverlay extends React.Component {
   }
 
   mouseDownPencil(event) {
+    let x = (event.nativeEvent.offsetX + this.props.viewBoxX) / this.props.slideWidth * 100;
+    let y = (event.nativeEvent.offsetY + this.props.viewBoxY) / this.props.slideHeight * 100;
+    let id = (this.state.count + 1) + "-" + new Date().getTime();
 
+    let points = [];
+    points.push(x);
+    points.push(y);
+    this.setState({
+      pencilCoordinates: points,
+      count: this.state.count + 1,
+      currentShapeId: id,
+    });
   }
 
   mouseDownText(event) {
@@ -114,7 +127,43 @@ export default class WhiteboardOverlay extends React.Component {
   }
 
   mouseMovePencil(event) {
+    //retrieving the svg object and calculating x and y coordinates
+    const svggroup = this.props.getSvgRef();
+    var svgObject = findDOMNode(svggroup);
+    var svgPoint = svgObject.createSVGPoint();
+    svgPoint.x = event.clientX;
+    svgPoint.y = event.clientY;
+    let transformedSvgPoint = this.coordinateTransform(svgPoint, svgObject);
+    transformedSvgPoint.x = transformedSvgPoint.x / this.props.slideWidth * 100;
+    transformedSvgPoint.y = transformedSvgPoint.y / this.props.slideHeight * 100;
 
+    //adding new coordinates to the saved coordinates in the state
+    let points = this.state.pencilCoordinates;
+    points.push(transformedSvgPoint.x);
+    points.push(transformedSvgPoint.y);
+
+    //if we have 16 pairs - send a message (number 16 - to match Flash)
+    if(points.length > 30) {
+      //calling handleDrawPencil to send a message
+      this.handleDrawPencil(points, "DRAW_START", this.state.currentShapeId);
+
+      //generating a new shape Id
+      let newId = (this.state.count + 1) + "-" + new Date().getTime();
+
+      this.setState({
+        //always save the last pair of coorindtates, since this is the start of the next chunk
+        pencilCoordinates: [points[points.length - 2], points[points.length-1]],
+        //updating count for the next shape id
+        count: this.state.count + 1,
+        currentShapeId: newId,
+      });
+
+    //if we don't have 16 pairs yet - just save an updated array in the state
+    } else {
+      this.setState({
+        pencilCoordinates: points,
+      });
+    }
   }
 
   mouseMoveText(event) {
@@ -157,7 +206,13 @@ export default class WhiteboardOverlay extends React.Component {
   }
 
   mouseUpPencil(event) {
+    //drawing a pencil
+    this.handleDrawPencil(this.state.pencilCoordinates, "DRAW_START", this.state.currentShapeId);
 
+    this.setState({
+      pencilCoordinates: [],
+      currentShapeId: undefined,
+    });
   }
 
   mouseUpText(event) {
@@ -206,8 +261,22 @@ export default class WhiteboardOverlay extends React.Component {
 
   }
 
-  handleDrawPencil() {
+  handleDrawPencil(points, status, id) {
+    let shape = {
+      annotation: {
+        type: "pencil",
+        points: points,
+        color: this.props.drawSettings.color,
+        transparency: false,
+        status: status,
+        thickness: this.props.drawSettings.thickness,
+        id: id,
+        whiteboardId: this.props.whiteboardId,
+      },
+      whiteboard_id: this.props.whiteboardId,
+    };
 
+    this.props.sendAnnotation(shape);
   }
 
   //since Rectangle / Triangle / Ellipse / Line have the same coordinate structure
@@ -226,7 +295,6 @@ export default class WhiteboardOverlay extends React.Component {
         transparency: false,
         status: status,
         thickness: this.props.drawSettings.thickness,
-        status: status,
         id: id,
         whiteboardId: this.props.whiteboardId,
       },
