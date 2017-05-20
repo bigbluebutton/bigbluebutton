@@ -125,7 +125,7 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
         }
 
-        private function validateToken():void {
+        private function validateToken1():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
           
 			var header:Object = new Object();
@@ -157,6 +157,45 @@ package org.bigbluebutton.main.model.users
                     } 
                 },
                 JSON.stringify(message)
+            ); //_netConnection.call      
+            
+            _validateTokenTimer = new Timer(10000, 1);
+            _validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
+            _validateTokenTimer.start();
+        }
+
+        private function validateToken():void {
+            var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
+          
+            var header:Object = new Object();
+            header.name = "validateAuthToken";
+            
+            var body:Object = new Object();
+            body.userId = confParams.internalUserID;
+            body.authToken = confParams.authToken;
+            
+            var message:Object = new Object();
+            message["userId"] = confParams.internalUserID;
+            message["authToken"] = confParams.authToken;
+            
+           //var message:Object = new Object();
+            //message.header = header;
+            //message.body = body;
+                    
+            sendMessage(
+                "validateToken",// Remote function name
+                // result - On successful result
+                function(result:Object):void { 
+              
+                },
+                // status - On error occurred
+                function(status:Object):void {
+                    LOGGER.error("Error occurred:");
+                    for (var x:Object in status) {
+                        LOGGER.error(x + " : " + status[x]);
+                    } 
+                },
+                message
             ); //_netConnection.call      
             
             _validateTokenTimer = new Timer(10000, 1);
