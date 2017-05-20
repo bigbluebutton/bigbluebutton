@@ -20,7 +20,11 @@
 package org.bigbluebutton.api.messaging;
 
 
+import org.bigbluebutton.web.services.turn.StunServer;
+import org.bigbluebutton.web.services.turn.TurnEntry;
+
 import java.util.Map;
+import java.util.Set;
 
 public interface MessagingService {	
 	void recordMeetingInfo(String meetingId, Map<String, String> info);
@@ -36,4 +40,10 @@ public interface MessagingService {
 										 String moderatorPass, String viewerPass, Long createTime,
 										 String createDate, Boolean isBreakout, Integer sequence,
 										 Map<String, String> metadata, String guestPolicy);
+	void registerUser(String meetingID, String internalUserId, String fullname, String role,
+										String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed);
+	void destroyMeeting(String meetingID);
+	void endMeeting(String meetingId);
+	void sendKeepAlive(String system, Long timestamp);
+	void sendStunTurnInfo(String meetingId, String internalUserId, Set<StunServer> stuns, Set<TurnEntry> turns);
 }

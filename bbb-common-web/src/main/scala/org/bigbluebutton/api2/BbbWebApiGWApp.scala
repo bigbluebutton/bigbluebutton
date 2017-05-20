@@ -7,9 +7,9 @@ import org.bigbluebutton.api2.meeting.MeetingsManagerActor
 
 import scala.concurrent.duration._
 
-class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends SystemConfiguration{
+class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBbbWebApiGWApp with SystemConfiguration{
 
-  implicit val system = ActorSystem("bbb-apps-common")
+  implicit val system = ActorSystem("bbb-web-common")
   implicit val timeout = akka.util.Timeout(3 seconds)
 
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus

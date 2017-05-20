@@ -91,7 +91,6 @@ public class MeetingService implements MessageListener {
 
     private RecordingService recordingService;
     private MessagingService messagingService;
-    private IPublisherService publisherService;
     private RegisteredUserCleanupTimerTask registeredUserCleaner;
     private StunTurnService stunTurnService;
 
@@ -192,7 +191,7 @@ public class MeetingService implements MessageListener {
     }
 
     private void destroyMeeting(String meetingID) {
-        publisherService.destroyMeeting(meetingID);
+        messagingService.destroyMeeting(meetingID);
     }
 
     public Collection<Meeting> getMeetings() {
@@ -264,13 +263,6 @@ public class MeetingService implements MessageListener {
 
         log.info("Create meeting: data={}", logStr);
 
-        publisherService.createMeeting(m.getInternalId(), m.getExternalId(),
-                m.getParentMeetingId(), m.getName(), m.isRecord(),
-                m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(),
-                m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
-                m.getModeratorPassword(), m.getViewerPassword(),
-                m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
-                m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy());
 
         messagingService.createMeeting(m.getInternalId(), m.getExternalId(),
           m.getParentMeetingId(), m.getName(), m.isRecord(),
@@ -291,7 +283,7 @@ public class MeetingService implements MessageListener {
     }
 
     private void processRegisterUser(RegisterUser message) {
-        publisherService.registerUser(message.meetingID,
+        messagingService.registerUser(message.meetingID,
                 message.internalUserId, message.fullname, message.role,
                 message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
     }
@@ -521,7 +513,7 @@ public class MeetingService implements MessageListener {
     }
 
     private void processEndMeeting(EndMeeting message) {
-        publisherService.endMeeting(message.meetingId);
+        messagingService.endMeeting(message.meetingId);
     }
 
     private void processRemoveEndedMeeting(MeetingEnded message) {
@@ -759,7 +751,7 @@ public class MeetingService implements MessageListener {
             log.info("a org.bigbluebutton.web.services.turn: " + t.url + "username/pass=" + t.username + '/'
                     + t.password);
         }
-        publisherService.sendStunTurnInfo(message.meetingId,
+        messagingService.sendStunTurnInfo(message.meetingId,
                 message.internalUserId, stuns, turns);
     }
 
@@ -924,9 +916,6 @@ public class MeetingService implements MessageListener {
         messagingService = mess;
     }
 
-    public void setPublisherService(IPublisherService mess) {
-        publisherService = mess;
-    }
 
     public void setRegisteredUserCleanupTimerTask(
             RegisteredUserCleanupTimerTask c) {

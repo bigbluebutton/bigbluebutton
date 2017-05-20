@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
 public class KeepAliveService implements MessageListener {
 	private static Logger log = LoggerFactory.getLogger(KeepAliveService.class);
 	private final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
-	private IPublisherService service;
+	private MessagingService service;
 	private long runEvery = 10000;
 	private int maxLives = 5;
 	private KeepAliveTask task = new KeepAliveTask();
 	private volatile boolean processMessages = false;
 
-	volatile boolean available = false;
+	volatile boolean available = true;
 	
 	private static final Executor msgSenderExec = Executors.newFixedThreadPool(1);
 	private static final Executor runExec = Executors.newFixedThreadPool(1);
@@ -70,7 +70,7 @@ public class KeepAliveService implements MessageListener {
 		runEvery = v * 1000;
 	}
 
-	public void setPublisherService(IPublisherService service){
+	public void setPublisherService(MessagingService service){
 		this.service = service;
 	}
 	
