@@ -154,6 +154,10 @@ package org.bigbluebutton.modules.whiteboard.models
       event.multiUser = multiUser;
       dispatchEvent(event);
    }
+	
+	public function get multiUser():Boolean {
+		return _multiUser;
+	}
 
 	}
 }

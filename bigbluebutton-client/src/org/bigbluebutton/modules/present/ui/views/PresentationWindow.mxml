@@ -177,6 +177,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var noticeSound:Sound = new noticeSoundClass() as Sound;
 
 			private var whiteboardOverlay:WhiteboardCanvas = null;
+			private var delayedWhiteboardOverlayAdd:String;
 			private var screenshareView:ScreenshareViewWindow = null;
 			
 			private function init():void{
@@ -200,7 +201,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				hotkeyCapture();
                 
         //Necessary now because of module loading race conditions
-        var t:Timer = new Timer(5000, 1);
+        var t:Timer = new Timer(2000, 1);
         t.addEventListener(TimerEvent.TIMER, requestWhiteboardCanvas);
         t.start();
         
@@ -517,7 +518,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
            if (screenshareView) {
              screenshareView.removeOverlayCanvas();
            }
-        } else LOGGER.debug("addWhiteboardCanvasToSlideView: NOT adding whiteboard canvas to Slide View.");
+        } else {
+          LOGGER.debug("addWhiteboardCanvasToSlideView: NOT adding whiteboard canvas to Slide View.");
+          delayedWhiteboardOverlayAdd = "slide";
+        }
+      }
+      
+      private function addWhiteboardCanvasToScreenshareView():void {
+        if(whiteboardOverlay != null) {
+          LOGGER.debug("addWhiteboardCanvasToScreenshareView: Adding whiteboard canvas to Screenshare View");
+          changeWhiteboardPageOnly("deskshare");
+          slideView.removeOverlayCanvas();
+          if (screenshareView) {
+            screenshareView.acceptOverlayCanvas(whiteboardOverlay);
+          }
+        } else {
+          LOGGER.debug("addWhiteboardCanvasToScreenshareView: NOT adding whiteboard canvas to Screenshare View.");
+          delayedWhiteboardOverlayAdd = "screenshare";
+        }
       }
 					
 			override protected function resourcesChanged():void{
@@ -931,7 +949,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnPauseScreenshare.visible = false;
 				if (UsersUtil.amIPresenter()) {
 					setControlBarState("presenter");
-					annotationsPermissionChanged(true);
 				} else if(presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible) {
 					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).visible = false;
 					presenterTabs.getTabAt(SCREENSHARE_PUBLISH_TAB_INDEX).includeInLayout = false;
@@ -953,24 +970,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				presenterControls.visible = false;
 				presenterControls.includeInLayout = false;
 				pollStartBtn.visible = false;
-				annotationsPermissionChanged(false);
 			}
 
 			private function handleDesktopViewTabSelected():void {
 				LOGGER.debug("Handling Desktop View Tab selected");
 				currentTabIndex = SCREENSHARE_VIEW_TAB_INDEX;
 
-				if (whiteboardOverlay != null && screenshareView != null) {
-					LOGGER.debug("Adding whiteboard layer to Deskshare View Canvas");
-					changeWhiteboardPageOnly("deskshare");
-					screenshareView.acceptOverlayCanvas(whiteboardOverlay);
-					slideView.removeOverlayCanvas();
-					if(UsersUtil.amIPresenter()) {
-						annotationsPermissionChanged(true);
-					}
-				} else {
-					LOGGER.debug("openScreenshareViewTab: whiteboard overlay or desktop view canvas is null!");
-				}
+				addWhiteboardCanvasToScreenshareView();
 
 				if (!pollVoteBox.visible) {
 					btnActualSize.visible = true;
@@ -1065,12 +1071,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return presenterTabs.numElements == 3;
 			}
 
-			private function annotationsPermissionChanged(enableAnnotations:Boolean):void {
-				var event:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.ANNOTATIONS_PERMISSION_CHANGE);
-				event.enableAnnotations = enableAnnotations;
-				dispatchEvent(event);
-			}
-
 			private function changeVideoDisplayMode():void {
 				var e:ShareEvent = new ShareEvent(ShareEvent.CHANGE_VIDEO_DISPLAY_MODE);
 				e.fullScreen = btnActualSize.selected;
@@ -1112,6 +1112,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function receiveCanvas(wc:WhiteboardCanvas):void {
 				whiteboardOverlay = wc;
+				
+				switch (delayedWhiteboardOverlayAdd) {
+					case "slide":
+						addWhiteboardCanvasToSlideView();
+						break;
+					case "screenshare":
+						addWhiteboardCanvasToScreenshareView();
+						break;
+				}
 			}
 		]]>
 	</mx:Script>

@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
+	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
 	import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
@@ -50,10 +51,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 		
 		public function handleStartModuleEvent():void {
             
-			//Necessary now because of module loading race conditions
-			//var t:Timer = new Timer(1000, 1);
-			//t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
-			//t.start();
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new GetWhiteboardAccessCommand());
 		}
 		
 		public function handleRequestNewCanvas(e:RequestNewCanvasEvent):void {

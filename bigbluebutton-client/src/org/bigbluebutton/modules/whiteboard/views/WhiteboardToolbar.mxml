@@ -38,7 +38,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
   <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
   <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
-  <mate:Listener type="{PresenterStatusEvent.ANNOTATIONS_PERMISSION_CHANGE}" method="handleEnableAnnotations" />
     
   <mx:Style>
     .colorPickerStyle {
@@ -74,7 +73,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.MadePresenterEvent;
-		import org.bigbluebutton.main.events.PresenterStatusEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -97,7 +95,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var mousedOver:Boolean = false;
 			private var slideLoaded:Boolean = false;
-			private var enableAnnotations:Boolean = true;
 			
 			public var canvas:WhiteboardCanvas;
 			private var containerToOverlay:MDIWindow;
@@ -225,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && enableAnnotations && (wbOptions.keepToolbarVisible || mousedOver) && !containerToOverlay.minimized) {
+                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver) && !containerToOverlay.minimized) {
                     setPositionAndDepth();
                     showToolbar();
                 } else {
@@ -296,11 +293,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function get isModerator():Boolean {
         return UsersUtil.amIModerator();
-      }
-		           
-      private function handleEnableAnnotations(e:PresenterStatusEvent):void {
-        enableAnnotations = e.enableAnnotations;
-        checkVisibility();
       }
 
 		]]>

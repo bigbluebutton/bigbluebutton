@@ -78,6 +78,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 			textToolbar = new WhiteboardTextToolbar();
 			textToolbar.canvas = this;
 			
+			whiteboardToolbar.whiteboardAccessModified(wbModel.multiUser);
+			
 			//create the annotation display container
 			this.addChild(graphicObjectHolder);
 			graphicObjectHolder.x = 0;
