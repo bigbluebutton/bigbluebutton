@@ -103,11 +103,6 @@ class Dropdown extends Component {
     }
   }
 
-  componentWillUnmount () {
-    const { removeEventListener } = window;
-    removeEventListener('click', this.handleWindowClick, false);
-  }
-
   handleWindowClick(event) {
     const dropdownElement = findDOMNode(this);
     const shouldUpdateState = event.target !== dropdownElement &&
