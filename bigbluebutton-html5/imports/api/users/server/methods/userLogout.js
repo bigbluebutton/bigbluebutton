@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import Logger from '/imports/startup/server/logger';
 
 import userLeaving from './userLeaving';
 
@@ -10,5 +11,9 @@ export default function userLogout(credentials) {
 
   const { requesterUserId } = credentials;
 
-  return userLeaving(credentials, requesterUserId);
+  try {
+    userLeaving(credentials, requesterUserId);
+  } catch(e) {
+    Logger.error(`Exception while executing userLeaving: ${e}`);
+  }
 };

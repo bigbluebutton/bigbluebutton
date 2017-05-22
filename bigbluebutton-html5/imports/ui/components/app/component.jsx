@@ -33,7 +33,6 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  init: PropTypes.func.isRequired,
   fontSize: PropTypes.string,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
@@ -52,8 +51,6 @@ class App extends Component {
     this.state = {
       compactUserList: false, //TODO: Change this on userlist resize (?)
     };
-
-    props.init.call(this);
   }
 
   componentDidMount() {

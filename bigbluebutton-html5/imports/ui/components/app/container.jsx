@@ -31,7 +31,6 @@ const intlMessages = defineMessages({
   kickedMessage: {
     id: 'app.error.kicked',
     description: 'Message when the user is kicked out of the meeting',
-    defaultMessage: 'You have been kicked out of the meeting',
   },
 });
 
@@ -72,16 +71,7 @@ export default withRouter(injectIntl(withModalMounter(createContainer((
       },
     });
 
-    const APP_CONFIG = Meteor.settings.public.app;
-
-    const init = () => {
-      if (APP_CONFIG.autoJoinAudio) {
-        mountModal(<AudioModalContainer />);
-      }
-    };
-
     return {
-      init,
       sidebar: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
       fontSize: getFontSize(),
     };

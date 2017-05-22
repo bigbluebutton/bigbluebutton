@@ -155,7 +155,7 @@ $bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is al
   @include mq($small-only) {
     padding-bottom: $actionsbar-height;
     margin-bottom: $actionsbar-height;
-    position: absolute;
+    position: relative;
   }
 }
 
