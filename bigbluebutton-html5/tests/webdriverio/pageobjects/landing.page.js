@@ -19,9 +19,14 @@ var landingPage = Object.create(page, {
             return $('input[type=submit]');
         }
     },
-    join: {
+    joinWithButtonClick: {
         value: function() {
             this.joinButton.click();
+        }
+    },
+    joinWithEnterKey: {
+        value: function() {
+            page.pressEnter();
         }
     },
     loadedHomePage: {
