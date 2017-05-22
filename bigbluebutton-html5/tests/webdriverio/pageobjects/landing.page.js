@@ -9,6 +9,9 @@ var landingPage = Object.create(page, {
     title: {
         value: 'Join Meeting via HTML5 Client'
     },
+    url: {
+        value: 'http://localhost:8080/demo/demoHTML5.jsp'
+    },
     username: {
         get: function() {
             return $('input[name=username]');
