@@ -23,7 +23,7 @@ function shouldShowDeskshare() {
 }
 
 function shouldShowOverlay() {
-  return false;
+  return true;
 }
 
 export default {

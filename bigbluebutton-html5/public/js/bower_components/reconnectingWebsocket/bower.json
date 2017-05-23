@@ -1,0 +1,24 @@
+{
+  "name": "reconnectingWebsocket",
+  "main": "reconnecting-websocket.js",
+  "version": "1.0.0",
+  "homepage": "https://github.com/joewalnes/reconnecting-websocket",
+  "authors": [
+    "Joe Walnes",
+    "headlessme <contact@coggle.it>"
+  ],
+  "description": "A small decorator for the JavaScript WebSocket API that automatically reconnects",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

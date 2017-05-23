@@ -1,0 +1,32 @@
+{
+  "name": "kurento-hello-world",
+  "description": "Kurento Browser JavaScript Tutorial",
+  "authors": [
+    "Kurento <info@kurento.org>"
+  ],
+  "main": "index.html",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "LGPL",
+  "homepage": "http://www.kurento.org/",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "adapter.js": "0.2.9",
+    "bootstrap": "3.3.6",
+    "kurento-utils": "6.5.0",
+    "react": "15.1.0",
+    "reconnectingWebsocket": "1.0.0",
+    "requirejs": "2.2.0",
+    "requirejs-react-jsx": "1.0.2",
+    "requirejs-text": "2.0.15",
+    "font-awesome": "fontawesome#^4.6.3"
+  }
+}

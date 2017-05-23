@@ -1,0 +1,20 @@
+{
+  "name": "kurento-utils",
+  "description": "Kurento Utilities",
+  "license": "ALv2",
+  "keywords": [
+    "API",
+    "Kurento",
+    "WebRTC"
+  ],
+  "homepage": "http://www.kurento.org",
+  "repository": {
+    "type": "git",
+    "url": "Kurento/kurento-utils-js"
+  },
+  "authors": [
+    "Kurento <info@kurento.org> (http://kurento.org)",
+    "Ivan Gracia <izanmail@gmail.com>",
+    "Jesus Leganes 'piranna' <piranna@gmail.com>"
+  ]
+}
