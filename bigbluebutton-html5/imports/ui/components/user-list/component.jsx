@@ -40,14 +40,14 @@ class UserList extends Component {
 
   focusList(activeElement, list) {
     activeElement.tabIndex = -1;
-    this.counter = 0;
+    this.counter = -1;
     list.tabIndex = 0;
     list.focus();
   }
 
   focusListItem(active, direction, element, count) {
 
-    function select() {
+    const select = (element) => {
       element.tabIndex = 0;
       element.focus();
     }
@@ -56,27 +56,10 @@ class UserList extends Component {
 
     switch (direction) {
       case 'down':
-        element.childNodes[this.counter].tabIndex = 0;
-        element.childNodes[this.counter].focus();
-        this.counter++;
+        select(element.childNodes[this.counter]);
         break;
       case 'up':
-        this.counter--;
-        element.childNodes[this.counter].tabIndex = 0;
-        element.childNodes[this.counter].focus();
-        break;
-      case 'upLoopUp':
-      case 'upLoopDown':
-        this.counter = count - 1;
-        select();
-        break;
-      case 'downLoopDown':
-        this.counter = -1;
-        select();
-        break;
-      case 'downLoopUp':
-        this.counter = 1;
-        select();
+        select(element.childNodes[this.counter]);
         break;
     }
   }
@@ -115,40 +98,40 @@ class UserList extends Component {
     }
 
     if (event.keyCode === KEY_CODES.ARROW_DOWN) {
-      if (this.counter < count) {
-        this.focusListItem(active, 'down', items);
-      }else if (this.counter === count) {
-        this.focusListItem(active, 'downLoopDown', list);
-      }else if (this.counter === 0) {
-        this.focusListItem(active, 'downLoopUp', list);
+      this.counter = this.counter + 1;
+
+      if(this.counter == count){
+        this.counter = 0;
       }
+
+      this.focusListItem(active, 'down', items);
     }
 
     if (event.keyCode === KEY_CODES.ARROW_UP) {
-      if (this.counter < count && this.counter !== 0) {
-        this.focusListItem(active, 'up', items);
-      }else if (this.counter === 0) {
-        this.focusListItem(active, 'upLoopUp', list, count);
-      }else if (this.counter === count) {
-        this.focusListItem(active, 'upLoopDown', list, count);
+      this.counter = this.counter - 1;
+
+      if(this.counter <= -1){
+        this.counter = count - 1;
       }
+
+      this.focusListItem(active, 'up', items);
     }
   }
 
   componentDidMount() {
     if (!this.state.compact) {
-      this._msgsList.addEventListener('keypress',
+      this._msgsList.addEventListener('keydown',
         event=>this.rovingIndex(event, "messages"));
 
-      this._usersList.addEventListener('keypress',
+      this._usersList.addEventListener('keydown',
         event=>this.rovingIndex(event, "users"));
     }
   }
 
   componentWillUnmount() {
-    this._msgsList.removeEventListener('keypress', function (event) {}, false);
+    this._msgsList.removeEventListener('keydown', function (event) {}, false);
 
-    this._usersList.removeEventListener('keypress', function (event) {}, false);
+    this._usersList.removeEventListener('keydown', function (event) {}, false);
   }
 
   render() {
