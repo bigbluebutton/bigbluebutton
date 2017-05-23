@@ -255,12 +255,12 @@ class UserListItem extends Component {
 
     let userAriaLabel = (user.emoji.status === 'none')
       ? intl.formatMessage(messages.userItemAriaLabel,
-          { username: user.name, presenter: presenter, you: you, })
+          { 0: user.name, 1: presenter, 2: you, })
       : intl.formatMessage(messages.userItemStatusAriaLabel,
-          { username: user.name,
-            presenter: presenter,
-            you: you,
-            status: user.emoji.status, });
+          { 0: user.name,
+            1: presenter,
+            2: you,
+            3: user.emoji.status, });
 
     let actions = this.getAvailableActions();
     let contents = (
