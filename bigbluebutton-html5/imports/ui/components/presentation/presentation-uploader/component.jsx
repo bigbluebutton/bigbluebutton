@@ -301,8 +301,8 @@ class PresentationUploader extends Component {
         <td className={styles.tableItemStatus}>
           {this.renderPresentationItemStatus(item)}
         </td>
-        {disableActions ? null : (
-          <td className={styles.tableItemActions}>
+        <td className={styles.tableItemActions}>
+          {disableActions ? null : (<span>
             <Checkbox
               disabled={disableCheck}
               ariaLabel={'Set as current presentation'}
@@ -318,8 +318,8 @@ class PresentationUploader extends Component {
                 <Icon iconName={'delete'}/>
               </ButtonBase>
             )}
-          </td>
-        )}
+          </span>)}
+        </td>
       </tr>
     );
   }

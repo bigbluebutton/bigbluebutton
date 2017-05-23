@@ -52,10 +52,10 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
 
   return new Promise((resolve, reject) =>
     removePresentations(presentationsToRemove)
-    .then(uploadPresentations.bind(null, presentationsToUpload, Auth.meetingID, uploadEndpoint))
-    .then(call.bind(null, 'sharePresentation', currentPresentation.id, true))
-    .then(resolve)
-    .catch(reject)
+      .then(uploadPresentations.bind(null, presentationsToUpload, Auth.meetingID, uploadEndpoint))
+      .then(call.bind(null, 'sharePresentation', currentPresentation.id, true))
+      .then(resolve)
+      .catch(reject)
   );
 };
 

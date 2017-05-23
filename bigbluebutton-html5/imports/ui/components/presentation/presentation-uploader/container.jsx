@@ -27,12 +27,10 @@ export default createContainer(() => {
     fileSizeMin: PRESENTATION_CONFIG.uploadSizeMin,
     fileSizeMax: PRESENTATION_CONFIG.uploadSizeMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    handleSave: (presentations) => {
-      return Service.persistPresentationChanges(
-        currentPresentations,
-        presentations,
-        PRESENTATION_CONFIG.uploadEndpoint
-      );
-    },
+    handleSave: presentations => Service.persistPresentationChanges(
+      currentPresentations,
+      presentations,
+      PRESENTATION_CONFIG.uploadEndpoint
+    ),
   };
 }, PresentationUploaderContainer);

@@ -22,6 +22,7 @@ export default function sharePresentation(credentials, presentationId, shouldSha
   const currentPresentation = Presentations.findOne({
     meetingId: meetingId,
     'presentation.id': presentationId,
+    'presentation.current': true,
   });
 
   if (currentPresentation && currentPresentation.presentation.id === presentationId) return;
