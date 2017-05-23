@@ -33,11 +33,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		function normalize(val:Number, side:Number):Number;
 		
-		function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void;
+		function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void;
 		
 		function updateAnnotation(a:Annotation):void;
 		
-		function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void;
+		function redraw(parentWidth:Number, parentHeight:Number):void;
 		
 	}
 }

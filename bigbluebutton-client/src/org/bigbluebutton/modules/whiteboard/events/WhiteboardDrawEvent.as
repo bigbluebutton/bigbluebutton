@@ -29,10 +29,9 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const SEND_SHAPE:String = "sendShape";
 		public static const CLEAR:String = "WhiteboardClearCommand";
 		public static const UNDO:String = "WhiteboardUndoCommand";
-        
-    public static const GET_ANNOTATION_HISTORY:String = "WhiteboardGetAnnotationHistory";
 		
 		public var annotation:Annotation;
+		public var wbId:String;
 		       
 		public function WhiteboardDrawEvent(type:String, bubbles:Boolean = true, cancelable:Boolean = false)
 		{

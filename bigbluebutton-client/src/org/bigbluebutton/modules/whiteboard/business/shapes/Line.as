@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import flash.display.CapsStyle;
+
 	public class Line extends DrawObject
 	{
 		public function Line(id:String, type:String, status:String, userId:String) {
@@ -28,7 +30,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.graphics.clear();
 //			LogUtil.debug("Drawing LINE");
 			
-			this.graphics.lineStyle(_ao.thickness * _zoom, _ao.color);
+			this.graphics.lineStyle(denormalize(_ao.thickness, _parentWidth), _ao.color, _ao.transparency ? 0.6 : 1.0, true, "normal", CapsStyle.NONE);
+			
 			var arrayEnd:Number = (_ao.points as Array).length;
 			var startX:Number = denormalize((_ao.points as Array)[0], _parentWidth);
 			var startY:Number = denormalize((_ao.points as Array)[1], _parentHeight);

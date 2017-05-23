@@ -37,29 +37,22 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _isDrawing:Boolean = false;; 
     private var _segment:Array = new Array();
     private var _wbCanvas:WhiteboardCanvas;
-    private var _sendFrequency:int;
     private var _shapeFactory:ShapeFactory;
-    private var _ctrlKeyDown:Boolean = false;
     private var _idGenerator:AnnotationIDGenerator;
     private var _curID:String;
-    private var _wbModel:WhiteboardModel;
     private var _wbId:String = null;
     
     
     public function PencilDrawListener(idGenerator:AnnotationIDGenerator, 
                                        wbCanvas:WhiteboardCanvas, 
-                                       sendShapeFrequency:int, 
-                                       shapeFactory:ShapeFactory, 
-                                       wbModel:WhiteboardModel)
+                                       shapeFactory:ShapeFactory)
     {
       _idGenerator = idGenerator;
       _wbCanvas = wbCanvas;
-      _sendFrequency = sendShapeFrequency;
       _shapeFactory = shapeFactory;
-      _wbModel = wbModel;
     }
     
-    public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
+    public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool, wbId:String):void {
       //if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
       if (tool.toolType == AnnotationType.PENCIL) {
         if (_isDrawing) {
@@ -70,7 +63,7 @@ package org.bigbluebutton.modules.whiteboard.views
         _isDrawing = true;
         _drawStatus = AnnotationStatus.DRAW_START;
         
-        _wbId = _wbModel.getCurrentWhiteboardId();
+        _wbId = wbId;
         
         // Generate a shape id so we can match the mouse down and up events. Then we can
         // remove the specific shape when a mouse up occurs.
@@ -85,10 +78,6 @@ package org.bigbluebutton.modules.whiteboard.views
 		
         sendShapeToServer(AnnotationStatus.DRAW_START, tool);
       } 
-    }
-        
-    public function ctrlKeyDown(down:Boolean):void {
-      _ctrlKeyDown = down;
     }
     
     public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void {
@@ -136,11 +125,7 @@ package org.bigbluebutton.modules.whiteboard.views
       dobj.status = status;
       dobj.id = _curID;
       
-      var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
-      
-      if (_wbId != null) {
-        an.annotation["whiteboardId"] = _wbId;
-      }
+      var an:Annotation = dobj.createAnnotation(_wbId);
       
       if (an != null) {
         _wbCanvas.sendGraphicToServer(an);

@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.whiteboard.models
   public class Whiteboard
   {
     private var _id:String;
+    private var _historyLoaded:Boolean = false;
     private var _annotations:ArrayCollection = new ArrayCollection();
     
     public function Whiteboard(id:String) {
@@ -17,8 +18,20 @@ package org.bigbluebutton.modules.whiteboard.models
       return _id;
     }
     
+    public function get historyLoaded():Boolean {
+      return _historyLoaded;
+    }
+    
+    public function set historyLoaded(v:Boolean):void {
+      _historyLoaded = v;
+    }
+    
     public function addAnnotation(annotation:Annotation):void {
       _annotations.addItem(annotation);
+    }
+    
+    public function addAnnotationAt(annotation:Annotation, index:int):void {
+      _annotations.addItemAt(annotation, index);
     }
     
     public function updateAnnotation(annotation:Annotation):void {

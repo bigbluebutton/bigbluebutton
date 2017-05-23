@@ -26,6 +26,6 @@ package org.bigbluebutton.modules.whiteboard.models
 		public static const ELLIPSE:String = "ellipse";
 		public static const TRIANGLE:String = "triangle";
 		public static const TEXT:String = "text";
-		public static const POLL:String = "poll";
+		public static const POLL:String = "poll_result";
 	}
 }

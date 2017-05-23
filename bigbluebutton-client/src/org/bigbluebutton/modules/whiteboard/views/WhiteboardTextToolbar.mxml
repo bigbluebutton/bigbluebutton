@@ -24,20 +24,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC"
 	cornerRadius="5" borderStyle="solid"
 	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0"
-	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*">
+	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*"
+	creationComplete="onCreationComplete()">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableTextToolbar" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.containers.MDIWindow;
+			
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
@@ -51,13 +53,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var backgroundVisible:Boolean;
 			
 			private var currentlySelectedTextObject:TextObject = null;	
-			private var presentationWindow:PresentationWindow;
+			private var containerToOverlay:MDIWindow;
 			private var normalAlpha:Number = 0.55;
 			private var focusedAlpha:Number = 1.0;
 			private var hasFocus:Boolean;
 			[Bindable] private var fontSizes:Array = ["12", "14", "16", "18", "22", "24", "32", "36"];
 			
-			public function init():void {
+			private function onCreationComplete():void {
 				this.alpha = normalAlpha;
 				this.addEventListener(MouseEvent.ROLL_OVER, makeFocused);
 				this.addEventListener(MouseEvent.ROLL_OUT, makeDim);
@@ -74,11 +76,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			/* Following two methods are used for aesthetics when mouse hovers over TextToolbar and when it hovers out of it */
-			public function makeDim(event:MouseEvent):void {
+			private function makeDim(event:MouseEvent):void {
 					this.alpha = normalAlpha;
 			}
 			
-			public function makeFocused(event:MouseEvent):void {
+			private function makeFocused(event:MouseEvent):void {
 					this.alpha = focusedAlpha;
 			}
 			
@@ -141,11 +143,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			// invoked by WhiteboardManager when the TextToolbar is first loaded
-			public function positionToolbar(window:PresentationWindow):void{
-				this.presentationWindow = window;
-				presentationWindow.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
-				presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
-				presentationWindow.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
+			public function positionToolbar(container:MDIWindow):void{
+				containerToOverlay = container;
+				containerToOverlay.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
+				containerToOverlay.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
+				containerToOverlay.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
 			}
 			
 			/* required for repositioning the TextToolbar when an event occurs on the presentation window */
