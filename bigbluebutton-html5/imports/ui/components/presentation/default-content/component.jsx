@@ -31,8 +31,8 @@ export default class DefaultContent extends Component {
                 <FormattedMessage
                   id="app.home.greeting"
                   description="Message to greet the user."
-                  defaultMessage="Welcome {name}! Your presentation will begin shortly..."
-                  values={{ name: 'James Bond' }}
+                  defaultMessage="Welcome {0}! Your presentation will begin shortly..."
+                  values={{ 0: 'James Bond' }}
                 />
                 <br/>
                 Today is {' '}<FormattedDate value={Date.now()} />

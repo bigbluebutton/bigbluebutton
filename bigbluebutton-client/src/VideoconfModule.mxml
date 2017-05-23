@@ -69,11 +69,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.userrole as String;
 			}
 			
-			public function get presenterShareOnly():Boolean{
-				if (_attributes.presenterShareOnly == "true") return true;
-				else return false;
-			}
-			
 			public function start(attributes:Object):void {
 				LOGGER.debug("Starting Video Module");
 				_attributes = attributes;

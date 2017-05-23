@@ -41,14 +41,16 @@ export default class DropdownTrigger extends Component {
   }
 
   render() {
-    const { children, style, className, } = this.props;
+    const { children, style, className, placeInTabOrder, } = this.props;
     const TriggerComponent = React.Children.only(children);
+
+    let index = (placeInTabOrder) ? '0' : '-1';
 
     const TriggerComponentBounded = React.cloneElement(children, {
       onClick: this.handleClick,
       onKeyDown: this.handleKeyDown,
       'aria-haspopup': true,
-      tabIndex: '0',
+      tabIndex: index,
       style: style,
       className: cx(children.props.className, className),
     });
