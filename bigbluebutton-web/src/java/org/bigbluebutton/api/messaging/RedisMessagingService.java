@@ -28,7 +28,10 @@ import java.util.Set;
 
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
-import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
+import org.bigbluebutton.messages.RegisterUserMessage;
+import org.bigbluebutton.api.messaging.converters.messages.PublishRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.UnpublishRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DeleteRecordingMessage;
 import org.bigbluebutton.common.converters.ToJsonEncoder;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.MessagingConstants;
@@ -68,10 +71,15 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String avatarURL) {
-		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken, avatarURL);
-		String json = MessageToJson.registerUserToJson(msg);
-		log.info("Sending register user message to bbb-apps:[{}]", json);
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role,
+							 String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed) {
+		RegisterUserMessage.Payload payload = new RegisterUserMessage.Payload(meetingID, internalUserId, fullname, role, externUserID,
+				authToken, avatarURL, guest, authed);
+		RegisterUserMessage msg = new RegisterUserMessage(payload);
+
+		Gson gson = new Gson();
+		String json = gson.toJson(msg);
+		log.info("*****Sending register user message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
 	}
 	
@@ -80,13 +88,14 @@ public class RedisMessagingService implements MessagingService {
             String voiceBridge, Integer duration, Boolean autoStartRecording,
             Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
             String moderatorPass, String viewerPass, Long createTime,
-            String createDate, Boolean isBreakout, Integer sequence) {
+            String createDate, Boolean isBreakout, Integer sequence, Map<String, String> metadata,
+							  String guestPolicy) {
         CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(
                 meetingID, externalMeetingID, parentMeetingID, meetingName,
                 recorded, voiceBridge, duration, autoStartRecording,
                 allowStartStopRecording, webcamsOnlyForModerator,
                 moderatorPass, viewerPass, createTime, createDate, isBreakout,
-                sequence);
+                sequence, metadata, guestPolicy);
         CreateMeetingRequest msg = new CreateMeetingRequest(payload);
 
         Gson gson = new Gson();
@@ -133,20 +142,34 @@ public class RedisMessagingService implements MessagingService {
   	this.storeService = storeService;
   }
   
-	public String storeSubscription(String meetingId, String externalMeetingID, String callbackURL){
-		return storeService.storeSubscription(meetingId, externalMeetingID, callbackURL);
-	}
-
-	public boolean removeSubscription(String meetingId, String subscriptionId){
-		return storeService.removeSubscription(meetingId, subscriptionId);
-	}
-
-	public List<Map<String,String>> listSubscriptions(String meetingId){
-		return storeService.listSubscriptions(meetingId);	
-	}	
-
 	public void removeMeeting(String meetingId){
 		storeService.removeMeeting(meetingId);
+	}
+
+	private void publishRecording(String recordId, String meetingId, String externalMeetingId, String format) {
+		PublishRecordingMessage msg = new PublishRecordingMessage(recordId, meetingId, externalMeetingId, format);
+		String json = MessageToJson.publishRecordingMessageToJson(msg);
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
+	}
+
+	private void unpublishRecording(String recordId, String meetingId, String externalMeetingId, String format) {
+		UnpublishRecordingMessage msg = new UnpublishRecordingMessage(recordId, meetingId, externalMeetingId, format);
+		String json = MessageToJson.unpublishRecordingMessageToJson(msg);
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
+	}
+
+	public void publishRecording(String recordId, String meetingId, String externalMeetingId, String format, boolean publish) {
+		if (publish) {
+			publishRecording(recordId, meetingId, externalMeetingId, format);
+		} else {
+			unpublishRecording(recordId, meetingId, externalMeetingId, format);
+		}
+	}
+
+	public void deleteRecording(String recordId, String meetingId, String externalMeetingId, String format) {
+		DeleteRecordingMessage msg = new DeleteRecordingMessage(recordId, meetingId, externalMeetingId, format);
+		String json = MessageToJson.deleteRecordingMessageToJson(msg);
+		sender.send(MessagingConstants.FROM_BBB_RECORDING_CHANNEL, json);
 	}
 
 	public void sendStunTurnInfo(String meetingId, String internalUserId, Set<StunServer> stuns, Set<TurnEntry> turns) {

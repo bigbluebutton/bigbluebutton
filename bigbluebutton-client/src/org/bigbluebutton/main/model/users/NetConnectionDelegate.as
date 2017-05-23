@@ -34,6 +34,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.core.services.BandwidthMonitor;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -53,6 +54,7 @@ package org.bigbluebutton.main.model.users
         private var _messageListeners:Array = new Array();
         private var authenticated: Boolean = false;
         private var reconnecting:Boolean = false;
+        private var guestKickedOutCommand:Boolean = false;
         
         private var maxConnectAttempt:int = 2;
         private var connectAttemptCount:int = 0;
@@ -262,6 +264,8 @@ package org.bigbluebutton.main.model.users
                 var appURL:String = BBB.getConfigManager().config.application.uri;
                 var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
                 var result:Array = pattern.exec(appURL);
+
+                BandwidthMonitor.getInstance().serverURL = result.server;
             
                 var protocol:String = "rtmp";
                 var uri:String = appURL + "/" + confParams.room;
@@ -287,7 +291,8 @@ package org.bigbluebutton.main.model.users
                 _netConnection.connect(bbbAppsUrl, confParams.username, confParams.role,
                                         confParams.room, confParams.voicebridge, 
                                         confParams.record, confParams.externUserID,
-                                        confParams.internalUserID, confParams.muteOnStart, confParams.lockSettings);
+                                        confParams.internalUserID, confParams.muteOnStart,
+                                        confParams.lockSettings, confParams.guest);
                    
             } catch(e:ArgumentError) {
                 // Invalid parameters.
@@ -324,6 +329,11 @@ package org.bigbluebutton.main.model.users
             _netConnection.close();
         }
         
+        public function guestDisconnect() : void {
+            this.guestKickedOutCommand = true;
+            _netConnection.close();
+        }
+
         public function forceClose():void {
           _netConnection.close();
         }
@@ -426,7 +436,13 @@ package org.bigbluebutton.main.model.users
             var logData:Object = UsersUtil.initLogData();
             logData.tags = ["apps", "connection"];
 
-            if (this.logoutOnUserCommand) {
+            if (this.guestKickedOutCommand) {
+                logData.reason = "Guest kicked out.";
+                logData.message = "User disconnected from BBB App.";
+                LOGGER.info(JSON.stringify(logData));
+
+                sendGuestUserKickedOutEvent();
+            } else if (this.logoutOnUserCommand) {
                 logData.reason = "User requested.";
                 logData.message = "User logged out from BBB App.";
                 LOGGER.info(JSON.stringify(logData));
@@ -471,6 +487,11 @@ package org.bigbluebutton.main.model.users
 
         private function sendUserLoggedOutEvent():void{
             var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
+            dispatcher.dispatchEvent(e);
+        }
+
+        private function sendGuestUserKickedOutEvent():void {
+            var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.MODERATOR_DENIED_ME);
             dispatcher.dispatchEvent(e);
         }
 

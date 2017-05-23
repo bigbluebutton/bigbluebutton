@@ -26,14 +26,13 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
+	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
+	import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
@@ -45,105 +44,25 @@ package org.bigbluebutton.modules.whiteboard.managers
     
     /* Injected by Mate */
     public var whiteboardModel:WhiteboardModel;
-        
-		private var globalDispatcher:Dispatcher;
-		private var highlighterCanvas:WhiteboardCanvas;
-		private var highlighterToolbar:WhiteboardToolbar;
-		private var textToolbar:WhiteboardTextToolbar;
-
-		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
-		private var displayModel:WhiteboardCanvasDisplayModel = new WhiteboardCanvasDisplayModel();
-        
+	
 		public function WhiteboardManager() {
-			globalDispatcher = new Dispatcher();
-		}
-		
-		public function handleStartModuleEvent():void {	
-			if (highlighterCanvas != null) return;
-            
-			highlighterCanvas = new WhiteboardCanvas();
-			highlighterCanvas.model = model;
-      highlighterCanvas.displayModel = displayModel;
-      displayModel.whiteboardModel = whiteboardModel;
-      model.whiteboardModel = whiteboardModel
-                
-		  model.wbCanvas = highlighterCanvas;
-      displayModel.wbCanvas = highlighterCanvas;
-            
-			if (highlighterToolbar != null) return;
-            
-			highlighterToolbar = new WhiteboardToolbar();
-			highlighterToolbar.canvas = highlighterCanvas;
-            
-			if (textToolbar != null) return;
-            
-			textToolbar = new WhiteboardTextToolbar();
-			textToolbar.canvas = highlighterCanvas;
-			textToolbar.init();
-			highlighterCanvas.textToolbar = textToolbar;
-            
-			//Necessary now because of module loading race conditions
-			var t:Timer = new Timer(1000, 1);
-			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
-			t.start();
-		}
-		
-		private function addHighlighterCanvas(e:TimerEvent):void {
-      		LOGGER.debug("Adding Whiteboard Overlay Canvas");
-			PresentationAPI.getInstance().addOverlayCanvas(highlighterCanvas);
-		}	
-
-		public function positionToolbar(e:WhiteboardButtonEvent):void {
-			// add text toolbar for allowing customization of text	
-			var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
-			addUIEvent.component = highlighterToolbar;
-			globalDispatcher.dispatchEvent(addUIEvent);
-			highlighterToolbar.positionToolbar(e.window);
-			highlighterToolbar.stage.focus = highlighterToolbar;
 			
-			var addTextToolbarEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
-			addTextToolbarEvent.component = textToolbar;
-			globalDispatcher.dispatchEvent(addTextToolbarEvent);
-			textToolbar.positionToolbar(e.window);
-		}
-
-		public function drawGraphic(event:WhiteboardUpdate):void {
-			if (event.annotation.whiteboardId == whiteboardModel.getCurrentWhiteboardId()) {
-				displayModel.drawGraphic(event);
-			}
 		}
 		
-		public function clearAnnotations():void {
-      displayModel.clearBoard();
-		}
-        
-    public function receivedAnnotationsHistory(event:WhiteboardShapesEvent):void {
-      displayModel.receivedAnnotationsHistory(event.whiteboardId);
-    }
-		
-		public function undoAnnotation(event:WhiteboardUpdate):void {
-      displayModel.undoAnnotation(event.annotationID);
+		public function handleStartModuleEvent():void {
+            
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new GetWhiteboardAccessCommand());
 		}
 		
-		public function toggleGrid(event:ToggleGridEvent = null):void {
-	//		model.toggleGrid();
+		public function handleRequestNewCanvas(e:RequestNewCanvasEvent):void {
+			var whiteboardCanvas:WhiteboardCanvas = new WhiteboardCanvas(whiteboardModel);
+			whiteboardCanvas.attachToReceivingObject(e.receivingObject);
 		}
-			
-		public function enableWhiteboard(e:WhiteboardButtonEvent):void {
-			highlighterCanvas.enableWhiteboard(e);
-		}
-		
-		public function disableWhiteboard(e:WhiteboardButtonEvent):void {
-			highlighterCanvas.disableWhiteboard(e);
-		}
-    
-    public function handlePageChangedEvent(e:PageLoadedEvent):void {
-      displayModel.changePage(e.pageId);
-    }
 
     public function removeAnnotationsHistory():void {
       // it will dispatch the cleanAnnotations in the displayModel later
-      whiteboardModel.clear();
+      whiteboardModel.clearAll();
     }
 	}
 }

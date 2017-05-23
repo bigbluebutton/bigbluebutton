@@ -36,6 +36,9 @@ package org.bigbluebutton.modules.present.model {
 		[Bindable]
 		public var openExternalFileUploadDialog:Boolean = false;
 
+		[Bindable]
+		public var enableDownload:Boolean = true;
+
 		public function PresentOptions() {
 			name = "PresentModule";
 		}

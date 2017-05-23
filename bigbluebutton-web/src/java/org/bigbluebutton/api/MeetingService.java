@@ -40,6 +40,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.messaging.MessageListener;
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
@@ -50,18 +51,17 @@ import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
 import org.bigbluebutton.api.messaging.messages.RegisterUser;
-import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
 import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
 import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
-import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.turn.StunServer;
 import org.bigbluebutton.web.services.turn.StunTurnService;
@@ -88,14 +88,10 @@ public class MeetingService implements MessageListener {
     private final ConcurrentMap<String, Meeting> meetings;
     private final ConcurrentMap<String, UserSession> sessions;
 
-    private int defaultMeetingExpireDuration = 1;
-    private int defaultMeetingCreateJoinDuration = 5;
     private RecordingService recordingService;
     private MessagingService messagingService;
-    private ExpiredMeetingCleanupTimerTask cleaner;
     private RegisteredUserCleanupTimerTask registeredUserCleaner;
     private StunTurnService stunTurnService;
-    private boolean removeMeetingWhenEnded = false;
 
     private ParamsProcessorUtil paramsProcessorUtil;
     private PresentationUrlDownloadService presDownloadService;
@@ -111,9 +107,9 @@ public class MeetingService implements MessageListener {
 
     public void registerUser(String meetingID, String internalUserId,
             String fullname, String role, String externUserID,
-            String authToken, String avatarURL) {
+            String authToken, String avatarURL, Boolean guest, Boolean authed) {
         handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-                externUserID, authToken, avatarURL));
+                externUserID, authToken, avatarURL, guest, authed));
     }
 
     public UserSession getUserSession(String token) {
@@ -127,13 +123,6 @@ public class MeetingService implements MessageListener {
                     + "] to meeting [" + user.meetingID + "]");
         }
         return user;
-    }
-
-    /**
-     * Remove the meetings that have ended from the list of running meetings.
-     */
-    public void removeExpiredMeetings() {
-        handle(new RemoveExpiredMeetings());
     }
 
     /**
@@ -160,7 +149,6 @@ public class MeetingService implements MessageListener {
                 }
             }
         }
-        handle(new RemoveExpiredMeetings());
     }
 
     private void kickOffProcessingOfRecording(Meeting m) {
@@ -197,77 +185,6 @@ public class MeetingService implements MessageListener {
 
             if (userSession.meetingID.equals(meetingId)) {
                 iterator.remove();
-            }
-        }
-    }
-
-    private void checkAndRemoveExpiredMeetings() {
-        for (Meeting m : meetings.values()) {
-            if (m.hasExpired(defaultMeetingExpireDuration)) {
-                Map<String, Object> logData = new HashMap<String, Object>();
-                logData.put("meetingId", m.getInternalId());
-                logData.put("externalMeetingId", m.getExternalId());
-                logData.put("name", m.getName());
-                logData.put("event", "removing_meeting");
-                logData.put("description", "Meeting has expired.");
-
-                Gson gson = new Gson();
-                String logStr = gson.toJson(logData);
-                log.info("Removing expired meeting: data={}", logStr);
-
-                processMeetingForRemoval(m);
-                continue;
-            }
-
-            if (m.isForciblyEnded()) {
-                Map<String, Object> logData = new HashMap<String, Object>();
-                logData.put("meetingId", m.getInternalId());
-                logData.put("externalMeetingId", m.getExternalId());
-                logData.put("name", m.getName());
-                logData.put("event", "removing_meeting");
-                logData.put("description", "Meeting forcefully ended.");
-
-                Gson gson = new Gson();
-                String logStr = gson.toJson(logData);
-
-                log.info("Removing ended meeting: data={}", logStr);
-                processMeetingForRemoval(m);
-                continue;
-            }
-
-            if (m.wasNeverJoined(defaultMeetingCreateJoinDuration)) {
-                Map<String, Object> logData = new HashMap<String, Object>();
-                logData.put("meetingId", m.getInternalId());
-                logData.put("externalMeetingId", m.getExternalId());
-                logData.put("name", m.getName());
-                logData.put("event", "removing_meeting");
-                logData.put("description", "Meeting has not been joined.");
-
-                Gson gson = new Gson();
-                String logStr = gson.toJson(logData);
-
-                log.info("Removing un-joined meeting: data={}", logStr);
-
-                destroyMeeting(m.getInternalId());
-                meetings.remove(m.getInternalId());
-                removeUserSessions(m.getInternalId());
-                continue;
-            }
-
-            if (m.hasExceededDuration()) {
-                Map<String, Object> logData = new HashMap<String, Object>();
-                logData.put("meetingId", m.getInternalId());
-                logData.put("externalMeetingId", m.getExternalId());
-                logData.put("name", m.getName());
-                logData.put("event", "removing_meeting");
-                logData.put("description", "Meeting exceeded duration.");
-
-                Gson gson = new Gson();
-                String logStr = gson.toJson(logData);
-
-                log.info("Removing past duration meeting: data={}", logStr);
-
-                endMeeting(m.getInternalId());
             }
         }
     }
@@ -351,7 +268,7 @@ public class MeetingService implements MessageListener {
                 m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
                 m.getModeratorPassword(), m.getViewerPassword(),
                 m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
-                m.isBreakout(), m.getSequence());
+                m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy());
     }
 
     private String formatPrettyDate(Long timestamp) {
@@ -365,22 +282,7 @@ public class MeetingService implements MessageListener {
     private void processRegisterUser(RegisterUser message) {
         messagingService.registerUser(message.meetingID,
                 message.internalUserId, message.fullname, message.role,
-                message.externUserID, message.authToken, message.avatarURL);
-    }
-
-    public String addSubscription(String meetingId, String event,
-            String callbackURL) {
-        String sid = messagingService.storeSubscription(meetingId, event,
-                callbackURL);
-        return sid;
-    }
-
-    public boolean removeSubscription(String meetingId, String subscriptionId) {
-        return messagingService.removeSubscription(meetingId, subscriptionId);
-    }
-
-    public List<Map<String, String>> listSubscriptions(String meetingId) {
-        return messagingService.listSubscriptions(meetingId);
+                message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
     }
 
     public Meeting getMeeting(String meetingId) {
@@ -462,20 +364,41 @@ public class MeetingService implements MessageListener {
                 if (r.getPlaybackFormat() != null) {
                     plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
                             getDurationRecording(r.getPlaybackDuration(), r.getEndTime(),
-                            r.getStartTime()), r.getPlaybackExtensions()));
+                            r.getStartTime()), r.getPlaybackSize(), r.getProcessingTime(), r.getPlaybackExtensions()));
                 }
 
                 r.setPlaybacks(plays);
+
+                ArrayList<Download> downloads = new ArrayList<Download>();
+
+                if (r.getDownloadFormat() != null) {
+                    downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
+                            r.getDownloadMd5(), r.getDownloadKey(),
+                            r.getDownloadSize(),
+                            getDurationRecording(r.getEndTime(), r.getStartTime())));
+                }
+                r.setDownloads(downloads);
+
                 map.put(r.getId(), r);
             } else {
                 Recording rec = map.get(r.getId());
-                rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
-                                    getDurationRecording(r.getPlaybackDuration(), r.getEndTime(),
-                                    r.getStartTime()), r.getPlaybackExtensions()));
+                if (r.getPlaybackFormat() != null) {
+                    rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+                                        getDurationRecording(r.getPlaybackDuration(), r.getEndTime(), r.getStartTime()),
+                                        r.getPlaybackSize(), r.getProcessingTime(), r.getPlaybackExtensions()));
+                }
+                if (r.getDownloadFormat() != null) {
+                    rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(), r.getDownloadMd5(),
+                                        r.getDownloadKey(), r.getDownloadSize(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+                }
             }
         }
 
         return map;
+    }
+
+    private int getDurationRecording(String end, String start) {
+        return getDurationRecording("", end, start);
     }
 
     private int getDurationRecording(String playbackDuration, String end,
@@ -594,16 +517,16 @@ public class MeetingService implements MessageListener {
 
     private void processEndMeeting(EndMeeting message) {
         messagingService.endMeeting(message.meetingId);
+    }
 
+    private void processRemoveEndedMeeting(MeetingEnded message) {
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
             m.setForciblyEnded(true);
-            if (removeMeetingWhenEnded) {
-                processRecording(m.getInternalId());
-                destroyMeeting(m.getInternalId());
-                meetings.remove(m.getInternalId());
-                removeUserSessions(m.getInternalId());
-            }
+            processRecording(m.getInternalId());
+            destroyMeeting(m.getInternalId());
+            meetings.remove(m.getInternalId());
+            removeUserSessions(m.getInternalId());
         }
     }
 
@@ -706,6 +629,8 @@ public class MeetingService implements MessageListener {
 
             log.info("Meeting destroyed: data={}", logStr);
 
+            processRemoveEndedMeeting(message);
+
             return;
         }
     }
@@ -720,7 +645,7 @@ public class MeetingService implements MessageListener {
             }
 
             User user = new User(message.userId, message.externalUserId,
-                    message.name, message.role, message.avatarURL);
+                    message.name, message.role, message.avatarURL, message.guest, message.waitingForAcceptance);
             m.userJoined(user);
 
             Map<String, Object> logData = new HashMap<String, Object>();
@@ -731,8 +656,10 @@ public class MeetingService implements MessageListener {
             logData.put("externalUserId", user.getExternalUserId());
             logData.put("username", user.getFullname());
             logData.put("role", user.getRole());
-            logData.put("event", "user_joined_message");
-            logData.put("description", "User had joined the meeting.");
+            logData.put("guest", user.isGuest());
+            logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+            logData.put("event", MessagingConstants.USER_JOINED_EVENT);
+            logData.put("description", "User joined the meeting.");
 
             Gson gson = new Gson();
             String logStr = gson.toJson(logData);
@@ -757,8 +684,10 @@ public class MeetingService implements MessageListener {
                 logData.put("externalUserId", user.getExternalUserId());
                 logData.put("username", user.getFullname());
                 logData.put("role", user.getRole());
-                logData.put("event", "user_left_message");
-                logData.put("description", "User had left the meeting.");
+                logData.put("guest", user.isGuest());
+                logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+                logData.put("event", MessagingConstants.USER_LEFT_EVENT);
+                logData.put("description", "User left the meeting.");
 
                 Gson gson = new Gson();
                 String logStr = gson.toJson(logData);
@@ -889,6 +818,21 @@ public class MeetingService implements MessageListener {
         }
     }
 
+    private void userRoleChanged(UserRoleChanged message) {
+        Meeting m = getMeeting(message.meetingId);
+        if (m != null) {
+            User user = m.getUserById(message.userId);
+            if(user != null){
+                user.setRole(message.role);
+                log.debug("Setting new role in meeting " + message.meetingId + " for participant:" + user.getFullname());
+                return;
+            }
+            log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+            return;
+        }
+        log.warn("The meeting " + message.meetingId + " doesn't exist");
+    }
+
     private void processMessage(final IMessage message) {
         Runnable task = new Runnable() {
             public void run() {
@@ -904,6 +848,8 @@ public class MeetingService implements MessageListener {
                     userLeft((UserLeft) message);
                 } else if (message instanceof UserStatusChanged) {
                     updatedStatus((UserStatusChanged) message);
+                } else if (message instanceof UserRoleChanged) {
+                    userRoleChanged((UserRoleChanged)message);
                 } else if (message instanceof UserJoinedVoice) {
                     userJoinedVoice((UserJoinedVoice) message);
                 } else if (message instanceof UserLeftVoice) {
@@ -914,8 +860,6 @@ public class MeetingService implements MessageListener {
                     userSharedWebcam((UserSharedWebcam) message);
                 } else if (message instanceof UserUnsharedWebcam) {
                     userUnsharedWebcam((UserUnsharedWebcam) message);
-                } else if (message instanceof RemoveExpiredMeetings) {
-                    checkAndRemoveExpiredMeetings();
                 } else if (message instanceof CreateMeeting) {
                     processCreateMeeting((CreateMeeting) message);
                 } else if (message instanceof EndMeeting) {
@@ -964,16 +908,7 @@ public class MeetingService implements MessageListener {
 
     public void stop() {
         processMessage = false;
-        cleaner.stop();
         registeredUserCleaner.stop();
-    }
-
-    public void setDefaultMeetingCreateJoinDuration(int expiration) {
-        this.defaultMeetingCreateJoinDuration = expiration;
-    }
-
-    public void setDefaultMeetingExpireDuration(int meetingExpiration) {
-        this.defaultMeetingExpireDuration = meetingExpiration;
     }
 
     public void setRecordingService(RecordingService s) {
@@ -982,17 +917,6 @@ public class MeetingService implements MessageListener {
 
     public void setMessagingService(MessagingService mess) {
         messagingService = mess;
-    }
-
-    public void setExpiredMeetingCleanupTimerTask(
-            ExpiredMeetingCleanupTimerTask c) {
-        cleaner = c;
-        cleaner.setMeetingService(this);
-        cleaner.start();
-    }
-
-    public void setRemoveMeetingWhenEnded(boolean s) {
-        removeMeetingWhenEnded = s;
     }
 
     public void setRegisteredUserCleanupTimerTask(

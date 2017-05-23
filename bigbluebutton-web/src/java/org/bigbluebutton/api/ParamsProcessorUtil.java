@@ -67,6 +67,7 @@ public class ParamsProcessorUtil {
     private String defaultClientUrl;
     private String defaultAvatarURL;
     private String defaultConfigURL;
+    private String defaultGuestPolicy;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
@@ -78,11 +79,12 @@ public class ParamsProcessorUtil {
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
 
+        String SERVER_URL = "%%SERVERURL%%";
         String DIAL_NUM = "%%DIALNUM%%";
         String CONF_NUM = "%%CONFNUM%%";
         String CONF_NAME = "%%CONFNAME%%";
         ArrayList<String> keywordList = new ArrayList<String>();
-        keywordList.add(DIAL_NUM);keywordList.add(CONF_NUM);keywordList.add(CONF_NAME);
+        keywordList.add(DIAL_NUM);keywordList.add(CONF_NUM);keywordList.add(CONF_NAME);keywordList.add(SERVER_URL);
 
         Iterator<String> itr = keywordList.iterator();
         while(itr.hasNext()) {
@@ -93,6 +95,8 @@ public class ParamsProcessorUtil {
                 welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
             } else if (keyword.equals(CONF_NAME)) {
                 welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
+            } else if (keyword.equals(SERVER_URL)) {
+                welcomeMessage = welcomeMessage.replaceAll(SERVER_URL, defaultServerUrl);
             }
         }
         return  welcomeMessage;
@@ -387,6 +391,11 @@ public class ParamsProcessorUtil {
                         internalMeetingId);
             }
         }
+
+        String guestPolicy = defaultGuestPolicy;
+        if (!StringUtils.isEmpty(params.get("guestPolicy"))) {
+        	guestPolicy = params.get("guestPolicy");
+		}
         
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
@@ -432,6 +441,7 @@ public class ParamsProcessorUtil {
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
+				.withGuestPolicy(guestPolicy)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -788,6 +798,10 @@ public class ParamsProcessorUtil {
 	
 	public void setdefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
+	}
+
+	public void setDefaultGuestPolicy(String guestPolicy) {
+		this.defaultGuestPolicy =  guestPolicy;
 	}
 
 	public ArrayList<String> decodeIds(String encodeid) {

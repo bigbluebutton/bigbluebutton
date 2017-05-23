@@ -264,6 +264,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function handleUserVoiceChangedEvent(event:BBBEvent):void {
                 if (user && event.payload.userID == user.userID) {
                     updateButtons();
+                    updateTalkingStatus();
                 }
             }
 

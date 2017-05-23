@@ -27,8 +27,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 public class Meeting {
 
-	private static final long MILLIS_IN_A_MINUTE = 60000;
-	
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;
@@ -55,6 +53,7 @@ public class Meeting {
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
+	private String guestPolicy;
 	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
@@ -63,8 +62,6 @@ public class Meeting {
 	private final ConcurrentMap<String, Config> configs;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList();
-	
-	private long lastUserLeftOn = 0;
 	
     public Meeting(Builder builder) {
         name = builder.name;
@@ -88,6 +85,7 @@ public class Meeting {
         metadata = builder.metadata;
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
+        guestPolicy = builder.guestPolicy;
 
         userCustomData = new HashMap<String, Object>();
 
@@ -251,6 +249,10 @@ public class Meeting {
 	public String getDefaultAvatarURL() {
 		return defaultAvatarURL;
 	}
+
+	public String getGuestPolicy() {
+    	return guestPolicy;
+	}
 	
 	public String getLogoutUrl() {
 		return logoutUrl;
@@ -287,7 +289,6 @@ public class Meeting {
 
 	public User userLeft(String userid){
 		User u = (User) users.remove(userid);	
-		if (users.isEmpty()) lastUserLeftOn = System.currentTimeMillis();
 		return u;
 	}
 
@@ -310,54 +311,6 @@ public class Meeting {
 	
 	public String getDialNumber() {
 		return dialNumber;
-	}
-	
-	public boolean wasNeverJoined(int expiry) {
-		return (hasStarted() && !hasEnded() && nobodyJoined(expiry));
-	}
-	
-	private boolean meetingInfinite() {
-		/* Meeting stays runs infinitely */
-	  return 	duration == 0;
-	}
-	
-	private boolean nobodyJoined(int expiry) {
-		if (expiry == 0) return false; /* Meeting stays created infinitely */
-		
-		long now = System.currentTimeMillis();
-
-		return (!userHasJoined && (now - createdTime) >  (expiry * MILLIS_IN_A_MINUTE));
-	}
-
-	private boolean hasBeenEmptyFor(int expiry) {
-		long now = System.currentTimeMillis();
-		return (now - lastUserLeftOn > (expiry * MILLIS_IN_A_MINUTE));
-	}
-	
-	private boolean isEmpty() {
-		return users.isEmpty();
-	}
-	
-	public boolean hasExpired(int expiry) {
-		return (hasStarted() && userHasJoined && isEmpty() && hasBeenEmptyFor(expiry));
-	}
-	
-	public boolean hasExceededDuration() {
-		return (hasStarted() && !hasEnded() && pastDuration());
-	}
-
-	private boolean pastDuration() {
-		if (meetingInfinite()) return false; 
-		long now = System.currentTimeMillis();
-		return (now - startTime > (duration * MILLIS_IN_A_MINUTE));
-	}
-	
-	private boolean hasStarted() {
-		return startTime > 0;
-	}
-	
-	private boolean hasEnded() {
-		return endTime > 0;
 	}
 
 	public int getNumListenOnly() {
@@ -421,6 +374,7 @@ public class Meeting {
     	private String defaultAvatarURL;
     	private long createdTime;
     	private boolean isBreakout;
+    	private String guestPolicy;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -517,6 +471,11 @@ public class Meeting {
     		metadata = m;
     		return this;
     	}
+
+    	public Builder withGuestPolicy(String policy) {
+    		guestPolicy = policy;
+    		return  this;
+		}
     
     	public Meeting build() {
     		return new Meeting(this);

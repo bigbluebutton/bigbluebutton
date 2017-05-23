@@ -63,8 +63,6 @@ package org.bigbluebutton.modules.phone.managers
           ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.message"),
           'bbb.clientstatus.webrtc.title'));
       }
-      
-      usingWebRTC = checkIfToUseWebRTC();
     }
     
     private function isWebRTCSupported():Boolean {
@@ -158,9 +156,11 @@ package org.bigbluebutton.modules.phone.managers
       logData.message = "handleJoinVoiceConferenceCommand - usingWebRTC:";
       LOGGER.info(JSON.stringify(logData));
 
+      usingWebRTC = checkIfToUseWebRTC();
+
       if (!usingWebRTC || !event.mic) return;
       
-      if (options.skipCheck || echoTestDone) {
+      if ((options.skipCheck && PhoneOptions.firstAudioJoin) || echoTestDone) {
         joinVoiceConference();
       } else {
         startWebRTCEchoTest();

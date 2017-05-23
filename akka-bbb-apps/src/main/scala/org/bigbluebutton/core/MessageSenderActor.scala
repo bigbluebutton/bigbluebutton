@@ -4,6 +4,9 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy.Resume
+import java.io.{ PrintWriter, StringWriter }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.core.pubsub.senders.ChatMessageToJsonConverter
@@ -20,8 +23,10 @@ import org.bigbluebutton.core.apps.Page
 
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
+import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
+import org.bigbluebutton.core.pubsub.senders.SharedNotesMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
@@ -43,12 +48,23 @@ object MessageSenderActor {
 class MessageSenderActor(val service: MessageSender)
     extends Actor with ActorLogging {
 
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+    case e: Exception => {
+      val sw: StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on MessageSenderActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      log.error(sw.toString())
+      Resume
+    }
+  }
+
   val encoder = new ToJsonEncoder()
   def receive = {
     case msg: UserEjectedFromMeeting => handleUserEjectedFromMeeting(msg)
     case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
     case msg: SendPrivateMessageEvent => handleSendPrivateMessageEvent(msg)
+    case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
     case msg: MeetingCreated => handleMeetingCreated(msg)
     case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
     case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
@@ -60,6 +76,8 @@ class MessageSenderActor(val service: MessageSender)
     case msg: MeetingDestroyed => handleMeetingDestroyed(msg)
     case msg: KeepAliveMessageReply => handleKeepAliveMessageReply(msg)
     case msg: PubSubPong => handlePubSubPong(msg)
+    case msg: InactivityWarning => handleInactivityWarning(msg)
+    case msg: MeetingIsActive => handleMeetingIsActive(msg)
     case msg: StartRecording => handleStartRecording(msg)
     case msg: StopRecording => handleStopRecording(msg)
     case msg: GetAllMeetingsReply => handleGetAllMeetingsReply(msg)
@@ -103,6 +121,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
     case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
     case msg: UserStatusChange => handleUserStatusChange(msg)
+    case msg: UserRoleChange => handleUserRoleChange(msg)
     case msg: UserVoiceMuted => handleUserVoiceMuted(msg)
     case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
     case msg: MuteVoiceUser => handleMuteVoiceUser(msg)
@@ -120,8 +139,8 @@ class MessageSenderActor(val service: MessageSender)
     case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
     case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
-    case msg: WhiteboardEnabledEvent => handleWhiteboardEnabledEvent(msg)
-    case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
+    case msg: ModifiedWhiteboardAccessEvent => handleModifiedWhiteboardAccessEvent(msg)
+    case msg: GetWhiteboardAccessReply => handleGetWhiteboardAccessReply(msg)
     // breakout room cases
     case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
@@ -139,6 +158,14 @@ class MessageSenderActor(val service: MessageSender)
     case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
     case msg: DeskShareNotifyASingleViewer => handleDeskShareNotifyASingleViewer(msg)
     case msg: DeskShareHangUp => handleDeskShareHangUp(msg)
+    case msg: GetGuestPolicyReply => handleGetGuestPolicyReply(msg)
+    case msg: GuestPolicyChanged => handleGuestPolicyChanged(msg)
+    case msg: GuestAccessDenied => handleGuestAccessDenied(msg)
+    case msg: PatchDocumentReply => handlePatchDocumentReply(msg)
+    case msg: GetCurrentDocumentReply => handleGetCurrentDocumentReply(msg)
+    case msg: CreateAdditionalNotesReply => handleCreateAdditionalNotesReply(msg)
+    case msg: DestroyAdditionalNotesReply => handleDestroyAdditionalNotesReply(msg)
+    case msg: SharedNotesSyncNoteReply => handleSharedNotesSyncNoteReply(msg)
     case _ => // do nothing
   }
 
@@ -184,6 +211,11 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleSendPrivateMessageEvent(msg: SendPrivateMessageEvent) {
     val json = ChatMessageToJsonConverter.sendPrivateMessageEventToJson(msg)
+    service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
+  }
+
+  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
+    val json = ChatMessageToJsonConverter.clearPublicChatHistoryReplyToJson(msg)
     service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
   }
 
@@ -276,6 +308,16 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {
     val json = MeetingMessageToJsonConverter.getAllMeetingsReplyToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+
+  private def handleInactivityWarning(msg: InactivityWarning) {
+    val json = MeetingMessageToJsonConverter.inactivityWarningToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+
+  private def handleMeetingIsActive(msg: MeetingIsActive) {
+    val json = MeetingMessageToJsonConverter.meetingIsActiveToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 
@@ -502,7 +544,7 @@ class MessageSenderActor(val service: MessageSender)
   private def handleLockLayoutEvent(msg: LockLayoutEvent) {
     val users = new java.util.ArrayList[String];
     msg.applyTo.foreach(uvo => {
-      users.add(uvo.userID)
+      users.add(uvo.id)
     })
 
     val evt = new LockLayoutMessage(msg.meetingID, msg.setById, msg.locked, users)
@@ -512,7 +554,7 @@ class MessageSenderActor(val service: MessageSender)
   private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
     val users = new java.util.ArrayList[String];
     msg.applyTo.foreach(uvo => {
-      users.add(uvo.userID)
+      users.add(uvo.id)
     })
 
     val evt = new BroadcastLayoutMessage(msg.meetingID, msg.setByUserID, msg.layoutID, msg.locked, users)
@@ -579,6 +621,11 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleUserStatusChange(msg: UserStatusChange) {
     val json = UsersMessageToJsonConverter.userStatusChangeToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleUserRoleChange(msg: UserRoleChange) {
+    val json = UsersMessageToJsonConverter.userRoleChangeToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
@@ -711,13 +758,13 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 
-  private def handleWhiteboardEnabledEvent(msg: WhiteboardEnabledEvent) {
-    val json = WhiteboardMessageToJsonConverter.whiteboardEnabledEventToJson(msg)
+  private def handleModifiedWhiteboardAccessEvent(msg: ModifiedWhiteboardAccessEvent) {
+    val json = WhiteboardMessageToJsonConverter.modifiedWhiteboardAccessEventToJson(msg)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 
-  private def handleIsWhiteboardEnabledReply(msg: IsWhiteboardEnabledReply) {
-    val json = WhiteboardMessageToJsonConverter.isWhiteboardEnabledReplyToJson(msg)
+  private def handleGetWhiteboardAccessReply(msg: GetWhiteboardAccessReply) {
+    val json = WhiteboardMessageToJsonConverter.getWhiteboardAccessReplyToJson(msg)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 
@@ -771,5 +818,45 @@ class MessageSenderActor(val service: MessageSender)
   private def handleBreakoutRoomsTimeRemainingUpdate(msg: BreakoutRoomsTimeRemainingUpdateOutMessage) {
     val json = MeetingMessageToJsonConverter.breakoutRoomsTimeRemainingUpdateToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleGetGuestPolicyReply(msg: GetGuestPolicyReply) {
+    val json = UsersMessageToJsonConverter.getGuestPolicyReplyToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleGuestPolicyChanged(msg: GuestPolicyChanged) {
+    val json = UsersMessageToJsonConverter.guestPolicyChangedToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleGuestAccessDenied(msg: GuestAccessDenied) {
+    val json = UsersMessageToJsonConverter.guestAccessDeniedToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handlePatchDocumentReply(msg: PatchDocumentReply) {
+    val json = SharedNotesMessageToJsonConverter.patchDocumentReplyToJson(msg)
+    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
+  }
+
+  private def handleGetCurrentDocumentReply(msg: GetCurrentDocumentReply) {
+    val json = SharedNotesMessageToJsonConverter.getCurrentDocumentReplyToJson(msg)
+    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
+  }
+
+  private def handleCreateAdditionalNotesReply(msg: CreateAdditionalNotesReply) {
+    val json = SharedNotesMessageToJsonConverter.createAdditionalNotesReplyToJson(msg)
+    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
+  }
+
+  private def handleDestroyAdditionalNotesReply(msg: DestroyAdditionalNotesReply) {
+    val json = SharedNotesMessageToJsonConverter.destroyAdditionalNotesReplyToJson(msg)
+    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
+  }
+
+  private def handleSharedNotesSyncNoteReply(msg: SharedNotesSyncNoteReply) {
+    val json = SharedNotesMessageToJsonConverter.sharedNotesSyncNoteReplyToJson(msg)
+    service.send(MessagingConstants.FROM_SHAREDNOTES_CHANNEL, json)
   }
 }

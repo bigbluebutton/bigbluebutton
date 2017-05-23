@@ -60,6 +60,15 @@ module BigBlueButton
       end  
       metadata
     end
+
+    # Get the external meeting id
+    def self.get_external_meeting_id(events_xml)
+      BigBlueButton.logger.info("Task: Getting external meeting id")
+      metadata = get_meeting_metadata(events_xml)
+      external_meeting_id = {}
+      external_meeting_id = metadata['meetingId'] if !metadata['meetingId'].nil?
+      external_meeting_id
+    end
     
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events_xml)
@@ -195,7 +204,12 @@ module BigBlueButton
       return video_edl
     end
 
-        
+    def self.get_matched_start_and_stop_deskshare_events(events_path)
+      deskshare_start_events = BigBlueButton::Events.get_start_deskshare_events(events_path)
+      deskshare_stop_events = BigBlueButton::Events.get_stop_deskshare_events(events_path)
+      return BigBlueButton::Events.match_start_and_stop_deskshare_events(deskshare_start_events, deskshare_stop_events)
+    end
+
     # Determine if the start and stop event matched.
     def self.deskshare_event_matched?(stop_events, start)
       BigBlueButton.logger.info("Task: Determining if the start and stop DESKSHARE events matched")      
@@ -211,19 +225,21 @@ module BigBlueButton
     
     # Match the start and stop events.
     def self.match_start_and_stop_deskshare_events(start_events, stop_events)
-      BigBlueButton.logger.info("Task: Matching start and stop DESKSHARE events")      
-      combined_events = []
-      start_events.each do |start|
-        if not video_event_matched?(stop_events, start) 
-          stop_event = {:stop_timestamp => stop[:stop_timestamp], :stream => stop[:stream], :matched => false}
-          combined_events << stop_event
+      BigBlueButton.logger.info("Task: Matching the start and stop deskshare events")
+      matched_events = []
+      stop_events.each do |stop|
+        start_evt = find_video_event_matched(start_events, stop)
+        if start_evt
+          start_evt[:stop_timestamp] = stop[:stop_timestamp]
+          start_evt[:stream] = stop[:stream]
+          matched_events << start_evt
         else
-          stop_events = stop_events - [stop_event]
+          matched_events << stop
         end
-      end      
-      return combined_events.concat(start_events)
-    end    
-    
+      end
+      matched_events.sort { |a, b| a[:start_timestamp] <=> b[:start_timestamp] }
+    end
+
     def self.get_start_deskshare_events(events_xml)
       BigBlueButton.logger.info("Task: Getting start DESKSHARE events")      
       start_events = []

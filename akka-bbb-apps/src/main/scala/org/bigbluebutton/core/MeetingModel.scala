@@ -1,14 +1,18 @@
 package org.bigbluebutton.core
 
+import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.api.Permissions
 import java.util.concurrent.TimeUnit
+
+import org.bigbluebutton.core.api.GuestPolicy.GuestPolicy
 
 case object StopMeetingActor
 case class MeetingProperties(meetingID: String, externalMeetingID: String, parentMeetingID: String, meetingName: String,
   recorded: Boolean, voiceBridge: String, deskshareBridge: String, duration: Int,
   autoStartRecording: Boolean, allowStartStopRecording: Boolean, webcamsOnlyForModerator: Boolean,
   moderatorPass: String, viewerPass: String, createTime: Long, createDate: String,
-  red5DeskShareIP: String, red5DeskShareApp: String, isBreakout: Boolean, sequence: Int)
+  red5DeskShareIP: String, red5DeskShareApp: String, isBreakout: Boolean, sequence: Int,
+  metadata: collection.immutable.Map[String, String], guestPolicy: GuestPolicy)
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
   sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
@@ -23,6 +27,8 @@ class MeetingModel {
   private var muted = false;
   private var meetingEnded = false
   private var meetingMuted = false
+  private var guestPolicy = GuestPolicy.ASK_MODERATOR
+  private var guestPolicySetBy: String = null
 
   private var hasLastWebUserLeft = false
   private var lastWebUserLeftOnTimestamp: Long = 0
@@ -130,4 +136,8 @@ class MeetingModel {
   def hasMeetingEnded(): Boolean = meetingEnded
   def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
+  def getGuestPolicy(): GuestPolicy.GuestPolicy = guestPolicy
+  def setGuestPolicy(policy: GuestPolicy.GuestPolicy) = guestPolicy = policy
+  def getGuestPolicySetBy(): String = guestPolicySetBy
+  def setGuestPolicySetBy(user: String) = guestPolicySetBy = user
 }

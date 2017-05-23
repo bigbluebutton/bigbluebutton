@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.screenshare.managers {
     import org.bigbluebutton.common.events.OpenWindowEvent;
     import org.bigbluebutton.modules.screenshare.services.ScreenshareService;
     import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
+    import org.bigbluebutton.modules.screenshare.events.ShareEvent;
     
     public class ViewerWindowManager {
         private static const LOGGER:ILogger = getClassLogger(ViewerWindowManager);
@@ -46,23 +47,21 @@ package org.bigbluebutton.modules.screenshare.managers {
             if (isViewing) viewWindow.stopViewing();
         }
         
-        
-        private function openWindow(window:IBbbModuleWindow):void {
-            var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-            event.window = window;
-            globalDispatcher.dispatchEvent(event);
+        private function openWindow(window:ScreenshareViewWindow):void {
+            var e:ShareEvent = new ShareEvent(ShareEvent.OPEN_SCREENSHARE_VIEW_TAB);
+            e.viewTabContent = window;
+            globalDispatcher.dispatchEvent(e);
         }
         
         public function handleViewWindowCloseEvent():void {
             LOGGER.debug("ViewerWindowManager Received stop viewing command");
-            closeWindow(viewWindow);
+            closeWindow();
             isViewing = false;
         }
         
-        private function closeWindow(window:IBbbModuleWindow):void {
-            var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-            event.window = window;
-            globalDispatcher.dispatchEvent(event);
+        private function closeWindow():void {
+            var e:ShareEvent = new ShareEvent(ShareEvent.CLOSE_SCREENSHARE_VIEW_TAB);
+            globalDispatcher.dispatchEvent(e);
         }
         
         public function startViewing(streamId:String, videoWidth:Number, videoHeight:Number):void {
@@ -72,6 +71,12 @@ package org.bigbluebutton.modules.screenshare.managers {
             openWindow(viewWindow);
             
             isViewing = true;
+        }
+
+        public function handleVideoDisplayModeEvent(actualSize:Boolean):void{
+            if (isViewing) {
+                viewWindow.actualSize = actualSize;
+            }
         }
     }
 }

@@ -91,6 +91,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="presentation.service" class="org.bigbluebutton.red5.service.PresentationService">
         <property name="presentationApplication"> <ref local="presentationApplication"/></property>
     </bean>
+
+    <bean id="sharedNotesApplication" class="org.bigbluebutton.red5.service.SharedNotesApplication">
+        <property name="red5Publisher"><ref bean="red5Publisher"/></property>
+    </bean>
+
+    <bean id="sharednotes.service" class="org.bigbluebutton.red5.service.SharedNotesService">
+        <property name="sharedNotesApplication"> <ref local="sharedNotesApplication"/></property>
+    </bean>
     
     <bean id="whiteboardApplication" class="org.bigbluebutton.red5.service.WhiteboardApplication">
         <property name="red5Publisher"> <ref bean="red5Publisher"/></property>

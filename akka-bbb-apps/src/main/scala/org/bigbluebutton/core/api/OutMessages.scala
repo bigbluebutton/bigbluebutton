@@ -4,11 +4,11 @@ import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.CurrentPresentationInfo
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.apps.Page
-import org.bigbluebutton.core.MeetingProperties
 import org.bigbluebutton.core.apps.PollVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
 import org.bigbluebutton.core.apps.BreakoutUser
+import org.bigbluebutton.core.models.{ RegisteredUser, UserVO }
 
 case class VoiceRecordingStarted(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
 case class VoiceRecordingStopped(meetingID: String, recorded: Boolean, recordingFile: String, timestamp: String, confNum: String) extends IOutMessage
@@ -23,6 +23,8 @@ case class MeetingState(meetingID: String, recorded: Boolean, userId: String, pe
 case class MeetingHasEnded(meetingID: String, userId: String) extends IOutMessage
 case class MeetingDestroyed(meetingID: String) extends IOutMessage
 case class DisconnectAllUsers(meetingID: String) extends IOutMessage
+case class InactivityWarning(meetingID: String, duration: Long) extends IOutMessage
+case class MeetingIsActive(meetingID: String) extends IOutMessage
 case class DisconnectUser(meetingID: String, userId: String) extends IOutMessage
 case class KeepAliveMessageReply(aliveID: String) extends IOutMessage
 case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
@@ -65,6 +67,7 @@ case class UserListeningOnly(meetingID: String, recorded: Boolean, userID: Strin
 case class UserSharedWebcam(meetingID: String, recorded: Boolean, userID: String, stream: String) extends IOutMessage
 case class UserUnsharedWebcam(meetingID: String, recorded: Boolean, userID: String, stream: String) extends IOutMessage
 case class UserStatusChange(meetingID: String, recorded: Boolean, userID: String, status: String, value: Object) extends IOutMessage
+case class UserRoleChange(meetingID: String, recorded: Boolean, userID: String, role: String) extends IOutMessage
 case class GetUsersInVoiceConference(meetingID: String, recorded: Boolean, voiceConfId: String) extends IOutMessage
 case class MuteVoiceUser(meetingID: String, recorded: Boolean, requesterID: String,
   userId: String, voiceConfId: String, voiceUserId: String, mute: Boolean) extends IOutMessage
@@ -90,6 +93,7 @@ case class SendPublicMessageEvent(meetingID: String, recorded: Boolean, requeste
   message: Map[String, String]) extends IOutMessage
 case class SendPrivateMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
   message: Map[String, String]) extends IOutMessage
+case class ClearPublicChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage
 
 // Layout
 case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,
@@ -141,10 +145,10 @@ case class GetCurrentPollReplyMessage(meetingID: String, recorded: Boolean, requ
 // Whiteboard
 case class GetWhiteboardShapesReply(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapes: Array[AnnotationVO], replyTo: String) extends IOutMessage
 case class SendWhiteboardAnnotationEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shape: AnnotationVO) extends IOutMessage
-case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String) extends IOutMessage
+case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, fullClear: Boolean) extends IOutMessage
 case class UndoWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapeId: String) extends IOutMessage
-case class WhiteboardEnabledEvent(meetingID: String, recorded: Boolean, requesterID: String, enable: Boolean) extends IOutMessage
-case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean, replyTo: String) extends IOutMessage
+case class ModifiedWhiteboardAccessEvent(meetingID: String, recorded: Boolean, requesterID: String, multiUser: Boolean) extends IOutMessage
+case class GetWhiteboardAccessReply(meetingID: String, recorded: Boolean, requesterID: String, multiUser: Boolean) extends IOutMessage
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
 // Caption
@@ -157,6 +161,18 @@ case class DeskShareStopRTMPBroadcast(conferenceName: String, streamPath: String
 case class DeskShareNotifyViewersRTMP(meetingID: String, streamPath: String, videoWidth: Int, videoHeight: Int, broadcasting: Boolean) extends IOutMessage
 case class DeskShareNotifyASingleViewer(meetingID: String, userID: String, streamPath: String, videoWidth: Int, videoHeight: Int, broadcasting: Boolean) extends IOutMessage
 case class DeskShareHangUp(meetingID: String, fsConferenceName: String) extends IOutMessage
+
+// Guest
+case class GetGuestPolicyReply(meetingID: String, recorded: Boolean, requesterID: String, policy: String) extends IOutMessage
+case class GuestPolicyChanged(meetingID: String, recorded: Boolean, policy: String) extends IOutMessage
+case class GuestAccessDenied(meetingID: String, recorded: Boolean, userId: String) extends IOutMessage
+
+// Shared Notes
+case class PatchDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, patch: String, patchID: Int, undo: Boolean, redo: Boolean) extends IOutMessage
+case class GetCurrentDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, notes: Map[String, NoteReport]) extends IOutMessage
+case class CreateAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, noteName: String) extends IOutMessage
+case class DestroyAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String) extends IOutMessage
+case class SharedNotesSyncNoteReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, note: NoteReport) extends IOutMessage
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

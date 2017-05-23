@@ -4,65 +4,65 @@ import java.net.URLEncoder
 
 import scala.collection.SortedSet
 import scala.collection.mutable
-
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.LiveMeeting
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.models.Users
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor }
 
 trait BreakoutRoomApp extends SystemConfiguration {
-  this: LiveMeeting =>
+  this: MeetingActor =>
 
   val outGW: OutMessageGateway
   val eventBus: IncomingEventBus
 
   def handleBreakoutRoomsList(msg: BreakoutRoomsListMessage) {
-    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.externalMeetingId, r.id, r.sequence) }
-    val roomsReady = breakoutModel.pendingRoomsNumber == 0 && breakoutRooms.length > 0
+    val breakoutRooms = liveMeeting.breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.externalMeetingId, r.id, r.sequence) }
+    val roomsReady = liveMeeting.breakoutModel.pendingRoomsNumber == 0 && breakoutRooms.length > 0
     log.info("Sending breakout rooms list to {} with containing {} room(s)", mProps.meetingID, breakoutRooms.length)
     outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms, roomsReady))
   }
 
   def handleCreateBreakoutRooms(msg: CreateBreakoutRooms) {
     // If breakout rooms are being created we ignore the coming message
-    if (breakoutModel.pendingRoomsNumber > 0) {
-      log.warning("CreateBreakoutRooms event received while {} are pending to be created for meeting {}", breakoutModel.pendingRoomsNumber, mProps.meetingID)
+    if (liveMeeting.breakoutModel.pendingRoomsNumber > 0) {
+      log.warning("CreateBreakoutRooms event received while {} are pending to be created for meeting {}", liveMeeting.breakoutModel.pendingRoomsNumber, mProps.meetingID)
       return
     }
-    if (breakoutModel.getNumberOfRooms() > 0) {
-      log.warning("CreateBreakoutRooms event received while {} breakout rooms running for meeting {}", breakoutModel.getNumberOfRooms(), mProps.meetingID)
+    if (liveMeeting.breakoutModel.getNumberOfRooms() > 0) {
+      log.warning("CreateBreakoutRooms event received while {} breakout rooms running for meeting {}", liveMeeting.breakoutModel.getNumberOfRooms(), mProps.meetingID)
       return
     }
 
     var i = 0
     // in very rare cases the presentation conversion generates an error, what should we do?
     // those cases where default.pdf is deleted from the whiteboard
-    val sourcePresentationId = if (!presModel.getCurrentPresentation().isEmpty) presModel.getCurrentPresentation().get.id else "blank"
-    val sourcePresentationSlide = if (!presModel.getCurrentPage().isEmpty) presModel.getCurrentPage().get.num else 0
-    breakoutModel.pendingRoomsNumber = msg.rooms.length;
+    val sourcePresentationId = if (!liveMeeting.presModel.getCurrentPresentation().isEmpty) liveMeeting.presModel.getCurrentPresentation().get.id else "blank"
+    val sourcePresentationSlide = if (!liveMeeting.presModel.getCurrentPage().isEmpty) liveMeeting.presModel.getCurrentPage().get.num else 0
+    liveMeeting.breakoutModel.pendingRoomsNumber = msg.rooms.length;
 
     for (room <- msg.rooms) {
       i += 1
       val breakoutMeetingId = BreakoutRoomsUtil.createMeetingIds(mProps.meetingID, i)
       val voiceConfId = BreakoutRoomsUtil.createVoiceConfId(mProps.voiceBridge, i)
-      val r = breakoutModel.createBreakoutRoom(mProps.meetingID, breakoutMeetingId._1, breakoutMeetingId._2, room.name,
+      val r = liveMeeting.breakoutModel.createBreakoutRoom(mProps.meetingID, breakoutMeetingId._1, breakoutMeetingId._2, room.name,
         room.sequence, voiceConfId, room.users)
       val p = new BreakoutRoomOutPayload(r.id, r.name, mProps.meetingID, r.sequence,
         r.voiceConfId, msg.durationInMinutes, mProps.moderatorPass, mProps.viewerPass,
         sourcePresentationId, sourcePresentationSlide, msg.record)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, p))
     }
-    meetingModel.breakoutRoomsdurationInMinutes = msg.durationInMinutes;
-    meetingModel.breakoutRoomsStartedOn = timeNowInSeconds;
+    liveMeeting.meetingModel.breakoutRoomsdurationInMinutes = msg.durationInMinutes;
+    liveMeeting.meetingModel.breakoutRoomsStartedOn = liveMeeting.timeNowInSeconds;
   }
 
   def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String) {
     log.debug("Sending breakout meeting {} Join URL for user: {}", externalMeetingId, userId)
     for {
-      user <- usersModel.getUser(userId)
+      user <- Users.findWithId(userId, liveMeeting.users)
       apiCall = "join"
       params = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true, externalMeetingId, mProps.moderatorPass)
       // We generate a first url with redirect -> true
@@ -76,22 +76,22 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURLInMessage) {
     for {
-      breakoutRoom <- breakoutModel.getRoomWithExternalId(msg.breakoutMeetingId)
+      breakoutRoom <- liveMeeting.breakoutModel.getRoomWithExternalId(msg.breakoutMeetingId)
     } yield sendJoinURL(msg.userId, msg.breakoutMeetingId, breakoutRoom.sequence.toString())
   }
 
   def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {
-    breakoutModel.pendingRoomsNumber -= 1
-    val room = breakoutModel.getBreakoutRoom(msg.breakoutRoomId)
+    liveMeeting.breakoutModel.pendingRoomsNumber -= 1
+    val room = liveMeeting.breakoutModel.getBreakoutRoom(msg.breakoutRoomId)
     room foreach { room =>
       sendBreakoutRoomStarted(room.parentRoomId, room.name, room.externalMeetingId, room.id, room.sequence, room.voiceConfId)
     }
 
     // We postpone sending invitation until all breakout rooms have been created
-    if (breakoutModel.pendingRoomsNumber == 0) {
+    if (liveMeeting.breakoutModel.pendingRoomsNumber == 0) {
       log.info("All breakout rooms created for meetingId={}", mProps.meetingID)
-      breakoutModel.getRooms().foreach { room =>
-        breakoutModel.getAssignedUsers(room.id) foreach { users =>
+      liveMeeting.breakoutModel.getRooms().foreach { room =>
+        liveMeeting.breakoutModel.getAssignedUsers(room.id) foreach { users =>
           users.foreach { u =>
             log.debug("Sending Join URL for users");
             sendJoinURL(u, room.externalMeetingId, room.sequence.toString())
@@ -108,19 +108,19 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleBreakoutRoomEnded(msg: BreakoutRoomEnded) {
-    breakoutModel.remove(msg.breakoutRoomId)
+    liveMeeting.breakoutModel.remove(msg.breakoutRoomId)
     outGW.send(new BreakoutRoomEndedOutMessage(msg.meetingId, msg.breakoutRoomId))
   }
 
   def handleBreakoutRoomUsersUpdate(msg: BreakoutRoomUsersUpdate) {
-    breakoutModel.updateBreakoutUsers(msg.breakoutMeetingId, msg.users) foreach { room =>
+    liveMeeting.breakoutModel.updateBreakoutUsers(msg.breakoutMeetingId, msg.users) foreach { room =>
       outGW.send(new UpdateBreakoutUsersOutMessage(mProps.meetingID, mProps.recorded, msg.breakoutMeetingId, room.users))
     }
   }
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
-    val users = usersModel.getUsers().toVector
-    val breakoutUsers = users map { u => new BreakoutUser(u.externUserID, u.name) }
+    val users = Users.getUsers(liveMeeting.users)
+    val breakoutUsers = users map { u => new BreakoutUser(u.externalId, u.name) }
     eventBus.publish(BigBlueButtonEvent(mProps.parentMeetingID,
       new BreakoutRoomUsersUpdate(mProps.parentMeetingID, mProps.meetingID, breakoutUsers)))
   }
@@ -129,7 +129,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     var targetVoiceBridge: String = msg.targetMeetingId
     // If the current room is a parent room we fetch the voice bridge from the breakout room
     if (!mProps.isBreakout) {
-      breakoutModel.getBreakoutRoom(msg.targetMeetingId) match {
+      liveMeeting.breakoutModel.getBreakoutRoom(msg.targetMeetingId) match {
         case Some(b) => {
           targetVoiceBridge = b.voiceConfId;
         }
@@ -140,10 +140,10 @@ trait BreakoutRoomApp extends SystemConfiguration {
       targetVoiceBridge = mProps.voiceBridge.dropRight(1)
     }
     // We check the user from the mode
-    usersModel.getUser(msg.userId) match {
+    Users.findWithId(msg.userId, liveMeeting.users) match {
       case Some(u) => {
         if (u.voiceUser.joined) {
-          log.info("Transferring user userId=" + u.userID + " from voiceBridge=" + mProps.voiceBridge + " to targetVoiceConf=" + targetVoiceBridge)
+          log.info("Transferring user userId=" + u.id + " from voiceBridge=" + mProps.voiceBridge + " to targetVoiceConf=" + targetVoiceBridge)
           outGW.send(new TransferUserToMeeting(mProps.voiceBridge, targetVoiceBridge, u.voiceUser.userId))
         }
       }
@@ -153,7 +153,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleEndAllBreakoutRooms(msg: EndAllBreakoutRooms) {
     log.info("EndAllBreakoutRooms event received for meetingId={}", mProps.meetingID)
-    breakoutModel.getRooms().foreach { room =>
+    liveMeeting.breakoutModel.getRooms().foreach { room =>
       outGW.send(new EndBreakoutRoom(room.id))
     }
   }

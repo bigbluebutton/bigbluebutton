@@ -59,10 +59,10 @@ public class PresentationApplication {
 
 	public void sendConversionCompleted(String messageKey, String meetingId,
 			String code, String presentation, int numberOfPages,
-			String presName, String presBaseUrl) {
+			String presName, String presBaseUrl, Boolean downloadable) {
 
 		red5BBBInGW.sendConversionCompleted(messageKey, meetingId,
-				code, presentation, numberOfPages, presName, presBaseUrl);
+				code, presentation, numberOfPages, presName, presBaseUrl, downloadable);
 	}
 
 	public void removePresentation(String meetingID, String presentationID){

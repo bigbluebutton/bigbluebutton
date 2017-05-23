@@ -23,25 +23,36 @@ package org.bigbluebutton.modules.whiteboard.services
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 
 	public class MessageSender
 	{	
 		private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
-		public function modifyEnabled(e:WhiteboardPresenterEvent):void {
+		public function modifyAccess(e:WhiteboardAccessEvent):void {
 //			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
 			var message:Object = new Object();
-			message["enabled"] = e.enabled;
+			message["multiUser"] = e.multiUser;
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.toggleGrid", 
+			_nc.sendMessage("whiteboard.modifyWhiteboardAccess", 
 				function(result:String):void { // On successful result
 				},	                   
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status); 
 				},
 				message
+			);
+		}
+		
+		public function getWhiteboardAccess():void {
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("whiteboard.getWhiteboardAccess", 
+				function(result:String):void { // On successful result
+				},
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status); 
+				}
 			);
 		}
 		
@@ -113,24 +124,6 @@ package org.bigbluebutton.modules.whiteboard.services
                 msg
             );
         }
-        
-		/**
-		 * Sends a TextObject to the Shared Object on the red5 server, and then triggers an update across all clients
-		 * @param shape The shape sent to the SharedObject
-		 * 
-		 */		
-		public function sendText(e:WhiteboardDrawEvent):void{
-            var _nc:ConnectionManager = BBB.initConnectionManager();
-            _nc.sendMessage("whiteboard.sendAnnotation",               
-                function(result:String):void { // On successful result
-//                    LogUtil.debug(result); 
-                },	                   
-                function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-                },
-                e.annotation.annotation
-            );
-        }		
 
 		/**
 		 * Sends a shape to the Shared Object on the red5 server, and then triggers an update across all clients
@@ -150,17 +143,5 @@ package org.bigbluebutton.modules.whiteboard.services
 					e.annotation.annotation
 			);
 		}
-		
-		public function checkIsWhiteboardOn():void {
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.isWhiteboardEnabled", 
-				function(result:String):void { // On successful result
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-				}
-			);
-		}
-					
 	}
 }

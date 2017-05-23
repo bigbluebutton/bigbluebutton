@@ -45,6 +45,8 @@
       params.quality = "high";
       params.bgcolor = "#FFFFFF";
       params.allowfullscreen = "true";
+      params.allowfullscreeninteractive = "true";
+
       if (ffHangWorkaround()) {
         console.log("Applying Firefox Flash hang workaround");
 	// wmode = opaque causes button clicks to be sometimes unresponsive,
@@ -127,6 +129,8 @@
     <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script>
     <script src="lib/weburl_regex.js?v=VERSION" language="javascript"></script>
     <script src="lib/jsnlog.min.js?v=VERSION" language="javascript"></script>
+    <script src="lib/diff_match_patch_uncompressed.js?v=VERSION" language="javascript"></script>
+    <script src="lib/shared_notes.js?v=VERSION" language="javascript"></script>
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');
@@ -193,7 +197,7 @@
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="content">
       <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
-        <h3>You need Adobe Flash installed and enabled in order to use this client.</h3>
+        You need Adobe Flash installed and enabled in order to use this client.
         <br/>
         <div style="width:50%; margin-left: auto; margin-right: auto; ">
           <a href="http://www.adobe.com/go/getflashplayer">

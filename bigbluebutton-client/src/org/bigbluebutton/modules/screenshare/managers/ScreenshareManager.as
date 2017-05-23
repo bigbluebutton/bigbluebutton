@@ -88,12 +88,7 @@ package org.bigbluebutton.modules.screenshare.managers {
             ScreenshareModel.getInstance().height = event.height;
             ScreenshareModel.getInstance().url = event.url;
             
-            if (UsersUtil.amIPresenter()) {
-                //        var dispatcher:Dispatcher = new Dispatcher();
-                //        dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.START));        
-            } else {
-                handleStreamStartEvent(ScreenshareModel.getInstance().streamId, event.width, event.height);
-            }
+            handleStreamStartEvent(ScreenshareModel.getInstance().streamId, event.width, event.height);
             
             var dispatcher:Dispatcher = new Dispatcher();
             dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.START));
@@ -202,6 +197,19 @@ package org.bigbluebutton.modules.screenshare.managers {
             sharing = true;
         }
         
+        public function handleShareScreenEvent(fullScreen:Boolean):void {
+            publishWindowManager.handleShareScreenEvent(fullScreen);
+        }
+
+        public function handleStopSharingEvent():void {
+            sharing = false;
+            publishWindowManager.stopSharing();
+        }
+
+        public function handleRefreshScreenshareTab():void {
+            handleStopSharingEvent();
+        }
+
         public function handleShareWindowCloseEvent():void {
             //toolbarButtonManager.enableToolbarButton();
             publishWindowManager.handleShareWindowCloseEvent();
@@ -222,6 +230,17 @@ package org.bigbluebutton.modules.screenshare.managers {
 
         public function handleDeskshareToolbarStopEvent():void {
           toolbarButtonManager.stoppedSharing();
+        }
+
+        public function handleStopViewStreamEvent():void {
+            viewWindowManager.stopViewing();
+            if (UsersUtil.amIPresenter()) {
+                publishWindowManager.stopSharing();
+            }
+        }
+
+        public function handleVideoDisplayModeEvent(actualSize:Boolean):void {
+            viewWindowManager.handleVideoDisplayModeEvent(actualSize);
         }
     }
 }

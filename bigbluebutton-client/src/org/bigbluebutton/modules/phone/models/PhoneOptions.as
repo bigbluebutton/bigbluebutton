@@ -20,6 +20,8 @@ package org.bigbluebutton.modules.phone.models {
 	import org.bigbluebutton.core.Options;
 
 	public class PhoneOptions extends Options {
+		static public var firstAudioJoin:Boolean = true;
+
 		public var uri:String = "unknown";
 
 		[Bindable]
@@ -45,6 +47,12 @@ package org.bigbluebutton.modules.phone.models {
 
 		[Bindable]
 		public var showPhoneOption:Boolean = false;
+
+		[Bindable]
+		public var showMicrophoneHint:Boolean = true;
+
+		[Bindable]
+		public var forceListenOnly:Boolean = false;
 
 		[Bindable]
 		public var showWebRTCStats:Boolean = false;

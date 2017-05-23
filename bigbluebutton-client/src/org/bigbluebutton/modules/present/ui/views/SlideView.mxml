@@ -30,8 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"      
   rollOut="hideCursor()" styleName="presentationSlideViewStyle"
-  xmlns:views="org.bigbluebutton.modules.present.views.*"
-  implements="org.bigbluebutton.common.IBbbCanvas">
+  xmlns:views="org.bigbluebutton.modules.present.views.*">
      
   <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
   <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
@@ -47,10 +46,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.Sort;
 			import mx.collections.SortField;
 			import mx.containers.Canvas;
+			import mx.managers.CursorManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -66,6 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(SlideView);      
@@ -75,8 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
 									
 			private var cursor:Shape;
-			private var whiteboardCanvasHolder:Canvas = new Canvas();
-			private var whiteboardCanvas:IBbbCanvas;
+			private var whiteboardCanvas:WhiteboardCanvas;
 										
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
@@ -99,11 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cursor.graphics.drawCircle(0,0,2.5);
 				this.rawChildren.addChild(cursor);
 				cursor.visible = false;
-				
-				whiteboardCanvasHolder = new Canvas();
-				this.addChild(whiteboardCanvasHolder);
-				whiteboardCanvasHolder.x = 0;
-				whiteboardCanvasHolder.y = 0;
 				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
 				
@@ -184,6 +178,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				prevMouseY = this.mouseY;
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				Mouse.cursor = MouseCursor.HAND;
 			}
 			
 			/**
@@ -206,6 +201,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Triggered when the presenter releases the mouse button.
 			 */		
 			private function onMouseUp(e:MouseEvent):void{		
+				Mouse.cursor = MouseCursor.AUTO;
 				stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			}
@@ -241,7 +237,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;
 				moveCanvas(slideLoader.x, slideLoader.y);
-				zoomCanvas(slideLoader.width, slideLoader.height, zoomPercentage);
+				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
 												
 			/**
@@ -317,6 +313,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           slideModel.calculateViewportXY();
           slideModel.displayPresenterView();
           slideModel.printViewedRegion();
+          
+          zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionW) * SlideViewModel.HUNDRED_PERCENT;
+          
           fitSlideToLoader();          
         }        
       }
@@ -457,33 +456,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function hideCursor():void{
 				cursor.visible = false;
-			}			
-			
-			/** Inherited from IBbbCanvas*/
-			public function addRawChild(child:DisplayObject):void{
-				this.whiteboardCanvasHolder.rawChildren.addChild(child);
 			}
 			
-			public function removeRawChild(child:DisplayObject):void{
-				this.whiteboardCanvasHolder.rawChildren.removeChild(child);
-			}
-			
-			public function doesContain(child:DisplayObject):Boolean{
-				return this.whiteboardCanvasHolder.rawChildren.contains(child);
-			}
-			
-			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
+			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void{
 				whiteboardCanvas = overlay;
-				var c:Canvas = overlay as Canvas;
                 // add the canvas below the thumbnails
-				this.addChildAt(c, this.getChildIndex(thumbnailView));
-				c.x = slideLoader.x * SlideCalcUtil.MYSTERY_NUM;
-				c.y = slideLoader.y * SlideCalcUtil.MYSTERY_NUM;
-				c.width = slideLoader.width;
-				c.height = slideLoader.height;
+				this.addChildAt(whiteboardCanvas, this.getChildIndex(thumbnailView));
+				zoomCanvas(slideLoader.width, slideLoader.height);
 				fitSlideToLoader();
-				c.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
+				whiteboardCanvas.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
+			}
+			
+			public function removeOverlayCanvas():void {
+				whiteboardCanvas = null;
 			}
 			
 			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
@@ -491,26 +477,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void{
-				whiteboardCanvasHolder.x = slideLoader.x * SlideCalcUtil.MYSTERY_NUM;
-				whiteboardCanvasHolder.y = slideLoader.y * SlideCalcUtil.MYSTERY_NUM;
-				
 				if (whiteboardCanvas != null) {
-					whiteboardCanvas.moveCanvas(whiteboardCanvasHolder.x, whiteboardCanvasHolder.y);
+					whiteboardCanvas.moveCanvas(x * SlideCalcUtil.MYSTERY_NUM, y * SlideCalcUtil.MYSTERY_NUM);
 				}
 			}
 			
-			public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
-				whiteboardCanvasHolder.width = width;
-				whiteboardCanvasHolder.height = height;
+			public function zoomCanvas(width:Number, height:Number):void{
 				moveCanvas(slideLoader.x, slideLoader.y);
 				if (whiteboardCanvas != null) {
 					//LogUtil.debug("Zooming Canvas " + width + " " + height);
-					whiteboardCanvas.zoomCanvas(width, height, zoom);
+					whiteboardCanvas.zoomCanvas(width, height);
 				}
-			}
-			
-			public function showCanvas(show:Boolean):void{
-				
 			}
 			
 			private function focusSlide(e:ShortcutEvent):void{

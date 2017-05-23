@@ -24,26 +24,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC"
 	cornerRadius="5" borderStyle="solid"
 	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0"
-	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*">
+	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*"
+	creationComplete="onCreationComplete()">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableTextToolbar" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
-	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="handleObjSelected" />
-	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="handleObjDeselected" />
-		
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.containers.MDIWindow;
+			
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -55,18 +52,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var textSize:Number;
 			public var backgroundVisible:Boolean;
 			
-			private var images:Images = new Images();
-			[Bindable] private var toggle_text_background_icon:Class = images.toggle_text_background_icon;
 			private var currentlySelectedTextObject:TextObject = null;	
-			private var presentationWindow:PresentationWindow;
+			private var containerToOverlay:MDIWindow;
 			private var normalAlpha:Number = 0.55;
 			private var focusedAlpha:Number = 1.0;
 			private var hasFocus:Boolean;
 			[Bindable] private var fontSizes:Array = ["12", "14", "16", "18", "22", "24", "32", "36"];
 			
-			public function init():void {
+			private function onCreationComplete():void {
 				this.alpha = normalAlpha;
-				this.visible = true;
 				this.addEventListener(MouseEvent.ROLL_OVER, makeFocused);
 				this.addEventListener(MouseEvent.ROLL_OUT, makeDim);
 				
@@ -82,11 +76,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			/* Following two methods are used for aesthetics when mouse hovers over TextToolbar and when it hovers out of it */
-			public function makeDim(event:MouseEvent):void {
+			private function makeDim(event:MouseEvent):void {
 					this.alpha = normalAlpha;
 			}
 			
-			public function makeFocused(event:MouseEvent):void {
+			private function makeFocused(event:MouseEvent):void {
 					this.alpha = focusedAlpha;
 			}
 			
@@ -102,31 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function setTextColor(e:Event):void{
 				enableTextToolbar();
 				this.textColor = e.target.selectedColor;
-				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
-				canvas.stage.focus = currentlySelectedTextObject;
-			}
-			
-			/**
-			 * Sets the background color of the selected text object
-			 * @param e The event
-			 * 
-			 */		
-			protected function changeTextBackgroundColor(e:Event):void{
-				enableTextToolbar();
-				this.bgColor = e.target.selectedColor;
-				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
-				canvas.stage.focus = currentlySelectedTextObject;
-			}
-			
-			/**
-			 * Sets the background color visible of the selected text object
-			 * @param e The event
-			 * 
-			 */			
-			protected function setBackgroundVisible(e:Event):void{
-				enableTextToolbar();
-				this.backgroundVisible = e.target.selected;
-				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
+				currentlySelectedTextObject.applyNewFormat(textColor, textSize);
 				canvas.stage.focus = currentlySelectedTextObject;
 			}
 			
@@ -138,8 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function setTextSize(size:Number):void {
 				enableTextToolbar();
 				this.textSize = size;
-				LOGGER.debug("Text size set to: " + size);
-				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
+				currentlySelectedTextObject.applyNewFormat(textColor, textSize);
 			}
 						
 			private function viewerMode(e:MadePresenterEvent):void{
@@ -151,8 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				callLater(repositionToolbarByWindow);
 			}
 			
-			private function disableTextToolbar(evt:Event=null):void{
-				ctextpik.close();
+			private function disableTextToolbar(e:Event=null):void{
 				this.visible = false;
 			}
 			
@@ -160,45 +128,38 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				parent.removeChild(this);
 			}
 			
-			public function syncPropsWith(tobj:TextObject):void{
-				if(tobj == null) return;
+			public function syncPropsWith(tobj:TextObject):void {
 				currentlySelectedTextObject = tobj;
-				this.textColor = ctextpik.selectedColor = tobj.textColor;
-//				this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
-//				this.backgroundVisible = btnToggleBackground.selected = tobj.background;
-				this.textSizeMenu.selectedItem = String(tobj.textSize);
-				this.textSize = tobj.textSize;
+				
+				if(tobj != null) {
+					enableTextToolbar();
+					repositionToolbar();
+					this.textColor = ctextpik.selectedColor = tobj.textColor;
+					this.textSizeMenu.selectedItem = String(tobj.fontSize);
+					this.textSize = tobj.fontSize;
+				} else {
+					disableTextToolbar();
+				}
 			}
 			
 			// invoked by WhiteboardManager when the TextToolbar is first loaded
-			public function positionToolbar(window:PresentationWindow):void{
-				this.presentationWindow = window;
-				presentationWindow.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
-				presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
-				presentationWindow.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
-				disableTextToolbar();
-				this.x = 0;
-				this.y = 0;
-				parent.setChildIndex(this, parent.numChildren-1);
+			public function positionToolbar(container:MDIWindow):void{
+				containerToOverlay = container;
+				containerToOverlay.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
+				containerToOverlay.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
+				containerToOverlay.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
 			}
 			
 			/* required for repositioning the TextToolbar when an event occurs on the presentation window */
 			public function repositionToolbarByWindow(event:Event = null):void {
-				if (this.visible) {
-					if (currentlySelectedTextObject == null)  {
-						return;
-					}
-					repositionToolbar();
-				}
+				repositionToolbar();
 			}
 			
-			public function repositionToolbar(tobj:TextObject = null):void {
-				if (this.visible) {
+			public function repositionToolbar():void {
+				if (this.visible && currentlySelectedTextObject) {
 					// translate TextObject's coords to stage coords because TextToolbar is added to stage
-					
-					if (tobj == null)  tobj = currentlySelectedTextObject;
-					
-					var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
+ 					
+					var loc:Point = canvas.localToGlobal(new Point(currentlySelectedTextObject.x, currentlySelectedTextObject.y));
 					this.x = loc.x;
 					this.y = loc.y - this.height - 45;
 					parent.setChildIndex(this, parent.numChildren-1);
@@ -207,32 +168,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			// repositions the toolbar when canvas is zoomed			
 			public function adjustForZoom(x:Number, y:Number):void {
-				if(currentlySelectedTextObject == null) return;
-				repositionToolbar(currentlySelectedTextObject);
-			}
-
-			private function handleObjSelected(event:GraphicObjectFocusEvent):void  {
-//                LogUtil.debug("###### handleObjSelected");
-//				if(event.data.id != WhiteboardConstants.TYPE_TEXT) return;
-				var tobj:TextObject = event.data as TextObject;
-                syncPropsWith(tobj);
-				repositionToolbar(tobj);
-				enableTextToolbar();
-			}
-
-			private function handleObjDeselected(event:GraphicObjectFocusEvent):void  {
-//                LogUtil.debug("##### handleObjDeselected");
-//				if(event.data.id != WhiteboardConstants.TYPE_TEXT) return;
-				var tobj:TextObject = event.data as TextObject;
-				
-				/* checks if the new focus of the stage is not the TextToolbar, and if not,
-					hide the text toolbar. This is to prevent the TextToolbar from disappearing as
-					soon as the user changes focus.
-				*/
-				if (!containsFocus(this)) {
-					disableTextToolbar();
-					textSizeMenu.close();
-				} 
+				repositionToolbar();
 			}
 			
 			/* used to check whether or not the TextToolbar and its children have focus when

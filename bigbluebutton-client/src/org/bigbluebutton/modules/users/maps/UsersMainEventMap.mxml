@@ -30,10 +30,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			<!--TODO: Move guest events to user events? -->
+			import org.bigbluebutton.main.events.ResponseModeratorEvent;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.events.UserServicesEvent;
+			import org.bigbluebutton.main.model.GuestManager;
 			import org.bigbluebutton.main.model.users.UserService;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -44,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}" >
     <ObjectBuilder generator="{UserService}" cache="global" />
+    <ObjectBuilder generator="{GuestManager}" cache="global" />
 	</EventHandlers>
 	
   <EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
@@ -102,10 +109,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
   </EventHandlers>
   
+  <EventHandlers type="{BBBEvent.ACTIVITY_RESPONSE_EVENT}">
+    <MethodInvoker generator="{UserService}" method="activityResponse" />
+  </EventHandlers>
+
   <EventHandlers type="{KickUserEvent.KICK_USER}" >
     <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
   </EventHandlers>
   
+  <EventHandlers type="{ChangeRoleEvent.CHANGE_ROLE_EVENT}" >
+    <MethodInvoker generator="{UserService}" method="changeRole" arguments="{event}" />
+  </EventHandlers>
   
   <EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
     <MethodInvoker generator="{UserService}" method="ejectUser" arguments="{event}" />
@@ -155,4 +169,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
     <MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
   </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+    <MethodInvoker generator="{UserService}" method="onReconnecting"  arguments="{event}" />
+  </EventHandlers>
+  <!-- End Lock Events -->
+
+  <!-- Guest Events -->
+  <EventHandlers type="{BBBEvent.ADD_GUEST_TO_LIST}" >
+    <MethodInvoker generator="{GuestManager}" method="addGuest" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" >
+    <MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.payload.userId}" />
+  </EventHandlers>
+
+  <EventHandlers type="{LogoutEvent.MODERATOR_DENIED_ME}" >
+    <MethodInvoker generator="{UserService}" method="guestDisconnect" />
+    <MethodInvoker generator="{UserService}" method="logoutUser" />
+  </EventHandlers>
+
+  <EventHandlers type="{ResponseModeratorEvent.RESPONSE}" >
+    <MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
+    <!-- MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" /-->
+  </EventHandlers>
+
+  <EventHandlers type="{ResponseModeratorEvent.RESPONSE_ALL}" >
+    <MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.BROADCAST_GUEST_POLICY}" >
+    <MethodInvoker generator="{UserService}" method="setGuestPolicy" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.LOGOUT_END_MEETING_EVENT}" >
+    <MethodInvoker generator="{UserService}" method="logoutEndMeeting" />
+  </EventHandlers>
+
+  <EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" >
+    <MethodInvoker generator="{GuestManager}" method="refreshGuestView" />
+  </EventHandlers>
+  <!-- End Guest Events -->
 </EventMap>

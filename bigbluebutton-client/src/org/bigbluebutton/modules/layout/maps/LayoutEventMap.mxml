@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
       import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
@@ -64,6 +65,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
    		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
     </EventHandlers>
             
+    <EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}">
+      <MethodInvoker generator="{LayoutEventMapDelegate}" method="refreshRole" arguments="{event}"/>
+    </EventHandlers>
+
     <EventHandlers type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="applyDefaultLayout" />
     </EventHandlers>
@@ -96,13 +101,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{LayoutFromRemoteEvent.LAYOUT_FROM_REMOTE}">
    		<MethodInvoker generator="{LayoutManager}" method="applyRemoteLayout" arguments="{event}" />
     </EventHandlers>
+
+  <EventHandlers type="{LayoutEvent.SYNC_LAYOUT_EVENT}">
+    <MethodInvoker generator="{LayoutManager}" method="syncLayout" />
+  </EventHandlers>
   
     <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
     </EventHandlers>
 	
+    <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_WINDOW_EVENT}">
+      <MethodInvoker generator="{LayoutManager}" method="saveLayoutsWindow" />
+    </EventHandlers>
+
+    <EventHandlers type="{LayoutEvent.LOAD_LAYOUTS_EVENT}">
+      <MethodInvoker generator="{LayoutManager}" method="loadLayoutsFromFile" />
+    </EventHandlers>
+
     <EventHandlers type="{LayoutEvent.ADD_CURRENT_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="addCurrentLayoutToList" />
+      <MethodInvoker generator="{LayoutManager}" method="addCurrentLayoutToList" arguments="{event}"/>
     </EventHandlers>
   
   <EventHandlers type="{EventConstants.SWITCH_LAYOUT_REQ}">

@@ -1,7 +1,9 @@
 package org.bigbluebutton.common.messages;
 
+import java.util.Map;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.bigbluebutton.messages.RegisterUserMessage;
 
 public class MessageFromJsonConverter {
 
@@ -24,8 +26,8 @@ public class MessageFromJsonConverter {
 					  return processEndMeetingMessage(payload);
 				  case KeepAliveMessage.KEEP_ALIVE_REQUEST:
 					  return processKeepAlive(payload);
-				  case RegisterUserMessage.REGISTER_USER:
-					  return RegisterUserMessage.fromJson(message);
+				  case ActivityResponseMessage.ACTIVITY_RESPONSE:
+					  return processActivityResponseMessage(payload);
 				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
 					  return processValidateAuthTokenMessage(header, payload);
 					  // return ValidateAuthTokenMessage.fromJson(message);
@@ -65,11 +67,15 @@ public class MessageFromJsonConverter {
 		String viewerPassword = payload.get(Constants.VIEWER_PASS).getAsString();
 		Long createTime = payload.get(Constants.CREATE_TIME).getAsLong();
 		String createDate = payload.get(Constants.CREATE_DATE).getAsString();
+
+		Util util = new Util();
+		JsonObject metadataObject = (JsonObject) payload.get(Constants.METADATA);
+		Map<String, String> metadata = util.extractMetadata(metadataObject);
 		
 		return new CreateMeetingMessage(id, externalId, name, record, voiceBridge, 
 				          duration, autoStartRecording, allowStartStopRecording,
 				          webcamsOnlyForModerator, moderatorPassword, viewerPassword,
-				          createTime, createDate);
+				          createTime, createDate, metadata);
 	}
 	
 	private static IBigBlueButtonMessage processDestroyMeeting(JsonObject payload) {
@@ -87,4 +93,8 @@ public class MessageFromJsonConverter {
 		return new KeepAliveMessage(id);
 	}
 
+	private static IBigBlueButtonMessage processActivityResponseMessage(JsonObject payload) {
+		String id = payload.get(Constants.MEETING_ID).getAsString();
+		return new ActivityResponseMessage(id);
+	}
 }

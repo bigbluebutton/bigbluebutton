@@ -108,6 +108,26 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
+	public void getGuestPolicy(String meetingID, String userID) {
+		GetGuestPolicyMessage msg = new GetGuestPolicyMessage(meetingID, userID);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
+	public void newGuestPolicy(String meetingID, String guestPolicy, String setBy) {
+		SetGuestPolicyMessage msg = new SetGuestPolicyMessage(meetingID, guestPolicy, setBy);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
+	public void responseToGuest(String meetingID, String userID, Boolean response, String requesterID) {
+		RespondToGuestMessage msg = new RespondToGuestMessage(meetingID, userID, response, requesterID);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
+	public void setParticipantRole(String meetingID, String userID, String role) {
+		ChangeUserRoleMessage msg = new ChangeUserRoleMessage(meetingID, userID, role);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
 	public void initAudioSettings(String meetingID, String requesterID, Boolean muted) {
 		InitAudioSettingsMessage msg = new InitAudioSettingsMessage(meetingID, requesterID, muted);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
@@ -202,9 +222,9 @@ public class MessagePublisher {
 
 	public void sendConversionCompleted(String messageKey, String meetingId,
 			String code, String presId, int numPages, String presName,
-			String presBaseUrl) {
+			String presBaseUrl, Boolean downloadable) {
 		SendConversionCompletedMessage msg = new SendConversionCompletedMessage(messageKey, meetingId,
-				code, presId, numPages, presName, presBaseUrl);
+				code, presId, numPages, presName, presBaseUrl, downloadable);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
@@ -220,6 +240,11 @@ public class MessagePublisher {
 
 	public void getChatHistory(String meetingID, String requesterID, String replyTo) {
 		GetChatHistoryRequestMessage msg = new GetChatHistoryRequestMessage(meetingID, requesterID, replyTo);
+		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
+	}
+
+	public void clearPublicChatMessages(String meetingID, String requesterID) {
+		ClearPublicChatHistoryRequestMessage msg = new ClearPublicChatHistoryRequestMessage(meetingID, requesterID);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
@@ -258,13 +283,13 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
-	public void enableWhiteboard(String meetingID, String requesterID, Boolean enable) {
-		EnableWhiteboardRequestMessage msg = new EnableWhiteboardRequestMessage(meetingID, requesterID, enable);
+	public void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser) {
+		ModifyWhiteboardAccessRequestMessage msg = new ModifyWhiteboardAccessRequestMessage(meetingID, requesterID, multiUser);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
-	public void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo) {
-		IsWhiteboardEnabledRequestMessage msg = new IsWhiteboardEnabledRequestMessage(meetingID, requesterID, replyTo);
+	public void getWhiteboardAccess(String meetingID, String requesterID) {
+		GetWhiteboardAccessRequestMessage msg = new GetWhiteboardAccessRequestMessage(meetingID, requesterID);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
@@ -307,5 +332,45 @@ public class MessagePublisher {
 	public void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String localeCode, String text) {
 		EditCaptionHistoryMessage msg = new EditCaptionHistoryMessage(meetingID, userID, startIndex, endIndex, locale, localeCode, text);
 		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
+	}
+
+	public void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation) {
+		PatchDocumentRequestMessage msg = new PatchDocumentRequestMessage(meetingID, requesterID, noteID, patch, operation);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+
+	public void getCurrentDocument(String meetingID, String requesterID) {
+		GetCurrentDocumentRequestMessage msg = new GetCurrentDocumentRequestMessage(meetingID, requesterID);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+
+	public void createAdditionalNotes(String meetingID, String requesterID, String noteName) {
+		CreateAdditionalNotesRequestMessage msg = new CreateAdditionalNotesRequestMessage(meetingID, requesterID, noteName);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+
+	public void destroyAdditionalNotes(String meetingID, String requesterID, String noteID) {
+		DestroyAdditionalNotesRequestMessage msg = new DestroyAdditionalNotesRequestMessage(meetingID, requesterID, noteID);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+
+	public void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize) {
+		RequestAdditionalNotesSetRequestMessage msg = new RequestAdditionalNotesSetRequestMessage(meetingID, requesterID, additionalNotesSetSize);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+
+	public void sharedNotesSyncNoteRequest(String meetingID, String requesterID, String noteID) {
+		SharedNotesSyncNoteRequestMessage msg = new SharedNotesSyncNoteRequestMessage(meetingID, requesterID, noteID);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+
+	public void logoutEndMeeting(String meetingId, String userId) {
+		LogoutEndMeetingRequestMessage msg = new LogoutEndMeetingRequestMessage(meetingId, userId);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
+	public void activityResponse(String meetingID) {
+		ActivityResponseMessage msg = new ActivityResponseMessage(meetingID);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 }

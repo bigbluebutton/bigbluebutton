@@ -4,11 +4,16 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy.Resume
+import java.io.{ PrintWriter, StringWriter }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
+import scala.concurrent.duration._
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.core.recorders.events.PublicChatRecordEvent
+import org.bigbluebutton.core.recorders.events.ClearPublicChatRecordEvent
 import org.bigbluebutton.core.recorders.events.ConversionCompletedPresentationRecordEvent
 import org.bigbluebutton.core.recorders.events.GotoSlidePresentationRecordEvent
 import org.bigbluebutton.core.recorders.events.ResizeAndMoveSlidePresentationRecordEvent
@@ -46,8 +51,19 @@ object RecorderActor {
 class RecorderActor(val recorder: RecorderApplication)
     extends Actor with ActorLogging {
 
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+    case e: Exception => {
+      val sw: StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on RecorderActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      log.error(sw.toString())
+      Resume
+    }
+  }
+
   def receive = {
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
+    case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
     case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
     case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
     case msg: SendCursorUpdateOutMsg => handleSendCursorUpdateOutMsg(msg)
@@ -89,6 +105,15 @@ class RecorderActor(val recorder: RecorderApplication)
       ev.setSenderId(message.get("fromUserID"));
       ev.setMessage(message.get("message"));
       ev.setColor(message.get("fromColor"));
+      recorder.record(msg.meetingID, ev);
+    }
+  }
+
+  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
+    if (msg.recorded) {
+      val ev = new ClearPublicChatRecordEvent();
+      ev.setTimestamp(TimestampGenerator.generateTimestamp);
+      ev.setMeetingId(msg.meetingID);
       recorder.record(msg.meetingID, ev);
     }
   }
@@ -196,8 +221,8 @@ class RecorderActor(val recorder: RecorderApplication)
     if (msg.recorded) {
       val ev = new ParticipantJoinRecordEvent();
       ev.setTimestamp(TimestampGenerator.generateTimestamp);
-      ev.setUserId(msg.user.userID);
-      ev.setExternalUserId(msg.user.externUserID);
+      ev.setUserId(msg.user.id);
+      ev.setExternalUserId(msg.user.externalId);
       ev.setName(msg.user.name);
       ev.setMeetingId(msg.meetingID);
       ev.setRole(msg.user.role.toString());
@@ -249,7 +274,7 @@ class RecorderActor(val recorder: RecorderApplication)
       evt.setMeetingId(msg.meetingID);
       evt.setTimestamp(TimestampGenerator.generateTimestamp);
       evt.setBridge(msg.confNum);
-      evt.setParticipant(msg.user.userID);
+      evt.setParticipant(msg.user.id);
       evt.setTalking(msg.user.voiceUser.talking);
 
       recorder.record(msg.meetingID, evt);
@@ -299,7 +324,7 @@ class RecorderActor(val recorder: RecorderApplication)
     if (msg.recorded) {
       val ev = new ParticipantLeftRecordEvent();
       ev.setTimestamp(TimestampGenerator.generateTimestamp);
-      ev.setUserId(msg.user.userID);
+      ev.setUserId(msg.user.id);
       ev.setMeetingId(msg.meetingID);
 
       recorder.record(msg.meetingID, ev);
@@ -386,7 +411,7 @@ class RecorderActor(val recorder: RecorderApplication)
 
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
     if (msg.recorded) {
-      if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.TEXT_CREATED_STATUS)) {
+      if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.DRAW_START_STATUS)) {
 
         val event = new ModifyTextWhiteboardRecordEvent()
         event.setMeetingId(msg.meetingID)

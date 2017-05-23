@@ -2,6 +2,8 @@ package org.bigbluebutton.messages;
 
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 
+import java.util.Map;
+
 public class CreateMeetingRequest implements IBigBlueButtonMessage {
     public final static String NAME = "CreateMeetingRequest";
 
@@ -30,6 +32,8 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
         public final String createDate;
         public final Boolean isBreakout;
         public final Integer sequence;
+        public final Map<String, String> metadata;
+        public final String guestPolicy;
 
         public CreateMeetingRequestPayload(String id, String externalId,
                 String parentId, String name, Boolean record,
@@ -37,7 +41,7 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
                 Boolean autoStartRecording, Boolean allowStartStopRecording,
                 Boolean webcamsOnlyForModerator, String moderatorPass,
                 String viewerPass, Long createTime, String createDate,
-                Boolean isBreakout, Integer sequence) {
+                Boolean isBreakout, Integer sequence, Map<String, String> metadata, String guestPolicy) {
             this.id = id;
             this.externalId = externalId;
             this.parentId = parentId;
@@ -54,6 +58,8 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
             this.createDate = createDate;
             this.isBreakout = isBreakout;
             this.sequence = sequence;
+            this.metadata = metadata;
+            this.guestPolicy = guestPolicy;
         }
     }
 }

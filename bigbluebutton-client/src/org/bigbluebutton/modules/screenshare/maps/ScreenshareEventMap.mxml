@@ -58,6 +58,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<ObjectBuilder generator="{ScreenshareManager}"/>
 	</EventHandlers>
 		
+	<EventHandlers type="{ShareEvent.SHARE_SCREEN}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleShareScreenEvent" arguments="{event.fullScreen}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.STOP_SHARING}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleStopSharingEvent"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.CHANGE_VIDEO_DISPLAY_MODE}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleVideoDisplayModeEvent" arguments="{event.fullScreen}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{ShareEvent.REFRESH_SCREENSHARE_PUBLISH_TAB}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleRefreshScreenshareTab"/>
+	</EventHandlers>
+
+	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
+		<MethodInvoker generator="{ScreenshareManager}" method="handleStartSharingEvent"/>
+	</EventHandlers>
+
 	<EventHandlers type="{ShareEvent.START_SHARING}">
 		<MethodInvoker generator="{ScreenshareManager}" method="handleStartSharingEvent"/>
 	</EventHandlers>

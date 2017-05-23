@@ -56,7 +56,7 @@ libraryDependencies ++= {
     "org.springframework"       %  "spring-core"       % springVersion,
     "org.springframework"       %  "spring-webmvc"     % springVersion,
     "org.springframework"       %  "spring-aop"        % springVersion,
-    "org.bigbluebutton"         %  "bbb-common-message"% "0.0.18-SNAPSHOT",
+    "org.bigbluebutton"         %  "bbb-common-message"% "0.0.19-SNAPSHOT",
     "javax.servlet"             %  "servlet-api"       % "2.5"
 
 

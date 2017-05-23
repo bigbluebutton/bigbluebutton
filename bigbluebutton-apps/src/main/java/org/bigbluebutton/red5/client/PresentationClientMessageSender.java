@@ -120,6 +120,7 @@ public class PresentationClientMessageSender {
 			presentation.put("name", msg.presentation.get("name"));
 			presentation.put("current", msg.presentation.get("current"));
 			presentation.put("pages", msg.presentation.get("pages"));
+			presentation.put("downloadable", msg.presentation.get("downloadable"));
 
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put("presentation", presentation);
@@ -173,6 +174,7 @@ public class PresentationClientMessageSender {
 			presentation.put("name", msg.presentation.get("name"));
 			presentation.put("current", msg.presentation.get("current"));
 			presentation.put("pages", msg.presentation.get("pages"));
+			presentation.put("downloadable", msg.presentation.get("downloadable"));
 
 			args.put("presentation", presentation);
 

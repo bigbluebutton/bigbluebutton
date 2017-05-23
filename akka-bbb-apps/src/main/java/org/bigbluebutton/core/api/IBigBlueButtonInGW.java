@@ -16,6 +16,7 @@ public interface IBigBlueButtonInGW {
 	void destroyMeeting(String meetingID);
 	void getAllMeetings(String meetingID);
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
+	void activityResponse(String meetingID);
 
 	// Polling
 	void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId);
@@ -31,11 +32,13 @@ public interface IBigBlueButtonInGW {
 
 	// Users
 	void validateAuthToken(String meetingId, String userId, String token, String correlationId, String sessionId);
-	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken, String avatarURL);
+	void registerUser(String roomName, String userid, String username, String role, String externUserID,
+					  String authToken, String avatarURL, Boolean guest, Boolean authed);
 	void userEmojiStatus(String meetingId, String userId, String emojiStatus);	
 	void shareWebcam(String meetingId, String userId, String stream);
 	void unshareWebcam(String meetingId, String userId, String stream);
 	void setUserStatus(String meetingID, String userID, String status, Object value);
+	void setUserRole(String meetingID, String userID, String role);
 	void getUsers(String meetingID, String requesterID);
 	void userLeft(String meetingID, String userID, String sessionId);
 	void userJoin(String meetingID, String userID, String authToken);
@@ -46,6 +49,10 @@ public interface IBigBlueButtonInGW {
 	void getRecordingStatus(String meetingId, String userId);
 	void userConnectedToGlobalAudio(String voiceConf, String userid, String name);
 	void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
+	void getGuestPolicy(String meetingID, String userID);
+	void setGuestPolicy(String meetingID, String guestPolicy, String setBy);
+	void responseToGuest(String meetingID, String userID, Boolean response, String requesterID);
+	void logoutEndMeeting(String meetingID, String userID);
 
 	// Voice
 	void initAudioSettings(String meetingID, String requesterID, Boolean muted);
@@ -87,7 +94,7 @@ public interface IBigBlueButtonInGW {
             int pagesCompleted, String presName);
 
 	void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presId, int numPages, String presName, String presBaseUrl);
+            String code, String presId, int numPages, String presName, String presBaseUrl, boolean downloadable);
 
 	// Layout
 	void getCurrentLayout(String meetingID, String requesterID);
@@ -100,14 +107,15 @@ public interface IBigBlueButtonInGW {
 	void getChatHistory(String meetingID, String requesterID, String replyTo);
 	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
 	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
+	void clearPublicChatHistory(String meetingID, String requesterID);
 
 	// Whiteboard
 	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);	
 	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId, String replyTo);
 	void clearWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
-	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
-	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
+	void modifyWhiteboardAccess(String meetingID, String requesterID, Boolean multiUser);
+	void getWhiteboardAccess(String meetingID, String requesterID);
 	
 	// Caption
 	void sendCaptionHistory(String meetingID, String requesterID);
@@ -120,4 +128,12 @@ public interface IBigBlueButtonInGW {
 	void deskShareRTMPBroadcastStarted(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
 	void deskShareRTMPBroadcastStopped(String conferenceName, String streamname, int videoWidth, int videoHeight, String timestamp);
 	void deskShareGetInfoRequest(String meetingId, String requesterId, String replyTo);
+
+	// Shared notes
+	void patchDocument(String meetingID, String requesterID, String noteID, String patch, String operation);
+	void getCurrentDocument(String meetingID, String requesterID);
+	void createAdditionalNotes(String meetingID, String requesterID, String noteName);
+	void destroyAdditionalNotes(String meetingID, String requesterID, String noteID);
+	void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize);
+	void sharedNotesSyncNoteRequest(String meetingID, String requesterID, String noteID);
 }

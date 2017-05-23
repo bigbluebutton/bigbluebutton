@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.whiteboard.views.models
 {
     import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
     import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
+    import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
 
     /**
     * Class that holds all properties of the currently selected whiteboard tool.
@@ -27,7 +28,7 @@ package org.bigbluebutton.modules.whiteboard.views.models
     public class WhiteboardTool
     {
         public var graphicType:String = WhiteboardConstants.TYPE_SHAPE;
-        public var toolType:String = DrawObject.PENCIL;
+        public var toolType:String = AnnotationType.PENCIL;
         public var drawColor:uint = 0x000000;
         public var fillColor:uint = 0x000000;
         public var thickness:uint = 1;       

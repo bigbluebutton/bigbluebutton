@@ -1,5 +1,7 @@
 package org.bigbluebutton.core
 
+import org.bigbluebutton.core.api.GuestPolicy
+
 trait AppsTestFixtures {
 
   val meetingId = "testMeetingId"
@@ -21,6 +23,7 @@ trait AppsTestFixtures {
   val isBreakout = false
   val red5DeskShareIP = "127.0.0.1"
   val red5DeskShareApp = "red5App"
+  val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
 
   val mProps = new MeetingProperties(meetingId, externalMeetingId, parentMeetingId,
     meetingName, record,
@@ -29,5 +32,5 @@ trait AppsTestFixtures {
     autoStartRecording, allowStartStopRecording, webcamsOnlyForModerator,
     moderatorPassword, viewerPassword,
     createTime, createDate, red5DeskShareIP, red5DeskShareApp,
-    isBreakout, sequence)
+    isBreakout, sequence, metadata, GuestPolicy.ALWAYS_ACCEPT)
 }
