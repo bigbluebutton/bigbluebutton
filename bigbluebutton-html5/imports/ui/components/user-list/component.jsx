@@ -45,7 +45,7 @@ class UserList extends Component {
     list.focus();
   }
 
-  focusListItem(active, direction, element, count) {
+  focusListItem(active, element) {
 
     const select = (element) => {
       element.tabIndex = 0;
@@ -54,14 +54,7 @@ class UserList extends Component {
 
     active.tabIndex = -1;
 
-    switch (direction) {
-      case 'down':
-        select(element.childNodes[this.counter]);
-        break;
-      case 'up':
-        select(element.childNodes[this.counter]);
-        break;
-    }
+    select(element.childNodes[this.counter]);
   }
 
   rovingIndex(event, listType) {
@@ -104,7 +97,7 @@ class UserList extends Component {
         this.counter = 0;
       }
 
-      this.focusListItem(active, 'down', items);
+      this.focusListItem(active, items);
     }
 
     if (event.keyCode === KEY_CODES.ARROW_UP) {
@@ -114,7 +107,7 @@ class UserList extends Component {
         this.counter = count - 1;
       }
 
-      this.focusListItem(active, 'up', items);
+      this.focusListItem(active, items);
     }
   }
 
