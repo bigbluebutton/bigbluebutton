@@ -91,7 +91,7 @@ class UserList extends Component {
     }
 
     if (event.keyCode === KEY_CODES.ARROW_DOWN) {
-      this.counter = this.counter + 1;
+      this.counter += 1;
 
       if(this.counter == count){
         this.counter = 0;
@@ -101,7 +101,7 @@ class UserList extends Component {
     }
 
     if (event.keyCode === KEY_CODES.ARROW_UP) {
-      this.counter = this.counter - 1;
+      this.counter -= 1;
 
       if(this.counter <= -1){
         this.counter = count - 1;
