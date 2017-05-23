@@ -375,18 +375,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var config:Config = BBB.getConfigManager().config;
 				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = config.shortcutKeys.showButton;
 
-				if (config.branding.logo == "") {
+				if (config.branding.logo.toString() == "") {
 					hideLogo();
 				} else {
 					logo.source = config.branding.logo;
 				}
 
-				if (config.branding.toolbarColor != "") {
+				if (config.branding.toolbarColor.toString() != "") {
 					setStyle("backgroundColor", config.branding.toolbarColor);
 				}
 
 				if (config.branding.toolbarColorAlphas != "") {
-					setStyle("highlightAlphas", config.branding.toolbarColorAlphas.split(","));
+					setStyle("highlightAlphas", config.branding.toolbarColorAlphas.toString().split(","));
 				}
 			}
 			
