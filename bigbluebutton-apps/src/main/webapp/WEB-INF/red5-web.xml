@@ -54,14 +54,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         </property>
         <property name="connInvokerService"><ref bean="connInvokerService"/></property>
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
+        <property name="clientInGW" ref="clientInGW" />
     </bean>
 
     <bean id="clientInGW" class="org.bigbluebutton.client.ClientInGW" >
         <constructor-arg index="0" ref="clientGWApp"/>
     </bean>
 
-    <bean id="clientGWApp" class="org.bigbluebutton.client.ClientGWApplication" destroy-method="shutdown">
+    <bean id="msgToClientGW" class="org.bigbluebutton.client.MsgToClientGW" >
         <constructor-arg index="0" ref="connInvokerService"/>
+    </bean>
+
+    <bean id="clientGWApp" class="org.bigbluebutton.client.ClientGWApplication" destroy-method="shutdown">
+        <constructor-arg index="0" ref="msgToClientGW"/>
         <constructor-arg index="1" ref="oldMessageReceivedGW"/>
     </bean>
 

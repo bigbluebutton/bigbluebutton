@@ -22,7 +22,7 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   def props(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus): Props =
     Props(classOf[AppsRedisSubscriberActor], jsonMsgBus, oldMessageEventBus,
       redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
+      channels, patterns)//.withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
 class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
