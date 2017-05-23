@@ -46,9 +46,21 @@ const messages = defineMessages({
     id: 'app.userlist.you',
     description: 'Text for identifying your user',
   },
+  locked: {
+    id: 'app.userlist.locked',
+    description: 'Text for identifying locked user',
+  },
   menuTitleContext: {
     id: 'app.userlist.menuTitleContext',
     description: 'adds context to userListItem menu title',
+  },
+  userItemStatusAriaLabel: {
+    id: 'app.userlist.useritem.status.arialabel',
+    description: 'adds aria label for user and status',
+  },
+  userItemAriaLabel: {
+    id: 'app.userlist.useritem.nostatus.arialabel',
+    description: 'aria label for user',
   },
 });
 
@@ -230,15 +242,81 @@ class UserListItem extends Component {
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
     userItemContentsStyle[styles.active] = this.state.isActionsOpen;
 
+    const {
+      user,
+      intl,
+    } = this.props;
+
+    let you = (user.isCurrent) ? intl.formatMessage(messages.you) : null;
+
+    let presenter = (user.isPresenter)
+      ? intl.formatMessage(messages.presenter)
+      : null;
+
+    let userAriaLabel = (user.emoji.status === 'none')
+      ? intl.formatMessage(messages.userItemAriaLabel,
+          { username: user.name, presenter: presenter, you: you, })
+      : intl.formatMessage(messages.userItemStatusAriaLabel,
+          { username: user.name,
+            presenter: presenter,
+            you: you,
+            status: user.emoji.status, });
+
+    let actions = this.getAvailableActions();
+    let contents = (
+      <div
+        className={cx(styles.userListItem, userItemContentsStyle)}
+        aria-label={userAriaLabel}>
+        <div className={styles.userItemContents} aria-hidden="true">
+          <UserAvatar user={user} />
+          {this.renderUserName()}
+          {this.renderUserIcons()}
+        </div>
+      </div>
+    );
+
+    if (!actions.length) {
+      return contents;
+    }
+
+    const { dropdownOffset, dropdownDirection, dropdownVisible, } = this.state;
+
     return (
-      <li
-        role="button"
-        aria-haspopup="true"
-        aria-live="assertive"
-        aria-relevant="additions"
-        className={cx(styles.userListItem, userItemContentsStyle)}>
-        {this.renderUserContents()}
-      </li>
+      <Dropdown
+        ref="dropdown"
+        isOpen={this.state.isActionsOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+        className={styles.dropdown}
+        autoFocus={false}
+        hasPopup="true"
+        ariaLive="assertive"
+        ariaRelevant="additions">
+        <DropdownTrigger>
+          {contents}
+        </DropdownTrigger>
+        <DropdownContent
+          style={{
+            visibility: dropdownVisible ? 'visible' : 'hidden',
+            [dropdownDirection]: `${dropdownOffset}px`,
+          }}
+          className={styles.dropdownContent}
+          placement={`right ${dropdownDirection}`}>
+
+          <DropdownList>
+            {
+              [
+                (<DropdownListTitle
+                    description={intl.formatMessage(messages.menuTitleContext)}
+                    key={_.uniqueId('dropdown-list-title')}>
+                      {user.name}
+                 </DropdownListTitle>),
+                (<DropdownListSeparator key={_.uniqueId('action-separator')} />),
+              ].concat(actions)
+            }
+          </DropdownList>
+        </DropdownContent>
+      </Dropdown>
     );
   }
 
@@ -250,7 +328,7 @@ class UserListItem extends Component {
 
     let actions = this.getAvailableActions();
     let contents = (
-      <div tabIndex={0} className={styles.userItemContents}>
+      <div className={styles.userItemContents}>
         <UserAvatar user={user} />
         {this.renderUserName()}
         {this.renderUserIcons()}
@@ -269,7 +347,8 @@ class UserListItem extends Component {
         isOpen={this.state.isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={styles.dropdown}>
+        className={styles.dropdown}
+        autoFocus={false}>
         <DropdownTrigger>
           {contents}
         </DropdownTrigger>
@@ -303,6 +382,7 @@ class UserListItem extends Component {
       user,
       intl,
       compact,
+      meeting,
     } = this.props;
 
     if (compact) {
@@ -310,6 +390,7 @@ class UserListItem extends Component {
     }
 
     let userNameSub = [];
+
     if (user.isPresenter) {
       userNameSub.push(intl.formatMessage(messages.presenter));
     }
@@ -320,6 +401,8 @@ class UserListItem extends Component {
 
     userNameSub = userNameSub.join(' ');
 
+    const { disablePrivateChat, disableCam, disableMic, lockedLayout, disablePublicChat } = meeting.roomLockSettings;
+
     return (
       <div className={styles.userName}>
         <span className={styles.userNameMain}>
@@ -327,6 +410,15 @@ class UserListItem extends Component {
         </span>
         <span className={styles.userNameSub}>
           {userNameSub}
+          {(user.isLocked && (disablePrivateChat
+            || disableCam
+            || disableMic
+            || lockedLayout
+            || disablePublicChat)) ?
+            <span> {(user.isCurrent ? ' | ' : null)}
+              <Icon iconName='lock' />
+              {intl.formatMessage(messages.locked)}
+            </span> : null}
         </span>
       </div>
     );
@@ -394,6 +486,7 @@ class UserListItem extends Component {
         label={action.label}
         defaultMessage={action.label}
         onClick={action.handler.bind(this, ...parameters)}
+        placeInTabOrder={true}
       />
     );
 

@@ -33,7 +33,7 @@ export default class UserAvatar extends Component {
 
     return (
       <div className={user.isOnline ? styles.userAvatar : styles.userLogout}
-           style={avatarStyles}>
+           style={avatarStyles} aria-hidden="true">
         <div>
           {this.renderAvatarContent()}
         </div>

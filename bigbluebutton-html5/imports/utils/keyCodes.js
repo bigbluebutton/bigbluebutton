@@ -4,6 +4,8 @@ export const TAB = 9;
 export const ESCAPE = 27;
 export const ARROW_UP = 38;
 export const ARROW_DOWN = 40;
+export const ARROW_RIGHT = 39;
+export const ARROW_LEFT = 37;
 
 export default {
   SPACE,
@@ -12,4 +14,6 @@ export default {
   ESCAPE,
   ARROW_UP,
   ARROW_DOWN,
+  ARROW_RIGHT,
+  ARROW_LEFT,
 };

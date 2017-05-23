@@ -1,8 +1,8 @@
 <recordID>${r.getId()}</recordID>
 
 <#if r.getMeeting()??>
-    <meetingID>${r.getMeeting().getId()?html}</meetingID>
-    <externalMeetingID>${r.getMeeting().getExternalId()?html}</externalMeetingID>
+    <meetingID>${r.getMeeting().getExternalId()?html}</meetingID>
+    <internalMeetingID>${r.getMeeting().getId()?html}</internalMeetingID>
     <name>${r.getMeeting().getName()?html}</name>
     <isBreakout>${r.getMeeting().isBreakout()?c}</isBreakout>
 <#else>

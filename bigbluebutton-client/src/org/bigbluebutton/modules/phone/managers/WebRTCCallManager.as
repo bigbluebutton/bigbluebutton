@@ -172,20 +172,6 @@ package org.bigbluebutton.modules.phone.managers
       ExternalInterface.call("leaveWebRTCVoiceConference");
     }
     
-	  public function handleBecomeViewer():void {
-		  LOGGER.debug("handleBecomeViewer received");
-		  if (options.presenterShareOnly) {
-			  if (!usingWebRTC || model.state != Constants.IN_CONFERENCE || UsersUtil.amIModerator()) return;
-			
-			  LOGGER.debug("handleBecomeViewer leaving WebRTC and joining listen only stream");
-			  ExternalInterface.call("leaveWebRTCVoiceConference");
-			
-			  var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-			  command.mic = false;
-			  dispatcher.dispatchEvent(command);
-		  }
-	  }
-	
     public function handleUseFlashModeCommand():void {
       usingWebRTC = false;
     }

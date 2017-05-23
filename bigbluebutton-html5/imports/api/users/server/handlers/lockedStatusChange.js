@@ -7,11 +7,11 @@ import muteToggle from '../methods/muteToggle';
 export default function handleLockedStatusChange({ payload }) {
   const meetingId = payload.meeting_id;
   const userId = payload.userid;
-  const isLocked = arg.payload.locked;
+  const isLocked = payload.locked;
 
   check(meetingId, String);
   check(userId, String);
-  check(isLocked, String);
+  check(isLocked, Boolean);
 
   const selector = {
     meetingId,
@@ -50,7 +50,7 @@ export default function handleLockedStatusChange({ payload }) {
         muteToggle(credentials, userId, true);
       }
 
-      return Logger.info(`Assigned locked status '${isLocked ? 'locked' : 'unlocked'}' id=${newPresenterId} meeting=${meetingId}`);
+      return Logger.info(`Assigned locked status '${isLocked ? 'locked' : 'unlocked'}' id=${userId} meeting=${meetingId}`);
     }
   };
 
