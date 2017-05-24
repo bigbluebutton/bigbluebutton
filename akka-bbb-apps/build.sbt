@@ -45,10 +45,11 @@ libraryDependencies ++= {
     "ch.qos.logback"           %   "logback-classic"                      % "1.0.13"       % "runtime",
     "junit"                    %   "junit"                                % "4.11",
     "commons-codec"             %  "commons-codec"                        % "1.10",
-    "org.apache.commons"        %  "commons-lang3"                        % "3.2",
-    "org.bigbluebutton"         %  "bbb-common-message_2.12"                   % "0.0.19-SNAPSHOT"
+    "org.apache.commons"        %  "commons-lang3"                        % "3.2"
   )
 }
+
+libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
 
 // https://mvnrepository.com/artifact/org.scala-lang/scala-library
 libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"

@@ -18,7 +18,7 @@ import redis.api.servers.ClientSetname
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
   val TO_AKKA_APPS = "bbb:to-akka-apps"
-  val channels = Seq("time", TO_AKKA_APPS)
+  val channels = Seq("time", toAkkaAppsRedisChannel)
   val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
 
   def props(msgReceiver: RedisMessageReceiver, jsonMsgBus: IncomingJsonMessageBus): Props =
@@ -31,7 +31,7 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: In
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) {
+      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -43,18 +43,16 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, jsonMsgBus: In
     }
   }
 
-  val TO_AKKA_APPS = "bbb:to-akka-apps"
-
   // Set the name of this client to be able to distinguish when doing
   // CLIENT LIST on redis-cli
   write(ClientSetname("BbbAppsAkkaSub").encodedRequest)
 
   def onMessage(message: Message) {
     //log.error(s"SHOULD NOT BE RECEIVING: $message")
-    if (message.channel == TO_AKKA_APPS) {
+    if (message.channel == toAkkaAppsRedisChannel) {
       val receivedJsonMessage = new ReceivedJsonMessage(message.channel, message.data.utf8String)
-      println(receivedJsonMessage.data)
-      jsonMsgBus.publish(IncomingJsonMessage("incoming-json-message", receivedJsonMessage))
+      log.debug(s"RECEIVED:\n [${receivedJsonMessage.channel}] \n ${receivedJsonMessage.data} \n")
+      jsonMsgBus.publish(IncomingJsonMessage(toAkkaAppsJsonChannel, receivedJsonMessage))
     }
   }
 

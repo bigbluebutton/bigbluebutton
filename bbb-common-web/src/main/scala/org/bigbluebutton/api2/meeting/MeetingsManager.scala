@@ -1,7 +1,15 @@
 package org.bigbluebutton.api2.meeting
 
+import org.bigbluebutton.common2.domain.DefaultProps
+
 
 object MeetingsManager {
+
+  def create(mgr: MeetingsManager, defaultProps: DefaultProps): RunningMeeting = {
+    val rm = RunningMeeting(defaultProps.meetingProp.intId, defaultProps)
+    mgr.save(rm)
+    rm
+  }
 
   def findWithId(mgr: MeetingsManager, id: String): Option[RunningMeeting] = {
     mgr.toVector.find(m => m.meetingId == id)

@@ -46,11 +46,11 @@ object Boot extends App with SystemConfiguration {
 
   val bbbMsgBus = new BbbMsgRouterEventBus
 
-  val bbbInGW = new BigBlueButtonInGW(system, eventBus, bbbMsgBus, outGW, red5DeskShareIP, red5DeskShareApp)
+  val bbbInGW = new BigBlueButtonInGW(system, eventBus, bbbMsgBus, outGW)
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
   val redisMessageHandlerActor = system.actorOf(ReceivedJsonMsgHandlerActor.props(bbbMsgBus, incomingJsonMessageBus))
-  incomingJsonMessageBus.subscribe(redisMessageHandlerActor, "incoming-json-message")
+  incomingJsonMessageBus.subscribe(redisMessageHandlerActor, toAkkaAppsJsonChannel)
 
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver, incomingJsonMessageBus), "redis-subscriber")
 

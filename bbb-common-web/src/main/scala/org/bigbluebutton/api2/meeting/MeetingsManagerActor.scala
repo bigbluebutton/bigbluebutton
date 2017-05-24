@@ -67,7 +67,7 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
     } yield {
       MeetingsManager.findMeetingThatStartsWith(manager, mid) match {
         case Some(m) => replyWithDuplicateMeeting()
-        case None => createNewMeeting()
+        case None => createNewMeeting(msg)
           sendCreateMeetingRequestToAkkaApps(msg.defaultProps)
           replyWithCreatedMeeting()
       }
@@ -80,8 +80,8 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
 
   }
 
-  def createNewMeeting(): Unit = {
-
+  def createNewMeeting(msg: CreateMeetingMsg): RunningMeeting = {
+    MeetingsManager.create(manager, msg.defaultProps)
   }
 
   def replyWithCreatedMeeting(): Unit = {

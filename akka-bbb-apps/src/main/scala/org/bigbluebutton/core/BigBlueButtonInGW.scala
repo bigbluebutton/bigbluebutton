@@ -2,6 +2,7 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
+
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
@@ -12,18 +13,20 @@ import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
 import akka.event.Logging
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.models.Roles
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
     eventBus: IncomingEventBus,
     bbbMsgBus: BbbMsgRouterEventBus,
-    outGW: OutMessageGateway,
-    val red5DeskShareIP: String,
-    val red5DeskShareApp: String) extends IBigBlueButtonInGW {
+    outGW: OutMessageGateway) extends IBigBlueButtonInGW with SystemConfiguration {
 
   val log = Logging(system, getClass)
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW), "bigbluebutton-actor")
+  eventBus.subscribe(bbbActor, meetingManagerChannel)
+
+  /** For OLD Messaged **/
   eventBus.subscribe(bbbActor, "meeting-manager")
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {

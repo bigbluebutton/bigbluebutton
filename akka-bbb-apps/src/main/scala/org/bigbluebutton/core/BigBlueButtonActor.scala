@@ -1,6 +1,7 @@
 package org.bigbluebutton.core
 
 import java.io.{ PrintWriter, StringWriter }
+
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
@@ -12,6 +13,7 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
 
+import org.bigbluebutton.common2.messages.{ BbbCommonEnvCoreMsg, CreateMeetingReqMsg }
 import org.bigbluebutton.core.running.RunningMeeting
 
 object BigBlueButtonActor extends SystemConfiguration {
@@ -50,6 +52,7 @@ class BigBlueButtonActor(val system: ActorSystem,
   }
 
   def receive = {
+    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
     case msg: CreateMeeting => handleCreateMeeting(msg)
     case msg: DestroyMeeting => handleDestroyMeeting(msg)
     case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
@@ -63,6 +66,17 @@ class BigBlueButtonActor(val system: ActorSystem,
     case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
     case _ => // do nothing
+  }
+
+  private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
+    log.debug("****** RECEIVED BbbCommonEnvCoreMsg msg {}", msg)
+    msg.core match {
+      case m: CreateMeetingReqMsg => handleCreateMeetingReqMsg(m)
+    }
+  }
+
+  private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
+    log.debug("****** RECEIVED CreateMeetingReqMsg msg {}", msg)
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {

@@ -50,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
+        <property name="gw" ref="bbbWebApiGWApp" />
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">

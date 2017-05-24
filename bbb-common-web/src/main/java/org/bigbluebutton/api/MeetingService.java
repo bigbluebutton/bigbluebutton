@@ -61,6 +61,7 @@ import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.api.pub.IPublisherService;
+import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.api.messaging.messages.StunTurnInfoRequested;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
@@ -96,6 +97,8 @@ public class MeetingService implements MessageListener {
 
     private ParamsProcessorUtil paramsProcessorUtil;
     private PresentationUrlDownloadService presDownloadService;
+
+    private IBbbWebApiGWApp gw;
 
     public MeetingService() {
         meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);
@@ -271,6 +274,15 @@ public class MeetingService implements MessageListener {
           m.getModeratorPassword(), m.getViewerPassword(),
           m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
           m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy());
+
+        gw.createMeeting(m.getInternalId(), m.getExternalId(),
+                m.getParentMeetingId(), m.getName(), m.isRecord(),
+                m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(),
+                m.getAllowStartStopRecording(), m.getWebcamsOnlyForModerator(),
+                m.getModeratorPassword(), m.getViewerPassword(),
+                m.getCreateTime(), formatPrettyDate(m.getCreateTime()),
+                m.isBreakout(), m.getSequence(), m.getMetadata(), m.getGuestPolicy(), m.getWelcomeMessageTemplate(),
+                m.getWelcomeMessage(), m.getModeratorOnlyMessage(), m.getDialNumber(), m.getMaxUsers());
 
     }
 
@@ -914,6 +926,10 @@ public class MeetingService implements MessageListener {
 
     public void setMessagingService(MessagingService mess) {
         messagingService = mess;
+    }
+
+    public void setGw(IBbbWebApiGWApp gw) {
+        this.gw = gw;
     }
 
 

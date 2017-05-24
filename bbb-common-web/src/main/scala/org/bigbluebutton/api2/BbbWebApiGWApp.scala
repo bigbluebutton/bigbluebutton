@@ -1,9 +1,13 @@
 package org.bigbluebutton.api2
 
+import java.util
+import java.util.Map
+import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.{AppsRedisSubscriberActor, MessageSender, RedisPublisher}
-import org.bigbluebutton.api2.meeting.MeetingsManagerActor
+import org.bigbluebutton.api2.meeting.{CreateMeetingMsg, MeetingsManagerActor}
+import org.bigbluebutton.common2.domain._
 
 import scala.concurrent.duration._
 
@@ -52,5 +56,34 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
     */
   def send(channel: String, json: String): Unit = {
     jsonMsgToAkkaAppsBus.publish(JsonMsgToAkkaAppsBusMsg(toAkkaAppsJsonChannel, new JsonMsgToSendToAkkaApps(channel, json)))
+  }
+
+  def createMeeting(meetingId: String, extMeetingId: String, parentMeetingId: String, meetingName: String,
+                    recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
+                    autoStartRecording: java.lang.Boolean,
+                    allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean, moderatorPass: String,
+                    viewerPass: String, createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
+                    sequence: java.lang.Integer,
+                    metadata: java.util.Map[String, String], guestPolicy: String,
+                    welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
+                   dialNumber: String, maxUsers: java.lang.Integer): Unit = {
+
+    val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
+      isBreakout = isBreakout.booleanValue())
+    val durationProps = DurationProps(duration = duration, createdTime = createTime)
+    val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
+    val recordProp = RecordProp(record = recorded, autoStartRecording = autoStartRecording,
+      allowStartStopRecording = allowStartStopRecording)
+    val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
+      modOnlyMessage = modOnlyMessage)
+    val voiceProp = VoiceProp(telVoice = voiceBridge, webVoice = voiceBridge, dialNumber = dialNumber)
+    val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
+      guestPolicy = guestPolicy)
+    val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
+
+    val defaultProps = DefaultProps(meetingProp, durationProps, password, recordProp, welcomeProp, voiceProp,
+      usersProp, metadataProp)
+
+    meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
   }
 }

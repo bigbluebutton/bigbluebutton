@@ -18,8 +18,11 @@ case class VoiceProp(telVoice: String, webVoice: String, dialNumber: String)
 
 case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String)
 
+case class MetadataProp(metadata: collection.immutable.Map[String, String])
+
 case class DefaultProps(meetingProp: MeetingProp, durationProps: DurationProps, password: PasswordProp,
-                        recordProp: RecordProp, welcomeProp: WelcomeProp, voiceProp: VoiceProp, usersProp: UsersProp)
+                        recordProp: RecordProp, welcomeProp: WelcomeProp, voiceProp: VoiceProp,
+                        usersProp: UsersProp, metadataProp: MetadataProp)
 
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
