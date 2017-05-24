@@ -213,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					var javaIssue:String = JavaCheck.checkJava();
 					if (javaIssue != null) {
-						if (BrowserCheck.isChrome42OrHigher()) {
+						if (BrowserCheck.isChrome42OrHigher() || BrowserCheck.isFirefox52OrHigher()) {
 							return false;
 						} else {
 							return false;
