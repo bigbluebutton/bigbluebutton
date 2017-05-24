@@ -244,7 +244,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String logStr =  gson.toJson(logData);
 		
 //		log.info("User joining bbb-apps: data={}", logStr);
-
+		System.out.println("User joining bbb-apps: data=" + logStr);
 		userConnections.addUserConnection(userId, connId);
 
 		ConnInfo connInfo = getConnInfo();
@@ -301,7 +301,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 		boolean removeUser = userConnections.userDisconnected(userId, connId);
 		if (removeUser) {
-//			log.info("User leaving bbb-apps: data={}", logStr);
+		//	log.info("User leaving bbb-apps: data={}", logStr);
+			System.out.println("User leaving bbb-apps: data=" + logStr);
 			red5InGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
 		} else {
 			log.info("User not leaving bbb-apps but just disconnected: data={}", logStr);
@@ -314,6 +315,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	}
 
 	public void onMessageFromClient(String json) {
+		System.out.println("onMessageFromClient \n" + json);
 		ConnInfo connInfo = getConnInfo();
 		clientInGW.handleMsgFromClient(connInfo, json);
 	}
@@ -351,7 +353,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         Gson gson = new Gson();
         String logStr =  gson.toJson(logData);
             
-  //      log.info("User validate token bbb-apps: data={}", logStr);
+        log.info("User validate token bbb-apps: data={}", logStr);
+		System.out.println("User validate token bbb-apps: data=" + logStr);
+				System.out.println("User validate token bbb-apps: data=" + logStr);
         red5InGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
 	}
 		

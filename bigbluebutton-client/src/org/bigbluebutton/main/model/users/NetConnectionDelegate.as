@@ -125,7 +125,7 @@ package org.bigbluebutton.main.model.users
             LOGGER.info(JSON.stringify(logData));
         }
 
-        private function validateToken1():void {
+        private function validateToken():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
           
 			var header:Object = new Object();
@@ -164,7 +164,7 @@ package org.bigbluebutton.main.model.users
             _validateTokenTimer.start();
         }
 
-        private function validateToken():void {
+        private function validateToken1():void {
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
           
             var header:Object = new Object();
