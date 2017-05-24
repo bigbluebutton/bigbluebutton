@@ -33,15 +33,11 @@
 
 	<mx:Script>
 		<![CDATA[
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import flash.events.KeyboardEvent;
 			import flash.ui.Keyboard;
-
-			import flexlib.mdi.events.MDIWindowEvent;
-
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
@@ -49,18 +45,22 @@
 			import mx.core.IFlexDisplayObject;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
-
-			import org.bigbluebutton.core.UsersUtil;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.main.views.WellPositionedMenu;
-			import org.bigbluebutton.modules.sharednotes.views.components.SharedNotesRichTextEditor;
-			import org.bigbluebutton.modules.sharednotes.views.SharedNotesNameWindow;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
-			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
-			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
 			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -73,7 +73,7 @@
 			protected var _noteId:String="MAIN_WINDOW";
 			protected var _noteName:String = "";
 
-			[Bindable] private var options:SharedNotesOptions = new SharedNotesOptions();
+			[Bindable] private var options:SharedNotesOptions;
 
 			private var sendUpdateTimer:Timer;
 			private var getDocumentTimer:Timer = new Timer(5000);
@@ -126,6 +126,7 @@
 			}
 
 			private function initSharedNotesRichTextEditor():void {
+				options = Options.getOptions(SharedNotesOptions) as SharedNotesOptions;
 				richTextEditor.textArea.setStyle("fontSize", options.fontSize);
 
 				richTextEditor.linkTextInput.visible = false;
@@ -411,7 +412,7 @@
 			}
 
 			public function getPrefferedPosition():String {
-				return options.position;
+				return MainCanvas.BOTTOM_LEFT;
 			}
 
 			override protected function resourcesChanged():void {

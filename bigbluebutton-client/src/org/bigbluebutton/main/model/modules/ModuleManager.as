@@ -98,13 +98,13 @@ package org.bigbluebutton.main.model.modules
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-        var protocol:String = "rtmp";
-        if (BBB.initConnectionManager().isTunnelling) {
-          protocol = "rtmpt";
-        }
+				var protocol:String = "rtmp";
+				if (BBB.initConnectionManager().isTunnelling) {
+					protocol = "rtmpt";
+				}
 				m.loadConfigAttributes(conferenceParameters, protocol);
-				bbb.start(m.attributes);		
-			}	
+				bbb.start(m.attributes);
+			}
 		}
 
 		private function stopModule(name:String):void {

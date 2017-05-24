@@ -87,7 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
 			
-			[Bindable] public var wbOptions:WhiteboardOptions = new WhiteboardOptions();
+			[Bindable] public var wbOptions:WhiteboardOptions;
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
@@ -107,10 +107,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
-			private function init():void{
-				wbOptions = Options.getOptions(WhiteboardOptions) as WhiteboardOptions;
-			}
-			
       private function onCreationComplete():void {
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
@@ -203,6 +199,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function positionToolbar(container:MDIWindow):void {
+				wbOptions = Options.getOptions(WhiteboardOptions) as WhiteboardOptions;
         		LOGGER.debug("Positioning whiteboard toolbar");
 				containerToOverlay = container;
 				containerToOverlay.addEventListener(MoveEvent.MOVE, setPositionAndDepth);

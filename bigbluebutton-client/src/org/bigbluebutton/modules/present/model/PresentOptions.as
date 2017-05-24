@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.present.model {
 		public var showWindowControls:Boolean = true;
 
 		[Bindable]
-		public var baseTabIndex:int = 601;
+		public var baseTabIndex:int = 501;
 
 		[Bindable]
 		public var maxFileSize:Number = 30;

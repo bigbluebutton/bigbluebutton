@@ -40,9 +40,5 @@ package org.bigbluebutton.modules.chat.model {
 		public function ChatOptions() {
 			name = "ChatModule";
 		}
-
-		public function getBaseIndex():int {
-			return baseTabIndex;
-		}
 	}
 }

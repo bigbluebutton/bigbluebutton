@@ -104,7 +104,7 @@ package org.bigbluebutton.modules.layout.managers
 				if (e.success) {
 					_layoutModel.addLayouts(e.layouts);
 
-          broadcastLayouts();
+					broadcastLayouts();
 					_serverLayoutsLoaded = true;
 
 					//trace(LOG + " layouts loaded successfully");

@@ -46,14 +46,19 @@
 			url="http://HOST/client/ScreenshareModule.swf?v=VERSION"
 			uri="rtmp://HOST/screenshare"
 			showButton="false"
+			tryWebRTCFirst="false"
+			chromeExtensionLink=""
+			chromeExtensionKey=""
 			baseTabIndex="201"
 			help="http://HOST/client/help/screenshare-help.html"
 		/>
     
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
+			dependsOn="UsersModule"
 			autoJoin="true"
 			listenOnlyMode="true"
+			forceListenOnly="false"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
@@ -61,7 +66,6 @@
 			showPhoneOption="false"
 			showWebRTCStats="false"
 			echoTestApp="9196"
-			dependsOn="UsersModule"
 		/>
 
 		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
@@ -94,11 +98,11 @@
 		
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="UsersModule"
 			host="http://HOST" 
 			showPresentWindow="true"
 			showWindowControls="true"
 			openExternalFileUploadDialog="false"
-			dependsOn="UsersModule"
 			baseTabIndex="501"
 			maxFileSize="30"
 			enableDownload="true"
@@ -119,10 +123,9 @@
 
 		<module name="SharedNotesModule" url="http://HOST/client/SharedNotesModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
+			dependsOn="UsersModule"
 			refreshDelay="500"
 			enableMultipleNotes="true"
-			dependsOn="UsersModule"
-			position="bottom-left"
 			toolbarVisibleByDefault="false"
 			showToolbarButton="true"
 			fontSize="12"

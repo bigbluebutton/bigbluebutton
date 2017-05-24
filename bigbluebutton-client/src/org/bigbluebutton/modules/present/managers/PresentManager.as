@@ -27,9 +27,11 @@ package org.bigbluebutton.modules.present.managers
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.PopUpUtil;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.model.PresentOptions;
 	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
@@ -47,9 +49,10 @@ package org.bigbluebutton.modules.present.managers
 			if (presentWindow != null){ 
 				return;
 			}
+			var presentOptions:PresentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 			presentWindow = new PresentationWindow();
-			presentWindow.visible = (e.data.showPresentWindow == "true");
-			presentWindow.showControls = (e.data.showWindowControls == "true");
+			presentWindow.visible = presentOptions.showPresentWindow;
+			presentWindow.showControls = presentOptions.showWindowControls;
 			openWindow(presentWindow);
 		}
 		
