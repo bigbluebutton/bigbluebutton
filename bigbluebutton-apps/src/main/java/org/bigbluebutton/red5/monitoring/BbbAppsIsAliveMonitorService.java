@@ -43,7 +43,7 @@ public class BbbAppsIsAliveMonitorService {
 	}
 	
 	public void start() {	
-		scheduledThreadPool.scheduleWithFixedDelay(task, 5000, 10000, TimeUnit.MILLISECONDS);
+//		scheduledThreadPool.scheduleWithFixedDelay(task, 5000, 10000, TimeUnit.MILLISECONDS);
 		processKeepAliveMessage();
 	}
 	
