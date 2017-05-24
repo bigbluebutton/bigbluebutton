@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.deskshare.utils
         return null;        
      
       } else if (isJavaOk.result == "JAVA_NOT_INSTALLED") {
-        if (!BrowserCheck.isChrome42OrHigher()) {
+        if (!BrowserCheck.isChrome42OrHigher() || !BrowserCheck.isFirefox52OrHigher()) {
           dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled")));
         }
         return ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled");        

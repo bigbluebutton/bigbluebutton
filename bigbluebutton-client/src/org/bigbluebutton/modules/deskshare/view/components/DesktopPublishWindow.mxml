@@ -70,6 +70,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (javaIssue != null) {
 						if (BrowserCheck.isChrome42OrHigher()) {
 							setCurrentState("chrome42WarningState");
+						} else if (BrowserCheck.isFirefox52OrHigher()) {
+							setCurrentState("firefox52WarningState");
 						} else {
 							setCurrentState("javaIssueWarningState");
 							javaIssueWarningStateLbl.htmlText = javaIssue;
@@ -269,6 +271,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
 					<mx:Text id="chrome42WarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
 							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chrome42UnsupportedHint')}" />
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="firefox52WarningState">
+			<mx:AddChild>
+				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:Text id="firefox52WarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
+							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.firefox52UnsupportedHint')}" />
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>

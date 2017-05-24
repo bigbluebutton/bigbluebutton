@@ -33,6 +33,11 @@ package org.bigbluebutton.modules.deskshare.utils
 			return ((browser[0] == "Chrome") && (parseInt(browser[1]) >= 42));
 		}
 
+		public static function isFirefox52OrHigher():Boolean {
+			var browser:Array = ExternalInterface.call("determineBrowser");
+			return ((browser[0] == "Firefox") && (parseInt(browser[1]) >= 52));
+		}
+
 		public static function isUsingLessThanChrome38OnMac():Boolean {
 			var browser:Array = ExternalInterface.call("determineBrowser");
 			return ((browser[0] == "Chrome") && (parseInt(browser[1]) <= 38) && (Capabilities.os.indexOf("Mac") >= 0));
