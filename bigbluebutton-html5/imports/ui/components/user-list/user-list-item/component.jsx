@@ -83,15 +83,6 @@ const userNameSubTransition = {
 };
 
 class UserListItem extends Component {
-  componentDidMount() {
-    const { addEventListener } = window;
-    addEventListener('click', this.handleClickOutsideDropdown, false);
-  }
-
-  componentWillUnmount() {
-    const { removeEventListener } = window;
-    removeEventListener('click', this.handleClickOutsideDropdown, false);
-  }
 
   constructor(props) {
     super(props);
