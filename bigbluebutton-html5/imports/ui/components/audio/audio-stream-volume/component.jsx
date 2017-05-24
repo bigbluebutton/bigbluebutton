@@ -50,9 +50,10 @@ class AudioStreamVolume extends Component {
   }
 
   componentWillUnmount() {
-    if (window.navigator.userAgent === 'bbb-webrtc-ios') {
+    if (window.navigator.userAgent === 'BigBlueButton') {
       window.webkit.messageHandlers.bbb
             .postMessage(JSON.stringify({ method: 'requestMicrophoneLevelStop' }));
+      return;
     }
 
     this.closeAudioContext();
@@ -60,16 +61,19 @@ class AudioStreamVolume extends Component {
 
   createAudioContext() {
 
-    if (window.navigator.userAgent === 'bbb-webrtc-ios') {
+    if (window.navigator.userAgent === 'BigBlueButton') {
+      console.log('request mic level start')
       window.webkit.messageHandlers.bbb
             .postMessage(JSON.stringify({ method: 'requestMicrophoneLevelStart' }));
       window.addEventListener('audioInputChange',
-        (e) => {
-          this.setState((prevState) => ({
-            instant: parseFloat(e.detail.message),
-            slow: parseFloat(e.detail.message),
-          }));
-        });
+      (e) => {
+        console.log('eventlistener for volume change', e.detail.message);
+        this.setState((prevState) => ({
+          instant: parseFloat(e.detail.message),
+          slow: parseFloat(e.detail.message),
+        }));
+      });
+      return;
     } else {
       this.audioContext = new AudioContext();
       this.scriptProcessor = this.audioContext.createScriptProcessor(2048, 1, 1);

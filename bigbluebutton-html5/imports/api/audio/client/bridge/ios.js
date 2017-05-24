@@ -72,6 +72,11 @@ export default class IOSBridge extends BaseAudioBridge {
       isListenOnly,
     };
 
+    if (isListenOnly) {
+      message.callerIdName = "GLOBAL_AUDIO_" + callerIdName;
+      console.log('callerIdName=' + callerIdName);
+    }
+
     this._sendMessageToSwift(message);
   }
 

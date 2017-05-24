@@ -19,10 +19,14 @@ export default class VertoBridge extends BaseAudioBridge {
   }
 
   joinListenOnly() {
+    let callerIdName = "GLOBAL_AUDIO_" + this.voiceBridge;
+    //let callerIdName = this.vertoUsername;
+    console.log('callerIdName=' + callerIdName);
+
     window.vertoJoinListenOnly(
       'remote-media',
       this.voiceBridge,
-      this.vertoUsername,
+      callerIdName,
       null,
     );
   }

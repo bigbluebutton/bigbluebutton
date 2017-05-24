@@ -10,7 +10,7 @@ export default class AudioManager {
 
     console.log('user agent', window.navigator.userAgent);
     let audioBridge;
-    if (window.navigator.userAgent === 'bbb-webrtc-ios') {
+    if (window.navigator.userAgent === 'BigBlueButton') {
       audioBridge = new IOSBridge(userData);
     } else {
       audioBridge = MEDIA_CONFIG.useSIPAudio ? new SIPBridge(userData) : new VertoBridge(userData);

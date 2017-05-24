@@ -6,11 +6,11 @@ import 'whatwg-fetch'
 
 Meteor.startup(() => {
   let now = new Date().valueOf();
-  
-  if((window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') && window.navigator.userAgent !== 'bbb-webrtc-ios') {
+
+  if((window.navigator.platform === 'iPhone' || window.navigator.platform === 'iPad') && window.navigator.userAgent !== 'BigBlueButton') {
     if(confirm('Do you want to join using the BBB iOS WebRTC Application?')) {
-      window.location = 'bbb-webrtc-ios://' + document.location.href;
-      return;  
+      window.location = 'bbb://' + document.location.href;
+      return;
     }
   }
   //setTimeout(function () {
@@ -23,4 +23,3 @@ Meteor.startup(() => {
   //window.location = 'bbb-webrtc-ios://' + document.location.href;
   console.log('não me arrependo de nada', fetch);
 });
-
