@@ -42,15 +42,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.modules.phone.models.PhoneModel;
+			import org.bigbluebutton.main.model.options.HelpOptions;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.models.Constants;
+			import org.bigbluebutton.modules.phone.models.PhoneModel;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCEchoTest);      
@@ -241,7 +242,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onHelpButtonClicked():void {
-				DEFAULT_HELP_URL =  BBB.getConfigManager().config.help.url;
+				var helpOptions : HelpOptions = Options.getOptions(HelpOptions) as HelpOptions;
+				DEFAULT_HELP_URL =  helpOptions.url;
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
 			}
 			

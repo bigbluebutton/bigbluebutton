@@ -59,6 +59,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
 			
+			import org.as3commons.lang.ArrayUtils;
+			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbToolbarComponent;
@@ -76,8 +78,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.NetworkStatsData;
+			import org.bigbluebutton.main.model.options.BrandingOptions;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
+			import org.bigbluebutton.main.model.options.ShortcutKeysOptions;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -95,6 +99,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var showGuestSettingsButton:Boolean = false;
 			[Bindable] private var showRecordButton:Boolean = false;
 			[Bindable] public var toolbarOptions:LayoutOptions;
+			[Bindable] private var brandingOptions:BrandingOptions;
+
 			[Bindable] private var numButtons:int;
       
 			[Bindable] private var _bandwidthConsumedUp:String = "-";
@@ -116,6 +122,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function init():void{
 				toolbarOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
+				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
@@ -372,20 +379,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						
 			private function handleConfigLoadedEvent(e:ConfigLoadedEvent):void{
 				var config:Config = BBB.getConfigManager().config;
-				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = config.shortcutKeys.showButton;
+				var shortcutKeysOptions : ShortcutKeysOptions = Options.getOptions(ShortcutKeysOptions) as ShortcutKeysOptions;
+				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = shortcutKeysOptions.showButton;
 
-				if (config.branding.logo.toString() == "") {
+				if (StringUtils.isEmpty(brandingOptions.logo)) {
 					hideLogo();
 				} else {
-					logo.source = config.branding.logo;
+					logo.source = brandingOptions.logo;
 				}
 
-				if (config.branding.toolbarColor.toString() != "") {
-					setStyle("backgroundColor", config.branding.toolbarColor);
+				if (!StringUtils.isEmpty(brandingOptions.toolbarColor)) {
+					setStyle("backgroundColor", brandingOptions.toolbarColor);
 				}
 
-				if (config.branding.toolbarColorAlphas != "") {
-					setStyle("highlightAlphas", config.branding.toolbarColorAlphas.toString().split(","));
+				if (ArrayUtils.isNotEmpty(brandingOptions.toolbarColorAlphas)) {
+					setStyle("highlightAlphas", brandingOptions.toolbarColorAlphas);
 				}
 			}
 			

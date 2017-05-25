@@ -32,12 +32,14 @@ package org.bigbluebutton.main.model.users
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.options.ApplicationOptions;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   
@@ -65,6 +67,8 @@ package org.bigbluebutton.main.model.users
         private var _validateTokenTimer:Timer = null;
 
         private var bbbAppsUrl: String = null;
+		
+		private var _applicationOptions : ApplicationOptions;
         
         public function NetConnectionDelegate():void {
             dispatcher = new Dispatcher();
@@ -75,6 +79,7 @@ package org.bigbluebutton.main.model.users
             _netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
             _netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
             _netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
+			_applicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
         }
 
         
@@ -261,7 +266,7 @@ package org.bigbluebutton.main.model.users
 
                 
             try {
-                var appURL:String = BBB.getConfigManager().config.application.uri;
+                var appURL:String = _applicationOptions.uri;
                 var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
                 var result:Array = pattern.exec(appURL);
 
@@ -389,7 +394,7 @@ package org.bigbluebutton.main.model.users
                     break;
 
                 case "NetConnection.Connect.Rejected":
-                    var appURL:String = BBB.getConfigManager().config.application.uri
+                    var appURL:String = _applicationOptions.uri;
                     LOGGER.debug(":Connection to the server rejected. Uri: {0}. Check if the red5 specified in the uri exists and is running", [appURL]);
                     sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);
                     break;

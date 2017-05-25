@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.layout.views.ToolbarComponent;
 			

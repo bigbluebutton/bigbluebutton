@@ -16,7 +16,7 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.main.model {
+package org.bigbluebutton.main.model.options {
 	import org.bigbluebutton.core.Options;
 
 	public class LayoutOptions extends Options {

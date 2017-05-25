@@ -30,11 +30,13 @@ package org.bigbluebutton.main.model.users {
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BreakoutRoomEvent;
+	import org.bigbluebutton.main.model.options.LockOptions;
 	
 	public class Conference {
 		public var userEjectedFromMeeting:Boolean = false;
@@ -511,40 +513,8 @@ package org.bigbluebutton.main.model.users {
 		 * Read default lock settings from config.xml
 		 * */
 		public function configLockSettings():void {
-			var config:Config = BBB.getConfigManager().config;
-			var disableCam:Boolean,
-				disableMic:Boolean,
-				disablePrivateChat:Boolean,
-				disablePublicChat:Boolean,
-				lockedLayout:Boolean,
-				lockOnJoin:Boolean = true,
-				lockOnJoinConfigurable:Boolean;
-			var lockConfig:XML;
-			if (config != null) {
-				lockConfig = config.lock;
-			}
-			if (lockConfig.@disableCamForLockedUsers.length() > 0 ) {
-				disableCam = (lockConfig.@disableCamForLockedUsers.toUpperCase() == "TRUE");
-			}
-			if (lockConfig.@disableMicForLockedUsers.length() > 0 ) {
-				disableMic = (lockConfig.@disableMicForLockedUsers.toUpperCase() == "TRUE");
-			}
-			if (lockConfig.@disablePrivateChatForLockedUsers.length() > 0 ) {
-				disablePrivateChat = (lockConfig.@disablePrivateChatForLockedUsers.toUpperCase() == "TRUE");
-			}
-			if (lockConfig.@disablePublicChatForLockedUsers.length() > 0 ) {
-				disablePublicChat = (lockConfig.@disablePublicChatForLockedUsers.toUpperCase() == "TRUE");
-			}
-			if (lockConfig.@lockLayoutForLockedUsers.length() > 0 ) {
-				lockedLayout = (lockConfig.@lockLayoutForLockedUsers.toUpperCase() == "TRUE");
-			}
-			if (lockConfig.@lockOnJoin.length() > 0 ) {
-				lockOnJoin = (lockConfig.@lockOnJoin.toUpperCase() == "TRUE");
-			}
-			if (lockConfig.@lockOnJoinConfigurable.length() > 0 ) {
-				lockOnJoinConfigurable = (lockConfig.@lockOnJoinConfigurable.toUpperCase() == "TRUE");
-			}
-			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout, lockOnJoin, lockOnJoinConfigurable);
+			var lockOptions:LockOptions = Options.getOptions(LockOptions) as LockOptions;
+			lockSettings = new LockSettingsVO(lockOptions.disableCam, lockOptions.disableMic, lockOptions.disablePrivateChat, lockOptions.disablePublicChat, lockOptions.lockedLayout, lockOptions.lockOnJoin, lockOptions.lockOnJoinConfigurable);
 			setLockSettings(lockSettings);
 		}
 		

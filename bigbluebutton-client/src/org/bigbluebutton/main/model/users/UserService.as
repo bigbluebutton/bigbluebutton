@@ -18,14 +18,17 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.external.ExternalInterface;
-	import flash.net.NetConnection;	
+	import flash.net.NetConnection;
+	
 	import mx.collections.ArrayCollection;
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
@@ -39,6 +42,8 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.options.ApplicationOptions;
+	import org.bigbluebutton.main.model.options.MeetingOptions;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
@@ -89,7 +94,8 @@ package org.bigbluebutton.main.model.users
 		public function startService(e:UserServicesEvent):void {      
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
-			joinService.load(BBB.getConfigManager().config.application.host);
+			var applicationOptions : ApplicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
+			joinService.load(applicationOptions.host);
 		}
 		
 		private function joinListener(success:Boolean, result:Object):void {
@@ -127,7 +133,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.guest = (result.guest);
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
-        _conferenceParameters.authToken = result.authToken;
+				_conferenceParameters.authToken = result.authToken;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
 				_conferenceParameters.welcome = result.welcome;
@@ -137,14 +143,9 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.logoutUrl = processLogoutUrl(result);
 				_conferenceParameters.record = (result.record != "false");
 				
-				var muteOnStart:Boolean;
-				try {
-					muteOnStart = (config.meeting.@muteOnStart.toUpperCase() == "TRUE");
-				} catch(e:Error) {
-					muteOnStart = false;
-				}
+				var meetingOptions : MeetingOptions = Options.getOptions(MeetingOptions) as MeetingOptions;
 				
-				_conferenceParameters.muteOnStart = muteOnStart;
+				_conferenceParameters.muteOnStart = meetingOptions.muteOnStart;
 				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
 				
 				// assign the meeting name to the document title

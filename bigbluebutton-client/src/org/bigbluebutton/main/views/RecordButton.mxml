@@ -54,7 +54,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.model.MeetingModel;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;

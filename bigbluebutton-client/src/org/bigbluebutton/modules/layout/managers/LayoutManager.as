@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.main.model.LayoutOptions;
+  import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
