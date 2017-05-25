@@ -6,7 +6,7 @@ import org.bigbluebutton.api2.bus.MsgToAkkaAppsEventBus
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.api2.util.Util2
 import org.bigbluebutton.common.messages.UserJoinedVoiceMessage
-import org.bigbluebutton.common2.messages.MeetingCreatedEvtMsg
+import org.bigbluebutton.common2.messages.{BbbCommonEnvCoreMsg, MeetingCreatedEvtMsg}
 
 
 sealed trait ApiMsg
@@ -58,7 +58,7 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
 
   def receive = {
     case msg: CreateMeetingMsg => handleCreateMeeting(msg)
-    case msg: MeetingCreatedEvtMsg => handleMeetingCreatedEvtMsg(msg)
+    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
   }
 
   def handleCreateMeeting(msg: CreateMeetingMsg): Unit = {
@@ -88,4 +88,11 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
 
   }
 
+
+  private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
+    msg.core match {
+      case m: MeetingCreatedEvtMsg => handleMeetingCreatedEvtMsg(m)
+      case _ => println("***** Cannot handle " + msg.envelope.name)
+    }
+  }
 }

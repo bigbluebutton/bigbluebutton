@@ -42,4 +42,21 @@ trait Deserializer {
     }
   }
 
+  def toMeetingCreatedEvtMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Option[MeetingCreatedEvtMsg] = {
+    def convertFromJson(json: String): Try[MeetingCreatedEvtMsg] = {
+      for {
+        msg <- Try(fromJson[MeetingCreatedEvtMsg](json))
+      } yield msg
+    }
+
+    val json = JsonUtil.toJson(jsonNode)
+
+    convertFromJson(json) match {
+      case Success(msg) => Some(msg)
+      case Failure(ex) => println(s"************ Problem deserializing json: ${json}")
+        println(s"*********** Exception deserializing json: ${ex.getMessage}")
+        None
+    }
+  }
+
 }

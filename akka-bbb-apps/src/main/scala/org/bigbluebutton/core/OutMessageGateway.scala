@@ -1,7 +1,7 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.messages.{ BbbCommonEnvJsNodeMsg }
+import org.bigbluebutton.common2.messages.{ BbbCommonEnvCoreMsg }
 import org.bigbluebutton.core.bus.{ BbbOutMessage, BigBlueButtonOutMessage, OutEventBus2, OutgoingEventBus }
 import org.bigbluebutton.core.api.IOutMessage
 
@@ -16,7 +16,8 @@ class OutMessageGateway(outgoingEventBus: OutgoingEventBus, outBus2: OutEventBus
     outgoingEventBus.publish(BigBlueButtonOutMessage(outMessageChannel, msg))
   }
 
-  def send(msg: BbbCommonEnvJsNodeMsg): Unit = {
+  def send(msg: BbbCommonEnvCoreMsg): Unit = {
+    println("****** Sending to outBbbMsgMsgChannel " + msg.envelope.name)
     outBus2.publish(BbbOutMessage(outBbbMsgMsgChannel, msg))
   }
 }

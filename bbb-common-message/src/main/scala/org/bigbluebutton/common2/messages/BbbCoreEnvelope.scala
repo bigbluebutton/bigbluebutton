@@ -33,5 +33,5 @@ case class CreateMeetingReqMsg(header: BbbCoreHeader, body: CreateMeetingReqMsgB
 case class CreateMeetingReqMsgBody(props: DefaultProps)
 
 object MeetingCreatedEvtMsg { val NAME = "MeetingCreatedEvtMsg"}
-case class MeetingCreatedEvtMsg(header: BbbCoreHeader, body: MeetingCreatedEvtBody)
+case class MeetingCreatedEvtMsg(header: BbbCoreHeader, body: MeetingCreatedEvtBody) extends BbbCoreMsg
 case class MeetingCreatedEvtBody(props: DefaultProps)

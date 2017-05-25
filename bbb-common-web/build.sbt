@@ -44,6 +44,8 @@ libraryDependencies += "com.github.etaty" % "rediscala_2.12" % "1.8.0"
 libraryDependencies += "com.softwaremill.quicklens" %% "quicklens" % "1.4.8"
 
 libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
+// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-scala_2.12
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.8.8"
 
 libraryDependencies += "redis.clients" % "jedis" % "2.7.2"
 libraryDependencies += "com.google.code.gson" % "gson" % "2.5"

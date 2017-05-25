@@ -13,7 +13,7 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
 
-import org.bigbluebutton.common2.messages.{ BbbCommonEnvCoreMsg, CreateMeetingReqMsg }
+import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.running.RunningMeeting
 
 object BigBlueButtonActor extends SystemConfiguration {
@@ -78,6 +78,14 @@ class BigBlueButtonActor(val system: ActorSystem,
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
     log.debug("****** RECEIVED CreateMeetingReqMsg msg {}", msg)
+
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)
+    val header = BbbCoreHeader(MeetingCreatedEvtMsg.NAME)
+    val body = MeetingCreatedEvtBody(msg.body.props)
+    val event = MeetingCreatedEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+    outGW.send(msgEvent)
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
