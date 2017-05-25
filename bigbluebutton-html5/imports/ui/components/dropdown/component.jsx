@@ -82,10 +82,16 @@ class Dropdown extends Component {
   }
 
   handleShow() {
+    const { addEventListener } = window;
+    addEventListener('click', this.handleWindowClick, false);
+
     this.setState({ isOpen: true }, this.handleStateCallback);
   }
 
   handleHide() {
+
+    const { removeEventListener } = window;
+    removeEventListener('click', this.handleWindowClick, false);
 
     const { autoFocus } = this.props;
 
@@ -95,16 +101,6 @@ class Dropdown extends Component {
       const triggerElement = findDOMNode(this.refs.trigger);
       triggerElement.focus();
     }
-  }
-
-  componentDidMount () {
-    const { addEventListener } = window;
-    addEventListener('click', this.handleWindowClick, false);
-  }
-
-  componentWillUnmount () {
-    const { removeEventListener } = window;
-    removeEventListener('click', this.handleWindowClick, false);
   }
 
   handleWindowClick(event) {
