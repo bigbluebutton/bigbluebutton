@@ -1,17 +1,16 @@
 package org.bigbluebutton.common2.util
 
-import org.bigbluebutton.common2.UnitSpec2
-import org.bigbluebutton.common2.messages.{BbbCoreHeader, ValidateAuthTokenReq, ValidateAuthTokenReqBody}
+import org.bigbluebutton.common2.{TestFixtures, UnitSpec2}
+import org.bigbluebutton.common2.messages._
 
 import scala.collection.immutable.List
-
 import com.fasterxml.jackson.databind.JsonNode
 
 
 case class Person(name: String, age: Int)
 case class Group(name: String, persons: Seq[Person], leader: Person)
 
-class JsonUtilTest extends UnitSpec2 {
+class JsonUtilTest extends UnitSpec2 with TestFixtures {
 
   "JsonUtil" should "unmarshall a simple map" in {
     /*
@@ -85,6 +84,9 @@ class JsonUtilTest extends UnitSpec2 {
     println(finalMsg2)
 
   }
+
+
+
 }
 
 case class FooNode(header: BbbCoreHeader, body: JsonNode)

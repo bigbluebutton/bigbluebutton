@@ -9,7 +9,7 @@ sealed trait BbbCoreMsg
 sealed trait BbbCommonMsg
 
 case class BbbCommonEnvCoreMsg(envelope: BbbCoreEnvelope, core: BbbCoreMsg) extends BbbCommonMsg
-case class BbbCommonEnvJsNodeMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode) extends BbbCommonMsg
+case class BbbCommonEnvJsNodeMsg(envelope: BbbCoreEnvelope, core: JsonNode) extends BbbCommonMsg
 
 
 case class BbbCoreEnvelope(name: String, routing: collection.immutable.Map[String, String])

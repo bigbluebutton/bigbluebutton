@@ -53,6 +53,7 @@ class BigBlueButtonActor(val system: ActorSystem,
 
   def receive = {
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
+    case msg: CreateMeetingReqMsg => handleCreateMeetingReqMsg(msg)
     case msg: CreateMeeting => handleCreateMeeting(msg)
     case msg: DestroyMeeting => handleDestroyMeeting(msg)
     case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
@@ -69,9 +70,9 @@ class BigBlueButtonActor(val system: ActorSystem,
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
-    log.debug("****** RECEIVED BbbCommonEnvCoreMsg msg {}", msg)
     msg.core match {
       case m: CreateMeetingReqMsg => handleCreateMeetingReqMsg(m)
+      case _ => println("***** Cannot handle " + msg.envelope.name)
     }
   }
 

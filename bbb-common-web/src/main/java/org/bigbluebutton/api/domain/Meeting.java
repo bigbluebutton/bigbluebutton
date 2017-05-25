@@ -43,7 +43,7 @@ public class Meeting {
 	private String viewerPass;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
-	private String modOnlyMessage;
+	private String modOnlyMessage = "bbb-None";
 	private String logoutUrl;
 	private int maxUsers;
 	private boolean record;

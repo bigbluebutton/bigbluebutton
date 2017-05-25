@@ -5,11 +5,12 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.annotation.JsonInclude
 
+
 object JsonUtil {
   val mapper = new ObjectMapper() with ScalaObjectMapper
   mapper.registerModule(DefaultScalaModule)
-  mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
+  mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+  mapper.configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, true)
   mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
   def toJson(value: Map[Symbol, Any]): String = {
@@ -29,4 +30,8 @@ object JsonUtil {
   def toJsonNode(json: String): JsonNode = {
     fromJson[JsonNode](json)
   }
+
+
+
+
 }
