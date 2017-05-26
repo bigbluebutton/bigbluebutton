@@ -11,10 +11,29 @@ export default class WhiteboardOverlay extends React.Component {
   constructor(props) {
     super(props);
 
+    //current shape id
+    this.currentShapeId = undefined;
+
+    //count, used to generate a new shape id
+    this.count = 0;
+
+    this.getCurrentShapeId = this.getCurrentShapeId.bind(this);
+    this.generateNewShapeId = this.generateNewShapeId.bind(this);
     this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
     this.getSvgPoint = this.getSvgPoint.bind(this);
     this.checkIfOutOfBounds = this.checkIfOutOfBounds.bind(this);
     this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
+  }
+
+
+  getCurrentShapeId() {
+    return this.currentShapeId;
+  }
+
+  generateNewShapeId() {
+    this.count = this.count + 1;
+    this.currentShapeId = this.count + "-" + new Date().getTime();
+    return this.currentShapeId;
   }
 
   //a function to transform a screen point to svg point
@@ -104,6 +123,8 @@ export default class WhiteboardOverlay extends React.Component {
       getSvgPoint: this.getSvgPoint,
       checkIfOutOfBounds: this.checkIfOutOfBounds,
       svgCoordinateToPercentages: this.svgCoordinateToPercentages,
+      getCurrentShapeId: this.getCurrentShapeId,
+      generateNewShapeId: this.generateNewShapeId,
     };
 
     let tool = this.props.drawSettings.tool;

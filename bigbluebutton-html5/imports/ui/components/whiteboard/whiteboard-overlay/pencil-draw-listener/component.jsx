@@ -6,8 +6,6 @@ export default class PencilDrawListener extends React.Component {
     super(props);
 
     this.pencilCoordinates = [];
-    this.currentShapeId = undefined;
-    this.count = 0;
 
     //to track the status of drawing
     this.isDrawing = false;
@@ -50,21 +48,18 @@ export default class PencilDrawListener extends React.Component {
   }
 
   mouseDownPencil(event) {
-    let svgPoint = this.props.actions.getSvgPoint(event);
+    const { getSvgPoint, generateNewShapeId } = this.props.actions;
 
-    let id = (this.count + 1) + "-" + new Date().getTime();
-
+    let svgPoint = getSvgPoint(event);
     let points = [];
     points.push(svgPoint.x);
     points.push(svgPoint.y);
-
     this.pencilCoordinates = points;
-    this.count = this.count + 1;
-    this.currentShapeId = id;
+    generateNewShapeId();
   }
 
   mouseMovePencil(event) {
-    const { checkIfOutOfBounds, getTransformedSvgPoint, svgCoordinateToPercentages } = this.props.actions;
+    const { checkIfOutOfBounds, getTransformedSvgPoint, svgCoordinateToPercentages, generateNewShapeId, getCurrentShapeId } = this.props.actions;
 
     //get the transformed svg coordinate
     let transformedSvgPoint = getTransformedSvgPoint(event);
@@ -83,18 +78,14 @@ export default class PencilDrawListener extends React.Component {
     //if we have 16 pairs - send a message (number 16 - to match Flash)
     if(points.length > 30) {
       //calling handleDrawPencil to send a message
-      this.handleDrawPencil(points, "DRAW_START", this.currentShapeId);
+      this.handleDrawPencil(points, "DRAW_START", getCurrentShapeId());
 
       //generating a new shape Id
-      let newId = (this.count + 1) + "-" + new Date().getTime();
+      generateNewShapeId();
 
 
       //always save the last pair of coorindtates, since this is the start of the next chunk
       this.pencilCoordinates = [points[points.length - 2], points[points.length-1]];
-      //updating count for the next shape id
-      this.count = this.count + 1;
-      this.currentShapeId = newId;
-
 
     //if we don't have 16 pairs yet - just save an updated array in the state
     } else {
@@ -103,11 +94,12 @@ export default class PencilDrawListener extends React.Component {
   }
 
   mouseUpPencil(event) {
-    //drawing a pencil
-    this.handleDrawPencil(this.pencilCoordinates, "DRAW_START", this.currentShapeId);
+    const { getCurrentShapeId } = this.props.actions;
 
-      this.pencilCoordinates = [];
-      this.currentShapeId = undefined;
+    //drawing a pencil
+    this.handleDrawPencil(this.pencilCoordinates, "DRAW_START", getCurrentShapeId());
+
+    this.pencilCoordinates = [];
   }
 
   handleDrawPencil(points, status, id) {
