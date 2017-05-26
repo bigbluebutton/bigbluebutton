@@ -25,12 +25,15 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	
 	import mx.containers.Canvas;
 	import mx.managers.CursorManager;
 	
 	import org.bigbluebutton.common.Images;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
@@ -39,6 +42,7 @@ package org.bigbluebutton.modules.whiteboard.views {
 	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
@@ -52,8 +56,9 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private var textToolbar:WhiteboardTextToolbar;
 		
 		private var graphicObjectHolder:Canvas = new Canvas();
-		private var images:Images = new Images();
+		private var cursorObjectHolder:Canvas = new Canvas();
 		
+		private var images:Images = new Images();
 		[Bindable] private var pencil_icon:Class = images.pencil_icon;
 		[Bindable] private var rectangle_icon:Class = images.square_icon;
 		[Bindable] private var triangle_icon:Class = images.triangle_icon;
@@ -64,12 +69,14 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private var whiteboardEnabled:Boolean = false;
 		private var currentWhiteboardId:String;
 		
+		private var dispatcher:Dispatcher = new Dispatcher();
+		
 		public function WhiteboardCanvas(wbModel:WhiteboardModel):void {
 			canvasModel = new WhiteboardCanvasModel();
 			canvasDisplayModel = new WhiteboardCanvasDisplayModel();
 			
 			//set up model cross dependencies
-			canvasModel.setDependencies(this, canvasDisplayModel);
+			canvasModel.setDependencies(this);
 			canvasDisplayModel.setDependencies(this, wbModel);
 			
 			whiteboardToolbar = new WhiteboardToolbar();
@@ -87,17 +94,36 @@ package org.bigbluebutton.modules.whiteboard.views {
 			graphicObjectHolder.clipContent = true;
 			graphicObjectHolder.tabFocusEnabled = false;
 			
-			addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			//create the cursor display container
+			this.addChild(cursorObjectHolder);
+			cursorObjectHolder.x = 0;
+			cursorObjectHolder.y = 0;
+			cursorObjectHolder.clipContent = true;
+			cursorObjectHolder.tabFocusEnabled = false;
 			
 			wbModel.addEventListener(WhiteboardUpdateReceived.NEW_ANNOTATION, onNewAnnotationEvent);
 			wbModel.addEventListener(WhiteboardUpdateReceived.RECEIVED_ANNOTATION_HISTORY, onReceivedAnnotationsHistory);
 			wbModel.addEventListener(WhiteboardUpdateReceived.CLEAR_ANNOTATIONS, onClearAnnotations);
 			wbModel.addEventListener(WhiteboardUpdateReceived.UNDO_ANNOTATION, onUndoAnnotation);
 			wbModel.addEventListener(WhiteboardAccessEvent.MODIFIED_WHITEBOARD_ACCESS, onModifiedAccess);
+			wbModel.addEventListener(WhiteboardCursorEvent.RECEIVED_CURSOR_POSITION, onReceivedCursorPosition);
 			
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.ENABLE_WHITEBOARD, onEnableWhiteboardEvent);
 			whiteboardToolbar.addEventListener(WhiteboardButtonEvent.DISABLE_WHITEBOARD, onDisableWhiteboardEvent);
+			
+			var stpl:Listener = new Listener();
+			stpl.type = MadePresenterEvent.SWITCH_TO_PRESENTER_MODE;
+			stpl.method = onSwitchToPresenterEvent;
+			
+			var stvl:Listener = new Listener();
+			stvl.type = MadePresenterEvent.SWITCH_TO_VIEWER_MODE;
+			stvl.method = onSwitchToViewerEvent;
+			
+			presenterChange(UsersUtil.amIPresenter(), UsersUtil.getPresenterUserID());
+			
+			var ull:Listener = new Listener();
+			ull.type = UserLeftEvent.LEFT;
+			ull.method = onUserLeftEvent;
 		}
 		
 		public function attachToReceivingObject(ro:IWhiteboardReceiver):void {
@@ -107,14 +133,19 @@ package org.bigbluebutton.modules.whiteboard.views {
 		
 		private function registerForMouseEvents():void {
 			addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
+			addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		}
 		
 		private function unregisterForMouseEvents():void {
 			removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
+			removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		}
 		
 		private function doMouseUp(event:MouseEvent):void {
-			canvasModel.doMouseUp(Math.min(Math.max(parent.mouseX, 0), parent.width) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height) - this.y);
+			var mousePoint:Point = getMouseXY();
+			canvasModel.doMouseUp(mousePoint.x, mousePoint.y);
 			
 			stage.removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
@@ -130,7 +161,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		}
 		
 		private function doMouseMove(event:MouseEvent):void {
-			canvasModel.doMouseMove(Math.min(Math.max(parent.mouseX, 0), parent.width-1) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-1) - this.y);
+			var mousePoint:Point = getMouseXY();
+			canvasModel.doMouseMove(mousePoint.x, mousePoint.y);
 		}
 		
 		public function changeColor(e:Event):void {
@@ -145,22 +177,26 @@ package org.bigbluebutton.modules.whiteboard.views {
 			// LogUtil.debug("DISPATCHING SEND sendGraphicToServer [" + type + "]");
 			var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 			event.annotation = gobj;
-			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(event);					
+			dispatcher.dispatchEvent(event);
 		}
 		
 		public function sendUndoToServer():void {
 			var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO);
 			event.wbId = currentWhiteboardId;
-			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);
 		}
 		
 		public function sendClearToServer():void {
 			var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR);
 			event.wbId = currentWhiteboardId;
-			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);			
+		}
+		
+		public function sendCursorPositionToServer(x:Number, y:Number):void {
+			var event:WhiteboardCursorEvent = new WhiteboardCursorEvent(WhiteboardCursorEvent.SEND_CURSOR_POSITION);
+			event.xPercent = x;
+			event.yPercent = y;
+			dispatcher.dispatchEvent(event);
 		}
 		
 		public function setGraphicType(type:String):void {
@@ -214,21 +250,38 @@ package org.bigbluebutton.modules.whiteboard.views {
 			CursorManager.removeCursor(CursorManager.currentCursorID);
 		}
 		
-		public function doesContain(child:DisplayObject):Boolean {
+		private function getMouseXY():Point {
+			return new Point(Math.min(Math.max(parent.mouseX, 0), parent.width-1) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-1) - this.y);
+		}
+		
+		private function presenterChange(amIPresenter:Boolean, presenterId:String):void {
+			canvasModel.presenterChange(amIPresenter, presenterId);
+			canvasDisplayModel.presenterChange(amIPresenter, presenterId);
+		}
+		
+		public function doesContainGraphic(child:DisplayObject):Boolean {
 			return this.graphicObjectHolder.rawChildren.contains(child);
 		}
 		
-		public function getMouseXY():Array {
-			return [Math.min(Math.max(parent.mouseX, 0), parent.width-2) - this.x, Math.min(Math.max(parent.mouseY, 0), parent.height-2) - this.y];
-		}
-		
 		public function removeGraphic(child:DisplayObject):void {
-			if (doesContain(child)) this.graphicObjectHolder.rawChildren.removeChild(child);
+			if (doesContainGraphic(child)) this.graphicObjectHolder.rawChildren.removeChild(child);
 			else trace("Does not contain");
 		}
 		
 		public function addGraphic(child:DisplayObject):void {
 			this.graphicObjectHolder.rawChildren.addChild(child);
+		}
+		
+		private function doesContainCursor(cursor:DisplayObject):Boolean {
+			return this.cursorObjectHolder.rawChildren.contains(cursor);
+		}
+		
+		public function addCursor(cursor:DisplayObject):void {
+			this.cursorObjectHolder.rawChildren.addChild(cursor);
+		}
+		
+		public function removeCursorChild(cursor:DisplayObject):void {
+			if (doesContainCursor(cursor)) this.cursorObjectHolder.rawChildren.removeChild(cursor);
 		}
 		
 		public function textToolbarSyncProxy(tobj:TextObject):void {
@@ -243,6 +296,8 @@ package org.bigbluebutton.modules.whiteboard.views {
 		public function zoomCanvas(width:Number, height:Number):void {
 			graphicObjectHolder.width = width;
 			graphicObjectHolder.height = height;
+			cursorObjectHolder.width = width;
+			cursorObjectHolder.height = height;
 			this.width = width;
 			this.height = height;	
 			canvasDisplayModel.zoomCanvas(width, height);
@@ -282,7 +337,12 @@ package org.bigbluebutton.modules.whiteboard.views {
 		private function onModifiedAccess(e:WhiteboardAccessEvent):void {
 			//if (e.whiteboardId == currentWhiteboardId) {
 			whiteboardToolbar.whiteboardAccessModified(e.multiUser);
+			canvasModel.multiUserChange(e.multiUser);
 			//}
+		}
+		
+		private function onReceivedCursorPosition(e:WhiteboardCursorEvent):void {
+			canvasDisplayModel.drawCursor(e.userId, e.xPercent, e.yPercent);
 		}
 		
 		private function onEnableWhiteboardEvent(e:WhiteboardButtonEvent):void {
@@ -297,6 +357,18 @@ package org.bigbluebutton.modules.whiteboard.views {
 			
 			this.whiteboardEnabled = false;
 			setWhiteboardInteractable();
+		}
+		
+		private function onSwitchToPresenterEvent(e:MadePresenterEvent):void {
+			presenterChange(true, e.userID);
+		}
+		
+		private function onSwitchToViewerEvent(e:MadePresenterEvent):void {
+			presenterChange(false, e.userID);
+		}
+		
+		private function onUserLeftEvent(e:UserLeftEvent):void {
+			canvasDisplayModel.userLeft(e.userID);
 		}
 	}
 }

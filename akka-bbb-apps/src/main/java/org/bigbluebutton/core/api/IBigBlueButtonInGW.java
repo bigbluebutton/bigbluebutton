@@ -76,7 +76,6 @@ public interface IBigBlueButtonInGW {
 	void clear(String meetingID);
 	void removePresentation(String meetingID, String presentationID);
 	void getPresentationInfo(String meetingID, String requesterID, String replyTo);
-	void sendCursorUpdate(String meetingID, double xPercent, double yPercent);
 	void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio);
 	void gotoSlide(String meetingID, String page);
 	void sharePresentation(String meetingID, String presentationID, boolean share);
@@ -110,7 +109,8 @@ public interface IBigBlueButtonInGW {
 	void clearPublicChatHistory(String meetingID, String requesterID);
 
 	// Whiteboard
-	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);	
+	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);
+	void sendCursorPosition(String meetingID, String requesterID, double xPercent, double yPercent);
 	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId, String replyTo);
 	void clearWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);

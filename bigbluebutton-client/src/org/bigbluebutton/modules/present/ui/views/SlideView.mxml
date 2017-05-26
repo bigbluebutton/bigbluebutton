@@ -28,15 +28,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	x="{slideModel.viewportX}" y="{slideModel.viewportY}"
   creationComplete="onCreationComplete()" 
 	verticalScrollPolicy="off" 
-	horizontalScrollPolicy="off"      
-  rollOut="hideCursor()" styleName="presentationSlideViewStyle"
+	horizontalScrollPolicy="off"
+	styleName="presentationSlideViewStyle"
   xmlns:views="org.bigbluebutton.modules.present.views.*">
      
   <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
   <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
-  <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
   <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
 	<mx:Script>
 		<![CDATA[
@@ -46,7 +45,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.Sort;
 			import mx.collections.SortField;
 			import mx.containers.Canvas;
-			import mx.managers.CursorManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -55,7 +53,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.commands.GoToPageCommand;
-			import org.bigbluebutton.modules.present.events.CursorEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.PageChangedEvent;
 			import org.bigbluebutton.modules.present.events.PageLoadedEvent;
@@ -73,8 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
-									
-			private var cursor:Shape;
+			
 			private var whiteboardCanvas:WhiteboardCanvas;
 										
 			private var dispatcher:Dispatcher = new Dispatcher();
@@ -84,20 +80,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private var pageCache:ArrayCollection = new ArrayCollection();
       
-      // Send update of mouse location to other users.
-      private var _sendCurrentMouseLocTimer:Timer = new Timer(100);
-      private var _lastMouseXPosition:Number = 0;
-      private var _lastMouseYPosition:Number = 0;
-      
 			private function onCreationComplete():void {
 				slideLoader.width = this.width;
 				slideLoader.height = this.height;
-				
-				cursor = new Shape();
-				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,2.5);
-				this.rawChildren.addChild(cursor);
-				cursor.visible = false;
 				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
 				
@@ -340,8 +325,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function becomeViewer():void {
         removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
         this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-        _sendCurrentMouseLocTimer.stop();
-        _sendCurrentMouseLocTimer.removeEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);        
       }
       
 			/**
@@ -361,9 +344,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
         this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-        _sendCurrentMouseLocTimer.addEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
-        _sendCurrentMouseLocTimer.start();
-        notifyOthersOfZoomEvent();        
+        notifyOthersOfZoomEvent();
       }
       
 			/**
@@ -371,53 +352,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void {
         becomePresenter();
-			}
-			
-			
-      public function mouseCursorUpdateTimerListener(e:TimerEvent):void{
-        if (noSlideContentLoaded()) return;				
-        notifyOthersOfPresentersCursorPosition(this.mouseX, this.mouseY);
-      }
-			
-			/**
-			 * Broadcast to other participants the location fo the mouse cursor.
-			 */
-			private function notifyOthersOfPresentersCursorPosition(cursorXPosition:int, cursorYPosition:int):void {
-        // Only update the other users if the mouse moved a certain delta
-        if ( (Math.abs(cursorXPosition - _lastMouseXPosition) < 0.1) 
-          && (Math.abs(cursorYPosition - _lastMouseYPosition) < 0.1) ) {
-          return;
-        }
-        
-        if (cursorXPosition > this.width || cursorXPosition < 1 
-              || cursorYPosition > this.height || cursorYPosition < 1) {
-//          LogUtil.debug("Cursor outside the window...not sending [" + cursorXPosition + "," + cursorYPosition + "]");
-          return;
-        }
-          
-        _lastMouseXPosition = cursorXPosition;
-        _lastMouseYPosition = cursorYPosition;
-        
-				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);				
-				command.xPercent = cursorXPosition / this.width;
-				command.yPercent = cursorYPosition / this.height;				
-				dispatchEvent(command);
-			}
-			
-			/**
-			 * Handle notification from presenter about the location of the mouse cursor.
-			 */
-			private function handleUpdateCursorEvent(e:CursorEvent):void{
-				if (noSlideContentLoaded()) return;
-				
-				cursor.x = e.xPercent * this.width;
-				cursor.y = e.yPercent * this.height;
-								
-				if (isCursorOutsideWindow(e)) {
-					hideCursor()
-				} else {
-					showCursor();
-				}	
 			}
 			
 			private function noSlideContentLoaded():Boolean {
@@ -442,20 +376,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispEvent.slideWidth = slideRealWidth;
 				dispEvent.slideHeight = slideRealHeight;
 				dispatcher.dispatchEvent(dispEvent);
-			}
-						
-			private function isCursorOutsideWindow(e:CursorEvent):Boolean {
-				return (e.xPercent > 1 && e.yPercent > 1) 
-                || (cursor.x > this.width || cursor.x < 1
-                || cursor.y > this.height || cursor.y < 1);
-			}
-			
-			private function showCursor():void {
-				cursor.visible = true;
-			}
-			
-			private function hideCursor():void{
-				cursor.visible = false;
 			}
 			
 			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void{

@@ -47,6 +47,10 @@ trait WhiteboardApp {
 
   }
 
+  def handleSendCursorPositionRequest(msg: SendCursorPositionRequest) {
+    outGW.send(new CursorPositionUpdatedEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.xPercent, msg.yPercent))
+  }
+
   def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
     //println("WB: Received page history [" + msg.whiteboardId + "]")
     val history = liveMeeting.wbModel.getHistory(msg.whiteboardId);

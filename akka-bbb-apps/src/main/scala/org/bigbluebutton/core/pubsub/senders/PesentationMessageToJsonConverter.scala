@@ -85,16 +85,6 @@ object PesentationMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def sendCursorUpdateOutMsgToJson(msg: SendCursorUpdateOutMsg): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.X_PERCENT, msg.xPercent)
-    payload.put(Constants.Y_PERCENT, msg.yPercent)
-
-    val header = Util.buildHeader(MessageNames.PRESENTATION_CURSOR_UPDATED, None)
-    Util.buildJson(header, payload)
-  }
-
   def resizeAndMoveSlideOutMsgToJson(msg: ResizeAndMoveSlideOutMsg): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)

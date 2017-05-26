@@ -143,5 +143,28 @@ package org.bigbluebutton.modules.whiteboard.services
 					e.annotation.annotation
 			);
 		}
+		
+		/**
+		 * Send an event to the server to update the user's cursor position
+		 * @param xPercent
+		 * @param yPercent
+		 * 
+		 */
+		public function sendCursorPosition(xPercent:Number, yPercent:Number):void {
+			var message:Object = new Object();
+			message["xPercent"] = xPercent;
+			message["yPercent"] = yPercent;
+			
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("whiteboard.sendCursorPosition", 
+				function(result:String):void { // On successful result
+					//LOGGER.debug(result); 
+				},
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status); 
+				},
+				message
+			);
+		}
 	}
 }

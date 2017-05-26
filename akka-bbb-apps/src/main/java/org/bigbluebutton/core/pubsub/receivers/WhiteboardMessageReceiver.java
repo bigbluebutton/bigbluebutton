@@ -7,6 +7,7 @@ import org.bigbluebutton.common.messages.ModifyWhiteboardAccessRequestMessage;
 import org.bigbluebutton.common.messages.GetWhiteboardAccessRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.RequestWhiteboardAnnotationHistoryRequestMessage;
+import org.bigbluebutton.common.messages.SendCursorPositionMessage;
 import org.bigbluebutton.common.messages.SendWhiteboardAnnotationRequestMessage;
 import org.bigbluebutton.common.messages.UndoWhiteboardRequest;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
@@ -52,6 +53,9 @@ public class WhiteboardMessageReceiver implements MessageHandler {
 					} else if (SendWhiteboardAnnotationRequestMessage.SEND_WHITEBOARD_ANNOTATION_REQUEST.equals(messageName)) {
 						SendWhiteboardAnnotationRequestMessage msg = SendWhiteboardAnnotationRequestMessage.fromJson(message);
 						bbbInGW.sendWhiteboardAnnotation(msg.meetingId, msg.requesterId, msg.annotation);
+					} else if (SendCursorPositionMessage.SEND_CURSOR_POSITION.equals(messageName)) {
+						SendCursorPositionMessage msg = SendCursorPositionMessage.fromJson(message);
+						bbbInGW.sendCursorPosition(msg.meetingId, msg.requesterId, msg.xPercent, msg.yPercent);
 					}
 				}
 			}

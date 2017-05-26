@@ -66,7 +66,6 @@ class RecorderActor(val recorder: RecorderApplication)
     case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
     case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
     case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
-    case msg: SendCursorUpdateOutMsg => handleSendCursorUpdateOutMsg(msg)
     case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
     case msg: GotoSlideOutMsg => handleGotoSlideOutMsg(msg)
     case msg: SharePresentationOutMsg => handleSharePresentationOutMsg(msg)
@@ -86,6 +85,7 @@ class RecorderActor(val recorder: RecorderApplication)
     case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
     case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
     case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
+    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
     case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
@@ -192,18 +192,6 @@ class RecorderActor(val recorder: RecorderApplication)
       event.setPresentationName(msg.presentation.id);
       event.setOriginalFilename(msg.presentation.name);
       event.setShare(true);
-      recorder.record(msg.meetingID, event);
-    }
-  }
-
-  private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {
-    if (msg.recorded) {
-      val event = new CursorUpdateRecordEvent();
-      event.setMeetingId(msg.meetingID);
-      event.setTimestamp(TimestampGenerator.generateTimestamp);
-      event.setXPercent(msg.xPercent);
-      event.setYPercent(msg.yPercent);
-
       recorder.record(msg.meetingID, event);
     }
   }
@@ -442,6 +430,19 @@ class RecorderActor(val recorder: RecorderApplication)
       }
     }
 
+  }
+
+  private def handleCursorPositionUpdatedEvent(msg: CursorPositionUpdatedEvent) {
+    if (msg.recorded) {
+      val event = new CursorUpdateRecordEvent();
+      event.setMeetingId(msg.meetingID);
+      event.setTimestamp(TimestampGenerator.generateTimestamp);
+      event.setUserId(msg.requesterID);
+      event.setXPercent(msg.xPercent);
+      event.setYPercent(msg.yPercent);
+
+      recorder.record(msg.meetingID, event);
+    }
   }
 
   private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {

@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.whiteboard
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;
+  import org.bigbluebutton.modules.whiteboard.views.CursorPositionListener;
   import org.bigbluebutton.modules.whiteboard.views.IDrawListener;
   import org.bigbluebutton.modules.whiteboard.views.PencilDrawListener;
   import org.bigbluebutton.modules.whiteboard.views.ShapeDrawListener;
@@ -39,32 +40,23 @@ package org.bigbluebutton.modules.whiteboard
   public class WhiteboardCanvasModel {
     private var _wbCanvas:WhiteboardCanvas;	      
     private var drawListeners:Array = new Array();
+	private var cursorPositionListener:CursorPositionListener;
     private var wbTool:WhiteboardTool = new WhiteboardTool();
     private var shapeFactory:ShapeFactory = new ShapeFactory();
     private var idGenerator:AnnotationIDGenerator = new AnnotationIDGenerator();
-
-    /* represents the max number of 'points' enumerated in 'segment' before 
-      sending an update to server. Used to prevent spamming red5 with unnecessary packets */
-    private var sendShapeFrequency:uint = 30;	
-
-    /* same as above, except a faster interval may be desirable when erasing, for aesthetics */
-    private var sendEraserFrequency:uint = 20;	
-
-    private var width:Number;
-    private var height:Number;
         
-    public function setDependencies(canvas:WhiteboardCanvas, displayModel:WhiteboardCanvasDisplayModel):void {
+    public function setDependencies(canvas:WhiteboardCanvas):void {
       _wbCanvas = canvas;
       
       drawListeners.push(new PencilDrawListener(idGenerator, _wbCanvas, shapeFactory));
       drawListeners.push(new ShapeDrawListener(idGenerator, _wbCanvas, shapeFactory));
       drawListeners.push(new TextDrawListener(idGenerator, _wbCanvas, shapeFactory));
+	  
+	  cursorPositionListener = new CursorPositionListener(_wbCanvas, shapeFactory);
     }
         
     public function zoomCanvas(width:Number, height:Number):void {
-      shapeFactory.setParentDim(width, height);	
-      this.width = width;
-      this.height = height;	
+      shapeFactory.setParentDim(width, height);
     }
         
     public function changeFontStyle(font:String):void {
@@ -112,6 +104,14 @@ package org.bigbluebutton.modules.whiteboard
     public function changeThickness(thickness:uint):void {
       wbTool.thickness = thickness;
     }
+	
+	public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
+		cursorPositionListener.presenterChange(amIPresenter);
+	}
+	
+	public function multiUserChange(multiUser:Boolean):void {
+		cursorPositionListener.multiUserChange(multiUser);
+	}
 
     /** Helper method to test whether this user is the presenter */
     private function get isPresenter():Boolean {

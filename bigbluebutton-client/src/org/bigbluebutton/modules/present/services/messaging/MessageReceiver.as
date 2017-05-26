@@ -60,9 +60,6 @@ package org.bigbluebutton.modules.present.services.messaging
       //LOGGER.info("Presentation: received message " + messageName);
       
       switch (messageName) {
-        case "PresentationCursorUpdateCommand":
-          handlePresentationCursorUpdateCommand(message);
-          break;			
         case "goToSlideCallback":
           handleGotoSlideCallback(message);
           break;			
@@ -99,14 +96,6 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handleGetSlideInfoReply(msg:Object):void {
       LOGGER.debug("*** handleGetSlideInfoReply {0} [DISABLED: SHouldn't be getting this!!] **** \n", [msg.msg]);
      
-    }
-    
-    private function handlePresentationCursorUpdateCommand(msg:Object):void {    
-//      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");      
-      var map:Object = JSON.parse(msg.msg);      
-      if (map.hasOwnProperty("xPercent") && map.hasOwnProperty("yPercent")) {
-        service.cursorMoved(map.xPercent, map.yPercent);
-      }
     }
     
     private function handleGotoSlideCallback(msg:Object) : void {

@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.whiteboard
   import flash.events.FocusEvent;
   import flash.events.KeyboardEvent;
   import flash.ui.Keyboard;
+  import flash.utils.Dictionary;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -42,6 +43,7 @@ package org.bigbluebutton.modules.whiteboard
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.TextUpdateListener;
   import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+  import org.bigbluebutton.modules.whiteboard.views.WhiteboardCursor;
   
     /**
     * Class to handle displaying of received annotations from the server.
@@ -52,11 +54,13 @@ package org.bigbluebutton.modules.whiteboard
     private var whiteboardModel:WhiteboardModel;
     private var wbCanvas:WhiteboardCanvas;  
     private var _annotationsList:Array = new Array();
+	private var _cursors:Object = new Object();
     private var shapeFactory:ShapeFactory = new ShapeFactory();
     private var textUpdateListener:TextUpdateListener = new TextUpdateListener();
     
     private var width:Number;
     private var height:Number;
+	private var presenterId:String;
 	
 	public function setDependencies(whiteboardCanvas:WhiteboardCanvas, whiteboardModel:WhiteboardModel):void {
 		wbCanvas = whiteboardCanvas;
@@ -209,6 +213,32 @@ package org.bigbluebutton.modules.whiteboard
                 }
             }
         }
+		
+		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
+			if (!_cursors.hasOwnProperty(userId)) {
+				var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
+				wbCanvas.addCursor(newCursor);
+				
+				_cursors[userId] = newCursor;
+			} else {
+				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent);
+			}
+		}
+		
+		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
+			this.presenterId = presenterId;
+			
+			for(var j:String in _cursors) {
+				(_cursors[j] as WhiteboardCursor).updatePresenter(j == presenterId);
+			}
+		}
+		
+		public function userLeft(userId:String):void {
+			if (_cursors.hasOwnProperty(userId)) {
+				wbCanvas.removeCursorChild(_cursors[userId]);
+				delete _cursors[userId];
+			}
+		}
     
     public function zoomCanvas(width:Number, height:Number):void{
       shapeFactory.setParentDim(width, height);  
@@ -218,6 +248,10 @@ package org.bigbluebutton.modules.whiteboard
       for (var i:int = 0; i < this._annotationsList.length; i++){
           redrawGraphic(this._annotationsList[i] as GraphicObject, i);
       }
+	  
+	  for(var j:String in _cursors) {
+		  (_cursors[j] as WhiteboardCursor).updateParentSize(width, height);
+	  }
     }
   
     private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {

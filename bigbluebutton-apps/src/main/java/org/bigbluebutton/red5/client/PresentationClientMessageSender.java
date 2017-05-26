@@ -10,7 +10,6 @@ import org.bigbluebutton.common.messages.GoToSlideReplyMessage;
 import org.bigbluebutton.common.messages.PresentationConversionDoneMessage;
 import org.bigbluebutton.common.messages.PresentationConversionErrorMessage;
 import org.bigbluebutton.common.messages.PresentationConversionProgressMessage;
-import org.bigbluebutton.common.messages.PresentationCursorUpdateMessage;
 import org.bigbluebutton.common.messages.PresentationPageGeneratedReplyMessage;
 import org.bigbluebutton.common.messages.PresentationPageResizedMessage;
 import org.bigbluebutton.common.messages.PresentationRemovedMessage;
@@ -54,9 +53,6 @@ public class PresentationClientMessageSender {
 					  break;
 				  case PresentationPageGeneratedReplyMessage.PRESENTATION_PAGE_GENERATED:
 					  processPresentationPageGeneratedReply(message);
-					  break;
-				  case PresentationCursorUpdateMessage.PRESENTATION_CURSOR_UPDATED:
-					  processPresentationCursorUpdate(message);
 					  break;
 				  case PresentationConversionErrorMessage.PRESENTATION_CONVERSION_ERROR:
 					  processPresentationConversionError(message);
@@ -223,23 +219,6 @@ public class PresentationClientMessageSender {
 			message.put("msg", gson.toJson(args));
 			
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "pageCountExceededUpdateMessageCallback", message);
-			service.sendMessage(m);
-		}
-	}
-
-	private void processPresentationCursorUpdate(String json) {
-		PresentationCursorUpdateMessage msg = PresentationCursorUpdateMessage.fromJson(json);
-		if (msg != null) {
-			Map<String, Object> args = new HashMap<String, Object>();
-			args.put("meetingID", msg.meetingId);
-			args.put("xPercent", msg.xPercent);
-			args.put("yPercent", msg.yPercent);
-
-			Map<String, Object> message = new HashMap<String, Object>();
-			Gson gson = new Gson();
-			message.put("msg", gson.toJson(args));
-
-			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "PresentationCursorUpdateCommand", message);
 			service.sendMessage(m);
 		}
 	}

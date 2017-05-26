@@ -84,10 +84,12 @@ package org.bigbluebutton.modules.whiteboard.views
           //normalize points as we get them to avoid shape drift
           var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
           
+          var statusToSend:String = (_segment.length == 2 ? AnnotationStatus.DRAW_START : AnnotationStatus.DRAW_UPDATE);
+          
           _segment[2] = np.x;
           _segment[3] = np.y;
           
-          sendShapeToServer(AnnotationStatus.DRAW_UPDATE, tool);
+          sendShapeToServer(statusToSend, tool);
         }
       }
     }
@@ -102,14 +104,20 @@ package org.bigbluebutton.modules.whiteboard.views
             */
           _isDrawing = false;
           
+          //normalize points as we get them to avoid shape drift
+          var np:Point = _shapeFactory.normalizePoint(mouseX, mouseY);
+          
+          _segment[2] = np.x;
+          _segment[3] = np.y;
+          
           sendShapeToServer(AnnotationStatus.DRAW_END, tool);
         } /* (_isDrawing) */                
       }
     }
     
     private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
-      if (_segment.length == 0) {
-//        LogUtil.debug("SEGMENT LENGTH = 0");
+      if (_segment.length > 2) {
+        // LogUtil.debug("SEGMENT too short");
         return;
       }
                        
