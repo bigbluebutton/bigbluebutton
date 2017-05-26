@@ -37,7 +37,7 @@ export default class PresentationOverlay extends React.Component {
 
     //check if the cursor hasn't moved since last check
     if (this.lastSentOffsetX != this.currentOffsetX
-      && this.lastSentOffsetY != this.currentOffsetY) {
+      || this.lastSentOffsetY != this.currentOffsetY) {
 
       //determining cursor's position as percentages within the viewBox
       let xPercent = ( this.currentOffsetX - this.props.viewBoxX ) / this.props.vbwidth;
