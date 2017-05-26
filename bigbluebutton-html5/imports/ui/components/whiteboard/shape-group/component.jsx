@@ -35,6 +35,7 @@ export default class ShapeGroup extends React.Component {
         />
       );
     } else {
+      console.error('Unexpected shape type received: ' + shape.shape.type);
       return (
         <g key={shape.shape.id}></g>
       );

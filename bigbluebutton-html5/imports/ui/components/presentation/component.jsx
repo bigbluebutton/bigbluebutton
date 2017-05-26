@@ -199,7 +199,6 @@ export default class PresentationArea extends React.Component {
                 width={svgWidth}
                 height={svgHeight}
                 whiteboardId = {slideObj.id}
-
               />
               <CursorContainer
                 viewBoxWidth={viewBoxWidth}
@@ -212,10 +211,12 @@ export default class PresentationArea extends React.Component {
             </g>
             {this.props.userIsPresenter ?
               <PresentationOverlayContainer
-                x={x}
-                y={y}
-                vbwidth={viewBoxWidth}
-                vbheight={viewBoxHeight}
+                viewBoxX={x}
+                viewBoxY={y}
+                viewBoxWidth={viewBoxWidth}
+                viewBoxHeight={viewBoxHeight}
+                slideWidth={svgWidth}
+                slideHeight={svgHeight}
               >
                 <WhiteboardOverlayContainer
                   getSvgRef={this.getSvgRef.bind(this)}
@@ -224,6 +225,8 @@ export default class PresentationArea extends React.Component {
                   slideHeight={svgHeight}
                   viewBoxX={x}
                   viewBoxY={y}
+                  viewBoxWidth={viewBoxWidth}
+                  viewBoxHeight={viewBoxHeight}
                 />
               </PresentationOverlayContainer>
             : null }

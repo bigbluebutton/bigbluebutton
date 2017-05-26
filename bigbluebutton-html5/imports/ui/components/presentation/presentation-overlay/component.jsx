@@ -40,8 +40,8 @@ export default class PresentationOverlay extends React.Component {
       || this.lastSentOffsetY != this.currentOffsetY) {
 
       //determining cursor's position as percentages within the viewBox
-      let xPercent = ( this.currentOffsetX - this.props.viewBoxX ) / this.props.vbwidth;
-      let yPercent = ( this.currentOffsetY - this.props.viewBoxY ) / this.props.vbheight;
+      let xPercent = ( this.currentOffsetX - this.props.viewBoxX ) / this.props.viewBoxWidth;
+      let yPercent = ( this.currentOffsetY - this.props.viewBoxY ) / this.props.viewBoxHeight;
 
       //send the update to the server
       this.props.updateCursor({ xPercent: xPercent, yPercent: yPercent });
@@ -66,10 +66,10 @@ export default class PresentationOverlay extends React.Component {
     return (
       <foreignObject
         clipPath="url(#viewBox)"
-        x={this.props.x}
-        y={this.props.y}
-        width={this.props.vbwidth}
-        height={this.props.vbheight}
+        x="0"
+        y="0"
+        width={this.props.slideWidth}
+        height={this.props.slideHeight}
       >
         { this.props.isUserPresenter ?
           <div
