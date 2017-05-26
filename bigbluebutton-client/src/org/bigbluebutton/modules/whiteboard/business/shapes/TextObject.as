@@ -53,6 +53,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			mouseWheelEnabled = false;
 			multiline = true;
 			wordWrap = true;
+			maxChars = 1024;
 			
 			//determine editability
 			makeEditable(userId == UserManager.getInstance().getConference().getMyUserId() && status != AnnotationStatus.DRAW_END);
