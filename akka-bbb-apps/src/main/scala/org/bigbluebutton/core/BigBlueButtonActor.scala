@@ -1,7 +1,6 @@
 package org.bigbluebutton.core
 
 import java.io.{ PrintWriter, StringWriter }
-
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
@@ -13,6 +12,7 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 import java.util.concurrent.TimeUnit
 
+import org.bigbluebutton.common2.messages.MessageBody.MeetingCreatedEvtBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.running.RunningMeeting
 
@@ -81,7 +81,7 @@ class BigBlueButtonActor(val system: ActorSystem,
 
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)
-    val header = BbbCoreHeader(MeetingCreatedEvtMsg.NAME)
+    val header = BbbCoreBaseHeader(MeetingCreatedEvtMsg.NAME)
     val body = MeetingCreatedEvtBody(msg.body.props)
     val event = MeetingCreatedEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

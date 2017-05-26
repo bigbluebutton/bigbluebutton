@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
-
-import akka.actor.Actor
+import akka.actor._
 import akka.actor.ActorLogging
-import akka.actor.Props
-import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
+import akka.util.Timeout
+import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenRespMsgBody
+import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
@@ -52,6 +52,8 @@ class MeetingActor(val mProps: MeetingProperties,
   eventBus.subscribe(actorMonitor, mProps.deskshareBridge)
 
   def receive = {
+    case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
+
     case msg: ActivityResponse => handleActivityResponse(msg)
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
@@ -162,6 +164,25 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: SharedNotesSyncNoteRequest => handleSharedNotesSyncNoteRequest(msg)
 
     case _ => // do nothing
+  }
+
+  private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
+    msg.core match {
+      case m: ValidateAuthTokenReqMsg => handleValidateAuthTokenReqMsg(m)
+      case _ => println("***** Cannot handle " + msg.envelope.name)
+    }
+  }
+
+  def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg): Unit = {
+    log.debug("****** RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
+
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(ValidateAuthTokenRespMsg.NAME, mProps.meetingID)
+    val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, true)
+    val event = ValidateAuthTokenRespMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+    outGW.send(msgEvent)
   }
 
   def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {

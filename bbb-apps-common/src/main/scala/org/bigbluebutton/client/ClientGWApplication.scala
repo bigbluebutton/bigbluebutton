@@ -77,6 +77,7 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW,
   }
 
   def handleMsgFromClient(connInfo: ConnInfo, json: String): Unit = {
+    println("**** ClientGWApplication handleMsgFromClient " + json)
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new MsgFromClientMsg(connInfo, json)))
   }
 

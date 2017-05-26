@@ -2,11 +2,12 @@ package org.bigbluebutton.api2
 
 import java.util
 import java.util.Map
+
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.{AppsRedisSubscriberActor, MessageSender, RedisPublisher}
-import org.bigbluebutton.api2.meeting.{CreateMeetingMsg, MeetingsManagerActor}
+import org.bigbluebutton.api2.meeting.{CreateMeetingMsg, MeetingsManagerActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 
 import scala.concurrent.duration._
@@ -85,5 +86,13 @@ class BbbWebApiGWApp(val oldMessageReceivedGW: OldMessageReceivedGW) extends IBb
       usersProp, metadataProp)
 
     meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
+  }
+
+  def registerUser (meetingId: String, intUserId: String, name: String,
+                    role: String, extUserId: String, authToken: String, avatarURL: String,
+                    guest: java.lang.Boolean, authed: java.lang.Boolean): Unit = {
+    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
+      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
+      guest = guest, authed = authed)
   }
 }

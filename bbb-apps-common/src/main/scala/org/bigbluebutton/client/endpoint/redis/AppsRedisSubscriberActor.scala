@@ -47,9 +47,13 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEve
   write(ClientSetname("Red5AppsSub").encodedRequest)
 
   def onMessage(message: Message) {
-    log.error(s"SHOULD NOT BE RECEIVING: $message")
-    val receivedJsonMessage = new JsonMsgFromAkkaApps(message.channel, message.data.utf8String)
-    jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
+    //log.error(s"SHOULD NOT BE RECEIVING: $message")
+    if (message.channel == fromAkkaAppsRedisChannel) {
+      log.debug(s"RECEIVED:\n ${message.data.utf8String} \n")
+      val receivedJsonMessage = new JsonMsgFromAkkaApps(message.channel, message.data.utf8String)
+      jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
+    }
+
   }
 
   def onPMessage(pmessage: PMessage) {

@@ -58,6 +58,7 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
 
   def receive = {
     case msg: CreateMeetingMsg => handleCreateMeeting(msg)
+    case msg: RegisterUser => handleRegisterUser(msg)
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
   }
 
@@ -88,6 +89,9 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
 
   }
 
+  def handleRegisterUser(msg: RegisterUser): Unit = {
+
+  }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {

@@ -23,7 +23,7 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
     log.debug("Received BroadcastMsgToMeeting " + msg)
     val meetingId = msg.meetingId
     val msgName = msg.data.envelope.name
-    val json = JsonUtil.toJson(msg.data.jsonNode)
+    val json = JsonUtil.toJson(msg.data.core)
 
     val broadcast = new BroadcastToMeetingMsg(meetingId, msgName, json)
     msgToClientGW.broadcastToMeeting(broadcast)
@@ -34,7 +34,7 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
     val meetingId = msg.meetingId
     val connId = msg.connId
     val msgName = msg.data.envelope.name
-    val json = JsonUtil.toJson(msg.data.jsonNode)
+    val json = JsonUtil.toJson(msg.data.core)
 
     val direct = new DirectToClientMsg(meetingId, connId, msgName, json)
     msgToClientGW.directToClient(direct)

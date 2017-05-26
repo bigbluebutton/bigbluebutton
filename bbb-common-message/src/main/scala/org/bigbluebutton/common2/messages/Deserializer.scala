@@ -42,6 +42,23 @@ trait Deserializer {
     }
   }
 
+  def toValidateAuthTokenReqMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Option[ValidateAuthTokenReqMsg] = {
+    def convertFromJson(json: String): Try[ValidateAuthTokenReqMsg] = {
+      for {
+        msg <- Try(fromJson[ValidateAuthTokenReqMsg](json))
+      } yield msg
+    }
+
+    val json = JsonUtil.toJson(jsonNode)
+
+    convertFromJson(json) match {
+      case Success(msg) => Some(msg)
+      case Failure(ex) => println(s"************ Problem deserializing json: ${json}")
+        println(s"*********** Exception deserializing json: ${ex.getMessage}")
+        None
+    }
+  }
+
   def toMeetingCreatedEvtMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Option[MeetingCreatedEvtMsg] = {
     def convertFromJson(json: String): Try[MeetingCreatedEvtMsg] = {
       for {

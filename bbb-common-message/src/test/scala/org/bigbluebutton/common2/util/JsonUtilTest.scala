@@ -49,15 +49,15 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
   }
 
   "JsonUtil" should "unmarshall a ValidateAuthTokenReq" in {
-    val header: BbbCoreHeader = new BbbCoreHeader("foo")
-    val body: ValidateAuthTokenReqBody = new ValidateAuthTokenReqBody(meetingId = "mId", userId = "uId", token = "myToken",
+    val header: BbbCoreHeaderWithMeetingId = new BbbCoreHeaderWithMeetingId("foo", "mId")
+    val body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(meetingId = "mId", userId = "uId", token = "myToken",
       replyTo = "replyHere", sessionId = "mySessionId")
-    val msg: ValidateAuthTokenReq = new ValidateAuthTokenReq(header, body)
+    val msg: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body)
     val json = JsonUtil.toJson(msg)
     println(json)
     val map = JsonUtil.toMap[Map[String, Any]](json)
     println(map)
-    val finalMsg = JsonUtil.fromJson[ValidateAuthTokenReq](json)
+    val finalMsg = JsonUtil.fromJson[ValidateAuthTokenReqMsg](json)
     println(finalMsg)
   }
 
@@ -66,7 +66,8 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
       """
         |{
         |    "header": {
-        |        "name": "foo"
+        |        "name": "foo",
+        |        "meetingId": "mId"
         |    },
         |    "body": {
         |        "meetingId": "mId",
@@ -79,14 +80,14 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
       """.stripMargin
 
     val finalMsg = JsonUtil.fromJson[FooNode](jsonMsg)
-    val finalMsg2 = JsonUtil.fromJson[ValidateAuthTokenReq](JsonUtil.toJson(finalMsg))
-
+    val finalMsg2 = JsonUtil.fromJson[ValidateAuthTokenReqMsg](JsonUtil.toJson(finalMsg))
     println(finalMsg2)
-
+    val map = JsonUtil.toMap[Map[String, Any]](jsonMsg)
+    for {
+      header <- map.get("header")
+      meetingId <- header.get("meetingId")
+    } yield println(meetingId)
   }
-
-
-
 }
 
-case class FooNode(header: BbbCoreHeader, body: JsonNode)
+case class FooNode(header: BbbCoreHeaderWithMeetingId, body: JsonNode)

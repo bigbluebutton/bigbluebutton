@@ -39,15 +39,16 @@ class MeetingActor(val meetingId: String, msgToAkkaAppsEventBus: MsgToAkkaAppsEv
 
   def handleDisconnectMsg(msg: DisconnectMsg): Unit = {
     for {
-      m <- UsersManager.findWithId(userMgr, msg.connInfo.meetingId)
+      m <- UsersManager.findWithId(userMgr, msg.connInfo.userId)
     } yield {
       m.actorRef forward(msg)
     }
   }
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
+    println("**** MeetingActor handleMsgFromClient " + msg.json)
     for {
-      m <- UsersManager.findWithId(userMgr, msg.connInfo.meetingId)
+      m <- UsersManager.findWithId(userMgr, msg.connInfo.userId)
     } yield {
       m.actorRef forward(msg)
     }

@@ -298,6 +298,10 @@ public class MeetingService implements MessageListener {
         messagingService.registerUser(message.meetingID,
                 message.internalUserId, message.fullname, message.role,
                 message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
+
+        gw.registerUser(message.meetingID,
+          message.internalUserId, message.fullname, message.role,
+          message.externUserID, message.authToken, message.avatarURL, message.guest, message.authed);
     }
 
     public Meeting getMeeting(String meetingId) {

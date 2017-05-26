@@ -6,10 +6,13 @@ import org.bigbluebutton.common2.{TestFixtures, UnitSpec2}
 
 
 class DeserializerTests extends UnitSpec2 with TestFixtures {
+
+  object Deserializer extends Deserializer
+
   "It" should "be able to decode envelope and core message" in {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(CreateMeetingReqMsg.NAME, routing)
-    val header = BbbCoreHeader(CreateMeetingReqMsg.NAME)
+    val header = BbbCoreBaseHeader(CreateMeetingReqMsg.NAME)
     val body = CreateMeetingReqMsgBody(defaultProps)
     val req = CreateMeetingReqMsg(header, body)
     val msg = BbbCommonEnvCoreMsg(envelope, req)
@@ -27,7 +30,7 @@ class DeserializerTests extends UnitSpec2 with TestFixtures {
   "It" should "be able to decode CreateMeetingReqMsg" in {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(CreateMeetingReqMsg.NAME, routing)
-    val header = BbbCoreHeader(CreateMeetingReqMsg.NAME)
+    val header = BbbCoreBaseHeader(CreateMeetingReqMsg.NAME)
     val body = CreateMeetingReqMsgBody(defaultProps)
     val req = CreateMeetingReqMsg(header, body)
     val msg = BbbCommonEnvCoreMsg(envelope, req)
@@ -36,8 +39,6 @@ class DeserializerTests extends UnitSpec2 with TestFixtures {
     assert(msg.core.isInstanceOf[CreateMeetingReqMsg])
     val map = Deserializer.toJBbbCommonEnvJsNodeMsg(JsonUtil.toJson(msg))
     println(map)
-
-    object Deserializer extends Deserializer
 
     map match {
       case Some(envJsNodeMsg) => assert(envJsNodeMsg.core.isInstanceOf[JsonNode])

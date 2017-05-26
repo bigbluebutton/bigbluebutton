@@ -31,6 +31,14 @@ trait ReceivedJsonMsgHandlerTrait extends SystemConfiguration {
           println("************ Sending CreateMeetingReqMsg")
           send(m)
         }
+      case ValidateAuthTokenReqMsg.NAME =>
+        println("**************** Route ValidateAuthTokenReqMsg")
+        for {
+          m <- routeValidateAuthTokenReqMsg(envelope, jsonNode)
+        } yield {
+          println("************ Sending ValidateAuthTokenReqMsg")
+          send(m)
+        }
       case _ =>
         println("************ Cannot route envelope name " + envelope.name)
       // do nothing
@@ -42,6 +50,14 @@ trait ReceivedJsonMsgHandlerTrait extends SystemConfiguration {
       msg <- JsonDeserializer.toCreateMeetingReqMsg(envelope, jsonNode)
     } yield {
       BbbMsgEvent(meetingManagerChannel, BbbCommonEnvCoreMsg(envelope, msg))
+    }
+  }
+
+  def routeValidateAuthTokenReqMsg(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Option[BbbMsgEvent] = {
+    for {
+      msg <- JsonDeserializer.toValidateAuthTokenReqMsg(envelope, jsonNode)
+    } yield {
+      BbbMsgEvent(msg.header.meetingId, BbbCommonEnvCoreMsg(envelope, msg))
     }
   }
 }

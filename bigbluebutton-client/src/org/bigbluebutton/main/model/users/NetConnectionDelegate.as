@@ -129,8 +129,9 @@ package org.bigbluebutton.main.model.users
             var confParams:ConferenceParameters = BBB.initUserConfigManager().getConfParams();
           
 			var header:Object = new Object();
-			header.name = "validateAuthToken";
-			
+			header.name = "ValidateAuthTokenReqMsg";
+			header.meetingId = confParams.meetingID;
+            
 			var body:Object = new Object();
 			body.userId = confParams.internalUserID;
 			body.authToken = confParams.authToken;

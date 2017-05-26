@@ -13,4 +13,6 @@ public interface IBbbWebApiGWApp {
                      String createDate, Boolean isBreakout, Integer sequence, Map<String, String> metadata,
                      String guestPolicy, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
                      String dialNumber, Integer maxUsers);
+  void registerUser(String meetingID, String internalUserId, String fullname, String role,
+                    String externUserID, String authToken, String avatarURL, Boolean guest, Boolean authed);
 }

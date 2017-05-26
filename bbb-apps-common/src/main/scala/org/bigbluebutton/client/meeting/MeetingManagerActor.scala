@@ -48,6 +48,7 @@ class MeetingManagerActor(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
   }
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
+    println("**** MeetingManagerActor handleMsgFromClient " + msg.json)
     for {
       m <- MeetingManager.findWithMeetingId(meetingMgr, msg.connInfo.meetingId)
     } yield {

@@ -58,17 +58,24 @@ class UserActor(val userId: String,
   }
 
   def handleMsgFromClientMsg(msg: MsgFromClientMsg):Unit = {
+    println("**** UserActor handleMsgFromClient " + msg.json)
     log.debug("Received MsgFromClientMsg " + msg)
 
-    val headerAndBody = JsonUtil.fromJson[BbbCoreHeaderBody](msg.json)
-    val meta = collection.immutable.HashMap[String, String](
-      "meetingId" -> msg.connInfo.meetingId,
-      "userId" -> msg.connInfo.userId
-    )
+    val map = JsonUtil.toMap[Map[String, Any]](msg.json)
+    for {
+      header <- map.get("header")
+      name <- header.get("name")
+      meetingId <- header.get("meetingId")
+    } yield {
+      val meta = collection.immutable.HashMap[String, String](
+        "meetingId" -> msg.connInfo.meetingId,
+        "userId" -> msg.connInfo.userId
+      )
 
-    val envelope = new BbbCoreEnvelope(headerAndBody.header.name, meta)
-    val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, JsonUtil.toJsonNode(msg.json))
-    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
+      val envelope = new BbbCoreEnvelope(name.toString, meta)
+      val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, JsonUtil.toJsonNode(msg.json))
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
+    }
   }
 
   def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
@@ -110,7 +117,7 @@ class UserActor(val userId: String,
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {
-      val json = JsonUtil.toJson(msg.jsonNode)
+      val json = JsonUtil.toJson(msg.core)
       msgToClientEventBus.publish(MsgToClientBusMsg(toClientChannel, SystemMsgToClient(meetingId, conn.connId, msg)))
     }
   }
