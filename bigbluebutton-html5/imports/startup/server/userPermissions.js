@@ -128,17 +128,14 @@ export function isAllowedTo(action, credentials) {
     userId,
   });
 
-  const allowedToInitiateRequest =
-    user &&
+  const allowedToInitiateRequest = user &&
     user.authToken === authToken &&
     user.validated &&
     user.clientType === 'HTML5' &&
     user.user &&
     user.user.connection_status === 'online';
 
-  const listOfSafeActions = [
-    'logoutSelf',
-  ];
+  const listOfSafeActions = ['logoutSelf'];
 
   const requestIsSafe = listOfSafeActions.includes(action);
 
@@ -151,10 +148,10 @@ export function isAllowedTo(action, credentials) {
     let result = false;
 
     // check role specific actions
-    if ('MODERATOR' === user.user.role) {
+    if (user.user.role === 'MODERATOR') {
       logger.debug('user permissions moderator case');
       result = result || moderator[action];
-    } else if ('VIEWER' === user.user.role) {
+    } else if (user.user.role === 'VIEWER') {
       logger.debug('user permissions viewer case');
       result = result || viewer(meetingId, userId)[action];
     }

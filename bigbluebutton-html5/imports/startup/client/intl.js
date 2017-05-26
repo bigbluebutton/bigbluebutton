@@ -15,9 +15,9 @@ class IntlStartup extends Component {
 
     this.state = {
       messages: {},
-      appLocale : this.props.locale,
+      appLocale: this.props.locale,
     };
-    
+
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
 
@@ -32,7 +32,7 @@ class IntlStartup extends Component {
         if (response.ok) {
           return response.json();
         } else {
-          this.setState({appLocale: 'en'});
+          this.setState({ appLocale: 'en' });
           return response.json();
         }
       })
@@ -53,7 +53,7 @@ class IntlStartup extends Component {
 
   componentWillUpdate(nextProps, nextState) {
     if (this.props.locale !== nextProps.locale) {
-      this.setState({appLocale: nextProps.locale});
+      this.setState({ appLocale: nextProps.locale });
       this.fetchLocalizedMessages(nextProps.locale);
     }
   }

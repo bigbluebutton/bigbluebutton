@@ -136,7 +136,9 @@ export default function handleCaptionUpdate({ payload }) {
           //every other object, so that Captions collection could be updated in a proper order
           let tempObj = objectsToUpdate.splice(i, 1);
           let extraString = tempObj[0].captionHistory.captions.slice(CAPTION_CHUNK_LENGTH);
-          tempObj[0].captionHistory.captions = tempObj[0].captionHistory.captions.slice(0, CAPTION_CHUNK_LENGTH);
+
+          tempObj[0].captionHistory.captions =
+            tempObj[0].captionHistory.captions.slice(0, CAPTION_CHUNK_LENGTH);
 
           maxIndex += 1;
           let tempIndex = tempObj[0].captionHistory.next;

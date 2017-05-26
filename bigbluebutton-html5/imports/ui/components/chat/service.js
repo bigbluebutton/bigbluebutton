@@ -97,8 +97,8 @@ const getUser = (userID, userName) => {
   if (!user) {
     return null;
   }
-  return mapUser(user.user);
 
+  return mapUser(user.user);
 };
 
 const getPublicMessages = () => {
