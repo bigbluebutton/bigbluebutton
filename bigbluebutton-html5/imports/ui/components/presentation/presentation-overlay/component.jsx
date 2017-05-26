@@ -4,18 +4,17 @@ export default class PresentationOverlay extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      //last sent coordinates
-      offsetX: 0,
-      offsetY: 0,
+    //last sent coordinates
+    this.lastSentOffsetX = 0,
+    this.lastSentOffsetY = 0,
 
-      //last updated coordinates
-      lastOffsetX: 0,
-      lastOffsetY: 0,
+    //last updated coordinates
+    this.currentOffsetX = 0;
+    this.currentOffsetY = 0;
 
-      //id of the setInterval()
-      intervalId: 0,
-    };
+    //id of the setInterval()
+    this.intervalId = 0,
+
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     this.checkCursor = this.checkCursor.bind(this);
     this.mouseEnterHandler = this.mouseEnterHandler.bind(this);
@@ -26,38 +25,41 @@ export default class PresentationOverlay extends React.Component {
     //for the case where you change settings in one of the lists (which are displayed on the slide)
     //the mouse starts pointing to the slide right away and mouseEnter doesn't fire
     //so we call it manually here
-    if(!this.state.intervalId) {
+    if(!this.intervalId) {
       this.mouseEnterHandler();
     }
 
-    this.setState({
-      lastOffsetX: event.nativeEvent.offsetX,
-      lastOffsetY: event.nativeEvent.offsetY,
-    });
+    this.currentOffsetX = event.nativeEvent.offsetX;
+    this.currentOffsetY = event.nativeEvent.offsetY;
   }
 
   checkCursor() {
-    if (this.state.offsetX != this.state.lastOffsetX
-      && this.state.offsetY != this.state.lastOffsetY) {
 
-      let xPercent = this.state.lastOffsetX / this.props.vbwidth;
-      let yPercent = this.state.lastOffsetY / this.props.vbheight;
+    //check if the cursor hasn't moved since last check
+    if (this.lastSentOffsetX != this.currentOffsetX
+      && this.lastSentOffsetY != this.currentOffsetY) {
+
+      //determining cursor's position as percentages within the viewBox
+      let xPercent = ( this.currentOffsetX - this.props.viewBoxX ) / this.props.vbwidth;
+      let yPercent = ( this.currentOffsetY - this.props.viewBoxY ) / this.props.vbheight;
+
+      //send the update to the server
       this.props.updateCursor({ xPercent: xPercent, yPercent: yPercent });
-      this.setState({
-        offsetX: this.state.lastOffsetX,
-        offsetY: this.state.lastOffsetY,
-      });
+
+      //updating last sent raw coordinates
+      this.lastSentOffsetX = this.currentOffsetX;
+      this.lastSentOffsetY = this.currentOffsetY;
     }
   }
 
   mouseEnterHandler(event) {
     let intervalId = setInterval(this.checkCursor, 100);
-    this.setState({ intervalId: intervalId });
+    this.intervalId = intervalId;
   }
 
   mouseOutHandler(event) {
-    clearInterval(this.state.intervalId);
-    this.setState({ intervalId: 0 });
+    clearInterval(this.intervalId);
+    this.intervalId = 0;
   }
 
   render() {
