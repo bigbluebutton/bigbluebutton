@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
@@ -78,6 +79,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<EventHandlers type="{WhiteboardDrawEvent.UNDO}" >
 		<MethodInvoker generator="{WhiteboardService}" method="undoGraphic" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{WhiteboardCursorEvent.SEND_CURSOR_POSITION}" >
+		<MethodInvoker generator="{WhiteboardService}" method="sendCursorPosition" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{GetWhiteboardShapesCommand.GET_SHAPES}" >

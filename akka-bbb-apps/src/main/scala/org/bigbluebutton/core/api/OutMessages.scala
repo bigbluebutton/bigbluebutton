@@ -108,7 +108,6 @@ case class ClearPresentationOutMsg(meetingID: String, recorded: Boolean) extends
 case class RemovePresentationOutMsg(meetingID: String, recorded: Boolean, presentationID: String) extends IOutMessage
 case class GetPresentationInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String,
   info: CurrentPresentationInfo, replyTo: String) extends IOutMessage
-case class SendCursorUpdateOutMsg(meetingID: String, recorded: Boolean, xPercent: Double, yPercent: Double) extends IOutMessage
 case class ResizeAndMoveSlideOutMsg(meetingID: String, recorded: Boolean, page: Page) extends IOutMessage
 case class GotoSlideOutMsg(meetingID: String, recorded: Boolean, page: Page) extends IOutMessage
 case class SharePresentationOutMsg(meetingID: String, recorded: Boolean, presentation: Presentation) extends IOutMessage
@@ -145,6 +144,7 @@ case class GetCurrentPollReplyMessage(meetingID: String, recorded: Boolean, requ
 // Whiteboard
 case class GetWhiteboardShapesReply(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapes: Array[AnnotationVO], replyTo: String) extends IOutMessage
 case class SendWhiteboardAnnotationEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shape: AnnotationVO) extends IOutMessage
+case class CursorPositionUpdatedEvent(meetingID: String, recorded: Boolean, requesterID: String, xPercent: Double, yPercent: Double) extends IOutMessage
 case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, fullClear: Boolean) extends IOutMessage
 case class UndoWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapeId: String) extends IOutMessage
 case class ModifiedWhiteboardAccessEvent(meetingID: String, recorded: Boolean, requesterID: String, multiUser: Boolean) extends IOutMessage

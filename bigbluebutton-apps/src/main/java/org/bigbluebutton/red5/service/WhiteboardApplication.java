@@ -99,6 +99,10 @@ public class WhiteboardApplication implements IApplication {
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> shape) {
 		red5BBBInGW.sendWhiteboardAnnotation(meetingID, requesterID, shape);
 	}
+	
+	public void sendCursorPosition(String meetingID, String requesterID, Double xPercent, Double yPercent) {
+		red5BBBInGW.sendCursorPosition(meetingID, requesterID, xPercent, yPercent);
+	}
 
 	public void clearWhiteboard(String meetingID, String requesterID, String whiteboardId) {
 		red5BBBInGW.clearWhiteboard(meetingID, requesterID, whiteboardId);

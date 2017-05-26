@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.whiteboard.models
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 
@@ -153,11 +154,19 @@ package org.bigbluebutton.modules.whiteboard.models
       var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFIED_WHITEBOARD_ACCESS);
       event.multiUser = multiUser;
       dispatchEvent(event);
-   }
+    }
+    
+    public function get multiUser():Boolean {
+      return _multiUser;
+    }
 	
-	public function get multiUser():Boolean {
-		return _multiUser;
-	}
-
+    public function updateCursorPosition(userId:String, xPercent:Number, yPercent:Number):void {
+      var event:WhiteboardCursorEvent = new WhiteboardCursorEvent(WhiteboardCursorEvent.RECEIVED_CURSOR_POSITION);
+      event.userId = userId;
+      event.xPercent = xPercent;
+      event.yPercent = yPercent;
+      dispatchEvent(event);
+    }
+	
 	}
 }

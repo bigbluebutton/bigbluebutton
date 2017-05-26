@@ -77,11 +77,6 @@ public class PresentationApplication {
 		red5BBBInGW.getPresentationInfo(meetingID, requesterID, replyTo);
 	}
 
-	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {	
-
-		red5BBBInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
-	}
-
 	public void resizeAndMoveSlide(String meetingID, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 
 		red5BBBInGW.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);

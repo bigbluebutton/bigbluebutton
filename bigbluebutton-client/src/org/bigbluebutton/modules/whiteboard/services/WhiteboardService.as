@@ -21,8 +21,9 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class WhiteboardService
@@ -66,6 +67,8 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.sendShape(e);
     }
 
-
+    public function sendCursorPosition(e:WhiteboardCursorEvent):void {
+      sender.sendCursorPosition(e.xPercent, e.yPercent);
+    }
   }
 }
