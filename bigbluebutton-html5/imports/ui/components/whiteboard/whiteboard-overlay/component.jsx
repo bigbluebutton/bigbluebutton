@@ -14,6 +14,7 @@ export default class WhiteboardOverlay extends React.Component {
     this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
     this.getSvgPoint = this.getSvgPoint.bind(this);
     this.checkIfOutOfBounds = this.checkIfOutOfBounds.bind(this);
+    this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
   }
 
   //a function to transform a screen point to svg point
@@ -25,8 +26,6 @@ export default class WhiteboardOverlay extends React.Component {
 
   //this function receives an event from the mouse event attached to the window
   //it transforms the coordinate to the main svg coordinate system
-  //checks if the point is out of bounds
-  //and changes raw coordinates to the percentages relative to the size of the slide
   getTransformedSvgPoint(event) {
     const svggroup = this.props.getSvgRef();
     var svgObject = findDOMNode(svggroup);
@@ -34,10 +33,15 @@ export default class WhiteboardOverlay extends React.Component {
     svgPoint.x = event.clientX;
     svgPoint.y = event.clientY;
     let transformedSvgPoint = this.coordinateTransform(svgPoint, svgObject);
-    transformedSvgPoint = this.checkIfOutOfBounds({x: transformedSvgPoint.x, y: transformedSvgPoint.y});
-    transformedSvgPoint.x = transformedSvgPoint.x / this.props.slideWidth * 100;
-    transformedSvgPoint.y = transformedSvgPoint.y / this.props.slideHeight * 100;
+
     return transformedSvgPoint;
+  }
+
+  //receives an svg coordinate and changes the values to percentages of the slide's width/height
+  svgCoordinateToPercentages(svgPoint) {
+    svgPoint.x = svgPoint.x / this.props.slideWidth * 100;
+    svgPoint.y = svgPoint.y / this.props.slideHeight * 100;
+    return svgPoint;
   }
 
   //this function receives an event attached to the svg, not to the window
@@ -56,16 +60,28 @@ export default class WhiteboardOverlay extends React.Component {
     let x = point.x;
     let y = point.y;
 
+    //set this flag to true if either x or y are out of bounds
+    let shouldUnFocus = false;
+
     if (x < viewBoxX) {
       x = viewBoxX;
+      shouldUnFocus = true;
     } else if (x > viewBoxX + viewBoxWidth) {
       x = viewBoxX + viewBoxWidth;
+      shouldUnFocus = true;
     }
 
     if (y < viewBoxY) {
       y = viewBoxY;
+      shouldUnFocus = true;
     } else if (y > viewBoxY + viewBoxHeight) {
       y = viewBoxY + viewBoxHeight;
+      shouldUnFocus = true;
+    }
+
+    //if either x or y are out of bounds - remove focus from potentially selected elements
+    if(shouldUnFocus) {
+      this.unFocus();
     }
 
     return {
@@ -74,10 +90,20 @@ export default class WhiteboardOverlay extends React.Component {
     };
   }
 
+  unFocus() {
+    if (document.selection) {
+      document.selection.empty()
+    } else {
+      window.getSelection().removeAllRanges()
+    }
+  }
+
   render() {
     let actions = {
       getTransformedSvgPoint: this.getTransformedSvgPoint,
       getSvgPoint: this.getSvgPoint,
+      checkIfOutOfBounds: this.checkIfOutOfBounds,
+      svgCoordinateToPercentages: this.svgCoordinateToPercentages,
     };
 
     let tool = this.props.drawSettings.tool;
@@ -91,7 +117,7 @@ export default class WhiteboardOverlay extends React.Component {
       );
     } else if (tool == "Text") {
       return (
-        <TextDrawListener {...this.props} />
+        <TextDrawListener {...this.props} actions={actions}/>
       );
     } else if (tool == "Hand") {
       return (

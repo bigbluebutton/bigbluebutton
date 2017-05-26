@@ -102,7 +102,16 @@ export default class ShapeDrawListener extends React.Component {
   //Line / Ellipse / Rectangle / Triangle have the same actions on mouseMove
   //so we just redirect their mouseMoves here
   commonMouseMove(event) {
-    let transformedSvgPoint = this.props.actions.getTransformedSvgPoint(event);
+    const { checkIfOutOfBounds, getTransformedSvgPoint, svgCoordinateToPercentages } = this.props.actions;
+
+    //get the transformed svg coordinate
+    let transformedSvgPoint = getTransformedSvgPoint(event);
+
+    //check if it's out of bounds
+    transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
+
+    //transforming svg coordinate to percentages relative to the slide width/height
+    transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
     this["handleDraw" + this.props.drawSettings.tool](this.initialCoordinates, transformedSvgPoint, "DRAW_UPDATE", this.currentShapeId);
   }
@@ -128,7 +137,16 @@ export default class ShapeDrawListener extends React.Component {
   //Line / Ellipse / Rectangle / Triangle have the same actions on mouseUp
   //so we just redirect their mouseUps here
   commonMouseUp(event) {
-    let transformedSvgPoint = this.props.actions.getTransformedSvgPoint(event);
+    const { checkIfOutOfBounds, getTransformedSvgPoint, svgCoordinateToPercentages } = this.props.actions;
+
+    //get the transformed svg coordinate
+    let transformedSvgPoint = getTransformedSvgPoint(event);
+
+    //check if it's out of bounds
+    transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
+
+    //transforming svg coordinate to percentages relative to the slide width/height
+    transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
     this["handleDraw" + this.props.drawSettings.tool](this.initialCoordinates, transformedSvgPoint, "DRAW_END", this.currentShapeId);
     this.initialCoordinates = {

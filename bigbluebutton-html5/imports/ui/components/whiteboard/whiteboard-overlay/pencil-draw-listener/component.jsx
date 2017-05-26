@@ -64,10 +64,16 @@ export default class PencilDrawListener extends React.Component {
   }
 
   mouseMovePencil(event) {
-    const { checkIfOutOfBounds, getTransformedSvgPoint } = this.props.actions;
+    const { checkIfOutOfBounds, getTransformedSvgPoint, svgCoordinateToPercentages } = this.props.actions;
 
-    //retrieving the svg object and calculating x and y coordinates
+    //get the transformed svg coordinate
     let transformedSvgPoint = getTransformedSvgPoint(event);
+
+    //check if it's out of bounds
+    transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
+
+    //transforming svg coordinate to percentages relative to the slide width/height
+    transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
     //adding new coordinates to the saved coordinates in the state
     let points = this.pencilCoordinates;
