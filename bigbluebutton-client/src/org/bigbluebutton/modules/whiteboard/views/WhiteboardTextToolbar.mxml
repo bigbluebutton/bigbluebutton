@@ -93,11 +93,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * @param e The event
 			 * 
 			 */		
-			protected function setTextColor(e:Event):void{
-				enableTextToolbar();
-				this.textColor = e.target.selectedColor;
-				currentlySelectedTextObject.applyNewFormat(textColor, textSize);
-				canvas.stage.focus = currentlySelectedTextObject;
+			protected function onFontColorChange(e:Event):void{
+				setTextColor(e.target.selectedColor);
 			}
 			
 			/**
@@ -108,6 +105,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function setTextSize(size:Number):void {
 				enableTextToolbar();
 				this.textSize = size;
+				currentlySelectedTextObject.applyNewFormat(textColor, textSize);
+			}
+			
+			protected function setTextColor(color:uint):void {
+				enableTextToolbar();
+				this.textColor = color;
 				currentlySelectedTextObject.applyNewFormat(textColor, textSize);
 			}
 						
@@ -134,9 +137,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(tobj != null) {
 					enableTextToolbar();
 					repositionToolbar();
-					this.textColor = ctextpik.selectedColor = tobj.textColor;
-					this.textSizeMenu.selectedItem = String(tobj.fontSize);
-					this.textSize = tobj.fontSize;
+					setTextColor(ctextpik.selectedColor);
+					setTextSize(Number(textSizeMenu.selectedItem));
 				} else {
 					disableTextToolbar();
 				}
@@ -170,26 +172,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function adjustForZoom(x:Number, y:Number):void {
 				repositionToolbar();
 			}
-			
-			/* used to check whether or not the TextToolbar and its children have focus when
-				checking whether or not it should be made visible=false. see handleObjDeselected().
-			*/
-			private function containsFocus(obj:DisplayObjectContainer):Boolean {
-				if(obj.stage.focus == obj) return true;
-				
-				for (var i:int = 0; i < obj.numChildren; i++) {
-					var currObj:DisplayObject = obj.getChildAt(i);
-					if(obj.stage.focus == currObj) return true;
-				}
-				
-				return false;
-			}		
 		]]>
 	</mx:Script>
 
-	<mx:ColorPicker width="20" height="20"  change="setTextColor(event)" id="ctextpik" selectedColor="0x000000"
+	<mx:ColorPicker width="20" height="20"  change="onFontColorChange(event)" id="ctextpik" selectedColor="0x000000"
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textColorPicker')}"/>
 
-	<views:CustomComboBox id="textSizeMenu" dataProvider="{fontSizes}" change="onFontSizeChange()" rowCount="8"
+	<views:CustomComboBox id="textSizeMenu" dataProvider="{fontSizes}" selectedItem="18" change="onFontSizeChange()" rowCount="8"
 				 toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}" />
 </mx:HBox>
