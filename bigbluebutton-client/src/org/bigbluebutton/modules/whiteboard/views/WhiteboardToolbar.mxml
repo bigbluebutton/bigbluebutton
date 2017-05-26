@@ -61,16 +61,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:Script>
     <![CDATA[
 		import com.asfusion.mate.core.GlobalDispatcher;
-		import com.asfusion.mate.events.Listener;
-		
-		import flexlib.mdi.containers.MDIWindow;
 		
 		import mx.events.MoveEvent;
 		import mx.events.ResizeEvent;
 		
+		import flexlib.mdi.containers.MDIWindow;
+		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.MadePresenterEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
@@ -87,7 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
 			
-			[Bindable] public var wbOptions:WhiteboardOptions = new WhiteboardOptions();
+			[Bindable] public var wbOptions:WhiteboardOptions;
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
@@ -104,9 +104,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
-			
+
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
-			
+
       private function onCreationComplete():void {
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
@@ -199,6 +199,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function positionToolbar(container:MDIWindow):void {
+				wbOptions = Options.getOptions(WhiteboardOptions) as WhiteboardOptions;
         		LOGGER.debug("Positioning whiteboard toolbar");
 				containerToOverlay = container;
 				containerToOverlay.addEventListener(MoveEvent.MOVE, setPositionAndDepth);

@@ -20,7 +20,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-
 <pres:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:thumb="org.bigbluebutton.modules.present.views.*"
 	xmlns:pres="org.bigbluebutton.common.*"
@@ -40,8 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{ResourceUtil.getInstance().getString('bbb.presentation.title')}"
-	>
+	title="{ResourceUtil.getInstance().getString('bbb.presentation.title')}">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
@@ -74,24 +72,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.PresenterStatusEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
@@ -111,6 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.model.Page;
+			import org.bigbluebutton.modules.present.model.PresentOptions;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
 			import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
 			import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
@@ -118,8 +115,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.screenshare.events.ShareEvent;
 			import org.bigbluebutton.modules.screenshare.view.components.ScreenshareViewWindow;
 			import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
@@ -181,7 +176,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var screenshareView:ScreenshareViewWindow = null;
 			
 			private function init():void{
-				presentOptions = new PresentOptions();
+				presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
 			}
 			
 			private function onCreationComplete():void{

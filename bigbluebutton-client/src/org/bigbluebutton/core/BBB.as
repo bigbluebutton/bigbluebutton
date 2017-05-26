@@ -27,7 +27,6 @@ package org.bigbluebutton.core {
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.VideoProfileManager;
-	import org.bigbluebutton.core.model.Session;
 	import org.bigbluebutton.core.model.VideoProfile;
 	import org.bigbluebutton.util.SessionTokenUtil;
 
@@ -35,8 +34,6 @@ package org.bigbluebutton.core {
 		private static var configManager:ConfigManager2 = null;
 
 		private static var connectionManager:ConnectionManager = null;
-
-		private static var session:Session = null;
 
 		private static var userConfigManager:UserConfigManager = null;
 
@@ -102,13 +99,6 @@ package org.bigbluebutton.core {
 				connectionManager = new ConnectionManager();
 			}
 			return connectionManager;
-		}
-
-		public static function initSession():Session {
-			if (session == null) {
-				session = new Session();
-			}
-			return session;
 		}
 
 		public static function getFlashPlayerVersion():Number {

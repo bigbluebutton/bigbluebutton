@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.common.events.ToolbarButtonEvent;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.VideoProfile;
@@ -63,7 +64,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private static const LOGGER:ILogger = getClassLogger(VideoEventMapDelegate);
     private static var PERMISSION_DENIED_ERROR:String = "PermissionDeniedError";
 
-    private var options:VideoConfOptions = new VideoConfOptions();
+    private var options:VideoConfOptions;
     private var uri:String;
 
     private var button:ToolbarPopupButton = new ToolbarPopupButton();
@@ -89,6 +90,7 @@ package org.bigbluebutton.modules.videoconf.maps
       _dispatcher = dispatcher;
       globalDispatcher = new Dispatcher();
       _myCamSettings = new ArrayCollection();
+	  options = Options.getOptions(VideoConfOptions) as VideoConfOptions;
     }
 
     private function get me():String {

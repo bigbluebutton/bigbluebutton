@@ -55,6 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
 		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
@@ -73,8 +74,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
 		import org.bigbluebutton.modules.present.events.UploadProgressEvent;
 		import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
+		import org.bigbluebutton.modules.present.model.PresentOptions;
 		import org.bigbluebutton.modules.present.model.PresentationModel;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
+		
       
 		private static const LOGGER:ILogger = getClassLogger(FileUploadWindow);      
         
@@ -91,13 +94,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var genThumbDots:String = ".";
 
       private var fileToUpload:FileReference = new FileReference();
-      [Bindable] private var presentOptions:PresentOptions = new PresentOptions();
+      [Bindable] private var presentOptions:PresentOptions;
 		
       override public function move(x:Number, y:Number):void{
         return;
       }
       
       private function initData():void {
+		  presentOptions = Options.getOptions(PresentOptions) as PresentOptions;
         presentationNamesAC = PresentationModel.getInstance().getPresentations();
         if (presentationNamesAC.length <= 0) {
           selectFile();

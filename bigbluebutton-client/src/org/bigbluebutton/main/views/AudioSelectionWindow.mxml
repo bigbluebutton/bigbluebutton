@@ -33,11 +33,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.api.JSAPI;
 			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
@@ -45,10 +46,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
 
-			private var phoneOptions:PhoneOptions = new PhoneOptions;
+			private var phoneOptions:PhoneOptions;
 			private var browserInfo:Array;
 			
 			private function init():void {
+				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
+
 				browserInfo = JSAPI.getInstance().getBrowserInfo();
 
 				var conference:Conference = UserManager.getInstance().getConference();

@@ -19,12 +19,14 @@
 package org.bigbluebutton.main.api
 {
   import flash.external.ExternalInterface;
+  
   import mx.collections.ArrayCollection;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
@@ -88,7 +90,7 @@ package org.bigbluebutton.main.api
       payload.userID = event.userID;
       payload.isUserPublishing = isUserPublishing;
       
-      var vidConf:VideoConfOptions = new VideoConfOptions();
+      var vidConf:VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
       payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       payload.avatarURL = UsersUtil.getAvatarURL();
       payload.streamNames = streamNames;
@@ -120,7 +122,7 @@ package org.bigbluebutton.main.api
     }    
     
     public function handleStreamStartedEvent(event:StreamStartedEvent):void {
-      var vidConf:VideoConfOptions = new VideoConfOptions();
+      var vidConf:VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
       
       var payload:Object = new Object();
       payload.eventName = EventConstants.CAM_STREAM_SHARED;

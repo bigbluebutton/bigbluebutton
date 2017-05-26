@@ -34,8 +34,6 @@
 
     <mx:Script>
         <![CDATA[
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import mx.core.UIComponent;
 			import mx.events.ResizeEvent;
 			
@@ -43,11 +41,11 @@
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.ReconnectionManager;
 			import org.bigbluebutton.main.api.JSLog;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.screenshare.managers.SmartWindowResizer;
@@ -55,10 +53,9 @@
 			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
 			import org.bigbluebutton.modules.screenshare.services.red5.Connection;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-      
-      private static const LOG:String = "SC::ScreenshareViewWIndow - ";
-      private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
+
+            private static const LOG:String = "SC::ScreenshareViewWIndow - ";
+            private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
       
 			private var screenHeight:Number = Capabilities.screenResolutionY;
 			private var screenWidth:Number = Capabilities.screenResolutionX;
@@ -99,7 +96,7 @@
 			[Bindable] private var dsOptions:ScreenshareOptions;
 									
 			private function init():void{
-				dsOptions = new ScreenshareOptions();
+				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 				baseIndex = dsOptions.baseTabIndex;
 			}
 									
@@ -111,7 +108,7 @@
 				videoHolder = videoWithWarnings.videoHolder;
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
-				//addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
+				//addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				//fitToActualSize();				
 				//maximize();
 				

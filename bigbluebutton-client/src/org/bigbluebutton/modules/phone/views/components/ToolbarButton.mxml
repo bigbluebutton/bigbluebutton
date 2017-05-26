@@ -43,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -50,7 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
@@ -70,7 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public const ACTIVE_STATE:Number = 1;
 			private var _currentState:Number = DEFAULT_STATE;
 			
-			[Bindable] public var phoneOptions:PhoneOptions = new PhoneOptions();
+			[Bindable] public var phoneOptions:PhoneOptions;
 			
 			private function startPhone():void {
 				LOGGER.debug("startPhone 1 enabled=[{0}] selected=[{1}]", [enabled, selected]);
@@ -137,6 +138,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void {
 				var conference:Conference = UserManager.getInstance().getConference();
 				var thisUser:BBBUser = conference.getMyUser();
+				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
 
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {

@@ -81,16 +81,16 @@ package org.bigbluebutton.main.model.modules
 		public function testRTMP():void{
 			portTestProxy.connect(false /*"RTMP"*/, getPortTestHost(), "1935", getPortTestApplication(), getPortTestTimeout());
 		}
-		
-		public function testRTMPT(tunnel:Boolean):void{
-			if (! tunnel) {
-        // Try to test using rtmpt as rtmp failed.
-        portTestProxy.connect(true /*"RTMPT"*/, getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
-      } else {
-        modulesDispatcher.sendTunnelingFailedEvent(getPortTestHost(), getPortTestApplication());
-      }
+
+		public function testRTMPT(tunnel:Boolean):void {
+			if (!tunnel) {
+				// Try to test using rtmpt as rtmp failed.
+				portTestProxy.connect(true /*"RTMPT"*/, getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
+			} else {
+				modulesDispatcher.sendTunnelingFailedEvent(getPortTestHost(), getPortTestApplication());
+			}
 		}
-		
+
 		public function loadAllModules(params:ConferenceParameters):void{
 			modulesManager.loadAllModules(params);
 		}

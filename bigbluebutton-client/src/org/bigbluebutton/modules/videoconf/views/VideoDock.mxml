@@ -42,13 +42,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private var videoOptions:VideoConfOptions = new VideoConfOptions();
+			private var videoOptions:VideoConfOptions;
 			private var keyCombos:Object;
 			private var disp:Dispatcher = new Dispatcher();
 			
@@ -56,6 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onCreationComplete():void {
 				hotkeyCapture();
+				videoOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
 				titleBarOverlay.tabIndex = videoOptions.baseTabIndex;
 				
 				minimizeBtn.tabIndex = videoOptions.baseTabIndex+1;

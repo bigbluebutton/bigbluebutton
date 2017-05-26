@@ -44,10 +44,11 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
@@ -86,7 +87,7 @@
 				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
         		BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
                 
-				options = new UsersOptions();
+				options = Options.getOptions(UsersOptions) as UsersOptions;
 			}
 			
 			private function dataChangeHandler(e:Event):void {
