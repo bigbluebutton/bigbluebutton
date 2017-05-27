@@ -23,10 +23,12 @@ class UserActor(val userId: String,
   private val conns = new Connections
 
   def receive = {
+
     case msg: ConnectMsg => handleConnectMsg(msg)
     case msg: DisconnectMsg => handleDisconnectMsg(msg)
     case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
     case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
+    case _ => println("***** UserActor cannot handle msg ")
   }
 
   private def createConnection(id: String, sessionId: String, active: Boolean): Connection = {
@@ -34,7 +36,7 @@ class UserActor(val userId: String,
   }
 
   def handleConnectMsg(msg: ConnectMsg): Unit = {
-    log.debug("Received ConnectMsg " + msg)
+    println("**** UserActor handleConnectMsg " + msg.connInfo.userId)
     Connections.findWithId(conns, msg.connInfo.connId) match {
       case Some(m) => log.warning("Connect message on same connection id. " + JsonUtil.toJson(msg.connInfo))
       case None =>
@@ -44,15 +46,17 @@ class UserActor(val userId: String,
           Connections.setConnInactive(conns, activeConn)
         }
         val m = createConnection(msg.connInfo.connId, msg.connInfo.sessionId, true)
+        println("**** UserActor create connection " + m.connId)
         Connections.add(conns, m)
     }
   }
 
   def handleDisconnectMsg(msg: DisconnectMsg): Unit = {
-    log.debug("Received DisconnectMsg " + msg)
+    println("**** UserActor handleDisconnectMsg " + msg.connInfo.userId)
     for {
       m <- Connections.findWithId(conns, msg.connInfo.connId)
     } yield {
+      println("**** UserActor remove connection " + m.connId)
       Connections.remove(conns, m.connId)
     }
   }
@@ -79,7 +83,7 @@ class UserActor(val userId: String,
   }
 
   def handleBbbServerMsg(msg: BbbCommonEnvJsNodeMsg): Unit = {
-    log.debug("Received BbbServerMsg " + msg)
+    println("**** UserActor handleBbbServerMsg " + msg)
     for {
       msgType <- msg.envelope.routing.get("msgType")
     } yield {
@@ -88,6 +92,7 @@ class UserActor(val userId: String,
   }
 
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
+    println("**** UserActor handleServerMsg " + msg)
     msgType match {
       case "direct" => handleDirectMessage(msg)
       case "broadcast" => handleBroadcastMessage(msg)
@@ -96,6 +101,7 @@ class UserActor(val userId: String,
   }
 
   private def forwardToUser(msg: BbbCommonEnvJsNodeMsg): Unit = {
+    println("UserActor forwardToUser. Forwarding to connection. " + msg)
     for {
       conn <- Connections.findActiveConnection(conns)
     } yield {

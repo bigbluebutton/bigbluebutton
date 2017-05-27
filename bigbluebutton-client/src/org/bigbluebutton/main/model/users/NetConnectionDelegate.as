@@ -105,7 +105,20 @@ package org.bigbluebutton.main.model.users
           }
         }   
             
-        public function onMessageFromServer(messageName:String, msg:Object):void {
+        public function onMessageFromServer(messageName:String, msg:String):void {
+            trace("onMessageFromServer - " + msg);
+            var map:Object = JSON.parse(msg);  
+            var header: Object = map.header as Object;
+            var body: Object = map.body as Object;
+
+            var tokenValid: Boolean = body.valid as Boolean;
+            var userId: String = body.userId as String;
+            trace("onMessageFromServer - " + tokenValid);
+        }
+
+        public function onMessageFromServer2(messageName:String, msg:Object):void {
+            trace("onMessageFromServer2 - " + msg);
+
           if (!authenticated && (messageName == "validateAuthTokenReply")) {
             handleValidateAuthTokenReply(msg)
           } else if (messageName == "validateAuthTokenTimedOut") {
@@ -131,7 +144,7 @@ package org.bigbluebutton.main.model.users
 			var header:Object = new Object();
 			header.name = "ValidateAuthTokenReqMsg";
 			header.meetingId = confParams.meetingID;
-            
+
 			var body:Object = new Object();
 			body.userId = confParams.internalUserID;
 			body.authToken = confParams.authToken;

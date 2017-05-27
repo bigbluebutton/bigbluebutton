@@ -69,10 +69,12 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW,
     */
 
   def connect(connInfo: ConnInfo): Unit = {
+    println("**** ClientGWApplication connect " + connInfo)
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new ConnectMsg(connInfo)))
   }
 
   def disconnect(connInfo: ConnInfo): Unit = {
+    println("**** ClientGWApplication disconnect " + connInfo)
     msgFromClientEventBus.publish(MsgFromClientBusMsg(fromClientChannel, new DisconnectMsg(connInfo)))
   }
 

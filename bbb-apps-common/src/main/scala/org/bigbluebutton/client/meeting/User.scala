@@ -16,5 +16,6 @@ class User(val userId: String,
            meetingId: String,
            msgToClientEventBus: MsgToClientEventBus)(implicit val context: ActorContext) {
 
-  val actorRef = context.actorOf(UserActor.props(userId, msgToAkkaAppsEventBus, meetingId, msgToClientEventBus), userId)
+  val actorRef = context.actorOf(UserActor.props(userId, msgToAkkaAppsEventBus,
+    meetingId, msgToClientEventBus), meetingId + "-" + userId)
 }

@@ -176,7 +176,8 @@ class MeetingActor(val mProps: MeetingProperties,
   def handleValidateAuthTokenReqMsg(msg: ValidateAuthTokenReqMsg): Unit = {
     log.debug("****** RECEIVED ValidateAuthTokenReqMsg msg {}", msg)
 
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka",
+      "msgType" -> "direct", "meetingId" -> mProps.meetingID, "userId" -> msg.body.userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(ValidateAuthTokenRespMsg.NAME, mProps.meetingID)
     val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, true)

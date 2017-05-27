@@ -20,7 +20,7 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
 
 
   def handleBroadcastMsg(msg: BroadcastMsgToMeeting): Unit = {
-    log.debug("Received BroadcastMsgToMeeting " + msg)
+    println("Received BroadcastMsgToMeeting " + msg)
     val meetingId = msg.meetingId
     val msgName = msg.data.envelope.name
     val json = JsonUtil.toJson(msg.data.core)
@@ -30,7 +30,7 @@ class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with Acto
   }
 
   def handleDirectMsg(msg: DirectMsgToClient): Unit = {
-    log.debug("Received DirectMsgToClient " + msg)
+    println("Received DirectMsgToClient " + msg)
     val meetingId = msg.meetingId
     val connId = msg.connId
     val msgName = msg.data.envelope.name

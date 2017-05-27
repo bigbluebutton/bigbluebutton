@@ -22,6 +22,7 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
   }
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
+    println("****** Received JSON msg " + msg.data)
     val serverMsg = JsonUtil.fromJson[BbbCommonEnvJsNodeMsg](msg.data)
     msgFromAkkaAppsEventBus.publish(MsgFromAkkaApps(fromAkkaAppsChannel, serverMsg))
   }

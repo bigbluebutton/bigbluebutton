@@ -49,7 +49,7 @@ class AppsRedisSubscriberActor(jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEve
   def onMessage(message: Message) {
     //log.error(s"SHOULD NOT BE RECEIVING: $message")
     if (message.channel == fromAkkaAppsRedisChannel) {
-      log.debug(s"RECEIVED:\n ${message.data.utf8String} \n")
+      println(s"RECEIVED:\n ${message.data.utf8String} \n")
       val receivedJsonMessage = new JsonMsgFromAkkaApps(message.channel, message.data.utf8String)
       jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
     }

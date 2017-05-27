@@ -205,6 +205,8 @@ class BigBlueButtonActor(val system: ActorSystem,
         eventBus.subscribe(m.actorRef, m.mProps.voiceBridge)
         eventBus.subscribe(m.actorRef, m.mProps.deskshareBridge)
 
+        bbbMsgBus.subscribe(m.actorRef, m.mProps.meetingID)
+
         meetings += m.mProps.meetingID -> m
         outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.parentMeetingID,
           m.mProps.recorded, m.mProps.meetingName, m.mProps.voiceBridge, msg.mProps.duration, msg.mProps.moderatorPass,

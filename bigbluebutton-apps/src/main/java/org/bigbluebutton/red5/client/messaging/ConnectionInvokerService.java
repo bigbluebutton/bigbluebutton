@@ -117,6 +117,69 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       handleDisconnectAllClientsMessage((DisconnectAllClientsMessage) message);
     } else if (message instanceof DisconnectAllMessage) {
       handleDisconnectAllMessage((DisconnectAllMessage) message);
+    } else if (message instanceof DirectToClientMsg) {
+      handleDirectToClientMsg((DirectToClientMsg) message);
+    }
+  }
+
+  private void handleDirectToClientMsg(DirectToClientMsg msg) {
+    //if (log.isTraceEnabled()) {
+    //  Gson gson = new Gson();
+    //  String json = gson.toJson(msg.getMessage());
+    //  log.trace("Handle direct message: " + msg.getMessageName() + " msg=" + json);
+    //}
+    System.out.println("Handle direct message: " + msg.messageName + " msg=" + msg.json);
+
+    final String connId = msg.connId;
+    Runnable sender = new Runnable() {
+      public void run() {
+        IScope meetingScope = getScope(msg.meetingId);
+        if (meetingScope != null) {
+
+          IConnection conn = getConnectionWithConnId(meetingScope, connId);
+          if (conn != null) {
+            if (conn.isConnected()) {
+              List<Object> params = new ArrayList<Object>();
+              params.add(msg.messageName);
+              params.add(msg.json);
+
+              //        if (log.isTraceEnabled()) {
+              //          Gson gson = new Gson();
+              //          String json = gson.toJson(msg.getMessage());
+              //          log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
+              //        }
+              System.out.println("Send direct message: " + msg.messageName + " msg=" + msg.json);
+              ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
+            }
+          } else {
+            //      log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + userId
+            //          + "] as no such session on meeting=[" + msg.getMeetingID() + "]");
+          }
+        }
+      }
+    };
+
+    /**
+     * We need to add a way to cancel sending when the thread is blocked.
+     * Red5 uses a semaphore to guard the rtmp connection and we've seen
+     * instances where our thread is blocked preventing us from sending messages
+     * to other connections. (ralam nov 19, 2015)
+     */
+    long endNanos = System.nanoTime() + SEND_TIMEOUT;
+    Future<?> f = runExec.submit(sender);
+    try {
+      // Only wait for the remaining time budget
+      long timeLeft = endNanos - System.nanoTime();
+      f.get(timeLeft, TimeUnit.NANOSECONDS);
+    } catch (ExecutionException e) {
+      // log.warn("ExecutionException while sending direct message on connection[" + userId + "]");
+      // log.warn("ExcecutionException cause: " + e.getMessage());
+    } catch (InterruptedException e) {
+      //  log.warn("Interrupted exception while sending direct message on connection[" + userId + "]");
+      Thread.currentThread().interrupt();
+    } catch (TimeoutException e) {
+      // log.warn("Timeout exception while sending direct message on connection[" + userId + "]");
+      f.cancel(true);
     }
   }
 
@@ -184,6 +247,9 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
     //  String json = gson.toJson(msg.getMessage());
     //  log.trace("Handle direct message: " + msg.getMessageName() + " msg=" + json);
     //}
+    Gson gson = new Gson();
+    String json = gson.toJson(msg.getMessage());
+    System.out.println("Handle direct message: " + msg.getMessageName() + " msg=" + json);
 
     final String userId = msg.getUserID();
     Runnable sender = new Runnable() {
@@ -203,7 +269,9 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
       //          String json = gson.toJson(msg.getMessage());
       //          log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
       //        }
-
+              Gson gson = new Gson();
+              String json = gson.toJson(msg.getMessage());
+              System.out.println("Send direct message: " + msg.getMessageName() + " msg=" + json);
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
             }
           } else {
@@ -285,6 +353,18 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
  //   	log.warn("Timeout exception while sending broadcast message[" + msg.getMessageName() + "]");
     	f.cancel(true);     
     } 
+  }
+
+  private IConnection getConnectionWithConnId(IScope scope, String connId) {
+    for (IConnection conn : scope.getClientConnections()) {
+      String connID = (String) conn.getSessionId();
+      if (connID != null && connID.equals(connId)) {
+        return conn;
+      }
+    }
+
+    //   log.warn("Failed to get connection for userId = " + userID);
+    return null;
   }
 
   private IConnection getConnection(IScope scope, String userID) {
