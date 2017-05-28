@@ -27,12 +27,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		 minWidth="0">	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
 			import mx.collections.ArrayCollection;
 			
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 			import org.bigbluebutton.modules.caption.model.Transcript;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			

@@ -19,21 +19,22 @@
 
 package org.bigbluebutton.modules.screenshare.managers {
     import com.asfusion.mate.events.Dispatcher;
+    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.main.events.MadePresenterEvent;
     import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
+    import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
     import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
+    import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
     import org.bigbluebutton.modules.screenshare.events.StartShareRequestFailedEvent;
     import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
-    import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
-    import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
     import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
     import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
     import org.bigbluebutton.modules.screenshare.services.ScreenshareService;
-    import org.bigbluebutton.modules.screenshare.events.UseJavaModeCommand;
     import org.bigbluebutton.modules.screenshare.utils.BrowserCheck;
     
     public class ScreenshareManager {
@@ -47,9 +48,12 @@ package org.bigbluebutton.modules.screenshare.managers {
         private var globalDispatcher:Dispatcher;
         private var sharing:Boolean = false;
         private var usingJava:Boolean = true;
-        
+        private var options:ScreenshareOptions;
+
         public function ScreenshareManager() {
-            service = new ScreenshareService();
+			options = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+
+			service = new ScreenshareService();
             globalDispatcher = new Dispatcher();
             publishWindowManager = new PublishWindowManager(service);
             viewWindowManager = new ViewerWindowManager(service);
@@ -117,9 +121,7 @@ package org.bigbluebutton.modules.screenshare.managers {
 
         private function initDeskshare():void {
             sharing = false;
-            var option:ScreenshareOptions = new ScreenshareOptions();
-            option.parseOptions();
-            if (option.showButton) {
+            if (options.showButton) {
                 toolbarButtonManager.addToolbarButton();
             }
         }
@@ -141,10 +143,7 @@ package org.bigbluebutton.modules.screenshare.managers {
         
         public function handleRequestStartSharingEvent(force:Boolean = false):void {
             toolbarButtonManager.startedSharing();
-            var option:ScreenshareOptions = new ScreenshareOptions();
-            option.parseOptions();
-
-            if (force || (option.tryWebRTCFirst && !BrowserCheck.isWebRTCSupported()) || !option.tryWebRTCFirst) {
+            if (force || (options.tryWebRTCFirst && !BrowserCheck.isWebRTCSupported()) || !options.tryWebRTCFirst) {
               usingJava = true;
               publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), module.tunnel());
               sharing = true;
@@ -194,8 +193,6 @@ package org.bigbluebutton.modules.screenshare.managers {
         public function handleStartSharingEvent():void {
             //toolbarButtonManager.disableToolbarButton();
             toolbarButtonManager.startedSharing();
-            var option:ScreenshareOptions = new ScreenshareOptions();
-            option.parseOptions();
             publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), module.tunnel());
             sharing = true;
         }

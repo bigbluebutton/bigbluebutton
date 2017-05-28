@@ -66,7 +66,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flash.accessibility.AccessibilityProperties;
 			import flash.events.TextEvent;
 			
 			import mx.binding.utils.BindingUtils;
@@ -74,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.core.KeyboardUtil;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -91,12 +90,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.chat.ChatUtil;
 			import org.bigbluebutton.modules.chat.events.ChatEvent;
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
 			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-			import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
 			import org.bigbluebutton.modules.chat.model.ChatConversation;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -143,13 +142,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable]
 			private var chatToolbarHeight:Number = 80;
-			
-			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
+
+			[Bindable] public var chatOptions:ChatOptions;
 
 			private var shiftPressed:Boolean = false;
 			private var ctrlPressed:Boolean = false;
       
-			private function onCreationComplete():void {    
+			private function onCreationComplete():void {
+				chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
 				bindToHeightToDetermineHeightOfMessageList();
 				
 				addContextMenuItems();

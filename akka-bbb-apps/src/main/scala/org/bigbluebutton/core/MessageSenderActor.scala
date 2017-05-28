@@ -82,7 +82,6 @@ class MessageSenderActor(val service: MessageSender)
     case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
     case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
     case msg: GetPresentationInfoOutMsg => handleGetPresentationInfoOutMsg(msg)
-    case msg: SendCursorUpdateOutMsg => handleSendCursorUpdateOutMsg(msg)
     case msg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(msg)
     case msg: GotoSlideOutMsg => handleGotoSlideOutMsg(msg)
     case msg: SharePresentationOutMsg => handleSharePresentationOutMsg(msg)
@@ -133,6 +132,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: LockLayoutEvent => handleLockLayoutEvent(msg)
     case msg: GetWhiteboardShapesReply => handleGetWhiteboardShapesReply(msg)
     case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
+    case msg: CursorPositionUpdatedEvent => handleCursorPositionUpdatedEvent(msg)
     case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     case msg: ModifiedWhiteboardAccessEvent => handleModifiedWhiteboardAccessEvent(msg)
@@ -374,11 +374,6 @@ class MessageSenderActor(val service: MessageSender)
     val reply = new GetPresentationInfoReplyMessage(msg.meetingID, msg.requesterID, presenter, presentations)
 
     val json = PesentationMessageToJsonConverter.getPresentationInfoOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
-  }
-
-  private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {
-    val json = PesentationMessageToJsonConverter.sendCursorUpdateOutMsgToJson(msg)
     service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
   }
 
@@ -742,6 +737,11 @@ class MessageSenderActor(val service: MessageSender)
 
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
     val json = WhiteboardMessageToJsonConverter.sendWhiteboardAnnotationEventToJson(msg)
+    service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
+  }
+
+  private def handleCursorPositionUpdatedEvent(msg: CursorPositionUpdatedEvent) {
+    val json = WhiteboardMessageToJsonConverter.cursorPositionUpdatedEventToJson(msg)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 

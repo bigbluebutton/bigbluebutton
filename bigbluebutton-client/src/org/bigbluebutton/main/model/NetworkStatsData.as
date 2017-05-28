@@ -18,15 +18,9 @@
  */
 package org.bigbluebutton.main.model
 {
-	
-	import com.asfusion.mate.events.Dispatcher;
-
-	import mx.formatters.NumberFormatter;
-
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.events.NetworkStatsEvent;
-
 	import flash.events.EventDispatcher;
+	
+	import mx.formatters.NumberFormatter;
 	
 	public class NetworkStatsData extends EventDispatcher
 	{

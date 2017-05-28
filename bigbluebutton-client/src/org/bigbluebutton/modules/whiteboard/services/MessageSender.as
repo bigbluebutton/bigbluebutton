@@ -23,13 +23,13 @@ package org.bigbluebutton.modules.whiteboard.services
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 
 	public class MessageSender
 	{	
 		private static const LOGGER:ILogger = getClassLogger(MessageSender);
 
-		public function modifyAccess(e:WhiteboardPresenterEvent):void {
+		public function modifyAccess(e:WhiteboardAccessEvent):void {
 //			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
 			var message:Object = new Object();
 			message["multiUser"] = e.multiUser;
@@ -141,6 +141,29 @@ package org.bigbluebutton.modules.whiteboard.services
 						LOGGER.error(status); 
 					},
 					e.annotation.annotation
+			);
+		}
+		
+		/**
+		 * Send an event to the server to update the user's cursor position
+		 * @param xPercent
+		 * @param yPercent
+		 * 
+		 */
+		public function sendCursorPosition(xPercent:Number, yPercent:Number):void {
+			var message:Object = new Object();
+			message["xPercent"] = xPercent;
+			message["yPercent"] = yPercent;
+			
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("whiteboard.sendCursorPosition", 
+				function(result:String):void { // On successful result
+					//LOGGER.debug(result); 
+				},
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status); 
+				},
+				message
 			);
 		}
 	}

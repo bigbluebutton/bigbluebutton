@@ -19,13 +19,16 @@
 package org.bigbluebutton.main.api
 {
   import com.asfusion.mate.events.Dispatcher;
-  import mx.collections.ArrayCollection;
-
+  
   import flash.external.ExternalInterface;
-  import org.bigbluebutton.core.BBB;
+  
+  import mx.collections.ArrayCollection;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
@@ -49,7 +52,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-  import org.bigbluebutton.util.SessionTokenUtil;
 
   public class ExternalApiCallbacks {
 	private static const LOGGER:ILogger = getClassLogger(ExternalApiCallbacks);
@@ -158,7 +160,7 @@ package org.bigbluebutton.main.api
         isUserPublishing = true; 
       }
       
-      var vidConf:VideoConfOptions = new VideoConfOptions();
+      var vidConf:VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
       obj.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;

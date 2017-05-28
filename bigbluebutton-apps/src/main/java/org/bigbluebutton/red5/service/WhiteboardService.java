@@ -22,6 +22,8 @@ import java.util.Map;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
+import org.slf4j.Logger;
 
 public class WhiteboardService {
 
@@ -43,19 +45,6 @@ public class WhiteboardService {
 		return false;
 	}
 	public void sendAnnotation(Map<String, Object> annotation) {
-//		for (Map.Entry<String, Object> entry : annotation.entrySet()) {
-//		    String key = entry.getKey();
-//		    Object value = entry.getValue();
-		    
-//		    if (key.equals("points")) {
-//		    	String points = "points=[";
-//		    	ArrayList<Double> v = (ArrayList<Double>) value;
-//		    	log.debug(points + pointsToString(v) + "]");
-//		    } else {
-//		    	log.debug(key + "=[" + value + "]");
-//		    }
-//		}
-			
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
 		
@@ -64,18 +53,29 @@ public class WhiteboardService {
 		}		
 	}
 	
-	/*private String pointsToString(ArrayList<Double> points){
-    	String datapoints = "";
-    	for (Double i : points) {
-    		datapoints += i + ",";
-    	}
-    	// Trim the trailing comma
-//    	log.debug("Data Point = " + datapoints);
-    	return datapoints.substring(0, datapoints.length() - 1);
+	public void sendCursorPosition(Map<String, Object> msg) {
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();
+		
+		Double xPercent;
+		if (msg.get("xPercent") instanceof Integer) {
+			Integer tempXOffset = (Integer) msg.get("xPercent");
+			xPercent = tempXOffset.doubleValue();
+		} else {
+			xPercent = (Double) msg.get("xPercent");
+		}
 
-//		application.sendShape(shape, type, color, thickness, fill, fillColor, transparency, id, status);
+		Double yPercent;
 
-	}*/
+		if (msg.get("yPercent") instanceof Integer) {
+			Integer tempYOffset = (Integer) msg.get("yPercent");
+			yPercent = tempYOffset.doubleValue();
+		} else {
+			yPercent = (Double) msg.get("yPercent");
+		}
+
+		application.sendCursorPosition(meetingID, requesterID, xPercent, yPercent);
+	}
 	
 	public void requestAnnotationHistory(Map<String, Object> message) {
 		

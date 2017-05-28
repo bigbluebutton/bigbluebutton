@@ -138,7 +138,6 @@ case class BroadcastLayoutRequest(meetingID: String, requesterID: String, layout
 case class ClearPresentation(meetingID: String) extends InMessage
 case class RemovePresentation(meetingID: String, presentationID: String) extends InMessage
 case class GetPresentationInfo(meetingID: String, requesterID: String, replyTo: String) extends InMessage
-case class SendCursorUpdate(meetingID: String, xPercent: Double, yPercent: Double) extends InMessage
 case class ResizeAndMoveSlide(meetingID: String, xOffset: Double, yOffset: Double,
   widthRatio: Double, heightRatio: Double) extends InMessage
 case class GotoSlide(meetingID: String, page: String) extends InMessage
@@ -195,6 +194,7 @@ case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: S
 /////////////////////////////////////////////////////////////////////////////////////
 
 case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: String, annotation: AnnotationVO) extends InMessage
+case class SendCursorPositionRequest(meetingID: String, requesterID: String, xPercent: Double, yPercent: Double) extends InMessage
 case class GetWhiteboardShapesRequest(meetingID: String, requesterID: String, whiteboardId: String, replyTo: String) extends InMessage
 case class ClearWhiteboardRequest(meetingID: String, requesterID: String, whiteboardId: String) extends InMessage
 case class UndoWhiteboardRequest(meetingID: String, requesterID: String, whiteboardId: String) extends InMessage

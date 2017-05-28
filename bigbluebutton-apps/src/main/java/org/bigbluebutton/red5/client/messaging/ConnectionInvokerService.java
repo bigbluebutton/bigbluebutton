@@ -149,7 +149,7 @@ public class ConnectionInvokerService implements IConnectionInvokerService {
               //          log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
               //        }
               System.out.println("Send direct message: " + msg.messageName + " msg=" + msg.json);
-              ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
+              ServiceUtils.invokeOnConnection(conn, "onMessageFromServer2x", params.toArray());
             }
           } else {
             //      log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + userId

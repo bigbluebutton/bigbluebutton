@@ -103,6 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
+			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -112,6 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -132,19 +134,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.Guest;
 			import org.bigbluebutton.main.model.ImageLoader;
-			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.options.BrandingOptions;
+			import org.bigbluebutton.main.model.options.BrowserVersionsOptions;
+			import org.bigbluebutton.main.model.options.LanguageOptions;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.modules.users.views.BreakoutRoomSettings;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-	
+			
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
 			private var globalDispatcher:Dispatcher;			
@@ -178,6 +183,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			[Bindable] private var layoutOptions:LayoutOptions;
+			[Bindable] private var brandingOptions:BrandingOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
 			[Bindable] private var _showToolbar:Boolean = true;
@@ -209,12 +215,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
 			public function initOptions(e:Event):void {
+				brandingOptions = Options.getOptions(BrandingOptions) as BrandingOptions;
+				layoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
+
 				updateCopyrightText();
 				loadBackground();
 
 				UserManager.getInstance().getConference().configLockSettings();
-				layoutOptions = new LayoutOptions();
-				layoutOptions.parseOptions();
 				showToolbarOpt = layoutOptions.showToolbar;
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;
@@ -224,8 +231,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				toolbar.displayToolbar();
 				
 				showFooterOpt = layoutOptions.showFooter;
-				var locale:Object = BBB.getConfigManager().config.language;
-				langSelector.visible = langSelector.includeInLayout = locale.userSelectionEnabled;
+				var languageOptions : LanguageOptions = Options.getOptions(LanguageOptions) as LanguageOptions;
+				langSelector.visible = langSelector.includeInLayout = languageOptions.userSelectionEnabled;
 				
 				if (!showFooterOpt) {
 					footerHeight = 0;
@@ -235,10 +242,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		
 			private function updateCopyrightText():void {
-				if (BBB.getConfigManager().config.branding.copyright == undefined) {
+				if (StringUtils.isEmpty(brandingOptions.copyright)) {
 					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
 				} else {
-					copyrightText = String(BBB.getConfigManager().config.branding.copyright).replace("{0}", appVersion);
+					copyrightText = String(brandingOptions.copyright).replace("{0}", appVersion);
 				}
 			}
 
@@ -565,12 +572,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   		}
 	   		
 			private function versionCheck():void {
-				var xml:XML = BBB.getConfigManager().config.browserVersions;
-				if (xml.@chrome != undefined && xml.@firefox != undefined && xml.@flash != undefined) {
+				var browserOptions : BrowserVersionsOptions = Options.getOptions(BrowserVersionsOptions) as BrowserVersionsOptions;
+				if (!StringUtils.isEmpty(browserOptions.chrome) && !StringUtils.isEmpty(browserOptions.firefox) && !StringUtils.isEmpty(browserOptions.flash)) {
 					//find browser version
 					var browserVersion:Array = ExternalInterface.call("determineBrowser");
 					//check browser version
-					if ((browserVersion[0].toString().toLowerCase() == "chrome" && browserVersion[1] < xml.@chrome) || browserVersion[0].toString().toLowerCase() == "firefox" && browserVersion[1] < xml.@firefox) {
+					if ((browserVersion[0].toString().toLowerCase() == "chrome" && browserVersion[1] < browserOptions.chrome) || browserVersion[0].toString().toLowerCase() == "firefox" && browserVersion[1] < browserOptions.firefox) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.title"), 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [browserVersion[0]+" "+browserVersion[1]]),
@@ -581,7 +588,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var flashVersion:Object = getFlashVersion(); 
 					//check flash version
 					if ((flashVersion.os == 'LNX' && browserVersion[0].toString().toLowerCase() != "chrome" && flashVersion.major < 11) || 
-						((flashVersion.os != 'LNX' || browserVersion[0].toString().toLowerCase() == "chrome") && flashVersion.major < xml.@flash)) {
+						((flashVersion.os != 'LNX' || browserVersion[0].toString().toLowerCase() == "chrome") && flashVersion.major < browserOptions.flash)) {
 						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.title"), 
 							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.message", [flashVersion.major+"."+flashVersion.minor+"."+flashVersion.build]),
@@ -904,8 +911,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var canvasBackgroundAspectRatio:Number = NaN;
 
 			private function loadBackground():void {
-				var backgroundCandidate:String = BBB.getConfigManager().config.branding.background;
-				if (backgroundCandidate != "") {
+				var backgroundCandidate:String = brandingOptions.background;
+				if (!StringUtils.isEmpty(backgroundCandidate)) {
 					var imageLoader:ImageLoader = new ImageLoader();
 					imageLoader.load(backgroundCandidate, function(obj:DisplayObject, width:Number, height:Number):void {
 						canvasBackground = obj;

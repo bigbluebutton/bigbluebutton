@@ -65,29 +65,6 @@ public class PresentationService {
     presentationApplication.sharePresentation(scope.getName(), presentationID, share);
   }
 
-  public void sendCursorUpdate(Map<String, Object> msg) {
-    IScope scope = Red5.getConnectionLocal().getScope();
-
-    Double xPercent;
-    if (msg.get("xPercent") instanceof Integer) {
-      Integer tempXOffset = (Integer) msg.get("xPercent");
-      xPercent = tempXOffset.doubleValue();
-    } else {
-      xPercent = (Double) msg.get("xPercent");
-    }
-
-    Double yPercent;
-
-    if (msg.get("yPercent") instanceof Integer) {
-      Integer tempYOffset = (Integer) msg.get("yPercent");
-      yPercent = tempYOffset.doubleValue();
-    } else {
-      yPercent = (Double) msg.get("yPercent");
-    }
-
-    presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
-  }
-
   public void resizeAndMoveSlide(Map<String, Object> msg) {
     Double xOffset;
     if (msg.get("xOffset") instanceof Integer) {

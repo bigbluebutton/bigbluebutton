@@ -52,6 +52,17 @@ object WhiteboardMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
+  def cursorPositionUpdatedEventToJson(msg: CursorPositionUpdatedEvent): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.X_PERCENT, msg.xPercent)
+    payload.put(Constants.Y_PERCENT, msg.yPercent)
+
+    val header = Util.buildHeader(MessageNames.CURSOR_POSITION_UPDATED, None)
+    Util.buildJson(header, payload)
+  }
+
   def clearWhiteboardEventToJson(msg: ClearWhiteboardEvent): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)

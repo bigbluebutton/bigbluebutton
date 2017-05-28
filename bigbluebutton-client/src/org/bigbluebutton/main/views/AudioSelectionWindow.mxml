@@ -26,23 +26,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				initialize="init()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false">
-	
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
-	
+
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
-			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.api.JSAPI;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
@@ -50,21 +46,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
 
-			private var phoneOptions:PhoneOptions = new PhoneOptions;
+			private var phoneOptions:PhoneOptions;
 			private var browserInfo:Array;
 			
 			private function init():void {
+				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
+
 				browserInfo = JSAPI.getInstance().getBrowserInfo();
 
 				var conference:Conference = UserManager.getInstance().getConference();
-				
-				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
-				if (
-					(phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
-				) {
-					btnMicrophone.enabled = false;
-				}
-				
+				if (!phoneOptions.listenOnlyMode)
+					btnListenOnly.enabled = false;
+
 				if (phoneOptions.showPhoneOption) {
 					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [conference.dialNumber, conference.voiceBridge]);
 				} else {
@@ -122,14 +115,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
 				
 				PopUpUtil.removePopUp(this);
-			}
-			
-			private function handleBecomePresenter(e:MadePresenterEvent):void {
-				if (phoneOptions.presenterShareOnly) btnMicrophone.enabled = true;
-			}
-			
-			private function handleBecomeViewer(e:MadePresenterEvent):void {
-				if (phoneOptions.presenterShareOnly && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
 			}
 		]]>
 	</mx:Script>

@@ -20,14 +20,15 @@ package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 	
-	public class WhiteboardPresenterEvent extends Event
+	public class WhiteboardAccessEvent extends Event
 	{
 		public static const MODIFY_WHITEBOARD_ACCESS:String = "MODIFY_WHITEBOARD_ACCESS_EVENT";
 		public static const MODIFIED_WHITEBOARD_ACCESS:String = "MODIFIED_WHITEBOARD_ACCESS_EVENT";
 		
 		public var multiUser:Boolean;
+		public var whiteboardId:String;
 		
-		public function WhiteboardPresenterEvent(type:String)
+		public function WhiteboardAccessEvent(type:String)
 		{
 			super(type, false, false);
 		}

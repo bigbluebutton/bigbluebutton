@@ -33,32 +33,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-
-			import mx.collections.ArrayCollection;
-
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCAudioStatus);
+		
+			private var phoneOptions:PhoneOptions;
 
 			private var webRTCAudioStatusHistory:ArrayCollection = new ArrayCollection([0, 0]);
 
 			private function onCreationComplete():void {
+				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
 			}
 
 			private function handleWebRTCCallStartedEvent(event:WebRTCCallEvent):void {
-				var phoneOptions:PhoneOptions = new PhoneOptions();
 				if (phoneOptions.showWebRTCStats) {
 					this.visible = this.includeInLayout = true;
 				}
 			}
 
 			private function handleWebRTCCallEndedEvent(event:WebRTCCallEvent):void {
-				var phoneOptions:PhoneOptions = new PhoneOptions();
 				if (phoneOptions.showWebRTCStats) {
 					this.visible = this.includeInLayout = false;
 				}

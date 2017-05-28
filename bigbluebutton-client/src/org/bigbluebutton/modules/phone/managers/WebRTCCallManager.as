@@ -12,12 +12,13 @@ package org.bigbluebutton.modules.phone.managers
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
-  import org.bigbluebutton.modules.phone.PhoneModel;
-  import org.bigbluebutton.modules.phone.PhoneOptions;
+  import org.bigbluebutton.modules.phone.models.PhoneModel;
+  import org.bigbluebutton.modules.phone.models.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
@@ -53,7 +54,7 @@ package org.bigbluebutton.modules.phone.managers
         browserType = browserInfo[0];
         browserVersion = browserInfo[1];
       }
-      options = new PhoneOptions();
+      options = Options.getOptions(PhoneOptions) as PhoneOptions;
       
       // only show the warning if the admin has enabled WebRTC
       if (options.useWebRTCIfAvailable && !isWebRTCSupported()) {
@@ -172,20 +173,6 @@ package org.bigbluebutton.modules.phone.managers
       ExternalInterface.call("leaveWebRTCVoiceConference");
     }
     
-	  public function handleBecomeViewer():void {
-		  LOGGER.debug("handleBecomeViewer received");
-		  if (options.presenterShareOnly) {
-			  if (!usingWebRTC || model.state != Constants.IN_CONFERENCE || UsersUtil.amIModerator()) return;
-			
-			  LOGGER.debug("handleBecomeViewer leaving WebRTC and joining listen only stream");
-			  ExternalInterface.call("leaveWebRTCVoiceConference");
-			
-			  var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-			  command.mic = false;
-			  dispatcher.dispatchEvent(command);
-		  }
-	  }
-	
     public function handleUseFlashModeCommand():void {
       usingWebRTC = false;
     }

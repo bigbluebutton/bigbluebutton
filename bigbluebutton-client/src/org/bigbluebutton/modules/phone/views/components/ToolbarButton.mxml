@@ -43,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -50,7 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
+			import org.bigbluebutton.modules.phone.models.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
@@ -70,7 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public const ACTIVE_STATE:Number = 1;
 			private var _currentState:Number = DEFAULT_STATE;
 			
-			[Bindable] public var phoneOptions:PhoneOptions = new PhoneOptions();
+			[Bindable] public var phoneOptions:PhoneOptions;
 			
 			private function startPhone():void {
 				LOGGER.debug("startPhone 1 enabled=[{0}] selected=[{1}]", [enabled, selected]);
@@ -89,32 +90,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var conference:Conference = UserManager.getInstance().getConference();
 				var thisUser:BBBUser = conference.getMyUser();
 
-				return ((phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
-						|| thisUser.disableMyMic);
+				return thisUser.disableMyMic;
 			}
 
 			private function get defaultListenOnlyMode():Boolean {
 				return (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly);
 			}
-			
-			public function remoteClick(event:ShortcutEvent):void{
+
+			public function remoteClick(event:ShortcutEvent):void {
 				this.selected = true;
 				startPhone();
 			}
-			
-			
+
 			private function mouseOverHandler(event:MouseEvent):void {
-				if(_currentState == ACTIVE_STATE)
-          this.styleName = "voiceConfInactiveButtonStyle";
+				if (_currentState == ACTIVE_STATE)
+					this.styleName = "voiceConfInactiveButtonStyle";
 				else
-          this.styleName = "voiceConfActiveButtonStyle"; 			
+					this.styleName = "voiceConfActiveButtonStyle";
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
-				if(_currentState == ACTIVE_STATE)
-          this.styleName = "voiceConfActiveButtonStyle";
+				if (_currentState == ACTIVE_STATE)
+					this.styleName = "voiceConfActiveButtonStyle";
 				else
-          this.styleName = "voiceConfDefaultButtonStyle";			
+					this.styleName = "voiceConfDefaultButtonStyle";
 			}
 
 			private function joinAudio():void {
@@ -135,15 +134,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("Sending Leave Conference command");
 				dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 			}
-			
+
 			private function onCreationComplete():void {
+				var conference:Conference = UserManager.getInstance().getConference();
+				var thisUser:BBBUser = conference.getMyUser();
+				phoneOptions = Options.getOptions(PhoneOptions) as PhoneOptions;
+
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
-					joinAudio();
-				} else {
-					joinDefaultListenOnlyMode();
+					if (phoneOptions.skipCheck || thisUser.disableMyMic) {
+						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+						if (thisUser.disableMyMic) {
+							command.mic = false;
+						} else {
+							command.mic = true;
+						}
+
+						dispatcher.dispatchEvent(command);
+					} else {
+						LOGGER.debug("Sending Show Audio Selection command");
+						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
+					}
 				}
 			}
+
 
       private function onUserJoinedConference():void {
         PhoneOptions.firstAudioJoin = false;

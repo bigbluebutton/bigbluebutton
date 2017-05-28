@@ -20,18 +20,21 @@ package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 	
-	import mx.collections.ArrayCollection;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	
-	public class PageEvent extends Event
+	public class WhiteboardUpdateReceived extends Event
 	{
-		public static const CHANGE_PAGE:String = "ChangePage";
-		public static const LOAD_PAGE:String = "LoadPage";
+		public static const NEW_ANNOTATION:String = "boardUpdated";
+		public static const UNDO_ANNOTATION:String = "WhiteboardUndoAnnotationEvent";
+		public static const CLEAR_ANNOTATIONS:String = "WhiteboardClearAnnotationEvent";
+		public static const RECEIVED_ANNOTATION_HISTORY:String = "WhiteboardReceivedAnnotationHistoryEvent";
+        
+		public var annotation:Annotation;
+		public var annotationID:String;
+		public var wbId:String;
+		public var userId:String;
 		
-		public var pageNum:Number;
-		public var graphicObjs:ArrayCollection;
-		public var isGrid:Boolean;
-		
-		public function PageEvent(type:String)
+		public function WhiteboardUpdateReceived(type:String)
 		{
 			super(type, true, false);
 		}

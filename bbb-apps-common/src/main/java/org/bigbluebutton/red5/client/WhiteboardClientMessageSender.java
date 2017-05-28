@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.common.messages.ClearWhiteboardReplyMessage;
+import org.bigbluebutton.common.messages.CursorPositionUpdatedMessage;
 import org.bigbluebutton.common.messages.GetWhiteboardShapesReplyMessage;
 import org.bigbluebutton.common.messages.GetWhiteboardAccessReplyMessage;
 import org.bigbluebutton.common.messages.SendWhiteboardAnnotationReplyMessage;
@@ -59,6 +60,12 @@ public class WhiteboardClientMessageSender {
 							processSendWhiteboardAnnotationReplyMessage(swarm);
 						}
 						break;
+					case CursorPositionUpdatedMessage.CURSOR_POSITION_UPDATED:
+						CursorPositionUpdatedMessage cpum = CursorPositionUpdatedMessage.fromJson(message);
+						if (cpum != null) {
+							processCursorPositionUpdatedMessage(cpum);
+						}
+						break;
 					case ModifiedWhiteboardAccessMessage.MODIFIED_WHITEBOARD_ACCESS:
 						ModifiedWhiteboardAccessMessage mwam = ModifiedWhiteboardAccessMessage.fromJson(message);
 						if (mwam != null) {
@@ -99,6 +106,20 @@ public class WhiteboardClientMessageSender {
 		BroadcastClientMessage b = new BroadcastClientMessage(msg.meetingId, "WhiteboardNewAnnotationCommand", message);
 		service.sendMessage(b);
 		
+	}
+	
+	private void processCursorPositionUpdatedMessage(CursorPositionUpdatedMessage msg) {
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("requesterId", msg.requesterId);
+		args.put("xPercent", msg.xPercent);
+		args.put("yPercent", msg.yPercent);
+
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "WhiteboardCursorPositionUpdatedCommand", message);
+		service.sendMessage(m);
 	}
 
 	private void processGetWhiteboardShapesReplyMessage(GetWhiteboardShapesReplyMessage msg) {

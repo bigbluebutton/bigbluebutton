@@ -180,11 +180,6 @@ public class MessagePublisher {
 
 	}
 
-	public void sendCursorUpdate(String meetingID, double xPercent, double yPercent) {
-		SendCursorUpdateMessage msg = new SendCursorUpdateMessage(meetingID, xPercent, yPercent);
-		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
-	}
-
 	public void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio) {
 		ResizeAndMoveSlideMessage msg = new ResizeAndMoveSlideMessage(meetingID, xOffset, yOffset, widthRatio, heightRatio);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
@@ -262,8 +257,14 @@ public class MessagePublisher {
 		DeskShareGetInfoRequestMessage msg = new DeskShareGetInfoRequestMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson());
 	}
+
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID, Map<String, Object> annotation) {
 		SendWhiteboardAnnotationRequestMessage msg = new SendWhiteboardAnnotationRequestMessage(meetingID, requesterID, annotation);
+		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
+	}
+
+	public void sendCursorPosition(String meetingID, String requesterID, double xPercent, double yPercent) {
+		SendCursorPositionMessage msg = new SendCursorPositionMessage(meetingID, requesterID, xPercent, yPercent);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 

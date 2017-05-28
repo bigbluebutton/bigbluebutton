@@ -37,7 +37,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 		private var _userId:String;
 		
 		protected var _ao:Object;
-		protected var _zoom:Number;
 		protected var _parentWidth:Number;
 		protected var _parentHeight:Number;
 		
@@ -79,6 +78,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			return _fontSize;
 		}
 		
+		public function get whiteboardId():String {
+			return _ao.whiteboardId;
+		}
+		
 		public function denormalize(val:Number, side:Number):Number {
 			return (val*side)/100.0;
 		}
@@ -87,11 +90,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			return (val*100.0)/side;
 		}
 		
-		public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
 			_ao = a.annotation;
 			_parentWidth = parentWidth;
 			_parentHeight = parentHeight;
-			_zoom = zoom;
 			_fontSize = _ao.fontSize;
 			
 			if (_status == AnnotationStatus.DRAW_END) {
@@ -112,10 +114,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			makeGraphic();
 		}
 		
-		public function redraw(parentWidth:Number, parentHeight:Number, zoom:Number):void {
+		public function redraw(parentWidth:Number, parentHeight:Number):void {
 			_parentWidth = parentWidth;
 			_parentHeight = parentHeight;
-			_zoom = zoom;
 			
 			makeGraphic();
 		}
@@ -124,7 +125,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes {
 			x = denormalize(_ao.x, _parentWidth);
 			y = denormalize(_ao.y, _parentHeight);
 			
-			var fontSize:Number = denormalize(_ao.calcedFontSize * _zoom, _parentHeight);
+			var fontSize:Number = denormalize(_ao.calcedFontSize, _parentHeight);
 			applyTextFormat(fontSize);
  
 			width = denormalize(_ao.textBoxWidth, _parentWidth);

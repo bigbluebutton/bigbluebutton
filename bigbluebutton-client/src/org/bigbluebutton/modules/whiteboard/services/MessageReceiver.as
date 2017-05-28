@@ -49,16 +49,19 @@ package org.bigbluebutton.modules.whiteboard.services
           break;
         case "WhiteboardAccessModifiedCommand":
           handleWhiteboardAccessModifiedCommand(message);
-          break;    
+          break;
         case "WhiteboardNewAnnotationCommand":
           handleNewAnnotationCommand(message);
           break;  
         case "WhiteboardClearCommand":
           handleClearCommand(message);
-          break;  
+          break;
         case "WhiteboardUndoCommand":
           handleUndoCommand(message);
-          break;  			
+          break;
+        case "WhiteboardCursorPositionUpdatedCommand":
+          handleCursorPositionUpdatedCommand(message);
+          break;
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
@@ -123,6 +126,12 @@ package org.bigbluebutton.modules.whiteboard.services
           whiteboardModel.addAnnotationFromHistory(map.whiteboardId, tempAnnotations);
         }
       }
+    }
+    
+    private function handleCursorPositionUpdatedCommand(message:Object):void {
+      var map:Object = JSON.parse(message.msg);
+      
+      whiteboardModel.updateCursorPosition(map.requesterId, map.xPercent, map.yPercent);
     }
   }
 }

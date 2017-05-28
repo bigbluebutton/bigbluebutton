@@ -10,8 +10,6 @@ trait PresentationApp {
 
   val outGW: OutMessageGateway
 
-  private var cursorLocation = new CursorLocation
-
   def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
     val pres = msg.presentations
 
@@ -80,11 +78,6 @@ trait PresentationApp {
     val presentations = liveMeeting.presModel.getPresentations
     val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
     outGW.send(new GetPresentationInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, presentationInfo, msg.replyTo))
-  }
-
-  def handleSendCursorUpdate(msg: SendCursorUpdate) {
-    cursorLocation = new CursorLocation(msg.xPercent, msg.yPercent)
-    outGW.send(new SendCursorUpdateOutMsg(mProps.meetingID, mProps.recorded, msg.xPercent, msg.yPercent))
   }
 
   def handleResizeAndMoveSlide(msg: ResizeAndMoveSlide) {

@@ -16,19 +16,18 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.modules.present.events
-{
+package org.bigbluebutton.modules.whiteboard.events {
 	import flash.events.Event;
 	
-	public class CursorEvent extends Event
-	{
-		public static const UPDATE_CURSOR:String = "UPDATE_CURSOR";
+	public class WhiteboardCursorEvent extends Event {
+		public static const SEND_CURSOR_POSITION:String = "SEND_CURSOR_POSITION";
+		public static const RECEIVED_CURSOR_POSITION:String = "RECEIVE_CURSOR_POSITION";
 		
 		public var xPercent:Number;
 		public var yPercent:Number;
+		public var userId:String;
 		
-		public function CursorEvent(type:String)
-		{
+		public function WhiteboardCursorEvent(type:String) {
 			super(type, true, false);
 		}
 

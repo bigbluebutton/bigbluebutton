@@ -16,13 +16,10 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.core.model
-{
-	public class Session
-	{
-		public function Session()
-		{
-		}
 
+package org.bigbluebutton.modules.whiteboard.views {
+	public interface IWhiteboardReceiver {
+		function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void;
+		function receiveCanvas(wc:WhiteboardCanvas):void;
 	}
 }

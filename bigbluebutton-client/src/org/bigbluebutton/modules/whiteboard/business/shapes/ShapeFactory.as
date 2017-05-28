@@ -74,7 +74,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         return null;
     }
         
-    private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
+    private function createAnnotation(type:String, shape:Array, color:uint, thickness:Number, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
             if (type == AnnotationType.PENCIL){
                 return new PencilDrawAnnotation(shape, color, thickness, trans);
             } else if (type == AnnotationType.RECTANGLE){
@@ -91,7 +91,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         }
             
     public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawAnnotation {
-      return createAnnotation(type, segment, color, thickness, fill, fillColor, transparency);
+      return createAnnotation(type, segment, color, normalize(thickness, _parentWidth), fill, fillColor, transparency);
     }
     
     public function normalizePoint(x:Number, y:Number):Point {

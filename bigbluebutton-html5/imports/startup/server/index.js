@@ -24,9 +24,8 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   let defaultLocale = APP_CONFIG.defaultLocale;
   let localeRegion = req.query.locale.split('-');
   let messages = {};
-
   let locales = [defaultLocale, localeRegion[0]];
-
+  let statusCode = 200;
   if (localeRegion.length > 1) {
     locales.push(`${localeRegion[0]}_${localeRegion[1].toUpperCase()}`);
   }
@@ -36,14 +35,15 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       const data = Assets.getText(`locales/${locale}.json`);
       messages = Object.assign(messages, JSON.parse(data));
     } catch (e) {
-      // console.error(e);
-      // We dont really care about those errors since they will be a parse error
-      // or a file not found which is ok
+      //Variant Also Negotiates Status-Code, to alert the client that we
+      //do not support the following lang.
+      //https://en.wikipedia.org/wiki/Content_negotiation
+      statusCode = 506;
     }
   });
 
   res.setHeader('Content-Type', 'application/json');
-  res.writeHead(200);
+  res.writeHead(statusCode);
   res.end(JSON.stringify(messages));
 });
 

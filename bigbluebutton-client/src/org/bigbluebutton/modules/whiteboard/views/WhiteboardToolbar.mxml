@@ -21,7 +21,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:VBox xmlns="flexlib.containers.*" 
-    initialize="init()" 
     xmlns:mx="http://www.adobe.com/2006/mxml" 
     xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
     xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
@@ -35,14 +34,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
-  <mate:Listener type="{WhiteboardPresenterEvent.MODIFIED_WHITEBOARD_ACCESS}" method="whiteboardAccessModified" />
   <mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
   <mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
-  <mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
   <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
   <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
-  <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
-  <mate:Listener type="{PresenterStatusEvent.ANNOTATIONS_PERMISSION_CHANGE}" method="handleEnableAnnotations" />
     
   <mx:Style>
     .colorPickerStyle {
@@ -66,29 +61,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:Script>
     <![CDATA[
 		import com.asfusion.mate.core.GlobalDispatcher;
-		import com.asfusion.mate.events.Listener;
 		
 		import mx.events.MoveEvent;
 		import mx.events.ResizeEvent;
 		
+		import flexlib.mdi.containers.MDIWindow;
+		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.Options;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.MadePresenterEvent;
-		import org.bigbluebutton.main.events.PresenterStatusEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-		import org.bigbluebutton.modules.present.events.UploadEvent;
-		import org.bigbluebutton.modules.present.model.Presenter;
-		import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-		import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 		import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 		import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+		import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
 		import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-		import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-		import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 		import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -96,7 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
 			
-			[Bindable] public var wbOptions:WhiteboardOptions = new WhiteboardOptions();
+			[Bindable] public var wbOptions:WhiteboardOptions;
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
@@ -104,26 +95,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var mousedOver:Boolean = false;
 			private var slideLoaded:Boolean = false;
-			private var enableAnnotations:Boolean = true;
 			
 			public var canvas:WhiteboardCanvas;
-			private var presentationWindow:PresentationWindow;
+			private var containerToOverlay:MDIWindow;
 			
 			[Bindable]
 			private var multiUser:Boolean = false;
 		
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
-			
+
 			private var _hideToolbarTimer:Timer = new Timer(500, 1);
 
-			private function init():void{
-				
-			}
-			
       private function onCreationComplete():void {
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
         _hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
+        addEventListener(WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED, handleWhiteboardButtonPressed);
       }
 
       private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
@@ -132,7 +119,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function setToolType(graphicType:String, toolType:String):void {                
         if (graphicType == WhiteboardConstants.TYPE_CLEAR) {
-           dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+           canvas.sendClearToServer();
         } else if (graphicType == WhiteboardConstants.TYPE_UNDO) {
            sendUndoCommand();
         } else {
@@ -182,7 +169,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				var dispatcher:GlobalDispatcher = new GlobalDispatcher();
 				
-				var event:WhiteboardPresenterEvent = new WhiteboardPresenterEvent(WhiteboardPresenterEvent.MODIFY_WHITEBOARD_ACCESS);
+				var event:WhiteboardAccessEvent = new WhiteboardAccessEvent(WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS);
 				event.multiUser = !multiUser;
 				dispatcher.dispatchEvent(event);
 			}
@@ -196,8 +183,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				checkVisibility();
 			}
 		
-			private function whiteboardAccessModified(e:WhiteboardPresenterEvent):void {
-				multiUser = e.multiUser;
+			public function whiteboardAccessModified(mu:Boolean):void {
+				multiUser = mu;
 				checkToolReset();
 				checkVisibility();
 			}
@@ -208,28 +195,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function sendUndoCommand():void {
-//				if (!canvas.isPageEmpty()) {          
-					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
-//        }
+				canvas.sendUndoToServer();
 			}
 			
-			public function positionToolbar(window:PresentationWindow):void {
+			public function positionToolbar(container:MDIWindow):void {
+				wbOptions = Options.getOptions(WhiteboardOptions) as WhiteboardOptions;
         		LOGGER.debug("Positioning whiteboard toolbar");
-				presentationWindow = window;
-				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
-				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
-				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
+				containerToOverlay = container;
+				containerToOverlay.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
+				containerToOverlay.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				containerToOverlay.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				
-                if (!wbOptions.keepToolbarVisible) {
-    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, handleMouseOut);
-    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, handleMouseIn);
-    				
-    				window.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
-    				window.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
-    				
-    				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
-    				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
-                }
+				if (!wbOptions.keepToolbarVisible) {
+					//containerToOverlay.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, handleMouseOut);
+					//containerToOverlay.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, handleMouseIn);
+					
+					containerToOverlay.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+					containerToOverlay.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+					
+					this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+					this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+				}
 			}
 			
 			private function refreshRole(e:ChangeMyRole):void {
@@ -237,7 +223,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && enableAnnotations && (wbOptions.keepToolbarVisible || mousedOver) && !presentationWindow.minimized) {
+                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver) && !containerToOverlay.minimized) {
                     setPositionAndDepth();
                     showToolbar();
                 } else {
@@ -267,8 +253,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function setPositionAndDepth(e:Event = null):void {
 				if (parent == null) return;
-				this.x = presentationWindow.x + presentationWindow.width - 43;
-				this.y = presentationWindow.y + 30;
+				this.x = containerToOverlay.x + containerToOverlay.width - 43;
+				this.y = containerToOverlay.y + 30;
 				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 		
@@ -296,14 +282,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                slideLoaded = true;
                checkVisibility();
            }
-           
-           private function handlePresentationSwitch(e:UploadEvent):void {
-               slideLoaded = false;
-               if (panzoomBtn) {
-                   panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-               }
-               checkVisibility();
-           }
       
       private function toolbarAllowed():Boolean {
         return (multiUser? true : isPresenter);
@@ -316,11 +294,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function get isModerator():Boolean {
         return UsersUtil.amIModerator();
-      }
-		           
-      private function handleEnableAnnotations(e:PresenterStatusEvent):void {
-        enableAnnotations = e.enableAnnotations;
-        checkVisibility();
       }
 
 		]]>

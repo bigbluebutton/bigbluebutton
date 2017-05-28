@@ -28,29 +28,6 @@ package org.bigbluebutton.modules.present.services.messaging
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);
     
     /**
-     * Send an event to the server to update the presenter's cursor view on the client 
-     * @param xPercent
-     * @param yPercent
-     * 
-     */		
-    public function sendCursorUpdate(xPercent:Number, yPercent:Number):void{
-      var message:Object = new Object();
-      message["xPercent"] = xPercent;
-      message["yPercent"] = yPercent;
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.sendCursorUpdate", 
-        function(result:String):void { // On successful result
-		  //LOGGER.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
-        },
-        message
-      );		      
-    }
-    
-    /**
      * Sends an event to the server to update the clients with the new slide position 
      * @param slideXPosition
      * @param slideYPosition

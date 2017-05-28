@@ -2,14 +2,13 @@ package org.bigbluebutton.modules.sharednotes.views
 {
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
-
+	
 	import mx.controls.Alert;
 	import mx.events.CloseEvent;
-
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.views.MainCanvas;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -66,10 +65,6 @@ package org.bigbluebutton.modules.sharednotes.views
 				destroyNotesEvent.payload.notesId = noteId;
 				_dispatcher.dispatchEvent(destroyNotesEvent);
 			}
-		}
-
-		override public function getPrefferedPosition():String {
-			return MainCanvas.POPUP;
 		}
 
 		override protected function updateTitle():void {

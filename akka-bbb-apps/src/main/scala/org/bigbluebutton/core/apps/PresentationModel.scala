@@ -2,7 +2,6 @@ package org.bigbluebutton.core.apps
 
 case class CurrentPresenter(userId: String, name: String, assignedBy: String)
 case class CurrentPresentationInfo(presenter: CurrentPresenter, presentations: Seq[Presentation])
-case class CursorLocation(xPercent: Double = 0D, yPercent: Double = 0D)
 case class Presentation(id: String, name: String, current: Boolean = false,
   pages: scala.collection.immutable.HashMap[String, Page], downloadable: Boolean)
 

@@ -370,10 +370,6 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingID, new GetPresentationInfo(meetingID, requesterID, replyTo)))
   }
 
-  def sendCursorUpdate(meetingID: String, xPercent: Double, yPercent: Double) {
-    eventBus.publish(BigBlueButtonEvent(meetingID, new SendCursorUpdate(meetingID, xPercent, yPercent)))
-  }
-
   def resizeAndMoveSlide(meetingID: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) {
     eventBus.publish(BigBlueButtonEvent(meetingID, new ResizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio)))
   }
@@ -471,6 +467,10 @@ class BigBlueButtonInGW(
       }
       case None => // do nothing
     }
+  }
+
+  def sendCursorPosition(meetingID: String, requesterID: String, xPercent: Double, yPercent: Double) {
+    eventBus.publish(BigBlueButtonEvent(meetingID, new SendCursorPositionRequest(meetingID, requesterID, xPercent, yPercent)))
   }
 
   def requestWhiteboardAnnotationHistory(meetingID: String, requesterID: String, whiteboardId: String, replyTo: String) {

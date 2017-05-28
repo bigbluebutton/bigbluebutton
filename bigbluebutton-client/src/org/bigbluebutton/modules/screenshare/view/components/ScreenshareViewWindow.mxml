@@ -25,7 +25,6 @@
         width="100%"
         height="100%"
         creationComplete="onCreationComplete()"
-        implements="org.bigbluebutton.common.IBbbCanvas"
         xmlns:mate="http://mate.asfusion.com/"
         backgroundColor="#C0C0C0">
 
@@ -35,30 +34,28 @@
 
     <mx:Script>
         <![CDATA[
-      import mx.core.UIComponent;
-      import mx.events.ResizeEvent;
-      
-      import flexlib.mdi.events.MDIWindowEvent;
-      
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.managers.ReconnectionManager;
-      import org.bigbluebutton.main.api.JSLog;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-      import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
-      import org.bigbluebutton.modules.screenshare.managers.SmartWindowResizer;
-      import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-      import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-      import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      
-      private static const LOG:String = "SC::ScreenshareViewWIndow - ";
-      private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
+			import mx.core.UIComponent;
+			import mx.events.ResizeEvent;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.managers.ReconnectionManager;
+			import org.bigbluebutton.main.api.JSLog;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.screenshare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.screenshare.managers.SmartWindowResizer;
+			import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
+			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+			import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+
+            private static const LOG:String = "SC::ScreenshareViewWIndow - ";
+            private static const LOGGER:ILogger = getClassLogger(ScreenshareViewWindow);
       
 			private var screenHeight:Number = Capabilities.screenResolutionY;
 			private var screenWidth:Number = Capabilities.screenResolutionX;
@@ -84,8 +81,7 @@
 
 			private var resizer:SmartWindowResizer = new SmartWindowResizer();
 
-			private var whiteboardCanvas:IBbbCanvas = null;
-			private var whiteboardCanvasHolder:Canvas = new Canvas();
+			private var whiteboardCanvas:WhiteboardCanvas = null;
 
 			// The following code block is to deal with a bug in FLexLib 
 			// with MDI windows not responding well to being maximized
@@ -100,7 +96,7 @@
 			[Bindable] private var dsOptions:ScreenshareOptions;
 									
 			private function init():void{
-				dsOptions = new ScreenshareOptions();
+				dsOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
 				baseIndex = dsOptions.baseTabIndex;
 			}
 									
@@ -112,7 +108,7 @@
 				videoHolder = videoWithWarnings.videoHolder;
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
-				//addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
+				//addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				//fitToActualSize();				
 				//maximize();
 				
@@ -213,7 +209,6 @@
 					videoWithWarnings.height = video.height = internalHeight;
 
 					// update the whiteboard canvas holder and overlay with new video dimensions
-					updateWhiteboardCanvasHolder();
 					updateWhiteboardCanvasOverlay();
 				}
 			}
@@ -221,32 +216,8 @@
 			private function setVideo():void {
 				LOGGER.debug("Callback called. Adding video, its whiteboard canvas and resizing components...");
 				videoHolder.addChild(video);
-				addWhiteboardCanvasHolder();
 				addWhiteboardCanvasOverlay();
 				onResizeEvent();
-			}
-
-			private function addWhiteboardCanvasHolder():void{
-				if(video != null) {
-					this.addChildAt(whiteboardCanvasHolder, 1);
-					LOGGER.debug("Whiteboard canvas holder added");
-				}
-			}
-
-			private function cleanCanvasHolder():void{
-				while (this.whiteboardCanvasHolder.rawChildren.numChildren > 0) {
-					this.whiteboardCanvasHolder.rawChildren.removeChildAt(0);
-				}
-			}
-
-			private function updateWhiteboardCanvasHolder():void{
-				if (video != null && videoHolder != null) {
-					whiteboardCanvasHolder.x = videoWithWarnings.x;
-					whiteboardCanvasHolder.y = videoWithWarnings.y;
-					whiteboardCanvasHolder.width = videoWithWarnings.width;
-					whiteboardCanvasHolder.height = videoWithWarnings.height;
-					LOGGER.debug("Whiteboard canvas holder dimensions updated");
-				}
 			}
 
 			public function addWhiteboardCanvasOverlay():void {
@@ -264,9 +235,7 @@
 				if (video != null && whiteboardCanvas != null && videoHolder != null) {
 					whiteboardCanvas.moveCanvas(videoWithWarnings.x, videoWithWarnings.y);
 
-					var zoomPercentage:Number = (videoWithWarnings.width / videoWidth)*100;
-					if(zoomPercentage > 0)
-						whiteboardCanvas.zoomCanvas(videoWithWarnings.width, videoWithWarnings.height, zoomPercentage);
+					whiteboardCanvas.zoomCanvas(videoWithWarnings.width, videoWithWarnings.height);
 
 					LOGGER.debug("Whiteboard canvas overlay dimensions updated");
 				}
@@ -345,39 +314,13 @@
 				resourcesChanged();
 			}
 
-			/** Inherited from IBbbCanvas*/
-			public function addRawChild(child:DisplayObject):void {
-				whiteboardCanvasHolder.rawChildren.addChild(child);
-			}
-
-			public function removeRawChild(child:DisplayObject):void {
-				this.whiteboardCanvasHolder.rawChildren.removeChild(child);
-			}
-
-			public function doesContain(child:DisplayObject):Boolean {
-				return this.whiteboardCanvasHolder.rawChildren.contains(child);
-			}
-
-			public function acceptOverlayCanvas(overlay:IBbbCanvas):void {
+			public function acceptOverlayCanvas(overlay:WhiteboardCanvas):void {
 				LOGGER.debug("ScreenshareViewWindow: acceptOverlayCanvas");
-				cleanCanvasHolder();
 				whiteboardCanvas = overlay;
 			}
-
-			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
-				LOGGER.debug("ScreenshareViewWindow: handleWhiteboardCanvasClick");
-			}
-
-			public function moveCanvas(x:Number, y:Number):void {
-				LOGGER.debug("ScreenshareViewWindow: moveCanvas");
-			}
-
-			public function zoomCanvas(width:Number, height:Number, zoom:Number):void {
-				LOGGER.debug("ScreenshareViewWindow: zoomCanvas");
-			}
-
-			public function showCanvas(show:Boolean):void {
-				LOGGER.debug("ScreenshareViewWindow: showCanvas");
+			
+			public function removeOverlayCanvas():void {
+				whiteboardCanvas = null;
 			}
             
        public function handleDisconnectedEvent(event:BBBEvent):void {

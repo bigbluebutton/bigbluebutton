@@ -30,9 +30,10 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.model.MeetingModel;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.options.PortTestOptions;
 	
 	public class ModuleManager
 	{
@@ -50,6 +51,8 @@ package org.bigbluebutton.main.model.modules
 		
 		private var modulesDispatcher:ModulesDispatcher;
 		
+		private var portTestOptions : PortTestOptions;
+		
 		public function ModuleManager(modulesDispatcher: ModulesDispatcher)
 		{
             this.modulesDispatcher = modulesDispatcher;
@@ -66,6 +69,8 @@ package org.bigbluebutton.main.model.modules
 			var resolver:DependancyResolver = new DependancyResolver();
 			sorted = resolver.buildDependencyTree(modules);
 			
+			portTestOptions = Options.getOptions(PortTestOptions) as PortTestOptions;
+			
 			modulesDispatcher.sendPortTestEvent();
 		}
 		
@@ -79,15 +84,15 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function get portTestHost():String {
-			return BBB.getConfigManager().getPortortTestHost();
+			return portTestOptions.host;
 		}
 		
 		public function get portTestApplication():String {
-			return BBB.getConfigManager().getPortTestApplication();
+			return portTestOptions.application;
 		}
 		
 		public function get portTestTimeout():Number {
-			return BBB.getConfigManager().getPortTestTimeout();
+			return portTestOptions.timeout;
 		}
 		
 		private function getModule(name:String):ModuleDescriptor {
@@ -98,13 +103,13 @@ package org.bigbluebutton.main.model.modules
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-        var protocol:String = "rtmp";
-        if (BBB.initConnectionManager().isTunnelling) {
-          protocol = "rtmpt";
-        }
+				var protocol:String = "rtmp";
+				if (BBB.initConnectionManager().isTunnelling) {
+					protocol = "rtmpt";
+				}
 				m.loadConfigAttributes(conferenceParameters, protocol);
-				bbb.start(m.attributes);		
-			}	
+				bbb.start(m.attributes);
+			}
 		}
 
 		private function stopModule(name:String):void {

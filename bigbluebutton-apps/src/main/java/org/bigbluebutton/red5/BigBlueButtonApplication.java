@@ -353,7 +353,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         Gson gson = new Gson();
         String logStr =  gson.toJson(logData);
             
-        log.info("User validate token bbb-apps: data={}", logStr);
+       // log.info("User validate token bbb-apps: data={}", logStr);
 		System.out.println("User validate token bbb-apps: data=" + logStr);
 				System.out.println("User validate token bbb-apps: data=" + logStr);
         red5InGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);

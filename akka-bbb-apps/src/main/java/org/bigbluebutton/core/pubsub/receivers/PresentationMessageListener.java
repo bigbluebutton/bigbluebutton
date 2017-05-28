@@ -10,7 +10,6 @@ import org.bigbluebutton.common.messages.RemovePresentationMessage;
 import org.bigbluebutton.common.messages.ResizeAndMoveSlideMessage;
 import org.bigbluebutton.common.messages.SendConversionCompletedMessage;
 import org.bigbluebutton.common.messages.SendConversionUpdateMessage;
-import org.bigbluebutton.common.messages.SendCursorUpdateMessage;
 import org.bigbluebutton.common.messages.SendPageCountErrorMessage;
 import org.bigbluebutton.common.messages.SendSlideGeneratedMessage;
 import org.bigbluebutton.common.messages.SharePresentationMessage;
@@ -118,9 +117,6 @@ public class PresentationMessageListener implements MessageHandler {
     					} else if (RemovePresentationMessage.REMOVE_PRESENTATION.equals(messageName)) {
     						RemovePresentationMessage msg = RemovePresentationMessage.fromJson(message);
     						bbbInGW.removePresentation(msg.meetingId, msg.presentationId);
-    					} else if (SendCursorUpdateMessage.SEND_CURSOR_UPDATE.equals(messageName)) {
-    						SendCursorUpdateMessage msg = SendCursorUpdateMessage.fromJson(message);
-    						bbbInGW.sendCursorUpdate(msg.meetingId, msg.xPercent, msg.yPercent);
     					} else if (SharePresentationMessage.SHARE_PRESENTATION.equals(messageName)) {
     						SharePresentationMessage msg = SharePresentationMessage.fromJson(message);
     						bbbInGW.sharePresentation(msg.meetingId, msg.presentationId, msg.share);

@@ -38,6 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.CoreEvent;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -56,11 +57,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             [Bindable] public var chatView:ChatView;
             [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
             
-            [Bindable] public var chatOptions:ChatOptions = new ChatOptions();		
+            [Bindable] public var chatOptions:ChatOptions;		
             
             private function onCreationComplete():void{
                 users = UserManager.getInstance().getConference().users;
-                
+                chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
+
                 if (!chatOptions.privateEnabled) {
                     usersList.includeInLayout = usersList.visible = false;
                 }

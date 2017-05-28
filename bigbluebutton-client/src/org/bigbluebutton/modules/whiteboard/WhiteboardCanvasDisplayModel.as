@@ -23,10 +23,10 @@ package org.bigbluebutton.modules.whiteboard
   import flash.events.FocusEvent;
   import flash.events.KeyboardEvent;
   import flash.ui.Keyboard;
+  import flash.utils.Dictionary;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.bigbluebutton.common.IBbbCanvas;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
@@ -36,13 +36,14 @@ package org.bigbluebutton.modules.whiteboard
   import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdateReceived;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationStatus;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.TextUpdateListener;
   import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+  import org.bigbluebutton.modules.whiteboard.views.WhiteboardCursor;
   
     /**
     * Class to handle displaying of received annotations from the server.
@@ -53,20 +54,19 @@ package org.bigbluebutton.modules.whiteboard
     private var whiteboardModel:WhiteboardModel;
     private var wbCanvas:WhiteboardCanvas;  
     private var _annotationsList:Array = new Array();
+	private var _cursors:Object = new Object();
     private var shapeFactory:ShapeFactory = new ShapeFactory();
     private var textUpdateListener:TextUpdateListener = new TextUpdateListener();
     
-    private var bbbCanvas:IBbbCanvas;
     private var width:Number;
     private var height:Number;
-            
-	private var zoomPercentage:Number = 1;
+	private var presenterId:String;
 	
 	public function setDependencies(whiteboardCanvas:WhiteboardCanvas, whiteboardModel:WhiteboardModel):void {
 		wbCanvas = whiteboardCanvas;
 		this.whiteboardModel = whiteboardModel;
 		
-		textUpdateListener.setDependencies(wbCanvas, whiteboardModel, shapeFactory);
+		textUpdateListener.setDependencies(wbCanvas, shapeFactory);
 	}
 	
 	public function isEditingText():Boolean {
@@ -77,8 +77,7 @@ package org.bigbluebutton.modules.whiteboard
       if (textUpdateListener) textUpdateListener.canvasMouseDown();
     }
     
-    public function drawGraphic(event:WhiteboardUpdate):void {
-      var o:Annotation = event.annotation;
+    public function drawGraphic(o:Annotation):void {
       //  LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
       var gobj:GraphicObject;
       switch (o.status) {
@@ -103,7 +102,7 @@ package org.bigbluebutton.modules.whiteboard
 	public function createGraphic(o:Annotation):void {
 		var gobj:GraphicObject = shapeFactory.makeGraphicObject(o, whiteboardModel);
 		if (gobj != null) {
-			gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+			gobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
 			wbCanvas.addGraphic(gobj as DisplayObject);
 			_annotationsList.push(gobj);
 			
@@ -154,11 +153,11 @@ package org.bigbluebutton.modules.whiteboard
       wbCanvas.removeGraphic(gobj as DisplayObject);
     }
     
-    public function clearBoard(event:WhiteboardUpdate = null):void {
-      if (event && event.userId) {
+    public function clearBoard(userId:String=null):void {
+      if (userId) {
         for (var i:Number = _annotationsList.length-1; i >= 0; i--){
           var gobj:GraphicObject = _annotationsList[i] as GraphicObject;
-          if (gobj.userId == event.userId) {
+          if (gobj.userId == userId) {
             removeGraphic(_annotationsList[i].id);
           }
         }
@@ -182,7 +181,7 @@ package org.bigbluebutton.modules.whiteboard
         var an:Annotation = annotations[i] as Annotation;
         var gobj:GraphicObject = shapeFactory.makeGraphicObject(an, whiteboardModel);
         if (gobj != null) {
-          gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+          gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
           wbCanvas.addGraphic(gobj as DisplayObject);
           _annotationsList.push(gobj);
         }
@@ -194,29 +193,8 @@ package org.bigbluebutton.modules.whiteboard
         }
       }
 	}
-        /*********************************************************
-        * HACK! HACK! HACK! HACK! HACK! HACK! HACK! HACK! HACK! 
-        * To tell us that the Whiteboard Canvas has been overlayed into the Presentation Canvas.
-        * The problem was that latecomers query for annotations history before the Whiteboard Canvas has
-        * been overlayed on top of the presentation canvas. When we receive the history and try to
-        * display the TEXT annotation, the text will be very small because when we calculate the font size,
-        * the value for the canvas width and height is still zero.
-        * 
-        * We need to setup the sequence of whiteboard startup properly to handle latecomers but this will
-        * do for now.
-        */
-        private var wbCanvasInitialized:Boolean = false;
-        public function parentCanvasInitialized():void {
-            wbCanvasInitialized = true;
-        }
         
-        public function get canvasInited():Boolean {
-            return wbCanvasInitialized;
-        }
-        
-        /**********************************************************/
-        
-        public function changePage(wbId:String):void{
+        public function changeWhiteboard(wbId:String):void{
             textUpdateListener.canvasMouseDown();
             
 //            LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
@@ -224,34 +202,45 @@ package org.bigbluebutton.modules.whiteboard
             
             var annotations:Array = whiteboardModel.getAnnotations(wbId);
 //            LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
-            if (annotations.length == 0) {
-                /***
-                * Check if the whiteboard canvas has already been overlayed into the presentation canvas.
-                * If not, don't query for history. The overlay canvas event will trigger the querying of
-                * the history.
-                */
-                if (wbCanvasInitialized) wbCanvas.queryForAnnotationHistory(wbId);
-            } else {
-                for (var i:int = 0; i < annotations.length; i++) {
-                    var an:Annotation = annotations[i] as Annotation;
-                    // LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
-                    var gobj:GraphicObject = shapeFactory.makeGraphicObject(an, whiteboardModel);
-                    if (gobj != null) {
-                        gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
-                        wbCanvas.addGraphic(gobj as DisplayObject);
-                        _annotationsList.push(gobj);
-                    }
-                }  
-                /*
-                for (var ij:int = 0; ij < this._annotationsList.length; ij++){
-                    redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
+            for (var i:int = 0; i < annotations.length; i++) {
+                var an:Annotation = annotations[i] as Annotation;
+                // LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
+                var gobj:GraphicObject = shapeFactory.makeGraphicObject(an, whiteboardModel);
+                if (gobj != null) {
+                    gobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
+                    wbCanvas.addGraphic(gobj as DisplayObject);
+                    _annotationsList.push(gobj);
                 }
-				*/
             }
         }
+		
+		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
+			if (!_cursors.hasOwnProperty(userId)) {
+				var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, xPercent, yPercent, shapeFactory.parentWidth, shapeFactory.parentHeight, presenterId == userId);
+				wbCanvas.addCursor(newCursor);
+				
+				_cursors[userId] = newCursor;
+			} else {
+				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent);
+			}
+		}
+		
+		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
+			this.presenterId = presenterId;
+			
+			for(var j:String in _cursors) {
+				(_cursors[j] as WhiteboardCursor).updatePresenter(j == presenterId);
+			}
+		}
+		
+		public function userLeft(userId:String):void {
+			if (_cursors.hasOwnProperty(userId)) {
+				wbCanvas.removeCursorChild(_cursors[userId]);
+				delete _cursors[userId];
+			}
+		}
     
-    public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
-	    zoomPercentage = zoom / 100;
+    public function zoomCanvas(width:Number, height:Number):void{
       shapeFactory.setParentDim(width, height);  
       this.width = width;
       this.height = height;
@@ -259,14 +248,14 @@ package org.bigbluebutton.modules.whiteboard
       for (var i:int = 0; i < this._annotationsList.length; i++){
           redrawGraphic(this._annotationsList[i] as GraphicObject, i);
       }
+	  
+	  for(var j:String in _cursors) {
+		  (_cursors[j] as WhiteboardCursor).updateParentSize(width, height);
+	  }
     }
   
     private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
-      gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
-    }
-    
-    public function isPageEmpty():Boolean {
-      return _annotationsList.length == 0;
+      gobj.redraw(shapeFactory.parentWidth, shapeFactory.parentHeight);
     }
   }
 }

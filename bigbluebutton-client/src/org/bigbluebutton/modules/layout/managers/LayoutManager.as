@@ -21,23 +21,18 @@ package org.bigbluebutton.modules.layout.managers
   import com.asfusion.mate.events.Dispatcher;
   
   import flash.display.DisplayObject;
-  import mx.core.FlexGlobals;
-  import mx.core.IFlexDisplayObject;
-  import mx.managers.PopUpManager;
-  import org.bigbluebutton.util.i18n.ResourceUtil;
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
   import flash.net.FileReference;
-  import flash.net.URLLoader;
-  import flash.net.URLRequest;
-  import flash.utils.Dictionary;
   import flash.utils.Timer;
   
   import mx.controls.Alert;
-  import mx.events.ResizeEvent;
-  import mx.events.EffectEvent;
+  import mx.core.FlexGlobals;
   import mx.events.CloseEvent;
+  import mx.events.EffectEvent;
+  import mx.events.ResizeEvent;
+  import mx.managers.PopUpManager;
   
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
@@ -46,25 +41,22 @@ package org.bigbluebutton.modules.layout.managers
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
-  import org.bigbluebutton.core.EventBroadcaster;
+  import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.core.model.Config;
-  import org.bigbluebutton.main.events.ModuleLoadEvent;
-  import org.bigbluebutton.main.model.LayoutOptions;
-  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
+  import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutNameInUseEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
   import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
-  import org.bigbluebutton.modules.layout.events.LayoutNameInUseEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
-  import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
@@ -112,7 +104,7 @@ package org.bigbluebutton.modules.layout.managers
 				if (e.success) {
 					_layoutModel.addLayouts(e.layouts);
 
-          broadcastLayouts();
+					broadcastLayouts();
 					_serverLayoutsLoaded = true;
 
 					//trace(LOG + " layouts loaded successfully");
@@ -278,8 +270,7 @@ package org.bigbluebutton.modules.layout.managers
     }
     
 		public function applyDefaultLayout():void {         
-      var layoutOptions:LayoutOptions = new LayoutOptions();
-      layoutOptions.parseOptions();
+      var layoutOptions:LayoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
       var defaultLayout:LayoutDefinition = _layoutModel.getLayout(layoutOptions.defaultLayout);
            
       var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();

@@ -21,8 +21,9 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardAccessEvent;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardCursorEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class WhiteboardService
@@ -38,7 +39,7 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.requestAnnotationHistory(cmd.whiteboardId);
     }
     
-    public function modifyAccess(e:WhiteboardPresenterEvent):void {
+    public function modifyAccess(e:WhiteboardAccessEvent):void {
       sender.modifyAccess(e);
     }
     
@@ -50,19 +51,15 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.toggleGrid();
     }
 
-    public function undoGraphic():void {
-      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
-      if (wbId != null) {
-        
-        sender.undoGraphic(wbId)
+    public function undoGraphic(e:WhiteboardDrawEvent):void {
+      if (e.wbId != null) {
+        sender.undoGraphic(e.wbId)
       }      
     }
 
-    public function clearBoard():void {
-      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
-      if (wbId != null) {
-        LOGGER.debug("Clear shape for wb [{0}]", [wbId]);
-        sender.clearBoard(wbId);
+    public function clearBoard(e:WhiteboardDrawEvent):void {
+      if (e.wbId != null) {
+        sender.clearBoard(e.wbId);
       }
     }
 
@@ -70,6 +67,8 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.sendShape(e);
     }
 
-
+    public function sendCursorPosition(e:WhiteboardCursorEvent):void {
+      sender.sendCursorPosition(e.xPercent, e.yPercent);
+    }
   }
 }
