@@ -66,3 +66,25 @@ $ xvfb-run -a java -jar selenium-server-standalone-3.4.0.jar
 
 Congratulations! You have Selenium server up and running. It is ready to handle your test cases. Now, keep the `xvfb-run` process running and continue in a new terminal session.
 
+## Run the test specs
+
+We use WebdriverIO interface to write the acceptance test cases. In order to execute the existing tests, you need to use `wdio` test runner. By default, it will look into any `*.spec.js` file inside the `/home/firstuser/dev/bigbluebutton/bigbluebutton-html5/tests/webdriverio/specs` directory. You can change the location of the test specs by modifying the `wdio` config file: `wdio.conf.js` (inside the `webdriverio` directory).
+
+Before executing the tests, make sure HTML5 client is up and running.
+
+You can run all of the existing test specs with a single npm command:
+
+```sh
+$ cd /home/firstuser/dev/bigbluebutton/bigbluebutton-html5
+$ npm run script
+```
+
+### Test suites
+
+To make it easier to run a single specific set of tests, we group the specs into test suits. All the suits are defined in `wdio.conf.js`.
+
+To run a single test suite, you need to pass its name to the npm script:
+```sh
+$ npm run test -- --suite login
+```
+
