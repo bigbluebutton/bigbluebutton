@@ -1,5 +1,5 @@
 exports.config = {
-    specs: ['specs/**'],
+    specs: ['tests/webdriverio/specs/**/*.spec.js'],
     capabilities: [
         {
             browserName: 'chrome'
