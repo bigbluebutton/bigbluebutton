@@ -9,6 +9,11 @@ exports.config = {
     framework: 'jasmine',
     reporters: ['dot'],
     screenshotPath: 'screenshots',
-    logLevel: 'verbose'
+    logLevel: 'verbose',
+    suites: {
+        login: [
+            'tests/webdriverio/specs/login.spec.js'
+        ],
+    },
 };
 
