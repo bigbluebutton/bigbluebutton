@@ -20,7 +20,6 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
   val meetingModel = new MeetingModel()
-  val usersModel = new UsersModel()
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
@@ -29,13 +28,14 @@ class RunningMeeting(val props: DefaultProps, val outGW: OutMessageGateway,
   val notesModel = new SharedNotesModel()
   val users = new Users
   val registeredUsers = new RegisteredUsers
-  // val meetingStatux2x = new MeetingStatus2x(props, )
+  val meetingStatux2x = new MeetingStatus2x
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
-  val liveMeeting = new LiveMeeting(props, chatModel, layoutModel, meetingModel, usersModel, users, registeredUsers, pollModel,
+  val liveMeeting = new LiveMeeting(props, meetingStatux2x, chatModel, layoutModel,
+    meetingModel, users, registeredUsers, pollModel,
     wbModel, presModel, breakoutModel, captionModel, notesModel)
 
   val actorRef = context.actorOf(MeetingActor.props(props, eventBus, outGW, liveMeeting), props.meetingProp.intId)

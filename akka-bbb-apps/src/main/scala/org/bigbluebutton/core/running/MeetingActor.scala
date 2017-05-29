@@ -55,9 +55,14 @@ class MeetingActor(val props: DefaultProps,
   eventBus.subscribe(actorMonitor, props.screenshareProps.screenshareConf)
 
   def receive = {
+    //=============================
+    // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
     case msg: RegisterUserReqMsg => handleRegisterUserReqMsg(msg)
+    //======================================
 
+    //=======================================
+    // old messages
     case msg: ActivityResponse => handleActivityResponse(msg)
     case msg: MonitorNumberOfUsers => handleMonitorNumberOfUsers(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
@@ -201,10 +206,22 @@ class MeetingActor(val props: DefaultProps,
       "msgType" -> "direct", "meetingId" -> props.meetingProp.intId, "userId" -> msg.body.userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(ValidateAuthTokenRespMsg.NAME, props.meetingProp.intId)
-    val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, true)
-    val event = ValidateAuthTokenRespMsg(header, body)
-    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-    outGW.send(msgEvent)
+
+    RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId, liveMeeting.registeredUsers) match {
+      case Some(u) =>
+        log.info("ValidateToken success. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
+
+        val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, true)
+        val event = ValidateAuthTokenRespMsg(header, body)
+        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+        outGW.send(msgEvent)
+      case None =>
+        log.info("ValidateToken failed. meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
+        val body = ValidateAuthTokenRespMsgBody(msg.body.userId, msg.body.authToken, false)
+        val event = ValidateAuthTokenRespMsg(header, body)
+        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+        outGW.send(msgEvent)
+    }
   }
 
   def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest): Unit = {

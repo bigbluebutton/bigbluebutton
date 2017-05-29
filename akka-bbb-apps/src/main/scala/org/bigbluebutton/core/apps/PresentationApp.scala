@@ -3,7 +3,8 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.models.Users
-import org.bigbluebutton.core.running.{ MeetingActor }
+import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait PresentationApp {
   this: MeetingActor =>
@@ -73,7 +74,7 @@ trait PresentationApp {
   }
 
   def handleGetPresentationInfo(msg: GetPresentationInfo) {
-    val curPresenter = liveMeeting.getCurrentPresenterInfo()
+    val curPresenter = MeetingStatus2x.getCurrentPresenterInfo(liveMeeting.status)
     val presenter = new CurrentPresenter(curPresenter.presenterID, curPresenter.presenterName, curPresenter.assignedBy)
     val presentations = liveMeeting.presModel.getPresentations
     val presentationInfo = new CurrentPresentationInfo(presenter, presentations)

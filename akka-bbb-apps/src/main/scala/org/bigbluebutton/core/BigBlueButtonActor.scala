@@ -17,6 +17,7 @@ import org.bigbluebutton.common2.messages.MessageBody.MeetingCreatedEvtBody
 import org.bigbluebutton.common2.messages._
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core2.RunningMeetings
+import org.bigbluebutton.core2.message.handlers.CreateMeetingReqMsgHdlr
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
@@ -27,8 +28,9 @@ object BigBlueButtonActor extends SystemConfiguration {
 }
 
 class BigBlueButtonActor(val system: ActorSystem,
-    eventBus: IncomingEventBus, bbbMsgBus: BbbMsgRouterEventBus,
-    outGW: OutMessageGateway) extends Actor with ActorLogging with SystemConfiguration {
+  val eventBus: IncomingEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
+  val outGW: OutMessageGateway) extends Actor
+    with ActorLogging with SystemConfiguration {
 
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
@@ -54,8 +56,10 @@ class BigBlueButtonActor(val system: ActorSystem,
   }
 
   def receive = {
+    // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-    case msg: CreateMeetingReqMsg => handleCreateMeetingReqMsg(msg)
+
+    // 1x messages
     case msg: CreateMeeting => handleCreateMeeting(msg)
     case msg: DestroyMeeting => handleDestroyMeeting(msg)
     case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
@@ -86,6 +90,52 @@ class BigBlueButtonActor(val system: ActorSystem,
     } yield {
       m.actorRef forward (msg)
     }
+  }
+
+  def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
+    log.debug("****** RECEIVED CreateMeetingReqMsg msg {}", msg)
+
+    RunningMeetings.findWithId(meetings, msg.body.props.meetingProp.intId) match {
+      case None => {
+        log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
+
+        val m = RunningMeeting(msg.body.props, outGW, eventBus)
+
+        /** Subscribe to meeting and voice events. **/
+        eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+        eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+        eventBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
+
+        bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+
+        RunningMeetings.add(meetings, m)
+
+        // Send old message format
+        outGW.send(new MeetingCreated(m.props.meetingProp.intId,
+          m.props.meetingProp.extId, m.props.breakoutProps.parentId,
+          m.props.recordProp.record, m.props.meetingProp.name,
+          m.props.voiceProp.voiceConf, m.props.durationProps.duration,
+          m.props.password.moderatorPass, m.props.password.viewerPass,
+          m.props.durationProps.createdTime, m.props.durationProps.createdDate,
+          m.props.meetingProp.isBreakout))
+
+        m.actorRef ! new InitializeMeeting(m.props.meetingProp.intId, m.props.recordProp.record)
+
+        // Send new 2x message
+        val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+        val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)
+        val header = BbbCoreBaseHeader(MeetingCreatedEvtMsg.NAME)
+        val body = MeetingCreatedEvtBody(msg.body.props)
+        val event = MeetingCreatedEvtMsg(header, body)
+        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+        outGW.send(msgEvent)
+      }
+      case Some(m) => {
+        log.info("Meeting already created. meetingID={}", msg.body.props.meetingProp.intId)
+        // do nothing
+      }
+    }
+
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
@@ -233,52 +283,6 @@ class BigBlueButtonActor(val system: ActorSystem,
       }
     }
  */
-  }
-
-  private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    log.debug("****** RECEIVED CreateMeetingReqMsg msg {}", msg)
-
-    RunningMeetings.findWithId(meetings, msg.body.props.meetingProp.intId) match {
-      case None => {
-        log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
-
-        val m = RunningMeeting(msg.body.props, outGW, eventBus)
-
-        /** Subscribe to meeting and voice events. **/
-        eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
-        eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        eventBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
-
-        bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
-
-        RunningMeetings.add(meetings, m)
-
-        // Send old message format
-        outGW.send(new MeetingCreated(m.props.meetingProp.intId,
-          m.props.meetingProp.extId, m.props.breakoutProps.parentId,
-          m.props.recordProp.record, m.props.meetingProp.name,
-          m.props.voiceProp.voiceConf, m.props.durationProps.duration,
-          m.props.password.moderatorPass, m.props.password.viewerPass,
-          m.props.durationProps.createdTime, m.props.durationProps.createdDate,
-          m.props.meetingProp.isBreakout))
-
-        m.actorRef ! new InitializeMeeting(m.props.meetingProp.intId, m.props.recordProp.record)
-
-        // Send new 2x message
-        val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-        val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)
-        val header = BbbCoreBaseHeader(MeetingCreatedEvtMsg.NAME)
-        val body = MeetingCreatedEvtBody(msg.body.props)
-        val event = MeetingCreatedEvtMsg(header, body)
-        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-        outGW.send(msgEvent)
-      }
-      case Some(m) => {
-        log.info("Meeting already created. meetingID={}", msg.body.props.meetingProp.intId)
-        // do nothing
-      }
-    }
-
   }
 
   private def handleCreateMeeting(msg: CreateMeeting): Unit = {

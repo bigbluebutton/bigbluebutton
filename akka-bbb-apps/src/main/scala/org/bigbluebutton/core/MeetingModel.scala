@@ -18,9 +18,9 @@ class MeetingModel {
   private var audioSettingsInited = false
   private var permissionsInited = false
   private var permissions = new Permissions()
-  private var recording = false;
+  private var recording = false
   private var broadcastingRTMP = false
-  private var muted = false;
+  private var muted = false
   private var meetingEnded = false
   private var meetingMuted = false
   private var guestPolicy = GuestPolicy.ASK_MODERATOR
@@ -39,8 +39,8 @@ class MeetingModel {
 
   val startedOn = timeNowInSeconds;
 
-  var breakoutRoomsStartedOn: Long = 0;
-  var breakoutRoomsdurationInMinutes: Int = 0;
+  var breakoutRoomsStartedOn: Long = 0
+  var breakoutRoomsdurationInMinutes: Int = 0
 
   def resetDesktopSharingParams() = {
     broadcastingRTMP = false
@@ -56,7 +56,6 @@ class MeetingModel {
 
   def setDeskShareStarted(b: Boolean) {
     deskShareStarted = b
-    println("---deskshare status changed to:" + b)
   }
 
   def setDesktopShareVideoWidth(videoWidth: Int) {
@@ -88,7 +87,6 @@ class MeetingModel {
   }
 
   def setRTMPBroadcastingUrl(path: String) {
-    println("---RTMP broadcastUrl changed to:" + path)
     rtmpBroadcastingUrl = path
   }
 

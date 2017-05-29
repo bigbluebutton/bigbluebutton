@@ -111,7 +111,7 @@ package org.bigbluebutton.main.model.users
         }   
             
         public function onMessageFromServer2x(messageName:String, msg:String):void {
-            trace("onMessageFromServer - " + msg);
+            trace("onMessageFromServer2x - " + msg);
             var map:Object = JSON.parse(msg);  
             var header: Object = map.header as Object;
             var body: Object = map.body as Object;
@@ -122,8 +122,6 @@ package org.bigbluebutton.main.model.users
         }
 
         public function onMessageFromServer(messageName:String, msg:Object):void {
-            trace("onMessageFromServer2 - " + msg);
-
           if (!authenticated && (messageName == "validateAuthTokenReply")) {
             handleValidateAuthTokenReply(msg)
           } else if (messageName == "validateAuthTokenTimedOut") {

@@ -5,6 +5,7 @@ import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.api.GuestPolicy
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait UsersApp {
   this: MeetingActor =>
@@ -16,7 +17,7 @@ trait UsersApp {
 
     val user = Users.findWithId(msg.userid, liveMeeting.users)
     user foreach { u =>
-      if (liveMeeting.addGlobalAudioConnection(msg.userid)) {
+      if (MeetingStatus2x.addGlobalAudioConnection(liveMeeting.status, msg.userid)) {
         for {
           uvo <- Users.joinedVoiceListenOnly(msg.userid, liveMeeting.users)
         } yield {
@@ -32,7 +33,7 @@ trait UsersApp {
 
     val user = Users.findWithId(msg.userid, liveMeeting.users)
     user foreach { u =>
-      if (liveMeeting.removeGlobalAudioConnection(msg.userid)) {
+      if (MeetingStatus2x.removeGlobalAudioConnection(liveMeeting.status, msg.userid)) {
         if (!u.joinedWeb) {
           for {
             uvo <- Users.userLeft(u.id, liveMeeting.users)
@@ -358,7 +359,9 @@ trait UsersApp {
           outGW.send(new GuestAccessDenied(props.meetingProp.intId, props.recordProp.record, uvo.id))
         } else {
           outGW.send(new UserJoined(props.meetingProp.intId, props.recordProp.record, uvo))
-          outGW.send(new MeetingState(props.meetingProp.intId, props.recordProp.record, uvo.id, liveMeeting.meetingModel.getPermissions(), liveMeeting.meetingModel.isMeetingMuted()))
+          outGW.send(new MeetingState(props.meetingProp.intId, props.recordProp.record, uvo.id,
+            liveMeeting.meetingModel.getPermissions(), liveMeeting.meetingModel.isMeetingMuted()))
+
           if (!waitingForAcceptance) {
             // Become presenter if the only moderator
             if ((Users.numModerators(liveMeeting.users) == 1) || (Users.hasNoPresenter(liveMeeting.users))) {
@@ -455,8 +458,9 @@ trait UsersApp {
 
   def startRecordingVoiceConference() {
     if (Users.numUsersInVoiceConference(liveMeeting.users) == 1 &&
-      props.recordProp.record && !liveMeeting.isVoiceRecording) {
-      liveMeeting.startRecordingVoice()
+      props.recordProp.record &&
+      !MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
+      MeetingStatus2x.startRecordingVoice(liveMeeting.status)
       log.info("Send START RECORDING voice conf. meetingId=" + props.meetingProp.intId + " voice conf=" + props.voiceProp.voiceConf)
       outGW.send(new StartRecordingVoiceConf(props.meetingProp.intId, props.recordProp.record, props.voiceProp.voiceConf))
     }
@@ -519,8 +523,9 @@ trait UsersApp {
 
   def stopRecordingVoiceConference() {
     if (Users.numUsersInVoiceConference(liveMeeting.users) == 0 &&
-      props.recordProp.record && liveMeeting.isVoiceRecording) {
-      liveMeeting.stopRecordingVoice()
+      props.recordProp.record &&
+      MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
+      MeetingStatus2x.stopRecordingVoice(liveMeeting.status)
       log.info("Send STOP RECORDING voice conf. meetingId=" + props.meetingProp.intId + " voice conf=" + props.voiceProp.voiceConf)
       outGW.send(new StopRecordingVoiceConf(props.meetingProp.intId, props.recordProp.record,
         props.voiceProp.voiceConf, liveMeeting.meetingModel.getVoiceRecordingFilename()))
@@ -593,7 +598,7 @@ trait UsersApp {
     } yield {
       removePresenterRightsToCurrentPresenter()
       Users.becomePresenter(newPres.id, liveMeeting.users)
-      liveMeeting.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
+      MeetingStatus2x.setCurrentPresenterInfo(liveMeeting.status, new Presenter(newPresenterID, newPresenterName, assignedBy))
       outGW.send(new PresenterAssigned(props.meetingProp.intId, props.recordProp.record, new Presenter(newPresenterID, newPresenterName, assignedBy)))
       outGW.send(new UserStatusChange(props.meetingProp.intId, props.recordProp.record, newPresenterID, "presenter", true: java.lang.Boolean))
     }

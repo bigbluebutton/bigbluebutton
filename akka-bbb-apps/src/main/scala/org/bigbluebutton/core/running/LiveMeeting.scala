@@ -7,12 +7,13 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users }
 import org.bigbluebutton.core.{ MeetingModel, MeetingProperties }
+import org.bigbluebutton.core2.MeetingStatus2x
 
 class LiveMeeting(val props: DefaultProps,
+  val status: MeetingStatus2x,
   val chatModel: ChatModel,
   val layoutModel: LayoutModel,
   val meetingModel: MeetingModel,
-  private val usersModel: UsersModel,
   val users: Users,
   val registeredUsers: RegisteredUsers,
   val pollModel: PollModel,
@@ -31,34 +32,6 @@ class LiveMeeting(val props: DefaultProps,
     if (Users.numWebUsers(users) > 0) {
       meetingModel.resetLastWebUserLeftOn()
     }
-  }
-
-  def setCurrentPresenterInfo(pres: Presenter) {
-    usersModel.setCurrentPresenterInfo(pres)
-  }
-
-  def getCurrentPresenterInfo(): Presenter = {
-    usersModel.getCurrentPresenterInfo()
-  }
-
-  def addGlobalAudioConnection(userID: String): Boolean = {
-    usersModel.addGlobalAudioConnection(userID)
-  }
-
-  def removeGlobalAudioConnection(userID: String): Boolean = {
-    usersModel.removeGlobalAudioConnection(userID)
-  }
-
-  def startRecordingVoice() {
-    usersModel.startRecordingVoice()
-  }
-
-  def stopRecordingVoice() {
-    usersModel.stopRecordingVoice()
-  }
-
-  def isVoiceRecording: Boolean = {
-    usersModel.isVoiceRecording
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
