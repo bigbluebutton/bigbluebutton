@@ -20,10 +20,11 @@
   $Id: $
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-    verticalAlign="middle" width="100%" >
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 verticalAlign="middle" width="100%" >
 
-    <mx:Script>
+    <fx:Script>
         <![CDATA[
             import mx.core.FlexGlobals;
             import mx.managers.PopUpManager;
@@ -65,7 +66,7 @@
             }
 
         ]]>
-    </mx:Script>
+    </fx:Script>
 
     <mx:Label text="{username}" maxWidth="150" />
     <mx:Spacer width="100%" />

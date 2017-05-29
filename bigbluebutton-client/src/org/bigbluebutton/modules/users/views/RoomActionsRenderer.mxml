@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 verticalScrollPolicy="off"
 		 horizontalScrollPolicy="off"
 		 verticalAlign="middle"
 		 creationComplete="onCreationCompleteHandler(event)">
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 
@@ -54,7 +55,7 @@
 				globalDispatch.dispatchEvent(e);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 
 	<mx:Button id="joinBtn"
 			   width="20"

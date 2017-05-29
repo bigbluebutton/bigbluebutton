@@ -21,8 +21,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
-	       xmlns:mx="http://www.adobe.com/2006/mxml" 
-	       xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
+	       xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
 	       showCloseButton="false"
 	       implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	       creationComplete="onCreationComplete()"
@@ -30,12 +31,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
 	
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{ShortcutEvent.MINIMIZE_CHAT}" method="remoteMinimize" />
-	<mate:Listener type="{ShortcutEvent.MAXIMIZE_CHAT}" method="remoteMaximize" />
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{ShortcutEvent.MINIMIZE_CHAT}" method="remoteMinimize" />
+		<mate:Listener type="{ShortcutEvent.MAXIMIZE_CHAT}" method="remoteMaximize" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -171,6 +174,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 //        txtMsg.enabled = false;
       }
 			
+			/*
 			override protected function hideAllChildren():void {
 				chatView.includeInLayout=false;
 			}
@@ -178,7 +182,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			override protected function showAllChildren():void {
 				chatView.includeInLayout=true;
 			}
-
+			*/
 			public function handleDraggableStatus(value:Boolean):void {
 				this.draggable = value;
 			}
@@ -188,7 +192,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
 	<views:ChatView id="chatView" chatOptions="{chatOptions}" includeInLayout="false"/>
 </CustomMdiWindow>

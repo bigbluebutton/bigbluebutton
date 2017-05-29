@@ -21,7 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*"
-	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:common="org.bigbluebutton.common.*"
 	width="600" height="400"
 	initialize="init()"
@@ -31,10 +32,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	showCloseButton="false"
 	resize="fitToWindow()" >
 
-	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<fx:Declarations>
+		<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.core.UIComponent;
 			
@@ -372,9 +375,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
+	<fx:Declarations>
+		<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
+	</fx:Declarations>
 
 	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
 		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"

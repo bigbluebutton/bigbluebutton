@@ -18,7 +18,8 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx"
+  xmlns:fx="http://ns.adobe.com/mxml/2009"
   xmlns:views="org.bigbluebutton.main.views.*"
   xmlns:maps="org.bigbluebutton.main.maps.*"
   xmlns:userMap="org.bigbluebutton.modules.users.maps.*"
@@ -32,7 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   creationComplete="init()"
   addedToStage="onAddedToStage()">
   
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
 		
@@ -222,19 +223,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ExternalInterface.call("stopFlashFocus");
       }
     ]]>
-  </mx:Script> 
+  </fx:Script> 
   
-  <mx:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="250"/>
-  <mx:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="250"/>
-	
-  <apimap:ExternalApiEventMap/>
-  <coreMap:BbbCoreEventMap/> 
-  <userMap:UsersMainEventMap />
-  <maps:ApplicationEventMap />
+	<fx:Declarations>
+		<mx:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="250"/>
+		<mx:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="250"/>
+		
+		<apimap:ExternalApiEventMap/>
+		<coreMap:BbbCoreEventMap/> 
+		<userMap:UsersMainEventMap />
+		<maps:ApplicationEventMap />
+		
+		<mate:Listener type="{ShortcutEvent.FOCUS_AWAY_EVENT}" method="loseFocusFromApp" />
+	</fx:Declarations>
 
-  
-  <views:MainApplicationShell id="mainShell"/>	
-  
-  <mate:Listener type="{ShortcutEvent.FOCUS_AWAY_EVENT}" method="loseFocusFromApp" />
+	<views:MainApplicationShell id="mainShell"/>	
   
 </mx:Canvas>

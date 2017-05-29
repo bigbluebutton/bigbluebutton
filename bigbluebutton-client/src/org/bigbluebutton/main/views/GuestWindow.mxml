@@ -20,16 +20,19 @@
   $Id: $
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
 	title="{ResourceUtil.getInstance().getString('bbb.guests.title')}" showCloseButton="false" creationComplete="init()"
 	x="0" y="0" layout="vertical" width="320" horizontalAlign="center"
 	xmlns:mate="http://mate.asfusion.com/" >
 
-	<mate:Listener type="{BBBEvent.ACCEPT_ALL_WAITING_GUESTS}" method="acceptAllWaitingGuests" />
-	<mate:Listener type="{BBBEvent.DENY_ALL_WAITING_GUESTS}" method="denyAllWaitingGuests" />
-	<mate:Listener type="{RemoveGuestFromViewEvent.REMOVE_GUEST}" receive="{remove(event.userid)}" />
+	<fx:Declarations>
+		<mate:Listener type="{BBBEvent.ACCEPT_ALL_WAITING_GUESTS}" method="acceptAllWaitingGuests" />
+		<mate:Listener type="{BBBEvent.DENY_ALL_WAITING_GUESTS}" method="denyAllWaitingGuests" />
+		<mate:Listener type="{RemoveGuestFromViewEvent.REMOVE_GUEST}" receive="{remove(event.userid)}" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
@@ -132,7 +135,7 @@
 			}
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 	<mx:Label text="{numberOfGuests > 1? ResourceUtil.getInstance().getString('bbb.guests.message.plural', [String(numberOfGuests)]): ResourceUtil.getInstance().getString('bbb.guests.message.singular', [String(numberOfGuests)])}"/>
 	<mx:HRule width="100%"/>
 	<mx:Button id="allowEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>

@@ -20,15 +20,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
-
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
            implements="org.bigbluebutton.common.IBigBlueButtonModule"
-           creationComplete="onCreationComplete()" xmlns:maps1="org.bigbluebutton.modules.screenshare.maps.*">
+           creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.screenshare.maps.*">
 
-  <maps1:ScreenshareEventMap id="deskshareGlobalEventMap" />
-  <maps1:WebRTCDeskshareEventMap id="webRTCDeskshareEventMap" />
+	<fx:Declarations>
+	  <maps:ScreenshareEventMap id="deskshareGlobalEventMap" />
+	  <maps:WebRTCDeskshareEventMap id="webRTCDeskshareEventMap" />
+	</fx:Declarations>
 
-  <mx:Script>
+  <fx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
@@ -113,6 +115,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         return false;
       }
     ]]>
-  </mx:Script>
+  </fx:Script>
   
 </mx:Module>

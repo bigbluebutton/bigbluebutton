@@ -20,83 +20,84 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx">
 	<!--
 	This is the main event map for the application, think of it as the application controller.
 	-->
-	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}">
-		<!--
-		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
-		-->
-		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
-		<ObjectBuilder generator="{ReconnectionManager}" cache="global" />
-		<ObjectBuilder generator="{StreamMonitor}" cache="global" />
-	</EventHandlers>
-	
-	<EventHandlers type="{LoadConfigCommand.LOAD_CONFIG_COMMAND}" >
-		<MethodInvoker generator="{ModulesProxy}" method="handlLoadConfig" />
-	</EventHandlers>
+	<fx:Declarations>
+		<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}">
+			<!--
+			The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+			-->
+			<ObjectBuilder generator="{ModulesProxy}" cache="global" />
+			<ObjectBuilder generator="{ReconnectionManager}" cache="global" />
+			<ObjectBuilder generator="{StreamMonitor}" cache="global" />
+		</EventHandlers>
 		
-	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
-		<MethodInvoker generator="{ModulesProxy}" method="testRTMP" />
-	</EventHandlers>
-
-	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
-		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.tunnel}" />
-	</EventHandlers>
+		<EventHandlers type="{LoadConfigCommand.LOAD_CONFIG_COMMAND}" >
+			<MethodInvoker generator="{ModulesProxy}" method="handlLoadConfig" />
+		</EventHandlers>
+			
+		<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
+			<MethodInvoker generator="{ModulesProxy}" method="testRTMP" />
+		</EventHandlers>
 	
-	<EventHandlers type="{PortTestEvent.PORT_TEST_FAILED}" >
-		<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event.tunnel}" />
-	</EventHandlers>
-
-  <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
-    <MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
-  </EventHandlers>
-  
-	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
-		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
-	</EventHandlers>
-	
-	<EventHandlers type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" >
-		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
-	</EventHandlers>
+		<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
+			<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.tunnel}" />
+		</EventHandlers>
 		
-	<EventHandlers type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" >
-		<MethodInvoker generator="{ModulesProxy}" method="handleConfigLoaded" />
-		<MethodInvoker generator="{SkinningService}" method="loadSkins"/>
-	</EventHandlers>
-
-	<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
-		<MethodInvoker generator="{ModulesProxy}" method="startLayoutModule" />
-	</EventHandlers>
-
-  <EventHandlers type="{ModuleLoadEvent.LAYOUT_MODULE_STARTED}">
-    <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
-  </EventHandlers>
-
-  <EventHandlers type="{LogoutEvent.MODERATOR_DENIED_ME}" >
-    <MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
-  </EventHandlers>
-
-  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
-    <MethodInvoker generator="{ReconnectionManager}" method="onDisconnected" arguments="{[event.payload.type, event.payload.callback, event.payload.callbackParameters]}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT}">
-    <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptFailed" arguments="{event.payload.type}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT}">
-    <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptSucceeded" arguments="{event.payload.type}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{BBBEvent.CANCEL_RECONNECTION_EVENT}">
-    <MethodInvoker generator="{ReconnectionManager}" method="onCancelReconnection" />
-  </EventHandlers>
-
+		<EventHandlers type="{PortTestEvent.PORT_TEST_FAILED}" >
+			<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event.tunnel}" />
+		</EventHandlers>
+	
+	  <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
+	    <MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
+	  </EventHandlers>
+	  
+		<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
+			<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+		</EventHandlers>
+		
+		<EventHandlers type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" >
+			<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+		</EventHandlers>
+			
+		<EventHandlers type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" >
+			<MethodInvoker generator="{ModulesProxy}" method="handleConfigLoaded" />
+			<MethodInvoker generator="{SkinningService}" method="loadSkins"/>
+		</EventHandlers>
+	
+		<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
+			<MethodInvoker generator="{ModulesProxy}" method="startLayoutModule" />
+		</EventHandlers>
+	
+	  <EventHandlers type="{ModuleLoadEvent.LAYOUT_MODULE_STARTED}">
+	    <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{LogoutEvent.MODERATOR_DENIED_ME}" >
+	    <MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+	    <MethodInvoker generator="{ReconnectionManager}" method="onDisconnected" arguments="{[event.payload.type, event.payload.callback, event.payload.callbackParameters]}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT}">
+	    <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptFailed" arguments="{event.payload.type}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT}">
+	    <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptSucceeded" arguments="{event.payload.type}"/>
+	  </EventHandlers>
+	
+	  <EventHandlers type="{BBBEvent.CANCEL_RECONNECTION_EVENT}">
+	    <MethodInvoker generator="{ReconnectionManager}" method="onCancelReconnection" />
+	  </EventHandlers>
+	</fx:Declarations>
 
   
-	<mx:Script>
+	<fx:Script>
 	<![CDATA[
 		import mx.events.FlexEvent;
 		
@@ -114,12 +115,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 		
 	]]>
-	</mx:Script>
+	</fx:Script>
 	
     <!-- ======================================================================================== -->
     <!-- Services   Note: you can have an external file if you have more services -->
     <!-- _________________________________________________________________________________________ -->
     
-    <mx:HTTPService id="configService" url="conf/config.xml" resultFormat="e4x" />
-	<mx:HTTPService id="joinService" url="conf/joinResultMock.xml" resultFormat="e4x" />	
+	<fx:Declarations>
+	    <mx:HTTPService id="configService" url="conf/config.xml" resultFormat="e4x" />
+		<mx:HTTPService id="joinService" url="conf/joinResultMock.xml" resultFormat="e4x" />	
+	</fx:Declarations>
 </EventMap>

@@ -20,7 +20,8 @@
   $Id: $
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
@@ -28,12 +29,14 @@
 	horizontalGap="8"
 	horizontalAlign="center">
 	
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
-	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+	<fx:Declarations>
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
+		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+	</fx:Declarations>
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
@@ -194,7 +197,7 @@
 				updateButtons();
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 	<mx:Image id="emojiImg" visible="true" width="20" height="20" includeInLayout="{emojiImg.visible}" />
 	<mx:Button id="emojiBtn" visible="false" enabled="false" width="20" height="20" click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
 	

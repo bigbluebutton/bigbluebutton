@@ -2,7 +2,8 @@
 
 <mx:VBox xmlns="flexlib.containers.*"
 		initialize="init()"
-		xmlns:mx="http://www.adobe.com/2006/mxml"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:mate="http://mate.asfusion.com/"
 		xmlns:common="org.bigbluebutton.common.*"
 		creationComplete="onCreationComplete()"
@@ -12,9 +13,11 @@
 		hideEffect="{fadeOut}" showEffect="{fadeIn}"
 		backgroundColor="{bgColor}">
 
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+	<fx:Declarations>
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -113,12 +116,14 @@
 				component.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 
-	<common:TabIndexer id="tabIndexer" tabIndices="{[saveBtn, copyBtn, clearBtn]}"/>
-
-	<mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0"/>
-	<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0"/>
+	<fx:Declarations>
+		<common:TabIndexer id="tabIndexer" tabIndices="{[saveBtn, copyBtn, clearBtn]}"/>
+	
+		<mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0"/>
+		<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0"/>
+	</fx:Declarations>
 
 	<mx:Button id="saveBtn"
 			styleName="chatSaveButtonStyle"

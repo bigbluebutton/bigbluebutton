@@ -20,11 +20,11 @@
   $Id: $
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Module xmlns:mx="library://ns.adobe.com/flex/mx" 
 		   layout="absolute" width="400" height="300"
 		   implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			
 			
@@ -60,5 +60,5 @@
 				
 			}
 		]]>
-	</mx:Script>
+	</fx:Script>
 </mx:Module>

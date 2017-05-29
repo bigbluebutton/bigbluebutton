@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		layout="vertical"
 		showCloseButton="false"
 		xmlns:mate="http://mate.asfusion.com/"
 		minWidth="250"
 		creationComplete="init()"
 		title="{ResourceUtil.getInstance().getString('bbb.settings.title')}" >
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import mx.events.ItemClickEvent;
 			import mx.managers.PopUpManager;
@@ -46,7 +48,7 @@
 			}
 
 		]]>
-	</mx:Script>
+	</fx:Script>
 	<mx:VBox id="addedComponents" height="100%" />
 
 	<mx:ControlBar width="100%" horizontalAlign="center">

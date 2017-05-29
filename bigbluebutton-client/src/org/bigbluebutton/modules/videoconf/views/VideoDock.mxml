@@ -21,7 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*"
-		xmlns:mx="http://www.adobe.com/2006/mxml"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
 		horizontalScrollPolicy="off"
 		verticalScrollPolicy="off"
 		implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -32,14 +33,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		verticalAlign="middle"
 		creationComplete="onCreationComplete()">
 	
-	<mate:Listener type="{ShortcutEvent.FOCUS_VIDEO_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
+	<fx:Declarations>
+		<mate:Listener type="{ShortcutEvent.FOCUS_VIDEO_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
+	</fx:Declarations>
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.core.KeyboardUtil;
 			import org.bigbluebutton.core.Options;
@@ -156,6 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
+			/*
 			override protected function hideAllChildren():void {
 				for each (var child:DisplayObject in getChildren()) {
 					if (child is UIComponent) {
@@ -163,7 +165,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 			}
-			
+			*/
+			/*
 			override protected function showAllChildren():void {
 				for each (var child:DisplayObject in getChildren()) {
 					if (child is UIComponent) {
@@ -171,6 +174,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 				}
 			}
+			*/
 		]]>
-	</mx:Script>
+	</fx:Script>
 </CustomMdiWindow>
